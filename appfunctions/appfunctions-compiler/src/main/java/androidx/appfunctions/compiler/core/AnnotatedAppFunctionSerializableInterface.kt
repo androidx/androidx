@@ -22,7 +22,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 class AnnotatedAppFunctionSerializableInterface(override val classDeclaration: KSClassDeclaration) :
     AppFunctionSerializableType {
 
-    override val isDescribedByKdoc = false
+    override val isDescribedByKDoc = false
 
     override fun validate(
         allowSerializableInterfaceTypes: Boolean
@@ -40,7 +40,7 @@ class AnnotatedAppFunctionSerializableInterface(override val classDeclaration: K
             .map {
                 AppFunctionPropertyDeclaration(
                     it,
-                    isDescribedByKdoc,
+                    isDescribedByKDoc,
                     // Property from interface is always required as there is no existing API
                     // to tell if the interface property has default value or not.
                     isRequired = true,

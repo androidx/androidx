@@ -118,7 +118,8 @@ public class CryptoObjectUtils {
         }
 
         // Key agreement is only supported on API 36.1 and above.
-        if (Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA
+                && Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1) {
             final javax.crypto.KeyAgreement keyAgreement =
                     Api36MinorImpl.getKeyAgreement(cryptoObject);
             if (keyAgreement != null) {
@@ -190,7 +191,8 @@ public class CryptoObjectUtils {
         }
 
         // Key agreement is only supported on API 36.1 and above.
-        if (Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA
+                && Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1) {
             final javax.crypto.KeyAgreement keyAgreement = cryptoObject.getKeyAgreement();
             if (keyAgreement != null) {
                 return Api36MinorImpl.create(keyAgreement);
@@ -308,7 +310,8 @@ public class CryptoObjectUtils {
             return null;
         }
 
-        if (Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA
+                && Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1
                 && cryptoObject.getKeyAgreement() != null) {
             Log.e(TAG, "Key agreement is not supported by FingerprintManager.");
             return null;

@@ -82,7 +82,7 @@ constructor(
 ) {
     /** Constructs a [ComplicationRequest] without setting [isForSafeWatchFace]. */
     @Suppress("NewApi")
-    constructor(
+    public constructor(
         complicationInstanceId: Int,
         complicationType: ComplicationType,
         immediateResponseRequired: Boolean,
@@ -111,7 +111,7 @@ constructor(
      * `com.google.android.wearable.permission.USE_IMMEDIATE_COMPLICATION_UPDATE`.
      */
     @get:JvmName("isImmediateResponseRequired")
-    public val immediateResponseRequired = immediateResponseRequired
+    public val immediateResponseRequired: Boolean = immediateResponseRequired
 
     /**
      * Intended for OEM use, returns whether this request is on behalf of a 'safe' watch face as
@@ -132,7 +132,7 @@ constructor(
     public val isForSafeWatchFace: Int = isForSafeWatchFace
 
     @Deprecated("Use a constructor that specifies responseNeededSoon.")
-    constructor(
+    public constructor(
         complicationInstanceId: Int,
         complicationType: ComplicationType,
     ) : this(complicationInstanceId, complicationType, false)
@@ -323,7 +323,7 @@ public abstract class ComplicationDataSourceService : Service() {
     internal val mainThreadHandler by lazy { createMainThreadHandler() }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open fun createMainThreadHandler() = Handler(Looper.getMainLooper())
+    public open fun createMainThreadHandler(): Handler = Handler(Looper.getMainLooper())
 
     final override fun onBind(intent: Intent): IBinder? =
         when (intent.action) {
@@ -462,7 +462,7 @@ public abstract class ComplicationDataSourceService : Service() {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public abstract class ComplicationDataRequester : Binder() {
-        abstract fun onComplicationRequest(
+        public abstract fun onComplicationRequest(
             request: ComplicationRequest,
             listener: ComplicationRequestListener,
         )
@@ -482,10 +482,8 @@ public abstract class ComplicationDataSourceService : Service() {
         ): Unit =
             aidlMethod(TAG, "onUpdate2") {
                 val isForSafeWatchFace =
-                    bundle?.getInt(
-                        IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE,
-                        TargetWatchFaceSafety.UNKNOWN,
-                    ) ?: TargetWatchFaceSafety.UNKNOWN
+                    bundle?.getInt(BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE, TargetWatchFaceSafety.UNKNOWN)
+                        ?: TargetWatchFaceSafety.UNKNOWN
                 val expectedDataType = fromWireType(type)
                 val iComplicationManager = IComplicationManager.Stub.asInterface(manager)
                 mainThreadHandler.post {
@@ -680,10 +678,8 @@ public abstract class ComplicationDataSourceService : Service() {
         ): WireComplicationData? =
             aidlMethod(TAG, "onSynchronousComplicationRequest2") {
                 val isForSafeWatchFace =
-                    bundle?.getInt(
-                        IComplicationProvider.BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE,
-                        TargetWatchFaceSafety.UNKNOWN,
-                    ) ?: TargetWatchFaceSafety.UNKNOWN
+                    bundle?.getInt(BUNDLE_KEY_IS_SAFE_FOR_WATCHFACE, TargetWatchFaceSafety.UNKNOWN)
+                        ?: TargetWatchFaceSafety.UNKNOWN
                 val expectedDataType = fromWireType(type)
                 val complicationType = fromWireType(type)
                 val latch = CountDownLatch(1)
@@ -917,7 +913,7 @@ public abstract class ComplicationDataSourceService : Service() {
          * to Android U.
          */
         @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-        public const val METADATA_KEY_CONFIG_RESTORE_SUPPORTED =
+        public const val METADATA_KEY_CONFIG_RESTORE_SUPPORTED: String =
             "androidx.watchface.complications.datasource.CONFIG_RESTORE_SUPPORTED"
 
         /**

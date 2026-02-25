@@ -1039,6 +1039,16 @@ private val ListItemShapes.hasRoundedCornerShapes: Boolean
             draggedShape is RoundedCornerShape
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+private val ListItemShapes.hasCornerBasedShapes: Boolean
+    get() =
+        shape is CornerBasedShape &&
+            selectedShape is CornerBasedShape &&
+            pressedShape is CornerBasedShape &&
+            focusedShape is CornerBasedShape &&
+            hoveredShape is CornerBasedShape &&
+            draggedShape is CornerBasedShape
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun ListItemShapes.shapeForInteraction(
     selected: Boolean,
@@ -1060,6 +1070,8 @@ internal fun ListItemShapes.shapeForInteraction(
 
     if (hasRoundedCornerShapes) {
         return key(this) { rememberAnimatedShape(shape as RoundedCornerShape, animationSpec) }
+    } else if (hasCornerBasedShapes) {
+        return key(this) { rememberAnimatedShape(shape as CornerBasedShape, animationSpec) }
     }
 
     return shape

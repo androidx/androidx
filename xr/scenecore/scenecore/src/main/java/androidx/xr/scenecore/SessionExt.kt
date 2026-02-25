@@ -76,10 +76,18 @@ internal fun removeSceneFromCache(scene: Scene) {
 }
 
 internal val Session.sceneRuntime: SceneRuntime
-    get() = runtimes.filterIsInstance<SceneRuntime>().single()
+    get() =
+        runtimes.filterIsInstance<SceneRuntime>().firstOrNull()
+            ?: throw IllegalStateException(
+                "No scene runtime found. Did you create the Session with a non-Activity context?"
+            )
 
 internal val Session.renderingRuntime: RenderingRuntime
-    get() = runtimes.filterIsInstance<RenderingRuntime>().single()
+    get() =
+        runtimes.filterIsInstance<RenderingRuntime>().firstOrNull()
+            ?: throw IllegalStateException(
+                "No rendering runtime found. Did you create the Session with a non-Activity context?"
+            )
 
 internal val Session.perceptionRuntime: PerceptionRuntime
     get() = runtimes.filterIsInstance<PerceptionRuntime>().single()

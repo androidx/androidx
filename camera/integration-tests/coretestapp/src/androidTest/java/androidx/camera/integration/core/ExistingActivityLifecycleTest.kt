@@ -21,10 +21,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.CoreAppTestUtil
@@ -60,10 +58,7 @@ private const val ROTATE_TIMEOUT_MS = 2000L
 // Test application lifecycle when using CameraX.
 @RunWith(Parameterized::class)
 @LargeTest
-class ExistingActivityLifecycleTest(
-    private val implName: String,
-    private val cameraConfig: String,
-) {
+class ExistingActivityLifecycleTest(private val implName: String) {
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     @get:Rule
@@ -81,15 +76,8 @@ class ExistingActivityLifecycleTest(
 
     @get:Rule val repeatRule = RepeatRule()
 
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
-
     private val launchIntent =
-        Intent(ApplicationProvider.getApplicationContext(), CameraXActivity::class.java).apply {
-            putExtra(CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION, cameraConfig)
-            putExtra(CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION_NO_HISTORY, true)
-        }
+        Intent(ApplicationProvider.getApplicationContext(), CameraXActivity::class.java)
 
     @Before
     fun setup() {
@@ -375,16 +363,6 @@ class ExistingActivityLifecycleTest(
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() =
-            listOf(
-                arrayOf(
-                    Camera2Config::class.simpleName,
-                    CameraXViewModel.CAMERA2_IMPLEMENTATION_OPTION,
-                ),
-                arrayOf(
-                    CameraPipeConfig::class.simpleName,
-                    CameraXViewModel.CAMERA_PIPE_IMPLEMENTATION_OPTION,
-                ),
-            )
+        fun data() = listOf(arrayOf(Camera2Config::class.simpleName))
     }
 }

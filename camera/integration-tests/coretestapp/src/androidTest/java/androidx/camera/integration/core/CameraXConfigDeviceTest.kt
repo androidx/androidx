@@ -24,7 +24,6 @@ import android.hardware.camera2.CameraCharacteristics.CONTROL_MAX_REGIONS_AWB
 import android.os.Handler
 import android.os.HandlerThread
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraIdentifier
@@ -49,7 +48,6 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.StreamSpecsCalculator
 import androidx.camera.core.internal.compat.quirk.ImageCaptureRotationOptionQuirk
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
@@ -88,10 +86,6 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class CameraXConfigDeviceTest(private val implName: String, private val baseConfig: CameraXConfig) {
     @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName.contains(CameraPipeConfig::class.simpleName!!))
-
-    @get:Rule
     val cameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             CameraUtil.PreTestCameraIdList(baseConfig)
@@ -105,7 +99,6 @@ class CameraXConfigDeviceTest(private val implName: String, private val baseConf
         fun data() =
             mutableListOf<Array<Any?>>().apply {
                 add(arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()))
-                add(arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig()))
             }
     }
 
@@ -410,8 +403,7 @@ class CameraXConfigDeviceTest(private val implName: String, private val baseConf
         // TODO(b/439976984): Enable this test for CameraPipe when the issue is resolved.
         assumeFalse(
             "CameraPipe fails with directExecutor (b/439976984)",
-            implName == CameraPipeConfig::class.simpleName ||
-                implName == Camera2Config::class.simpleName,
+            implName == Camera2Config::class.simpleName,
         )
 
         // Arrange

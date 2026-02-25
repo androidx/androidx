@@ -26,6 +26,12 @@ import static androidx.compose.remote.core.operations.PathExpression.LINEAR;
 import static androidx.compose.remote.core.operations.PathExpression.LOOP;
 import static androidx.compose.remote.core.operations.PathExpression.MONOTONIC;
 import static androidx.compose.remote.core.operations.PathExpression.POLAR;
+import static androidx.compose.remote.core.operations.Skip.SKIP_IF_API_EQUAL_TO;
+import static androidx.compose.remote.core.operations.Skip.SKIP_IF_API_GREATER_THAN;
+import static androidx.compose.remote.core.operations.Skip.SKIP_IF_API_LESS_THAN;
+import static androidx.compose.remote.core.operations.Skip.SKIP_IF_API_NOT_EQUAL_TO;
+import static androidx.compose.remote.core.operations.Skip.SKIP_IF_PROFILE_EXCLUDES;
+import static androidx.compose.remote.core.operations.Skip.SKIP_IF_PROFILE_INCLUDES;
 
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.PaintOperation;
@@ -222,10 +228,24 @@ public class Rc {
 
         /** cubic Easing function */
         public static final float CUBIC = AnimatedFloatExpression.CUBIC;
+
         /** monotonic spline that loops function */
         public static final float A_SPLINE_LOOP = AnimatedFloatExpression.A_SPLINE_LOOP;
+
         /** Change the sign of value x -> -x */
         public static final float CHANGE_SIGN = AnimatedFloatExpression.CHANGE_SIGN;
+
+        /** sum all values to index */
+        public static final float A_SUM_UNTIL = AnimatedFloatExpression.A_SUM_TILL;
+
+        /** A_SUM operator */
+        public static final float A_SUM_XY = AnimatedFloatExpression.A_SUM_XY;
+
+        /** A_SUM operator */
+        public static final float A_SUM_SQR = AnimatedFloatExpression.A_SUM_SQR;
+
+        /** A_SUM operator */
+        public static final float A_LERP = AnimatedFloatExpression.A_LERP;
     }
 
     /** Used in IntegerExpressions */
@@ -568,13 +588,13 @@ public class Rc {
         public static final int STOP_ABSOLUTE_POS = TouchExpression.STOP_ABSOLUTE_POS;
         /** Stop only at the start or end */
         public static final int STOP_ENDS = TouchExpression.STOP_ENDS;
-        /** Stop at a series of notch positions expressed as a percent of the range*/
+        /** Stop at a series of notch positions expressed as a percent of the range */
         public static final int STOP_NOTCHES_PERCENTS = TouchExpression.STOP_NOTCHES_PERCENTS;
         /** Stop by decelerating */
         public static final int STOP_GENTLY = TouchExpression.STOP_GENTLY;
         /** Stop at a collection of point described in absolute cordnates */
         public static final int STOP_NOTCHES_ABSOLUTE = TouchExpression.STOP_NOTCHES_ABSOLUTE;
-        /** Stop at a series of evenly spaced notches  */
+        /** Stop at a series of evenly spaced notches */
         public static final int STOP_NOTCHES_EVEN = TouchExpression.STOP_NOTCHES_EVEN;
         /** Stop at evenly spaced single step notches */
         public static final int STOP_NOTCHES_SINGLE_EVEN =
@@ -689,6 +709,9 @@ public class Rc {
 
         /** (value - doc_load_time) * 1E-3 */
         public static final short TIME_FROM_LOAD_SEC = TimeAttribute.TIME_FROM_LOAD_SEC;
+
+        /** The day of the year */
+        public static final short TIME_DAY_OF_YEAR = TimeAttribute.TIME_DAY_OF_YEAR;
     }
 
     /** Constants for use in ConditionalOperations */
@@ -845,6 +868,7 @@ public class Rc {
         /** Legacy compatibility mode grouping & separator ignored */
         public static final int LEGACY_MODE =
                 androidx.compose.remote.core.operations.TextFromFloat.LEGACY_MODE;
+
     }
 
     /** Used in Texture */
@@ -910,7 +934,7 @@ public class Rc {
     }
 
     /**
-     *  defining standard system color identifiers.
+     * defining standard system color identifiers.
      */
     public static final class AndroidColors {
         /** The android color group name. */
@@ -1503,6 +1527,26 @@ public class Rc {
 
         /** The tab indicator text color identifier. */
         public static final short TAB_INDICATOR_TEXT = 195;
+    }
+
+    public static final class Skip {
+        /** skip if the API level is less than the specified value */
+        public static final short IF_API_LESS_THAN = SKIP_IF_API_LESS_THAN;
+
+        /** skip if the API level is greater than or equal to the specified value */
+        public static final short IF_API_GREATER_THAN = SKIP_IF_API_GREATER_THAN;
+
+        /** skip if the API level is equal to the specified value */
+        public static final short IF_API_EQUAL_TO = SKIP_IF_API_EQUAL_TO;
+
+        /** skip if the API level is not equal to the specified value */
+        public static final short IF_API_NOT_EQUAL_TO = SKIP_IF_API_NOT_EQUAL_TO;
+
+        /** skip if the profile includes the specified value */
+        public static final short IF_PROFILE_INCLUDES = SKIP_IF_PROFILE_INCLUDES;
+
+        /** skip if the profile excludes the specified value */
+        public static final short IF_PROFILE_EXCLUDES = SKIP_IF_PROFILE_EXCLUDES;
     }
 
 }

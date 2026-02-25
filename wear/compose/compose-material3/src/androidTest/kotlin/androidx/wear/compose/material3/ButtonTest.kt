@@ -830,8 +830,8 @@ class ButtonTest {
 
         rule
             .onRoot()
-            .assertWidthIsEqualTo(ButtonDefaults.IconOnlyCompactButtonWidth)
-            .assertHeightIsEqualTo(ButtonDefaults.CompactButtonHeight)
+            .assertWidthIsEqualTo(CompactButtonDefaults.IconOnlyWidth)
+            .assertHeightIsEqualTo(CompactButtonDefaults.Height)
     }
 
     @Test
@@ -844,7 +844,7 @@ class ButtonTest {
             )
         }
 
-        rule.onRoot().assertHeightIsEqualTo(ButtonDefaults.CompactButtonHeight)
+        rule.onRoot().assertHeightIsEqualTo(CompactButtonDefaults.Height)
     }
 
     @Test
@@ -855,8 +855,8 @@ class ButtonTest {
 
         rule
             .onRoot()
-            .assertWidthIsEqualTo(ButtonDefaults.IconOnlyCompactButtonWidth)
-            .assertHeightIsEqualTo(ButtonDefaults.CompactButtonHeight)
+            .assertWidthIsEqualTo(CompactButtonDefaults.IconOnlyWidth)
+            .assertHeightIsEqualTo(CompactButtonDefaults.Height)
     }
 
     @Test
@@ -892,7 +892,7 @@ class ButtonTest {
             .onNodeWithContentDescription(iconTag, useUnmergedTree = true)
             .assertTopPositionInRootIsEqualTo(
                 (itemBounds.height - iconBounds.height) / 2 +
-                    ButtonDefaults.CompactButtonTapTargetPadding.calculateTopPadding()
+                    CompactButtonDefaults.TapTargetPadding.calculateTopPadding()
             )
     }
 
@@ -914,7 +914,7 @@ class ButtonTest {
             .onNodeWithContentDescription(iconTag, useUnmergedTree = true)
             .assertTopPositionInRootIsEqualTo(
                 (itemBounds.height - iconBounds.height) / 2 +
-                    ButtonDefaults.CompactButtonTapTargetPadding.calculateTopPadding()
+                    CompactButtonDefaults.TapTargetPadding.calculateTopPadding()
             )
     }
 

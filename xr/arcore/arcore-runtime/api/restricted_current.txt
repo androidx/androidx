@@ -62,6 +62,10 @@ package androidx.xr.arcore.runtime {
     ctor @BytecodeOnly public AnchorUnsupportedLocationException(Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface Anchorable extends androidx.xr.arcore.runtime.Trackable {
+    method public androidx.xr.arcore.runtime.Anchor createAnchor(androidx.xr.runtime.math.Pose pose);
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface ArDevice {
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getDevicePose();
     property public abstract androidx.xr.runtime.math.Pose devicePose;
@@ -98,9 +102,8 @@ package androidx.xr.arcore.runtime {
     property public abstract long nativePointer;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface Eye {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface Eye extends androidx.xr.arcore.runtime.Trackable {
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();
-    method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
     method @InaccessibleFromKotlin public boolean isOpen();
     property public abstract boolean isOpen;
     property public abstract androidx.xr.runtime.math.Pose pose;
@@ -121,7 +124,7 @@ package androidx.xr.arcore.runtime {
     property public androidx.xr.arcore.runtime.EyeStatus SHUT;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface Face extends androidx.xr.arcore.runtime.Trackable {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface Face extends androidx.xr.arcore.runtime.Anchorable {
     method @InaccessibleFromKotlin public float[]? getBlendShapeValues();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose? getCenterPose();
     method @InaccessibleFromKotlin public float[]? getConfidenceValues();
@@ -203,10 +206,9 @@ package androidx.xr.arcore.runtime {
     ctor @BytecodeOnly public GeospatialPoseNotTrackingException(Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface Hand {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface Hand extends androidx.xr.arcore.runtime.Trackable {
     method @InaccessibleFromKotlin public default java.util.Map<androidx.xr.arcore.runtime.HandJointType,androidx.xr.runtime.math.Pose> getHandJoints();
     method @InaccessibleFromKotlin public java.nio.FloatBuffer getHandJointsBuffer();
-    method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
     method public static java.util.Map<androidx.xr.arcore.runtime.HandJointType,androidx.xr.runtime.math.Pose> parseHandJoint(androidx.xr.runtime.TrackingState trackingState, java.nio.FloatBuffer handJointsBuffer);
     property public default java.util.Map<androidx.xr.arcore.runtime.HandJointType,androidx.xr.runtime.math.Pose> handJoints;
     property public abstract java.nio.FloatBuffer handJointsBuffer;
@@ -313,7 +315,7 @@ package androidx.xr.arcore.runtime {
     property public abstract androidx.xr.arcore.runtime.PerceptionManager perceptionManager;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface Plane extends androidx.xr.arcore.runtime.Trackable {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface Plane extends androidx.xr.arcore.runtime.Anchorable {
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getCenterPose();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.FloatSize2d getExtents();
     method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.Plane.Label getLabel();
@@ -366,7 +368,6 @@ package androidx.xr.arcore.runtime {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface Trackable {
-    method public androidx.xr.arcore.runtime.Anchor createAnchor(androidx.xr.runtime.math.Pose pose);
     method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
     property public abstract androidx.xr.runtime.TrackingState trackingState;
   }

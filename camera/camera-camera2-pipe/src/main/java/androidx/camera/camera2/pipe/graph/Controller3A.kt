@@ -39,17 +39,18 @@ import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.Result3A.Status
+import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.core.Log.debug
-import androidx.camera.camera2.pipe.core.Token
+import javax.inject.Inject
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 
 /** This class implements the 3A methods of [CameraGraphSessionImpl]. */
-internal class Controller3A(
+@CameraGraphScope
+internal class Controller3A
+@Inject
+constructor(
     private val graphProcessor: GraphProcessor,
     private val metadata: CameraMetadata,
     private val graphState3A: GraphState3A,
@@ -307,7 +308,7 @@ internal class Controller3A(
         }
 
         // Update the 3A state of camera graph with the given metering regions. If metering regions
-        // are given as null then they are ignored and the current metering regions continue to be
+        // are given as null, then they are ignored and the current metering regions continue to be
         // applied in subsequent requests to the camera device.
         graphState3A.update(aeRegions = aeRegions, afRegions = afRegions, awbRegions = awbRegions)
         graphProcessor.update3AParameters(graphState3A.toCaptureRequestParametersMap())
@@ -423,7 +424,12 @@ internal class Controller3A(
         // a single request with TRIGGER = TRIGGER_CANCEL so that af can start a fresh scan.
         if (afSanitized == true) {
             debug { "unlock3A - sending a request to unlock af first." }
-            graphProcessor.trigger(parameterForAfTriggerCancel)
+            if (!graphProcessor.trigger(parameterForAfTriggerCancel)) {
+                debug { "unlock3A - failed to send a request to unlock af first." }
+                return deferredResult3ASubmitFailed
+            }
+            // Update 3A state to indicate that the autofocus is explicitly unlocked.
+            graphState3A.update(afLock = false)
         }
 
         // As needed unlock ae, awb and wait for ae, af and awb to converge.
@@ -679,6 +685,8 @@ internal class Controller3A(
         if (!graphProcessor.trigger(parameterForAfTriggerStart)) {
             return deferredResult3ASubmitFailed
         }
+        // Update the 3A state of graph to indicate that autofocus is locked.
+        graphState3A.update(afLock = true)
 
         lastAeMode?.let {
             graphState3A.update(aeMode = it)
@@ -821,53 +829,35 @@ internal class Controller3A(
         return Result3AStateListenerImpl(resultModesMap.toMap())
     }
 
-    /*
-     * Resets the state of 3A to the given State3A. It uses the given CoroutineScope any suspending
-     * or blocking operations that might be need to perform the reset. The token is released
-     * completion of the reset, and irrespective of whether the reset operation failed for some
-     * reason.
-     */
-    fun reset3A(scope: CoroutineScope, token: Token, initialState3A: State3A) {
+    /** Resets the state of 3A to the given State3A. */
+    fun reset3A(initialState3A: State3A) {
         val currentState3A = state3ASnapshot()
-
         if (currentState3A == initialState3A) {
-            token.release()
             return
         }
 
         graphState3A.current = initialState3A
+        // Updating the repeating parameters for current 3A state should restore the modes, regions
+        // and locks for ae and awb. There is a potential optimization to skip the repeating request
+        // if only autofocus state has changed.
         graphProcessor.update3AParameters(graphState3A.toCaptureRequestParametersMap())
 
-        val wasAeLocked = initialState3A.wasAeLocked(currentState3A)
-        val wasAwbLocked = initialState3A.wasAwbLocked(currentState3A)
-
-        if (wasAeLocked || wasAwbLocked) {
-            unlock3A(ae = wasAeLocked, awb = wasAwbLocked)
+        if (initialState3A.wasAfLocked(currentState3A)) {
+            unlock3A(af = true)
         }
 
-        val wasAeUnlocked = initialState3A.wasAeUnlocked(currentState3A)
-        val wasAwbUnlocked = initialState3A.wasAwbUnlocked(currentState3A)
-        if (!(wasAeUnlocked || wasAwbUnlocked)) {
-            token.release()
-            return
+        // For autofocus, we need to choose one of the behaviors like starting a new scan, or
+        // waiting for a previous scan, or sending the trigger for locking it right away. We are
+        // preferring to send the trigger right away, assuming that the autofocus was canceled
+        // previously so new scan may have likely followed. This can also save some latency given
+        // we are resetting the 3a state here, likely on a session close, and high latency
+        // operations may interfere with camera usage.
+        if (initialState3A.wasAfUnlocked(currentState3A)) {
+            // It's a simple step to lock AF right away. We can use the lock3A or lock3ANow methods,
+            // but we prefer to just inline the code to send the trigger to lock AF, to reduce any
+            // possible overhead.
+            graphProcessor.trigger(parameterForAfTriggerStart)
         }
-
-        // We didn't use to track the lock for af since af lock is achieved by setting 'af trigger =
-        // start' in a request and then omitting the af trigger field in the subsequent requests
-        // doesn't disturb the af state. For ae and awb, the lock type is boolean and should be
-        // explicitly set to 'true' in the subsequent requests once we have locked ae/awb and want
-        // them to stay locked. Now that we want to provide an ability to reset3A, we need to keep
-        // the af lock state information and use it to restore af.
-        //
-        // TODO: b/435774981 - handle the reset of auto-focus.
-        scope
-            .launch(start = CoroutineStart.UNDISPATCHED) {
-                lock3A(
-                    aeLockBehavior = if (wasAeUnlocked) Lock3ABehavior.IMMEDIATE else null,
-                    awbLockBehavior = if (wasAwbUnlocked) Lock3ABehavior.IMMEDIATE else null,
-                )
-            }
-            .invokeOnCompletion { token.release() }
     }
 }
 

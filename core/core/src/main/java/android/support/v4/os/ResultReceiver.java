@@ -74,6 +74,11 @@ public class ResultReceiver implements Parcelable {
                 onReceiveResult(resultCode, resultData);
             }
         }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
     }
 
     /**

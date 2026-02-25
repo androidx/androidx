@@ -18,15 +18,13 @@ package androidx.compose.foundation.text
 
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.isAltPressed
-import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 
 internal actual val platformDefaultKeyMapping =
     object : KeyMapping {
-        override fun map(event: KeyEvent): KeyCommand? =
-            when {
-                event.isShiftPressed && event.isAltPressed ->
+        override fun map(event: KeyEvent): KeyCommand? {
+            return when (event.modifiers) {
+                KeyModifiers.AltShift ->
                     when (event.key) {
                         Key.DirectionLeft -> KeyCommand.SELECT_LINE_LEFT
                         Key.DirectionRight -> KeyCommand.SELECT_LINE_RIGHT
@@ -34,7 +32,7 @@ internal actual val platformDefaultKeyMapping =
                         Key.DirectionDown -> KeyCommand.SELECT_END
                         else -> null
                     }
-                event.isAltPressed ->
+                KeyModifiers.Alt ->
                     when (event.key) {
                         Key.DirectionLeft -> KeyCommand.LINE_LEFT
                         Key.DirectionRight -> KeyCommand.LINE_RIGHT
@@ -44,4 +42,5 @@ internal actual val platformDefaultKeyMapping =
                     }
                 else -> null
             } ?: defaultKeyMapping.map(event)
+        }
     }

@@ -15,6 +15,7 @@
  */
 
 @file:JvmName("KClassUtil")
+@file:JvmMultifileClass
 @file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 
 package androidx.room3.util

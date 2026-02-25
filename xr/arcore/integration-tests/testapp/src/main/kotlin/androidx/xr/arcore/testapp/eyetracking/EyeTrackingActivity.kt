@@ -55,6 +55,8 @@ import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.size
 import androidx.xr.compose.unit.DpVolumeSize
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.DeviceTrackingMode
+import androidx.xr.runtime.EyeTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
 import kotlinx.coroutines.launch
@@ -66,8 +68,8 @@ class EyeTrackingActivity : ComponentActivity() {
     private lateinit var sessionHelper: SessionLifecycleHelper
     private var config: Config =
         Config(
-            deviceTracking = Config.DeviceTrackingMode.LAST_KNOWN,
-            eyeTracking = Config.EyeTrackingMode.COARSE_TRACKING,
+            deviceTracking = DeviceTrackingMode.LAST_KNOWN,
+            eyeTracking = EyeTrackingMode.COARSE_TRACKING,
         )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -118,16 +120,15 @@ class EyeTrackingActivity : ComponentActivity() {
         val newMode =
             when (currentMode) {
                 // cycle through the 3 different eye tracking config modes
-                Config.EyeTrackingMode.COARSE_TRACKING -> Config.EyeTrackingMode.FINE_TRACKING
-                Config.EyeTrackingMode.FINE_TRACKING -> Config.EyeTrackingMode.COARSE_TRACKING
+                EyeTrackingMode.COARSE_TRACKING -> EyeTrackingMode.FINE_TRACKING
+                EyeTrackingMode.FINE_TRACKING -> EyeTrackingMode.COARSE_TRACKING
                 else -> {
                     throw IllegalStateException("Invalid Eye Tracking mode")
                 }
             }
 
         // reconfigure the session
-        config =
-            Config(deviceTracking = Config.DeviceTrackingMode.LAST_KNOWN, eyeTracking = newMode)
+        config = Config(deviceTracking = DeviceTrackingMode.LAST_KNOWN, eyeTracking = newMode)
         sessionHelper.tryUpdateConfig(config)
     }
 
@@ -204,11 +205,11 @@ class EyeTrackingActivity : ComponentActivity() {
 
     private fun getEyePose(eye: Eye?): Pose? = eye?.state?.value?.pose
 
-    private fun Config.EyeTrackingMode.asString(): String {
+    private fun EyeTrackingMode.asString(): String {
         return when (this) {
-            Config.EyeTrackingMode.COARSE_TRACKING -> "Coarse Tracking"
-            Config.EyeTrackingMode.FINE_TRACKING -> "Fine Tracking"
-            Config.EyeTrackingMode.DISABLED -> "Disabled"
+            EyeTrackingMode.COARSE_TRACKING -> "Coarse Tracking"
+            EyeTrackingMode.FINE_TRACKING -> "Fine Tracking"
+            EyeTrackingMode.DISABLED -> "Disabled"
             else -> "Unknown"
         }
     }

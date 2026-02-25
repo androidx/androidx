@@ -90,7 +90,7 @@ public abstract class SliceTrack(
     internal inline fun beginCoroutineSection(
         category: String,
         name: String,
-        token: PlatformThreadContextElement<*>,
+        token: PlatformThreadContextElement<*, PerfettoTracer>,
     ): EventMetadataCloseable {
         eventMetadataCloseable.metadata = EmptyEventMetadata
         eventMetadataCloseable.closeable = EmptyCloseable

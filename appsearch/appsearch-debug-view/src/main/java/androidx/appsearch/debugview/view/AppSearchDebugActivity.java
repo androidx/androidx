@@ -133,6 +133,7 @@ public class AppSearchDebugActivity extends FragmentActivity {
                 .commit();
     }
 
+    @SuppressWarnings("FutureReturnValueIgnored") // b/475314812
     @Override
     protected void onStop() {
         Futures.whenAllSucceed(mDebugAppSearchManager).call(() -> {

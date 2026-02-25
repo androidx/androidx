@@ -116,7 +116,7 @@ public interface CanvasStrokeRenderer {
      * blurry or aliased.
      */
     @ExperimentalInkCustomBrushApi
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public fun draw(
         canvas: Canvas,
         stroke: Stroke,
@@ -158,7 +158,7 @@ public interface CanvasStrokeRenderer {
      * appear blurry or aliased.
      */
     @ExperimentalInkCustomBrushApi
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public fun draw(
         canvas: Canvas,
         stroke: Stroke,
@@ -196,7 +196,7 @@ public interface CanvasStrokeRenderer {
      * blurry or aliased.
      */
     @ExperimentalInkCustomBrushApi
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public fun draw(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
@@ -234,7 +234,7 @@ public interface CanvasStrokeRenderer {
      * appear blurry or aliased.
      */
     @ExperimentalInkCustomBrushApi
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public fun draw(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
@@ -255,6 +255,7 @@ public interface CanvasStrokeRenderer {
          *   for drawing textured strokes.
          */
         @JvmStatic
+        @JvmOverloads
         public fun create(
             textureStore: TextureBitmapStore = TextureBitmapStore { null }
         ): CanvasStrokeRenderer {

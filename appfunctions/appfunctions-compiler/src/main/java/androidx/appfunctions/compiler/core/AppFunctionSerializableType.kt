@@ -64,13 +64,13 @@ interface AppFunctionSerializableType {
     /** The docstring of the annotated class. */
     val docString: String
         get() =
-            if (isDescribedByKdoc) {
+            if (isDescribedByKDoc) {
                 appFunctionSerializableTypeClassDeclaration.docString
             } else {
                 ""
             }
 
-    val isDescribedByKdoc: Boolean
+    val isDescribedByKDoc: Boolean
 
     fun getDescription(sharedDataTypeDescriptionMap: Map<String, String> = mapOf()): String =
         docString.ifEmpty { sharedDataTypeDescriptionMap[jvmQualifiedName] ?: "" }
@@ -184,7 +184,7 @@ interface AppFunctionSerializableType {
             allProperties[valueParameter.name?.asString()]?.let {
                 AppFunctionPropertyDeclaration(
                     property = it,
-                    isDescribedByKdoc = isDescribedByKdoc,
+                    isDescribedByKDoc = isDescribedByKDoc,
                     isRequired = !valueParameter.hasDefault,
                     sharedDataTypeDescriptionMap = sharedDataTypeDescriptionMap,
                 )

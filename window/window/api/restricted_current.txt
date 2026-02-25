@@ -94,7 +94,7 @@ package androidx.window.area {
 
   public abstract class WindowAreaController {
     method public abstract void addWindowAreasListener(java.util.concurrent.Executor executor, androidx.core.util.Consumer<java.util.List<androidx.window.area.WindowArea>> listener);
-    method @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public abstract androidx.window.area.WindowAreaSessionPresenter getActivePresentationSession(androidx.window.area.WindowAreaToken windowAreaToken);
+    method @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public abstract androidx.window.area.WindowAreaSessionPresenter? getActivePresentationSession(androidx.window.area.WindowAreaToken windowAreaToken);
     method @InaccessibleFromKotlin public static final androidx.window.area.WindowAreaController getOrCreate();
     method @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public abstract void presentContentOnWindowArea(androidx.window.area.WindowAreaToken windowAreaToken, android.app.Activity activity, java.util.concurrent.Executor executor, androidx.window.area.WindowAreaPresentationSessionCallback windowAreaPresentationSessionCallback);
     method public abstract void removeWindowAreasListener(androidx.core.util.Consumer<java.util.List<androidx.window.area.WindowArea>> listener);

@@ -19,7 +19,7 @@ package androidx.xr.projected.platform;
 import android.os.Bundle;
 import androidx.xr.projected.platform.ProjectedDeviceState;
 
-@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX)")
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)")
 interface IProjectedDeviceStateListener {
   void onProjectedDeviceStateChanged(in ProjectedDeviceState deviceState, in Bundle data);
 }

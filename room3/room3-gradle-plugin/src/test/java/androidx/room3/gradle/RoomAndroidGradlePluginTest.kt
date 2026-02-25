@@ -60,20 +60,20 @@ class RoomAndroidGradlePluginTest {
             when (backend) {
                 ProcessingBackend.JAVAC ->
                     """
-                |    id('kotlin-android')
-                """
+                    |    id('kotlin-android')
+                    """
                         .trimMargin()
                 ProcessingBackend.KAPT ->
                     """
-                |    id('kotlin-android')
-                |    id('kotlin-kapt')
-                """
+                    |    id('kotlin-android')
+                    |    id('kotlin-kapt')
+                    """
                         .trimMargin()
                 ProcessingBackend.KSP ->
                     """
-                |    id('kotlin-android')
-                |    id('com.google.devtools.ksp')
-                """
+                    |    id('kotlin-android')
+                    |    id('com.google.devtools.ksp')
+                    """
                         .trimMargin()
             }
 
@@ -93,14 +93,14 @@ class RoomAndroidGradlePluginTest {
         val kotlinJvmTargetBlock =
             if (backend.isForKotlin) {
                 """
-            tasks.withType(
-                org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-            ).configureEach {
-                kotlinOptions {
-                    jvmTarget = "11"
+                tasks.withType(
+                    org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+                ).configureEach {
+                    kotlinOptions {
+                        jvmTarget = "11"
+                    }
                 }
-            }
-            """
+                """
                     .trimIndent()
             } else {
                 ""
@@ -213,10 +213,10 @@ class RoomAndroidGradlePluginTest {
             .resolve("src/main/java/room/testapp/NewUtil.java")
             .writeText(
                 """
-            package room.testapp;
-            public class NewUtil {
-            }
-            """
+                package room.testapp;
+                public class NewUtil {
+                }
+                """
                     .trimIndent()
             )
 
@@ -274,18 +274,18 @@ class RoomAndroidGradlePluginTest {
         File(projectSetup.rootDir, "build.gradle")
             .appendText(
                 """
-            android {
-                flavorDimensions "mode"
-                productFlavors {
-                    flavorOne {
-                        dimension "mode"
-                    }
-                    flavorTwo {
-                        dimension "mode"
+                android {
+                    flavorDimensions "mode"
+                    productFlavors {
+                        flavorOne {
+                            dimension "mode"
+                        }
+                        flavorTwo {
+                            dimension "mode"
+                        }
                     }
                 }
-            }
-            """
+                """
                     .trimIndent()
             )
 
@@ -326,18 +326,18 @@ class RoomAndroidGradlePluginTest {
         File(projectSetup.rootDir, "build.gradle")
             .appendText(
                 """
-            android {
-                flavorDimensions "mode"
-                productFlavors {
-                    flavorOne {
-                        dimension "mode"
-                    }
-                    flavorTwo {
-                        dimension "mode"
+                android {
+                    flavorDimensions "mode"
+                    productFlavors {
+                        flavorOne {
+                            dimension "mode"
+                        }
+                        flavorTwo {
+                            dimension "mode"
+                        }
                     }
                 }
-            }
-            """
+                """
                     .trimIndent()
             )
 
@@ -378,15 +378,15 @@ class RoomAndroidGradlePluginTest {
         File(projectSetup.rootDir, "build.gradle")
             .appendText(
                 """
-            android {
-                buildTypes {
-                    staging {
-                        initWith debug
-                        applicationIdSuffix ".debugStaging"
+                android {
+                    buildTypes {
+                        staging {
+                            initWith debug
+                            applicationIdSuffix ".debugStaging"
+                        }
                     }
                 }
-            }
-            """
+                """
                     .trimIndent()
             )
 
@@ -451,18 +451,18 @@ class RoomAndroidGradlePluginTest {
         File(projectSetup.rootDir, "build.gradle")
             .appendText(
                 """
-            android {
-                flavorDimensions "mode"
-                productFlavors {
-                    flavorOne {
-                        dimension "mode"
-                    }
-                    flavorTwo {
-                        dimension "mode"
+                android {
+                    flavorDimensions "mode"
+                    productFlavors {
+                        flavorOne {
+                            dimension "mode"
+                        }
+                        flavorTwo {
+                            dimension "mode"
+                        }
                     }
                 }
-            }
-            """
+                """
                     .trimIndent()
             )
 
@@ -491,18 +491,18 @@ class RoomAndroidGradlePluginTest {
         File(projectSetup.rootDir, "build.gradle")
             .appendText(
                 """
-            android {
-                flavorDimensions "mode"
-                productFlavors {
-                    flavorOne {
-                        dimension "mode"
-                    }
-                    flavorTwo {
-                        dimension "mode"
+                android {
+                    flavorDimensions "mode"
+                    productFlavors {
+                        flavorOne {
+                            dimension "mode"
+                        }
+                        flavorTwo {
+                            dimension "mode"
+                        }
                     }
                 }
-            }
-            """
+                """
                     .trimIndent()
             )
 

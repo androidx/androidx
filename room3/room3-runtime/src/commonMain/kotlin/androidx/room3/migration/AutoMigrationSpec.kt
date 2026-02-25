@@ -33,5 +33,5 @@ public expect interface AutoMigrationSpec {
      *
      * @param connection The database connection.
      */
-    public open fun onPostMigrate(connection: SQLiteConnection)
+    public open suspend fun onPostMigrate(connection: SQLiteConnection)
 }

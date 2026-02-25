@@ -17,12 +17,11 @@
 package androidx.room3.integration.multiplatformtestapp.test
 
 import androidx.kruth.assertThat
+import androidx.room3.integration.multiplatformtestapp.backgroundDispatcher
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
@@ -52,7 +51,7 @@ abstract class BaseInvalidationTest {
         val tableName = SampleEntity::class.simpleName!!
         val invalidations = Channel<Set<String>>(capacity = 10)
         val collectJob =
-            backgroundScope.launch(Dispatchers.IO) {
+            backgroundScope.launch(backgroundDispatcher) {
                 db.invalidationTracker.createFlow(tableName).collect { invalidatedTables ->
                     invalidations.send(invalidatedTables)
                 }

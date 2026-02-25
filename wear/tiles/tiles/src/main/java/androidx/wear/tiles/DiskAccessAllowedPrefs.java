@@ -65,6 +65,15 @@ final class DiskAccessAllowedPrefs {
         }
     }
 
+    int getInt(@NonNull String key, int defValue) {
+        ThreadPolicy policy = StrictMode.allowThreadDiskReads();
+        try {
+            return preferences.getInt(key, defValue);
+        } finally {
+            StrictMode.setThreadPolicy(policy);
+        }
+    }
+
     long getLong(@NonNull String key, long defValue) {
         ThreadPolicy policy = StrictMode.allowThreadDiskReads();
         try {
@@ -78,6 +87,15 @@ final class DiskAccessAllowedPrefs {
         ThreadPolicy policy = StrictMode.allowThreadDiskReads();
         try {
             return preferences.getString(key, defValue);
+        } finally {
+            StrictMode.setThreadPolicy(policy);
+        }
+    }
+
+    void putInt(@NonNull String key, int value) {
+        ThreadPolicy policy = StrictMode.allowThreadDiskWrites();
+        try {
+            preferences.edit().putInt(key, value).apply();
         } finally {
             StrictMode.setThreadPolicy(policy);
         }

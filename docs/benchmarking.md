@@ -173,14 +173,15 @@ First, set your benchmark to be debuggable in your benchmark module's
 ```xml
   <application
     ...
-    android:debuggable="false"
+    android:debuggable="true"
     tools:ignore="HardcodedDebugMode"/>
 ```
 
 Note that switching to the debug variant will likely not work, as Studio will
 fail to find the benchmark as a test source.
 
-Next select `ConnectedAllocation` in your benchmark module's `build.gradle`:
+Next select `ConnectedAllocation` in your benchmark module's `build.gradle` and
+suppress AOT warning due to debuggable being "true":
 
 ```groovy
 android {
@@ -189,6 +190,7 @@ android {
         // pause for manual profiler connection before/after a single run of
         // the benchmark loop, after warmup
         testInstrumentationRunnerArgument 'androidx.benchmark.profiling.mode', 'ConnectedAllocation'
+        testInstrumentationRunnerArgument 'androidx.benchmark.suppressErrors', 'NOT-AOT-COMPILED'
     }
 }
 ```

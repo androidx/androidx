@@ -19,8 +19,8 @@ package androidx.xr.arcore.testing
 import androidx.kruth.assertThat
 import androidx.xr.arcore.runtime.Anchor
 import androidx.xr.arcore.runtime.AnchorInvalidUuidException
+import androidx.xr.arcore.runtime.Anchorable
 import androidx.xr.arcore.runtime.HitResult
-import androidx.xr.arcore.runtime.Trackable
 import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Ray
@@ -173,7 +173,7 @@ class FakePerceptionManagerTest {
     }
 
     private fun createStubTrackable() =
-        object : Trackable, AnchorHolder {
+        object : Anchorable, AnchorHolder {
             override fun createAnchor(pose: Pose): Anchor = underTest.createAnchor(pose)
 
             override fun detachAnchor(anchor: Anchor) {

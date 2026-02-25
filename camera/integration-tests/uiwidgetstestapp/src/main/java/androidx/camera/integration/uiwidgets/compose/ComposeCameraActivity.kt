@@ -23,13 +23,13 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.VisibleForTesting
 import androidx.camera.integration.uiwidgets.compose.ui.ComposeCameraApp
 import androidx.camera.integration.uiwidgets.compose.ui.PermissionsUI
 import androidx.camera.integration.uiwidgets.compose.ui.navigation.ComposeCameraScreen
 import androidx.camera.view.PreviewView.StreamState
 import androidx.core.content.ContextCompat
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 class ComposeCameraActivity : ComponentActivity() {
 
@@ -71,11 +71,10 @@ class ComposeCameraActivity : ComponentActivity() {
         latchForState = CountDownLatch(1)
     }
 
-    // Saves the expected ComposeCameraScreen and StreamState for testing PreviewView
-    // Once saved, this method waits to be notified of StreamState changes
-    // Used to assert that PreviewView is streaming within reasonable timeout
-    fun waitForExpectedScreenAndStreamState(): Boolean {
-        return latchForState.await(LATCH_TIMEOUT, TimeUnit.MILLISECONDS)
+    /** Returns whether the expected screen and stream state have been reached. */
+    @VisibleForTesting
+    fun isExpectedStateReached(): Boolean {
+        return latchForState.count == 0L
     }
 
     // Callback to observe changes in PreviewView.StreamState happening in some ComposeCameraScreen
@@ -104,7 +103,6 @@ class ComposeCameraActivity : ComponentActivity() {
 
     companion object {
         private const val TAG = "ComposeCameraActivity"
-        private const val LATCH_TIMEOUT: Long = 5000
         val REQUIRED_PERMISSIONS =
             mutableListOf(Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO)
                 .apply {

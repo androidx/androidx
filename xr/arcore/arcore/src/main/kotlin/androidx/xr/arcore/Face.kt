@@ -22,7 +22,7 @@ import androidx.xr.arcore.runtime.Anchor as RuntimeAnchor
 import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException
 import androidx.xr.arcore.runtime.Face as RuntimeFace
 import androidx.xr.arcore.runtime.Mesh
-import androidx.xr.runtime.Config.FaceTrackingMode
+import androidx.xr.runtime.FaceTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
@@ -33,20 +33,24 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transform
 
-/** Contains the tracking information of a detected human face. */
+/**
+ * Contains the tracking information of a detected human face.
+ *
+ * @property state the current [State] of this face
+ */
 public class Face
 internal constructor(
     internal val runtimeFace: RuntimeFace,
     internal val xrResourceManager: XrResourcesManager,
-) : Updatable {
+) : Anchorable<Face.State>, Updatable {
 
     public companion object {
         /**
          * Returns the Face object that corresponds to the user.
          *
-         * @param session the currently active [Session].
+         * @param session the currently active [Session]
          * @throws [IllegalStateException] if [FaceTrackingMode] is set to
-         *   [FaceTrackingMode.DISABLED].
+         *   [FaceTrackingMode.DISABLED]
          */
         @JvmStatic
         public fun getUserFace(session: Session): Face? {
@@ -61,8 +65,11 @@ internal constructor(
             return perceptionStateExtender.xrResourcesManager.userFace
         }
 
-        /** Emits the faces that are currently being tracked in the [Session]. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        /**
+         * Emits the faces that are currently being tracked in the [Session].
+         *
+         * @param session the [Session] to track faces from
+         */
         @JvmStatic
         public fun subscribe(session: Session): StateFlow<Collection<Face>> {
             check(session.config.faceTracking == FaceTrackingMode.MESHES) {
@@ -166,38 +173,42 @@ internal constructor(
     /**
      * The representation of the current state of [Face].
      *
-     * @param trackingState the current [TrackingState] of the face.
+     * @property trackingState the current [TrackingState] of the face.
+     * @property centerPose the pose at the center of the face, defined to have the origin located
+     *   behind the nose and between the two cheek bones
+     *
+     *   Z+ is forward out of the nose, Y+ is upwards, and X+ is towards the left. The units are in
+     *   meters.
+     *
+     *   [centerPose] will be null if the Session is not configured with [FaceTrackingMode.MESHES].
+     *
+     * @property mesh the polygonal representation of the face as observed by the perception system
+     *
+     *   [mesh] will be null if the Session is not configured with [FaceTrackingMode.MESHES].
      */
     public class State
     internal constructor(
-        public val trackingState: TrackingState,
-        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val centerPose: Pose? = null,
-        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val mesh: Mesh? = null,
+        public override val trackingState: TrackingState,
+        public val centerPose: Pose? = null,
+        public val mesh: Mesh? = null,
         internal val blendShapeValues: FloatArray? = null,
         internal val confidenceValues: FloatArray? = null,
         internal val noseTipPose: Pose? = null,
         internal val foreheadLeftPose: Pose? = null,
         internal val foreheadRightPose: Pose? = null,
-    ) {
+    ) : Trackable.State {
 
-        /**
-         * Represents the blend shapes of the face.
-         *
-         * @return a map of [FaceBlendShapeType] to the corresponding blend shape value in the range
-         *   `[0.0, 1.0]`. If the face does not provide blend shape values, this will be an empty
-         *   map.
-         */
         public val blendShapes: Map<FaceBlendShapeType, Float> =
             blendShapeMapKeys.zip(blendShapeValues?.toList() ?: emptyList()).toMap()
 
         /**
          * Gets the confidence value of the face tracker for the given region.
          *
-         * @param region the [FaceConfidenceRegion] to get the confidence value for.
+         * @param region the [FaceConfidenceRegion] to get the confidence value for
          * @return the confidence value in the range `[0.0, 1.0]` of the face tracker for the given
-         *   region.
-         * @throws IllegalArgumentException if the region does not exist.
-         * @throws IllegalStateException if the Face does not provide confidence values.
+         *   region
+         * @throws IllegalArgumentException if the region does not exist
+         * @throws IllegalStateException if the Face does not provide confidence values
          */
         @FloatRange(from = 0.0, to = 1.0, fromInclusive = true, toInclusive = true)
         public fun getConfidence(region: FaceConfidenceRegion): Float {
@@ -210,16 +221,18 @@ internal constructor(
             }
         }
 
-        /** Map of [Pose] values on the Face for each [FaceMeshRegion] */
-        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public val regionPoses: Map<FaceMeshRegion, Pose>? =
-            if (noseTipPose == null || foreheadLeftPose == null || foreheadRightPose == null) null
-            else
-                mapOf(
-                    FaceMeshRegion.NOSE_TIP to noseTipPose,
-                    FaceMeshRegion.FOREHEAD_LEFT to foreheadLeftPose,
-                    FaceMeshRegion.FOREHEAD_RIGHT to foreheadRightPose,
-                )
+        /**
+         * Map of [Pose] values on the Face for each [FaceMeshRegion]
+         *
+         * Each [Pose] value in the Map will be null if the Session is not configured with
+         * [FaceTrackingMode.MESHES].
+         */
+        public val regionPoses: Map<FaceMeshRegion, Pose?> =
+            mapOf(
+                FaceMeshRegion.NOSE_TIP to noseTipPose,
+                FaceMeshRegion.FOREHEAD_LEFT to foreheadLeftPose,
+                FaceMeshRegion.FOREHEAD_RIGHT to foreheadRightPose,
+            )
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -263,10 +276,10 @@ internal constructor(
         )
 
     /** The current [State] of this Face. */
-    public val state: StateFlow<State> = _state.asStateFlow()
+    public override val state: StateFlow<State> = _state.asStateFlow()
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public fun createAnchor(pose: Pose): AnchorCreateResult {
+    /** Create and attach an [Anchor] to the Face at the given [Pose] in world space. */
+    public override fun createAnchor(pose: Pose): AnchorCreateResult {
         val runtimeAnchor: RuntimeAnchor
         try {
             runtimeAnchor = runtimeFace.createAnchor(pose)
@@ -280,7 +293,7 @@ internal constructor(
         return AnchorCreateSuccess(anchor)
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public override suspend fun update() {
         if (!runtimeFace.isValid) return
         _state.emit(

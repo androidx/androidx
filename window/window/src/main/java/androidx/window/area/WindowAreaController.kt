@@ -67,7 +67,7 @@ constructor() {
 
     /**
      * Moves the calling [Activity] and the global state of the device to the [WindowArea] provided.
-     * This is a long lasting and sticky operation that will outlive the application that requests
+     * This is a long-lasting and sticky operation that will outlive the application that requests
      * this operation. Status updates can be received from the value received by registering a
      * listener through [addWindowAreasListener] and then querying for the
      * [WindowAreaCapability.Operation.OPERATION_TRANSFER_TO_AREA] operation.
@@ -97,7 +97,7 @@ constructor() {
      *   process.
      * @throws IllegalArgumentException if this method is called with a [WindowArea] with a
      *   [WindowArea.Type] that is unrecognized.
-     * @see windowAreas
+     * @see addWindowAreasListener
      */
     public abstract fun transferToWindowArea(windowAreaToken: WindowAreaToken?, activity: Activity)
 
@@ -139,15 +139,13 @@ constructor() {
 
     /**
      * Returns the current active [WindowAreaSessionPresenter] if one is currently active in the
-     * [WindowArea] identified by the provided [WindowAreaToken].
-     *
-     * @throws IllegalArgumentException if there is no active presentation session for the provided
-     *   [windowAreaToken].
+     * [WindowArea] identified by the provided [WindowAreaToken]. Returns null if there is no active
+     * presentation session for the provided [windowAreaToken].
      */
     @ExperimentalWindowApi
     public abstract fun getActivePresentationSession(
         windowAreaToken: WindowAreaToken
-    ): WindowAreaSessionPresenter
+    ): WindowAreaSessionPresenter?
 
     public companion object {
 

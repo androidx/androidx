@@ -26,6 +26,7 @@ import androidx.pdf.annotation.highlights.utils.applyTransform
 internal class WetHighlightsViewTouchHandler(private val pageInfoProvider: PageInfoProvider) {
     private var currentPointerId: Int = MotionEvent.INVALID_POINTER_ID
     private var currentAnnotationId: InProgressHighlightId? = null
+    private var lastValidPdfPoint: PointF? = null
 
     fun handleTouchEvent(view: InProgressHighlightsView, event: MotionEvent): Boolean {
         return when (event.actionMasked) {
@@ -57,6 +58,7 @@ internal class WetHighlightsViewTouchHandler(private val pageInfoProvider: PageI
             pageInfoProvider.getPageInfoFromViewCoordinates(viewPoint.x, viewPoint.y)
                 ?: return false
         val startPdfPoint = viewPoint.applyTransform(pageInfo.viewToPageTransform)
+        lastValidPdfPoint = startPdfPoint
 
         val newAnnotationId = InProgressHighlightId.create()
         currentAnnotationId = newAnnotationId
@@ -83,9 +85,9 @@ internal class WetHighlightsViewTouchHandler(private val pageInfoProvider: PageI
 
         val viewPoint = PointF(event.getX(pointerIndex), event.getY(pointerIndex))
         val pageInfo =
-            pageInfoProvider.getPageInfoFromViewCoordinates(viewPoint.x, viewPoint.y)
-                ?: return true // Or handle appropriately
-        val currentPdfPoint = viewPoint.applyTransform(pageInfo.viewToPageTransform) // CONVERT HERE
+            pageInfoProvider.getPageInfoFromViewCoordinates(viewPoint.x, viewPoint.y) ?: return true
+        val currentPdfPoint = viewPoint.applyTransform(pageInfo.viewToPageTransform)
+        lastValidPdfPoint = currentPdfPoint
 
         view.addToTextHighlight(id = activeAnnotationId, currentPdfPoint = currentPdfPoint)
         return true
@@ -101,9 +103,14 @@ internal class WetHighlightsViewTouchHandler(private val pageInfoProvider: PageI
                 val viewPoint = PointF(event.getX(pointerIndex), event.getY(pointerIndex))
                 val pageInfo =
                     pageInfoProvider.getPageInfoFromViewCoordinates(viewPoint.x, viewPoint.y)
-                        ?: return true // Or handle appropriately
-                val finalPdfPoint = viewPoint.applyTransform(pageInfo.viewToPageTransform)
-
+                val finalPdfPoint =
+                    if (pageInfo != null) {
+                        viewPoint.applyTransform(pageInfo.viewToPageTransform)
+                    } else {
+                        // When the gesture ends outside of the page bounds, use the last valid
+                        // point to end the gesture.
+                        lastValidPdfPoint ?: return true
+                    }
                 view.finishTextHighlight(activeAnnotationId, finalPdfPoint)
                 view.performClick()
             }

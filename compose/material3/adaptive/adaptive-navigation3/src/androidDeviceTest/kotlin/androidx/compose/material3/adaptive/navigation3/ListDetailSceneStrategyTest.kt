@@ -20,15 +20,22 @@ package androidx.compose.material3.adaptive.navigation3
 
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.PaneScaffoldDirective
 import androidx.compose.material3.adaptive.navigation.BackNavigationBehavior
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.assertWidthIsAtLeast
+import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.scene.Scene
 import androidx.navigation3.scene.SceneStrategyScope
@@ -274,6 +281,19 @@ class ListDetailSceneStrategyTest {
     }
 
     @Test
+    fun singlePane_backstackWithListDetail_withDragHandle_doesNotShowDragHandle() {
+        val backStack = mutableStateListOf(HomeKey, ListKey, DetailKey("abc"))
+        composeRule.setContent {
+            NavScreen(
+                backStack = backStack,
+                directive = PaneScaffoldDirective.Default,
+                paneExpansionDragHandle = { Box(Modifier.testTag("DragHandle").size(48.dp)) },
+            )
+        }
+        composeRule.onNodeWithTag("DragHandle").assertIsNotDisplayed()
+    }
+
+    @Test
     fun dualPane_backstackWithList_showsListAndPlaceholder() {
         val backStack = mutableStateListOf(HomeKey, ListKey)
         composeRule.setContent {
@@ -292,6 +312,41 @@ class ListDetailSceneStrategyTest {
         }
         composeRule.onNodeWithTag(ListScreenTestTag).assertIsDisplayed()
         composeRule.onNodeWithTag(DetailScreenTestTag).assertIsDisplayed()
+    }
+
+    @Test
+    fun dualPane_backstackWithListDetail_withDragHandle_showsDragHandle() {
+        val backStack = mutableStateListOf(HomeKey, ListKey, DetailKey("abc"))
+        composeRule.setContent {
+            NavScreen(
+                backStack = backStack,
+                directive = MockDualPaneScaffoldDirective,
+                paneExpansionDragHandle = { Box(Modifier.testTag("DragHandle").size(48.dp)) },
+            )
+        }
+        composeRule.onNodeWithTag("DragHandle").assertIsDisplayed()
+    }
+
+    @Test
+    fun dualPane_backstackWithListDetail_triesToRespectPreferredWidth() {
+        val preferredWidth = 100.dp
+        val backStack = mutableStateListOf(HomeKey, ListKey, DetailKey("abc"))
+        composeRule.setContent {
+            NavScreen(
+                backStack = backStack,
+                directive = MockDualPaneScaffoldDirective,
+                additionalListMetadata =
+                    ListDetailSceneStrategy.preferredPaneSize(width = preferredWidth),
+                additionalDetailMetadata =
+                    ListDetailSceneStrategy.preferredPaneSize(width = preferredWidth),
+            )
+        }
+
+        // (Unless the device is exactly 200dp wide)
+        // Only list pane's preferred width can be respected,
+        // because the detail pane is higher priority so additional width gets assigned to it.
+        composeRule.onNodeWithTag(ListScreenTestTag).assertWidthIsEqualTo(preferredWidth)
+        composeRule.onNodeWithTag(DetailScreenTestTag).assertWidthIsAtLeast(preferredWidth)
     }
 
     @Test

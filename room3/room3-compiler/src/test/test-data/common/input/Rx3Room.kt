@@ -37,7 +37,7 @@ fun <T : Any> createFlowable(
     db: RoomDatabase,
     inTransaction: Boolean,
     tableNames: Array<String>,
-    block: (SQLiteConnection) -> T?
+    block: suspend (SQLiteConnection) -> T?
 ): Flowable<T> {
     TODO()
 }
@@ -46,7 +46,7 @@ fun <T : Any> createObservable(
     db: RoomDatabase,
     inTransaction: Boolean,
     tableNames: Array<String>,
-    block: (SQLiteConnection) -> T?
+    block: suspend (SQLiteConnection) -> T?
 ): Observable<T> {
     TODO()
 }
@@ -55,7 +55,7 @@ fun <T : Any> createMaybe(
     db: RoomDatabase,
     isReadOnly: Boolean,
     inTransaction: Boolean,
-    block: (SQLiteConnection) -> T?
+    block: suspend (SQLiteConnection) -> T?
 ): Maybe<T> {
     TODO()
 }
@@ -64,7 +64,7 @@ fun createCompletable(
     db: RoomDatabase,
     isReadOnly: Boolean,
     inTransaction: Boolean,
-    block: (SQLiteConnection) -> Unit
+    block: suspend (SQLiteConnection) -> Unit
 ): Completable {
     TODO()
 }
@@ -73,43 +73,7 @@ fun <T : Any> createSingle(
     db: RoomDatabase,
     isReadOnly: Boolean,
     inTransaction: Boolean,
-    block: (SQLiteConnection) -> T?
+    block: suspend (SQLiteConnection) -> T?
 ): Single<T> {
-    TODO()
-}
-
-fun createFlowable(
-    database: RoomDatabase,
-    vararg tableNames: String
-): Flowable<Any> {
-    TODO()
-}
-
-fun <T : Any> createFlowable(
-    database: RoomDatabase,
-    inTransaction: Boolean,
-    tableNames: Array<String>,
-    callable: Callable<out T>
-): Flowable<T> {
-    TODO()
-}
-
-fun createObservable(
-    database: RoomDatabase,
-    vararg tableNames: String
-): Observable<Any> {
-    TODO()
-}
-
-fun <T : Any> createObservable(
-    database: RoomDatabase,
-    inTransaction: Boolean,
-    tableNames: Array<String>,
-    callable: Callable<out T>
-): Observable<T> {
-    TODO()
-}
-
-fun <T : Any> createSingle(callable: Callable<out T>): Single<T> {
     TODO()
 }

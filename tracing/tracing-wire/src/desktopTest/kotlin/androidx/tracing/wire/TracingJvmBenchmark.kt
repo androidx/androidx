@@ -38,11 +38,11 @@ open class TracingJvmBenchmark {
     private val disabledTraceContext =
         buildTraceContext(sink = buildInMemorySink(), isEnabled = false)
 
-    private val disabledTracer = disabledTraceContext.createTracer(name = "Benchmark")
+    private val disabledTracer = disabledTraceContext.createTracer()
 
     private val enabledTraceContext =
         buildTraceContext(sink = buildInMemorySink(), isEnabled = true)
-    private val enabledTracer = enabledTraceContext.createTracer(name = "Benchmark")
+    private val enabledTracer = enabledTraceContext.createTracer()
     private val category = "Tests"
 
     init {

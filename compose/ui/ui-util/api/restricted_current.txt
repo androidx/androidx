@@ -7,6 +7,9 @@ package androidx.compose.ui {
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalIndirectPointerApi {
   }
 
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is experimental and is likely to change or be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMediaQueryApi {
+  }
+
   @SuppressCompatibility @kotlin.RequiresOptIn(message="Unstable API for use only between compose-ui modules sharing the same exact version, subject to change without notice in major, minor, or patch releases.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface InternalComposeUiApi {
   }
 

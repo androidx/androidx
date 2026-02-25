@@ -112,12 +112,14 @@ public final class SetSchemaRequest {
             MANAGED_PROFILE_CONTACTS_ACCESS,
             EXECUTE_APP_FUNCTIONS,
             PACKAGE_USAGE_STATS,
+            PRIVATE_COMPUTE_CORE_UID_ACCESS,
     })
     @Retention(RetentionPolicy.SOURCE)
     @RequiresFeature(
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @OptIn(markerClass = ExperimentalAppSearchApi.class)
     public @interface AppSearchSupportedPermission {}
 
     /**
@@ -229,6 +231,16 @@ public final class SetSchemaRequest {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int PACKAGE_USAGE_STATS = 11;
+
+    /**
+     * The visibility access for Private Compute Core.
+     *
+     * <p>A schema with this permission allows callers with a UID for which {@link
+     * android.os.Process#isPrivateComputeCoreUid} returns true to access the data.
+     */
+    @FlaggedApi(Flags.FLAG_ENABLE_PRIVATE_COMPUTE_CORE_UID_ACCESS)
+    @ExperimentalAppSearchApi
+    public static final int PRIVATE_COMPUTE_CORE_UID_ACCESS = 12;
 
     private final Set<AppSearchSchema> mSchemas;
     private final Set<String> mSchemasNotDisplayedBySystem;
@@ -675,14 +687,20 @@ public final class SetSchemaRequest {
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.ADD_PERMISSIONS_AND_GET_VISIBILITY)
+        @OptIn(markerClass = ExperimentalAppSearchApi.class)
         public @NonNull Builder addRequiredPermissionsForSchemaTypeVisibility(
                 @NonNull String schemaType,
                 @AppSearchSupportedPermission @NonNull Set<Integer> permissions) {
             Preconditions.checkNotNull(schemaType);
             Preconditions.checkNotNull(permissions);
+            if (AppSearchEnvironmentFactory.getEnvironmentInstance().getEnvironment()
+                    != AppSearchEnvironment.FRAMEWORK_ENVIRONMENT) {
+                Preconditions.checkArgument(!permissions.isEmpty(),
+                        "The set of required permissions cannot be empty");
+            }
             for (int permission : permissions) {
                 Preconditions.checkArgumentInRange(permission, READ_SMS,
-                        PACKAGE_USAGE_STATS, "permission");
+                        PRIVATE_COMPUTE_CORE_UID_ACCESS, "permission");
             }
             resetIfBuilt();
             Set<Set<Integer>> visibleToPermissions = mSchemasVisibleToPermissions.get(schemaType);
@@ -927,8 +945,13 @@ public final class SetSchemaRequest {
          * AppSearch will reject the document if any account specified by these paths is not
          * recognized.
          *
+         * <p>Subsequent calls for the same {@code schemaType} are additive. When
+         * {@code autoWipeout} is {@code true}, new paths are merged into the existing
+         * configuration; when {@code false}, the specified paths are removed. This allows you to
+         * incrementally manage multiple account-associated fields within a single schema.
+         *
          * @param schemaType The name of the schema type being configured (e.g., "Email").
-         * @param accountPropertyPaths A collection of property paths (e.g., "sender.account") point
+         * @param accountPropertyPaths A Set of property paths (e.g., "sender.account") point
          *                             to the field containing the account identifier.
          * @param autoWipeout If {@code true}, enables automatic account wipeout for the given
          *                    paths. If {@code false}, disables it.
@@ -947,7 +970,7 @@ public final class SetSchemaRequest {
         @FlaggedApi(Flags.FLAG_ENABLE_SCHEMAS_WIPEOUT_ACCOUNT_PROPERTY_PATHS)
         @ExperimentalAppSearchApi
         public @NonNull Builder setSchemaTypeWipeoutAccountPropertyPaths(
-                @NonNull String schemaType, @NonNull Collection<PropertyPath> accountPropertyPaths,
+                @NonNull String schemaType, @NonNull Set<PropertyPath> accountPropertyPaths,
                 boolean autoWipeout) {
             Preconditions.checkNotNull(schemaType);
             Preconditions.checkNotNull(accountPropertyPaths);
@@ -994,7 +1017,7 @@ public final class SetSchemaRequest {
          *
          * @param documentClass the {@link androidx.appsearch.annotation.Document} annotated class
          *                      of the schema type being configured (e.g., "Email").
-         * @param accountPropertyPaths A collection of property paths (e.g., "sender.account") point
+         * @param accountPropertyPaths A Set of property paths (e.g., "sender.account") point
          *                             to the field containing the account identifier.
          * @param autoWipeOut If {@code true}, enables automatic account wipeout for the given
          *                    paths. If {@code false}, disables it.
@@ -1010,7 +1033,7 @@ public final class SetSchemaRequest {
         @ExperimentalAppSearchApi
         public @NonNull Builder setDocumentClassWipeoutAccountPropertyPaths(
                 @NonNull Class<?> documentClass,
-                @NonNull Collection<PropertyPath> accountPropertyPaths,
+                @NonNull Set<PropertyPath> accountPropertyPaths,
                 boolean autoWipeOut) throws AppSearchException {
             Preconditions.checkNotNull(documentClass);
             resetIfBuilt();

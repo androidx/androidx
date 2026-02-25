@@ -84,7 +84,15 @@ public open class BasicPictureInPicture(pictureInPictureProvider: PictureInPictu
  * hint for smooth animations using the package's ViewBoundsTracker.
  */
 public class VideoPlaybackPictureInPicture(provider: PictureInPictureProvider) :
-    BasicPictureInPicture(provider), ViewBoundsTracker.OnViewBoundsChangedListener, AutoCloseable {
+    BasicPictureInPicture(provider), AutoCloseable {
+
+    private val viewBoundsChangedListener: ViewBoundsTracker.OnViewBoundsChangedListener =
+        object : ViewBoundsTracker.OnViewBoundsChangedListener {
+            override fun onViewBoundsChanged(view: View, newBounds: Rect) {
+                pictureInPictureParamsBuilder.setSourceRectHint(newBounds)
+                setPictureInPictureParams(pictureInPictureParamsBuilder.build())
+            }
+        }
 
     private var viewBoundsTracker: ViewBoundsTracker? = null
 
@@ -107,7 +115,7 @@ public class VideoPlaybackPictureInPicture(provider: PictureInPictureProvider) :
 
         if (view != null) {
             viewBoundsTracker =
-                ViewBoundsTracker(view).apply { addListener(this@VideoPlaybackPictureInPicture) }
+                ViewBoundsTracker(view).apply { addListener(viewBoundsChangedListener) }
             val initialBounds = Rect()
             if (view.getGlobalVisibleRect(initialBounds)) {
                 pictureInPictureParamsBuilder.setSourceRectHint(initialBounds)
@@ -119,11 +127,6 @@ public class VideoPlaybackPictureInPicture(provider: PictureInPictureProvider) :
             setPictureInPictureParams(pictureInPictureParamsBuilder.build())
         }
         return this
-    }
-
-    override fun onViewBoundsChanged(view: View, newBounds: Rect) {
-        pictureInPictureParamsBuilder.setSourceRectHint(newBounds)
-        setPictureInPictureParams(pictureInPictureParamsBuilder.build())
     }
 
     /**

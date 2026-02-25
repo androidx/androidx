@@ -37,7 +37,7 @@ internal actual class NavBackStackEntryState {
     private val impl: NavBackStackEntryStateImpl
 
     actual constructor(entry: NavBackStackEntry) {
-        impl = NavBackStackEntryStateImpl(entry, 0)
+        impl = NavBackStackEntryStateImpl(entry, entry.destination.id)
     }
 
     actual constructor(state: SavedState) {

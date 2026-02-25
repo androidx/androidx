@@ -35,11 +35,11 @@ class AndroidManifestServiceExportedDetectorTest :
 
         val expected =
             """
-AndroidManifest.xml:21: Error: Missing exported=true in <service> tag [MissingServiceExportedEqualsTrue]
-        <service android:name="androidx.core.app.JobIntentService">
-        ^
-1 errors, 0 warnings
-        """
+            AndroidManifest.xml:21: Error: Missing exported=true in <service> tag [MissingServiceExportedEqualsTrue]
+                    <service android:name="androidx.core.app.JobIntentService">
+                    ^
+            1 errors, 0 warnings
+            """
                 .trimIndent()
 
         check(*input).expect(expected)
@@ -51,13 +51,13 @@ AndroidManifest.xml:21: Error: Missing exported=true in <service> tag [MissingSe
             xml(
                 "AndroidManifest.xml",
                 """
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <application>
-        <service
-            android:name="androidx.service"
-            android:exported="true" />
-    </application>
-</manifest>
+                <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+                    <application>
+                        <service
+                            android:name="androidx.service"
+                            android:exported="true" />
+                    </application>
+                </manifest>
                 """
                     .trimIndent(),
             )

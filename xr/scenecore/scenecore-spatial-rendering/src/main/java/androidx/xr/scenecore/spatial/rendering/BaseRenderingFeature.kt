@@ -35,7 +35,7 @@ internal abstract class BaseRenderingFeature(
 
     // The SubspaceNode isn't final so that we can support setting it to null in dispose(), while
     // still allowing the application to hold a reference to this Entity.
-    protected var subspace: SubspaceNode? = null
+    internal var subspace: SubspaceNode? = null
 
     override fun getNodeHolder(): NodeHolder<*> {
         return NodeHolder(node, Node::class.java)

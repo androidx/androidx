@@ -17,17 +17,17 @@
 
 <resources>
     <style name="Theme.SampleMediaRouter" parent="Theme.AppCompat">
-        <item name="colorPrimary">#fff44336</item>
-        <item name="colorPrimaryDark">#d32f2f</item>
+        <item name="colorPrimary">@color/sample_media_router_primary</item>
+        <item name="colorPrimaryDark">@color/sample_media_router_primary_dark</item>
     </style>
 
     <style name="Theme.SampleMediaRouter.Light" parent="Theme.AppCompat.Light">
-        <item name="colorPrimary">#ffff9800</item>
-        <item name="colorPrimaryDark">#f57c00</item>
+        <item name="colorPrimary">@color/sample_media_router_light_primary</item>
+        <item name="colorPrimaryDark">@color/sample_media_router_light_primary_dark</item>
     </style>
 
     <style name="Theme.SampleMediaRouter.Light.DarkActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="colorPrimary">#ff2196f3</item>
-        <item name="colorPrimaryDark">#1976d2</item>
+        <item name="colorPrimary">@color/sample_media_router_light_dark_action_bar_primary</item>
+        <item name="colorPrimaryDark">@color/sample_media_router_light_dark_action_bar_primary_dark</item>
     </style>
 </resources>

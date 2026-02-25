@@ -31,14 +31,26 @@ import kotlin.random.Random
 /**
  * An implementation of [InProgressShape] that simply wraps [androidx.ink.strokes.InProgressStroke].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@OptIn(ExperimentalInkCustomBrushApi::class)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @ExperimentalCustomShapeWorkflowApi
 public class InkInProgressShape : InProgressShape<Brush, Stroke> {
 
     internal val inProgressStroke = InProgressStroke()
 
+    private var brush: Brush? = null
+    private var noiseSeed: Int = Int.MIN_VALUE
+
+    /**
+     * When enabled, the same integer random noise seed is kept across calls to [start] and
+     * [prepareToRecycle]. This isn't needed for standard Ink behavior, but can be useful when this
+     * [InProgressShape] is delegated to in the implementation of another [InProgressShape]. The
+     * default behavior is for a new noise seed to be used each time.
+     */
+    @get:JvmName("shouldPreserveNoiseSeed") public var shouldPreserveNoiseSeed: Boolean = false
+
     private var shapeChangesWithTime = false
-    internal var textureAnimationDurationMillis: Long = -Long.MIN_VALUE
+    internal var textureAnimationDurationMillis: Long = Long.MIN_VALUE
         private set
 
     /** Whether this shape has been canceled. Primarily tracked for defensive coding purposes. */
@@ -66,9 +78,25 @@ public class InkInProgressShape : InProgressShape<Brush, Stroke> {
      */
     private val scratchBoxAccumulator = BoxAccumulator()
 
+    private fun resetState() {
+        startSystemElapsedTimeMillis = Long.MIN_VALUE
+        lastUpdateSystemElapsedTimeMillis = Long.MIN_VALUE
+        updateSinceResetUpdatedRegion = false
+        cancelSinceResetUpdatedRegion = false
+        canceled = false
+        textureAnimationDurationMillis = Long.MIN_VALUE
+        shapeChangesWithTime = false
+        inProgressStroke.clear()
+    }
+
     @OptIn(ExperimentalInkCustomBrushApi::class)
     override fun start(shapeSpec: Brush, systemElapsedTimeMillis: Long) {
-        inProgressStroke.start(brush = shapeSpec, noiseSeed = Random.Default.nextInt())
+        resetState()
+        this.brush = shapeSpec
+        if (!shouldPreserveNoiseSeed) {
+            this.noiseSeed = Random.Default.nextInt()
+        }
+        inProgressStroke.start(brush = shapeSpec, noiseSeed = noiseSeed)
         startSystemElapsedTimeMillis = systemElapsedTimeMillis
         shapeChangesWithTime = inProgressStroke.changesWithTime()
         textureAnimationDurationMillis =
@@ -173,13 +201,6 @@ public class InkInProgressShape : InProgressShape<Brush, Stroke> {
         }
 
     override fun prepareToRecycle() {
-        startSystemElapsedTimeMillis = Long.MIN_VALUE
-        lastUpdateSystemElapsedTimeMillis = Long.MIN_VALUE
-        updateSinceResetUpdatedRegion = false
-        cancelSinceResetUpdatedRegion = false
-        canceled = false
-        textureAnimationDurationMillis = -Long.MIN_VALUE
-        shapeChangesWithTime = false
-        inProgressStroke.clear()
+        resetState()
     }
 }

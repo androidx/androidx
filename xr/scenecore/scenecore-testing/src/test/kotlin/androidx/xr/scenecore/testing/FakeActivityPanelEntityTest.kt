@@ -38,6 +38,16 @@ class FakeActivityPanelEntityTest {
     }
 
     @Test
+    fun name_isNotSetByDefault() {
+        assertThat(underTest.name).isEqualTo("")
+    }
+
+    @Test
+    fun name_isSet() {
+        assertThat(FakeActivityPanelEntity("test").name).isEqualTo("test")
+    }
+
+    @Test
     fun activityPanelEntityLaunchActivity_callsImplLaunchActivity() {
         val launchIntent = Intent(activity.applicationContext, Activity::class.java)
         underTest.launchActivity(launchIntent, null)

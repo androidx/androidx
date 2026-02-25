@@ -164,6 +164,11 @@ public class FakeHost {
         public void finish() {
             // No-op.
         }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
     }
 
     /** Testing version of the app host. */
@@ -210,6 +215,11 @@ public class FakeHost {
             }
         }
 
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
+
     }
 
     /** Testing version of the navigation host. */
@@ -227,6 +237,11 @@ public class FakeHost {
         @Override
         public void updateTrip(Bundleable navState) {
             // No-op.
+        }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
         }
     }
 }

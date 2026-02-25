@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -65,11 +64,8 @@ if (reusePrebuiltsAar) {
 }
 
 android {
-    if (reusePrebuiltsAar) {
-        sourceSets {
-            main.jniLibs.srcDirs += new File(unzippedPrebuiltsAarDir, "jni")
-        }
-    } else { // build .so files from scratch
+    // build .so files from scratch
+    if (!reusePrebuiltsAar) {
         externalNativeBuild {
             cmake {
                 path "src/main/cpp/CMakeLists.txt"
@@ -78,6 +74,15 @@ android {
         }
     }
     namespace = "androidx.tracing.perfetto.binary"
+}
+
+if (reusePrebuiltsAar) {
+    androidComponents {
+        def jniLibsPath = new File(unzippedPrebuiltsAarDir, "jni").absolutePath
+        onVariants(selector().all()) { variant ->
+            variant.sources.jniLibs.addStaticSourceDirectory(jniLibsPath)
+        }
+    }
 }
 
 dependencies {

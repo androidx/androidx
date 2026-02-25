@@ -16,11 +16,20 @@
 
 package androidx.compose.remote.integration.view.demos.examples
 
+import androidx.annotation.RawRes
 import androidx.compose.remote.creation.RemoteComposeContext
 import androidx.compose.remote.creation.RemoteComposeWriter
+import androidx.compose.remote.creation.compose.layout.RemoteBox
+import androidx.compose.remote.creation.compose.layout.RemoteText
+import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.tooling.preview.RemoteDocPreview
+import androidx.compose.remote.tooling.preview.RemotePreview
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
+import androidx.compose.ui.platform.LocalResources
 
 /**
  * Build a [RemoteDocument] from a [RemoteComposeContext] display it in the Android Studio Preview.
@@ -42,4 +51,34 @@ internal fun RemoteDocPreview(remoteComposeWriter: RemoteComposeWriter) {
     val remoteDocument = RemoteDocument(buffer)
 
     RemoteDocPreview(remoteDocument)
+}
+
+/** Build a [RemoteDocument] from a raw resource id and display it in the Android Studio Preview. */
+@Composable
+@Suppress("RestrictedApiAndroidX")
+internal fun RemoteDocPreview(@RawRes resId: Int) {
+    val resources = LocalResources.current
+    val result by
+        produceState<Result<RemoteDocument>?>(null, resId) {
+            value = runCatching {
+                val bytes = resources.openRawResource(resId).use { it.readBytes() }
+                RemoteDocument(bytes)
+            }
+        }
+
+    when (val res = result) {
+        null -> {
+            /* loading */
+        }
+        else -> {
+            res.onSuccess { RemoteDocPreview(it) }
+                .onFailure {
+                    RemotePreview {
+                        RemoteBox(modifier = RemoteModifier.fillMaxSize()) {
+                            RemoteText("Failed to load file with id: $resId")
+                        }
+                    }
+                }
+        }
+    }
 }

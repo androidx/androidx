@@ -1,21 +1,61 @@
 // Signature format: 4.0
 package androidx.security.state.provider {
 
+  public final class UpdateCheckTelemetry {
+    ctor public UpdateCheckTelemetry(int outcome, long totalDurationMillis, long lockWaitDurationMillis, long processingDurationMillis, long fetchDurationMillis, int callerUid);
+    method @InaccessibleFromKotlin public int getCallerUid();
+    method @InaccessibleFromKotlin public long getFetchDurationMillis();
+    method @InaccessibleFromKotlin public long getLockWaitDurationMillis();
+    method @InaccessibleFromKotlin @androidx.security.state.provider.UpdateFetchOutcome.Code public int getOutcome();
+    method @InaccessibleFromKotlin public long getProcessingDurationMillis();
+    method @InaccessibleFromKotlin public long getTotalDurationMillis();
+    property public int callerUid;
+    property public long fetchDurationMillis;
+    property public long lockWaitDurationMillis;
+    property @androidx.security.state.provider.UpdateFetchOutcome.Code public int outcome;
+    property public long processingDurationMillis;
+    property public long totalDurationMillis;
+  }
+
+  public final class UpdateFetchOutcome {
+    property public static int CACHE_HIT;
+    property public static int COALESCED;
+    property public static int FAILED;
+    property public static int FETCHED;
+    property public static int THROTTLED;
+    field public static final int CACHE_HIT = 1; // 0x1
+    field public static final int COALESCED = 2; // 0x2
+    field public static final int FAILED = 5; // 0x5
+    field public static final int FETCHED = 3; // 0x3
+    field public static final androidx.security.state.provider.UpdateFetchOutcome INSTANCE;
+    field public static final int THROTTLED = 4; // 0x4
+  }
+
+  @IntDef({androidx.security.state.provider.UpdateFetchOutcome.CACHE_HIT, androidx.security.state.provider.UpdateFetchOutcome.FETCHED, androidx.security.state.provider.UpdateFetchOutcome.THROTTLED, androidx.security.state.provider.UpdateFetchOutcome.COALESCED, androidx.security.state.provider.UpdateFetchOutcome.FAILED}) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) public static @interface UpdateFetchOutcome.Code {
+  }
+
   public final class UpdateInfoManager {
     ctor public UpdateInfoManager(android.content.Context context, optional androidx.security.state.SecurityPatchState? customSecurityState);
     ctor @BytecodeOnly public UpdateInfoManager(android.content.Context!, androidx.security.state.SecurityPatchState!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public long getLastCheckTimeMillis();
     method public void registerUpdate(androidx.security.state.UpdateInfo updateInfo);
+    method public void setLastCheckTimeMillis(long timestampMillis);
     method public void unregisterUpdate(androidx.security.state.UpdateInfo updateInfo);
   }
 
-  public final class UpdateInfoProvider extends android.content.ContentProvider {
-    ctor public UpdateInfoProvider();
-    method public int delete(android.net.Uri uri, String? selection, String[]? selectionArgs);
-    method public String? getType(android.net.Uri uri);
-    method public android.net.Uri? insert(android.net.Uri uri, android.content.ContentValues? values);
-    method public boolean onCreate();
-    method public android.database.Cursor query(android.net.Uri uri, String[]? projection, String? selection, String[]? selectionArgs, String? sortOrder);
-    method public int update(android.net.Uri uri, android.content.ContentValues? values, String? selection, String[]? selectionArgs);
+  public abstract class UpdateInfoService extends android.app.Service {
+    ctor public UpdateInfoService();
+    method public void dump(java.io.FileDescriptor? fd, java.io.PrintWriter? writer, String[]? args);
+    method protected abstract suspend Object? fetchUpdates(kotlin.coroutines.Continuation<? super java.util.List<androidx.security.state.UpdateInfo>>);
+    method protected int getCallerUid();
+    method public final android.os.IBinder? onBind(android.content.Intent? intent);
+    method protected void onClientConnected(android.content.Intent intent);
+    method protected void onClientDisconnected(android.content.Intent? intent);
+    method protected void onFetchFailed(Exception e);
+    method protected void onRequestCompleted(androidx.security.state.provider.UpdateCheckTelemetry telemetry);
+    method public final boolean onUnbind(android.content.Intent? intent);
+    method protected boolean shouldFetchUpdates();
+    method protected boolean shouldThrottle();
   }
 
 }

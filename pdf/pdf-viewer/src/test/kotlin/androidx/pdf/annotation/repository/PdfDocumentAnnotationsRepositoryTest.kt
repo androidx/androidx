@@ -153,4 +153,27 @@ class PdfDocumentAnnotationsRepositoryTest {
             verify(fakeDoc, times(1)).getAnnotationsForPage(1)
         }
     }
+
+    @Test
+    fun clear_clearsCache() = runTest {
+        val page0Annotations = listOf(createAnnotation("id_1"), createAnnotation("id_2"))
+
+        val fakeMap = mapOf(0 to page0Annotations)
+
+        val fakeDoc =
+            FakePdfDocument(
+                pages = listOf(Point(100, 200), Point(100, 200)),
+                annotationsPerPage = fakeMap,
+            )
+        val repository = PdfDocumentAnnotationsRepository(fakeDoc)
+
+        val resultPage0 = repository.getAnnotationsForPage(0)
+        assertThat(resultPage0).isNotEmpty()
+        assertThat(resultPage0.size).isEqualTo(2)
+        assertThat(repository.isCacheEmpty()).isFalse()
+
+        repository.clear()
+
+        assertThat(repository.isCacheEmpty()).isTrue()
+    }
 }

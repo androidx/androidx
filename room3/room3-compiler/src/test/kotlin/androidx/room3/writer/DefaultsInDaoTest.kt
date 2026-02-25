@@ -16,7 +16,6 @@
 
 package androidx.room3.writer
 
-import COMMON
 import androidx.room3.compiler.codegen.CodeLanguage
 import androidx.room3.compiler.processing.XProcessingEnv
 import androidx.room3.compiler.processing.XTypeElement
@@ -45,7 +44,7 @@ class DefaultsInDaoTest(private val jvmDefaultMode: String) {
     @Test
     fun abstractDao() {
         val defaultWithCompatibilityAnnotation =
-            if (jvmDefaultMode == "all-compatibility") {
+            if (jvmDefaultMode == "enable") {
                 "@JvmDefaultWithoutCompatibility"
             } else {
                 ""
@@ -85,18 +84,18 @@ class DefaultsInDaoTest(private val jvmDefaultMode: String) {
             Source.kotlin(
                 "Foo.kt",
                 """
-            import androidx.room3.*
-            class User
-            interface BaseDao<T> {
-                @Transaction
-                fun upsert(obj: T) {
-                    TODO("")
+                import androidx.room3.*
+                class User
+                interface BaseDao<T> {
+                    @Transaction
+                    fun upsert(obj: T) {
+                        TODO("")
+                    }
                 }
-            }
 
-            @Dao
-            interface SubjectDao : BaseDao<User>
-            """
+                @Dao
+                interface SubjectDao : BaseDao<User>
+                """
                     .trimIndent(),
             )
         compileInEachDefaultsMode(source) { generated ->
@@ -115,18 +114,18 @@ class DefaultsInDaoTest(private val jvmDefaultMode: String) {
             Source.kotlin(
                 "Foo.kt",
                 """
-            import androidx.room3.*
-            class User
-            interface BaseDao<T> {
-                @Transaction
-                suspend fun upsert(obj: T) {
-                    TODO("")
+                import androidx.room3.*
+                class User
+                interface BaseDao<T> {
+                    @Transaction
+                    suspend fun upsert(obj: T) {
+                        TODO("")
+                    }
                 }
-            }
 
-            @Dao
-            interface SubjectDao : BaseDao<User>
-            """
+                @Dao
+                interface SubjectDao : BaseDao<User>
+                """
                     .trimIndent(),
             )
         compileInEachDefaultsMode(source) { generated ->
@@ -145,18 +144,18 @@ class DefaultsInDaoTest(private val jvmDefaultMode: String) {
             Source.kotlin(
                 "Foo.kt",
                 """
-            import androidx.room3.*
-            @Dao
-            interface SubjectDao {
-                private fun upsert() {
-                    TODO("")
-                }
+                import androidx.room3.*
+                @Dao
+                interface SubjectDao {
+                    private fun upsert() {
+                        TODO("")
+                    }
 
-                private suspend fun suspendUpsert() {
-                    TODO("")
+                    private suspend fun suspendUpsert() {
+                        TODO("")
+                    }
                 }
-            }
-            """
+                """
                     .trimIndent(),
             )
         compileInEachDefaultsMode(
@@ -171,9 +170,9 @@ class DefaultsInDaoTest(private val jvmDefaultMode: String) {
         handler: (StringSubject) -> Unit,
     ) {
         runKspTest(
-            sources = listOf(source, COMMON.COROUTINES_ROOM, COMMON.ROOM_DATABASE_KTX),
+            sources = listOf(source),
             javacArguments = listOf("-source", jvmTarget),
-            kotlincArguments = listOf("-jvm-target=$jvmTarget", "-Xjvm-default=${jvmDefaultMode}"),
+            kotlincArguments = listOf("-jvm-target=$jvmTarget", "-jvm-default=${jvmDefaultMode}"),
         ) { invocation ->
             invocation.roundEnv
                 .getElementsAnnotatedWith(androidx.room3.Dao::class.qualifiedName!!)
@@ -211,6 +210,6 @@ class DefaultsInDaoTest(private val jvmDefaultMode: String) {
     companion object {
         @JvmStatic
         @Parameters(name = "jvmDefaultMode={0}")
-        fun modes() = listOf("all-compatibility", "all", "disable")
+        fun modes() = listOf("enable", "no-compatibility", "disable")
     }
 }

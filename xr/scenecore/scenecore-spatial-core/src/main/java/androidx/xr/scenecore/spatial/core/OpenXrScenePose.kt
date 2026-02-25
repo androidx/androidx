@@ -20,6 +20,7 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.HitTestResult
 import androidx.xr.scenecore.runtime.ScenePose
+import androidx.xr.scenecore.runtime.impl.BaseScenePose
 
 internal class OpenXrScenePose(
     private val activitySpace: ActivitySpaceImpl,

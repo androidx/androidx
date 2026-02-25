@@ -26,7 +26,6 @@ import android.view.Surface
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraFilter
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
@@ -52,7 +51,6 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.StreamSpecsCalculator.Companion.NO_OP_STREAM_SPECS_CALCULATOR
 import androidx.camera.core.internal.utils.ImageUtil
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.ExtensionsUtil
 import androidx.camera.testing.impl.GarbageCollectionUtil
@@ -96,10 +94,6 @@ class ProcessCameraProviderTest(
 ) {
 
     @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName.contains(CameraPipeConfig::class.simpleName!!))
-
-    @get:Rule
     val cameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             CameraUtil.PreTestCameraIdList(cameraConfig)
@@ -108,11 +102,7 @@ class ProcessCameraProviderTest(
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() =
-            listOf(
-                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig()),
-            )
+        fun data() = listOf(arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()))
     }
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()

@@ -93,6 +93,11 @@ public class CarHardwareHostDispatcherTest {
                         assertThat(isSupported).isTrue();
                         assertThat(result).isEqualTo(desiredBundleable);
                     }
+
+                    @Override
+                    public int getInterfaceVersion() {
+                        return super.VERSION;
+                    }
                 });
         verify(mMockCarHardwareHost).getCarHardwareResult(eq(desiredResultType),
                 eq(paramBundle), any());
@@ -117,6 +122,11 @@ public class CarHardwareHostDispatcherTest {
                         assertThat(resultType).isEqualTo(desiredResultType);
                         assertThat(isSupported).isTrue();
                         assertThat(result).isEqualTo(desiredBundleable);
+                    }
+
+                    @Override
+                    public int getInterfaceVersion() {
+                        return super.VERSION;
                     }
                 });
         verify(mMockCarHardwareHost).subscribeCarHardwareResult(eq(desiredResultType),

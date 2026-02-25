@@ -19,22 +19,19 @@ package androidx.room3.integration.multiplatformtestapp.test
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
 import androidx.room3.RoomDatabase
+import androidx.room3.integration.multiplatformtestapp.backgroundDispatcher
 import androidx.room3.useReaderConnection
 import androidx.room3.useWriterConnection
 import androidx.sqlite.SQLiteConnection
-import androidx.sqlite.SQLiteDriver
-import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import androidx.sqlite.execSQL
+import androidx.sqlite.step
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 
 abstract class BaseBuilderTest {
@@ -46,11 +43,11 @@ abstract class BaseBuilderTest {
         var onOpenInvoked = 0
         val testCallback =
             object : RoomDatabase.Callback() {
-                override fun onCreate(connection: SQLiteConnection) {
+                override suspend fun onCreate(connection: SQLiteConnection) {
                     onCreateInvoked++
                 }
 
-                override fun onOpen(connection: SQLiteConnection) {
+                override suspend fun onOpen(connection: SQLiteConnection) {
                     onOpenInvoked++
                 }
             }
@@ -93,9 +90,9 @@ abstract class BaseBuilderTest {
                     object : RoomDatabase.Callback() {
                         // This onOpen callback will block database initialization until the
                         // onOpenLatch is released.
-                        override fun onOpen(connection: SQLiteConnection) {
+                        override suspend fun onOpen(connection: SQLiteConnection) {
                             onOpenInvoked++
-                            runBlocking { onOpenBlocker.await() }
+                            onOpenBlocker.await()
                         }
                     }
                 )
@@ -106,7 +103,7 @@ abstract class BaseBuilderTest {
         val launchBlockers = List(4) { CompletableDeferred<Unit>() }
         val jobs =
             List(4) { index ->
-                launch(Dispatchers.IO) {
+                launch(backgroundDispatcher) {
                     launchBlockers[index].complete(Unit)
                     database.useReaderConnection {}
                 }
@@ -134,8 +131,8 @@ abstract class BaseBuilderTest {
                     object : RoomDatabase.Callback() {
                         // Use a bad open callback that will recursively try to open the database
                         // again, this is a user error.
-                        override fun onOpen(connection: SQLiteConnection) {
-                            runBlocking { checkNotNull(database).dao().getItemList() }
+                        override suspend fun onOpen(connection: SQLiteConnection) {
+                            checkNotNull(database).dao().getItemList()
                         }
                     }
                 )
@@ -153,7 +150,7 @@ abstract class BaseBuilderTest {
         // all have foreign keys enables as that is a per-connection PRAGMA.
         val jobs =
             List(4) {
-                launch(Dispatchers.IO) {
+                launch(backgroundDispatcher) {
                     database.useReaderConnection { connection ->
                         connection.usePrepared("PRAGMA foreign_keys") {
                             assertThat(it.step()).isTrue() // SQLITE_ROW
@@ -162,7 +159,7 @@ abstract class BaseBuilderTest {
                     }
                 }
             } +
-                launch(Dispatchers.IO) {
+                launch(backgroundDispatcher) {
                     database.useWriterConnection { connection ->
                         connection.usePrepared("PRAGMA foreign_keys") {
                             assertThat(it.step()).isTrue() // SQLITE_ROW
@@ -235,72 +232,5 @@ abstract class BaseBuilderTest {
         assertThat(syncMode).isEqualTo(2) // FULL mode
 
         database.close()
-    }
-
-    @Test
-    fun setCustomBusyTimeout() = runTest {
-        val tempDatabase = getRoomDatabaseBuilder().build()
-        val defaultBusyTimeout =
-            tempDatabase.useReaderConnection { connection ->
-                connection.usePrepared("PRAGMA busy_timeout") {
-                    it.step()
-                    it.getLong(0)
-                }
-            }
-        assertThat(defaultBusyTimeout).isGreaterThan(0)
-        tempDatabase.close()
-
-        val customBusyTimeout = 20000
-        val actualDriver = BundledSQLiteDriver()
-        val driverWrapper =
-            object : SQLiteDriver by actualDriver {
-                override fun open(fileName: String): SQLiteConnection {
-                    return actualDriver.open(fileName).also { newConnection ->
-                        newConnection.execSQL("PRAGMA busy_timeout = $customBusyTimeout")
-                    }
-                }
-            }
-        val database = getRoomDatabaseBuilder().setDriver(driverWrapper).build()
-        val configuredBusyTimeout =
-            database.useReaderConnection { connection ->
-                connection.usePrepared("PRAGMA busy_timeout") {
-                    it.step()
-                    it.getLong(0)
-                }
-            }
-        assertThat(configuredBusyTimeout).isEqualTo(customBusyTimeout)
-
-        database.close()
-    }
-
-    // Validates that the type of connection created by the given driver are used in callbacks.
-    @Test
-    fun customConnectionsOnCallbacks() = runTest {
-        class MyConnection(private val delegate: SQLiteConnection) : SQLiteConnection by delegate
-
-        val bundledDriver = BundledSQLiteDriver()
-        val db =
-            getRoomDatabaseBuilder()
-                .addCallback(
-                    object : RoomDatabase.Callback() {
-                        override fun onCreate(connection: SQLiteConnection) {
-                            assertThat(connection).isInstanceOf<MyConnection>()
-                        }
-
-                        override fun onOpen(connection: SQLiteConnection) {
-                            assertThat(connection).isInstanceOf<MyConnection>()
-                        }
-                    }
-                )
-                .setDriver(
-                    object : SQLiteDriver by bundledDriver {
-                        override fun open(fileName: String): SQLiteConnection {
-                            return MyConnection(bundledDriver.open(fileName))
-                        }
-                    }
-                )
-                .build()
-        db.dao().insertItem(1)
-        db.close()
     }
 }

@@ -62,7 +62,18 @@ class RecordTestFailureFlowAction implements FlowAction<HostTestFailureFlowParam
 
         boolean onlyTestTasksFailed = individualFailures.every {
             def cause = it.cause
-            cause instanceof TaskExecutionException && cause.task instanceof AbstractTestTask
+            if (!(cause instanceof TaskExecutionException
+                    && cause.task instanceof AbstractTestTask)
+            ) {
+                return false
+            }
+            def rootCause = cause.cause
+            def expectedErrors = ["There were failing tests",
+                                  "Test running process exited unexpectedly",
+                                  "BrowserTest exited with errors"]
+
+            return rootCause != null && rootCause.message != null &&
+                    expectedErrors.any { error -> rootCause.message.contains(error) }
         }
 
         if (onlyTestTasksFailed) {

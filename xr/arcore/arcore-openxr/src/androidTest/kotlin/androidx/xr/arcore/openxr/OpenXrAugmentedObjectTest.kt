@@ -20,7 +20,6 @@ import androidx.activity.ComponentActivity
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
-import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException
 import androidx.xr.runtime.AugmentedObjectCategory
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.TrackingState
@@ -30,7 +29,6 @@ import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
-import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -67,42 +65,6 @@ class OpenXrAugmentedObjectTest {
     @After
     fun tearDown() {
         xrResources.clear()
-    }
-
-    @Test
-    fun createAnchor_addsAnchor() = initOpenXrManagerAndRunTest {
-        check(xrResources.updatables.size == 1)
-        check(xrResources.updatables.contains(underTest))
-
-        val anchor = underTest.createAnchor(Pose())
-
-        assertThat(xrResources.updatables).contains(anchor as Updatable)
-    }
-
-    @Test
-    fun createAnchor_anchorResourcesExhausted_throwsException() = initOpenXrManagerAndRunTest {
-        check(xrResources.updatables.size == 1)
-        check(xrResources.updatables.contains(underTest))
-
-        // Number of calls comes from 'kAnchorResourcesLimit' defined in
-        // //third_party/jetpack_xr_natives/openxr/openxr_stub.cc.
-        repeat(5) { underTest.createAnchor(Pose()) }
-
-        assertThrows(AnchorResourcesExhaustedException::class.java) {
-            underTest.createAnchor(Pose())
-        }
-    }
-
-    @Test
-    fun detachAnchor_removesAnchorWhenItDetaches() = initOpenXrManagerAndRunTest {
-        val anchor = underTest.createAnchor(Pose())
-        check(xrResources.updatables.size == 2)
-        check(xrResources.updatables.contains(underTest))
-        check(xrResources.updatables.contains(anchor as Updatable))
-
-        anchor.detach()
-
-        assertThat(xrResources.updatables).doesNotContain(anchor)
     }
 
     @Test

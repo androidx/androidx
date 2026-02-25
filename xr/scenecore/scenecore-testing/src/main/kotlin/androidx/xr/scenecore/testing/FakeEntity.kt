@@ -39,7 +39,7 @@ import java.util.concurrent.Executor
  * @see androidx.xr.scenecore.runtime.Entity
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public open class FakeEntity() : FakeScenePose(), Entity {
+public open class FakeEntity(public val name: String = "") : FakeScenePose(), Entity {
 
     private val _children = mutableSetOf<Entity>()
 
@@ -114,10 +114,6 @@ public open class FakeEntity() : FakeScenePose(), Entity {
 
         var parentPose = this.parent?.getPose(relativeTo)
         return parentPose?.compose(pose) ?: pose
-    }
-
-    override fun getGravityAlignedPose(pose: Pose): Pose {
-        return pose
     }
 
     /** Updates the pose (position and rotation) of the Entity relative to the given space. */

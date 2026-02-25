@@ -70,11 +70,6 @@ object COMMON {
         loadJavaCode("common/input/NotAnEntity.java", "foo.bar.NotAnEntity")
     }
 
-    val PARENT by lazy { loadJavaCode("common/input/Parent.java", "foo.bar.Parent") }
-    val CHILD1 by lazy { loadJavaCode("common/input/Child1.java", "foo.bar.Child1") }
-    val CHILD2 by lazy { loadJavaCode("common/input/Child2.java", "foo.bar.Child2") }
-    val INFO by lazy { loadJavaCode("common/input/Info.java", "foo.bar.Info") }
-
     val NOT_AN_ENTITY_TYPE_NAME by lazy { XClassName.get("foo.bar", "NotAnEntity") }
 
     val MULTI_PKEY_ENTITY by lazy {
@@ -86,6 +81,7 @@ object COMMON {
     val LIVE_DATA by lazy {
         loadJavaCode("common/input/LiveData.java", LifecyclesTypeNames.LIVE_DATA.canonicalName)
     }
+    val FLOW_LIVE_DATA by lazy { loadKotlinCode("common/input/FlowLiveData.kt") }
     val COMPUTABLE_LIVE_DATA by lazy {
         loadJavaCode(
             "common/input/ComputableLiveData.java",
@@ -178,8 +174,6 @@ object COMMON {
     }
 
     val RECEIVE_CHANNEL by lazy { loadKotlinCode("common/input/coroutines/ReceiveChannel.kt") }
-
-    val ROOM_DATABASE_KTX by lazy { loadKotlinCode("common/input/RoomDatabaseExt.kt") }
 
     val LONG_SPARSE_ARRAY by lazy {
         loadJavaCode(

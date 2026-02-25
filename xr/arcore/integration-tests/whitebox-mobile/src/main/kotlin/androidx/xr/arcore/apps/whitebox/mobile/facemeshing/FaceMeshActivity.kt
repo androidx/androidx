@@ -60,9 +60,9 @@ import androidx.xr.arcore.apps.whitebox.mobile.samplerender.maybeThrowGLExceptio
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.renderers.BackgroundRenderer
 import androidx.xr.arcore.playservices.ArCoreRuntime
 import androidx.xr.arcore.playservices.cameraState
+import androidx.xr.runtime.CameraFacingDirection
 import androidx.xr.runtime.Config
-import androidx.xr.runtime.Config.CameraFacingDirection
-import androidx.xr.runtime.Config.FaceTrackingMode
+import androidx.xr.runtime.FaceTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Matrix4
 import kotlinx.coroutines.CompletableJob

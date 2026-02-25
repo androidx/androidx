@@ -85,5 +85,10 @@ public class CarAudioCallbackDelegate {
         public void onStopRecording() {
             requireNonNull(mCarAudioCallback).onStopRecording();
         }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
     }
 }

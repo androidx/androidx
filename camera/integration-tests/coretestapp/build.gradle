@@ -60,7 +60,6 @@ dependencies {
     api(libs.jspecify)
     // Internal library
     implementation(project(":camera:camera-camera2"))
-    implementation(project(":camera:camera-camera2-pipe-integration"))
     implementation(project(":camera:camera-core"))
     implementation(project(":camera:camera-lifecycle"))
     debugImplementation(project(":camera:camera-mlkit-vision"))
@@ -115,6 +114,7 @@ dependencies {
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation("org.jetbrains.kotlinx:atomicfu:0.13.1")
     androidTestImplementation("androidx.exifinterface:exifinterface:1.4.2")
+    androidTestImplementation("androidx.core:core-backported-fixes:1.0.0")
 
     testImplementation(libs.kotlinCoroutinesAndroid)
     testImplementation(libs.kotlinCoroutinesTest)

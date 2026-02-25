@@ -51,11 +51,11 @@ class OpenDelegateWriterTest {
     fun createSimpleEntity() {
         singleEntity(
             """
-                @PrimaryKey
-                @NonNull
-                String uuid;
-                String name;
-                int age;
+            @PrimaryKey
+            @NonNull
+            String uuid;
+            String name;
+            int age;
             """
                 .trimIndent()
         ) { database, _ ->
@@ -75,11 +75,11 @@ class OpenDelegateWriterTest {
     fun multiplePrimaryKeys() {
         singleEntity(
             """
-                @NonNull
-                String uuid;
-                @NonNull
-                String name;
-                int age;
+            @NonNull
+            String uuid;
+            @NonNull
+            String name;
+            int age;
             """
                 .trimIndent(),
             attributes = mapOf("primaryKeys" to "{\"uuid\", \"name\"}"),

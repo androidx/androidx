@@ -31,6 +31,7 @@ import androidx.room3.ext.LambdaSpec
 import androidx.room3.ext.MapKeySetExprCode
 import androidx.room3.ext.RoomTypeNames
 import androidx.room3.ext.RoomTypeNames.RELATION_UTIL
+import androidx.room3.ext.SQLiteDriverMemberNames
 import androidx.room3.ext.SQLiteDriverTypeNames
 import androidx.room3.ext.stripNonJava
 import androidx.room3.solver.CodeGenScope
@@ -62,6 +63,8 @@ class RelationCollectorFunctionWriter(private val collector: RelationCollector) 
             "-${relation.dataClassTypeName}" +
             "-${relation.createLoadAllSql()}"
     }
+
+    override fun isSuspendFun() = true
 
     override fun prepare(functionName: String, writer: TypeWriter, builder: XFunSpec.Builder) {
         val scope = CodeGenScope(writer = writer)
@@ -105,8 +108,9 @@ class RelationCollectorFunctionWriter(private val collector: RelationCollector) 
         addLocalVal(
             stmtVar,
             SQLiteDriverTypeNames.STATEMENT,
-            "%L.prepare(%L)",
+            "%L.%M(%L)",
             connectionVar,
+            SQLiteDriverMemberNames.CONNECTION_PREPARE,
             sqlQueryVar,
         )
         collector.queryWriter.bindArgs(stmtVar, listSizeVars, scope)
@@ -150,38 +154,38 @@ class RelationCollectorFunctionWriter(private val collector: RelationCollector) 
             // Prepare item column indices
             collector.rowAdapter.onStatementReady(stmtVarName = stmtVar, scope = scope)
             val tmpVarName = scope.getTmpVar("_item")
-            val stepName = "step"
-            beginControlFlow("while (%L.$stepName())", stmtVar).apply {
-                // Read key from the statement, convert row to item and place it on map
-                collector.readKey(
-                    stmtVarName = stmtVar,
-                    indexVar = itemKeyIndexVar,
-                    keyReader = collector.entityKeyColumnReader,
-                    scope = scope,
-                ) { keyVar ->
-                    if (collector.relationTypeIsCollection) {
-                        val relationVar = scope.getTmpVar("_tmpRelation")
-                        addLocalVal(
-                            relationVar,
-                            collector.relationTypeName.copy(nullable = true),
-                            "%L.get(%L)",
-                            PARAM_MAP_VARIABLE,
-                            keyVar,
-                        )
-                        beginControlFlow("if (%L != null)", relationVar)
-                        addLocalVariable(tmpVarName, relation.dataClassTypeName)
-                        collector.rowAdapter.convert(tmpVarName, stmtVar, scope)
-                        addStatement("%L.add(%L)", relationVar, tmpVarName)
-                        endControlFlow()
-                    } else {
-                        beginControlFlow("if (%N.containsKey(%L))", PARAM_MAP_VARIABLE, keyVar)
-                        addLocalVariable(tmpVarName, relation.dataClassTypeName)
-                        collector.rowAdapter.convert(tmpVarName, stmtVar, scope)
-                        addStatement("%N.put(%L, %L)", PARAM_MAP_VARIABLE, keyVar, tmpVarName)
-                        endControlFlow()
+            beginControlFlow("while (%L.%M())", stmtVar, SQLiteDriverMemberNames.STATEMENT_STEP)
+                .apply {
+                    // Read key from the statement, convert row to item and place it on map
+                    collector.readKey(
+                        stmtVarName = stmtVar,
+                        indexVar = itemKeyIndexVar,
+                        keyReader = collector.entityKeyColumnReader,
+                        scope = scope,
+                    ) { keyVar ->
+                        if (collector.relationTypeIsCollection) {
+                            val relationVar = scope.getTmpVar("_tmpRelation")
+                            addLocalVal(
+                                relationVar,
+                                collector.relationTypeName.copy(nullable = true),
+                                "%L.get(%L)",
+                                PARAM_MAP_VARIABLE,
+                                keyVar,
+                            )
+                            beginControlFlow("if (%L != null)", relationVar)
+                            addLocalVariable(tmpVarName, relation.dataClassTypeName)
+                            collector.rowAdapter.convert(tmpVarName, stmtVar, scope)
+                            addStatement("%L.add(%L)", relationVar, tmpVarName)
+                            endControlFlow()
+                        } else {
+                            beginControlFlow("if (%N.containsKey(%L))", PARAM_MAP_VARIABLE, keyVar)
+                            addLocalVariable(tmpVarName, relation.dataClassTypeName)
+                            collector.rowAdapter.convert(tmpVarName, stmtVar, scope)
+                            addStatement("%N.put(%L, %L)", PARAM_MAP_VARIABLE, keyVar, tmpVarName)
+                            endControlFlow()
+                        }
                     }
                 }
-            }
             endControlFlow()
         }
         nextControlFlow("finally").apply { addStatement("%L.close()", stmtVar) }

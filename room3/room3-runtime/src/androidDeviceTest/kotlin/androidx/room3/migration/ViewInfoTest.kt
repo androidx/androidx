@@ -21,6 +21,7 @@ import androidx.sqlite.driver.AndroidSQLiteDriver
 import androidx.sqlite.execSQL
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -29,7 +30,7 @@ import org.junit.runner.RunWith
 class ViewInfoTest {
 
     @Test
-    fun readSimple() {
+    fun readSimple() = runTest {
         openDatabase(
                 "CREATE TABLE foo (id INTEGER PRIMARY KEY, name TEXT)",
                 "CREATE VIEW bar AS SELECT id, name FROM foo",
@@ -42,7 +43,7 @@ class ViewInfoTest {
     }
 
     @Test
-    fun notExisting() {
+    fun notExisting() = runTest {
         openDatabase("CREATE TABLE foo (id INTEGER PRIMARY KEY, name TEXT)").use { connection ->
             val info = ViewInfo.read(connection, "bar")
             assertThat(info.name).isEqualTo("bar")

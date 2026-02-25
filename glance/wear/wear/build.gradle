@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -31,22 +30,27 @@ plugins {
 }
 
 dependencies {
-    def composeVersion = "1.9.0"
+    def composeVersion = "1.10.1"
     def datastoreVersion = "1.2.0"
 
     api(libs.kotlinCoroutinesAndroid)
     api("androidx.annotation:annotation:1.9.1")
-    api("androidx.compose.runtime:runtime:$composeVersion")
     api("androidx.lifecycle:lifecycle-service:2.9.2")
+    api(project(":compose:remote:remote-creation-compose"))
+    api("androidx.compose.runtime:runtime:$composeVersion")
+    api(project(":glance:wear:wear-core"))
+
     implementation("androidx.compose.foundation:foundation:$composeVersion")
+    implementation("androidx.compose.ui:ui-graphics:$composeVersion")
 
     implementation(project(":compose:remote:remote-creation"))
-    api(project(":compose:remote:remote-creation-compose"))
-    api(project(":glance:wear:wear-core"))
 
     implementation("androidx.datastore:datastore-android:$datastoreVersion")
     implementation("androidx.datastore:datastore-core:$datastoreVersion")
 
+    compileOnly files("../../../wear/wear_sdk/wear-sdk.jar")
+
+    testImplementation(files("../../../wear/wear_sdk/wear-sdk.jar"))
     testImplementation("androidx.core:core-ktx:1.17.0")
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.junit)
@@ -56,12 +60,13 @@ dependencies {
     testImplementation(libs.truth)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.testRunner)
     androidTestImplementation("androidx.core:core-ktx:1.17.0")
     androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(project(":compose:remote:remote-player-core"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:$composeVersion")
-    implementation("androidx.compose.ui:ui-graphics:$composeVersion")
     androidTestImplementation("androidx.compose.foundation:foundation:$composeVersion")
+    androidTestImplementation(project(":compose:remote:remote-player-compose-testutils"))
 }
 
 wire {
@@ -77,6 +82,7 @@ android {
     compileSdk { version = release(36) }
     defaultConfig {
         minSdk { version = release(29) }
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 }
 
@@ -86,4 +92,5 @@ androidx {
     inceptionYear = "2025"
     description = "Allows developers to build Widgets on Wear OS using Remote Compose."
     enableRobolectric()
+    addGoldenImageAssets()
 }

@@ -26,6 +26,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.FloatSize2d
@@ -114,9 +115,7 @@ class AnchorEntityActivity : AppCompatActivity() {
 
     private fun createAnchorEntity(context: Context) {
         lifecycleScope.launch {
-            session!!.configure(
-                Config(planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
-            )
+            session!!.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
 
             xyzModel = GltfModel.create(session!!, XYZ_ARROWS_MODEL)
 

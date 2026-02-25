@@ -16,7 +16,9 @@
 
 package androidx.xr.scenecore
 
+import android.os.Build
 import androidx.annotation.MainThread
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.Log
 import androidx.xr.runtime.Session
@@ -27,6 +29,7 @@ import androidx.xr.scenecore.runtime.RenderingRuntime
 import androidx.xr.scenecore.runtime.SceneRuntime
 import java.util.Collections
 import java.util.concurrent.Executor
+import java.util.concurrent.TimeUnit
 import java.util.function.Consumer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
@@ -42,12 +45,95 @@ private constructor(rtEntity: RtGltfEntity, entityManager: EntityManager) :
     BaseEntity<RtGltfEntity>(rtEntity, entityManager) {
     // TODO: b/417750821 - Add an OnAnimationEvent() Listener interface
 
+    @Suppress("DEPRECATION")
     private val mAnimationStateListeners: MutableMap<Consumer<AnimationState>, Executor> =
         Collections.synchronizedMap(mutableMapOf())
 
-    /** Specifies the current animation state of the GltfModelEntity. */
-    public class AnimationState private constructor(private val name: String) {
+    private val _nodes: List<GltfModelNode> by lazy {
+        // The unique identifier of a node is their index so we first get the
+        // count of the nodes in the model from the native side.
+        val features = rtEntity!!.nodes
+        val list = ArrayList<GltfModelNode>(features.size)
 
+        for (i in features.indices) {
+            // For each node index in the model, query its name from the native side
+            // and create a [GltfModelNode]. A node may have no name (`null`).
+            val feature = features[i]
+            list.add(GltfModelNode(this, feature, i, feature.name))
+        }
+        list.toList()
+    }
+
+    /**
+     * A list of all [GltfModelNode]s defined in the [GltfModelEntity]. The list is lazily
+     * initialized on the first access.
+     *
+     * The returned list corresponds to the flattened array of nodes defined in the source glTF
+     * file. The order of elements in this list is guaranteed to match the order of nodes in the
+     * glTF file's `nodes` array.
+     */
+    public val nodes: List<GltfModelNode>
+        @MainThread
+        get() {
+            checkNotDisposed()
+            return _nodes
+        }
+
+    @delegate:RequiresApi(Build.VERSION_CODES.O)
+    private val _animations: List<GltfAnimation> by lazy {
+        // The unique identifier of an animation is their index so we first get the
+        // count of the nodes in the model from the native side.
+        val features = rtEntity.animations
+        val list = ArrayList<GltfAnimation>(features.size)
+
+        for (i in features.indices) {
+            // For each animation index in the model, query its name from the native side
+            // and create a [GltfAnimation]. An animation may have no name ("").
+            val feature = features[i]
+            list.add(
+                GltfAnimation(
+                    rtGltfEntity = rtEntity,
+                    rtGltfAnimation = feature,
+                    index = feature.animationIndex,
+                    name = feature.animationName,
+                    // The animation duration is in seconds [Float]. We convert it to the [Duration]
+                    // datatype.
+                    duration =
+                        java.time.Duration.ofMillis(
+                            (feature.animationDuration * TimeUnit.SECONDS.toMillis(1)).toLong()
+                        ),
+                )
+            )
+        }
+        Collections.unmodifiableList(list)
+    }
+
+    /**
+     * A list of all [GltfAnimation]s defined in the [GltfModelEntity]. The list is lazily
+     * initialized on the first access.
+     *
+     * The returned list corresponds to the array of animations defined in the source glTF file. The
+     * order of elements in this list is guaranteed to match the order of animations in the glTF
+     * file's `animations` array.
+     */
+    @get:RequiresApi(Build.VERSION_CODES.O)
+    public val animations: List<GltfAnimation>
+        @MainThread
+        get() {
+            checkNotDisposed()
+            return _animations
+        }
+
+    /** Specifies the current animation state of the GltfModelEntity. */
+    @Deprecated(
+        message =
+            "Use GltfAnimation.AnimationState instead. Entity-level animation state is deprecated" +
+                " since multiple animations can now play simultaneously.",
+        replaceWith =
+            ReplaceWith("GltfAnimation.AnimationState", "androidx.xr.scenecore.GltfAnimation"),
+    )
+    public class AnimationState private constructor(private val name: String) {
+        @Suppress("DEPRECATION")
         public companion object {
             /** The animation is currently playing. */
             @JvmField public val PLAYING: AnimationState = AnimationState("PLAYING")
@@ -67,6 +153,12 @@ private constructor(rtEntity: RtGltfEntity, entityManager: EntityManager) :
      *
      * @return The current animation state.
      */
+    @Suppress("DEPRECATION")
+    @Deprecated(
+        message =
+            "Entity-level animation state is deprecated. Query the animationState property of" +
+                " individual GltfAnimation objects in the 'animations' list instead."
+    )
     public val animationState: AnimationState
         get() {
             checkNotDisposed()
@@ -208,6 +300,15 @@ private constructor(rtEntity: RtGltfEntity, entityManager: EntityManager) :
      *   the given name.
      */
     @MainThread
+    @Deprecated(
+        message = "Use GltfAnimation.start() on the specific animation instead.",
+        replaceWith =
+            ReplaceWith(
+                "animations.find { it.name == animationName }?" +
+                    ".start(GltfAnimationStartOptions(shouldLoop = loop))",
+                "androidx.xr.scenecore.GltfAnimationStartOptions",
+            ),
+    )
     public fun startAnimation(loop: Boolean, animationName: String) {
         checkNotDisposed()
         try {
@@ -229,6 +330,14 @@ private constructor(rtEntity: RtGltfEntity, entityManager: EntityManager) :
      */
     @MainThread
     @JvmOverloads
+    @Deprecated(
+        message = "Use GltfAnimation.start() on the specific animation instead.",
+        replaceWith =
+            ReplaceWith(
+                "animations.firstOrNull()?.start(GltfAnimationStartOptions(shouldLoop = loop))",
+                "androidx.xr.scenecore.GltfAnimationStartOptions",
+            ),
+    )
     public fun startAnimation(loop: Boolean = true) {
         checkNotDisposed()
         try {
@@ -245,6 +354,10 @@ private constructor(rtEntity: RtGltfEntity, entityManager: EntityManager) :
      * https://developer.android.com/guide/components/processes-and-threads
      */
     @MainThread
+    @Deprecated(
+        message = "Use GltfAnimation.stop() on individual animations instead.",
+        replaceWith = ReplaceWith("animations.forEach { it.stop() }"),
+    )
     public fun stopAnimation() {
         checkNotDisposed()
         rtEntity!!.stopAnimation()
@@ -261,6 +374,10 @@ private constructor(rtEntity: RtGltfEntity, entityManager: EntityManager) :
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @MainThread
+    @Deprecated(
+        message = "Use GltfAnimation.pause() on individual animations instead.",
+        replaceWith = ReplaceWith("animations.forEach { it.pause() }"),
+    )
     public fun pauseAnimation() {
         checkNotDisposed()
         rtEntity!!.pauseAnimation()
@@ -276,52 +393,13 @@ private constructor(rtEntity: RtGltfEntity, entityManager: EntityManager) :
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @MainThread
+    @Deprecated(
+        message = "Use GltfAnimation.resume() on individual animations instead.",
+        replaceWith = ReplaceWith("animations.forEach { it.resume() }"),
+    )
     public fun resumeAnimation() {
         checkNotDisposed()
         rtEntity!!.resumeAnimation()
-    }
-
-    /**
-     * Sets a material override for a primitive of a node within the glTF graph.
-     *
-     * This function searches for the first node in the glTF scene graph with a matching [nodeName].
-     * The override is then applied to a primitive of that node at the specified [primitiveIndex].
-     *
-     * @param material The new [Material] to apply to the primitive.
-     * @param nodeName The name of the node as defined in the glTF graph, containing the primitive
-     *   to override.
-     * @param primitiveIndex The zero-based index for the primitive of the specified node, as
-     *   defined in the glTF graph. Default is the first primitive of that node.
-     * @throws IllegalArgumentException if the provided [material] is invalid or if no node with the
-     *   given [nodeName] is found in the model.
-     * @throws IndexOutOfBoundsException if the [primitiveIndex] is out of bounds.
-     */
-    @JvmOverloads
-    @MainThread
-    public fun setMaterialOverride(material: Material, nodeName: String, primitiveIndex: Int = 0) {
-        checkNotDisposed()
-        rtEntity!!.setMaterialOverride(material.material!!, nodeName, primitiveIndex)
-    }
-
-    /**
-     * Clears a previously set material override for a specific primitive of a node within the glTF
-     * graph.
-     *
-     * If no override was previously set for that primitive, this call has no effect.
-     *
-     * @param nodeName The name of the node containing the primitive whose material override will be
-     *   cleared.
-     * @param primitiveIndex The zero-based index for the primitive of the specified node, as
-     *   defined in the glTF graph. Default is the first primitive of that node.
-     * @throws IllegalArgumentException if the provided [Material] is invalid or if no node with the
-     *   given [nodeName] is found in the model.
-     * @throws IndexOutOfBoundsException if the [primitiveIndex] is out of bounds.
-     */
-    @JvmOverloads
-    @MainThread
-    public fun clearMaterialOverride(nodeName: String, primitiveIndex: Int = 0) {
-        checkNotDisposed()
-        rtEntity!!.clearMaterialOverride(nodeName, primitiveIndex)
     }
 
     /**
@@ -333,6 +411,13 @@ private constructor(rtEntity: RtGltfEntity, entityManager: EntityManager) :
      * @param listener The listener to be invoked.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @Suppress("DEPRECATION")
+    @Deprecated(
+        message =
+            "Entity-level animation listeners are deprecated. Use" +
+                " GltfAnimation.addAnimationStateListener() or removeAnimationStateListener()" +
+                " on individual animations instead."
+    )
     public fun addAnimationStateListener(executor: Executor, listener: Consumer<AnimationState>) {
         checkNotDisposed()
         if (mAnimationStateListeners.isEmpty()) {
@@ -353,6 +438,13 @@ private constructor(rtEntity: RtGltfEntity, entityManager: EntityManager) :
      * @param listener The listener to be invoked.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @Suppress("DEPRECATION")
+    @Deprecated(
+        message =
+            "Entity-level animation listeners are deprecated." +
+                " Use GltfAnimation.addAnimationStateListener() or" +
+                " removeAnimationStateListener() on individual animations instead."
+    )
     public fun addAnimationStateListener(listener: Consumer<AnimationState>) {
         addAnimationStateListener(executor = Dispatchers.Main.asExecutor(), listener = listener)
     }
@@ -365,6 +457,13 @@ private constructor(rtEntity: RtGltfEntity, entityManager: EntityManager) :
      * @param listener The listener to be removed.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @Suppress("DEPRECATION")
+    @Deprecated(
+        message =
+            "Entity-level animation listeners are deprecated. Use" +
+                " GltfAnimation.addAnimationStateListener() or removeAnimationStateListener()" +
+                " on individual animations instead."
+    )
     public fun removeAnimationStateListener(listener: Consumer<AnimationState>) {
         mAnimationStateListeners.remove(listener)
         if (mAnimationStateListeners.isEmpty()) {
@@ -372,7 +471,9 @@ private constructor(rtEntity: RtGltfEntity, entityManager: EntityManager) :
         }
     }
 
+    @Suppress("DEPRECATION")
     private fun onAnimationStateUpdated(@RtGltfEntity.AnimationStateValue animationState: Int) {
+        @Suppress("DEPRECATION")
         val result =
             when (animationState) {
                 RtGltfEntity.AnimationState.PLAYING -> AnimationState.PLAYING

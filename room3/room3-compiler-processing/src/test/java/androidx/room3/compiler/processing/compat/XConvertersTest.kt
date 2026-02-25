@@ -51,26 +51,26 @@ class XConvertersTest {
         Source.kotlin(
             "KotlinClass.kt",
             """
-        @androidx.room3.compiler.processing.testcode.TestSuppressWarnings("warning1")
-        class KotlinClass {
-          var field = 1
-          fun foo(param: Int) {
-          }
-        }
-        """
+            @androidx.room3.compiler.processing.testcode.TestSuppressWarnings("warning1")
+            class KotlinClass {
+              var field = 1
+              fun foo(param: Int) {
+              }
+            }
+            """
                 .trimIndent(),
         )
     val javaSrc =
         Source.java(
             "JavaClass",
             """
-        @androidx.room3.compiler.processing.testcode.TestSuppressWarnings("warning1")
-        public class JavaClass {
-          public int field = 1;
-          public void foo(int param) {
-          }
-        }
-        """
+            @androidx.room3.compiler.processing.testcode.TestSuppressWarnings("warning1")
+            public class JavaClass {
+              public int field = 1;
+              public void foo(int param) {
+              }
+            }
+            """
                 .trimIndent(),
         )
 
@@ -80,30 +80,30 @@ class XConvertersTest {
             Source.kotlin(
                 "KotlinClass.kt",
                 """
-            class KotlinClass {
-              class FooImpl<T: String>: Foo<T> {
-                override fun foo(param: T) {}
-              }
-              interface Foo<T> {
-                fun foo(param: T)
-              }
-            }
-            """
+                class KotlinClass {
+                  class FooImpl<T: String>: Foo<T> {
+                    override fun foo(param: T) {}
+                  }
+                  interface Foo<T> {
+                    fun foo(param: T)
+                  }
+                }
+                """
                     .trimIndent(),
             )
         val javaSrc =
             Source.java(
                 "JavaClass",
                 """
-            public class JavaClass {
-              static class FooImpl<T extends String> implements Foo<T> {
-                @Override public void foo(T param) {}
-              }
-              interface Foo<T> {
-                void foo(T param);
-              }
-            }
-            """
+                public class JavaClass {
+                  static class FooImpl<T extends String> implements Foo<T> {
+                    @Override public void foo(T param) {}
+                  }
+                  interface Foo<T> {
+                    void foo(T param);
+                  }
+                }
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(kotlinSrc, javaSrc)) { invocation ->
@@ -780,12 +780,12 @@ class XConvertersTest {
                     Source.kotlin(
                         "Foo.kt",
                         """
-                    annotation class FooAnnotation(val value: String)
-                    @FooAnnotation("someValue")
-                    interface Foo {
-                        fun method()
-                    }
-                    """
+                        annotation class FooAnnotation(val value: String)
+                        @FooAnnotation("someValue")
+                        interface Foo {
+                            fun method()
+                        }
+                        """
                             .trimIndent(),
                     )
                 )

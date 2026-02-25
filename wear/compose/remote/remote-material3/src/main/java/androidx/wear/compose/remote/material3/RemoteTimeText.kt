@@ -37,15 +37,14 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.RemoteTextUnit
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.GenericFontFamily
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.sp
 
 /**
  * A remote composable for displaying the time and surrounding text, designed to curve along the top
@@ -69,7 +68,7 @@ import androidx.compose.ui.unit.sp
 public fun RemoteTimeText(
     modifier: RemoteModifier = RemoteModifier,
     time: RemoteString = RemoteTimeTextDefaults.defaultTimeString(),
-    fontSize: TextUnit = 14.sp,
+    fontSize: RemoteTextUnit = 14.rsp,
     fontFamily: FontFamily? = null,
     leadingText: RemoteString? = null,
     trailingText: RemoteString? = null,
@@ -83,7 +82,8 @@ public fun RemoteTimeText(
             trailingText = trailingText ?: "".rs,
             separator = separator,
         )
-    val fontSize = with(LocalDensity.current) { fontSize.toPx() }.rf
+    val fontSize = fontSize.toPx()
+
     RemoteBox(modifier.clearAndSetSemantics {}) {
         RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
             drawTimeText(

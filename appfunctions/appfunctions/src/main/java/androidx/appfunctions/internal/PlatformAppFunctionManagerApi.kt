@@ -29,6 +29,8 @@ import androidx.appfunctions.AppFunctionManager.Companion.APP_FUNCTION_STATE_DIS
 import androidx.appfunctions.AppFunctionManager.Companion.APP_FUNCTION_STATE_ENABLED
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
+import androidx.appfunctions.ExecuteAppFunctionResponse.Success.Companion.toCompatExecuteAppFunctionResponse
+import androidx.appfunctions.metadata.AppFunctionMetadata
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.Runnable
@@ -89,13 +91,14 @@ internal class PlatformAppFunctionManagerApi(private val context: Context) : App
     }
 
     override suspend fun executeAppFunction(
-        request: ExecuteAppFunctionRequest
+        request: ExecuteAppFunctionRequest,
+        functionMetadata: AppFunctionMetadata,
     ): ExecuteAppFunctionResponse {
         return suspendCancellableCoroutine { cont ->
             val cancellationSignal = CancellationSignal()
             cont.invokeOnCancellation { cancellationSignal.cancel() }
             appFunctionManager.executeAppFunction(
-                request.toPlatformClass(),
+                request.toPlatformExecuteAppFunctionRequest(),
                 Runnable::run,
                 cancellationSignal,
                 object :
@@ -107,7 +110,7 @@ internal class PlatformAppFunctionManagerApi(private val context: Context) : App
                     override fun onResult(
                         result: android.app.appfunctions.ExecuteAppFunctionResponse
                     ) {
-                        cont.resume(ExecuteAppFunctionResponse.Success.fromPlatformClass(result))
+                        cont.resume(result.toCompatExecuteAppFunctionResponse(functionMetadata))
                     }
 
                     override fun onError(error: android.app.appfunctions.AppFunctionException) {

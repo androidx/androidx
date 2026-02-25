@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   Copyright 2025 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,36 +15,43 @@
   limitations under the License.
   -->
 
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <View
         android:id="@+id/anchorLeft"
         android:layout_width="@dimen/toolbar_anchor_width"
         android:layout_height="@dimen/toolbar_anchor_length"
-        android:layout_gravity="center_vertical|start"
         android:layout_marginStart="@dimen/margin_16dp"
         android:background="@drawable/anchor_background"
         android:visibility="gone"
-        android:alpha="0.3" />
+        android:alpha="0.3"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <View
         android:id="@+id/anchorRight"
         android:layout_width="@dimen/toolbar_anchor_width"
         android:layout_height="@dimen/toolbar_anchor_length"
-        android:layout_gravity="center_vertical|end"
         android:layout_marginEnd="@dimen/margin_16dp"
         android:background="@drawable/anchor_background"
         android:visibility="gone"
-        android:alpha="0.3" />
+        android:alpha="0.3"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <View
         android:id="@+id/anchorBottom"
         android:layout_width="@dimen/toolbar_anchor_length"
         android:layout_height="@dimen/toolbar_anchor_width"
-        android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="@dimen/margin_16dp"
         android:background="@drawable/anchor_background"
         android:visibility="gone"
-        android:alpha="0.3" />
+        android:alpha="0.3"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </merge>

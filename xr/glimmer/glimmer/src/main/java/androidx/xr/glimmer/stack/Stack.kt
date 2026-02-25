@@ -18,7 +18,6 @@ package androidx.xr.glimmer.stack
 
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.gestures.AnchoredDraggableDefaults.SnapAnimationSpec
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.PagerSnapDistance

@@ -37,6 +37,7 @@ import androidx.health.connect.client.aggregate.AggregationResultGroupedByDurati
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
 import androidx.health.connect.client.impl.platform.aggregate.DOUBLE_AGGREGATION_METRIC_TYPE_MAP
 import androidx.health.connect.client.impl.platform.aggregate.DURATION_AGGREGATION_METRIC_TYPE_MAP
+import androidx.health.connect.client.impl.platform.aggregate.DURATION_TO_LONG_AGGREGATION_METRIC_TYPE_MAP
 import androidx.health.connect.client.impl.platform.aggregate.ENERGY_AGGREGATION_METRIC_TYPE_MAP
 import androidx.health.connect.client.impl.platform.aggregate.GRAMS_AGGREGATION_METRIC_TYPE_MAP
 import androidx.health.connect.client.impl.platform.aggregate.KILOGRAMS_AGGREGATION_METRIC_TYPE_MAP
@@ -58,6 +59,7 @@ import androidx.health.connect.client.impl.platform.records.toSdkDataOrigin
 import androidx.health.connect.client.impl.platform.request.toAggregationType
 import androidx.health.connect.client.units.Energy
 import androidx.health.connect.client.units.Mass
+import java.time.Duration
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
@@ -139,11 +141,16 @@ internal fun getLongMetricValues(
 ): Map<String, Long> {
     return buildMap {
         metricValueMap.forEach { (key, value) ->
-            if (
-                key in DURATION_AGGREGATION_METRIC_TYPE_MAP ||
-                    key in LONG_AGGREGATION_METRIC_TYPE_MAP
-            ) {
-                this[key.metricKey] = value as Long
+            when (key) {
+                in LONG_AGGREGATION_METRIC_TYPE_MAP -> {
+                    this[key.metricKey] = value as Long
+                }
+                in DURATION_TO_LONG_AGGREGATION_METRIC_TYPE_MAP -> {
+                    this[key.metricKey] = value as Long
+                }
+                in DURATION_AGGREGATION_METRIC_TYPE_MAP -> {
+                    this[key.metricKey] = (value as Duration).toMillis()
+                }
             }
         }
     }

@@ -68,10 +68,10 @@ package androidx.benchmark.traceprocessor {
     method @BytecodeOnly public java.util.Set<java.util.Map.Entry<java.lang.String!,java.lang.Object!>!>! entrySet();
     method @BytecodeOnly public Object! get(Object!);
     method public operator Object? get(String key);
-    method @BytecodeOnly public java.util.Set<java.util.Map.Entry<java.lang.String!,java.lang.Object!>!> getEntries();
-    method @BytecodeOnly public java.util.Set<java.lang.String!> getKeys();
-    method @BytecodeOnly public int getSize();
-    method @BytecodeOnly public java.util.Collection<java.lang.Object!> getValues();
+    method public java.util.Set<java.util.Map.Entry<java.lang.String!,java.lang.Object!>!> getEntries();
+    method public java.util.Set<java.lang.String!> getKeys();
+    method public int getSize();
+    method public java.util.Collection<java.lang.Object!> getValues();
     method public boolean isEmpty();
     method @BytecodeOnly public java.util.Set<java.lang.String!>! keySet();
     method public long long(String columnName);

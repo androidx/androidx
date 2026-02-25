@@ -48,11 +48,11 @@
     <string name="cuj_field_of_view_visibility_test">Field Of View Visibility Test Case</string>
     <string name="cuj_hit_test">Digital Hit Test Case</string>
     <string name="cuj_accessibility_test">Accessibility Test Case</string>
+    <string name="cuj_surface_entity_custom_mesh_test">Surface Entity Custom Mesh Test Case</string>
     <string name="cuj_surface_entity_imagetest">Surface Entity Image Display Test Case</string>
     <string name="cuj_surface_entity_interaction_test">Surface Entity Interaction Test Case</string>
     <string name="cuj_surface_entity_playbacktest">Surface Entity Playback Test Case</string>
     <string name="dev_memory_leak_test">Memory Leak (Dev) Test Case</string>
-    <string name="cuj_gravity_aligned_pose_test">Gravity Aligned Pose Test</string>
     <string name="cuj_panel_coordinates_test">Panel Coordinates Test</string>
     <string name="cuj_gltf_model_animation_test">GLTF Model Animation Test Case</string>
 
@@ -106,6 +106,14 @@
     <string name="horizontal" description="Checkbox label for the Horizontal plane Type option. [CHAR_LIMIT=30]">Horizontal</string>
     <string name="vertical" description="Checkbox label for the Vertical plane Type option. [CHAR_LIMIT=30]">Vertical</string>
     <string name="movable_panel_test" description="Label for the main panel. [CHAR_LIMIT=30]">Movable Panel Test</string>
+    <string name="enable_movable_component" description="Label for the master switch that enables or disables the MovableComponent functionality on the panel. [CHAR_LIMIT=30]">Enable MovableComponent</string>
+    <string name="movable_type_anchorable" description="Radio button label for selecting the Anchorable type of MovableComponent. [CHAR_LIMIT=30]">Anchorable</string>
+    <string name="movable_type_system" description="Radio button label for selecting the System Movable type of MovableComponent. [CHAR_LIMIT=30]">System Movable</string>
+    <string name="movable_type_custom" description="Radio button label for selecting the Custom Movable type of MovableComponent. [CHAR_LIMIT=30]">Custom Movable</string>
+    <string name="custom_behavior" description="Header text for the options that configure the custom behavior of the MovableComponent. [CHAR_LIMIT=30]">Custom Behavior</string>
+    <string name="custom_behavior_translation_only" description="Radio button label for the custom behavior that only updates the entity's translation (position). [CHAR_LIMIT=40]">Only update translation</string>
+    <string name="custom_behavior_rotation_only" description="Radio button label for the custom behavior that only updates the entity's rotation. [CHAR_LIMIT=40]">Only update rotation</string>
+
 
     <!-- inputmoveresize -->
     <string name="movable_label" description="Label for switch that enables main panel move [CHAR_LIMIT=30]">Movable</string>
@@ -142,17 +150,5 @@
     <!-- spatialaudiotest -->
     <string name="spatial_panel_label" description="Label for the spatial audio panel. [CHAR_LIMIT=50]">Spatial Audio Panel</string>
     <string name="sound_panel_help_text">Drag around this panel to experience the spatial audio</string>
-
-    <!-- gravityaligned -->
-    <string name="gravity_aligned_parent_panel">Parent Panel</string>
-    <string name="gravity_aligned_child_panel">Child Panel</string>
-    <string name="default_pose_button">Default Pose (Parent)</string>
-    <string name="default_pose_button_activity">Default Pose (Activity)</string>
-    <string name="default_pose_button_world">Default Pose (World)</string>
-    <string name="gravity_aligned_pose_button">Gravity Aligned Pose (Parent)</string>
-    <string name="gravity_aligned_pose_button_activity">Gravity Aligned Pose (Activity)</string>
-    <string name="gravity_aligned_pose_button_world">Gravity Aligned Pose (World)</string>
-    <string name="create_surface_entity">Create Surface Entity</string>
-    <string name="destroy_surface_entity">Destroy Surface Entity</string>
 
 </resources>

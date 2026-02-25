@@ -137,4 +137,4 @@ fun serverClock(): RemoteComposeWriter {
     return rc
 }
 
-@Preview @Composable fun ServerClockPreview() = RemoteDocPreview(serverClock())
+@Preview @Composable private fun ServerClockPreview() = RemoteDocPreview(serverClock())

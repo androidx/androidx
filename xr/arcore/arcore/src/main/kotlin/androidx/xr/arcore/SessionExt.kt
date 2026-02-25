@@ -34,7 +34,7 @@ internal val Session.perceptionRuntime: PerceptionRuntime
     get() = checkAndGetPerceptionRuntime(this)
 
 private fun checkAndGetPerceptionRuntime(session: Session): PerceptionRuntime {
-    check(session.activity.lifecycle.currentState != Lifecycle.State.DESTROYED) {
+    check(session.lifecycleOwner.lifecycle.currentState != Lifecycle.State.DESTROYED) {
         "Session has been destroyed."
     }
     return perceptionRuntimeCache.getOrPut(session) {

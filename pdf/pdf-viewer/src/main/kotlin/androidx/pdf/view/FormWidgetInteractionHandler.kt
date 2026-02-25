@@ -64,8 +64,11 @@ internal class FormWidgetInteractionHandler(
                 handleInteractionWithTextWidget(pageNum, formWidgetInfo)
             }
 
-            FormWidgetInfo.WIDGET_TYPE_LISTBOX,
             FormWidgetInfo.WIDGET_TYPE_COMBOBOX -> {
+                handleInteractionWithComboBox(pageNum, formWidgetInfo)
+            }
+
+            FormWidgetInfo.WIDGET_TYPE_LISTBOX -> {
                 handleInteractionWithChoiceSelectionWidget(pageNum, formWidgetInfo)
             }
         }
@@ -97,12 +100,15 @@ internal class FormWidgetInteractionHandler(
         startingText: String? = null,
     ): FormFillingEditText {
         val formFillingEditText =
-            formFillingTextInputFactory.makeEditText(pageNum, formWidgetInfo, startingText)
+            formFillingTextInputFactory.makeEditText(pageNum, formWidgetInfo, startingText) {
+                currentText ->
+                createAndRelayEditTextInfo(pageNum, formWidgetInfo.widgetIndex, currentText)
+            }
         formFillingEditText.let {
             val editText = it.editText
             editText.setOnEditorActionListener { _, actionId: Int, _ ->
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    commitEditTextValue(it)
+                    finishTextEditing(formFillingEditText)
                 }
                 false
             }
@@ -116,16 +122,22 @@ internal class FormWidgetInteractionHandler(
         imm.hideSoftInputFromWindow(editText.windowToken, 0)
     }
 
-    fun commitEditTextValue(formFillingEditText: FormFillingEditText) {
+    fun finishTextEditing(formFillingEditText: FormFillingEditText) {
         formFillingEditText.editText.clearFocus()
         hideKeyboard(formFillingEditText.editText)
-        val formEditInfo =
-            FormEditInfo.createSetText(
-                formFillingEditText.pageNum,
-                formFillingEditText.formWidget.widgetIndex,
-                formFillingEditText.editText.text.toString(),
-            )
-        relayFormEditInfo(formEditInfo)
+        placeTextInputInLayout(null)
+    }
+
+    fun createAndRelayEditTextInfo(pageNum: Int, widgetIndex: Int, text: String) {
+        FormEditInfo.createSetText(pageNum, widgetIndex, text).also { relayFormEditInfo(it) }
+    }
+
+    private fun handleInteractionWithComboBox(pageNum: Int, formWidgetInfo: FormWidgetInfo) {
+        showSingleChoiceSelectMenu(
+            pageNum,
+            formWidgetInfo,
+            showCustomOption = formWidgetInfo.isEditableText,
+        )
     }
 
     /**
@@ -143,17 +155,43 @@ internal class FormWidgetInteractionHandler(
         }
     }
 
-    private fun showSingleChoiceSelectMenu(pageNum: Int, formWidgetInfo: FormWidgetInfo) {
-        var selectedItemIndex: Int = formWidgetInfo.listItems.indexOfFirst { it.isSelected }
-        val listItemValues: List<String> = formWidgetInfo.listItems.map { it.label }
+    private fun showSingleChoiceSelectMenu(
+        pageNum: Int,
+        formWidgetInfo: FormWidgetInfo,
+        showCustomOption: Boolean = false,
+    ) {
+        val listItems = formWidgetInfo.listItems
+        val labels =
+            if (showCustomOption) {
+                listOf(context.getString(R.string.combobox_custom_option)) +
+                    listItems.map { it.label }
+            } else {
+                listItems.map { it.label }
+            }
+
+        val initialSelection = listItems.indexOfFirst { it.isSelected }
+        // Offset by 1 if "Custom" is at index 0; otherwise use the raw index.
+        var selectedIndex = if (showCustomOption) initialSelection + 1 else initialSelection
 
         MaterialAlertDialogBuilder(context)
-            .setSingleChoiceItems(listItemValues.toTypedArray(), selectedItemIndex) { dialog, which
-                ->
-                selectedItemIndex = which
+            .setSingleChoiceItems(labels.toTypedArray(), selectedIndex) { _, which ->
+                selectedIndex = which
             }
-            .setPositiveButton(context.getString(R.string.confirm_selection)) { dialog, which ->
-                handleSelectedItem(pageNum, formWidgetInfo, listOf(selectedItemIndex))
+            .setPositiveButton(context.getString(R.string.confirm_selection)) { dialog, _ ->
+                if (showCustomOption && selectedIndex == 0) {
+                    // User selected the "Custom" option
+                    handleInteractionWithTextWidget(
+                        pageNum,
+                        formWidgetInfo,
+                        startingText = formWidgetInfo.textValue,
+                    )
+                } else {
+                    // Calculate the actual index in the original listItems
+                    val actualIndex = if (showCustomOption) selectedIndex - 1 else selectedIndex
+                    if (actualIndex >= 0) {
+                        handleSelectedItem(pageNum, formWidgetInfo, listOf(actualIndex))
+                    }
+                }
                 dialog.dismiss()
             }
             .show()

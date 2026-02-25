@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.dp
 @Immutable
 public class Shapes(
     public val small: Shape = RoundedCornerShape(24.dp),
-    public val medium: Shape = RoundedCornerShape(40.dp),
+    public val medium: Shape = RoundedCornerShape(36.dp),
     public val large: Shape = CircleShape,
 ) {
 

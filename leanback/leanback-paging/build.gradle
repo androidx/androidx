@@ -1,8 +1,7 @@
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -14,7 +13,7 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.8.1")
-    api(project(":leanback:leanback"))
+    api("androidx.leanback:leanback:1.2.0")
     api("androidx.paging:paging-runtime:3.1.0")
 
     // To avoid manifest merger warnings due to duplicate package names

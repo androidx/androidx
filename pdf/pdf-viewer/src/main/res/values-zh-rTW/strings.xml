@@ -81,6 +81,8 @@
     <string name="form_click_toggle_instruction" msgid="7171111300244445911">"點選即可切換值。"</string>
     <string name="form_click_opens_choices_menu_instruction" msgid="5648228168212004143">"點選即可開啟選項選單。"</string>
     <string name="form_click_enters_text_edit_mode_instruction" msgid="2305283577544618880">"點選即可進入文字編輯模式。"</string>
+    <!-- no translation found for combobox_custom_option (8730230629127076731) -->
+    <skip />
     <string name="form_unknown" msgid="6371515914365431330">"不明"</string>
     <string name="form_widget_type_push_button" msgid="3595388398616291441">"按鈕"</string>
     <string name="form_widget_type_checkbox" msgid="5165655383070460151">"核取方塊"</string>

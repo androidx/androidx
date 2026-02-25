@@ -46,4 +46,11 @@ public interface VisibilityChecker {
      * @param callerPackageName Package name of the caller.
      */
     boolean doesCallerHaveSystemAccess(@NonNull String callerPackageName);
+
+    /**
+     * Checks whether the given UID is a Private Compute Core UID.
+     *
+     * @param uid The UID to check.
+     */
+    boolean isPrivateComputeCoreUid(int uid);
 }

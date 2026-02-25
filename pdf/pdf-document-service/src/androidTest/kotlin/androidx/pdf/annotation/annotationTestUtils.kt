@@ -41,10 +41,13 @@ fun randomizePathPdfObject(pathLength: Int): PathPdfObject =
     PathPdfObject(brushColor = 0, brushWidth = 0f, inputs = randomizePathInputs(pathLength))
 
 fun randomizePathInputs(pathLength: Int): List<PathPdfObject.PathInput> =
-    IntArray(pathLength).map {
+    IntArray(pathLength).mapIndexed { index, _ ->
+        val command =
+            if (index == 0) PathPdfObject.PathInput.MOVE_TO else PathPdfObject.PathInput.LINE_TO
         PathPdfObject.PathInput(
             x = abs(Random.Default.nextInt(100, 1000).toFloat()),
             y = abs(Random.Default.nextInt(100, 1000).toFloat()),
+            command = command,
         )
     }
 

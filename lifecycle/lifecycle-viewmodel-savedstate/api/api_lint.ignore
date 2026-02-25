@@ -1,5 +1,0 @@
-// Baseline format: 1.0
-HiddenSuperclass: androidx.lifecycle.AbstractSavedStateViewModelFactory:
-    Public class androidx.lifecycle.AbstractSavedStateViewModelFactory stripped of unavailable superclass androidx.lifecycle.ViewModelProvider.OnRequeryFactory
-HiddenSuperclass: androidx.lifecycle.SavedStateViewModelFactory:
-    Public class androidx.lifecycle.SavedStateViewModelFactory stripped of unavailable superclass androidx.lifecycle.ViewModelProvider.OnRequeryFactory

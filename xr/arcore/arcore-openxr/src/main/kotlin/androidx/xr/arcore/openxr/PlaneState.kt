@@ -23,17 +23,14 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector2
 
 /**
- * Represents the current state of a [androidx.xr.arcore.runtime.Plane] instance's mutable fields.
+ * Represents the current state of an [OpenXrPlane] instance's mutable fields.
  *
- * @property trackingState the [androidx.xr.runtime.TrackingState] value describing if the plane is
- *   being updated.
- * @property label the [androidx.xr.arcore.runtime.Plane.Label] associated with the plane.
- * @property centerPose the pose of the center of the detected plane. The pose's transformed +Y axis
- *   will be point normal out of the plane, with the +X and +Z axes orienting the extents of the
- *   bounding rectangle.
- * @property extents the dimensions of the detected plane.
- * @property vertices the 2D vertices of a convex polygon approximating the detected plane,
- * @property subsumedByPlaneId the OpenXR handle of the plane that subsumed this plane.
+ * @property trackingState the [TrackingState] value describing if the plane is being updated
+ * @property label the [Plane.Label] associated with the plane
+ * @property centerPose the [Pose] of the center of the detected plane
+ * @property extents the dimensions of the detected plane
+ * @property vertices the 2D vertices of a convex polygon approximating the detected plane
+ * @property subsumedByPlaneId the OpenXR handle of the plane that subsumed this plane
  */
 internal data class PlaneState(
     val trackingState: TrackingState = TrackingState.PAUSED,

@@ -940,6 +940,13 @@ internal val ToggleButtonShapes.hasRoundedCornerShapes: Boolean
             checkedShape is RoundedCornerShape
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+internal val ToggleButtonShapes.hasCornerBasedShapes: Boolean
+    get() =
+        shape is CornerBasedShape &&
+            pressedShape is CornerBasedShape &&
+            checkedShape is CornerBasedShape
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun shapeByInteraction(
     shapes: ToggleButtonShapes,
@@ -958,6 +965,8 @@ private fun shapeByInteraction(
 
     if (shapes.hasRoundedCornerShapes)
         return key(shapes) { rememberAnimatedShape(shape as RoundedCornerShape, animationSpec) }
+    else if (shapes.hasCornerBasedShapes)
+        return key(shapes) { rememberAnimatedShape(shape as CornerBasedShape, animationSpec) }
 
     return shape
 }

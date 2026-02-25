@@ -266,14 +266,15 @@ public object Migration_15_16 : Migration(VERSION_15, VERSION_16) {
 
         db.execSQL("ALTER TABLE `WorkSpec` ADD COLUMN `generation` " + "INTEGER NOT NULL DEFAULT 0")
         db.execSQL(
-            """CREATE TABLE IF NOT EXISTS `_new_SystemIdInfo` (
-            `work_spec_id` TEXT NOT NULL, 
-            `generation` INTEGER NOT NULL DEFAULT 0, 
-            `system_id` INTEGER NOT NULL, 
-            PRIMARY KEY(`work_spec_id`, `generation`), 
-            FOREIGN KEY(`work_spec_id`) REFERENCES `WorkSpec`(`id`) 
-                ON UPDATE CASCADE ON DELETE CASCADE )
-               """
+            """
+            CREATE TABLE IF NOT EXISTS `_new_SystemIdInfo` (
+                        `work_spec_id` TEXT NOT NULL, 
+                        `generation` INTEGER NOT NULL DEFAULT 0, 
+                        `system_id` INTEGER NOT NULL, 
+                        PRIMARY KEY(`work_spec_id`, `generation`), 
+                        FOREIGN KEY(`work_spec_id`) REFERENCES `WorkSpec`(`id`) 
+                            ON UPDATE CASCADE ON DELETE CASCADE )
+            """
                 .trimIndent()
         )
         db.execSQL(
@@ -298,96 +299,100 @@ public object Migration_16_17 : Migration(VERSION_16, VERSION_17) {
                 .trimIndent()
         )
         db.execSQL(
-            """CREATE TABLE IF NOT EXISTS `_new_WorkSpec` (
-                `id` TEXT NOT NULL,
-                `state` INTEGER NOT NULL,
-                `worker_class_name` TEXT NOT NULL,
-                `input_merger_class_name` TEXT NOT NULL,
-                `input` BLOB NOT NULL,
-                `output` BLOB NOT NULL,
-                `initial_delay` INTEGER NOT NULL,
-                `interval_duration` INTEGER NOT NULL,
-                `flex_duration` INTEGER NOT NULL,
-                `run_attempt_count` INTEGER NOT NULL,
-                `backoff_policy` INTEGER NOT NULL,
-                `backoff_delay_duration` INTEGER NOT NULL,
-                `last_enqueue_time` INTEGER NOT NULL,
-                `minimum_retention_duration` INTEGER NOT NULL,
-                `schedule_requested_at` INTEGER NOT NULL,
-                `run_in_foreground` INTEGER NOT NULL,
-                `out_of_quota_policy` INTEGER NOT NULL,
-                `period_count` INTEGER NOT NULL DEFAULT 0,
-                `generation` INTEGER NOT NULL DEFAULT 0,
-                `required_network_type` INTEGER NOT NULL,
-                `requires_charging` INTEGER NOT NULL,
-                `requires_device_idle` INTEGER NOT NULL,
-                `requires_battery_not_low` INTEGER NOT NULL,
-                `requires_storage_not_low` INTEGER NOT NULL,
-                `trigger_content_update_delay` INTEGER NOT NULL,
-                `trigger_max_content_delay` INTEGER NOT NULL,
-                `content_uri_triggers` BLOB NOT NULL,
-                PRIMARY KEY(`id`)
-                )"""
+            """
+            CREATE TABLE IF NOT EXISTS `_new_WorkSpec` (
+                            `id` TEXT NOT NULL,
+                            `state` INTEGER NOT NULL,
+                            `worker_class_name` TEXT NOT NULL,
+                            `input_merger_class_name` TEXT NOT NULL,
+                            `input` BLOB NOT NULL,
+                            `output` BLOB NOT NULL,
+                            `initial_delay` INTEGER NOT NULL,
+                            `interval_duration` INTEGER NOT NULL,
+                            `flex_duration` INTEGER NOT NULL,
+                            `run_attempt_count` INTEGER NOT NULL,
+                            `backoff_policy` INTEGER NOT NULL,
+                            `backoff_delay_duration` INTEGER NOT NULL,
+                            `last_enqueue_time` INTEGER NOT NULL,
+                            `minimum_retention_duration` INTEGER NOT NULL,
+                            `schedule_requested_at` INTEGER NOT NULL,
+                            `run_in_foreground` INTEGER NOT NULL,
+                            `out_of_quota_policy` INTEGER NOT NULL,
+                            `period_count` INTEGER NOT NULL DEFAULT 0,
+                            `generation` INTEGER NOT NULL DEFAULT 0,
+                            `required_network_type` INTEGER NOT NULL,
+                            `requires_charging` INTEGER NOT NULL,
+                            `requires_device_idle` INTEGER NOT NULL,
+                            `requires_battery_not_low` INTEGER NOT NULL,
+                            `requires_storage_not_low` INTEGER NOT NULL,
+                            `trigger_content_update_delay` INTEGER NOT NULL,
+                            `trigger_max_content_delay` INTEGER NOT NULL,
+                            `content_uri_triggers` BLOB NOT NULL,
+                            PRIMARY KEY(`id`)
+                            )
+            """
                 .trimIndent()
         )
         db.execSQL(
-            """INSERT INTO `_new_WorkSpec` (
-            `id`,
-            `state`,
-            `worker_class_name`,
-            `input_merger_class_name`,
-            `input`,
-            `output`,
-            `initial_delay`,
-            `interval_duration`,
-            `flex_duration`,
-            `run_attempt_count`,
-            `backoff_policy`,
-            `backoff_delay_duration`,
-            `last_enqueue_time`,
-            `minimum_retention_duration`,
-            `schedule_requested_at`,
-            `run_in_foreground`,
-            `out_of_quota_policy`,
-            `period_count`,
-            `generation`,
-            `required_network_type`,
-            `requires_charging`,
-            `requires_device_idle`,
-            `requires_battery_not_low`,
-            `requires_storage_not_low`,
-            `trigger_content_update_delay`,
-            `trigger_max_content_delay`,
-            `content_uri_triggers`
-            ) SELECT
-            `id`,
-            `state`,
-            `worker_class_name`,
-            `input_merger_class_name`,
-            `input`,
-            `output`,
-            `initial_delay`,
-            `interval_duration`,
-            `flex_duration`,
-            `run_attempt_count`,
-            `backoff_policy`,
-            `backoff_delay_duration`,
-            `last_enqueue_time`,
-            `minimum_retention_duration`,
-            `schedule_requested_at`,
-            `run_in_foreground`,
-            `out_of_quota_policy`,
-            `period_count`,
-            `generation`,
-            `required_network_type`,
-            `requires_charging`,
-            `requires_device_idle`,
-            `requires_battery_not_low`,
-            `requires_storage_not_low`,
-            `trigger_content_update_delay`,
-            `trigger_max_content_delay`,
-            `content_uri_triggers`
-            FROM `WorkSpec`"""
+            """
+            INSERT INTO `_new_WorkSpec` (
+                        `id`,
+                        `state`,
+                        `worker_class_name`,
+                        `input_merger_class_name`,
+                        `input`,
+                        `output`,
+                        `initial_delay`,
+                        `interval_duration`,
+                        `flex_duration`,
+                        `run_attempt_count`,
+                        `backoff_policy`,
+                        `backoff_delay_duration`,
+                        `last_enqueue_time`,
+                        `minimum_retention_duration`,
+                        `schedule_requested_at`,
+                        `run_in_foreground`,
+                        `out_of_quota_policy`,
+                        `period_count`,
+                        `generation`,
+                        `required_network_type`,
+                        `requires_charging`,
+                        `requires_device_idle`,
+                        `requires_battery_not_low`,
+                        `requires_storage_not_low`,
+                        `trigger_content_update_delay`,
+                        `trigger_max_content_delay`,
+                        `content_uri_triggers`
+                        ) SELECT
+                        `id`,
+                        `state`,
+                        `worker_class_name`,
+                        `input_merger_class_name`,
+                        `input`,
+                        `output`,
+                        `initial_delay`,
+                        `interval_duration`,
+                        `flex_duration`,
+                        `run_attempt_count`,
+                        `backoff_policy`,
+                        `backoff_delay_duration`,
+                        `last_enqueue_time`,
+                        `minimum_retention_duration`,
+                        `schedule_requested_at`,
+                        `run_in_foreground`,
+                        `out_of_quota_policy`,
+                        `period_count`,
+                        `generation`,
+                        `required_network_type`,
+                        `requires_charging`,
+                        `requires_device_idle`,
+                        `requires_battery_not_low`,
+                        `requires_storage_not_low`,
+                        `trigger_content_update_delay`,
+                        `trigger_max_content_delay`,
+                        `content_uri_triggers`
+                        FROM `WorkSpec`
+            """
                 .trimIndent()
         )
         db.execSQL("DROP TABLE `WorkSpec`")

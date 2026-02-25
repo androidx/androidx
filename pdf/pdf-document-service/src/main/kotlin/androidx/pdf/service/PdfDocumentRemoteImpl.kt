@@ -216,8 +216,8 @@ internal class PdfDocumentRemoteImpl(
         return rendererAnnotationsProcessor.process(operations)
     }
 
-    override fun isPdfLinearized(): Boolean {
-        return rendererAdapter.isLinearized
+    override fun getLinearizationStatus(): Int {
+        return rendererAdapter.linearizationStatus
     }
 
     override fun getFormType(): Int {
@@ -231,4 +231,6 @@ internal class PdfDocumentRemoteImpl(
     override fun closePdfDocument() {
         rendererAdapter.close()
     }
+
+    override fun getInterfaceVersion(): Int = VERSION
 }

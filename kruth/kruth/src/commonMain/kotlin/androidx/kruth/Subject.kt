@@ -101,8 +101,7 @@ internal constructor(
                 listOf(
                     // TODO(dustinlam): This error string does not match the one from Truth.
                     simpleFact(
-                        "Expected ${actual.toStringForAssert()} to be the same instance  as " +
-                            "${expected.toStringForAssert()}, but was not"
+                        "actual: ${actual.toStringForAssert()} was not the same instance as expected: ${expected.toStringForAssert()}"
                     )
                 )
             )
@@ -242,7 +241,7 @@ internal constructor(
     /** Fails unless the subject is equal to any element in the given [iterable]. */
     open fun isIn(iterable: Iterable<*>?) {
         if (actual !in requireNonNull(iterable)) {
-            metadata.fail(listOf(simpleFact("Expected $actual to be in $iterable, but was not")))
+            metadata.fail(listOf(simpleFact("Element $actual was not in $iterable")))
         }
     }
 

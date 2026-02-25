@@ -81,4 +81,13 @@ public interface CameraSimulator {
         imageTimestamp: Long,
         physicalCameraId: CameraId? = null,
     )
+
+    /**
+     * Utility function to simulate the expected outputs of [streamId] for a frame with [timestamp].
+     */
+    public fun simulateExpectedOutputs(
+        streamId: StreamId,
+        timestamp: Long,
+        outputIds: Set<OutputId>,
+    )
 }

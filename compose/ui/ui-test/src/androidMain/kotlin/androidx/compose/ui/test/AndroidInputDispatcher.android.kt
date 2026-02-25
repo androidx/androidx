@@ -262,7 +262,7 @@ internal class AndroidInputDispatcher(
         enqueueTrackpadEvent(ACTION_CANCEL)
     }
 
-    override fun CursorInputState.enqueueTrackpadScroll(offset: Offset) {
+    override fun CursorInputState.enqueueTrackpadPanStart() {
         // A two-finger trackpad scroll on Android is represented by a fake single finger,
         // moving like a single finger would on the touchscreen to generate a scroll.
         // To accomplish a full scroll for a specific offset this we need to:
@@ -291,33 +291,37 @@ internal class AndroidInputDispatcher(
             action = ACTION_DOWN,
             coordinate = lastPosition,
             delta = Offset.Zero,
-            accumulatedDelta = Offset.Zero,
+            accumulatedDelta = cursorInputState.panAccumulatedOffset!!,
             metaState = keyInputState.constructMetaState(),
         )
-        advanceEventTime()
+    }
+
+    override fun CursorInputState.enqueueTrackpadPanMove(delta: Offset) {
         enqueueTwoFingerSwipeTrackpadEvent(
-            downTime = fakeFingerDownTime,
+            downTime = downTime,
             eventTime = currentTime,
             action = ACTION_MOVE,
             coordinate = lastPosition,
-            delta = offset,
-            accumulatedDelta = offset,
+            delta = delta,
+            accumulatedDelta = cursorInputState.panAccumulatedOffset!!,
             metaState = keyInputState.constructMetaState(),
         )
-        advanceEventTime()
+    }
+
+    override fun CursorInputState.enqueueTrackpadPanEnd() {
         enqueueTwoFingerSwipeTrackpadEvent(
-            downTime = fakeFingerDownTime,
+            downTime = downTime,
             eventTime = currentTime,
             action = ACTION_UP,
             coordinate = lastPosition,
             delta = Offset.Zero,
-            accumulatedDelta = offset,
+            accumulatedDelta = cursorInputState.panAccumulatedOffset!!,
             metaState = keyInputState.constructMetaState(),
         )
         enqueueTrackpadEnter()
     }
 
-    override fun CursorInputState.enqueueTrackpadPinch(scaleFactor: Float) {
+    override fun CursorInputState.enqueueTrackpadScaleStart() {
         // A trackpad pinch on Android is represented by two fake fingers, moving like two fingers
         // would on a touchscreen to generate a pinch
         // To accomplish a full pinch for a specific scale factor we need to
@@ -360,36 +364,40 @@ internal class AndroidInputDispatcher(
             accumulatedDelta = 1f,
             metaState = keyInputState.constructMetaState(),
         )
-        advanceEventTime()
+    }
+
+    override fun CursorInputState.enqueueTrackpadScaleChange(delta: Float) {
         enqueuePinchTrackpadEvent(
-            downTime = fakeFingersDownTime,
+            downTime = downTime,
             eventTime = currentTime,
             action = ACTION_MOVE,
             actionIndex = 0,
             coordinate = lastPosition,
-            delta = scaleFactor,
-            accumulatedDelta = scaleFactor,
+            delta = delta,
+            accumulatedDelta = cursorInputState.scaleAccumulatedFactor!!,
             metaState = keyInputState.constructMetaState(),
         )
-        advanceEventTime()
+    }
+
+    override fun CursorInputState.enqueueTrackpadScaleEnd() {
         enqueuePinchTrackpadEvent(
-            downTime = fakeFingersDownTime,
+            downTime = downTime,
             eventTime = currentTime,
             action = ACTION_POINTER_UP,
             actionIndex = 1,
             coordinate = lastPosition,
             delta = 1f,
-            accumulatedDelta = scaleFactor,
+            accumulatedDelta = cursorInputState.scaleAccumulatedFactor!!,
             metaState = keyInputState.constructMetaState(),
         )
         enqueuePinchTrackpadEvent(
-            downTime = fakeFingersDownTime,
+            downTime = downTime,
             eventTime = currentTime,
             action = ACTION_UP,
             actionIndex = 0,
             coordinate = lastPosition,
             delta = 1f,
-            accumulatedDelta = scaleFactor,
+            cursorInputState.scaleAccumulatedFactor!!,
             metaState = keyInputState.constructMetaState(),
         )
         enqueueTrackpadEnter()

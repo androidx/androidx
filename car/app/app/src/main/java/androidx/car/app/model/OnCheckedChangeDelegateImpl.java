@@ -88,5 +88,10 @@ public class OnCheckedChangeDelegateImpl implements OnCheckedChangeDelegate {
                     }
             );
         }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
     }
 }

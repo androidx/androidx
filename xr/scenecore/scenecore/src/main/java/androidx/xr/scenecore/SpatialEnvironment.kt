@@ -20,7 +20,6 @@ package androidx.xr.scenecore
 
 import androidx.annotation.RestrictTo
 import androidx.xr.scenecore.SpatialEnvironment.Companion.NO_PASSTHROUGH_OPACITY_PREFERENCE
-import androidx.xr.scenecore.runtime.MaterialResource as RtMaterial
 import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.runtime.SpatialEnvironment as RtSpatialEnvironment
 import androidx.xr.scenecore.runtime.SpatialEnvironment.SpatialEnvironmentPreference as RtSpatialEnvironmentPreference
@@ -51,8 +50,11 @@ import java.util.function.Consumer
  * preference that will be applied when the device enters a state where the XR background can be
  * changed.
  */
-public class SpatialEnvironment internal constructor(private val sceneRuntime: SceneRuntime) {
-
+public class SpatialEnvironment
+internal constructor(
+    private val sceneRuntime: SceneRuntime,
+    private val entityManager: EntityManager,
+) {
     private val rtEnvironment: RtSpatialEnvironment = sceneRuntime.spatialEnvironment
 
     /**
@@ -67,26 +69,11 @@ public class SpatialEnvironment internal constructor(private val sceneRuntime: S
         public val skybox: ExrImage?,
         public val geometry: GltfModel?,
     ) {
-
         /**
-         * The material to override a given mesh in the geometry. If null, the material will not
-         * override any mesh.
+         * The preferred geometry Entity for the environment. If null, there will be no geometry if
+         * no other geometry resource is passed.
          */
-        internal var geometryMaterial: Material? = null
-            private set
-
-        /**
-         * The name of the node containing the mesh to override with the material. If null, the
-         * material will not override any mesh.
-         */
-        internal var geometryNodeName: String? = null
-            private set
-
-        /**
-         * The name of the animation to play on the geometry. If null, the geometry will not play
-         * any animation. Note that the animation will be played in loop.
-         */
-        internal var geometryAnimationName: String? = null
+        internal var geometryEntity: GltfModelEntity? = null
             private set
 
         /**
@@ -94,25 +81,15 @@ public class SpatialEnvironment internal constructor(private val sceneRuntime: S
          *
          * @param skybox The preferred skybox for the environment.
          * @param geometry The preferred geometry for the environment.
-         * @param geometryMaterial The material to override a given mesh in the geometry.
-         * @param geometryNodeName The name of the node which contains the mesh to override with the
-         *   material.
-         * @param geometryAnimationName The name of the animation to play on the geometry.
-         * @throws IllegalStateException if the material is not properly set up and if the geometry
-         *   glTF model does not contain the mesh or the animation name.
+         * @param geometryEntity The preferred geometry Entity for the environment.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-        @JvmOverloads
         public constructor(
             skybox: ExrImage?,
             geometry: GltfModel?,
-            geometryMaterial: Material?,
-            geometryNodeName: String? = null,
-            geometryAnimationName: String? = null,
+            geometryEntity: GltfModelEntity?,
         ) : this(skybox, geometry) {
-            this.geometryMaterial = geometryMaterial
-            this.geometryNodeName = geometryNodeName
-            this.geometryAnimationName = geometryAnimationName
+            this.geometryEntity = geometryEntity
         }
 
         override fun equals(other: Any?): Boolean {
@@ -253,7 +230,16 @@ public class SpatialEnvironment internal constructor(private val sceneRuntime: S
      * listeners to know when this preference becomes active.
      */
     public var preferredSpatialEnvironment: SpatialEnvironmentPreference?
-        get() = rtEnvironment.preferredSpatialEnvironment?.toSpatialEnvironmentPreference()
+        get() {
+            val rtPreference = rtEnvironment.preferredSpatialEnvironment ?: return null
+            val skybox = rtPreference.skybox?.let { ExrImage(null, it) }
+            val geometry = rtPreference.geometry?.let { GltfModel(null, it) }
+            val apiEntity =
+                rtPreference.geometryEntity?.let { rtEntity ->
+                    entityManager.getEntityForRtEntity(rtEntity) as? GltfModelEntity
+                }
+            return SpatialEnvironmentPreference(skybox, geometry, apiEntity)
+        }
         set(value) {
             rtEnvironment.preferredSpatialEnvironment = value?.toRtSpatialEnvironmentPreference()
         }
@@ -327,32 +313,5 @@ public class SpatialEnvironment internal constructor(private val sceneRuntime: S
 
 internal fun SpatialEnvironment.SpatialEnvironmentPreference.toRtSpatialEnvironmentPreference():
     RtSpatialEnvironmentPreference {
-    return RtSpatialEnvironmentPreference(
-        skybox?.image,
-        geometry?.model,
-        geometryMaterial?.material,
-        geometryNodeName,
-        geometryAnimationName,
-    )
-}
-
-internal fun RtSpatialEnvironmentPreference.toSpatialEnvironmentPreference():
-    SpatialEnvironment.SpatialEnvironmentPreference {
-    return SpatialEnvironment.SpatialEnvironmentPreference(
-        // The lifecycle of this EXR image is managed by the SpatialEnvironment.
-        skybox?.let { ExrImage(null, it) },
-        // The lifecycle of this glTF model is managed by the SpatialEnvironment.
-        geometry?.let { GltfModel(null, it) },
-        geometryMaterial?.let { rtMaterial ->
-            object : Material {
-                override val material: RtMaterial = rtMaterial
-
-                override fun close() {
-                    // The lifecycle of this material is managed by the SpatialEnvironment.
-                }
-            }
-        },
-        geometryNodeName,
-        geometryAnimationName,
-    )
+    return RtSpatialEnvironmentPreference(skybox?.image, geometry?.model, geometryEntity?.rtEntity)
 }

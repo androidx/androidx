@@ -28,22 +28,22 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class HitResultTest {
 
-    class TestTrackable : Trackable<Trackable.State> {
-        override fun createAnchor(pose: Pose): AnchorCreateResult {
-            throw NotImplementedError("Not implemented")
-        }
-
+    class TestAnchorable : Anchorable<Trackable.State> {
         override val state: StateFlow<Trackable.State> =
             MutableStateFlow(
                 object : Trackable.State {
                     override val trackingState = TrackingState.STOPPED
                 }
             )
+
+        override fun createAnchor(pose: Pose): AnchorCreateResult {
+            throw NotImplementedError()
+        }
     }
 
     @Test
     fun equals_sameObject_returnsTrue() {
-        val underTest = HitResult(1.0f, Pose(), TestTrackable())
+        val underTest = HitResult(1.0f, Pose(), TestAnchorable())
 
         assertThat(underTest.equals(underTest)).isTrue()
     }
@@ -52,7 +52,7 @@ class HitResultTest {
     fun equals_differentObjectsSameValues_returnsTrue() {
         val distance = 1.0f
         val pose = Pose()
-        val trackable = TestTrackable()
+        val trackable = TestAnchorable()
         val underTest1 = HitResult(distance, pose, trackable)
         val underTest2 = HitResult(distance, pose, trackable)
 
@@ -61,8 +61,8 @@ class HitResultTest {
 
     @Test
     fun equals_differentObjectsDifferentValues_returnsFalse() {
-        val underTest1 = HitResult(1.0f, Pose(), TestTrackable())
-        val underTest2 = HitResult(2.0f, Pose(), TestTrackable())
+        val underTest1 = HitResult(1.0f, Pose(), TestAnchorable())
+        val underTest2 = HitResult(2.0f, Pose(), TestAnchorable())
 
         assertThat(underTest1.equals(underTest2)).isFalse()
     }
@@ -71,7 +71,7 @@ class HitResultTest {
     fun hashCode_differentObjectsSameValues_returnsSameHashCode() {
         val distance = 1.0f
         val pose = Pose()
-        val trackable = TestTrackable()
+        val trackable = TestAnchorable()
         val underTest1 = HitResult(distance, pose, trackable)
         val underTest2 = HitResult(distance, pose, trackable)
 
@@ -80,8 +80,8 @@ class HitResultTest {
 
     @Test
     fun hashCode_differentObjectsDifferentValues_returnsDifferentHashCodes() {
-        val underTest1 = HitResult(1.0f, Pose(), TestTrackable())
-        val underTest2 = HitResult(2.0f, Pose(), TestTrackable())
+        val underTest1 = HitResult(1.0f, Pose(), TestAnchorable())
+        val underTest2 = HitResult(2.0f, Pose(), TestAnchorable())
 
         assertThat(underTest1.hashCode()).isNotEqualTo(underTest2.hashCode())
     }

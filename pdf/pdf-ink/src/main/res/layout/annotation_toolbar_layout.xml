@@ -15,14 +15,13 @@
   -->
 
 <androidx.pdf.ink.view.AnnotationToolbar xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/annotationToolbar"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginBottom="@dimen/margin_12dp"
     android:background="@drawable/annotation_toolbar_background"
     android:clickable="true"
-    android:focusable="true"
     android:elevation="@dimen/annotation_toolbar_elevation"
+    android:focusable="true"
     android:padding="@dimen/padding_8dp"
-    android:layout_gravity="bottom|center_horizontal"/>
+    android:visibility="gone" />

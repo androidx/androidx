@@ -31,7 +31,6 @@ import android.view.View
 import android.view.ViewConfiguration
 import android.widget.FrameLayout
 import androidx.annotation.GuardedBy
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
@@ -46,7 +45,6 @@ import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.CoreAppTestUtil
@@ -84,9 +82,6 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 class PreviewViewDeviceTest(private val implName: String, private val cameraConfig: CameraXConfig) {
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
 
     @get:Rule
     val useCamera =

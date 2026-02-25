@@ -168,45 +168,45 @@ class BaseDaoTest {
             Source.kotlin(
                 "Foo.kt",
                 """
-            import androidx.room3.*
+                import androidx.room3.*
 
-            interface Parent<T> {
-                @Delete
-                fun delete(t: T)
-            }
+                interface Parent<T> {
+                    @Delete
+                    fun delete(t: T)
+                }
 
-            interface Child1<T> : Parent<T> {
-                @Insert
-                fun insert(t: T)
-            }
+                interface Child1<T> : Parent<T> {
+                    @Insert
+                    fun insert(t: T)
+                }
 
-            interface Child2<T> : Parent<T> {
-                @Update
-                fun update(t: T)
-            }
+                interface Child2<T> : Parent<T> {
+                    @Update
+                    fun update(t: T)
+                }
 
-            @Entity
-            data class Data(
-                @PrimaryKey(autoGenerate = false)
-                val id: Long,
-                val data: String
-            )
+                @Entity
+                data class Data(
+                    @PrimaryKey(autoGenerate = false)
+                    val id: Long,
+                    val data: String
+                )
 
-            @Dao
-            abstract class Dao1 : Child1<Data>, Child2<Data>, Parent<Data>
+                @Dao
+                abstract class Dao1 : Child1<Data>, Child2<Data>, Parent<Data>
 
-            @Dao
-            abstract class Dao2 : Child1<Data>, Parent<Data>
+                @Dao
+                abstract class Dao2 : Child1<Data>, Parent<Data>
 
-            @Dao
-            abstract class Dao3 : Child1<Data>, Parent<Data> {
-                @Delete
-                abstract override fun delete(t: Data)
-            }
+                @Dao
+                abstract class Dao3 : Child1<Data>, Parent<Data> {
+                    @Delete
+                    abstract override fun delete(t: Data)
+                }
 
-            abstract class MyDb : RoomDatabase() {
-            }
-            """
+                abstract class MyDb : RoomDatabase() {
+                }
+                """
                     .trimIndent(),
             )
         runKspTest(sources = listOf(source)) { invocation ->

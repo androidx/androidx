@@ -16,7 +16,6 @@
 
 package androidx.pdf.testapp.ui.v2
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -39,7 +38,6 @@ import androidx.pdf.testapp.ui.OpCancellationHandler
 import androidx.pdf.viewer.fragment.PdfViewerFragment
 import com.google.android.material.button.MaterialButton
 
-@SuppressLint("RestrictedApiAndroidX")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class ViewerFragment : Fragment(), OpCancellationHandler {
 

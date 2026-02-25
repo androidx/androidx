@@ -18,13 +18,13 @@
     <!--
       Public integer resource used by Glance Wear widgets to specify the 'large' container type in
       their metadata.
-      For more info see androidx.glance.wear.ContainerInfo.ContainerType.CONTAINER_TYPE_LARGE
+      For more info see androidx.glance.wear.core.ContainerInfo.ContainerType.CONTAINER_TYPE_LARGE
     -->
     <public name="glance_wear_container_type_large" type="integer" />
     <!--
       Public integer resource used by Glance Wear widgets to specify the 'small' container type in
       their metadata.
-      For more info see androidx.glance.wear.ContainerInfo.ContainerType.CONTAINER_TYPE_SMALL
+      For more info see androidx.glance.wear.core.ContainerInfo.ContainerType.CONTAINER_TYPE_SMALL
     -->
     <public name="glance_wear_container_type_small" type="integer" />
 </resources>

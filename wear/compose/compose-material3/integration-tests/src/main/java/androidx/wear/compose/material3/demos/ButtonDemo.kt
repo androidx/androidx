@@ -59,6 +59,7 @@ import androidx.wear.compose.material3.ButtonColors
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.ChildButton
 import androidx.wear.compose.material3.CompactButton
+import androidx.wear.compose.material3.CompactButtonDefaults
 import androidx.wear.compose.material3.FilledTonalButton
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.ListSubHeader
@@ -1053,7 +1054,7 @@ private fun ScalingLazyListScope.buttonMerge() {
         Column {
             Button(
                 onClick = {},
-                modifier = Modifier.fillMaxWidth().height(ButtonDefaults.CompactButtonHeight),
+                modifier = Modifier.fillMaxWidth().height(CompactButtonDefaults.Height),
                 shape = ButtonDefaults.shape.bottom(noCorner),
                 label = { Text("Top", Modifier.fillMaxWidth()) },
                 colors = ButtonDefaults.filledTonalButtonColors(),

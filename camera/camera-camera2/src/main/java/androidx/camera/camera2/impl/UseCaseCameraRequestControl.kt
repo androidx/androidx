@@ -566,6 +566,7 @@ constructor(
     override fun close() {
         closed = true
         Camera2Logger.debug { "UseCaseCameraRequestControl: closed" }
+        useCaseCameraState.close()
     }
 
     private fun failedResults(count: Int, message: String): List<Deferred<Void?>> =

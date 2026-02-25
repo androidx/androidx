@@ -309,7 +309,7 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
                 The baseline profile consumer plugin is configured with filters that exclude all
                 the profile rules. Please review your build.gradle configuration and make sure your
                 filters don't exclude all the baseline profile rules.
-            """
+                """
                     .trimIndent()
             )
         }

@@ -47,7 +47,7 @@ public expect class ViewInfo(name: String, sql: String?) {
          * @param viewName The view name.
          * @return A ViewInfo containing the schema information for the provided view name.
          */
-        @JvmStatic public fun read(connection: SQLiteConnection, viewName: String): ViewInfo
+        @JvmStatic public suspend fun read(connection: SQLiteConnection, viewName: String): ViewInfo
     }
 }
 

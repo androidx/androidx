@@ -1,4 +1,26 @@
 // Signature format: 4.0
+package androidx.xr.runtime.testing {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FakeSpatialApiVersionProvider implements androidx.xr.runtime.SpatialApiVersionProvider {
+    ctor public FakeSpatialApiVersionProvider();
+    method @InaccessibleFromKotlin public int getPreviewSpatialApiVersion();
+    method @InaccessibleFromKotlin public int getSpatialApiVersion();
+    property public int previewSpatialApiVersion;
+    property public int spatialApiVersion;
+    field public static final androidx.xr.runtime.testing.FakeSpatialApiVersionProvider.Companion Companion;
+  }
+
+  public static final class FakeSpatialApiVersionProvider.Companion {
+    method @InaccessibleFromKotlin public Integer? getTestPreviewSpatialApiVersion();
+    method @InaccessibleFromKotlin public Integer? getTestSpatialApiVersion();
+    method @InaccessibleFromKotlin public void setTestPreviewSpatialApiVersion(Integer?);
+    method @InaccessibleFromKotlin public void setTestSpatialApiVersion(Integer?);
+    property public Integer? testPreviewSpatialApiVersion;
+    property public Integer? testSpatialApiVersion;
+  }
+
+}
+
 package androidx.xr.runtime.testing.math {
 
   public final class MathAssertions {

@@ -47,8 +47,9 @@ class SpatialApiVersionHelperTest {
     }
 
     @Test
-    fun spatialApiVersion_whenNotSet_throwsIllegalStateException() {
-        assertFailsWith<IllegalStateException> { SpatialApiVersionHelper.spatialApiVersion }
+    fun spatialApiVersion_whenNotSet_returnsLatestStableApiLevel() {
+        assertThat(SpatialApiVersionHelper.spatialApiVersion)
+            .isEqualTo(SpatialApiVersions.LATEST_STABLE_API_LEVEL)
     }
 
     @Test

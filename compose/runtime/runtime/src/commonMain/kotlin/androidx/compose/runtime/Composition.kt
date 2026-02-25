@@ -25,9 +25,11 @@ import androidx.collection.ScatterSet
 import androidx.compose.runtime.collection.ScopeMap
 import androidx.compose.runtime.collection.fastForEach
 import androidx.compose.runtime.composer.DebugStringFormattable
+import androidx.compose.runtime.composer.RememberManager
 import androidx.compose.runtime.composer.gapbuffer.SlotTable
 import androidx.compose.runtime.composer.gapbuffer.asGapBufferSlotTable
 import androidx.compose.runtime.composer.gapbuffer.changelist.ChangeList
+import androidx.compose.runtime.composer.linkbuffer.asLinkBufferSlotTable
 import androidx.compose.runtime.internal.AtomicReference
 import androidx.compose.runtime.internal.RememberEventDispatcher
 import androidx.compose.runtime.internal.trace
@@ -520,7 +522,13 @@ internal class CompositionImpl(
             if (parent.collectingSourceInformation) it.collectSourceInformation()
         }
 
-    @OptIn(ExperimentalComposeApi::class) private fun createSlotStorage(): SlotStorage = SlotTable()
+    @OptIn(ExperimentalComposeApi::class)
+    private fun createSlotStorage(): SlotStorage =
+        if (ComposeRuntimeFlags.isLinkBufferComposerEnabled) {
+            androidx.compose.runtime.composer.linkbuffer.SlotTable()
+        } else {
+            androidx.compose.runtime.composer.gapbuffer.SlotTable()
+        }
 
     /**
      * A map of observable objects to the [RecomposeScope]s that observe the object. If the key
@@ -564,7 +572,7 @@ internal class CompositionImpl(
      * to reflect the result of composition. This is a list of lambdas that need to be invoked in
      * order to produce the desired effects.
      */
-    private val changes = ChangeList()
+    private val changes = createChangeList()
 
     /**
      * A list of changes calculated by [Composer] to be applied after all other compositions have
@@ -574,7 +582,7 @@ internal class CompositionImpl(
      * inserts might be earlier in the composition than the position it is deleted, this move must
      * be done in two phases.
      */
-    private val lateChanges = ChangeList()
+    private val lateChanges = createChangeList()
 
     /**
      * When an observable object is modified during composition any recompose scopes that are
@@ -624,18 +632,37 @@ internal class CompositionImpl(
 
     @OptIn(ExperimentalComposeApi::class)
     private fun createComposer(): InternalComposer =
-        GapComposer(
-            applier = applier,
-            parentContext = parent,
-            slotTable = slotStorage.asGapBufferSlotTable(),
-            abandonSet = abandonSet,
-            changes = changes,
-            lateChanges = lateChanges,
-            composition = this,
-            observerHolder = observerHolder,
-        )
+        if (ComposeRuntimeFlags.isLinkBufferComposerEnabled) {
+            LinkComposer(
+                applier = applier,
+                parentContext = parent,
+                slotTable = slotStorage.asLinkBufferSlotTable(),
+                abandonSet = abandonSet,
+                changes = changes,
+                lateChanges = lateChanges,
+                composition = this,
+                observerHolder = observerHolder,
+            )
+        } else {
+            GapComposer(
+                applier = applier,
+                parentContext = parent,
+                slotTable = slotStorage.asGapBufferSlotTable(),
+                abandonSet = abandonSet,
+                changes = changes,
+                lateChanges = lateChanges,
+                composition = this,
+                observerHolder = observerHolder,
+            )
+        }
 
-    @OptIn(ExperimentalComposeApi::class) private fun createChangeList(): Changes = ChangeList()
+    @OptIn(ExperimentalComposeApi::class)
+    private fun createChangeList(): Changes =
+        if (ComposeRuntimeFlags.isLinkBufferComposerEnabled) {
+            androidx.compose.runtime.composer.linkbuffer.changelist.ChangeList()
+        } else {
+            androidx.compose.runtime.composer.gapbuffer.changelist.ChangeList()
+        }
 
     /** Return true if this is a root (non-sub-) composition. */
     val isRoot: Boolean = parent is Recomposer
@@ -965,6 +992,30 @@ internal class CompositionImpl(
     }
 
     override fun prepareCompose(block: () -> Unit) = composer.prepareCompose(block)
+
+    /**
+     * Extract the invalidations that are in the group with the given marker. This is used when
+     * movable content is moved between tables and the content was invalidated. This is used to move
+     * the invalidations with the content.
+     */
+    internal fun extractInvalidationsOf(anchor: Anchor): List<Pair<RecomposeScopeImpl, Any>> {
+        return if (invalidations.size > 0) {
+            val result = mutableListOf<Pair<RecomposeScopeImpl, Any>>()
+            val slotStorage = slotStorage
+            invalidations.removeIf { scope, value ->
+                val scopeAnchor = scope.anchor
+                if (scopeAnchor != null && slotStorage.inGroup(anchor, scopeAnchor)) {
+                    result.add(scope to value)
+                    // Remove the invalidation
+                    true
+                } else {
+                    // Keep the invalidation
+                    false
+                }
+            }
+            result
+        } else emptyList()
+    }
 
     /**
      * Extract the invalidations that are in the group with the given marker. This is used when

@@ -52,11 +52,11 @@ class BanLoopMainThreadForAtLeastTest :
 
         val expected =
             """
-src/androidTest/androidx/foo/Test.java:8: Error: Uses loopMainThreadForAtLeast() [BanLoopMainThreadForAtLeast]
-                        uiController.loopMainThreadForAtLeast(50);
-                                     ~~~~~~~~~~~~~~~~~~~~~~~~
-1 error
-        """
+            src/androidTest/androidx/foo/Test.java:8: Error: Uses loopMainThreadForAtLeast() [BanLoopMainThreadForAtLeast]
+                                    uiController.loopMainThreadForAtLeast(50);
+                                                 ~~~~~~~~~~~~~~~~~~~~~~~~
+            1 error
+            """
                 .trimIndent()
 
         check(*input).expect(expected)
@@ -84,11 +84,11 @@ src/androidTest/androidx/foo/Test.java:8: Error: Uses loopMainThreadForAtLeast()
 
         val expected =
             """
-src/androidTest/androidx/foo/Test.kt:8: Error: Uses loopMainThreadForAtLeast() [BanLoopMainThreadForAtLeast]
-                        uiController.loopMainThreadForAtLeast(50)
-                                     ~~~~~~~~~~~~~~~~~~~~~~~~
-1 error
-        """
+            src/androidTest/androidx/foo/Test.kt:8: Error: Uses loopMainThreadForAtLeast() [BanLoopMainThreadForAtLeast]
+                                    uiController.loopMainThreadForAtLeast(50)
+                                                 ~~~~~~~~~~~~~~~~~~~~~~~~
+            1 error
+            """
                 .trimIndent()
 
         check(*input).expect(expected)

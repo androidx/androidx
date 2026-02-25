@@ -585,12 +585,12 @@ class AppFunctionInventoryCodeBuilder(private val inventoryClassBuilder: TypeSpe
                         buildCodeBlock {
                             addStatement(
                                 """
-                            %T(
-                                isNullable = %L,
-                                description = %S,
-                                enumValues = %L,
-                            )
-                            """
+                                %T(
+                                    isNullable = %L,
+                                    description = %S,
+                                    enumValues = %L,
+                                )
+                                """
                                     .trimIndent(),
                                 IntrospectionHelper.APP_FUNCTION_INT_TYPE_METADATA_CLASS,
                                 isNullable,
@@ -611,12 +611,12 @@ class AppFunctionInventoryCodeBuilder(private val inventoryClassBuilder: TypeSpe
                         buildCodeBlock {
                             addStatement(
                                 """
-                            %T(
-                                isNullable = %L,
-                                description = %S,
-                                enumValues = %L,
-                            )
-                            """
+                                %T(
+                                    isNullable = %L,
+                                    description = %S,
+                                    enumValues = %L,
+                                )
+                                """
                                     .trimIndent(),
                                 IntrospectionHelper.APP_FUNCTION_STRING_TYPE_METADATA_CLASS,
                                 isNullable,
@@ -638,11 +638,11 @@ class AppFunctionInventoryCodeBuilder(private val inventoryClassBuilder: TypeSpe
                         buildCodeBlock {
                             addStatement(
                                 """
-                            %T(
-                                isNullable = %L,
-                                description = %S
-                            )
-                            """
+                                %T(
+                                    isNullable = %L,
+                                    description = %S
+                                )
+                                """
                                     .trimIndent(),
                                 toMetadataClassName(),
                                 isNullable,
@@ -994,8 +994,8 @@ class AppFunctionInventoryCodeBuilder(private val inventoryClassBuilder: TypeSpe
                             }
                             addStatement(
                                 """
-                                    %S to %L,
-                                    """
+                                %S to %L,
+                                """
                                     .trimIndent(),
                                 objectPropertyName,
                                 dataTypeVariableName,

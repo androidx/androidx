@@ -26,7 +26,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import platform.posix.remove
 
-class MigrationTest : BaseMigrationTest() {
+class MigrationTest : BaseNonWebMigrationTest() {
     private val filename = "/tmp/test-${Random.nextInt()}.db"
     private val driver: SQLiteDriver = BundledSQLiteDriver()
 

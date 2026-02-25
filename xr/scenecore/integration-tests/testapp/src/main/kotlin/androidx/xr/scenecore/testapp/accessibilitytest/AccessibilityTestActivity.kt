@@ -22,7 +22,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.xr.runtime.Config
-import androidx.xr.runtime.Config.DeviceTrackingMode
+import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.scenecore.MovableComponent
 import androidx.xr.scenecore.scene

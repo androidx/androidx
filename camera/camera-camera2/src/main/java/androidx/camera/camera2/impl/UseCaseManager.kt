@@ -36,7 +36,6 @@ import androidx.camera.camera2.internal.DynamicRangeResolver
 import androidx.camera.camera2.interop.Camera2CameraControl
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.pipe.CameraGraph
-import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsLowLightBoost
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.DynamicRange
@@ -50,7 +49,6 @@ import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.CameraMode
 import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.core.impl.MutableOptionsBundle
-import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionConfig.ValidatingBuilder
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.SurfaceConfig
@@ -203,7 +201,7 @@ constructor(
             if (attachedUseCases.addAll(useCases)) {
                 if (!addOrRemoveRepeatingUseCase(getRunningUseCases())) {
                     updateZslDisabledByUseCaseConfigStatus()
-                    updateLowLightBoostDisabledByUseCaseSessionConfigStatus()
+                    lowLightBoostControl.onSessionConfigChanged(attachedUseCases.toList())
                     refreshAttachedUseCases(attachedUseCases)
                 }
             }
@@ -254,10 +252,10 @@ constructor(
 
                 if (attachedUseCases.isEmpty()) {
                     zslControl.setZslDisabledByUserCaseConfig(false)
-                    lowLightBoostControl.setLowLightBoostDisabledByUseCaseSessionConfig(false)
+                    lowLightBoostControl.onSessionConfigChanged(emptyList())
                 } else {
                     updateZslDisabledByUseCaseConfigStatus()
-                    updateLowLightBoostDisabledByUseCaseSessionConfigStatus()
+                    lowLightBoostControl.onSessionConfigChanged(attachedUseCases.toList())
                 }
                 refreshAttachedUseCases(attachedUseCases)
             }
@@ -726,23 +724,6 @@ constructor(
         val disableZsl = attachedUseCases.any { it.currentConfig.isZslDisabled(false) }
         zslControl.setZslDisabledByUserCaseConfig(disableZsl)
     }
-
-    private fun updateLowLightBoostDisabledByUseCaseSessionConfigStatus() {
-        if (!cameraProperties.metadata.supportsLowLightBoost) {
-            return
-        }
-
-        // Low-light boost should be disabled when expected frame rate range exceeds 30.
-        if (attachedUseCases.getSessionConfig().expectedFrameRateRange.upper > 30) {
-            lowLightBoostControl.setLowLightBoostDisabledByUseCaseSessionConfig(true)
-            return
-        }
-
-        lowLightBoostControl.setLowLightBoostDisabledByUseCaseSessionConfig(false)
-    }
-
-    private fun Collection<UseCase>.getSessionConfig(): SessionConfig =
-        ValidatingBuilder().apply { forEach { useCase -> add(useCase.sessionConfig) } }.build()
 
     /**
      * This interface defines a listener that is notified when the set of running UseCases changes.

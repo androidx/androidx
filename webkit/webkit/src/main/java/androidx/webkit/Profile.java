@@ -16,7 +16,6 @@
 
 package androidx.webkit;
 
-import android.os.Build;
 import android.os.CancellationSignal;
 import android.webkit.CookieManager;
 import android.webkit.GeolocationPermissions;
@@ -26,7 +25,6 @@ import android.webkit.WebStorage;
 import android.webkit.WebView;
 
 import androidx.annotation.AnyThread;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RequiresOptIn;
 import androidx.annotation.UiThread;
@@ -430,7 +428,6 @@ public interface Profile {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     @NonNull
     @UiThread
-    @RequiresApi(api = Build.VERSION_CODES.N)
     default Set<CustomHeader> getCustomHeaders() {
         // default to avoid breaking backwards compatibility.
         return Collections.emptySet();
@@ -448,7 +445,6 @@ public interface Profile {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     @NonNull
     @UiThread
-    @RequiresApi(api = Build.VERSION_CODES.N)
     default Set<CustomHeader> getCustomHeaders(@NonNull String name) {
         // default to avoid breaking backwards compatibility.
         return Collections.emptySet();
@@ -468,7 +464,6 @@ public interface Profile {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     @NonNull
     @UiThread
-    @RequiresApi(api = Build.VERSION_CODES.N)
     default Set<CustomHeader> getCustomHeaders(@NonNull String name, @NonNull String value) {
         // default to avoid breaking backwards compatibility.
         return Collections.emptySet();

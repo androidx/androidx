@@ -21,7 +21,6 @@ import android.content.Context
 import android.os.Build
 import android.provider.MediaStore
 import android.view.View
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
@@ -36,7 +35,6 @@ import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.ExtensionSessionConfig
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.CoreAppTestUtil
@@ -89,10 +87,6 @@ class CameraControllerDeviceTest(
                 inLabTestRequired = true
             )
     }
-
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
 
     @get:Rule
     val useCamera =

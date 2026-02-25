@@ -17,6 +17,7 @@
 package androidx.room3.solver.query.result
 
 import androidx.room3.compiler.processing.XType
+import androidx.room3.ext.SQLiteDriverMemberNames
 import androidx.room3.parser.ParsedQuery
 import androidx.room3.processor.Context
 import androidx.room3.processor.ProcessorErrors
@@ -133,11 +134,16 @@ class DataClassRowAdapter(
         if (relationCollectors.isNotEmpty()) {
             relationCollectors.forEach { it.writeInitCode(scope) }
             scope.builder.apply {
-                beginControlFlow("while (%L.step())", stmtVarName).apply {
-                    relationCollectors.forEach {
-                        it.writeReadParentKeyCode(stmtVarName, fieldsWithIndices, scope)
+                beginControlFlow(
+                        "while (%L.%M())",
+                        stmtVarName,
+                        SQLiteDriverMemberNames.STATEMENT_STEP,
+                    )
+                    .apply {
+                        relationCollectors.forEach {
+                            it.writeReadParentKeyCode(stmtVarName, fieldsWithIndices, scope)
+                        }
                     }
-                }
                 endControlFlow()
                 addStatement("%L.reset()", stmtVarName)
             }

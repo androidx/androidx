@@ -25,7 +25,6 @@ import android.media.MediaFormat.KEY_OPERATING_RATE
 import android.media.MediaFormat.KEY_PRIORITY
 import android.os.SystemClock
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.Preview
@@ -35,7 +34,6 @@ import androidx.camera.core.impl.SessionConfig.SESSION_TYPE_REGULAR
 import androidx.camera.core.impl.Timebase
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraXUtil
 import androidx.camera.testing.impl.IgnoreVideoRecordingProblematicDeviceRule
@@ -84,10 +82,6 @@ private const val I_FRAME_INTERVAL = 1
 class VideoEncoderTest(private val implName: String, private val cameraConfig: CameraXConfig) {
 
     @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
-
-    @get:Rule
     val cameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             CameraUtil.PreTestCameraIdList(cameraConfig)
@@ -98,11 +92,7 @@ class VideoEncoderTest(private val implName: String, private val cameraConfig: C
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() =
-            listOf(
-                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig()),
-            )
+        fun data() = listOf(arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()))
 
         private val INPUT_TIMEBASE = Timebase.UPTIME
     }

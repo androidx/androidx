@@ -15,8 +15,8 @@ function sedInPlace() {
 
 # Versions that the user should update when running this script
 echo Getting Studio version and link
-AGP_VERSION=${1:-9.1.0-alpha02}
-STUDIO_VERSION_STRING=${2:-"Android Studio Panda 1 | 2025.3.1 Canary 2"}
+AGP_VERSION=${1:-9.1.0-alpha06}
+STUDIO_VERSION_STRING=${2:-"Android Studio Panda 2 | 2025.3.2 Canary 1"}
 
 # Get studio version number from version name
 STUDIO_IFRAME_LINK=`curl "https://developer.android.com/studio/archive.html" | grep "<iframe " | sed "s/.* src=\"\([^\"]*\)\".*/\1/g"`
@@ -30,6 +30,7 @@ if [ "$STUDIO_LINK" == "" ]; then
   exit 1
 fi
 STUDIO_VERSION=`echo $STUDIO_LINK | sed "s/.*ide-zips\/\(.*\)\/android-studio-.*/\1/g"`
+STUDIO_NAME=`echo $STUDIO_LINK | sed "s/.*ide-zips\/.*\/android-studio-\(.*\)-.*/\1/g"`
 
 # Update AGP
 ARTIFACTS_TO_DOWNLOAD="com.android.tools.build:gradle:$AGP_VERSION,"
@@ -54,7 +55,8 @@ ARTIFACTS_TO_DOWNLOAD+="com.android.tools:ninepatch:$LINT_VERSION,"
 echo Updating dependency versions
 sedInPlace "s/androidGradlePlugin = \".*/androidGradlePlugin = \"$AGP_VERSION\"/g" gradle/libs.versions.toml
 sedInPlace "s/androidLint = \".*/androidLint = \"$LINT_VERSION\"/g" gradle/libs.versions.toml
-sedInPlace "s/androidStudio = \".*/androidStudio = \"$STUDIO_VERSION\"/g" gradle/libs.versions.toml
+sedInPlace "s/androidStudioIj = \".*/androidStudioIj = \"$STUDIO_VERSION\"/g" gradle/libs.versions.toml
+sedInPlace "s/androidStudioName = \".*/androidStudioName = \"$STUDIO_NAME\"/g" gradle/libs.versions.toml
 
 # update settings.gradle -- don't match the line with :$agpOverride
 sedInPlace "s/com.android.settings:com.android.settings.gradle.plugin:[^$][0-9a-z\.\-]*/com.android.settings:com.android.settings.gradle.plugin:$AGP_VERSION/g" settings.gradle
@@ -69,7 +71,7 @@ while read line
              | tail -n +3 \
              | sed '$ d') # Remove the last line
 
-ATP_VERSION=${4:-0.0.9-alpha03}
+ATP_VERSION=${4:-0.0.9-alpha04}
 ARTIFACTS_TO_DOWNLOAD+="com.google.testing.platform:android-test-plugin:$ATP_VERSION,"
 ARTIFACTS_TO_DOWNLOAD+="com.google.testing.platform:launcher:$ATP_VERSION,"
 ARTIFACTS_TO_DOWNLOAD+="com.google.testing.platform:android-driver-instrumentation:$ATP_VERSION,"

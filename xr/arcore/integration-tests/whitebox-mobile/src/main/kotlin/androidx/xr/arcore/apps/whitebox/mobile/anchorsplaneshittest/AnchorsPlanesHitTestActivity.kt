@@ -73,8 +73,8 @@ import androidx.xr.arcore.playservices.ArCoreRuntime
 import androidx.xr.arcore.playservices.UnsupportedArCoreCompatApi
 import androidx.xr.arcore.playservices.cameraState
 import androidx.xr.runtime.Config
-import androidx.xr.runtime.Config.PlaneTrackingMode
 import androidx.xr.runtime.Log
+import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.math.Matrix4

@@ -388,6 +388,8 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
                         override fun onUwbStateChanged(isAvailable: Boolean, reason: Int) {
                             executor.execute { observer.onUwbStateChanged(isAvailable, reason) }
                         }
+
+                        override fun getInterfaceVersion(): Int = VERSION
                     }
                 aospAvailabilityClient = iUwb?.controllerClient
                 aospAvailabilityClient?.subscribeToAvailability(availabilityObserver)

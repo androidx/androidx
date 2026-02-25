@@ -36,6 +36,8 @@ import androidx.pdf.annotation.models.EditOperation
 class FakePdfPage(private val pageNum: Int, override val height: Int, override val width: Int) :
     PdfPage {
 
+    override var isClosed = false
+
     internal data class AnnotationOperationRecord(
         val aospId: Int,
         val operation: EditOperation.Operation,
@@ -138,7 +140,7 @@ class FakePdfPage(private val pageNum: Int, override val height: Int, override v
     }
 
     override fun getPageAnnotations(): List<android.util.Pair<Int, PdfAnnotation>> {
-        TODO("Not yet implemented")
+        return listOf()
     }
 
     override fun updatePageAnnotation(annotationId: Int, annotation: PdfAnnotation): Boolean {

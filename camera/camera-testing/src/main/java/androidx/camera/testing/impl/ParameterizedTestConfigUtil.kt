@@ -23,7 +23,7 @@ import androidx.camera.testing.impl.LabTestRule.Companion.isInLabTest
 /** Utility functions of parameterized tests. */
 public object ParameterizedTestConfigUtil {
     /**
-     * Generates the parameterized test configs with Camera2Config and CameraPipeConfig.
+     * Generates the parameterized test configs with Camera2Config.
      *
      * If inLabTestRequired is true but the test is not in the lab test environment, an empty list
      * will be returned.

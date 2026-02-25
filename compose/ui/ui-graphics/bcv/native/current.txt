@@ -205,7 +205,7 @@ abstract interface androidx.compose.ui.graphics/Paint { // androidx.compose.ui.g
         abstract fun <get-style>(): androidx.compose.ui.graphics/PaintingStyle // androidx.compose.ui.graphics/Paint.style.<get-style>|<get-style>(){}[0]
         abstract fun <set-style>(androidx.compose.ui.graphics/PaintingStyle) // androidx.compose.ui.graphics/Paint.style.<set-style>|<set-style>(androidx.compose.ui.graphics.PaintingStyle){}[0]
 
-    abstract fun asFrameworkPaint(): androidx.compose.ui.graphics/NativePaint // androidx.compose.ui.graphics/Paint.asFrameworkPaint|asFrameworkPaint(){}[0]
+    open fun asFrameworkPaint(): androidx.compose.ui.graphics/NativePaint // androidx.compose.ui.graphics/Paint.asFrameworkPaint|asFrameworkPaint(){}[0]
 }
 
 abstract interface androidx.compose.ui.graphics/Path { // androidx.compose.ui.graphics/Path|null[0]
@@ -821,10 +821,6 @@ final class androidx.compose.ui.graphics/LinearGradient : androidx.compose.ui.gr
 
 final class androidx.compose.ui.graphics/NativeCanvas { // androidx.compose.ui.graphics/NativeCanvas|null[0]
     constructor <init>() // androidx.compose.ui.graphics/NativeCanvas.<init>|<init>(){}[0]
-}
-
-final class androidx.compose.ui.graphics/NativeColorFilter { // androidx.compose.ui.graphics/NativeColorFilter|null[0]
-    constructor <init>() // androidx.compose.ui.graphics/NativeColorFilter.<init>|<init>(){}[0]
 }
 
 final class androidx.compose.ui.graphics/NativePaint { // androidx.compose.ui.graphics/NativePaint|null[0]
@@ -2002,7 +1998,6 @@ final val androidx.compose.ui.graphics/androidx_compose_ui_graphics_IntervalTree
 final val androidx.compose.ui.graphics/androidx_compose_ui_graphics_LightingColorFilter$stableprop // androidx.compose.ui.graphics/androidx_compose_ui_graphics_LightingColorFilter$stableprop|#static{}androidx_compose_ui_graphics_LightingColorFilter$stableprop[0]
 final val androidx.compose.ui.graphics/androidx_compose_ui_graphics_LinearGradient$stableprop // androidx.compose.ui.graphics/androidx_compose_ui_graphics_LinearGradient$stableprop|#static{}androidx_compose_ui_graphics_LinearGradient$stableprop[0]
 final val androidx.compose.ui.graphics/androidx_compose_ui_graphics_NativeCanvas$stableprop // androidx.compose.ui.graphics/androidx_compose_ui_graphics_NativeCanvas$stableprop|#static{}androidx_compose_ui_graphics_NativeCanvas$stableprop[0]
-final val androidx.compose.ui.graphics/androidx_compose_ui_graphics_NativeColorFilter$stableprop // androidx.compose.ui.graphics/androidx_compose_ui_graphics_NativeColorFilter$stableprop|#static{}androidx_compose_ui_graphics_NativeColorFilter$stableprop[0]
 final val androidx.compose.ui.graphics/androidx_compose_ui_graphics_NativePaint$stableprop // androidx.compose.ui.graphics/androidx_compose_ui_graphics_NativePaint$stableprop|#static{}androidx_compose_ui_graphics_NativePaint$stableprop[0]
 final val androidx.compose.ui.graphics/androidx_compose_ui_graphics_OffsetEffect$stableprop // androidx.compose.ui.graphics/androidx_compose_ui_graphics_OffsetEffect$stableprop|#static{}androidx_compose_ui_graphics_OffsetEffect$stableprop[0]
 final val androidx.compose.ui.graphics/androidx_compose_ui_graphics_Outline$stableprop // androidx.compose.ui.graphics/androidx_compose_ui_graphics_Outline$stableprop|#static{}androidx_compose_ui_graphics_Outline$stableprop[0]
@@ -2028,8 +2023,6 @@ final val androidx.compose.ui.graphics/isSpecified // androidx.compose.ui.graphi
     final inline fun (androidx.compose.ui.graphics/Color).<get-isSpecified>(): kotlin/Boolean // androidx.compose.ui.graphics/isSpecified.<get-isSpecified>|<get-isSpecified>@androidx.compose.ui.graphics.Color(){}[0]
 final val androidx.compose.ui.graphics/isUnspecified // androidx.compose.ui.graphics/isUnspecified|@androidx.compose.ui.graphics.Color{}isUnspecified[0]
     final inline fun (androidx.compose.ui.graphics/Color).<get-isUnspecified>(): kotlin/Boolean // androidx.compose.ui.graphics/isUnspecified.<get-isUnspecified>|<get-isUnspecified>@androidx.compose.ui.graphics.Color(){}[0]
-final val androidx.compose.ui.graphics/nativeCanvas // androidx.compose.ui.graphics/nativeCanvas|@androidx.compose.ui.graphics.Canvas{}nativeCanvas[0]
-    final fun (androidx.compose.ui.graphics/Canvas).<get-nativeCanvas>(): androidx.compose.ui.graphics/NativeCanvas // androidx.compose.ui.graphics/nativeCanvas.<get-nativeCanvas>|<get-nativeCanvas>@androidx.compose.ui.graphics.Canvas(){}[0]
 final val androidx.compose.ui.graphics/reverseDifference // androidx.compose.ui.graphics/reverseDifference|@androidx.compose.ui.graphics.PathOperation.Companion{}reverseDifference[0]
     final fun (androidx.compose.ui.graphics/PathOperation.Companion).<get-reverseDifference>(): androidx.compose.ui.graphics/PathOperation // androidx.compose.ui.graphics/reverseDifference.<get-reverseDifference>|<get-reverseDifference>@androidx.compose.ui.graphics.PathOperation.Companion(){}[0]
 final val androidx.compose.ui.graphics/union // androidx.compose.ui.graphics/union|@androidx.compose.ui.graphics.PathOperation.Companion{}union[0]
@@ -2136,7 +2129,6 @@ final fun androidx.compose.ui.graphics/androidx_compose_ui_graphics_IntervalTree
 final fun androidx.compose.ui.graphics/androidx_compose_ui_graphics_LightingColorFilter$stableprop_getter(): kotlin/Int // androidx.compose.ui.graphics/androidx_compose_ui_graphics_LightingColorFilter$stableprop_getter|androidx_compose_ui_graphics_LightingColorFilter$stableprop_getter(){}[0]
 final fun androidx.compose.ui.graphics/androidx_compose_ui_graphics_LinearGradient$stableprop_getter(): kotlin/Int // androidx.compose.ui.graphics/androidx_compose_ui_graphics_LinearGradient$stableprop_getter|androidx_compose_ui_graphics_LinearGradient$stableprop_getter(){}[0]
 final fun androidx.compose.ui.graphics/androidx_compose_ui_graphics_NativeCanvas$stableprop_getter(): kotlin/Int // androidx.compose.ui.graphics/androidx_compose_ui_graphics_NativeCanvas$stableprop_getter|androidx_compose_ui_graphics_NativeCanvas$stableprop_getter(){}[0]
-final fun androidx.compose.ui.graphics/androidx_compose_ui_graphics_NativeColorFilter$stableprop_getter(): kotlin/Int // androidx.compose.ui.graphics/androidx_compose_ui_graphics_NativeColorFilter$stableprop_getter|androidx_compose_ui_graphics_NativeColorFilter$stableprop_getter(){}[0]
 final fun androidx.compose.ui.graphics/androidx_compose_ui_graphics_NativePaint$stableprop_getter(): kotlin/Int // androidx.compose.ui.graphics/androidx_compose_ui_graphics_NativePaint$stableprop_getter|androidx_compose_ui_graphics_NativePaint$stableprop_getter(){}[0]
 final fun androidx.compose.ui.graphics/androidx_compose_ui_graphics_OffsetEffect$stableprop_getter(): kotlin/Int // androidx.compose.ui.graphics/androidx_compose_ui_graphics_OffsetEffect$stableprop_getter|androidx_compose_ui_graphics_OffsetEffect$stableprop_getter(){}[0]
 final fun androidx.compose.ui.graphics/androidx_compose_ui_graphics_Outline$stableprop_getter(): kotlin/Int // androidx.compose.ui.graphics/androidx_compose_ui_graphics_Outline$stableprop_getter|androidx_compose_ui_graphics_Outline$stableprop_getter(){}[0]

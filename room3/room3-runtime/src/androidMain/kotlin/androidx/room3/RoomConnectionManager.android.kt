@@ -22,6 +22,7 @@ import androidx.room3.coroutines.PassthroughConnectionPool
 import androidx.room3.coroutines.TransactionWrapper
 import androidx.room3.coroutines.newConnectionPool
 import androidx.room3.coroutines.newSingleConnectionPool
+import kotlinx.coroutines.runBlocking
 
 /**
  * An Android platform specific [RoomConnectionManager] with backwards compatibility with
@@ -51,31 +52,32 @@ internal actual class RoomConnectionManager : BaseRoomConnectionManager {
                 // support drivers such as the Android since internally it already has a
                 // thread-confined connection pool.
                 PassthroughConnectionPool(
-                    driver = DriverWrapper(config.sqliteDriver),
-                    fileName = config.name ?: ":memory:",
+                    connectionFactory =
+                        createConnectionFactory(config.sqliteDriver, config.name ?: ":memory:"),
                     transactionWrapper = transactionWrapper,
                 )
             } else if (config.name == null) {
                 // An in-memory database must use a single connection pool.
                 newSingleConnectionPool(
-                    driver = DriverWrapper(config.sqliteDriver),
-                    fileName = ":memory:",
-                    config.preparedStatementCacheSize,
+                    connectionFactory = createConnectionFactory(config.sqliteDriver, ":memory:"),
+                    statementCacheSize = config.preparedStatementCacheSize,
                 )
             } else {
                 newConnectionPool(
-                    driver = DriverWrapper(config.sqliteDriver),
-                    fileName = config.name,
+                    connectionFactory = createConnectionFactory(config.sqliteDriver, config.name),
                     maxNumOfReaders = config.journalMode.getMaxNumberOfReaders(),
                     maxNumOfWriters = config.journalMode.getMaxNumberOfWriters(),
-                    config.preparedStatementCacheSize,
+                    statementCacheSize = config.preparedStatementCacheSize,
                 )
             }
     }
 
     internal fun setAutoCloser(autoCloser: AutoCloser) {
         this.autoCloser = autoCloser
-        autoCloser.setAutoOpenCallback(::configurationConnection)
+        autoCloser.setAutoOpenCallback {
+            // TODO(b/316944816): Fix me! Can we avoid this runBlocking?
+            runBlocking { configurationConnection(it) }
+        }
     }
 
     override suspend fun <R> useConnection(

@@ -25,7 +25,7 @@ internal constructor(@get:RestrictTo(Scope.LIBRARY_GROUP) public val context: Tr
     AutoCloseable {
     /**
      * Builds an instance of [TraceDriver] using the provided [TraceSink] if `isEnabled` is `true`.
-     * Otherwise you get an instance of a no-op [TraceDriver].
+     * Otherwise, you get an instance of a no-op [TraceDriver].
      */
     public constructor(
         sink: TraceSink,
@@ -39,10 +39,9 @@ internal constructor(@get:RestrictTo(Scope.LIBRARY_GROUP) public val context: Tr
             }
     )
 
-    /** Create an instance of a [Tracer] that can be used to emit trace events. */
-    public open fun createTracer(name: String): Tracer {
-        return context.createTracer(name = name)
-    }
+    /** Return an instance of a [Tracer] that can be used to emit trace events. */
+    public open val tracer: Tracer by
+        lazy(mode = LazyThreadSafetyMode.PUBLICATION) { context.createTracer() }
 
     /** Flushes the trace packets into the underlying [TraceSink]. */
     public open fun flush() {

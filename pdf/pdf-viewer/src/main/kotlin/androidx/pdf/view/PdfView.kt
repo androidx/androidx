@@ -27,8 +27,11 @@ import android.graphics.PointF
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.drawable.Drawable
+import android.net.Uri
+import android.os.Build
 import android.os.Looper
 import android.os.Parcelable
+import android.os.ext.SdkExtensions
 import android.util.AttributeSet
 import android.util.Range
 import android.util.SparseArray
@@ -45,13 +48,13 @@ import androidx.annotation.FloatRange
 import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.annotation.MainThread
+import androidx.annotation.RequiresExtension
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.core.animation.addListener
 import androidx.core.graphics.toRectF
 import androidx.core.os.HandlerCompat
 import androidx.core.util.Pools
-import androidx.core.util.forEach
 import androidx.core.util.keyIterator
 import androidx.core.util.valueIterator
 import androidx.core.view.ViewCompat
@@ -72,6 +75,7 @@ import androidx.pdf.selection.SelectionMenuManager
 import androidx.pdf.selection.SelectionRenderer
 import androidx.pdf.selection.SelectionStateManager
 import androidx.pdf.selection.SelectionUiSignal
+import androidx.pdf.selection.model.ImageSelection
 import androidx.pdf.util.Accessibility
 import androidx.pdf.util.MathUtils
 import androidx.pdf.util.ZoomUtils
@@ -266,6 +270,25 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             invalidate()
         }
 
+    /**
+     * Enable or disable the image-selection feature surface.
+     *
+     * **Important:** Enabling this feature (setting to `true`) requires the device to run Android
+     * S+ (API Level 31 or above) with SDK Extension version 19 or higher. This requirement is due
+     * to dependencies on platform APIs introduced in that sdk-extension.
+     */
+    @set:RequiresExtension(extension = Build.VERSION_CODES.S, version = 19)
+    @get:RequiresExtension(extension = Build.VERSION_CODES.S, version = 19)
+    public var isImageSelectionEnabled: Boolean = false
+        set(value) {
+            if (field == value) return
+            val isApiReqSatisfied = isSdkExtensionGreaterEqualTo(19)
+            if (!isApiReqSatisfied) return
+
+            field = value
+            selectionStateManager?.isImageSelectionEnabled = value
+        }
+
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     /**
@@ -355,6 +378,14 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         if (typedArray.hasValue(R.styleable.PdfView_isFormFillingEnabled)) {
             isFormFillingEnabled =
                 typedArray.getBoolean(R.styleable.PdfView_isFormFillingEnabled, false)
+        }
+
+        if (
+            typedArray.hasValue(R.styleable.PdfView_isImageSelectionEnabled) &&
+                isSdkExtensionGreaterEqualTo(19)
+        ) {
+            isImageSelectionEnabled =
+                typedArray.getBoolean(R.styleable.PdfView_isImageSelectionEnabled, false)
         }
         if (typedArray.hasValue(R.styleable.PdfView_minZoom)) {
             minZoom = typedArray.getFloat(R.styleable.PdfView_minZoom, minZoom)
@@ -617,6 +648,29 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
     private val onFirstContentLoadListeners = mutableListOf<OnFirstContentLoadListener>()
 
+    /** Listener interface to receive update when page bitmaps are either fetched or cleared. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public interface OnBitmapUpdatedListener {
+        /** Called when the bitmap has been fetched and is available */
+        @MainThread public fun onBitmapFetched(pageNum: Int)
+
+        /** Called when the bitmap has been cleared and is no longer available */
+        @MainThread public fun onBitmapCleared(pageNum: Int)
+    }
+
+    private var onBitmapUpdatedListener: OnBitmapUpdatedListener? = null
+
+    /**
+     * Sets the listener that is notified when the bitmap is updated to the ready state or when the
+     * bitmap is cleared for a specified page. Passing null will remove the listener.
+     *
+     * @param listener The listener to set, or null to clear the listener.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun setOnBitmapUpdatedListener(listener: OnBitmapUpdatedListener?) {
+        this.onBitmapUpdatedListener = listener
+    }
+
     /**
      * The [CoroutineScope] used to make suspending calls to [PdfDocument]. The size of the fixed
      * thread pool is arbitrary and subject to tuning.
@@ -812,7 +866,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     }
 
     @VisibleForTesting internal var pdfViewAccessibilityManager: PdfViewAccessibilityManager? = null
-    @VisibleForTesting
+
     internal var isAccessibilityEnabled: Boolean =
         Accessibility.get().isAccessibilityEnabled(context)
         set(value) {
@@ -1173,7 +1227,6 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                 formWidgetMetadataLoader?.let { loader ->
                     pageManager?.maybeUpdateFormWidgetMetadata(pageNumber, loader)
                 }
-                formFillingEditText = null
             }
         }
 
@@ -1338,6 +1391,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         if (t != oldt) {
             maybeShowFastScroller()
         }
+        manageActionModeOnScroll()
         onViewportChanged()
     }
 
@@ -1457,6 +1511,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
         pdfDocument?.removeOnPdfContentInvalidatedListener(onPdfContentInvalidatedListener)
         accessibilityManager.removeAccessibilityStateChangeListener(accessibilityStateChangeHandler)
+        removeCallbacks(showSelectionActionModeRunnable)
     }
 
     override fun onSaveInstanceState(): Parcelable? {
@@ -1472,6 +1527,9 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         }
         state.isFormFillingEnabled = isFormFillingEnabled
         state.isFormFillingTooltipEnabled = isFormFillingTooltipEnabled
+        if (isSdkExtensionGreaterEqualTo(19)) {
+            state.isImageSelectionEnabled = isImageSelectionEnabled
+        }
         state.pagesPerRow = pagesPerRow
         state.horizontalPageSpacing = horizontalPageSpacing
         state.verticalPageSpacing = verticalPageSpacing
@@ -1523,6 +1581,22 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         val cappedX = x.coerceIn(0..computeHorizontalScrollRange())
         val cappedY = y.coerceIn(minVerticalScrollPosition..computeVerticalScrollRange())
         super.scrollTo(cappedX, cappedY)
+    }
+
+    /**
+     * Manages the visibility of the selection action mode during scrolling. The action mode is
+     * immediately hidden when scrolling starts and a delayed runnable is posted to potentially show
+     * it again after scrolling has settled.
+     */
+    private fun manageActionModeOnScroll() {
+        // Immediately hide the action mode as soon as scrolling begins.
+        hideActionMode()
+        // Always remove any pending show runnables. This prevents the action mode
+        // from flickering or reappearing during continuous scrolling.
+        removeCallbacks(showSelectionActionModeRunnable)
+        // Post a runnable to potentially show the action mode after a delay.
+        // This ensures the action mode only reappears after scrolling has settled.
+        postDelayed(showSelectionActionModeRunnable, ACTION_MODE_REAPPEAR_DELAY_MS)
     }
 
     override fun computeHorizontalScrollRange(): Int {
@@ -1601,7 +1675,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                     layoutStrategy = requireNotNull(localStateToRestore.layoutStrategy),
                     pdfFormFillingState = requireNotNull(localStateToRestore.pdfFormFillingState),
                     errorFlow = errorFlow,
-                    isFormFillingEnabled = isFormFillingEnabled,
+                    isFormFillingEnabled = { isFormFillingEnabled },
                 )
                 .apply { onViewportChanged() }
         selectionStateManager =
@@ -1614,6 +1688,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                 pageLayoutManager = pageLayoutManager,
                 pageManager = pageManager,
                 initialSelection = localStateToRestore.selectionModel,
+                isImageSelectionEnabled = localStateToRestore.isImageSelectionEnabled,
             )
 
         val positionToRestore =
@@ -1629,6 +1704,9 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
         isFormFillingEnabled = localStateToRestore.isFormFillingEnabled
         isFormFillingTooltipEnabled = localStateToRestore.isFormFillingTooltipEnabled
+        if (isSdkExtensionGreaterEqualTo(19)) {
+            isImageSelectionEnabled = localStateToRestore.isImageSelectionEnabled
+        }
         setAccessibility()
 
         restoreFormFillingEditText()
@@ -1683,7 +1761,23 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                     pageSignalsToJoin?.join()
                     launch { manager.invalidationSignalFlow.collect { invalidate() } }
 
-                    launch { manager.bitmapReadyFlow.collect { isAnyBitmapAvailable = true } }
+                    launch {
+                        manager.bitmapUpdatedFlow.collect { pageBitmapState ->
+                            when (pageBitmapState) {
+                                is PageBitmapState.PageBitmapReady -> {
+                                    onBitmapUpdatedListener?.onBitmapFetched(
+                                        pageBitmapState.pageNum
+                                    )
+                                    isAnyBitmapAvailable = true
+                                }
+                                is PageBitmapState.PageBitmapCleared -> {
+                                    onBitmapUpdatedListener?.onBitmapCleared(
+                                        pageBitmapState.pageNum
+                                    )
+                                }
+                            }
+                        }
+                    }
 
                     launch {
                         manager.pageTextReadyFlow.collect { pageNum ->
@@ -1776,7 +1870,10 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
     private fun showActionMode() {
         val localCurrentSelection = currentSelection ?: return
-        if (selectionActionModeCallback?.actionMode == null) {
+        // Populate the menu for non-image selections if the menu is currently empty
+        if (
+            currentSelection !is ImageSelection && selectionActionModeCallback?.actionMode == null
+        ) {
             val previousJob = selectionMenuJob
             selectionMenuJob =
                 backgroundScope.launch {
@@ -1872,9 +1969,12 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                         horizontalPageSpacingPx = horizontalPageSpacing.toFloat(),
                         verticalPageSpacingPx = verticalPageSpacing.toFloat(),
                         errorFlow = errorFlow,
-                        isFormFillingEnabled = isFormFillingEnabled,
+                        isFormFillingEnabled = { isFormFillingEnabled },
                     )
                     .apply { onViewportChanged() }
+
+            val isImageSelectionAvailable =
+                isSdkExtensionGreaterEqualTo(19) && isImageSelectionEnabled
             selectionStateManager =
                 SelectionStateManager(
                     pdfDocument = localPdfDocument,
@@ -1884,6 +1984,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                     errorFlow = errorFlow,
                     pageLayoutManager = pageLayoutManager,
                     pageManager = pageManager,
+                    isImageSelectionEnabled = isImageSelectionAvailable,
                 )
             setAccessibility()
         }
@@ -1997,6 +2098,8 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             pageLocationsPool.release(location)
         }
     }
+
+    private val showSelectionActionModeRunnable = Runnable { updateSelectionActionModeVisibility() }
 
     /**
      * Shows or hides the selection action mode, as appropriate. If the current selection is visible
@@ -2209,8 +2312,8 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         ViewCompat.setAccessibilityDelegate(this, pdfViewAccessibilityManager)
     }
 
-    private fun commitFormFillingEditText() {
-        formFillingEditText?.let { formWidgetInteractionHandler?.commitEditTextValue(it) }
+    internal fun commitFormFillingEditText() {
+        formFillingEditText?.let { formWidgetInteractionHandler?.finishTextEditing(it) }
     }
 
     private val shouldShowFormFillingTooltip: Boolean
@@ -2571,18 +2674,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         ): Boolean {
             links.externalLinks.forEach { externalLink ->
                 if (externalLink.bounds.any { it.contains(pdfCoordinates.x, pdfCoordinates.y) }) {
-                    val link = ExternalLink(externalLink.uri)
-                    if (linkClickListener?.onLinkClicked(link) == true) {
-                        return true
-                    } else {
-                        try {
-                            val intent = Intent(Intent.ACTION_VIEW, link.uri)
-                            context.startActivity(intent)
-                        } catch (_: Exception) {
-                            return false
-                        }
-                    }
-                    return true
+                    return openExternalLink(externalLink.uri)
                 }
             }
             return false
@@ -2605,6 +2697,21 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                 }
             }
             return false
+        }
+    }
+
+    internal fun openExternalLink(uri: Uri): Boolean {
+        val externalLink = ExternalLink(uri)
+        if (linkClickListener?.onLinkClicked(externalLink) == true) {
+            return true
+        } else {
+            try {
+                val intent = Intent(Intent.ACTION_VIEW, externalLink.uri)
+                context.startActivity(intent)
+                return true
+            } catch (_: Exception) {
+                return false
+            }
         }
     }
 
@@ -2670,6 +2777,9 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         /** The amount of delay between two scroll events */
         private const val AUTO_SCROLL_DELAY_IN_MILLIS = 5L
 
+        /** The amount of delay for actionMode to show after scroll event */
+        private const val ACTION_MODE_REAPPEAR_DELAY_MS = 500L
+
         /**
          * The tolerance in percentage to control how close the touch point needs to be to the
          * bottom or top of the viewport for scroll-during-selection to start.
@@ -2722,4 +2832,8 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             return (contentCoord * zoom) - scroll
         }
     }
+}
+
+private fun isSdkExtensionGreaterEqualTo(sdkExtension: Int): Boolean {
+    return SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= sdkExtension
 }

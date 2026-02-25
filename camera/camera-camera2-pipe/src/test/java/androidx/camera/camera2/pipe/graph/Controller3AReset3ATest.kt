@@ -23,14 +23,11 @@ import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.Lock3ABehavior
-import androidx.camera.camera2.pipe.core.acquireToken
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion.requiredParameters
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -53,7 +50,8 @@ class Controller3AReset3ATest {
         FakeCameraMetadata(
             mapOf(
                 CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES to
-                    intArrayOf(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
+                    intArrayOf(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE),
+                CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE to 0.1f,
             )
         )
     private val controller3A = Controller3A(graphProcessor, fakeMetadata, graphState3A, listener3A)
@@ -61,15 +59,13 @@ class Controller3AReset3ATest {
     @Test
     fun reset3A_afterUpdate3A__resetsAfRegions() =
         testScope.runTest {
-            val scope = TestScope()
-            val token = Mutex().acquireToken()
             val snapshot = controller3A.state3ASnapshot()
 
             val meteringRegions = listOf(MeteringRectangle(1, 1, 100, 100, 2))
             controller3A.update3A(afRegions = meteringRegions)
             advanceUntilIdle()
 
-            controller3A.reset3A(scope, token, snapshot)
+            controller3A.reset3A(snapshot)
             advanceUntilIdle()
 
             val updateParams = captureSequenceProcessor.nextEvent().requiredParameters
@@ -78,14 +74,11 @@ class Controller3AReset3ATest {
 
             val resetParams = captureSequenceProcessor.nextEvent().requiredParameters
             assertThat(resetParams[CaptureRequest.CONTROL_AF_REGIONS]).isNull()
-            assertThat(token.released).isTrue()
         }
 
     @Test
     fun reset3A_afterUpdate3A_resetsAeRegions() =
         testScope.runTest {
-            val scope = TestScope()
-            val token = Mutex().acquireToken()
             val snapshot = controller3A.state3ASnapshot()
 
             val meteringRegions = listOf(MeteringRectangle(1, 1, 100, 100, 2))
@@ -96,19 +89,16 @@ class Controller3AReset3ATest {
             val regionsForUpdate = updateParams[CaptureRequest.CONTROL_AE_REGIONS] as Array<*>
             assertThat(regionsForUpdate[0]).isEqualTo(meteringRegions[0])
 
-            controller3A.reset3A(scope, token, snapshot)
+            controller3A.reset3A(snapshot)
             advanceUntilIdle()
 
             val resetParams = captureSequenceProcessor.nextEvent().requiredParameters
             assertThat(resetParams[CaptureRequest.CONTROL_AE_REGIONS]).isNull()
-            assertThat(token.released).isTrue()
         }
 
     @Test
     fun reset3a_afterUpdate3A_resetsAwbRegions() =
         testScope.runTest {
-            val scope = TestScope()
-            val token = Mutex().acquireToken()
             val snapshot = controller3A.state3ASnapshot()
 
             val meteringRegions = listOf(MeteringRectangle(1, 1, 100, 100, 2))
@@ -119,19 +109,16 @@ class Controller3AReset3ATest {
             val regionsForUpdate = updateParams[CaptureRequest.CONTROL_AWB_REGIONS] as Array<*>
             assertThat(regionsForUpdate[0]).isEqualTo(meteringRegions[0])
 
-            controller3A.reset3A(scope, token, snapshot)
+            controller3A.reset3A(snapshot)
             advanceUntilIdle()
 
             val resetParams = captureSequenceProcessor.nextEvent().requiredParameters
             assertThat(resetParams[CaptureRequest.CONTROL_AWB_REGIONS]).isNull()
-            assertThat(token.released).isTrue()
         }
 
     @Test
     fun reset3A_afterUpdate3A_resets3ARegions() =
         testScope.runTest {
-            val scope = TestScope()
-            val token = Mutex().acquireToken()
             val snapshot = controller3A.state3ASnapshot()
 
             val meteringRegions = listOf(MeteringRectangle(1, 1, 100, 100, 2))
@@ -150,14 +137,13 @@ class Controller3AReset3ATest {
             assertThat((updateParams[CaptureRequest.CONTROL_AWB_REGIONS] as Array<*>)[0])
                 .isEqualTo(meteringRegions[0])
 
-            controller3A.reset3A(scope, token, snapshot)
+            controller3A.reset3A(snapshot)
             advanceUntilIdle()
 
             val resetParams = captureSequenceProcessor.nextEvent().requiredParameters
             assertThat(resetParams[CaptureRequest.CONTROL_AE_REGIONS]).isNull()
             assertThat(resetParams[CaptureRequest.CONTROL_AF_REGIONS]).isNull()
             assertThat(resetParams[CaptureRequest.CONTROL_AWB_REGIONS]).isNull()
-            assertThat(token.released).isTrue()
         }
 
     @Test
@@ -177,8 +163,6 @@ class Controller3AReset3ATest {
             advanceUntilIdle()
             captureSequenceProcessor.nextEvent()
 
-            val scope = TestScope()
-            val token = Mutex().acquireToken()
             val snapshot = controller3A.state3ASnapshot()
 
             val sessionAeRegions = listOf(MeteringRectangle(1, 1, 50, 50, 1))
@@ -205,7 +189,7 @@ class Controller3AReset3ATest {
             assertThat((updateParams[CaptureRequest.CONTROL_AWB_REGIONS] as Array<*>)[0])
                 .isEqualTo(sessionAwbRegions[0])
 
-            controller3A.reset3A(scope, token, snapshot)
+            controller3A.reset3A(snapshot)
             advanceUntilIdle()
 
             val resetParams = captureSequenceProcessor.nextEvent().requiredParameters
@@ -219,14 +203,11 @@ class Controller3AReset3ATest {
                 .isEqualTo(persistentAfRegions[0])
             assertThat((resetParams[CaptureRequest.CONTROL_AWB_REGIONS] as Array<*>)[0])
                 .isEqualTo(persistentAwbRegions[0])
-            assertThat(token.released).isTrue()
         }
 
     @Test
     fun reset3A_afterLockAe_unlocksAe() =
         testScope.runTest {
-            val scope = TestScope()
-            val token = Mutex().acquireToken()
             val snapshot = controller3A.state3ASnapshot()
 
             controller3A.lock3A(aeLockBehavior = Lock3ABehavior.IMMEDIATE)
@@ -236,19 +217,16 @@ class Controller3AReset3ATest {
             val lockParams = captureSequenceProcessor.nextEvent().requiredParameters
             assertThat(lockParams[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
 
-            controller3A.reset3A(scope, token, snapshot)
+            controller3A.reset3A(snapshot)
             advanceUntilIdle()
 
             val resetParams = captureSequenceProcessor.nextEvent().requiredParameters
             assertThat(resetParams[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(null)
-            assertThat(token.released).isTrue()
         }
 
     @Test
     fun reset3A_afterUnlockAe_noOp() =
         testScope.runTest {
-            val scope = TestScope()
-            val token = Mutex().acquireToken()
             val snapshot = controller3A.state3ASnapshot()
 
             controller3A.unlock3A(ae = true)
@@ -257,11 +235,10 @@ class Controller3AReset3ATest {
             val lockParams = captureSequenceProcessor.nextEvent().requiredParameters
             assertThat(lockParams[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(false)
 
-            controller3A.reset3A(scope, token, snapshot)
+            controller3A.reset3A(snapshot)
             advanceUntilIdle()
 
             assertThat(captureSequenceProcessor.events).hasSize(2)
-            assertThat(token.released).isTrue()
         }
 
     @Test
@@ -272,8 +249,6 @@ class Controller3AReset3ATest {
             captureSequenceProcessor.nextEvent()
             captureSequenceProcessor.nextEvent()
 
-            val scope = TestScope()
-            val token = Mutex().acquireToken()
             val snapshot = controller3A.state3ASnapshot()
 
             controller3A.unlock3A(ae = true)
@@ -282,13 +257,11 @@ class Controller3AReset3ATest {
             val lockParams = captureSequenceProcessor.nextEvent().requiredParameters
             assertThat(lockParams[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(false)
 
-            controller3A.reset3A(scope, token, snapshot)
+            controller3A.reset3A(snapshot)
             advanceUntilIdle()
-            captureSequenceProcessor.nextEvent()
 
             val resetParams = captureSequenceProcessor.nextEvent().requiredParameters
             assertThat(resetParams[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
-            assertThat(token.released).isTrue()
         }
 
     @Test
@@ -302,8 +275,6 @@ class Controller3AReset3ATest {
             captureSequenceProcessor.nextEvent()
             captureSequenceProcessor.nextEvent()
 
-            val scope = TestScope()
-            val token = Mutex().acquireToken()
             val snapshot = controller3A.state3ASnapshot()
 
             controller3A.unlock3A(ae = true, awb = true)
@@ -313,36 +284,103 @@ class Controller3AReset3ATest {
             assertThat(lockParams[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(false)
             assertThat(lockParams[CaptureRequest.CONTROL_AWB_LOCK]).isEqualTo(false)
 
-            controller3A.reset3A(scope, token, snapshot)
+            controller3A.reset3A(snapshot)
             advanceUntilIdle()
-            captureSequenceProcessor.nextEvent()
 
             val resetParams = captureSequenceProcessor.nextEvent().requiredParameters
             assertThat(resetParams[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
             assertThat(resetParams[CaptureRequest.CONTROL_AWB_LOCK]).isEqualTo(true)
-            assertThat(token.released).isTrue()
         }
 
     @Test
-    fun reset3A_releasesToken_ifScopeIsCanceled() =
+    fun reset3A_afterLockAf_unlocksAf() =
         testScope.runTest {
-            controller3A.lock3A(aeLockBehavior = Lock3ABehavior.IMMEDIATE)
-
-            val scope = TestScope()
-            val token = Mutex().acquireToken()
             val snapshot = controller3A.state3ASnapshot()
 
-            controller3A.unlock3A(ae = true)
+            controller3A.lock3A(afLockBehavior = Lock3ABehavior.IMMEDIATE)
             advanceUntilIdle()
 
-            scope.cancel()
+            captureSequenceProcessor.nextEvent()
+            captureSequenceProcessor.nextEvent()
+            val lockParams = captureSequenceProcessor.nextEvent().requiredParameters
+            assertThat(lockParams[CaptureRequest.CONTROL_AF_TRIGGER])
+                .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_START)
 
-            controller3A.reset3A(scope, token, snapshot)
+            controller3A.reset3A(snapshot)
             advanceUntilIdle()
 
-            scope.advanceUntilIdle()
+            captureSequenceProcessor.nextEvent()
+            val resetParams = captureSequenceProcessor.nextEvent().requiredParameters
+            assertThat(resetParams[CaptureRequest.CONTROL_AF_TRIGGER])
+                .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
+        }
 
-            assertThat(token.released).isTrue()
+    @Test
+    fun reset3A_afterUnlockAf_locksToBefore() =
+        testScope.runTest {
+            controller3A.lock3A(afLockBehavior = Lock3ABehavior.IMMEDIATE)
+            advanceUntilIdle()
+            captureSequenceProcessor.nextEvent()
+            captureSequenceProcessor.nextEvent()
+            captureSequenceProcessor.nextEvent()
+
+            val snapshot = controller3A.state3ASnapshot()
+
+            controller3A.unlock3A(af = true)
+            advanceUntilIdle()
+
+            val unlockParams = captureSequenceProcessor.nextEvent().requiredParameters
+            assertThat(unlockParams[CaptureRequest.CONTROL_AF_TRIGGER])
+                .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
+            captureSequenceProcessor.nextEvent()
+
+            controller3A.reset3A(snapshot)
+            advanceUntilIdle()
+
+            captureSequenceProcessor.nextEvent()
+            val resetParams = captureSequenceProcessor.nextEvent().requiredParameters
+            assertThat(resetParams[CaptureRequest.CONTROL_AF_TRIGGER])
+                .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_START)
+        }
+
+    @Test
+    fun reset3A_afterUnlockAeAfAwb_locksToBefore() =
+        testScope.runTest {
+            controller3A.lock3A(
+                aeLockBehavior = Lock3ABehavior.IMMEDIATE,
+                afLockBehavior = Lock3ABehavior.IMMEDIATE,
+                awbLockBehavior = Lock3ABehavior.IMMEDIATE,
+            )
+            advanceUntilIdle()
+            captureSequenceProcessor.nextEvent()
+            captureSequenceProcessor.nextEvent()
+            captureSequenceProcessor.nextEvent()
+
+            val snapshot = controller3A.state3ASnapshot()
+
+            controller3A.unlock3A(ae = true, af = true, awb = true)
+            advanceUntilIdle()
+
+            val unlockSingleRequestParams = captureSequenceProcessor.nextEvent().requiredParameters
+            assertThat(unlockSingleRequestParams[CaptureRequest.CONTROL_AF_TRIGGER])
+                .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
+
+            val unlockRepeatingRepeatingParams =
+                captureSequenceProcessor.nextEvent().requiredParameters
+            assertThat(unlockRepeatingRepeatingParams[CaptureRequest.CONTROL_AE_LOCK])
+                .isEqualTo(false)
+            assertThat(unlockRepeatingRepeatingParams[CaptureRequest.CONTROL_AWB_LOCK])
+                .isEqualTo(false)
+
+            controller3A.reset3A(snapshot)
+            advanceUntilIdle()
+
+            captureSequenceProcessor.nextEvent()
+            val resetParams = captureSequenceProcessor.nextEvent().requiredParameters
+            assertThat(resetParams[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
+            assertThat(resetParams[CaptureRequest.CONTROL_AF_TRIGGER])
+                .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_START)
+            assertThat(resetParams[CaptureRequest.CONTROL_AWB_LOCK]).isEqualTo(true)
         }
 
     @After

@@ -43,7 +43,7 @@ import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.rotate
 import androidx.xr.compose.subspace.layout.width
-import androidx.xr.runtime.Config
+import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.AnchorEntity
@@ -64,7 +64,7 @@ public fun FollowingSubspaceSample() {
         val session: Session? = LocalSession.current
         if (session == null) return
         session.configure(
-            config = session.config.copy(deviceTracking = Config.DeviceTrackingMode.LAST_KNOWN)
+            config = session.config.copy(deviceTracking = DeviceTrackingMode.LAST_KNOWN)
         )
         FollowingSubspace(
             target = FollowTarget.ArDevice(session),

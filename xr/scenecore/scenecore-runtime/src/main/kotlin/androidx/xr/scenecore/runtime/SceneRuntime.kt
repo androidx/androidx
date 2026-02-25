@@ -52,6 +52,12 @@ public interface SceneRuntime : JxrRuntime {
     /** Get the PanelEntity associated with the main window for the Runtime. */
     public val mainPanelEntity: PanelEntity
 
+    /**
+     * Key entity, specifying the entity to use for spatial continuity hint across spatial state
+     * transitions.
+     */
+    public var keyEntity: Entity?
+
     /** Returns the Environment for the Session. */
     public val spatialEnvironment: SpatialEnvironment
 

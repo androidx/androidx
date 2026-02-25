@@ -1085,12 +1085,8 @@ class NavArgumentGeneratorTest {
             assertFailsWith<IllegalArgumentException> { serializer.generateNavArguments() }
         assertThat(exception.message)
             .isEqualTo(
-                "Cannot generate NavArguments for polymorphic serializer " +
-                    "kotlinx.serialization.PolymorphicSerializer(baseClass: " +
-                    "class androidx.navigation.serialization." +
-                    "NavArgumentGeneratorTest\$abstractClassInvalid\$TestClass (Kotlin reflection " +
-                    "is not available)). Arguments can only be generated from concrete classes " +
-                    "or objects."
+                "Cannot generate NavArguments for polymorphic serializer $serializer. " +
+                    "Arguments can only be generated from concrete classes or objects."
             )
     }
 
@@ -1143,6 +1139,14 @@ class NavArgumentGeneratorTest {
     enum class TestEnumCustomSerialName {
         TEST
     }
+
+    @Serializable
+    private class EnumWrapper {
+        enum class NestedEnum {
+            ONE,
+            TWO,
+        }
+    }
 }
 
 internal fun List<NamedNavArgument>.containsExactlyInOrder(vararg expectedArgs: NamedNavArgument) {
@@ -1182,4 +1186,8 @@ internal fun NavArgument.isEqual(other: NavArgument): Boolean {
     return if (!isDefaultValuePresent) {
         defaultValue == null && other.defaultValue == null
     } else true
+}
+
+enum class TestTopLevelEnum {
+    TEST
 }

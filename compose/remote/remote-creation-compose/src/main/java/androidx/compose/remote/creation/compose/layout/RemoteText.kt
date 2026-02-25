@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
-import androidx.compose.material.LocalTextStyle
 import androidx.compose.remote.core.Operations
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
+import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toComposeUiLayout
 import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
@@ -30,8 +29,12 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteIntReference
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.RemoteTextUnit
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.creation.compose.state.rsp
+import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.creation.compose.v2.RemoteComposeApplierV2
 import androidx.compose.remote.creation.compose.v2.RemoteTextV2
 import androidx.compose.remote.creation.modifiers.RecordingModifier
@@ -40,58 +43,53 @@ import androidx.compose.runtime.currentComposer
 import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
-import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.font.GenericFontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.sp
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 @RemoteComposable
 public fun RemoteText(
     text: String,
     modifier: RemoteModifier = RemoteModifier,
     color: RemoteColor = RemoteColor(Color.Black),
-    fontSize: TextUnit = TextUnit.Unspecified,
+    fontSize: RemoteTextUnit? = null,
     fontStyle: FontStyle? = null,
     fontWeight: FontWeight? = null,
     fontFamily: FontFamily? = null,
     textAlign: TextAlign = TextAlign.Unspecified,
     overflow: TextOverflow = TextOverflow.Clip,
     maxLines: Int = Int.MAX_VALUE,
-    style: TextStyle = LocalTextStyle.current,
+    style: RemoteTextStyle = RemoteTextStyle.Default,
 ) {
     RemoteText(
-        text.rs,
-        modifier,
-        color,
-        fontSize,
-        fontStyle,
-        fontWeight,
-        fontFamily,
-        textAlign,
-        overflow,
-        maxLines,
-        style,
+        text = text.rs,
+        modifier = modifier,
+        color = color,
+        fontSize = fontSize,
+        fontStyle = fontStyle,
+        fontWeight = fontWeight,
+        fontFamily = fontFamily,
+        textAlign = textAlign,
+        overflow = overflow,
+        maxLines = maxLines,
+        style = style,
     )
 }
 
 /**
  * Remote composable that displays text.
  *
- * Note that density-dependent values like [fontSize], [style.letterSpacing], and [style.lineHeight]
- * are converted to pixels using [LocalDensity.current] from the environment where the [RemoteText]
- * is being *created*, not the remote environment where it will be displayed. This means these
- * values are fixed at creation time based on the local density.
+ * Note that density-dependent values like [fontSize], [style#letterSpacing], and [style#lineHeight]
+ * are converted to pixels using [RemoteDensity] from the environment where the [RemoteText] is
+ * being *created*, not the remote environment where it will be displayed. This means these values
+ * are fixed at creation time based on the local density.
  *
  * @param text The text to be displayed.
  * @param modifier The [RemoteModifier] to be applied to this text.
@@ -104,27 +102,26 @@ public fun RemoteText(
  * @param textAlign The alignment of the text within its container.
  * @param overflow How visual overflow should be handled.
  * @param maxLines An optional maximum number of lines for the text.
- * @param style The [TextStyle] to be applied to the text.
+ * @param style The [RemoteTextStyle] to be applied to the text.
  * @param fontVariationSettings The font variation settings to be applied to the text.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 @RemoteComposable
 public fun RemoteText(
     text: RemoteString,
     modifier: RemoteModifier = RemoteModifier,
     color: RemoteColor? = null,
-    fontSize: TextUnit = TextUnit.Unspecified,
+    fontSize: RemoteTextUnit? = null,
     fontStyle: FontStyle? = null,
     fontWeight: FontWeight? = null,
     fontFamily: FontFamily? = null,
     textAlign: TextAlign? = null,
     overflow: TextOverflow = TextOverflow.Clip,
     maxLines: Int = Int.MAX_VALUE,
-    style: TextStyle = LocalTextStyle.current,
+    style: RemoteTextStyle = RemoteTextStyle.Default,
     fontVariationSettings: FontVariation.Settings? = null,
 ) {
-    val textColor = color ?: RemoteColor(style.color.takeOrElse { Color.Black })
-
     val style =
         style.merge(
             fontSize = fontSize,
@@ -134,32 +131,28 @@ public fun RemoteText(
             fontStyle = fontStyle,
         )
 
-    val fontSize =
-        with(LocalDensity.current) {
-            if (style.fontSize == TextUnit.Unspecified) 12.sp.toPx() else style.fontSize.toPx()
-        }
+    val fontSize = style.fontSize ?: 12.rsp
+    val fontSizePx = fontSize.toPx()
 
-    val letterSpacing =
-        if (style.letterSpacing == TextUnit.Unspecified) null
-        else with(LocalDensity.current) { style.letterSpacing.toPx() / fontSize }
+    // TODO handles dynamic letter spacing and line height in CoreText
+    val letterSpacing: RemoteFloat =
+        if (style.letterSpacing == null || !style.letterSpacing.hasConstantValue) 0f.rf
+        else style.letterSpacing.value / fontSize.value
 
     val lineHeightMultiply =
-        if (style.lineHeight == TextUnit.Unspecified) null
-        else
-            with(LocalDensity.current) {
-                // default lineHeight is descent — ascent
-                style.lineHeight.toPx() / fontSize
-            }
+        if (style.lineHeight == null || !style.lineHeight.hasConstantValue) 1f.rf
+        else // default lineHeight is descent — ascent
+         style.lineHeight.value / fontSize.value
 
     RemoteText(
         text = text,
         modifier = modifier,
-        color = textColor,
-        fontSize = fontSize.rf,
+        color = color ?: Color.White.rc,
+        fontSize = fontSizePx,
         fontStyle = style.fontStyle ?: FontStyle.Normal,
         fontWeight = style.fontWeight?.weight?.rf ?: 400.rf,
-        fontFamily = fontFamily.encode(),
-        textAlign = style.textAlign,
+        fontFamily = style.fontFamily.encode(),
+        textAlign = style.textAlign ?: TextAlign.Start,
         overflow = overflow,
         maxLines = maxLines,
         textDecoration = style.textDecoration,
@@ -169,6 +162,7 @@ public fun RemoteText(
     )
 }
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 @RemoteComposable
 public fun RemoteText(
@@ -184,9 +178,9 @@ public fun RemoteText(
     fontFamily: String? = null,
     overflow: TextOverflow = TextOverflow.Clip,
     maxLines: Int = Int.MAX_VALUE,
-    letterSpacing: Float? = null,
+    letterSpacing: RemoteFloat = 0f.rf,
     lineHeightAdd: Float? = null,
-    lineHeightMultiply: Float? = null,
+    lineHeightMultiply: RemoteFloat = 1f.rf,
     textDecoration: TextDecoration? = null,
     fontVariationSettings: FontVariation.Settings? = null,
 ) {
@@ -265,53 +259,8 @@ public fun RemoteText(
     }
 }
 
-@Composable
-private fun TextOverflow.encode(): Int =
-    when (this) {
-        TextOverflow.Clip -> TextLayout.OVERFLOW_CLIP
-        TextOverflow.Visible -> TextLayout.OVERFLOW_VISIBLE
-        TextOverflow.Ellipsis -> TextLayout.OVERFLOW_ELLIPSIS
-        TextOverflow.StartEllipsis -> TextLayout.OVERFLOW_START_ELLIPSIS
-        TextOverflow.MiddleEllipsis -> TextLayout.OVERFLOW_MIDDLE_ELLIPSIS
-        else -> -1
-    }
-
-@Composable
-private fun TextAlign.encode(): Int =
-    when (this) {
-        TextAlign.Left -> TextLayout.TEXT_ALIGN_LEFT
-        TextAlign.Right -> TextLayout.TEXT_ALIGN_RIGHT
-        TextAlign.Center -> TextLayout.TEXT_ALIGN_CENTER
-        TextAlign.Justify -> TextLayout.TEXT_ALIGN_JUSTIFY
-        TextAlign.Start -> TextLayout.TEXT_ALIGN_START
-        TextAlign.End -> TextLayout.TEXT_ALIGN_END
-        TextAlign.Unspecified -> Int.MIN_VALUE
-        else -> -1
-    }
-
-@Composable
-private fun FontStyle.encode(): Int =
-    when (this) {
-        FontStyle.Normal -> 0
-        FontStyle.Italic -> 1
-        else -> -1
-    }
-
-@Composable
-private fun FontFamily?.encode(): String? =
-    when (this) {
-        FontFamily.Default -> "default"
-        FontFamily.SansSerif -> "sans-serif"
-        FontFamily.Serif -> "serif"
-        FontFamily.Monospace -> "monospace"
-        FontFamily.Cursive -> "cursive"
-        is GenericFontFamily -> name
-        else -> null
-    }
-
 /** Utility modifier to record the layout information */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteComposeTextComponentModifier(
+internal class RemoteComposeTextComponentModifier(
     public var modifier: RecordingModifier,
     public var id: RemoteIntReference,
     public var color: Int,
@@ -354,8 +303,7 @@ public class RemoteComposeTextComponentModifier(
 }
 
 /** Utility modifier to record the layout information */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteComposeCoreTextComponentModifier(
+internal class RemoteComposeCoreTextComponentModifier(
     public val modifier: RecordingModifier,
     public val id: RemoteString,
     public val color: RemoteColor,
@@ -369,9 +317,9 @@ public class RemoteComposeCoreTextComponentModifier(
     public val overflow: Int,
     public val maxLines: Int,
     public val textDecoration: TextDecoration,
-    public val letterSpacing: Float? = null,
+    public val letterSpacing: RemoteFloat,
     public val lineHeightAdd: Float? = null,
-    public val lineHeightMultiply: Float? = null,
+    public val lineHeightMultiply: RemoteFloat,
     public val fontVariationSettings: FontVariation.Settings?,
 ) : DrawModifier {
     override fun ContentDrawScope.draw() {
@@ -393,9 +341,9 @@ public class RemoteComposeCoreTextComponentModifier(
                 textAlign,
                 overflow,
                 maxLines,
-                letterSpacing ?: 0f,
+                letterSpacing.getFloatIdForCreationState(canvas.creationState),
                 lineHeightAdd ?: 0f,
-                lineHeightMultiply ?: 1f,
+                lineHeightMultiply.getFloatIdForCreationState(canvas.creationState),
                 0,
                 0,
                 0,
@@ -424,32 +372,33 @@ public class RemoteComposeCoreTextComponentModifier(
     }
 }
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 @RemoteComposable
 public fun RemoteText(
     textId: RemoteIntReference,
     modifier: RemoteModifier = RemoteModifier,
     color: RemoteColor = RemoteColor(Color.Black),
-    fontSize: TextUnit = TextUnit.Unspecified,
+    fontSize: RemoteTextUnit = 12.rsp,
     fontStyle: FontStyle? = null,
     fontWeight: FontWeight? = null,
     fontFamily: FontFamily? = null,
     textAlign: TextAlign = TextAlign.Unspecified,
     overflow: TextOverflow = TextOverflow.Clip,
     maxLines: Int = Int.MAX_VALUE,
-    style: TextStyle = LocalTextStyle.current,
+    style: RemoteTextStyle = RemoteTextStyle.Default,
 ) {
     RemoteText(
-        MutableRemoteString(textId.toInt()),
-        modifier,
-        color,
-        fontSize,
-        fontStyle,
-        fontWeight,
-        fontFamily,
-        textAlign,
-        overflow,
-        maxLines,
-        style,
+        text = MutableRemoteString(textId.toInt()),
+        modifier = modifier,
+        color = color,
+        fontSize = fontSize,
+        fontStyle = fontStyle,
+        fontWeight = fontWeight,
+        fontFamily = fontFamily,
+        textAlign = textAlign,
+        overflow = overflow,
+        maxLines = maxLines,
+        style = style,
     )
 }

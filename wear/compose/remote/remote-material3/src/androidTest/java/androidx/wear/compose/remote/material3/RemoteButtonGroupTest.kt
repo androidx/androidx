@@ -24,7 +24,6 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
-import androidx.compose.remote.player.compose.test.utils.screenshot.TargetPlayer
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -44,10 +43,7 @@ import org.junit.runners.JUnit4
 class RemoteButtonGroupTest {
     @get:Rule
     val remoteComposeTestRule =
-        RemoteComposeScreenshotTestRule(
-            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
-            targetPlayer = TargetPlayer.View,
-        )
+        RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     private val creationDisplayInfo =

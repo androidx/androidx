@@ -43,7 +43,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.intl.Locale
-import androidx.compose.ui.text.intl.PlatformLocale
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -293,8 +292,7 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
             if (nonMeasureInputs.isKeyboardTypePhone) {
                 val textStyle = nonMeasureInputs.textStyle
                 val currentLocale = textStyle.localeList?.let { it[0] } ?: Locale.current
-                val textDirection =
-                    resolveTextDirectionForKeyboardTypePhone(currentLocale.platformLocale)
+                val textDirection = resolveTextDirectionForKeyboardTypePhone(currentLocale)
                 nonMeasureInputs.textStyle.merge(TextStyle(textDirection = textDirection))
             } else {
                 nonMeasureInputs.textStyle
@@ -508,7 +506,7 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
  * We need to use the digit direction of the [locale] while deciding TextDirection if KeyboardType
  * is configured as [KeyboardType.Phone].
  */
-internal expect fun resolveTextDirectionForKeyboardTypePhone(locale: PlatformLocale): TextDirection
+internal expect fun resolveTextDirectionForKeyboardTypePhone(locale: Locale): TextDirection
 
 /**
  * Efficiently concatenates two nullable lists. Semantically an empty list is equivalent to a null

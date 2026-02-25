@@ -68,7 +68,7 @@ import java.util.stream.Stream
  */
 @SuppressLint("ProtoLayoutMinSchema")
 @Suppress("MissingJvmstatic") // Kotlin-friendly version of already available Java Apis
-fun basicText(
+public fun basicText(
     text: LayoutString,
     fontStyle: FontStyle? = null,
     modifier: LayoutModifier? = null,
@@ -76,7 +76,7 @@ fun basicText(
     @TextAlignment alignment: Int = TEXT_ALIGN_UNDEFINED,
     @TextOverflow overflow: Int = TEXT_OVERFLOW_UNDEFINED,
     @Dimension(SP) lineHeight: Float = Float.NaN,
-) =
+): Text =
     Text.Builder()
         .setText(text.prop)
         .apply {
@@ -128,7 +128,7 @@ fun basicText(
 @OptIn(ProtoLayoutExperimental::class)
 @SuppressLint("ProtoLayoutMinSchema")
 @Suppress("MissingJvmstatic") // Kotlin-friendly version of already available Java Apis
-fun fontStyle(
+public fun fontStyle(
     @Dimension(SP) size: Float = 0f,
     italic: Boolean = false,
     underline: Boolean = false,

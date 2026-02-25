@@ -32,12 +32,14 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.scenecore.AlphaMode
 import androidx.xr.scenecore.ExrImage
+import androidx.xr.scenecore.GltfAnimationStartOptions
 import androidx.xr.scenecore.GltfModel
+import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.KhronosPbrMaterial
-import androidx.xr.scenecore.Material
 import androidx.xr.scenecore.SpatialEnvironment
 import androidx.xr.scenecore.Texture
 import androidx.xr.scenecore.TextureSampler
@@ -67,6 +69,7 @@ class EnvironmentActivity : AppCompatActivity() {
     private lateinit var eventLogRecyclerViewAdapter: EventLogRecyclerViewAdapter
     private var currentPassthroughOpacity = MutableStateFlow(0.0f)
     private var passthroughOpacityPreference = MutableStateFlow(0.0f)
+    private var geometryEntity: GltfModelEntity? = null
     private lateinit var greySkybox: ExrImage
     private lateinit var blueSkybox: ExrImage
     private lateinit var groundGeometry: GltfModel
@@ -89,7 +92,7 @@ class EnvironmentActivity : AppCompatActivity() {
 
         session = SessionManager(this).createSession()
         if (session == null) this.finish()
-        session!!.configure(Config(Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
+        session!!.configure(Config(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
         session?.scene?.keyEntity = session?.scene?.mainPanelEntity
 
         // toolbar
@@ -153,38 +156,54 @@ class EnvironmentActivity : AppCompatActivity() {
 
     private fun skyBoxButtonHandlers() {
         // Load skybox from a Path
-        findViewById<Button>(R.id.environment_load_path).setOnClickListener {
+        val loadPathButton = findViewById<Button>(R.id.environment_load_path)
+        loadPathButton.setOnClickListener {
             lifecycleScope.launch {
                 greySkybox =
                     ExrImage.createFromZip(session!!, Paths.get("skyboxes", "GreySkybox.zip"))
                 addEvent(EventType.SKYBOX_CHANGED, "Grey Skybox loaded from Path")
+                findViewById<Button>(R.id.environment_button2_1).isEnabled = true
             }
         }
+        loadPathButton.isEnabled = true
 
         // Load skybox from a bytes
-        findViewById<Button>(R.id.environment_load_bytes).setOnClickListener {
+        val loadBytesButton = findViewById<Button>(R.id.environment_load_bytes)
+        loadBytesButton.setOnClickListener {
             lifecycleScope.launch {
                 val bytes = assets.open("skyboxes/BlueSkybox.zip").readBytes()
                 blueSkybox = ExrImage.createFromZip(session!!, bytes, "BlueSkybox.zip")
                 addEvent(EventType.SKYBOX_CHANGED, "Blue Skybox loaded from Bytes")
+                findViewById<Button>(R.id.environment_button2_2).isEnabled = true
+                findViewById<Button>(R.id.environment_button4_1).isEnabled = true
             }
         }
+        loadBytesButton.isEnabled = true
 
         // handle grey skybox
         findViewById<Button>(R.id.environment_button2_1).setOnClickListener {
-            setGeoAndSkybox(greySkybox, spatialEnvironmentPreference?.geometry)
+            val currentGeometry = spatialEnvironmentPreference?.geometry
+            val currentEntity = if (currentGeometry == null) geometryEntity else null
+
+            setGeoAndSkybox(greySkybox, currentGeometry, currentEntity)
             addEvent(EventType.SKYBOX_CHANGED, "Skybox set to BAR")
         }
 
         // handle blue skybox
         findViewById<Button>(R.id.environment_button2_2).setOnClickListener {
-            setGeoAndSkybox(blueSkybox, spatialEnvironmentPreference?.geometry)
+            val currentGeometry = spatialEnvironmentPreference?.geometry
+            val currentEntity = if (currentGeometry == null) geometryEntity else null
+
+            setGeoAndSkybox(blueSkybox, currentGeometry, currentEntity)
             addEvent(EventType.SKYBOX_CHANGED, "Skybox set to BLUE")
         }
 
         // handle unset skybox
         findViewById<Button>(R.id.environment_button2_3).setOnClickListener {
-            setGeoAndSkybox(null, spatialEnvironmentPreference?.geometry)
+            val currentGeometry = spatialEnvironmentPreference?.geometry
+            val currentEntity = if (currentGeometry == null) geometryEntity else null
+
+            setGeoAndSkybox(null, currentGeometry, currentEntity)
             addEvent(EventType.SKYBOX_CHANGED, "Skybox unset (set to black)")
         }
     }
@@ -204,19 +223,22 @@ class EnvironmentActivity : AppCompatActivity() {
 
         // handle animated with mesh override geometry
         findViewById<Button>(R.id.environment_button3_3).setOnClickListener {
-            setGeoAndSkybox(
-                spatialEnvironmentPreference?.skybox,
-                dragonGeometry,
-                khronosPbrMaterial,
-                "Dragon",
-                "Fast_Flying",
-            )
+            val dragonEntity = GltfModelEntity.create(session!!, dragonGeometry)
+            geometryEntity = dragonEntity
+            dragonEntity.setEnabled(false)
+            dragonEntity.nodes.find { it.name == "Dragon" }?.setMaterialOverride(khronosPbrMaterial)
+            dragonEntity.animations
+                .find { it.name == "Fast_Flying" }
+                ?.start(GltfAnimationStartOptions(shouldLoop = true))
+
+            setGeoAndSkybox(spatialEnvironmentPreference?.skybox, dragonGeometry, dragonEntity)
             addEvent(EventType.GEOMETRY_CHANGED, "Geometry set to DRAGON")
         }
 
         // handle unset geometry
         findViewById<Button>(R.id.environment_button3_4).setOnClickListener {
-            setGeoAndSkybox(spatialEnvironmentPreference?.skybox, null)
+            setGeoAndSkybox(spatialEnvironmentPreference?.skybox, null, null)
+            geometryEntity = null
             addEvent(EventType.GEOMETRY_CHANGED, "Geometry unset (no Geometry visible)")
         }
     }
@@ -225,6 +247,7 @@ class EnvironmentActivity : AppCompatActivity() {
         // handle set geometry and skybox
         findViewById<Button>(R.id.environment_button4_1).setOnClickListener {
             setGeoAndSkybox(blueSkybox, groundGeometry)
+            geometryEntity = null
             addEvent(
                 EventType.SKYBOX_AND_GEOMETRY_CHANGED,
                 "Skybox set to BLUE and geometry to GROUND",
@@ -234,6 +257,7 @@ class EnvironmentActivity : AppCompatActivity() {
         // handle unset geometry and skybox
         findViewById<Button>(R.id.environment_button4_2).setOnClickListener {
             session!!.scene.spatialEnvironment.preferredSpatialEnvironment = null
+            geometryEntity = null
             addEvent(
                 EventType.SKYBOX_AND_GEOMETRY_CHANGED,
                 "Skybox and Geometry reverted to Home Environment",
@@ -271,22 +295,14 @@ class EnvironmentActivity : AppCompatActivity() {
     private fun setGeoAndSkybox(
         skybox: ExrImage?,
         geometry: GltfModel?,
-        material: Material? = null,
-        nodeName: String? = null,
-        animationName: String? = null,
+        geometryEntity: GltfModelEntity? = null,
     ) {
-        if (material == null && nodeName == null && animationName == null) {
+        if (geometryEntity == null) {
             spatialEnvironmentPreference =
                 SpatialEnvironment.SpatialEnvironmentPreference(skybox, geometry)
         } else {
             spatialEnvironmentPreference =
-                SpatialEnvironment.SpatialEnvironmentPreference(
-                    skybox,
-                    geometry,
-                    material,
-                    nodeName,
-                    animationName,
-                )
+                SpatialEnvironment.SpatialEnvironmentPreference(skybox, null, geometryEntity)
         }
         session!!.scene.spatialEnvironment.preferredSpatialEnvironment =
             spatialEnvironmentPreference

@@ -19,6 +19,7 @@ package androidx.wear.compose.foundation.lazy
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress.Companion.downwardMeasuredItemScrollProgress
@@ -101,6 +102,11 @@ internal data class TransformingLazyColumnMeasuredItem(
                 it
             }
         }
+
+    val minimumTopContentPadding: Dp? =
+        (placeable?.parentData as? TransformingLazyColumnParentData)?.minimumTopContentPadding
+    val minimumBottomContentPadding: Dp? =
+        (placeable?.parentData as? TransformingLazyColumnParentData)?.minimumBottomContentPadding
 
     private var lastMeasuredTransformedHeight = placeable?.height ?: 0
 

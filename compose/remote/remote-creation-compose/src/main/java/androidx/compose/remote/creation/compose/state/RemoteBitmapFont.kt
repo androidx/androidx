@@ -64,11 +64,18 @@ public class RemoteBitmapFont(
 
         /** The margin in pixels below the glyph bitmap. */
         public val marginBottom: Short,
+
+        /** The width of the glyph, defaults to the bitmap width. */
+        public val width: Short = bitmap?.width?.toShort() ?: 0,
+
+        /** The height of the glyph, defaults to the bitmap height. */
+        public val height: Short = bitmap?.height?.toShort() ?: 0,
     )
 
     public override val constantValueOrNull: Any?
         get() = null
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
         return creationState.document.addBitmapFont(
             Array<BitmapFontData.Glyph>(glyphs.size) { index ->
@@ -80,8 +87,8 @@ public class RemoteBitmapFont(
                     glyph.marginTop,
                     glyph.marginRight,
                     glyph.marginBottom,
-                    glyph.bitmap?.width?.toShort() ?: 0,
-                    glyph.bitmap?.height?.toShort() ?: 0,
+                    glyph.width,
+                    glyph.height,
                 )
             },
             kerningTable,
@@ -93,15 +100,18 @@ public class RemoteBitmapFont(
      * drawn at position 0, 0.
      *
      * @param text The [RemoteString] whose width needs to be measured.
+     * @param glyphSpacing A [RemoteFloat] specifying a horizontal adjustment between glyphs in
+     *   pixels.
      * @return A [RemoteFloat] representing the calculated width in pixels.
      */
-    public fun measureWidth(text: RemoteString): RemoteFloat {
+    public fun measureWidth(text: RemoteString, glyphSpacing: RemoteFloat): RemoteFloat {
         return RemoteFloatExpression(constantValueOrNull = null) { creationState ->
             floatArrayOf(
                 creationState.document.bitmapTextMeasure(
                     text.getIdForCreationState(creationState),
                     getIdForCreationState(creationState),
                     BitmapTextMeasure.MEASURE_WIDTH,
+                    glyphSpacing.getFloatIdForCreationState(creationState),
                 )
             )
         }
@@ -121,6 +131,7 @@ public class RemoteBitmapFont(
                     text.getIdForCreationState(creationState),
                     getIdForCreationState(creationState),
                     BitmapTextMeasure.MEASURE_HEIGHT,
+                    0f,
                 )
             )
         }

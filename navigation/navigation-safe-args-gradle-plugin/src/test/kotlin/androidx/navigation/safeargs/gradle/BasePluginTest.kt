@@ -96,7 +96,7 @@ abstract class BasePluginTest {
                     id('com.android.application')
                     id('androidx.navigation.safeargs')
                 }
-            """
+                """
                     .trimIndent(),
             suffix =
                 """
@@ -147,7 +147,7 @@ abstract class BasePluginTest {
                     id('kotlin-android')
                     id('androidx.navigation.safeargs.kotlin')
                 }
-            """
+                """
                     .trimIndent(),
             suffix =
                 """

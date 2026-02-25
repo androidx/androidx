@@ -176,6 +176,7 @@ public class InProgressStroke {
      * @throws [IllegalArgumentException] If [currentElapsedTimeMillis] is negative or decreased
      *   from a previous call to this method for the same in-progress stroke.
      */
+    @JvmOverloads
     public fun updateShape(currentElapsedTimeMillis: Long = Long.MAX_VALUE) {
         val success = InProgressStrokeNative.updateShape(nativePointer, currentElapsedTimeMillis)
         check(success) { "Should have thrown an exception if updateShape failed." }
@@ -362,12 +363,6 @@ public class InProgressStroke {
         }
     }
 
-    /** @see getOutlineCount */
-    @IntRange(from = 0)
-    @Deprecated("Renamed to getOutlineCount")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-    public fun outlineCount(@IntRange(from = 0) coatIndex: Int): Int = getOutlineCount(coatIndex)
-
     /**
      * Returns the number of outline points for the specified outline and brush coat.
      * [populateOutlinePosition] must treat the result of this as the upper bound of its
@@ -389,15 +384,6 @@ public class InProgressStroke {
         return InProgressStrokeNative.getOutlineVertexCount(nativePointer, coatIndex, outlineIndex)
             .also { check(it >= 0) }
     }
-
-    /** @see getOutlineVertexCount */
-    @Deprecated("Renamed to getOutlineVertexCount")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-    @IntRange(from = 0)
-    public fun outlineVertexCount(
-        @IntRange(from = 0) coatIndex: Int,
-        @IntRange(from = 0) outlineIndex: Int,
-    ): Int = getOutlineVertexCount(coatIndex, outlineIndex)
 
     /**
      * Fills [outPosition] with the x and y coordinates of the specified outline vertex.

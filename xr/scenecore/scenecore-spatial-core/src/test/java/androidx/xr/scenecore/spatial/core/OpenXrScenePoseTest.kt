@@ -28,6 +28,7 @@ import androidx.xr.scenecore.runtime.GltfFeature
 import androidx.xr.scenecore.runtime.HitTestResult
 import androidx.xr.scenecore.runtime.ScenePose
 import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider
+import androidx.xr.scenecore.runtime.impl.BaseScenePose
 import androidx.xr.scenecore.testing.FakeGltfFeature
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
 import com.android.extensions.xr.XrExtensions
@@ -45,7 +46,7 @@ import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.ParameterizedRobolectricTestRunner.Parameters
 import org.robolectric.Robolectric
 
-/** Test for common behaviour for ScenePoses whose world position is retrieved from OpenXr. */
+/** Test for common behavior for ScenePoses whose world position is retrieved from OpenXr. */
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class OpenXrScenePoseTest(private val testScenePoseType: OpenXrScenePoseType) {
     private val xrExtensions: XrExtensions? = XrExtensionsProvider.getXrExtensions()
@@ -61,7 +62,6 @@ class OpenXrScenePoseTest(private val testScenePoseType: OpenXrScenePoseType) {
             xrExtensions,
             entityManager,
             { xrExtensions.getSpatialState(activity) },
-            /* unscaledGravityAlignedActivitySpace= */ false,
             executor,
         )
 
@@ -139,35 +139,6 @@ class OpenXrScenePoseTest(private val testScenePoseType: OpenXrScenePoseType) {
     }
 
     @Test
-    fun getActivitySpaceScale_returnsInverseOfActivitySpaceWorldScale() {
-        val activitySpaceScale = 5f
-        activitySpace.setOpenXrReferenceSpaceTransform(Matrix4.fromScale(activitySpaceScale))
-        testScenePose = createTestScenePose(Pose.Identity)
-
-        assertNotNull(testScenePose)
-        assertVector3(
-            testScenePose!!.activitySpaceScale,
-            Vector3(1f, 1f, 1f).div(activitySpaceScale),
-        )
-    }
-
-    @Test
-    fun getPoseInActivitySpace_withScaledTranslatedActivitySpace_returnsScaledDifferencePose() {
-        val pose = Pose(Vector3(1f, 1f, 1f), Quaternion(0f, 1f, 0f, 1f))
-        testScenePose = createTestScenePose(pose)
-        activitySpace.setOpenXrReferenceSpaceTransform(
-            Matrix4.fromTrs(
-                Vector3(2f, 3f, 4f),
-                Quaternion.Identity,
-                /* scale= */ Vector3(2f, 2f, 2f),
-            )
-        )
-        val expectedPose = Pose(Vector3(-0.5f, -1.0f, -1.5f), Quaternion(0f, 1f, 0f, 1f))
-
-        assertPose(testScenePose!!.poseInActivitySpace, expectedPose)
-    }
-
-    @Test
     fun getPoseInActivitySpace_witRotatedPerceptionPose_returnsDifferencePose() {
         val perceptionQuaternion = Quaternion.fromEulerAngles(Vector3(0f, 0f, 90f))
         val pose = Pose(Vector3(0f, 0f, 0f), perceptionQuaternion)
@@ -206,67 +177,6 @@ class OpenXrScenePoseTest(private val testScenePoseType: OpenXrScenePoseType) {
         assertPose(testScenePose!!.poseInActivitySpace, expectedPose)
     }
 
-    @Test
-    fun getPoseInActivitySpace_withScaledAndRotatedActivitySpace_returnsDifferencePose() {
-        val activitySpaceQuaternion = Quaternion.fromEulerAngles(Vector3(0f, 0f, 90f))
-        val pose = Pose(Vector3(1f, 1f, 1f), Quaternion.Identity)
-        testScenePose = createTestScenePose(pose)
-        activitySpace.setOpenXrReferenceSpaceTransform(
-            Matrix4.fromTrs(
-                Vector3(2f, 3f, 4f),
-                activitySpaceQuaternion,
-                /* scale= */ Vector3(2f, 2f, 2f),
-            )
-        )
-        // A 90 degree rotation around the z axis is a clockwise rotation of the XY plane.
-        val expectedPose =
-            Pose(Vector3(-1.0f, 0.5f, -1.5f), Quaternion.fromEulerAngles(Vector3(0f, 0f, -90f)))
-
-        assertPose(testScenePose!!.poseInActivitySpace, expectedPose)
-    }
-
-    @Test
-    fun getPoseInActivitySpace_withCustomScaledAndRotatedActivitySpace_returnsDifferencePose() {
-        val activitySpaceQuaternion = Quaternion.fromEulerAngles(Vector3(0f, 0f, 90f))
-        val pose = Pose(Vector3(1f, 1f, 1f), Quaternion.Identity)
-        testScenePose = createTestScenePose(pose)
-        activitySpace.setOpenXrReferenceSpaceTransform(
-            Matrix4.fromTrs(
-                Vector3(2f, 3f, 4f),
-                activitySpaceQuaternion,
-                /* scale= */ Vector3(1f, 2f, 3f),
-            )
-        )
-        // A 90 degree rotation around the z axis is a clockwise rotation of the XY plane.
-        val expectedPose =
-            Pose(Vector3(-2.5f, 0f, -1f), Quaternion.fromEulerAngles(Vector3(0f, 0f, -90f)))
-
-        assertPose(testScenePose!!.poseInActivitySpace, expectedPose)
-    }
-
-    @Test
-    fun getPoseInActivitySpace_withMinusScaledAndRotatedActivitySpace_returnsDifferencePose() {
-        val activitySpaceQuaternion = Quaternion.fromEulerAngles(Vector3(0f, 0f, 90f))
-        val pose = Pose(Vector3(1f, 1f, 1f), Quaternion.Identity)
-        testScenePose = createTestScenePose(pose)
-        activitySpace.setOpenXrReferenceSpaceTransform(
-            Matrix4.fromTrs(
-                Vector3(2f, 3f, 4f),
-                activitySpaceQuaternion,
-                /* scale= */ Vector3(-1f, -2f, -3f),
-            )
-        )
-        // A 90 degree rotation around the z axis is a clockwise rotation of the XY plane.
-        val expectedPose =
-            Pose(
-                // We keep the scale positive for now, hence the negative translation.
-                Vector3(-2.5f, 0f, -1f),
-                Quaternion.fromEulerAngles(Vector3(0f, 0f, -90f)),
-            )
-
-        assertPose(testScenePose!!.poseInActivitySpace, expectedPose)
-    }
-
     // TODO: Add tests with children of these entities
 
     @Test
@@ -277,41 +187,6 @@ class OpenXrScenePoseTest(private val testScenePoseType: OpenXrScenePoseType) {
 
         assertNotNull(testScenePose)
         assertPose(testScenePose!!.activitySpacePose, pose)
-    }
-
-    @Test
-    fun getActivitySpacePose_withScaledActivitySpace_returnsDifferencePose() {
-        val pose = Pose(Vector3(1f, 1f, 1f), Quaternion(0f, 1f, 0f, 1f))
-        testScenePose = createTestScenePose(pose)
-        activitySpace.setOpenXrReferenceSpaceTransform(
-            Matrix4.fromTrs(
-                Vector3(2f, 3f, 4f),
-                Quaternion.Identity,
-                /* scale= */ Vector3(2f, 2f, 2f),
-            )
-        )
-        val expectedPose = Pose(Vector3(-0.5f, -1.0f, -1.5f), Quaternion(0f, 1f, 0f, 1f))
-
-        assertPose(testScenePose!!.activitySpacePose, expectedPose)
-    }
-
-    @Test
-    fun getActivitySpacePose_withScaledAndRotatedActivitySpace_returnsDifferencePose() {
-        val activitySpaceQuaternion = Quaternion.fromEulerAngles(Vector3(0f, 0f, 90f))
-        val pose = Pose(Vector3(1f, 1f, 1f), Quaternion.Identity)
-        testScenePose = createTestScenePose(pose)
-        activitySpace.setOpenXrReferenceSpaceTransform(
-            Matrix4.fromTrs(
-                Vector3(2f, 3f, 4f),
-                activitySpaceQuaternion,
-                /* scale= */ Vector3(2f, 2f, 2f),
-            )
-        )
-        // A 90 degree rotation around the z axis is a clockwise rotation of the XY plane.
-        val expectedPose =
-            Pose(Vector3(-1.0f, 0.5f, -1.5f), Quaternion.fromEulerAngles(Vector3(0f, 0f, -90f)))
-
-        assertPose(testScenePose!!.activitySpacePose, expectedPose)
     }
 
     @Test
@@ -327,67 +202,6 @@ class OpenXrScenePoseTest(private val testScenePoseType: OpenXrScenePoseType) {
         assertPose(
             transformedPose,
             Pose(Vector3(11f, 2f, 3f), Quaternion.fromEulerAngles(Vector3(0f, 0f, 90f))),
-        )
-    }
-
-    @Test
-    fun transformPoseTo_withScaledActivitySpaceAndDifferentSourcePose_returnsTransformedPose() {
-        val openXrPose = Pose(Vector3(1f, 2f, 3f), Quaternion.Identity)
-        testScenePose = createTestScenePose(openXrPose)
-        activitySpace.setOpenXrReferenceSpaceTransform(
-            Matrix4.fromTrs(
-                /* translation= */ Vector3(2f, 3f, 4f),
-                /* rotation= */ Quaternion.Identity,
-                /* scale= */ Vector3(2f, 2f, 2f),
-            )
-        )
-
-        assertVector3(testScenePose!!.activitySpaceScale, Vector3(0.5f, 0.5f, 0.5f))
-
-        val userHeadSpaceOffset =
-            Pose(Vector3(10f, 5f, 4f), Quaternion.fromEulerAngles(Vector3(0f, 0f, 90f)))
-        val transformedPose = testScenePose!!.transformPoseTo(userHeadSpaceOffset, activitySpace)
-
-        assertPose(
-            transformedPose,
-            Pose(Vector3(4.5f, 2f, 1.5f), Quaternion.fromEulerAngles(Vector3(0f, 0f, 90f))),
-        )
-    }
-
-    @Test
-    fun transformPoseTo_withScaledActivitySpace_returnsSourcePoseScaledInActivitySpace() {
-        // With scaled activity space and identity offset
-        val openXrPose = Pose(Vector3(1f, 2f, 3f), Quaternion.Identity)
-        testScenePose = createTestScenePose(openXrPose)
-        activitySpace.setOpenXrReferenceSpaceTransform(Matrix4.fromScale(2f))
-
-        val expectedPose = testScenePose!!.poseInActivitySpace
-        val transformedPose = testScenePose!!.transformPoseTo(Pose.Identity, activitySpace)
-
-        assertPose(transformedPose, expectedPose)
-    }
-
-    @Test
-    fun transformPoseTo_withScaledActivitySpaceAtSourcePose_returnsScaledOffset() {
-        val openXrPose = Pose(Vector3(1f, 2f, 3f), Quaternion.Identity)
-        testScenePose = createTestScenePose(openXrPose)
-        activitySpace.setOpenXrReferenceSpaceTransform(
-            Matrix4.fromTrs(
-                openXrPose.translation,
-                openXrPose.rotation,
-                /* scale= */ Vector3(2f, 2f, 2f),
-            )
-        )
-
-        assertVector3(testScenePose!!.activitySpaceScale, Vector3(0.5f, 0.5f, 0.5f))
-
-        val userHeadSpaceOffset =
-            Pose(Vector3(10f, 0f, 0f), Quaternion.fromEulerAngles(Vector3(0f, 0f, 90f)))
-        val transformedPose = testScenePose!!.transformPoseTo(userHeadSpaceOffset, activitySpace)
-
-        assertPose(
-            transformedPose,
-            Pose(Vector3(5f, 0f, 0f), Quaternion.fromEulerAngles(Vector3(0f, 0f, 90f))),
         )
     }
 
@@ -446,52 +260,10 @@ class OpenXrScenePoseTest(private val testScenePoseType: OpenXrScenePoseType) {
 
         assertThat(hitTestResult).isNotNull()
         assertThat(hitTestResult.distance).isEqualTo(distance)
-        // Since the entity is rotated 90 degrees about the x axis, the hit position should be
-        // rotated 90 degrees about the x axis.
+        // Since the entity is rotated 90 degrees about the x-axis, the hit position should be
+        // rotated 90 degrees about the x-axis.
         assertVector3(hitTestResult.hitPosition!!, Vector3(0f, 2f, -1f))
         assertVector3(hitTestResult.surfaceNormal!!, Vector3(0f, 0f, -1f))
-        assertThat(hitTestResult.surfaceType)
-            .isEqualTo(HitTestResult.HitTestSurfaceType.HIT_TEST_RESULT_SURFACE_TYPE_PLANE)
-    }
-
-    @Test
-    fun hitTest_withScaledActivitySpace_returnsTransformedHitTest() = runBlocking {
-        val pose = Pose(Vector3(1f, 1f, 1f), Quaternion.fromEulerAngles(Vector3(90f, 0f, 0f)))
-        testScenePose = createTestScenePose(pose)
-        activitySpace.setOpenXrReferenceSpaceTransform(Matrix4.fromScale(2f))
-        val distance = 2.0f
-        val hitPosition = Vec3(0.5f, 1.0f, 1.5f)
-        val surfaceNormal = Vec3(0.0f, 1.0f, 0.0f)
-        val surfaceType = com.android.extensions.xr.space.HitTestResult.SURFACE_PANEL
-        val extensionsHitTestResult =
-            com.android.extensions.xr.space.HitTestResult.Builder(
-                    distance,
-                    hitPosition,
-                    true,
-                    surfaceType,
-                )
-                .setSurfaceNormal(surfaceNormal)
-                .build()
-        com.android.extensions.xr.ShadowXrExtensions.extract(xrExtensions)
-            .setHitTestResult(activity, extensionsHitTestResult)
-
-        val deferredHitTestResult =
-            async(start = CoroutineStart.UNDISPATCHED) {
-                testScenePose!!.hitTest(
-                    Vector3(1f, 1f, 1f),
-                    Vector3(1f, 1f, 1f),
-                    ScenePose.HitTestFilter.SELF_SCENE,
-                )
-            }
-        executor.runAll()
-        val hitTestResult = deferredHitTestResult.await()
-
-        assertThat(hitTestResult).isNotNull()
-        assertThat(hitTestResult.distance).isEqualTo(distance)
-        // Since the entity is rotated 90 degrees about the x axis, the hit position should be
-        // rotated 90 degrees about the x axis.
-        assertVector3(hitTestResult.hitPosition!!, Vector3(0f, 2f, -1f))
-        assertVector3(hitTestResult.surfaceNormal!!, Vector3(0f, 0f, -2f))
         assertThat(hitTestResult.surfaceType)
             .isEqualTo(HitTestResult.HitTestSurfaceType.HIT_TEST_RESULT_SURFACE_TYPE_PLANE)
     }

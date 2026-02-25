@@ -15,7 +15,6 @@
  */
 package androidx.xr.arcore.projected
 
-import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -25,7 +24,11 @@ import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.os.IBinder
 import androidx.annotation.RestrictTo
+import androidx.xr.arcore.runtime.Geospatial
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.DeviceTrackingMode
+import androidx.xr.runtime.GeospatialMode
+import androidx.xr.runtime.Log
 import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.internal.LifecycleManager
 import androidx.xr.runtime.math.Pose
@@ -44,17 +47,18 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 /**
  * Manages the lifecycle of a Projected session.
  *
- * @property activity The [Activity] instance.
- * @property perceptionManager The [ProjectedPerceptionManager] instance.
- * @property timeSource The [ProjectedTimeSource] instance.
- * @property coroutineContext The [CoroutineContext] for this manager.
- * @property testPerceptionService An optional [IProjectedPerceptionService] for testing
+ * @property context The [Context] instance
+ * @property perceptionManager the [ProjectedPerceptionManager] instance
+ * @property timeSource the [ProjectedTimeSource] instance
+ * @property coroutineContext the [CoroutineContext] for this manager
+ * @property testPerceptionService an optional [IProjectedPerceptionService] for testing
+ * @property config the current [Config] of the session
  */
 @Suppress("NotCloseable")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class ProjectedManager
 internal constructor(
-    private val activity: Activity,
+    private val context: Context,
     internal val perceptionManager: ProjectedPerceptionManager,
     internal val timeSource: ProjectedTimeSource,
     private val coroutineContext: CoroutineContext,
@@ -67,6 +71,8 @@ internal constructor(
     internal val running = AtomicBoolean(false)
 
     private lateinit var serviceConnection: ServiceConnection
+    private var serviceBinder: IBinder? = null
+    private val serviceDeathRecipient = IBinder.DeathRecipient { disconnect() }
 
     /**
      * This method implements the [LifecycleManager.create] method.
@@ -76,11 +82,17 @@ internal constructor(
      */
     override fun create() {
         runBlocking {
-            checkProjectedSupportedAndUpToDate(activity)
-            if (testPerceptionService != null) {
-                perceptionManager.xrResources.service = testPerceptionService
+            checkProjectedSupportedAndUpToDate(context)
+            if (testPerceptionService == null) {
+                bindPerceptionService(context)
             } else {
-                bindPerceptionService(activity)
+                perceptionManager.xrResources.service = testPerceptionService
+                serviceConnection =
+                    object : ServiceConnection {
+                        override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {}
+
+                        override fun onServiceDisconnected(name: ComponentName?) {}
+                    }
             }
         }
     }
@@ -88,14 +100,14 @@ internal constructor(
     private fun serviceRequired(config: Config): Boolean {
         // The service is required if tracking or geospatial are enabled.
         // I.E. if no features are needed from the service we don't require it.
-        return config.deviceTracking == Config.DeviceTrackingMode.LAST_KNOWN ||
-            config.geospatial == Config.GeospatialMode.VPS_AND_GPS
+        return config.deviceTracking == DeviceTrackingMode.LAST_KNOWN ||
+            config.geospatial == GeospatialMode.VPS_AND_GPS
     }
 
     override fun configure(config: Config) {
         if (
-            config.deviceTracking == Config.DeviceTrackingMode.DISABLED &&
-                config.geospatial == Config.GeospatialMode.VPS_AND_GPS
+            config.deviceTracking == DeviceTrackingMode.DISABLED &&
+                config.geospatial == GeospatialMode.VPS_AND_GPS
         ) {
             throw UnsupportedOperationException(
                 "Geospatial mode is not supported when device tracking is disabled."
@@ -134,6 +146,15 @@ internal constructor(
         )
     }
 
+    private fun toGeospatialState(value: Int): Geospatial.State {
+        return when (value) {
+            0 -> Geospatial.State.RUNNING // ProjectedTrackingState.TRACKING
+            1 -> Geospatial.State.PAUSED // ProjectedTrackingState.PAUSED
+            2 -> Geospatial.State.NOT_RUNNING // ProjectedTrackingState.STOPPED
+            else -> Geospatial.State.ERROR_INTERNAL
+        }
+    }
+
     override suspend fun update(): ComparableTimeMark {
         delay(30.milliseconds)
         if (!running.get()) {
@@ -145,6 +166,8 @@ internal constructor(
             toTrackingState(result.deviceTrackingState.toInt()),
             toPose(result.devicePose),
         )
+        perceptionManager.xrResources.geospatial.state =
+            toGeospatialState(result.earthTrackingState.toInt())
         timeSource.update(result.currentTimeNanos)
         return timeSource.markNow()
     }
@@ -156,6 +179,7 @@ internal constructor(
             return
         }
         stopServiceInternal()
+        disconnect()
     }
 
     private fun startServiceInternal(config: Config) {
@@ -163,7 +187,7 @@ internal constructor(
         val serviceConfig = ProjectedConfig()
         // TODO: b/452091636 - Remove hardcoded config" so we remember to address this.
         // TODO: b/455872882 - Currently, Geo is not compatible with 3DoF tracking stack.
-        if (config.geospatial == Config.GeospatialMode.VPS_AND_GPS) {
+        if (config.geospatial == GeospatialMode.VPS_AND_GPS) {
             serviceConfig.geospatialMode = ProjectedGeospatialMode.ENABLED
             serviceConfig.trackingMode = ProjectedTrackingMode.PROJECTED_TRACKING_6DOF
         } else {
@@ -184,13 +208,16 @@ internal constructor(
         running.set(false)
     }
 
-    internal suspend fun bindPerceptionService(context: Context): IBinder {
+    private suspend fun bindPerceptionService(context: Context): IBinder {
         return suspendCancellableCoroutine { continuation ->
             serviceConnection =
                 object : ServiceConnection {
                     override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
                         val service = IProjectedPerceptionService.Stub.asInterface(binder)
                         perceptionManager.xrResources.service = service
+                        serviceBinder = binder
+                        serviceBinder?.linkToDeath(serviceDeathRecipient, /* flags= */ 0)
+
                         // TODO: b/445567556 - Pass the API key to the service.
 
                         // When the service connects, we resume the coroutine with the binder.
@@ -200,8 +227,7 @@ internal constructor(
                     }
 
                     override fun onServiceDisconnected(name: ComponentName?) {
-                        running.set(false)
-                        // TODO: b/444521361 - Handle glassescore service disconnect
+                        disconnect()
                     }
 
                     override fun onBindingDied(name: ComponentName?) {
@@ -224,8 +250,23 @@ internal constructor(
         }
     }
 
+    private fun disconnect() {
+        running.set(false)
+        try {
+            if (::serviceConnection.isInitialized) {
+                context.unbindService(serviceConnection)
+                serviceBinder?.unlinkToDeath(serviceDeathRecipient, /* flags= */ 0)
+            }
+        } catch (e: IllegalArgumentException) {
+            Log.warn(e) { "Tried to unbind service that was already unbound." }
+        } catch (e: NoSuchElementException) {
+            Log.warn(e) { "Tried to unbind service that was already unbound." }
+        }
+        serviceBinder = null
+    }
+
     // Verify that Projected is installed and using the current version.
-    internal fun checkProjectedSupportedAndUpToDate(activity: Activity) {}
+    internal fun checkProjectedSupportedAndUpToDate(context: Context) {}
 
     /**
      * Binds to a perception projected service using provided [ServiceConnection].
@@ -233,18 +274,19 @@ internal constructor(
      * If service can't be found, the method throws [IllegalStateException]. It means that the
      * system doesn't include a service supporting Projected XR devices.
      *
-     * @param context can be either a host [Context] or the Projected device [Context].
+     * @param context can be either a host [Context] or the Projected device [Context]
+     * @param serviceConnection the [ServiceConnection] to use
      * @return true if the system is in the process of bringing up a service that your client has
      *   permission to bind to; false if the system couldn't find the service or if your client
-     *   doesn't have permission to bind to it. Regardless of the return value, you should later
-     *   call unbindService to release the connection.
+     *   doesn't have permission to bind to it
      */
     private fun bindPerception(context: Context, serviceConnection: ServiceConnection): Boolean {
-        return context.bindService(
-            getIntent(context, ACTION_PERCEPTION_BIND),
-            serviceConnection,
-            Context.BIND_AUTO_CREATE,
-        )
+        return testPerceptionService != null ||
+            context.bindService(
+                getIntent(context, ACTION_PERCEPTION_BIND),
+                serviceConnection,
+                Context.BIND_AUTO_CREATE,
+            )
     }
 
     // LINT.IfChange(get_intent)

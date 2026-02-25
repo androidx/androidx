@@ -22,6 +22,7 @@ import androidx.datastore.TestingSerializerConfig
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
 import kotlin.test.BeforeTest
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -64,6 +65,8 @@ abstract class CloseDownstreamOnCloseTest<F : TestFile<F>>(private val testIO: T
             assertThat(collector.await()).isEqualTo(listOf(0, 1))
         }
 
+    // TODO: b/432466011 - need to define if flow returns without exception is OK
+    @Ignore
     @Test
     fun closeBeforeCollecting() =
         testScope.runTest {

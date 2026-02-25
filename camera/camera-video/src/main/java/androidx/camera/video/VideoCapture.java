@@ -713,11 +713,11 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         Range<Integer> expectedFrameRate = resolveFrameRate(streamSpec);
         MediaSpec mediaSpec = requireNonNull(getMediaSpec());
         int sessionType = streamSpec.getSessionType();
-        VideoCapabilities videoCapabilities = getVideoCapabilities(camera.getCameraInfo(),
-                sessionType);
+        EncoderProfilesResolver profilesResolver = getEncoderProfilesResolver(
+                camera.getCameraInfo(), sessionType);
         DynamicRange dynamicRange = streamSpec.getDynamicRange();
         VideoValidatedEncoderProfilesProxy encoderProfiles =
-                videoCapabilities.findNearestHigherSupportedEncoderProfilesFor(resolution,
+                profilesResolver.findNearestHigherSupportedEncoderProfilesFor(resolution,
                         dynamicRange);
         VideoEncoderInfo videoEncoderInfo = resolveVideoEncoderInfo(
                 config.getVideoEncoderInfoFinder(), encoderProfiles, mediaSpec, dynamicRange);
@@ -942,6 +942,12 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private @NonNull VideoCapabilities getVideoCapabilities(@NonNull CameraInfo cameraInfo,
             int sessionType) {
         return getOutput().getMediaCapabilities(cameraInfo, sessionType);
+    }
+
+    private @NonNull EncoderProfilesResolver getEncoderProfilesResolver(
+            @NonNull CameraInfo cameraInfo,
+            int sessionType) {
+        return getOutput().getEncoderProfilesResolver(cameraInfo, sessionType);
     }
 
     private final Observer<StreamInfo> mStreamInfoObserver = new Observer<StreamInfo>() {
@@ -1533,6 +1539,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         int sessionType = getSessionType(config);
         Range<Integer> targetFrameRate = getTargetFrameRate(config);
         VideoCapabilities videoCapabilities = getVideoCapabilities(cameraInfo, sessionType);
+        EncoderProfilesResolver profilesResolver = getEncoderProfilesResolver(cameraInfo,
+                sessionType);
         Logger.d(TAG, "Update custom order resolutions: "
                 + "requestedDynamicRange = " + requestedDynamicRange
                 + ", sessionType = " + sessionType
@@ -1560,7 +1568,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         // * Filter by encoder supported size
         LinkedHashMap<Quality, List<Size>> supportedQualityToSizeMap =
                 createOrderedQualityToSizesMap(cameraInfo, mediaSpec, requestedDynamicRange,
-                        videoCapabilities, sessionType, targetFrameRate,
+                        videoCapabilities, profilesResolver, sessionType, targetFrameRate,
                         config.getVideoEncoderInfoFinder(), selectedQualities);
 
         if (sessionType == SESSION_TYPE_HIGH_SPEED) {
@@ -1569,7 +1577,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             // cts/RecordingTest.java), as CTS tests for high-speed frame rates are only verified
             // up to the rate advertised by the CamcorderProfile.
             builder.getMutableConfig().insertOption(OPTION_RESOLUTION_TO_MAX_FRAME_RATES,
-                    createSizeToMaxFrameRateMap(supportedQualityToSizeMap, videoCapabilities,
+                    createSizeToMaxFrameRateMap(supportedQualityToSizeMap, profilesResolver,
                             requestedDynamicRange));
         }
 
@@ -1644,6 +1652,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             @NonNull MediaSpec mediaSpec,
             @NonNull DynamicRange requestedDynamicRange,
             @NonNull VideoCapabilities videoCapabilities,
+            @NonNull EncoderProfilesResolver profilesResolver,
             int sessionType,
             @NonNull Range<Integer> targetFrameRate,
             VideoEncoderInfo.@NonNull Finder videoEncoderInfoFinder,
@@ -1666,19 +1675,19 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         // Filter out encoder unsupported resolutions.
         return filterOutEncoderUnsupportedResolutions(videoEncoderInfoFinder, mediaSpec,
-                        requestedDynamicRange, videoCapabilities, orderedQualityToSizesMap,
+                        requestedDynamicRange, profilesResolver, orderedQualityToSizesMap,
                         supportedQualityToSizeMap);
     }
 
     @NonNull
     private static Map<Size, Integer> createSizeToMaxFrameRateMap(
             @NonNull Map<Quality, List<Size>> supportedQualityToSizeMap,
-            @NonNull VideoCapabilities videoCapabilities,
+            @NonNull EncoderProfilesResolver profilesResolver,
             @NonNull DynamicRange requestedDynamicRange) {
         Map<Size, Integer> sizeToMaxFps = new HashMap<>();
         for (Map.Entry<Quality, List<Size>> entry : supportedQualityToSizeMap.entrySet()) {
             Quality quality = entry.getKey();
-            int profileFrameRate = requireNonNull(videoCapabilities.getProfiles(quality,
+            int profileFrameRate = requireNonNull(profilesResolver.getProfiles(quality,
                     requestedDynamicRange)).getDefaultVideoProfile().getFrameRate();
             for (Size size : entry.getValue()) {
                 sizeToMaxFps.put(size, profileFrameRate);
@@ -1730,7 +1739,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             VideoEncoderInfo.@NonNull Finder videoEncoderFinder,
             @NonNull MediaSpec mediaSpec,
             @NonNull DynamicRange dynamicRange,
-            @NonNull VideoCapabilities videoCapabilities,
+            @NonNull EncoderProfilesResolver profilesResolver,
             @NonNull LinkedHashMap<Quality, List<Size>> qualityToSizesOrderedMap,
             @NonNull Map<Quality, Size> supportedQualityToSizeMap
     ) {
@@ -1754,7 +1763,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 // found by resolution may contain different video mine type which leads to
                 // different codec.
                 VideoValidatedEncoderProfilesProxy encoderProfiles =
-                        videoCapabilities.findNearestHigherSupportedEncoderProfilesFor(resolution,
+                        profilesResolver.findNearestHigherSupportedEncoderProfilesFor(resolution,
                                 dynamicRange);
                 if (encoderProfiles == null) {
                     continue;

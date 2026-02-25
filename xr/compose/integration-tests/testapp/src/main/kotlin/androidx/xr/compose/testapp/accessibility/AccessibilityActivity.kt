@@ -85,7 +85,7 @@ class AccessibilityActivity : ComponentActivity() {
 
     enum class PanelType {
         None,
-        SpatialPaenl,
+        SpatialPanel,
         ActivityPanel,
     }
 
@@ -132,7 +132,7 @@ class AccessibilityActivity : ComponentActivity() {
                     }
                 }
                 when (panelType) {
-                    PanelType.SpatialPaenl -> {
+                    PanelType.SpatialPanel -> {
                         SpatialColumn {
                             SimpleSpatialPanel("Spatial Panel 1", "Regular Spatial Panel 1")
                             SimpleSpatialPanel("Spatial Panel 2", "Regular Spatial Panel 2")
@@ -187,7 +187,12 @@ class AccessibilityActivity : ComponentActivity() {
     }
 
     private fun setSkyboxAndGeometry(skybox: ExrImage?, geometry: GltfModel?) {
-        spatialEnvironmentPreference = SpatialEnvironmentPreference(skybox, geometry)
+        spatialEnvironmentPreference =
+            if (skybox == null && geometry == null) {
+                null
+            } else {
+                SpatialEnvironmentPreference(skybox, geometry)
+            }
         session.scene.spatialEnvironment.preferredSpatialEnvironment = spatialEnvironmentPreference
     }
 
@@ -346,13 +351,13 @@ class AccessibilityActivity : ComponentActivity() {
 
     @Composable
     fun PanelEntityUI(createPanelType: (PanelType) -> Unit) {
-        var type by remember { mutableStateOf(PanelType.SpatialPaenl) }
+        var type by remember { mutableStateOf(PanelType.SpatialPanel) }
         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
             Row {
                 LabeledRadioButton(
                     "Spatial Panel",
-                    type == PanelType.SpatialPaenl,
-                    { type = PanelType.SpatialPaenl },
+                    type == PanelType.SpatialPanel,
+                    { type = PanelType.SpatialPanel },
                 )
                 LabeledRadioButton(
                     "Activity Spatial Panel",

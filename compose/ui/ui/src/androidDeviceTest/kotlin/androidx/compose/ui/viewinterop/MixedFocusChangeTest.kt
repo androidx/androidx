@@ -65,13 +65,9 @@ class MixedFocusChangeTest {
     @get:Rule val rule = createAndroidComposeRule<TestActivity2>(StandardTestDispatcher())
 
     @Before
-    fun isPre26FocusFinderFixEnabled() {
+    fun checkPreconditions() {
         @OptIn(ExperimentalComposeUiApi::class)
-        assumeTrue(
-            SDK_INT >= 26 ||
-                ComposeUiFlags.isPre26FocusFinderFixEnabled ||
-                ComposeUiFlags.isViewFocusFixEnabled
-        )
+        assumeTrue(SDK_INT >= 26 || ComposeUiFlags.isViewFocusFixEnabled)
     }
 
     @Test

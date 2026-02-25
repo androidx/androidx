@@ -15,17 +15,16 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 def isIdeBuild() {
-    return project.properties['android.injected.invoked.from.ide'] == 'true'
+    return project.providers.gradleProperty("android.injected.invoked.from.ide").map { it.toBoolean() }.orElse(false).get()
 }
 
 plugins {

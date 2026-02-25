@@ -24,7 +24,7 @@ NullableCollection: androidx.navigation.NavController.OnDestinationChangedListen
 
 
 TopLevelBuilder: androidx.navigation.NavDeepLinkBuilder:
-    Builder should be defined as inner class: androidx.navigation.NavDeepLinkBuilder
+    Builder should be defined as nested class: androidx.navigation.NavDeepLinkBuilder
 
 
 TypeParameterName: androidx.navigation.ActivityNavArgsLazyKt#navArgs(android.app.Activity):

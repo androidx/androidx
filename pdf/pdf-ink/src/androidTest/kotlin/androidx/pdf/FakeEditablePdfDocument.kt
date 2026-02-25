@@ -29,6 +29,7 @@ import android.util.Size
 import android.util.SparseArray
 import androidx.annotation.OpenForTesting
 import androidx.annotation.RequiresExtension
+import androidx.pdf.PdfDocument.Companion.LINEARIZATION_STATUS_UNKNOWN
 import androidx.pdf.annotation.KeyedPdfAnnotation
 import androidx.pdf.annotation.models.PdfAnnotation
 import androidx.pdf.annotation.models.PdfObject
@@ -54,6 +55,7 @@ import kotlinx.coroutines.withTimeout
 internal open class FakeEditablePdfDocument(
     internal val pages: List<Point?> = listOf(),
     override val formType: Int = PDF_FORM_TYPE_NONE,
+    @Deprecated("Deprecated in Java, Use getLinearizationStatus() instead")
     override val isLinearized: Boolean = false,
     override val renderParams: RenderParams = RenderParams(RenderParams.RENDER_MODE_FOR_DISPLAY),
     private val searchResults: SparseArray<List<PageMatchBounds>> = SparseArray(),
@@ -62,6 +64,7 @@ internal open class FakeEditablePdfDocument(
     private val textContents: List<PdfPageTextContent> = emptyList(),
     private val pageFormWidgetInfos: Map<Int, List<FormWidgetInfo>> = mapOf(),
     initialEdits: List<PdfAnnotation> = emptyList(),
+    override val linearizationStatus: Int = LINEARIZATION_STATUS_UNKNOWN,
 ) : EditablePdfDocument() {
     override val pageCount: Int = pages.size
 
@@ -278,6 +281,14 @@ internal open class FakeEditablePdfDocument(
         }
 
         override fun close() {}
+    }
+
+    override fun addOnEditsAppliedListener(executor: Executor, listener: OnEditsAppliedListener) {
+        TODO("Not yet implemented")
+    }
+
+    override fun removeOnEditsAppliedListener(listener: OnEditsAppliedListener) {
+        TODO("Not yet implemented")
     }
 
     override fun addOnPdfContentInvalidatedListener(

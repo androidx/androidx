@@ -47,6 +47,7 @@ open class FakeCameraGraphSession : CameraGraph.Session {
     val repeatingRequests = mutableListOf<Request>()
     var repeatingRequestSemaphore = Semaphore(0)
     var stopRepeatingSemaphore = Semaphore(0)
+    override var repeatingRequest = repeatingRequests.lastOrNull()
 
     enum class RequestStatus {
         TOTAL_CAPTURE_DONE,

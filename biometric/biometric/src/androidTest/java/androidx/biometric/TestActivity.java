@@ -16,7 +16,59 @@
 
 package androidx.biometric;
 
+import android.os.Bundle;
+
 import androidx.fragment.app.FragmentActivity;
 
 public class TestActivity extends FragmentActivity {
+    private boolean mIsChangingConfigurationsOverride = false;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        android.widget.FrameLayout root = new android.widget.FrameLayout(this);
+        root.setId(android.R.id.content);
+        setContentView(root);
+    }
+
+    /**
+     * Shows a test prompt view.
+     *
+     * @param signal The cancellation signal to listen to.
+     */
+    public void showTestPrompt(int promptId, android.os.CancellationSignal signal) {
+        android.view.View prompt = new android.view.View(this);
+        prompt.setId(promptId);
+        prompt.setBackgroundColor(android.graphics.Color.RED);
+        prompt.setMinimumWidth(100);
+        prompt.setMinimumHeight(100);
+        ((android.widget.FrameLayout) findViewById(android.R.id.content)).addView(prompt);
+
+        if (signal != null) {
+            signal.setOnCancelListener(this::hideTestPrompt);
+        }
+    }
+
+    /**
+     * Hides the test prompt view.
+     */
+    public void hideTestPrompt() {
+        android.view.View prompt = findViewById(android.R.id.primary);
+        if (prompt != null) {
+            ((android.view.ViewGroup) prompt.getParent()).removeView(prompt);
+        }
+    }
+
+    /**
+     * Sets whether the activity should report that it is undergoing a configuration change.
+     */
+    public void setChangingConfigurationsOverride(boolean value) {
+        mIsChangingConfigurationsOverride = value;
+    }
+
+    @Override
+    public boolean isChangingConfigurations() {
+        // Return the override if set, otherwise fallback to the system value.
+        return mIsChangingConfigurationsOverride || super.isChangingConfigurations();
+    }
 }

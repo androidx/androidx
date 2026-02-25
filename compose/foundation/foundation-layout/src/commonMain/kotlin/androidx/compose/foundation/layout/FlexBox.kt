@@ -18,6 +18,7 @@ package androidx.compose.foundation.layout
 
 import androidx.annotation.FloatRange
 import androidx.compose.foundation.layout.internal.JvmDefaultWithCompatibility
+import androidx.compose.foundation.layout.internal.requirePrecondition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -52,6 +53,7 @@ import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastMaxBy
+import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.util.fastSumBy
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -174,7 +176,7 @@ private class FlexBoxMeasurePolicy(private val flexBoxConfigState: State<FlexBox
         var needsUpfrontCrossAxisCalculation =
             flexBoxConfig.alignItems == FlexAlignItems.Stretch ||
                 flexBoxConfig.alignItems == FlexAlignItems.Baseline ||
-                flexBoxConfig.isWrapEnabled.not()
+                flexBoxConfig.isWrapEnabled
 
         var needsSorting = false
         measurables.fastForEach { measurable ->
@@ -209,6 +211,13 @@ private class FlexBoxMeasurePolicy(private val flexBoxConfigState: State<FlexBox
             ) {
                 totalLinesCrossSize = it
             }
+
+        // If we have single line and constraints are defined then the size of line is the
+        // constraints instead of tallest item in the line.
+        if (lines.size == 1) {
+            val constrainedCrossSize = max(lines[0].crossAxisSize, constraints.crossAxisMin)
+            lines[0].crossAxisSize = constrainedCrossSize
+        }
         // handle `align-content: stretch`
         totalLinesCrossSize =
             applyAlignContentStretch(
@@ -499,8 +508,8 @@ private class FlexBoxMeasurePolicy(private val flexBoxConfigState: State<FlexBox
             return items.fastSumBy(startIndex, endIndex) { it.targetMainSize } + totalGap
         }
 
-        val initialFreeSpace = (containerMainAxisSize - hypotheticalLineSize).toDouble()
-        val isGrowing = initialFreeSpace > 0
+        var remainingFreeSpace = (containerMainAxisSize - hypotheticalLineSize).toDouble()
+        val isGrowing = remainingFreeSpace > 0
 
         var sumOfFrozenSizes = 0
         var sumOfBaseSizes = 0
@@ -522,33 +531,48 @@ private class FlexBoxMeasurePolicy(private val flexBoxConfigState: State<FlexBox
             }
         }
         var lineMainAxisSize = sumOfFrozenSizes
-        val remainingFreeSpace =
-            (containerMainAxisSize - (sumOfFrozenSizes + sumOfBaseSizes)).toDouble()
 
         if (isGrowing) {
             if (sumOfGrowFactors > 0) {
+                var remainingGrowFactors = sumOfGrowFactors
+
                 items.fastForEachUntil(startIndex, endIndex) { item ->
                     if (!item.isFrozen) {
-                        val share = (item.grow / sumOfGrowFactors) * remainingFreeSpace
-                        item.targetMainSize = item.flexBaseSize + share.toInt()
+                        // Calculate share based on REMAINING space and weight
+                        // This absorbs rounding errors into the subsequent items
+                        val share = (item.grow / remainingGrowFactors) * remainingFreeSpace
+                        val roundedShare = share.fastRoundToInt()
+
+                        item.targetMainSize = item.flexBaseSize + roundedShare
                         item.isFrozen = true
+
                         lineMainAxisSize += item.targetMainSize
+                        remainingFreeSpace -= roundedShare
+                        remainingGrowFactors -= item.grow
                     }
                 }
             }
         } else { // shrinking
             if (sumOfScaledShrinkFactors > 0) {
+                var remainingShrinkFactors = sumOfScaledShrinkFactors
+                var spaceToRemove = abs(remainingFreeSpace)
+
                 items.fastForEachUntil(startIndex, endIndex) { item ->
                     if (!item.isFrozen) {
-                        val scaledFactor = item.shrink * item.flexBaseSize
-                        val share =
-                            (scaledFactor / sumOfScaledShrinkFactors) * abs(remainingFreeSpace)
-                        item.targetMainSize =
-                            (item.flexBaseSize - share.toInt()).fastCoerceAtLeast(
-                                item.getMinMainAxisSize(isHorizontal)
-                            )
+                        val weight = (item.shrink * item.flexBaseSize).toDouble()
+
+                        val share = (weight / remainingShrinkFactors) * spaceToRemove
+                        val roundedShare = share.fastRoundToInt()
+
+                        val minSize = item.getMinMainAxisSize(isHorizontal)
+                        val newSize = (item.flexBaseSize - roundedShare).fastCoerceAtLeast(minSize)
+
+                        item.targetMainSize = newSize
                         item.isFrozen = true
+
                         lineMainAxisSize += item.targetMainSize
+                        spaceToRemove -= roundedShare
+                        remainingShrinkFactors -= weight
                     }
                 }
             }
@@ -634,6 +658,12 @@ private class FlexBoxMeasurePolicy(private val flexBoxConfigState: State<FlexBox
                     )
                 if (!needsUpfrontCrossAxisCalculation) {
                     lineCrossAxisSize = max(lineCrossAxisSize, crossAxisSize)
+                }
+
+                // If we have single line and constraints are defined then the size of line is the
+                // constraints instead of tallest item in the line.
+                if (lines.size == 1) {
+                    lineCrossAxisSize = max(lineCrossAxisSize, constraints.crossAxisMin)
                 }
                 remainingMainAxisSize =
                     (remainingMainAxisSize - (item.mainAxisSize + flexBoxConfig.mainAxisGap()))
@@ -1846,24 +1876,28 @@ sealed interface FlexConfigScope : Density {
     /**
      * The flex grow factor.
      *
-     * When positive, the item grows to absorb free space along the main axis. Growth is
-     * proportional to this value relative to siblings' grow factors.
+     * This value determines how much the item will grow relative to the rest of the flexible items
+     * to absorb free space along the main axis.
+     *
+     * The value must be non-negative.
      *
      * **Note:** Items will grow even with explicit size constraints. Set `grow = 0f` to prevent
      * growth.
      */
-    var grow: Float
+    @get:FloatRange(from = 0.0) @setparam:FloatRange(from = 0.0) var grow: Float
 
     /**
      * The flex shrink factor.
      *
-     * When positive, the item can shrink if items exceed the container's main axis size. Shrinking
-     * is proportional to this value and the item's base size.
+     * This value determines how much the item will shrink relative to the rest of the flexible
+     * items when there is insufficient space along the main axis.
+     *
+     * The value must be non-negative.
      *
      * **Note:** Items will not shrink below their minimum intrinsic size. Items with explicit size
      * modifiers will not shrink at all.
      */
-    var shrink: Float
+    @get:FloatRange(from = 0.0) @setparam:FloatRange(from = 0.0) var shrink: Float
 
     /** The initial main size of this item before flex distribution. */
     var basis: FlexBasis
@@ -1916,8 +1950,16 @@ internal class ResolvedFlexItemInfo : FlexConfigScope {
     override var order: Int = 0
 
     override var grow: Float = 0f
+        set(value) {
+            requirePrecondition(value >= 0f) { "Flex grow cannot be negative: $value" }
+            field = value
+        }
 
     override var shrink: Float = 1f
+        set(value) {
+            requirePrecondition(value >= 0f) { "Flex shrink cannot be negative: $value" }
+            field = value
+        }
 
     override var basis: FlexBasis = FlexBasis.Auto
 

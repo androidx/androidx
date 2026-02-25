@@ -16,20 +16,23 @@
 
 package androidx.compose.ui.test
 
+import androidx.annotation.FloatRange
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.util.lerp
+import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 
 /**
  * The receiver scope of the trackpad input injection lambda from [performTrackpadInput].
  *
  * The functions in [TrackpadInjectionScope] can roughly be divided into two groups: full gestures
  * and individual trackpad events. The individual trackpad events are: [press], [moveTo] and
- * friends, [release], [cancel], [scroll] and [advanceEventTime]. Full gestures are all the other
+ * friends, [release], [cancel], [pan] and [advanceEventTime]. Full gestures are all the other
  * functions, like [TrackpadInjectionScope.click], [TrackpadInjectionScope.doubleClick],
  * [TrackpadInjectionScope.animateMoveTo], etc. These are built on top of the individual events and
  * serve as a good example on how you can build your own full gesture functions.
@@ -41,7 +44,7 @@ import kotlin.math.roundToInt
  * event. Use [press] and [release] to send button pressed and button released events. This will
  * also send all other necessary events that keep the stream of trackpad events consistent with
  * actual trackpad input, such as a hover exit event. A [cancel] event can be sent at any time when
- * at least one button is pressed. Use [scroll] to send a trackpad scroll event.
+ * at least one button is pressed. Use [pan] to send a trackpad pan event.
  *
  * The entire event injection state is shared between all `perform.*Input` methods, meaning you can
  * continue an unfinished trackpad gesture in a subsequent invocation of [performTrackpadInput] or
@@ -75,7 +78,7 @@ interface TrackpadInjectionScope : InjectionScope {
      * position of the trackpad updated to [position]. The [position] is in the node's local
      * coordinate system, where (0, 0) is the top left corner of the node.
      *
-     * If no mouse buttons are pressed, a hover event will be sent instead of a move event. If the
+     * If no buttons are pressed, a hover event will be sent instead of a move event. If the
      * trackpad wasn't hovering yet, a hover enter event is sent as well.
      *
      * @param position The new position of the trackpad, in the node's local coordinate system
@@ -88,7 +91,7 @@ interface TrackpadInjectionScope : InjectionScope {
      * Sends a move event [delayMillis] after the last sent event on the associated node, with the
      * position of the trackpad moved by the given [delta].
      *
-     * If no mouse buttons are pressed, a hover event will be sent instead of a move event. If the
+     * If no buttons are pressed, a hover event will be sent instead of a move event. If the
      * trackpad wasn't hovering yet, a hover enter event is sent as well.
      *
      * @param delta The position for this move event, relative to the current position of the
@@ -128,12 +131,10 @@ interface TrackpadInjectionScope : InjectionScope {
      * Sends a down and button pressed event for the given [button] on the associated node. When no
      * buttons were down yet, this will exit hovering mode before the button is pressed. All events
      * will be sent at the current event time. Trackpads behave similarly to mice, with platform
-     * interpreted gestures that send mouse button events, so this API takes the [MouseButton] to
-     * press.
+     * interpreted gestures that send button events.
      *
-     * Throws an [IllegalStateException] if the [button] is already pressed.
-     *
-     * @param button The mouse button that is pressed. By default the primary mouse button.
+     * @param button The button that is pressed. By default the primary button.
+     * @throws [IllegalStateException] if the [button] is already pressed.
      */
     fun press(button: MouseButton = MouseButton.Primary)
 
@@ -142,18 +143,17 @@ interface TrackpadInjectionScope : InjectionScope {
      * was the last button to be released, the trackpad will enter hovering mode and send an
      * accompanying trackpad move event after the button has been released. All events will be sent
      * at the current event time. Trackpads behave similarly to mice, with platform interpreted
-     * gestures that send mouse button events, so this API takes the [MouseButton] to release.
+     * gestures that send button events.
      *
-     * Throws an [IllegalStateException] if the [button] is not pressed.
-     *
-     * @param button The mouse button that is released. By default the primary mouse button.
+     * @param button The button that is released. By default the primary button.
+     * @throws [IllegalStateException] if the [button] is not pressed.
      */
     fun release(button: MouseButton = MouseButton.Primary)
 
     /**
      * Sends a cancel event [delayMillis] after the last sent event to cancel a stream of trackpad
-     * events with pressed mouse buttons. All buttons will be released as a result. A trackpad
-     * cancel event can only be sent when mouse buttons are pressed.
+     * events with pressed buttons. All buttons will be released as a result. A trackpad cancel
+     * event can only be sent when buttons are pressed.
      *
      * @param delayMillis The time between the last sent event and this event. [eventPeriodMillis]
      *   by default.
@@ -163,9 +163,6 @@ interface TrackpadInjectionScope : InjectionScope {
     /**
      * Sends a hover enter event at the given [position], [delayMillis] after the last sent event,
      * without sending a hover move event.
-     *
-     * An [IllegalStateException] will be thrown when mouse buttons are down, or if the trackpad is
-     * already hovering.
      *
      * The [position] is in the node's local coordinate system, where (0, 0) is the top left corner
      * of the node.
@@ -180,14 +177,13 @@ interface TrackpadInjectionScope : InjectionScope {
      *   [currentPosition] by default.
      * @param delayMillis The time between the last sent event and this event. [eventPeriodMillis]
      *   by default.
+     * @throws [IllegalStateException] if buttons are down, or if the trackpad is already hovering.
      */
     fun enter(position: Offset = currentPosition, delayMillis: Long = eventPeriodMillis)
 
     /**
      * Sends a hover exit event at the given [position], [delayMillis] after the last sent event,
      * without sending a hover move event.
-     *
-     * An [IllegalStateException] will be thrown if the trackpad was not hovering.
      *
      * The [position] is in the node's local coordinate system, where (0, 0) is the top left corner
      * of the node.
@@ -202,32 +198,80 @@ interface TrackpadInjectionScope : InjectionScope {
      *   [currentPosition] by default.
      * @param delayMillis The time between the last sent event and this event. [eventPeriodMillis]
      *   by default.
+     * @throws [IllegalStateException] if the trackpad was not hovering.
      */
     fun exit(position: Offset = currentPosition, delayMillis: Long = eventPeriodMillis)
 
     /**
-     * Sends a scroll event with the given [offset]. The event will be sent at the current event
-     * time.
+     * Starts a pan gesture. The [PointerEventType.PanStart] will be sent at the current event time.
+     * This should be followed by any number of calls to [panMoveBy], followed by [panEnd].
      *
-     * @sample androidx.compose.ui.test.samples.trackpadInputScroll
-     * @param offset The amount of scroll
+     * The helper function [pan] allows combining these calls into a single call, to pan by a given
+     * offset sending the appropriate event in sequence.
+     *
+     * @throws [IllegalStateException] if the trackpad was already sending a pan gesture.
      */
-    fun scroll(offset: Offset)
+    fun panStart()
 
     /**
-     * Sends a pinch event with the given [scaleFactor]. The event will be sent at the current event
-     * time.
+     * Updates the ongoing pan gesture, by applying the given [delta] as part of the pan. The
+     * [PointerEventType.PanMove] will be sent at the current event time.
      *
-     * The [scaleFactor] is a multiplicative zoom factor. A [scaleFactor] of 1 represents no pinch
-     * movement. A [scaleFactor] less than 1 represents a pinch where the 2 fingers become closer
-     * together (often interpreted as a "zoom out" gesture), and a [scaleFactor] of more than 1
-     * represents a pinch where the 2 fingers become farther apart (often interpreted as a "zoom in"
-     * gesture).
+     * The helper function [pan] allows combining these calls into a single call, to pan by a given
+     * offset sending the appropriate event in sequence.
      *
-     * @sample androidx.compose.ui.test.samples.trackpadInputPinch
-     * @param scaleFactor The amount of pinch.
+     * @param delta the incremental change in the pan offset.
+     * @throws [IllegalStateException] if the trackpad is not in a pan gesture started by
+     *   [panStart].
      */
-    fun pinch(scaleFactor: Float)
+    fun panMoveBy(delta: Offset)
+
+    /**
+     * Ends a pan gesture. The [PointerEventType.PanEnd] will be sent at the current event time.
+     *
+     * The helper function [pan] allows combining these calls into a single call, to pan by a given
+     * offset sending the appropriate event in sequence.
+     *
+     * @throws [IllegalStateException] if the trackpad is not in a pan gesture started by
+     *   [panStart].
+     */
+    fun panEnd()
+
+    /**
+     * Starts a scale gesture. The [PointerEventType.ScaleStart] will be sent at the current event
+     * time. This should be followed by any number of calls to [scaleChangeBy], followed by
+     * [scaleEnd].
+     *
+     * The helper function [scale] allows combining these calls into a single call, to scale by a
+     * given factor sending the appropriate events in sequence.
+     *
+     * @throws [IllegalStateException] if the trackpad was already sending a scale gesture.
+     */
+    fun scaleStart()
+
+    /**
+     * Updates the ongoing scale gesture, by applying the given multiplicative [scaleFactor] as part
+     * of the gesture. The [PointerEventType.ScaleChange] will be sent at the current event time.
+     *
+     * The helper function [scale] allows combining these calls into a single call, to scale by a
+     * given factor sending the appropriate events in sequence.
+     *
+     * @param scaleFactor the incremental multiplicative change in the scale factor.
+     * @throws [IllegalStateException] if the trackpad is not in a scale gesture started by
+     *   [scaleStart].
+     */
+    fun scaleChangeBy(@FloatRange(from = 0.0, fromInclusive = false) scaleFactor: Float)
+
+    /**
+     * Ends a scale gesture. The [PointerEventType.ScaleEnd] will be sent at the current event time.
+     *
+     * The helper function [scale] allows combining these calls into a single call, to scale by a
+     * given factor sending the appropriate events in sequence.
+     *
+     * @throws [IllegalStateException] if the trackpad is not in a scale gesture started by
+     *   [scaleStart].
+     */
+    fun scaleEnd()
 }
 
 internal class TrackpadInjectionScopeImpl(private val baseScope: MultiModalInjectionScopeImpl) :
@@ -276,12 +320,28 @@ internal class TrackpadInjectionScopeImpl(private val baseScope: MultiModalInjec
         inputDispatcher.enqueueTrackpadCancel()
     }
 
-    override fun scroll(offset: Offset) {
-        inputDispatcher.enqueueTrackpadScroll(offset)
+    override fun panStart() {
+        inputDispatcher.enqueueTrackpadPanStart()
     }
 
-    override fun pinch(scaleFactor: Float) {
-        inputDispatcher.enqueueTrackpadPinch(scaleFactor)
+    override fun panMoveBy(delta: Offset) {
+        inputDispatcher.enqueueTrackpadPanMove(delta)
+    }
+
+    override fun panEnd() {
+        inputDispatcher.enqueueTrackpadPanEnd()
+    }
+
+    override fun scaleStart() {
+        inputDispatcher.enqueueTrackpadScaleStart()
+    }
+
+    override fun scaleChangeBy(scaleFactor: Float) {
+        inputDispatcher.enqueueTrackpadScaleChange(scaleFactor)
+    }
+
+    override fun scaleEnd() {
+        inputDispatcher.enqueueTrackpadScaleEnd()
     }
 }
 
@@ -309,10 +369,10 @@ fun TrackpadInjectionScope.click(
 
 /**
  * Secondary-click on [position], or on the current cursor position if [position] is
- * [unspecified][Offset.Unspecified]. While the secondary mouse button is not necessarily the right
- * mouse button (e.g. on left-handed mice), this method is still called `rightClick` for it's
- * widespread use. The [position] is in the node's local coordinate system, where (0, 0) is the top
- * left corner of the node.
+ * [unspecified][Offset.Unspecified]. While the secondary button is not necessarily a physical right
+ * button (e.g. a multi-finger tap), this method is still called `rightClick` for it's widespread
+ * use. The [position] is in the node's local coordinate system, where (0, 0) is the top left corner
+ * of the node.
  *
  * @param position The position where to click, in the node's local coordinate system. If omitted,
  *   the [center] of the node will be used. If [unspecified][Offset.Unspecified], clicks on the
@@ -478,10 +538,10 @@ fun TrackpadInjectionScope.animateMoveAlong(
  * before starting the gesture. The positions defined by the [start] and [end] are in the node's
  * local coordinate system, where (0, 0) is the top left corner of the node.
  *
- * @param start The position where to press the primary mouse button and initiate the drag, in the
- *   node's local coordinate system.
- * @param end The position where to release the primary mouse button and end the drag, in the node's
+ * @param start The position where to press the primary button and initiate the drag, in the node's
  *   local coordinate system.
+ * @param end The position where to release the primary button and end the drag, in the node's local
+ *   coordinate system.
  * @param button The button to drag with. Uses the [primary][MouseButton.Primary] by default.
  * @param durationMillis The duration of the gesture. By default 300 milliseconds.
  */
@@ -495,6 +555,160 @@ fun TrackpadInjectionScope.dragAndDrop(
     press(button)
     animateMoveTo(end, durationMillis)
     release(button)
+}
+
+/**
+ * Sends a pan gesture with the given total [offset]. The event will be sent starting at the current
+ * event time.
+ *
+ * To send a pan gesture with a curve, use `pan(curve, durationMillis, keyTimes)`.
+ *
+ * @sample androidx.compose.ui.test.samples.trackpadInputPan
+ * @param offset The amount of pan
+ */
+fun TrackpadInjectionScope.pan(offset: Offset) {
+    panStart()
+    advanceEventTime()
+    panMoveBy(offset)
+    advanceEventTime()
+    panEnd()
+}
+
+/**
+ * Sends a pan gesture with the offsets in the panning coordinate space following the given [curve].
+ * It is expected that the curve starts at [Offset.Zero], as a pan gesture starts with no delta, and
+ * then move outward from the origin.
+ *
+ * To send a pan with just a single amount, use `pan(offset)`.
+ *
+ * @param curve The function that describes the gesture. The argument passed to the function is the
+ *   time in milliseconds since the start of the swipe, and the return value is the location of the
+ *   pan from the origin at that point in time.
+ * @param durationMillis The duration of the gesture
+ * @param keyTimes An optional list of timestamps in milliseconds at which a pan move event must be
+ *   sampled
+ */
+@Suppress("PrimitiveInCollection")
+fun TrackpadInjectionScope.pan(
+    curve: (timeMillis: Long) -> Offset,
+    durationMillis: Long = 200,
+    keyTimes: List<Long> = emptyList(),
+) {
+    val startTime = 0L
+    val endTime = durationMillis
+
+    // Validate input
+    require(durationMillis >= 1) { "duration must be at least 1 millisecond, not $durationMillis" }
+    val validRange = startTime..endTime
+    require(keyTimes.all { it in validRange }) {
+        "keyTimes contains timestamps out of range [$startTime..$endTime]: $keyTimes"
+    }
+    require(keyTimes.asSequence().zipWithNext { a, b -> a <= b }.all { it }) {
+        "keyTimes must be sorted: $keyTimes"
+    }
+
+    panStart()
+
+    var accmulatedDelta: Offset = Offset.Zero
+
+    // Send move events between each consecutive pair in [t0, ..keyTimes, tN]
+    var currTime = startTime
+    var key = 0
+    while (currTime < endTime) {
+        // advance key
+        while (key < keyTimes.size && keyTimes[key] <= currTime) {
+            key++
+        }
+        // send events between t and next keyTime
+        val tNext = if (key < keyTimes.size) keyTimes[key] else endTime
+
+        val steps = max(1, ((tNext - currTime) / eventPeriodMillis.toFloat()).roundToInt())
+        var step = 0
+
+        var tPrev = currTime
+        while (step++ < steps) {
+            val progress = step / steps.toFloat()
+            val t = lerp(currTime, tNext, progress)
+            val value = curve(t)
+
+            val delta = value - accmulatedDelta
+            accmulatedDelta = value
+            advanceEventTime(t - tPrev)
+            panMoveBy(delta)
+            tPrev = t
+        }
+        currTime = tNext
+    }
+
+    panEnd()
+}
+
+/**
+ * Performs a pan gesture on the associated node such that it ends with the given [endVelocity].
+ *
+ * The pan will go from [Offset.Zero] at t=0 to [offset] at t=[durationMillis]. In between, the pan
+ * will go monotonically from [Offset.Zero] and [offset], but not strictly. Due to imprecision, no
+ * guarantees can be made for the actual velocity at the end of the gesture, but generally it is
+ * within 0.1 of the desired velocity.
+ *
+ * When a pan cannot be created that results in the desired velocity (because the input is too
+ * restrictive), an exception will be thrown with suggestions to fix the input.
+ *
+ * The coordinates are in the pan coordinate system, which has the same scale as the display in
+ * pixel coordinates, where [Offset.Zero] indicates no panning.
+ *
+ * Use `pan(curve, duration, durationMillis)` to directly control the curve of the pan.
+ *
+ * @param offset The end position of the pan
+ * @param endVelocity The velocity of the gesture at the moment it ends in px/second. Must be
+ *   positive.
+ * @param durationMillis The duration of the gesture in milliseconds. Must be long enough that at
+ *   least 3 input events are generated, which happens with a duration of 40ms or more. If omitted,
+ *   a duration is calculated such that a valid pan with velocity can be created.
+ * @throws IllegalArgumentException When no pan can be generated that will result in the desired
+ *   velocity. The error message will suggest changes to the input parameters such that a pan will
+ *   become feasible.
+ */
+fun TrackpadInjectionScope.panWithVelocity(
+    offset: Offset,
+    @FloatRange(from = 0.0) endVelocity: Float,
+    durationMillis: Long =
+        VelocityPathFinder.calculateDefaultDuration(Offset.Zero, offset, endVelocity),
+) {
+    require(endVelocity >= 0f) { "Velocity cannot be $endVelocity, it must be positive" }
+    require(eventPeriodMillis < 40) {
+        "InputDispatcher.eventPeriod must be smaller than 40ms in order to generate velocities"
+    }
+    val minimumDuration = ceil(2.5f * eventPeriodMillis).roundToLong()
+    require(durationMillis >= minimumDuration) {
+        "Duration must be at least ${minimumDuration}ms because " +
+            "velocity requires at least 3 input events"
+    }
+
+    val pathFinder = VelocityPathFinder(Offset.Zero, offset, endVelocity, durationMillis)
+    val swipeFunction: (Long) -> Offset = { pathFinder.calculateOffsetForTime(it) }
+    pan(swipeFunction, durationMillis)
+}
+
+/**
+ * Sends a scale event with the given [scaleFactor]. The event will be sent starting at the current
+ * event time.
+ *
+ * The [scaleFactor] is a multiplicative zoom factor. A [scaleFactor] of 1 represents no change. A
+ * [scaleFactor] less than 1 represents a "zoom out" gesture, while a factor of more than one
+ * represents a "zoom in" gesture.
+ *
+ * @sample androidx.compose.ui.test.samples.trackpadInputScale
+ * @param scaleFactor The amount to scale.
+ */
+fun TrackpadInjectionScope.scale(
+    @FloatRange(from = 0.0, fromInclusive = false) scaleFactor: Float
+) {
+    scaleStart()
+    advanceEventTime()
+    scaleChangeBy(scaleFactor)
+    advanceEventTime()
+    scaleEnd()
 }
 
 /** The default duration of trackpad gestures with configurable time (e.g. [animateMoveTo]). */

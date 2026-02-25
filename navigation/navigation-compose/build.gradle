@@ -60,8 +60,8 @@ androidXMultiplatform {
         commonTest.dependencies {
             implementation(libs.kotlinTest)
         }
-        nonAndroidMain.dependsOn(commonMain)
-        nonAndroidTest.dependsOn(commonTest)
+        create("nonAndroidMain").dependsOn(commonMain)
+        create("nonAndroidTest").dependsOn(commonTest)
 
         jvmStubsMain.dependsOn(nonAndroidMain)
         jvmStubsTest.dependsOn(nonAndroidTest)

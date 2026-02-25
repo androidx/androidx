@@ -47,8 +47,8 @@ internal constructor(
     @RestrictTo(Scope.LIBRARY_GROUP) public open lateinit var process: ProcessTrack
 
     /** Create an instance of a [Tracer] that can be used to emit trace events. */
-    public open fun createTracer(name: String): Tracer {
-        return PerfettoTracer(context = this, name = name)
+    public open fun createTracer(): Tracer {
+        return PerfettoTracer(context = this)
     }
 
     /**

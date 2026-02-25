@@ -26,6 +26,8 @@
         <attr name="pdfHorizontalPageSpacing" format="dimension"/>
         <!-- Flag dictating whether the form filling feature is enabled. -->
         <attr name="isFormFillingEnabled" format="boolean"/>
+        <!-- Flag dictating whether the image selection is enabled. -->
+        <attr name="isImageSelectionEnabled" format="boolean"/>
         <!-- Floating point value that represents the minimum scaling factor of the PDF content -->
         <attr name="minZoom" format="float"/>
         <!-- Floating point value that represents the maximum scaling factor of the PDF content -->

@@ -18,9 +18,16 @@ package androidx.camera.video.internal.config
 
 import android.media.MediaFormat.MIMETYPE_AUDIO_AAC
 import android.media.MediaFormat.MIMETYPE_AUDIO_OPUS
+import android.media.MediaFormat.MIMETYPE_VIDEO_AV1
+import android.media.MediaFormat.MIMETYPE_VIDEO_DOLBY_VISION
 import android.media.MediaFormat.MIMETYPE_VIDEO_HEVC
+import android.media.MediaFormat.MIMETYPE_VIDEO_VP8
 import android.media.MediaFormat.MIMETYPE_VIDEO_VP9
 import androidx.camera.core.DynamicRange
+import androidx.camera.core.DynamicRange.DOLBY_VISION_10_BIT
+import androidx.camera.core.DynamicRange.DOLBY_VISION_8_BIT
+import androidx.camera.core.DynamicRange.HDR10_10_BIT
+import androidx.camera.core.DynamicRange.HDR10_PLUS_10_BIT
 import androidx.camera.core.DynamicRange.HLG_10_BIT
 import androidx.camera.core.DynamicRange.SDR
 import androidx.camera.video.MediaSpec.Companion.OUTPUT_FORMAT_MPEG_4
@@ -39,7 +46,11 @@ class DynamicRangeFormatComboRegistryTest {
 
     companion object {
         private const val VIDEO_HEVC = MIMETYPE_VIDEO_HEVC
+        private const val VIDEO_VP8 = MIMETYPE_VIDEO_VP8
         private const val VIDEO_VP9 = MIMETYPE_VIDEO_VP9
+        private const val VIDEO_AV1 = MIMETYPE_VIDEO_AV1
+        private const val VIDEO_DOLBY_VISION = MIMETYPE_VIDEO_DOLBY_VISION
+        private const val VIDEO_UNKNOWN = "video/unknown-codec"
         private const val AUDIO_AAC = MIMETYPE_AUDIO_AAC
         private const val AUDIO_OPUS = MIMETYPE_AUDIO_OPUS
     }
@@ -84,5 +95,46 @@ class DynamicRangeFormatComboRegistryTest {
     fun getRegistry_withUnsupportedProfile_returnsNull() {
         val registry = DynamicRangeFormatComboRegistry.getRegistry(DynamicRange.UNSPECIFIED)
         assertThat(registry).isNull()
+    }
+
+    @Test
+    @Config(minSdk = 34)
+    fun getDynamicRangesForVideoMime_av1_returnsHdrAndSdr() {
+        // AV1 (SDK 34+) is supported in SDR, HLG, HDR10, and HDR10+
+        val ranges = DynamicRangeFormatComboRegistry.getDynamicRangesForVideoMime(VIDEO_AV1)
+
+        assertThat(ranges).containsExactly(SDR, HLG_10_BIT, HDR10_10_BIT, HDR10_PLUS_10_BIT)
+    }
+
+    @Test
+    @Config(minSdk = 33)
+    fun getDynamicRangesForVideoMime_dolbyVision_returnsSpecificProfiles() {
+        // Dolby Vision (SDK 33+) should return both 8-bit and 10-bit profiles
+        val ranges =
+            DynamicRangeFormatComboRegistry.getDynamicRangesForVideoMime(VIDEO_DOLBY_VISION)
+
+        assertThat(ranges).containsExactly(SDR, DOLBY_VISION_8_BIT, DOLBY_VISION_10_BIT)
+    }
+
+    @Test
+    @Config(maxSdk = 23)
+    fun getDynamicRangesForVideoMime_hevc_onOldSdk_returnsEmpty() {
+        // HEVC is gated at SDK 24. On SDK 21, no registry should claim to support it.
+        val ranges = DynamicRangeFormatComboRegistry.getDynamicRangesForVideoMime(VIDEO_HEVC)
+
+        assertThat(ranges).isEmpty()
+    }
+
+    @Test
+    fun getDynamicRangesForVideoMime_vp8_returnsSdrOnly() {
+        val ranges = DynamicRangeFormatComboRegistry.getDynamicRangesForVideoMime(VIDEO_VP8)
+
+        assertThat(ranges).containsExactly(SDR)
+    }
+
+    @Test
+    fun getDynamicRangesForVideoMime_invalidMime_returnsEmpty() {
+        val ranges = DynamicRangeFormatComboRegistry.getDynamicRangesForVideoMime(VIDEO_UNKNOWN)
+        assertThat(ranges).isEmpty()
     }
 }

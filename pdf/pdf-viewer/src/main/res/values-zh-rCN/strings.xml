@@ -81,6 +81,7 @@
     <string name="form_click_toggle_instruction" msgid="7171111300244445911">"点击即可切换值。"</string>
     <string name="form_click_opens_choices_menu_instruction" msgid="5648228168212004143">"点击即可打开选项选择菜单。"</string>
     <string name="form_click_enters_text_edit_mode_instruction" msgid="2305283577544618880">"点击即可进入文本修改模式。"</string>
+    <string name="combobox_custom_option" msgid="8730230629127076731">"自定义"</string>
     <string name="form_unknown" msgid="6371515914365431330">"未知"</string>
     <string name="form_widget_type_push_button" msgid="3595388398616291441">"按钮"</string>
     <string name="form_widget_type_checkbox" msgid="5165655383070460151">"复选框"</string>

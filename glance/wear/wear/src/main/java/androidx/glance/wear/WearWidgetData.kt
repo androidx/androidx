@@ -19,6 +19,8 @@ package androidx.glance.wear
 import android.content.Context
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
+import androidx.glance.wear.core.WearWidgetParams
+import androidx.glance.wear.core.WearWidgetRawContent
 
 /** Describes how a widget is rendered on a host. */
 public interface WearWidgetData {

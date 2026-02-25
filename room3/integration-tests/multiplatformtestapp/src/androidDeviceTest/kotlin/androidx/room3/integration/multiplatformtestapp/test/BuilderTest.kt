@@ -27,7 +27,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 
-class BuilderTest : BaseBuilderTest() {
+class BuilderTest : BaseNonWebBuilderTest() {
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val file = instrumentation.targetContext.getDatabasePath("test.db")

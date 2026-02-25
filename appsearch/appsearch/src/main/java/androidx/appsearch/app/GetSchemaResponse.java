@@ -37,7 +37,6 @@ import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -761,7 +760,7 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
          * {@link #clearSchemaTypeWipeoutAccountPropertyPaths(String)}.
          *
          * @param schemaType The name of the schema type to which these property paths belong.
-         * @param accountPropertyPaths A collection of {@link PropertyPath} that point to accounts.
+         * @param accountPropertyPaths A Set of {@link PropertyPath} that point to accounts.
          * @see SetSchemaRequest.Builder#setSchemaTypeWipeoutAccountPropertyPaths
          */
         // Merged map available from getSchemaTypesWipeoutAccountPropertyPaths
@@ -771,7 +770,7 @@ public final class GetSchemaResponse extends AbstractSafeParcelable {
         @ExperimentalAppSearchApi
         public @NonNull Builder setSchemaTypeWipeoutAccountPropertyPaths(
                 @NonNull String schemaType,
-                @NonNull Collection<PropertyPath> accountPropertyPaths) {
+                @NonNull Set<PropertyPath> accountPropertyPaths) {
             Preconditions.checkNotNull(schemaType);
             Preconditions.checkNotNull(accountPropertyPaths);
             resetIfBuilt();

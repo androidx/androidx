@@ -88,6 +88,11 @@ public final class JavaScriptIsolate implements AutoCloseable {
                 Binder.restoreCallingIdentity(identity);
             }
         }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
     }
 
     @NonNull

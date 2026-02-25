@@ -31,19 +31,19 @@ class XRawTypeTest {
             Source.java(
                 "foo.bar.JavaClass",
                 """
-            package foo.bar;
-            class JavaClass<T, R> {
-            }
-            """
+                package foo.bar;
+                class JavaClass<T, R> {
+                }
+                """
                     .trimIndent(),
             )
         val kotlinSrc =
             Source.kotlin(
                 "KotlinClass.kt",
                 """
-            package foo.bar
-            class KotlinClass<T, R>
-            """
+                package foo.bar
+                class KotlinClass<T, R>
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(javaSrc, kotlinSrc)) { invocation ->

@@ -38,6 +38,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.testutils.assertModifierIsPure
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -1986,6 +1987,290 @@ class DraggableTest {
         }
 
         rule.runOnIdle { assertThat(deltas).isNonZero() }
+    }
+
+    @Test
+    fun competingNestedDrags_shouldBenefitVerticalIfEventIsMostlyVertical() {
+        var innerDrag = 0f
+        var outerDrag = 0f
+        var touchSlop by mutableFloatStateOf(5f)
+        rule.setContent {
+            WithTouchSlop(touchSlop) {
+                Box {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier =
+                            Modifier.testTag(draggableBoxTag).size(300.dp).draggable(
+                                Orientation.Vertical
+                            ) {
+                                outerDrag += it
+                            },
+                    ) {
+                        Box(
+                            modifier =
+                                Modifier.size(300.dp).draggable(Orientation.Horizontal) { delta ->
+                                    innerDrag += delta
+                                }
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.onRoot().performTouchInput {
+            down(center)
+            moveBy(Offset(0f, 100f))
+            up()
+        }
+
+        rule.runOnUiThread {
+            assertThat(outerDrag).isEqualTo(95f)
+            assertThat(innerDrag).isEqualTo(0f)
+        }
+
+        rule.onRoot().performTouchInput {
+            down(center)
+            moveBy(Offset(100f, 0f))
+            up()
+        }
+
+        rule.runOnUiThread {
+            assertThat(outerDrag).isEqualTo(95f)
+            assertThat(innerDrag).isEqualTo(95f)
+        }
+
+        outerDrag = 0f
+        innerDrag = 0f
+        touchSlop = 20f
+
+        rule.onRoot().performTouchInput {
+            down(center)
+            moveBy(Offset(5f, 5f)) // event that is at an angle
+            moveBy(Offset(10f, 0f)) // event becomes mostly horizontal
+
+            // vertical movement takes over.
+            moveBy(Offset(0f, 30f))
+            up()
+        }
+
+        rule.runOnUiThread {
+            assertThat(outerDrag).isEqualTo(15f) // 35 - 20 (touch slop)
+            assertThat(innerDrag).isEqualTo(0f)
+        }
+    }
+
+    @Test
+    fun competingNestedDrags_shouldBenefitHorizontalIfEventIsMostlyHorizontal() {
+        var innerDrag = 0f
+        var outerDrag = 0f
+        var touchSlop by mutableFloatStateOf(5f)
+        rule.setContent {
+            WithTouchSlop(touchSlop) {
+                Box {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier =
+                            Modifier.testTag(draggableBoxTag).size(300.dp).draggable(
+                                Orientation.Vertical
+                            ) {
+                                outerDrag += it
+                            },
+                    ) {
+                        Box(
+                            modifier =
+                                Modifier.size(300.dp).draggable(Orientation.Horizontal) { delta ->
+                                    innerDrag += delta
+                                }
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.onRoot().performTouchInput {
+            down(center)
+            moveBy(Offset(0f, 100f))
+            up()
+        }
+
+        rule.runOnUiThread {
+            assertThat(outerDrag).isEqualTo(95f)
+            assertThat(innerDrag).isEqualTo(0f)
+        }
+
+        rule.onRoot().performTouchInput {
+            down(center)
+            moveBy(Offset(100f, 0f))
+            up()
+        }
+
+        rule.runOnUiThread {
+            assertThat(outerDrag).isEqualTo(95f)
+            assertThat(innerDrag).isEqualTo(95f)
+        }
+
+        outerDrag = 0f
+        innerDrag = 0f
+        touchSlop = 20f
+
+        rule.onRoot().performTouchInput {
+            down(center)
+            moveBy(Offset(5f, 5f)) // event that is at an angle
+            moveBy(Offset(0f, 10f)) // event becomes mostly vertical
+
+            // horizontal movement takes over.
+            moveBy(Offset(20f, 0f))
+            up()
+        }
+
+        rule.runOnUiThread {
+            assertThat(outerDrag).isEqualTo(0f)
+            assertThat(innerDrag).isEqualTo(5f) // 25 - 20 (touch slop)
+        }
+    }
+
+    @Test
+    fun competingNestedDrags_shouldBenefitHorizontalOnlyForEventsBelowAngle() {
+        var innerDrag = 0f
+        var outerDrag = 0f
+        var touchSlop by mutableFloatStateOf(5f)
+        rule.setContent {
+            WithTouchSlop(touchSlop) {
+                Box {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier =
+                            Modifier.testTag(draggableBoxTag).size(300.dp).draggable(
+                                Orientation.Vertical
+                            ) {
+                                outerDrag += it
+                            },
+                    ) {
+                        Box(
+                            modifier =
+                                Modifier.size(300.dp).draggable(Orientation.Horizontal) { delta ->
+                                    innerDrag += delta
+                                }
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.onRoot().performTouchInput {
+            down(center)
+            moveBy(Offset(0f, 100f))
+            up()
+        }
+
+        rule.runOnUiThread {
+            assertThat(outerDrag).isEqualTo(95f)
+            assertThat(innerDrag).isEqualTo(0f)
+        }
+
+        rule.onRoot().performTouchInput {
+            down(center)
+            moveBy(Offset(100f, 0f))
+            up()
+        }
+
+        rule.runOnUiThread {
+            assertThat(outerDrag).isEqualTo(95f)
+            assertThat(innerDrag).isEqualTo(95f)
+        }
+
+        outerDrag = 0f
+        innerDrag = 0f
+        touchSlop = 20f
+
+        rule.onRoot().performTouchInput {
+            down(center)
+            moveBy(Offset(5f, 5f)) // event that is at an angle
+            moveBy(Offset(0f, 10f)) // event becomes mostly vertical
+
+            // horizontal movement takes over. At this time, both vertical and horizontal will cross
+            // the touch slop, but the horizontal event is within the threshold angle.
+            // total x = 45 and total y = 25 which yields an angle of about 30 degrees
+            moveBy(Offset(40f, 10f))
+            up()
+        }
+
+        rule.runOnUiThread {
+            assertThat(outerDrag).isEqualTo(0f)
+            assertThat(innerDrag).isEqualTo(25f) // 45 - 20 (touch slop)
+        }
+    }
+
+    @Test
+    fun competingNestedDrags_shouldBenefitVerticalOnlyForEventsAboveAngle() {
+        var innerDrag = 0f
+        var outerDrag = 0f
+        var touchSlop by mutableFloatStateOf(5f)
+        rule.setContent {
+            WithTouchSlop(touchSlop) {
+                Box {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier =
+                            Modifier.testTag(draggableBoxTag).size(300.dp).draggable(
+                                Orientation.Vertical
+                            ) {
+                                outerDrag += it
+                            },
+                    ) {
+                        Box(
+                            modifier =
+                                Modifier.size(300.dp).draggable(Orientation.Horizontal) { delta ->
+                                    innerDrag += delta
+                                }
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.onRoot().performTouchInput {
+            down(center)
+            moveBy(Offset(0f, 100f))
+            up()
+        }
+
+        rule.runOnUiThread {
+            assertThat(outerDrag).isEqualTo(95f)
+            assertThat(innerDrag).isEqualTo(0f)
+        }
+
+        rule.onRoot().performTouchInput {
+            down(center)
+            moveBy(Offset(100f, 0f))
+            up()
+        }
+
+        rule.runOnUiThread {
+            assertThat(outerDrag).isEqualTo(95f)
+            assertThat(innerDrag).isEqualTo(95f)
+        }
+
+        outerDrag = 0f
+        innerDrag = 0f
+        touchSlop = 20f
+
+        rule.onRoot().performTouchInput {
+            down(center)
+            moveBy(Offset(5f, 5f)) // event that is at an angle
+            moveBy(Offset(0f, 10f)) // event becomes mostly vertical
+
+            // horizontal movement takes over. At this time, both vertical and horizontal will cross
+            // the touch slop, but the horizontal event is outside the threshold angle.
+            // total x = 45 and total y = 35 which yields an angle of about 37 degrees
+            moveBy(Offset(40f, 20f))
+            up()
+        }
+
+        rule.runOnUiThread {
+            assertThat(outerDrag).isEqualTo(15f) // 35 - 20 (touch slop)
+            assertThat(innerDrag).isEqualTo(0f)
+        }
     }
 
     private fun setDraggableContent(

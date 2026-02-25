@@ -14,32 +14,32 @@
  * limitations under the License.
  */
 @file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@file:Suppress("RestrictedApiAndroidX")
 
 package androidx.wear.compose.remote.material3
 
 import android.annotation.SuppressLint
 import androidx.annotation.RestrictTo
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteImage as CreationRemoteImage
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clip
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.modifier.width
+import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.RemoteBitmap
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteString
-import androidx.compose.remote.creation.compose.state.rememberRemoteDpValue
+import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.unit.dp
 
 /**
  * A remote composable that displays a [RemoteBitmap] styled as an avatar.
@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.dp
  */
 @Composable
 @RemoteComposable
+@Suppress("RestrictedApiAndroidX")
 public fun RemoteAvatarImage(
     avatar: RemoteBitmap,
     contentDescription: RemoteString?,
@@ -62,15 +63,16 @@ public fun RemoteAvatarImage(
     if (shouldFallback) {
         FallbackAvatar(background = avatar, contentDescription = contentDescription, modifier)
     } else {
-        RemoteImage(
+        CreationRemoteImage(
             avatar,
             contentDescription = contentDescription,
-            contentScale = contentScale,
             modifier =
                 modifier
                     .width(ImageDefaults.avatarSize())
                     .height(ImageDefaults.avatarSize())
                     .clip(ImageDefaults.avatarShape()),
+            contentScale = contentScale,
+            alpha = DefaultAlpha.rf,
         )
     }
 }
@@ -86,6 +88,7 @@ public fun RemoteAvatarImage(
  */
 @Composable
 @RemoteComposable
+@SuppressLint("RestrictedApiAndroidX")
 public fun RemoteBackgroundImage(
     background: RemoteBitmap,
     contentDescription: RemoteString?,
@@ -100,11 +103,12 @@ public fun RemoteBackgroundImage(
     } else {
         RemoteBox(modifier = modifier) {
             val imageModifier = RemoteModifier.fillMaxSize().clip(ImageDefaults.backgroundShape())
-            RemoteImage(
+            CreationRemoteImage(
                 remoteBitmap = background,
                 contentDescription = contentDescription,
                 modifier = imageModifier,
                 contentScale = contentScale,
+                alpha = DefaultAlpha.rf,
             )
 
             if (overlayColor != null) {
@@ -116,6 +120,7 @@ public fun RemoteBackgroundImage(
 
 @Composable
 @RemoteComposable
+@SuppressLint("RestrictedApiAndroidX")
 private fun FallbackBackground(
     background: RemoteBitmap,
     contentDescription: RemoteString?,
@@ -126,11 +131,12 @@ private fun FallbackBackground(
     // TODO clipping effect.
     RemoteBox(modifier = modifier) {
         val imageModifier = RemoteModifier.fillMaxSize()
-        RemoteImage(
+        CreationRemoteImage(
             remoteBitmap = background,
             contentDescription = contentDescription,
             modifier = imageModifier,
             contentScale = contentScale,
+            alpha = DefaultAlpha.rf,
         )
 
         if (overlayColor != null) {
@@ -141,6 +147,7 @@ private fun FallbackBackground(
 
 @Composable
 @RemoteComposable
+@SuppressLint("RestrictedApiAndroidX")
 private fun FallbackAvatar(
     background: RemoteBitmap,
     contentDescription: RemoteString?,
@@ -148,11 +155,12 @@ private fun FallbackAvatar(
     contentScale: ContentScale = ContentScale.FillBounds,
 ) {
     // TODO clipping effect.
-    RemoteImage(
+    CreationRemoteImage(
         remoteBitmap = background,
         contentDescription = contentDescription,
         modifier = modifier.fillMaxSize(),
         contentScale = contentScale,
+        alpha = DefaultAlpha.rf,
     )
 }
 
@@ -161,7 +169,7 @@ private fun FallbackAvatar(
 @SuppressLint("RestrictedApiAndroidX")
 private fun BackgroundOverlay(modifier: RemoteModifier, overlayColor: RemoteColor) {
     RemoteCanvas(modifier = modifier.clip(ImageDefaults.backgroundShape())) {
-        val cornerRadius = RemoteDp(ImageDefaults.BACKGROUND_CORNER_RADIUS_DP.value.rf).toPx()
+        val cornerRadius = ImageDefaults.BACKGROUND_CORNER_RADIUS_DP.toPx()
         drawRoundRect(
             paint = RemotePaint().apply { remoteColor = overlayColor },
             cornerRadius = RemoteOffset(cornerRadius, cornerRadius),
@@ -171,25 +179,22 @@ private fun BackgroundOverlay(modifier: RemoteModifier, overlayColor: RemoteColo
 
 /** Contains default values for Image. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@SuppressLint("RestrictedApiAndroidX")
 public object ImageDefaults {
 
-    internal val AVATAR_SIZE_DP = 24.dp
-    internal val BACKGROUND_CORNER_RADIUS_DP = 26.dp
+    internal val AVATAR_SIZE_DP = 24.rdp
+    internal val BACKGROUND_CORNER_RADIUS_DP = 26.rdp
 
-    @RemoteComposable
-    @Composable
-    public fun avatarSize(): RemoteDp = rememberRemoteDpValue { AVATAR_SIZE_DP }
+    public fun avatarSize(): RemoteDp = AVATAR_SIZE_DP
 
-    @Composable public fun avatarShape(): RoundedCornerShape = RoundedCornerShape(AVATAR_SIZE_DP)
+    public fun avatarShape(): RemoteRoundedCornerShape = RemoteRoundedCornerShape(AVATAR_SIZE_DP)
 
-    @Suppress("RestrictedApiAndroidX")
     @RemoteComposable
     @Composable
     public fun backgroundOverlayColor(): RemoteColor {
         return RemoteMaterialTheme.colorScheme.background.copy(alpha = 0.6f.rf)
     }
 
-    @Composable
-    public fun backgroundShape(): RoundedCornerShape =
-        RoundedCornerShape(BACKGROUND_CORNER_RADIUS_DP)
+    public fun backgroundShape(): RemoteRoundedCornerShape =
+        RemoteRoundedCornerShape(BACKGROUND_CORNER_RADIUS_DP)
 }

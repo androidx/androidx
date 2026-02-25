@@ -15,6 +15,7 @@
  */
 
 import androidx.build.SoftwareType
+import com.android.build.api.variant.HasUnitTest
 
 plugins {
     id("AndroidXPlugin")
@@ -77,16 +78,11 @@ android {
             version = 1
         }
     }
+}
 
-    sourceSets {
-        test {
-            assets {
-                srcDirs += ["src/test/assets"]
-            }
-            resources {
-                srcDirs += ["src/test/res"]
-            }
-        }
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        (variant as HasUnitTest).unitTest.sources.resources.addStaticSourceDirectory("src/test/res")
     }
 }
 

@@ -16,9 +16,13 @@
 
 package androidx.compose.foundation.gestures
 
+import androidx.compose.foundation.ComposeFoundationFlags.isDelayPressesUsingGestureConsumptionEnabled
+import androidx.compose.foundation.ComposeFoundationFlags.isNestedDraggablesTouchConflictFixEnabled
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.GestureConnection
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.MutatorMutex
+import androidx.compose.foundation.gestureNode
 import androidx.compose.foundation.gestures.DragEvent.DragCancelled
 import androidx.compose.foundation.gestures.DragEvent.DragDelta
 import androidx.compose.foundation.gestures.DragEvent.DragStarted
@@ -26,20 +30,24 @@ import androidx.compose.foundation.gestures.DragEvent.DragStopped
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.internal.JvmDefaultWithCompatibility
+import androidx.compose.foundation.parentGestureConnection
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.ExperimentalIndirectPointerApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.input.indirect.IndirectPointerEvent
+import androidx.compose.ui.input.indirect.IndirectPointerInputChange
 import androidx.compose.ui.input.indirect.IndirectPointerInputModifierNode
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerType
+import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
@@ -48,6 +56,7 @@ import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.util.addPointerInputChange
 import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.PointerInputModifierNode
@@ -385,7 +394,8 @@ internal abstract class DragGestureNode(
     DelegatingNode(),
     PointerInputModifierNode,
     IndirectPointerInputModifierNode,
-    CompositionLocalConsumerModifierNode {
+    CompositionLocalConsumerModifierNode,
+    GestureConnection {
 
     var canDrag = canDrag
         private set
@@ -395,6 +405,8 @@ internal abstract class DragGestureNode(
 
     protected var interactionSource = interactionSource
         private set
+
+    private var gestureNode: DelegatableNode? = null
 
     // Use wrapper lambdas here to make sure that if these properties are updated while we suspend,
     // we point to the new reference when we invoke them. startDragImmediately is a lambda since we
@@ -520,6 +532,23 @@ internal abstract class DragGestureNode(
         isListeningForEvents = false
         disposeInteractionSource()
         nodeOffset = Offset.Zero
+
+        gestureNode?.let { undelegate(it) }
+        gestureNode = null
+    }
+
+    protected fun initializeGestureCoordination() {
+        if (!isDelayPressesUsingGestureConsumptionEnabled) return
+        if (gestureNode == null) {
+            gestureNode = delegate(gestureNode(this))
+        }
+    }
+
+    @OptIn(ExperimentalIndirectPointerApi::class)
+    override fun isInterested(event: IndirectPointerInputChange): Boolean {
+        // for now, if this is a down event it may become a drag so we're
+        // interested.
+        return event.changedToDownIgnoreConsumed() && enabled
     }
 
     @OptIn(ExperimentalFoundationApi::class)
@@ -529,6 +558,7 @@ internal abstract class DragGestureNode(
         bounds: IntSize,
     ) {
         isListeningForPointerInputEvents = true
+        initializeGestureCoordination()
         if (enabled) {
             // initialize current state
             if (currentDragState == null) currentDragState = awaitDownState
@@ -537,6 +567,7 @@ internal abstract class DragGestureNode(
     }
 
     override fun onIndirectPointerEvent(event: IndirectPointerEvent, pass: PointerEventPass) {
+        initializeGestureCoordination()
         if (enabled) {
             if (indirectPointerInputDragCycleDetector == null) {
                 indirectPointerInputDragCycleDetector = IndirectPointerInputDragCycleDetector(this)
@@ -547,6 +578,34 @@ internal abstract class DragGestureNode(
 
     override fun onCancelIndirectPointerInput() {
         indirectPointerInputDragCycleDetector?.resetDragDetectionState()
+    }
+
+    /**
+     * Draggable containers will be interested in the following events:
+     * 1) DOWN events. They may become a drag gesture later.
+     * 2) The touch slop trigger event if the preceding deltas form an angle of interest. The touch
+     *    slop trigger event is when, effectively, draggables will start consuming. So at this
+     *    point, we look at the collected deltas since the first down event, and we decide if we're
+     *    interested based on the angle that those deltas form. We will favor vertical drags over
+     *    horizontal drags more because UX-wise there's more freedom and uncertainty when a user
+     *    performs a vertical gesture vs. a horizontal gesture.
+     */
+    override fun isInterested(event: PointerInputChange): Boolean {
+        if (event.changedToDownIgnoreConsumed()) return enabled
+        if (!isNestedDraggablesTouchConflictFixEnabled) return false
+        if (event.changedToUpIgnoreConsumed()) return false
+
+        if (touchSlopDetector == null) {
+            touchSlopDetector = TouchSlopDetector(orientationLock)
+        }
+
+        val touchSlop = currentValueOf(LocalViewConfiguration).touchSlop
+        val positionChange = event.positionChange()
+
+        return with(requireTouchSlopDetector()) {
+            getPostSlopOffset(positionChange, touchSlop, false) != Offset.Unspecified &&
+                isDeltaAtAngleOfInterest(positionChange)
+        }
     }
 
     override fun onCancelPointerInput() {
@@ -629,6 +688,7 @@ internal abstract class DragGestureNode(
             is DragDetectionState.AwaitTouchSlop -> processAwaitTouchSlop(pointerEvent, pass, state)
             is DragDetectionState.AwaitGesturePickup ->
                 processAwaitGesturePickup(pointerEvent, pass, state)
+
             is DragDetectionState.Dragging -> processDraggingState(pointerEvent, pass, state)
         }
     }
@@ -703,6 +763,7 @@ internal abstract class DragGestureNode(
                         DragDetectionState.AwaitDown.AwaitTouchSlop.No
                     }
                 }
+
                 else -> state.awaitTouchSlop
             }
 
@@ -790,16 +851,44 @@ internal abstract class DragGestureNode(
                     // add data to the slop detector
                     val postSlopOffset =
                         requireTouchSlopDetector()
-                            .addPositions(dragEvent.position, dragEvent.previousPosition, touchSlop)
+                            .getPostSlopOffset(dragEvent.positionChangeIgnoreConsumed(), touchSlop)
 
-                    // slop was crossed, dispatch the drag start event and change to dragging state
-                    if (postSlopOffset.isSpecified) {
-                        dragEvent.consume()
-                        sendDragStart(state.initialDown!!, dragEvent, postSlopOffset)
-                        sendDragEvent(dragEvent, postSlopOffset)
-                        moveToDraggingState(dragEvent.id)
+                    /**
+                     * Here we use the [gestureNode] and [GestureConnection] APIs to make a
+                     * decision. About this gesture. At this point we have all the triggers to start
+                     * a recognizing a gesture in this current
+                     * [androidx.compose.foundation.gestures.DragGestureNode]. This is the moment
+                     * that touch slop is recognized here in this node. During this time, before we
+                     * start consuming drag events we check the interested of the parent and our
+                     * self-interest. If the parent is interested and we're not (for this specific
+                     * event), we will give the parent a chance to do something by postponing the
+                     * remaining consumption to the final pass.
+                     */
+                    if (isNestedDraggablesTouchConflictFixEnabled) {
+                        if (postSlopOffset.isSpecified) {
+                            val isSelfInterested = isInterested(dragEvent)
+                            val isParentInterested =
+                                parentGestureConnection?.isInterested(dragEvent) == true
+                            if (!isSelfInterested && isParentInterested) {
+                                state.verifyConsumptionInFinalPass = true
+                            } else {
+                                dragEvent.consume()
+                                sendDragStart(state.initialDown!!, dragEvent, postSlopOffset)
+                                sendDragEvent(dragEvent, postSlopOffset)
+                                moveToDraggingState(dragEvent.id)
+                            }
+                        } else {
+                            state.verifyConsumptionInFinalPass = true
+                        }
                     } else {
-                        state.verifyConsumptionInFinalPass = true
+                        if (postSlopOffset.isSpecified) {
+                            dragEvent.consume()
+                            sendDragStart(state.initialDown!!, dragEvent, postSlopOffset)
+                            sendDragEvent(dragEvent, postSlopOffset)
+                            moveToDraggingState(dragEvent.id)
+                        } else {
+                            state.verifyConsumptionInFinalPass = true
+                        }
                     }
                 }
             } else {
@@ -838,6 +927,11 @@ internal abstract class DragGestureNode(
                     },
                 )
             } else {
+                /**
+                 * Self and nobody consumed dragEvent. We will only get here if self didn't consume
+                 * in the main pass OR if self wasn't interested during the main pass. In this case
+                 * we remain in the awaitTouchSlop state and wait for more information (events).
+                 */
                 state.verifyConsumptionInFinalPass = false
             }
         }

@@ -35,12 +35,12 @@ class AutoMigrationProcessorTest {
             Source.java(
                 "foo.bar.MyAutoMigration",
                 """
-            package foo.bar;
-            import androidx.room3.migration.AutoMigrationSpec;
-            public class MyAutoMigration {
-                public MyAutoMigration (int x) {}
-            }
-            """
+                package foo.bar;
+                import androidx.room3.migration.AutoMigrationSpec;
+                public class MyAutoMigration {
+                    public MyAutoMigration (int x) {}
+                }
+                """
                     .trimIndent(),
             )
 
@@ -64,10 +64,10 @@ class AutoMigrationProcessorTest {
             Source.java(
                 "foo.bar.MyAutoMigration",
                 """
-            package foo.bar;
-            import androidx.room3.migration.AutoMigrationSpec;
-            public interface MyAutoMigration extends AutoMigrationSpec {}
-            """
+                package foo.bar;
+                import androidx.room3.migration.AutoMigrationSpec;
+                public interface MyAutoMigration extends AutoMigrationSpec {}
+                """
                     .trimIndent(),
             )
 
@@ -91,12 +91,12 @@ class AutoMigrationProcessorTest {
             Source.java(
                 "foo.bar.MyAutoMigrationDb",
                 """
-            package foo.bar;
-            import androidx.room3.migration.AutoMigrationSpec;
-            public class MyAutoMigrationDb {
-                class MyAutoMigration implements AutoMigrationSpec {}
-            }
-            """
+                package foo.bar;
+                import androidx.room3.migration.AutoMigrationSpec;
+                public class MyAutoMigrationDb {
+                    class MyAutoMigration implements AutoMigrationSpec {}
+                }
+                """
                     .trimIndent(),
             )
 
@@ -123,12 +123,12 @@ class AutoMigrationProcessorTest {
             Source.java(
                 "foo.bar.MyAutoMigration",
                 """
-            package foo.bar;
-            import androidx.room3.migration.AutoMigrationSpec;
-            import androidx.room3.AutoMigration;
-            import androidx.sqlite.db.SupportSQLiteDatabase;
-            public class MyAutoMigration {}
-            """
+                package foo.bar;
+                import androidx.room3.migration.AutoMigrationSpec;
+                import androidx.room3.AutoMigration;
+                import androidx.sqlite.db.SupportSQLiteDatabase;
+                public class MyAutoMigration {}
+                """
                     .trimIndent(),
             )
 

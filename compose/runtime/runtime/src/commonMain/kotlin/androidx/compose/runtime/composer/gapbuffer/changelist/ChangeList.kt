@@ -26,9 +26,10 @@ import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.MovableContentState
 import androidx.compose.runtime.MovableContentStateReference
 import androidx.compose.runtime.RecomposeScopeImpl
-import androidx.compose.runtime.RememberManager
 import androidx.compose.runtime.RememberObserverHolder
 import androidx.compose.runtime.SlotStorage
+import androidx.compose.runtime.composeRuntimeError
+import androidx.compose.runtime.composer.RememberManager
 import androidx.compose.runtime.composer.gapbuffer.GapAnchor
 import androidx.compose.runtime.composer.gapbuffer.SlotTable
 import androidx.compose.runtime.composer.gapbuffer.SlotWriter
@@ -353,3 +354,6 @@ internal class ChangeList : Changes() {
         }
     }
 }
+
+internal fun Changes.asGapBufferChangeList() =
+    this as? ChangeList ?: composeRuntimeError("Inconsistent composition")

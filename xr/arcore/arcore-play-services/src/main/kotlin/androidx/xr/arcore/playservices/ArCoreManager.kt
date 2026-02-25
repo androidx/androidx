@@ -16,12 +16,17 @@
 
 package androidx.xr.arcore.playservices
 
-import android.app.Activity
+import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.AnchorPersistenceMode
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.DepthEstimationMode
+import androidx.xr.runtime.FaceTrackingMode
+import androidx.xr.runtime.HandTrackingMode
 import androidx.xr.runtime.Log
+import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.internal.ApkCheckAvailabilityErrorException
 import androidx.xr.runtime.internal.ApkCheckAvailabilityInProgressException
 import androidx.xr.runtime.internal.ApkNotInstalledException
@@ -48,15 +53,16 @@ import kotlinx.coroutines.delay
 /**
  * Manages the lifecycle of an ARCore session.
  *
- * @property activity The [Activity] instance.
- * @property perceptionManager The [ArCorePerceptionManager] instance.
- * @property timeSource The [ArCoreTimeSource] instance.
+ * @property context The [Context] instance
+ * @property perceptionManager the [ArCorePerceptionManager] instance
+ * @property timeSource the [ArCoreTimeSource] instance
+ * @property config the current [Config] of the session
  */
 @Suppress("NotCloseable")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class ArCoreManager
 internal constructor(
-    private val activity: Activity,
+    private val context: Context,
     internal val perceptionManager: ArCorePerceptionManager,
     internal val timeSource: ArCoreTimeSource,
     private val arCoreApkInstance: ArCoreApk = ArCoreApk.getInstance(),
@@ -67,6 +73,7 @@ internal constructor(
     /**
      * The underlying [Session] instance.
      *
+     * @return the underlying [Session] instance
      * @sample androidx.xr.arcore.samples.getARCoreSession
      */
     @UnsupportedArCoreCompatApi public fun session(): Session = _session
@@ -78,8 +85,8 @@ internal constructor(
      * [ArCorePerceptionManager].
      */
     override fun create() {
-        checkARCoreSupportedAndUpToDate(activity)
-        _session = Session(activity)
+        checkARCoreSupportedAndUpToDate(context)
+        _session = Session(context)
         perceptionManager.session = _session
     }
 
@@ -113,39 +120,39 @@ internal constructor(
         }
 
         arConfig.planeFindingMode =
-            if (config.planeTracking == Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL) {
+            if (config.planeTracking == PlaneTrackingMode.HORIZONTAL_AND_VERTICAL) {
                 PlaneFindingMode.HORIZONTAL_AND_VERTICAL
             } else {
                 PlaneFindingMode.DISABLED
             }
 
-        if (config.handTracking != Config.HandTrackingMode.DISABLED) {
+        if (config.handTracking != HandTrackingMode.DISABLED) {
             throw UnsupportedOperationException()
         }
 
         arConfig.depthMode =
             when (config.depthEstimation) {
-                Config.DepthEstimationMode.SMOOTH_ONLY,
-                Config.DepthEstimationMode.SMOOTH_AND_RAW -> DepthMode.AUTOMATIC
-                Config.DepthEstimationMode.RAW_ONLY -> DepthMode.RAW_DEPTH_ONLY
+                DepthEstimationMode.SMOOTH_ONLY,
+                DepthEstimationMode.SMOOTH_AND_RAW -> DepthMode.AUTOMATIC
+                DepthEstimationMode.RAW_ONLY -> DepthMode.RAW_DEPTH_ONLY
                 else -> DepthMode.DISABLED
             }
 
         perceptionManager.setDepthEstimationMode(config.depthEstimation)
 
-        if (config.anchorPersistence != Config.AnchorPersistenceMode.DISABLED) {
+        if (config.anchorPersistence != AnchorPersistenceMode.DISABLED) {
             throw UnsupportedOperationException()
         }
 
         arConfig.augmentedFaceMode =
             when (config.faceTracking) {
-                Config.FaceTrackingMode.MESHES -> AugmentedFaceMode.MESH3D
-                Config.FaceTrackingMode.DISABLED -> AugmentedFaceMode.DISABLED
+                FaceTrackingMode.MESHES -> AugmentedFaceMode.MESH3D
+                FaceTrackingMode.DISABLED -> AugmentedFaceMode.DISABLED
                 else -> throw UnsupportedOperationException()
             }
 
         arConfig.geospatialMode =
-            if (config.geospatial == Config.GeospatialMode.VPS_AND_GPS) {
+            if (config.geospatial == androidx.xr.runtime.GeospatialMode.VPS_AND_GPS) {
                 GeospatialMode.ENABLED
             } else {
                 GeospatialMode.DISABLED
@@ -197,8 +204,8 @@ internal constructor(
     // Verify that ARCore is installed and using the current version.
     // This implementation is derived from
     // https://developers.google.com/ar/develop/java/session-config#verify_that_arcore_is_installed_and_up_to_date
-    internal fun checkARCoreSupportedAndUpToDate(activity: Activity) {
-        when (arCoreApkInstance.checkAvailability(activity)) {
+    internal fun checkARCoreSupportedAndUpToDate(context: Context) {
+        when (arCoreApkInstance.checkAvailability(context)) {
             Availability.SUPPORTED_INSTALLED -> {
                 return
             }

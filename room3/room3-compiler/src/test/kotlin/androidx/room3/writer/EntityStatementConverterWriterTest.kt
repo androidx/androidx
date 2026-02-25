@@ -33,13 +33,13 @@ class EntityStatementConverterWriterTest : BaseEntityParserTest() {
         val OUT_PREFIX =
             """
             package foo.bar
-            
+
             import androidx.room3.util.getColumnIndex
             import androidx.sqlite.SQLiteStatement
             import javax.`annotation`.processing.Generated
             import kotlin.Int
             import kotlin.Suppress
-            
+
             @Generated(value = ["androidx.room3.RoomProcessor"])
             @Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION", "REMOVAL"])
             public class MyContainerClass {

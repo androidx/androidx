@@ -29,7 +29,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withTimeout
 
 /** Establishes a connection to the projected service. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ProjectedServiceConnection(
     private val context: Context,
     private val projectedIntentAction: ProjectedIntentAction,

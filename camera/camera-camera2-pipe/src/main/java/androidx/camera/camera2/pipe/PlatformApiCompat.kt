@@ -21,6 +21,7 @@ import android.hardware.camera2.params.MultiResolutionStreamConfigurationMap
 import android.hardware.camera2.params.MultiResolutionStreamInfo
 import android.view.Surface
 import androidx.annotation.RestrictTo
+import java.util.concurrent.Executor
 
 /**
  * PlatformApiCompat is an interface intended for experimental feature integration where the
@@ -75,6 +76,7 @@ public interface PlatformApiCompat {
      */
     public fun setOnActiveOutputSurfacesListener(
         multiResolutionImageReader: MultiResolutionImageReader,
+        executor: Executor,
         listener: CameraOnActiveOutputSurfacesListener,
     ) {
         throw UnsupportedOperationException("API not supported on current platform")

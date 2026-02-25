@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -75,7 +74,7 @@ androidXMultiplatform {
             implementation(project(":datastore:datastore-preferences-proto"))
         }
 
-        nonWebCommonTest.dependsOn(commonTest)
+        create("nonWebCommonTest").dependsOn(commonTest)
 
         jvmAndAndroidTest {
             dependsOn(nonWebCommonTest)

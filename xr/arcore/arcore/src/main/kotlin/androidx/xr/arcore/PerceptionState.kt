@@ -25,21 +25,21 @@ import kotlin.time.ComparableTimeMark
  *
  * Can be obtained from [CoreState.perceptionState].
  *
- * @property timeMark the time at which the state was computed.
- * @property trackables the trackables that are currently being tracked.
- * @property leftHand the left hand, or null when not supported by the current platform.
- * @property rightHand the right hand, or null when not supported by the current platform.
- * @property arDevice the currently tracked device.
+ * @property timeMark the time at which the state was computed
+ * @property trackables the trackables that are currently being tracked
+ * @property leftHand the left hand, or null when not supported by the current platform
+ * @property rightHand the right hand, or null when not supported by the current platform
+ * @property arDevice the currently tracked device
  * @property leftRenderViewpoint the left viewpoint used for rendering, or null when not supported
- *   by the current platform.
+ *   by the current platform
  * @property rightRenderViewpoint the right viewpoint used for rendering, or null when not supported
- *   by the current platform.
+ *   by the current platform
  * @property monoRenderViewpoint the mono viewpoint used for rendering, or null when not supported
- *   by the current platform.
- * @property leftDepthMap the left depth map, or null when not supported by the current platform.
- * @property rightDepthMap the right depth map, or null when not supported by the current platform.
- * @property monoDepthMap the mono depth map, or null when not supported by the current platform.
- * @property userFace the user's face, or null when not supported by the current platform.
+ *   by the current platform
+ * @property leftDepthMap the left depth map, or null when not supported by the current platform
+ * @property rightDepthMap the right depth map, or null when not supported by the current platform
+ * @property monoDepthMap the mono depth map, or null when not supported by the current platform
+ * @property userFace the user's face, or null when not supported by the current platform
  */
 public class PerceptionState
 internal constructor(

@@ -152,6 +152,7 @@ package androidx.leanback.widget {
     method public final boolean getFadingRightEdge();
     method public final int getFadingRightEdgeLength();
     method public final int getFadingRightEdgeOffset();
+    method public int getNumRows();
     method protected void initAttributes(android.content.Context, android.util.AttributeSet?);
     method public final void setFadingLeftEdge(boolean);
     method public final void setFadingLeftEdgeLength(int);
@@ -205,6 +206,7 @@ package androidx.leanback.widget {
     ctor public VerticalGridView(android.content.Context);
     ctor public VerticalGridView(android.content.Context, android.util.AttributeSet?);
     ctor public VerticalGridView(android.content.Context, android.util.AttributeSet?, int);
+    method public int getNumColumns();
     method protected void initAttributes(android.content.Context, android.util.AttributeSet?);
     method public void setColumnWidth(int);
     method public void setNumColumns(int);

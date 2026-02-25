@@ -20,6 +20,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import android.os.Build
 import android.os.Handler
 import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
@@ -96,17 +97,25 @@ class NetworkRequestConstraintControllerTest {
         runBlocking {
             val results = mutableListOf<ConstraintsState>()
             val deferred = CompletableDeferred<Unit>()
-            val job = launch {
-                controller.track(constraints).distinctUntilChanged().take(2).collectIndexed {
-                    index,
-                    value ->
-                    results.add(value)
-                    if (index == 0) {
-                        deferred.complete(Unit)
+            // Dispatch on Unconfined to ensure callback is registered before we call the network
+            // callback hooks
+            val job =
+                launch(Dispatchers.Unconfined) {
+                    controller.track(constraints).distinctUntilChanged().take(2).collectIndexed {
+                        index,
+                        value ->
+                        results.add(value)
+                        if (index == 0) {
+                            deferred.complete(Unit)
+                        }
                     }
                 }
-            }
             withTimeout(1000) {
+                if (Build.VERSION.SDK_INT >= 29) {
+                    connManagerShadow.networkCallbacks.forEach {
+                        it.onBlockedStatusChanged(connectivityManager.activeNetwork!!, false)
+                    }
+                }
                 deferred.await()
                 connManagerShadow.networkCallbacks.forEach {
                     it.onLost(connectivityManager.activeNetwork!!)
@@ -207,6 +216,7 @@ class NetworkRequestConstraintControllerTest {
         connManagerShadow.setActiveNetworkInfo(mobileNetwork)
         connManagerShadow.networkCallbacks.forEach {
             it.onCapabilitiesChanged(connectivityManager.activeNetwork!!, capabilities)
+            it.onBlockedStatusChanged(connectivityManager.activeNetwork!!, false)
         }
 
         val results = asyncResults.awaitAll()
@@ -239,47 +249,42 @@ class NetworkRequestConstraintControllerTest {
             Constraints.Builder().setRequiredNetworkRequest(request, NetworkType.CONNECTED).build()
 
         val results = mutableListOf<ConstraintsState>()
-        val deferredMet = CompletableDeferred<Unit>()
         val deferredNotMet = CompletableDeferred<Unit>()
-        val deferredMetAgain = CompletableDeferred<Unit>()
+        val deferredMet = CompletableDeferred<Unit>()
 
-        val job = launch {
-            controller.track(constraints).distinctUntilChanged().collectIndexed { index, value ->
-                results.add(value)
-                when (index) {
-                    0 -> deferredMet.complete(Unit)
-                    1 -> deferredNotMet.complete(Unit)
-                    2 -> deferredMetAgain.complete(Unit)
+        // Dispatch on Unconfined to ensure callback is registered before we call the network
+        // callback hooks
+        val job =
+            launch(Dispatchers.Unconfined) {
+                controller.track(constraints).distinctUntilChanged().collectIndexed { index, value
+                    ->
+                    results.add(value)
+                    when (index) {
+                        0 -> deferredNotMet.complete(Unit)
+                        1 -> deferredMet.complete(Unit)
+                    }
                 }
             }
-        }
 
         withTimeout(TEST_TIMEOUT_MS) {
-            // 1. Await initial "ConstraintsMet" state
-            deferredMet.await()
-
-            // 2. Simulate network being blocked
+            // 1. Simulate network being blocked
             connManagerShadow.networkCallbacks.forEach {
                 it.onBlockedStatusChanged(connectivityManager.activeNetwork!!, true)
             }
             deferredNotMet.await()
 
-            // 3. Simulate network being unblocked
+            // 2. Simulate network being unblocked
             connManagerShadow.networkCallbacks.forEach {
                 it.onBlockedStatusChanged(connectivityManager.activeNetwork!!, false)
             }
-            deferredMetAgain.await()
+            deferredMet.await()
         }
         job.cancel()
 
         // 4. Assert the sequence of states was correct
         assertThat(results)
             .isEqualTo(
-                listOf(
-                    ConstraintsMet,
-                    ConstraintsNotMet(STOP_REASON_CONSTRAINT_CONNECTIVITY),
-                    ConstraintsMet,
-                )
+                listOf(ConstraintsNotMet(STOP_REASON_CONSTRAINT_CONNECTIVITY), ConstraintsMet)
             )
     }
 
@@ -311,20 +316,21 @@ class NetworkRequestConstraintControllerTest {
         val results1 = mutableListOf<ConstraintsState>()
         val deferredMet1 = CompletableDeferred<Unit>()
         val deferredNotMet1 = CompletableDeferred<Unit>()
-        val deferredMetAgain1 = CompletableDeferred<Unit>()
-        val job1 = launch {
-            controller.track(constraints).distinctUntilChanged().collectIndexed { index, value ->
-                results1.add(value)
-                when (index) {
-                    0 -> deferredMet1.complete(Unit)
-                    1 -> deferredNotMet1.complete(Unit)
-                    2 -> deferredMetAgain1.complete(Unit)
+        // Dispatch on Unconfined to ensure callback is registered before we call the network
+        // callback hooks
+        val job1 =
+            launch(Dispatchers.Unconfined) {
+                controller.track(constraints).distinctUntilChanged().collectIndexed { index, value
+                    ->
+                    results1.add(value)
+                    when (index) {
+                        0 -> deferredNotMet1.complete(Unit)
+                        1 -> deferredMet1.complete(Unit)
+                    }
                 }
             }
-        }
 
         withTimeout(TEST_TIMEOUT_MS) {
-            deferredMet1.await()
             connManagerShadow.networkCallbacks.forEach {
                 it.onBlockedStatusChanged(connectivityManager.activeNetwork!!, true)
             }
@@ -337,16 +343,12 @@ class NetworkRequestConstraintControllerTest {
             connManagerShadow.networkCallbacks.forEach {
                 it.onBlockedStatusChanged(connectivityManager.activeNetwork!!, false)
             }
-            deferredMetAgain1.await()
+            deferredMet1.await()
         }
         job1.cancel()
 
         val expectedSequence =
-            listOf(
-                ConstraintsMet,
-                ConstraintsNotMet(STOP_REASON_CONSTRAINT_CONNECTIVITY),
-                ConstraintsMet,
-            )
+            listOf(ConstraintsNotMet(STOP_REASON_CONSTRAINT_CONNECTIVITY), ConstraintsMet)
         assertThat(results1).isEqualTo(expectedSequence)
     }
 
@@ -381,6 +383,8 @@ class NetworkRequestConstraintControllerTest {
                 )
                 .build()
 
+        // Dispatch on Unconfined to ensure callback is registered before we call the network
+        // callback hooks
         backgroundScope.launch(Dispatchers.Unconfined) {
             controller.track(buildConstraint()).collect {}
         }
@@ -388,6 +392,7 @@ class NetworkRequestConstraintControllerTest {
         // Ensure initial capabilities are passed
         connManagerShadow.networkCallbacks.forEach {
             it.onCapabilitiesChanged(connectivityManager.activeNetwork!!, capabilities)
+            it.onBlockedStatusChanged(connectivityManager.activeNetwork!!, false)
         }
 
         val state = async(Dispatchers.IO) { controller.track(buildConstraint()).first() }

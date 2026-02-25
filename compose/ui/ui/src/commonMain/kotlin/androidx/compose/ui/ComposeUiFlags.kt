@@ -59,127 +59,94 @@ object ComposeUiFlags {
      * This enables fixes for View focus. The changes are large enough to require a flag to allow
      * disabling them.
      */
+    // TODO: b/455588830
     @field:Suppress("MutableBareField") @JvmField var isViewFocusFixEnabled: Boolean = false
 
     /**
      * This flag enables an alternate approach to fixing the issues addressed by the
      * [isViewFocusFixEnabled] flag.
      */
+    // TODO: b/455592447
     @field:Suppress("MutableBareField")
     @JvmField
     var isBypassUnfocusableComposeViewEnabled: Boolean = true
 
-    /**
-     * This flag enables a fix for b/378570682. For API >=26. We attempt to manually find the next
-     * focusable item for 1-D focus search cases when Compose does not have any focusable content.
-     */
-    @field:Suppress("MutableBareField") @JvmField var isPre26FocusFinderFixEnabled: Boolean = false
-
-    /**
-     * This flag enables a fix for b/388590015. The view system ignores an invalid prevFocusRect
-     * when requestFocus is called, so we support this behavior in Compose too.
-     */
-    @field:Suppress("MutableBareField")
-    @JvmField
-    var isIgnoreInvalidPrevFocusRectEnabled: Boolean = true
-
-    /**
-     * When an embedded view that is focused is removed from the hierarchy, it triggers a
-     * requestFocus() which tries to re-assign focus before the previous composition is complete.
-     * This flag enables a fix for this issue.
-     */
-    @Deprecated("This flag is no longer needed.")
-    @field:Suppress("MutableBareField", "unused")
-    @JvmField
-    var isRemoveFocusedViewFixEnabled: Boolean = false
-
-    /**
-     * Enable WindowInsets rulers:
-     * * `SystemBarsRulers`
-     * * `ImeRulers`
-     * * `StatusBarsRulers`
-     * * `NavigationBarsRulers`
-     * * `CaptionBarRulers`
-     * * `MandatorySystemGesturesRulers`
-     * * `TappableElementRulers`
-     * * `WaterfallRulers`
-     * * `SafeDrawingRulers`
-     * * `SafeGesturesRulers`
-     * * `SafeContentRulers`
-     */
-    // off for b/410868572
-    @field:Suppress("MutableBareField") @JvmField var areWindowInsetsRulersEnabled = true
-
     /** Enable initial focus when a focusable is added to a screen with no focusable content. */
+    // TODO: b/455601824
     @field:Suppress("MutableBareField")
     @JvmField
     var isInitialFocusOnFocusableAvailable: Boolean = false
 
     /**
-     * With this flag on, requesting focus on a non-focusable focus target will request focus for
-     * one of its children, which makes
-     * [FocusTargetModifierNode.requestFocus][androidx.compose.ui.focus.FocusTargetModifierNode.requestFocus]
-     * consistent with
-     * [FocusRequester.requestFocus][androidx.compose.ui.focus.FocusRequester.requestFocus] and
-     * [FocusRequesterModifierNode.requestFocus][androidx.compose.ui.focus.requestFocus]
+     * Enable focus restoration, by always saving focus. This flag depends on
+     * [isInitialFocusOnFocusableAvailable] also being true.
      */
-    @field:Suppress("MutableBareField")
-    @JvmField
-    var isRequestFocusOnNonFocusableFocusTargetEnabled: Boolean = true
-
-    /**
-     * With this flag on, the adaptive refresh rate (ARR) feature will be enabled. A preferred frame
-     * rate can be set on a Composable through frame rate modifier: [Modifier.preferredFrameRate]
-     */
-    @field:Suppress("MutableBareField") @JvmField var isAdaptiveRefreshRateEnabled: Boolean = true
+    // TODO: b/485962036
+    @field:Suppress("MutableBareField") @JvmField var isFocusRestorationEnabled: Boolean = false
 
     /** Flag for enabling indirect pointer event navigation gestures in Compose. */
+    // TODO: b/455601135
     @field:Suppress("MutableBareField")
     @JvmField
     var isIndirectPointerNavigationGestureDetectorEnabled: Boolean = true
 
     /** Flag enables optimized focus change dispatching logic. */
+    // TODO: b/455603009
     @field:Suppress("MutableBareField")
     @JvmField
     var isOptimizedFocusEventDispatchEnabled: Boolean = true
 
     /** This flag enables setting the shape semantics property in the graphicsLayer modifiers. */
+    // TODO: b/455600081
     @field:Suppress("MutableBareField")
     @JvmField
     var isGraphicsLayerShapeSemanticsEnabled: Boolean = true
 
     /**
-     * Enable fix to scroll target rect to the center when performing scroll capture, thus generally
-     * avoiding floating content at the top and bottom of the UI.
-     */
-    @field:Suppress("MutableBareField")
-    @JvmField
-    var isScrollCaptureCenteringEnabled: Boolean = true
-
-    /**
-     * Enable performance optimization where coordinates calculations like
-     * [androidx.compose.ui.layout.LayoutCoordinates.localToRoot] are using the cached offsets we
-     * already have in RectManager, instead of traversing the whole tree on each call.
-     */
-    @field:Suppress("MutableBareField")
-    @JvmField
-    var isRectManagerOffsetUsageFromLayoutCoordinatesEnabled: Boolean = true
-
-    /**
      * Enables a fix where [TraversableNode] traversal method [findNearestAncestor] will take into
      * consideration any delegates that might also be traversable.
      */
+    // TODO: b/485962494
     @field:Suppress("MutableBareField")
     @JvmField
     var isTraversableDelegatesFixEnabled: Boolean = true
 
     /**
-     * This flag enables support for walking up nested scrolling in response to
-     * android.R.id.accessibilityActionShowOnScreen from Accessibility.
+     * Enables a change where off-screen children of the partially visible merging nodes (e.g. a
+     * Text node of a Button) inside scrollable container are now also reported in the semantics
+     * tree for Accessibility needs.
      *
-     * Enabled is correct nested scrolling behavior and it should be enabled in all apps.
+     * Enabled is correct, and it should be enabled in all apps.
      */
+    // TODO: b/484259656
     @field:Suppress("MutableBareField")
     @JvmField
-    var isAccessibilityShowOnScreenNestedScrollingEnabled: Boolean = true
+    var isAccessibilityShouldIncludeOffscreenChildrenEnabled: Boolean = true
+
+    /**
+     * Enables support of trackpad gesture events.
+     *
+     * If enabled, [androidx.compose.ui.input.pointer.PointerEvent]s can have type of
+     * [androidx.compose.ui.input.pointer.PointerEventType.PanMove] and
+     * [androidx.compose.ui.input.pointer.PointerEventType.ScaleChange], corresponding to
+     * system-recognized gestures on a trackpad.
+     *
+     * These trackpad gestures will also generally be treated as mouse, with the exact behavior
+     * depending on platform specifics.
+     */
+    // TODO: b/475634969 remove the temporary flag
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isTrackpadGestureHandlingEnabled: Boolean = true
+
+    /**
+     * Enable the integration of [LocalUiMediaScope] at the root compose view which provides various
+     * signals for adapting the UI across different devices.
+     *
+     * This feature is experimental and is disabled by default.
+     */
+    // TODO: b/485160699 - Remove once the API goes stable
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isMediaQueryIntegrationEnabled: Boolean = false
 }

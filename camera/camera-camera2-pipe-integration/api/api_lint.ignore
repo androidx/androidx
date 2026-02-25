@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-HiddenSuperclass: androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions:
-    Public class androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions stripped of unavailable superclass androidx.camera.core.impl.ReadableConfig

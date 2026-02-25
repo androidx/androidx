@@ -18,7 +18,7 @@ package androidx.xr.projected.platform;
 
 import androidx.xr.projected.platform.ProjectedInputAction;
 
-@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX)")
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)")
 parcelable ProjectedInputEvent {
     ProjectedInputAction action;
 }

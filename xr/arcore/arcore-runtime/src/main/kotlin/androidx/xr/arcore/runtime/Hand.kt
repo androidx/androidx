@@ -23,18 +23,25 @@ import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import java.nio.FloatBuffer
 
-/** Describes a hand. */
+/**
+ * Describes a hand.
+ *
+ * @property trackingState the current [TrackingState] of the hand's data
+ * @property handJointsBuffer the [FloatBuffer] containing the pose of each joint in the hand
+ * @property handJoints a map of [HandJointType] to [Pose] representing the current pose of each
+ *   joint in the hand
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public interface Hand {
+public interface Hand : Trackable {
 
     public companion object {
         /**
          * Parses the hand joint data from the buffer.
          *
-         * @param trackingState the current [androidx.xr.runtime.TrackingState] of the hand.
-         * @param handJointsBuffer the [ByteBuffer] containing the pose of each joint in the hand.
-         * @return a map of [HandJointType] to [androidx.xr.runtime.math.Pose] representing the
-         *   current pose of each joint in the hand.
+         * @param trackingState the current [TrackingState] of the hand
+         * @param handJointsBuffer the [FloatBuffer] containing the pose of each joint in the hand
+         * @return a map of [HandJointType] to [Pose] representing the current pose of each joint in
+         *   the hand
          */
         @JvmStatic
         public fun parseHandJoint(
@@ -61,13 +68,10 @@ public interface Hand {
         }
     }
 
-    /** The current [androidx.xr.runtime.TrackingState] of the hand's data. */
-    public val trackingState: TrackingState
+    public override val trackingState: TrackingState
 
-    /** The value describing the data of the hand, including trackingState and handJoints' poses. */
     public val handJointsBuffer: FloatBuffer
 
-    /** The value describing the poses of the hand joints. */
     public val handJoints: Map<HandJointType, Pose>
         get() = parseHandJoint(trackingState, handJointsBuffer)
 }

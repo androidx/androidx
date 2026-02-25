@@ -17,10 +17,12 @@
 package androidx.build
 
 import org.gradle.api.DefaultTask
-import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.tasks.CacheableTask
-import org.gradle.api.tasks.Classpath
-import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
+import org.gradle.api.tasks.SkipWhenEmpty
 import org.gradle.api.tasks.TaskAction
 
 /**
@@ -33,17 +35,29 @@ abstract class VerifyELFRegionAlignmentTask : DefaultTask() {
         description = "Task for verifying alignment in shared libs"
     }
 
-    @get:[InputFiles Classpath]
-    abstract val files: ConfigurableFileCollection
+    @get:[InputDirectory PathSensitive(PathSensitivity.RELATIVE) SkipWhenEmpty]
+    abstract val mergedNativeLibs: DirectoryProperty
 
     @TaskAction
     fun verifyELFRegionAlignment() {
-        files.forEach {
-            val alignment = getELFAlignment(it.path)
-            check(alignment == "2**14") {
-                "Expected ELF alignment of 2**14 for file ${it.name}, got $alignment"
+        val prebuiltLibraries = listOf("libtracing_perfetto.so", "libc++_shared.so")
+        mergedNativeLibs
+            .get()
+            .asFileTree
+            .files
+            .filter { it.extension == "so" }
+            // Android 15 introduces support for 16KB page sizes:
+            // https://developer.android.com/guide/practices/page-sizes
+            // To be compatible with these devices, native libraries on arm64-v8a must be aligned to
+            // 16KB boundaries (2**14).
+            .filter { it.path.contains("arm64-v8a") }
+            .filterNot { prebuiltLibraries.contains(it.name) }
+            .forEach {
+                val alignment = getELFAlignment(it.path)
+                check(alignment == "2**14") {
+                    "Expected ELF alignment of 2**14 for file ${it.name}, got $alignment"
+                }
             }
-        }
     }
 }
 

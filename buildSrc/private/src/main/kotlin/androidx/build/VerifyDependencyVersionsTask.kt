@@ -191,6 +191,7 @@ internal fun Project.shouldVerifyConfiguration(configuration: Configuration): Bo
     if (name == "annotationProcessor") return false
     if (name == "errorprone") return false
     if (name.startsWith("lint")) return false
+    if (name == ("androidLintTool")) return false
     if (name.endsWith("LintChecksClasspath")) return false
     if (name == "metalava") return false
     if (name.startsWith("kotlinBuild")) return false

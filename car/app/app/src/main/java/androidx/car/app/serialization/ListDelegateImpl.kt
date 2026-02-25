@@ -87,5 +87,7 @@ class ListDelegateImpl<T> : ListDelegate<T> {
                 mContent.subList(startIndex, endIndex + 1)
             }
         }
+
+        override fun getInterfaceVersion(): Int = VERSION
     }
 }

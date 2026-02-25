@@ -16,7 +16,8 @@ package androidx.pdf.viewer.fragment {
     method public static final androidx.pdf.viewer.fragment.PdfViewerFragment newInstance(androidx.pdf.viewer.fragment.PdfStylingOptions pdfStylingOptions);
     method protected boolean onLinkClicked(androidx.pdf.content.ExternalLink externalLink);
     method public void onLoadDocumentError(Throwable error);
-    method public void onLoadDocumentSuccess();
+    method @Deprecated public void onLoadDocumentSuccess();
+    method public void onLoadDocumentSuccess(androidx.pdf.PdfDocument document);
     method @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public void onPdfViewCreated(androidx.pdf.view.PdfView pdfView);
     method public void onRequestImmersiveMode(boolean enterImmersive);
     method @InaccessibleFromKotlin public final void setDocumentUri(android.net.Uri?);

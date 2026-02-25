@@ -68,6 +68,8 @@ internal class IntStack {
 
     fun pop(): Int = slots[--tos]
 
+    fun popOr(default: Int) = if (tos > 0) slots[--tos] else default
+
     fun peekOr(default: Int): Int {
         val index = tos - 1
         return if (index >= 0) slots[index] else default

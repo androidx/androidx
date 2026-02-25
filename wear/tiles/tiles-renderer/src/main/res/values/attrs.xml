@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-  <attr name="anchorAngleDegrees" format="float"/>
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <attr name="anchorAngleDegrees" format="float" tools:override="true" />
 
-  <attr name="anchorPosition" format="enum">
+  <attr name="anchorPosition" format="enum" tools:override="true">
     <enum name="start" value="0" />
     <enum name="center" value="1" />
     <enum name="end" value="2" />
   </attr>
 
-  <attr name="clockwise" format="boolean"/>
-  <attr name="sweepAngleDegrees" format="float" />
-  <attr name="thickness" format="dimension" />
+  <attr name="clockwise" format="boolean" tools:override="true" />
+  <attr name="sweepAngleDegrees" format="float" tools:override="true" />
+  <attr name="thickness" format="dimension" tools:override="true" />
 
   <declare-styleable name="TextAppearance">
     <!-- Text color. -->

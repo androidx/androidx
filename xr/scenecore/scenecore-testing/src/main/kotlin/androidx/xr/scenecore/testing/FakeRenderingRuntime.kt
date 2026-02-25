@@ -523,6 +523,7 @@ public class FakeRenderingRuntime(
 
     override fun createSurfaceEntity(
         stereoMode: Int,
+        mediaBlendingMode: Int,
         pose: Pose,
         shape: SurfaceEntity.Shape,
         surfaceProtection: Int,

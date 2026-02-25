@@ -2,10 +2,10 @@
 package androidx.appfunctions.service {
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface AppFunction {
-    ctor @KotlinOnly public AppFunction(optional boolean isEnabled, optional boolean isDescribedByKdoc);
-    method @InaccessibleFromKotlin public abstract boolean isDescribedByKdoc() default false;
+    ctor @KotlinOnly public AppFunction(optional boolean isEnabled, optional boolean isDescribedByKDoc);
+    method @InaccessibleFromKotlin public abstract boolean isDescribedByKDoc() default false;
     method @InaccessibleFromKotlin public abstract boolean isEnabled() default true;
-    property public abstract boolean isDescribedByKdoc;
+    property public abstract boolean isDescribedByKDoc;
     property public abstract boolean isEnabled;
   }
 

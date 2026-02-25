@@ -116,25 +116,25 @@ internal class PerVariantConsumerExtensionManager(
             ) {
                 throw GradleException(
                     """
-            The per-variant configuration for baseline profiles is ambiguous. This happens when
-            that the same property has been defined in both a build type and a flavor.
+                    The per-variant configuration for baseline profiles is ambiguous. This happens when
+                    that the same property has been defined in both a build type and a flavor.
 
-            For example:
+                    For example:
 
-            baselineProfiles {
-                variants {
-                    free {
-                        saveInSrc = true
+                    baselineProfiles {
+                        variants {
+                            free {
+                                saveInSrc = true
+                            }
+                            release {
+                                saveInSrc = false
+                            }
+                        }
                     }
-                    release {
-                        saveInSrc = false
-                    }
-                }
-            }
 
-            In this case for `freeRelease` it's not possible to determine the exact value of the
-            property. Please specify either the build type or the flavor.
-            """
+                    In this case for `freeRelease` it's not possible to determine the exact value of the
+                    property. Please specify either the build type or the flavor.
+                    """
                         .trimIndent()
                 )
             }

@@ -168,12 +168,12 @@ package androidx.wear.compose.material3 {
     method @BytecodeOnly public float getButtonVerticalPadding-D9Ej5fM();
     method @InaccessibleFromKotlin public androidx.compose.foundation.layout.PaddingValues getButtonWithExtraLargeIconContentPadding();
     method @InaccessibleFromKotlin public androidx.compose.foundation.layout.PaddingValues getButtonWithLargeIconContentPadding();
-    method @InaccessibleFromKotlin public androidx.compose.foundation.layout.PaddingValues getCompactButtonContentPadding();
-    method @BytecodeOnly public float getCompactButtonHeight-D9Ej5fM();
-    method @BytecodeOnly public float getCompactButtonHorizontalPadding-D9Ej5fM();
-    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.shape.RoundedCornerShape getCompactButtonShape(androidx.compose.runtime.Composer?, int);
-    method @InaccessibleFromKotlin public androidx.compose.foundation.layout.PaddingValues getCompactButtonTapTargetPadding();
-    method @BytecodeOnly public float getCompactButtonVerticalPadding-D9Ej5fM();
+    method @InaccessibleFromKotlin @Deprecated public androidx.compose.foundation.layout.PaddingValues getCompactButtonContentPadding();
+    method @BytecodeOnly @Deprecated public float getCompactButtonHeight-D9Ej5fM();
+    method @BytecodeOnly @Deprecated public float getCompactButtonHorizontalPadding-D9Ej5fM();
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public androidx.compose.foundation.shape.RoundedCornerShape getCompactButtonShape(androidx.compose.runtime.Composer?, int);
+    method @InaccessibleFromKotlin @Deprecated public androidx.compose.foundation.layout.PaddingValues getCompactButtonTapTargetPadding();
+    method @BytecodeOnly @Deprecated public float getCompactButtonVerticalPadding-D9Ej5fM();
     method @InaccessibleFromKotlin public androidx.compose.foundation.layout.PaddingValues getContentPadding();
     method @InaccessibleFromKotlin public float getDisabledContainerAlpha();
     method @BytecodeOnly public float getExtraLargeIconSize-D9Ej5fM();
@@ -182,6 +182,7 @@ package androidx.wear.compose.material3 {
     method @BytecodeOnly public float getIconSize-D9Ej5fM();
     method @BytecodeOnly public float getIconSpacing-D9Ej5fM();
     method @BytecodeOnly public float getLargeIconSize-D9Ej5fM();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public float getMinimumVerticalListContentPadding(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public long getScrimGradientEndColor(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public long getScrimGradientStartColor(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.shape.RoundedCornerShape getShape(androidx.compose.runtime.Composer?, int);
@@ -200,11 +201,11 @@ package androidx.wear.compose.material3 {
     property public androidx.compose.ui.unit.Dp ButtonVerticalPadding;
     property public androidx.compose.foundation.layout.PaddingValues ButtonWithExtraLargeIconContentPadding;
     property public androidx.compose.foundation.layout.PaddingValues ButtonWithLargeIconContentPadding;
-    property public androidx.compose.foundation.layout.PaddingValues CompactButtonContentPadding;
-    property public androidx.compose.ui.unit.Dp CompactButtonHeight;
-    property public androidx.compose.ui.unit.Dp CompactButtonHorizontalPadding;
-    property public androidx.compose.foundation.layout.PaddingValues CompactButtonTapTargetPadding;
-    property public androidx.compose.ui.unit.Dp CompactButtonVerticalPadding;
+    property @Deprecated public androidx.compose.foundation.layout.PaddingValues CompactButtonContentPadding;
+    property @Deprecated public androidx.compose.ui.unit.Dp CompactButtonHeight;
+    property @Deprecated public androidx.compose.ui.unit.Dp CompactButtonHorizontalPadding;
+    property @Deprecated public androidx.compose.foundation.layout.PaddingValues CompactButtonTapTargetPadding;
+    property @Deprecated public androidx.compose.ui.unit.Dp CompactButtonVerticalPadding;
     property public androidx.compose.foundation.layout.PaddingValues ContentPadding;
     property public float DisabledContainerAlpha;
     property public androidx.compose.ui.unit.Dp ExtraLargeIconSize;
@@ -214,7 +215,8 @@ package androidx.wear.compose.material3 {
     property public androidx.compose.ui.unit.Dp IconSpacing;
     property public androidx.compose.ui.unit.Dp LargeIconSize;
     property public androidx.compose.ui.unit.Dp SmallIconSize;
-    property public androidx.compose.foundation.shape.RoundedCornerShape compactButtonShape;
+    property @Deprecated public androidx.compose.foundation.shape.RoundedCornerShape compactButtonShape;
+    property public androidx.compose.ui.unit.Dp minimumVerticalListContentPadding;
     property public androidx.compose.ui.graphics.Color scrimGradientEndColor;
     property public androidx.compose.ui.graphics.Color scrimGradientStartColor;
     property public androidx.compose.foundation.shape.RoundedCornerShape shape;
@@ -226,10 +228,12 @@ package androidx.wear.compose.material3 {
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues fullWidthPaddings(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly public float getExpansionWidth-D9Ej5fM();
     method @BytecodeOnly public float getMinWidth-D9Ej5fM();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public float getMinimumVerticalListContentPadding(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly public float getSpacing-D9Ej5fM();
     property public androidx.compose.ui.unit.Dp ExpansionWidth;
     property public androidx.compose.ui.unit.Dp MinWidth;
     property public androidx.compose.ui.unit.Dp Spacing;
+    property public androidx.compose.ui.unit.Dp minimumVerticalListContentPadding;
     field public static final androidx.wear.compose.material3.ButtonGroupDefaults INSTANCE;
   }
 
@@ -308,6 +312,7 @@ package androidx.wear.compose.material3 {
     method @InaccessibleFromKotlin public androidx.compose.foundation.layout.PaddingValues getContentPadding();
     method @BytecodeOnly public float getHeight-D9Ej5fM();
     method @BytecodeOnly public float getImageBottomPadding-D9Ej5fM();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public float getMinimumVerticalListContentPadding(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public long getScrimColor(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getShape(androidx.compose.runtime.Composer?, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.BorderStroke outlinedCardBorder(optional androidx.compose.ui.graphics.Color outlineColor, optional androidx.compose.ui.unit.Dp borderWidth);
@@ -323,6 +328,7 @@ package androidx.wear.compose.material3 {
     property public androidx.compose.foundation.layout.PaddingValues ContentPadding;
     property public androidx.compose.ui.unit.Dp Height;
     property public androidx.compose.ui.unit.Dp ImageBottomPadding;
+    property public androidx.compose.ui.unit.Dp minimumVerticalListContentPadding;
     property public androidx.compose.ui.graphics.Color scrimColor;
     property public androidx.compose.ui.graphics.Shape shape;
     field public static final androidx.wear.compose.material3.CardDefaults INSTANCE;
@@ -449,7 +455,6 @@ package androidx.wear.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable @androidx.compose.runtime.Stable public final class ColorScheme {
-    ctor public ColorScheme();
     ctor @KotlinOnly public ColorScheme(optional androidx.compose.ui.graphics.Color primary, optional androidx.compose.ui.graphics.Color primaryDim, optional androidx.compose.ui.graphics.Color primaryContainer, optional androidx.compose.ui.graphics.Color onPrimary, optional androidx.compose.ui.graphics.Color onPrimaryContainer, optional androidx.compose.ui.graphics.Color secondary, optional androidx.compose.ui.graphics.Color secondaryDim, optional androidx.compose.ui.graphics.Color secondaryContainer, optional androidx.compose.ui.graphics.Color onSecondary, optional androidx.compose.ui.graphics.Color onSecondaryContainer, optional androidx.compose.ui.graphics.Color tertiary, optional androidx.compose.ui.graphics.Color tertiaryDim, optional androidx.compose.ui.graphics.Color tertiaryContainer, optional androidx.compose.ui.graphics.Color onTertiary, optional androidx.compose.ui.graphics.Color onTertiaryContainer, optional androidx.compose.ui.graphics.Color surfaceContainerLow, optional androidx.compose.ui.graphics.Color surfaceContainer, optional androidx.compose.ui.graphics.Color surfaceContainerHigh, optional androidx.compose.ui.graphics.Color onSurface, optional androidx.compose.ui.graphics.Color onSurfaceVariant, optional androidx.compose.ui.graphics.Color outline, optional androidx.compose.ui.graphics.Color outlineVariant, optional androidx.compose.ui.graphics.Color background, optional androidx.compose.ui.graphics.Color onBackground, optional androidx.compose.ui.graphics.Color error, optional androidx.compose.ui.graphics.Color errorDim, optional androidx.compose.ui.graphics.Color errorContainer, optional androidx.compose.ui.graphics.Color onError, optional androidx.compose.ui.graphics.Color onErrorContainer);
     ctor @BytecodeOnly public ColorScheme(long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public ColorScheme(long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
@@ -521,6 +526,24 @@ package androidx.wear.compose.material3 {
     method @KotlinOnly public static androidx.compose.ui.graphics.Color contentColorFor(androidx.wear.compose.material3.ColorScheme, androidx.compose.ui.graphics.Color backgroundColor);
     method @BytecodeOnly public static long contentColorFor-4WTKRHQ(androidx.wear.compose.material3.ColorScheme, long);
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static long contentColorFor-ek8zF_U(long, androidx.compose.runtime.Composer?, int);
+  }
+
+  public final class CompactButtonDefaults {
+    method @InaccessibleFromKotlin public androidx.compose.foundation.layout.PaddingValues getContentPadding();
+    method @BytecodeOnly public float getHeight-D9Ej5fM();
+    method @BytecodeOnly public float getHorizontalPadding-D9Ej5fM();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public float getMinimumVerticalListContentPadding(androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.shape.RoundedCornerShape getShape(androidx.compose.runtime.Composer?, int);
+    method @InaccessibleFromKotlin public androidx.compose.foundation.layout.PaddingValues getTapTargetPadding();
+    method @BytecodeOnly public float getVerticalPadding-D9Ej5fM();
+    property public androidx.compose.foundation.layout.PaddingValues ContentPadding;
+    property public androidx.compose.ui.unit.Dp Height;
+    property public androidx.compose.ui.unit.Dp HorizontalPadding;
+    property public androidx.compose.foundation.layout.PaddingValues TapTargetPadding;
+    property public androidx.compose.ui.unit.Dp VerticalPadding;
+    property public androidx.compose.ui.unit.Dp minimumVerticalListContentPadding;
+    property public androidx.compose.foundation.shape.RoundedCornerShape shape;
+    field public static final androidx.wear.compose.material3.CompactButtonDefaults INSTANCE;
   }
 
   public final class ConfirmationDialogColors {
@@ -759,6 +782,7 @@ package androidx.wear.compose.material3 {
     method @BytecodeOnly public float getExtraSmallButtonSize-D9Ej5fM();
     method @BytecodeOnly public float getLargeButtonSize-D9Ej5fM();
     method @BytecodeOnly public float getLargeIconSize-D9Ej5fM();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public float getMinimumVerticalListContentPadding(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.shape.CornerBasedShape getPressedShape(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.shape.RoundedCornerShape getShape(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly public float getSmallButtonSize-D9Ej5fM();
@@ -785,6 +809,7 @@ package androidx.wear.compose.material3 {
     property public androidx.compose.ui.unit.Dp LargeIconSize;
     property public androidx.compose.ui.unit.Dp SmallButtonSize;
     property public androidx.compose.ui.unit.Dp SmallIconSize;
+    property public androidx.compose.ui.unit.Dp minimumVerticalListContentPadding;
     property public androidx.compose.foundation.shape.CornerBasedShape pressedShape;
     property public androidx.compose.foundation.shape.RoundedCornerShape shape;
     field public static final androidx.wear.compose.material3.IconButtonDefaults INSTANCE;
@@ -966,11 +991,15 @@ package androidx.wear.compose.material3 {
   public final class ListHeaderDefaults {
     method @BytecodeOnly @androidx.compose.runtime.Composable public long getContentColor(androidx.compose.runtime.Composer?, int);
     method @InaccessibleFromKotlin public androidx.compose.foundation.layout.PaddingValues getContentPadding();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public float getMinimumBottomListContentPadding(androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public float getMinimumTopListContentPadding(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public long getSubHeaderContentColor(androidx.compose.runtime.Composer?, int);
     method @InaccessibleFromKotlin public androidx.compose.foundation.layout.PaddingValues getSubHeaderContentPadding();
     property public androidx.compose.foundation.layout.PaddingValues ContentPadding;
     property public androidx.compose.foundation.layout.PaddingValues SubHeaderContentPadding;
     property public androidx.compose.ui.graphics.Color contentColor;
+    property public androidx.compose.ui.unit.Dp minimumBottomListContentPadding;
+    property public androidx.compose.ui.unit.Dp minimumTopListContentPadding;
     property public androidx.compose.ui.graphics.Color subHeaderContentColor;
     field public static final androidx.wear.compose.material3.ListHeaderDefaults INSTANCE;
   }
@@ -1350,7 +1379,6 @@ package androidx.wear.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class RippleConfiguration {
-    ctor public RippleConfiguration();
     ctor @KotlinOnly public RippleConfiguration(optional androidx.compose.ui.graphics.Color color, optional androidx.compose.material.ripple.RippleAlpha? rippleAlpha);
     ctor @BytecodeOnly public RippleConfiguration(long, androidx.compose.material.ripple.RippleAlpha!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public RippleConfiguration(long, androidx.compose.material.ripple.RippleAlpha!, kotlin.jvm.internal.DefaultConstructorMarker!);
@@ -1935,6 +1963,7 @@ package androidx.wear.compose.material3 {
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.ui.text.TextStyle getDefaultButtonTextStyle(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly public float getLargeButtonSize-D9Ej5fM();
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.ui.text.TextStyle getLargeButtonTextStyle(androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public float getMinimumVerticalListContentPadding(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.shape.CornerBasedShape getPressedShape(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.shape.RoundedCornerShape getShape(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly public float getSmallButtonSize-D9Ej5fM();
@@ -1956,6 +1985,7 @@ package androidx.wear.compose.material3 {
     property public androidx.compose.ui.unit.Dp SmallButtonSize;
     property public androidx.compose.ui.text.TextStyle defaultButtonTextStyle;
     property public androidx.compose.ui.text.TextStyle largeButtonTextStyle;
+    property public androidx.compose.ui.unit.Dp minimumVerticalListContentPadding;
     property public androidx.compose.foundation.shape.CornerBasedShape pressedShape;
     property public androidx.compose.foundation.shape.RoundedCornerShape shape;
     property public androidx.compose.ui.text.TextStyle smallButtonTextStyle;
@@ -1997,6 +2027,14 @@ package androidx.wear.compose.material3 {
     property public androidx.compose.ui.text.style.TextOverflow Overflow;
     property public androidx.compose.ui.text.style.TextAlign? TextAlign;
     field public static final androidx.wear.compose.material3.TextConfigurationDefaults INSTANCE;
+  }
+
+  public final class TextDefaults {
+    method @BytecodeOnly @androidx.compose.runtime.Composable public float getMinimumBottomListContentPadding(androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public float getMinimumTopListContentPadding(androidx.compose.runtime.Composer?, int);
+    property public androidx.compose.ui.unit.Dp minimumBottomListContentPadding;
+    property public androidx.compose.ui.unit.Dp minimumTopListContentPadding;
+    field public static final androidx.wear.compose.material3.TextDefaults INSTANCE;
   }
 
   public final class TextKt {
@@ -2262,33 +2300,6 @@ package androidx.wear.compose.material3 {
 
 package androidx.wear.compose.material3.lazy {
 
-  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class ResponsiveItemType {
-    method @BytecodeOnly public static androidx.wear.compose.material3.lazy.ResponsiveItemType! box-impl(int);
-    method @BytecodeOnly public int unbox-impl();
-    field public static final androidx.wear.compose.material3.lazy.ResponsiveItemType.Companion Companion;
-  }
-
-  public static final class ResponsiveItemType.Companion {
-    method @BytecodeOnly public int getButton-maknOfc();
-    method @BytecodeOnly public int getButtonGroup-maknOfc();
-    method @BytecodeOnly public int getCard-maknOfc();
-    method @BytecodeOnly public int getCompactButton-maknOfc();
-    method @BytecodeOnly public int getDefault-maknOfc();
-    method @BytecodeOnly public int getIconButton-maknOfc();
-    method @BytecodeOnly public int getListHeader-maknOfc();
-    method @BytecodeOnly public int getText-maknOfc();
-    method @BytecodeOnly public int getTextButton-maknOfc();
-    property public androidx.wear.compose.material3.lazy.ResponsiveItemType Button;
-    property public androidx.wear.compose.material3.lazy.ResponsiveItemType ButtonGroup;
-    property public androidx.wear.compose.material3.lazy.ResponsiveItemType Card;
-    property public androidx.wear.compose.material3.lazy.ResponsiveItemType CompactButton;
-    property public androidx.wear.compose.material3.lazy.ResponsiveItemType Default;
-    property public androidx.wear.compose.material3.lazy.ResponsiveItemType IconButton;
-    property public androidx.wear.compose.material3.lazy.ResponsiveItemType ListHeader;
-    property public androidx.wear.compose.material3.lazy.ResponsiveItemType Text;
-    property public androidx.wear.compose.material3.lazy.ResponsiveItemType TextButton;
-  }
-
   public sealed nonexhaustive interface ResponsiveTransformationSpec extends androidx.wear.compose.material3.lazy.TransformationSpec {
     field public static final androidx.wear.compose.material3.lazy.ResponsiveTransformationSpec.Companion Companion;
   }
@@ -2315,29 +2326,6 @@ package androidx.wear.compose.material3.lazy {
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.wear.compose.material3.lazy.TransformationSpec rememberTransformationSpec(androidx.compose.runtime.Composer?, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.wear.compose.material3.lazy.TransformationSpec rememberTransformationSpec(androidx.wear.compose.material3.lazy.ResponsiveTransformationSpec... specs);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.wear.compose.material3.lazy.TransformationSpec rememberTransformationSpec(androidx.wear.compose.material3.lazy.ResponsiveTransformationSpec![], androidx.compose.runtime.Composer?, int);
-  }
-
-  public final class ResponsiveTransformingLazyColumnDslKt {
-    method public static inline <T> void items(androidx.wear.compose.material3.lazy.ResponsiveTransformingLazyColumnScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,? extends java.lang.Object?> contentType, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,androidx.wear.compose.material3.lazy.ResponsiveItemType> itemType, kotlin.jvm.functions.Function2<? super androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope,? super T,kotlin.Unit> itemContent);
-    method @BytecodeOnly public static <T> void items(androidx.wear.compose.material3.lazy.ResponsiveTransformingLazyColumnScope, java.util.List<? extends T!>, kotlin.jvm.functions.Function2<? super java.lang.Integer!,? super T!,? extends java.lang.Object!>?, kotlin.jvm.functions.Function2<? super java.lang.Integer!,? super T!,? extends java.lang.Object!>, kotlin.jvm.functions.Function2<? super java.lang.Integer!,? super T!,androidx.wear.compose.material3.lazy.ResponsiveItemType!>, kotlin.jvm.functions.Function4<? super androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope!,? super T!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
-    method @BytecodeOnly public static void items$default(androidx.wear.compose.material3.lazy.ResponsiveTransformingLazyColumnScope!, java.util.List!, kotlin.jvm.functions.Function2!, kotlin.jvm.functions.Function2!, kotlin.jvm.functions.Function2!, kotlin.jvm.functions.Function4!, int, Object!);
-    method public static inline <T> void itemsIndexed(androidx.wear.compose.material3.lazy.ResponsiveTransformingLazyColumnScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,? extends java.lang.Object?> contentType, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,androidx.wear.compose.material3.lazy.ResponsiveItemType> itemType, kotlin.jvm.functions.Function3<? super androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
-    method @BytecodeOnly public static <T> void itemsIndexed(androidx.wear.compose.material3.lazy.ResponsiveTransformingLazyColumnScope, java.util.List<? extends T!>, kotlin.jvm.functions.Function2<? super java.lang.Integer!,? super T!,? extends java.lang.Object!>?, kotlin.jvm.functions.Function2<? super java.lang.Integer!,? super T!,? extends java.lang.Object!>, kotlin.jvm.functions.Function2<? super java.lang.Integer!,? super T!,androidx.wear.compose.material3.lazy.ResponsiveItemType!>, kotlin.jvm.functions.Function5<? super androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope!,? super java.lang.Integer!,? super T!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
-    method @BytecodeOnly public static void itemsIndexed$default(androidx.wear.compose.material3.lazy.ResponsiveTransformingLazyColumnScope!, java.util.List!, kotlin.jvm.functions.Function2!, kotlin.jvm.functions.Function2!, kotlin.jvm.functions.Function2!, kotlin.jvm.functions.Function5!, int, Object!);
-  }
-
-  public final class ResponsiveTransformingLazyColumnKt {
-    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public static void ResponsiveTransformingLazyColumn(androidx.compose.ui.Modifier?, androidx.wear.compose.foundation.lazy.TransformingLazyColumnState?, androidx.compose.foundation.layout.PaddingValues?, boolean, androidx.compose.foundation.layout.Arrangement.Vertical?, androidx.compose.ui.Alignment.Horizontal?, androidx.compose.foundation.gestures.FlingBehavior?, boolean, androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior?, androidx.compose.foundation.OverscrollEffect?, kotlin.jvm.functions.Function1<? super androidx.wear.compose.material3.lazy.ResponsiveTransformingLazyColumnScope!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public static void ResponsiveTransformingLazyColumn(optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.foundation.lazy.TransformingLazyColumnState state, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional boolean reverseLayout, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, optional androidx.compose.foundation.gestures.FlingBehavior flingBehavior, optional boolean userScrollEnabled, optional androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior? rotaryScrollableBehavior, optional androidx.compose.foundation.OverscrollEffect? overscrollEffect, kotlin.jvm.functions.Function1<androidx.wear.compose.material3.lazy.ResponsiveTransformingLazyColumnScope,kotlin.Unit> content);
-  }
-
-  public sealed nonexhaustive interface ResponsiveTransformingLazyColumnScope {
-    method @KotlinOnly public void item(optional Object? key, optional Object? contentType, optional androidx.wear.compose.material3.lazy.ResponsiveItemType itemType, kotlin.jvm.functions.Function1<androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope,kotlin.Unit> content);
-    method @BytecodeOnly public void item-NyuT0_4(Object?, Object?, int, kotlin.jvm.functions.Function3<? super androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
-    method @BytecodeOnly public static void item-NyuT0_4$default(androidx.wear.compose.material3.lazy.ResponsiveTransformingLazyColumnScope!, Object!, Object!, int, kotlin.jvm.functions.Function3!, int, Object!);
-    method public void items(int count, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,?>? key, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends java.lang.Object?> contentType, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,androidx.wear.compose.material3.lazy.ResponsiveItemType> itemType, kotlin.jvm.functions.Function2<? super androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope,? super java.lang.Integer,kotlin.Unit> content);
-    method @BytecodeOnly public void items(int, kotlin.jvm.functions.Function1<? super java.lang.Integer!,? extends java.lang.Object!>?, kotlin.jvm.functions.Function1<? super java.lang.Integer!,? extends java.lang.Object!>, kotlin.jvm.functions.Function1<? super java.lang.Integer!,androidx.wear.compose.material3.lazy.ResponsiveItemType!>, kotlin.jvm.functions.Function4<? super androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope!,? super java.lang.Integer!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
-    method @BytecodeOnly public static void items$default(androidx.wear.compose.material3.lazy.ResponsiveTransformingLazyColumnScope!, int, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function4!, int, Object!);
   }
 
   public interface TransformationSpec {

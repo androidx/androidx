@@ -42,6 +42,7 @@ import androidx.credentials.playservices.CredentialProviderPlayServicesImpl
 import androidx.credentials.playservices.controllers.CredentialProviderBaseController
 import androidx.credentials.playservices.controllers.CredentialProviderController
 import androidx.credentials.playservices.controllers.identityauth.HiddenActivity
+import androidx.credentials.playservices.controllers.identityauth.createpublickeycredential.CredentialProviderCreatePublicKeyCredentialController
 import androidx.credentials.provider.PendingIntentHandler
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.CommonStatusCodes
@@ -168,9 +169,15 @@ internal class CreatePublicKeyCredentialController(private val context: Context)
                 }
             }
             .addOnFailureListener { e ->
-                cancelOrCallbackExceptionOrResult(cancellationSignal) {
-                    val exception = fromGmsException(e)
-                    executor.execute { callback.onError(exception) }
+                if (!request.isConditional) {
+                    Log.w(TAG, "Pre-u credman PK create flow failed $e; retrying with gis flow")
+                    CredentialProviderCreatePublicKeyCredentialController.getInstance(context)
+                        .invokePlayServices(request, callback, executor, cancellationSignal)
+                } else {
+                    cancelOrCallbackExceptionOrResult(cancellationSignal) {
+                        val exception = fromGmsException(e)
+                        executor.execute { callback.onError(exception) }
+                    }
                 }
             }
     }

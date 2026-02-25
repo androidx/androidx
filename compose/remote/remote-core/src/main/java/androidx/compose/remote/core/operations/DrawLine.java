@@ -72,6 +72,7 @@ public class DrawLine extends DrawBase4 implements SerializableToString {
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("draw_line")
                 .description("Draw a line segment")
                 .field(
                         DocumentedOperation.FLOAT,

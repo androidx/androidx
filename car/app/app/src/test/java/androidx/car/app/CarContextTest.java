@@ -130,6 +130,11 @@ public class CarContextTest {
             public Bundleable openMicrophone(Bundleable openMicrophoneRequest) {
                 return null;
             }
+
+            @Override
+            public int getInterfaceVersion() {
+                return super.VERSION;
+            }
         }.asBinder());
 
         TestStartCarAppStub startCarAppStub = new TestStartCarAppStub(mMockStartCarApp);
@@ -386,6 +391,11 @@ public class CarContextTest {
         public void startCarApp(Intent startCarAppIntent) throws RemoteException {
             mMockableStub.startCarApp(startCarAppIntent);
         }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
     }
 
     @Test
@@ -465,6 +475,18 @@ public class CarContextTest {
         mLifecycleOwner.mRegistry.handleLifecycleEvent(Event.ON_DESTROY);
 
         assertThat(hostDispatcher.getHost(CarContext.APP_SERVICE)).isNull();
+    }
+
+    @Test
+    public void lifecycleDestroyed_releasesVirtualDisplay() {
+        mLifecycleOwner.mRegistry.handleLifecycleEvent(Event.ON_CREATE);
+
+        mLifecycleOwner.mRegistry.handleLifecycleEvent(Event.ON_DESTROY);
+
+        // The only display should be the built-in display with no extra virtual display.
+        Context applicationContext = mCarContext.getApplicationContext();
+        DisplayManager displayManager = applicationContext.getSystemService(DisplayManager.class);
+        assertThat(displayManager.getDisplays()).hasLength(1);
     }
 
     @Test

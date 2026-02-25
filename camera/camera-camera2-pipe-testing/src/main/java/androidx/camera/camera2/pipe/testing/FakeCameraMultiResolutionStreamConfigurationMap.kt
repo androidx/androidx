@@ -41,6 +41,10 @@ public class FakeCameraMultiResolutionStreamConfigurationMap(
     override fun getInputInfo(format: StreamFormat): List<MultiResolutionStreamInfo> =
         inputMultiResStreamFormatsByFormat[format] ?: emptyList()
 
+    override fun isConcurrentReadersSupported(format: StreamFormat): Boolean {
+        TODO("Not yet implemented")
+    }
+
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> unwrapAs(type: KClass<T>): T? {
         return when (type) {

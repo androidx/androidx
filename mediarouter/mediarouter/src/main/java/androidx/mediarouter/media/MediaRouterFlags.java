@@ -24,6 +24,7 @@ import androidx.annotation.RestrictTo;
 public class MediaRouterFlags {
     static final String NAMESPACE = "com.android.media.flags";
     static final String ENABLE_ROUTE_VISIBILITY_CONTROL_API = "enable_route_visibility_control_api";
+    static final String ENABLE_SUGGESTED_DEVICE_API = "enable_suggested_device_api";
 
     private MediaRouterFlags() {}
 }

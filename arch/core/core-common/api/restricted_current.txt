@@ -1,28 +1,28 @@
 // Signature format: 4.0
 package androidx.arch.core.internal {
 
-  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FastSafeIterableMap<K, V> extends androidx.arch.core.internal.SafeIterableMap<K!,V!> {
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FastSafeIterableMap<K, V> extends androidx.arch.core.internal.SafeIterableMap<K,V> {
     ctor @Deprecated public FastSafeIterableMap();
-    method @Deprecated public java.util.Map.Entry<K!,V!>? ceil(K!);
-    method @Deprecated public boolean contains(K!);
+    method @Deprecated public java.util.Map.Entry<K,V>? ceil(K);
+    method @Deprecated public boolean contains(K);
   }
 
-  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SafeIterableMap<K, V> implements java.lang.Iterable<java.util.Map.Entry<K!,V!>!> {
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SafeIterableMap<K, V> implements java.lang.Iterable<java.util.Map.Entry<K,V>!> {
     ctor @Deprecated public SafeIterableMap();
-    method @Deprecated public java.util.Iterator<java.util.Map.Entry<K!,V!>!> descendingIterator();
-    method @Deprecated public java.util.Map.Entry<K!,V!>? eldest();
-    method @Deprecated protected androidx.arch.core.internal.SafeIterableMap.Entry<K!,V!>? get(K!);
-    method @Deprecated public java.util.Iterator<java.util.Map.Entry<K!,V!>!> iterator();
+    method @Deprecated public java.util.Iterator<java.util.Map.Entry<K,V>!> descendingIterator();
+    method @Deprecated public java.util.Map.Entry<K,V>? eldest();
+    method @Deprecated protected androidx.arch.core.internal.SafeIterableMap.Entry<K,V>? get(K);
+    method @Deprecated public java.util.Iterator<java.util.Map.Entry<K,V>!> iterator();
     method @Deprecated public androidx.arch.core.internal.SafeIterableMap.IteratorWithAdditions iteratorWithAdditions();
-    method @Deprecated public java.util.Map.Entry<K!,V!>? newest();
-    method @Deprecated public V! putIfAbsent(K, V);
-    method @Deprecated public V! remove(K);
+    method @Deprecated public java.util.Map.Entry<K,V>? newest();
+    method @Deprecated public V putIfAbsent(K, V);
+    method @Deprecated public V remove(K);
     method @Deprecated public int size();
   }
 
-  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SafeIterableMap.IteratorWithAdditions extends androidx.arch.core.internal.SafeIterableMap.SupportRemove<K!,V!> implements java.util.Iterator<java.util.Map.Entry<K!,V!>!> {
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SafeIterableMap.IteratorWithAdditions extends androidx.arch.core.internal.SafeIterableMap.SupportRemove<K,V> implements java.util.Iterator<java.util.Map.Entry<K,V>!> {
     method @Deprecated public boolean hasNext();
-    method @Deprecated public java.util.Map.Entry<K!,V!>! next();
+    method @Deprecated public java.util.Map.Entry<K,V>! next();
   }
 
   @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract static class SafeIterableMap.SupportRemove<K, V> {
@@ -34,7 +34,7 @@ package androidx.arch.core.internal {
 package androidx.arch.core.util {
 
   public interface Function<I, O> {
-    method public O! apply(I!);
+    method public O apply(I);
   }
 
 }

@@ -22,6 +22,7 @@ import android.content.Context
 import android.hardware.biometrics.BiometricManager
 import android.os.Build
 import androidx.biometric.BiometricPrompt
+import androidx.biometric.internal.data.CanceledFrom
 import androidx.biometric.internal.data.FakeAuthenticationStateRepository
 import androidx.biometric.internal.data.FakePromptConfigRepository
 import androidx.biometric.internal.viewmodel.AuthenticationViewModel
@@ -123,6 +124,18 @@ class AuthenticationHandlerFingerprintManagerTest {
     fun onAuthenticationError_canceledFromClient_sendsErrorToClient() {
         authenticationHandler.authenticate(getPromptInfo(), null)
         viewModel.canceledFrom = CanceledFrom.CLIENT
+
+        viewModel.setAuthenticationError(
+            BiometricErrorData(BiometricPrompt.ERROR_CANCELED, "Canceled")
+        )
+
+        assertThat(errorCode).isEqualTo(BiometricPrompt.ERROR_CANCELED)
+    }
+
+    @Test
+    fun onAuthenticationError_canceledFromInternal_sendsErrorToClient() {
+        authenticationHandler.authenticate(getPromptInfo(), null)
+        viewModel.canceledFrom = CanceledFrom.INTERNAL
 
         viewModel.setAuthenticationError(
             BiometricErrorData(BiometricPrompt.ERROR_CANCELED, "Canceled")

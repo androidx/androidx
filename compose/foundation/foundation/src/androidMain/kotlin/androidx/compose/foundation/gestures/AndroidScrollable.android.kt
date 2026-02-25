@@ -53,9 +53,16 @@ internal class AndroidConfig(val viewConfiguration: android.view.ViewConfigurati
     override fun Density.calculateMouseWheelScroll(event: PointerEvent, bounds: IntSize): Offset {
         val verticalScrollFactor = -getVerticalScrollFactor()
         val horizontalScrollFactor = -getHorizontalScrollFactor()
-        return event.changes
-            .fastFold(Offset.Zero) { acc, c -> acc + c.scrollDelta }
-            .let { Offset(it.x * horizontalScrollFactor, it.y * verticalScrollFactor) }
+
+        // Mouse wheel scrolling can be accumulated from two sources: the mouse wheel scroll
+        // in scrollDelta, and the gesturePanOffset. Combine them to get the final scroll
+        // amount.
+        val accumulatedScrollDelta =
+            event.changes
+                .fastFold(Offset.Zero) { acc, c -> acc + c.scrollDelta }
+                .let { Offset(it.x * horizontalScrollFactor, it.y * verticalScrollFactor) }
+
+        return accumulatedScrollDelta
     }
 }
 

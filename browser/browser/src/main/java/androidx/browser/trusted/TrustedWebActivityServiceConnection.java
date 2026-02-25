@@ -316,6 +316,11 @@ public final class TrustedWebActivityServiceConnection {
                     throws RemoteException {
                 callback.onExtraCallback(callbackName, args);
             }
+
+            @Override
+            public int getInterfaceVersion() {
+                return super.VERSION;
+            }
         };
     }
 }

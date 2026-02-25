@@ -21,10 +21,11 @@ import android.os.Build
 import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
+import androidx.test.filters.SdkSuppress
 import androidx.xr.arcore.RenderViewpoint
-import androidx.xr.arcore.testing.FakePerceptionRuntimeFactory
 import androidx.xr.runtime.Config
-import androidx.xr.runtime.Config.PlaneTrackingMode
+import androidx.xr.runtime.DeviceTrackingMode
+import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.internal.LifecycleManager
@@ -40,6 +41,7 @@ import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.runtime.SurfaceEntity as RtSurfaceEntity
 import androidx.xr.scenecore.testing.FakeActivityPanelEntity
 import androidx.xr.scenecore.testing.FakeAnchorEntity
+import androidx.xr.scenecore.testing.FakeGltfAnimationFeature
 import androidx.xr.scenecore.testing.FakeGltfEntity
 import androidx.xr.scenecore.testing.FakeGltfModelResource
 import androidx.xr.scenecore.testing.FakePanelEntity
@@ -57,13 +59,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.shadows.ShadowLooper
 
 // TODO: b/329902726 - Add a fake runtime and verify CPM integration.
 // TODO: b/369199417 - Update EntityTest once createGltfResourceAsync is default.
 @RunWith(RobolectricTestRunner::class)
 @org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class EntityTest {
-    private val mFakePerceptionRuntimeFactory = FakePerceptionRuntimeFactory()
     private val activity =
         Robolectric.buildActivity(ComponentActivity::class.java).create().start().get()
     private lateinit var sceneRuntime: SceneRuntime
@@ -134,7 +136,7 @@ class EntityTest {
         session.configure(
             Config(
                 planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                deviceTracking = Config.DeviceTrackingMode.LAST_KNOWN,
+                deviceTracking = DeviceTrackingMode.LAST_KNOWN,
             )
         )
         renderViewpoint = RenderViewpoint.left(session)!!
@@ -719,11 +721,11 @@ class EntityTest {
     }
 
     @Test
-    fun groupEntity_canGetActivitySpacePose() {
+    fun groupEntity_canGetPoseInActivitySpace() {
         val entity = GroupEntity.create(session, "test")
         val pose = Pose.Identity
 
-        assertThat(entity.activitySpacePose).isEqualTo(pose)
+        assertThat(entity.poseInActivitySpace).isEqualTo(pose)
     }
 
     @Test
@@ -1043,8 +1045,7 @@ class EntityTest {
     }
 
     @Test
-    @OptIn(ExperimentalPanelCoordinateApi::class)
-    fun transformPixelCoordinatesToPose_callsRuntime() {
+    fun transformPixelCoordinatesToLocalPosition_callsRuntime() {
         val input = Vector2(100f, 100f)
 
         var sizeInPixels = (panelEntity.rtEntity as FakePanelEntity).sizeInPixels
@@ -1054,10 +1055,10 @@ class EntityTest {
         var coordinates = Vector2(u * 2 - 1, (1 - v) * 2 - 1)
         var xInLocal3DSpace = coordinates.x * size.width / 2f
         var yInLocal3DSpace = coordinates.y * size.height / 2f
-        val expectedPose = Pose(Vector3(xInLocal3DSpace, yInLocal3DSpace, 0f))
-        val pose = panelEntity.transformPixelCoordinatesToPose(input)
+        val expectedPosition = Vector3(xInLocal3DSpace, yInLocal3DSpace, 0f)
+        val position = panelEntity.transformPixelCoordinatesToLocalPosition(input)
 
-        assertThat(pose).isEqualTo(expectedPose)
+        assertThat(position).isEqualTo(expectedPosition)
 
         val input2 = Vector2(200f, 200f)
 
@@ -1068,34 +1069,33 @@ class EntityTest {
         coordinates = Vector2(u * 2 - 1, (1 - v) * 2 - 1)
         xInLocal3DSpace = coordinates.x * size.width / 2f
         yInLocal3DSpace = coordinates.y * size.height / 2f
-        val expectedPose2 = Pose(Vector3(xInLocal3DSpace, yInLocal3DSpace, 0f))
-        val pose2 = activityPanelEntity.transformPixelCoordinatesToPose(input2)
+        val expectedPosition2 = Vector3(xInLocal3DSpace, yInLocal3DSpace, 0f)
+        val position2 = activityPanelEntity.transformPixelCoordinatesToLocalPosition(input2)
 
-        assertThat(pose2).isEqualTo(expectedPose2)
+        assertThat(position2).isEqualTo(expectedPosition2)
     }
 
     @Test
-    @OptIn(ExperimentalPanelCoordinateApi::class)
-    fun transformNormalizedCoordinatesToPose_callsRuntime() {
+    fun transformNormalizedCoordinatesToLocalPosition_callsRuntime() {
         val input = Vector2(1f, 1f)
 
         var size = (panelEntity.rtEntity as FakePanelEntity).size
         var xInLocal3DSpace = input.x * size.width / 2f
         var yInLocal3DSpace = input.y * size.height / 2f
-        val expectedPose = Pose(Vector3(xInLocal3DSpace, yInLocal3DSpace, 0f))
-        val pose = panelEntity.transformNormalizedCoordinatesToPose(input)
+        val expectedPosition = Vector3(xInLocal3DSpace, yInLocal3DSpace, 0f)
+        val position = panelEntity.transformNormalizedCoordinatesToLocalPosition(input)
 
-        assertThat(pose).isEqualTo(expectedPose)
+        assertThat(position).isEqualTo(expectedPosition)
 
         val input2 = Vector2(2f, 2f)
 
         size = (activityPanelEntity.rtEntity as FakeActivityPanelEntity).size
         xInLocal3DSpace = input2.x * size.width / 2f
         yInLocal3DSpace = input2.y * size.height / 2f
-        val expectedPose2 = Pose(Vector3(xInLocal3DSpace, yInLocal3DSpace, 0f))
-        val pose2 = activityPanelEntity.transformNormalizedCoordinatesToPose(input2)
+        val expectedPosition2 = Vector3(xInLocal3DSpace, yInLocal3DSpace, 0f)
+        val position2 = activityPanelEntity.transformNormalizedCoordinatesToLocalPosition(input2)
 
-        assertThat(pose2).isEqualTo(expectedPose2)
+        assertThat(position2).isEqualTo(expectedPosition2)
     }
 
     @Test
@@ -1296,5 +1296,212 @@ class EntityTest {
         assertThat(activityPanelEntity.isDisposed).isTrue()
         assertThat(gltfModelEntity.isDisposed).isTrue()
         assertThat(activitySpace.isDisposed).isTrue()
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun gltfModelEntity_getAnimations_returnsAnimations() {
+        val fakeGltfEntity = gltfModelEntity.rtEntity as FakeGltfEntity
+        val animation1 = FakeGltfAnimationFeature(animationName = "anim1")
+        val animation2 = FakeGltfAnimationFeature(animationName = "anim2")
+        fakeGltfEntity.addAnimation(animation1)
+        fakeGltfEntity.addAnimation(animation2)
+
+        val animations = gltfModelEntity.animations
+
+        assertThat(animations).hasSize(2)
+        assertThat(animations[0].name).isEqualTo("anim1")
+        assertThat(animations[1].name).isEqualTo("anim2")
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun gltfModelEntity_startAnimation_startsAnimation() {
+        val fakeGltfEntity = gltfModelEntity.rtEntity as FakeGltfEntity
+        val animation = FakeGltfAnimationFeature(animationName = "anim1")
+        fakeGltfEntity.addAnimation(animation)
+        val animations = gltfModelEntity.animations
+        val gltfAnimation = animations[0]
+
+        gltfAnimation.start()
+
+        assertThat(gltfAnimation.animationState).isEqualTo(GltfAnimation.AnimationState.PLAYING)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun gltfModelEntity_startAnimation_withOptions_startsAnimationWithOptions() {
+        val fakeGltfEntity = gltfModelEntity.rtEntity as FakeGltfEntity
+        val animation = FakeGltfAnimationFeature(animationName = "anim1")
+        fakeGltfEntity.addAnimation(animation)
+        val animations = gltfModelEntity.animations
+        val gltfAnimation = animations[0]
+
+        gltfAnimation.start(
+            GltfAnimationStartOptions(
+                shouldLoop = true,
+                speed = 2.0f,
+                seekStartTime = 0.5.seconds.toJavaDuration(),
+            )
+        )
+
+        assertThat(animation.isLooping).isTrue()
+        assertThat(animation.speed).isEqualTo(2.0f)
+        assertThat(animation.seekStartTimeSeconds).isEqualTo(0.5f)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun gltfAnimation_startAnimation_negativeSeekTime_throwsException() {
+        val fakeGltfEntity = gltfModelEntity.rtEntity as FakeGltfEntity
+        val animation = FakeGltfAnimationFeature(animationName = "anim1")
+        fakeGltfEntity.addAnimation(animation)
+        val gltfAnimation = gltfModelEntity.animations[0]
+
+        assertThrows(IllegalArgumentException::class.java) {
+            gltfAnimation.start(
+                GltfAnimationStartOptions(seekStartTime = (-1).seconds.toJavaDuration())
+            )
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun gltfModelEntity_stopAnimation_stopsAnimation() {
+        val fakeGltfEntity = gltfModelEntity.rtEntity as FakeGltfEntity
+        val animation = FakeGltfAnimationFeature(animationName = "anim1")
+        fakeGltfEntity.addAnimation(animation)
+        val animations = gltfModelEntity.animations
+        val gltfAnimation = animations[0]
+
+        gltfAnimation.start()
+        gltfAnimation.stop()
+
+        assertThat(gltfAnimation.animationState).isEqualTo(GltfAnimation.AnimationState.STOPPED)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun gltfModelEntity_pauseAnimation_pausesAnimation() {
+        val fakeGltfEntity = gltfModelEntity.rtEntity as FakeGltfEntity
+        val animation = FakeGltfAnimationFeature(animationName = "anim1")
+        fakeGltfEntity.addAnimation(animation)
+        val animations = gltfModelEntity.animations
+        val gltfAnimation = animations[0]
+
+        gltfAnimation.start()
+        gltfAnimation.pause()
+
+        assertThat(gltfAnimation.animationState).isEqualTo(GltfAnimation.AnimationState.PAUSED)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun gltfModelEntity_resumeAnimation_resumesAnimation() {
+        val fakeGltfEntity = gltfModelEntity.rtEntity as FakeGltfEntity
+        val animation = FakeGltfAnimationFeature(animationName = "anim1")
+        fakeGltfEntity.addAnimation(animation)
+        val animations = gltfModelEntity.animations
+        val gltfAnimation = animations[0]
+
+        gltfAnimation.start()
+        gltfAnimation.pause()
+        gltfAnimation.resume()
+
+        assertThat(gltfAnimation.animationState).isEqualTo(GltfAnimation.AnimationState.PLAYING)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun gltfModelEntity_setSpeed_setsAnimationSpeed() {
+        val fakeGltfEntity = gltfModelEntity.rtEntity as FakeGltfEntity
+        val animation = FakeGltfAnimationFeature(animationName = "anim1")
+        fakeGltfEntity.addAnimation(animation)
+        val animations = gltfModelEntity.animations
+        val gltfAnimation = animations[0]
+
+        gltfAnimation.start()
+        gltfAnimation.setSpeed(2.0f)
+
+        assertThat(animation.speed).isEqualTo(2.0f)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun gltfModelEntity_seekTo_seeksAnimation() {
+        val fakeGltfEntity = gltfModelEntity.rtEntity as FakeGltfEntity
+        val animation = FakeGltfAnimationFeature(animationName = "anim1")
+        fakeGltfEntity.addAnimation(animation)
+        val animations = gltfModelEntity.animations
+        val gltfAnimation = animations[0]
+
+        gltfAnimation.start()
+        gltfAnimation.seekTo(0.5.seconds.toJavaDuration())
+
+        assertThat(animation.seekStartTimeSeconds).isEqualTo(0.5f)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun gltfAnimation_seekTo_negativeTime_throwsException() {
+        val fakeGltfEntity = gltfModelEntity.rtEntity as FakeGltfEntity
+        val animation = FakeGltfAnimationFeature(animationName = "anim1")
+        fakeGltfEntity.addAnimation(animation)
+        val gltfAnimation = gltfModelEntity.animations[0]
+
+        gltfAnimation.start()
+        assertThrows(IllegalArgumentException::class.java) {
+            gltfAnimation.seekTo((-0.5).seconds.toJavaDuration())
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun gltfAnimation_animationStateListener_receivesUpdates() {
+        val fakeGltfEntity = gltfModelEntity.rtEntity as FakeGltfEntity
+        val animation = FakeGltfAnimationFeature(animationName = "anim1")
+        fakeGltfEntity.addAnimation(animation)
+        val gltfAnimation = gltfModelEntity.animations[0]
+
+        var state: GltfAnimation.AnimationState? = null
+        gltfAnimation.addAnimationStateListener { state = it }
+
+        gltfAnimation.start()
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        assertThat(state).isEqualTo(GltfAnimation.AnimationState.PLAYING)
+
+        gltfAnimation.pause()
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        assertThat(state).isEqualTo(GltfAnimation.AnimationState.PAUSED)
+
+        gltfAnimation.stop()
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        assertThat(state).isEqualTo(GltfAnimation.AnimationState.STOPPED)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun gltfAnimation_removeAnimationStateListener_stopsUpdates() {
+        val fakeGltfEntity = gltfModelEntity.rtEntity as FakeGltfEntity
+        val animation = FakeGltfAnimationFeature(animationName = "anim1")
+        fakeGltfEntity.addAnimation(animation)
+        val gltfAnimation = gltfModelEntity.animations[0]
+
+        var state: GltfAnimation.AnimationState? = null
+        val listener = java.util.function.Consumer<GltfAnimation.AnimationState> { state = it }
+        gltfAnimation.addAnimationStateListener(listener)
+
+        gltfAnimation.start()
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        assertThat(state).isEqualTo(GltfAnimation.AnimationState.PLAYING)
+
+        gltfAnimation.removeAnimationStateListener(listener)
+        gltfAnimation.pause()
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+
+        // The listener should NOT have received the PAUSED update, so it remains PLAYING
+        assertThat(state).isEqualTo(GltfAnimation.AnimationState.PLAYING)
+        // Verify the actual state is indeed PAUSED
+        assertThat(gltfAnimation.animationState).isEqualTo(GltfAnimation.AnimationState.PAUSED)
     }
 }

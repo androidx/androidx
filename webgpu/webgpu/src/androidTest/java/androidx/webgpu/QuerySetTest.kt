@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.webgpu
 
 import androidx.test.filters.SmallTest
@@ -304,28 +303,28 @@ class QuerySetTest {
         // Simple vertex shader to draw a full-screen triangle.
         val vertexShaderCode =
             """
-        @vertex
-        fn main(@builtin(vertex_index) VertexIndex : u32)
-             -> @builtin(position) vec4<f32> {
-            var positions = array<vec2<f32>, 3>(
-                vec2<f32>(0.0, 0.5),
-                vec2<f32>(-0.5, -0.5),
-                vec2<f32>(0.5, -0.5)
-            );
-            let pos = positions[VertexIndex];
-            return vec4<f32>(pos, 0.0, 1.0);
-        }
-    """
+            @vertex
+            fn main(@builtin(vertex_index) VertexIndex : u32)
+                 -> @builtin(position) vec4<f32> {
+                var positions = array<vec2<f32>, 3>(
+                    vec2<f32>(0.0, 0.5),
+                    vec2<f32>(-0.5, -0.5),
+                    vec2<f32>(0.5, -0.5)
+                );
+                let pos = positions[VertexIndex];
+                return vec4<f32>(pos, 0.0, 1.0);
+            }
+            """
                 .trimIndent()
 
         // Simple fragment shader to output red color.
         val fragmentShaderCode =
             """
-        @fragment
-        fn main() -> @location(0) vec4<f32> {
-            return vec4<f32>(1.0, 0.0, 0.0, 1.0);
-        }
-    """
+            @fragment
+            fn main() -> @location(0) vec4<f32> {
+                return vec4<f32>(1.0, 0.0, 0.0, 1.0);
+            }
+            """
                 .trimIndent()
 
         val shaderModuleVert =

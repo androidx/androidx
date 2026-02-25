@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.0.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha08)" variant="all" version="9.0.0-alpha08">
+<issues format="6" by="lint 9.1.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (9.1.0-alpha02)" variant="all" version="9.1.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="Call requires version 13 of the U Extensions SDK (current min is 0): `toPlatformPlannedExerciseSessionRecord`"
+        errorLine1="        is PlannedExerciseSessionRecord -> toPlatformPlannedExerciseSessionRecord()"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/impl/platform/records/RecordConverters.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires version 13 of the U Extensions SDK (current min is 0): `toPlatformSkinTemperatureRecord`"
+        errorLine1="        is SkinTemperatureRecord -> toPlatformSkinTemperatureRecord()"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/connect/client/impl/platform/records/RecordConverters.kt"/>
+    </issue>
 
     <issue
         id="WrongConstant"

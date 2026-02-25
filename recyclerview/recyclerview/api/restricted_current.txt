@@ -11,31 +11,31 @@ package androidx.recyclerview.widget {
 
   public final class AsyncDifferConfig<T> {
     method public java.util.concurrent.Executor getBackgroundThreadExecutor();
-    method public androidx.recyclerview.widget.DiffUtil.ItemCallback<T!> getDiffCallback();
+    method public androidx.recyclerview.widget.DiffUtil.ItemCallback<T> getDiffCallback();
   }
 
   public static final class AsyncDifferConfig.Builder<T> {
-    ctor public AsyncDifferConfig.Builder(androidx.recyclerview.widget.DiffUtil.ItemCallback<T!>);
-    method public androidx.recyclerview.widget.AsyncDifferConfig<T!> build();
-    method public androidx.recyclerview.widget.AsyncDifferConfig.Builder<T!> setBackgroundThreadExecutor(java.util.concurrent.Executor?);
+    ctor public AsyncDifferConfig.Builder(androidx.recyclerview.widget.DiffUtil.ItemCallback<T>);
+    method public androidx.recyclerview.widget.AsyncDifferConfig<T> build();
+    method public androidx.recyclerview.widget.AsyncDifferConfig.Builder<T> setBackgroundThreadExecutor(java.util.concurrent.Executor?);
   }
 
   public class AsyncListDiffer<T> {
-    ctor public AsyncListDiffer(androidx.recyclerview.widget.ListUpdateCallback, androidx.recyclerview.widget.AsyncDifferConfig<T!>);
-    ctor public AsyncListDiffer(androidx.recyclerview.widget.RecyclerView.Adapter, androidx.recyclerview.widget.DiffUtil.ItemCallback<T!>);
-    method public void addListListener(androidx.recyclerview.widget.AsyncListDiffer.ListListener<T!>);
-    method public java.util.List<T!> getCurrentList();
-    method public void removeListListener(androidx.recyclerview.widget.AsyncListDiffer.ListListener<T!>);
-    method public void submitList(java.util.List<T!>?);
-    method public void submitList(java.util.List<T!>?, Runnable?);
+    ctor public AsyncListDiffer(androidx.recyclerview.widget.ListUpdateCallback, androidx.recyclerview.widget.AsyncDifferConfig<T>);
+    ctor public AsyncListDiffer(androidx.recyclerview.widget.RecyclerView.Adapter, androidx.recyclerview.widget.DiffUtil.ItemCallback<T>);
+    method public void addListListener(androidx.recyclerview.widget.AsyncListDiffer.ListListener<T>);
+    method public java.util.List<T> getCurrentList();
+    method public void removeListListener(androidx.recyclerview.widget.AsyncListDiffer.ListListener<T>);
+    method public void submitList(java.util.List<T>?);
+    method public void submitList(java.util.List<T>?, Runnable?);
   }
 
   public static interface AsyncListDiffer.ListListener<T> {
-    method public void onCurrentListChanged(java.util.List<T!>, java.util.List<T!>);
+    method public void onCurrentListChanged(java.util.List<T>, java.util.List<T>);
   }
 
   public class AsyncListUtil<T> {
-    ctor public AsyncListUtil(Class<T!>, int, androidx.recyclerview.widget.AsyncListUtil.DataCallback<T!>, androidx.recyclerview.widget.AsyncListUtil.ViewCallback);
+    ctor public AsyncListUtil(Class<T>, int, androidx.recyclerview.widget.AsyncListUtil.DataCallback<T>, androidx.recyclerview.widget.AsyncListUtil.ViewCallback);
     method public T? getItem(int);
     method public int getItemCount();
     method public void onRangeChanged();
@@ -44,9 +44,9 @@ package androidx.recyclerview.widget {
 
   public abstract static class AsyncListUtil.DataCallback<T> {
     ctor public AsyncListUtil.DataCallback();
-    method @WorkerThread public abstract void fillData(T![], int, int);
+    method @WorkerThread public abstract void fillData(T[], int, int);
     method @WorkerThread public int getMaxCachedTiles();
-    method @WorkerThread public void recycleData(T![], int);
+    method @WorkerThread public void recycleData(T[], int);
     method @WorkerThread public abstract int refreshData();
   }
 
@@ -343,15 +343,15 @@ package androidx.recyclerview.widget {
     method public int findTargetSnapPosition(androidx.recyclerview.widget.RecyclerView.LayoutManager!, int, int);
   }
 
-  public abstract class ListAdapter<T, VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> extends androidx.recyclerview.widget.RecyclerView.Adapter<VH!> {
-    ctor protected ListAdapter(androidx.recyclerview.widget.AsyncDifferConfig<T!>);
-    ctor protected ListAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T!>);
-    method public java.util.List<T!> getCurrentList();
-    method protected T! getItem(int);
+  public abstract class ListAdapter<T, VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> extends androidx.recyclerview.widget.RecyclerView.Adapter<VH> {
+    ctor protected ListAdapter(androidx.recyclerview.widget.AsyncDifferConfig<T>);
+    ctor protected ListAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T>);
+    method public java.util.List<T> getCurrentList();
+    method protected T getItem(int);
     method public int getItemCount();
-    method public void onCurrentListChanged(java.util.List<T!>, java.util.List<T!>);
-    method public void submitList(java.util.List<T!>?);
-    method public void submitList(java.util.List<T!>?, Runnable?);
+    method public void onCurrentListChanged(java.util.List<T>, java.util.List<T>);
+    method public void submitList(java.util.List<T>?);
+    method public void submitList(java.util.List<T>?, Runnable?);
   }
 
   public interface ListUpdateCallback {
@@ -924,7 +924,7 @@ package androidx.recyclerview.widget {
   public static class RecyclerView.State {
     ctor public RecyclerView.State();
     method public boolean didStructureChange();
-    method public <T> T! get(int);
+    method public <T> T get(int);
     method public int getItemCount();
     method public int getRemainingScrollHorizontal();
     method public int getRemainingScrollVertical();
@@ -1011,33 +1011,33 @@ package androidx.recyclerview.widget {
   }
 
   public class SortedList<T> {
-    ctor public SortedList(Class<T!>, androidx.recyclerview.widget.SortedList.Callback<T!>);
-    ctor public SortedList(Class<T!>, androidx.recyclerview.widget.SortedList.Callback<T!>, int);
-    method public int add(T!);
-    method public void addAll(java.util.Collection<T!>);
-    method public void addAll(T!...);
-    method public void addAll(T![], boolean);
+    ctor public SortedList(Class<T>, androidx.recyclerview.widget.SortedList.Callback<T>);
+    ctor public SortedList(Class<T>, androidx.recyclerview.widget.SortedList.Callback<T>, int);
+    method public int add(T);
+    method public void addAll(java.util.Collection<T>);
+    method public void addAll(T...);
+    method public void addAll(T[], boolean);
     method public void beginBatchedUpdates();
     method public void clear();
     method public void endBatchedUpdates();
-    method public T! get(int) throws java.lang.IndexOutOfBoundsException;
-    method public int indexOf(T!);
+    method public T get(int) throws java.lang.IndexOutOfBoundsException;
+    method public int indexOf(T);
     method public void recalculatePositionOfItemAt(int);
-    method public boolean remove(T!);
-    method public T! removeItemAt(int);
-    method public void replaceAll(java.util.Collection<T!>);
-    method public void replaceAll(T!...);
-    method public void replaceAll(T![], boolean);
+    method public boolean remove(T);
+    method public T removeItemAt(int);
+    method public void replaceAll(java.util.Collection<T>);
+    method public void replaceAll(T...);
+    method public void replaceAll(T[], boolean);
     method public int size();
-    method public void updateItemAt(int, T!);
+    method public void updateItemAt(int, T);
     field public static final int INVALID_POSITION = -1; // 0xffffffff
   }
 
-  public static class SortedList.BatchedCallback<T2> extends androidx.recyclerview.widget.SortedList.Callback<T2!> {
-    ctor public SortedList.BatchedCallback(androidx.recyclerview.widget.SortedList.Callback<T2!>!);
-    method public boolean areContentsTheSame(T2!, T2!);
-    method public boolean areItemsTheSame(T2!, T2!);
-    method public int compare(T2!, T2!);
+  public static class SortedList.BatchedCallback<T2> extends androidx.recyclerview.widget.SortedList.Callback<T2> {
+    ctor public SortedList.BatchedCallback(androidx.recyclerview.widget.SortedList.Callback<T2>!);
+    method public boolean areContentsTheSame(T2, T2);
+    method public boolean areItemsTheSame(T2, T2);
+    method public int compare(T2, T2);
     method public void dispatchLastEvent();
     method public void onChanged(int, int);
     method public void onInserted(int, int);
@@ -1045,17 +1045,17 @@ package androidx.recyclerview.widget {
     method public void onRemoved(int, int);
   }
 
-  public abstract static class SortedList.Callback<T2> implements java.util.Comparator<T2!> androidx.recyclerview.widget.ListUpdateCallback {
+  public abstract static class SortedList.Callback<T2> implements java.util.Comparator<T2> androidx.recyclerview.widget.ListUpdateCallback {
     ctor public SortedList.Callback();
-    method public abstract boolean areContentsTheSame(T2!, T2!);
-    method public abstract boolean areItemsTheSame(T2!, T2!);
-    method public abstract int compare(T2!, T2!);
-    method public Object? getChangePayload(T2!, T2!);
+    method public abstract boolean areContentsTheSame(T2, T2);
+    method public abstract boolean areItemsTheSame(T2, T2);
+    method public abstract int compare(T2, T2);
+    method public Object? getChangePayload(T2, T2);
     method public abstract void onChanged(int, int);
     method public void onChanged(int, int, Object!);
   }
 
-  public abstract class SortedListAdapterCallback<T2> extends androidx.recyclerview.widget.SortedList.Callback<T2!> {
+  public abstract class SortedListAdapterCallback<T2> extends androidx.recyclerview.widget.SortedList.Callback<T2> {
     ctor public SortedListAdapterCallback(androidx.recyclerview.widget.RecyclerView.Adapter<? extends java.lang.Object!>!);
     method public void onChanged(int, int);
     method public void onInserted(int, int);

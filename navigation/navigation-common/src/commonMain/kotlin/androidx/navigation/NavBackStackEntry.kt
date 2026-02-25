@@ -45,6 +45,7 @@ import kotlinx.serialization.serializer
  * stack, the lifecycle will be destroyed, state will no longer be saved, and ViewModels will be
  * cleared.
  */
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 public expect class NavBackStackEntry :
     LifecycleOwner,
     ViewModelStoreOwner,

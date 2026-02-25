@@ -21,7 +21,12 @@ import androidx.xr.arcore.runtime.RenderViewpoint
 import androidx.xr.runtime.FieldOfView
 import androidx.xr.runtime.math.Pose
 
-/** Wraps the device tracking data. */
+/**
+ * Wraps the device tracking data.
+ *
+ * @property pose the [Pose] of the render viewpoint
+ * @property fieldOfView the [FieldOfView] of the render viewpoint
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class OpenXrRenderViewpoint internal constructor() : RenderViewpoint {
 

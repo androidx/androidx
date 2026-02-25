@@ -22,7 +22,7 @@ import androidx.room3.PrimaryKey
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import androidx.room3.RoomMasterTable
-import androidx.room3.execSQL
+import androidx.room3.executeSQL
 import androidx.room3.useReaderConnection
 import androidx.room3.useWriterConnection
 import androidx.sqlite.driver.AndroidSQLiteDriver
@@ -59,7 +59,7 @@ class LegacyIdentityHashTest {
         val newDb = dbBuilder.build()
         newDb.useWriterConnection {
             val insertQuery = RoomMasterTable.createInsertQuery("7814fcab45e43fa07f359c1be74bd6c9")
-            it.execSQL(insertQuery)
+            it.executeSQL(insertQuery)
         }
         newDb.close()
 

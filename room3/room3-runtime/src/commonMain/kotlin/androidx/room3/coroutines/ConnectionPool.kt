@@ -18,7 +18,6 @@ package androidx.room3.coroutines
 
 import androidx.room3.Transactor
 import androidx.sqlite.SQLiteConnection
-import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.SQLiteException
 
 /**
@@ -73,16 +72,15 @@ internal interface ConnectionPool : AutoCloseable {
  * A pool containing a single connection that is used for both reading and writing is useful for
  * in-memory databases whose schema and data are isolated to a database connection.
  *
- * @param driver The driver from which to request the connection to be opened.
- * @param fileName The database file name.
+ * @param connectionFactory The factory function from which to request the connection to be opened.
+ * @param statementCacheSize The maximum number of prepared statements to be cached.
  * @return The newly created connection pool
  * @see newConnectionPool
  */
 internal fun newSingleConnectionPool(
-    driver: SQLiteDriver,
-    fileName: String,
-    preparedStatementCacheSize: Int = 25,
-): ConnectionPool = ConnectionPoolImpl(driver, fileName, preparedStatementCacheSize)
+    connectionFactory: ConnectionFactory,
+    statementCacheSize: Int = 25,
+): ConnectionPool = ConnectionPoolImpl(connectionFactory, statementCacheSize)
 
 /**
  * Creates a new [ConnectionPool] with multiple connections separated by readers and writers.
@@ -91,30 +89,23 @@ internal fun newSingleConnectionPool(
  * of one writer and multiple readers. If the database journal mode is not WAL (e.g. TRUNCATE,
  * DELETE or PERSIST) then a single connection pool is recommended.
  *
- * @param driver The driver from which to request new connections to be opened.
- * @param fileName The database file name.
+ * @param connectionFactory The factory function from which to request the connections to be opened.
  * @param maxNumOfReaders The maximum number of connections to be opened and used as readers.
  * @param maxNumOfWriters The maximum number of connections to be opened and used as writers.
+ * @param statementCacheSize The maximum number of prepared statements to be cached.
  * @return The newly created connection pool
  * @see newSingleConnectionPool
  */
 internal fun newConnectionPool(
-    driver: SQLiteDriver,
-    fileName: String,
+    connectionFactory: ConnectionFactory,
     maxNumOfReaders: Int,
     maxNumOfWriters: Int,
-    preparedStatementCacheSize: Int = 25,
+    statementCacheSize: Int = 25,
 ): ConnectionPool =
-    ConnectionPoolImpl(
-        driver,
-        fileName,
-        maxNumOfReaders,
-        maxNumOfWriters,
-        preparedStatementCacheSize,
-    )
+    ConnectionPoolImpl(connectionFactory, maxNumOfReaders, maxNumOfWriters, statementCacheSize)
 
 /** Defines an object that provides 'raw' access to a connection. */
 internal interface RawConnectionAccessor {
 
-    suspend fun <R> useRawConnection(block: (SQLiteConnection) -> R): R
+    suspend fun <R> useRawConnection(block: suspend (SQLiteConnection) -> R): R
 }

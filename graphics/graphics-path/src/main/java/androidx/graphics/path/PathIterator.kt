@@ -70,6 +70,7 @@ constructor(
      *   elements and converting any conics as appropriate. Set to false to save on processing, at
      *   the cost of a less exact result.
      */
+    @Suppress("MissingJvmstatic")
     fun calculateSize(includeConvertedConics: Boolean = true) =
         implementation.calculateSize(includeConvertedConics)
 

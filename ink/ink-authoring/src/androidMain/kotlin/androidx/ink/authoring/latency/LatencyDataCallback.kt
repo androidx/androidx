@@ -20,7 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.ink.authoring.ExperimentalLatencyDataApi
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @ExperimentalLatencyDataApi
 public fun interface LatencyDataCallback {
     /** A callback invoked once per input event to send [LatencyData] to a client. */

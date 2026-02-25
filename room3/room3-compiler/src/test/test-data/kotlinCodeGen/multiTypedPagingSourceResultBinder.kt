@@ -9,6 +9,8 @@ import androidx.room3.paging.rxjava3.LimitOffsetRxPagingSource
 import androidx.room3.util.getColumnIndexOrThrow
 import androidx.room3.util.performSuspending
 import androidx.sqlite.SQLiteStatement
+import androidx.sqlite.prepare
+import androidx.sqlite.step
 import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.Long

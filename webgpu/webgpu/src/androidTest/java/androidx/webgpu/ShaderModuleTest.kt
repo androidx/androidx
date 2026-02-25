@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.webgpu
 
 import androidx.test.filters.SmallTest
@@ -34,9 +33,9 @@ class ShaderModuleTest {
 
     private val invalidShader =
         """
-            @vertex fn main() -> @builtin(position) vec4<f32> {
-              return unknown(0.0, 0.0, 0.0, 1.0);
-            }
+        @vertex fn main() -> @builtin(position) vec4<f32> {
+          return unknown(0.0, 0.0, 0.0, 1.0);
+        }
         """
             .trimIndent()
 
@@ -68,7 +67,7 @@ class ShaderModuleTest {
             @vertex fn main() -> @builtin(position) vec4<f32> {
               return vec4<f32>(0.0, 0.0, 0.0, 1.0);
             }
-        """
+            """
                 .trimIndent()
         val info = runBlocking { getCompilationInfo(code) }
         val errorCount = info.messages.count { it.type == CompilationMessageType.Error }

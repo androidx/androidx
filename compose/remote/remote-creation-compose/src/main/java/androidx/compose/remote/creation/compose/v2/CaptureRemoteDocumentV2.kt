@@ -18,14 +18,19 @@
 
 package androidx.compose.remote.creation.compose.v2
 
+import android.content.Context
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RemoteClock
-import androidx.compose.remote.core.SystemClock
 import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.CapturedDocument
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
+import androidx.compose.remote.creation.compose.capture.RecordingCanvas
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.capture.WriterEvents
+import androidx.compose.remote.creation.compose.capture.toLayoutDirection
+import androidx.compose.remote.creation.compose.layout.RemoteCanvas
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.BroadcastFrameClock
@@ -34,9 +39,15 @@ import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.core.graphics.createBitmap
 import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.coroutineScope
@@ -47,68 +58,195 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.yield
 
+/**
+ * Captures a single RemoteCompose document using the V2 implementation.
+ *
+ * This function sets up a composition environment, executes the provided [content] Composable,
+ * waits for the [Recomposer] to reach an idle state, and then renders the resulting node tree into
+ * a [CapturedDocument].
+ *
+ * @param creationDisplayInfo Information about the display characteristics where the document will
+ *   be rendered.
+ * @param remoteDensity The density settings for the remote document. Defaults to the density from
+ *   [creationDisplayInfo] and the current system font scale.
+ * @param layoutDirection The layout direction (LTR/RTL). If null, it is resolved from the provided
+ *   [context].
+ * @param context The Android [Context] used to resolve resources and system configurations.
+ * @param clock The [RemoteClock] used to provide frame timing for recomposition.
+ * @param profile The [Profile] defining the capabilities and constraints of the remote target.
+ * @param writerEvents A [WriterEvents] instance to track side effects like PendingIntents.
+ * @param content The Composable function that defines the UI to be captured.
+ * @return A [CapturedDocument] containing the encoded byte array and associated metadata.
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public suspend fun captureSingleRemoteDocumentV2(
     creationDisplayInfo: CreationDisplayInfo,
-    clock: RemoteClock = SystemClock(),
+    remoteDensity: RemoteDensity =
+        RemoteDensity(creationDisplayInfo.density.rf, context.resources.configuration.fontScale.rf),
+    layoutDirection: LayoutDirection? = null,
+    context: Context,
+    clock: RemoteClock = RemoteClock.SYSTEM,
     profile: Profile = RcPlatformProfiles.ANDROIDX,
-    context: CoroutineContext = Dispatchers.Default,
+    writerEvents: WriterEvents = WriterEvents(),
     content: @Composable () -> Unit,
 ): CapturedDocument {
-    val writerEvents = WriterEvents()
-    val document =
-        captureRemoteDocumentV2(
+    val rootNode = RemoteRootNodeV2()
+    val applier = RemoteComposeApplierV2(rootNode)
+
+    val recomposerContext = currentCoroutineContext()
+    val recomposer = Recomposer(recomposerContext)
+    val composition = Composition(applier, recomposer)
+
+    try {
+        val layoutDirection =
+            (layoutDirection ?: toLayoutDirection(context.resources.configuration.layoutDirection))
+        val creationState =
+            RemoteComposeCreationState(
                 creationDisplayInfo = creationDisplayInfo,
-                clock = clock,
-                writerEvents = writerEvents,
                 profile = profile,
-                context = context,
+                writerEvents = writerEvents,
+                layoutDirection = layoutDirection,
+                remoteDensity =
+                    RemoteDensity(
+                        creationDisplayInfo.density.rf,
+                        context.resources.configuration.fontScale.rf,
+                    ),
+            )
+
+        composition.setContent {
+            CompositionLocalProvider(
+                LocalRemoteComposeCreationState provides creationState,
+                LocalDensity provides
+                    Density(creationDisplayInfo.density, context.resources.configuration.fontScale),
+                LocalContext provides context,
+                LocalConfiguration provides context.resources.configuration,
+                LocalLayoutDirection provides layoutDirection,
                 content = content,
             )
-            .first()
-    return CapturedDocument(document, writerEvents.pendingIntents)
+        }
+
+        // Use coroutineScope to ensure the recomposer and all related collection tasks
+        // are properly cancelled when the flow execution finishes.
+        coroutineScope {
+            try {
+                lateinit var frameClock: BroadcastFrameClock
+                frameClock = BroadcastFrameClock {
+                    // Automatically send a frame when the recomposer starts waiting.
+                    // This avoids a race condition where sendFrame is called before runRecompose is
+                    // ready.
+                    launch(recomposerContext) { frameClock.sendFrame(clock.nanoTime()) }
+                }
+
+                launch(recomposerContext + frameClock) { recomposer.runRecomposeAndApplyChanges() }
+
+                // Wait for the first idle state.
+                val unused = recomposer.currentState.filter { it == Recomposer.State.Idle }.first()
+            } finally {
+                // nothing for now
+                recomposer.cancel()
+            }
+        }
+
+        val document =
+            Snapshot.withMutableSnapshot {
+                val recordingCanvas =
+                    RecordingCanvas(createBitmap(1, 1)).apply {
+                        setRemoteComposeCreationState(creationState)
+                    }
+
+                val remoteCanvas = RemoteCanvas(recordingCanvas)
+
+                rootNode.render(creationState, remoteCanvas)
+
+                // This is only safe for the first document
+                // since some ids might be generated early
+                creationState.document.encodeToByteArray()
+            }
+
+        return CapturedDocument(document, writerEvents.pendingIntents)
+    } finally {
+        // Ensure the composition is always disposed and cancelled to avoid leaks.
+        composition.dispose()
+    }
 }
 
 /**
  * Captures a RemoteCompose document using the V2 implementation. Emits a new [ByteArray] every time
  * the composition changes.
+ *
+ * @param coroutineContext The [CoroutineContext] used for the [Recomposer] and related tasks. It is
+ *   merged with the flow collector's context. A single-threaded dispatcher (like [Dispatchers.Main]
+ *   or `Dispatchers.Default.limitedParallelism(1)`) is required to ensure thread safety during
+ *   recomposition.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun captureRemoteDocumentV2(
     creationDisplayInfo: CreationDisplayInfo,
-    clock: RemoteClock = SystemClock(),
+    remoteDensity: RemoteDensity =
+        RemoteDensity(creationDisplayInfo.density.rf, context.resources.configuration.fontScale.rf),
+    layoutDirection: LayoutDirection? = null,
     writerEvents: WriterEvents,
+    context: Context,
+    clock: RemoteClock = RemoteClock.SYSTEM,
     profile: Profile = RcPlatformProfiles.ANDROIDX,
-    context: CoroutineContext = Dispatchers.Default,
+    coroutineContext: CoroutineContext = Dispatchers.Default,
     content: @Composable () -> Unit,
 ): Flow<ByteArray> = flow {
     val rootNode = RemoteRootNodeV2()
     val applier = RemoteComposeApplierV2(rootNode)
 
-    val recomposer = Recomposer(currentCoroutineContext())
+    val limitedCoroutineContext =
+        if (coroutineContext is CoroutineDispatcher) {
+            coroutineContext.limitedParallelism(parallelism = 1, name = "captureRemoteDocument")
+        } else {
+            coroutineContext
+        }
+
+    // Merge the flow collector's context with the provided context to ensure
+    // recomposition runs with expected job cancellation and overrides.
+    val recomposerContext = currentCoroutineContext() + limitedCoroutineContext
+    val recomposer = Recomposer(recomposerContext)
     val composition = Composition(applier, recomposer)
 
     try {
-        val creationState = RemoteComposeCreationState(creationDisplayInfo, profile, writerEvents)
+        val layoutDirection =
+            (layoutDirection ?: toLayoutDirection(context.resources.configuration.layoutDirection))
+        val creationState =
+            RemoteComposeCreationState(
+                creationDisplayInfo = creationDisplayInfo,
+                profile = profile,
+                writerEvents = writerEvents,
+                layoutDirection = layoutDirection,
+                remoteDensity = remoteDensity,
+            )
 
         composition.setContent {
             CompositionLocalProvider(
                 LocalRemoteComposeCreationState provides creationState,
-                LocalDensity provides Density(creationDisplayInfo.density),
+                LocalDensity provides
+                    Density(creationDisplayInfo.density, context.resources.configuration.fontScale),
+                LocalContext provides context,
+                LocalConfiguration provides context.resources.configuration,
+                LocalLayoutDirection provides layoutDirection,
                 content = content,
             )
         }
 
-        val frameClock = BroadcastFrameClock()
+        // Use coroutineScope to ensure the recomposer and all related collection tasks
+        // are properly cancelled when the flow execution finishes.
         coroutineScope {
-            launch(frameClock) { recomposer.runRecomposeAndApplyChanges() }
+            lateinit var frameClock: BroadcastFrameClock
+            frameClock = BroadcastFrameClock {
+                // Automatically send a frame when the recomposer starts waiting.
+                // This avoids a race condition where sendFrame is called before runRecompose is
+                // ready.
+                launch(recomposerContext) { frameClock.sendFrame(clock.nanoTime()) }
+            }
 
-            // Make sure runRecomposeAndApplyChanges will pick this up
-            yield()
-            frameClock.sendFrame(clock.nanoTime())
+            launch(recomposerContext + frameClock) { recomposer.runRecomposeAndApplyChanges() }
 
             // Launch a collector for recomposer state to trigger renders
             val documentFlow =
@@ -116,16 +254,22 @@ public fun captureRemoteDocumentV2(
                     .filter { it == Recomposer.State.Idle }
                     .mapLatest {
                         Snapshot.withMutableSnapshot {
-                            // Create a fresh writer for each emission to ensure a complete document
-                            // is
-                            // captured
-                            val writer = profile.create(creationDisplayInfo, writerEvents)
-                            creationState.document = writer
+                            val recordingCanvas =
+                                RecordingCanvas(createBitmap(1, 1)).apply {
+                                    setRemoteComposeCreationState(creationState)
+                                }
 
-                            rootNode.render(creationState)
-                            writer.encodeToByteArray()
+                            val remoteCanvas = RemoteCanvas(recordingCanvas)
+
+                            rootNode.render(creationState, remoteCanvas)
+
+                            // This is only safe for the first document
+                            // since some ids might be generated early
+                            creationState.document.encodeToByteArray()
                         }
                     }
+                    // Avoid additional takes until id generation is cleaned up
+                    .take(1)
             emitAll(documentFlow)
         }
     } finally {

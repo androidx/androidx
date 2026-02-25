@@ -31,6 +31,7 @@ import androidx.compose.remote.core.PaintContext
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.RecordingRemoteComposeBuffer
 import androidx.compose.remote.core.RemoteContext
+import androidx.compose.remote.core.SystemClock
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.PaintData
 import androidx.compose.remote.core.operations.paint.PaintBundle
@@ -56,6 +57,7 @@ import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color as ComposeColor
 import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -111,9 +113,11 @@ class RecordingCanvasTest {
     private val remoteContext = AndroidRemoteContext()
     private val timeZone = ZoneId.of("America/New_York")
     private val clock =
-        Clock.fixed(
-            ZonedDateTime.of(LocalDateTime.of(2025, 11, 20, 10, 30, 25), timeZone).toInstant(),
-            timeZone,
+        SystemClock(
+            Clock.fixed(
+                ZonedDateTime.of(LocalDateTime.of(2025, 11, 20, 10, 30, 25), timeZone).toInstant(),
+                timeZone,
+            )
         )
 
     @Before
@@ -126,7 +130,9 @@ class RecordingCanvasTest {
         val paint = RemotePaint()
         paint.remoteColorFilter =
             RemoteBlendModeColorFilter(RemoteColor(0xffffee70.toInt()), BlendMode.MULTIPLY)
-        val bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.android_image)
+        val bitmap =
+            BitmapFactory.decodeResource(context.getResources(), R.drawable.android_image)
+                .asImageBitmap()
         recordingCanvas.drawBitmap(bitmap, 0f, 0f, paint)
         val document = constructDocument()
         assertScreenshot(document, "remotePaint")
@@ -199,7 +205,7 @@ class RecordingCanvasTest {
 
     private fun createConditionalHues(flag: RemoteBoolean): Hues {
         val tweenFactor = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) / 30f % 1f
-        val colorRamp = tween(Color.RED, Color.BLUE, tweenFactor)
+        val colorRamp = tween(ComposeColor.Red.rc, ComposeColor.Blue.rc, tweenFactor)
         val hue = colorRamp.hue
         val hueString1 = hue.toRemoteString(1)
         val hueString2 = RemoteString("hue") + hue.toRemoteString(1)

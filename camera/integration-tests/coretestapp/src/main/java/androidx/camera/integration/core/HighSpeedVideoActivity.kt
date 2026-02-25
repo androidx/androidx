@@ -44,7 +44,6 @@ import androidx.annotation.OptIn
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.AspectRatio.RATIO_16_9
 import androidx.camera.core.AspectRatio.RATIO_4_3
 import androidx.camera.core.AspectRatio.RATIO_DEFAULT
@@ -537,21 +536,13 @@ class HighSpeedVideoActivity : AppCompatActivity() {
                 header = "Camera2 High Speed Video",
                 cameraXConfig = Camera2Config.defaultConfig(),
             )
-        private val CAMERA_CONFIG_CAMERA_PIPE =
-            CameraConfig(
-                header = "Camera Pipe High Speed Video",
-                cameraXConfig = CameraPipeConfig.defaultConfig(),
-            )
         private val DEFAULT_CAMERA_CONFIG = CAMERA_CONFIG_CAMERA2
 
         private var currentCameraConfig: CameraConfig = DEFAULT_CAMERA_CONFIG
         private var pendingCameraConfig: CameraConfig? = null
 
         private val ID_TO_CAMERA_CONFIG_MAP: Map<Int, CameraConfig> =
-            mapOf(
-                R.id.camera_config_camera2 to CAMERA_CONFIG_CAMERA2,
-                R.id.camera_config_camera_pipe to CAMERA_CONFIG_CAMERA_PIPE,
-            )
+            mapOf(R.id.camera_config_camera2 to CAMERA_CONFIG_CAMERA2)
 
         private val ID_TO_ASPECT_RATIO_MAP: Map<Int, Int> =
             mapOf(

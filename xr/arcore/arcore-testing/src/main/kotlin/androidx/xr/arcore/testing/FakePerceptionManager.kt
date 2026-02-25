@@ -34,13 +34,19 @@ import androidx.xr.runtime.math.Vector3
 import java.util.UUID
 
 /**
- * Test-only implementation of [androidx.xr.arcore.runtime.PerceptionManager] used to validate state
- * transitions.
+ * Fake implementation of [PerceptionManager] used to validate state transitions.
+ *
+ * @property anchors a [MutableList] of [FakeRuntimeAnchors][FakeRuntimeAnchor] created
+ * @property leftHand the left [Hand] as a [FakeRuntimeHand]
+ * @property rightHand the right [Hand] as a [FakeRuntimeHand]
+ * @property leftDepthMap the left [DepthMap] as a [FakeRuntimeDepthMap]
+ * @property rightDepthMap the right [DepthMap] as a [FakeRuntimeDepthMap]
+ * @property monoDepthMap the mono [DepthMap] as a [FakeRuntimeDepthMap]
+ * @property isTrackingAvailable a flag to represent available tracking state of the camera
  */
 @SuppressWarnings("HiddenSuperclass")
 public class FakePerceptionManager : PerceptionManager, AnchorHolder {
 
-    /** List of anchors created by this [FakePerceptionManager]. */
     public val anchors: MutableList<Anchor> = mutableListOf<Anchor>()
     override val trackables: MutableList<Trackable> = mutableListOf<Trackable>()
 
@@ -83,7 +89,6 @@ public class FakePerceptionManager : PerceptionManager, AnchorHolder {
     private val hitResults = mutableListOf<HitResult>()
     private val anchorUuids = mutableListOf<UUID>()
 
-    /** Flag to represent available tracking state of the camera. */
     public var isTrackingAvailable: Boolean = true
 
     override fun createAnchor(pose: Pose): Anchor {
@@ -122,27 +127,29 @@ public class FakePerceptionManager : PerceptionManager, AnchorHolder {
     }
 
     /**
-     * Adds a [androidx.xr.arcore.runtime.HitResult] to the list that is returned when calling
-     * [hitTest] with any pose.
+     * Adds a [HitResult] to the list that is returned when calling [hitTest] with any pose.
+     *
+     * @param hitResult the [HitResult] to add
      */
     public fun addHitResult(hitResult: HitResult) {
         hitResults.add(hitResult)
     }
 
-    /** Removes all [androidx.xr.arcore.runtime.HitResult] instances passed to [addHitResult]. */
+    /** Removes all [HitResult] instances passed to [addHitResult]. */
     public fun clearHitResults() {
         hitResults.clear()
     }
 
     /**
-     * Adds a [androidx.xr.arcore.runtime.Trackable] to the list that is returned when calling
-     * [trackables].
+     * Adds a [Trackable] to the list that is returned when calling [trackables].
+     *
+     * @param trackable the [Trackable] to add
      */
     public fun addTrackable(trackable: Trackable) {
         trackables.add(trackable)
     }
 
-    /** Removes all [androidx.xr.arcore.runtime.Trackable] instances passed to [addTrackable]. */
+    /** Removes all [Trackable] instances passed to [addTrackable]. */
     public fun clearTrackables() {
         trackables.clear()
     }

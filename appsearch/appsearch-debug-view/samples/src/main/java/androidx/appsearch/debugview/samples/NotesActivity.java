@@ -409,6 +409,7 @@ public class NotesActivity extends AppCompatActivity {
         return false;
     }
 
+    @SuppressWarnings("FutureReturnValueIgnored") // b/475314812
     @Override
     protected void onDestroy() {
         Futures.whenAllSucceed(mNotesAppSearchManagerFuture).call(() -> {

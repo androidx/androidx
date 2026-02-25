@@ -18,10 +18,7 @@ package androidx.xr.arcore
 
 import androidx.xr.runtime.math.GeospatialPose
 
-/**
- * Result of a [Geospatial.createGeospatialPoseFromPose] or
- * [Geospatial.createGeospatialPoseFromDevicePose] call.
- */
+/** Result of a [Geospatial.createGeospatialPoseFromPose] call. */
 public sealed class CreateGeospatialPoseFromPoseResult
 
 /**
@@ -56,11 +53,11 @@ public sealed class CreateGeospatialPoseFromPoseResult
  * For example, if the estimated yaw angle is 60°, and the orientation yaw accuracy is 10°, then
  * there is an estimated 68% probability of the true yaw angle being between 50° and 70°.
  *
- * @property pose the [GeospatialPose] that was created.
+ * @property pose the [GeospatialPose] that was created
  * @property horizontalAccuracy the estimated horizontal accuracy in meters with respect to latitude
- *   and longitude.
- * @property verticalAccuracy the estimated altitude accuracy in meters.
- * @property orientationYawAccuracy the estimated orientation yaw angle accuracy.
+ *   and longitude
+ * @property verticalAccuracy the estimated altitude accuracy in meters
+ * @property orientationYawAccuracy the estimated orientation yaw angle accuracy
  */
 public class CreateGeospatialPoseFromPoseSuccess
 internal constructor(
@@ -71,8 +68,9 @@ internal constructor(
 ) : CreateGeospatialPoseFromPoseResult()
 
 /**
- * Result of an unsuccessful [Geospatial.createGeospatialPoseFromPose] call. Geospatial is not yet
- * tracking. Geospatial may need additional time to start tracking, or the device itself may not be
- * tracking.
+ * Result of an unsuccessful [Geospatial.createGeospatialPoseFromPose] call.
+ *
+ * Geospatial is not yet tracking. Geospatial may need additional time to start tracking, or the
+ * device itself may not be tracking.
  */
-public class CreateGeospatialPoseFromPoseNotTracking() : CreateGeospatialPoseFromPoseResult()
+public class CreateGeospatialPoseFromPoseNotTracking : CreateGeospatialPoseFromPoseResult()

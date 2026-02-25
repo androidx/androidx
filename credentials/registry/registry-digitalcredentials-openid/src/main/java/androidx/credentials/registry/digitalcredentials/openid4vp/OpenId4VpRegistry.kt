@@ -83,6 +83,8 @@ public constructor(
         private const val ID = "id"
         private const val TITLE = "title"
         private const val SUBTITLE = "subtitle"
+        private const val EXPLAINER = "explainer"
+        private const val WARNING = "warning"
         private const val ICON = "icon"
         private const val START = "start"
         private const val LENGTH = "length"
@@ -97,6 +99,7 @@ public constructor(
         private const val DC_SD_JWT = "dc+sd-jwt"
         private const val ISSUANCE = "issuance"
         private const val SUPPORTED = "supported"
+        private const val METADATA_DISPLAY_TEXT = "metadata_display_text"
 
         private fun getIconBytes(icon: Bitmap): ByteArray {
             val currWidth = icon.width
@@ -133,6 +136,12 @@ public constructor(
                         val verificationDisplay = JSONObject()
                         verificationDisplay.put(TITLE, display.title)
                         verificationDisplay.putOpt(SUBTITLE, display.subtitle)
+                        verificationDisplay.putOpt(EXPLAINER, display.explainer)
+                        verificationDisplay.putOpt(WARNING, display.warning)
+                        verificationDisplay.putOpt(
+                            METADATA_DISPLAY_TEXT,
+                            display.metadataDisplayText,
+                        )
                         val icon =
                             iconMap.get(itemId)?.get(display.displayType)
                                 ?: throw IllegalArgumentException(

@@ -58,30 +58,30 @@ fun ktSample(className: String): TestFile {
 val ANDROIDX_REPLACE_WITH_KT: TestFile =
     TestFiles.kotlin(
         """
-            package androidx.annotation
+        package androidx.annotation
 
-            @Retention(AnnotationRetention.BINARY)
-            @Target(
-                AnnotationTarget.CLASS,
-                AnnotationTarget.FUNCTION,
-                AnnotationTarget.PROPERTY,
-                AnnotationTarget.ANNOTATION_CLASS,
-                AnnotationTarget.CONSTRUCTOR,
-                AnnotationTarget.PROPERTY_SETTER,
-                AnnotationTarget.PROPERTY_GETTER,
-                AnnotationTarget.TYPEALIAS
-            )
-            @java.lang.annotation.Target(
-                ElementType.CONSTRUCTOR,
-                ElementType.FIELD,
-                ElementType.METHOD,
-                ElementType.TYPE,
-            )
-            annotation class ReplaceWith(
-                val expression: String,
-                vararg val imports: String
-            )
-            """
+        @Retention(AnnotationRetention.BINARY)
+        @Target(
+            AnnotationTarget.CLASS,
+            AnnotationTarget.FUNCTION,
+            AnnotationTarget.PROPERTY,
+            AnnotationTarget.ANNOTATION_CLASS,
+            AnnotationTarget.CONSTRUCTOR,
+            AnnotationTarget.PROPERTY_SETTER,
+            AnnotationTarget.PROPERTY_GETTER,
+            AnnotationTarget.TYPEALIAS
+        )
+        @java.lang.annotation.Target(
+            ElementType.CONSTRUCTOR,
+            ElementType.FIELD,
+            ElementType.METHOD,
+            ElementType.TYPE,
+        )
+        annotation class ReplaceWith(
+            val expression: String,
+            vararg val imports: String
+        )
+        """
             .trimIndent()
     )
 
@@ -89,20 +89,20 @@ val ANDROIDX_REPLACE_WITH_KT: TestFile =
 val ANDROIDX_ANY_THREAD_KT: TestFile =
     TestFiles.kotlin(
         """
-            package androidx.annotation
-            
-            @MustBeDocumented
-            @Retention(AnnotationRetention.BINARY)
-            @Target(
-                AnnotationTarget.FUNCTION,
-                AnnotationTarget.PROPERTY_GETTER,
-                AnnotationTarget.PROPERTY_SETTER,
-                AnnotationTarget.CONSTRUCTOR,
-                AnnotationTarget.ANNOTATION_CLASS,
-                AnnotationTarget.CLASS,
-                AnnotationTarget.VALUE_PARAMETER
-            )
-            annotation class AnyThread
-            """
+        package androidx.annotation
+
+        @MustBeDocumented
+        @Retention(AnnotationRetention.BINARY)
+        @Target(
+            AnnotationTarget.FUNCTION,
+            AnnotationTarget.PROPERTY_GETTER,
+            AnnotationTarget.PROPERTY_SETTER,
+            AnnotationTarget.CONSTRUCTOR,
+            AnnotationTarget.ANNOTATION_CLASS,
+            AnnotationTarget.CLASS,
+            AnnotationTarget.VALUE_PARAMETER
+        )
+        annotation class AnyThread
+        """
             .trimIndent()
     )

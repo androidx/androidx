@@ -34,8 +34,8 @@ class XMessagerTest {
                     Source.java(
                         "Foo",
                         """
-                    class Foo {}
-                    """
+                        class Foo {}
+                        """
                             .trimIndent(),
                     )
                 )
@@ -58,8 +58,8 @@ class XMessagerTest {
                     Source.java(
                         "Foo",
                         """
-                    class Foo {}
-                    """
+                        class Foo {}
+                        """
                             .trimIndent(),
                     )
                 )
@@ -81,8 +81,8 @@ class XMessagerTest {
                     Source.java(
                         "Foo",
                         """
-                    class Foo {}
-                    """
+                        class Foo {}
+                        """
                             .trimIndent(),
                     )
                 )
@@ -104,8 +104,8 @@ class XMessagerTest {
                     Source.java(
                         "Foo",
                         """
-                    class Foo {}
-                    """
+                        class Foo {}
+                        """
                             .trimIndent(),
                     )
                 )
@@ -133,18 +133,18 @@ class XMessagerTest {
                     Source.java(
                         "test.FooAnnotation",
                         """
-                    package test;
-                    @interface FooAnnotation {}
-                    """
+                        package test;
+                        @interface FooAnnotation {}
+                        """
                             .trimIndent(),
                     ),
                     Source.java(
                         "test.Foo",
                         """
-                    package test;
-                    @FooAnnotation
-                    class Foo {}
-                    """
+                        package test;
+                        @FooAnnotation
+                        class Foo {}
+                        """
                             .trimIndent(),
                     ),
                 )
@@ -177,20 +177,20 @@ class XMessagerTest {
                     Source.java(
                         "test.FooAnnotation",
                         """
-                    package test;
-                    @interface FooAnnotation {
-                      String value();
-                    }
-                    """
+                        package test;
+                        @interface FooAnnotation {
+                          String value();
+                        }
+                        """
                             .trimIndent(),
                     ),
                     Source.java(
                         "test.Foo",
                         """
-                    package test;
-                    @FooAnnotation("fooValue")
-                    class Foo {}
-                    """
+                        package test;
+                        @FooAnnotation("fooValue")
+                        class Foo {}
+                        """
                             .trimIndent(),
                     ),
                 )

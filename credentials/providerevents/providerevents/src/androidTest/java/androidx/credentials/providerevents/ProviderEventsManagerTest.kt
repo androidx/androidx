@@ -77,7 +77,8 @@ class ProviderEventsManagerTest {
             }
             assertThrows<RegisterExportProviderConfigurationException> {
                 providerEventsManager.registerExport(
-                    RegisterExportRequest(
+                    RegisterExportRequest.create(
+                        context,
                         listOf(
                             ExportEntry(
                                 "id",
@@ -87,7 +88,6 @@ class ProviderEventsManagerTest {
                                 setOf(CredentialTypes.CREDENTIAL_TYPE_BASIC_AUTH),
                             )
                         ),
-                        exportMatcher = ByteArray(0),
                     )
                 )
             }

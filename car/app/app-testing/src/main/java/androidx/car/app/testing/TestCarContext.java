@@ -228,6 +228,11 @@ public class TestCarContext extends CarContext {
         public void startCarApp(Intent intent) {
             mStartCarAppIntents.add(intent);
         }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
     }
 
     /**

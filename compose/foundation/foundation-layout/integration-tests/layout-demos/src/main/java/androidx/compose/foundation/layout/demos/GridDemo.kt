@@ -39,6 +39,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Slider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -77,6 +78,11 @@ fun GridDemo() {
         InfiniteConstraintsDemo()
         Spacer(Modifier.height(32.dp))
         MinContentSafetyDemo()
+        Spacer(Modifier.height(32.dp))
+        AutoSizingDemo()
+        Spacer(Modifier.height(32.dp))
+        ResponsiveConstraintsDemo()
+        Spacer(Modifier.height(32.dp))
     }
 }
 
@@ -356,6 +362,120 @@ private fun MinContentSafetyDemo() {
                 modifier = Modifier.width(120.dp),
                 color = Color.Magenta,
             )
+        }
+    }
+}
+
+@Composable
+private fun AutoSizingDemo() {
+    DemoHeader("Auto Track Sizing")
+    Text(
+        "Auto tracks behave as minmax(min-content, max-content).\n" +
+            "They wrap content when constrained, but expand when space is available.",
+        fontSize = 12.sp,
+        fontStyle = FontStyle.Italic,
+        modifier = Modifier.padding(bottom = 8.dp),
+    )
+
+    // 1. Ample Space: Auto expands to fit the text in one line (MaxContent)
+    Text("1. Ample Space (200dp) -> MaxContent", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+    Box(Modifier.width(200.dp).border(1.dp, Color.Gray).padding(4.dp)) {
+        Grid(config = { column(GridTrackSize.Auto) }) {
+            GridDemoItem(text = "I am Long Text that behaves like MaxContent", color = Color.Cyan)
+        }
+    }
+
+    Spacer(Modifier.height(8.dp))
+
+    // 2. Constrained Space: Auto shrinks and wraps text (approaching MinContent)
+    Text("2. Tight Space (100dp) -> Wraps", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+    Box(Modifier.width(100.dp).border(1.dp, Color.Red).padding(4.dp)) {
+        Grid(config = { column(GridTrackSize.Auto) }) {
+            GridDemoItem(text = "I am Long Text that behaves like MinContent", color = Color.Yellow)
+        }
+    }
+
+    Spacer(Modifier.height(8.dp))
+
+    // 3. Comparison: MinContent vs Auto
+    Text("3. MinContent vs Auto", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+    Grid(
+        config = {
+            column(GridTrackSize.MinContent) // Will crush text to longest word
+            column(GridTrackSize.Auto) // Will wrap comfortably
+            gap(8.dp)
+        },
+        modifier = Modifier.fillMaxWidth().border(1.dp, Color.Blue).padding(4.dp),
+    ) {
+        GridDemoItem(text = "MinContent crushes me", color = Color.Red, row = 1, column = 1)
+        GridDemoItem(text = "Auto wraps me nicely", color = Color.Green, row = 1, column = 2)
+    }
+}
+
+@Composable
+private fun ResponsiveConstraintsDemo() {
+    DemoHeader("Responsive Layout (Constraints)")
+
+    Text(
+        "Resize the slider to change the container width.\n" +
+            "The Grid config reads 'constraints.maxWidth' to determine column count.",
+        fontSize = 12.sp,
+        fontStyle = FontStyle.Italic,
+        modifier = Modifier.padding(bottom = 8.dp),
+    )
+
+    var containerWidth by remember { mutableStateOf(300.dp) }
+
+    Column(Modifier.fillMaxWidth().border(1.dp, Color.LightGray).padding(8.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                "Width: ${containerWidth.value.toInt()}dp",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+            )
+            Slider(
+                value = containerWidth.value,
+                onValueChange = { containerWidth = it.dp },
+                valueRange = 200f..500f,
+                modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
+            )
+        }
+
+        // 2. Responsive Container
+        Box(
+            modifier =
+                Modifier.width(containerWidth)
+                    .border(2.dp, Color.Blue.copy(alpha = 0.5f))
+                    .padding(4.dp)
+        ) {
+            Grid(
+                config = {
+                    // Accessing 'constraints' from GridConfigurationScope.
+                    val maxWidthDp = constraints.maxWidth.toDp()
+
+                    val columnCount =
+                        when {
+                            maxWidthDp < 300.dp -> 2 // Compact
+                            maxWidthDp < 400.dp -> 3 // Medium
+                            else -> 4 // Expanded
+                        }
+
+                    // Define columns based on calculation
+                    repeat(columnCount) { column(1.fr) }
+                    gap(4.dp)
+                }
+            ) {
+                // Populate plenty of items to show the flow
+                repeat(8) {
+                    val color =
+                        when {
+                            containerWidth < 300.dp -> Color.Red // Compact Theme
+                            containerWidth < 400.dp -> Color.Yellow // Medium Theme
+                            else -> Color.Green // Expanded Theme
+                        }
+                    GridDemoItem(text = "${it + 1}", color = color, measureSize = false)
+                }
+            }
         }
     }
 }

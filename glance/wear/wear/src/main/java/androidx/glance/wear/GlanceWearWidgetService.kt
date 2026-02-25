@@ -19,6 +19,7 @@ package androidx.glance.wear
 import android.content.ComponentName
 import android.content.Intent
 import android.os.IBinder
+import androidx.glance.wear.core.WearWidgetProviderInfo
 import androidx.glance.wear.parcel.IWearWidgetProvider
 import androidx.glance.wear.parcel.LegacyTileProviderImpl
 import androidx.glance.wear.parcel.WearWidgetProviderImpl
@@ -36,7 +37,7 @@ import androidx.lifecycle.lifecycleScope
  * }
  * ```
  */
-public abstract class GlanceWearWidgetService() : LifecycleService() {
+public abstract class GlanceWearWidgetService : LifecycleService() {
 
     /** Instance of [GlanceWearWidget] associated with this provider. */
     public abstract val widget: GlanceWearWidget

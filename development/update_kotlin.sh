@@ -37,6 +37,7 @@ ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embe
 ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin:kotlin-metadata-jvm:$KOTLIN_VERSION,"
 ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin:swift-export-embeddable:$KOTLIN_VERSION,"
 ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin:abi-tools:$KOTLIN_VERSION,"
+ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin:kotlin-build-tools-compat:$KOTLIN_VERSION,"
 
 ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin:kotlin-native-prebuilt:$KOTLIN_VERSION:linux-x86_64@tar.gz,"
 ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin:kotlin-native-prebuilt:$KOTLIN_VERSION:macos-x86_64@tar.gz,"

@@ -116,7 +116,7 @@ public abstract class StrokeInputBatch internal constructor(nativePointer: Long)
         return outStrokeInput
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public abstract fun toImmutable(): ImmutableStrokeInputBatch
 
     // NOMUTANTS -- Not tested post garbage collection.
@@ -141,7 +141,7 @@ public abstract class StrokeInputBatch internal constructor(nativePointer: Long)
 public class ImmutableStrokeInputBatch private constructor(nativePointer: Long) :
     StrokeInputBatch(nativePointer) {
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public override fun toImmutable(): ImmutableStrokeInputBatch = this
 
     public override fun toString(): String = "ImmutableStrokeInputBatch(size=$size)"
@@ -334,7 +334,7 @@ public class MutableStrokeInputBatch : StrokeInputBatch(StrokeInputBatchNative.c
         MutableStrokeInputBatchNative.setNoiseSeed(nativePointer, seed)
 
     /** Create [ImmutableStrokeInputBatch] with the accumulated StrokeInputs. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public override fun toImmutable(): ImmutableStrokeInputBatch =
         @OptIn(ExperimentalInkCustomBrushApi::class)
         if (isEmpty() && getNoiseSeed() == 0) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package androidx.xr.runtime.internal
 
 import android.app.Activity
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.interfaces.Service
 
 /** Factory for creating instances of SceneRuntime. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -26,11 +27,6 @@ public interface SceneRuntimeFactory : Service {
      * Creates a [JxrRuntime] instance.
      *
      * @param activity Current [Activity] instance.
-     * @param unscaledGravityAlignedActivitySpace whether to use the un-scaled & gravity aligned
-     *   activity space. Defaults to true.
      */
-    public fun create(
-        activity: Activity,
-        unscaledGravityAlignedActivitySpace: Boolean = true,
-    ): JxrRuntime
+    public fun create(activity: Activity): JxrRuntime
 }

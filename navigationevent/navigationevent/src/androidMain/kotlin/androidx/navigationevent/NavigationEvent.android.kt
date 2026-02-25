@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:JvmName("NavigationEventKt")
 
 package androidx.navigationevent
 
@@ -24,13 +25,25 @@ import androidx.annotation.RequiresApi
 // The suppress is for `swipeEdge`. The constants in NavigationEvent should be the same
 // or a superset of the constants in BackEvent.
 @SuppressLint("WrongConstant")
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-internal fun NavigationEvent(backEvent: BackEvent): NavigationEvent {
+@RequiresApi(34)
+public fun BackEvent.toNavigationEvent(): NavigationEvent {
     return NavigationEvent(
-        touchX = backEvent.touchX,
-        touchY = backEvent.touchY,
-        progress = backEvent.progress,
-        swipeEdge = backEvent.swipeEdge,
-        frameTimeMillis = if (Build.VERSION.SDK_INT >= 36) backEvent.frameTimeMillis else 0,
+        touchX = touchX,
+        touchY = touchY,
+        progress = progress,
+        swipeEdge = swipeEdge,
+        frameTimeMillis = if (Build.VERSION.SDK_INT >= 36) frameTimeMillis else 0,
     )
+}
+
+// The suppress is for `swipeEdge`. The constants in NavigationEvent should be the same
+// or a superset of the constants in BackEvent.
+@SuppressLint("WrongConstant")
+@RequiresApi(34)
+public fun NavigationEvent.toBackEvent(): BackEvent {
+    return if (Build.VERSION.SDK_INT >= 36) {
+        BackEvent(touchX, touchY, progress, swipeEdge, frameTimeMillis)
+    } else {
+        BackEvent(touchX, touchY, progress, swipeEdge)
+    }
 }

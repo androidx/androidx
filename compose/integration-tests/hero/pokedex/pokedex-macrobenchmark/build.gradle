@@ -17,6 +17,7 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.test")
+    alias(libs.plugins.kotlinSerialization)
 }
 
 android {
@@ -40,4 +41,7 @@ dependencies {
     implementation(libs.testCore)
     implementation(libs.testRunner)
     implementation(libs.testUiautomator)
+    implementation(libs.okhttpMockwebserver)
+    implementation(libs.kotlinSerializationJson)
+
 }

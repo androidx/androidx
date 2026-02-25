@@ -37,12 +37,15 @@ public final class SpeculativeLoadingParameters {
     private final @NonNull Map<String, String> mAdditionalHeaders;
     private final @Nullable NoVarySearchHeader mExpectedNoVarySearchHeader;
     private final boolean mIsJavaScriptEnabled;
+    private final @Nullable Integer mVariationsId;
 
     private SpeculativeLoadingParameters(@NonNull Map<String, String> additionalHeaders,
-            @Nullable NoVarySearchHeader noVarySearchHeader, boolean isJavaScriptEnabled) {
+            @Nullable NoVarySearchHeader noVarySearchHeader, boolean isJavaScriptEnabled,
+            @Nullable Integer variationsId) {
         mAdditionalHeaders = additionalHeaders;
         mExpectedNoVarySearchHeader = noVarySearchHeader;
         mIsJavaScriptEnabled = isJavaScriptEnabled;
+        mVariationsId = variationsId;
     }
 
     /**
@@ -67,17 +70,27 @@ public final class SpeculativeLoadingParameters {
     }
 
     /**
+     * @return The variations id built using {@link Builder}.
+     */
+    @SuppressWarnings("AutoBoxing") // Integer is intentional here.
+    public @Nullable Integer getVariationsId() {
+        return mVariationsId;
+    }
+
+    /**
      * A builder class to use to construct the {@link SpeculativeLoadingParameters}.
      */
     public static final class Builder {
         private final @NonNull Map<String, String> mAdditionalHeaders;
         private @Nullable NoVarySearchHeader mExpectedNoVarySearchHeader;
         private boolean mIsJavaScriptEnabled;
+        private @Nullable Integer mVariationsId;
 
         public Builder() {
             mAdditionalHeaders = new HashMap<>();
             mExpectedNoVarySearchHeader = null;
             mIsJavaScriptEnabled = false;
+            mVariationsId = null;
         }
 
         /**
@@ -90,7 +103,7 @@ public final class SpeculativeLoadingParameters {
         @Profile.ExperimentalUrlPrefetch
         public @NonNull SpeculativeLoadingParameters build() {
             return new SpeculativeLoadingParameters(mAdditionalHeaders, mExpectedNoVarySearchHeader,
-                    mIsJavaScriptEnabled);
+                    mIsJavaScriptEnabled, mVariationsId);
         }
 
         /**
@@ -149,6 +162,20 @@ public final class SpeculativeLoadingParameters {
         @Profile.ExperimentalUrlPrefetch
         public @NonNull Builder setJavaScriptEnabled(boolean javaScriptEnabled) {
             mIsJavaScriptEnabled = javaScriptEnabled;
+            return this;
+        }
+
+        /**
+         * Sets an optional variations ID to associate with this prefetch request.
+         *
+         * @param variationsId An Integer ID for this prefetch configuration, or {@code null}
+         *                     if no specific variations ID is applicable.
+         * @return This builder instance for chaining.
+         */
+        @Profile.ExperimentalUrlPrefetch
+        public @NonNull Builder setVariationsId(
+                @SuppressWarnings("AutoBoxing") @Nullable Integer variationsId) {
+            mVariationsId = variationsId;
             return this;
         }
 

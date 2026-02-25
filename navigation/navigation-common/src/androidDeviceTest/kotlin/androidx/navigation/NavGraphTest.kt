@@ -181,9 +181,7 @@ class NavGraphTest {
 
     @Test
     fun graphSetStartDestinationObject() {
-        @Serializable
-        @SerialName("route")
-        class TestClass(val arg: Int, val arg2: String? = "test")
+        @Serializable @SerialName("route") class TestClass(val arg: Int, val arg2: String? = "test")
 
         val graph =
             NavGraph(navGraphNavigator).apply {

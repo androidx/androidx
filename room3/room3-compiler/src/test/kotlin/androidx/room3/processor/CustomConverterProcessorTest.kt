@@ -404,20 +404,20 @@ class CustomConverterProcessorTest {
                     .use { output ->
                         output.write(
                             """
-                        import androidx.room3.TypeConverter;
-                        
-                        public class GeneratedTypeConverter {
-                            @TypeConverter
-                            public TestId toId(long id) {
-                                return new TestId();
+                            import androidx.room3.TypeConverter;
+
+                            public class GeneratedTypeConverter {
+                                @TypeConverter
+                                public TestId toId(long id) {
+                                    return new TestId();
+                                }
+                                
+                                @TypeConverter
+                                public long fromId(TestId id) {
+                                    return 1;
+                                }
                             }
-                            
-                            @TypeConverter
-                            public long fromId(TestId id) {
-                                return 1;
-                            }
-                        }
-                        """
+                            """
                                 .trimIndent()
                         )
                     }
@@ -435,16 +435,16 @@ class CustomConverterProcessorTest {
                     .use { output ->
                         output.write(
                             """
-                        import androidx.room3.TypeConverter
-                        
-                        class GeneratedTypeConverter {
-                            @TypeConverter
-                            fun toId(id: Long): TestId = TestId()
-                            
-                            @TypeConverter
-                            fun fromId(id: TestId): Long = 1L
-                        }
-                        """
+                            import androidx.room3.TypeConverter
+
+                            class GeneratedTypeConverter {
+                                @TypeConverter
+                                fun toId(id: Long): TestId = TestId()
+                                
+                                @TypeConverter
+                                fun fromId(id: TestId): Long = 1L
+                            }
+                            """
                                 .trimIndent()
                         )
                     }
@@ -467,25 +467,25 @@ class CustomConverterProcessorTest {
             Source.kotlin(
                 "MyDatabase.kt",
                 """
-            import androidx.room3.*
+                import androidx.room3.*
 
-            class TestId
+                class TestId
 
-            @Entity
-            data class TestEntity(@PrimaryKey val id: TestId)
+                @Entity
+                data class TestEntity(@PrimaryKey val id: TestId)
 
-            @Dao
-            interface MyDao {
-                @Query("SELECT * FROM TestEntity")
-                fun getAll(): List<TestEntity>
-            }
+                @Dao
+                interface MyDao {
+                    @Query("SELECT * FROM TestEntity")
+                    fun getAll(): List<TestEntity>
+                }
 
-            @Database(entities = [TestEntity::class], version = 1, exportSchema = false)
-            @TypeConverters(GeneratedTypeConverter::class)
-            abstract class MyDatabase : RoomDatabase() {
-                abstract fun getDao(): MyDao
-            }
-            """
+                @Database(entities = [TestEntity::class], version = 1, exportSchema = false)
+                @TypeConverters(GeneratedTypeConverter::class)
+                abstract class MyDatabase : RoomDatabase() {
+                    abstract fun getDao(): MyDao
+                }
+                """
                     .trimIndent(),
             )
         runKspProcessorTest(

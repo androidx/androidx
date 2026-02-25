@@ -58,7 +58,8 @@ class ProtoLayoutScopeTest {
 
     @Test
     public fun multipleSameResourcesRegistered_versionStaysTheSame() {
-        val scope = ProtoLayoutScope()
+        val scope1 = ProtoLayoutScope()
+        val scope2 = ProtoLayoutScope()
         val image1 =
             ImageResource.Builder()
                 .setAndroidResourceByResId(
@@ -75,21 +76,18 @@ class ProtoLayoutScopeTest {
                 )
                 .build()
 
-        scope.registerResource("1", image1)
-        scope.registerResource("2", image2)
-        val collectedResources = scope.collectResources()
-        val resVersion = collectedResources.version
-        scope.clearAll()
+        scope1.registerResource("1", image1)
+        scope1.registerResource("2", image2)
+        scope2.registerResource("2", image2)
+        scope2.registerResource("1", image1)
 
-        scope.registerResource("2", image2)
-        scope.registerResource("1", image1)
-
-        assertThat(scope.collectResources().version).isEqualTo(resVersion)
+        assertThat(scope1.collectResources().version).isEqualTo(scope2.collectResources().version)
     }
 
     @Test
     public fun multipleSameResourcesRegistered_withDifferentId_versionIsDifferent() {
-        val scope = ProtoLayoutScope()
+        val scope1 = ProtoLayoutScope()
+        val scope2 = ProtoLayoutScope()
         val image1 =
             ImageResource.Builder()
                 .setAndroidResourceByResId(
@@ -106,16 +104,13 @@ class ProtoLayoutScopeTest {
                 )
                 .build()
 
-        scope.registerResource("1", image1)
-        scope.registerResource("2", image2)
-        val collectedResources = scope.collectResources()
-        val resVersion = collectedResources.version
-        scope.clearAll()
+        scope1.registerResource("1", image1)
+        scope1.registerResource("2", image2)
+        scope2.registerResource("11", image1)
+        scope2.registerResource("2", image2)
 
-        scope.registerResource("11", image1)
-        scope.registerResource("2", image2)
-
-        assertThat(scope.collectResources().version).isNotEqualTo(resVersion)
+        assertThat(scope1.collectResources().version)
+            .isNotEqualTo(scope2.collectResources().version)
     }
 
     @Test
@@ -142,26 +137,6 @@ class ProtoLayoutScopeTest {
         assertThrows(IllegalArgumentException::class.java) {
             scope.registerPendingIntent(id, secondIntent)
         }
-    }
-
-    @Test
-    public fun clear_emptiesMappings() {
-        val scope = ProtoLayoutScope()
-        val intent = PendingIntent.getActivity(getApplicationContext(), 1, Intent(), 1)
-        val image =
-            ImageResource.Builder()
-                .setAndroidResourceByResId(
-                    AndroidImageResourceByResId.Builder().setResourceId(1234).build()
-                )
-                .build()
-
-        scope.registerResource("id", image)
-        scope.registerPendingIntent("id", intent)
-        scope.clearAll()
-
-        assertThat(scope.resources).isEmpty()
-        assertThat(scope.hasResources()).isFalse()
-        assertThat(scope.pendingIntents.isEmpty()).isTrue()
     }
 
     @Test

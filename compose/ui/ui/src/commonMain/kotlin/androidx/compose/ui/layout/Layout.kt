@@ -87,7 +87,7 @@ inline fun Layout(
         update = {
             set(measurePolicy, SetMeasurePolicy)
             set(localMap, SetResolvedCompositionLocals)
-            init(compositeKeyHash, SetCompositeKeyHash)
+            set(compositeKeyHash, SetCompositeKeyHash)
             reconcile(ApplyOnDeactivatedNodeAssertion)
             set(materialized, SetModifier)
         },
@@ -132,7 +132,7 @@ inline fun Layout(modifier: Modifier = Modifier, measurePolicy: MeasurePolicy) {
             set(localMap, SetResolvedCompositionLocals)
             reconcile(ApplyOnDeactivatedNodeAssertion)
             set(materialized, SetModifier)
-            init(compositeKeyHash, SetCompositeKeyHash)
+            set(compositeKeyHash, SetCompositeKeyHash)
         },
     )
 }
@@ -182,7 +182,7 @@ internal fun combineAsVirtualLayouts(
         val compositeKeyHash = currentCompositeKeyHashCode.hashCode()
         ReusableComposeNode<ComposeUiNode, Applier<Any>>(
             factory = ComposeUiNode.VirtualConstructor,
-            update = { init(compositeKeyHash, SetCompositeKeyHash) },
+            update = { set(compositeKeyHash, SetCompositeKeyHash) },
             content = content,
         )
     }
@@ -202,7 +202,7 @@ internal fun materializerOf(
     val materialized = currentComposer.materialize(modifier)
     update {
         set(materialized, SetModifier)
-        init(compositeKeyHash, SetCompositeKeyHash)
+        set(compositeKeyHash, SetCompositeKeyHash)
     }
 }
 
@@ -224,7 +224,7 @@ internal fun materializerOfWithCompositionLocalInjection(
     val materialized = currentComposer.materializeWithCompositionLocalInjectionInternal(modifier)
     update {
         set(materialized, SetModifier)
-        init(compositeKeyHash, SetCompositeKeyHash)
+        set(compositeKeyHash, SetCompositeKeyHash)
     }
 }
 
@@ -252,7 +252,7 @@ fun MultiMeasureLayout(
             @Suppress("DEPRECATION") init { this.canMultiMeasure = true }
             reconcile(ApplyOnDeactivatedNodeAssertion)
             set(materialized, SetModifier)
-            init(compositeKeyHash, SetCompositeKeyHash)
+            set(compositeKeyHash, SetCompositeKeyHash)
         },
         content = content,
     )

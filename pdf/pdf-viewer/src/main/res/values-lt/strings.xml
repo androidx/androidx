@@ -81,6 +81,7 @@
     <string name="form_click_toggle_instruction" msgid="7171111300244445911">"Spustelėjus bus perjungta vertė."</string>
     <string name="form_click_opens_choices_menu_instruction" msgid="5648228168212004143">"Spustelėjus bus atidarytas pasirinkimo meniu."</string>
     <string name="form_click_enters_text_edit_mode_instruction" msgid="2305283577544618880">"Spustelėjus bus įjungtas teksto redagavimo režimas."</string>
+    <string name="combobox_custom_option" msgid="8730230629127076731">"Tinkinta"</string>
     <string name="form_unknown" msgid="6371515914365431330">"Nežinoma"</string>
     <string name="form_widget_type_push_button" msgid="3595388398616291441">"Mygtuko paspaudimas"</string>
     <string name="form_widget_type_checkbox" msgid="5165655383070460151">"Žymimasis laukelis"</string>

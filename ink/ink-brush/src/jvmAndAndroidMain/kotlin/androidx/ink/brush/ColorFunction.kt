@@ -27,13 +27,14 @@ import androidx.ink.nativeloader.UsedByNative
 
 /** A [ColorFunction] defines a mapping over colors. */
 @ExperimentalInkCustomBrushApi
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 
 // NotCloseable: Finalize is only used to free the native peer.
 @Suppress("NotCloseable")
 public abstract class ColorFunction private constructor(internal val nativePointer: Long) {
 
     /** Transforms the input color into a new color. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public abstract fun transformComposeColor(color: ComposeColor): ComposeColor
 
     /** Transforms the input color into a new color. */
@@ -74,6 +75,7 @@ public abstract class ColorFunction private constructor(internal val nativePoint
         public val multiplier: Float
             get() = ColorFunctionNative.getOpacityMultiplier(nativePointer)
 
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun transformComposeColor(color: ComposeColor): ComposeColor =
             color.copy(alpha = color.alpha * multiplier)
 
@@ -112,6 +114,7 @@ public abstract class ColorFunction private constructor(internal val nativePoint
         public val colorIntArgb: Int
             @ColorInt get(): Int = internalColor.toArgb()
 
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun transformComposeColor(color: ComposeColor): ComposeColor = this.internalColor
 
         override fun equals(other: Any?): Boolean {
@@ -128,6 +131,7 @@ public abstract class ColorFunction private constructor(internal val nativePoint
         public companion object {
 
             @JvmStatic
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             public fun withComposeColor(color: ComposeColor): ReplaceColor =
                 ReplaceColor(
                     color.toColorInInkSupportedColorSpace().let { convertedColor ->

@@ -60,8 +60,7 @@ import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnState
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -69,9 +68,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class ScrollAwayTest {
-    @OptIn(ExperimentalCoroutinesApi::class) // b/457595340
-    @get:Rule
-    val rule = createComposeRule(UnconfinedTestDispatcher())
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test

@@ -18,18 +18,16 @@ package androidx.camera.integration.extensions
 
 import android.Manifest
 import android.content.Context
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.ImageCapture
 import androidx.camera.extensions.ExtensionsManager
-import androidx.camera.integration.extensions.CameraExtensionsActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
-import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.CameraXExtensionTestParams
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.assumeExtensionModeOutputFormatSupported
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.assumeExtensionModeSupported
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.launchCameraExtensionsActivity
 import androidx.camera.integration.extensions.util.HOME_TIMEOUT_MS
 import androidx.camera.integration.extensions.util.takePictureAndWaitForImageSavedIdle
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.CoreAppTestUtil
@@ -52,17 +50,13 @@ import org.junit.runners.Parameterized
 /** The tests to verify that ImageCapture can work well when extension modes are enabled. */
 @LargeTest
 @RunWith(Parameterized::class)
-class ImageCaptureTest(private val config: CameraXExtensionTestParams) {
+class ImageCaptureTest(private val cameraId: String, private val extensionMode: Int) {
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = config.implName == CAMERA_PIPE_IMPLEMENTATION_OPTION)
 
     @get:Rule
     val useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-            PreTestCameraIdList(config.cameraXConfig)
+            PreTestCameraIdList(Camera2Config.defaultConfig())
         )
 
     @get:Rule
@@ -75,7 +69,7 @@ class ImageCaptureTest(private val config: CameraXExtensionTestParams) {
     companion object {
         val context = ApplicationProvider.getApplicationContext<Context>()
 
-        @Parameterized.Parameters(name = "config = {0}")
+        @Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
         @JvmStatic
         fun parameters() = CameraXExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
     }
@@ -96,12 +90,11 @@ class ImageCaptureTest(private val config: CameraXExtensionTestParams) {
         // explicitly initiated from within the test.
         device.setOrientationNatural()
 
-        ProcessCameraProvider.configureInstance(config.cameraXConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
 
         extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
 
-        assumeExtensionModeSupported(extensionsManager, config.cameraId, config.extensionMode)
+        assumeExtensionModeSupported(extensionsManager, cameraId, extensionMode)
     }
 
     @After
@@ -165,16 +158,16 @@ class ImageCaptureTest(private val config: CameraXExtensionTestParams) {
             assumeExtensionModeOutputFormatSupported(
                 cameraProvider,
                 extensionsManager,
-                config.cameraId,
-                config.extensionMode,
+                cameraId,
+                extensionMode,
                 ImageCapture.OUTPUT_FORMAT_JPEG_ULTRA_HDR,
             )
         }
 
         val activityScenario =
             launchCameraExtensionsActivity(
-                config.cameraId,
-                config.extensionMode,
+                cameraId,
+                extensionMode,
                 outputFormat = outputFormat,
                 videoCaptureEnabled = videoCaptureEnabled,
             )

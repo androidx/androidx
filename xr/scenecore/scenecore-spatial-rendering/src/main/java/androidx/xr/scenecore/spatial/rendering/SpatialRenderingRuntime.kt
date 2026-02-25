@@ -52,7 +52,7 @@ import com.google.ar.imp.view.splitengine.ImpSplitEngineRenderer
 
 /**
  * Implementation of [RenderingRuntime] for devices that support the
- * [androidx.xr.runtime.internal.Feature.SPATIAL] system feature.
+ * [androidx.xr.runtime.interfaces.Feature.SPATIAL] system feature.
  */
 internal class SpatialRenderingRuntime
 private constructor(
@@ -664,6 +664,7 @@ private constructor(
 
     override fun createSurfaceEntity(
         @SurfaceEntity.StereoMode stereoMode: Int,
+        @SurfaceEntity.MediaBlendingMode mediaBlendingMode: Int,
         pose: Pose,
         shape: SurfaceEntity.Shape,
         @SurfaceEntity.SurfaceProtection surfaceProtection: Int,
@@ -681,6 +682,7 @@ private constructor(
                 subspaceManager,
                 extensions,
                 stereoMode,
+                mediaBlendingMode,
                 shape,
                 surfaceProtection,
                 superSampling,

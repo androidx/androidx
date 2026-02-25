@@ -342,7 +342,7 @@ class LowLightBoostControlTest {
         activateLowLightBoost()
         val deferred =
             lowLightBoostControl
-                .also { it.setLowLightBoostDisabledByUseCaseSessionConfig(true) }
+                .also { it.checkFrameRateJob = CompletableDeferred(true) }
                 .setLowLightBoostAsync(true)
 
         assertThrows<IllegalStateException> { deferred.await() }

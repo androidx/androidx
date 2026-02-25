@@ -25,7 +25,7 @@ import androidx.xr.arcore.testing.FakePerceptionRuntimeFactory
 import androidx.xr.arcore.testing.FakeRuntimeAnchor
 import androidx.xr.arcore.testing.FakeRuntimePlane
 import androidx.xr.runtime.Config
-import androidx.xr.runtime.Config.PlaneTrackingMode
+import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.TrackingState
@@ -160,7 +160,13 @@ class PlaneTest {
 
         assertThat(anchorResult).isInstanceOf(AnchorCreateSuccess::class.java)
         val anchor = (anchorResult as AnchorCreateSuccess).anchor
-        assertThat(anchor.state.value.pose).isEqualTo(pose)
+        assertThat(anchor.state.value.pose.translation.x).isWithin(0.001f).of(pose.translation.x)
+        assertThat(anchor.state.value.pose.translation.y).isWithin(0.001f).of(pose.translation.y)
+        assertThat(anchor.state.value.pose.translation.z).isWithin(0.001f).of(pose.translation.z)
+        assertThat(anchor.state.value.pose.rotation.x).isWithin(0.001f).of(pose.rotation.x)
+        assertThat(anchor.state.value.pose.rotation.y).isWithin(0.001f).of(pose.rotation.y)
+        assertThat(anchor.state.value.pose.rotation.z).isWithin(0.001f).of(pose.rotation.z)
+        assertThat(anchor.state.value.pose.rotation.w).isWithin(0.001f).of(pose.rotation.w)
     }
 
     @Test
@@ -170,7 +176,7 @@ class PlaneTest {
         xrResourcesManager.syncTrackables(listOf(runtimePlane))
         val underTest = xrResourcesManager.trackablesMap.values.first() as Plane
 
-        repeat(FakeRuntimeAnchor.ANCHOR_RESOURCE_LIMIT) {
+        repeat(FakeRuntimeAnchor.anchorResourceLimit) {
             val result = underTest.createAnchor(Pose())
         }
 

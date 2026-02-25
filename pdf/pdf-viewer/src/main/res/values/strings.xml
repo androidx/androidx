@@ -223,6 +223,9 @@
     <!-- Instruction for click action when it enters text edit mode (text field type form widget)-->
     <string name="form_click_enters_text_edit_mode_instruction"> Click will enter text edit mode.</string>
 
+    <!-- Providing custom option in drop-down menu of combo-box type form widgets -->
+    <string name="combobox_custom_option">Custom</string>
+
     <!-- Unknown keyword for missing information / unknown widget type -->
     <string name="form_unknown">"Unknown"</string>
 

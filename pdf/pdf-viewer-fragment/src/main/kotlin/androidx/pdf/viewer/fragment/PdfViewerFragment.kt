@@ -56,7 +56,6 @@ import androidx.pdf.PdfDocument
 import androidx.pdf.content.ExternalLink
 import androidx.pdf.event.PdfTrackingEvent
 import androidx.pdf.event.RequestFailureEvent
-import androidx.pdf.featureflag.PdfFeatureFlags.isExternalHardwareInteractionEnabled
 import androidx.pdf.models.FormEditInfo
 import androidx.pdf.selection.Selection
 import androidx.pdf.util.AnnotationUtils
@@ -220,17 +219,26 @@ public open class PdfViewerFragment constructor() : Fragment() {
      * destroyed, i.e., after [onCreate] has fully run and before [onDestroy] runs, and only on the
      * main thread.
      */
+    @Deprecated(
+        message =
+            "Use onLoadDocumentSuccess(PdfDocument) to directly access the loaded document instance."
+    )
     public open fun onLoadDocumentSuccess() {}
 
     /**
-     * Called when the document has been parsed and processed.
+     * Invoked when the document has been fully loaded and processed.
      *
      * <p>Note that this callback is dispatched only when the fragment is fully created and not yet
      * destroyed, i.e., after [onCreate] has fully run and before [onDestroy] runs, and only on the
      * main thread.
+     *
+     * @param document The [PdfDocument] instance representing the loaded PDF content. This
+     *   reference will be valid till a new [documentUri] is set or the fragment is destroyed.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    protected open fun onLoadDocumentSuccess(document: PdfDocument) {}
+    public open fun onLoadDocumentSuccess(document: PdfDocument) {
+        // Trigger the deprecated parameterless callback to maintain backward compatibility
+        @Suppress("DEPRECATION") onLoadDocumentSuccess()
+    }
 
     /**
      * Invoked when a problem arises during the loading process of the PDF document. This callback
@@ -574,11 +582,7 @@ public open class PdfViewerFragment constructor() : Fragment() {
 
         // Activates text search when PdfView receives Ctrl + F key press
         _pdfView.setOnKeyListener { _, keyCode, event ->
-            if (
-                isExternalHardwareInteractionEnabled &&
-                    keyCode == KeyEvent.KEYCODE_F &&
-                    event.action == KeyEvent.ACTION_DOWN
-            ) {
+            if (keyCode == KeyEvent.KEYCODE_F && event.action == KeyEvent.ACTION_DOWN) {
                 isTextSearchActive = true
                 return@setOnKeyListener true
             }
@@ -627,6 +631,8 @@ public open class PdfViewerFragment constructor() : Fragment() {
 
     private fun setupSearchViewListeners(searchView: PdfSearchView) {
         with(searchView) {
+            onSearchCloseRequested = { isTextSearchActive = false }
+
             searchQueryBox.addTextChangedListener(searchQueryTextWatcher)
 
             searchQueryBox.setOnEditorActionListener { _, actionId, _ ->
@@ -784,7 +790,7 @@ public open class PdfViewerFragment constructor() : Fragment() {
     private fun handleDocumentLoaded(uiState: DocumentLoaded) {
         dismissPasswordDialog()
         onLoadDocumentSuccess(uiState.pdfDocument)
-        onLoadDocumentSuccess()
+
         _pdfView.pdfDocument = uiState.pdfDocument
         _toolboxView.setPdfDocument(uiState.pdfDocument)
         setAnnotationIntentResolvability(uiState.pdfDocument.uri)

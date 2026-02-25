@@ -104,5 +104,5 @@ public annotation class AppFunctionSerializable(
      * properties' KDoc will also be set as their corresponding descriptions. The caller will use
      * the descriptions to interpret when and how to use the class and its properties.
      */
-    public val isDescribedByKdoc: Boolean = false
+    public val isDescribedByKDoc: Boolean = false
 )

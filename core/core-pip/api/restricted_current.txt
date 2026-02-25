@@ -43,7 +43,6 @@ package androidx.core.pip {
   public final class VideoPlaybackPictureInPicture extends androidx.core.pip.BasicPictureInPicture implements java.lang.AutoCloseable {
     ctor public VideoPlaybackPictureInPicture(androidx.core.app.PictureInPictureProvider provider);
     method public void close();
-    method public void onViewBoundsChanged(android.view.View view, android.graphics.Rect newBounds);
     method public androidx.core.pip.VideoPlaybackPictureInPicture setPlayerView(android.view.View? view);
   }
 

@@ -271,6 +271,8 @@ class MeasureClientTest {
         fun setException() {
             throwExcepotion = true
         }
+
+        override fun getInterfaceVersion(): Int = VERSION
     }
 
     internal companion object {

@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:JvmMultifileClass
 @file:JvmName("SQLite")
 
 package androidx.sqlite
 
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
+import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
 
 /** The data type for a 64-bit signed integer. */
@@ -51,11 +53,6 @@ public const val SQLITE_DATA_NULL: Int = 5
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public annotation class DataType
 
-/** Executes a single SQL statement that returns no values. */
-public fun SQLiteConnection.execSQL(sql: String) {
-    prepare(sql).use { it.step() }
-}
-
 /** Throws a [SQLiteException] with its message formed by the given [errorCode] amd [errorMsg]. */
 public fun throwSQLiteException(errorCode: Int, errorMsg: String?): Nothing {
     val message = buildString {
@@ -66,3 +63,31 @@ public fun throwSQLiteException(errorCode: Int, errorMsg: String?): Nothing {
     }
     throw SQLiteException(message)
 }
+
+/**
+ * Opens a new database connection.
+ *
+ * On web targets this function is asynchronous while for non-web it is synchronous.
+ */
+public expect suspend fun SQLiteDriver.open(fileName: String): SQLiteConnection
+
+/**
+ * Prepares a new SQL statement asynchronously.
+ *
+ * On web targets this function is asynchronous while for non-web it is synchronous.
+ */
+public expect suspend fun SQLiteConnection.prepare(sql: String): SQLiteStatement
+
+/**
+ * Executes a single SQL statement asynchronously that returns no values.
+ *
+ * On web targets this function is asynchronous while for non-web it is synchronous.
+ */
+public expect suspend fun SQLiteConnection.executeSQL(sql: String)
+
+/**
+ * Executes the statement asynchronously and evaluates the next result row if available.
+ *
+ * On web targets this function is asynchronous while for non-web it is synchronous.
+ */
+public expect suspend fun SQLiteStatement.step(): Boolean

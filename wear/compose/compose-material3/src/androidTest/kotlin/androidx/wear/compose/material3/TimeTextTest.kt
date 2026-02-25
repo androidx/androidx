@@ -34,16 +34,13 @@ import androidx.wear.compose.foundation.curvedComposable
 import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 
 class TimeTextTest {
-    @OptIn(ExperimentalCoroutinesApi::class) // b/457595340
-    @get:Rule
-    val rule = createComposeRule(UnconfinedTestDispatcher())
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun supports_testtag() {

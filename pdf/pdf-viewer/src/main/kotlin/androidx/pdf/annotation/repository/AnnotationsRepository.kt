@@ -41,6 +41,12 @@ public interface AnnotationsRepository {
      */
     public suspend fun getAnnotationsForPage(pageNum: Int): List<KeyedPdfAnnotation>
 
+    /**
+     * Cleans up the internal cache of the repository. The next call to [getAnnotationsForPage] or
+     * [getAnnotation] would repopulate the cache.
+     */
+    public fun clear()
+
     public companion object {
         public fun create(document: PdfDocument): AnnotationsRepository {
             return PdfDocumentAnnotationsRepository(document)

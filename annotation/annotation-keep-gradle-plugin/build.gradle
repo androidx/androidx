@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.*
@@ -37,7 +36,7 @@ configurations {
 
 dependencies {
     api(gradleApi())
-    compileOnly(libs.androidGradlePlugin)
+    compileOnly(libs.androidGradlePluginApi)
     implementation(libs.asm)
     implementation(libs.asmCommons)
     implementation(libs.asmUtil)
@@ -45,13 +44,13 @@ dependencies {
     // Eventually we need to figure out a way to version the annotations and this library together.
     // implementation(files("libs/keepanno-toolslib.jar"))
     testImplementation(project(":internal-testutils-gradle-plugin"))
-    testImplementation(libs.androidGradlePlugin)
+    testImplementation(libs.androidGradlePluginApi)
     testImplementation(gradleTestKit())
     testImplementation(libs.junit)
     testImplementation(libs.kotlinTest)
     testImplementation(libs.truth)
     // Bootstrap Plugin test classpath
-    testPlugin(libs.androidGradlePlugin)
+    testPlugin(libs.androidGradlePluginApi)
     testPlugin(libs.kotlinGradlePlugin)
 }
 

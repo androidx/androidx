@@ -122,8 +122,11 @@ public class WebViewFeature {
             DELETE_BROWSING_DATA,
             PRERENDER_WITH_URL,
             SAVE_STATE,
+            NAVIGATION_GET_WEB_RESOURCE_ERROR,
             NAVIGATION_CALLBACK_BASIC,
             NAVIGATION_LISTENER_V1,
+            NAVIGATION_LISTENER_V2,
+            NAVIGATION_LISTENER_ON_COMPLETED_FIRES_FOR_NON_COMMITTED,
             PAYMENT_REQUEST,
             WEBVIEW_BUILDER_EXPERIMENTAL_V1,
             WEBVIEW_BUILDER_EXPERIMENTAL_V2,
@@ -134,8 +137,7 @@ public class WebViewFeature {
             ORIGIN_MATCHED_HEADERS,
             CUSTOM_REQUEST_HEADERS,
             ADD_QUIC_HINTS_V1,
-            NAVIGATION_LISTENER_ON_COMPLETED_FIRES_FOR_NON_COMMITTED,
-            WEB_VIEW_NAVIGATION_LISTENER_EXPERIMENTAL_V2
+            PAGE_GET_URL
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -666,6 +668,15 @@ public class WebViewFeature {
      */
     public static final String BACK_FORWARD_CACHE_SETTINGS = "BACK_FORWARD_CACHE_SETTINGS";
 
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link BackForwardCacheSettings#setMaxPagesInCache(int)}
+     * {@link BackForwardCacheSettings#setTimeoutSeconds(long)}
+     */
+    public static final String BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3 =
+            "BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3";
+
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
@@ -716,6 +727,15 @@ public class WebViewFeature {
     public static final String SAVE_STATE = "SAVE_STATE";
 
     /**
+     * Feature for
+     * {@link Navigation#getWebResourceError()}
+     * {@link WebResourceErrorCompat#getDebugCode()}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String NAVIGATION_GET_WEB_RESOURCE_ERROR =
+            "NAVIGATION_GET_WEB_RESOURCE_ERROR";
+
+    /**
      * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
      * This feature covers {@link WebViewCompat#getWebNavigationClient(WebView)};
      * This feature covers
@@ -740,6 +760,36 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
+     * {@link NavigationListener#onFirstContentfulPaintMillis(Page, long)},
+     * {@link NavigationListener#onLargestContentfulPaintMillis(Page, long)}, and
+     * {@link NavigationListener#onPerformanceMarkMillis(Page, String, long)}
+     */
+    @WebNavigationClient.ExperimentalNavigationCallback
+    public static final String NAVIGATION_LISTENER_V2 = "NAVIGATION_LISTENER_V2";
+
+    /**
+     * When this feature is enabled, {@link NavigationListener#onNavigationCompleted} will be
+     * called even for navigations that do not commit (eg, results in 204/download/cancelled).
+     * <p>
+     * This will become the default behavior of {@link NavigationListener}.
+     */
+    @WebNavigationClient.ExperimentalNavigationCallback
+    public static final String NAVIGATION_LISTENER_ON_COMPLETED_FIRES_FOR_NON_COMMITTED =
+            "NAVIGATION_LISTENER_ON_COMPLETED_FIRES_FOR_NON_COMMITTED";
+
+    /**
+     * When this feature is enabled, {@link Navigation#getPage()} will return non-null for committed
+     * navigations that are same document. Previously {@code null} was returned.
+     * <p>
+     * This will become the default behavior of {@link NavigationListener}.
+     */
+    @WebNavigationClient.ExperimentalNavigationCallback
+    public static final String NAVIGATION_LISTENER_NON_NULL_PAGE_FOR_SAME_DOCUMENT_NAVIGATIONS =
+            "NAVIGATION_LISTENER_NON_NULL_PAGE_FOR_SAME_DOCUMENT_NAVIGATIONS";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
      * {@link WebSettingsCompat#setPaymentRequestEnabled(WebSettings, boolean)},
      * {@link WebSettingsCompat#getPaymentRequestEnabled(WebSettings)},
      * {@link WebSettingsCompat#setHasEnrolledInstrumentEnabled(WebSettings, boolean)}, and
@@ -760,7 +810,6 @@ public class WebViewFeature {
      * This feature covers:
      * {@link WebViewBuilder#applyTo(WebView)}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @WebViewBuilder.Experimental
     public static final String WEBVIEW_BUILDER_EXPERIMENTAL_V2 =
             "WEBVIEW_BUILDER_EXPERIMENTAL_V2";
@@ -857,43 +906,16 @@ public class WebViewFeature {
     public static final String HYPERLINK_CONTEXT_MENU_ITEMS = "HYPERLINK_CONTEXT_MENU_ITEMS";
 
     /**
-     * When this feature is enabled, {@link NavigationListener#onNavigationCompleted} will be
-     * called even for navigations that do not commit (eg, results in 204/download/cancelled).
-     * <p>
-     * This will become the default behavior of {@link NavigationListener}.
-     */
-    @WebNavigationClient.ExperimentalNavigationCallback
-    public static final String NAVIGATION_LISTENER_ON_COMPLETED_FIRES_FOR_NON_COMMITTED =
-            "NAVIGATION_LISTENER_ON_COMPLETED_FIRES_FOR_NON_COMMITTED";
-
-    /**
-     * When this feature is enabled, {@link Navigation#getPage()} will return non-null for committed
-     * navigations that are same document. Previously {@code null} was returned.
-     * <p>
-     * This will become the default behavior of {@link NavigationListener}.
-     */
-    @WebNavigationClient.ExperimentalNavigationCallback
-    public static final String NAVIGATION_LISTENER_NON_NULL_PAGE_FOR_SAME_DOCUMENT_NAVIGATIONS =
-            "NAVIGATION_LISTENER_NON_NULL_PAGE_FOR_SAME_DOCUMENT_NAVIGATIONS";
-
-    /**
-     * Feature for {@link #isFeatureSupported(String)}.
-     * This feature covers
-     * {@link NavigationListener#onFirstContentfulPaintMillis(Page, long)},
-     * {@link NavigationListener#onLargestContentfulPaintMillis(Page, long)}, and
-     * {@link NavigationListener#onPerformanceMarkMillis(Page, String, long)}
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @WebNavigationClient.ExperimentalNavigationCallback
-    public static final String WEB_VIEW_NAVIGATION_LISTENER_EXPERIMENTAL_V2 =
-            "WEB_VIEW_NAVIGATION_LISTENER_EXPERIMENTAL_V2";
-
-    /**
      * This is an internal only feature that indicate whether it is safe to cache WebView Provider
      * objects for the current WebView APK.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String PROVIDER_WEAKLY_REF_WEBVIEW = "PROVIDER_WEAKLY_REF_WEBVIEW";
+
+    /**
+     * Feature for {@link Page#getUrl()}.
+     */
+    public static final String PAGE_GET_URL = "PAGE_GET_URL";
 
     /**
      * Return whether a feature is supported at run-time. This will check whether a feature is

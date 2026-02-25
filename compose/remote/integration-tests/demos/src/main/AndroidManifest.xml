@@ -17,6 +17,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- This is needed for uiAutomator. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:enableOnBackInvokedCallback="true"
         android:icon="@mipmap/ic_launcher"
@@ -49,6 +52,13 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".widget.ListRemoteViewActivity"
+            android:configChanges="uiMode"
+            android:exported="true"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
         </activity>
 
         <receiver

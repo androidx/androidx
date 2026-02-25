@@ -62,10 +62,13 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.app.ActivityManagerCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.flagging.Flags;
 import androidx.core.hardware.display.DisplayManagerCompat;
+import androidx.core.util.Function;
 import androidx.core.util.Pair;
 import androidx.core.util.Preconditions;
 import androidx.media.VolumeProviderCompat;
+import androidx.mediarouter.media.MediaRouter.DeviceSuggestionsUpdatesCallback;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -79,7 +82,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.Executor;
 
 /**
  * Global state for the media router.
@@ -93,6 +98,14 @@ import java.util.Set;
 
     static final String TAG = MediaRouter.TAG;
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+
+    /**
+     * Reference layer to mimic manifest {@link MediaTransferReceiver} configurations in the
+     * manifest during testing.
+     */
+    @VisibleForTesting
+    /* package */ static Function<Context, Boolean> sMediaTransferDeclarationChecker =
+            MediaTransferReceiver::isDeclared;
 
     final CallbackHandler mCallbackHandler = new CallbackHandler();
     // A map from unique route ID to RouteController for the member routes in the currently
@@ -136,6 +149,8 @@ import java.util.Set;
     private MediaSessionRecord mMediaSession;
     private MediaSessionCompat mCompatSession;
 
+    private final IDeviceSuggestionsImpl mDeviceSuggestionsImpl;
+
     /* package */ GlobalMediaRouter(Context applicationContext) {
         mApplicationContext = applicationContext;
         mLowRam =
@@ -145,7 +160,7 @@ import java.util.Set;
 
         mTransferReceiverDeclared =
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
-                        && MediaTransferReceiver.isDeclared(mApplicationContext);
+                        && sMediaTransferDeclarationChecker.apply(mApplicationContext);
         mUseMediaRouter2ForSystemRouting =
                 SystemRoutingUsingMediaRouter2Receiver.isDeclared(mApplicationContext);
 
@@ -165,6 +180,17 @@ import java.util.Set;
         // from the media router.
         mPlatformMediaRouter1RouteProvider =
                 PlatformMediaRouter1RouteProvider.obtain(mApplicationContext, this);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA
+                && Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1
+                && Flags.getBooleanFlagValue(
+                        MediaRouterFlags.NAMESPACE, MediaRouterFlags.ENABLE_SUGGESTED_DEVICE_API)
+                && mMr2Provider != null) {
+            mDeviceSuggestionsImpl = mMr2Provider;
+        } else {
+            mDeviceSuggestionsImpl = new LocalDeviceSuggestionsImpl();
+        }
+
         start();
     }
 
@@ -353,6 +379,34 @@ import java.util.Set;
         if (mMr2Provider != null) {
             mMr2Provider.setRouteListingPreference(routeListingPreference);
         }
+    }
+
+    /* package */ void setDeviceSuggestions(@NonNull List<SuggestedDeviceInfo> suggestedDevices) {
+        mDeviceSuggestionsImpl.setDeviceSuggestions(suggestedDevices);
+    }
+
+    /* package */ void clearDeviceSuggestions() {
+        mDeviceSuggestionsImpl.clearDeviceSuggestions();
+    }
+
+    /* package */ Map<String, List<SuggestedDeviceInfo>> getDeviceSuggestions() {
+        return mDeviceSuggestionsImpl.getDeviceSuggestions();
+    }
+
+    /* package */ void registerDeviceSuggestionsUpdatesCallback(
+            @NonNull DeviceSuggestionsUpdatesCallback deviceSuggestionsUpdatesCallback,
+            @Nullable Executor executor) {
+        if (executor == null) {
+            executor = ContextCompat.getMainExecutor(mApplicationContext);
+        }
+        mDeviceSuggestionsImpl.registerDeviceSuggestionsUpdatesCallback(
+                deviceSuggestionsUpdatesCallback, executor);
+    }
+
+    /* package */ void unregisterDeviceSuggestionsUpdatesCallback(
+            @NonNull DeviceSuggestionsUpdatesCallback deviceSuggestionsUpdatesCallback) {
+        mDeviceSuggestionsImpl.unregisterDeviceSuggestionsUpdatesCallback(
+                deviceSuggestionsUpdatesCallback);
     }
 
     @NonNull
@@ -856,10 +910,23 @@ import java.util.Set;
         return mCallbackCount;
     }
 
+    /**
+     * Gets whether to enable {@link MediaRoute2Provider}.
+     *
+     * <p>{@link MediaRoute2Provider} uses the Android platform's {@link android.media.MediaRouter2}
+     * in order to connect to {@link MediaRouteProviderService provider services}. Which is in turn
+     * necessary for any features that rely on MediaRouter2. Such as Output Switcher, routing
+     * controls on wearable devices, and SysUI intelligent device suggestions.
+     */
     /* package */ boolean isMediaTransferEnabled() {
-        // The default value for isMediaTransferReceiverEnabled() is {@code true}.
-        return mTransferReceiverDeclared
-                && (mRouterParams == null || mRouterParams.isMediaTransferReceiverEnabled());
+        if (mTransferReceiverDeclared) {
+            return mRouterParams == null || mRouterParams.isMediaTransferReceiverEnabled();
+        } else if (mRouterParams != null
+                && mRouterParams.isMediaTransferReceiverEnabledExplicitlySet()) {
+            return mRouterParams.isMediaTransferReceiverEnabled();
+        } else {
+            return false;
+        }
     }
 
     /* package */ boolean isTransferToLocalEnabled() {
@@ -1685,6 +1752,122 @@ import java.util.Set;
             // Does nothing when the selected route is same with fallback route.
             // This is the difference between this and unselect().
         }
+    }
+
+    private final class LocalDeviceSuggestionsImpl implements IDeviceSuggestionsImpl {
+        private Map<String, List<SuggestedDeviceInfo>> mSuggestedDevices = Collections.emptyMap();
+        private final List<DeviceSuggestionsCallbackRecord> mDeviceSuggestionsCallbackRecords =
+                new ArrayList<>();
+        private final String mPackageName = mApplicationContext.getPackageName();
+
+        @Override
+        public void setDeviceSuggestions(@NonNull List<SuggestedDeviceInfo> suggestedDevices) {
+            final List<SuggestedDeviceInfo> immutableDevicesList = List.copyOf(suggestedDevices);
+            mSuggestedDevices = Collections.singletonMap(mPackageName, immutableDevicesList);
+            for (DeviceSuggestionsCallbackRecord callbackRecord :
+                    mDeviceSuggestionsCallbackRecords) {
+                Executor executor = callbackRecord.getExecutor();
+                executor.execute(
+                        () ->
+                                callbackRecord
+                                        .getDeviceSuggestionsUpdatesCallback()
+                                        .onSuggestionsUpdated(mPackageName, immutableDevicesList));
+            }
+        }
+
+        @Override
+        public void clearDeviceSuggestions() {
+            mSuggestedDevices = Collections.emptyMap();
+            for (DeviceSuggestionsCallbackRecord callbackRecord :
+                    mDeviceSuggestionsCallbackRecords) {
+                Executor executor = callbackRecord.getExecutor();
+                executor.execute(
+                        () ->
+                                callbackRecord
+                                        .getDeviceSuggestionsUpdatesCallback()
+                                        .onSuggestionsCleared(mPackageName));
+            }
+        }
+
+        @Override
+        public Map<String, List<SuggestedDeviceInfo>> getDeviceSuggestions() {
+            return mSuggestedDevices;
+        }
+
+        @Override
+        public void registerDeviceSuggestionsUpdatesCallback(
+                @NonNull DeviceSuggestionsUpdatesCallback deviceSuggestionsUpdatesCallback,
+                @NonNull Executor executor) {
+            DeviceSuggestionsCallbackRecord callbackRecord =
+                    new DeviceSuggestionsCallbackRecord(deviceSuggestionsUpdatesCallback, executor);
+            mDeviceSuggestionsCallbackRecords.remove(callbackRecord);
+            mDeviceSuggestionsCallbackRecords.add(callbackRecord);
+        }
+
+        @Override
+        public void unregisterDeviceSuggestionsUpdatesCallback(
+                @NonNull DeviceSuggestionsUpdatesCallback deviceSuggestionsUpdatesCallback) {
+            for (DeviceSuggestionsCallbackRecord callbackRecord :
+                    mDeviceSuggestionsCallbackRecords) {
+                if (callbackRecord.getDeviceSuggestionsUpdatesCallback()
+                        == deviceSuggestionsUpdatesCallback) {
+                    mDeviceSuggestionsCallbackRecords.remove(callbackRecord);
+                    break;
+                }
+            }
+        }
+
+        private final class DeviceSuggestionsCallbackRecord {
+            private final DeviceSuggestionsUpdatesCallback mDeviceSuggestionsUpdatesCallback;
+            private final Executor mExecutor;
+
+            DeviceSuggestionsCallbackRecord(
+                    @NonNull DeviceSuggestionsUpdatesCallback deviceSuggestionsUpdatesCallback,
+                    @NonNull Executor executor) {
+                mDeviceSuggestionsUpdatesCallback = deviceSuggestionsUpdatesCallback;
+                mExecutor = executor;
+            }
+
+            public DeviceSuggestionsUpdatesCallback getDeviceSuggestionsUpdatesCallback() {
+                return mDeviceSuggestionsUpdatesCallback;
+            }
+
+            public Executor getExecutor() {
+                return mExecutor;
+            }
+
+            @Override
+            public boolean equals(@Nullable Object obj) {
+                if (this == obj) {
+                    return true;
+                }
+                if (!(obj instanceof DeviceSuggestionsCallbackRecord)) {
+                    return false;
+                }
+                return ((DeviceSuggestionsCallbackRecord) obj).getDeviceSuggestionsUpdatesCallback()
+                        == this.getDeviceSuggestionsUpdatesCallback();
+            }
+
+            @Override
+            public int hashCode() {
+                return Objects.hash(getDeviceSuggestionsUpdatesCallback());
+            }
+        }
+    }
+
+    /* package */ interface IDeviceSuggestionsImpl {
+        void setDeviceSuggestions(@NonNull List<SuggestedDeviceInfo> suggestedDevices);
+
+        void clearDeviceSuggestions();
+
+        Map<String, List<SuggestedDeviceInfo>> getDeviceSuggestions();
+
+        void registerDeviceSuggestionsUpdatesCallback(
+                @NonNull DeviceSuggestionsUpdatesCallback deviceSuggestionsUpdatesCallback,
+                @NonNull Executor executor);
+
+        void unregisterDeviceSuggestionsUpdatesCallback(
+                @NonNull DeviceSuggestionsUpdatesCallback deviceSuggestionsUpdatesCallback);
     }
 
     private class RouteConnection

@@ -16,6 +16,7 @@
 
 package androidx.xr.compose.spatial
 
+import android.app.Activity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -269,8 +270,8 @@ class OrbiterTest {
 
         composeTestRule
             .onNodeWithTag("orbiterContentBox")
-            .assertWidthIsEqualTo(session.activity.window.decorView.width.toDp())
-            .assertHeightIsEqualTo(session.activity.window.decorView.height.toDp())
+            .assertWidthIsEqualTo((session.context as Activity).window.decorView.width.toDp())
+            .assertHeightIsEqualTo((session.context as Activity).window.decorView.height.toDp())
     }
 
     @Test
@@ -523,8 +524,8 @@ class OrbiterTest {
         composeTestRule.setContent {
             val session = checkNotNull(LocalSession.current)
 
-            initialWidth = session.activity.window.decorView.width
-            initialHeight = session.activity.window.decorView.height
+            initialWidth = (session.context as Activity).window.decorView.width
+            initialHeight = (session.context as Activity).window.decorView.height
             targetResizeWidth = initialWidth + 100
             targetResizeHeight = initialHeight + 100
 
@@ -532,12 +533,10 @@ class OrbiterTest {
             // true.
             LaunchedEffect(triggerResize) {
                 if (triggerResize) {
-                    session.activity.window.decorView.layout(
-                        0,
-                        0,
-                        targetResizeWidth,
-                        targetResizeHeight,
-                    )
+                    (session.context as Activity)
+                        .window
+                        .decorView
+                        .layout(0, 0, targetResizeWidth, targetResizeHeight)
                 }
             }
 

@@ -44,6 +44,7 @@ import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.SurfaceTransformation
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
@@ -174,4 +175,28 @@ fun TransformingLazyColumnScrollToItemSample() {
     }
 
     LaunchedEffect(state.anchorItemIndex) { println("Anchor item index: ${state.anchorItemIndex}") }
+}
+
+@Sampled
+@Preview
+@Composable
+fun TransformingLazyColumnMinimumVerticalContentPaddingSample() {
+    val transformationSpec = rememberTransformationSpec()
+
+    TransformingLazyColumn(contentPadding = PaddingValues(horizontal = 20.dp)) {
+        items(count = 20) { index ->
+            Button(
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .transformedHeight(this, transformationSpec)
+                        .minimumVerticalContentPadding(
+                            ButtonDefaults.minimumVerticalListContentPadding
+                        ),
+                transformation = SurfaceTransformation(transformationSpec),
+                onClick = {},
+            ) {
+                Text(text = "Item $index")
+            }
+        }
+    }
 }

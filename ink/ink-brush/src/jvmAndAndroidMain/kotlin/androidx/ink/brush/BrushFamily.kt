@@ -42,18 +42,21 @@ private constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val nativePointer: Long,
     coats: List<BrushCoat>,
     /** The [InputModel] that will be used by a [Brush] in this [BrushFamily]. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public val inputModel: InputModel,
 ) {
 
     /** The [BrushCoat]s that make up this [BrushFamily]. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public val coats: List<BrushCoat> = unmodifiableList(coats.toList())
 
     /** Client-provided identifier for this [BrushFamily]. */
     // Cached to avoid converting C++ string to JVM string every time.
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public val clientBrushFamilyId: String = BrushFamilyNative.getClientBrushFamilyId(nativePointer)
+
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    public val developerComment: String = BrushFamilyNative.getDeveloperComment(nativePointer)
 
     /**
      * Creates a [BrushFamily] with the given [BrushCoat]s.
@@ -62,53 +65,69 @@ private constructor(
      * @param clientBrushFamilyId Optional-provided identifier for this [BrushFamily].
      * @param inputModel The [InputModel] that will be used by a [Brush] in this [BrushFamily].
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkCustomBrushApi
     @JvmOverloads
     public constructor(
         coats: List<BrushCoat>,
-        clientBrushFamilyId: String = "",
         inputModel: InputModel = DEFAULT_INPUT_MODEL,
+        clientBrushFamilyId: String = "",
+        developerComment: String = "",
     ) : this(
-        BrushFamilyNative.create(
-            coats.map { it.nativePointer }.toLongArray(),
-            clientBrushFamilyId,
-            inputModel.nativePointer,
-        ),
-        coats,
-        inputModel,
+        nativePointer =
+            BrushFamilyNative.create(
+                coatNativePointers = coats.map { it.nativePointer }.toLongArray(),
+                inputModelPointer = inputModel.nativePointer,
+                clientBrushFamilyId = clientBrushFamilyId,
+                developerComment = developerComment,
+            ),
+        coats = coats,
+        inputModel = inputModel,
     )
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkCustomBrushApi
     @JvmOverloads
     public constructor(
         tip: BrushTip = BrushTip(),
         paint: BrushPaint = BrushPaint(),
-        clientBrushFamilyId: String = "",
         inputModel: InputModel = DEFAULT_INPUT_MODEL,
-    ) : this(listOf(BrushCoat(tip, paint)), clientBrushFamilyId, inputModel)
+        clientBrushFamilyId: String = "",
+        developerComment: String = "",
+    ) : this(
+        coats = listOf(BrushCoat(tip, paint)),
+        inputModel = inputModel,
+        clientBrushFamilyId = clientBrushFamilyId,
+        developerComment = developerComment,
+    )
 
     /**
      * Creates a copy of `this` and allows named properties to be altered while keeping the rest
      * unchanged.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkCustomBrushApi
     @JvmSynthetic
     public fun copy(
         coats: List<BrushCoat> = this.coats,
-        clientBrushFamilyId: String = this.clientBrushFamilyId,
         inputModel: InputModel = this.inputModel,
+        clientBrushFamilyId: String = this.clientBrushFamilyId,
+        developerComment: String = this.developerComment,
     ): BrushFamily {
         return if (
             coats == this.coats &&
+                inputModel == this.inputModel &&
                 clientBrushFamilyId == this.clientBrushFamilyId &&
-                inputModel == this.inputModel
+                developerComment == this.developerComment
         ) {
             this
         } else {
-            BrushFamily(coats, clientBrushFamilyId, inputModel)
+            BrushFamily(
+                coats = coats,
+                inputModel = inputModel,
+                clientBrushFamilyId = clientBrushFamilyId,
+                developerComment = developerComment,
+            )
         }
     }
 
@@ -116,18 +135,20 @@ private constructor(
      * Creates a copy of `this` and allows named properties to be altered while keeping the rest
      * unchanged.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkCustomBrushApi
     @JvmSynthetic
     public fun copy(
         coat: BrushCoat,
-        clientBrushFamilyId: String = this.clientBrushFamilyId,
         inputModel: InputModel = this.inputModel,
+        clientBrushFamilyId: String = this.clientBrushFamilyId,
+        developerComment: String = this.developerComment,
     ): BrushFamily {
         return copy(
             coats = listOf(coat),
-            clientBrushFamilyId = clientBrushFamilyId,
             inputModel = inputModel,
+            clientBrushFamilyId = clientBrushFamilyId,
+            developerComment = developerComment,
         )
     }
 
@@ -135,19 +156,21 @@ private constructor(
      * Creates a copy of `this` and allows named properties to be altered while keeping the rest
      * unchanged.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkCustomBrushApi
     @JvmSynthetic
     public fun copy(
         tip: BrushTip,
         paint: BrushPaint,
-        clientBrushFamilyId: String = this.clientBrushFamilyId,
         inputModel: InputModel = this.inputModel,
+        clientBrushFamilyId: String = this.clientBrushFamilyId,
+        developerComment: String = this.developerComment,
     ): BrushFamily {
         return copy(
             coat = BrushCoat(tip, paint),
-            clientBrushFamilyId = clientBrushFamilyId,
             inputModel = inputModel,
+            clientBrushFamilyId = clientBrushFamilyId,
+            developerComment = developerComment,
         )
     }
 
@@ -155,13 +178,14 @@ private constructor(
      * Returns a [Builder] with values set equivalent to `this`. Java developers, use the returned
      * builder to build a copy of a BrushFamily.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkCustomBrushApi
     public fun toBuilder(): Builder =
         Builder()
             .setCoats(coats)
-            .setClientBrushFamilyId(clientBrushFamilyId)
             .setInputModel(inputModel)
+            .setClientBrushFamilyId(clientBrushFamilyId)
+            .setDeveloperComment(developerComment)
 
     /**
      * Builder for [BrushFamily].
@@ -170,25 +194,19 @@ private constructor(
      * overriding only as needed. For example: `BrushFamily family = new
      * BrushFamily.Builder().coat(presetBrushCoat).build();`
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkCustomBrushApi
     public class Builder {
         private var coats: List<BrushCoat> = listOf(BrushCoat(BrushTip(), BrushPaint()))
-        private var clientBrushFamilyId: String = ""
         private var inputModel: InputModel = DEFAULT_INPUT_MODEL
+        private var clientBrushFamilyId: String = ""
+        private var developerComment: String = ""
 
-        public fun setCoat(tip: BrushTip, paint: BrushPaint): Builder =
-            setCoat(BrushCoat(tip, paint))
-
+        @Suppress("MissingGetterMatchingBuilder")
         public fun setCoat(coat: BrushCoat): Builder = setCoats(listOf(coat))
 
         public fun setCoats(coats: List<BrushCoat>): Builder {
             this.coats = coats.toList()
-            return this
-        }
-
-        public fun setClientBrushFamilyId(clientBrushFamilyId: String): Builder {
-            this.clientBrushFamilyId = clientBrushFamilyId
             return this
         }
 
@@ -197,7 +215,23 @@ private constructor(
             return this
         }
 
-        public fun build(): BrushFamily = BrushFamily(coats, clientBrushFamilyId, inputModel)
+        public fun setClientBrushFamilyId(clientBrushFamilyId: String): Builder {
+            this.clientBrushFamilyId = clientBrushFamilyId
+            return this
+        }
+
+        public fun setDeveloperComment(developerComment: String): Builder {
+            this.developerComment = developerComment
+            return this
+        }
+
+        public fun build(): BrushFamily =
+            BrushFamily(
+                coats = coats,
+                inputModel = inputModel,
+                clientBrushFamilyId = clientBrushFamilyId,
+                developerComment = developerComment,
+            )
     }
 
     override fun equals(other: Any?): Boolean {
@@ -205,19 +239,21 @@ private constructor(
         // NOMUTANTS -- Check the instance first to short circuit faster.
         if (other === this) return true
         return coats == other.coats &&
+            inputModel == other.inputModel &&
             clientBrushFamilyId == other.clientBrushFamilyId &&
-            inputModel == other.inputModel
+            developerComment == other.developerComment
     }
 
     override fun hashCode(): Int {
         var result = coats.hashCode()
-        result = 31 * result + clientBrushFamilyId.hashCode()
         result = 31 * result + inputModel.hashCode()
+        result = 31 * result + clientBrushFamilyId.hashCode()
+        result = 31 * result + developerComment.hashCode()
         return result
     }
 
     override fun toString(): String =
-        "BrushFamily(coats=$coats, clientBrushFamilyId=$clientBrushFamilyId, inputModel=$inputModel)"
+        "BrushFamily(developerComment=$developerComment, coats=$coats, inputModel=$inputModel, clientBrushFamilyId=$clientBrushFamilyId)"
 
     /** Deletes native BrushFamily memory. */
     // NOMUTANTS -- Not tested post garbage collection.
@@ -253,12 +289,12 @@ private constructor(
             )
 
         /** Returns a new [BrushFamily.Builder]. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
         @ExperimentalInkCustomBrushApi
         @JvmStatic
         public fun builder(): Builder = Builder()
 
-        /** The recommended spring-based input modeler. */
+        /** The old spring-based input modeler. */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
         @ExperimentalInkCustomBrushApi
         @JvmField
@@ -274,7 +310,7 @@ private constructor(
         public val EXPERIMENTAL_NAIVE_MODEL: InputModel = NoParametersModel.EXPERIMENTAL_NAIVE_MODEL
 
         /** The default [InputModel] that will be used by a [BrushFamily] when none is specified. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
         @ExperimentalInkCustomBrushApi
         @JvmField
         public val DEFAULT_INPUT_MODEL: InputModel = SlidingWindowModel()
@@ -286,8 +322,9 @@ private constructor(
      * to be noisy, and must be smoothed before being passed into a brush's behaviors and extruded
      * into a mesh in order to get a good-looking stroke.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkCustomBrushApi
+    @Suppress("NotCloseable") // Finalize is only used to free the native peer.
     public abstract class InputModel internal constructor(internal val nativePointer: Long) {
         // NOMUTANTS -- Not tested post garbage collection.
         protected fun finalize() {
@@ -337,7 +374,7 @@ private constructor(
         }
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkCustomBrushApi
     public class SlidingWindowModel internal constructor(nativePointer: Long) :
         InputModel(nativePointer) {
@@ -387,16 +424,19 @@ private object BrushFamilyNative {
     @UsedByNative
     external fun create(
         coatNativePointers: LongArray,
-        clientBrushFamilyId: String,
         inputModelPointer: Long,
+        clientBrushFamilyId: String,
+        developerComment: String,
     ): Long
 
     /** Release the underlying memory allocated in [create]. */
     @UsedByNative external fun free(nativePointer: Long)
 
+    @UsedByNative external fun getBrushCoatCount(nativePointer: Long): Int
+
     @UsedByNative external fun getClientBrushFamilyId(nativePointer: Long): String
 
-    @UsedByNative external fun getBrushCoatCount(nativePointer: Long): Int
+    @UsedByNative external fun getDeveloperComment(nativePointer: Long): String
 
     /**
      * Returns a new, unowned native pointer to a copy of the `BrushCoat` at index for the

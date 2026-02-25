@@ -19,6 +19,7 @@ package androidx.xr.compose.testing
 import android.app.Activity
 import androidx.annotation.RestrictTo
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
+import androidx.lifecycle.LifecycleOwner
 import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.arcore.testing.FakePerceptionRuntimeFactory
 import androidx.xr.compose.platform.contentView
@@ -139,6 +140,7 @@ fun Activity.configureFakeSession(
                         }
                     ),
                 ),
+            lifecycleOwner = this as LifecycleOwner,
         )
         .also { session = it }
 }

@@ -20,6 +20,7 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.appfunctions.metadata.AppFunctionMetadata
 
 /** Represents a response of an execution of an app function. */
 public sealed interface ExecuteAppFunctionResponse {
@@ -40,8 +41,15 @@ public sealed interface ExecuteAppFunctionResponse {
             )
         }
 
+        /**
+         * Converts [ExecuteAppFunctionResponse] to
+         * [android.app.appfunctions.ExecuteAppFunctionResponse].
+         *
+         * @return The converted [android.app.appfunctions.ExecuteAppFunctionResponse].
+         */
         @RequiresApi(Build.VERSION_CODES.BAKLAVA)
-        internal fun toPlatformClass(): android.app.appfunctions.ExecuteAppFunctionResponse {
+        public fun toPlatformExecuteAppFunctionResponse():
+            android.app.appfunctions.ExecuteAppFunctionResponse {
             return android.app.appfunctions.ExecuteAppFunctionResponse(
                 returnValue.genericDocument,
                 returnValue.extras,
@@ -75,16 +83,35 @@ public sealed interface ExecuteAppFunctionResponse {
 
             @RequiresApi(Build.VERSION_CODES.TIRAMISU)
             internal fun fromPlatformExtensionClass(
-                response: com.android.extensions.appfunctions.ExecuteAppFunctionResponse
+                response: com.android.extensions.appfunctions.ExecuteAppFunctionResponse,
+                functionMetadata: AppFunctionMetadata,
             ): Success {
-                return Success(AppFunctionData(response.resultDocument, response.extras))
+                return Success(
+                    AppFunctionData(response.resultDocument, response.extras)
+                        .replaceSpecWith(functionMetadata.response, functionMetadata.components)
+                )
             }
 
+            /**
+             * Creates [ExecuteAppFunctionResponse] from
+             * [android.app.appfunctions.ExecuteAppFunctionResponse].
+             *
+             * The resulting response object is validated against the provided
+             * [AppFunctionMetadata].
+             *
+             * @param functionMetadata the [AppFunctionMetadata] of the function that was executed.
+             * @return The created [ExecuteAppFunctionResponse].
+             */
             @RequiresApi(Build.VERSION_CODES.BAKLAVA)
-            internal fun fromPlatformClass(
-                response: android.app.appfunctions.ExecuteAppFunctionResponse
+            @JvmStatic
+            public fun android.app.appfunctions.ExecuteAppFunctionResponse
+                .toCompatExecuteAppFunctionResponse(
+                functionMetadata: AppFunctionMetadata
             ): Success {
-                return Success(AppFunctionData(response.resultDocument, response.extras))
+                return Success(
+                    AppFunctionData(this.resultDocument, this.extras)
+                        .replaceSpecWith(functionMetadata.response, functionMetadata.components)
+                )
             }
         }
     }

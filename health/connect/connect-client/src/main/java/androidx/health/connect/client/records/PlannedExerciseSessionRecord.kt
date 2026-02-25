@@ -16,6 +16,8 @@
 
 package androidx.health.connect.client.records
 
+import android.os.Build
+import androidx.health.connect.client.impl.platform.records.toPlatformRecord
 import androidx.health.connect.client.records.metadata.Metadata
 import java.time.Duration
 import java.time.Instant
@@ -134,7 +136,14 @@ internal constructor(
     )
 
     init {
-        require(startTime.isBefore(endTime))
+        if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+                isAtLeastSdkExtension13()
+        ) {
+            this.toPlatformRecord()
+        } else {
+            require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
+        }
     }
 
     override fun equals(other: Any?): Boolean {

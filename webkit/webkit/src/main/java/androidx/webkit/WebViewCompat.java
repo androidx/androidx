@@ -420,22 +420,15 @@ public class WebViewCompat {
      * Return the PackageInfo of the WebView APK that would have been used as WebView implementation
      * if WebView was to be loaded right now.
      */
-    @SuppressLint("PrivateApi")
+    @SuppressLint({"PrivateApi", "BanUncheckedReflection"})
     @SuppressWarnings("deprecation")
     private static PackageInfo getNotYetLoadedWebViewPackageInfo(Context context) {
         String webviewPackageName;
         try {
-            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
-                Class<?> webViewFactoryClass = Class.forName("android.webkit.WebViewFactory");
-
-                webviewPackageName = (String) webViewFactoryClass.getMethod(
-                        "getWebViewPackageName").invoke(null);
-            } else {
                 Class<?> webviewUpdateServiceClass =
                         Class.forName("android.webkit.WebViewUpdateService");
                 webviewPackageName = (String) webviewUpdateServiceClass.getMethod(
                         "getCurrentWebViewPackageName").invoke(null);
-            }
         } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException
                  | NoSuchMethodException e) {
             return null;

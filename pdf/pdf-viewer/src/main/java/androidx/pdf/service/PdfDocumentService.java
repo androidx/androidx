@@ -250,5 +250,10 @@ public class PdfDocumentService extends Service {
             mAdapter = null;
             super.finalize();
         }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
     }
 }

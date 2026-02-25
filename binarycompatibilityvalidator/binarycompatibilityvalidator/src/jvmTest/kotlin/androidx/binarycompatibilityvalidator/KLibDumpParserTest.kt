@@ -109,7 +109,7 @@ class KlibDumpParserTest {
                     abstract fun <get-y>(): kotlin/Float // androidx.graphics.shapes/MutablePoint.y.<get-y>|<get-y>(){}[0]
                     abstract fun <set-y>(kotlin/Float) // androidx.graphics.shapes/MutablePoint.y.<set-y>|<set-y>(kotlin.Float){}[0]
             }
-        """
+            """
                 .trimIndent()
         val parsed = KlibDumpParser(input).parseClass()
         assertThat(parsed.declarations.filterIsInstance<AbiProperty>()).hasSize(2)
@@ -129,15 +129,15 @@ class KlibDumpParserTest {
     fun parseASerializerClass() {
         val input =
             """
-                final object ${'$'}serializer : kotlinx.serialization.internal/GeneratedSerializer<androidx.room.migration.bundle/DatabaseBundle> { // androidx.room.migration.bundle/DatabaseBundle.${'$'}serializer|null[0]
-                    final val descriptor // androidx.room.migration.bundle/DatabaseBundle.${'$'}serializer.descriptor|{}descriptor[0]
-                        final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // androidx.room.migration.bundle/DatabaseBundle.${'$'}serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+            final object ${'$'}serializer : kotlinx.serialization.internal/GeneratedSerializer<androidx.room.migration.bundle/DatabaseBundle> { // androidx.room.migration.bundle/DatabaseBundle.${'$'}serializer|null[0]
+                final val descriptor // androidx.room.migration.bundle/DatabaseBundle.${'$'}serializer.descriptor|{}descriptor[0]
+                    final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // androidx.room.migration.bundle/DatabaseBundle.${'$'}serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
 
-                    final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // androidx.room.migration.bundle/DatabaseBundle.${'$'}serializer.childSerializers|childSerializers(){}[0]
-                    final fun deserialize(kotlinx.serialization.encoding/Decoder): androidx.room.migration.bundle/DatabaseBundle // androidx.room.migration.bundle/DatabaseBundle.${'$'}serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-                    final fun serialize(kotlinx.serialization.encoding/Encoder, androidx.room.migration.bundle/DatabaseBundle) // androidx.room.migration.bundle/DatabaseBundle.${'$'}serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;androidx.room.migration.bundle.DatabaseBundle){}[0]
-                }
-        """
+                final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // androidx.room.migration.bundle/DatabaseBundle.${'$'}serializer.childSerializers|childSerializers(){}[0]
+                final fun deserialize(kotlinx.serialization.encoding/Decoder): androidx.room.migration.bundle/DatabaseBundle // androidx.room.migration.bundle/DatabaseBundle.${'$'}serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+                final fun serialize(kotlinx.serialization.encoding/Encoder, androidx.room.migration.bundle/DatabaseBundle) // androidx.room.migration.bundle/DatabaseBundle.${'$'}serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;androidx.room.migration.bundle.DatabaseBundle){}[0]
+            }
+            """
                 .trimIndent()
         val parsed =
             KlibDumpParser(input)
@@ -291,7 +291,7 @@ class KlibDumpParserTest {
             """
             final val androidx.compose.foundation.text.contextmenu.provider/LocalTextContextMenuDropdownProvider // androidx.compose.foundation.text.contextmenu.provider/LocalTextContextMenuDropdownProvider|{}LocalTextContextMenuDropdownProvider[0]
                 final fun <get-LocalTextContextMenuDropdownProvider>(): androidx.compose.runtime/ProvidableCompositionLocal<androidx.compose.foundation.text.contextmenu.provider/TextContextMenuProvider?> // androidx.compose.foundation.text.contextmenu.provider/LocalTextContextMenuDropdownProvider.<get-LocalTextContextMenuDropdownProvider>|<get-LocalTextContextMenuDropdownProvider>(){}[0]
-        """
+            """
                 .trimIndent()
         val parsed = KlibDumpParser(input).parseProperty()
         assertThat(parsed.qualifiedName.toString())
@@ -339,7 +339,7 @@ class KlibDumpParserTest {
             """
             final val androidx.compose.animation.core/isFinished
                 final fun (androidx.compose.animation.core/AnimationState<*, *>).<get-isFinished>(): kotlin/Boolean
-        """
+            """
                 .trimIndent()
         val parsed = KlibDumpParser(input).parseProperty()
         assertThat(parsed.getter).isNotNull()
@@ -373,7 +373,7 @@ class KlibDumpParserTest {
             final class my.lib/MyClass {
                 invalid
             }
-        """
+            """
                 .trimIndent()
         val e = assertFailsWith<ParseException> { KlibDumpParser(input, "current.txt").parse() }
         assertThat(e.message)
@@ -533,7 +533,7 @@ class KlibDumpParserTest {
             // - Show manifest properties: true
             // - Show declarations: true
             // Library unique name: <androidx:library>
-        """
+            """
                 .trimIndent()
     }
 }

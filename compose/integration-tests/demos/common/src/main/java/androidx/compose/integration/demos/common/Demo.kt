@@ -36,8 +36,7 @@ sealed class Demo(val title: String) {
  * @property activityClass the KClass (Foo::class) of the activity that will be launched when this
  *   demo is selected.
  */
-class ActivityDemo<T : ComponentActivity>(title: String, val activityClass: KClass<T>) :
-    Demo(title)
+class ActivityDemo<T : ComponentActivity>(title: String, val activityClass: KClass<T>) : Demo(title)
 
 class FragmentDemo<T : Fragment>(title: String, val fragmentClass: KClass<T>) : Demo(title)
 

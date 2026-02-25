@@ -23,6 +23,8 @@ import androidx.compose.remote.creation.RemoteComposeContextAndroid
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 import kotlin.collections.ArrayList
 
 /**
@@ -74,6 +76,8 @@ fun themeList(): RemoteComposeWriter {
         }
     return rc.writer
 }
+
+@Preview @Composable private fun ThemeListPreview() = RemoteDocPreview(themeList())
 
 @Suppress("RestrictedApiAndroidX")
 private fun RemoteComposeContextAndroid.makeThemeRows(bg: Short, fg: Short) {

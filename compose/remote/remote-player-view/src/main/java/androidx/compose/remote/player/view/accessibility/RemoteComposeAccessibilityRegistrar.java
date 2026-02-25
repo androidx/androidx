@@ -17,12 +17,16 @@ package androidx.compose.remote.player.view.accessibility;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.graphics.Rect;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Interface for registering and clearing accessibility delegates for remote compose players.
@@ -59,4 +63,37 @@ public interface RemoteComposeAccessibilityRegistrar {
      * @param remoteComposePlayer The View representing the remote compose player.
      */
     void clearAccessibilityDelegate(@NonNull View remoteComposePlayer);
+
+
+    /**
+     * Dispatch a hover event.
+     *
+     * @param event the motion event to be dispatched.
+     * @return true if the event was handled by the view, false otherwise.
+     */
+    boolean dispatchHoverEvent(@NonNull View remoteComposePlayer, @NonNull MotionEvent event);
+
+
+    /**
+     * Dispatch a key event to the next view on the focus path.
+     *
+     * @param event the key event to be dispatched.
+     * @return true if the event was handled, false otherwise.
+     */
+    boolean dispatchKeyEvent(@NonNull View remoteComposePlayer, @NonNull KeyEvent event);
+
+
+    /**
+     * Called by the view system when the focus state of this view changes.
+     * When the focus change event is caused by directional navigation, direction
+     * and previouslyFocusedRect provide insight into where the focus is coming from.
+     *
+     * @param gainFocus             true if the View has focus; false otherwise.
+     * @param direction             the direction focus has moved when requestFocus()
+     *                              is called to give this view focus.
+     * @param previouslyFocusedRect the rectangle, in this view's coordinate
+     *                              system, of the previously focused view.
+     */
+    void onFocusChanged(@NonNull View remoteComposePlayer, boolean gainFocus, int direction,
+            @Nullable Rect previouslyFocusedRect);
 }

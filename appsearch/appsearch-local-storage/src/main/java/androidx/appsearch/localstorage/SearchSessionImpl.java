@@ -55,7 +55,6 @@ import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.app.StorageInfo;
 import androidx.appsearch.exceptions.AppSearchException;
-import androidx.appsearch.flags.Flags;
 import androidx.appsearch.localstorage.stats.CallStats;
 import androidx.appsearch.localstorage.stats.OptimizeStats;
 import androidx.appsearch.localstorage.stats.RemoveStats;
@@ -618,62 +617,40 @@ class SearchSessionImpl implements AppSearchSession {
                 removeStatsBuilder = new RemoveStats.Builder(mPackageName, mDatabaseName);
             }
 
-            if (Flags.enableRemoveByIdUsesQuery()
-                    && mFeatures.isFeatureSupported(Features.SEARCH_SPEC_ADD_FILTER_DOCUMENT_IDS)) {
-                if (request.getIds().isEmpty()) {
-                    Log.w(TAG, "Request to delete items in namespace " + request.getNamespace()
-                            + " specified no ids!");
-                    return resultBuilder.build();
-                }
-                try {
-                    Map<String, Set<String>> deletedIds = new ArrayMap<>();
-                    SearchSpec searchSpec =
-                            new SearchSpec.Builder()
-                                    .addFilterDocumentIds(request.getIds())
-                                    .addFilterNamespaces(request.getNamespace())
-                                    .addFilterPackageNames(mPackageName)
-                                    .build();
-                    mAppSearchImpl.removeByQuery(mPackageName, mDatabaseName, /* queryExpression= */
-                            "",
-                            searchSpec, deletedIds, removeStatsBuilder,
-                            /* callStatsBuilder= */null);
-                    Set<String> deletionSet = deletedIds.get(request.getNamespace());
-                    for (String id : request.getIds()) {
-                        if (deletionSet != null && deletionSet.contains(id)) {
-                            resultBuilder.setSuccess(id, /*value=*/null);
-                        } else {
-                            resultBuilder.setResult(id, AppSearchResult.newFailedResult(
-                                    AppSearchResult.RESULT_NOT_FOUND, /*errorMessage=*/null));
-                        }
-                    }
-                } catch (Throwable t) {
-                    AppSearchResult<Void> failure = throwableToFailedResult(t);
-                    for (String id : request.getIds()) {
-                        resultBuilder.setResult(id, failure);
-                    }
-                } finally {
-                    if (mLogger != null) {
-                        mLogger.logStats(removeStatsBuilder.build());
-                    }
-                }
-            } else {
+            if (request.getIds().isEmpty()) {
+                Log.w(TAG, "Request to delete items in namespace " + request.getNamespace()
+                        + " specified no ids!");
+                return resultBuilder.build();
+            }
+            try {
+                Map<String, Set<String>> deletedIds = new ArrayMap<>();
+                SearchSpec searchSpec =
+                        new SearchSpec.Builder()
+                                .addFilterDocumentIds(request.getIds())
+                                .addFilterNamespaces(request.getNamespace())
+                                .addFilterPackageNames(mPackageName)
+                                .build();
+                mAppSearchImpl.removeByQuery(mPackageName, mDatabaseName, /* queryExpression= */
+                        "",
+                        searchSpec, deletedIds, removeStatsBuilder,
+                        /* callStatsBuilder= */null);
+                Set<String> deletionSet = deletedIds.get(request.getNamespace());
                 for (String id : request.getIds()) {
-                    if (mLogger != null) {
-                        removeStatsBuilder = new RemoveStats.Builder(mPackageName, mDatabaseName);
-                    }
-                    try {
-                        mAppSearchImpl.remove(mPackageName, mDatabaseName, request.getNamespace(),
-                                id,
-                                removeStatsBuilder,
-                                /*callStatsBuilder=*/null);
+                    if (deletionSet != null && deletionSet.contains(id)) {
                         resultBuilder.setSuccess(id, /*value=*/null);
-                    } catch (Throwable t) {
-                        resultBuilder.setResult(id, throwableToFailedResult(t));
-                    } finally {
-                        if (mLogger != null) {
-                            mLogger.logStats(removeStatsBuilder.build());
-                        }
+                    } else {
+                        resultBuilder.setResult(id, AppSearchResult.newFailedResult(
+                                AppSearchResult.RESULT_NOT_FOUND, /*errorMessage=*/null));
                     }
+                }
+            } catch (Throwable t) {
+                AppSearchResult<Void> failure = throwableToFailedResult(t);
+                for (String id : request.getIds()) {
+                    resultBuilder.setResult(id, failure);
+                }
+            } finally {
+                if (mLogger != null) {
+                    mLogger.logStats(removeStatsBuilder.build());
                 }
             }
 

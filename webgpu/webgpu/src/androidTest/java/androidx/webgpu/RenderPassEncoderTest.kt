@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.webgpu
 
 import androidx.test.filters.MediumTest
@@ -75,13 +74,13 @@ class RenderPassEncoderTest {
                     shaderSourceWGSL =
                         GPUShaderSourceWGSL(
                             """
-                        @vertex fn vsMain() -> @builtin(position) vec4<f32> {
-                            return vec4<f32>(0.0, 0.0, 0.0, 1.0);
-                        }
-                        @fragment fn fsMain() -> @location(0) vec4<f32> {
-                            return vec4<f32>(1.0, 0.0, 0.0, 1.0);
-                        }
-                        """
+                            @vertex fn vsMain() -> @builtin(position) vec4<f32> {
+                                return vec4<f32>(0.0, 0.0, 0.0, 1.0);
+                            }
+                            @fragment fn fsMain() -> @location(0) vec4<f32> {
+                                return vec4<f32>(1.0, 0.0, 0.0, 1.0);
+                            }
+                            """
                                 .trimIndent()
                         )
                 )

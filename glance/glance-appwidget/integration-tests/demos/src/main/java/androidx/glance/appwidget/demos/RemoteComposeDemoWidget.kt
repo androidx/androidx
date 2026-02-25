@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.Button
-import androidx.glance.GlanceBackendPreference
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
@@ -61,19 +60,12 @@ class RemoteComposeDemoWidgetReceiver : GlanceAppWidgetReceiver() {
 /** Demonstrates the [TitleBar] component. */
 class RemoteComposeDemoWidget : GlanceAppWidget() {
 
-    override val backendPreference: GlanceBackendPreference
-        get() = GlanceBackendPreference.RemoteCompose
-
     override val sizeMode: SizeMode
         get() = SizeMode.Exact
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
 
-        provideContent {
-
-            //  DemoBox(false) // TODO: remove this and the function
-            TextAndButtonComponentDemo()
-        }
+        provideContent { TextAndButtonComponentDemo() }
     }
 }
 

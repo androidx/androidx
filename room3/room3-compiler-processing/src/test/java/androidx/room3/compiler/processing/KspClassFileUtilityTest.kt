@@ -38,18 +38,18 @@ class KspClassFileUtilityTest(val preCompile: Boolean) {
             Source.kotlin(
                 "lib.kt",
                 """
-            class KotlinClass(
-                val consA: String,
-                val consB: String,
-            ) {
-                val b: String = TODO()
-                val a: String = TODO()
-                val c: String = TODO()
-                val isB:String = TODO()
-                val isA:String = TODO()
-                val isC:String = TODO()
-            }
-            """
+                class KotlinClass(
+                    val consA: String,
+                    val consB: String,
+                ) {
+                    val b: String = TODO()
+                    val a: String = TODO()
+                    val c: String = TODO()
+                    val isB:String = TODO()
+                    val isA:String = TODO()
+                    val isC:String = TODO()
+                }
+                """
                     .trimIndent(),
             )
         runTest(sources = listOf(libSource)) { invocation ->
@@ -66,15 +66,15 @@ class KspClassFileUtilityTest(val preCompile: Boolean) {
             Source.java(
                 "JavaClass",
                 """
-            class JavaClass {
-                String b;
-                String a;
-                String c;
-                String isB;
-                String isA;
-                String isC;
-            }
-            """
+                class JavaClass {
+                    String b;
+                    String a;
+                    String c;
+                    String isB;
+                    String isA;
+                    String isC;
+                }
+                """
                     .trimIndent(),
             )
         runTest(sources = listOf(libSource)) { invocation ->
@@ -91,15 +91,15 @@ class KspClassFileUtilityTest(val preCompile: Boolean) {
             Source.kotlin(
                 "lib.kt",
                 """
-            class KotlinClass {
-                fun b(): String = TODO()
-                fun a(): String = TODO()
-                fun c(): String = TODO()
-                fun isB(): String = TODO()
-                fun isA(): String = TODO()
-                fun isC(): String = TODO()
-            }
-            """
+                class KotlinClass {
+                    fun b(): String = TODO()
+                    fun a(): String = TODO()
+                    fun c(): String = TODO()
+                    fun isB(): String = TODO()
+                    fun isA(): String = TODO()
+                    fun isC(): String = TODO()
+                }
+                """
                     .trimIndent(),
             )
         runTest(sources = listOf(libSource)) { invocation ->
@@ -116,15 +116,15 @@ class KspClassFileUtilityTest(val preCompile: Boolean) {
             Source.java(
                 "JavaClass",
                 """
-            class JavaClass {
-                String b() { return ""; }
-                String a() { return ""; }
-                String c() { return ""; }
-                String isB() { return ""; }
-                String isA() { return ""; }
-                String isC() { return ""; }
-            }
-            """
+                class JavaClass {
+                    String b() { return ""; }
+                    String a() { return ""; }
+                    String c() { return ""; }
+                    String isB() { return ""; }
+                    String isA() { return ""; }
+                    String isC() { return ""; }
+                }
+                """
                     .trimIndent(),
             )
         runTest(sources = listOf(libSource)) { invocation ->

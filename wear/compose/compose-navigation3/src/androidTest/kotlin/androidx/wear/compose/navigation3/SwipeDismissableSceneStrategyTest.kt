@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.navigation3
 
-import android.content.res.Configuration
 import android.os.Build
 import android.window.BackEvent
 import androidx.activity.BackEventCompat
@@ -27,7 +26,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,22 +37,16 @@ import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.testutils.WithTouchSlop
-import androidx.compose.testutils.assertContainsColor
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotDisplayed
-import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onChild
@@ -147,14 +139,16 @@ class SwipeDismissableSceneStrategyTest {
 
     @Test
     fun navigates_back_to_previous_level_after_swipe() {
-        rule.setContentWithBackPressedDispatcher { TestNavDisplay() }
+        rule.setContentWithBackPressedDispatcher {
+            TestNavDisplay(modifier = Modifier.testTag(SCENE_TAG))
+        }
 
         rule.onNodeWithTag(FIRST_SCREEN).assertIsDisplayed()
         // navigate to second entry
         rule.onNodeWithText(FIRST_SCREEN).performClick()
 
         // swipe back
-        rule.swipeRight()
+        rule.swipeRight(SCENE_TAG)
 
         rule.onNodeWithTag(FIRST_SCREEN).assertIsDisplayed()
         rule.onNodeWithTag(SECOND_SCREEN).assertIsNotDisplayed()
@@ -164,11 +158,8 @@ class SwipeDismissableSceneStrategyTest {
     fun does_not_navigate_back_to_previous_level_when_swipe_disabled() {
         rule.setContentWithBackPressedDispatcher {
             TestNavDisplay(
-                sceneStrategy =
-                    rememberSwipeDismissableSceneStrategy(
-                        modifier = Modifier.testTag(SCENE_TAG),
-                        isUserSwipeEnabled = false,
-                    )
+                modifier = Modifier.testTag(SCENE_TAG),
+                sceneStrategy = rememberSwipeDismissableSceneStrategy(isUserSwipeEnabled = false),
             )
         }
 
@@ -176,7 +167,7 @@ class SwipeDismissableSceneStrategyTest {
         rule.onNodeWithText(FIRST_SCREEN).performClick()
 
         // swipe back
-        rule.swipeRight()
+        rule.swipeRight(SCENE_TAG)
 
         // Should still display second destination
         rule.onNodeWithText(SECOND_SCREEN).assertIsDisplayed()
@@ -239,10 +230,12 @@ class SwipeDismissableSceneStrategyTest {
 
     @Test
     fun does_not_crash_when_swiping_back_with_single_item_backstack() {
-        rule.setContentWithBackPressedDispatcher { TestNavDisplay() }
+        rule.setContentWithBackPressedDispatcher {
+            TestNavDisplay(modifier = Modifier.testTag(SCENE_TAG))
+        }
 
         val result = runCatching {
-            rule.swipeRight()
+            rule.swipeRight(SCENE_TAG)
             rule.waitForIdle()
         }
 
@@ -251,12 +244,14 @@ class SwipeDismissableSceneStrategyTest {
 
     @Test
     fun displays_previous_screen_during_swipe_gesture() {
-        rule.setContentWithBackPressedDispatcher { WithTouchSlop(0f) { TestNavDisplay() } }
+        rule.setContentWithBackPressedDispatcher {
+            WithTouchSlop(0f) { TestNavDisplay(modifier = Modifier.testTag(SCENE_TAG)) }
+        }
 
         // Click to move to next destination.
         rule.onNodeWithText(FIRST_SCREEN).performClick()
         // Click and drag to begin a swipe gesture, but do not release the finger.
-        rule.dragRight()
+        rule.dragRight(SCENE_TAG)
 
         // As the finger is still 'down', the background should be visible.
         rule.onNodeWithText(FIRST_SCREEN).assertExists()
@@ -265,7 +260,9 @@ class SwipeDismissableSceneStrategyTest {
 
     @Test
     fun focus_updates_after_swipe_gesture() {
-        rule.setContentWithBackPressedDispatcher { WithTouchSlop(0f) { TestNavDisplay() } }
+        rule.setContentWithBackPressedDispatcher {
+            WithTouchSlop(0f) { TestNavDisplay(modifier = Modifier.testTag(SCENE_TAG)) }
+        }
 
         rule.onNodeWithTag(FIRST_SCREEN).onChild().assertIsFocused()
 
@@ -276,7 +273,7 @@ class SwipeDismissableSceneStrategyTest {
         rule.onNodeWithTag(SECOND_SCREEN).onChild().assertIsFocused()
 
         // swipe back to starting screen
-        rule.swipeRight()
+        rule.swipeRight(SCENE_TAG)
 
         rule.onNodeWithTag(FIRST_SCREEN).onChild().assertIsFocused()
     }
@@ -293,7 +290,7 @@ class SwipeDismissableSceneStrategyTest {
                 entryProvider =
                     entryProvider {
                         entry(FIRST_KEY) {
-                            Column {
+                            Column(modifier = Modifier.fillMaxSize().testTag(ENTRY_TAG)) {
                                 intState = rememberSaveable { mutableIntStateOf(0) }
                                 Text("${intState.intValue}")
                                 Button(onClick = { intState.intValue += 1 }) {
@@ -304,7 +301,11 @@ class SwipeDismissableSceneStrategyTest {
                                 }
                             }
                         }
-                        entry(SECOND_KEY) { Text(text = SECOND_SCREEN) }
+                        entry(SECOND_KEY) {
+                            Box(modifier = Modifier.fillMaxSize().testTag(ENTRY_TAG)) {
+                                Text(text = SECOND_SCREEN)
+                            }
+                        }
                     },
             )
         }
@@ -319,7 +320,7 @@ class SwipeDismissableSceneStrategyTest {
         rule.onNodeWithText(SECOND_SCREEN).assertIsDisplayed()
 
         // go back to first screen, make sure rememberSaveable state is restored
-        rule.swipeRight()
+        rule.swipeRight(ENTRY_TAG)
         rule.onNodeWithText("1").assertIsDisplayed()
     }
 
@@ -335,7 +336,10 @@ class SwipeDismissableSceneStrategyTest {
                             val storedState = rememberSaveable { mutableIntStateOf(10) }
                             // column layout enables proper edge swipe for this test
                             Column(
-                                modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
+                                modifier =
+                                    Modifier.fillMaxSize()
+                                        .padding(horizontal = 20.dp)
+                                        .testTag(ENTRY_TAG),
                                 verticalArrangement = Arrangement.Center,
                                 horizontalAlignment = Alignment.CenterHorizontally,
                             ) {
@@ -349,7 +353,10 @@ class SwipeDismissableSceneStrategyTest {
                             val storedState = rememberSaveable { mutableStateOf(false) }
                             // column layout enables proper edge swipe for this test
                             Column(
-                                modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
+                                modifier =
+                                    Modifier.fillMaxSize()
+                                        .padding(horizontal = 20.dp)
+                                        .testTag(ENTRY_TAG),
                                 verticalArrangement = Arrangement.Center,
                                 horizontalAlignment = Alignment.CenterHorizontally,
                             ) {
@@ -381,56 +388,17 @@ class SwipeDismissableSceneStrategyTest {
         rule.onNodeWithText("10").assertIsDisplayed()
 
         // now go back and make sure the previous state is preserved
-        rule.swipeRight()
+        rule.swipeRight(ENTRY_TAG)
         rule.onNodeWithText("true").assertIsDisplayed()
 
         // go back again and make sure the very first screen's state is preserved
-        rule.swipeRight()
+        rule.swipeRight(ENTRY_TAG)
         rule.onNodeWithText("11").assertIsDisplayed()
 
         // navigate to new instance of "second" screen (any String type key), should have brand new
         // state
         backStack.add("other")
         rule.onNodeWithText("false").assertIsDisplayed()
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
-    fun clip_content_for_round_screens() {
-        rule.setContent {
-            val originalConfiguration = LocalConfiguration.current
-            val originalContext = LocalContext.current
-
-            val roundScreenConfiguration =
-                remember(originalConfiguration) {
-                    Configuration(originalConfiguration).apply {
-                        screenLayout = Configuration.SCREENLAYOUT_ROUND_YES
-                    }
-                }
-            originalConfiguration.updateFrom(roundScreenConfiguration)
-
-            CompositionLocalProvider(
-                LocalContext provides originalContext,
-                LocalConfiguration provides roundScreenConfiguration,
-            ) {
-                TestNavDisplay(
-                    sceneStrategy =
-                        rememberSwipeDismissableSceneStrategy(
-                            modifier = Modifier.background(Color.Blue).testTag(SCENE_TAG)
-                        ),
-                    entryProvider =
-                        entryProvider {
-                            entry(FIRST_KEY) {
-                                Box(modifier = Modifier.fillMaxSize().background(Color.Yellow))
-                            }
-                        },
-                )
-            }
-        }
-
-        // Quick check that the content, which is a full-screen yellow box is clipped. If it is
-        // clipped, then background color (Blue) should be visible
-        rule.onNodeWithTag(SCENE_TAG).captureToImage().assertContainsColor(Color.Blue)
     }
 
     @Test
@@ -483,8 +451,15 @@ class SwipeDismissableSceneStrategyTest {
                 backStack = backStack,
                 entryProvider =
                     entryProvider {
-                        entry(FIRST_KEY) { lifecycleState = LocalLifecycleOwner.current.lifecycle }
-                        entry(SECOND_KEY) {}
+                        entry(FIRST_KEY) {
+                            Box(modifier = Modifier.fillMaxSize().testTag(ENTRY_TAG)) {
+                                lifecycleState = LocalLifecycleOwner.current.lifecycle
+                            }
+                        }
+
+                        entry(SECOND_KEY) {
+                            Box(modifier = Modifier.fillMaxSize().testTag(ENTRY_TAG))
+                        }
                     },
             )
         }
@@ -496,7 +471,7 @@ class SwipeDismissableSceneStrategyTest {
         }
 
         // swipe back
-        rule.swipeRight()
+        rule.swipeRight(ENTRY_TAG)
 
         rule.runOnIdle {
             assertThat(lifecycleState?.currentState).isEqualTo(Lifecycle.State.RESUMED)
@@ -540,7 +515,8 @@ class SwipeDismissableSceneStrategyTest {
 
         rule.mainClock.autoAdvance = false
 
-        val navHostWidth = rule.onNodeWithTag(SCENE_TAG).fetchSemanticsNode().size.width
+        val navHostWidth =
+            rule.onNodeWithTag(TEST_TAG_THIRD_CONTAINER).fetchSemanticsNode().size.width
 
         rule.runOnIdle { backPressedDispatcher.onBackPressed() }
 
@@ -585,11 +561,7 @@ class SwipeDismissableSceneStrategyTest {
                     slideInHorizontally(tween(testDuration)) { -it / 2 } togetherWith
                         slideOutHorizontally(tween(testDuration)) { it / 2 }
                 },
-                sceneStrategy =
-                    SwipeDismissableSceneStrategy(
-                        rememberSwipeDismissableSceneStrategyState(),
-                        Modifier.testTag(SCENE_TAG),
-                    ),
+                sceneStrategies = listOf(rememberSwipeDismissableSceneStrategy()),
                 entryProvider =
                     entryProvider {
                         entry(FIRST_KEY) {
@@ -635,16 +607,16 @@ class SwipeDismissableSceneStrategyTest {
 
     @Composable
     private fun TestNavDisplay(
+        modifier: Modifier = Modifier,
         backStack: SnapshotStateList<Any> = mutableStateListOf(FIRST_KEY),
-        sceneStrategy: SwipeDismissableSceneStrategy<Any> =
-            rememberSwipeDismissableSceneStrategy(modifier = Modifier.testTag(SCENE_TAG)),
+        sceneStrategy: SwipeDismissableSceneStrategy<Any> = rememberSwipeDismissableSceneStrategy(),
         @Suppress("UNCHECKED_CAST")
         entryProvider: (key: Any) -> NavEntry<Any> =
-            buildEntryProvider(backStack) as (key: Any) -> NavEntry<Any>,
+            buildEntryProvider(backStack, modifier) as (key: Any) -> NavEntry<Any>,
     ) {
         NavDisplay(
             backStack = backStack,
-            sceneStrategy = sceneStrategy,
+            sceneStrategies = listOf(sceneStrategy),
             entryProvider = entryProvider,
         )
     }
@@ -674,7 +646,7 @@ class SwipeDismissableSceneStrategyTest {
      * Depending on API level, either swipes right on the view with SCENE_TAG, or emulates
      * system-level swipe using backPressedDispatcher
      */
-    private fun ComposeContentTestRule.swipeRight() {
+    private fun ComposeContentTestRule.swipeRight(tag: String) {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             runOnIdle {
                 backPressedDispatcher.dispatchOnBackStarted(
@@ -686,7 +658,7 @@ class SwipeDismissableSceneStrategyTest {
                 backPressedDispatcher.onBackPressed()
             }
         } else {
-            onNodeWithTag(SCENE_TAG).performTouchInput { swipeRight() }
+            onNodeWithTag(tag).performTouchInput { swipeRight() }
         }
     }
 
@@ -696,7 +668,7 @@ class SwipeDismissableSceneStrategyTest {
      * Depending on API level, either drags right on the view with SCENE_TAG, or emulates
      * system-level drag using backPressedDispatcher
      */
-    private fun ComposeContentTestRule.dragRight() {
+    private fun ComposeContentTestRule.dragRight(tag: String) {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             runOnIdle {
                 backPressedDispatcher.dispatchOnBackStarted(
@@ -708,7 +680,7 @@ class SwipeDismissableSceneStrategyTest {
             }
         } else {
             rule
-                .onNodeWithTag(SCENE_TAG)
+                .onNodeWithTag(tag)
                 .performTouchInput({
                     down(Offset(x = 0f, y = height / 2f))
                     moveTo(Offset(x = width / 4f, y = height / 2f))
@@ -716,9 +688,12 @@ class SwipeDismissableSceneStrategyTest {
         }
     }
 
-    private fun buildEntryProvider(backStack: SnapshotStateList<Any>) = entryProvider {
+    private fun buildEntryProvider(
+        backStack: SnapshotStateList<Any>,
+        modifier: Modifier = Modifier,
+    ) = entryProvider {
         entry(FIRST_KEY) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 ScalingLazyColumn(modifier = Modifier.testTag(FIRST_SCREEN)) {
                     item {
                         Button(
@@ -730,10 +705,7 @@ class SwipeDismissableSceneStrategyTest {
             }
         }
         entry(SECOND_KEY) {
-            Box(
-                modifier = Modifier.fillMaxSize().testTag(TEST_TAG_SECOND_CONTAINER),
-                contentAlignment = Alignment.Center,
-            ) {
+            Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 ScalingLazyColumn(modifier = Modifier.testTag(SECOND_SCREEN)) {
                     item { Text(SECOND_SCREEN) }
                 }
@@ -741,7 +713,7 @@ class SwipeDismissableSceneStrategyTest {
         }
         entry(THIRD_KEY) {
             Box(
-                modifier = Modifier.fillMaxSize().testTag(TEST_TAG_THIRD_CONTAINER),
+                modifier = modifier.fillMaxSize().testTag(TEST_TAG_THIRD_CONTAINER),
                 contentAlignment = Alignment.Center,
             ) {
                 ScalingLazyColumn(modifier = Modifier.testTag(THIRD_SCREEN)) {
@@ -758,6 +730,6 @@ class SwipeDismissableSceneStrategyTest {
     val THIRD_KEY = "Third"
     val THIRD_SCREEN = "ThirdTag"
     val SCENE_TAG = "SceneModifierTag"
-    val TEST_TAG_SECOND_CONTAINER = "SecondContainerTag"
+    val ENTRY_TAG = "EntryTag"
     val TEST_TAG_THIRD_CONTAINER = "ThirdContainerTag"
 }

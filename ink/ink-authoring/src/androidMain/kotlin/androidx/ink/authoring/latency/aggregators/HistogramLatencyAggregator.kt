@@ -71,7 +71,7 @@ import kotlinx.coroutines.sync.withLock
  * }
  * ```
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @ExperimentalLatencyDataApi
 public class HistogramLatencyAggregator
 private constructor(private val implementationHelper: ImplementationHelper) : LatencyAggregator {

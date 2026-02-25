@@ -32,7 +32,7 @@ import androidx.annotation.RestrictTo
  * TODO: b/267164444 - Support texture layers within the same coat having different animation specs.
  */
 @ExperimentalInkCustomBrushApi
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 public object TextureAnimationProgressHelper {
 
     /**
@@ -74,16 +74,20 @@ public object TextureAnimationProgressHelper {
     }
 
     /**
-     * Extract the animation duration from a [BrushFamily]. If it does not support animation, then a
-     * duration of 0 will be returned.
+     * Extract the first non-zero animation duration from a [BrushFamily]. If it does not support
+     * animation, then a duration of 0 will be returned.
      */
     @IntRange(from = 0)
     public fun getAnimationDurationMillis(brushFamily: BrushFamily): Long {
-        val firstTextureLayer = brushFamily.coats[0].paintPreferences[0].textureLayers.getOrNull(0)
-        return if (firstTextureLayer != null && firstTextureLayer.animationFrames > 1) {
-            firstTextureLayer.animationDurationMillis
-        } else {
-            0
+        for (coat in brushFamily.coats) {
+            for (paintPreference in coat.paintPreferences) {
+                for (textureLayer in paintPreference.textureLayers) {
+                    if (textureLayer.animationFrames > 1) {
+                        return textureLayer.animationDurationMillis
+                    }
+                }
+            }
         }
+        return 0
     }
 }

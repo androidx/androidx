@@ -20,8 +20,6 @@ import android.content.Context
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCaptureSession.StateCallback
 import androidx.camera.camera2.interop.Camera2Interop
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
-import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
@@ -33,7 +31,6 @@ import androidx.camera.integration.core.util.StressTestUtil.STRESS_TEST_OPERATIO
 import androidx.camera.integration.core.util.StressTestUtil.STRESS_TEST_REPEAT_COUNT
 import androidx.camera.integration.core.util.StressTestUtil.createCameraSelectorById
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.LabTestRule
 import androidx.camera.testing.impl.StressTestRule
@@ -67,10 +64,6 @@ class OpenCloseCaptureSessionStressTest(
     val cameraConfig: CameraXConfig,
     val cameraId: String,
 ) {
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
-
     @get:Rule
     val useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
@@ -110,7 +103,7 @@ class OpenCloseCaptureSessionStressTest(
 
         // Creates the Preview with the CameraCaptureSessionStateMonitor to monitor whether the
         // session callbacks are called.
-        preview = createPreviewWithSessionStateMonitor(implName, sessionStateMonitor)
+        preview = createPreviewWithSessionStateMonitor(sessionStateMonitor)
 
         withContext(Dispatchers.Main) {
             preview.setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
@@ -235,21 +228,11 @@ class OpenCloseCaptureSessionStressTest(
         fun data() = StressTestUtil.getAllCameraXConfigCameraIdCombinations()
     }
 
-    @OptIn(ExperimentalCamera2Interop::class)
     private fun createPreviewWithSessionStateMonitor(
-        implementationName: String,
-        sessionStateMonitor: CameraCaptureSessionStateMonitor,
+        sessionStateMonitor: CameraCaptureSessionStateMonitor
     ): Preview {
         val builder = Preview.Builder()
-
-        when (implementationName) {
-            CameraPipeConfig::class.simpleName -> {
-                androidx.camera.camera2.pipe.integration.interop.Camera2Interop.Extender(builder)
-                    .setSessionStateCallback(sessionStateMonitor)
-            }
-            else -> Camera2Interop.Extender(builder).setSessionStateCallback(sessionStateMonitor)
-        }
-
+        Camera2Interop.Extender(builder).setSessionStateCallback(sessionStateMonitor)
         return builder.build()
     }
 

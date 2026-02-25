@@ -22,8 +22,15 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.annotation.RestrictTo
 import androidx.core.content.ContextCompat
+import androidx.xr.runtime.AnchorPersistenceMode
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.DepthEstimationMode
+import androidx.xr.runtime.DeviceTrackingMode
+import androidx.xr.runtime.FaceTrackingMode
+import androidx.xr.runtime.GeospatialMode
+import androidx.xr.runtime.HandTrackingMode
 import androidx.xr.runtime.Log
+import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.internal.FaceTrackingNotCalibratedException
 import androidx.xr.runtime.internal.LifecycleManager
 import androidx.xr.runtime.manifest.HAND_TRACKING
@@ -31,40 +38,40 @@ import kotlin.time.ComparableTimeMark
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 
-/** Manages the lifecycle of an OpenXR session. */
+/**
+ * Manages the lifecycle of an OpenXR session.
+ *
+ * @property activity the [Activity] instance
+ * @property perceptionManager the [OpenXrPerceptionManager] instance
+ * @property timeSource the [OpenXrTimeSource] instance
+ * @property nativePointer a pointer to the native `OpenXrManager`
+ * @property sessionPointer a pointer to the native
+ *   [XrSession](https://registry.khronos.org/OpenXR/specs/1.0/html/xrspec.html#XrSession)
+ * @property instancePointer a pointer to the native
+ *   [XrInstance](https://registry.khronos.org/OpenXR/specs/1.0/html/xrspec.html#XrInstance)
+ * @property config the current [Config] of the session
+ */
 @Suppress("NotCloseable")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class OpenXrManager
 internal constructor(
-    private val activity: Activity,
+    private val context: Context,
     private val perceptionManager: OpenXrPerceptionManager,
     internal val timeSource: OpenXrTimeSource,
 ) : LifecycleManager {
 
     private companion object {
         private const val KEY_API_KEY = "com.google.android.ar.API_KEY"
-        private val activityList = mutableListOf<Activity>()
+        private val contextList = mutableListOf<Context>()
     }
 
-    /**
-     * A pointer to the native OpenXrManager. Only valid after [create] and before [stop] have been
-     * called.
-     */
     internal var nativePointer: Long = 0L
         private set
 
-    /**
-     * A pointer to the native XrSession. Only valid after [create] and before [stop] have been
-     * called.
-     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override var sessionPointer: Long = 0L
         private set
 
-    /**
-     * A pointer to the native XrInstance. Only valid after [create] and before [stop] have been
-     * called.
-     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override var instancePointer: Long = 0L
         private set
@@ -72,28 +79,25 @@ internal constructor(
     override fun create() {
         nativePointer = nativeGetPointer()
         // Only initialize the OpenXrManager and bring up resources.
-        check(nativeInit(activity, startPollingThread = false))
-        activityList.add(activity)
-        setAuthentication(activity)
+        check(nativeInit(context, startPollingThread = false))
+        contextList.add(context)
+        setAuthentication(context)
         sessionPointer = nativeGetXrSessionHandle()
         instancePointer = nativeGetXrInstanceHandle()
     }
 
-    /** The current state of the runtime configuration for the session. */
-    // TODO(b/392660855): Disable all features by default once this API is fully implemented.
     override var config: Config =
         Config(
-            Config.PlaneTrackingMode.DISABLED,
-            augmentedObjectCategories = listOf(),
-            Config.HandTrackingMode.DISABLED,
-            Config.DeviceTrackingMode.DISABLED,
-            Config.DepthEstimationMode.DISABLED,
-            Config.AnchorPersistenceMode.LOCAL,
+            PlaneTrackingMode.DISABLED,
+            HandTrackingMode.DISABLED,
+            DeviceTrackingMode.DISABLED,
+            DepthEstimationMode.DISABLED,
+            AnchorPersistenceMode.LOCAL,
         )
         private set
 
     override fun configure(config: Config) {
-        if (config.depthEstimation == Config.DepthEstimationMode.SMOOTH_AND_RAW) {
+        if (config.depthEstimation == DepthEstimationMode.SMOOTH_AND_RAW) {
             throw UnsupportedOperationException(
                 "Failed to configure session, runtime does not support raw and smooth depth simultaneously."
             )
@@ -103,8 +107,8 @@ internal constructor(
         // XR_ERROR_PERMISSION_INSUFFICIENT when the HAND_TRACKING permission is not
         // granted, so we manually check it here.
         if (
-            config.handTracking != Config.HandTrackingMode.DISABLED &&
-                ContextCompat.checkSelfPermission(activity, HAND_TRACKING) !=
+            config.handTracking != HandTrackingMode.DISABLED &&
+                ContextCompat.checkSelfPermission(context, HAND_TRACKING) !=
                     PackageManager.PERMISSION_GRANTED
         ) {
             throw SecurityException()
@@ -153,7 +157,7 @@ internal constructor(
         }
 
         if (config.handTracking != this.config.handTracking) {
-            if (config.handTracking == Config.HandTrackingMode.BOTH) {
+            if (config.handTracking == HandTrackingMode.BOTH) {
                 perceptionManager.xrResources.addUpdatable(perceptionManager.xrResources.leftHand)
                 perceptionManager.xrResources.addUpdatable(perceptionManager.xrResources.rightHand)
             } else {
@@ -167,7 +171,7 @@ internal constructor(
         }
 
         if (config.deviceTracking != this.config.deviceTracking) {
-            if (config.deviceTracking == Config.DeviceTrackingMode.LAST_KNOWN) {
+            if (config.deviceTracking == DeviceTrackingMode.LAST_KNOWN) {
                 perceptionManager.xrResources.addUpdatable(perceptionManager.xrResources.arDevice)
             } else {
                 perceptionManager.xrResources.removeUpdatable(
@@ -187,7 +191,7 @@ internal constructor(
         }
 
         if (config.faceTracking != this.config.faceTracking) {
-            if (config.faceTracking == Config.FaceTrackingMode.BLEND_SHAPES) {
+            if (config.faceTracking == FaceTrackingMode.BLEND_SHAPES) {
                 if (!nativeGetFaceTrackerCalibration()) {
                     throw FaceTrackingNotCalibratedException()
                 }
@@ -204,7 +208,7 @@ internal constructor(
         }
 
         if (config.geospatial != this.config.geospatial) {
-            if (config.geospatial == Config.GeospatialMode.VPS_AND_GPS) {
+            if (config.geospatial == GeospatialMode.VPS_AND_GPS) {
                 perceptionManager.xrResources.addUpdatable(perceptionManager.xrResources.geospatial)
             } else {
                 perceptionManager.xrResources.removeUpdatable(
@@ -221,7 +225,7 @@ internal constructor(
         // lifecycle. Ideally make this two different functions.
         // The initialization will be a no-op but it will start the polling loop for the resumed
         // lifecycle.
-        check(nativeInit(activity, startPollingThread = true))
+        check(nativeInit(context, startPollingThread = true))
     }
 
     override suspend fun update(): ComparableTimeMark {
@@ -230,7 +234,7 @@ internal constructor(
         val now = timeSource.markNow()
         val xrTime = timeSource.getXrTime(now)
 
-        if (config.planeTracking != Config.PlaneTrackingMode.DISABLED) {
+        if (config.planeTracking != PlaneTrackingMode.DISABLED) {
             perceptionManager.updatePlanes(xrTime)
         }
 
@@ -258,8 +262,8 @@ internal constructor(
 
     override fun stop() {
         // TODO: b/422830134 - Remove this check once there are multiple OpenXrManagers.
-        activityList.remove(activity)
-        if (activityList.isEmpty()) {
+        contextList.remove(context)
+        if (contextList.isEmpty()) {
             nativeDeInit()
             nativePointer = 0L
             sessionPointer = 0L
@@ -268,12 +272,12 @@ internal constructor(
         }
     }
 
-    private fun setAuthentication(activity: Activity) {
+    private fun setAuthentication(context: Context) {
         var apiKey: String? = null
         try {
             val appInfo =
-                activity.packageManager.getApplicationInfo(
-                    activity.packageName,
+                context.packageManager.getApplicationInfo(
+                    context.packageName,
                     PackageManager.GET_META_DATA,
                 )
             apiKey = appInfo.metaData?.getString(KEY_API_KEY)?.takeIf { it.isNotEmpty() }
@@ -281,11 +285,11 @@ internal constructor(
             // Did not read an API key from Application
         }
 
-        if (apiKey == null) {
+        if (apiKey == null && context is Activity) {
             try {
                 val activityInfo =
-                    activity.packageManager.getActivityInfo(
-                        activity.componentName,
+                    context.packageManager.getActivityInfo(
+                        context.componentName,
                         PackageManager.GET_META_DATA,
                     )
                 apiKey = activityInfo.metaData?.getString(KEY_API_KEY)?.takeIf { it.isNotEmpty() }

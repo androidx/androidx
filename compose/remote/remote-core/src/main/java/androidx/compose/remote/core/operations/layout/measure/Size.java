@@ -42,4 +42,12 @@ public class Size {
     public float getHeight() {
         return mHeight;
     }
+
+    /**
+     * Clear the size
+     */
+    public void clear() {
+        mWidth = 0f;
+        mHeight = 0f;
+    }
 }

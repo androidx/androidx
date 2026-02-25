@@ -22,6 +22,8 @@ import androidx.annotation.RestrictTo
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Shell
 import androidx.benchmark.macro.BatteryCharge.hasMinimumCharge
+import androidx.benchmark.macro.PowerMetric.Companion.Energy
+import androidx.benchmark.macro.PowerMetric.Companion.Power
 import androidx.benchmark.macro.PowerMetric.Companion.deviceSupportsHighPrecisionTracking
 import androidx.benchmark.macro.PowerRail.hasMetrics
 import androidx.benchmark.macro.perfetto.BatteryDischargeQuery
@@ -518,27 +520,49 @@ abstract class TraceMetric : Metric() {
  * @see androidx.tracing.trace
  */
 @ExperimentalMetricApi
-class TraceSectionMetric
-@JvmOverloads
-constructor(
+class TraceSectionMetric(
     /**
-     * Section name or pattern to match.
+     * List of section names or patterns to match.
      *
      * "%" can be used as a wildcard, as this is supported by the underlying [TraceProcessor] query.
      * For example `"JIT %"` will match a section named `"JIT compiling int
      * com.package.MyClass.method(int)"` present in the trace.
+     *
+     * The resulting metric will be calculated based on all the names in this list.
      */
-    private val sectionName: String,
+    private val sectionNames: List<String>,
+    /** Metric label that is presented in the results */
+    private val label: String,
     /**
-     * Defines how slices matching [sectionName] should be confirmed to metrics, by default uses
+     * Defines how slices matching [sectionNames] should be confirmed to metrics, by default uses
      * [Mode.Sum] to count and sum durations of all matching trace sections.
      */
     private val mode: Mode = Mode.Sum,
-    /** Metric label, defaults to [sectionName]. */
-    private val label: String = sectionName,
     /** Filter results to trace sections only from the target process, defaults to true. */
     private val targetPackageOnly: Boolean = true,
 ) : Metric() {
+
+    @JvmOverloads
+    constructor(
+        /**
+         * Section name or pattern to match.
+         *
+         * "%" can be used as a wildcard, as this is supported by the underlying [TraceProcessor]
+         * query. For example `"JIT %"` will match a section named `"JIT compiling int
+         * com.package.MyClass.method(int)"` present in the trace.
+         */
+        sectionName: String,
+        /**
+         * Defines how slices matching [sectionName] should be confirmed to metrics, by default uses
+         * [Mode.Sum] to count and sum durations of all matching trace sections.
+         */
+        mode: Mode = Mode.Sum,
+        /** Metric label, defaults to [sectionName]. */
+        label: String = sectionName,
+        /** Filter results to trace sections only from the target process, defaults to true. */
+        targetPackageOnly: Boolean = true,
+    ) : this(listOf(sectionName), label, mode, targetPackageOnly)
+
     sealed class Mode(internal val name: String) {
         /**
          * Captures the duration of the first instance of `sectionName` in the trace.
@@ -604,7 +628,7 @@ constructor(
     ): List<Measurement> {
         val slices =
             traceSession.querySlices(
-                sectionName,
+                *sectionNames.toTypedArray(),
                 packageName = if (targetPackageOnly) captureInfo.targetPackageName else null,
             )
 
@@ -839,6 +863,7 @@ class PowerMetric(private val type: Type) : Metric() {
             return Type.Battery()
         }
 
+        @JvmOverloads
         @JvmStatic
         fun Energy(
             categories: Map<PowerCategory, PowerCategoryDisplayLevel> = emptyMap()
@@ -846,6 +871,7 @@ class PowerMetric(private val type: Type) : Metric() {
             return Type.Energy(categories)
         }
 
+        @JvmOverloads
         @JvmStatic
         fun Power(
             categories: Map<PowerCategory, PowerCategoryDisplayLevel> = emptyMap()

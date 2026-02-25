@@ -18,17 +18,17 @@ ActionValue: androidx.tvprovider.media.tv.TvContractCompat#EXTRA_WATCH_NEXT_PROG
 
 
 ArrayReturn: androidx.tvprovider.media.tv.PreviewProgram#getContentRatings():
-    Method should return Collection<TvContentRating> (or subclass) instead of raw array; was `android.media.tv.TvContentRating[]`
+    Method should return Collection<android.media.tv.TvContentRating> (or subclass) instead of raw array; was `android.media.tv.TvContentRating[]`
 ArrayReturn: androidx.tvprovider.media.tv.PreviewProgram.Builder#setContentRatings(android.media.tv.TvContentRating[]) parameter #0:
-    Method parameter should be Collection<TvContentRating> (or subclass) instead of raw array; was `android.media.tv.TvContentRating[]`
+    Method parameter should be Collection<android.media.tv.TvContentRating> (or subclass) instead of raw array; was `android.media.tv.TvContentRating[]`
 ArrayReturn: androidx.tvprovider.media.tv.Program#getContentRatings():
-    Method should return Collection<TvContentRating> (or subclass) instead of raw array; was `android.media.tv.TvContentRating[]`
+    Method should return Collection<android.media.tv.TvContentRating> (or subclass) instead of raw array; was `android.media.tv.TvContentRating[]`
 ArrayReturn: androidx.tvprovider.media.tv.Program.Builder#setContentRatings(android.media.tv.TvContentRating[]) parameter #0:
-    Method parameter should be Collection<TvContentRating> (or subclass) instead of raw array; was `android.media.tv.TvContentRating[]`
+    Method parameter should be Collection<android.media.tv.TvContentRating> (or subclass) instead of raw array; was `android.media.tv.TvContentRating[]`
 ArrayReturn: androidx.tvprovider.media.tv.WatchNextProgram#getContentRatings():
-    Method should return Collection<TvContentRating> (or subclass) instead of raw array; was `android.media.tv.TvContentRating[]`
+    Method should return Collection<android.media.tv.TvContentRating> (or subclass) instead of raw array; was `android.media.tv.TvContentRating[]`
 ArrayReturn: androidx.tvprovider.media.tv.WatchNextProgram.Builder#setContentRatings(android.media.tv.TvContentRating[]) parameter #0:
-    Method parameter should be Collection<TvContentRating> (or subclass) instead of raw array; was `android.media.tv.TvContentRating[]`
+    Method parameter should be Collection<android.media.tv.TvContentRating> (or subclass) instead of raw array; was `android.media.tv.TvContentRating[]`
 
 
 AutoBoxing: androidx.tvprovider.media.tv.Channel#getInternalProviderFlag1():

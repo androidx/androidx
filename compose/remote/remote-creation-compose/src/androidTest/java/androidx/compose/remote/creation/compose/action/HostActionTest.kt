@@ -30,12 +30,11 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.crea
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteState
 import androidx.compose.remote.creation.compose.state.RemoteString
-import androidx.compose.remote.creation.compose.state.rememberRemoteInt
-import androidx.compose.remote.creation.compose.state.rememberRemoteString
+import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
+import androidx.compose.remote.creation.compose.state.rememberMutableRemoteString
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.player.compose.test.utils.screenshot.TargetPlayer
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.test.uiautomator.uiAutomator
 import com.google.common.truth.Truth.assertThat
@@ -46,10 +45,7 @@ class HostActionTest {
 
     @get:Rule
     val remoteComposeTestRule: RemoteComposeScreenshotTestRule by lazy {
-        RemoteComposeScreenshotTestRule(
-            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
-            targetPlayer = TargetPlayer.View,
-        )
+        RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
     }
 
     @Test
@@ -106,9 +102,9 @@ class HostActionTest {
 
             val mutableValue =
                 when (value) {
-                    is RemoteInt -> rememberRemoteInt { value }
+                    is RemoteInt -> rememberMutableRemoteInt(value.constantValue)
                     is RemoteFloat -> value
-                    is RemoteString -> rememberRemoteString { value.constantValue!! }
+                    is RemoteString -> rememberMutableRemoteString(value.constantValue)
                     else -> "null".rs
                 }
 

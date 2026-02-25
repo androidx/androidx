@@ -156,7 +156,7 @@ class SupportSQLiteDatabaseWrapperTest(private val driver: Driver) {
                     blobCol,
                     nullCol
                 ) VALUES (?, ?, ?, ?, ?)
-            """
+                """
                     .trimIndent()
             )
             .use {

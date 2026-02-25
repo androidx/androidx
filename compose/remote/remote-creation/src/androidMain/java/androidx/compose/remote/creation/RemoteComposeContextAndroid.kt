@@ -243,11 +243,26 @@ public class RemoteComposeContextAndroid : RemoteComposeContext {
         return mRemoteWriter.createTextFromFloat(value.toFloat(), before, after, flags)
     }
 
+    /** Begin a global scope The section is moved above the root in the doc */
     public fun beginGlobal() {
         mRemoteWriter.beginGlobal()
     }
 
+    /** End a global scope The section is moved above the root in the doc */
     public fun endGlobal() {
         mRemoteWriter.endGlobal()
+    }
+
+    /**
+     * This support skipping sections of code if a condition is true The bytes between are never
+     * seen by the parser
+     *
+     * @param type the type of condition
+     * @param value the value to compare against
+     */
+    public fun skip(type: Short, value: Int, content: RemoteComposeContextAndroid.() -> Unit) {
+        val pos = mRemoteWriter.beginSkip(type, value)
+        content()
+        mRemoteWriter.endSkip(pos)
     }
 }

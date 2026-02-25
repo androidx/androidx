@@ -25,14 +25,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.assertIsEqualTo
@@ -125,15 +124,11 @@ class AlertDialogTest {
     fun alertDialog_doesNotConsumeFullScreenWidth() {
         val dialogWidthCh = Channel<Int>(Channel.CONFLATED)
         var maxDialogWidth = 0
-        var screenWidth by mutableStateOf(0)
+        var screenWidth = 0
         rule.setContent {
-            val context = LocalContext.current
             val density = LocalDensity.current
-            val resScreenWidth = context.resources.configuration.screenWidthDp
-            with(density) {
-                screenWidth = resScreenWidth.dp.roundToPx()
-                maxDialogWidth = DialogMaxWidth.roundToPx()
-            }
+            screenWidth = LocalWindowInfo.current.containerSize.width
+            with(density) { maxDialogWidth = DialogMaxWidth.roundToPx() }
 
             AlertDialog(
                 modifier =
@@ -168,15 +163,11 @@ class AlertDialogTest {
     fun basicAlertDialog_customContentDoesNotConsumeFullScreenWidth() {
         val dialogWidthCh = Channel<Int>(Channel.CONFLATED)
         var maxDialogWidth = 0
-        var screenWidth by mutableStateOf(0)
+        var screenWidth = 0
         rule.setContent {
-            val context = LocalContext.current
             val density = LocalDensity.current
-            val resScreenWidth = context.resources.configuration.screenWidthDp
-            with(density) {
-                screenWidth = resScreenWidth.dp.roundToPx()
-                maxDialogWidth = DialogMaxWidth.roundToPx()
-            }
+            screenWidth = LocalWindowInfo.current.containerSize.width
+            with(density) { maxDialogWidth = DialogMaxWidth.roundToPx() }
 
             BasicAlertDialog(onDismissRequest = {}) {
                 Surface(

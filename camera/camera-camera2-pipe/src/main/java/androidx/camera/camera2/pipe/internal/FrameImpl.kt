@@ -21,6 +21,7 @@ import androidx.camera.camera2.pipe.Frame
 import androidx.camera.camera2.pipe.FrameId
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameNumber
+import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.OutputStatus
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.StreamId
@@ -35,11 +36,12 @@ import kotlinx.atomicfu.atomic
  * and all of the underlying placeholder objects for each expected output.
  */
 internal class FrameImpl
-private constructor(private val frameState: FrameState, override val imageStreams: Set<StreamId>) :
-    Frame {
-    internal constructor(
-        frameState: FrameState
-    ) : this(frameState, frameState.imageOutputs.map { it.streamId }.toSet())
+internal constructor(
+    private val frameState: FrameState,
+    override val imageStreams: Set<StreamId> = frameState.imageOutputs.map { it.streamId }.toSet(),
+) : Frame {
+
+    private val outputStreams = frameState.imageOutputs.map { it.outputId }.toSet()
 
     private val closed = atomic(false)
 
@@ -147,20 +149,101 @@ private constructor(private val frameState: FrameState, override val imageStream
     override suspend fun awaitImage(streamId: StreamId): OutputImage? {
         if (closed.value) return null
         if (!imageStreams.contains(streamId)) return null
-        val output = frameState.imageOutputs.firstOrNull { it.streamId == streamId }
-        return output?.await()
+        check(frameState.concurrentImageStreams?.contains(streamId) != true) {
+            "This is a multi-output stream, " +
+                "use awaitImage(outputId) or awaitImages(streamId) to acquire image(s)"
+        }
+        val outputs = frameState.imageOutputs.filter { it.streamId == streamId }
+        for (output in outputs) {
+            output.await()?.let {
+                return it
+            }
+        }
+        return null
     }
 
     override fun getImage(streamId: StreamId): OutputImage? {
         if (closed.value) return null
         if (!imageStreams.contains(streamId)) return null
-        val output = frameState.imageOutputs.firstOrNull { it.streamId == streamId }
+        check(frameState.concurrentImageStreams?.contains(streamId) != true) {
+            "This is a multi-output stream, " +
+                "use awaitImage(outputId) or awaitImages(streamId) to acquire image(s)"
+        }
+        val outputs = frameState.imageOutputs.filter { it.streamId == streamId }
+        for (output in outputs) {
+            output.outputOrNull()?.let {
+                return it
+            }
+        }
+        return null
+    }
+
+    override suspend fun awaitImage(outputId: OutputId): OutputImage? {
+        if (closed.value) return null
+        if (!outputStreams.contains(outputId)) return null
+        val output = frameState.imageOutputs.firstOrNull { it.outputId == outputId }
+        return output?.await()
+    }
+
+    override fun getImage(outputId: OutputId): OutputImage? {
+        if (closed.value) return null
+        if (!outputStreams.contains(outputId)) return null
+        val output = frameState.imageOutputs.firstOrNull { it.outputId == outputId }
         return output?.outputOrNull()
+    }
+
+    override suspend fun awaitImages(streamId: StreamId): List<OutputImage> {
+        if (closed.value) return emptyList()
+        if (!imageStreams.contains(streamId)) return emptyList()
+        return frameState.imageOutputs.filter { it.streamId == streamId }.mapNotNull { it.await() }
+    }
+
+    override fun getImages(streamId: StreamId): List<OutputImage> {
+        if (closed.value) return emptyList()
+        if (!imageStreams.contains(streamId)) return emptyList()
+        return frameState.imageOutputs
+            .filter { it.streamId == streamId }
+            .mapNotNull { it.outputOrNull() }
     }
 
     override fun imageStatus(streamId: StreamId): OutputStatus {
         if (closed.value || !imageStreams.contains(streamId)) return OutputStatus.UNAVAILABLE
-        return frameState.imageOutputs.firstOrNull { it.streamId == streamId }?.status
+        val statuses = frameState.imageOutputs.filter { it.streamId == streamId }.map { it.status }
+
+        check(statuses.isNotEmpty()) {
+            "No matching outputs found with $streamId. This is unexpected."
+        }
+
+        // For a single-output frame, return the status directly.
+        if (statuses.size == 1) {
+            return statuses[0]
+        }
+
+        // For a multi-output frame, look at all the statuses.
+        // If any of the outputs is still pending, consider the status as pending.
+        if (statuses.any { it == OutputStatus.PENDING }) {
+            return OutputStatus.PENDING
+        }
+
+        // All the outputs are complete.
+        // If any of the outputs is available, consider the status as available, given that there is
+        // available output to be retrieved.
+        if (statuses.any { it == OutputStatus.AVAILABLE }) {
+            return OutputStatus.AVAILABLE
+        }
+
+        // If no output is available, but all the statues are the same, use the status.
+        if (statuses.all { it == statuses.first() }) {
+            return statuses.first()
+        }
+
+        // Otherwise, consider the status as unavailable.
+        return OutputStatus.UNAVAILABLE
+    }
+
+    override fun imageStatus(outputId: OutputId): OutputStatus {
+        if (closed.value || !outputStreams.contains(outputId)) return OutputStatus.UNAVAILABLE
+        return frameState.imageOutputs.firstOrNull { it.outputId == outputId }?.status
             ?: OutputStatus.UNAVAILABLE
     }
 

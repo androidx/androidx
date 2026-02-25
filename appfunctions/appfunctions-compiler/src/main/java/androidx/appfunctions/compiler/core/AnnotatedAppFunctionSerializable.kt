@@ -43,7 +43,7 @@ open class AnnotatedAppFunctionSerializable(override val classDeclaration: KSCla
         "${appFunctionSerializableTypeClassDeclaration.jvmClassName.replace("$", "").replaceFirstChar {  it.lowercase() } }Factory"
     }
 
-    override val isDescribedByKdoc: Boolean by lazy {
+    override val isDescribedByKDoc: Boolean by lazy {
         val annotation =
             classDeclaration.annotations.findAnnotation(
                 IntrospectionHelper.AppFunctionSerializableAnnotation.CLASS_NAME

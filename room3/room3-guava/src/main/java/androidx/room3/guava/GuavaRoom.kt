@@ -37,6 +37,6 @@ public fun <T> createListenableFuture(
     db: RoomDatabase,
     isReadOnly: Boolean,
     inTransaction: Boolean,
-    block: (SQLiteConnection) -> T,
+    block: suspend (SQLiteConnection) -> T,
 ): ListenableFuture<T> =
     db.getCoroutineScope().future { performSuspending(db, isReadOnly, inTransaction, block) }

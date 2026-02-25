@@ -18,7 +18,6 @@ screenshot testing.
 ### Guidelines
 
 - **Use Test Rule**: ALWAYS use `RemoteComposeScreenshotTestRule` to manage screenshot testing.
-- **Set Target Player**: Use `TargetPlayer.View` as the standard target for these tests.
 - **Define Golden Directory**: Use `SCREENSHOT_GOLDEN_DIRECTORY` (defined in `TestConstants.kt`) to specify where golden images are stored.
 - **Configure Display**: Use `CreationDisplayInfo` to define the display metrics for the test (e.g., 500x500 dimension).
 
@@ -33,7 +32,6 @@ class RemoteIconFromResTest {
     val remoteComposeTestRule =
         RemoteComposeScreenshotTestRule(
             moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
-            targetPlayer = TargetPlayer.View,
         )
 
     private val creationDisplayInfo =

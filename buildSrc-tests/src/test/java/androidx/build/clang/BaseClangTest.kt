@@ -46,6 +46,7 @@ abstract class BaseClangTest {
         projectSetup.props.prebuiltsPath?.let { extension.set("prebuiltsRoot", it) }
         // ensure that kotlin doesn't try to download prebuilts
         extension.set("kotlin.native.distribution.downloadFromMaven", "false")
+        extension.set("supportRootFolder", projectSetup.rootDir)
         project.pluginManager.apply(KotlinMultiplatformPluginWrapper::class.java)
         clangExtension = AndroidXClang(project)
         KonanPrebuiltsSetup.configureKonanDirectory(project)

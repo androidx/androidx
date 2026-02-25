@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.state
 
@@ -34,50 +33,24 @@ import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreati
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteFloatContext
-import androidx.compose.remote.player.core.state.RemoteDomains
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import java.math.RoundingMode
 import java.text.DecimalFormat
 
-private const val MAX_SAFE_FLOAT_ARRAY = 30
-private const val OP_ADD = AnimatedFloatExpression.OFFSET + 1
-private const val OP_SUB = AnimatedFloatExpression.OFFSET + 2
-private const val OP_MUL = AnimatedFloatExpression.OFFSET + 3
-private const val OP_DIV = AnimatedFloatExpression.OFFSET + 4
-
-/** An inline value class representing a reference to a remote float. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@JvmInline
-public value class RemoteFloatReference(private val v: Float)
-
-/** Extension property to convert an [Int] to a [RemoteFloat]. */
-public val Int.rf: RemoteFloat
-    get() {
-        return RemoteFloatExpression(this.toFloat()) { _ -> floatArrayOf(this.toFloat()) }
-    }
-
-/** Extension property to convert a [Float] to a [RemoteFloat]. */
-public val Float.rf: RemoteFloat
-    get() {
-        return RemoteFloat(this)
-    }
-
-/** Extension function to get either a Float ID or a Float literal from a [Number]. */
-internal fun Number.getFloatIdForCreationState(creationState: RemoteComposeCreationState): Float =
-    when (this) {
-        is Float -> this
-        else -> toFloat()
-    }
-
 /**
- * Abstract base class for all remote float representations. It extends [Number] and implements
- * [RemoteState<Float>].
+ * Abstract base class for all remote float representations.
+ *
+ * `RemoteFloat` represents a floating-point value that can be a constant, a possibly named
+ * variable, or a dynamic expression (e.g., an arithmetic operation).
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class RemoteFloat : BaseRemoteState<Float>() {
+@Stable
+public abstract class RemoteFloat internal constructor() : BaseRemoteState<Float>() {
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     internal abstract val arrayProvider: (creationState: RemoteComposeCreationState) -> FloatArray
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     internal fun arrayForCreationState(creationState: RemoteComposeCreationState): FloatArray {
         val cachedArray = creationState.floatArrayCache.get(this)
         if (cachedArray != null) {
@@ -88,6 +61,7 @@ public abstract class RemoteFloat : BaseRemoteState<Float>() {
         return array
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun getFloatIdForCreationState(creationState: RemoteComposeCreationState): Float {
         constantValueOrNull?.let {
             return it
@@ -111,6 +85,17 @@ public abstract class RemoteFloat : BaseRemoteState<Float>() {
         }
     }
 
+    /**
+     * Returns a [RemoteString] that evaluates to the result of this [RemoteFloat] formatted
+     * according to the provided [DecimalFormat].
+     *
+     * This method maps the localized [DecimalFormat] symbols (such as separators and grouping
+     * sizes) and configuration (such as padding and rounding) to a remote-compatible string
+     * representation.
+     *
+     * @param format The [DecimalFormat] to use for determining separators, grouping, and padding.
+     * @return A [RemoteString] representing the formatted float.
+     */
     public fun toRemoteString(format: DecimalFormat): RemoteString {
         val decimalSeparator = format.decimalFormatSymbols.decimalSeparator
         val groupingSeparator = format.decimalFormatSymbols.groupingSeparator
@@ -196,11 +181,13 @@ public abstract class RemoteFloat : BaseRemoteState<Float>() {
             constantValueOrNull = null,
             object : LazyRemoteString {
                 override fun reserveTextId(creationState: RemoteComposeCreationState): Int {
-                    return creationState.document.createTextFromFloat(
-                        getFloatIdForCreationState(creationState),
-                        before,
-                        after,
-                        flags,
+                    return creationState.createTextFromFloat(
+                        RemoteComposeCreationState.TextFromFloatParams(
+                            getIdForCreationState(creationState),
+                            before,
+                            after,
+                            flags,
+                        )
                     )
                 }
 
@@ -262,6 +249,7 @@ public abstract class RemoteFloat : BaseRemoteState<Float>() {
     }
 
     /** Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] modulo [v]. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public operator fun rem(v: Float): RemoteFloat =
         binaryOp(this, v, AnimatedFloatExpression.MOD) { a, b -> a % b }
 
@@ -270,6 +258,7 @@ public abstract class RemoteFloat : BaseRemoteState<Float>() {
         binaryOp(this, v, AnimatedFloatExpression.MOD) { a, b -> a % b }
 
     /** Returns a new [RemoteFloat] that evaluates to minimum of this [RemoteFloat] and [v]. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun min(v: Float): RemoteFloat =
         binaryOp(this, v, AnimatedFloatExpression.MIN, { a, b -> kotlin.math.min(a, b) }) {
             array,
@@ -282,6 +271,7 @@ public abstract class RemoteFloat : BaseRemoteState<Float>() {
         binaryOp(this, v, AnimatedFloatExpression.MIN) { a, b -> kotlin.math.min(a, b) }
 
     /** Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] plus [v]. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public operator fun plus(v: Float): RemoteFloat {
         if (v == 0f) {
             return this
@@ -291,12 +281,12 @@ public abstract class RemoteFloat : BaseRemoteState<Float>() {
                 OP_ADD -> {
                     val arrayCopy = array.clone()
                     arrayCopy[arrayCopy.size - 2] += v
-                    arrayCopy
+                    maybeTrimIfZero(arrayCopy)
                 }
                 OP_SUB -> {
                     val arrayCopy = array.clone()
                     arrayCopy[arrayCopy.size - 2] -= v
-                    arrayCopy
+                    maybeTrimIfZero(arrayCopy)
                 }
                 else -> null
             }
@@ -305,16 +295,17 @@ public abstract class RemoteFloat : BaseRemoteState<Float>() {
 
     /** Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] plus [v]. */
     public operator fun plus(v: RemoteFloat): RemoteFloat {
-        if (v.constantValueOrNull != null && v.constantValueOrNull == 0f) {
-            return this
+        v.constantValueOrNull?.let {
+            return plus(it)
         }
-        if (constantValueOrNull != null && constantValueOrNull == 0f) {
-            return v
+        constantValueOrNull?.let {
+            return v.plus(it)
         }
         return binaryOp(this, v, AnimatedFloatExpression.ADD) { a, b -> a + b }
     }
 
     /** Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] minus [v]. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public operator fun minus(v: Float): RemoteFloat {
         if (v == 0f) {
             return this
@@ -324,12 +315,12 @@ public abstract class RemoteFloat : BaseRemoteState<Float>() {
                 OP_ADD -> {
                     val arrayCopy = array.clone()
                     arrayCopy[arrayCopy.size - 2] -= v
-                    arrayCopy
+                    maybeTrimIfZero(arrayCopy)
                 }
                 OP_SUB -> {
                     val arrayCopy = array.clone()
                     arrayCopy[arrayCopy.size - 2] += v
-                    arrayCopy
+                    maybeTrimIfZero(arrayCopy)
                 }
                 else -> null
             }
@@ -338,14 +329,21 @@ public abstract class RemoteFloat : BaseRemoteState<Float>() {
 
     /** Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] minus [v]. */
     public operator fun minus(v: RemoteFloat): RemoteFloat {
-        if (v.constantValueOrNull != null && v.constantValueOrNull == 0f) {
-            return this
+        v.constantValueOrNull?.let {
+            return minus(it)
+        }
+        constantValueOrNull?.let {
+            return (-v).plus(it)
         }
         return binaryOp(this, v, SUB) { a, b -> a - b }
     }
 
     /** Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] times [v]. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public operator fun times(v: Float): RemoteFloat {
+        if (v == 0f) {
+            return RemoteFloat(0f)
+        }
         if (v == 1f) {
             return this
         }
@@ -357,12 +355,12 @@ public abstract class RemoteFloat : BaseRemoteState<Float>() {
                 OP_MUL -> {
                     val arrayCopy = array.clone()
                     arrayCopy[arrayCopy.size - 2] *= v
-                    arrayCopy
+                    maybeTrimIfOne(arrayCopy)
                 }
                 OP_DIV -> {
                     val arrayCopy = array.clone()
                     arrayCopy[arrayCopy.size - 2] /= v
-                    arrayCopy
+                    maybeTrimIfOne(arrayCopy)
                 }
                 else -> null
             }
@@ -370,18 +368,23 @@ public abstract class RemoteFloat : BaseRemoteState<Float>() {
     }
 
     /** Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] times [v]. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public operator fun times(v: RemoteFloat): RemoteFloat {
-        if (v.constantValueOrNull != null && v.constantValueOrNull == 1f) {
-            return this
+        v.constantValueOrNull?.let {
+            return times(it)
         }
-        if (constantValueOrNull != null && constantValueOrNull == 1f) {
-            return v
+        constantValueOrNull?.let {
+            return v.times(it)
         }
         return binaryOp(this, v, AnimatedFloatExpression.MUL) { a, b -> a * b }
     }
 
     /** Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] div [v]. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public operator fun div(v: Float): RemoteFloat {
+        if (constantValueOrNull != null && constantValueOrNull == 0f) {
+            return RemoteFloat(0f)
+        }
         if (v == 1f) {
             return this
         }
@@ -390,27 +393,45 @@ public abstract class RemoteFloat : BaseRemoteState<Float>() {
                 OP_MUL -> {
                     val arrayCopy = array.clone()
                     arrayCopy[arrayCopy.size - 2] /= v
-                    arrayCopy
+                    maybeTrimIfOne(arrayCopy)
                 }
                 OP_DIV -> {
                     val arrayCopy = array.clone()
                     arrayCopy[arrayCopy.size - 2] *= v
-                    arrayCopy
+                    maybeTrimIfOne(arrayCopy)
                 }
                 else -> null
             }
         }
     }
 
+    private fun maybeTrimIfZero(array: FloatArray) =
+        if (array[array.size - 2] == 0f) {
+            array.copyOfRange(0, array.size - 2)
+        } else {
+            array
+        }
+
+    private fun maybeTrimIfOne(array: FloatArray) =
+        if (array[array.size - 2] == 1f) {
+            array.copyOfRange(0, array.size - 2)
+        } else {
+            array
+        }
+
     /** Returns a new [RemoteFloat] that evaluates to this [RemoteFloat] div [v]. */
     public operator fun div(v: RemoteFloat): RemoteFloat {
-        if (v.constantValueOrNull != null && v.constantValueOrNull == 1f) {
-            return this
+        if (constantValueOrNull != null && constantValueOrNull == 0f) {
+            return RemoteFloat(0f)
+        }
+        v.constantValueOrNull?.let {
+            return div(it)
         }
         return binaryOp(this, v, AnimatedFloatExpression.DIV) { a, b -> a / b }
     }
 
     /** Converts this [RemoteFloat] to a [RemoteDp] */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun asRemoteDp(): RemoteDp {
         return RemoteDp(this)
     }
@@ -424,6 +445,7 @@ public abstract class RemoteFloat : BaseRemoteState<Float>() {
      *   constant.
      */
     @JvmOverloads
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun createReference(forceRemote: Boolean = false): RemoteFloat {
         return RemoteFloatExpression(
             constantValueOrNull = if (forceRemote) null else constantValueOrNull,
@@ -485,13 +507,18 @@ public abstract class RemoteFloat : BaseRemoteState<Float>() {
             if (a >= b) 1 else 0
         }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
         private fun isConstant(v: Float): Boolean {
             // Assume all NaNs are variables which are probably non-const.
             return !v.isNaN()
         }
 
+        /**
+         * Creates a [RemoteFloat] from a constant [Float] value.
+         *
+         * @param float The value to wrap.
+         * @return A [RemoteFloat] representing the given constant or encoded id.
+         */
         public operator fun invoke(float: Float): RemoteFloat {
             return RemoteFloatExpression(if (isConstant(float)) float else null) { _ ->
                 floatArrayOf(float)
@@ -499,20 +526,47 @@ public abstract class RemoteFloat : BaseRemoteState<Float>() {
         }
 
         /**
+         * Creates a [RemoteFloat] referencing a remote ID.
+         *
+         * @param id The remote ID.
+         * @return A [RemoteFloat] referencing the ID.
+         */
+        internal fun createForId(id: Float): RemoteFloat = RemoteFloat(id)
+
+        /**
          * Creates a named [RemoteFloat] with an initial value. This allows referring to a float by
          * a symbolic name in the remote document. Named remote ints can be set via
          * AndroidRemoteContext.setNamedFloat.
          *
          * @param name The name of the remote float.
-         * @param initialValue The initial value of the remote float.
+         * @param defaultValue The initial value of the remote float.
          * @return A [RemoteFloat] representing the named float.
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
-        public fun createNamedRemoteFloat(name: String, initialValue: Float): RemoteFloat {
+        public fun createNamedRemoteFloat(
+            name: String,
+            defaultValue: Float,
+            domain: RemoteState.Domain = RemoteState.Domain.User,
+        ): RemoteFloat {
             return RemoteFloatExpression(constantValueOrNull = null) { creationState ->
-                // TODO: check what happens if the initial value for this is the same as a
-                // subsequent non-named variable.
-                floatArrayOf(creationState.document.addNamedFloat(name, initialValue))
+                floatArrayOf(creationState.document.addNamedFloat("$domain:$name", defaultValue))
+            }
+        }
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @JvmStatic
+        public fun createNamedRemoteFloatExpression(
+            name: String,
+            domain: RemoteState.Domain = RemoteState.Domain.User,
+            expression: RemoteFloatContext.() -> RemoteFloat,
+        ): RemoteFloat {
+            return RemoteFloatExpression(constantValueOrNull = null) { creationState ->
+                val context = RemoteFloatContext(creationState)
+                val result = expression(context)
+                val initialValueId = result.getFloatIdForCreationState(creationState)
+                val floatId = creationState.document.addNamedFloat("$domain:$name", initialValueId)
+                floatArrayOf(floatId)
             }
         }
     }
@@ -541,13 +595,13 @@ internal fun floatToString(v: Float, before: Int, after: Int, flags: Int) =
             TextFromFloat.SEPARATOR_SPACE_COMMA -> StringUtils.SEPARATOR_SPACE_COMMA
             TextFromFloat.SEPARATOR_UNDER_PERIOD -> StringUtils.SEPARATOR_UNDER_PERIOD
             else -> StringUtils.SEPARATOR_PERIOD_COMMA
-        }.toByte(),
+        },
         when (flags and (3 shl 4)) {
             TextFromFloat.GROUPING_BY3 -> StringUtils.GROUPING_BY3
             TextFromFloat.GROUPING_BY4 -> StringUtils.GROUPING_BY4
             TextFromFloat.GROUPING_BY32 -> StringUtils.GROUPING_BY32
             else -> StringUtils.GROUPING_NONE
-        }.toByte(),
+        },
         flags shr 8,
     )
 
@@ -690,7 +744,7 @@ internal fun comparisonOp(
     val aConst = a.constantValueOrNull
     val bConst = b.constantValueOrNull
     if (aConst != null && bConst != null) {
-        return RemoteBoolean(RemoteInt(directEval(aConst, bConst)))
+        return RemoteBoolean(RemoteInt.createForId(directEval(aConst, bConst)))
     }
 
     return RemoteBoolean(
@@ -720,7 +774,8 @@ internal fun comparisonOp(
 }
 
 /** Returns [ifTrue] if [a] < [b], otherwise returns [ifFalse]. */
-public fun selectIfLT(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun selectIfLt(
     a: RemoteFloat,
     b: RemoteFloat,
     ifTrue: RemoteFloat,
@@ -742,7 +797,8 @@ public fun selectIfLT(
 }
 
 /** Returns [ifTrue] if [a] <= [b], otherwise returns [ifFalse]. */
-public fun selectIfLE(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun selectIfLe(
     a: RemoteFloat,
     b: RemoteFloat,
     ifTrue: RemoteFloat,
@@ -764,7 +820,8 @@ public fun selectIfLE(
 }
 
 /** Returns [ifTrue] if [a] > [b], otherwise returns [ifFalse]. */
-public fun selectIfGT(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun selectIfGt(
     a: RemoteFloat,
     b: RemoteFloat,
     ifTrue: RemoteFloat,
@@ -786,7 +843,8 @@ public fun selectIfGT(
 }
 
 /** Returns [ifTrue] if [a] >= [b], otherwise returns [ifFalse]. */
-public fun selectIfGE(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun selectIfGe(
     a: RemoteFloat,
     b: RemoteFloat,
     ifTrue: RemoteFloat,
@@ -815,6 +873,7 @@ public fun selectIfGE(
  * @return A [RemoteFloat] that evaluates to the difference between now and [referenceEpochMillis]
  *   in seconds.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun deltaFromReferenceInSeconds(referenceEpochMillis: RemoteLong): RemoteFloat {
     return RemoteFloatExpression(constantValueOrNull = null) { creationState ->
         floatArrayOf(
@@ -834,6 +893,7 @@ public fun deltaFromReferenceInSeconds(referenceEpochMillis: RemoteLong): Remote
  * @return A [RemoteFloat] that evaluates to the difference between now and [referenceEpochMillis]
  *   in minutes.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun deltaFromReferenceInMinutes(referenceEpochMillis: RemoteLong): RemoteFloat {
     return RemoteFloatExpression(constantValueOrNull = null) { creationState ->
         floatArrayOf(
@@ -853,6 +913,7 @@ public fun deltaFromReferenceInMinutes(referenceEpochMillis: RemoteLong): Remote
  * @return @return A [RemoteFloat] that evaluates to the difference between now and
  *   [referenceEpochMillis] in hours.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun deltaFromReferenceInHours(referenceEpochMillis: RemoteLong): RemoteFloat {
     return RemoteFloatExpression(constantValueOrNull = null) { creationState ->
         floatArrayOf(
@@ -872,6 +933,7 @@ public fun deltaFromReferenceInHours(referenceEpochMillis: RemoteLong): RemoteFl
  * @return A [RemoteFloat] that evaluates to the time of day for [referenceEpochMillis] in seconds
  *   (0-59).
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun timeOfReferenceInSeconds(referenceEpochMillis: RemoteLong): RemoteFloat {
     return RemoteFloatExpression(constantValueOrNull = null) { creationState ->
         floatArrayOf(
@@ -891,6 +953,7 @@ public fun timeOfReferenceInSeconds(referenceEpochMillis: RemoteLong): RemoteFlo
  * @return A [RemoteFloat] that evaluates to the time of day for [referenceEpochMillis] in minutes
  *   (0-59).
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun timeOfReferenceInMinutes(referenceEpochMillis: RemoteLong): RemoteFloat {
     return RemoteFloatExpression(constantValueOrNull = null) { creationState ->
         floatArrayOf(
@@ -910,6 +973,7 @@ public fun timeOfReferenceInMinutes(referenceEpochMillis: RemoteLong): RemoteFlo
  * @return A [RemoteFloat] that evaluates to the time of day for [referenceEpochMillis] in hours
  *   (0-23).
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun timeOfReferenceInHours(referenceEpochMillis: RemoteLong): RemoteFloat {
     return RemoteFloatExpression(constantValueOrNull = null) { creationState ->
         floatArrayOf(
@@ -928,6 +992,7 @@ public fun timeOfReferenceInHours(referenceEpochMillis: RemoteLong): RemoteFloat
  *   default locale.
  * @return A [RemoteFloat] that evaluates to the day of month for [referenceEpochMillis] (1-31).
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun dayOfMonthForReference(referenceEpochMillis: RemoteLong): RemoteFloat {
     return RemoteFloatExpression(constantValueOrNull = null) { creationState ->
         floatArrayOf(
@@ -946,6 +1011,7 @@ public fun dayOfMonthForReference(referenceEpochMillis: RemoteLong): RemoteFloat
  *   default locale.
  * @return A [RemoteFloat] that evaluates to the month of year for [referenceEpochMillis] (0-11).
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun monthOfYearForReference(referenceEpochMillis: RemoteLong): RemoteFloat {
     return RemoteFloatExpression(constantValueOrNull = null) { creationState ->
         floatArrayOf(
@@ -964,6 +1030,7 @@ public fun monthOfYearForReference(referenceEpochMillis: RemoteLong): RemoteFloa
  *   default locale.
  * @return A [RemoteInt] that evaluates to the day of week for [referenceEpochMillis] (0-16).
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun dayOfWeekForReference(referenceEpochMillis: RemoteLong): RemoteFloat {
     return RemoteFloatExpression(constantValueOrNull = null) { creationState ->
         floatArrayOf(
@@ -982,6 +1049,7 @@ public fun dayOfWeekForReference(referenceEpochMillis: RemoteLong): RemoteFloat 
  *   default locale.
  * @return A [RemoteInt] that evaluates to the year of [referenceEpochMillis].
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun yearForReference(referenceEpochMillis: RemoteLong): RemoteFloat {
     return RemoteFloatExpression(constantValueOrNull = null) { creationState ->
         floatArrayOf(
@@ -993,28 +1061,48 @@ public fun yearForReference(referenceEpochMillis: RemoteLong): RemoteFloat {
     }
 }
 
-/**
- * A mutable implementation of [RemoteFloat]. It also implements [MutableRemoteState<Float>].
- *
- * @property idProvider A lambda that provides the ID for this mutable float within the
- *   [RemoteComposeCreationState]. Defaults to reserving a new float variable ID if not provided.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class MutableRemoteFloat(
-    private var idProvider: (creationState: RemoteComposeCreationState) -> Float
-) : RemoteFloat(), MutableRemoteState<Float> {
+/** A mutable implementation of [RemoteFloat]. It also implements [MutableRemoteState<Float>]. */
+public class MutableRemoteFloat
+internal constructor(private var idProvider: (creationState: RemoteComposeCreationState) -> Float) :
+    RemoteFloat(), MutableRemoteState<Float> {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(
         id: Float? = null
     ) : this({ creationState -> id ?: creationState.document.reserveFloatVariable() })
 
+    @get:Suppress("AutoBoxing")
     public override val constantValueOrNull: Float?
         get() = null
 
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public override val arrayProvider: (creationState: RemoteComposeCreationState) -> FloatArray
         get() = { creationState -> floatArrayOf(idProvider(creationState)) }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         Utils.idFromNan(idProvider(creationState))
+
+    public companion object {
+        /**
+         * Creates a new mutable state (allocates an ID).
+         *
+         * @param initialValue The initial value for the state.
+         * @return A new [MutableRemoteFloat] instance.
+         */
+        public fun createMutable(initialValue: Float): MutableRemoteFloat {
+            return MutableRemoteFloat { creationState ->
+                creationState.document.addFloatConstant(initialValue)
+            }
+        }
+
+        /**
+         * Maps an existing mutable ID to a state instance.
+         *
+         * @param id The existing mutable ID.
+         * @return A [MutableRemoteFloat] instance mapping to the ID.
+         */
+        internal fun createMutableForId(id: Float): MutableRemoteFloat = MutableRemoteFloat(id)
+    }
 }
 
 /**
@@ -1026,10 +1114,12 @@ public class MutableRemoteFloat(
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteFloatExpression
 internal constructor(
-    public override val constantValueOrNull: Float?,
+    @get:Suppress("AutoBoxing") public override val constantValueOrNull: Float?,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public override val arrayProvider: (creationState: RemoteComposeCreationState) -> FloatArray,
 ) : RemoteFloat() {
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
         val array = arrayForCreationState(creationState)
         // In case we have a single element array, check if the element is an id or not;
@@ -1068,9 +1158,11 @@ internal constructor(
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AnimatedRemoteFloat(public val input: RemoteFloat, public val anim: FloatArray) :
     RemoteFloat() {
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public override val arrayProvider: (creationState: RemoteComposeCreationState) -> FloatArray
         get() = { creationState -> floatArrayOf(asNan(getIdForCreationState(creationState))) }
 
+    @get:Suppress("AutoBoxing")
     public override val constantValueOrNull: Float?
         get() = null
 
@@ -1081,6 +1173,7 @@ public class AnimatedRemoteFloat(public val input: RemoteFloat, public val anim:
     public var lastChanged: Float = Float.NaN
     public val start: Long = System.nanoTime()
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
         val array = input.arrayForCreationState(creationState)
         val hash = calcHashID(array, anim)
@@ -1105,39 +1198,6 @@ public class AnimatedRemoteFloat(public val input: RemoteFloat, public val anim:
     public fun getAnimationTime(): Float {
         return (System.nanoTime() - start) * 1E-9f
     }
-
-    public fun getEasedFloat(array: FloatArray): Float {
-        val value = exp.eval(updateTime(array))
-
-        val time =
-            if (lastChanged.isNaN()) {
-                lastChanged = getAnimationTime()
-                0f
-            } else {
-                getAnimationTime() - lastChanged
-            }
-
-        if (lastValue.isNaN()) {
-            lastValue = value
-        }
-        var outPut = lastValue
-        if (lastValue == value) {
-            lastChanged = getAnimationTime()
-            return value
-        }
-
-        if (time < easing.duration) {
-            easing.initialValue = lastValue
-            easing.targetValue = value
-            outPut = easing.get(time)
-        } else {
-            lastChanged = getAnimationTime()
-            lastValue = value
-            outPut = value
-            easing.initialValue = lastValue
-        }
-        return outPut
-    }
 }
 
 private fun calcHashID(array: FloatArray, anim: FloatArray?): Int {
@@ -1154,16 +1214,16 @@ private fun calcHashID(array: FloatArray, anim: FloatArray?): Int {
     return sum
 }
 
-public const val CUBIC_STANDARD: Int = 1
-public const val CUBIC_ACCELERATE: Int = 2
-public const val CUBIC_DECELERATE: Int = 3
-public const val CUBIC_LINEAR: Int = 4
-public const val CUBIC_ANTICIPATE: Int = 5
-public const val CUBIC_OVERSHOOT: Int = 6
-public const val CUBIC_CUSTOM: Int = 11
-public const val SPLINE_CUSTOM: Int = 12
-public const val EASE_OUT_BOUNCE: Int = 13
-public const val EASE_OUT_ELASTIC: Int = 14
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public const val CUBIC_STANDARD: Int = 1
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public const val CUBIC_ACCELERATE: Int = 2
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public const val CUBIC_DECELERATE: Int = 3
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public const val CUBIC_LINEAR: Int = 4
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public const val CUBIC_ANTICIPATE: Int = 5
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public const val CUBIC_OVERSHOOT: Int = 6
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public const val CUBIC_CUSTOM: Int = 11
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public const val SPLINE_CUSTOM: Int = 12
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public const val EASE_OUT_BOUNCE: Int = 13
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public const val EASE_OUT_ELASTIC: Int = 14
 
 /** Describes the type of animation RemoteCompose applies to an animated value. */
 @Retention(AnnotationRetention.SOURCE)
@@ -1192,6 +1252,7 @@ public annotation class AnimationType
  * @param a The number to convert.
  * @return A [FloatArray] representation of the number.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun toArray(a: Number): FloatArray =
     when (a) {
         is Float -> floatArrayOf(a)
@@ -1207,6 +1268,7 @@ public fun toArray(a: Number): FloatArray =
  * @param creationState The [RemoteComposeCreationState] to use for conversion.
  * @return A [FloatArray] representation of the number.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun toArray(a: RemoteFloat, creationState: RemoteComposeCreationState): FloatArray =
     a.arrayForCreationState(creationState)
 
@@ -1217,21 +1279,34 @@ public fun toArray(a: RemoteFloat, creationState: RemoteComposeCreationState): F
  * @param content A lambda that provides the [FloatArray] to be remembered.
  * @return A [RemoteFloat] representing the remembered float array.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 @RemoteComposable
 public fun rememberRemoteFloatArray(content: () -> FloatArray): RemoteFloat {
     val state = LocalRemoteComposeCreationState.current
-    val floatArrayId = state.document.addFloatArray(content())
-    return rememberRemoteFloat { floatArrayId.rf }
+    return rememberRemoteFloatExpression {
+        val floatArrayId = state.document.addFloatArray(content())
+        floatArrayId.rf
+    }
 }
 
 /**
- * Composable function to remember and provide a mutable remote float value. This is intended for
- * use within a `@Composable` context and allows defining the initial value using a
- * [RemoteFloatContext].
+ * Factory composable for mutable remote float state.
  *
- * @param content A lambda that takes a [RemoteFloatContext] and returns the initial float value.
- * @return A [MutableRemoteFloat] that can be observed and changed.
+ * @param initialValue The initial [Float] value.
+ * @return A [MutableRemoteFloat] instance that will be remembered across recompositions.
+ */
+@Composable
+@RemoteComposable
+public fun rememberMutableRemoteFloat(initialValue: Float): MutableRemoteFloat {
+    return remember { MutableRemoteFloat.createMutable(initialValue) }
+}
+
+/**
+ * Remembers a remote float expression based on [RemoteFloatContext].
+ *
+ * @param content A lambda that provides the [RemoteFloat] expression.
+ * @return A [RemoteFloat] instance representing the provided expression.
  */
 @Composable
 @RemoteComposable
@@ -1241,56 +1316,77 @@ public fun rememberMutableRemoteFloat(
     val state = LocalRemoteComposeCreationState.current
     return remember {
         val context = RemoteFloatContext(state)
+        // Currently evaluated eagerly to grab the right component
         val value = content(context)
-        MutableRemoteFloat { state -> value.getFloatIdForCreationState(state) }
+        MutableRemoteFloat { state ->
+            // Force creation of an id
+            asNan(value.getIdForCreationState(state))
+        }
     }
 }
 
 /**
- * Composable function to remember and provide a [RemoteFloat]. This is intended for use within a
- * `@Composable` context.
+ * Factory composable for state.
  *
- * @param content A lambda that provides the [RemoteFloat] to be remembered.
- * @return A [RemoteFloat] representing the remembered remote float.
+ * @param content A lambda that provides the [RemoteFloat] expression.
+ * @return A [RemoteFloat] instance representing the provided expression.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 @RemoteComposable
-public fun rememberRemoteFloat(content: RemoteFloatContext.() -> RemoteFloat): RemoteFloat {
+public fun rememberRemoteFloatExpression(
+    content: RemoteFloatContext.() -> RemoteFloat
+): RemoteFloat {
     val state = LocalRemoteComposeCreationState.current
-    val context = RemoteFloatContext(state)
-    val remoteFloat = content(context)
-    return remember { remoteFloat }
+    return remember {
+        val context = RemoteFloatContext(state)
+        // Currently evaluated eagerly to grab the right component
+        val remoteFloat = content(context)
+        remoteFloat
+    }
 }
 
 /**
- * A Composable function to remember and provide a **named** remote float value.
+ * Remembers a named remote float expression.
  *
- * @param name The unique name for this remote float.
- * @param domain The domain of the named float (defaults to [RemoteDomains.USER]). This helps
- *   organize named values in the remote document.
- * @param content default [RemoteFloat] value for this remote float.
- * @return A [RemoteFloat] instance that will be remembered across recompositions.
+ * @param name A unique name to identify this state within its [domain].
+ * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
+ * @param content A lambda that provides the [RemoteFloat] expression.
+ * @return A [RemoteFloat] instance representing the named expression.
  */
 @Composable
 @RemoteComposable
-public fun rememberRemoteFloat(
+public fun rememberNamedRemoteFloat(
     name: String,
-    domain: RemoteDomains = RemoteDomains.USER,
+    domain: RemoteState.Domain = RemoteState.Domain.User,
     content: RemoteFloatContext.() -> RemoteFloat,
 ): RemoteFloat {
     val state = LocalRemoteComposeCreationState.current
-    val context = RemoteFloatContext(state)
-    val remoteFloat = content(context)
     return rememberNamedState(name, domain) {
+        val context = RemoteFloatContext(state)
+        // Currently evaluated eagerly to grab the right component
+        val remoteFloat = content(context)
         RemoteFloatExpression(constantValueOrNull = null) { creationState ->
             // Create an additional expression to name, in case the input value is meaningful
             // and just a default. So override is of this named value, not the expression.
-            val id =
+            val floatId =
                 state.document.floatExpression(*remoteFloat.arrayForCreationState(creationState))
-            state.document.setStringName(Utils.idFromNan(id), "$domain:$name")
-            floatArrayOf(id)
+            state.document.addNamedFloat("$domain:$name", floatId)
+            floatArrayOf(floatId)
         }
     }
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Composable
+@RemoteComposable
+@Deprecated("Use rememberNamedRemoteFloat(name, domain, content = { content() })")
+public fun rememberRemoteFloat(
+    name: String,
+    domain: RemoteState.Domain = RemoteState.Domain.User,
+    content: RemoteFloatContext.() -> RemoteFloat,
+): RemoteFloat {
+    return rememberNamedRemoteFloat(name, domain, content)
 }
 
 /**
@@ -1301,6 +1397,8 @@ public fun rememberRemoteFloat(
  * @param content A lambda that takes a [RemoteFloatContext] and returns a [RemoteFloat].
  * @return The created [RemoteFloat].
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Deprecated("Use rememberRemoteFloatExpression(content = { content() })")
 public fun remoteFloat(
     state: RemoteStateScope,
     content: RemoteFloatContext.() -> RemoteFloat,
@@ -1311,32 +1409,12 @@ public fun remoteFloat(
 }
 
 /**
- * Updates an array of floats, replacing time-dependent variables with their current values and a
- * specific density ID.
- *
- * @param array The input [FloatArray].
- * @return A new [FloatArray] with time variables and density updated.
- */
-public fun updateTime(array: FloatArray): FloatArray {
-    val ret = array.copyOf()
-    for ((i, fl) in array.withIndex()) {
-        if (isTimeVar(fl)) {
-            ret[i] = RemoteContext.getTime(fl)
-        }
-        // TODO: we should revisit the document variable lifecycle
-        if (Utils.idFromNan(fl) == RemoteContext.ID_DENSITY) {
-            ret[i] = 2.75f
-        }
-    }
-    return ret
-}
-
-/**
  * Checks if a given float represents a time variable.
  *
  * @param fl The float to check.
  * @return `true` if the float is a time variable, `false` otherwise.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun isTimeVar(fl: Float): Boolean {
     return RemoteContext.isTime(fl)
 }
@@ -1348,6 +1426,7 @@ public fun isTimeVar(fl: Float): Boolean {
  * @param array The [FloatArray] representing the expression.
  * @return A string representation of the expression.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun toString(array: FloatArray): String {
     val labels = arrayOfNulls<String>(array.size)
     for (i in array.indices) {
@@ -1363,6 +1442,7 @@ public fun toString(array: FloatArray): String {
  * by [extras]. Inlining is preferred as long as the resulting array length is less than
  * [MAX_SAFE_FLOAT_ARRAY].
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal fun combineToFloatArray(
     creationState: RemoteComposeCreationState,
     remoteFloats: Array<RemoteFloat>,
@@ -1402,3 +1482,29 @@ internal fun combineToFloatArray(
 
     return combinedArray
 }
+
+private const val MAX_SAFE_FLOAT_ARRAY = 30
+private const val OP_ADD = AnimatedFloatExpression.OFFSET + 1
+private const val OP_SUB = AnimatedFloatExpression.OFFSET + 2
+private const val OP_MUL = AnimatedFloatExpression.OFFSET + 3
+private const val OP_DIV = AnimatedFloatExpression.OFFSET + 4
+
+/** An inline value class representing a reference to a remote float. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class RemoteFloatReference(private val v: Float)
+
+/** Extension property to convert an [Int] to a [RemoteFloat]. */
+public val Int.rf: RemoteFloat
+    get() = RemoteFloat(this.toFloat())
+
+/** Extension property to convert a [Float] to a [RemoteFloat]. */
+public val Float.rf: RemoteFloat
+    get() = RemoteFloat(this)
+
+/** Extension function to get either a Float ID or a Float literal from a [Number]. */
+internal fun Number.getFloatIdForCreationState(creationState: RemoteComposeCreationState): Float =
+    when (this) {
+        is Float -> this
+        else -> toFloat()
+    }

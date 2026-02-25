@@ -16,6 +16,7 @@
 package androidx.compose.runtime.composer.gapbuffer
 
 import androidx.compose.runtime.Composer
+import androidx.compose.runtime.GapRememberObserverHolder
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.RememberObserverHolder
 import androidx.compose.runtime.isAfterFirstChild
@@ -5438,7 +5439,7 @@ private inline fun SlotReader.expectNode(key: Int, node: Any, block: () -> Unit 
 private fun SlotWriter.rememberValue(value: Any) {
     val valueToSave =
         if (value is RememberObserver) {
-            RememberObserverHolder(value, rememberIndexOfCurrent())
+            GapRememberObserverHolder(value, rememberIndexOfCurrent())
         } else value
     update(valueToSave)
 }

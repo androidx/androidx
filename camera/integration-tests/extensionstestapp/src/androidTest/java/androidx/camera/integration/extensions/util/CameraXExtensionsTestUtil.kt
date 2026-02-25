@@ -19,16 +19,11 @@ package androidx.camera.integration.extensions.util
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
-import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.integration.extensions.CameraExtensionsActivity
-import androidx.camera.integration.extensions.CameraExtensionsActivity.CAMERA2_IMPLEMENTATION_OPTION
-import androidx.camera.integration.extensions.CameraExtensionsActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION
 import androidx.camera.integration.extensions.IntentExtraKey
 import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_VIDEO_CAPTURE_ENABLED
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil.createCameraSelectorById
@@ -44,38 +39,22 @@ import org.junit.Assume.assumeTrue
 
 object CameraXExtensionsTestUtil {
 
-    data class CameraXExtensionTestParams(
-        val implName: String,
-        val cameraXConfig: CameraXConfig,
-        val cameraId: String,
-        val extensionMode: Int,
-    )
-
     /** Gets a list of all camera id and extension mode combinations. */
     @JvmStatic
     fun getAllCameraIdExtensionModeCombinations(
         context: Context = ApplicationProvider.getApplicationContext()
-    ): List<CameraXExtensionTestParams> =
+    ): Collection<Array<Any>> =
         filterOutUnavailableMode(
             context,
             CameraUtil.getBackwardCompatibleCameraIdListOrThrow().flatMap { cameraId ->
-                AVAILABLE_EXTENSION_MODES.flatMap { extensionMode ->
-                    CAMERAX_CONFIGS.map { config ->
-                        CameraXExtensionTestParams(
-                            config.first,
-                            config.second,
-                            cameraId,
-                            extensionMode,
-                        )
-                    }
-                }
+                AVAILABLE_EXTENSION_MODES.map { extensionMode -> arrayOf(cameraId, extensionMode) }
             },
         )
 
     private fun filterOutUnavailableMode(
         context: Context,
-        list: List<CameraXExtensionTestParams>,
-    ): List<CameraXExtensionTestParams> {
+        list: List<Array<Any>>,
+    ): Collection<Array<Any>> {
         var extensionsManager: ExtensionsManager? = null
         var cameraProvider: ProcessCameraProvider? = null
         try {
@@ -83,11 +62,11 @@ object CameraXExtensionsTestUtil {
             extensionsManager =
                 ExtensionsManager.getInstanceAsync(context, cameraProvider)[2, TimeUnit.SECONDS]
 
-            val result: MutableList<CameraXExtensionTestParams> = mutableListOf()
-            for (item in list) {
-                val cameraSelector = createCameraSelectorById(item.cameraId)
-                if (extensionsManager.isExtensionAvailable(cameraSelector, item.extensionMode)) {
-                    result.add(item)
+            val result: MutableList<Array<Any>> = mutableListOf()
+            for ((cameraId, extensionMode) in list) {
+                val cameraSelector = createCameraSelectorById(cameraId as String)
+                if (extensionsManager.isExtensionAvailable(cameraSelector, extensionMode as Int)) {
+                    result.add(arrayOf(cameraId, extensionMode))
                 }
             }
             return result
@@ -100,21 +79,6 @@ object CameraXExtensionsTestUtil {
             } catch (e: Exception) {}
         }
     }
-
-    /**
-     * Gets a list of all camera id and mode combinations. Normal mode and all extension modes will
-     * be included.
-     */
-    @JvmStatic
-    fun getAllCameraIdModeCombinations(): List<Array<Any>> =
-        arrayListOf<Array<Any>>().apply {
-            val allModes = mutableListOf<Int>()
-            allModes.add(0, ExtensionMode.NONE)
-            allModes.addAll(AVAILABLE_EXTENSION_MODES)
-            CameraUtil.getBackwardCompatibleCameraIdListOrThrow().forEach { cameraId ->
-                allModes.forEach { mode -> add(arrayOf(cameraId, mode)) }
-            }
-        }
 
     /**
      * Returns whether the target camera device can support the test for a specific extension mode.
@@ -265,11 +229,4 @@ object CameraXExtensionsTestUtil {
 
     /** Constant to specify that the verification target is [ImageCapture]. */
     const val VERIFICATION_TARGET_IMAGE_CAPTURE = 0x2
-
-    /** A list of supported implementation options and their respective [CameraXConfig]. */
-    private val CAMERAX_CONFIGS =
-        listOf(
-            Pair(CAMERA2_IMPLEMENTATION_OPTION, Camera2Config.defaultConfig()),
-            Pair(CAMERA_PIPE_IMPLEMENTATION_OPTION, CameraPipeConfig.defaultConfig()),
-        )
 }

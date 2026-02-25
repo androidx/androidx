@@ -18,14 +18,10 @@ package androidx.room3
 import android.content.Context
 import android.content.Intent
 import androidx.annotation.RestrictTo
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.asLiveData
 import androidx.room3.autoclose.AutoCloser
 import androidx.room3.concurrent.AtomicInt
-import androidx.room3.util.performSuspending
 import androidx.sqlite.SQLiteConnection
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
@@ -103,7 +99,7 @@ actual constructor(
     }
 
     /** Internal method to initialize table tracking. */
-    internal actual fun internalInit(connection: SQLiteConnection) {
+    internal actual suspend fun internalInit(connection: SQLiteConnection) {
         implementation.configureConnection(connection)
         synchronized(trackerLock) {
             multiInstanceInvalidationClient?.start(checkNotNull(multiInstanceInvalidationIntent))
@@ -215,29 +211,6 @@ actual constructor(
             emitInitialState = false,
             canSync = false,
         )
-    }
-
-    /**
-     * Creates a LiveData that computes the given function once and for every other invalidation of
-     * the database.
-     *
-     * @param tableNames The list of tables to observe
-     * @param inTransaction True if the computeFunction will be done in a transaction, false
-     *   otherwise.
-     * @param computeFunction The function that calculates the value
-     * @param T The return type
-     * @return A new LiveData that computes the given function when the given list of tables
-     *   invalidates.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
-    public fun <T> createLiveData(
-        tableNames: Array<out String>,
-        inTransaction: Boolean,
-        computeFunction: (SQLiteConnection) -> T,
-    ): LiveData<T> {
-        return createFlow(*tableNames, emitInitialState = true)
-            .map { performSuspending(database, true, inTransaction, computeFunction) }
-            .asLiveData(database.getQueryContext())
     }
 
     internal fun initMultiInstanceInvalidation(

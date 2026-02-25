@@ -59,6 +59,8 @@ See the complete report at file://.*/build/reports/configuration\-cache/[^ ]*/[^
 # > Task :buildSrc:build UP-TO-DATE
 A fine\-grained performance profile is available\: use the \-\-scan option\.
 # > Task :docs
+# b/484324711
+WARN: Couldn't resolve link for .*
 WARN: .*\/unzippedJvmSources\/android\/support\/v4\/media\/session\/MediaControllerCompat\.java:[0-9]+ Missing @param tag for parameter `context` in DFunction MediaControllerCompat
 WARN: .*\/unzippedJvmSources\/androidx\/appcompat\/app\/AppCompatDelegate\.java:[0-9]+ Missing @param tag for parameter `activity` in DFunction create
 WARN: .*\/unzippedJvmSources\/androidx\/appcompat\/app\/AppCompatDelegate\.java:[0-9]+ Missing @param tag for parameter `context` in DFunction create
@@ -69,6 +71,7 @@ WARN: .*\/unzippedJvmSources\/androidx\/appsearch\/app\/ShortcutAdapter\.java:[0
 WARN: .*\/unzippedJvmSources\/androidx\/appsearch\/localstorage\/LocalStorage\.java:[0-9]+ Missing @param tag for parameter `context` in DFunction Builder
 WARN: .*\/unzippedJvmSources\/androidx\/appsearch\/platformstorage\/PlatformStorage\.java:[0-9]+ Missing @param tag for parameter `context` in DFunction Builder
 WARN: .*\/unzippedJvmSources\/androidx\/appsearch\/playservicesstorage\/PlayServicesStorage\.java:[0-9]+ Missing @param tag for parameter `context` in DFunction Builder
+WARN: .*\/unzippedJvmSources\/androidx\/benchmark\/macro\/Metric\.kt:[0-9]+ Failed to resolve See androidx\.tracing\.trace in DClass TraceSectionMetric
 WARN: .*\/unzippedJvmSources\/androidx\/camera\/view\/RotationProvider\.java:[0-9]+ Missing @param tag for parameter `listener` in DFunction addListener
 WARN: .*\/unzippedJvmSources\/androidx\/car\/app\/CarToast\.java:[0-9]+ Missing @param tag for parameter `carContext` in DFunction makeText
 WARN: .*\/unzippedJvmSources\/androidx\/car\/app\/model\/AlertCallbackDelegate\.java:[0-9]+ Missing @param tag for parameter `reason` in DFunction sendCancel
@@ -158,12 +161,10 @@ WARN: .*\/unzippedJvmSources\/androidx\/tracing\/Trace\.kt:[0-9]+ Missing @param
 WARN: .*\/unzippedJvmSources\/androidx\/transition\/TransitionInflater\.java:[0-9]+ Missing @param tag for parameter `sceneRoot` in DFunction inflateTransitionManager
 WARN: .*\/unzippedJvmSources\/androidx\/tvprovider\/media\/tv\/PreviewChannelHelper\.java:[0-9]+ Missing @param tag for parameter `context` in DFunction PreviewChannelHelper
 WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/wear/compose/ui/tooling/preview/WearPreviewFontScales\.kt:[0-9]+ Failed to resolve See Preview\.fontScale in DAnnotation WearPreviewFontScales\. Did you mean Preview\#fontScale\?
-WARN: .*\/unzippedJvmSources\/androidx\/wear\/watchface\/client\/ListenableWatchFaceControlClient\.kt:[0-9]+ Link does not resolve for @throws ServiceStartFailureException in DFunction getOrCreateInteractiveWatchFaceClient\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
 WARN: .*\/unzippedJvmSources\/androidx\/wear\/watchface\/ComplicationSlot\.kt:[0-9]+ Missing @param tag for parameter `boundingArc` in DFunction drawHighlight
 WARN: .*\/unzippedJvmSources\/androidx\/wear\/watchface\/ComplicationSlot\.kt:[0-9]+ Missing @param tag for parameter `boundingArc` in DFunction createEdgeComplicationSlotBuilder
 WARN: .*\/unzippedJvmSources\/androidx\/wear\/watchface\/ComplicationSlot\.kt:[0-9]+ Missing @param tag for parameter `complicationTapFilter` in DFunction createEdgeComplicationSlotBuilder
 WARN: .*\/unzippedJvmSources\/androidx\/wear\/watchface\/style\/CurrentUserStyleRepository\.kt:[0-9]+ Unable to find reference @param copySelectedOptions in DClass UserStyle\. Are you trying to refer to something not visible to users\?
-WARN: .*\/unzippedMultiplatformSources\/nonJvm.*Main\/androidx\/lifecycle\/LifecycleRegistry\.nonJvm\.kt\:[0-9]+ Link does not resolve for \@throws IllegalStateException in DFunction addObserver\. Is it from a package that the containing file does not import\? Are docs inherited by an un\-documented override function\, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name\, e\.g\. \`\@throws java\.io\.IOException under some conditions\`\.
 WARN: .*\/unzippedJvmSources\/androidx\/webkit\/CookieManagerCompat\.java:[0-9]+ Missing @param tag for parameter `cookieManager` in DFunction getCookieInfo
 WARN: .*\/unzippedJvmSources\/androidx\/webkit\/WebSettingsCompat\.java:[0-9]+ Missing @param tag for parameter `settings` in DFunction setSafeBrowsingEnabled
 WARN: .*\/unzippedJvmSources\/androidx\/webkit\/WebSettingsCompat\.java:[0-9]+ Missing @param tag for parameter `settings` in DFunction setDisabledActionModeMenuItems
@@ -230,24 +231,13 @@ WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/test\
 WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/text\/AnnotatedString\.kt:[0-9]+ Missing @param tag for parameter `text` in DFunction append
 WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/text\/AnnotatedString\.kt:[0-9]+ Missing @param tag for parameter `text` in DFunction AnnotatedString
 WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/datastore\/preferences\/core\/Preferences\.kt:[0-9]+ Missing @param tag for parameter `value` in DFunction set
-WARN: .*\/unzippedMultiplatformSources\/wasmJsMain\/androidx\/datastore\/core\/okio\/WebStorage\.wasmJs\.kt:[0-9]+ Link does not resolve for @throws IOException in DFunction createConnection\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
-WARN: .*\/unzippedMultiplatformSources\/wasmJsMain\/androidx\/datastore\/core\/okio\/WebStorage\.wasmJs\.kt:[0-9]+ Link does not resolve for @throws kotlin\.IllegalArgumentException in DFunction valueOf\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
-WARN: .*\/unzippedMultiplatformSources\/webCommonMain\/androidx\/datastore\/core\/okio\/WebStorage\.wasmJs\.kt:[0-9]+ Link does not resolve for @throws IOException in DFunction createConnection\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
-WARN: .*\/unzippedMultiplatformSources\/webCommonMain\/androidx\/datastore\/core\/okio\/WebStorage\.wasmJs\.kt:[0-9]+ Link does not resolve for @throws kotlin\.IllegalArgumentException in DFunction valueOf\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
-WARN: .*\/unzippedMultiplatformSources\/webMain\/androidx\/datastore\/core\/okio\/WebStorage\.web\.kt:[0-9]+ Link does not resolve for @throws IOException in DFunction createConnection\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
-WARN: .*\/unzippedMultiplatformSources\/webMain\/androidx\/datastore\/core\/okio\/WebStorage\.web\.kt:[0-9]+ Link does not resolve for @throws kotlin\.IllegalArgumentException in DFunction valueOf\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
-WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/paging\/compose\/LazyPagingItems\.kt:[0-9]+ Failed to resolve See PagingSource\.invalidate in DFunction refresh\. Did you mean PagingSource#invalidate\?
-WARN: .*\/unzippedMultiplatformSources\/desktopMain\/androidx\/compose\/material\/DesktopMenu\.desktop\.kt:[0-9]+ Missing @param tag for parameter `content` in DFunction DropdownMenuItem
-WARN: .*\/unzippedMultiplatformSources\/commonJvmMain\/androidx\/datastore\/core\/Serializer\.kt:[0-9]+ Missing @param tag for parameter `output` in DFunction writeTo
-WARN: .*\/unzippedMultiplatformSources\/nonJvmMain\/androidx\/annotation\/RestrictTo\.nonJvm\.kt:[0-9]+ Link does not resolve for @throws kotlin\.IllegalArgumentException in DFunction valueOf\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
-WARN: .*\/unzippedMultiplatformSources\/.*Main\/androidx\/room3?\/RoomDatabase.*\.kt:[0-9]+ Link does not resolve for @throws kotlin\.IllegalArgumentException in DFunction valueOf\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
-WARN: .*\/unzippedMultiplatformSources/jvmNativeMain/androidx/room3?/RoomDatabase\.jvmNative\.kt:[0-9]+ Link does not resolve for @throws IllegalArgumentException in DFunction setQueryCoroutineContext\. Is it from a package that the containing file does not import\? Are docs inherited by an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
-# b/376423687
-WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/savedstate\/serialization\/SavedStateDecoder\.kt:[0-9]+ Link does not resolve for @throws SerializationException in DFunction decodeFromSavedState\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
-WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/savedstate\/serialization\/SavedStateEncoder\.kt:[0-9]+ Link does not resolve for @throws SerializationException in DFunction encodeToSavedState\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
-WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/savedstate\/serialization\/SavedStateDecoder\.kt:[0-9]+ Link does not resolve for @throws SerializationException in DFunction decodeFromSavedStateNullable\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
-WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/savedstate\/serialization\/SavedStateEncoder\.kt:[0-9]+ Link does not resolve for @throws SerializationException in DFunction encodeToSavedStateNullable\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
+WARN: .*\/unzippedMultiplatformSources\/.*Main\/androidx\/room3?\/RoomDatabase.*\.kt:[0-9]+ Link does not resolve for @throws IllegalArgumentException in DFunction setQueryCoroutineContext\. Is it from a package that the containing file does not import\? Are docs inherited by an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
+WARN: .*\/unzippedJvmSources\/androidx\/credentials\/SignalCredentialStateRequest\.kt:[0-9]+ Link does not resolve for @throws SignalCredentialSecurityException in DFunction createFrom\. Is it from a package that the containing file does not import\? Are docs inherited by an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
 WARN: File location could not be determined\. Failed to resolve See <a href="https:\/\/developer\.android\.com\/training\/transitions">Transition API Guide<\/a> in DPackage androidx\.transition
+# b/484051200
+WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/runtime\/rxjava[2-3]\/RxJava[2-3]Adapter\.kt:[0-9]+ Unresolved receiver .* in DFunction subscribeAsState
+# b/484050995
+WARN: .*\/unzippedJvmSources\/androidx\/sqlite\/db\/SupportSQLiteDatabaseExt\.kt:[0-9]+ Unresolved receiver SupportSQLiteDatabase in DFunction transaction
 [0-9]+ cpus, so not storing build metrics.
 64 cpus, so storing build metrics.
 # b/351805708: upstream bug in Kotlin: can't have a nested class with different expect from parent
@@ -320,7 +310,6 @@ spdx sboms require a version but project: noto\-emoji\-compat\-flatbuffers has n
 docs-public:docs starting
 docs-public:docs completing
 docs-tip-of-tree:docs starting
-WARN: Source sets 'main' and 'commonMain' have the common sample roots: \$OUT_DIR/androidx/docs\-(tip-of-tree|public)/build/unzippedJvmSampleSources, \$OUT_DIR/androidx/docs\-(tip-of-tree|public)/build/unzippedMultiplatformSampleSources, \$SUPPORT/samples\. Every Kotlin source file should belong to only one source set \(module\)\.
 docs-tip-of-tree:docs completing
 # > Configure project :androidx-demos
 The current default is 'false'\.
@@ -388,9 +377,6 @@ Calculating task graph as configuration cache cannot be reused because the set o
 # b/414775532
 # > Task :compose-hero-benchmarks:poxedex-compose:app:kspReleaseKotlin
 w: \[ksp\] LibraryGlideModules \[\] are included more than once, keeping only one\!
-# > Task :glance:glance-wear-tiles:compileReleaseKotlin
-w: file://\$SUPPORT/glance/glance\-wear\-tiles/integration.* is deprecated\. glance\-wear\-tiles is deprecated and will be removed\.
-w: file://\$SUPPORT/glance/glance\-wear\-tiles/src/.* is deprecated\. glance\-wear\-tiles is deprecated and will be removed\.
 # b/439568035
 WARNING: The option setting 'android\.newDsl=false' is deprecated\.
 The current default is 'true'\.
@@ -418,18 +404,34 @@ w: file://\$SUPPORT/compose/runtime/runtime/.+\.kt:[0-9]+:[0-9]+ This declaratio
 # > Task :navigationevent:navigationevent:compileKotlinWasmJs
 w: file://\$SUPPORT/navigationevent/navigationevent/src/wasmJsMain/kotlin/androidx/navigationevent/.+\.kt:[0-9]+:[0-9]+ This declaration needs opt\-in\. Its usage should be marked with '@kotlin\.js\.ExperimentalWasmJsInterop' or '@OptIn\(kotlin\.js\.ExperimentalWasmJsInterop::class\)'
 w: file://\$SUPPORT/navigationevent/navigationevent/src/wasmJsTest/kotlin/androidx/navigationevent/.+\.kt:[0-9]+:[0-9]+ This declaration needs opt\-in\. Its usage should be marked with '@kotlin\.js\.ExperimentalWasmJsInterop' or '@OptIn\(kotlin\.js\.ExperimentalWasmJsInterop::class\)'
+# > Task :navigation:navigation-runtime:compileKotlinWasmJs
+w: file://\$SUPPORT/navigation/navigation-runtime/src/wasmJsMain/kotlin/androidx/navigation/.+\.kt:[0-9]+:[0-9]+ This declaration needs opt\-in\. Its usage should be marked with '@kotlin\.js\.ExperimentalWasmJsInterop' or '@OptIn\(kotlin\.js\.ExperimentalWasmJsInterop::class\)'
+w: file://\$SUPPORT/navigation/navigation-runtime/src/wasmJsTest/kotlin/androidx/navigation/.+\.kt:[0-9]+:[0-9]+ This declaration needs opt\-in\. Its usage should be marked with '@kotlin\.js\.ExperimentalWasmJsInterop' or '@OptIn\(kotlin\.js\.ExperimentalWasmJsInterop::class\)'
 # b/446708297
 # > Task :kotlinWasmToolingSetup
 \(node:[0-9]+\) \[DEP[0-9]+\] DeprecationWarning: The `punycode` module is deprecated\. Please use a userland alternative instead\.
 \(Use `node \-\-trace\-deprecation \.\.\.` to show where the warning was created\)
 # > Task :kruth:kruth:compileNativeMainKotlinMetadata
 w: KLIB resolver: The same 'unique_name=kotlin\-stdlib\-common' found in more than one library: \$OUT_DIR/androidx/kruth/kruth/build/kotlinTransformedMetadataLibraries/commonMain/org\.jetbrains\.kotlin\-kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\-commonMain\-Y[0-9]+sbrw\.klib, \$OUT_DIR/androidx/kruth/kruth/build/kotlinTransformedMetadataLibraries/nonJvmMain/org\.jetbrains\.kotlin\-kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\-commonNonJvmMain\-Y[0-9]+sbrw\.klib, \$OUT_DIR/androidx/kruth/kruth/build/kotlinTransformedMetadataLibraries/nonJvmMain/org\.jetbrains\.kotlin\-kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\-webMain\-Y[0-9]+sbrw\.klib
-# > Task :wear:watchfacepush:watchfacepush:processReleaseAndroidTestManifest
-\$SUPPORT/wear/watchfacepush/watchfacepush/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
-uses\-library\#wear\-sdk@android:required was tagged at AndroidManifest\.xml:[0-9]+ to replace other declarations but no other declaration present
 # > Task :appfunctions:integration-tests:multi-modules-testapp:app:compileDebugAndroidTestKotlin
 # b/472412144
 \[KOTLIN\] \[IC\] Incremental compilation was attempted but failed:
 java\.lang\.IllegalStateException: The following LookupSymbols are not yet converted to ProgramSymbols:.*
 (?:.*[\n\r])*.*Falling back to non\-incremental compilation \(reason = IC_FAILED_TO_COMPUTE_FILES_TO_RECOMPILE\)
 (?:.*[\n\r])*.*e: Incremental compilation failed: The following LookupSymbols are not yet converted to ProgramSymbols:.*SchemaAppFunctionInventory_Impl\)
+# > Task :credentials:credentials-e2ee:compileReleaseKotlin
+w: file://\$SUPPORT/credentials/credentials\-e[0-9]+ee/src/main/java/androidx/credentials/e[0-9]+ee/IdentityKey\.kt:[0-9]+:[0-9]+ 'class IdentityKey : Any' is deprecated\. This API is deprecated and will be removed in a future release\.
+w: file://\$SUPPORT/credentials/credentials\-e[0-9]+ee/src/main/java/androidx/credentials/e[0-9]+ee/IdentityKey\.kt:[0-9]+:[0-9]+ 'constructor\(public: ByteArray, private: ByteArray, type: Int\): IdentityKey' is deprecated\. This API is deprecated and will be removed in a future release\.
+# > Task :credentials:credentials-e2ee:compileReleaseAndroidTestKotlin
+w: file://\$SUPPORT/credentials/credentials\-e[0-9]+ee/src/androidTest/java/androidx/credentials/e[0-9]+ee/IdentityKeyTest\.kt:[0-9]+:[0-9]+ 'class IdentityKey : Any' is deprecated\. This API is deprecated and will be removed in a future release\.
+w: file://\$SUPPORT/credentials/credentials\-e[0-9]+ee/src/androidTest/java/androidx/credentials/e[0-9]+ee/IdentityKeyTest\.kt:[0-9]+:[0-9]+ 'companion object Companion : Any' is deprecated\. This API is deprecated and will be removed in a future release\.
+w: file://\$SUPPORT/credentials/credentials\-e[0-9]+ee/src/androidTest/java/androidx/credentials/e[0-9]+ee/IdentityKeyTest\.kt:[0-9]+:[0-9]+ 'fun createFromPrf\(prf: ByteArray, salt: ByteArray\?, keyType: Int\): IdentityKey' is deprecated\. This API is deprecated and will be removed in a future release\.
+# > Task :credentials:credentials-e2ee:compileReleaseAndroidTestJavaWithJavac
+\$SUPPORT/credentials/credentials\-e[0-9]+ee/src/androidTest/java/androidx/credentials/e[0-9]+ee/IdentityKeyJavaTest\.java:[0-9]+: warning: \[deprecation\] IdentityKey in androidx\.credentials\.e[0-9]+ee has been deprecated
+IdentityKey identityKey = IdentityKey\.createFromPrf\(prf, salt,
+\^
+IdentityKey\.IDENTITY_KEY_TYPE_ED[0-9]+\);
+\$SUPPORT/credentials/credentials\-e[0-9]+ee/src/androidTest/java/androidx/credentials/e[0-9]+ee/IdentityKeyJavaTest\.java:[0-9]+: warning: \[deprecation\] createFromPrf\(byte\[\],byte\[\],int\) in IdentityKey has been deprecated
+IdentityKey identityKey = IdentityKey\.createFromPrf\(prf, /\* salt= \*/null,
+IdentityKey identityKey[0-9]+ = IdentityKey\.createFromPrf\(prf, new byte\[[0-9]+\],
+IdentityKey identityKey = IdentityKey\.createFromPrf\(prfOutput, salt,

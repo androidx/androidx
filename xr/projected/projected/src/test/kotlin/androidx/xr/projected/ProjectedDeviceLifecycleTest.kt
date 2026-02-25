@@ -17,18 +17,14 @@
 package androidx.xr.projected
 
 import android.app.Application
-import android.content.ComponentName
-import android.content.IntentFilter
-import android.content.pm.ApplicationInfo
-import android.content.pm.PackageInfo
-import android.content.pm.ServiceInfo
+import android.os.Build
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.test.core.app.ApplicationProvider
-import androidx.xr.projected.platform.IProjectedDeviceStateListener
-import androidx.xr.projected.platform.IProjectedService
-import androidx.xr.projected.platform.ProjectedDeviceState
+import androidx.test.filters.SdkSuppress
+import androidx.xr.projected.experimental.ExperimentalProjectedApi
+import androidx.xr.projected.testing.ProjectedTestRule
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -39,58 +35,37 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.any
-import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.clearInvocations
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
-@OptIn(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalProjectedApi::class)
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [Config.TARGET_SDK])
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+@Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE])
 class ProjectedDeviceLifecycleTest {
-    private val mockProjectedService = mock<IProjectedService>()
-    private val mockProjectedServiceStub =
-        mock<IProjectedService.Stub> {
-            on { queryLocalInterface(any()) }.thenReturn(mockProjectedService)
-        }
+    @get:Rule() val projectedTestRule = ProjectedTestRule()
     private val lifecycleOwner = mock<LifecycleOwner>()
-    private lateinit var context: Application
+    private val context: Application = ApplicationProvider.getApplicationContext()
 
     private val testScheduler = TestCoroutineScheduler()
     private val testDispatcher = StandardTestDispatcher(testScheduler)
 
     private val lifecycleObserver = mock<LifecycleEventObserver>()
-    val deviceStateListenerArgumentCaptor = argumentCaptor<IProjectedDeviceStateListener>()
 
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
-        context = ApplicationProvider.getApplicationContext()
-        shadowOf(context.packageManager).apply {
-            addServiceIfNotPresent(COMPONENT_NAME)
-            addOrUpdateService(SERVICE_INFO)
-            addIntentFilterForService(COMPONENT_NAME, IntentFilter(ACTION_BIND))
-            installPackage(PACKAGE_INFO)
-        }
-        shadowOf(context)
-            .setComponentNameAndServiceForBindService(COMPONENT_NAME, mockProjectedServiceStub)
-        shadowOf(context).setBindServiceCallsOnServiceConnectedDirectly(true)
     }
 
     @After
     fun tearDown() {
-        shadowOf(context.packageManager).apply {
-            removePackage(COMPONENT_NAME.packageName)
-            removeService(COMPONENT_NAME)
-        }
         Dispatchers.resetMain()
     }
 
@@ -104,33 +79,29 @@ class ProjectedDeviceLifecycleTest {
     }
 
     @Test
-    fun addObserver_registersProjectedDeviceStateListener_stateChangesToCreated() = runBlocking {
+    fun addObserver_stateChangesToCreated() = runBlocking {
         val projectedDeviceLifecycle =
             ProjectedDeviceLifecycle(lifecycleOwner, context, testDispatcher)
         projectedDeviceLifecycle.addObserver(lifecycleObserver)
         testScheduler.advanceUntilIdle()
-
-        verify(mockProjectedService).registerProjectedDeviceStateListener(any())
         assertThat(projectedDeviceLifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
     }
 
     @Test
-    fun removeObserver_unregistersProjectedDeviceStateListener_stateChangesToInitialized() =
-        runBlocking {
-            val projectedDeviceLifecycle =
-                ProjectedDeviceLifecycle(lifecycleOwner, context, testDispatcher)
-            projectedDeviceLifecycle.addObserver(lifecycleObserver)
-            testScheduler.advanceUntilIdle()
-            verify(mockProjectedService).registerProjectedDeviceStateListener(any())
+    fun removeObserver_stateChangesToInitialized() = runBlocking {
+        val projectedDeviceLifecycle =
+            ProjectedDeviceLifecycle(lifecycleOwner, context, testDispatcher)
+        projectedDeviceLifecycle.addObserver(lifecycleObserver)
+        testScheduler.advanceUntilIdle()
+        check(projectedDeviceLifecycle.currentState == Lifecycle.State.CREATED)
 
-            projectedDeviceLifecycle.removeObserver(lifecycleObserver)
-            testScheduler.advanceUntilIdle()
-            verify(mockProjectedService).unregisterProjectedDeviceStateListener(any())
-            assertThat(projectedDeviceLifecycle.currentState).isEqualTo(Lifecycle.State.INITIALIZED)
-        }
+        projectedDeviceLifecycle.removeObserver(lifecycleObserver)
+        testScheduler.advanceUntilIdle()
+        assertThat(projectedDeviceLifecycle.currentState).isEqualTo(Lifecycle.State.INITIALIZED)
+    }
 
     @Test
-    fun removeObserver_multipleObservers_removesOneObserver_doesNotUnregisterProjectedDeviceStateListener() =
+    fun removeObserver_multipleObservers_removesOneObserver_doesNotChangeStateToIntialized() =
         runBlocking {
             val secondLifecycleObserver = mock<LifecycleEventObserver>()
             val projectedDeviceLifecycle =
@@ -138,11 +109,10 @@ class ProjectedDeviceLifecycleTest {
             projectedDeviceLifecycle.addObserver(lifecycleObserver)
             projectedDeviceLifecycle.addObserver(secondLifecycleObserver)
             testScheduler.advanceUntilIdle()
-            verify(mockProjectedService).registerProjectedDeviceStateListener(any())
+            check(projectedDeviceLifecycle.currentState == Lifecycle.State.CREATED)
 
             projectedDeviceLifecycle.removeObserver(secondLifecycleObserver)
             testScheduler.advanceUntilIdle()
-            verify(mockProjectedService, never()).unregisterProjectedDeviceStateListener(any())
             assertThat(projectedDeviceLifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
         }
 
@@ -153,13 +123,7 @@ class ProjectedDeviceLifecycleTest {
         projectedDeviceLifecycle.addObserver(lifecycleObserver)
         testScheduler.advanceUntilIdle()
 
-        verify(mockProjectedService)
-            .registerProjectedDeviceStateListener(deviceStateListenerArgumentCaptor.capture())
-
-        deviceStateListenerArgumentCaptor.firstValue.onProjectedDeviceStateChanged(
-            ProjectedDeviceState.ACTIVE,
-            null,
-        )
+        projectedTestRule.lifecycleState = Lifecycle.State.STARTED
         testScheduler.advanceUntilIdle()
         verify(lifecycleObserver).onStateChanged(eq(lifecycleOwner), eq(Lifecycle.Event.ON_START))
         assertThat(projectedDeviceLifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
@@ -172,23 +136,13 @@ class ProjectedDeviceLifecycleTest {
         projectedDeviceLifecycle.addObserver(lifecycleObserver)
         testScheduler.advanceUntilIdle()
 
-        verify(mockProjectedService)
-            .registerProjectedDeviceStateListener(deviceStateListenerArgumentCaptor.capture())
-        assertThat(projectedDeviceLifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
-
-        deviceStateListenerArgumentCaptor.firstValue.onProjectedDeviceStateChanged(
-            ProjectedDeviceState.ACTIVE,
-            null,
-        )
+        projectedTestRule.lifecycleState = Lifecycle.State.STARTED
         testScheduler.advanceUntilIdle()
         assertThat(projectedDeviceLifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
 
         clearInvocations(lifecycleObserver)
 
-        deviceStateListenerArgumentCaptor.firstValue.onProjectedDeviceStateChanged(
-            ProjectedDeviceState.INACTIVE,
-            null,
-        )
+        projectedTestRule.lifecycleState = Lifecycle.State.CREATED
         testScheduler.advanceUntilIdle()
         verify(lifecycleObserver).onStateChanged(eq(lifecycleOwner), eq(Lifecycle.Event.ON_STOP))
         assertThat(projectedDeviceLifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
@@ -202,36 +156,10 @@ class ProjectedDeviceLifecycleTest {
             projectedDeviceLifecycle.addObserver(lifecycleObserver)
             testScheduler.advanceUntilIdle()
 
-            verify(mockProjectedService)
-                .registerProjectedDeviceStateListener(deviceStateListenerArgumentCaptor.capture())
-            check(projectedDeviceLifecycle.currentState == Lifecycle.State.CREATED)
-
-            deviceStateListenerArgumentCaptor.firstValue.onProjectedDeviceStateChanged(
-                ProjectedDeviceState.DESTROYED,
-                /* data= */ null,
-            )
+            projectedTestRule.lifecycleState = Lifecycle.State.DESTROYED
             testScheduler.advanceUntilIdle()
             verify(lifecycleObserver)
                 .onStateChanged(eq(lifecycleOwner), eq(Lifecycle.Event.ON_DESTROY))
             assertThat(projectedDeviceLifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
-            verify(mockProjectedService).unregisterProjectedDeviceStateListener(any())
         }
-
-    companion object {
-        private const val ACTION_BIND = "androidx.xr.projected.ACTION_BIND"
-        private const val SYSTEM_PACKAGE_NAME = "com.system.service"
-        private const val SYSTEM_CLASS_NAME = "com.system.service.ProjectedService"
-        private val COMPONENT_NAME = ComponentName(SYSTEM_PACKAGE_NAME, SYSTEM_CLASS_NAME)
-        private val SERVICE_INFO =
-            ServiceInfo().apply {
-                packageName = SYSTEM_PACKAGE_NAME
-                name = SYSTEM_CLASS_NAME
-            }
-        private val PACKAGE_INFO =
-            PackageInfo().apply {
-                packageName = SYSTEM_PACKAGE_NAME
-                services = arrayOf(SERVICE_INFO)
-                applicationInfo = ApplicationInfo().apply { flags = ApplicationInfo.FLAG_SYSTEM }
-            }
-    }
 }

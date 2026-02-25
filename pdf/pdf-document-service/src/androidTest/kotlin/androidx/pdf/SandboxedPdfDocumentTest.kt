@@ -48,8 +48,14 @@ import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertNotNull
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
+import kotlin.test.fail
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.yield
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -180,6 +186,40 @@ class SandboxedPdfDocumentTest {
             assertThat(results[0].size == expectedFirstPageResults).isTrue()
             assertThat(results[1].size == expectedSecondPageResults).isTrue()
             assertThat(results[2].size == expectedThirdPageResults).isTrue()
+        }
+    }
+
+    @Test
+    fun searchDocument_whenCancelled_throwsCancellationExceptionAndStops() = runTest {
+        withDocument(PDF_DOCUMENT) { document ->
+            val query = "lorem"
+            val pageRange = 0..2
+
+            // Mechanism to signal that the coroutine has actually started
+            val searchStarted = MutableStateFlow(false)
+
+            val job = launch {
+                try {
+                    searchStarted.value = true
+
+                    document.searchDocument(query, pageRange)
+
+                    // Fail the test if we reach this line!
+                    fail("Expected CancellationException was not thrown")
+                } catch (e: Exception) {
+                    // Verify it is specifically a CancellationException
+                    assertThat(e).isInstanceOf(kotlinx.coroutines.CancellationException::class.java)
+                }
+            }
+
+            // Wait for the coroutine to actually start running
+            searchStarted.first { it }
+
+            // Yield to allow the searchDocument to progress slightly (hit a suspension point)
+            yield()
+
+            // Now cancel
+            job.cancelAndJoin()
         }
     }
 
@@ -558,8 +598,8 @@ class SandboxedPdfDocumentTest {
                     editablePdfDocument.applyEdits(draft.toEditsDraft())
                 }
 
-            assertThat(thrownException.failureIndex).isEqualTo(1)
-            assertThat(thrownException.appliedEditIds.size).isEqualTo(1)
+            assertThat(thrownException.failureIndex).isEqualTo(0)
+            assertThat(thrownException.appliedEditIds.size).isEqualTo(0)
             assertThat(thrownException.error.message).isEqualTo("Invalid page index")
         }
     }
@@ -586,11 +626,110 @@ class SandboxedPdfDocumentTest {
                         editablePdfDocument.applyEdits(draft.toEditsDraft())
                     }
 
-                assertThat(thrownException.failureIndex).isEqualTo(19) // last index
-                assertThat(thrownException.appliedEditIds.size).isEqualTo(numAnnots)
+                assertThat(thrownException.failureIndex).isEqualTo(0)
+                assertThat(thrownException.appliedEditIds.size).isEqualTo(0)
                 assertThat(thrownException.error.message).isEqualTo("Invalid page index")
             }
         }
+
+    @Test
+    fun addOnEditsAppliedListener_singleListener_isNotified() = runTest {
+        if (!isRequiredSdkExtensionAvailable()) return@runTest
+
+        val appliedEdits = mutableListOf<BatchPdfAnnotationsProcessor.AppliedEdit>()
+        val listener =
+            object : EditablePdfDocument.OnEditsAppliedListener {
+                override fun onEditApplied(pageNum: Int, editId: String) {
+                    appliedEdits.add(BatchPdfAnnotationsProcessor.AppliedEdit(pageNum, editId))
+                }
+            }
+
+        withEditableDocument(PDF_DOCUMENT) { editablePdfDocument ->
+            var pageNum = 0
+            val numAnnots = 2
+            val draft = MutableEditsDraft()
+
+            repeat(numAnnots) { draft.insert(getSampleStampAnnotation(pageNum++)) }
+
+            editablePdfDocument.addOnEditsAppliedListener(executor = Runnable::run, listener)
+            editablePdfDocument.applyEdits(draft.toEditsDraft())
+
+            assertThat(appliedEdits.size).isEqualTo(numAnnots)
+            assertThat(appliedEdits[0].pageNum).isEqualTo(0)
+            assertThat(appliedEdits[1].pageNum).isEqualTo(1)
+
+            // Clean up
+            editablePdfDocument.removeOnEditsAppliedListener(listener)
+        }
+    }
+
+    @Test
+    fun addOnEditsAppliedListener_multipleListeners_sameNotification() = runTest {
+        if (!isRequiredSdkExtensionAvailable()) return@runTest
+
+        val appliedEdits1 = mutableListOf<BatchPdfAnnotationsProcessor.AppliedEdit>()
+        val appliedEdits2 = mutableListOf<BatchPdfAnnotationsProcessor.AppliedEdit>()
+
+        val listener1 =
+            object : EditablePdfDocument.OnEditsAppliedListener {
+                override fun onEditApplied(pageNum: Int, editId: String) {
+                    appliedEdits1.add(BatchPdfAnnotationsProcessor.AppliedEdit(pageNum, editId))
+                }
+            }
+        val listener2 =
+            object : EditablePdfDocument.OnEditsAppliedListener {
+                override fun onEditApplied(pageNum: Int, editId: String) {
+                    appliedEdits2.add(BatchPdfAnnotationsProcessor.AppliedEdit(pageNum, editId))
+                }
+            }
+
+        withEditableDocument(PDF_DOCUMENT) { editablePdfDocument ->
+            var pageNum = 0
+            val numAnnots = 2
+            val draft = MutableEditsDraft()
+
+            repeat(numAnnots) { draft.insert(getSampleStampAnnotation(pageNum++)) }
+
+            editablePdfDocument.addOnEditsAppliedListener(executor = Runnable::run, listener1)
+            editablePdfDocument.addOnEditsAppliedListener(executor = Runnable::run, listener2)
+            editablePdfDocument.applyEdits(draft.toEditsDraft())
+
+            assertThat(appliedEdits1.size).isEqualTo(appliedEdits2.size)
+            assertThat(appliedEdits1[0]).isEqualTo(appliedEdits2[0])
+            assertThat(appliedEdits1[1]).isEqualTo(appliedEdits2[1])
+
+            // Clean up
+            editablePdfDocument.removeOnEditsAppliedListener(listener1)
+            editablePdfDocument.removeOnEditsAppliedListener(listener2)
+        }
+    }
+
+    @Test
+    fun removeOnEditsAppliedListener_singleListener_isEmpty() = runTest {
+        if (!isRequiredSdkExtensionAvailable()) return@runTest
+
+        val appliedEdits = mutableListOf<BatchPdfAnnotationsProcessor.AppliedEdit>()
+        val listener =
+            object : EditablePdfDocument.OnEditsAppliedListener {
+                override fun onEditApplied(pageNum: Int, editId: String) {
+                    appliedEdits.add(BatchPdfAnnotationsProcessor.AppliedEdit(pageNum, editId))
+                }
+            }
+
+        withEditableDocument(PDF_DOCUMENT) { editablePdfDocument ->
+            var pageNum = 0
+            val numAnnots = 2
+            val draft = MutableEditsDraft()
+
+            repeat(numAnnots) { draft.insert(getSampleStampAnnotation(pageNum++)) }
+
+            editablePdfDocument.addOnEditsAppliedListener(executor = Runnable::run, listener)
+            editablePdfDocument.removeOnEditsAppliedListener(listener)
+            editablePdfDocument.applyEdits(draft.toEditsDraft())
+
+            assertThat(appliedEdits).isEmpty()
+        }
+    }
 
     @Test
     fun documentClosesConnection_whenAllHandlesAreClosed() = runTest {
@@ -623,6 +762,8 @@ class SandboxedPdfDocumentTest {
         handle2.close()
         assertThat(isServiceConnected).isFalse()
     }
+
+    data class AppliedEdit(public val pageNum: Int, public val editId: String)
 
     companion object {
         private const val PDF_DOCUMENT = "sample.pdf"

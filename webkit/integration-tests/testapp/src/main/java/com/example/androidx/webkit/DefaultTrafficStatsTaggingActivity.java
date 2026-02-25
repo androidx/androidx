@@ -19,14 +19,12 @@ package com.example.androidx.webkit;
 import android.app.usage.NetworkStats;
 import android.app.usage.NetworkStatsManager;
 import android.net.NetworkCapabilities;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.Toast;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewFeature;
@@ -64,11 +62,6 @@ public class DefaultTrafficStatsTaggingActivity extends AppCompatActivity {
     }
 
     private void fetchTrafficStats(View view) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            showToast("Unable to fetch stats tag. Require Android N+");
-            return;
-        }
-
         // Fetch stats in background thread
         Executors.newSingleThreadExecutor().execute(() -> {
             NetworkStatsManager statsManager = this.getSystemService(NetworkStatsManager.class);
@@ -85,7 +78,6 @@ public class DefaultTrafficStatsTaggingActivity extends AppCompatActivity {
         });
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     private NetworkStats.@Nullable Bucket fetchTrafficStatsBucket(int transportType,
             NetworkStatsManager statsManager) {
         try (NetworkStats stats = statsManager.queryDetailsForUidTag(transportType, null,
@@ -99,7 +91,6 @@ public class DefaultTrafficStatsTaggingActivity extends AppCompatActivity {
         return null;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     private String makeBytesTransferredText(String transportType, NetworkStats.Bucket b) {
         if (b == null) {
             return "No tagged bytes transferred. This may be due to caching.";

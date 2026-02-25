@@ -52,10 +52,12 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalAccessibilityManager
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.wear.compose.foundation.CurvedDirection
@@ -573,11 +575,13 @@ public object ConfirmationDialogDefaults {
             animatedDelay(IconDelay, reduceMotionEnabled)
             atEnd = true
         }
-        Icon(
-            painter = rememberAnimatedVectorPainter(animation, atEnd),
-            contentDescription = null,
-            modifier = modifier.size(IconSize),
-        )
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+            Icon(
+                painter = rememberAnimatedVectorPainter(animation, atEnd),
+                contentDescription = null,
+                modifier = modifier.size(IconSize),
+            )
+        }
     }
 
     /**

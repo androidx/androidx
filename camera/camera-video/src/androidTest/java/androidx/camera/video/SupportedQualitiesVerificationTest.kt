@@ -35,7 +35,6 @@ package androidx.camera.video
 import android.content.Context
 import android.util.Size
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
@@ -46,7 +45,6 @@ import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.impl.utils.TransformUtils.rotateSize
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.IgnoreVideoRecordingProblematicDeviceRule
 import androidx.camera.testing.impl.StreamSharingForceEnabledEffect
@@ -85,10 +83,6 @@ class SupportedQualitiesVerificationTest(
     private val cameraConfig: CameraXConfig,
     private val implName: String,
 ) {
-
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
 
     @get:Rule
     val cameraRule =
@@ -144,16 +138,6 @@ class SupportedQualitiesVerificationTest(
                                     quality,
                                     Camera2Config.defaultConfig(),
                                     Camera2Config::class.simpleName,
-                                )
-                            )
-                            add(
-                                arrayOf(
-                                    cameraSelector.lensFacing,
-                                    cameraSelector,
-                                    dynamicRange,
-                                    quality,
-                                    CameraPipeConfig.defaultConfig(),
-                                    CameraPipeConfig::class.simpleName,
                                 )
                             )
                         }

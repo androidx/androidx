@@ -59,6 +59,7 @@ import androidx.collection.mutableIntObjectMapOf
 import androidx.collection.mutableIntSetOf
 import androidx.collection.mutableObjectIntMapOf
 import androidx.collection.mutableScatterSetOf
+import androidx.compose.ui.AndroidComposeUiFlags
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.R
@@ -72,8 +73,8 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.layout.boundsInParent
-import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.HitTestResult
 import androidx.compose.ui.node.LayoutNode
@@ -196,6 +197,11 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
         // 20 is taken from AbsSeekbar.java.
         const val AccessibilitySliderStepsCount = 20
+
+        // TODO(b/479058621): Replace the hardcode number with CONTENT_CHANGE_TYPE_CHECKED after
+        // sdk=36.
+        // The copied variable from AccessibilityEvent#CONTENT_CHANGE_TYPE_CHECKED.
+        const val CONTENT_CHANGE_TYPE_CHECKED = 1 shl 13
 
         /**
          * Timeout to determine whether a text selection changed event and the pending text
@@ -503,7 +509,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
     private fun createNodeInfo(virtualViewId: Int): AccessibilityNodeInfoCompat? {
         if (
-            view.viewTreeOwners?.lifecycleOwner?.lifecycle?.currentState ==
+            view.composeViewContext.lifecycleOwner.lifecycle.currentState ==
                 Lifecycle.State.DESTROYED
         ) {
             return emptyNodeInfoOrNull()
@@ -585,6 +591,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         )
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     private fun populateAccessibilityNodeInfoProperties(
         virtualViewId: Int,
         info: AccessibilityNodeInfoCompat,
@@ -778,6 +785,14 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
         // Mark invisible nodes
         info.isVisibleToUser = !semanticsNode.isHidden
+        if (ComposeUiFlags.isAccessibilityShouldIncludeOffscreenChildrenEnabled) {
+            // We started to report more nodes on the edges of scrollable containers, and we don't
+            // use clip bounds for them. Therefore, we mark them as invisible to user to signal this
+            // information to the accessibility services.
+            info.setInvisibleIfEmptyBounds(
+                if (semanticsNode.isFake) semanticsNode.parent!! else semanticsNode
+            )
+        }
 
         semanticsNode.unmergedConfig.getOrNull(SemanticsProperties.LiveRegion)?.let {
             info.liveRegion =
@@ -1159,6 +1174,11 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             info.isContentInvalid = true
             info.error = node.unmergedConfig.getOrNull(SemanticsProperties.Error)
         }
+    }
+
+    /** Marks the node as not visible to user if its bounds have zero width or height */
+    private fun AccessibilityNodeInfoCompat.setInvisibleIfEmptyBounds(node: SemanticsNode) {
+        if (node.touchBoundsInRoot.isEmpty) isVisibleToUser = false
     }
 
     @OptIn(InternalTextApi::class)
@@ -1669,7 +1689,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                     ?: false
             }
             android.R.id.accessibilityActionShowOnScreen -> {
-                if (ComposeUiFlags.isAccessibilityShowOnScreenNestedScrollingEnabled) {
+                if (AndroidComposeUiFlags.isAccessibilityShowOnScreenNestedScrollingEnabled) {
                     return node.scrollOntoScreen()
                 } else {
                     @Suppress("DEPRECATION")
@@ -2044,7 +2064,12 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         if (shapeSemanticsModifierNode?.node?.isAttached != true) {
             return layoutNode.outerCoordinator.boundsInWindow(clipBounds = false)
         }
-        val shapeBoundsInRoot = shapeSemanticsModifierNode.requireLayoutCoordinates().boundsInRoot()
+
+        val shapeCoordinates = shapeSemanticsModifierNode.requireLayoutCoordinates()
+        val shapeBoundsInRoot =
+            shapeCoordinates
+                .findRootCoordinates()
+                .localBoundingBoxOf(shapeCoordinates, clipBounds = false)
         val shapeBoundsInScreen =
             toBoundsInScreen(
                 left = shapeBoundsInRoot.left,
@@ -2555,8 +2580,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                             )
                         }
                     }
-                    SemanticsProperties.StateDescription,
-                    SemanticsProperties.ToggleableState -> {
+                    SemanticsProperties.StateDescription -> {
                         sendEventForVirtualView(
                             semanticsNodeIdToAccessibilityVirtualNodeId(id),
                             AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED,
@@ -2569,6 +2593,29 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                             semanticsNodeIdToAccessibilityVirtualNodeId(id),
                             AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED,
                             AccessibilityEventCompat.CONTENT_CHANGE_TYPE_UNDEFINED,
+                        )
+                    }
+                    SemanticsProperties.ToggleableState -> {
+                        sendEventForVirtualView(
+                            semanticsNodeIdToAccessibilityVirtualNodeId(id),
+                            AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED,
+                            CONTENT_CHANGE_TYPE_CHECKED,
+                        )
+                        // Temporary(b/192295060) fix, sending CONTENT_CHANGE_TYPE_UNDEFINED to
+                        // force ViewRootImpl to update its accessibility-focused virtual-node.
+                        // If we have an androidx fix, we can remove this event.
+                        sendEventForVirtualView(
+                            semanticsNodeIdToAccessibilityVirtualNodeId(id),
+                            AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED,
+                            AccessibilityEventCompat.CONTENT_CHANGE_TYPE_UNDEFINED,
+                        )
+                    }
+                    SemanticsProperties.Error -> {
+                        sendEventForVirtualView(
+                            semanticsNodeIdToAccessibilityVirtualNodeId(id),
+                            AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED,
+                            AccessibilityEventCompat.CONTENT_CHANGE_TYPE_ERROR or
+                                AccessibilityEventCompat.CONTENT_CHANGE_TYPE_CONTENT_INVALID,
                         )
                     }
                     SemanticsProperties.ProgressBarRangeInfo -> {

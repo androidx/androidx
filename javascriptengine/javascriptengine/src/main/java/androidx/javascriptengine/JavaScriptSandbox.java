@@ -613,11 +613,12 @@ public final class JavaScriptSandbox implements AutoCloseable {
             mState = State.CLOSED;
         }
         notifyIsolatesAboutClosure();
-        // This is the closest thing to a .close() method for ExecutorServices. This doesn't
-        // force the threads or their Runnables to immediately terminate, but will ensure
-        // that once the worker threads finish their current runnable (if any) that the thread
-        // pool terminates them, preventing a leak of threads.
-        mThreadPoolTaskExecutor.shutdownNow();
+        // This doesn't force the threads or their tasks to immediately terminate. Any previously
+        // scheduled tasks will be fulfilled, but new tasks will be rejected.
+        //
+        // We do not want to use shutdownNow, which would cancel any tasks that have not yet
+        // started, as this could skip cleanup operations and leak resources such as file handles.
+        mThreadPoolTaskExecutor.shutdown();
     }
 
     /**

@@ -105,6 +105,32 @@ public fun <E> mutableOrderedScatterSetOf(
 public fun <E> mutableOrderedScatterSetOf(vararg elements: E): MutableOrderedScatterSet<E> =
     MutableOrderedScatterSet<E>(elements.size).apply { plusAssign(elements) }
 
+/** Returns a new read-only [OrderedScatterSet] with the specified contents. */
+public fun <E> Collection<E>.toOrderedScatterSet(): OrderedScatterSet<E> =
+    if (isEmpty()) emptyOrderedScatterSet() else toMutableOrderedScatterSet()
+
+/**
+ * Returns a new [MutableOrderedScatterSet] with the specified contents.
+ *
+ * The [MutableOrderedScatterSet] is created with an initial capacity sufficient to hold the content
+ * in the specified [Collection].
+ */
+public fun <E> Collection<E>.toMutableOrderedScatterSet(): MutableOrderedScatterSet<E> =
+    MutableOrderedScatterSet<E>(size).also { it.addAll(this) }
+
+/** Returns a new read-only [OrderedScatterSet] with the specified contents. */
+public fun <E> OrderedScatterSet<E>.toOrderedScatterSet(): OrderedScatterSet<E> =
+    if (isEmpty()) emptyOrderedScatterSet() else toMutableOrderedScatterSet()
+
+/**
+ * Returns a new [MutableOrderedScatterSet] with the specified contents.
+ *
+ * The [MutableOrderedScatterSet] is created with an initial capacity sufficient to hold the content
+ * in the specified [OrderedScatterSet].
+ */
+public fun <E> OrderedScatterSet<E>.toMutableOrderedScatterSet(): MutableOrderedScatterSet<E> =
+    MutableOrderedScatterSet<E>(size).also { it.addAll(this) }
+
 /**
  * [OrderedScatterSet] is a container with a [Set]-like interface based on a flat hash table
  * implementation that preserves the insertion order for iteration. The underlying implementation is

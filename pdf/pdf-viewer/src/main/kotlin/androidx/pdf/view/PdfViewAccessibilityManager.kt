@@ -219,12 +219,13 @@ internal class PdfViewAccessibilityManager(
     private fun isFastScrollerStateValid(): Boolean =
         pdfView.lastFastScrollerVisibility && pdfView.positionIsStable
 
-    override fun onPerformActionForVirtualView(
+    public override fun onPerformActionForVirtualView(
         virtualViewId: Int,
         action: Int,
         arguments: Bundle?,
     ): Boolean {
         if (action != AccessibilityNodeInfo.ACTION_CLICK) return false
+        pdfView.commitFormFillingEditText()
 
         formWidgetInfos[virtualViewId]?.let { pair ->
             val pageNum = pair.first
@@ -245,6 +246,28 @@ internal class PdfViewAccessibilityManager(
                 return true
             }
         }
+
+        // Handle GoTo Links
+        gotoLinks[virtualViewId]?.let { linkWrapper ->
+            val destination =
+                PdfPoint(
+                    pageNum = linkWrapper.content.destination.pageNumber,
+                    pagePoint =
+                        PointF(
+                            linkWrapper.content.destination.xCoordinate,
+                            linkWrapper.content.destination.yCoordinate,
+                        ),
+                )
+            pdfView.scrollToPosition(destination)
+            return true
+        }
+
+        // Handle URL Links
+        urlLinks[virtualViewId]?.let { linkWrapper ->
+            pdfView.openExternalLink(linkWrapper.content.uri)
+            return true
+        }
+
         // This view does not handle any actions.
         return false
     }

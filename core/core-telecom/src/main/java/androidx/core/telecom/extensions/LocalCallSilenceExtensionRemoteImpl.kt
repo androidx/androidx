@@ -107,6 +107,7 @@ internal class LocalCallSilenceExtensionRemoteImpl(
                 updateCanUserUpdateSilence = {
                     callScope.launch {
                         Log.i(TAG, "LCS_SL: updateCanUserUpdateSilence: state=[$it]")
+                        // notify the remote surface
                         onCanUserUpdateSilence(it)
                     }
                 },

@@ -131,10 +131,10 @@ src/java/androidx/InterfaceWithoutAnnotation.kt:4: Error: This interface must be
 
         val expectedFixDiffs =
             """
-Autofix for src/java/androidx/InterfaceWithoutAnnotation.kt line 4: Annotate with @JvmDefaultWithCompatibility:
-@@ -4 +4
-+                 @JvmDefaultWithCompatibility
-        """
+            Autofix for src/java/androidx/InterfaceWithoutAnnotation.kt line 4: Annotate with @JvmDefaultWithCompatibility:
+            @@ -4 +4
+            +                 @JvmDefaultWithCompatibility
+            """
                 .trimIndent()
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
@@ -230,10 +230,10 @@ src/java/androidx/InterfaceWithStableAndUnstableMethods.kt:4: Error: This interf
 
         val expectedFixDiffs =
             """
-Autofix for src/java/androidx/InterfaceWithStableAndUnstableMethods.kt line 4: Annotate with @JvmDefaultWithCompatibility:
-@@ -4 +4
-+                 @JvmDefaultWithCompatibility
-        """
+            Autofix for src/java/androidx/InterfaceWithStableAndUnstableMethods.kt line 4: Annotate with @JvmDefaultWithCompatibility:
+            @@ -4 +4
+            +                 @JvmDefaultWithCompatibility
+            """
                 .trimIndent()
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)

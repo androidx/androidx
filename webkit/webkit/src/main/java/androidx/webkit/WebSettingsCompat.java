@@ -1151,54 +1151,30 @@ public class WebSettingsCompat {
     }
 
     /**
-     * Sets the {@link BackForwardCacheSettings} for this {@link WebSettings}.
-     *
-     * <p>
-     * This method should only be called if
-     * {@link WebViewFeature#isFeatureSupported(String)} returns true for
-     * {@link WebViewFeature#BACK_FORWARD_CACHE_SETTINGS}.
-     *
-     * <p>
-     * Calling this API will enable the BackForwardCache feature, which is equivalent to calling
-     * {@link #setBackForwardCacheEnabled(WebSettings, boolean)} with {@code true}.
-     *
-     * @param settings                 Settings retrieved from {@link WebView#getSettings()}.
-     * @param backForwardCacheSettings The new settings for the BackForwardCache.
-     */
-    @RequiresFeature(name = WebViewFeature.BACK_FORWARD_CACHE_SETTINGS,
-            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    @ExperimentalBackForwardCacheSettings
-    public static void setBackForwardCacheSettings(@NonNull WebSettings settings,
-            @NonNull BackForwardCacheSettings backForwardCacheSettings) {
-        final ApiFeature.NoFramework feature = WebViewFeatureInternal.BACK_FORWARD_CACHE_SETTINGS;
-        if (feature.isSupportedByWebView()) {
-            getAdapter(settings).setBackForwardCacheSettings(backForwardCacheSettings);
-        } else {
-            throw WebViewFeatureInternal.getUnsupportedOperationException();
-        }
-    }
-
-    /**
      * Get the current {@link BackForwardCacheSettings} for this {@link WebSettings}.
      *
      * <p>
+     * The returned {@link BackForwardCacheSettings} object is live; updates to it will
+     * be applied to the {@link WebSettings} immediately.
+     *
+     * <p>
      * This method should only be called if
      * {@link WebViewFeature#isFeatureSupported(String)} returns true for
-     * {@link WebViewFeature#BACK_FORWARD_CACHE_SETTINGS}.
+     * {@link WebViewFeature#BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3}.
      *
      * @param settings Settings retrieved from {@link WebView#getSettings()}.
-     * @return The current settings for the BackForwardCache. If the BackForwardCache
-     * feature is disabled, a default instance is returned instead.
+     * @return The current settings for the BackForwardCache.
      */
-    @RequiresFeature(name = WebViewFeature.BACK_FORWARD_CACHE_SETTINGS,
+    @RequiresFeature(name = WebViewFeature.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     @NonNull
     @ExperimentalBackForwardCacheSettings
     public static BackForwardCacheSettings getBackForwardCacheSettings(
             @NonNull WebSettings settings) {
-        final ApiFeature.NoFramework feature = WebViewFeatureInternal.BACK_FORWARD_CACHE_SETTINGS;
+        final ApiFeature.NoFramework feature =
+                WebViewFeatureInternal.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3;
         if (feature.isSupportedByWebView()) {
-            return getAdapter(settings).getBackForwardCacheSettings();
+            return new BackForwardCacheSettings(getAdapter(settings));
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }

@@ -132,8 +132,9 @@ public class HostActionMetadataOperation extends Operation
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", OP_CODE, "HostAction")
-                .description("Host action. This operation represents a host action")
+        doc.operation("Layout Operations", OP_CODE, "HostActionMetadata")
+                .description("Host action + metadata. This operation represents a host action"
+                        + " that can also provides some metadata")
                 .field(INT, "ACTION_ID", "Host Action ID")
                 .field(INT, "METADATA", "Host Action Text Metadata ID");
     }

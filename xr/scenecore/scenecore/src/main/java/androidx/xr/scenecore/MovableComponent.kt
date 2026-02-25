@@ -50,8 +50,6 @@ import kotlinx.coroutines.flow.StateFlow
  *
  * This component cannot be attached to an [AnchorEntity] or to the [ActivitySpace]. Calling
  * [Entity.addComponent] to an Entity with these types will return false.
- *
- * NOTE: This Component is currently unsupported on [GltfModelEntity].
  */
 public class MovableComponent
 private constructor(
@@ -189,11 +187,7 @@ private constructor(
         this.entity = null
     }
 
-    private data class UpdatedReformEventInfo(
-        val pose: Pose,
-        val parent: Entity?,
-        val scale: Float,
-    )
+    private data class UpdatedReformEventInfo(val pose: Pose, val parent: Entity?, val scale: Float)
 
     private fun getUpdatedReformEventPoseAndParent(moveEvent: MoveEvent): UpdatedReformEventInfo {
         val initialParent = moveEvent.initialParent
@@ -247,13 +241,18 @@ private constructor(
 
         if (anchorablePlanePose != null && anchorablePlane != null) {
             if (moveEvent.moveState == MoveEvent.MOVE_STATE_END) {
-                val planeRotation = anchorablePlanePose.rotation
-                val rotatedPose =
-                    Pose(
-                        moveEventPoseInOxr.translation,
-                        rotateEntityToPlane(moveEventPoseInOxr.rotation, planeRotation),
-                    )
-
+                val rotation =
+                    when (entity) {
+                        is PanelEntity ->
+                            moveEventPoseInOxr.getForwardVectorToUpRotation(anchorablePlanePose)
+                        is GltfModelEntity ->
+                            moveEventPoseInOxr.getUpVectorToUpRotation(anchorablePlanePose)
+                        else ->
+                            throw IllegalArgumentException(
+                                "Movable component can be applied to either a PanelEntity or GltfModelEntity"
+                            )
+                    }
+                val rotatedPose = Pose(moveEventPoseInOxr.translation, rotation)
                 var poseToAnchor: Pose = anchorablePlanePose.inverse.compose(rotatedPose)
                 poseToAnchor =
                     Pose(

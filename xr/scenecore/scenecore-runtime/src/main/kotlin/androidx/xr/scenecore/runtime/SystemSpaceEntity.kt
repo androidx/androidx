@@ -23,10 +23,10 @@ import java.util.concurrent.Executor
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface SystemSpaceEntity : Entity {
     /**
-     * Registers a listener to be called when the underlying space has moved or changed.
+     * Registers a listener to be called when the underlying space's origin has moved or changed.
      *
      * @param listener The listener to register if non-null, else stops listening if null.
      * @param executor The executor to run the listener on. Defaults to SceneCore executor if null.
      */
-    public fun setOnSpaceUpdatedListener(listener: Runnable?, executor: Executor?)
+    public fun setOnOriginChangedListener(listener: Runnable?, executor: Executor?)
 }

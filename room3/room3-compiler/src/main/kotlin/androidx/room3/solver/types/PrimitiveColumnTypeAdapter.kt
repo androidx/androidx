@@ -41,17 +41,16 @@ class PrimitiveColumnTypeAdapter(
 
         enum class Primitive(
             val typeName: XTypeName,
-            val cursorGetter: String,
             val stmtGetter: String,
             val stmtSetter: String,
         ) {
-            INT(PRIMITIVE_INT, "getInt", "getLong", "bindLong"),
-            SHORT(PRIMITIVE_SHORT, "getShort", "getLong", "bindLong"),
-            BYTE(PRIMITIVE_BYTE, "getShort", "getLong", "bindLong"),
-            LONG(PRIMITIVE_LONG, "getLong", "getLong", "bindLong"),
-            CHAR(PRIMITIVE_CHAR, "getInt", "getLong", "bindLong"),
-            FLOAT(PRIMITIVE_FLOAT, "getFloat", "getDouble", "bindDouble"),
-            DOUBLE(PRIMITIVE_DOUBLE, "getDouble", "getDouble", "bindDouble"),
+            INT(PRIMITIVE_INT, "getLong", "bindLong"),
+            SHORT(PRIMITIVE_SHORT, "getLong", "bindLong"),
+            BYTE(PRIMITIVE_BYTE, "getLong", "bindLong"),
+            LONG(PRIMITIVE_LONG, "getLong", "bindLong"),
+            CHAR(PRIMITIVE_CHAR, "getLong", "bindLong"),
+            FLOAT(PRIMITIVE_FLOAT, "getDouble", "bindDouble"),
+            DOUBLE(PRIMITIVE_DOUBLE, "getDouble", "bindDouble"),
         }
 
         private fun getAffinity(primitive: Primitive) =
@@ -68,7 +67,7 @@ class PrimitiveColumnTypeAdapter(
         fun createPrimitiveAdapters(
             processingEnvironment: XProcessingEnv
         ): List<PrimitiveColumnTypeAdapter> {
-            return Primitive.values().map {
+            return Primitive.entries.map {
                 PrimitiveColumnTypeAdapter(
                     out = processingEnvironment.requireType(it.typeName),
                     typeAffinity = getAffinity(it),
@@ -78,7 +77,6 @@ class PrimitiveColumnTypeAdapter(
         }
     }
 
-    private val cursorGetter = primitive.cursorGetter
     private val stmtGetter = primitive.stmtGetter
     private val stmtSetter = primitive.stmtSetter
 
@@ -89,18 +87,18 @@ class PrimitiveColumnTypeAdapter(
         scope: CodeGenScope,
     ) {
         // These primitives don't have an exact statement setter.
-        val castFunction =
+        val castFunctionCall =
             when (primitive) {
                 Primitive.INT,
                 Primitive.SHORT,
                 Primitive.BYTE,
-                Primitive.CHAR -> "toLong"
-                Primitive.FLOAT -> "toDouble"
+                Primitive.CHAR -> ".toLong()"
+                Primitive.FLOAT -> ".toDouble()"
                 else -> null
             }
         val valueExpr =
-            if (castFunction != null) {
-                XCodeBlock.of("%L.%L()", valueVarName, castFunction)
+            if (castFunctionCall != null) {
+                XCodeBlock.of("%L%L", valueVarName, castFunctionCall)
             } else {
                 XCodeBlock.of("%L", valueVarName)
             }
@@ -113,22 +111,24 @@ class PrimitiveColumnTypeAdapter(
         indexVarName: String,
         scope: CodeGenScope,
     ) {
-        scope.builder.addStatement(
-            "%L = %L",
-            outVarName,
+        // These primitives don't have an exact cursor / statement getter.
+        val castFunctionCall =
+            when (primitive) {
+                Primitive.INT -> ".toInt()"
+                Primitive.SHORT -> ".toShort()"
+                Primitive.BYTE -> ".toByte()"
+                Primitive.CHAR -> ".toInt().toChar()"
+                Primitive.FLOAT -> ".toFloat()"
+                else -> null
+            }
+        val valueExpr =
             XCodeBlock.of("%L.%L(%L)", stmtVarName, stmtGetter, indexVarName).let {
-                // These primitives don't have an exact cursor / statement getter.
-                val castFunction =
-                    when (primitive) {
-                        Primitive.INT -> "toInt"
-                        Primitive.SHORT -> "toShort"
-                        Primitive.BYTE -> "toByte"
-                        Primitive.CHAR -> "toChar"
-                        Primitive.FLOAT -> "toFloat"
-                        else -> null
-                    } ?: return@let it
-                XCodeBlock.of("%L.%L()", it, castFunction)
-            },
-        )
+                if (castFunctionCall != null) {
+                    XCodeBlock.of("%L%L", it, castFunctionCall)
+                } else {
+                    it
+                }
+            }
+        scope.builder.addStatement("%L = %L", outVarName, valueExpr)
     }
 }

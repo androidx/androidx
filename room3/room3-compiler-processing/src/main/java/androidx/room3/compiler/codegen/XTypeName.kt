@@ -148,6 +148,7 @@ protected constructor(
          * A convenience [XTypeName] that represents [kotlin.Enum] in Kotlin and [java.lang.Enum] in
          * Java.
          */
+        @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // intentionally using java.* types
         @JvmField
         val ENUM =
             XTypeName(
@@ -188,6 +189,7 @@ protected constructor(
         @JvmField val BOXED_FLOAT = Float::class.asClassName()
         @JvmField val BOXED_DOUBLE = Double::class.asClassName()
 
+        @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // intentionally using java.* types
         @JvmField
         val ANY_WILDCARD =
             XTypeName(

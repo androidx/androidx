@@ -32,8 +32,8 @@ class XTypeParameterElementTest {
             Source.kotlin(
                 "Foo.kt",
                 """
-            class Foo<T1, T2>
-            """
+                class Foo<T1, T2>
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
@@ -81,10 +81,10 @@ class XTypeParameterElementTest {
             Source.kotlin(
                 "Foo.kt",
                 """
-            class Foo<T1 : Bar, T2 : Baz?>
-            open class Bar
-            open class Baz
-            """
+                class Foo<T1 : Bar, T2 : Baz?>
+                open class Bar
+                open class Baz
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
@@ -126,10 +126,10 @@ class XTypeParameterElementTest {
             Source.kotlin(
                 "Foo.kt",
                 """
-            class Foo<in T1 : Bar?, out T2 : Baz>
-            open class Bar
-            open class Baz
-            """
+                class Foo<in T1 : Bar?, out T2 : Baz>
+                open class Bar
+                open class Baz
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
@@ -171,10 +171,10 @@ class XTypeParameterElementTest {
             Source.java(
                 "Foo",
                 """
-            class Foo<T extends Bar & Baz> {}
-            class Bar {}
-            interface Baz {}
-            """
+                class Foo<T extends Bar & Baz> {}
+                class Bar {}
+                interface Baz {}
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
@@ -214,10 +214,10 @@ class XTypeParameterElementTest {
             Source.kotlin(
                 "Foo.kt",
                 """
-            class Foo {
-              fun <T1, T2> someMethod(t1: T1, t2: T2) {}
-            }
-            """
+                class Foo {
+                  fun <T1, T2> someMethod(t1: T1, t2: T2) {}
+                }
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
@@ -270,12 +270,12 @@ class XTypeParameterElementTest {
             Source.kotlin(
                 "Foo.kt",
                 """
-            class Foo {
-              fun <T1 : Bar, T2 : Baz?> someMethod(t1: T1, t2: T2) {}
-            }
-            open class Bar
-            open class Baz
-            """
+                class Foo {
+                  fun <T1 : Bar, T2 : Baz?> someMethod(t1: T1, t2: T2) {}
+                }
+                open class Bar
+                open class Baz
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
@@ -322,12 +322,12 @@ class XTypeParameterElementTest {
             Source.java(
                 "Foo",
                 """
-            class Foo {
-              <T extends Bar & Baz> void someMethod(T t) {}
-            }
-            class Bar {}
-            interface Baz {}
-            """
+                class Foo {
+                  <T extends Bar & Baz> void someMethod(T t) {}
+                }
+                class Bar {}
+                interface Baz {}
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
@@ -373,12 +373,12 @@ class XTypeParameterElementTest {
             Source.java(
                 "Foo",
                 """
-            class Foo {
-              <T extends Bar & Baz> Foo(T t) {}
-            }
-            class Bar {}
-            interface Baz {}
-            """
+                class Foo {
+                  <T extends Bar & Baz> Foo(T t) {}
+                }
+                class Bar {}
+                interface Baz {}
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->

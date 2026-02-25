@@ -282,7 +282,7 @@ public class BoxAccumulator {
      * @return `this`
      */
     @UsedByNative
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public fun populateFrom(x1: Float, y1: Float, x2: Float, y2: Float): BoxAccumulator {
         hasBounds = true
         _bounds.setXBounds(x1, x2).setYBounds(y1, y2)

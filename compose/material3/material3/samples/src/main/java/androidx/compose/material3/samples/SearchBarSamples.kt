@@ -64,6 +64,7 @@ import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberContainedSearchBarState
 import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.material3.rememberTooltipState
+import androidx.compose.material3.rememberWithGapSearchBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -179,7 +180,7 @@ fun FullScreenSearchBarScaffoldSample() {
 @Composable
 fun DockedSearchBarScaffoldSample() {
     val textFieldState = rememberTextFieldState()
-    val searchBarState = rememberSearchBarState()
+    val searchBarState = rememberWithGapSearchBarState()
     val scope = rememberCoroutineScope()
     val scrollBehavior = SearchBarDefaults.enterAlwaysSearchBarScrollBehavior()
     val appBarWithSearchColors = SearchBarDefaults.appBarWithSearchColors()

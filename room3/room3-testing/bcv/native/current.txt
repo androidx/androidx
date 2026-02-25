@@ -9,7 +9,7 @@
 final class androidx.room3.testing/MigrationTestHelper { // androidx.room3.testing/MigrationTestHelper|null[0]
     constructor <init>(kotlin/String, kotlin/String, androidx.sqlite/SQLiteDriver, kotlin.reflect/KClass<out androidx.room3/RoomDatabase>, kotlin/Function0<androidx.room3/RoomDatabase> = ..., kotlin.collections/List<androidx.room3.migration/AutoMigrationSpec> = ...) // androidx.room3.testing/MigrationTestHelper.<init>|<init>(kotlin.String;kotlin.String;androidx.sqlite.SQLiteDriver;kotlin.reflect.KClass<out|androidx.room3.RoomDatabase>;kotlin.Function0<androidx.room3.RoomDatabase>;kotlin.collections.List<androidx.room3.migration.AutoMigrationSpec>){}[0]
 
-    final fun createDatabase(kotlin/Int): androidx.sqlite/SQLiteConnection // androidx.room3.testing/MigrationTestHelper.createDatabase|createDatabase(kotlin.Int){}[0]
     final fun finished() // androidx.room3.testing/MigrationTestHelper.finished|finished(){}[0]
-    final fun runMigrationsAndValidate(kotlin/Int, kotlin.collections/List<androidx.room3.migration/Migration> = ...): androidx.sqlite/SQLiteConnection // androidx.room3.testing/MigrationTestHelper.runMigrationsAndValidate|runMigrationsAndValidate(kotlin.Int;kotlin.collections.List<androidx.room3.migration.Migration>){}[0]
+    final suspend fun createDatabase(kotlin/Int): androidx.sqlite/SQLiteConnection // androidx.room3.testing/MigrationTestHelper.createDatabase|createDatabase(kotlin.Int){}[0]
+    final suspend fun runMigrationsAndValidate(kotlin/Int, kotlin.collections/List<androidx.room3.migration/Migration> = ...): androidx.sqlite/SQLiteConnection // androidx.room3.testing/MigrationTestHelper.runMigrationsAndValidate|runMigrationsAndValidate(kotlin.Int;kotlin.collections.List<androidx.room3.migration.Migration>){}[0]
 }

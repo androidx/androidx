@@ -43,7 +43,6 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.SparseArray;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -76,8 +75,6 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
     // Maps session ID to SessionRecord.
     @GuardedBy("mLock")
     final Map<String, SessionRecord> mSessionRecords = new ArrayMap<>();
-    // Maps controller ID to Session ID.
-    final SparseArray<String> mSessionIdMap = new SparseArray<>();
 
     private volatile MediaRouteProviderDescriptor mProviderDescriptor;
 
@@ -208,6 +205,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
     public void onReleaseSession(long requestId, @NonNull String sessionId) {
         RoutingSessionInfo sessionInfo = getSessionInfo(sessionId);
         if (sessionInfo == null) {
+            Log.w(TAG, "onReleaseSession: Ignored with unrecognized sessionId = " + sessionId);
             return;
         }
 
@@ -483,66 +481,6 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
             return;
         }
         controller.onUpdateVolume(delta);
-    }
-
-    void notifyRouteControllerAdded(ClientRecord clientRecord,
-            RouteController routeController, int controllerId, String packageName, String routeId) {
-        MediaRouteDescriptor descriptor = getRouteDescriptor(routeId, "notifyRouteControllerAdded");
-        if (descriptor == null) {
-            return;
-        }
-
-        int sessionFlags = 0;
-        DynamicGroupRouteController controller;
-        if (routeController instanceof DynamicGroupRouteController) {
-            sessionFlags |= SessionRecord.SESSION_FLAG_DYNAMIC | SessionRecord.SESSION_FLAG_GROUP;
-            controller = (DynamicGroupRouteController) routeController;
-        } else {
-            if (!descriptor.getGroupMemberIds().isEmpty()) {
-                sessionFlags |= SessionRecord.SESSION_FLAG_GROUP;
-            }
-            controller = new DynamicGroupRouteControllerProxy(routeId, routeController);
-        }
-
-        SessionRecord sessionRecord = new SessionRecord(controller, REQUEST_ID_NONE,
-                sessionFlags, clientRecord);
-        //TODO: Reconsider the logic if dynamic grouping is enabled for clients < CLIENT_VERSION_4
-        sessionRecord.mRouteId = routeId;
-
-        String sessionId = assignSessionId(sessionRecord);
-        mSessionIdMap.put(controllerId, sessionId);
-
-        RoutingSessionInfo.Builder builder =
-                new RoutingSessionInfo.Builder(sessionId, packageName)
-                        .setName(descriptor.getName())
-                        .setVolumeHandling(descriptor.getVolumeHandling())
-                        .setVolume(descriptor.getVolume())
-                        .setVolumeMax(descriptor.getVolumeMax());
-
-        if (descriptor.getGroupMemberIds().isEmpty()) {
-            builder.addSelectedRoute(routeId);
-        } else {
-            for (String memberId : descriptor.getGroupMemberIds()) {
-                builder.addSelectedRoute(memberId);
-            }
-        }
-        sessionRecord.setSessionInfo(builder.build());
-    }
-
-    void notifyRouteControllerRemoved(int controllerId) {
-        String sessionId = mSessionIdMap.get(controllerId);
-        if (sessionId == null) {
-            return;
-        }
-        mSessionIdMap.remove(controllerId);
-
-        SessionRecord sessionRecord;
-        synchronized (mLock) {
-            sessionRecord = mSessionRecords.remove(sessionId);
-        }
-        if (sessionRecord != null) {
-            sessionRecord.release(/*shouldUnselect=*/false);
-        }
     }
 
     private RouteController findControllerByRouteId(String routeId) {

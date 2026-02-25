@@ -38,6 +38,9 @@ public interface SurfaceFeature : RenderingFeature {
      */
     @SurfaceEntity.StereoMode public var stereoMode: Int
 
+    /** Specifies the blending mode of the content. */
+    @SurfaceEntity.MediaBlendingMode public var mediaBlendingMode: Int
+
     /** Specifies the geometry of the spatial canvas which the surface is texture mapped to. */
     public var shape: SurfaceEntity.Shape
 

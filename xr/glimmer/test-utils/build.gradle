@@ -25,9 +25,11 @@ plugins {
 dependencies {
     api("androidx.compose.ui:ui:1.10.0")
     api("androidx.compose.ui:ui-test:1.10.0")
+    api("androidx.compose.foundation:foundation:1.10.0")
     api(libs.junit)
     implementation(libs.testCore)
     implementation(libs.testRules)
+    implementation(project(":compose:ui:ui-test-junit4"))
 }
 
 android {

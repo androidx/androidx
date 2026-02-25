@@ -57,8 +57,10 @@ public abstract class AuthenticationRequest internal constructor() {
          * Construct an instance of [Biometric] that includes a set of configurable options for how
          * the biometric prompt should appear and behave with biometric authentication with
          * fallbacks.
+         *
+         * **Note for Java users:** This method is intended for use in Kotlin. For Java, please use
+         * [Biometric.Builder] instead.
          */
-        @JvmSynthetic
         @Suppress("MissingJvmstatic")
         public inline fun biometricRequest(
             title: String,
@@ -69,9 +71,11 @@ public abstract class AuthenticationRequest internal constructor() {
         /**
          * Construct an instance of [Credential] that includes a set of configurable options for how
          * the prompt should appear and behave with device credential authentication.
+         *
+         * **Note for Java users:** This method is intended for use in Kotlin. For Java, please use
+         * [Credential.Builder] instead.
          */
         @RequiresApi(Build.VERSION_CODES.R)
-        @JvmSynthetic
         @Suppress("MissingJvmstatic")
         public fun credentialRequest(
             title: String,
@@ -112,6 +116,9 @@ public abstract class AuthenticationRequest internal constructor() {
 
         /**
          * Builder used to create an instance of [Biometric].
+         *
+         * **Note for Kotlin users:** Prefer using the [AuthenticationRequest.biometricRequest]
+         * function to construct [Biometric] instances.
          *
          * @param title The title of the prompt.
          * @param authFallback The [Fallback] for the biometric authentication.
@@ -278,6 +285,9 @@ public abstract class AuthenticationRequest internal constructor() {
         /**
          * Builder used to create an instance of [Credential].
          *
+         * **Note for Kotlin users:** Prefer using the [AuthenticationRequest.credentialRequest]
+         * function to construct [Credential] instances.
+         *
          * @param title The title of the prompt.
          */
         public class Builder(private val title: String) {
@@ -321,6 +331,10 @@ public abstract class AuthenticationRequest internal constructor() {
         /**
          * A vertical list as body content.
          *
+         * Compatibility Note: This content type is only supported starting from
+         * [Build.VERSION_CODES.VANILLA_ICE_CREAM] (API 35). On devices running earlier versions of
+         * Android, this content will be ignored and will not be displayed.
+         *
          * @property description The description of this list.
          * @property items The [PromptContentItem] to display on the list.
          */
@@ -343,6 +357,10 @@ public abstract class AuthenticationRequest internal constructor() {
          * prompt, provide the app an opportunity to ask the user for the correct option, and
          * finally allow the app to decide how to proceed once selected. This requires
          * [SET_BIOMETRIC_DIALOG_ADVANCED] permission.
+         *
+         * Compatibility Note: This content type is only supported starting from
+         * [Build.VERSION_CODES.VANILLA_ICE_CREAM] (API 35). On devices running earlier versions of
+         * Android, this content will be ignored and will not be displayed.
          *
          * @property description The description of this view.
          */

@@ -96,18 +96,18 @@ internal abstract class MainGenerateBaselineProfileTaskForAgp80Only : DefaultTas
             propertyName = "multipleBuildTypesWithAgp80",
             message =
                 """
-        The task `generateBaselineProfile` does not support generating baseline profiles for 
-        multiple build types with AGP 8.0.
+                The task `generateBaselineProfile` does not support generating baseline profiles for 
+                multiple build types with AGP 8.0.
 
-        Only baseline profile for variants of build type `release` will be generated.
-        With AGP 8.0, this command behaves like `generateReleaseBaselineProfile`.
+                Only baseline profile for variants of build type `release` will be generated.
+                With AGP 8.0, this command behaves like `generateReleaseBaselineProfile`.
 
-        If you intend to generate profiles for multiple build types using AGP 8.0 you'll 
-        need to run separate gradle commands for each build type.
-        Example: `generateReleaseBaselineProfile` and `generateAnotherReleaseBaselineProfile`.
+                If you intend to generate profiles for multiple build types using AGP 8.0 you'll 
+                need to run separate gradle commands for each build type.
+                Example: `generateReleaseBaselineProfile` and `generateAnotherReleaseBaselineProfile`.
 
-        Details on https://issuetracker.google.com/issue?id=270433400.
-            """
+                Details on https://issuetracker.google.com/issue?id=270433400.
+                """
                     .trimIndent(),
         )
     }

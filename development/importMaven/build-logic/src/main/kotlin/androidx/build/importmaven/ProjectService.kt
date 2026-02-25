@@ -16,8 +16,11 @@
 
 package androidx.build.importmaven
 
+import androidx.build.importmaven.EnvironmentConfig.supportRoot
 import java.io.File
 import java.util.UUID
+import okio.FileSystem
+import okio.Path.Companion.toOkioPath
 import org.apache.logging.log4j.kotlin.logger
 import org.gradle.api.Project
 import org.gradle.api.artifacts.verification.DependencyVerificationMode
@@ -31,8 +34,14 @@ object ProjectService {
     fun createProject(): Project {
         val folder = randomProjectFolder()
         logger.trace { "created project at $folder" }
+        val projectDir = folder.resolve("project").also { it.mkdirs() }
+        val gradleDir = projectDir.resolve("gradle").also { it.mkdirs() }
+        FileSystem.SYSTEM.apply {
+            copy(supportRoot.resolve("gradle/$METADATA"), gradleDir.resolve(METADATA).toOkioPath())
+            copy(supportRoot.resolve("gradle/$KEYRING"), gradleDir.resolve(KEYRING).toOkioPath())
+        }
         return ProjectBuilder.builder()
-            .withProjectDir(folder.resolve("project").also { it.mkdirs() })
+            .withProjectDir(projectDir)
             .withGradleUserHomeDir(folder.resolve("gradle-home").also { it.mkdirs() })
             .withName("importMaven")
             .build()
@@ -58,3 +67,6 @@ object ProjectService {
 
     private fun randomId(): String = UUID.randomUUID().toString().subSequence(0, 6).toString()
 }
+
+private const val METADATA = "verification-metadata.xml"
+private const val KEYRING = "verification-keyring.keys"

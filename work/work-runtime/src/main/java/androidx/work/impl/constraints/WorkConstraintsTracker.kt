@@ -25,6 +25,7 @@ import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.work.Constraints
 import androidx.work.Logger
+import androidx.work.NetworkType
 import androidx.work.StopReason
 import androidx.work.WorkInfo.Companion.STOP_REASON_CONSTRAINT_CONNECTIVITY
 import androidx.work.impl.constraints.ConstraintsState.ConstraintsMet
@@ -32,13 +33,14 @@ import androidx.work.impl.constraints.ConstraintsState.ConstraintsNotMet
 import androidx.work.impl.constraints.controllers.BatteryChargingController
 import androidx.work.impl.constraints.controllers.BatteryNotLowController
 import androidx.work.impl.constraints.controllers.ConstraintController
-import androidx.work.impl.constraints.controllers.NetworkConnectedController
-import androidx.work.impl.constraints.controllers.NetworkMeteredController
-import androidx.work.impl.constraints.controllers.NetworkNotRoamingController
-import androidx.work.impl.constraints.controllers.NetworkUnmeteredController
+import androidx.work.impl.constraints.controllers.NetworkConnectedControllerPre28
+import androidx.work.impl.constraints.controllers.NetworkMeteredControllerPre28
+import androidx.work.impl.constraints.controllers.NetworkNotRoamingControllerPre28
+import androidx.work.impl.constraints.controllers.NetworkUnmeteredControllerPre28
 import androidx.work.impl.constraints.controllers.StorageNotLowController
 import androidx.work.impl.constraints.trackers.Trackers
 import androidx.work.impl.model.WorkSpec
+import androidx.work.impl.utils.toNetworkRequest
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -74,21 +76,7 @@ public fun interface OnConstraintsStateChangedListener {
 
 public class WorkConstraintsTracker(private val controllers: List<ConstraintController>) {
     /** @param trackers Constraints trackers */
-    public constructor(
-        trackers: Trackers
-    ) : this(
-        listOfNotNull(
-            BatteryChargingController(trackers.batteryChargingTracker),
-            BatteryNotLowController(trackers.batteryNotLowTracker),
-            StorageNotLowController(trackers.storageNotLowTracker),
-            NetworkConnectedController(trackers.networkStateTracker),
-            NetworkUnmeteredController(trackers.networkStateTracker),
-            NetworkNotRoamingController(trackers.networkStateTracker),
-            NetworkMeteredController(trackers.networkStateTracker),
-            if (Build.VERSION.SDK_INT >= 28) NetworkRequestConstraintController(trackers.context)
-            else null,
-        )
-    )
+    public constructor(trackers: Trackers) : this(createControllers(trackers))
 
     public fun track(spec: WorkSpec): Flow<ConstraintsState> {
         val flows = controllers.filter { it.hasConstraint(spec) }.map { it.track(spec.constraints) }
@@ -111,6 +99,28 @@ public class WorkConstraintsTracker(private val controllers: List<ConstraintCont
         }
         return controllers.isEmpty()
     }
+}
+
+private fun createControllers(trackers: Trackers): List<ConstraintController> {
+    val controllers: MutableList<ConstraintController> =
+        mutableListOf(
+            BatteryChargingController(trackers.batteryChargingTracker),
+            BatteryNotLowController(trackers.batteryNotLowTracker),
+            StorageNotLowController(trackers.storageNotLowTracker),
+        )
+    if (Build.VERSION.SDK_INT >= 28) {
+        controllers.add(NetworkRequestConstraintController(trackers.context))
+    } else {
+        controllers.addAll(
+            listOf(
+                NetworkConnectedControllerPre28(trackers.networkStateTracker!!),
+                NetworkUnmeteredControllerPre28(trackers.networkStateTracker),
+                NetworkNotRoamingControllerPre28(trackers.networkStateTracker),
+                NetworkMeteredControllerPre28(trackers.networkStateTracker),
+            )
+        )
+    }
+    return controllers
 }
 
 private val TAG = Logger.tagWithPrefix("WorkConstraintsTracker")
@@ -138,7 +148,8 @@ public class NetworkRequestConstraintController(
     private val timeoutMs: Long = DefaultNetworkRequestTimeoutMs,
 ) : ConstraintController {
     override fun track(constraints: Constraints): Flow<ConstraintsState> = callbackFlow {
-        val networkRequest = constraints.requiredNetworkRequest
+        val networkRequest =
+            constraints.requiredNetworkRequest ?: constraints.requiredNetworkType.toNetworkRequest()
         if (networkRequest == null) {
             channel.close()
             return@callbackFlow
@@ -181,7 +192,8 @@ public class NetworkRequestConstraintController(
     }
 
     override fun hasConstraint(workSpec: WorkSpec): Boolean =
-        workSpec.constraints.requiredNetworkRequest != null
+        workSpec.constraints.requiredNetworkRequest != null ||
+            workSpec.constraints.requiredNetworkType != NetworkType.NOT_REQUIRED
 
     override fun isCurrentlyConstrained(workSpec: WorkSpec): Boolean {
         // It happens because ConstraintTrackingWorker can still run on API level 28
@@ -269,17 +281,23 @@ private object SharedNetworkCallback : ConnectivityManager.NetworkCallback() {
     private val requests = mutableMapOf<OnConstraintState, NetworkRequest>()
     @GuardedBy("requestsLock") var cachedCapabilities: NetworkCapabilities? = null
     @GuardedBy("requestsLock") var capabilitiesInitialized = false
-    @GuardedBy("requestsLock") private var isBlocked: Boolean = false
+    @GuardedBy("requestsLock") private var isBlocked: Boolean? = null
 
     override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
         Logger.get().debug(TAG, "NetworkRequestConstraintController onCapabilitiesChanged callback")
-        synchronized(requestsLock) { cachedCapabilities = networkCapabilities }
+        synchronized(requestsLock) {
+            cachedCapabilities = networkCapabilities
+            capabilitiesInitialized = true
+        }
         dispatchOnConstraintState()
     }
 
     override fun onBlockedStatusChanged(network: Network, blocked: Boolean) {
         Logger.get()
-            .debug(TAG, "NetworkRequestConstraintController onBlockedStatusChanged callback")
+            .debug(
+                TAG,
+                "NetworkRequestConstraintController onBlockedStatusChanged callback " + blocked,
+            )
         synchronized(requestsLock) {
             if (isBlocked == blocked) return
             isBlocked = blocked
@@ -299,6 +317,17 @@ private object SharedNetworkCallback : ConnectivityManager.NetworkCallback() {
     private fun dispatchOnConstraintState() {
         val updatesToDispatch = mutableListOf<Pair<OnConstraintState, ConstraintsState>>()
         synchronized(requestsLock) {
+            if (!capabilitiesInitialized || isBlocked == null) {
+                // We haven't gotten a valid initial value yet for everything to be able to say
+                // whether we have network or not so no-op for now.
+                Logger.get()
+                    .debug(
+                        TAG,
+                        "Not dispatching constraint state yet: " +
+                            "isBlocked=$isBlocked, capabilitiesInitialized=$capabilitiesInitialized",
+                    )
+                return
+            }
             requests.entries.forEach { (onConstraintState, request) ->
                 val state =
                     if (areNetworkConstraintsSatisfied(request, cachedCapabilities)) {
@@ -316,7 +345,7 @@ private object SharedNetworkCallback : ConnectivityManager.NetworkCallback() {
         request: NetworkRequest,
         capabilities: NetworkCapabilities?,
     ): Boolean {
-        return !isBlocked && request.canBeSatisfiedBy(capabilities)
+        return !isBlocked!! && request.canBeSatisfiedBy(capabilities)
     }
 
     fun addCallback(
@@ -331,18 +360,21 @@ private object SharedNetworkCallback : ConnectivityManager.NetworkCallback() {
                 Logger.get()
                     .debug(TAG, "NetworkRequestConstraintController register shared callback")
                 connManager.registerDefaultNetworkCallback(this)
+            } else if (capabilitiesInitialized && isBlocked != null) {
+                // onCapabilitiesChanged is only guaranteed to be called the first time we register
+                // so we need to send the current constraint state immediately for the initial
+                // value if we've already received it
+                Logger.get()
+                    .debug(TAG, "NetworkRequestConstraintController send initial capabilities")
+                val currentCapabilities = cachedCapabilities
+                onConstraintState(
+                    if (areNetworkConstraintsSatisfied(networkRequest, currentCapabilities)) {
+                        ConstraintsMet
+                    } else {
+                        ConstraintsNotMet(STOP_REASON_CONSTRAINT_CONNECTIVITY)
+                    }
+                )
             }
-            // onCapabilitiesChanged is only guaranteed to be called the first time we register
-            // so we need to send the current constraint state immediately for the initial value
-            Logger.get().debug(TAG, "NetworkRequestConstraintController send initial capabilities")
-            val currentCapabilities = connManager.getCurrentNetworkCapabilities()
-            onConstraintState(
-                if (areNetworkConstraintsSatisfied(networkRequest, currentCapabilities)) {
-                    ConstraintsMet
-                } else {
-                    ConstraintsNotMet(STOP_REASON_CONSTRAINT_CONNECTIVITY)
-                }
-            )
         }
         return {
             synchronized(requestsLock) {
@@ -351,21 +383,11 @@ private object SharedNetworkCallback : ConnectivityManager.NetworkCallback() {
                     Logger.get()
                         .debug(TAG, "NetworkRequestConstraintController unregister shared callback")
                     connManager.unregisterNetworkCallback(this)
-                    isBlocked = false
+                    isBlocked = null
                     cachedCapabilities = null
                     capabilitiesInitialized = false
                 }
             }
         }
-    }
-
-    fun ConnectivityManager.getCurrentNetworkCapabilities(): NetworkCapabilities? {
-        // Cached to prevent unnecessary IPCs
-        if (capabilitiesInitialized) {
-            return cachedCapabilities
-        }
-        cachedCapabilities = getNetworkCapabilities(activeNetwork)
-        capabilitiesInitialized = true
-        return cachedCapabilities
     }
 }

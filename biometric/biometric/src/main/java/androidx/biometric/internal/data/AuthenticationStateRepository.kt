@@ -17,7 +17,6 @@
 package androidx.biometric.internal.data
 
 import androidx.biometric.BiometricPrompt
-import androidx.biometric.internal.CanceledFrom
 import androidx.biometric.utils.BiometricErrorData
 import androidx.biometric.utils.CancellationSignalProvider
 import kotlinx.coroutines.delay

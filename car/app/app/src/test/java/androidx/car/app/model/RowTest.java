@@ -542,4 +542,21 @@ public class RowTest {
 
         assertThat(new Row.Builder().setTitle("Title").addText("bar").build()).isNotEqualTo(row);
     }
+
+    @Test
+    public void setProgressBar() {
+        CarProgressBar bar = new CarProgressBar.Builder(0.5f).build();
+        Row row = new Row.Builder().setTitle("Title").setProgressBar(bar).build();
+        assertThat(row.getProgressBar()).isEqualTo(bar);
+    }
+
+    @Test
+    public void notEquals_differentProgressBar() {
+        CarProgressBar bar1 = new CarProgressBar.Builder(0.5f).build();
+        CarProgressBar bar2 = new CarProgressBar.Builder(0.6f).build();
+        Row row = new Row.Builder().setTitle("Title").setProgressBar(bar1).build();
+        Row row2 = new Row.Builder().setTitle("Title").setProgressBar(bar2).build();
+
+        assertThat(row2).isNotEqualTo(row);
+    }
 }

@@ -17,7 +17,10 @@
 package androidx.xr.compose.subspace.layout
 
 import androidx.compose.material3.Text
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.compose.spatial.Subspace
@@ -53,9 +56,9 @@ class PaddingTest {
                     SubspaceModifier.testTag("panel")
                         .size(100.dp)
                         .padding(
-                            left = 20.dp,
+                            start = 20.dp,
                             top = 10.dp,
-                            right = 10.dp,
+                            end = 10.dp,
                             bottom = 20.dp,
                             front = 10.dp,
                             back = 20.dp,
@@ -66,6 +69,73 @@ class PaddingTest {
             }
         }
 
+        // LTR x-position: (start - end) / 2 = (20 - 10) / 2 = 5.dp
+        composeTestRule
+            .onSubspaceNodeWithTag("panel")
+            .assertPositionInRootIsEqualTo(5.dp, 5.dp, 5.dp)
+            .assertWidthIsEqualTo(70.dp)
+            .assertHeightIsEqualTo(70.dp)
+            .assertDepthIsEqualTo(70.dp)
+    }
+
+    @Test
+    fun padding_inRtl_respectsLayoutDirection() {
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                Subspace {
+                    SpatialPanel(
+                        SubspaceModifier.testTag("panel")
+                            .size(100.dp)
+                            .padding(
+                                start = 20.dp,
+                                top = 10.dp,
+                                end = 10.dp,
+                                bottom = 20.dp,
+                                front = 10.dp,
+                                back = 20.dp,
+                            )
+                    ) {
+                        Text(text = "Panel")
+                    }
+                }
+            }
+        }
+
+        // RTL x-position: -((start - end) / 2) = -((20 - 10) / 2) = -5.dp
+        // The x-axis position is flipped for RTL.
+        composeTestRule
+            .onSubspaceNodeWithTag("panel")
+            .assertPositionInRootIsEqualTo((-5).dp, 5.dp, 5.dp)
+            .assertWidthIsEqualTo(70.dp)
+            .assertHeightIsEqualTo(70.dp)
+            .assertDepthIsEqualTo(70.dp)
+    }
+
+    @Test
+    fun absolutePadding_inRtl_ignoresLayoutDirection() {
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                Subspace {
+                    SpatialPanel(
+                        SubspaceModifier.testTag("panel")
+                            .size(100.dp)
+                            .absolutePadding(
+                                left = 20.dp,
+                                top = 10.dp,
+                                right = 10.dp,
+                                bottom = 20.dp,
+                                front = 10.dp,
+                                back = 20.dp,
+                            )
+                    ) {
+                        Text(text = "Panel")
+                    }
+                }
+            }
+        }
+
+        // x-position: (left - right) / 2 = (20 - 10) / 2 = 5.dp
+        // Position is identical to LTR because absolutePadding ignores layout direction.
         composeTestRule
             .onSubspaceNodeWithTag("panel")
             .assertPositionInRootIsEqualTo(5.dp, 5.dp, 5.dp)
@@ -120,12 +190,77 @@ class PaddingTest {
             composeTestRule.setContent {
                 Subspace {
                     SpatialPanel(
-                        SubspaceModifier.testTag("panel").size(100.dp).padding(top = -20.dp)
+                        SubspaceModifier.testTag("panel").size(100.dp).padding(top = (-20).dp)
                     ) {
                         Text(text = "Panel")
                     }
                 }
             }
         }
+    }
+
+    @Test
+    fun padding_chained_stacksCorrectly() {
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(
+                    SubspaceModifier.testTag("panel")
+                        .size(100.dp)
+                        .padding(all = 10.dp)
+                        .padding(all = 10.dp)
+                ) {
+                    Text(text = "Panel")
+                }
+            }
+        }
+
+        // Total padding is 20.dp on each side.
+        // Size = 100 - (20 + 20) = 60.dp
+        composeTestRule
+            .onSubspaceNodeWithTag("panel")
+            .assertPositionInRootIsEqualTo(0.dp, 0.dp, 0.dp)
+            .assertWidthIsEqualTo(60.dp)
+            .assertHeightIsEqualTo(60.dp)
+            .assertDepthIsEqualTo(60.dp)
+    }
+
+    @Test
+    fun padding_zeroPadding_isNoOp() {
+        composeTestRule.setContent {
+            Subspace {
+                SpatialPanel(SubspaceModifier.testTag("panel").size(100.dp).padding(all = 0.dp)) {
+                    Text(text = "Panel")
+                }
+            }
+        }
+
+        composeTestRule
+            .onSubspaceNodeWithTag("panel")
+            .assertPositionInRootIsEqualTo(0.dp, 0.dp, 0.dp)
+            .assertWidthIsEqualTo(100.dp)
+            .assertHeightIsEqualTo(100.dp)
+            .assertDepthIsEqualTo(100.dp)
+    }
+
+    @Test
+    fun padding_largerThanParent_clampsToZero() {
+        composeTestRule.setContent {
+            Subspace {
+                // The size is 50, but the padding is 60 (30 on each side)
+                // The inner content should be measured with 0 constraints.
+                // The final size will be constrained by the outer size modifier.
+                SpatialPanel(SubspaceModifier.testTag("panel").size(50.dp).padding(all = 30.dp)) {
+                    Text(text = "Panel")
+                }
+            }
+        }
+
+        // Final size is clamped by the .size(50.dp) modifier
+        composeTestRule
+            .onSubspaceNodeWithTag("panel")
+            .assertPositionInRootIsEqualTo(0.dp, 0.dp, 0.dp)
+            .assertWidthIsEqualTo(0.dp)
+            .assertHeightIsEqualTo(0.dp)
+            .assertDepthIsEqualTo(0.dp)
     }
 }

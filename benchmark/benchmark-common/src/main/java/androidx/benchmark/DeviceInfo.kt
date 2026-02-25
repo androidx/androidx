@@ -189,11 +189,11 @@ object DeviceInfo {
                     summary = "Running on Eng Build",
                     message =
                         """
-                    Benchmark is running on device flashed with a '-eng' build. Eng builds
-                    of the platform drastically reduce performance to enable testing
-                    changes quickly. For this reason they should not be used for
-                    benchmarking. Use a '-user' or '-userdebug' system image.
-                """
+                        Benchmark is running on device flashed with a '-eng' build. Eng builds
+                        of the platform drastically reduce performance to enable testing
+                        changes quickly. For this reason they should not be used for
+                        benchmarking. Use a '-user' or '-userdebug' system image.
+                        """
                             .trimIndent(),
                 ),
                 conditionalError(
@@ -202,11 +202,11 @@ object DeviceInfo {
                     summary = "Running on Emulator",
                     message =
                         """
-                    Benchmark is running on an emulator, which is not representative of
-                    real user devices. Use a physical device to benchmark. Emulator
-                    benchmark improvements might not carry over to a real user's
-                    experience (or even regress real device performance).
-                """
+                        Benchmark is running on an emulator, which is not representative of
+                        real user devices. Use a physical device to benchmark. Emulator
+                        benchmark improvements might not carry over to a real user's
+                        experience (or even regress real device performance).
+                        """
                             .trimIndent(),
                 ),
                 conditionalError(

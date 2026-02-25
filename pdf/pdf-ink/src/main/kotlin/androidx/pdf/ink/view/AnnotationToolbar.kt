@@ -65,16 +65,17 @@ import androidx.pdf.ink.view.tool.AnnotationToolView
 import androidx.pdf.ink.view.tool.model.AnnotationToolsKey.ERASER
 import androidx.pdf.ink.view.tool.model.AnnotationToolsKey.HIGHLIGHTER
 import androidx.pdf.ink.view.tool.model.AnnotationToolsKey.PEN
-import androidx.transition.AutoTransition
+import androidx.transition.ChangeBounds
+import androidx.transition.Fade
+import androidx.transition.Transition
 import androidx.transition.TransitionManager
+import androidx.transition.TransitionSet
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.VisibleForTesting
 
@@ -129,7 +130,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
      * currently visible.
      */
     public val isConfigPopupVisible: Boolean
-        get() = with(viewModel.state.value) { isColorPaletteVisible || isBrushSizeSliderVisible }
+        get() = with(viewModel.state.value) { showColorPalette || showBrushSizeSlider }
 
     /** Dismisses any currently visible popups (such as the color palette or brush size slider). */
     public fun dismissPopups() {
@@ -206,8 +207,13 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         }
     }
 
-    // Required to disable any animation while performing screenshot tests
-    @VisibleForTesting internal var areAnimationsEnabled: Boolean = true
+    // Required to disable any animation while performing espresso/screenshot tests
+    @VisibleForTesting
+    internal var areAnimationsEnabled: Boolean = true
+        set(value) {
+            field = value
+            toolbarTouchHandler.areAnimationsEnabled = value
+        }
 
     init {
         LayoutInflater.from(context).inflate(R.layout.annotation_toolbar, this, true)
@@ -295,20 +301,17 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     }
 
     private suspend fun collectUiStates() = coroutineScope {
-        /**
-         * Collects any expensive UI updates (such as the toolbar's `dockedState`) only when they
-         * are distinct from the previous state.
-         */
-        launch {
-            viewModel.state
-                .map { it.dockedState }
-                .distinctUntilChanged()
-                .collect { dockedState -> updateDockState(dockedState) }
-        }
-
+        var lastDockedState: Int? = null
         launch {
             viewModel.state.collect { state ->
-                updateExpandedState(state)
+                addAnimatorIfRequired(state)
+
+                if (state.dockedState != lastDockedState) {
+                    updateDockState(state.dockedState)
+                    lastDockedState = state.dockedState
+                }
+
+                updateExpandedState(state.isExpanded)
 
                 pen.isSelected = state.selectedTool == PEN
                 highlighter.isSelected = state.selectedTool == HIGHLIGHTER
@@ -351,6 +354,21 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         }
     }
 
+    private fun addAnimatorIfRequired(state: AnnotationToolbarState) {
+        if (!areAnimationsEnabled) return
+
+        val isToolbarCurrentlyExpanded = toolTray.isVisible
+        val isColorPaletteCurrentlyVisible = colorPaletteView.isVisible
+        val isBrushSizeSliderVisible = brushSizeSelectorView.isVisible
+
+        if (
+            isToolbarCurrentlyExpanded != state.isExpanded ||
+                isColorPaletteCurrentlyVisible != state.showColorPalette ||
+                isBrushSizeSliderVisible != state.showBrushSizeSlider
+        )
+            addTransitionAnimation()
+    }
+
     private fun setupBrushSizeSlider() {
         brushSizeSelectorView.brushSizeSlider.addOnChangeListener { _, value, _ ->
             viewModel.onAction(ToolbarIntent.BrushSizeChanged(value.roundToInt()))
@@ -368,15 +386,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     }
 
     private fun updateBrushSlider(state: AnnotationToolbarState) {
-        val shouldBeVisible = state.isBrushSizeSliderVisible
-        val isCurrentlyVisible = brushSizeSelectorView.visibility == VISIBLE
-
-        // Only start a transition if the visibility is actually changing.
-        if (shouldBeVisible != isCurrentlyVisible) {
-            addAutoTransition()
-        }
-
-        if (shouldBeVisible) {
+        if (state.showBrushSizeSlider) {
             var selectedBrushSizeIndex = 0
             var brushPreviewSize = 0f
             when (state.selectedTool) {
@@ -395,17 +405,13 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             with(brushSizeSelectorView) {
                 brushSizeSlider.value = selectedBrushSizeIndex.toFloat()
                 brushPreviewView.brushSize = brushPreviewSize
-                visibility = VISIBLE
             }
-        } else {
-            brushSizeSelectorView.visibility = GONE
         }
+
+        brushSizeSelectorView.isVisible = state.showBrushSizeSlider
     }
 
     private fun updateColorPalette(state: AnnotationToolbarState) {
-        val shouldBeVisible = state.isColorPaletteVisible
-        val isCurrentlyVisible = colorPaletteView.visibility == VISIBLE
-
         // Update palette items regardless of visibility to prevent stale content flash.
         when (state.selectedTool) {
             PEN -> {
@@ -425,17 +431,12 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             }
         }
 
-        // Only start a transition if the visibility is actually changing.
-        if (shouldBeVisible != isCurrentlyVisible) {
-            addAutoTransition()
-        }
-
-        colorPaletteView.visibility = if (shouldBeVisible) VISIBLE else GONE
+        colorPaletteView.isVisible = state.showColorPalette
     }
 
     private fun updateColorPaletteIcon(state: AnnotationToolbarState) {
         colorPaletteButton.isEnabled = state.isAnnotationVisible && state.isColorPaletteEnabled
-        colorPaletteButton.isChecked = state.isColorPaletteVisible
+        colorPaletteButton.isChecked = state.showColorPalette
 
         val paletteItem =
             when (state.selectedTool) {
@@ -474,18 +475,66 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         }
     }
 
-    private fun addAutoTransition() {
-        if (!areAnimationsEnabled) return
-
+    private fun addTransitionAnimation() {
         val transition =
-            AutoTransition()
-                .setDuration(AUTO_TRANSITION_DURATION)
-                .setInterpolator(DecelerateInterpolator())
-                // By excluding the pop-up views themselves from the transition, we prevent
-                // their internal animations (like Fade) from conflicting with the parent's
-                // layout animation.
-                .excludeTarget(brushSizeSelectorView, true)
-                .excludeTarget(colorPaletteView, true)
+            TransitionSet()
+                .apply {
+                    ordering = TransitionSet.ORDERING_TOGETHER
+                    duration = TRANSITION_ANIMATION_DURATION
+                    interpolator = DecelerateInterpolator()
+
+                    addTransition(
+                        Fade().apply {
+                            addTarget(collapsedIcon)
+                            addTarget(toolTray)
+                        }
+                    )
+
+                    addTransition(
+                        Fade(Fade.IN).apply {
+                            addTarget(colorPaletteView)
+                            addTarget(brushSizeSelectorView)
+                            // Delay the appearance of popups to allow the toolbar background
+                            // to expand first, ensuring a smoother entrance.
+                            startDelay = FADE_IN_TRANSITION_DELAY
+                        }
+                    )
+
+                    addTransition(
+                        ChangeBounds().apply {
+                            // Animate bound changes for the parent background
+                            addTarget(this@AnnotationToolbar)
+
+                            // Target the tool tray to lock its position and prevent drifting
+                            // during the parent container's resize animation.
+                            addTarget(R.id.scrollable_tool_tray_container)
+                        }
+                    )
+                }
+                .setListener(
+                    onEnd = {
+                        if (brushSizeSelectorView.isVisible) {
+                            val slider = brushSizeSelectorView.brushSizeSlider
+                            slider.post { slider.requestFocus() }
+                        }
+                        if (colorPaletteView.isVisible) {
+                            colorPaletteView.requestFocusOnSelectedItem()
+                        }
+                    },
+                    onCancel = {
+                        /**
+                         * If a new animation starts on the [AnnotationToolbar] before a previous
+                         * one finishes, the existing transition is canceled. As a defensive
+                         * mechanism, update views to their final visibility.
+                         */
+                        with(viewModel.state.value) {
+                            colorPaletteView.isVisible = showColorPalette
+                            brushSizeSelectorView.isVisible = showBrushSizeSlider
+                            toolTray.isVisible = isExpanded
+                            collapsedIcon.isVisible = !isExpanded
+                        }
+                    },
+                )
 
         TransitionManager.beginDelayedTransition(this@AnnotationToolbar, transition)
     }
@@ -516,14 +565,9 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         return toolbarTouchHandler.onTouchEvent(event) || super.onTouchEvent(event)
     }
 
-    private fun updateExpandedState(state: AnnotationToolbarState) {
-        if (areAnimationsEnabled) {
-            val transition = AutoTransition().apply { duration = AUTO_TRANSITION_DURATION }
-            TransitionManager.beginDelayedTransition(this, transition)
-        }
-
-        toolTray.isVisible = state.isExpanded
-        collapsedIcon.isVisible = !state.isExpanded
+    private fun updateExpandedState(isExpanded: Boolean) {
+        toolTray.isVisible = isExpanded
+        collapsedIcon.isVisible = !isExpanded
     }
 
     private fun updateDockState(dockedState: Int) {
@@ -583,8 +627,30 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         return this.toFloat() * context.resources.displayMetrics.density
     }
 
+    private inline fun Transition.setListener(
+        crossinline onEnd: (transition: Transition) -> Unit = {},
+        crossinline onCancel: (transition: Transition) -> Unit = {},
+    ): Transition {
+        addListener(
+            object : Transition.TransitionListener {
+                override fun onTransitionEnd(transition: Transition) = onEnd(transition)
+
+                override fun onTransitionCancel(transition: Transition) = onCancel(transition)
+
+                override fun onTransitionStart(transition: Transition) {}
+
+                override fun onTransitionPause(transition: Transition) {}
+
+                override fun onTransitionResume(transition: Transition) {}
+            }
+        )
+
+        return this
+    }
+
     internal companion object {
-        private const val AUTO_TRANSITION_DURATION = 250L
+        private const val TRANSITION_ANIMATION_DURATION = 300L
+        private const val FADE_IN_TRANSITION_DELAY = 150L
     }
 }
 

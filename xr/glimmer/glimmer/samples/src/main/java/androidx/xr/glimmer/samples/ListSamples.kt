@@ -22,7 +22,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.ListItem
 import androidx.xr.glimmer.Text
+import androidx.xr.glimmer.TitleChip
 import androidx.xr.glimmer.list.VerticalList
+import androidx.xr.glimmer.list.items
 
 @Sampled
 @Composable
@@ -34,8 +36,24 @@ fun VerticalListSample() {
     }
 }
 
+@Sampled
+@Composable
+fun VerticalListWithTitleChipSample() {
+    val ingredientItems =
+        listOf("Milk", "Flour", "Egg", "Salt", "Apples", "Butter", "Vanilla", "Sugar", "Cinnamon")
+    VerticalList(title = { TitleChip { Text("Ingredients") } }) {
+        items(ingredientItems) { text -> ListItem { Text(text) } }
+    }
+}
+
 @Preview
 @Composable
 private fun VerticalListPreview() {
     GlimmerTheme { VerticalListSample() }
+}
+
+@Preview
+@Composable
+private fun VerticalListWithTitleChipPreview() {
+    GlimmerTheme { VerticalListWithTitleChipSample() }
 }

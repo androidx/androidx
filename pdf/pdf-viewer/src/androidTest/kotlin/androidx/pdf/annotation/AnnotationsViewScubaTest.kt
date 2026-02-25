@@ -31,6 +31,7 @@ import androidx.pdf.ANNOTATION_VIEW_SQUARE_TRANSLATED
 import androidx.pdf.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.pdf.annotation.AnnotationsView.PageAnnotationsData
 import androidx.pdf.annotation.models.PathPdfObject
+import androidx.pdf.annotation.models.PathPdfObject.PathInput
 import androidx.pdf.annotation.models.PdfAnnotation
 import androidx.pdf.annotation.models.StampAnnotation
 import androidx.pdf.assertScreenshot
@@ -218,11 +219,11 @@ class AnnotationViewScubaTest {
     ): StampAnnotation {
         val pathInputs =
             listOf(
-                PathPdfObject.PathInput(xOffset, yOffset),
-                PathPdfObject.PathInput(xOffset + size, yOffset),
-                PathPdfObject.PathInput(xOffset + size, yOffset + size),
-                PathPdfObject.PathInput(xOffset, yOffset + size),
-                PathPdfObject.PathInput(xOffset, yOffset), // Close the path
+                PathInput(xOffset, yOffset, PathInput.MOVE_TO),
+                PathInput(xOffset + size, yOffset, PathInput.LINE_TO),
+                PathInput(xOffset + size, yOffset + size, PathInput.LINE_TO),
+                PathInput(xOffset, yOffset + size, PathInput.LINE_TO),
+                PathInput(xOffset, yOffset, PathInput.LINE_TO), // Close the path
             )
         val pathObject = PathPdfObject(brushColor = color, brushWidth = 5f, inputs = pathInputs)
         val bounds = RectF(xOffset, yOffset, xOffset + size, yOffset + size)

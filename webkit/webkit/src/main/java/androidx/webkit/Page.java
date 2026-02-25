@@ -16,6 +16,10 @@
 
 package androidx.webkit;
 
+import androidx.annotation.RequiresFeature;
+
+import org.jspecify.annotations.NonNull;
+
 /**
  * This class serves solely as a key for Page-associated data.
  * The instance itself functions as the key/identifier through {@link Object#equals(Object)} and
@@ -29,8 +33,14 @@ package androidx.webkit;
  *     <li>Back or forward navigations that result in the user returning to a previously loaded page
  *     when {@link WebSettingsCompat#setBackForwardCacheEnabled} is enabled.</li>
  * </ul>
- * While this interface is currently empty, it may be expanded on in the future.
  */
 @WebNavigationClient.ExperimentalNavigationCallback
 public interface Page {
+    /**
+     * Returns the URL associated with this page instance.
+     */
+    @RequiresFeature(name = WebViewFeature.PAGE_GET_URL,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @NonNull
+    String getUrl();
 }

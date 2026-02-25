@@ -23,8 +23,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.core.IOException
 import androidx.datastore.core.Serializer
 import androidx.datastore.dataStore
-import androidx.glance.wear.ContainerInfo
-import androidx.glance.wear.WidgetInstanceId
+import androidx.glance.wear.core.ContainerInfo
+import androidx.glance.wear.core.WidgetInstanceId
 import androidx.glance.wear.proto.WearWidgetCacheProto
 import androidx.glance.wear.proto.WidgetContainerSpecProto
 import java.io.InputStream

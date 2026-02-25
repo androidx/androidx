@@ -85,6 +85,7 @@ class SurfaceFeatureImplTest {
         shape: SurfaceEntity.Shape,
     ): SurfaceFeatureImpl {
         val stereoMode = SurfaceEntity.StereoMode.MONO
+        val mediaBlendingMode = SurfaceEntity.MediaBlendingMode.TRANSPARENT
         val useSuperSampling = 0
 
         return SurfaceFeatureImpl(
@@ -92,6 +93,7 @@ class SurfaceFeatureImplTest {
             splitEngineSubspaceManager,
             xrExtensions,
             stereoMode,
+            mediaBlendingMode,
             shape,
             surfaceProtection,
             useSuperSampling,
@@ -224,6 +226,7 @@ class SurfaceFeatureImplTest {
                 splitEngineSubspaceManager,
                 xrExtensions,
                 SurfaceEntity.StereoMode.SIDE_BY_SIDE,
+                SurfaceEntity.MediaBlendingMode.TRANSPARENT,
                 SurfaceEntity.Shape.Quad(FloatSize2d(kTestWidth, kTestHeight), 0.0f),
                 SurfaceEntity.SurfaceProtection.NONE,
                 SurfaceEntity.SuperSampling.DEFAULT,
@@ -237,6 +240,7 @@ class SurfaceFeatureImplTest {
                 splitEngineSubspaceManager,
                 xrExtensions,
                 SurfaceEntity.StereoMode.TOP_BOTTOM,
+                SurfaceEntity.MediaBlendingMode.TRANSPARENT,
                 SurfaceEntity.Shape.Sphere(kTestSphereRadius),
                 SurfaceEntity.SurfaceProtection.NONE,
                 SurfaceEntity.SuperSampling.DEFAULT,
@@ -250,6 +254,7 @@ class SurfaceFeatureImplTest {
                 splitEngineSubspaceManager,
                 xrExtensions,
                 SurfaceEntity.StereoMode.MONO,
+                SurfaceEntity.MediaBlendingMode.TRANSPARENT,
                 SurfaceEntity.Shape.Hemisphere(kTestHemisphereRadius),
                 SurfaceEntity.SurfaceProtection.NONE,
                 SurfaceEntity.SuperSampling.DEFAULT,
@@ -261,6 +266,8 @@ class SurfaceFeatureImplTest {
 
         // TODO: b/366588688 - Move these into tests for SurfaceEntityImpl
         assertThat(quadData.stereoMode).isEqualTo(SurfaceEntity.StereoMode.SIDE_BY_SIDE)
+        assertThat(quadData.mediaBlendingMode)
+            .isEqualTo(SurfaceEntity.MediaBlendingMode.TRANSPARENT)
         assertThat(quadData.canvasShape)
             .isEqualTo(FakeImpressApiImpl.StereoSurfaceEntityData.CanvasShape.QUAD)
         assertThat(sphereData.stereoMode).isEqualTo(SurfaceEntity.StereoMode.TOP_BOTTOM)

@@ -376,4 +376,9 @@ final class CarAppBinder extends ICarApp.Stub {
     @NonNull SessionInfo getCurrentSessionInfo() {
         return mCurrentSessionInfo;
     }
+
+    @Override
+    public int getInterfaceVersion() {
+        return super.VERSION;
+    }
 }

@@ -168,7 +168,7 @@ public actual open class MigrationTestHelper : TestWatcher {
      * @return A database connection of the newly created database.
      * @throws IllegalStateException If a new database was not created.
      */
-    public actual fun createDatabase(version: Int): SQLiteConnection {
+    public actual suspend fun createDatabase(version: Int): SQLiteConnection {
         check(delegate is SQLiteDriverMigrationTestHelper) {
             "MigrationTestHelper functionality returning a SQLiteConnection is not possible " +
                 "because a SupportSQLiteOpenHelper was provided during configuration (i.e. no " +
@@ -194,7 +194,7 @@ public actual open class MigrationTestHelper : TestWatcher {
      * @return A database connection of the migrated database.
      * @throws IllegalStateException If the schema validation fails.
      */
-    public actual fun runMigrationsAndValidate(
+    public actual suspend fun runMigrationsAndValidate(
         version: Int,
         migrations: List<Migration>,
     ): SQLiteConnection {
@@ -304,7 +304,7 @@ private class SQLiteDriverMigrationTestHelper(
 
     private val databaseInstance = databaseClass.cast(databaseFactory.invoke())
 
-    fun createDatabase(version: Int): SQLiteConnection {
+    suspend fun createDatabase(version: Int): SQLiteConnection {
         val schemaBundle = loadSchema(version)
         val connection =
             createDatabaseCommon(
@@ -315,7 +315,10 @@ private class SQLiteDriverMigrationTestHelper(
         return connection
     }
 
-    fun runMigrationsAndValidate(version: Int, migrations: List<Migration>): SQLiteConnection {
+    suspend fun runMigrationsAndValidate(
+        version: Int,
+        migrations: List<Migration>,
+    ): SQLiteConnection {
         val schemaBundle = loadSchema(version)
         val connection =
             runMigrationsAndValidateCommon(

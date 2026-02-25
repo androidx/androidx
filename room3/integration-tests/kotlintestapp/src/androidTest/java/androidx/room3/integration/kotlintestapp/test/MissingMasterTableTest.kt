@@ -19,7 +19,7 @@ package androidx.room3.integration.kotlintestapp.test
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
 import androidx.room3.Room
-import androidx.room3.execSQL
+import androidx.room3.executeSQL
 import androidx.room3.integration.kotlintestapp.TestDatabase
 import androidx.room3.integration.kotlintestapp.vo.Email
 import androidx.room3.integration.kotlintestapp.vo.User
@@ -84,7 +84,7 @@ class MissingMasterTableTest {
         val db1 = openDb()
         db1.usersDao().insertUser(user)
         // Delete the room_master_table
-        db1.useWriterConnection { it.execSQL("DROP TABLE room_master_table;") }
+        db1.useWriterConnection { it.executeSQL("DROP TABLE room_master_table;") }
         db1.close()
         allowVersionUpdates.set(false)
 

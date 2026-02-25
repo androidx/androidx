@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package androidx.xr.projected.platform;
-@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX)")
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)")
 interface IProjectedService {
   void registerProjectedInputEventListener(in androidx.xr.projected.platform.IProjectedInputEventListener listener);
   void unregisterProjectedInputEventListener(in androidx.xr.projected.platform.IProjectedInputEventListener listener);

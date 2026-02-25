@@ -38,7 +38,6 @@ import androidx.pdf.ink.util.InkDefaults
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
 internal class WetStrokesViewTouchHandler(
     private val pageInfoProvider: PageInfoProvider,
-    private val touchTolerancePx: Float,
     private val onStrokeStartedListener: OnStrokeStartedListener,
 ) : View.OnTouchListener {
 
@@ -97,6 +96,11 @@ internal class WetStrokesViewTouchHandler(
         currentPointerId = pointerId
         currentPageInfo = pageInfoProvider.getPageInfoFromViewCoordinates(event.x, event.y)
 
+        val insetPageBounds = getInsetPageBounds()
+        if (insetPageBounds == null || !insetPageBounds.contains(event.x, event.y)) {
+            return false
+        }
+
         val pageInfo = currentPageInfo ?: return false
         val strokeToWorldTransform = pageInfo.pageToViewTransform
 
@@ -128,8 +132,8 @@ internal class WetStrokesViewTouchHandler(
             return true
         }
 
-        val currentEventX = event.getX(pointerIndex)
-        val currentEventY = event.getY(pointerIndex)
+        val currentEventX = predictedEvent?.x ?: event.getX(pointerIndex)
+        val currentEventY = predictedEvent?.y ?: event.getY(pointerIndex)
 
         val insetPageBounds = getInsetPageBounds()
         if (insetPageBounds != null && insetPageBounds.contains(currentEventX, currentEventY)) {
@@ -183,8 +187,7 @@ internal class WetStrokesViewTouchHandler(
         val zoom = matrixValues[Matrix.MSCALE_X]
 
         val brushRadius = brushForInking.size / 2
-        // Calculate the total inset (brush radius + tolerance), scaled by the current zoom level.
-        val totalInset = (brushRadius + touchTolerancePx) * zoom
+        val totalInset = (brushRadius) * zoom
 
         // Duplicate page bounds to avoid mutating the original, then apply the inset.
         return RectF(pageInfo.pageBounds).apply { inset(totalInset, totalInset) }
@@ -199,9 +202,5 @@ internal class WetStrokesViewTouchHandler(
          * @param pageNum The page number (0-indexed) on which the stroke was started.
          */
         fun onStrokeStarted(strokeId: InProgressStrokeId, pageNum: Int)
-    }
-
-    private companion object {
-        const val TOUCH_TOLERANCE_IN_DP = 2f
     }
 }

@@ -34,10 +34,6 @@
             android:text="@string/preference_string" />
 
         <include
-            android:id="@+id/switch_external_hardware_interaction"
-            layout="@layout/preferences_switch_template" />
-
-        <include
             android:id="@+id/custom_link_handling_switch"
             layout="@layout/preferences_switch_template"/>
 

@@ -1,6 +1,0 @@
-# TODO(b/469127532): Remove this merged baseline profile once AGP adds support for multiple
-#  baseline profile files per baselineProfiles directory.
-
-HSPLandroidx/datastore/core/handlers/NoOpCorruptionHandler;-><init>()V
-Landroidx/datastore/core/handlers/NoOpCorruptionHandler;
-Landroidx/datastore/core/handlers/ReplaceFileCorruptionHandler;

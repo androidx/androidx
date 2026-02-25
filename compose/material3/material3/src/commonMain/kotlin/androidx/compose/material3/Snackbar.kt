@@ -96,6 +96,7 @@ import kotlin.math.min
  * @param content content to show information about a process that an app has performed or will
  *   perform
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Snackbar(
     modifier: Modifier = Modifier,
@@ -121,23 +122,46 @@ fun Snackbar(
         CompositionLocalProvider(LocalTextStyle provides textStyle) {
             when {
                 actionOnNewLine && action != null ->
-                    NewLineButtonSnackbar(
-                        text = content,
-                        action = action,
-                        dismissAction = dismissAction,
-                        actionTextStyle = actionTextStyle,
-                        actionContentColor = actionContentColor,
-                        dismissActionContentColor = dismissActionContentColor,
-                    )
+                    if (ComposeMaterial3Flags.isSnackbarStylingFixEnabled) {
+                        NewLineButtonSnackbar(
+                            text = content,
+                            action = action,
+                            dismissAction = dismissAction,
+                            actionTextStyle = actionTextStyle,
+                            actionContentColor = actionContentColor,
+                            dismissActionContentColor = dismissActionContentColor,
+                        )
+                    } else {
+                        LegacyNewLineButtonSnackbar(
+                            text = content,
+                            action = action,
+                            dismissAction = dismissAction,
+                            actionTextStyle = actionTextStyle,
+                            actionContentColor = actionContentColor,
+                            dismissActionContentColor = dismissActionContentColor,
+                        )
+                    }
+
                 else ->
-                    OneRowSnackbar(
-                        text = content,
-                        action = action,
-                        dismissAction = dismissAction,
-                        actionTextStyle = actionTextStyle,
-                        actionTextColor = actionContentColor,
-                        dismissActionColor = dismissActionContentColor,
-                    )
+                    if (ComposeMaterial3Flags.isSnackbarStylingFixEnabled) {
+                        OneRowSnackbar(
+                            text = content,
+                            action = action,
+                            dismissAction = dismissAction,
+                            actionTextStyle = actionTextStyle,
+                            actionTextColor = actionContentColor,
+                            dismissActionColor = dismissActionContentColor,
+                        )
+                    } else {
+                        LegacyOneRowSnackbar(
+                            text = content,
+                            action = action,
+                            dismissAction = dismissAction,
+                            actionTextStyle = actionTextStyle,
+                            actionTextColor = actionContentColor,
+                            dismissActionColor = dismissActionContentColor,
+                        )
+                    }
             }
         }
     }
@@ -267,6 +291,54 @@ private fun NewLineButtonSnackbar(
 ) {
     Column(
         modifier =
+            Modifier.widthIn(max = ContainerMaxWidth)
+                .fillMaxWidth()
+                .padding(start = HorizontalSpacing)
+    ) {
+        Box(
+            modifier =
+                Modifier.fillMaxWidth()
+                    .padding(vertical = SnackbarVerticalPadding)
+                    .padding(end = HorizontalSpacing)
+        ) {
+            text()
+        }
+
+        Row(
+            modifier =
+                Modifier.align(Alignment.End)
+                    .padding(
+                        bottom = ActionButtonBottomPadding,
+                        end = if (dismissAction == null) HorizontalSpacingButtonSide else 0.dp,
+                    ),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            CompositionLocalProvider(
+                LocalContentColor provides actionContentColor,
+                LocalTextStyle provides actionTextStyle,
+                content = action,
+            )
+            if (dismissAction != null) {
+                CompositionLocalProvider(
+                    LocalContentColor provides dismissActionContentColor,
+                    content = dismissAction,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun LegacyNewLineButtonSnackbar(
+    text: @Composable () -> Unit,
+    action: @Composable () -> Unit,
+    dismissAction: @Composable (() -> Unit)?,
+    actionTextStyle: TextStyle,
+    actionContentColor: Color,
+    dismissActionContentColor: Color,
+) {
+    Column(
+        modifier =
             Modifier
                 // Fill max width, up to ContainerMaxWidth.
                 .widthIn(max = ContainerMaxWidth)
@@ -302,7 +374,7 @@ private fun NewLineButtonSnackbar(
 }
 
 @Composable
-private fun OneRowSnackbar(
+private fun LegacyOneRowSnackbar(
     text: @Composable () -> Unit,
     action: @Composable (() -> Unit)?,
     dismissAction: @Composable (() -> Unit)?,
@@ -315,7 +387,9 @@ private fun OneRowSnackbar(
     val dismissActionTag = "dismissAction"
     Layout(
         {
-            Box(Modifier.layoutId(textTag).padding(vertical = SnackbarVerticalPadding)) { text() }
+            Box(Modifier.layoutId(textTag).padding(vertical = LegacySnackbarVerticalPadding)) {
+                text()
+            }
             if (action != null) {
                 Box(Modifier.layoutId(actionTag)) {
                     CompositionLocalProvider(
@@ -415,6 +489,88 @@ private fun OneRowSnackbar(
     }
 }
 
+@Composable
+private fun OneRowSnackbar(
+    text: @Composable () -> Unit,
+    action: @Composable (() -> Unit)?,
+    dismissAction: @Composable (() -> Unit)?,
+    actionTextStyle: TextStyle,
+    actionTextColor: Color,
+    dismissActionColor: Color,
+) {
+    val textTag = "text"
+    val actionTag = "action"
+    val dismissActionTag = "dismissAction"
+    Layout(
+        {
+            Box(Modifier.layoutId(textTag).padding(vertical = SnackbarVerticalPadding)) { text() }
+            if (action != null) {
+                Box(Modifier.layoutId(actionTag)) {
+                    CompositionLocalProvider(
+                        LocalContentColor provides actionTextColor,
+                        LocalTextStyle provides actionTextStyle,
+                        content = action,
+                    )
+                }
+            }
+            if (dismissAction != null) {
+                Box(Modifier.layoutId(dismissActionTag)) {
+                    CompositionLocalProvider(
+                        LocalContentColor provides dismissActionColor,
+                        content = dismissAction,
+                    )
+                }
+            }
+        },
+        modifier =
+            Modifier.padding(
+                start = HorizontalSpacing,
+                end = if (dismissAction == null) TextEndExtraSpacing else 0.dp,
+            ),
+    ) { measurables, constraints ->
+        val minContainerHeight = SnackbarTokens.SingleLineContainerHeight.roundToPx()
+        val containerWidth = min(constraints.maxWidth, ContainerMaxWidth.roundToPx())
+        val actionButtonPlaceable =
+            measurables.fastFirstOrNull { it.layoutId == actionTag }?.measure(constraints)
+        val dismissButtonPlaceable =
+            measurables.fastFirstOrNull { it.layoutId == dismissActionTag }?.measure(constraints)
+        val actionButtonWidth = actionButtonPlaceable?.width ?: 0
+        val dismissButtonWidth = dismissButtonPlaceable?.width ?: 0
+
+        val extraSpacingWidth = if (dismissButtonWidth == 0) TextEndExtraSpacing.roundToPx() else 0
+        val textMaxWidth =
+            (containerWidth - actionButtonWidth - dismissButtonWidth - extraSpacingWidth)
+                .coerceAtLeast(constraints.minWidth)
+        val textPlaceable =
+            measurables
+                .fastFirst { it.layoutId == textTag }
+                .measure(constraints.copy(minHeight = 0, maxWidth = textMaxWidth))
+
+        val containerHeight =
+            maxOf(
+                minContainerHeight,
+                textPlaceable.height,
+                actionButtonPlaceable?.height ?: 0,
+                dismissButtonPlaceable?.height ?: 0,
+            )
+
+        val dismissButtonPlaceX = containerWidth - dismissButtonWidth
+        val actionButtonPlaceX = dismissButtonPlaceX - actionButtonWidth
+
+        layout(containerWidth, containerHeight) {
+            textPlaceable.placeRelative(0, (containerHeight - textPlaceable.height) / 2)
+            actionButtonPlaceable?.placeRelative(
+                actionButtonPlaceX,
+                (containerHeight - actionButtonPlaceable.height) / 2,
+            )
+            dismissButtonPlaceable?.placeRelative(
+                dismissButtonPlaceX,
+                (containerHeight - dismissButtonPlaceable.height) / 2,
+            )
+        }
+    }
+}
+
 /** Contains the default values used for [Snackbar]. */
 object SnackbarDefaults {
     /** Default shape of a snackbar. */
@@ -447,6 +603,8 @@ private val HeightToFirstLine = 30.dp
 private val HorizontalSpacing = 16.dp
 private val HorizontalSpacingButtonSide = 8.dp
 private val SeparateButtonExtraY = 2.dp
-private val SnackbarVerticalPadding = 6.dp
+private val LegacySnackbarVerticalPadding = 6.dp
 private val TextEndExtraSpacing = 8.dp
 private val LongButtonVerticalOffset = 12.dp
+private val SnackbarVerticalPadding = 14.dp
+private val ActionButtonBottomPadding = 4.dp

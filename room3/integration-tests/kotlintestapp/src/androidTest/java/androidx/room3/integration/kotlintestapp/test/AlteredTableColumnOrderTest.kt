@@ -72,7 +72,7 @@ class AlteredTableColumnOrderTest {
                 .setDriver(AndroidSQLiteDriver())
                 .addMigrations(
                     object : Migration(1, 2) {
-                        override fun migrate(connection: SQLiteConnection) {
+                        override suspend fun migrate(connection: SQLiteConnection) {
                             connection.execSQL(
                                 "ALTER TABLE Foo ADD COLUMN X TEXT NOT NULL DEFAULT 'X';"
                             )

@@ -4,6 +4,6 @@ AsyncSuffixFuture: androidx.paging.ListenableFuturePagingSource#loadFuture(andro
 
 
 TypeParameterName: androidx.paging.ListenableFuturePagingSource:
-    Invalid type parameter name "Key". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+    Invalid type parameter names "Key", "Value". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
 TypeParameterName: androidx.paging.ListenableFutureRemoteMediator:
-    Invalid type parameter name "Key". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+    Invalid type parameter names "Key", "Value". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names

@@ -37,6 +37,16 @@ public abstract class EventMetadata internal constructor() {
     /** Adds call stack frame information to the [TraceEvent]. */
     public abstract fun addCallStackEntry(name: String, sourceFile: String?, lineNumber: Int)
 
+    /** Add a [Long] correlation id to the trace packet. */
+    public abstract fun addCorrelationId(id: Long)
+
+    /**
+     * Adds a [String] correlation id to the trace packet.
+     *
+     * Consider using the `addCorrelationId(Long)` variant for performance reasons when possible.
+     */
+    public abstract fun addCorrelationId(id: String)
+
     /**
      * Adds additional categories to the [TraceEvent].
      *

@@ -17,22 +17,8 @@
 package androidx.ink.brush
 
 import androidx.annotation.RestrictTo
-import androidx.ink.brush.BrushBehavior.BinaryOp
-import androidx.ink.brush.BrushBehavior.BinaryOpNode
-import androidx.ink.brush.BrushBehavior.OutOfRange
-import androidx.ink.brush.BrushBehavior.ResponseNode
-import androidx.ink.brush.BrushBehavior.Source
-import androidx.ink.brush.BrushBehavior.SourceNode
-import androidx.ink.brush.BrushBehavior.Target
-import androidx.ink.brush.BrushBehavior.TargetNode
-import androidx.ink.brush.BrushPaint.BlendMode
-import androidx.ink.brush.BrushPaint.TextureLayer
-import androidx.ink.brush.BrushPaint.TextureMapping
-import androidx.ink.brush.BrushPaint.TextureOrigin
-import androidx.ink.brush.BrushPaint.TextureSizeUnit
-import androidx.ink.brush.BrushPaint.TextureWrap
-import androidx.ink.geometry.Angle
-import androidx.ink.geometry.AngleDegreesFloat
+import androidx.ink.nativeloader.NativeLoader
+import androidx.ink.nativeloader.UsedByNative
 import kotlin.jvm.JvmStatic
 
 /**
@@ -62,61 +48,20 @@ import kotlin.jvm.JvmStatic
 @OptIn(ExperimentalInkCustomBrushApi::class)
 public object StockBrushes {
 
-    /**
-     * The scale factor to apply to both X and Y dimensions of the mini emoji brush tip and texture
-     * layer size.
-     */
-    private const val EMOJI_STAMP_SCALE = 1.5f
-
-    private val STOCK_INPUT_MODEL: BrushFamily.InputModel = BrushFamily.SlidingWindowModel()
-
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     @JvmStatic
     public val predictionFadeOutBehavior: BrushBehavior by lazy {
-        BrushBehavior(
-            terminalNodes =
-                listOf(
-                    TargetNode(
-                        target = Target.OPACITY_MULTIPLIER,
-                        targetModifierRangeStart = 1F,
-                        targetModifierRangeEnd = 0.3F,
-                        BinaryOpNode(
-                            operation = BinaryOp.PRODUCT,
-                            firstInput =
-                                SourceNode(
-                                    source = Source.PREDICTED_TIME_ELAPSED_IN_MILLIS,
-                                    sourceValueRangeStart = 0F,
-                                    sourceValueRangeEnd = 24F,
-                                ),
-                            // The second branch of the binary op node keeps the opacity fade-out
-                            // from starting
-                            // until the predicted inputs have traveled at least 1.5x brush-size.
-                            secondInput =
-                                ResponseNode(
-                                    responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
-                                    input =
-                                        SourceNode(
-                                            source =
-                                                Source
-                                                    .PREDICTED_DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE,
-                                            sourceValueRangeStart = 1.5F,
-                                            sourceValueRangeEnd = 2F,
-                                        ),
-                                ),
-                        ),
-                    )
-                )
-        )
+        BrushBehavior.wrapNative(StockBrushesNative.predictionFadeOutBehavior())
     }
 
     /** Version option for the [marker] stock brush factory function. */
-    public class MarkerVersion private constructor(private val name: String) {
+    public class MarkerVersion private constructor(internal val value: Int) {
 
-        override fun toString(): String = "MarkerVersion.$name"
+        override fun toString(): String = "MarkerVersion.V$value"
 
         public companion object {
             /** Initial version of a simple, circular fixed-width brush. */
-            @JvmField public val V1: MarkerVersion = MarkerVersion("V1")
+            @JvmField public val V1: MarkerVersion = MarkerVersion(1)
 
             /** Whichever version of marker is currently the latest. */
             @JvmField public val LATEST: MarkerVersion = V1
@@ -124,10 +69,7 @@ public object StockBrushes {
     }
 
     private val markerV1 by lazy {
-        BrushFamily(
-            tip = BrushTip(behaviors = listOf(predictionFadeOutBehavior)),
-            inputModel = STOCK_INPUT_MODEL,
-        )
+        BrushFamily.wrapNative(StockBrushesNative.marker(MarkerVersion.V1.value))
     }
 
     /**
@@ -144,16 +86,16 @@ public object StockBrushes {
         }
 
     /** Version option for the [pressurePen] stock brush factory function. */
-    public class PressurePenVersion private constructor(private val name: String) {
+    public class PressurePenVersion private constructor(internal val value: Int) {
 
-        override fun toString(): String = "PressurePenVersion.$name"
+        override fun toString(): String = "PressurePenVersion.V$value"
 
         public companion object {
             /**
              * Initial version of a pressure- and speed-sensitive brush that is optimized for
              * handwriting with a stylus.
              */
-            @JvmField public val V1: PressurePenVersion = PressurePenVersion("V1")
+            @JvmField public val V1: PressurePenVersion = PressurePenVersion(1)
 
             /**
              * The latest version of a pressure- and speed-sensitive brush that is optimized for
@@ -164,56 +106,7 @@ public object StockBrushes {
     }
 
     private val pressurePenV1 by lazy {
-        BrushFamily(
-            tip =
-                BrushTip(
-                    behaviors =
-                        listOf(
-                            predictionFadeOutBehavior,
-                            BrushBehavior(
-                                Source.DISTANCE_REMAINING_IN_MULTIPLES_OF_BRUSH_SIZE,
-                                Target.SIZE_MULTIPLIER,
-                                sourceValueRangeStart = 3f,
-                                sourceValueRangeEnd = 0f,
-                                targetModifierRangeStart = 1f,
-                                targetModifierRangeEnd = 0.75f,
-                                OutOfRange.CLAMP,
-                            ),
-                            BrushBehavior(
-                                Source.NORMALIZED_DIRECTION_Y,
-                                Target.SIZE_MULTIPLIER,
-                                sourceValueRangeStart = 0.45f,
-                                sourceValueRangeEnd = 0.65f,
-                                targetModifierRangeStart = 1.0f,
-                                targetModifierRangeEnd = 1.17f,
-                                OutOfRange.CLAMP,
-                                responseTimeMillis = 25L,
-                            ),
-                            BrushBehavior(
-                                Source.INPUT_ACCELERATION_LATERAL_IN_CENTIMETERS_PER_SECOND_SQUARED,
-                                Target.SIZE_MULTIPLIER,
-                                sourceValueRangeStart = -80f,
-                                sourceValueRangeEnd = -230f,
-                                targetModifierRangeStart = 1.0f,
-                                targetModifierRangeEnd = 1.25f,
-                                OutOfRange.CLAMP,
-                                responseTimeMillis = 25L,
-                            ),
-                            BrushBehavior(
-                                Source.NORMALIZED_PRESSURE,
-                                Target.SIZE_MULTIPLIER,
-                                sourceValueRangeStart = 0.8f,
-                                sourceValueRangeEnd = 1f,
-                                targetModifierRangeStart = 1.0f,
-                                targetModifierRangeEnd = 1.5f,
-                                OutOfRange.CLAMP,
-                                responseTimeMillis = 30L,
-                                enabledToolTypes = setOf(InputToolType.STYLUS),
-                            ),
-                        )
-                ),
-            inputModel = STOCK_INPUT_MODEL,
-        )
+        BrushFamily.wrapNative(StockBrushesNative.pressurePen(PressurePenVersion.V1.value))
     }
 
     /**
@@ -232,16 +125,16 @@ public object StockBrushes {
         }
 
     /** Version option for the [highlighter] stock brush factory function. */
-    public class HighlighterVersion private constructor(private val name: String) {
+    public class HighlighterVersion private constructor(internal val value: Int) {
 
-        override fun toString(): String = "HighlighterVersion.$name"
+        override fun toString(): String = "HighlighterVersion.V$value"
 
         public companion object {
             /**
              * Initial of a chisel-tip brush that is intended for highlighting text in a document
              * (when used with a translucent brush color).
              */
-            @JvmField public val V1: HighlighterVersion = HighlighterVersion("V1")
+            @JvmField public val V1: HighlighterVersion = HighlighterVersion(1)
 
             /**
              * The latest version of a chisel-tip brush that is intended for highlighting text in a
@@ -253,65 +146,12 @@ public object StockBrushes {
 
     private val selfOverlapToHighlighterV1 =
         listOf(SelfOverlap.ANY, SelfOverlap.ACCUMULATE, SelfOverlap.DISCARD).associateWith {
-            lazy { highlighterV1(it) }
+            lazy {
+                BrushFamily.wrapNative(
+                    StockBrushesNative.highlighter(it.value, HighlighterVersion.V1.value)
+                )
+            }
         }
-
-    private fun highlighterV1(selfOverlap: SelfOverlap) =
-        BrushFamily(
-            tip =
-                BrushTip(
-                    scaleX = 0.25f,
-                    scaleY = 1f,
-                    cornerRounding = 0.3f,
-                    rotationDegrees = 150f,
-                    behaviors =
-                        listOf(
-                            predictionFadeOutBehavior,
-                            BrushBehavior(
-                                Source.DISTANCE_REMAINING_IN_MULTIPLES_OF_BRUSH_SIZE,
-                                Target.CORNER_ROUNDING_OFFSET,
-                                sourceValueRangeStart = 0f,
-                                sourceValueRangeEnd = 1f,
-                                targetModifierRangeStart = 0.3f,
-                                targetModifierRangeEnd = 1f,
-                                OutOfRange.CLAMP,
-                                responseTimeMillis = 15L,
-                            ),
-                            BrushBehavior(
-                                Source.DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE,
-                                Target.CORNER_ROUNDING_OFFSET,
-                                sourceValueRangeStart = 0f,
-                                sourceValueRangeEnd = 1f,
-                                targetModifierRangeStart = 0.3f,
-                                targetModifierRangeEnd = 1f,
-                                OutOfRange.CLAMP,
-                                responseTimeMillis = 15L,
-                            ),
-                            BrushBehavior(
-                                Source.DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE,
-                                Target.OPACITY_MULTIPLIER,
-                                sourceValueRangeStart = 0f,
-                                sourceValueRangeEnd = 3f,
-                                targetModifierRangeStart = 1.1f,
-                                targetModifierRangeEnd = 1f,
-                                OutOfRange.CLAMP,
-                                responseTimeMillis = 15L,
-                            ),
-                            BrushBehavior(
-                                Source.DISTANCE_REMAINING_IN_MULTIPLES_OF_BRUSH_SIZE,
-                                Target.OPACITY_MULTIPLIER,
-                                sourceValueRangeStart = 0f,
-                                sourceValueRangeEnd = 3f,
-                                targetModifierRangeStart = 1.1f,
-                                targetModifierRangeEnd = 1f,
-                                OutOfRange.CLAMP,
-                                responseTimeMillis = 15L,
-                            ),
-                        ),
-                ),
-            paint = BrushPaint(selfOverlap = selfOverlap),
-            inputModel = STOCK_INPUT_MODEL,
-        )
 
     /**
      * Factory function for constructing a chisel-tip brush that is intended for highlighting text
@@ -342,9 +182,9 @@ public object StockBrushes {
         }
 
     /** Version option for the [dashedLine] stock brush factory function. */
-    public class DashedLineVersion private constructor(private val name: String) {
+    public class DashedLineVersion private constructor(internal val value: Int) {
 
-        override fun toString(): String = "DashedLineVersion.$name"
+        override fun toString(): String = "DashedLineVersion.V$value"
 
         public companion object {
             /**
@@ -352,7 +192,7 @@ public object StockBrushes {
              * them. This may be decorative, or can be used to signify a user interaction like
              * free-form (lasso) selection.
              */
-            @JvmField public val V1: DashedLineVersion = DashedLineVersion("V1")
+            @JvmField public val V1: DashedLineVersion = DashedLineVersion(1)
 
             /** The latest version of a dashed-line brush. */
             @JvmField public val LATEST: DashedLineVersion = V1
@@ -360,35 +200,7 @@ public object StockBrushes {
     }
 
     private val dashedLineV1 by lazy {
-        BrushFamily(
-            tip =
-                BrushTip(
-                    scaleX = 2F,
-                    scaleY = 1F,
-                    cornerRounding = 0.45F,
-                    particleGapDistanceScale = 3F,
-                    behaviors =
-                        listOf(
-                            predictionFadeOutBehavior,
-                            BrushBehavior(
-                                listOf(
-                                    TargetNode(
-                                        Target.ROTATION_OFFSET_IN_RADIANS,
-                                        -Angle.HALF_TURN_RADIANS,
-                                        Angle.HALF_TURN_RADIANS,
-                                        SourceNode(
-                                            Source.DIRECTION_ABOUT_ZERO_IN_RADIANS,
-                                            -Angle.HALF_TURN_RADIANS,
-                                            Angle.HALF_TURN_RADIANS,
-                                            OutOfRange.CLAMP,
-                                        ),
-                                    )
-                                )
-                            ),
-                        ),
-                ),
-            inputModel = STOCK_INPUT_MODEL,
-        )
+        BrushFamily.wrapNative(StockBrushesNative.dashedLine(DashedLineVersion.V1.value))
     }
 
     /**
@@ -407,51 +219,10 @@ public object StockBrushes {
             else -> throw IllegalArgumentException("Unsupported dashed line version: $version")
         }
 
-    /** The client texture ID for the background of the version-1 pencil brush. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-    @JvmStatic
-    public val pencilUnstableBackgroundTextureId: String =
-        "androidx.ink.brush.StockBrushes.pencil_background_unstable"
-
-    /**
-     * A development version of a brush that looks like pencil marks on subtly textured paper.
-     *
-     * In order to use this brush, the [TextureBitmapStore] provided to your renderer must map the
-     * [pencilUnstableBackgroundTextureId] to a bitmap; otherwise, no texture will be visible.
-     * Android callers may want to use [StockTextureBitmapStore] to provide this mapping.
-     *
-     * The behavior of this [BrushFamily] may change significantly in future releases. Once it has
-     * stabilized, it will be renamed to `pencilV1`.
-     */
-    // TODO: b/373587591 - Change this to be consistent with the other brush factory functions
-    // before
-    // release.
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-    @JvmStatic
-    public val pencilUnstable: BrushFamily by lazy {
-        BrushFamily(
-            tip = BrushTip(behaviors = listOf(predictionFadeOutBehavior)),
-            paint =
-                BrushPaint(
-                    listOf(
-                        TextureLayer(
-                            clientTextureId = pencilUnstableBackgroundTextureId,
-                            sizeX = 512F,
-                            sizeY = 512F,
-                            sizeUnit = TextureSizeUnit.STROKE_COORDINATES,
-                            mapping = TextureMapping.TILING,
-                        )
-                    )
-                ),
-            inputModel = STOCK_INPUT_MODEL,
-        )
-    }
-
     /** Version option for the [emojiHighlighter] stock brush factory function. */
-    public class EmojiHighlighterVersion private constructor(private val name: String) {
+    public class EmojiHighlighterVersion private constructor(internal val value: Int) {
 
-        override fun toString(): String = "EmojiHighlighterVersion.$name"
+        override fun toString(): String = "EmojiHighlighterVersion.V$value"
 
         public companion object {
             /**
@@ -459,377 +230,11 @@ public object StockBrushes {
              * moving emoji sticker, possibly with a trail of miniature versions of the chosen emoji
              * sparkling behind.
              */
-            @JvmField public val V1: EmojiHighlighterVersion = EmojiHighlighterVersion("V1")
+            @JvmField public val V1: EmojiHighlighterVersion = EmojiHighlighterVersion(1)
 
             /** Whichever version of emoji highlighter is currently the latest. */
             @JvmField public val LATEST: EmojiHighlighterVersion = V1
         }
-    }
-
-    /**
-     * A brush coat that looks like a mini emoji.
-     *
-     * @param clientTextureId the client texture ID of the emoji to appear in the coat.
-     * @param tipScale the scale factor to apply to both X and Y dimensions of the mini emoji
-     * @param tipRotationDegrees the rotation to apply to the mini emoji
-     * @param tipParticleGapDistanceScale the scale factor to apply to the particle gap distance
-     * @param positionOffsetRangeStart the start of the range for the position offset behavior
-     * @param positionOffsetRangeEnd the end of the range for the position offset behavior
-     * @param distanceTraveledRangeStart the start of the range for the distance traveled behavior
-     * @param distanceTraveledRangeEnd the end of the range for the distance traveled behavior
-     * @param luminosityRangeStart the start of the range for the luminosity behavior
-     * @param luminosityRangeEnd the end of the range for the luminosity behavior
-     */
-    private fun miniEmojiCoat(
-        clientTextureId: String,
-        tipScale: Float,
-        @AngleDegreesFloat tipRotationDegrees: Float,
-        tipParticleGapDistanceScale: Float,
-        positionOffsetRangeStart: Float,
-        positionOffsetRangeEnd: Float,
-        distanceTraveledRangeStart: Float,
-        distanceTraveledRangeEnd: Float,
-        luminosityRangeStart: Float,
-        luminosityRangeEnd: Float,
-    ): BrushCoat =
-        BrushCoat(
-            tip =
-                BrushTip(
-                    scaleX = tipScale,
-                    scaleY = tipScale,
-                    cornerRounding = 0f,
-                    rotationDegrees = tipRotationDegrees,
-                    particleGapDistanceScale = tipParticleGapDistanceScale,
-                    behaviors =
-                        listOf(
-                            BrushBehavior(
-                                terminalNodes =
-                                    listOf(
-                                        BrushBehavior.TargetNode(
-                                            target = Target.SIZE_MULTIPLIER,
-                                            targetModifierRangeStart = 1.0f,
-                                            targetModifierRangeEnd = 0.0f,
-                                            input =
-                                                BrushBehavior.SourceNode(
-                                                    source = Source.TIME_SINCE_INPUT_IN_SECONDS,
-                                                    sourceValueRangeStart = 0.0f,
-                                                    sourceValueRangeEnd = 0.7f,
-                                                    sourceOutOfRangeBehavior = OutOfRange.CLAMP,
-                                                ),
-                                        )
-                                    )
-                            ),
-                            BrushBehavior(
-                                terminalNodes =
-                                    listOf(
-                                        BrushBehavior.TargetNode(
-                                            target = BrushBehavior.Target.HUE_OFFSET_IN_RADIANS,
-                                            Angle.degreesToRadians(59f),
-                                            Angle.degreesToRadians(60f),
-                                            input = BrushBehavior.ConstantNode(value = 0f),
-                                        ),
-                                        BrushBehavior.TargetNode(
-                                            target = BrushBehavior.Target.LUMINOSITY,
-                                            luminosityRangeStart,
-                                            luminosityRangeEnd,
-                                            input = BrushBehavior.ConstantNode(value = 0f),
-                                        ),
-                                    )
-                            ),
-                            BrushBehavior(
-                                terminalNodes =
-                                    listOf(
-                                        BrushBehavior.TargetNode(
-                                            target =
-                                                BrushBehavior.Target
-                                                    .POSITION_OFFSET_Y_IN_MULTIPLES_OF_BRUSH_SIZE,
-                                            positionOffsetRangeStart,
-                                            positionOffsetRangeEnd,
-                                            input =
-                                                BrushBehavior.ResponseNode(
-                                                    responseCurve =
-                                                        EasingFunction.Predefined.LINEAR,
-                                                    input =
-                                                        BrushBehavior.SourceNode(
-                                                            source =
-                                                                BrushBehavior.Source
-                                                                    .DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE,
-                                                            distanceTraveledRangeStart,
-                                                            distanceTraveledRangeEnd,
-                                                            BrushBehavior.OutOfRange.REPEAT,
-                                                        ),
-                                                ),
-                                        )
-                                    )
-                            ),
-                        ),
-                ),
-            paint =
-                BrushPaint(
-                    textureLayers =
-                        listOf(
-                            TextureLayer(
-                                clientTextureId = clientTextureId,
-                                sizeX = 1f,
-                                sizeY = 1f,
-                                opacity = 0.4f,
-                                mapping = TextureMapping.STAMPING,
-                                blendMode = BlendMode.MODULATE,
-                            )
-                        )
-                ),
-        )
-
-    private fun emojiHighlighterV1(
-        clientTextureId: String,
-        showMiniEmojiTrail: Boolean,
-        selfOverlap: SelfOverlap,
-    ): BrushFamily {
-        return BrushFamily(
-            coats =
-                buildList() {
-                    add(
-                        // Highlighter coat.
-                        BrushCoat(
-                            tip =
-                                BrushTip(
-                                    scaleX = 1f,
-                                    scaleY = 1f,
-                                    cornerRounding = 1f,
-                                    behaviors =
-                                        listOf(
-                                            BrushBehavior(
-                                                terminalNodes =
-                                                    listOf(
-                                                        BrushBehavior.TargetNode(
-                                                            target = Target.OPACITY_MULTIPLIER,
-                                                            targetModifierRangeStart = 1.0f,
-                                                            targetModifierRangeEnd = 0.3f,
-                                                            input =
-                                                                BrushBehavior.BinaryOpNode(
-                                                                    operation =
-                                                                        BrushBehavior.BinaryOp
-                                                                            .PRODUCT,
-                                                                    firstInput =
-                                                                        BrushBehavior.SourceNode(
-                                                                            source =
-                                                                                Source
-                                                                                    .PREDICTED_TIME_ELAPSED_IN_MILLIS,
-                                                                            sourceValueRangeStart =
-                                                                                0.0f,
-                                                                            sourceValueRangeEnd =
-                                                                                24.0f,
-                                                                            sourceOutOfRangeBehavior =
-                                                                                OutOfRange.CLAMP,
-                                                                        ),
-                                                                    secondInput =
-                                                                        BrushBehavior.ResponseNode(
-                                                                            responseCurve =
-                                                                                EasingFunction
-                                                                                    .Predefined
-                                                                                    .EASE_IN_OUT,
-                                                                            input =
-                                                                                BrushBehavior
-                                                                                    .SourceNode(
-                                                                                        source =
-                                                                                            Source
-                                                                                                .PREDICTED_DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE,
-                                                                                        sourceValueRangeStart =
-                                                                                            1.5f,
-                                                                                        sourceValueRangeEnd =
-                                                                                            2.0f,
-                                                                                        sourceOutOfRangeBehavior =
-                                                                                            OutOfRange
-                                                                                                .CLAMP,
-                                                                                    ),
-                                                                        ),
-                                                                ),
-                                                        )
-                                                    )
-                                            ),
-                                            BrushBehavior(
-                                                terminalNodes =
-                                                    listOf(
-                                                        BrushBehavior.TargetNode(
-                                                            target = Target.OPACITY_MULTIPLIER,
-                                                            targetModifierRangeStart = 1.2f,
-                                                            targetModifierRangeEnd = 1.0f,
-                                                            input =
-                                                                BrushBehavior.DampingNode(
-                                                                    dampingSource =
-                                                                        BrushBehavior.DampingSource
-                                                                            .TIME_IN_SECONDS,
-                                                                    dampingGap = 0.01f,
-                                                                    input =
-                                                                        BrushBehavior.SourceNode(
-                                                                            source =
-                                                                                Source
-                                                                                    .DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE,
-                                                                            sourceValueRangeStart =
-                                                                                0.0f,
-                                                                            sourceValueRangeEnd =
-                                                                                2.0f,
-                                                                            sourceOutOfRangeBehavior =
-                                                                                OutOfRange.CLAMP,
-                                                                        ),
-                                                                ),
-                                                        )
-                                                    )
-                                            ),
-                                            BrushBehavior(
-                                                terminalNodes =
-                                                    listOf(
-                                                        BrushBehavior.TargetNode(
-                                                            target = Target.OPACITY_MULTIPLIER,
-                                                            targetModifierRangeStart = 1.2f,
-                                                            targetModifierRangeEnd = 1.0f,
-                                                            input =
-                                                                BrushBehavior.DampingNode(
-                                                                    dampingSource =
-                                                                        BrushBehavior.DampingSource
-                                                                            .TIME_IN_SECONDS,
-                                                                    dampingGap = 0.01f,
-                                                                    input =
-                                                                        BrushBehavior.SourceNode(
-                                                                            source =
-                                                                                Source
-                                                                                    .DISTANCE_REMAINING_IN_MULTIPLES_OF_BRUSH_SIZE,
-                                                                            sourceValueRangeStart =
-                                                                                0.4f,
-                                                                            sourceValueRangeEnd =
-                                                                                2.4f,
-                                                                            sourceOutOfRangeBehavior =
-                                                                                OutOfRange.CLAMP,
-                                                                        ),
-                                                                ),
-                                                        )
-                                                    )
-                                            ),
-                                            BrushBehavior(
-                                                terminalNodes =
-                                                    listOf(
-                                                        BrushBehavior.TargetNode(
-                                                            target = Target.SIZE_MULTIPLIER,
-                                                            targetModifierRangeStart = 1.0f,
-                                                            targetModifierRangeEnd = 0.04f,
-                                                            input =
-                                                                BrushBehavior.DampingNode(
-                                                                    dampingSource =
-                                                                        BrushBehavior.DampingSource
-                                                                            .TIME_IN_SECONDS,
-                                                                    dampingGap = 0.01f,
-                                                                    input =
-                                                                        BrushBehavior.SourceNode(
-                                                                            source =
-                                                                                Source
-                                                                                    .DISTANCE_REMAINING_IN_MULTIPLES_OF_BRUSH_SIZE,
-                                                                            sourceValueRangeStart =
-                                                                                0.3f,
-                                                                            sourceValueRangeEnd =
-                                                                                0.0f,
-                                                                            sourceOutOfRangeBehavior =
-                                                                                OutOfRange.CLAMP,
-                                                                        ),
-                                                                ),
-                                                        )
-                                                    )
-                                            ),
-                                        ),
-                                ),
-                            paint = BrushPaint(selfOverlap = selfOverlap),
-                        )
-                    )
-                    // Minimoji trail coats.
-                    if (showMiniEmojiTrail) {
-                        add(
-                            miniEmojiCoat(
-                                clientTextureId = clientTextureId,
-                                tipScale = 0.4f,
-                                tipRotationDegrees = 0f,
-                                tipParticleGapDistanceScale = 1.0f,
-                                luminosityRangeStart = 0.48f,
-                                luminosityRangeEnd = 2.0f,
-                                positionOffsetRangeStart = -0.35f,
-                                positionOffsetRangeEnd = 0.35f,
-                                distanceTraveledRangeStart = 0f,
-                                distanceTraveledRangeEnd = 0.22f,
-                            )
-                        )
-                        add(
-                            miniEmojiCoat(
-                                clientTextureId = clientTextureId,
-                                tipScale = 0.3f,
-                                tipRotationDegrees = -35f,
-                                tipParticleGapDistanceScale = 1.3f,
-                                luminosityRangeStart = 0.8f,
-                                luminosityRangeEnd = 2.0f,
-                                positionOffsetRangeStart = -0.4f,
-                                positionOffsetRangeEnd = 0.32f,
-                                distanceTraveledRangeStart = 0.1f,
-                                distanceTraveledRangeEnd = 0.74f,
-                            )
-                        )
-                        add(
-                            miniEmojiCoat(
-                                clientTextureId = clientTextureId,
-                                tipScale = 0.45f,
-                                tipRotationDegrees = 45f,
-                                tipParticleGapDistanceScale = 1.8f,
-                                luminosityRangeStart = 0.8f,
-                                luminosityRangeEnd = 2.0f,
-                                positionOffsetRangeStart = -0.25f,
-                                positionOffsetRangeEnd = 0.25f,
-                                distanceTraveledRangeStart = 0.01f,
-                                distanceTraveledRangeEnd = 0.74f,
-                            )
-                        )
-                    }
-
-                    // Emoji stamp coat.
-                    add(
-                        BrushCoat(
-                            tip =
-                                BrushTip(
-                                    scaleX = EMOJI_STAMP_SCALE,
-                                    scaleY = EMOJI_STAMP_SCALE,
-                                    cornerRounding = 0f,
-                                    behaviors =
-                                        listOf(
-                                            BrushBehavior(
-                                                source =
-                                                    Source
-                                                        .DISTANCE_REMAINING_IN_MULTIPLES_OF_BRUSH_SIZE,
-                                                target = Target.SIZE_MULTIPLIER,
-                                                sourceValueRangeStart = 0.01f,
-                                                sourceValueRangeEnd = 0f,
-                                                targetModifierRangeStart = 0f,
-                                                targetModifierRangeEnd = 1f,
-                                                sourceOutOfRangeBehavior = OutOfRange.CLAMP,
-                                            )
-                                        ),
-                                ),
-                            paint =
-                                BrushPaint(
-                                    listOf(
-                                        TextureLayer(
-                                            clientTextureId = clientTextureId,
-                                            sizeX = EMOJI_STAMP_SCALE,
-                                            sizeY = EMOJI_STAMP_SCALE,
-                                            offsetX = -0.5f,
-                                            offsetY = -0.5f,
-                                            sizeUnit = TextureSizeUnit.BRUSH_SIZE,
-                                            origin = TextureOrigin.LAST_STROKE_INPUT,
-                                            wrapX = TextureWrap.CLAMP,
-                                            wrapY = TextureWrap.CLAMP,
-                                            blendMode = BlendMode.SRC,
-                                        )
-                                    )
-                                ),
-                        )
-                    )
-                },
-            inputModel = STOCK_INPUT_MODEL,
-        )
     }
 
     /**
@@ -862,15 +267,43 @@ public object StockBrushes {
         showMiniEmojiTrail: Boolean = false,
         selfOverlap: SelfOverlap = SelfOverlap.ANY,
         version: EmojiHighlighterVersion = EmojiHighlighterVersion.LATEST,
-    ): BrushFamily =
-        when (version) {
-            EmojiHighlighterVersion.V1 ->
-                emojiHighlighterV1(
-                    clientTextureId = clientTextureId,
-                    showMiniEmojiTrail = showMiniEmojiTrail,
-                    selfOverlap = selfOverlap,
-                )
-            else ->
-                throw IllegalArgumentException("Unsupported emoji highlighter version: $version")
+    ): BrushFamily {
+        if (!(version in listOf(EmojiHighlighterVersion.V1))) {
+            throw IllegalArgumentException("Unsupported emoji highlighter version: ${version}")
         }
+        return BrushFamily.wrapNative(
+            StockBrushesNative.emojiHighlighter(
+                clientTextureId,
+                showMiniEmojiTrail,
+                selfOverlap.value,
+                version.value,
+            )
+        )
+    }
+}
+
+/** Singleton wrapper around native JNI calls. */
+@UsedByNative
+private object StockBrushesNative {
+    init {
+        NativeLoader.load()
+    }
+
+    @UsedByNative external fun marker(version: Int): Long
+
+    @UsedByNative external fun pressurePen(version: Int): Long
+
+    @UsedByNative external fun highlighter(selfOverlap: Int, version: Int): Long
+
+    @UsedByNative external fun dashedLine(version: Int): Long
+
+    @UsedByNative
+    external fun emojiHighlighter(
+        clientTextureId: String,
+        showMiniEmojiTrail: Boolean,
+        selfOverlap: Int,
+        version: Int,
+    ): Long
+
+    @UsedByNative external fun predictionFadeOutBehavior(): Long
 }

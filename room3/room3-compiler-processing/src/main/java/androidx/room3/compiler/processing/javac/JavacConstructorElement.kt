@@ -80,6 +80,6 @@ internal class JavacConstructorElement(env: JavacProcessingEnv, element: Executa
     }
 
     override val kotlinMetadata: KmConstructorContainer? by lazy {
-        (enclosingElement as? JavacTypeElement)?.kotlinMetadata?.getConstructorMetadata(element)
+        enclosingElement.kotlinMetadata?.getConstructorMetadata(element)
     }
 }

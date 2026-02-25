@@ -18,10 +18,10 @@ package androidx.glance.wear.parcel
 
 import android.content.ComponentName
 import android.content.Context
-import androidx.glance.wear.ActiveWearWidgetHandle
-import androidx.glance.wear.ContainerInfo.Companion.CONTAINER_TYPE_FULLSCREEN
 import androidx.glance.wear.GlanceWearWidget
-import androidx.glance.wear.WidgetInstanceId
+import androidx.glance.wear.core.ActiveWearWidgetHandle
+import androidx.glance.wear.core.ContainerInfo.Companion.CONTAINER_TYPE_FULLSCREEN
+import androidx.glance.wear.core.WidgetInstanceId
 import androidx.glance.wear.parcel.legacy.TileAddEventData
 import androidx.glance.wear.parcel.legacy.TileRemoveEventData
 import androidx.glance.wear.proto.legacy.TileAddEvent

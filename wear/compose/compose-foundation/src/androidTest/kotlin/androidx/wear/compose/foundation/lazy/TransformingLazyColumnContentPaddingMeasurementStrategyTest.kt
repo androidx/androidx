@@ -27,6 +27,7 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -614,6 +615,185 @@ class TransformingLazyColumnContentPaddingMeasurementStrategyTest {
         assertThat(result.canScrollBackward).isFalse()
     }
 
+    @Test
+    fun minimumVerticalContentPadding_firstItemVisible_overridesInitialPadding() {
+        val initialTop = 10.dp
+        val requiredTop = 50.dp
+        val requiredTopPx = with(density) { requiredTop.roundToPx() }
+        val strategy = measurementStrategy(PaddingValues(top = initialTop))
+
+        val result =
+            strategy.measure(
+                itemHeights = listOf(screenHeight / 2, screenHeight / 2),
+                minimumVerticalContentPaddings =
+                    listOf(MinimumVerticalContentPadding(top = requiredTop, bottom = 0.dp), null),
+                anchorItemScrollOffset = -25,
+            )
+
+        assertThat(result.visibleItems.first().offset).isEqualTo(requiredTopPx)
+        assertThat(result.beforeContentPadding).isEqualTo(requiredTopPx)
+    }
+
+    @Test
+    fun minimumVerticalContentPadding_scrollPositionInMiddle_returnsInitialPadding() {
+        val initialPadding = 10.dp
+        val initialPaddingPx = with(density) { initialPadding.roundToPx() }
+        val requiredPadding = 50.dp
+        val strategy = measurementStrategy(PaddingValues(initialPadding)) // 10.dp all around
+
+        val result =
+            strategy.measure(
+                itemHeights = List(5) { screenHeight / 2 },
+                minimumVerticalContentPaddings =
+                    listOf(
+                        MinimumVerticalContentPadding(requiredPadding),
+                        null,
+                        null,
+                        null,
+                        MinimumVerticalContentPadding(requiredPadding),
+                    ),
+                anchorItemIndex = 2,
+            )
+
+        assertThat(result.beforeContentPadding).isEqualTo(initialPaddingPx)
+        assertThat(result.afterContentPadding).isEqualTo(initialPaddingPx)
+    }
+
+    @Test
+    fun minimumVerticalContentPadding_firstItemVisibleWithLargeInitialPadding_returnsInitialPadding() {
+        val initialTop = 100.dp
+        val initialTopPx = with(density) { initialTop.roundToPx() }
+        val requiredTop = 10.dp
+
+        val strategy = measurementStrategy(PaddingValues(top = initialTop))
+
+        val result =
+            strategy.measure(
+                itemHeights = List(3) { screenHeight / 2 },
+                minimumVerticalContentPaddings =
+                    listOf(
+                        MinimumVerticalContentPadding(top = requiredTop, bottom = 0.dp),
+                        null,
+                        null,
+                    ),
+                anchorItemIndex = 0,
+            )
+
+        assertThat(result.beforeContentPadding).isEqualTo(initialTopPx)
+    }
+
+    @Test
+    fun minimumVerticalContentPadding_lastItemVisible_overridesInitialPadding() {
+        val initialBottom = 10.dp
+        val requiredBottom = 50.dp
+        val requiredBottomPx = with(density) { requiredBottom.roundToPx() }
+
+        val strategy = measurementStrategy(PaddingValues(bottom = initialBottom))
+
+        val result =
+            strategy.measure(
+                itemHeights = List(3) { screenHeight / 2 },
+                minimumVerticalContentPaddings =
+                    listOf(
+                        null,
+                        null,
+                        MinimumVerticalContentPadding(top = 0.dp, bottom = requiredBottom),
+                    ),
+                anchorItemIndex = 2,
+            )
+
+        assertThat(result.afterContentPadding).isEqualTo(requiredBottomPx)
+    }
+
+    @Test
+    fun minimumVerticalContentPadding_lastItemVisibleWithLargeInitialPadding_returnsInitialPadding() {
+        val initialBottom = 100.dp
+        val initialBottomPx = with(density) { initialBottom.roundToPx() }
+        val requiredBottom = 10.dp
+
+        val strategy = measurementStrategy(PaddingValues(bottom = initialBottom))
+
+        val result =
+            strategy.measure(
+                itemHeights = List(3) { screenHeight / 2 },
+                minimumVerticalContentPaddings =
+                    listOf(
+                        null,
+                        null,
+                        MinimumVerticalContentPadding(top = 0.dp, bottom = requiredBottom),
+                    ),
+                anchorItemIndex = 2,
+            )
+
+        assertThat(result.afterContentPadding).isEqualTo(initialBottomPx)
+    }
+
+    @Test
+    fun minimumVerticalContentPadding_reverseLayoutAndFirstItemVisible_usesBottomPadding() {
+        val requiredBottom = 50.dp
+        val requiredBottomPx = with(density) { requiredBottom.roundToPx() }
+        val strategy = measurementStrategy(PaddingValues(0.dp), reverseLayout = true)
+
+        val result =
+            strategy.measure(
+                itemHeights = List(3) { screenHeight / 2 },
+                minimumVerticalContentPaddings =
+                    listOf(
+                        MinimumVerticalContentPadding(top = 10.dp, bottom = requiredBottom),
+                        null,
+                        null,
+                    ),
+                anchorItemIndex = 0,
+                reverseLayout = true,
+            )
+
+        assertThat(result.beforeContentPadding).isEqualTo(requiredBottomPx)
+    }
+
+    @Test
+    fun minimumVerticalContentPadding_reverseLayoutAndLastItemVisible_usesTopPadding() {
+        val requiredTop = 50.dp
+        val requiredTopPx = with(density) { requiredTop.roundToPx() }
+        val strategy = measurementStrategy(PaddingValues(0.dp), reverseLayout = true)
+
+        val result =
+            strategy.measure(
+                itemHeights = List(3) { screenHeight / 2 },
+                minimumVerticalContentPaddings =
+                    listOf(
+                        null,
+                        null,
+                        MinimumVerticalContentPadding(top = requiredTop, bottom = 10.dp),
+                    ),
+                anchorItemIndex = 2,
+                reverseLayout = true,
+            )
+
+        assertThat(result.afterContentPadding).isEqualTo(requiredTopPx)
+    }
+
+    @Test
+    fun minimumVerticalContentPadding_singleItem_calculatesBothPaddings() {
+        val requiredTop = 13.dp
+        val requiredBottom = 23.dp
+        val requiredTopPx = with(density) { requiredTop.roundToPx() }
+        val requiredBottomPx = with(density) { requiredBottom.roundToPx() }
+        val strategy = measurementStrategy(PaddingValues(0.dp))
+
+        val result =
+            strategy.measure(
+                itemHeights = listOf(screenHeight / 4),
+                minimumVerticalContentPaddings =
+                    listOf(MinimumVerticalContentPadding(requiredTop, requiredBottom)),
+                verticalArrangement = Arrangement.Top,
+                anchorItemIndex = 0,
+            )
+
+        assertThat(result.beforeContentPadding).isEqualTo(requiredTopPx)
+        assertThat(result.afterContentPadding).isEqualTo(requiredBottomPx)
+        assertThat(result.visibleItems.first().offset).isEqualTo(requiredTopPx)
+    }
+
     private val mockGraphicContext =
         object : GraphicsContext {
             override fun createGraphicsLayer(): GraphicsLayer {
@@ -654,11 +834,18 @@ class TransformingLazyColumnContentPaddingMeasurementStrategyTest {
         lastMeasuredAnchorItemHeight: Int = Int.MIN_VALUE,
         scrollToBeConsumed: Float = 0f,
         reverseLayout: Boolean = false,
+        minimumVerticalContentPaddings: List<MinimumVerticalContentPadding?>? = null,
     ): TransformingLazyColumnMeasureResult =
         measure(
             itemsCount = itemHeights.size,
             measuredItemProvider =
-                makeMeasuredItemProvider(itemHeights, keys, transformedHeight, reverseLayout),
+                makeMeasuredItemProvider(
+                    itemHeights,
+                    keys,
+                    transformedHeight,
+                    reverseLayout,
+                    minimumVerticalContentPaddings,
+                ),
             keyIndexMap =
                 object : LazyLayoutKeyIndexMap {
                     override fun getIndex(key: Any): Int = keys.indexOf(key)
@@ -690,6 +877,8 @@ class TransformingLazyColumnContentPaddingMeasurementStrategyTest {
         width: Int,
         height: Int,
         val transformedHeight: ((Int, TransformingLazyColumnItemScrollProgress) -> Int)?,
+        val minimumTopContentPadding: Dp?,
+        val minimumBottomContentPadding: Dp?,
     ) : Placeable() {
         init {
             measuredSize = IntSize(width, height)
@@ -704,7 +893,20 @@ class TransformingLazyColumnContentPaddingMeasurementStrategyTest {
         ) {}
 
         override val parentData: Any?
-            get() = transformedHeight?.let { TransformingLazyColumnParentData(it) }
+            get() =
+                if (
+                    transformedHeight != null ||
+                        minimumTopContentPadding != null ||
+                        minimumBottomContentPadding != null
+                ) {
+                    TransformingLazyColumnParentData(
+                        heightProvider = transformedHeight,
+                        minimumTopContentPadding = minimumTopContentPadding,
+                        minimumBottomContentPadding = minimumBottomContentPadding,
+                    )
+                } else {
+                    null
+                }
     }
 
     private fun makeMeasuredItemProvider(
@@ -712,7 +914,9 @@ class TransformingLazyColumnContentPaddingMeasurementStrategyTest {
         keys: List<Any>,
         transformedHeight: ((Int, TransformingLazyColumnItemScrollProgress) -> Int)? = null,
         reverseLayout: Boolean = false,
+        minimumVerticalContentPaddings: List<MinimumVerticalContentPadding?>? = null,
     ) = MeasuredItemProvider { index, offset, measurementDirection, progressProvider ->
+        val minimumVerticalContentPaddings = minimumVerticalContentPaddings?.getOrNull(index)
         TransformingLazyColumnMeasuredItem(
             index = index,
             offset = offset,
@@ -721,6 +925,8 @@ class TransformingLazyColumnContentPaddingMeasurementStrategyTest {
                     width = screenWidth,
                     height = itemHeights[index],
                     transformedHeight = transformedHeight,
+                    minimumTopContentPadding = minimumVerticalContentPaddings?.top,
+                    minimumBottomContentPadding = minimumVerticalContentPaddings?.bottom,
                 ),
             containerConstraints = containerConstraints,
             spacing = 8,
@@ -735,4 +941,6 @@ class TransformingLazyColumnContentPaddingMeasurementStrategyTest {
             reverseLayout = reverseLayout,
         )
     }
+
+    private data class MinimumVerticalContentPadding(val top: Dp, val bottom: Dp = top)
 }

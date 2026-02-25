@@ -65,8 +65,7 @@ public final class SpatialPointerComponentImplTest {
                         mActivity,
                         mMakeFakeExecutor,
                         mXrExtensions,
-                        new EntityManager(),
-                        /* unscaledGravityAlignedActivitySpace= */ false);
+                        new EntityManager());
     }
 
     @After

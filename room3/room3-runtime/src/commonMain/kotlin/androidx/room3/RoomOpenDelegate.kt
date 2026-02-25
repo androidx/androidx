@@ -35,19 +35,19 @@ public abstract class RoomOpenDelegate(
     public val identityHash: String,
     public val legacyIdentityHash: String,
 ) : RoomOpenDelegateMarker {
-    public abstract fun onCreate(connection: SQLiteConnection)
+    public abstract suspend fun onCreate(connection: SQLiteConnection)
 
-    public abstract fun onPreMigrate(connection: SQLiteConnection)
+    public abstract suspend fun onPreMigrate(connection: SQLiteConnection)
 
-    public abstract fun onValidateSchema(connection: SQLiteConnection): ValidationResult
+    public abstract suspend fun onValidateSchema(connection: SQLiteConnection): ValidationResult
 
-    public abstract fun onPostMigrate(connection: SQLiteConnection)
+    public abstract suspend fun onPostMigrate(connection: SQLiteConnection)
 
-    public abstract fun onOpen(connection: SQLiteConnection)
+    public abstract suspend fun onOpen(connection: SQLiteConnection)
 
-    public abstract fun createAllTables(connection: SQLiteConnection)
+    public abstract suspend fun createAllTables(connection: SQLiteConnection)
 
-    public abstract fun dropAllTables(connection: SQLiteConnection)
+    public abstract suspend fun dropAllTables(connection: SQLiteConnection)
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
     public class ValidationResult(

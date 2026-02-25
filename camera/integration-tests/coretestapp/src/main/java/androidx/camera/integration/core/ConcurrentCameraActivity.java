@@ -63,7 +63,6 @@ import androidx.annotation.OptIn;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraEffect;
@@ -173,7 +172,6 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
     private boolean mIsDualRecordEnabled = false;
     private Media3Effect mMedia3Effect;
     private Media3Effect mMedia3Effect2;
-    private boolean mIsCameraPipeEnabled = false;
 
     @OptIn(markerClass = UnstableApi.class)
     @SuppressLint("RestrictedApiAndroidX")
@@ -321,10 +319,6 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
     @SuppressLint("NullAnnotationGroup")
     @OptIn(markerClass = ExperimentalCameraProviderConfiguration.class)
     private void startCamera() {
-        if (mIsCameraPipeEnabled) {
-            ProcessCameraProvider.configureInstance(CameraPipeConfig.defaultConfig());
-        }
-
         final ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
                 ProcessCameraProvider.getInstance(this);
         cameraProviderFuture.addListener(() -> {
@@ -475,9 +469,9 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
                 mBackPreviewView);
     }
 
+
     @SuppressLint("RestrictedApiAndroidX")
-    @OptIn(markerClass = {ExperimentalCamera2Interop.class, ExperimentalMirrorMode.class,
-            androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop.class})
+    @OptIn(markerClass = {ExperimentalCamera2Interop.class, ExperimentalMirrorMode.class})
     private void bindToLifecycleForConcurrentCamera(
             @NonNull ProcessCameraProvider cameraProvider,
             @NonNull LifecycleOwner lifecycleOwner,
@@ -500,16 +494,10 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
             String outerPhysicalCameraId = null;
             for (CameraInfo info : cameraInfoPrimary.getPhysicalCameraInfos()) {
                 if (isPrimaryCamera(info)) {
-                    innerPhysicalCameraId = mIsCameraPipeEnabled
-                            ? androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo
-                                    .from(info).getCameraId()
-                            : androidx.camera.camera2.interop.Camera2CameraInfo
+                    innerPhysicalCameraId = androidx.camera.camera2.interop.Camera2CameraInfo
                                     .from(info).getCameraId();
                 } else {
-                    outerPhysicalCameraId = mIsCameraPipeEnabled
-                            ? androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo
-                                    .from(info).getCameraId()
-                            : androidx.camera.camera2.interop.Camera2CameraInfo
+                    outerPhysicalCameraId = androidx.camera.camera2.interop.Camera2CameraInfo
                                     .from(info).getCameraId();
                 }
             }
@@ -650,21 +638,14 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
         }
     }
 
-    @OptIn(markerClass = { ExperimentalCamera2Interop.class,
-            androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop.class })
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     private boolean isPrimaryCamera(@NonNull CameraInfo info) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
             return true;
         }
-        if (mIsCameraPipeEnabled) {
-            return androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo.from(info)
-                    .getCameraCharacteristic(LENS_POSE_REFERENCE)
-                    == CameraCharacteristics.LENS_POSE_REFERENCE_PRIMARY_CAMERA;
-        } else {
-            return androidx.camera.camera2.interop.Camera2CameraInfo.from(info)
-                    .getCameraCharacteristic(LENS_POSE_REFERENCE)
-                    == CameraCharacteristics.LENS_POSE_REFERENCE_PRIMARY_CAMERA;
-        }
+        return androidx.camera.camera2.interop.Camera2CameraInfo.from(info)
+                .getCameraCharacteristic(LENS_POSE_REFERENCE)
+                == CameraCharacteristics.LENS_POSE_REFERENCE_PRIMARY_CAMERA;
     }
 
     private void setupZoomAndTapToFocus(Camera camera, PreviewView previewView) {

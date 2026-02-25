@@ -49,12 +49,6 @@ internal class FeaturePreferencesDialog(
     private val featureSwitches: List<FeatureFlagConfig> by lazy {
         listOf(
             FeatureFlagConfig(
-                R.id.switch_external_hardware_interaction,
-                PdfFeatureFlags::isExternalHardwareInteractionEnabled,
-                FeatureFlagNames.EXTERNAL_HARDWARE_INTERACTION,
-                context.getString(R.string.external_input),
-            ),
-            FeatureFlagConfig(
                 R.id.custom_link_handling_switch,
                 PdfFeatureFlags::isCustomLinkHandlingEnabled,
                 FeatureFlagNames.CUSTOM_LINK_HANDLING,
@@ -128,7 +122,6 @@ interface FeatureFlagListener {
 
 object FeatureFlagNames {
     const val CUSTOM_LINK_HANDLING: String = "CUSTOM_LINK_HANDLING"
-    const val EXTERNAL_HARDWARE_INTERACTION: String = "EXTERNAL_HARDWARE_INTERACTION"
     const val THUMBNAIL_PREVIEW: String = "THUMBNAIL_PREVIEW"
     const val FORM_FILLING: String = "FORM_FILLING"
 }

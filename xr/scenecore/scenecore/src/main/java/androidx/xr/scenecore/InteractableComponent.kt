@@ -16,6 +16,7 @@
 
 package androidx.xr.scenecore
 
+import android.app.Activity
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.xr.runtime.Session
@@ -108,6 +109,10 @@ private constructor(
             session: Session,
             inputEventListener: Consumer<InputEvent>,
         ): InteractableComponent =
-            create(session, ContextCompat.getMainExecutor(session.activity), inputEventListener)
+            create(
+                session,
+                ContextCompat.getMainExecutor(session.context as Activity),
+                inputEventListener,
+            )
     }
 }

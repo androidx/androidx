@@ -43,10 +43,10 @@ internal suspend fun ListState.scrollContentBy(value: Float) {
 
     val userScroll =
         AutoFocusScrollConverter.convertContentScrollToUserScroll(
-            contentScroll = value,
-            scrollThreshold = scrollThreshold,
-            viewportSize = viewportWithoutPaddings.toFloat(),
-            contentLength = contentLength.toFloat(),
+            contentScroll = value.toDouble(),
+            scrollThreshold = scrollThreshold.toDouble(),
+            viewportSize = viewportWithoutPaddings.toDouble(),
+            contentLength = contentLength.toDouble(),
         )
-    scrollBy(userScroll)
+    scrollBy(userScroll.toFloat())
 }

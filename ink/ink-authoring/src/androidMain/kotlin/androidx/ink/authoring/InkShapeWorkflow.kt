@@ -25,7 +25,7 @@ import androidx.ink.strokes.Stroke
  * a [androidx.ink.brush.TextureBitmapStore] here.
  */
 @ExperimentalCustomShapeWorkflowApi
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 public class InkShapeWorkflow(customRendererFactory: () -> CanvasStrokeRenderer) :
     ShapeWorkflow<Brush, InkInProgressShape, Stroke> {
 

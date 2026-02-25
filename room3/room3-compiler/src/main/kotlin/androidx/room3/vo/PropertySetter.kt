@@ -41,7 +41,6 @@ data class PropertySetter(
             CallType.FUNCTION -> {
                 builder.addStatement("%L.%L(%L)", ownerVar, jvmName, inVar)
             }
-            else -> error("Unknown call type: $callType")
         }
     }
 

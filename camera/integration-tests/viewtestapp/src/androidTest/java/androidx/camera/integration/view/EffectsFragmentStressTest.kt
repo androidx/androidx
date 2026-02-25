@@ -18,14 +18,12 @@ package androidx.camera.integration.view
 
 import android.Manifest
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.Logger
 import androidx.camera.integration.view.TestUtil.assertPreviewStreamingState
 import androidx.camera.integration.view.TestUtil.getFragment
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraAvailabilityUtil.assumeDeviceHasFrontCamera
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.testing.impl.LabTestRule
@@ -51,10 +49,6 @@ class EffectsFragmentStressTest(
     private val implName: String,
     private val cameraConfig: CameraXConfig,
 ) {
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
-
     @get:Rule
     val useCameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
@@ -134,10 +128,6 @@ class EffectsFragmentStressTest(
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() =
-            listOf(
-                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig()),
-            )
+        fun data() = listOf(arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()))
     }
 }

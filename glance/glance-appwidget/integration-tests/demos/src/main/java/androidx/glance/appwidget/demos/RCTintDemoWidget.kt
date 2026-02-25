@@ -23,7 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.glance.ColorFilter
-import androidx.glance.GlanceBackendPreference
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
@@ -56,9 +55,6 @@ class RCTintDemoWidgetReceiver() : GlanceAppWidgetReceiver() {
 }
 
 class TintDemoWidget : GlanceAppWidget() {
-
-    override val backendPreference: GlanceBackendPreference
-        get() = GlanceBackendPreference.RemoteCompose
 
     override val sizeMode: SizeMode
         get() = SizeMode.Exact

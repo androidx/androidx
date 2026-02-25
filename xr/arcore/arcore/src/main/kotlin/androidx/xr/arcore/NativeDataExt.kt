@@ -19,7 +19,6 @@
 package androidx.xr.arcore
 
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import androidx.xr.arcore.openxr.OpenXrManager
 import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.runtime.Session
@@ -43,7 +42,7 @@ public annotation class UnstableNativeResourceApi
  */
 @UnstableNativeResourceApi
 public fun Session.getNativeData(): NativeData {
-    check((activity as LifecycleOwner).lifecycle.currentState != Lifecycle.State.DESTROYED) {
+    check(lifecycleOwner.lifecycle.currentState != Lifecycle.State.DESTROYED) {
         "Session has been destroyed."
     }
 

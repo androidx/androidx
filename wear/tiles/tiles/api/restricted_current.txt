@@ -1056,6 +1056,17 @@ package androidx.wear.tiles {
     method @Deprecated public androidx.wear.tiles.TileBuilders.Tile.Builder setTimeline(androidx.wear.tiles.TimelineBuilders.Timeline);
   }
 
+  public final class TileKt {
+    method @KotlinOnly public static androidx.wear.tiles.TileBuilders.Tile tile(androidx.wear.protolayout.TimelineBuilders.Timeline timeline, optional kotlin.time.Duration? freshness, optional @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) androidx.wear.protolayout.StateBuilders.State? state, optional String? resourcesVersion);
+    method @BytecodeOnly public static androidx.wear.tiles.TileBuilders.Tile tile-hhJSO8g(androidx.wear.protolayout.TimelineBuilders.Timeline, kotlin.time.Duration?, @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) androidx.wear.protolayout.StateBuilders.State?, String?);
+    method @BytecodeOnly public static androidx.wear.tiles.TileBuilders.Tile! tile-hhJSO8g$default(androidx.wear.protolayout.TimelineBuilders.Timeline!, kotlin.time.Duration!, androidx.wear.protolayout.StateBuilders.State!, String!, int, Object!);
+    method @KotlinOnly public static androidx.wear.protolayout.TimelineBuilders.TimeInterval timeInterval(kotlin.time.Duration start, kotlin.time.Duration end);
+    method @BytecodeOnly public static androidx.wear.protolayout.TimelineBuilders.TimeInterval timeInterval-QTBD994(long, long);
+    method public static androidx.wear.protolayout.TimelineBuilders.Timeline timeline(androidx.wear.protolayout.TimelineBuilders.TimelineEntry... entries);
+    method public static androidx.wear.protolayout.TimelineBuilders.TimelineEntry timelineEntry(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement layout, optional androidx.wear.protolayout.TimelineBuilders.TimeInterval? validity);
+    method @BytecodeOnly public static androidx.wear.protolayout.TimelineBuilders.TimelineEntry! timelineEntry$default(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement!, androidx.wear.protolayout.TimelineBuilders.TimeInterval!, int, Object!);
+  }
+
   public abstract class TileService extends android.app.Service {
     ctor public TileService();
     method public static com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.wear.tiles.ActiveTileIdentifier!>!> getActiveTilesAsync(android.content.Context, java.util.concurrent.Executor);
@@ -1073,6 +1084,8 @@ package androidx.wear.tiles {
     field public static final String EXTRA_CLICKABLE_ID = "androidx.wear.tiles.extra.CLICKABLE_ID";
     field public static final String METADATA_GROUP_KEY = "androidx.wear.tiles.GROUP";
     field public static final String METADATA_PREVIEW_KEY = "androidx.wear.tiles.PREVIEW";
+    field public static final String METADATA_SCHEMA_MAJOR_VERSION_KEY = "tiles_schema_major_version";
+    field public static final String METADATA_SCHEMA_MINOR_VERSION_KEY = "tiles_schema_minor_version";
   }
 
   public interface TileUpdateRequester {

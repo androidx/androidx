@@ -21,6 +21,8 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.RestrictTo
 import androidx.core.os.ParcelCompat
+import androidx.pdf.PdfRect
+import androidx.pdf.selection.model.ImageSelection
 
 /**
  * Represents an image object within a PDF document.
@@ -67,3 +69,9 @@ public class ImagePdfObject(public val bitmap: Bitmap, public val bounds: RectF)
             }
     }
 }
+
+internal fun ImagePdfObject.toImageSelection(pageNum: Int) =
+    ImageSelection(
+        bitmap,
+        PdfRect(pageNum, this.bounds.left, this.bounds.top, this.bounds.right, this.bounds.bottom),
+    )

@@ -238,10 +238,10 @@ class TraceProcessorTest {
                 loadTrace(PerfettoTrace(traceFile.absolutePath)) {
                     query(
                             """
-                    INCLUDE PERFETTO MODULE android.startup.startups;
+                            INCLUDE PERFETTO MODULE android.startup.startups;
 
-                    SELECT * FROM android_startups;
-                """
+                            SELECT * FROM android_startups;
+                            """
                                 .trimIndent()
                         )
                         .toList()

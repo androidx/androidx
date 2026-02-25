@@ -16,4 +16,4 @@
 
 package androidx.navigation.internal
 
-internal actual val PTHREAD_MUTEX_RECURSIVE: Int = platform.posix.PTHREAD_MUTEX_RECURSIVE.toInt()
+internal actual val PTHREAD_MUTEX_RECURSIVE: Int = platform.posix.PTHREAD_MUTEX_RECURSIVE

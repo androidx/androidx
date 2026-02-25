@@ -98,14 +98,14 @@ internal data class AnnotationToolbarState(
     /** Whether the redo button is enabled. */
     val canRedo: Boolean,
     /** Whether the brush size slider is visible. */
-    val isBrushSizeSliderVisible: Boolean,
+    val showBrushSizeSlider: Boolean,
     /**
      * Whether the color palette button is enabled. Color palette is enabled only for some tools
      * e.g. [PEN], [HIGHLIGHTER]
      */
     val isColorPaletteEnabled: Boolean,
     /** Whether the color palette is visible. */
-    val isColorPaletteVisible: Boolean,
+    val showColorPalette: Boolean,
     /**
      * Last selected configuration of pen. When the [PEN] is selected, this configuration will be
      * applied.
@@ -132,9 +132,9 @@ internal data class AnnotationToolbarState(
         isAnnotationVisible = parcel.readByte() != 0.toByte(),
         canUndo = parcel.readByte() != 0.toByte(),
         canRedo = parcel.readByte() != 0.toByte(),
-        isBrushSizeSliderVisible = parcel.readByte() != 0.toByte(),
+        showBrushSizeSlider = parcel.readByte() != 0.toByte(),
         isColorPaletteEnabled = parcel.readByte() != 0.toByte(),
-        isColorPaletteVisible = parcel.readByte() != 0.toByte(),
+        showColorPalette = parcel.readByte() != 0.toByte(),
         penState =
             checkNotNull(
                 ParcelCompat.readParcelable(
@@ -160,9 +160,9 @@ internal data class AnnotationToolbarState(
         parcel.writeByte(if (isAnnotationVisible) 1 else 0)
         parcel.writeByte(if (canUndo) 1 else 0)
         parcel.writeByte(if (canRedo) 1 else 0)
-        parcel.writeByte(if (isBrushSizeSliderVisible) 1 else 0)
+        parcel.writeByte(if (showBrushSizeSlider) 1 else 0)
         parcel.writeByte(if (isColorPaletteEnabled) 1 else 0)
-        parcel.writeByte(if (isColorPaletteVisible) 1 else 0)
+        parcel.writeByte(if (showColorPalette) 1 else 0)
         parcel.writeParcelable(penState, flags)
         parcel.writeParcelable(highlighterState, flags)
         parcel.writeInt(dockedState)

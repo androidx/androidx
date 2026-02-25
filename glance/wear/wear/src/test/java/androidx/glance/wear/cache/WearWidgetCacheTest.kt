@@ -17,8 +17,8 @@
 package androidx.glance.wear.cache
 
 import androidx.datastore.core.DataStoreFactory
-import androidx.glance.wear.ContainerInfo
-import androidx.glance.wear.WidgetInstanceId
+import androidx.glance.wear.core.ContainerInfo
+import androidx.glance.wear.core.WidgetInstanceId
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
 import org.junit.Before

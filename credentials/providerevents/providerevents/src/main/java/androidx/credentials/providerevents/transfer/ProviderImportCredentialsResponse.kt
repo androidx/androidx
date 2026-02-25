@@ -25,8 +25,6 @@ import androidx.credentials.provider.CallingAppInfo
  *
  * @property response a response of credential import
  * @property callingAppInfo the exporter's app info
- *
- * TODO(b/445237915): Replace callingAppInfo with attestation
  */
 public class ProviderImportCredentialsResponse(
     public val response: ImportCredentialsResponse,

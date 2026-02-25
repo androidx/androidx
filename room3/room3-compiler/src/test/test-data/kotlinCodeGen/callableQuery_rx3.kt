@@ -1,11 +1,11 @@
 import androidx.room3.RoomDatabase
-import androidx.room3.rxjava3.createFlowable
-import androidx.room3.rxjava3.createMaybe
-import androidx.room3.rxjava3.createObservable
-import androidx.room3.rxjava3.createSingle
+import androidx.room3.rxjava3.Rx3DaoReturnTypeConverters
 import androidx.room3.util.appendPlaceholders
 import androidx.room3.util.getColumnIndexOrThrow
+import androidx.room3.util.performSuspending
 import androidx.sqlite.SQLiteStatement
+import androidx.sqlite.step
+import com.google.common.base.Optional
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Observable
@@ -15,6 +15,8 @@ import kotlin.Int
 import kotlin.String
 import kotlin.Suppress
 import kotlin.collections.List
+import kotlin.collections.MutableList
+import kotlin.collections.mutableListOf
 import kotlin.reflect.KClass
 import kotlin.text.StringBuilder
 
@@ -24,6 +26,9 @@ internal class MyDao_Impl(
   __db: RoomDatabase,
 ) : MyDao {
   private val __db: RoomDatabase
+
+  private val __rx3DaoReturnTypeConverters: Rx3DaoReturnTypeConverters =
+      Rx3DaoReturnTypeConverters()
   init {
     this.__db = __db
   }
@@ -35,33 +40,76 @@ internal class MyDao_Impl(
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
-    return createFlowable(__db, false, arrayOf("MyEntity")) { _connection ->
-      val _stmt: SQLiteStatement = _connection.prepare(_sql)
-      try {
-        var _argIndex: Int = 1
-        for (_item: String? in arg) {
-          if (_item == null) {
-            _stmt.bindNull(_argIndex)
-          } else {
-            _stmt.bindText(_argIndex, _item)
+    return __rx3DaoReturnTypeConverters.convertFlowable(__db, arrayOf("MyEntity")) {
+      performSuspending(__db, true, false) { _connection ->
+        val _stmt: SQLiteStatement = _connection.prepare(_sql)
+        try {
+          var _argIndex: Int = 1
+          for (_item: String? in arg) {
+            if (_item == null) {
+              _stmt.bindNull(_argIndex)
+            } else {
+              _stmt.bindText(_argIndex, _item)
+            }
+            _argIndex++
           }
-          _argIndex++
+          val _columnIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
+          val _columnIndexOfOther: Int = getColumnIndexOrThrow(_stmt, "other")
+          val _result: MyEntity?
+          if (_stmt.step()) {
+            val _tmpPk: Int
+            _tmpPk = _stmt.getLong(_columnIndexOfPk).toInt()
+            val _tmpOther: String
+            _tmpOther = _stmt.getText(_columnIndexOfOther)
+            _result = MyEntity(_tmpPk,_tmpOther)
+          } else {
+            _result = null
+          }
+          _result
+        } finally {
+          _stmt.close()
         }
-        val _columnIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
-        val _columnIndexOfOther: Int = getColumnIndexOrThrow(_stmt, "other")
-        val _result: MyEntity?
-        if (_stmt.step()) {
-          val _tmpPk: Int
-          _tmpPk = _stmt.getLong(_columnIndexOfPk).toInt()
-          val _tmpOther: String
-          _tmpOther = _stmt.getText(_columnIndexOfOther)
-          _result = MyEntity(_tmpPk,_tmpOther)
-        } else {
-          _result = null
+      }
+    }
+  }
+
+  public override fun getFlowableOptional(vararg arg: String?): Flowable<Optional<MyEntity>> {
+    val _stringBuilder: StringBuilder = StringBuilder()
+    _stringBuilder.append("SELECT * FROM MyEntity WHERE pk IN (")
+    val _inputSize: Int = arg.size
+    appendPlaceholders(_stringBuilder, _inputSize)
+    _stringBuilder.append(")")
+    val _sql: String = _stringBuilder.toString()
+    return __rx3DaoReturnTypeConverters.convertFlowable(__db, arrayOf("MyEntity")) {
+      performSuspending(__db, true, false) { _connection ->
+        val _stmt: SQLiteStatement = _connection.prepare(_sql)
+        try {
+          var _argIndex: Int = 1
+          for (_item: String? in arg) {
+            if (_item == null) {
+              _stmt.bindNull(_argIndex)
+            } else {
+              _stmt.bindText(_argIndex, _item)
+            }
+            _argIndex++
+          }
+          val _columnIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
+          val _columnIndexOfOther: Int = getColumnIndexOrThrow(_stmt, "other")
+          val _value: MyEntity?
+          if (_stmt.step()) {
+            val _tmpPk: Int
+            _tmpPk = _stmt.getLong(_columnIndexOfPk).toInt()
+            val _tmpOther: String
+            _tmpOther = _stmt.getText(_columnIndexOfOther)
+            _value = MyEntity(_tmpPk,_tmpOther)
+          } else {
+            _value = null
+          }
+          val _result: Optional<MyEntity> = Optional.fromNullable(_value)
+          _result
+        } finally {
+          _stmt.close()
         }
-        _result
-      } finally {
-        _stmt.close()
       }
     }
   }
@@ -73,33 +121,35 @@ internal class MyDao_Impl(
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
-    return createObservable(__db, false, arrayOf("MyEntity")) { _connection ->
-      val _stmt: SQLiteStatement = _connection.prepare(_sql)
-      try {
-        var _argIndex: Int = 1
-        for (_item: String? in arg) {
-          if (_item == null) {
-            _stmt.bindNull(_argIndex)
-          } else {
-            _stmt.bindText(_argIndex, _item)
+    return __rx3DaoReturnTypeConverters.convertObservable(__db, arrayOf("MyEntity")) {
+      performSuspending(__db, true, false) { _connection ->
+        val _stmt: SQLiteStatement = _connection.prepare(_sql)
+        try {
+          var _argIndex: Int = 1
+          for (_item: String? in arg) {
+            if (_item == null) {
+              _stmt.bindNull(_argIndex)
+            } else {
+              _stmt.bindText(_argIndex, _item)
+            }
+            _argIndex++
           }
-          _argIndex++
+          val _columnIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
+          val _columnIndexOfOther: Int = getColumnIndexOrThrow(_stmt, "other")
+          val _result: MyEntity?
+          if (_stmt.step()) {
+            val _tmpPk: Int
+            _tmpPk = _stmt.getLong(_columnIndexOfPk).toInt()
+            val _tmpOther: String
+            _tmpOther = _stmt.getText(_columnIndexOfOther)
+            _result = MyEntity(_tmpPk,_tmpOther)
+          } else {
+            _result = null
+          }
+          _result
+        } finally {
+          _stmt.close()
         }
-        val _columnIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
-        val _columnIndexOfOther: Int = getColumnIndexOrThrow(_stmt, "other")
-        val _result: MyEntity?
-        if (_stmt.step()) {
-          val _tmpPk: Int
-          _tmpPk = _stmt.getLong(_columnIndexOfPk).toInt()
-          val _tmpOther: String
-          _tmpOther = _stmt.getText(_columnIndexOfOther)
-          _result = MyEntity(_tmpPk,_tmpOther)
-        } else {
-          _result = null
-        }
-        _result
-      } finally {
-        _stmt.close()
       }
     }
   }
@@ -111,33 +161,35 @@ internal class MyDao_Impl(
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
-    return createSingle(__db, true, false) { _connection ->
-      val _stmt: SQLiteStatement = _connection.prepare(_sql)
-      try {
-        var _argIndex: Int = 1
-        for (_item: String? in arg) {
-          if (_item == null) {
-            _stmt.bindNull(_argIndex)
-          } else {
-            _stmt.bindText(_argIndex, _item)
+    return __rx3DaoReturnTypeConverters.convertSingle(__db) {
+      performSuspending(__db, true, false) { _connection ->
+        val _stmt: SQLiteStatement = _connection.prepare(_sql)
+        try {
+          var _argIndex: Int = 1
+          for (_item: String? in arg) {
+            if (_item == null) {
+              _stmt.bindNull(_argIndex)
+            } else {
+              _stmt.bindText(_argIndex, _item)
+            }
+            _argIndex++
           }
-          _argIndex++
+          val _columnIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
+          val _columnIndexOfOther: Int = getColumnIndexOrThrow(_stmt, "other")
+          val _result: MyEntity?
+          if (_stmt.step()) {
+            val _tmpPk: Int
+            _tmpPk = _stmt.getLong(_columnIndexOfPk).toInt()
+            val _tmpOther: String
+            _tmpOther = _stmt.getText(_columnIndexOfOther)
+            _result = MyEntity(_tmpPk,_tmpOther)
+          } else {
+            _result = null
+          }
+          _result
+        } finally {
+          _stmt.close()
         }
-        val _columnIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
-        val _columnIndexOfOther: Int = getColumnIndexOrThrow(_stmt, "other")
-        val _result: MyEntity?
-        if (_stmt.step()) {
-          val _tmpPk: Int
-          _tmpPk = _stmt.getLong(_columnIndexOfPk).toInt()
-          val _tmpOther: String
-          _tmpOther = _stmt.getText(_columnIndexOfOther)
-          _result = MyEntity(_tmpPk,_tmpOther)
-        } else {
-          _result = null
-        }
-        _result
-      } finally {
-        _stmt.close()
       }
     }
   }
@@ -149,33 +201,115 @@ internal class MyDao_Impl(
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
-    return createMaybe(__db, true, false) { _connection ->
-      val _stmt: SQLiteStatement = _connection.prepare(_sql)
-      try {
-        var _argIndex: Int = 1
-        for (_item: String? in arg) {
-          if (_item == null) {
-            _stmt.bindNull(_argIndex)
-          } else {
-            _stmt.bindText(_argIndex, _item)
+    return __rx3DaoReturnTypeConverters.convertMaybe(__db) {
+      performSuspending(__db, true, false) { _connection ->
+        val _stmt: SQLiteStatement = _connection.prepare(_sql)
+        try {
+          var _argIndex: Int = 1
+          for (_item: String? in arg) {
+            if (_item == null) {
+              _stmt.bindNull(_argIndex)
+            } else {
+              _stmt.bindText(_argIndex, _item)
+            }
+            _argIndex++
           }
-          _argIndex++
+          val _columnIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
+          val _columnIndexOfOther: Int = getColumnIndexOrThrow(_stmt, "other")
+          val _result: MyEntity?
+          if (_stmt.step()) {
+            val _tmpPk: Int
+            _tmpPk = _stmt.getLong(_columnIndexOfPk).toInt()
+            val _tmpOther: String
+            _tmpOther = _stmt.getText(_columnIndexOfOther)
+            _result = MyEntity(_tmpPk,_tmpOther)
+          } else {
+            _result = null
+          }
+          _result
+        } finally {
+          _stmt.close()
         }
-        val _columnIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
-        val _columnIndexOfOther: Int = getColumnIndexOrThrow(_stmt, "other")
-        val _result: MyEntity?
-        if (_stmt.step()) {
-          val _tmpPk: Int
-          _tmpPk = _stmt.getLong(_columnIndexOfPk).toInt()
-          val _tmpOther: String
-          _tmpOther = _stmt.getText(_columnIndexOfOther)
-          _result = MyEntity(_tmpPk,_tmpOther)
-        } else {
-          _result = null
+      }
+    }
+  }
+
+  public override fun getMaybeList(vararg arg: String?): Maybe<List<MyEntity>> {
+    val _stringBuilder: StringBuilder = StringBuilder()
+    _stringBuilder.append("SELECT * FROM MyEntity WHERE pk IN (")
+    val _inputSize: Int = arg.size
+    appendPlaceholders(_stringBuilder, _inputSize)
+    _stringBuilder.append(")")
+    val _sql: String = _stringBuilder.toString()
+    return __rx3DaoReturnTypeConverters.convertMaybe(__db) {
+      performSuspending(__db, true, false) { _connection ->
+        val _stmt: SQLiteStatement = _connection.prepare(_sql)
+        try {
+          var _argIndex: Int = 1
+          for (_item: String? in arg) {
+            if (_item == null) {
+              _stmt.bindNull(_argIndex)
+            } else {
+              _stmt.bindText(_argIndex, _item)
+            }
+            _argIndex++
+          }
+          val _columnIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
+          val _columnIndexOfOther: Int = getColumnIndexOrThrow(_stmt, "other")
+          val _result: MutableList<MyEntity> = mutableListOf()
+          while (_stmt.step()) {
+            val _item_1: MyEntity
+            val _tmpPk: Int
+            _tmpPk = _stmt.getLong(_columnIndexOfPk).toInt()
+            val _tmpOther: String
+            _tmpOther = _stmt.getText(_columnIndexOfOther)
+            _item_1 = MyEntity(_tmpPk,_tmpOther)
+            _result.add(_item_1)
+          }
+          _result
+        } finally {
+          _stmt.close()
         }
-        _result
-      } finally {
-        _stmt.close()
+      }
+    }
+  }
+
+  public override fun getMaybeMutableList(vararg arg: String?): Maybe<MutableList<MyEntity>> {
+    val _stringBuilder: StringBuilder = StringBuilder()
+    _stringBuilder.append("SELECT * FROM MyEntity WHERE pk IN (")
+    val _inputSize: Int = arg.size
+    appendPlaceholders(_stringBuilder, _inputSize)
+    _stringBuilder.append(")")
+    val _sql: String = _stringBuilder.toString()
+    return __rx3DaoReturnTypeConverters.convertMaybe(__db) {
+      performSuspending(__db, true, false) { _connection ->
+        val _stmt: SQLiteStatement = _connection.prepare(_sql)
+        try {
+          var _argIndex: Int = 1
+          for (_item: String? in arg) {
+            if (_item == null) {
+              _stmt.bindNull(_argIndex)
+            } else {
+              _stmt.bindText(_argIndex, _item)
+            }
+            _argIndex++
+          }
+          val _columnIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
+          val _columnIndexOfOther: Int = getColumnIndexOrThrow(_stmt, "other")
+          val _result: MutableList<MyEntity> = mutableListOf()
+          while (_stmt.step()) {
+            val _item_1: MyEntity
+            val _tmpPk: Int
+            _tmpPk = _stmt.getLong(_columnIndexOfPk).toInt()
+            val _tmpOther: String
+            _tmpOther = _stmt.getText(_columnIndexOfOther)
+            _item_1 = MyEntity(_tmpPk,_tmpOther)
+            _result.add(_item_1)
+          }
+          _result
+        } finally {
+          _stmt.close()
+        }
       }
     }
   }

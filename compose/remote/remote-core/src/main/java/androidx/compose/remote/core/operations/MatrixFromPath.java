@@ -149,12 +149,16 @@ public class MatrixFromPath extends PaintOperation implements VariableSupport, S
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Draw Operations", OP_CODE, CLASS_NAME)
-                .description("Draw text along path object")
-                .field(DocumentedOperation.INT, "textId", "id of the text")
-                .field(DocumentedOperation.INT, "pathId", "id of the path")
-                .field(DocumentedOperation.FLOAT, "xOffset", "x Shift of the text")
-                .field(DocumentedOperation.FLOAT, "yOffset", "y Shift of the text");
+        doc.operation("Matrix Operations", OP_CODE, CLASS_NAME)
+                .addedVersion(7)
+                .additionalDocumentation("matrix_from_path")
+                .description("Set the matrix relative to a path position and tangent")
+                .field(DocumentedOperation.INT, "pathId", "The ID of the path")
+                .field(DocumentedOperation.FLOAT, "percent", "The position on the path [0..1]")
+                .field(DocumentedOperation.FLOAT, "vOffset", "Vertical offset from the path")
+                .field(DocumentedOperation.INT, "flags", "Flags for position/tangent")
+                .possibleValues("POSITION_MATRIX_FLAG", POSITION_MATRIX_FLAG)
+                .possibleValues("TANGENT_MATRIX_FLAG", TANGENT_MATRIX_FLAG);
     }
 
     @Override

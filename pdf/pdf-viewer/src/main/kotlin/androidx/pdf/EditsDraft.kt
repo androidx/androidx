@@ -37,4 +37,28 @@ public open class EditsDraft internal constructor(public val operations: List<Dr
         val combinedOperations = this.operations + other.operations
         return EditsDraft(combinedOperations)
     }
+
+    /**
+     * Retrieves the list of draft edit operations, ordered by their target page number.
+     *
+     * @return A list of [DraftEditOperation] sorted by page index.
+     */
+    public fun getOperationsSortedByPage(): List<DraftEditOperation> {
+        val sortedOperations =
+            operations
+                .map { draftEditOperation ->
+                    val pageNum =
+                        when (draftEditOperation) {
+                            is InsertDraftEditOperation -> draftEditOperation.annotation.pageNum
+                            is UpdateDraftEditOperation -> draftEditOperation.annotation.pageNum
+                            is RemoveDraftEditOperation -> draftEditOperation.pageNum
+                            else -> -1
+                        }
+
+                    pageNum to draftEditOperation
+                }
+                .sortedBy { it.first }
+                .map { it.second }
+        return sortedOperations
+    }
 }

@@ -2,6 +2,8 @@ import androidx.room3.RoomDatabase
 import androidx.room3.util.getColumnIndexOrThrow
 import androidx.room3.util.performBlocking
 import androidx.sqlite.SQLiteStatement
+import androidx.sqlite.prepare
+import androidx.sqlite.step
 import java.util.Optional
 import javax.`annotation`.processing.Generated
 import kotlin.Int

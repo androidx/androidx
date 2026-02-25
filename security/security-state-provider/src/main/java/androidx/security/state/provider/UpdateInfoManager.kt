@@ -24,13 +24,16 @@ import androidx.security.state.UpdateInfo
 import kotlinx.serialization.json.Json
 
 /**
- * This class interfaces with a [SecurityPatchState] to manage update information for system
- * components.
+ * Manages the persistent storage of security update information.
  *
- * Typically, OTA or other update clients utilize this class to expose update information to other
- * applications or components within the system that need access to the latest security updates
- * data. The client calls [registerUpdate] to add [UpdateInfo] to a local store and
- * [unregisterUpdate] to remove it. [UpdateInfoProvider] then serves this data to the applications.
+ * This class acts as the local database for the [UpdateInfoService]. It is responsible for:
+ * 1. Storing the list of available [UpdateInfo] objects (persisted in SharedPreferences).
+ * 2. Storing metadata about the update checks (e.g., [getLastCheckTimeMillis]).
+ * 3. Cleaning up outdated updates by comparing them against the device's current state.
+ *
+ * Typical usage involves an update client (like GOTA (Google Over-The-Air) or Play Store)
+ * registering new updates via [registerUpdate] when they are discovered, and the
+ * [UpdateInfoService] querying [getAllUpdates] to return them to consumers.
  */
 public class UpdateInfoManager(
     private val context: Context,
@@ -38,8 +41,13 @@ public class UpdateInfoManager(
 ) {
 
     private val updateInfoPrefs: String = "UPDATE_INFO_PREFS"
+    private val metadataPrefs: String = "UPDATE_INFO_METADATA_PREFS"
     private var securityState: SecurityPatchState =
         customSecurityState ?: SecurityPatchState(context)
+
+    private companion object {
+        private const val KEY_LAST_CHECK_TIME = "last_check_time_millis"
+    }
 
     /**
      * Registers information about an available update for the specified component.
@@ -50,15 +58,14 @@ public class UpdateInfoManager(
         cleanupUpdateInfo()
 
         val sharedPreferences = context.getSharedPreferences(updateInfoPrefs, Context.MODE_PRIVATE)
-        val editor = sharedPreferences?.edit()
-        val key = getKeyForUpdateInfo(updateInfo)
+        val editor = sharedPreferences.edit()
         val json =
             Json.encodeToString(
                 SerializableUpdateInfo.serializer(),
                 updateInfo.toSerializableUpdateInfo(),
             )
-        editor?.putString(key, json)
-        editor?.apply()
+        editor.putString(updateInfo.component, json)
+        editor.apply()
     }
 
     /**
@@ -70,10 +77,34 @@ public class UpdateInfoManager(
         cleanupUpdateInfo()
 
         val sharedPreferences = context.getSharedPreferences(updateInfoPrefs, Context.MODE_PRIVATE)
-        val editor = sharedPreferences?.edit()
-        val key = getKeyForUpdateInfo(updateInfo)
-        editor?.remove(key)
-        editor?.apply()
+        val editor = sharedPreferences.edit()
+        editor.remove(updateInfo.component)
+        editor.apply()
+    }
+
+    /**
+     * Retrieves the timestamp of the last successful update check.
+     *
+     * @return The epoch timestamp in milliseconds, or 0L if no check has occurred.
+     */
+    public fun getLastCheckTimeMillis(): Long {
+        val sharedPreferences = context.getSharedPreferences(metadataPrefs, Context.MODE_PRIVATE)
+        return sharedPreferences.getLong(KEY_LAST_CHECK_TIME, 0L)
+    }
+
+    /**
+     * Updates the timestamp of the last successful update check.
+     *
+     * This should be called by the [UpdateInfoService] immediately after a successful
+     * synchronization with the backend.
+     *
+     * @param timestampMillis The current epoch timestamp in milliseconds.
+     */
+    public fun setLastCheckTimeMillis(timestampMillis: Long) {
+        val sharedPreferences = context.getSharedPreferences(metadataPrefs, Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putLong(KEY_LAST_CHECK_TIME, timestampMillis)
+        editor.apply()
     }
 
     /**
@@ -85,7 +116,7 @@ public class UpdateInfoManager(
     private fun cleanupUpdateInfo() {
         val allUpdates = getAllUpdates()
         val sharedPreferences = context.getSharedPreferences(updateInfoPrefs, Context.MODE_PRIVATE)
-        val editor = sharedPreferences?.edit() ?: return
+        val editor = sharedPreferences.edit() ?: return
 
         allUpdates.forEach { updateInfo ->
             val component = updateInfo.component
@@ -99,17 +130,11 @@ public class UpdateInfoManager(
             val updateSpl = getComponentSecurityPatchLevel(component, updateInfo.securityPatchLevel)
 
             if (updateSpl <= currentSpl) {
-                val key = getKeyForUpdateInfo(updateInfo)
-                editor.remove(key)
+                editor.remove(updateInfo.component)
             }
         }
 
         editor.apply()
-    }
-
-    private fun getKeyForUpdateInfo(updateInfo: UpdateInfo): String {
-        // Create a unique key for each update info.
-        return "${updateInfo.component}-${updateInfo.uri}"
     }
 
     /**
@@ -119,7 +144,7 @@ public class UpdateInfoManager(
      *
      * @return A list of [UpdateInfo] objects, each representing a registered update.
      */
-    private fun getAllUpdates(): List<UpdateInfo> {
+    internal fun getAllUpdates(): List<UpdateInfo> {
         val allUpdates = mutableListOf<UpdateInfo>()
         for (json in getAllUpdatesAsJson()) {
             val serializableUpdateInfo: SerializableUpdateInfo = Json.decodeFromString(json)
@@ -134,10 +159,10 @@ public class UpdateInfoManager(
      *
      * @return A list of strings, each representing an update in JSON format.
      */
-    internal fun getAllUpdatesAsJson(): List<String> {
+    private fun getAllUpdatesAsJson(): List<String> {
         val allUpdates = mutableListOf<String>()
         val sharedPreferences = context.getSharedPreferences(updateInfoPrefs, Context.MODE_PRIVATE)
-        val allEntries = sharedPreferences?.all ?: return emptyList()
+        val allEntries = sharedPreferences.all ?: return emptyList()
         for ((_, value) in allEntries) {
             val json = value as? String
             if (json != null) {

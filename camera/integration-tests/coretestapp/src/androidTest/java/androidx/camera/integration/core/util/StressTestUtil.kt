@@ -19,7 +19,6 @@ package androidx.camera.integration.core.util
 import android.content.Context
 import android.content.Intent
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraFilter
 import androidx.camera.core.CameraInfo
@@ -157,23 +156,11 @@ object StressTestUtil {
     @JvmStatic
     fun getAllCameraXConfigCameraIdCombinations() =
         mutableListOf<Array<Any?>>().apply {
-            val cameraxConfigs =
-                listOf(Camera2Config::class.simpleName, CameraPipeConfig::class.simpleName)
+            val cameraxConfigs = listOf(Camera2Config::class.simpleName)
 
             cameraxConfigs.forEach { configImplName ->
                 CameraUtil.getBackwardCompatibleCameraIdListOrThrow().forEach { cameraId ->
-                    add(
-                        arrayOf(
-                            configImplName,
-                            when (configImplName) {
-                                CameraPipeConfig::class.simpleName ->
-                                    CameraPipeConfig.defaultConfig()
-                                Camera2Config::class.simpleName -> Camera2Config.defaultConfig()
-                                else -> Camera2Config.defaultConfig()
-                            },
-                            cameraId,
-                        )
-                    )
+                    add(arrayOf(configImplName, Camera2Config.defaultConfig(), cameraId))
                 }
             }
         }

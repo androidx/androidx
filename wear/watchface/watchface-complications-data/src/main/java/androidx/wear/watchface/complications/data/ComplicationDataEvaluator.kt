@@ -64,7 +64,7 @@ import kotlinx.coroutines.launch
  * All constructor parameters are forwarded to [DynamicTypeEvaluator.Config.Builder].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class ComplicationDataEvaluator
+public class ComplicationDataEvaluator
 @VisibleForTesting
 constructor(
     private val stateStore: StateStore? = StateStore(emptyMap()),
@@ -73,7 +73,7 @@ constructor(
     private val keepDynamicValues: Boolean = false,
     private val clock: Supplier<Instant>? = null,
 ) {
-    constructor(
+    public constructor(
         stateStore: StateStore? = StateStore(emptyMap()),
         platformTimeUpdateNotifier: PlatformTimeUpdateNotifier? = null,
         platformDataProviders: Map<PlatformDataProvider, Set<PlatformDataKey<*>>> = mapOf(),
@@ -105,7 +105,7 @@ constructor(
      *
      * The dynamic values are evaluated _separately_ on each flow collection.
      */
-    fun evaluate(unevaluatedData: WireComplicationData): Flow<WireComplicationData> =
+    public fun evaluate(unevaluatedData: WireComplicationData): Flow<WireComplicationData> =
         evaluateTopLevelFields(unevaluatedData)
             // Combining with fields that are made of WireComplicationData.
             .combineWithDataList(unevaluatedData.timelineEntries) { entries ->
@@ -377,12 +377,13 @@ constructor(
         }
     }
 
-    companion object {
+    public companion object {
         private const val TAG = "ComplicationDataEvaluator"
 
-        val INVALID_DATA = NoDataComplicationData().asWireComplicationData()
+        public val INVALID_DATA: WireComplicationData =
+            NoDataComplicationData().asWireComplicationData()
 
-        fun WireComplicationData.isInvalid() =
+        public fun WireComplicationData.isInvalid(): Boolean =
             this === INVALID_DATA || (type == TYPE_NO_DATA && invalidatedData != null)
     }
 }

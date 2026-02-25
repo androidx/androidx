@@ -26,6 +26,7 @@ import androidx.xr.scenecore.runtime.InputEventListener
 import androidx.xr.scenecore.runtime.LoggingEntity
 import androidx.xr.scenecore.runtime.ScenePose
 import androidx.xr.scenecore.runtime.SpaceValue
+import androidx.xr.scenecore.runtime.impl.BaseEntity
 import java.util.concurrent.Executor
 
 /** Implementation of a RealityCore Entity that logs its function calls. */

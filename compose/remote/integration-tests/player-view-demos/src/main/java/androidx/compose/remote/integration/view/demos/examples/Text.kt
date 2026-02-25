@@ -573,24 +573,24 @@ fun RcTextDemo(): RemoteComposeContext {
     }
 }
 
-@Preview @Composable fun RcCardAutosizePreview() = RemoteDocPreview(RcTextDemo2b())
+@Preview @Composable private fun RcCardAutosizePreview() = RemoteDocPreview(RcTextDemo2b())
 
-@Preview @Composable fun RcTextDemoPreview() = RemoteDocPreview(RcTextDemo())
+@Preview @Composable private fun RcTextDemoPreview() = RemoteDocPreview(RcTextDemo())
 
-@Preview @Composable fun RcTextDemo2Preview() = RemoteDocPreview(RcTextDemo2())
+@Preview @Composable private fun RcTextDemo2Preview() = RemoteDocPreview(RcTextDemo2())
 
-@Preview @Composable fun RcTextDemo3Preview() = RemoteDocPreview(RcTextDemo3())
+@Preview @Composable private fun RcTextDemo3Preview() = RemoteDocPreview(RcTextDemo3())
 
 @Preview(group = "alignment")
 @Composable
-fun RcTextDemo3bPreview() = RemoteDocPreview(RcTextDemo3b())
+private fun RcTextDemo3bPreview() = RemoteDocPreview(RcTextDemo3b())
 
-@Preview @Composable fun RcTextDemo4Preview() = RemoteDocPreview(RcTextDemo4())
+@Preview @Composable private fun RcTextDemo4Preview() = RemoteDocPreview(RcTextDemo4())
 
-@Preview @Composable fun RcTextDemo5Preview() = RemoteDocPreview(RcTextDemo5())
+@Preview @Composable private fun RcTextDemo5Preview() = RemoteDocPreview(RcTextDemo5())
 
-@Preview @Composable fun RcTextDemo6Preview() = RemoteDocPreview(RcTextDemo6())
+@Preview @Composable private fun RcTextDemo6Preview() = RemoteDocPreview(RcTextDemo6())
 
-@Preview @Composable fun RcTextDemo7Preview() = RemoteDocPreview(RcTextDemo7())
+@Preview @Composable private fun RcTextDemo7Preview() = RemoteDocPreview(RcTextDemo7())
 
-@Preview @Composable fun RcTextDemo8Preview() = RemoteDocPreview(RcTextDemo8())
+@Preview @Composable private fun RcTextDemo8Preview() = RemoteDocPreview(RcTextDemo8())

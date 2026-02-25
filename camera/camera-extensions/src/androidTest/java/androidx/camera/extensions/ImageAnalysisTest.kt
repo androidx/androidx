@@ -21,9 +21,9 @@ import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.util.Pair
 import android.util.Size
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
@@ -32,9 +32,7 @@ import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.extensions.internal.VendorExtender
 import androidx.camera.extensions.util.ExtensionsTestUtil
-import androidx.camera.extensions.util.ExtensionsTestUtil.CAMERA_PIPE_IMPLEMENTATION_OPTION
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
@@ -58,8 +56,6 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 class ImageAnalysisTest(
-    private val implName: String,
-    private val cameraXConfig: CameraXConfig,
     @ExtensionMode.Mode private val extensionMode: Int,
     @CameraSelector.LensFacing private val lensFacing: Int,
 ) {
@@ -67,20 +63,16 @@ class ImageAnalysisTest(
         val context: Context = ApplicationProvider.getApplicationContext()
 
         @JvmStatic
-        @Parameterized.Parameters(name = "cameraXConfig = {0}, mode = {2}, facing = {3}")
+        @Parameterized.Parameters(name = "mode = {0}, facing = {1}")
         fun data(): Collection<Array<Any>> {
-            return ExtensionsTestUtil.getAllImplExtensionsLensFacingCombinations(context, true)
+            return ExtensionsTestUtil.getAllExtensionsLensFacingCombinations(context, true)
         }
     }
 
     @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CAMERA_PIPE_IMPLEMENTATION_OPTION)
-
-    @get:Rule
     val useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-            CameraUtil.PreTestCameraIdList(cameraXConfig)
+            CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
         )
 
     private lateinit var cameraProvider: ProcessCameraProvider
@@ -96,7 +88,6 @@ class ImageAnalysisTest(
             ExtensionsTestUtil.isTargetDeviceAvailableForExtensions(lensFacing, extensionMode)
         )
 
-        ProcessCameraProvider.configureInstance(cameraXConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
         extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)

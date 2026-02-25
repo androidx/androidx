@@ -88,34 +88,34 @@ class ActivitySpaceTest {
     }
 
     @Test
-    fun addOnSpaceUpdatedListener_receivesRuntimeSetOnSpaceUpdatedListenerCallbacks() {
+    fun addOnOriginChangedListener_receivesRuntimeSetOnOriginChangedListenerCallbacks() {
         val activitySpace = ActivitySpace.create(fakeRuntime, entityManager)
         val rtActivitySpace = activitySpace.rtEntity as FakeActivitySpace
 
         var listenerCalled = false
-        activitySpace.addOnSpaceUpdatedListener(directExecutor()) { listenerCalled = true }
+        activitySpace.addOnOriginChangedListener(directExecutor()) { listenerCalled = true }
         // Simulates a runtime callback.
-        rtActivitySpace.onSpaceUpdated()
+        rtActivitySpace.onOriginChanged()
 
         assertThat(listenerCalled).isTrue()
     }
 
     @Test
-    fun addRemoveOnSpaceUpdatedListener_callsRuntimeSetOnSpaceUpdatedListener() {
+    fun removeOnOriginChangedListener_callsRuntimeSetOnOriginChangedListener() {
         val activitySpace = ActivitySpace.create(fakeRuntime, entityManager)
         val rtActivitySpace = activitySpace.rtEntity as FakeActivitySpace
 
         var listenCount = 0
         val listener = Runnable { listenCount++ }
-        activitySpace.addOnSpaceUpdatedListener(listener)
+        activitySpace.addOnOriginChangedListener(listener)
         // Simulates a runtime callback.
-        rtActivitySpace.onSpaceUpdated()
+        rtActivitySpace.onOriginChanged()
 
         assertThat(listenCount).isEqualTo(1)
 
-        activitySpace.removeOnSpaceUpdatedListener(listener)
+        activitySpace.removeOnOriginChangedListener(listener)
         // Simulates a runtime callback.
-        rtActivitySpace.onSpaceUpdated()
+        rtActivitySpace.onOriginChanged()
 
         assertThat(listenCount).isEqualTo(1)
     }
@@ -238,20 +238,20 @@ class ActivitySpaceTest {
     }
 
     @Test
-    fun dispose_removesSpaceUpdatedListeners() {
+    fun dispose_removesOriginChangedListeners() {
         val activitySpace = ActivitySpace.create(fakeRuntime, entityManager)
         val rtActivitySpace = activitySpace.rtEntity as FakeActivitySpace
         var listenCount = 0
         val listener = Runnable { listenCount++ }
-        activitySpace.addOnSpaceUpdatedListener(listener)
+        activitySpace.addOnOriginChangedListener(listener)
         // Simulates a runtime callback.
-        rtActivitySpace.onSpaceUpdated()
+        rtActivitySpace.onOriginChanged()
 
         assertThat(listenCount).isEqualTo(1) // 0 -> 1
 
         activitySpace.dispose()
         // Simulates a runtime callback.
-        rtActivitySpace.onSpaceUpdated()
+        rtActivitySpace.onOriginChanged()
 
         assertThat(listenCount).isEqualTo(1)
     }

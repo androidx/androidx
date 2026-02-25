@@ -19,6 +19,7 @@ package androidx.room3
 import androidx.room3.Transactor.SQLiteTransactionType
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteStatement
+import androidx.sqlite.step
 
 /**
  * A wrapper of [SQLiteConnection] that belongs to a connection pool and is safe to use in a
@@ -38,11 +39,11 @@ public interface PooledConnection {
      * @param block The code to use the statement
      */
     // TODO(b/319653917): Revisit shareable / caching APIs
-    public suspend fun <R> usePrepared(sql: String, block: (SQLiteStatement) -> R): R
+    public suspend fun <R> usePrepared(sql: String, block: suspend (SQLiteStatement) -> R): R
 }
 
 /** Executes a single SQL statement that returns no values. */
-public suspend fun PooledConnection.execSQL(sql: String) {
+public suspend fun PooledConnection.executeSQL(sql: String) {
     usePrepared(sql) { it.step() }
 }
 

@@ -130,17 +130,42 @@ class GltfJniMarshallingTest : BaseJniMarshallingTest() {
     @Test
     fun setGltfReformAffordanceEnabled_marshalsParams() {
         val expectedEnabled = false
+        val systemMovable = false
         ImpressApiTestHelper.nativeSetExpectedSetGltfReformAffordanceEnabled(
             TEST_NODE_ID,
             expectedEnabled,
+            systemMovable,
         )
         val impressNode = ImpressNode(TEST_NODE_ID)
 
-        mImpressApi.setGltfReformAffordanceEnabled(impressNode, expectedEnabled)
+        mImpressApi.setGltfReformAffordanceEnabled(impressNode, expectedEnabled, systemMovable)
 
         // This JNI call does not return any data, so the only assertion is on the native side.
     }
 
+    @Test
+    fun animateGltfModelNew_marshalsParams_invokesOnComplete() {
+        runBlocking {
+            val expectedLoop = true
+            ImpressApiTestHelper.nativeSetExpectedAnimateGltfModelNew(
+                TEST_NODE_ID,
+                TEST_ANIM_NAME,
+                expectedLoop,
+                0f,
+                0f,
+                0,
+            )
+            ImpressApiTestHelper.nativeSetAnimateGltfModelSuccess()
+            val node = ImpressNode(TEST_NODE_ID)
+
+            withTimeout(5000) {
+                mImpressApi.animateGltfModelNew(node, TEST_ANIM_NAME, expectedLoop, 0f, 0f, 0)
+            }
+        }
+    }
+
+    // TODO: b/465818627 - Remove old animation APIs once all clients are
+    // migrated to new animation system.
     @Test
     fun animateGltfModel_marshalsParams_invokesOnComplete() {
         runBlocking {
@@ -157,6 +182,32 @@ class GltfJniMarshallingTest : BaseJniMarshallingTest() {
         }
     }
 
+    @Test
+    fun animateGltfModelNew_marshalsParams_invokesOnFailure() {
+        val expectedLoop = false
+        ImpressApiTestHelper.nativeSetExpectedAnimateGltfModelNew(
+            TEST_NODE_ID,
+            TEST_ANIM_NAME,
+            expectedLoop,
+            0f,
+            0f,
+            0,
+        )
+        ImpressApiTestHelper.nativeSetAnimateGltfModelFailure(TEST_ERROR_MESSAGE)
+        val node = ImpressNode(TEST_NODE_ID)
+
+        val exception =
+            assertThrows(Exception::class.java) {
+                runBlocking {
+                    mImpressApi.animateGltfModelNew(node, TEST_ANIM_NAME, expectedLoop, 0f, 0f, 0)
+                }
+            }
+
+        assertThat(exception).hasMessageThat().contains(TEST_ERROR_MESSAGE)
+    }
+
+    // TODO: b/465818627 - Remove old animation APIs once all clients are
+    // migrated to new animation system.
     @Test
     fun animateGltfModel_marshalsParams_invokesOnFailure() {
         val expectedLoop = false
@@ -177,6 +228,18 @@ class GltfJniMarshallingTest : BaseJniMarshallingTest() {
     }
 
     @Test
+    fun stopGltfModelAnimationNew_marshalsNodeId() {
+        ImpressApiTestHelper.nativeSetExpectedStopGltfModelAnimationNew(TEST_NODE_ID, 0)
+        val node = ImpressNode(TEST_NODE_ID)
+
+        mImpressApi.stopGltfModelAnimationNew(node, 0)
+
+        // This JNI call does not return any data, so the only assertion is on the native side.
+    }
+
+    // TODO: b/465818627 - Remove old animation APIs once all clients are
+    // migrated to new animation system.
+    @Test
     fun stopGltfModelAnimation_marshalsNodeId() {
         ImpressApiTestHelper.nativeSetExpectedStopGltfModelAnimation(TEST_NODE_ID)
         val node = ImpressNode(TEST_NODE_ID)
@@ -186,6 +249,24 @@ class GltfJniMarshallingTest : BaseJniMarshallingTest() {
         // This JNI call does not return any data, so the only assertion is on the native side.
     }
 
+    @Test
+    fun toggleGltfModelAnimationNew_marshalsParams_invokesOnPause() {
+        // Set toggle as false to pause the animation.
+        val expectedToggle = false
+        ImpressApiTestHelper.nativeSetExpectedToggleGltfModelAnimationNew(
+            TEST_NODE_ID,
+            expectedToggle,
+            0,
+        )
+        val node = ImpressNode(TEST_NODE_ID)
+
+        mImpressApi.toggleGltfModelAnimationNew(node, expectedToggle, 0)
+
+        // This JNI call does not return any data, so the only assertion is on the native side.
+    }
+
+    // TODO: b/465818627 - Remove old animation APIs once all clients are
+    // migrated to new animation system.
     @Test
     fun toggleGltfModelAnimation_marshalsParams_invokesOnPause() {
         // Set toggle as false to pause the animation.
@@ -199,6 +280,24 @@ class GltfJniMarshallingTest : BaseJniMarshallingTest() {
     }
 
     @Test
+    fun toggleGltfModelAnimationNew_marshalsParams_invokesOnResume() {
+        // Set toggle as false to pause the animation.
+        val expectedToggle = true
+        ImpressApiTestHelper.nativeSetExpectedToggleGltfModelAnimationNew(
+            TEST_NODE_ID,
+            expectedToggle,
+            0,
+        )
+        val node = ImpressNode(TEST_NODE_ID)
+
+        mImpressApi.toggleGltfModelAnimationNew(node, expectedToggle, 0)
+
+        // This JNI call does not return any data, so the only assertion is on the native side.
+    }
+
+    // TODO: b/465818627 - Remove old animation APIs once all clients are
+    // migrated to new animation system.
+    @Test
     fun toggleGltfModelAnimation_marshalsParams_invokesOnResume() {
         // Set toggle as false to pause the animation.
         val expectedToggle = true
@@ -208,6 +307,77 @@ class GltfJniMarshallingTest : BaseJniMarshallingTest() {
         mImpressApi.toggleGltfModelAnimation(node, expectedToggle)
 
         // This JNI call does not return any data, so the only assertion is on the native side.
+    }
+
+    @Test
+    fun getGltfModelAnimationDurationSeconds_marshalsNodeI_returnsDurationSeconds() {
+        val expectedIndex = 1
+        val expectedDurationSeconds = 3f
+        ImpressApiTestHelper.nativeSetExpectedGetGltfModelAnimationDurationSeconds(
+            TEST_NODE_ID,
+            expectedIndex,
+        )
+        ImpressApiTestHelper.nativeSetGetGltfModelAnimationDurationSecondsSuccess(
+            expectedDurationSeconds
+        )
+        val node = ImpressNode(TEST_NODE_ID)
+        val animationDurationSeconds =
+            mImpressApi.getGltfModelAnimationDurationSeconds(node, expectedIndex)
+
+        assertThat(animationDurationSeconds).isEqualTo(expectedDurationSeconds)
+    }
+
+    @Test
+    fun setGltfModelAnimationSpeed_marshalsParams() {
+        val expectedSpeed = 1.0f
+        val expectedChannelId = 1
+        ImpressApiTestHelper.nativeSetExpectedSetGltfModelAnimationSpeed(
+            TEST_NODE_ID,
+            expectedSpeed,
+            expectedChannelId,
+        )
+        val node = ImpressNode(TEST_NODE_ID)
+
+        mImpressApi.setGltfModelAnimationSpeed(node, expectedSpeed, expectedChannelId)
+
+        // This JNI call does not return any data, so the only assertion is on the native side.
+    }
+
+    @Test
+    fun setGltfModelAnimationPlaybackTime_marshalsParams() {
+        val expectedPlaybackTime = 1.0f
+        val expectedChannelId = 1
+        ImpressApiTestHelper.nativeSetExpectedSetGltfModelAnimationPlaybackTime(
+            TEST_NODE_ID,
+            expectedPlaybackTime,
+            expectedChannelId,
+        )
+        val node = ImpressNode(TEST_NODE_ID)
+
+        mImpressApi.setGltfModelAnimationPlaybackTime(node, expectedPlaybackTime, expectedChannelId)
+
+        // This JNI call does not return any data, so the only assertion is on the native side.
+    }
+
+    @Test
+    fun getGltfModelAnimationCount_marshalsNodeId() {
+        ImpressApiTestHelper.nativeSetExpectedGetGltfModelAnimationCount(TEST_NODE_ID)
+        ImpressApiTestHelper.nativeSetGetGltfModelAnimationCountSuccess(3)
+        val node = ImpressNode(TEST_NODE_ID)
+        val animationCount = mImpressApi.getGltfModelAnimationCount(node)
+
+        assertThat(animationCount).isEqualTo(3)
+    }
+
+    @Test
+    fun getGltfModelAnimationName_marshalsNodeId_returnsName() {
+        val expectedIndex = 1
+        ImpressApiTestHelper.nativeSetExpectedGetGltfModelAnimationName(TEST_NODE_ID, expectedIndex)
+        ImpressApiTestHelper.nativeSetGetGltfModelAnimationNameSuccess(TEST_ANIM_NAME)
+        val node = ImpressNode(TEST_NODE_ID)
+        val animationName = mImpressApi.getGltfModelAnimationName(node, expectedIndex)
+
+        assertThat(animationName).isEqualTo(TEST_ANIM_NAME)
     }
 
     @Test
@@ -229,39 +399,5 @@ class GltfJniMarshallingTest : BaseJniMarshallingTest() {
         assertThat(box.halfExtents.width).isEqualTo(expectedHalfExtents[0])
         assertThat(box.halfExtents.height).isEqualTo(expectedHalfExtents[1])
         assertThat(box.halfExtents.depth).isEqualTo(expectedHalfExtents[2])
-    }
-
-    @Test
-    fun setMaterialOverride_marshalsParams() {
-        ImpressApiTestHelper.nativeSetExpectedSetMaterialOverride(
-            TEST_NODE_ID,
-            TEST_NATIVE_TOKEN,
-            TEST_MESH_NODE_NAME,
-            TEST_PRIMITIVE_INDEX,
-        )
-        val node = ImpressNode(TEST_NODE_ID)
-
-        mImpressApi.setMaterialOverride(
-            node,
-            TEST_NATIVE_TOKEN,
-            TEST_MESH_NODE_NAME,
-            TEST_PRIMITIVE_INDEX,
-        )
-
-        // This JNI call does not return any data, so the only assertion is on the native side.
-    }
-
-    @Test
-    fun clearMaterialOverride_marshalsParams() {
-        ImpressApiTestHelper.nativeSetExpectedClearMaterialOverride(
-            TEST_NODE_ID,
-            TEST_MESH_NODE_NAME,
-            TEST_PRIMITIVE_INDEX,
-        )
-        val node = ImpressNode(TEST_NODE_ID)
-
-        mImpressApi.clearMaterialOverride(node, TEST_MESH_NODE_NAME, TEST_PRIMITIVE_INDEX)
-
-        // This JNI call does not return any data, so the only assertion is on the native side.
     }
 }

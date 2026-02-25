@@ -16,18 +16,17 @@
 
 package androidx.xr.projected
 
+import android.app.Activity
 import android.app.Application
-import android.content.ComponentName
-import android.content.IntentFilter
-import android.content.pm.ApplicationInfo
-import android.content.pm.PackageInfo
-import android.content.pm.ServiceInfo
+import android.content.Intent
+import android.content.pm.ActivityInfo
+import android.os.Build
+import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.SdkSuppress
+import androidx.xr.projected.ProjectedInputEvent.ProjectedInputAction
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
-import androidx.xr.projected.platform.IProjectedInputEventListener
-import androidx.xr.projected.platform.IProjectedService
-import androidx.xr.projected.platform.ProjectedInputAction
-import androidx.xr.projected.platform.ProjectedInputEvent
+import androidx.xr.projected.testing.ProjectedTestRule
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -36,55 +35,33 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentCaptor
-import org.mockito.kotlin.any
-import org.mockito.kotlin.firstValue
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.Config
 
+@Suppress("DEPRECATION")
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalProjectedApi::class)
 @RunWith(RobolectricTestRunner::class)
-@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
+@Config(sdk = [Config.TARGET_SDK])
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 class ProjectedActivityCompatTest {
 
-    private val mockProjectedService = mock<IProjectedService>()
-    private val mockProjectedServiceStub =
-        mock<IProjectedService.Stub> {
-            on { queryLocalInterface(any()) }.thenReturn(mockProjectedService)
-        }
-    private lateinit var context: Application
-
-    @Before
-    fun setUp() {
-        context = ApplicationProvider.getApplicationContext()
-        shadowOf(context.packageManager).apply {
-            addServiceIfNotPresent(COMPONENT_NAME)
-            addOrUpdateService(SERVICE_INFO)
-            addIntentFilterForService(COMPONENT_NAME, IntentFilter(ACTION_BIND))
-            installPackage(PACKAGE_INFO)
-        }
-
-        shadowOf(context)
-            .setComponentNameAndServiceForBindService(COMPONENT_NAME, mockProjectedServiceStub)
-    }
+    @get:Rule() val projectedTestRule = ProjectedTestRule()
+    private val context: Application = ApplicationProvider.getApplicationContext()
 
     @Test
-    fun create_returnsProjectedActivityCompatInstance() = runBlocking {
-        shadowOf(context).setBindServiceCallsOnServiceConnectedDirectly(true)
-
+    fun create_withContext_returnsProjectedActivityCompatInstance() = runBlocking {
         val projectedActivityCompat = ProjectedActivityCompat.create(context)
 
         assertThat(projectedActivityCompat).isNotNull()
     }
 
     @Test
-    fun create_bindingToServiceNotPermitted_throwsIllegalStateException() {
-        shadowOf(context).declareComponentUnbindable(COMPONENT_NAME)
+    fun create_withContext_throwsIllegalStateException() {
+        projectedTestRule.throwIllegalStateExceptionWhenCreatingControllers = true
 
         assertFailsWith<IllegalStateException> {
             runBlocking { ProjectedActivityCompat.create(context) }
@@ -92,33 +69,50 @@ class ProjectedActivityCompatTest {
     }
 
     @Test
+    fun create_withProjectedActivity_returnsProjectedActivityCompatInstance() =
+        projectedTestRule.launchTestProjectedDeviceActivity { activity ->
+            runBlocking {
+                val projectedActivityCompat = ProjectedActivityCompat.create(activity)
+
+                assertThat(projectedActivityCompat).isNotNull()
+            }
+        }
+
+    @Test
+    fun create_withNonProjectedActivity_throwsIllegalArgumentException() =
+        launchTestActivity { activity ->
+            assertFailsWith<IllegalArgumentException> {
+                runBlocking { ProjectedActivityCompat.create(activity) }
+            }
+        }
+
+    @Test
+    fun create_withProjectedActivity_throwsIllegalStateException() =
+        projectedTestRule.launchTestProjectedDeviceActivity { activity ->
+            projectedTestRule.throwIllegalStateExceptionWhenCreatingControllers = true
+
+            assertFailsWith<IllegalStateException> {
+                runBlocking { ProjectedActivityCompat.create(activity) }
+            }
+        }
+
+    @Test
     fun projectedInputEvents_emitsProjectedInputEvent() =
         runTest(UnconfinedTestDispatcher()) {
-            shadowOf(context).setBindServiceCallsOnServiceConnectedDirectly(true)
             val projectedActivityCompat = ProjectedActivityCompat.create(context)
 
             launch {
                 val receivedInputEvent = projectedActivityCompat.projectedInputEvents.first()
                 assertThat(receivedInputEvent.inputAction)
-                    .isEqualTo(
-                        androidx.xr.projected.ProjectedInputEvent.ProjectedInputAction
-                            .TOGGLE_APP_CAMERA
-                    )
+                    .isEqualTo(ProjectedInputAction.TOGGLE_APP_CAMERA)
             }
 
-            val inputEventListenerCaptor =
-                ArgumentCaptor.forClass(IProjectedInputEventListener::class.java)
-            verify(mockProjectedService)
-                .registerProjectedInputEventListener(inputEventListenerCaptor.capture())
-            inputEventListenerCaptor.firstValue.onProjectedInputEvent(
-                ProjectedInputEvent().apply { action = ProjectedInputAction.TOGGLE_APP_CAMERA }
-            )
+            projectedTestRule.sendProjectedInputEvent(ProjectedInputAction.TOGGLE_APP_CAMERA)
         }
 
     @Test
     fun projectedInputEvents_flowIsClosed_afterCloseCalled() =
         runTest(UnconfinedTestDispatcher()) {
-            shadowOf(context).setBindServiceCallsOnServiceConnectedDirectly(true)
             val projectedActivityCompat = ProjectedActivityCompat.create(context)
             var isFlowClosed = false
             val job =
@@ -137,66 +131,35 @@ class ProjectedActivityCompatTest {
         }
 
     @Test
-    fun projectedInputEvents_doesNotEmit_whenUnknownActionIsReceived() =
-        runTest(UnconfinedTestDispatcher()) {
-            shadowOf(context).setBindServiceCallsOnServiceConnectedDirectly(true)
-            val projectedActivityCompat = ProjectedActivityCompat.create(context)
-            var receivedInputEvent: androidx.xr.projected.ProjectedInputEvent? = null
-            val job = launch {
-                projectedActivityCompat.projectedInputEvents.collect { receivedInputEvent = it }
-            }
-
-            val inputEventListenerCaptor =
-                ArgumentCaptor.forClass(IProjectedInputEventListener::class.java)
-            verify(mockProjectedService)
-                .registerProjectedInputEventListener(inputEventListenerCaptor.capture())
-            inputEventListenerCaptor.firstValue.onProjectedInputEvent(
-                ProjectedInputEvent().apply { action = INVALID_PROJECTED_ACTION_CODE }
-            )
-
-            assertThat(receivedInputEvent).isNull()
-            job.cancel()
-        }
-
-    @Test
     fun projectedInputAction_fromCode_returnsCorrectEnum() {
-        val action =
-            androidx.xr.projected.ProjectedInputEvent.ProjectedInputAction.fromCode(
-                androidx.xr.projected.ProjectedInputEvent.ProjectedInputAction.TOGGLE_APP_CAMERA
-                    .code
-            )
+        val action = ProjectedInputAction.fromCode(ProjectedInputAction.TOGGLE_APP_CAMERA.code)
 
-        assertThat(action)
-            .isEqualTo(
-                androidx.xr.projected.ProjectedInputEvent.ProjectedInputAction.TOGGLE_APP_CAMERA
-            )
+        assertThat(action).isEqualTo(ProjectedInputAction.TOGGLE_APP_CAMERA)
     }
 
     @Test
     fun projectedInputAction_fromCode_withInvalidCode_throwsException() {
         assertFailsWith<IllegalArgumentException> {
-            androidx.xr.projected.ProjectedInputEvent.ProjectedInputAction.fromCode(
-                INVALID_PROJECTED_ACTION_CODE
-            )
+            ProjectedInputAction.fromCode(INVALID_PROJECTED_ACTION_CODE)
         }
     }
 
+    private fun launchTestActivity(block: (Activity) -> Unit) {
+        shadowOf(context.packageManager)
+            .addOrUpdateActivity(
+                ActivityInfo().apply {
+                    name = TestActivity::class.java.name
+                    packageName = context.packageName
+                }
+            )
+        val activityScenario: ActivityScenario<TestActivity> =
+            ActivityScenario.launch(Intent(context, TestActivity::class.java))
+        activityScenario.onActivity { activity -> block(activity) }
+    }
+
     companion object {
-        private const val ACTION_BIND = "androidx.xr.projected.ACTION_BIND"
-        private const val SYSTEM_PACKAGE_NAME = "com.system.service"
-        private const val SYSTEM_CLASS_NAME = "com.system.service.ProjectedService"
-        private val COMPONENT_NAME = ComponentName(SYSTEM_PACKAGE_NAME, SYSTEM_CLASS_NAME)
-        private val SERVICE_INFO =
-            ServiceInfo().apply {
-                packageName = SYSTEM_PACKAGE_NAME
-                name = SYSTEM_CLASS_NAME
-            }
-        private val PACKAGE_INFO =
-            PackageInfo().apply {
-                packageName = SYSTEM_PACKAGE_NAME
-                services = arrayOf(SERVICE_INFO)
-                applicationInfo = ApplicationInfo().apply { flags = ApplicationInfo.FLAG_SYSTEM }
-            }
         private const val INVALID_PROJECTED_ACTION_CODE = -50
     }
+
+    private class TestActivity : Activity()
 }

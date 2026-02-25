@@ -25,7 +25,6 @@ import android.view.Surface
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
@@ -51,7 +50,6 @@ import androidx.camera.core.resolutionselector.ResolutionSelector.PREFER_HIGHER_
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.integration.core.util.CameraInfoUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.LabTestRule
@@ -84,10 +82,6 @@ internal class ImageAnalysisTest(
 ) {
 
     @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
-
-    @get:Rule
     val cameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraConfig))
 
@@ -100,11 +94,7 @@ internal class ImageAnalysisTest(
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() =
-            listOf(
-                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig()),
-            )
+        fun data() = listOf(arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()))
     }
 
     private val analysisResultLock = Any()

@@ -25,22 +25,20 @@ package androidx.sqlite
  * See also [Database Connection](https://www.sqlite.org/c3ref/sqlite3.html)
  */
 @Suppress("NotCloseable")
-public interface SQLiteConnection : AutoCloseable {
+public expect interface SQLiteConnection : AutoCloseable {
 
     /** Returns true if the connection has an active transaction, false otherwise. */
-    public fun inTransaction(): Boolean {
-        throw NotImplementedError("$this does not implement inTransaction().")
-    }
+    public open fun inTransaction(): Boolean
 
     /**
-     * Prepares a new SQL statement.
+     * Prepares a new SQL statement asynchronously.
      *
      * See also [Compiling a SQL statement](https://www.sqlite.org/c3ref/prepare.html)
      *
      * @param sql the SQL statement to prepare
      * @return the prepared statement.
      */
-    public fun prepare(sql: String): SQLiteStatement
+    public open suspend fun prepareAsync(sql: String): SQLiteStatement
 
     /**
      * Closes the database connection.

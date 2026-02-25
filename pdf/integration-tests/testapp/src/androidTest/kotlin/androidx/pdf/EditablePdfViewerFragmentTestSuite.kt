@@ -17,6 +17,7 @@
 package androidx.pdf
 
 import android.content.pm.ActivityInfo
+import android.graphics.PointF
 import android.os.Build
 import android.os.ext.SdkExtensions
 import androidx.annotation.RequiresExtension
@@ -26,6 +27,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.pdf.FragmentUtils.scenarioLoadDocument
 import androidx.pdf.actions.TwoFingerSwipeDownAction
 import androidx.pdf.actions.TwoFingerSwipeUpAction
+import androidx.pdf.actions.clickOnPdfPoint
 import androidx.pdf.ink.R as PdfInkR
 import androidx.pdf.ink.view.AnnotationToolbar
 import androidx.pdf.util.Preconditions
@@ -83,6 +85,8 @@ class EditablePdfViewerFragmentTestSuite {
                         .register(fragment.pdfScrollIdlingResource.countingIdlingResource)
                     IdlingRegistry.getInstance()
                         .register(fragment.pdfApplyEditsIdlingResource.countingIdlingResource)
+                    IdlingRegistry.getInstance()
+                        .register(fragment.pdfFormFillingIdlingResource.countingIdlingResource)
                 }
     }
 
@@ -97,14 +101,16 @@ class EditablePdfViewerFragmentTestSuite {
                 .unregister(fragment.pdfScrollIdlingResource.countingIdlingResource)
             IdlingRegistry.getInstance()
                 .unregister(fragment.pdfApplyEditsIdlingResource.countingIdlingResource)
+            IdlingRegistry.getInstance()
+                .unregister(fragment.pdfFormFillingIdlingResource.countingIdlingResource)
         }
         scenario.close()
     }
 
-    private fun loadDocumentAndSetupFragment() {
+    private fun loadDocumentAndSetupFragment(file: String = TEST_DOCUMENT_FILE) {
         scenarioLoadDocument(
             scenario = scenario,
-            filename = TEST_DOCUMENT_FILE,
+            filename = file,
             nextState = Lifecycle.State.RESUMED,
             orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT,
         ) {
@@ -432,6 +438,145 @@ class EditablePdfViewerFragmentTestSuite {
         assertFalse(annotationToolbar.isConfigPopupVisible)
     }
 
+    @Test
+    fun testEditablePdfViewerFragment_eraserTool_preventsDoubleDeletion_onSingleTap() = runTest {
+        if (!isRequiredSdkExtensionAvailable()) return@runTest
+
+        lateinit var fragment: TestEditablePdfViewerFragment
+        scenario.onFragment { fragment = it }
+        loadDocumentAndSetupFragment()
+        enterEditMode()
+
+        // 1. Create two annotations and apply the edits.
+        // These two swipes, starting from roughly the center of the view, will create
+        // two annotations that will overlap near the center of PdfR.id.pdfContentLayout.
+
+        // First annotation: A horizontal stroke drawn by swiping left.
+        onView(withId(PdfR.id.pdfContentLayout)).perform(swipeLeft())
+        // Second annotation: A vertical stroke drawn by swiping down.
+        onView(withId(PdfR.id.pdfContentLayout)).perform(swipeDown())
+
+        // 2. Select the Eraser tool
+        onView(withId(PdfInkR.id.eraser_button)).perform(click())
+
+        // 3. Perform a single tap. By default, `click()` targets the center of the view.
+        // Since both swipe gestures pass through the center, this tap
+        // occurs within the bounding boxes of both created annotations.
+        onView(withId(PdfR.id.pdfContentLayout)).perform(click())
+        fragment.pdfApplyEditsIdlingResource.increment()
+        fragment.applyDraftEdits()
+        onIdle()
+
+        // 4. Verify the annotations. When multiple annotations overlap at the tap point,
+        // the eraser tool should only delete one of them per single tap, preventing
+        // accidental deletion of multiple strokes. Thus, only one of the two annotations
+        // should have been erased.
+        val savedAnnotations = fragment.fetchAnnotations(0)
+        assertThat(savedAnnotations).hasSize(1)
+    }
+
+    @Test
+    fun testEditablePdfViewerFragment_whenFormFilling_toolBoxHidden() {
+        if (!isRequiredSdkExtensionAvailable()) return
+
+        loadDocumentAndSetupFragment(file = FORM_PDF)
+
+        // Click on a check-box type form-field. These are PDF-coordinates so they won't
+        // change depending on device and can be safely hardcoded.
+        onView(withId(PdfR.id.pdfContentLayout))
+            .perform(clickOnPdfPoint(PdfPoint(0, PointF(145f, 80f))))
+        scenario.onFragment { fragment -> fragment.pdfFormFillingIdlingResource.increment() }
+        onIdle()
+
+        onView(withId(R.id.edit_fab)).check(matches(not(isDisplayed())))
+        scenario.onFragment { fragment ->
+            assertThat(fragment.onFormWidgetInfoUpdatedCalled).isTrue()
+            assertThat(fragment.isEditModeEnabled).isTrue()
+            assertThat(fragment.onEnterEditModeCalled).isTrue()
+        }
+        onView(withId(PdfR.id.pdfContentLayout)).perform(click())
+        onView(withId(R.id.edit_fab)).check(matches(not(isDisplayed())))
+    }
+
+    @Test
+    fun testEnterEditModeCallback_isIdempotent() {
+        if (!isRequiredSdkExtensionAvailable()) return
+
+        loadDocumentAndSetupFragment(file = FORM_PDF)
+        // Click on a check-box type form-field. These are PDF-coordinates so they won't
+        // change depending on device and can be safely hardcoded.
+        onView(withId(PdfR.id.pdfContentLayout))
+            .perform(clickOnPdfPoint(PdfPoint(0, PointF(145f, 80f))))
+        scenario.onFragment { fragment -> fragment.pdfFormFillingIdlingResource.increment() }
+        onIdle()
+
+        scenario.onFragment { fragment ->
+            assertThat(fragment.onEnterEditModeCalled).isTrue()
+            assertThat(fragment.onEnterEditModeCalledCount).isEqualTo(1)
+        }
+
+        // Click on the form-widget again. (Un-check the checkbox)
+        onView(withId(PdfR.id.pdfContentLayout))
+            .perform(clickOnPdfPoint(PdfPoint(0, PointF(145f, 80f))))
+        scenario.onFragment { fragment -> fragment.pdfFormFillingIdlingResource.increment() }
+        onIdle()
+
+        // The enterEditMode callback count should still be 1
+        scenario.onFragment { fragment ->
+            assertThat(fragment.onEnterEditModeCalledCount).isEqualTo(1)
+            // Try to set edit mode enabled to true externally (Defaults to annotations)
+            fragment.isEditModeEnabled = true
+            // Since form-filling journey is active should get no callback for onEnterEditMode
+            assertThat(fragment.onEnterEditModeCalledCount).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun testEditablePdfViewerFragment_multipleCallsToApplyEdits() = runTest {
+        if (!isRequiredSdkExtensionAvailable()) return@runTest
+
+        lateinit var fragment: TestEditablePdfViewerFragment
+        scenario.onFragment { fragment = it }
+        loadDocumentAndSetupFragment()
+        enterEditMode()
+
+        // First annotation: A horizontal stroke drawn by swiping left.
+        onView(withId(PdfR.id.pdfContentLayout)).perform(swipeLeft())
+        // Apply this annotation to the document
+        fragment.syncApplyEdits()
+
+        // Second annotation: A vertical stroke drawn by swiping down.
+        onView(withId(PdfR.id.pdfContentLayout)).perform(swipeDown())
+        // Again, apply the annotation to the document
+        fragment.syncApplyEdits()
+
+        // Select the Eraser tool and erase 2nd annotation
+        onView(withId(PdfInkR.id.eraser_button)).perform(click())
+        onView(withId(PdfR.id.pdfContentLayout)).perform(click())
+
+        // Apply the removed annotation to document
+        fragment.syncApplyEdits()
+
+        // Save the document with annotations to a new file.
+        val destinationUri = TestUtils.createFile(DESTINATION_FILE_NAME)
+        fragment.writeTo(destinationUri.toPfd())
+
+        // Load the newly saved document.
+        fragment.pdfLoadingIdlingResource.increment()
+        fragment.documentUri = destinationUri
+        onIdle()
+
+        // Verify the annotations, only 1 annotation should be persisted to the destination file
+        val savedAnnotations = fragment.fetchAnnotations(0)
+        assertThat(savedAnnotations).hasSize(1)
+    }
+
+    private fun TestEditablePdfViewerFragment.syncApplyEdits() {
+        pdfApplyEditsIdlingResource.increment()
+        applyDraftEdits()
+        onIdle()
+    }
+
     private fun enterEditMode() {
         onView(withId(R.id.edit_fab)).apply {
             check(matches(isDisplayed()))
@@ -459,6 +604,7 @@ class EditablePdfViewerFragmentTestSuite {
         private const val TEST_DOCUMENT_FILE = "sample.pdf"
         private const val DESTINATION_FILE_NAME = "destination.pdf"
         private const val REQUIRED_EXTENSION_VERSION = 18
+        private const val FORM_PDF = "click_form.pdf"
 
         fun isRequiredSdkExtensionAvailable(): Boolean {
             // Get the device's version for the specified SDK extension

@@ -789,22 +789,77 @@ internal abstract class InputDispatcher(
         cursor.currentCursorInputSource = null
     }
 
-    fun enqueueTrackpadScroll(offset: Offset) {
+    fun enqueueTrackpadPanStart() {
         val cursor = cursorInputState
         cursor.currentCursorInputSource = CursorInputSource.Trackpad
+        check(!cursor.isInPanGesture) {
+            "Cannot send trackpad pan start event, a pan gesture is already in progress"
+        }
+        cursor.panAccumulatedOffset = Offset.Zero
 
         if (isWithinRootBounds(currentCursorPosition)) {
-            cursor.enqueueTrackpadScroll(offset)
+            cursor.enqueueTrackpadPanStart()
         }
     }
 
-    fun enqueueTrackpadPinch(scaleFactor: Float) {
+    fun enqueueTrackpadPanMove(delta: Offset) {
         val cursor = cursorInputState
         cursor.currentCursorInputSource = CursorInputSource.Trackpad
-
-        if (isWithinRootBounds(currentCursorPosition)) {
-            cursor.enqueueTrackpadPinch(scaleFactor)
+        check(cursor.isInPanGesture) {
+            "Cannot send trackpad pan move event, no pan gesture is in progress"
         }
+        cursor.panAccumulatedOffset = cursor.panAccumulatedOffset!! + delta
+        if (isWithinRootBounds(currentCursorPosition)) {
+            cursor.enqueueTrackpadPanMove(delta)
+        }
+    }
+
+    fun enqueueTrackpadPanEnd() {
+        val cursor = cursorInputState
+        cursor.currentCursorInputSource = CursorInputSource.Trackpad
+        check(cursor.isInPanGesture) {
+            "Cannot send trackpad pan end event, no pan gesture is in progress"
+        }
+        if (isWithinRootBounds(currentCursorPosition)) {
+            cursor.enqueueTrackpadPanEnd()
+        }
+        cursor.panAccumulatedOffset = null
+    }
+
+    fun enqueueTrackpadScaleStart() {
+        val cursor = cursorInputState
+        cursor.currentCursorInputSource = CursorInputSource.Trackpad
+        check(!cursor.isInScaleGesture) {
+            "Cannot send trackpad scale start event, a scale gesture is already in progress"
+        }
+        cursor.scaleAccumulatedFactor = 1f
+        if (isWithinRootBounds(currentCursorPosition)) {
+            cursor.enqueueTrackpadScaleStart()
+        }
+    }
+
+    fun enqueueTrackpadScaleChange(scaleFactor: Float) {
+        val cursor = cursorInputState
+        cursor.currentCursorInputSource = CursorInputSource.Trackpad
+        check(cursor.isInScaleGesture) {
+            "Cannot send trackpad scale change event, no pan gesture is in progress"
+        }
+        cursor.scaleAccumulatedFactor = cursor.scaleAccumulatedFactor!! * scaleFactor
+        if (isWithinRootBounds(currentCursorPosition)) {
+            cursor.enqueueTrackpadScaleChange(scaleFactor)
+        }
+    }
+
+    fun enqueueTrackpadScaleEnd() {
+        val cursor = cursorInputState
+        cursor.currentCursorInputSource = CursorInputSource.Trackpad
+        check(cursor.isInScaleGesture) {
+            "Cannot send trackpad scale end event, no scale gesture is in progress"
+        }
+        if (isWithinRootBounds(currentCursorPosition)) {
+            cursor.enqueueTrackpadScaleEnd()
+        }
+        cursor.scaleAccumulatedFactor = null
     }
 
     /**
@@ -1006,9 +1061,17 @@ internal abstract class InputDispatcher(
 
     protected abstract fun CursorInputState.enqueueMouseScroll(offset: Offset)
 
-    protected abstract fun CursorInputState.enqueueTrackpadScroll(offset: Offset)
+    protected abstract fun CursorInputState.enqueueTrackpadPanStart()
 
-    protected abstract fun CursorInputState.enqueueTrackpadPinch(scaleFactor: Float)
+    protected abstract fun CursorInputState.enqueueTrackpadPanMove(delta: Offset)
+
+    protected abstract fun CursorInputState.enqueueTrackpadPanEnd()
+
+    protected abstract fun CursorInputState.enqueueTrackpadScaleStart()
+
+    protected abstract fun CursorInputState.enqueueTrackpadScaleChange(delta: Float)
+
+    protected abstract fun CursorInputState.enqueueTrackpadScaleEnd()
 
     protected abstract fun RotaryInputState.enqueueRotaryScrollHorizontally(
         horizontalScrollPixels: Float
@@ -1059,6 +1122,8 @@ internal class CursorInputState {
     var lastPosition: Offset = Offset.Zero
     var isEntered: Boolean = false
     var currentCursorInputSource: CursorInputSource? = null
+    var panAccumulatedOffset: Offset? = null
+    var scaleAccumulatedFactor: Float? = null
 
     val hasAnyButtonPressed
         get() = pressedButtons.isNotEmpty()
@@ -1072,6 +1137,12 @@ internal class CursorInputState {
     fun isButtonPressed(buttonId: Int): Boolean {
         return pressedButtons.contains(buttonId)
     }
+
+    val isInPanGesture
+        get() = panAccumulatedOffset != null
+
+    val isInScaleGesture
+        get() = scaleAccumulatedFactor != null
 
     fun setButtonBit(buttonId: Int) {
         pressedButtons.add(buttonId)

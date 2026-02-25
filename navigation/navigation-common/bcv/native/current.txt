@@ -1,5 +1,5 @@
 // Klib ABI Dump
-// Targets: [linuxX64.linuxx64Stubs]
+// Targets: [iosArm64, iosSimulatorArm64, linuxArm64, linuxX64, macosArm64]
 // Rendering settings:
 // - Signature version: 2
 // - Show manifest properties: true
@@ -78,6 +78,7 @@ abstract class <#A: kotlin/Any?> androidx.navigation/NavType { // androidx.navig
     final fun parseAndPut(androidx.savedstate/SavedState, kotlin/String, kotlin/String?, #A): #A // androidx.navigation/NavType.parseAndPut|parseAndPut(androidx.savedstate.SavedState;kotlin.String;kotlin.String?;1:0){}[0]
     open fun parseValue(kotlin/String, #A): #A // androidx.navigation/NavType.parseValue|parseValue(kotlin.String;1:0){}[0]
     open fun serializeAsValue(#A): kotlin/String // androidx.navigation/NavType.serializeAsValue|serializeAsValue(1:0){}[0]
+    open fun toString(): kotlin/String // androidx.navigation/NavType.toString|toString(){}[0]
     open fun valueEquals(#A, #A): kotlin/Boolean // androidx.navigation/NavType.valueEquals|valueEquals(1:0;1:0){}[0]
 
     final object Companion { // androidx.navigation/NavType.Companion|null[0]
@@ -253,7 +254,9 @@ final class androidx.navigation/NavBackStackEntry : androidx.lifecycle/HasDefaul
         final fun <set-maxLifecycle>(androidx.lifecycle/Lifecycle.State) // androidx.navigation/NavBackStackEntry.maxLifecycle.<set-maxLifecycle>|<set-maxLifecycle>(androidx.lifecycle.Lifecycle.State){}[0]
 
     final fun handleLifecycleEvent(androidx.lifecycle/Lifecycle.Event) // androidx.navigation/NavBackStackEntry.handleLifecycleEvent|handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event){}[0]
+    final fun hashCode(): kotlin/Int // androidx.navigation/NavBackStackEntry.hashCode|hashCode(){}[0]
     final fun saveState(androidx.savedstate/SavedState) // androidx.navigation/NavBackStackEntry.saveState|saveState(androidx.savedstate.SavedState){}[0]
+    final fun toString(): kotlin/String // androidx.navigation/NavBackStackEntry.toString|toString(){}[0]
     final fun updateState() // androidx.navigation/NavBackStackEntry.updateState|updateState(){}[0]
 
     final object Companion { // androidx.navigation/NavBackStackEntry.Companion|null[0]
@@ -306,25 +309,23 @@ final class androidx.navigation/NavDeepLinkDslBuilder { // androidx.navigation/N
 }
 
 final class androidx.navigation/NavOptions { // androidx.navigation/NavOptions|null[0]
-    constructor <init>() // androidx.navigation/NavOptions.<init>|<init>(){}[0]
-
     final val popUpToId // androidx.navigation/NavOptions.popUpToId|{}popUpToId[0]
         final fun <get-popUpToId>(): kotlin/Int // androidx.navigation/NavOptions.popUpToId.<get-popUpToId>|<get-popUpToId>(){}[0]
 
     final var popUpToRoute // androidx.navigation/NavOptions.popUpToRoute|{}popUpToRoute[0]
         final fun <get-popUpToRoute>(): kotlin/String? // androidx.navigation/NavOptions.popUpToRoute.<get-popUpToRoute>|<get-popUpToRoute>(){}[0]
-        final fun <set-popUpToRoute>(kotlin/String?) // androidx.navigation/NavOptions.popUpToRoute.<set-popUpToRoute>|<set-popUpToRoute>(kotlin.String?){}[0]
     final var popUpToRouteClass // androidx.navigation/NavOptions.popUpToRouteClass|{}popUpToRouteClass[0]
         final fun <get-popUpToRouteClass>(): kotlin.reflect/KClass<*>? // androidx.navigation/NavOptions.popUpToRouteClass.<get-popUpToRouteClass>|<get-popUpToRouteClass>(){}[0]
-        final fun <set-popUpToRouteClass>(kotlin.reflect/KClass<*>?) // androidx.navigation/NavOptions.popUpToRouteClass.<set-popUpToRouteClass>|<set-popUpToRouteClass>(kotlin.reflect.KClass<*>?){}[0]
     final var popUpToRouteObject // androidx.navigation/NavOptions.popUpToRouteObject|{}popUpToRouteObject[0]
         final fun <get-popUpToRouteObject>(): kotlin/Any? // androidx.navigation/NavOptions.popUpToRouteObject.<get-popUpToRouteObject>|<get-popUpToRouteObject>(){}[0]
-        final fun <set-popUpToRouteObject>(kotlin/Any?) // androidx.navigation/NavOptions.popUpToRouteObject.<set-popUpToRouteObject>|<set-popUpToRouteObject>(kotlin.Any?){}[0]
 
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.navigation/NavOptions.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.navigation/NavOptions.hashCode|hashCode(){}[0]
     final fun isPopUpToInclusive(): kotlin/Boolean // androidx.navigation/NavOptions.isPopUpToInclusive|isPopUpToInclusive(){}[0]
     final fun shouldLaunchSingleTop(): kotlin/Boolean // androidx.navigation/NavOptions.shouldLaunchSingleTop|shouldLaunchSingleTop(){}[0]
     final fun shouldPopUpToSaveState(): kotlin/Boolean // androidx.navigation/NavOptions.shouldPopUpToSaveState|shouldPopUpToSaveState(){}[0]
     final fun shouldRestoreState(): kotlin/Boolean // androidx.navigation/NavOptions.shouldRestoreState|shouldRestoreState(){}[0]
+    final fun toString(): kotlin/String // androidx.navigation/NavOptions.toString|toString(){}[0]
 
     final class Builder { // androidx.navigation/NavOptions.Builder|null[0]
         constructor <init>() // androidx.navigation/NavOptions.Builder.<init>|<init>(){}[0]
@@ -333,6 +334,7 @@ final class androidx.navigation/NavOptions { // androidx.navigation/NavOptions|n
         final fun <#A2: kotlin/Any> setPopUpTo(kotlin.reflect/KClass<#A2>, kotlin/Boolean, kotlin/Boolean = ...): androidx.navigation/NavOptions.Builder // androidx.navigation/NavOptions.Builder.setPopUpTo|setPopUpTo(kotlin.reflect.KClass<0:0>;kotlin.Boolean;kotlin.Boolean){0§<kotlin.Any>}[0]
         final fun build(): androidx.navigation/NavOptions // androidx.navigation/NavOptions.Builder.build|build(){}[0]
         final fun setLaunchSingleTop(kotlin/Boolean): androidx.navigation/NavOptions.Builder // androidx.navigation/NavOptions.Builder.setLaunchSingleTop|setLaunchSingleTop(kotlin.Boolean){}[0]
+        final fun setPopUpTo(kotlin/Int, kotlin/Boolean, kotlin/Boolean = ...): androidx.navigation/NavOptions.Builder // androidx.navigation/NavOptions.Builder.setPopUpTo|setPopUpTo(kotlin.Int;kotlin.Boolean;kotlin.Boolean){}[0]
         final fun setPopUpTo(kotlin/String?, kotlin/Boolean, kotlin/Boolean = ...): androidx.navigation/NavOptions.Builder // androidx.navigation/NavOptions.Builder.setPopUpTo|setPopUpTo(kotlin.String?;kotlin.Boolean;kotlin.Boolean){}[0]
         final fun setRestoreState(kotlin/Boolean): androidx.navigation/NavOptions.Builder // androidx.navigation/NavOptions.Builder.setRestoreState|setRestoreState(kotlin.Boolean){}[0]
         final inline fun <#A2: reified kotlin/Any> setPopUpTo(kotlin/Boolean, kotlin/Boolean = ...): androidx.navigation/NavOptions.Builder // androidx.navigation/NavOptions.Builder.setPopUpTo|setPopUpTo(kotlin.Boolean;kotlin.Boolean){0§<kotlin.Any>}[0]
@@ -345,21 +347,21 @@ final class androidx.navigation/NavOptionsBuilder { // androidx.navigation/NavOp
     final var launchSingleTop // androidx.navigation/NavOptionsBuilder.launchSingleTop|{}launchSingleTop[0]
         final fun <get-launchSingleTop>(): kotlin/Boolean // androidx.navigation/NavOptionsBuilder.launchSingleTop.<get-launchSingleTop>|<get-launchSingleTop>(){}[0]
         final fun <set-launchSingleTop>(kotlin/Boolean) // androidx.navigation/NavOptionsBuilder.launchSingleTop.<set-launchSingleTop>|<set-launchSingleTop>(kotlin.Boolean){}[0]
+    final var popUpToId // androidx.navigation/NavOptionsBuilder.popUpToId|{}popUpToId[0]
+        final fun <get-popUpToId>(): kotlin/Int // androidx.navigation/NavOptionsBuilder.popUpToId.<get-popUpToId>|<get-popUpToId>(){}[0]
     final var popUpToRoute // androidx.navigation/NavOptionsBuilder.popUpToRoute|{}popUpToRoute[0]
         final fun <get-popUpToRoute>(): kotlin/String? // androidx.navigation/NavOptionsBuilder.popUpToRoute.<get-popUpToRoute>|<get-popUpToRoute>(){}[0]
-        final fun <set-popUpToRoute>(kotlin/String?) // androidx.navigation/NavOptionsBuilder.popUpToRoute.<set-popUpToRoute>|<set-popUpToRoute>(kotlin.String?){}[0]
     final var popUpToRouteClass // androidx.navigation/NavOptionsBuilder.popUpToRouteClass|{}popUpToRouteClass[0]
         final fun <get-popUpToRouteClass>(): kotlin.reflect/KClass<*>? // androidx.navigation/NavOptionsBuilder.popUpToRouteClass.<get-popUpToRouteClass>|<get-popUpToRouteClass>(){}[0]
-        final fun <set-popUpToRouteClass>(kotlin.reflect/KClass<*>?) // androidx.navigation/NavOptionsBuilder.popUpToRouteClass.<set-popUpToRouteClass>|<set-popUpToRouteClass>(kotlin.reflect.KClass<*>?){}[0]
     final var popUpToRouteObject // androidx.navigation/NavOptionsBuilder.popUpToRouteObject|{}popUpToRouteObject[0]
         final fun <get-popUpToRouteObject>(): kotlin/Any? // androidx.navigation/NavOptionsBuilder.popUpToRouteObject.<get-popUpToRouteObject>|<get-popUpToRouteObject>(){}[0]
-        final fun <set-popUpToRouteObject>(kotlin/Any?) // androidx.navigation/NavOptionsBuilder.popUpToRouteObject.<set-popUpToRouteObject>|<set-popUpToRouteObject>(kotlin.Any?){}[0]
     final var restoreState // androidx.navigation/NavOptionsBuilder.restoreState|{}restoreState[0]
         final fun <get-restoreState>(): kotlin/Boolean // androidx.navigation/NavOptionsBuilder.restoreState.<get-restoreState>|<get-restoreState>(){}[0]
         final fun <set-restoreState>(kotlin/Boolean) // androidx.navigation/NavOptionsBuilder.restoreState.<set-restoreState>|<set-restoreState>(kotlin.Boolean){}[0]
 
     final fun <#A1: kotlin/Any> popUpTo(#A1, kotlin/Function1<androidx.navigation/PopUpToBuilder, kotlin/Unit> = ...) // androidx.navigation/NavOptionsBuilder.popUpTo|popUpTo(0:0;kotlin.Function1<androidx.navigation.PopUpToBuilder,kotlin.Unit>){0§<kotlin.Any>}[0]
     final fun <#A1: kotlin/Any> popUpTo(kotlin.reflect/KClass<#A1>, kotlin/Function1<androidx.navigation/PopUpToBuilder, kotlin/Unit>) // androidx.navigation/NavOptionsBuilder.popUpTo|popUpTo(kotlin.reflect.KClass<0:0>;kotlin.Function1<androidx.navigation.PopUpToBuilder,kotlin.Unit>){0§<kotlin.Any>}[0]
+    final fun popUpTo(kotlin/Int, kotlin/Function1<androidx.navigation/PopUpToBuilder, kotlin/Unit> = ...) // androidx.navigation/NavOptionsBuilder.popUpTo|popUpTo(kotlin.Int;kotlin.Function1<androidx.navigation.PopUpToBuilder,kotlin.Unit>){}[0]
     final fun popUpTo(kotlin/String, kotlin/Function1<androidx.navigation/PopUpToBuilder, kotlin/Unit> = ...) // androidx.navigation/NavOptionsBuilder.popUpTo|popUpTo(kotlin.String;kotlin.Function1<androidx.navigation.PopUpToBuilder,kotlin.Unit>){}[0]
     final inline fun <#A1: reified kotlin/Any> popUpTo(noinline kotlin/Function1<androidx.navigation/PopUpToBuilder, kotlin/Unit> = ...) // androidx.navigation/NavOptionsBuilder.popUpTo|popUpTo(kotlin.Function1<androidx.navigation.PopUpToBuilder,kotlin.Unit>){0§<kotlin.Any>}[0]
 }
@@ -387,6 +389,8 @@ open class <#A: out androidx.navigation/NavDestination> androidx.navigation/NavD
     constructor <init>(androidx.navigation/Navigator<out #A>, kotlin.reflect/KClass<*>?, kotlin.collections/Map<kotlin.reflect/KType, androidx.navigation/NavType<*>>) // androidx.navigation/NavDestinationBuilder.<init>|<init>(androidx.navigation.Navigator<out|1:0>;kotlin.reflect.KClass<*>?;kotlin.collections.Map<kotlin.reflect.KType,androidx.navigation.NavType<*>>){}[0]
     constructor <init>(androidx.navigation/Navigator<out #A>, kotlin/String?) // androidx.navigation/NavDestinationBuilder.<init>|<init>(androidx.navigation.Navigator<out|1:0>;kotlin.String?){}[0]
 
+    final val id // androidx.navigation/NavDestinationBuilder.id|{}id[0]
+        final fun <get-id>(): kotlin/Int // androidx.navigation/NavDestinationBuilder.id.<get-id>|<get-id>(){}[0]
     final val navigator // androidx.navigation/NavDestinationBuilder.navigator|{}navigator[0]
         final fun <get-navigator>(): androidx.navigation/Navigator<out #A> // androidx.navigation/NavDestinationBuilder.navigator.<get-navigator>|<get-navigator>(){}[0]
     final val route // androidx.navigation/NavDestinationBuilder.route|{}route[0]
@@ -466,9 +470,12 @@ open class androidx.navigation/NavDestination { // androidx.navigation/NavDestin
     final fun hasRoute(kotlin/String, androidx.savedstate/SavedState?): kotlin/Boolean // androidx.navigation/NavDestination.hasRoute|hasRoute(kotlin.String;androidx.savedstate.SavedState?){}[0]
     final fun matchRoute(kotlin/String): androidx.navigation/NavDestination.DeepLinkMatch? // androidx.navigation/NavDestination.matchRoute|matchRoute(kotlin.String){}[0]
     final fun removeArgument(kotlin/String) // androidx.navigation/NavDestination.removeArgument|removeArgument(kotlin.String){}[0]
+    open fun equals(kotlin/Any?): kotlin/Boolean // androidx.navigation/NavDestination.equals|equals(kotlin.Any?){}[0]
     open fun hasDeepLink(androidx.navigation/NavDeepLinkRequest): kotlin/Boolean // androidx.navigation/NavDestination.hasDeepLink|hasDeepLink(androidx.navigation.NavDeepLinkRequest){}[0]
     open fun hasDeepLink(androidx.navigation/NavUri): kotlin/Boolean // androidx.navigation/NavDestination.hasDeepLink|hasDeepLink(androidx.navigation.NavUri){}[0]
+    open fun hashCode(): kotlin/Int // androidx.navigation/NavDestination.hashCode|hashCode(){}[0]
     open fun matchDeepLink(androidx.navigation/NavDeepLinkRequest): androidx.navigation/NavDestination.DeepLinkMatch? // androidx.navigation/NavDestination.matchDeepLink|matchDeepLink(androidx.navigation.NavDeepLinkRequest){}[0]
+    open fun toString(): kotlin/String // androidx.navigation/NavDestination.toString|toString(){}[0]
 
     open annotation class ClassType : kotlin/Annotation { // androidx.navigation/NavDestination.ClassType|null[0]
         constructor <init>(kotlin.reflect/KClass<*>) // androidx.navigation/NavDestination.ClassType.<init>|<init>(kotlin.reflect.KClass<*>){}[0]
@@ -558,6 +565,7 @@ open class androidx.navigation/NavGraphBuilder : androidx.navigation/NavDestinat
     final fun (androidx.navigation/NavDestination).unaryPlus() // androidx.navigation/NavGraphBuilder.unaryPlus|unaryPlus@androidx.navigation.NavDestination(){}[0]
     final fun <#A1: androidx.navigation/NavDestination> destination(androidx.navigation/NavDestinationBuilder<#A1>) // androidx.navigation/NavGraphBuilder.destination|destination(androidx.navigation.NavDestinationBuilder<0:0>){0§<androidx.navigation.NavDestination>}[0]
     final fun addDestination(androidx.navigation/NavDestination) // androidx.navigation/NavGraphBuilder.addDestination|addDestination(androidx.navigation.NavDestination){}[0]
+    open fun build(): androidx.navigation/NavGraph // androidx.navigation/NavGraphBuilder.build|build(){}[0]
 }
 
 open class androidx.navigation/NavGraphNavigator : androidx.navigation/Navigator<androidx.navigation/NavGraph> { // androidx.navigation/NavGraphNavigator|null[0]
@@ -576,6 +584,7 @@ open class androidx.navigation/NavigatorProvider { // androidx.navigation/Naviga
     final val navigators // androidx.navigation/NavigatorProvider.navigators|{}navigators[0]
         final fun <get-navigators>(): kotlin.collections/Map<kotlin/String, androidx.navigation/Navigator<out androidx.navigation/NavDestination>> // androidx.navigation/NavigatorProvider.navigators.<get-navigators>|<get-navigators>(){}[0]
 
+    final fun <#A1: androidx.navigation/Navigator<*>> getNavigator(kotlin.reflect/KClass<#A1>): #A1 // androidx.navigation/NavigatorProvider.getNavigator|getNavigator(kotlin.reflect.KClass<0:0>){0§<androidx.navigation.Navigator<*>>}[0]
     final fun addNavigator(androidx.navigation/Navigator<out androidx.navigation/NavDestination>): androidx.navigation/Navigator<out androidx.navigation/NavDestination>? // androidx.navigation/NavigatorProvider.addNavigator|addNavigator(androidx.navigation.Navigator<out|androidx.navigation.NavDestination>){}[0]
     open fun <#A1: androidx.navigation/Navigator<*>> getNavigator(kotlin/String): #A1 // androidx.navigation/NavigatorProvider.getNavigator|getNavigator(kotlin.String){0§<androidx.navigation.Navigator<*>>}[0]
     open fun addNavigator(kotlin/String, androidx.navigation/Navigator<out androidx.navigation/NavDestination>): androidx.navigation/Navigator<out androidx.navigation/NavDestination>? // androidx.navigation/NavigatorProvider.addNavigator|addNavigator(kotlin.String;androidx.navigation.Navigator<out|androidx.navigation.NavDestination>){}[0]
@@ -619,4 +628,3 @@ final inline fun <#A: reified kotlin/Any> (androidx.navigation/NavGraphBuilder).
 final inline fun <#A: reified kotlin/Any> (androidx.navigation/NavGraphBuilder).androidx.navigation/navigation(kotlin/Any, kotlin.collections/Map<kotlin.reflect/KType, androidx.navigation/NavType<*>> = ..., noinline kotlin/Function1<androidx.navigation/NavGraphBuilder, kotlin/Unit>) // androidx.navigation/navigation|navigation@androidx.navigation.NavGraphBuilder(kotlin.Any;kotlin.collections.Map<kotlin.reflect.KType,androidx.navigation.NavType<*>>;kotlin.Function1<androidx.navigation.NavGraphBuilder,kotlin.Unit>){0§<kotlin.Any>}[0]
 final inline fun <#A: reified kotlin/Any> androidx.navigation/navDeepLink(kotlin/String, kotlin.collections/Map<kotlin.reflect/KType, androidx.navigation/NavType<*>> = ..., noinline kotlin/Function1<androidx.navigation/NavDeepLinkDslBuilder, kotlin/Unit> = ...): androidx.navigation/NavDeepLink // androidx.navigation/navDeepLink|navDeepLink(kotlin.String;kotlin.collections.Map<kotlin.reflect.KType,androidx.navigation.NavType<*>>;kotlin.Function1<androidx.navigation.NavDeepLinkDslBuilder,kotlin.Unit>){0§<kotlin.Any>}[0]
 final inline fun <#A: reified kotlin/Any?> (androidx.navigation/NavBackStackEntry).androidx.navigation/toRoute(): #A // androidx.navigation/toRoute|toRoute@androidx.navigation.NavBackStackEntry(){0§<kotlin.Any?>}[0]
-final inline fun androidx.navigation/implementedInJetBrainsFork(): kotlin/Nothing // androidx.navigation/implementedInJetBrainsFork|implementedInJetBrainsFork(){}[0]

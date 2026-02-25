@@ -41,7 +41,7 @@ public class EntityUpsertAdapter<T>(
      *
      * @param entity The entity to insert
      */
-    public fun upsert(connection: SQLiteConnection, entity: T?) {
+    public suspend fun upsert(connection: SQLiteConnection, entity: T?) {
         try {
             entityInsertAdapter.insert(connection, entity)
         } catch (ex: SQLiteException) {
@@ -56,7 +56,7 @@ public class EntityUpsertAdapter<T>(
      *
      * @param entities array of entities to upsert
      */
-    public fun upsert(connection: SQLiteConnection, entities: Array<out T?>?) {
+    public suspend fun upsert(connection: SQLiteConnection, entities: Array<out T?>?) {
         if (entities == null) return
         entities.forEach { entity ->
             try {
@@ -68,7 +68,7 @@ public class EntityUpsertAdapter<T>(
         }
     }
 
-    public fun upsert(connection: SQLiteConnection, entities: Iterable<T?>?) {
+    public suspend fun upsert(connection: SQLiteConnection, entities: Iterable<T?>?) {
         if (entities == null) return
         entities.forEach { entity ->
             try {
@@ -87,7 +87,7 @@ public class EntityUpsertAdapter<T>(
      * @param entity The entity to upsert
      * @return The SQLite row id or -1L if the insertion failed and update is performed
      */
-    public fun upsertAndReturnId(connection: SQLiteConnection, entity: T?): Long {
+    public suspend fun upsertAndReturnId(connection: SQLiteConnection, entity: T?): Long {
         return try {
             entityInsertAdapter.insertAndReturnId(connection, entity)
         } catch (ex: SQLiteException) {
@@ -104,7 +104,7 @@ public class EntityUpsertAdapter<T>(
      * @return The SQLite row ids, for entities that are not inserted the row id returned will be
      *   -1L
      */
-    public fun upsertAndReturnIdsArray(
+    public suspend fun upsertAndReturnIdsArray(
         connection: SQLiteConnection,
         entities: Array<out T?>?,
     ): LongArray {
@@ -120,7 +120,7 @@ public class EntityUpsertAdapter<T>(
         }
     }
 
-    public fun upsertAndReturnIdsArray(
+    public suspend fun upsertAndReturnIdsArray(
         connection: SQLiteConnection,
         entities: Collection<T?>?,
     ): LongArray {
@@ -136,7 +136,7 @@ public class EntityUpsertAdapter<T>(
         }
     }
 
-    public fun upsertAndReturnIdsList(
+    public suspend fun upsertAndReturnIdsList(
         connection: SQLiteConnection,
         entities: Array<out T?>?,
     ): List<Long> {
@@ -154,7 +154,7 @@ public class EntityUpsertAdapter<T>(
         }
     }
 
-    public fun upsertAndReturnIdsList(
+    public suspend fun upsertAndReturnIdsList(
         connection: SQLiteConnection,
         entities: Collection<T?>?,
     ): List<Long> {
@@ -172,7 +172,7 @@ public class EntityUpsertAdapter<T>(
         }
     }
 
-    public fun upsertAndReturnIdsArrayBox(
+    public suspend fun upsertAndReturnIdsArrayBox(
         connection: SQLiteConnection,
         entities: Array<out T?>?,
     ): Array<out Long> {
@@ -188,7 +188,7 @@ public class EntityUpsertAdapter<T>(
         }
     }
 
-    public fun upsertAndReturnIdsArrayBox(
+    public suspend fun upsertAndReturnIdsArrayBox(
         connection: SQLiteConnection,
         entities: Collection<T?>?,
     ): Array<out Long> {

@@ -42,7 +42,8 @@ public fun TraceDriver(context: Context, sink: TraceSink, isEnabled: Boolean = t
     driver.context.createProcessTrack(id = pid, name = processName)
     // Eager populate the main thread track
     // For the main thread on Android pid = tid
-    driver.context.process.getOrCreateThreadTrack(id = pid, name = processName) // Main thread
+    // Main thread
+    driver.context.process.getOrCreateThreadTrack(id = pid, name = processName)
     // Thread Tracks
     // There are multiple ways of obtaining tids.
     // You can use android.Os.gettid(). This makes a JNI call under the hood (libcore) [SLOW].

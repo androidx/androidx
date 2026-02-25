@@ -80,7 +80,7 @@ internal class MotionParserTest {
                 }],
               }
             }
-        """
+            """
                 .trimIndent()
         // Parsing transition throws an exception but the Composable should not crash the app
         assertFailsWith<CLParsingException> {
@@ -94,25 +94,25 @@ internal class MotionParserTest {
                 start =
                     ConstraintSet(
                         """
-                    {
-                      id1: {
-                        width: 10, height: 10,
-                        centerVertically: 'parent', start: ['parent', 'start', 0]
-                      }
-                    }
-                """
+                        {
+                          id1: {
+                            width: 10, height: 10,
+                            centerVertically: 'parent', start: ['parent', 'start', 0]
+                          }
+                        }
+                        """
                             .trimIndent()
                     ),
                 end =
                     ConstraintSet(
                         """
-                    {
-                      id1: {
-                        width: 10, height: 10,
-                        centerVertically: 'parent', end: ['parent', 'end', 0]
-                      }
-                    }
-                """
+                        {
+                          id1: {
+                            width: 10, height: 10,
+                            centerVertically: 'parent', end: ['parent', 'end', 0]
+                          }
+                        }
+                        """
                             .trimIndent()
                     ),
                 transition = transition,

@@ -101,11 +101,11 @@ public class LayoutComponentContent extends Component {
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Layout Operations", id(), name())
-                .field(INT, "COMPONENT_ID", "unique id for this component")
+                .field(INT, "componentId", "Unique ID for this component")
                 .description(
-                        "Container for components. BoxLayout, RowLayout and ColumnLayout "
-                                + "expects a LayoutComponentContent as a child, encapsulating the "
-                                + "components that needs to be laid out.");
+                        "Container for child components. BoxLayout, RowLayout and ColumnLayout "
+                                + "expect a LayoutComponentContent as a child, encapsulating the "
+                                + "components that need to be laid out.");
     }
 
     @Override

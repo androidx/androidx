@@ -22,8 +22,11 @@ import static androidx.compose.remote.core.CoreDocument.MINOR_VERSION;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
@@ -306,6 +309,27 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
         mSensorsSupport.setupSensors(getContext().getApplicationContext(), mInner);
         mHapticSupport.setupHaptics(mInner);
         mInner.checkShaders(mShaderControl);
+    }
+
+
+    @Override
+    public boolean dispatchHoverEvent(MotionEvent event) {
+        return RemoteComposeTouchHelper.REGISTRAR.dispatchHoverEvent(this, event)
+                || super.dispatchHoverEvent(event);
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        return RemoteComposeTouchHelper.REGISTRAR.dispatchKeyEvent(this, event)
+                || super.dispatchKeyEvent(event);
+    }
+
+    @Override
+    public void onFocusChanged(boolean gainFocus, int direction,
+            @Nullable Rect previouslyFocusedRect) {
+        super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
+        RemoteComposeTouchHelper.REGISTRAR.onFocusChanged(this, gainFocus, direction,
+                previouslyFocusedRect);
     }
 
     /**

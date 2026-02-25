@@ -306,23 +306,17 @@ internal class WindowAreaControllerImpl(private val windowAreaComponent: WindowA
     @ExperimentalWindowApi
     override fun getActivePresentationSession(
         windowAreaToken: WindowAreaToken
-    ): WindowAreaSessionPresenter {
+    ): WindowAreaSessionPresenter? {
         val windowArea = synchronized(lock) { currentWindowAreaMap[windowAreaToken] }
 
         if (
-            windowArea == null ||
-                windowArea.getCapability(OPERATION_PRESENT_ON_AREA).status !=
+            windowArea?.type == TYPE_REAR_FACING &&
+                windowArea.getCapability(OPERATION_PRESENT_ON_AREA).status ==
                     WINDOW_AREA_STATUS_ACTIVE
         ) {
-            throw IllegalArgumentException("No session is currently active")
+            return createRearFacingPresentationSession()
         }
-
-        if (windowArea.type != TYPE_REAR_FACING) {
-            throw IllegalArgumentException(
-                "Unable to create session for window area info type: ${windowArea.type}"
-            )
-        }
-        return createRearFacingPresentationSession()
+        return null
     }
 
     @ExperimentalWindowApi

@@ -20,17 +20,29 @@ package androidx.tracing
 
 import androidx.tracing.PlatformThreadContextElement.Companion.STATE_BEGIN
 import androidx.tracing.PlatformThreadContextElement.Companion.STATE_END
+import kotlin.coroutines.CoroutineContext
+
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun CoroutineContext.platformThreadContextElement():
+    PlatformThreadContextElement<*, PerfettoTracer>? {
+    // This is a safe thing to do, given `PlatformThreadContextElement` is always `PerfettoTracer`
+    // aware.
+    @Suppress("UNCHECKED_CAST")
+    return this[PlatformThreadContextElement.KEY]
+        as? PlatformThreadContextElement<*, PerfettoTracer>
+}
 
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun inheritedPropagationToken(
-    parent: PlatformThreadContextElement<*>?,
-    track: ThreadTrack,
-): PlatformThreadContextElement<*> {
+    parent: PlatformThreadContextElement<*, PerfettoTracer>?,
+    tracer: PerfettoTracer,
+): PlatformThreadContextElement<*, PerfettoTracer> {
     val token =
         buildThreadContextElement(
             // Placeholder to be filled in by beginSection* APIs.
             // Start off with the parent category and names so we have something consistent
             // when using the PlatformThreadContextElement for explicit trace propagation.
+            tracer = tracer,
             category = parent?.category ?: DEFAULT_STRING,
             name = parent?.name ?: DEFAULT_STRING,
             flowIds = parent?.flowIds ?: listOf(monotonicId()),
@@ -40,32 +52,32 @@ internal inline fun inheritedPropagationToken(
                 if (
                     element.synchronizedCompareAndSet(expected = STATE_BEGIN, newValue = STATE_END)
                 ) {
-                    element.owner.endSection()
+                    element.tracer.currentThreadTrack().endSection()
                 }
             },
         )
-    token.owner = track
     return token
 }
 
 @Suppress("NOTHING_TO_INLINE")
 internal fun inheritedCoroutinePropagationToken(
-    parent: PlatformThreadContextElement<*>?,
-    track: ThreadTrack,
-): PlatformThreadContextElement<*> {
+    parent: PlatformThreadContextElement<*, PerfettoTracer>?,
+    tracer: PerfettoTracer,
+): PlatformThreadContextElement<*, PerfettoTracer> {
     val token =
         buildThreadContextElement(
             // Placeholder to be filled in by beginSection* APIs.
             // Start off with the parent category and names so we have something consistent
             // when using the PlatformThreadContextElement for explicit trace propagation.
+            tracer = tracer,
             category = parent?.category ?: DEFAULT_STRING,
             name = parent?.name ?: DEFAULT_STRING,
             flowIds = parent?.flowIds ?: listOf(monotonicId()),
             // This method is called before a coroutine is resumed on a thread that
             // belongs to a dispatcher. This can be called more than once. So avoid creating
             // slices unless we transition to `STATE_END`.
-            updateThreadContextBlock = { context ->
-                val contextElement = context[PlatformThreadContextElement.KEY]
+            updateThreadContextBlock = { context: CoroutineContext ->
+                val contextElement = context.platformThreadContextElement()
                 val category = contextElement?.category
                 val name = contextElement?.name
                 if (
@@ -78,11 +90,13 @@ internal fun inheritedCoroutinePropagationToken(
                         )
                 ) {
                     val result =
-                        contextElement.owner.beginCoroutineSection(
-                            category = category,
-                            name = name,
-                            token = contextElement,
-                        )
+                        contextElement.tracer
+                            .currentThreadTrack()
+                            .beginCoroutineSection(
+                                category = category,
+                                name = name,
+                                token = contextElement,
+                            )
                     result.metadata.dispatchToTraceSink()
                 }
             },
@@ -90,7 +104,7 @@ internal fun inheritedCoroutinePropagationToken(
             // This method might be called more than once as well. So we want to be
             // idempotent.
             restoreThreadContextBlock = { context ->
-                val contextElement = context[PlatformThreadContextElement.KEY]
+                val contextElement = context.platformThreadContextElement()
                 val name = contextElement?.name
                 if (
                     contextElement != null &&
@@ -100,7 +114,7 @@ internal fun inheritedCoroutinePropagationToken(
                             newValue = STATE_END,
                         )
                 ) {
-                    contextElement.owner.endSection()
+                    contextElement.tracer.currentThreadTrack().endSection()
                 }
             },
             close = { platformThreadContextElement ->
@@ -111,10 +125,9 @@ internal fun inheritedCoroutinePropagationToken(
                         newValue = STATE_END,
                     )
                 ) {
-                    platformThreadContextElement.owner.endSection()
+                    platformThreadContextElement.tracer.currentThreadTrack().endSection()
                 }
             },
         )
-    token.owner = track
     return token
 }

@@ -1,7 +1,48 @@
 // Baseline format: 1.0
-[iosArm64]: Target was removed
-[iosSimulatorArm64]: Target was removed
 [iosX64]: Target was removed
-[linuxArm64]: Target was removed
-[macosArm64]: Target was removed
 [macosX64]: Target was removed
+[iosArm64]: Removed declaration androidx.navigation/implementedInJetBrainsFork() from androidx.navigation:navigation-common
+[iosArm64]: Removed declaration <init>() from androidx.navigation/NavOptions
+[iosArm64]: removed setter from androidx.navigation/NavOptions.popUpToRoute
+[iosArm64]: removed setter from androidx.navigation/NavOptions.popUpToRouteClass
+[iosArm64]: removed setter from androidx.navigation/NavOptions.popUpToRouteObject
+[iosArm64]: removed setter from androidx.navigation/NavOptionsBuilder.popUpToRoute
+[iosArm64]: removed setter from androidx.navigation/NavOptionsBuilder.popUpToRouteClass
+[iosArm64]: removed setter from androidx.navigation/NavOptionsBuilder.popUpToRouteObject
+[iosArm64]: Return type changed from #A to androidx.navigation/NavGraph for androidx.navigation/NavGraphBuilder.build
+[iosSimulatorArm64]: Removed declaration androidx.navigation/implementedInJetBrainsFork() from androidx.navigation:navigation-common
+[iosSimulatorArm64]: Removed declaration <init>() from androidx.navigation/NavOptions
+[iosSimulatorArm64]: removed setter from androidx.navigation/NavOptions.popUpToRoute
+[iosSimulatorArm64]: removed setter from androidx.navigation/NavOptions.popUpToRouteClass
+[iosSimulatorArm64]: removed setter from androidx.navigation/NavOptions.popUpToRouteObject
+[iosSimulatorArm64]: removed setter from androidx.navigation/NavOptionsBuilder.popUpToRoute
+[iosSimulatorArm64]: removed setter from androidx.navigation/NavOptionsBuilder.popUpToRouteClass
+[iosSimulatorArm64]: removed setter from androidx.navigation/NavOptionsBuilder.popUpToRouteObject
+[iosSimulatorArm64]: Return type changed from #A to androidx.navigation/NavGraph for androidx.navigation/NavGraphBuilder.build
+[linuxArm64]: Removed declaration androidx.navigation/implementedInJetBrainsFork() from androidx.navigation:navigation-common
+[linuxArm64]: Removed declaration <init>() from androidx.navigation/NavOptions
+[linuxArm64]: removed setter from androidx.navigation/NavOptions.popUpToRoute
+[linuxArm64]: removed setter from androidx.navigation/NavOptions.popUpToRouteClass
+[linuxArm64]: removed setter from androidx.navigation/NavOptions.popUpToRouteObject
+[linuxArm64]: removed setter from androidx.navigation/NavOptionsBuilder.popUpToRoute
+[linuxArm64]: removed setter from androidx.navigation/NavOptionsBuilder.popUpToRouteClass
+[linuxArm64]: removed setter from androidx.navigation/NavOptionsBuilder.popUpToRouteObject
+[linuxArm64]: Return type changed from #A to androidx.navigation/NavGraph for androidx.navigation/NavGraphBuilder.build
+[linuxX64]: Removed declaration androidx.navigation/implementedInJetBrainsFork() from androidx.navigation:navigation-common
+[linuxX64]: Removed declaration <init>() from androidx.navigation/NavOptions
+[linuxX64]: removed setter from androidx.navigation/NavOptions.popUpToRoute
+[linuxX64]: removed setter from androidx.navigation/NavOptions.popUpToRouteClass
+[linuxX64]: removed setter from androidx.navigation/NavOptions.popUpToRouteObject
+[linuxX64]: removed setter from androidx.navigation/NavOptionsBuilder.popUpToRoute
+[linuxX64]: removed setter from androidx.navigation/NavOptionsBuilder.popUpToRouteClass
+[linuxX64]: removed setter from androidx.navigation/NavOptionsBuilder.popUpToRouteObject
+[linuxX64]: Return type changed from #A to androidx.navigation/NavGraph for androidx.navigation/NavGraphBuilder.build
+[macosArm64]: Removed declaration androidx.navigation/implementedInJetBrainsFork() from androidx.navigation:navigation-common
+[macosArm64]: Removed declaration <init>() from androidx.navigation/NavOptions
+[macosArm64]: removed setter from androidx.navigation/NavOptions.popUpToRoute
+[macosArm64]: removed setter from androidx.navigation/NavOptions.popUpToRouteClass
+[macosArm64]: removed setter from androidx.navigation/NavOptions.popUpToRouteObject
+[macosArm64]: removed setter from androidx.navigation/NavOptionsBuilder.popUpToRoute
+[macosArm64]: removed setter from androidx.navigation/NavOptionsBuilder.popUpToRouteClass
+[macosArm64]: removed setter from androidx.navigation/NavOptionsBuilder.popUpToRouteObject
+[macosArm64]: Return type changed from #A to androidx.navigation/NavGraph for androidx.navigation/NavGraphBuilder.build

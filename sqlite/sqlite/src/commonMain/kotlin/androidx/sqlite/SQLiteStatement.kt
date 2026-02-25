@@ -27,7 +27,7 @@ import androidx.annotation.IntRange
  * See also [Prepared Statement](https://www.sqlite.org/c3ref/stmt.html)
  */
 @Suppress("NotCloseable")
-public interface SQLiteStatement : AutoCloseable {
+public expect interface SQLiteStatement : AutoCloseable {
     /**
      * Binds a ByteArray value to this statement at an index.
      *
@@ -50,9 +50,7 @@ public interface SQLiteStatement : AutoCloseable {
      * @param index the 1-based index of the parameter to bind
      * @param value the value to bind
      */
-    public fun bindFloat(@IntRange(from = 1) index: Int, value: Float) {
-        bindDouble(index, value.toDouble())
-    }
+    public open fun bindFloat(@IntRange(from = 1) index: Int, value: Float)
 
     /**
      * Binds a Long value to this statement at an index.
@@ -68,9 +66,7 @@ public interface SQLiteStatement : AutoCloseable {
      * @param index the 1-based index of the parameter to bind
      * @param value the value to bind
      */
-    public fun bindInt(@IntRange(from = 1) index: Int, value: Int) {
-        bindLong(index, value.toLong())
-    }
+    public open fun bindInt(@IntRange(from = 1) index: Int, value: Int)
 
     /**
      * Binds a Boolean value to this statement at an index.
@@ -78,9 +74,7 @@ public interface SQLiteStatement : AutoCloseable {
      * @param index the 1-based index of the parameter to bind
      * @param value the value to bind
      */
-    public fun bindBoolean(@IntRange(from = 1) index: Int, value: Boolean) {
-        bindLong(index, if (value) 1L else 0L)
-    }
+    public open fun bindBoolean(@IntRange(from = 1) index: Int, value: Boolean)
 
     /**
      * Binds a String value to this statement at an index.
@@ -119,9 +113,7 @@ public interface SQLiteStatement : AutoCloseable {
      * @param index the 0-based index of the column
      * @return the value of the column
      */
-    public fun getFloat(@IntRange(from = 0) index: Int): Float {
-        return getDouble(index).toFloat()
-    }
+    public open fun getFloat(@IntRange(from = 0) index: Int): Float
 
     /**
      * Returns the value of the column at [index] as a Long.
@@ -137,9 +129,7 @@ public interface SQLiteStatement : AutoCloseable {
      * @param index the 0-based index of the column
      * @return the value of the column
      */
-    public fun getInt(@IntRange(from = 0) index: Int): Int {
-        return getLong(index).toInt()
-    }
+    public open fun getInt(@IntRange(from = 0) index: Int): Int
 
     /**
      * Returns the value of the column at [index] as a Boolean.
@@ -147,9 +137,7 @@ public interface SQLiteStatement : AutoCloseable {
      * @param index the 0-based index of the column
      * @return the value of the column
      */
-    public fun getBoolean(@IntRange(from = 0) index: Int): Boolean {
-        return getLong(index) != 0L
-    }
+    public open fun getBoolean(@IntRange(from = 0) index: Int): Boolean
 
     /**
      * Returns the value of the column at [index] as a String.
@@ -187,9 +175,7 @@ public interface SQLiteStatement : AutoCloseable {
      *
      * @return the names of the columns
      */
-    public fun getColumnNames(): List<String> {
-        return List(getColumnCount()) { i -> getColumnName(i) }
-    }
+    public open fun getColumnNames(): List<String>
 
     /**
      * Returns the data type of a column at [index] in the result of the statement.
@@ -203,7 +189,7 @@ public interface SQLiteStatement : AutoCloseable {
     @DataType public fun getColumnType(@IntRange(from = 0) index: Int): Int
 
     /**
-     * Executes the statement and evaluates the next result row if available.
+     * Executes the statement asynchronously and evaluates the next result row if available.
      *
      * A statement is initially prepared and compiled but is not executed until one or more calls to
      * this function. If the statement execution produces result rows then this function will return
@@ -211,7 +197,7 @@ public interface SQLiteStatement : AutoCloseable {
      *
      * @return true if there are more rows to evaluate or false if the statement is done executing
      */
-    public fun step(): Boolean
+    public open suspend fun stepAsync(): Boolean
 
     /**
      * Resets the prepared statement back to initial state so that it can be re-executed via [step].

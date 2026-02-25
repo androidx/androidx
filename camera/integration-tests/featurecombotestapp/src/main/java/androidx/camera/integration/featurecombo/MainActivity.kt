@@ -65,8 +65,6 @@ class MainActivity : ComponentActivity() {
     }
 
     companion object {
-        const val INTENT_EXTRA_CAMERA_IMPLEMENTATION = "camera_implementation"
-
         val REQUIRED_PERMISSIONS = listOf(android.Manifest.permission.CAMERA)
     }
 }

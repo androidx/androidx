@@ -35,6 +35,8 @@ import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.util.Objects;
 import java.util.Set;
@@ -169,7 +171,9 @@ public class AsyncStartUpTest {
         Assert.assertNotNull(result);
         Assert.assertEquals(1,
                 Objects.requireNonNull(result.getUiThreadBlockingStartUpLocations()).size());
-        Assert.assertTrue(result.getUiThreadBlockingStartUpLocations().get(0).getStackInformation()
+        Assert.assertTrue(
+                convertToString(
+                        result.getUiThreadBlockingStartUpLocations().get(0).getStackInformation())
                 .contains("Provider init"));
         if (WebViewFeatureInternal
                 .ASYNC_WEBVIEW_STARTUP_ASYNC_STARTUP_LOCATIONS.isSupportedByWebView()) {
@@ -210,7 +214,8 @@ public class AsyncStartUpTest {
             Assert.assertEquals(1,
                     Objects.requireNonNull(result.getUiThreadBlockingStartUpLocations()).size());
             Assert.assertTrue(
-                    result.getUiThreadBlockingStartUpLocations().get(0).getStackInformation()
+                    convertToString(result.getUiThreadBlockingStartUpLocations().get(0)
+                            .getStackInformation())
                     .contains("Chromium init"));
             if (WebViewFeatureInternal
                     .ASYNC_WEBVIEW_STARTUP_ASYNC_STARTUP_LOCATIONS.isSupportedByWebView()) {
@@ -252,10 +257,12 @@ public class AsyncStartUpTest {
             Assert.assertEquals(2,
                     Objects.requireNonNull(result.getUiThreadBlockingStartUpLocations()).size());
             Assert.assertTrue(
-                    result.getUiThreadBlockingStartUpLocations().get(0).getStackInformation()
+                    convertToString(result.getUiThreadBlockingStartUpLocations().get(0)
+                            .getStackInformation())
                     .contains("Chromium init"));
             Assert.assertTrue(
-                    result.getUiThreadBlockingStartUpLocations().get(1).getStackInformation()
+                    convertToString(result.getUiThreadBlockingStartUpLocations().get(1)
+                            .getStackInformation())
                     .contains("Provider init"));
             if (WebViewFeatureInternal
                     .ASYNC_WEBVIEW_STARTUP_ASYNC_STARTUP_LOCATIONS.isSupportedByWebView()) {
@@ -441,7 +448,9 @@ public class AsyncStartUpTest {
         Assert.assertNotNull(result);
         Assert.assertEquals(1,
                 Objects.requireNonNull(result.getUiThreadBlockingStartUpLocations()).size());
-        Assert.assertTrue(result.getUiThreadBlockingStartUpLocations().get(0).getStackInformation()
+        Assert.assertTrue(
+                convertToString(
+                        result.getUiThreadBlockingStartUpLocations().get(0).getStackInformation())
                 .contains("Provider init"));
     }
 
@@ -482,8 +491,15 @@ public class AsyncStartUpTest {
         Assert.assertNotNull(result.getNonUiThreadBlockingStartUpLocations());
         Assert.assertEquals(1, result.getNonUiThreadBlockingStartUpLocations().size());
         Assert.assertTrue(
-                result.getNonUiThreadBlockingStartUpLocations().get(0).getStackInformation()
+                convertToString(result.getNonUiThreadBlockingStartUpLocations().get(0)
+                        .getStackInformation())
                 .contains("Chromium init"));
+    }
+
+    private static String convertToString(Throwable t) {
+        StringWriter sw = new StringWriter();
+        t.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
     }
 
     /**

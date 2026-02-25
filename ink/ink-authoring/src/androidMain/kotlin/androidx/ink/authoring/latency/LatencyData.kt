@@ -28,7 +28,7 @@ import androidx.ink.authoring.InProgressStrokeId
  * Timestamps are in the [System.nanoTime] timebase, which is nanoseconds since system boot, except
  * for deep sleep time.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @ExperimentalLatencyDataApi
 public class LatencyData {
 
@@ -212,12 +212,12 @@ public class LatencyData {
             }
 
         public companion object {
-            public val UNKNOWN: StrokeAction = StrokeAction()
-            public val START: StrokeAction = StrokeAction()
-            public val ADD: StrokeAction = StrokeAction()
-            public val PREDICTED_ADD: StrokeAction = StrokeAction()
-            public val FINISH: StrokeAction = StrokeAction()
-            public val CANCEL: StrokeAction = StrokeAction()
+            @JvmField public val UNKNOWN: StrokeAction = StrokeAction()
+            @JvmField public val START: StrokeAction = StrokeAction()
+            @JvmField public val ADD: StrokeAction = StrokeAction()
+            @JvmField public val PREDICTED_ADD: StrokeAction = StrokeAction()
+            @JvmField public val FINISH: StrokeAction = StrokeAction()
+            @JvmField public val CANCEL: StrokeAction = StrokeAction()
         }
     }
 
@@ -236,13 +236,16 @@ public class LatencyData {
 
         public companion object {
             // Identity of these singleton constants comes from their addresses alone.
-            public val UNKNOWN: EventAction = EventAction()
-            public val DOWN: EventAction = EventAction()
-            public val MOVE: EventAction = EventAction()
-            public val PREDICTED_MOVE: EventAction = EventAction()
-            public val UP: EventAction = EventAction()
-            public val CANCEL: EventAction = EventAction()
+            @JvmField public val UNKNOWN: EventAction = EventAction()
+            @JvmField public val DOWN: EventAction = EventAction()
+            @JvmField public val MOVE: EventAction = EventAction()
+            @JvmField public val PREDICTED_MOVE: EventAction = EventAction()
+            @JvmField public val UP: EventAction = EventAction()
+            @JvmField public val CANCEL: EventAction = EventAction()
 
+            /** Returns the [EventAction] corresponding to the given [MotionEvent]. */
+            @JvmOverloads
+            @JvmStatic
             public fun fromMotionEvent(
                 event: MotionEvent,
                 predicted: Boolean = false,
@@ -266,6 +269,6 @@ public class LatencyData {
     }
 
     public companion object {
-        public val UNKNOWN_STROKE_ID: InProgressStrokeId = InProgressStrokeId.create()
+        @JvmField public val UNKNOWN_STROKE_ID: InProgressStrokeId = InProgressStrokeId.create()
     }
 }

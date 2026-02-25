@@ -102,7 +102,7 @@ internal fun Modifier.paintBackground(
 private data class PainterElement(
     val painter: Painter,
     val contentScale: ContentScale,
-    var alignment: Alignment = Alignment.Center,
+    val alignment: Alignment = Alignment.Center,
 ) : ModifierNodeElement<PainterNode>() {
     override fun create(): PainterNode {
         return PainterNode(painter = painter, alignment = alignment, contentScale = contentScale)
@@ -110,6 +110,8 @@ private data class PainterElement(
 
     override fun update(node: PainterNode) {
         node.painter = painter
+        node.contentScale = contentScale
+        node.alignment = alignment
     }
 
     override fun InspectorInfo.inspectableProperties() {
@@ -123,7 +125,7 @@ private data class PainterElement(
 private class PainterNode(
     var painter: Painter,
     var alignment: Alignment = Alignment.Center,
-    val contentScale: ContentScale,
+    var contentScale: ContentScale,
 ) : Modifier.Node(), DrawModifierNode {
 
     override fun ContentDrawScope.draw() {

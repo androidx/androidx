@@ -28,3 +28,19 @@ config.set({
     }, 10000);
   };
 })();
+
+// Remove once KT-83733 is resolved since this is a sqlite/sqlite-web-worker specific configuration.
+;(function(config) {
+    config.customHeaders = [
+        {
+          match: '.*',
+          name: 'Cross-Origin-Opener-Policy',
+          value: 'same-origin'
+        },
+        {
+          match: '.*',
+          name: 'Cross-Origin-Embedder-Policy',
+          value: 'require-corp'
+        }
+      ];
+})(config);

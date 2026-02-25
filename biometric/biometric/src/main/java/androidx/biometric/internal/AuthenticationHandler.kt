@@ -24,6 +24,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.BiometricPrompt.AuthenticationCallback
+import androidx.biometric.internal.data.CanceledFrom
 import androidx.biometric.internal.viewmodel.AuthenticationViewModel
 import androidx.biometric.utils.AuthenticatorUtils
 import androidx.biometric.utils.DeviceUtils

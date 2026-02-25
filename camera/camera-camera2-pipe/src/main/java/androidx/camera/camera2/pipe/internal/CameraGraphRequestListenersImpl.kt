@@ -22,7 +22,6 @@ import androidx.camera.camera2.pipe.RequestListeners
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.config.ForCameraGraph
 import androidx.camera.camera2.pipe.graph.GraphProcessor
-import androidx.camera.camera2.pipe.graph.SessionLock
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 
@@ -30,7 +29,7 @@ import kotlinx.coroutines.CoroutineScope
 public class CameraGraphRequestListenersImpl
 @Inject
 internal constructor(
-    private val sessionLock: SessionLock,
+    private val sessionLock: GraphSessionLock,
     private val graphProcessor: GraphProcessor,
     @ForCameraGraph private val graphScope: CoroutineScope,
 ) : RequestListeners {

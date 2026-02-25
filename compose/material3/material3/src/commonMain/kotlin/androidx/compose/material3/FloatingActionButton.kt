@@ -41,6 +41,7 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme.LocalMaterialTheme
 import androidx.compose.material3.internal.ProvideContentColorTextStyle
 import androidx.compose.material3.internal.animateElevation
 import androidx.compose.material3.tokens.ElevationTokens
@@ -1244,7 +1245,7 @@ internal class FabVisibleNode(
                 targetValue = if (visible) 1f else 0f,
                 animationSpec =
                     scaleAnimationSpec
-                        ?: currentValueOf(MaterialTheme.LocalMotionScheme).fastSpatialSpec(),
+                        ?: currentValueOf(LocalMaterialTheme).motionScheme.fastSpatialSpec<Float>(),
             )
         }
 
@@ -1254,7 +1255,7 @@ internal class FabVisibleNode(
                 targetValue = if (visible) 1f else 0f,
                 animationSpec =
                     alphaAnimationSpec
-                        ?: currentValueOf(MaterialTheme.LocalMotionScheme).fastEffectsSpec(),
+                        ?: currentValueOf(LocalMaterialTheme).motionScheme.fastEffectsSpec<Float>(),
             )
         }
     }

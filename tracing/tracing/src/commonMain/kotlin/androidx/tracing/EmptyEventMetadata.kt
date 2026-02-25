@@ -38,6 +38,14 @@ internal object EmptyEventMetadata : EventMetadata() {
         // Does nothing
     }
 
+    override fun addCorrelationId(id: Long) {
+        // Does nothing
+    }
+
+    override fun addCorrelationId(id: String) {
+        // Does nothing
+    }
+
     override fun addCategory(name: String) {
         // Does nothing
     }

@@ -31,22 +31,22 @@ class DaoRelationshipKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         Source.kotlin(
             "MyDatabase.kt",
             """
-        import androidx.room3.*
+            import androidx.room3.*
 
-        @Database(
-            entities = [
-                Artist::class,
-                Song::class,
-                Playlist::class,
-                PlaylistSongXRef::class
-            ],
-            version = 1,
-            exportSchema = false
-        )
-        abstract class MyDatabase : RoomDatabase() {
-          abstract fun getDao(): MyDao
-        }
-        """
+            @Database(
+                entities = [
+                    Artist::class,
+                    Song::class,
+                    Playlist::class,
+                    PlaylistSongXRef::class
+                ],
+                version = 1,
+                exportSchema = false
+            )
+            abstract class MyDatabase : RoomDatabase() {
+              abstract fun getDao(): MyDao
+            }
+            """
                 .trimIndent(),
         )
 
@@ -56,81 +56,81 @@ class DaoRelationshipKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
             Source.kotlin(
                 "MyDao.kt",
                 """
-            import androidx.room3.*
+                import androidx.room3.*
 
-            @Dao
-            @Suppress(
-                RoomWarnings.RELATION_QUERY_WITHOUT_TRANSACTION,
-                RoomWarnings.MISSING_INDEX_ON_JUNCTION
-            )
-            interface MyDao {
-                // 1 to 1
-                @Query("SELECT * FROM Song")
-                fun getSongsWithArtist(): SongWithArtist
-
-                // 1 to many
-                @Query("SELECT * FROM Artist")
-                fun getArtistAndSongs(): ArtistAndSongs
-
-                // many to many
-                @Query("SELECT * FROM Playlist")
-                fun getPlaylistAndSongs(): PlaylistAndSongs
-            }
-
-            data class SongWithArtist(
-                @Embedded
-                val song: Song,
-                @Relation(parentColumn = "artistKey", entityColumn = "artistId")
-                val artist: Artist
-            )
-
-            data class ArtistAndSongs(
-                @Embedded
-                val artist: Artist,
-                @Relation(parentColumn = "artistId", entityColumn = "artistKey")
-                val songs: List<Song>
-            )
-
-            data class PlaylistAndSongs(
-                @Embedded
-                val playlist: Playlist,
-                @Relation(
-                    parentColumn = "playlistId",
-                    entityColumn = "songId",
-                    associateBy = Junction(
-                        value = PlaylistSongXRef::class,
-                        parentColumn = "playlistKey",
-                        entityColumn = "songKey",
-                    )
+                @Dao
+                @Suppress(
+                    RoomWarnings.RELATION_QUERY_WITHOUT_TRANSACTION,
+                    RoomWarnings.MISSING_INDEX_ON_JUNCTION
                 )
-                val songs: List<Song>
-            )
+                interface MyDao {
+                    // 1 to 1
+                    @Query("SELECT * FROM Song")
+                    fun getSongsWithArtist(): SongWithArtist
 
-            @Entity
-            data class Artist(
-                @PrimaryKey
-                val artistId: Long
-            )
+                    // 1 to many
+                    @Query("SELECT * FROM Artist")
+                    fun getArtistAndSongs(): ArtistAndSongs
 
-            @Entity
-            data class Song(
-                @PrimaryKey
-                val songId: Long,
-                val artistKey: Long
-            )
+                    // many to many
+                    @Query("SELECT * FROM Playlist")
+                    fun getPlaylistAndSongs(): PlaylistAndSongs
+                }
 
-            @Entity
-            data class Playlist(
-                @PrimaryKey
-                val playlistId: Long,
-            )
+                data class SongWithArtist(
+                    @Embedded
+                    val song: Song,
+                    @Relation(parentColumn = "artistKey", entityColumn = "artistId")
+                    val artist: Artist
+                )
 
-            @Entity(primaryKeys = ["playlistKey", "songKey"])
-            data class PlaylistSongXRef(
-                val playlistKey: Long,
-                val songKey: Long,
-            )
-            """
+                data class ArtistAndSongs(
+                    @Embedded
+                    val artist: Artist,
+                    @Relation(parentColumn = "artistId", entityColumn = "artistKey")
+                    val songs: List<Song>
+                )
+
+                data class PlaylistAndSongs(
+                    @Embedded
+                    val playlist: Playlist,
+                    @Relation(
+                        parentColumn = "playlistId",
+                        entityColumn = "songId",
+                        associateBy = Junction(
+                            value = PlaylistSongXRef::class,
+                            parentColumn = "playlistKey",
+                            entityColumn = "songKey",
+                        )
+                    )
+                    val songs: List<Song>
+                )
+
+                @Entity
+                data class Artist(
+                    @PrimaryKey
+                    val artistId: Long
+                )
+
+                @Entity
+                data class Song(
+                    @PrimaryKey
+                    val songId: Long,
+                    val artistKey: Long
+                )
+
+                @Entity
+                data class Playlist(
+                    @PrimaryKey
+                    val playlistId: Long,
+                )
+
+                @Entity(primaryKeys = ["playlistKey", "songKey"])
+                data class PlaylistSongXRef(
+                    val playlistKey: Long,
+                    val songKey: Long,
+                )
+                """
                     .trimIndent(),
             )
         runTest(
@@ -145,81 +145,81 @@ class DaoRelationshipKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
             Source.kotlin(
                 "MyDao.kt",
                 """
-            import androidx.room3.*
+                import androidx.room3.*
 
-            @Dao
-            @Suppress(
-                RoomWarnings.RELATION_QUERY_WITHOUT_TRANSACTION,
-                RoomWarnings.MISSING_INDEX_ON_JUNCTION
-            )
-            interface MyDao {
-                // 1 to 1
-                @Query("SELECT * FROM Song")
-                fun getSongsWithArtist(): SongWithArtist
-
-                // 1 to many
-                @Query("SELECT * FROM Artist")
-                fun getArtistAndSongs(): ArtistAndSongs
-
-                // many to many
-                @Query("SELECT * FROM Playlist")
-                fun getPlaylistAndSongs(): PlaylistAndSongs
-            }
-
-            data class SongWithArtist(
-                @Embedded
-                val song: Song,
-                @Relation(parentColumn = "artistKey", entityColumn = "artistId")
-                val artist: Artist?
-            )
-
-            data class ArtistAndSongs(
-                @Embedded
-                val artist: Artist,
-                @Relation(parentColumn = "artistId", entityColumn = "artistKey")
-                val songs: List<Song>
-            )
-
-            data class PlaylistAndSongs(
-                @Embedded
-                val playlist: Playlist,
-                @Relation(
-                    parentColumn = "playlistId",
-                    entityColumn = "songId",
-                    associateBy = Junction(
-                        value = PlaylistSongXRef::class,
-                        parentColumn = "playlistKey",
-                        entityColumn = "songKey",
-                    )
+                @Dao
+                @Suppress(
+                    RoomWarnings.RELATION_QUERY_WITHOUT_TRANSACTION,
+                    RoomWarnings.MISSING_INDEX_ON_JUNCTION
                 )
-                val songs: List<Song>
-            )
+                interface MyDao {
+                    // 1 to 1
+                    @Query("SELECT * FROM Song")
+                    fun getSongsWithArtist(): SongWithArtist
 
-            @Entity
-            data class Artist(
-                @PrimaryKey
-                val artistId: Long
-            )
+                    // 1 to many
+                    @Query("SELECT * FROM Artist")
+                    fun getArtistAndSongs(): ArtistAndSongs
 
-            @Entity
-            data class Song(
-                @PrimaryKey
-                val songId: Long,
-                val artistKey: Long?
-            )
+                    // many to many
+                    @Query("SELECT * FROM Playlist")
+                    fun getPlaylistAndSongs(): PlaylistAndSongs
+                }
 
-            @Entity
-            data class Playlist(
-                @PrimaryKey
-                val playlistId: Long,
-            )
+                data class SongWithArtist(
+                    @Embedded
+                    val song: Song,
+                    @Relation(parentColumn = "artistKey", entityColumn = "artistId")
+                    val artist: Artist?
+                )
 
-            @Entity(primaryKeys = ["playlistKey", "songKey"])
-            data class PlaylistSongXRef(
-                val playlistKey: Long,
-                val songKey: Long,
-            )
-            """
+                data class ArtistAndSongs(
+                    @Embedded
+                    val artist: Artist,
+                    @Relation(parentColumn = "artistId", entityColumn = "artistKey")
+                    val songs: List<Song>
+                )
+
+                data class PlaylistAndSongs(
+                    @Embedded
+                    val playlist: Playlist,
+                    @Relation(
+                        parentColumn = "playlistId",
+                        entityColumn = "songId",
+                        associateBy = Junction(
+                            value = PlaylistSongXRef::class,
+                            parentColumn = "playlistKey",
+                            entityColumn = "songKey",
+                        )
+                    )
+                    val songs: List<Song>
+                )
+
+                @Entity
+                data class Artist(
+                    @PrimaryKey
+                    val artistId: Long
+                )
+
+                @Entity
+                data class Song(
+                    @PrimaryKey
+                    val songId: Long,
+                    val artistKey: Long?
+                )
+
+                @Entity
+                data class Playlist(
+                    @PrimaryKey
+                    val playlistId: Long,
+                )
+
+                @Entity(primaryKeys = ["playlistKey", "songKey"])
+                data class PlaylistSongXRef(
+                    val playlistKey: Long,
+                    val songKey: Long,
+                )
+                """
                     .trimIndent(),
             )
         runTest(
@@ -234,81 +234,81 @@ class DaoRelationshipKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
             Source.kotlin(
                 "MyDao.kt",
                 """
-            import androidx.room3.*
+                import androidx.room3.*
 
-            @Dao
-            @Suppress(
-                RoomWarnings.RELATION_QUERY_WITHOUT_TRANSACTION,
-                RoomWarnings.MISSING_INDEX_ON_JUNCTION
-            )
-            interface MyDao {
-                // 1 to 1
-                @Query("SELECT * FROM Song")
-                fun getSongsWithArtist(): SongWithArtist
-
-                // 1 to many
-                @Query("SELECT * FROM Artist")
-                fun getArtistAndSongs(): ArtistAndSongs
-
-                // many to many
-                @Query("SELECT * FROM Playlist")
-                fun getPlaylistAndSongs(): PlaylistAndSongs
-            }
-
-            data class SongWithArtist(
-                @Embedded
-                val song: Song,
-                @Relation(parentColumn = "artistKey", entityColumn = "artistId")
-                val artist: Artist
-            )
-
-            data class ArtistAndSongs(
-                @Embedded
-                val artist: Artist,
-                @Relation(parentColumn = "artistId", entityColumn = "artistKey")
-                val songs: Set<Song>
-            )
-
-            data class PlaylistAndSongs(
-                @Embedded
-                val playlist: Playlist,
-                @Relation(
-                    parentColumn = "playlistId",
-                    entityColumn = "songId",
-                    associateBy = Junction(
-                        value = PlaylistSongXRef::class,
-                        parentColumn = "playlistKey",
-                        entityColumn = "songKey",
-                    )
+                @Dao
+                @Suppress(
+                    RoomWarnings.RELATION_QUERY_WITHOUT_TRANSACTION,
+                    RoomWarnings.MISSING_INDEX_ON_JUNCTION
                 )
-                val songs: Set<Song>
-            )
+                interface MyDao {
+                    // 1 to 1
+                    @Query("SELECT * FROM Song")
+                    fun getSongsWithArtist(): SongWithArtist
 
-            @Entity
-            data class Artist(
-                @PrimaryKey
-                val artistId: Long
-            )
+                    // 1 to many
+                    @Query("SELECT * FROM Artist")
+                    fun getArtistAndSongs(): ArtistAndSongs
 
-            @Entity
-            data class Song(
-                @PrimaryKey
-                val songId: Long,
-                val artistKey: Long
-            )
+                    // many to many
+                    @Query("SELECT * FROM Playlist")
+                    fun getPlaylistAndSongs(): PlaylistAndSongs
+                }
 
-            @Entity
-            data class Playlist(
-                @PrimaryKey
-                val playlistId: Long,
-            )
+                data class SongWithArtist(
+                    @Embedded
+                    val song: Song,
+                    @Relation(parentColumn = "artistKey", entityColumn = "artistId")
+                    val artist: Artist
+                )
 
-            @Entity(primaryKeys = ["playlistKey", "songKey"])
-            data class PlaylistSongXRef(
-                val playlistKey: Long,
-                val songKey: Long,
-            )
-            """
+                data class ArtistAndSongs(
+                    @Embedded
+                    val artist: Artist,
+                    @Relation(parentColumn = "artistId", entityColumn = "artistKey")
+                    val songs: Set<Song>
+                )
+
+                data class PlaylistAndSongs(
+                    @Embedded
+                    val playlist: Playlist,
+                    @Relation(
+                        parentColumn = "playlistId",
+                        entityColumn = "songId",
+                        associateBy = Junction(
+                            value = PlaylistSongXRef::class,
+                            parentColumn = "playlistKey",
+                            entityColumn = "songKey",
+                        )
+                    )
+                    val songs: Set<Song>
+                )
+
+                @Entity
+                data class Artist(
+                    @PrimaryKey
+                    val artistId: Long
+                )
+
+                @Entity
+                data class Song(
+                    @PrimaryKey
+                    val songId: Long,
+                    val artistKey: Long
+                )
+
+                @Entity
+                data class Playlist(
+                    @PrimaryKey
+                    val playlistId: Long,
+                )
+
+                @Entity(primaryKeys = ["playlistKey", "songKey"])
+                data class PlaylistSongXRef(
+                    val playlistKey: Long,
+                    val songKey: Long,
+                )
+                """
                     .trimIndent(),
             )
         runTest(
@@ -323,81 +323,81 @@ class DaoRelationshipKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
             Source.kotlin(
                 "MyDao.kt",
                 """
-            import androidx.room3.*
+                import androidx.room3.*
 
-            @Dao
-            @Suppress(
-                RoomWarnings.RELATION_QUERY_WITHOUT_TRANSACTION,
-                RoomWarnings.MISSING_INDEX_ON_JUNCTION
-            )
-            interface MyDao {
-                // 1 to 1
-                @Query("SELECT * FROM Song")
-                fun getSongsWithArtist(): SongWithArtist
-
-                // 1 to many
-                @Query("SELECT * FROM Artist")
-                fun getArtistAndSongs(): ArtistAndSongs
-
-                // many to many
-                @Query("SELECT * FROM Playlist")
-                fun getPlaylistAndSongs(): PlaylistAndSongs
-            }
-
-            data class SongWithArtist(
-                @Embedded
-                val song: Song,
-                @Relation(parentColumn = "artistKey", entityColumn = "artistId")
-                val artist: Artist
-            )
-
-            data class ArtistAndSongs(
-                @Embedded
-                val artist: Artist,
-                @Relation(parentColumn = "artistId", entityColumn = "artistKey")
-                val songs: List<Song>
-            )
-
-            data class PlaylistAndSongs(
-                @Embedded
-                val playlist: Playlist,
-                @Relation(
-                    parentColumn = "playlistId",
-                    entityColumn = "songId",
-                    associateBy = Junction(
-                        value = PlaylistSongXRef::class,
-                        parentColumn = "playlistKey",
-                        entityColumn = "songKey",
-                    )
+                @Dao
+                @Suppress(
+                    RoomWarnings.RELATION_QUERY_WITHOUT_TRANSACTION,
+                    RoomWarnings.MISSING_INDEX_ON_JUNCTION
                 )
-                val songs: List<Song>
-            )
+                interface MyDao {
+                    // 1 to 1
+                    @Query("SELECT * FROM Song")
+                    fun getSongsWithArtist(): SongWithArtist
 
-            @Entity
-            data class Artist(
-                @PrimaryKey
-                val artistId: Long
-            )
+                    // 1 to many
+                    @Query("SELECT * FROM Artist")
+                    fun getArtistAndSongs(): ArtistAndSongs
 
-            @Entity
-            data class Song(
-                @PrimaryKey
-                val songId: Long,
-                val artistKey: Long
-            )
+                    // many to many
+                    @Query("SELECT * FROM Playlist")
+                    fun getPlaylistAndSongs(): PlaylistAndSongs
+                }
 
-            @Entity
-            data class Playlist(
-                @PrimaryKey
-                val playlistId: Long,
-            )
+                data class SongWithArtist(
+                    @Embedded
+                    val song: Song,
+                    @Relation(parentColumn = "artistKey", entityColumn = "artistId")
+                    val artist: Artist
+                )
 
-            @Entity(primaryKeys = ["playlistKey", "songKey"])
-            data class PlaylistSongXRef(
-                val playlistKey: Long,
-                val songKey: Long,
-            )
-            """
+                data class ArtistAndSongs(
+                    @Embedded
+                    val artist: Artist,
+                    @Relation(parentColumn = "artistId", entityColumn = "artistKey")
+                    val songs: List<Song>
+                )
+
+                data class PlaylistAndSongs(
+                    @Embedded
+                    val playlist: Playlist,
+                    @Relation(
+                        parentColumn = "playlistId",
+                        entityColumn = "songId",
+                        associateBy = Junction(
+                            value = PlaylistSongXRef::class,
+                            parentColumn = "playlistKey",
+                            entityColumn = "songKey",
+                        )
+                    )
+                    val songs: List<Song>
+                )
+
+                @Entity
+                data class Artist(
+                    @PrimaryKey
+                    val artistId: Long
+                )
+
+                @Entity
+                data class Song(
+                    @PrimaryKey
+                    val songId: Long,
+                    val artistKey: Long
+                )
+
+                @Entity
+                data class Playlist(
+                    @PrimaryKey
+                    val playlistId: Long,
+                )
+
+                @Entity(primaryKeys = ["playlistKey", "songKey"])
+                data class PlaylistSongXRef(
+                    val playlistKey: Long,
+                    val songKey: Long,
+                )
+                """
                     .trimIndent(),
             )
         runTest(
@@ -413,81 +413,81 @@ class DaoRelationshipKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
             Source.kotlin(
                 "MyDao.kt",
                 """
-            import androidx.room3.*
+                import androidx.room3.*
 
-            @Dao
-            @Suppress(
-                RoomWarnings.RELATION_QUERY_WITHOUT_TRANSACTION,
-                RoomWarnings.MISSING_INDEX_ON_JUNCTION
-            )
-            interface MyDao {
-                // 1 to 1
-                @Query("SELECT * FROM Song")
-                fun getSongsWithArtist(): SongWithArtist
-
-                // 1 to many
-                @Query("SELECT * FROM Artist")
-                fun getArtistAndSongs(): ArtistAndSongs
-
-                // many to many
-                @Query("SELECT * FROM Playlist")
-                fun getPlaylistAndSongs(): PlaylistAndSongs
-            }
-
-            data class SongWithArtist(
-                @Embedded
-                val song: Song,
-                @Relation(parentColumn = "artistKey", entityColumn = "artistId")
-                val artist: Artist
-            )
-
-            data class ArtistAndSongs(
-                @Embedded
-                val artist: Artist,
-                @Relation(parentColumn = "artistId", entityColumn = "artistKey")
-                val songs: List<Song>
-            )
-
-            data class PlaylistAndSongs(
-                @Embedded
-                val playlist: Playlist,
-                @Relation(
-                    parentColumn = "playlistId",
-                    entityColumn = "songId",
-                    associateBy = Junction(
-                        value = PlaylistSongXRef::class,
-                        parentColumn = "playlistKey",
-                        entityColumn = "songKey",
-                    )
+                @Dao
+                @Suppress(
+                    RoomWarnings.RELATION_QUERY_WITHOUT_TRANSACTION,
+                    RoomWarnings.MISSING_INDEX_ON_JUNCTION
                 )
-                val songs: List<Song>
-            )
+                interface MyDao {
+                    // 1 to 1
+                    @Query("SELECT * FROM Song")
+                    fun getSongsWithArtist(): SongWithArtist
 
-            @Entity
-            data class Artist(
-                @PrimaryKey
-                val artistId: Long
-            )
+                    // 1 to many
+                    @Query("SELECT * FROM Artist")
+                    fun getArtistAndSongs(): ArtistAndSongs
 
-            @Entity
-            data class Song(
-                @PrimaryKey
-                val songId: Long,
-                val artistKey: Long
-            )
+                    // many to many
+                    @Query("SELECT * FROM Playlist")
+                    fun getPlaylistAndSongs(): PlaylistAndSongs
+                }
 
-            @Entity
-            data class Playlist(
-                @PrimaryKey
-                val playlistId: Long,
-            )
+                data class SongWithArtist(
+                    @Embedded
+                    val song: Song,
+                    @Relation(parentColumn = "artistKey", entityColumn = "artistId")
+                    val artist: Artist
+                )
 
-            @Entity(primaryKeys = ["playlistKey", "songKey"])
-            data class PlaylistSongXRef(
-                val playlistKey: Long,
-                val songKey: Long,
-            )
-            """
+                data class ArtistAndSongs(
+                    @Embedded
+                    val artist: Artist,
+                    @Relation(parentColumn = "artistId", entityColumn = "artistKey")
+                    val songs: List<Song>
+                )
+
+                data class PlaylistAndSongs(
+                    @Embedded
+                    val playlist: Playlist,
+                    @Relation(
+                        parentColumn = "playlistId",
+                        entityColumn = "songId",
+                        associateBy = Junction(
+                            value = PlaylistSongXRef::class,
+                            parentColumn = "playlistKey",
+                            entityColumn = "songKey",
+                        )
+                    )
+                    val songs: List<Song>
+                )
+
+                @Entity
+                data class Artist(
+                    @PrimaryKey
+                    val artistId: Long
+                )
+
+                @Entity
+                data class Song(
+                    @PrimaryKey
+                    val songId: Long,
+                    val artistKey: Long
+                )
+
+                @Entity
+                data class Playlist(
+                    @PrimaryKey
+                    val playlistId: Long,
+                )
+
+                @Entity(primaryKeys = ["playlistKey", "songKey"])
+                data class PlaylistSongXRef(
+                    val playlistKey: Long,
+                    val songKey: Long,
+                )
+                """
                     .trimIndent(),
             )
         runTest(
@@ -503,53 +503,53 @@ class DaoRelationshipKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
             Source.kotlin(
                 "MyDao.kt",
                 """
-            import androidx.room3.*
+                import androidx.room3.*
 
-            @Database(
-                entities = [Artist::class, Song::class],
-                version = 1,
-                exportSchema = false
-            )
-            abstract class MyDatabase : RoomDatabase() {
-              abstract fun getDao(): MyDao
-            }
-
-            @Dao
-            @Suppress(
-                RoomWarnings.RELATION_QUERY_WITHOUT_TRANSACTION,
-                RoomWarnings.MISSING_INDEX_ON_JUNCTION
-            )
-            // To validate ByteBuffer converter is forced
-            @TypeConverters(
-                builtInTypeConverters = BuiltInTypeConverters(
-                    byteBuffer = BuiltInTypeConverters.State.DISABLED
+                @Database(
+                    entities = [Artist::class, Song::class],
+                    version = 1,
+                    exportSchema = false
                 )
-            )
-            interface MyDao {
-                @Query("SELECT * FROM Song")
-                fun getSongsWithArtist(): SongWithArtist
-            }
+                abstract class MyDatabase : RoomDatabase() {
+                  abstract fun getDao(): MyDao
+                }
 
-            data class SongWithArtist(
-                @Embedded
-                val song: Song,
-                @Relation(parentColumn = "artistKey", entityColumn = "artistId")
-                val artist: Artist
-            )
+                @Dao
+                @Suppress(
+                    RoomWarnings.RELATION_QUERY_WITHOUT_TRANSACTION,
+                    RoomWarnings.MISSING_INDEX_ON_JUNCTION
+                )
+                // To validate ByteBuffer converter is forced
+                @TypeConverters(
+                    builtInTypeConverters = BuiltInTypeConverters(
+                        byteBuffer = BuiltInTypeConverters.State.DISABLED
+                    )
+                )
+                interface MyDao {
+                    @Query("SELECT * FROM Song")
+                    fun getSongsWithArtist(): SongWithArtist
+                }
 
-            @Entity
-            data class Artist(
-                @PrimaryKey
-                val artistId: ByteArray
-            )
+                data class SongWithArtist(
+                    @Embedded
+                    val song: Song,
+                    @Relation(parentColumn = "artistKey", entityColumn = "artistId")
+                    val artist: Artist
+                )
 
-            @Entity
-            data class Song(
-                @PrimaryKey
-                val songId: Long,
-                val artistKey: ByteArray
-            )
-            """
+                @Entity
+                data class Artist(
+                    @PrimaryKey
+                    val artistId: ByteArray
+                )
+
+                @Entity
+                data class Song(
+                    @PrimaryKey
+                    val songId: Long,
+                    val artistKey: ByteArray
+                )
+                """
                     .trimIndent(),
             )
         runTest(sources = listOf(src), expectedFilePath = getTestGoldenPath(testName.methodName))

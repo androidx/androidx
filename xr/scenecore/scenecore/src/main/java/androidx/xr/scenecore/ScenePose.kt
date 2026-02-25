@@ -31,7 +31,7 @@ import androidx.xr.scenecore.runtime.SceneRuntime
 public interface ScenePose {
 
     /** The current [Pose] relative to the activity space root. */
-    public val activitySpacePose: Pose
+    public val poseInActivitySpace: Pose
 
     /**
      * Returns a [Pose] relative to this ScenePose, transformed into a Pose relative to the
@@ -137,7 +137,7 @@ protected constructor(internal val rtScenePose: RtScenePoseType) : ScenePose {
         private const val TAG = "BaseScenePose"
     }
 
-    override val activitySpacePose: Pose
+    override val poseInActivitySpace: Pose
         get() = rtScenePose.activitySpacePose
 
     override fun transformPoseTo(pose: Pose, destination: ScenePose): Pose {

@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-ListenerLast: android.hardware.fingerprint.FingerprintManager#authenticate(android.hardware.fingerprint.FingerprintManager.CryptoObject, android.os.CancellationSignal, int, android.hardware.fingerprint.FingerprintManager.AuthenticationCallback, android.os.Handler) parameter #4:
-    Listeners should always be at end of argument list (method `authenticate`)

@@ -76,7 +76,8 @@ public class MatrixSkew extends DrawBase2 {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+        doc.operation("Matrix Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("matrix_skew")
                 .description("Current matrix with the specified skew.")
                 .field(FLOAT, "skewX", "The amount to skew in X")
                 .field(FLOAT, "skewY", "The amount to skew in Y");

@@ -139,6 +139,11 @@ public final class AppManagerTest {
                             throws RemoteException {
                         return mMockAppHost.openMicrophone(openMicrophoneRequest);
                     }
+
+                    @Override
+                    public int getInterfaceVersion() {
+                        return super.VERSION;
+                    }
                 };
         when(mMockCarHost.getHost(any())).thenReturn(appHost.asBinder());
 

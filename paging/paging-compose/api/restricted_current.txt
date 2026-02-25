@@ -23,7 +23,7 @@ package androidx.paging.compose {
 
   public final class LazyPagingItemsKt {
     method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.paging.compose.LazyPagingItems<T> collectAsLazyPagingItems(kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<T>>, optional kotlin.coroutines.CoroutineContext context);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.paging.compose.LazyPagingItems<T!> collectAsLazyPagingItems(kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<T!>!>, kotlin.coroutines.CoroutineContext?, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.paging.compose.LazyPagingItems<T> collectAsLazyPagingItems(kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<T>!>, kotlin.coroutines.CoroutineContext?, androidx.compose.runtime.Composer?, int, int);
   }
 
 }

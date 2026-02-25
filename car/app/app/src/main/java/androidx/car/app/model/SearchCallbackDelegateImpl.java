@@ -108,5 +108,10 @@ public class SearchCallbackDelegateImpl implements SearchCallbackDelegate {
                         return null;
                     });
         }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
     }
 }

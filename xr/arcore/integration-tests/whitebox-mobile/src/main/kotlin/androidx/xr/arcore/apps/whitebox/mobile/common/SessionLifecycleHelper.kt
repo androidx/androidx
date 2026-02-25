@@ -24,13 +24,17 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.Log
+import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
-import androidx.xr.runtime.SessionConfigureGooglePlayServicesLocationLibraryNotLinked
+import androidx.xr.runtime.SessionConfigureLibraryNotLinked
 import androidx.xr.runtime.SessionConfigureSuccess
 import androidx.xr.runtime.SessionCreateApkRequired
 import androidx.xr.runtime.SessionCreateResult
 import androidx.xr.runtime.SessionCreateSuccess
+import androidx.xr.runtime.SessionCreateTimedOut
+import androidx.xr.runtime.SessionCreateUnknownError
 import androidx.xr.runtime.SessionCreateUnsupportedDevice
 
 /**
@@ -74,10 +78,10 @@ class SessionLifecycleHelper(
 
     private fun getRequiredPermissions(config: Config): List<String> {
         val permissions = mutableListOf(CAMERA)
-        if (config.planeTracking != Config.PlaneTrackingMode.DISABLED) {
+        if (config.planeTracking != PlaneTrackingMode.DISABLED) {
             permissions.add(ACCESS_COARSE_LOCATION)
         }
-        if (config.geospatial != Config.GeospatialMode.DISABLED) {
+        if (config.geospatial != GeospatialMode.DISABLED) {
             permissions.add(ACCESS_FINE_LOCATION)
         }
         return permissions
@@ -90,10 +94,8 @@ class SessionLifecycleHelper(
                     session = result.session
                     try {
                         when (val configResult = session.configure(config)) {
-                            is SessionConfigureGooglePlayServicesLocationLibraryNotLinked -> {
-                                Log.error {
-                                    "Google Play Services Location Library is not linked, this should not happen."
-                                }
+                            is SessionConfigureLibraryNotLinked -> {
+                                Log.error { "Library \"${configResult.libraryName}\" not linked." }
                             }
 
                             is SessionConfigureSuccess -> {
@@ -119,6 +121,14 @@ class SessionLifecycleHelper(
 
                 is SessionCreateUnsupportedDevice -> {
                     showErrorMessage("Session could not be created, device is Unsupported.")
+                    activity.finish()
+                }
+                is SessionCreateTimedOut -> {
+                    showErrorMessage("Time out")
+                    activity.finish()
+                }
+                is SessionCreateUnknownError -> {
+                    showErrorMessage(result.errorMessage)
                     activity.finish()
                 }
             }

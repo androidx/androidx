@@ -44,7 +44,7 @@ class LocalContextCastIssueDetectorTest : LintDetectorTest() {
             import androidx.compose.runtime.compositionLocalOf
 
             val LocalActivity = compositionLocalOf<Activity>()
-        """
+            """
                 .trimIndent(),
             """
                 META-INF/main.kotlin_module:
@@ -118,7 +118,7 @@ class LocalContextCastIssueDetectorTest : LintDetectorTest() {
             package android.content
 
             class Context()
-        """
+            """
                 .trimIndent(),
             """
                 META-INF/main.kotlin_module:
@@ -180,7 +180,7 @@ class LocalContextCastIssueDetectorTest : LintDetectorTest() {
                     val activity3 = LocalContext.current as? MyActivity
                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 3 errors, 0 warnings
-            """
+                """
                     .trimIndent()
             )
     }

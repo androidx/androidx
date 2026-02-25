@@ -17,12 +17,12 @@ package core
 
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
-import kotlin.plus
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -32,7 +32,7 @@ class StorageContextSwitchTest {
     private val callerCtx = TestElement1("caller_key_1") + TestElement3("caller_key_3")
     private val testStorage = TestStorage()
     private val store =
-        _root_ide_package_.androidx.datastore.core.DataStoreImpl(
+        androidx.datastore.core.DataStoreImpl(
             testStorage,
             scope = CoroutineScope(Dispatchers.IO + datastoreCtx),
         )
@@ -45,14 +45,8 @@ class StorageContextSwitchTest {
 
             val unused =
                 store.updateData {
-                    assertEquals(
-                        TestElement1("caller_key_1"),
-                        _root_ide_package_.kotlin.coroutines.coroutineContext[TestKey1],
-                    )
-                    assertEquals(
-                        TestElement3("caller_key_3"),
-                        _root_ide_package_.kotlin.coroutines.coroutineContext[TestKey3],
-                    )
+                    assertEquals(TestElement1("caller_key_1"), currentCoroutineContext()[TestKey1])
+                    assertEquals(TestElement3("caller_key_3"), currentCoroutineContext()[TestKey3])
                     TestData("updated")
                 }
         }

@@ -16,10 +16,7 @@
 
 syntax = "proto3";
 
-// NOTE: We get away with a copy of the proto definitions here only because in this module
-// we are using mutable types. Otherwise benchmark's definitions and this would collide and cause
-// builds to fail. Consider re-packaging this to a separate package in the future. b/392165540
-package perfetto.protos;
+package androidx.tracing.wire.protos;
 
 ///////////////////////////////////////////////////////////////////////////////
 // NOTE: THIS FILE IS A MANUALLY MINIFIED VERSION OF PERFETTO_TRACE.PROTO

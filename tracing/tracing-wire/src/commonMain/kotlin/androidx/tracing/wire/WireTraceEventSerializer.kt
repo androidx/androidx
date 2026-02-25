@@ -29,15 +29,15 @@ import androidx.tracing.TRACK_DESCRIPTOR_TYPE_COUNTER
 import androidx.tracing.TRACK_DESCRIPTOR_TYPE_PROCESS
 import androidx.tracing.TRACK_DESCRIPTOR_TYPE_THREAD
 import androidx.tracing.TraceEvent
+import androidx.tracing.wire.protos.MutableCallstack
+import androidx.tracing.wire.protos.MutableCounterDescriptor
+import androidx.tracing.wire.protos.MutableDebugAnnotation
+import androidx.tracing.wire.protos.MutableProcessDescriptor
+import androidx.tracing.wire.protos.MutableThreadDescriptor
+import androidx.tracing.wire.protos.MutableTracePacket
+import androidx.tracing.wire.protos.MutableTrackDescriptor
+import androidx.tracing.wire.protos.MutableTrackEvent
 import com.squareup.wire.ProtoWriter
-import perfetto.protos.MutableCallstack
-import perfetto.protos.MutableCounterDescriptor
-import perfetto.protos.MutableDebugAnnotation
-import perfetto.protos.MutableProcessDescriptor
-import perfetto.protos.MutableThreadDescriptor
-import perfetto.protos.MutableTracePacket
-import perfetto.protos.MutableTrackDescriptor
-import perfetto.protos.MutableTrackEvent
 
 // False positive: https://youtrack.jetbrains.com/issue/KTIJ-22326
 @Suppress("NOTHING_TO_INLINE", "OPTIONAL_DECLARATION_USAGE_IN_NON_COMMON_SOURCE")
@@ -212,6 +212,8 @@ internal class WireTraceEventSerializer(sequenceId: Int, val protoWriter: ProtoW
                 scratchTrackEvent.name = event.name
                 scratchTrackEvent.counter_value = event.counterLongValue
                 scratchTrackEvent.double_counter_value = event.counterDoubleValue
+                scratchTrackEvent.correlation_id = event.correlationId
+                scratchTrackEvent.correlation_id_str = event.correlationIdString
                 scratchTrackEvent.flow_ids = event.flowIds
                 // Categories
                 if (

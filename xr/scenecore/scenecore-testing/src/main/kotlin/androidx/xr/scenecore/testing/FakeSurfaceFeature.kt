@@ -35,6 +35,9 @@ public class FakeSurfaceFeature(nodeHolder: NodeHolder<*>) :
 
     @SurfaceEntity.StereoMode override var stereoMode: Int = SurfaceEntity.StereoMode.MONO
 
+    @SurfaceEntity.MediaBlendingMode
+    override var mediaBlendingMode: Int = SurfaceEntity.MediaBlendingMode.TRANSPARENT
+
     override var shape: SurfaceEntity.Shape = SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f))
 
     override val dimensions: Dimensions

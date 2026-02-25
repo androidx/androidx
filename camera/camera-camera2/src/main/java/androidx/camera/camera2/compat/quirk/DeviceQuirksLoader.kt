@@ -32,6 +32,14 @@ public object DeviceQuirksLoader {
         // Load all device specific quirks, preferably in lexicographical order
         if (
             quirkSettings.shouldEnableQuirk(
+                PixelJpegRSupportedQuirk::class.java,
+                PixelJpegRSupportedQuirk.isEnabled(),
+            )
+        ) {
+            quirks.add(PixelJpegRSupportedQuirk())
+        }
+        if (
+            quirkSettings.shouldEnableQuirk(
                 CloseCameraDeviceOnCameraGraphCloseQuirk::class.java,
                 CloseCameraDeviceOnCameraGraphCloseQuirk.isEnabled(),
             )

@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.graphics
 
-actual class NativeColorFilter
+internal actual class NativeColorFilter
 
 internal actual fun actualTintColorFilter(color: Color, blendMode: BlendMode): NativeColorFilter =
     implementedInJetBrainsFork()

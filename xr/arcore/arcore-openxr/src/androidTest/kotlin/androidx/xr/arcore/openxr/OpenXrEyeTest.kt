@@ -21,6 +21,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.EyeTrackingMode
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
@@ -45,7 +46,7 @@ class OpenXrEyeTest {
 
     @Test
     fun update_updatesCoarseTrackingState() =
-        initOpenXrManagerAndRunTest(Config.EyeTrackingMode.COARSE_TRACKING) {
+        initOpenXrManagerAndRunTest(EyeTrackingMode.COARSE_TRACKING) {
             val underTestLeft: OpenXrEye = perceptionManager.leftEye as OpenXrEye
             val underTestRight: OpenXrEye = perceptionManager.rightEye as OpenXrEye
             val xrTime = 50L * 1_000_000 // 50 milliseconds in nanoseconds.
@@ -58,7 +59,7 @@ class OpenXrEyeTest {
 
     @Test
     fun update_updatesCoarsePose() =
-        initOpenXrManagerAndRunTest(Config.EyeTrackingMode.COARSE_TRACKING) {
+        initOpenXrManagerAndRunTest(EyeTrackingMode.COARSE_TRACKING) {
             val underTestLeft: OpenXrEye = perceptionManager.leftEye as OpenXrEye
             val underTestRight: OpenXrEye = perceptionManager.rightEye as OpenXrEye
             val xrTime = 50L * 1_000_000 // 50 milliseconds in nanoseconds.
@@ -73,7 +74,7 @@ class OpenXrEyeTest {
 
     @Test
     fun update_updatesFineTrackingState() =
-        initOpenXrManagerAndRunTest(Config.EyeTrackingMode.FINE_TRACKING) {
+        initOpenXrManagerAndRunTest(EyeTrackingMode.FINE_TRACKING) {
             val underTestLeft: OpenXrEye = perceptionManager.leftEye as OpenXrEye
             val underTestRight: OpenXrEye = perceptionManager.rightEye as OpenXrEye
             val xrTime = 50L * 1_000_000 // 50 milliseconds in nanoseconds.
@@ -86,7 +87,7 @@ class OpenXrEyeTest {
 
     @Test
     fun update_updatesFinePose() =
-        initOpenXrManagerAndRunTest(Config.EyeTrackingMode.FINE_TRACKING) {
+        initOpenXrManagerAndRunTest(EyeTrackingMode.FINE_TRACKING) {
             val underTestLeft: OpenXrEye = perceptionManager.leftEye as OpenXrEye
             val underTestRight: OpenXrEye = perceptionManager.rightEye as OpenXrEye
             val xrTime = 50L * 1_000_000 // 50 milliseconds in nanoseconds.
@@ -109,10 +110,7 @@ class OpenXrEyeTest {
                 )
         }
 
-    private fun initOpenXrManagerAndRunTest(
-        trackingMode: Config.EyeTrackingMode,
-        testBody: () -> Unit,
-    ) {
+    private fun initOpenXrManagerAndRunTest(trackingMode: EyeTrackingMode, testBody: () -> Unit) {
         activityRule.scenario.onActivity {
             val timeSource = OpenXrTimeSource()
             perceptionManager = OpenXrPerceptionManager(timeSource)

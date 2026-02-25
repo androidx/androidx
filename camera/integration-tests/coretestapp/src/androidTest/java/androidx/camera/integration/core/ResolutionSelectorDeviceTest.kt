@@ -28,8 +28,13 @@ import android.util.Range
 import android.util.Rational
 import android.util.Size
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.compat.quirk.AspectRatioLegacyApi21Quirk
+import androidx.camera.camera2.compat.quirk.DeviceQuirks
+import androidx.camera.camera2.compat.quirk.ExcludedSupportedSizesQuirk
+import androidx.camera.camera2.compat.quirk.ExtraCroppingQuirk
+import androidx.camera.camera2.compat.quirk.ExtraSupportedOutputSizeQuirk
+import androidx.camera.camera2.compat.quirk.Nexus4AndroidLTargetAspectRatioQuirk
 import androidx.camera.camera2.impl.DisplayInfoManager
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.AspectRatio.RATIO_16_9
 import androidx.camera.core.AspectRatio.RATIO_4_3
 import androidx.camera.core.Camera
@@ -60,7 +65,6 @@ import androidx.camera.core.resolutionselector.ResolutionSelector.PREFER_HIGHER_
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.core.resolutionselector.ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
@@ -91,13 +95,8 @@ import org.junit.runners.Parameterized
 class ResolutionSelectorDeviceTest(
     private val testName: String,
     private val cameraSelector: CameraSelector,
-    private val implName: String,
     private val cameraConfig: CameraXConfig,
 ) {
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName.contains(CameraPipeConfig::class.simpleName!!))
-
     @get:Rule
     val cameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
@@ -126,16 +125,7 @@ class ResolutionSelectorDeviceTest(
                         arrayOf(
                             "config=${Camera2Config::class.simpleName} lensFacing={$lens}",
                             selector,
-                            Camera2Config::class.simpleName,
                             Camera2Config.defaultConfig(),
-                        )
-                    )
-                    add(
-                        arrayOf(
-                            "config=${CameraPipeConfig::class.simpleName} lensFacing={$lens}",
-                            selector,
-                            CameraPipeConfig::class.simpleName,
-                            CameraPipeConfig.defaultConfig(),
                         )
                     )
                 }
@@ -590,44 +580,15 @@ class ResolutionSelectorDeviceTest(
     // Checks whether it is the device for AspectRatioLegacyApi21Quirk
     private fun hasAspectRatioLegacyApi21Quirk(): Boolean {
         val quirks = cameraInfoInternal.cameraQuirks
-
-        return if (implName == CameraPipeConfig::class.simpleName) {
-            quirks.contains(
-                androidx.camera.camera2.pipe.integration.compat.quirk
-                        .AspectRatioLegacyApi21Quirk::class
-                    .java
-            )
-        } else {
-            quirks.contains(
-                androidx.camera.camera2.compat.quirk.AspectRatioLegacyApi21Quirk::class.java
-            )
-        }
+        return quirks.contains(AspectRatioLegacyApi21Quirk::class.java)
     }
 
     // Checks whether it is the device for Nexus4AndroidLTargetAspectRatioQuirk
     private fun hasNexus4AndroidLTargetAspectRatioQuirk() =
-        if (implName == CameraPipeConfig::class.simpleName) {
-            hasDeviceQuirk(
-                androidx.camera.camera2.pipe.integration.compat.quirk
-                        .Nexus4AndroidLTargetAspectRatioQuirk::class
-                    .java
-            )
-        } else {
-            hasDeviceQuirk(
-                androidx.camera.camera2.compat.quirk.Nexus4AndroidLTargetAspectRatioQuirk::class
-                    .java
-            )
-        }
+        hasDeviceQuirk(Nexus4AndroidLTargetAspectRatioQuirk::class.java)
 
     // Checks whether it is the device for ExtraCroppingQuirk
-    private fun hasExtraCroppingQuirk() =
-        if (implName == CameraPipeConfig::class.simpleName) {
-            hasDeviceQuirk(
-                androidx.camera.camera2.pipe.integration.compat.quirk.ExtraCroppingQuirk::class.java
-            )
-        } else {
-            hasDeviceQuirk(androidx.camera.camera2.compat.quirk.ExtraCroppingQuirk::class.java)
-        }
+    private fun hasExtraCroppingQuirk() = hasDeviceQuirk(ExtraCroppingQuirk::class.java)
 
     // Skips the tests when the devices have any of the quirks that might affect the selected
     // resolution.
@@ -637,35 +598,11 @@ class ResolutionSelectorDeviceTest(
     }
 
     private fun hasExcludedSupportedSizesQuirk() =
-        if (implName == CameraPipeConfig::class.simpleName) {
-            hasDeviceQuirk(
-                androidx.camera.camera2.pipe.integration.compat.quirk
-                        .ExcludedSupportedSizesQuirk::class
-                    .java
-            )
-        } else {
-            hasDeviceQuirk(
-                androidx.camera.camera2.compat.quirk.ExcludedSupportedSizesQuirk::class.java
-            )
-        }
+        hasDeviceQuirk(ExcludedSupportedSizesQuirk::class.java)
 
     private fun hasExtraSupportedOutputSizeQuirk() =
-        if (implName == CameraPipeConfig::class.simpleName) {
-            hasDeviceQuirk(
-                androidx.camera.camera2.pipe.integration.compat.quirk
-                        .ExtraSupportedOutputSizeQuirk::class
-                    .java
-            )
-        } else {
-            hasDeviceQuirk(
-                androidx.camera.camera2.compat.quirk.ExtraSupportedOutputSizeQuirk::class.java
-            )
-        }
+        hasDeviceQuirk(ExtraSupportedOutputSizeQuirk::class.java)
 
     private fun <T : Quirk?> hasDeviceQuirk(quirkClass: Class<T>) =
-        if (implName == CameraPipeConfig::class.simpleName) {
-            androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks.get(quirkClass)
-        } else {
-            androidx.camera.camera2.compat.quirk.DeviceQuirks.get(quirkClass)
-        } != null
+        DeviceQuirks.get(quirkClass) != null
 }

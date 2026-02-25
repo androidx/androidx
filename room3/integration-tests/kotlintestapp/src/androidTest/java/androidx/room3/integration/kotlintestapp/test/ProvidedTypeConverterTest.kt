@@ -19,6 +19,7 @@ import android.content.Context
 import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
 import androidx.room3.Dao
+import androidx.room3.DaoReturnTypeConverters
 import androidx.room3.Database
 import androidx.room3.Entity
 import androidx.room3.Insert
@@ -29,6 +30,7 @@ import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import androidx.room3.TypeConverter
 import androidx.room3.TypeConverters
+import androidx.room3.guava.GuavaDaoReturnTypeConverter
 import androidx.room3.integration.kotlintestapp.TestDatabase
 import androidx.room3.integration.kotlintestapp.dao.PetDao
 import androidx.room3.integration.kotlintestapp.dao.RobotsDao
@@ -38,6 +40,8 @@ import androidx.room3.integration.kotlintestapp.vo.PetUser
 import androidx.room3.integration.kotlintestapp.vo.PetWithUser
 import androidx.room3.integration.kotlintestapp.vo.Robot
 import androidx.room3.integration.kotlintestapp.vo.Toy
+import androidx.room3.livedata.LiveDataDaoReturnTypeConverter
+import androidx.room3.rxjava3.Rx3DaoReturnTypeConverters
 import androidx.sqlite.driver.AndroidSQLiteDriver
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -152,6 +156,11 @@ class ProvidedTypeConverterTest {
         views = [PetWithUser::class],
         version = 1,
         exportSchema = false,
+    )
+    @DaoReturnTypeConverters(
+        LiveDataDaoReturnTypeConverter::class,
+        Rx3DaoReturnTypeConverters::class,
+        GuavaDaoReturnTypeConverter::class,
     )
     @TypeConverters(TimeStampConverter::class, UUIDConverter::class)
     internal abstract class TestDatabaseWithConverterOne : RoomDatabase() {

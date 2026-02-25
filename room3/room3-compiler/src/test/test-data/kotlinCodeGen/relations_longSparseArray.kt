@@ -7,6 +7,8 @@ import androidx.room3.util.performBlocking
 import androidx.room3.util.recursiveFetchLongSparseArray
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteStatement
+import androidx.sqlite.prepare
+import androidx.sqlite.step
 import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.Long
@@ -143,7 +145,7 @@ internal class MyDao_Impl(
     }
   }
 
-  private fun __fetchRelationshipArtistAsArtist(_connection: SQLiteConnection, _map: LongSparseArray<Artist?>) {
+  private suspend fun __fetchRelationshipArtistAsArtist(_connection: SQLiteConnection, _map: LongSparseArray<Artist?>) {
     if (_map.isEmpty()) {
       return
     }
@@ -188,7 +190,7 @@ internal class MyDao_Impl(
     }
   }
 
-  private fun __fetchRelationshipSongAsSong(_connection: SQLiteConnection, _map: LongSparseArray<MutableList<Song>>) {
+  private suspend fun __fetchRelationshipSongAsSong(_connection: SQLiteConnection, _map: LongSparseArray<MutableList<Song>>) {
     if (_map.isEmpty()) {
       return
     }
@@ -237,7 +239,7 @@ internal class MyDao_Impl(
     }
   }
 
-  private fun __fetchRelationshipSongAsSong_1(_connection: SQLiteConnection, _map: LongSparseArray<MutableList<Song>>) {
+  private suspend fun __fetchRelationshipSongAsSong_1(_connection: SQLiteConnection, _map: LongSparseArray<MutableList<Song>>) {
     if (_map.isEmpty()) {
       return
     }

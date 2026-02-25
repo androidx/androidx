@@ -20,12 +20,15 @@ import android.os.Bundle
 import android.os.Trace
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.tooling.ComposeToolingApi
+import androidx.compose.runtime.tooling.ComposeToolingFlags
 import com.skydoves.pokedex.compose.core.PokedexFeatureFlags
 import com.skydoves.pokedex.compose.core.database.entitiy.mapper.getPokemonImageUrlByName
 import com.skydoves.pokedex.compose.core.model.Pokemon
 import com.skydoves.pokedex.compose.core.navigation.PokedexScreen
 import com.skydoves.pokedex.compose.core.network.di.ModuleLocator
 import com.skydoves.pokedex.compose.ui.PokedexMain
+import okhttp3.HttpUrl.Companion.toHttpUrl
 
 /**
  * Entry point for benchmarks against poxedex-compose.
@@ -37,39 +40,51 @@ class PokedexActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Trace.beginSection("PokedexActivity Setup")
-        if (BuildConfig.DEBUG) {
-            throw IllegalStateException(
-                "pokedex-macrobenchmark-target was built in debug" +
-                    " configuration. Please build it in release mode."
-            )
+
+        @OptIn(ComposeToolingApi::class)
+        ComposeToolingFlags.isVerboseTracingEnabled = true
+
+        check(!BuildConfig.DEBUG) {
+            "pokedex-macrobenchmark-target was built in debug" +
+                " configuration. Please build it in release mode."
         }
-        if (!intent.hasExtra("enableSharedTransitionScope")) {
-            throw IllegalStateException("enableSharedTransitionScope must be set")
+
+        check(intent.hasExtra("apiUrl")) { "apiUrl must be set" }
+        ModuleLocator.networkModule.baseUrl = intent.getStringExtra("apiUrl")!!.toHttpUrl()
+
+        check(intent.hasExtra("enableSharedTransitionScope")) {
+            "enableSharedTransitionScope must be set"
         }
         PokedexFeatureFlags.EnableSharedTransitionScope =
             intent.getBooleanExtra("enableSharedTransitionScope", false)
 
-        if (!intent.hasExtra("enableSharedElementTransitions")) {
-            throw IllegalStateException("enableSharedElementTransitions must be set")
+        check(intent.hasExtra("enableSharedElementTransitions")) {
+            "enableSharedElementTransitions must be set"
         }
         PokedexFeatureFlags.EnableSharedElementTransitions =
             intent.getBooleanExtra("enableSharedElementTransitions", false)
+
+        if (intent.getBooleanExtra("useLifecycleEventForDataLoad", false)) {
+            PokedexFeatureFlags.UseLifecycleEffectForDataLoadingOnStartup = true
+        }
+
+        if (intent.getBooleanExtra("useBackgroundTextPrewarming", false)) {
+            PokedexFeatureFlags.UseBackgroundTextPrewarming = true
+        }
+
         val startDestination =
             when (intent.getStringExtra("startDestination")) {
                 "home" -> PokedexScreen.Home
-                "details" ->
+                "details" -> {
+                    val name = "Ablazeon"
                     PokedexScreen.Details(
                         pokemon =
                             Pokemon(
-                                name = "Bulbasaur",
-                                imageUrl =
-                                    getPokemonImageUrlByName(
-                                            "Bulbasaur",
-                                            ModuleLocator.networkModule.baseUrl,
-                                        )
-                                        .toString(),
+                                name = name,
+                                imageUrl = getPokemonImageUrlByName(name).toString(),
                             )
                     )
+                }
                 else -> PokedexScreen.Home
             }
         Trace.endSection()

@@ -27,8 +27,8 @@ import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.data.ComplicationType
 import java.io.DataOutputStream
 
-const val NAMESPACE_APP = "http://schemas.android.com/apk/res-auto"
-const val NAMESPACE_ANDROID = "http://schemas.android.com/apk/res/android"
+public const val NAMESPACE_APP: String = "http://schemas.android.com/apk/res-auto"
+public const val NAMESPACE_ANDROID: String = "http://schemas.android.com/apk/res/android"
 
 /**
  * ComplicationSlotBounds are defined by fractional screen space coordinates in unit-square [0..1].
@@ -59,12 +59,12 @@ public class ComplicationSlotBounds(
             "ComplicationSlotBounds(Map<ComplicationType, RectF>, Map<ComplicationType, RectF>)"
         ),
     )
-    constructor(
+    public constructor(
         perComplicationTypeBounds: Map<ComplicationType, RectF>
     ) : this(perComplicationTypeBounds, perComplicationTypeBounds.mapValues { RectF() })
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun write(dos: DataOutputStream) {
+    public fun write(dos: DataOutputStream) {
         perComplicationTypeBounds.keys.toSortedSet().forEach { type ->
             dos.writeInt(type.toWireComplicationType())
             perComplicationTypeBounds[type]!!.write(dos)
@@ -119,7 +119,7 @@ public class ComplicationSlotBounds(
         }
     }
 
-    companion object {
+    public companion object {
         internal const val NODE_NAME = "ComplicationSlotBounds"
 
         /**
@@ -129,7 +129,7 @@ public class ComplicationSlotBounds(
          * otherwise be problematic if new complication types have been introduced.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        fun createFromPartialMap(
+        public fun createFromPartialMap(
             partialPerComplicationTypeBounds: Map<ComplicationType, RectF>,
             partialPerComplicationTypeMargins: Map<ComplicationType, RectF>,
         ): ComplicationSlotBounds {
@@ -149,7 +149,7 @@ public class ComplicationSlotBounds(
          * nodes. No other child nodes are expected.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        fun inflate(
+        public fun inflate(
             resources: Resources,
             parser: XmlResourceParser,
             complicationScaleX: Float,
@@ -269,7 +269,7 @@ internal fun XmlResourceParser.get(id: String, resources: Resources, scale: Floa
     }
 }
 
-fun XmlResourceParser.hasValue(id: String): Boolean {
+public fun XmlResourceParser.hasValue(id: String): Boolean {
     return null != getAttributeValue(NAMESPACE_APP, id)
 }
 

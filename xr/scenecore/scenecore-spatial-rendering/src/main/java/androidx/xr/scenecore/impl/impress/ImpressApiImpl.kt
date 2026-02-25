@@ -23,16 +23,21 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.FloatSize3d
+import androidx.xr.runtime.math.Matrix4
+import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.impl.impress.ImpressApi.ColorRange
 import androidx.xr.scenecore.impl.impress.ImpressApi.ColorSpace
 import androidx.xr.scenecore.impl.impress.ImpressApi.ColorTransfer
 import androidx.xr.scenecore.impl.impress.ImpressApi.ContentSecurityLevel
+import androidx.xr.scenecore.impl.impress.ImpressApi.DrawMode
 import androidx.xr.scenecore.impl.impress.ImpressApi.MediaBlendingMode
 import androidx.xr.scenecore.impl.impress.ImpressApi.StereoMode
 import androidx.xr.scenecore.runtime.KhronosPbrMaterialSpec
 import androidx.xr.scenecore.runtime.TextureSampler
 import com.google.ar.imp.view.View
+import java.nio.FloatBuffer
+import java.nio.IntBuffer
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -371,9 +376,77 @@ public class ImpressApiImpl : ImpressApi {
      * @param impressNode The integer ID of the impress node for the instance of the gLTF
      * @param enabled A boolean indicated whether to add or remove the reform affordance for the
      *   gLTF model.
+     * @param systemMovable A boolean indicating whether to handle the move input events or not.
      */
-    override fun setGltfReformAffordanceEnabled(impressNode: ImpressNode, enabled: Boolean): Unit =
-        nSetGltfReformAffordanceEnabled(getViewNativeHandle(view), impressNode.handle, enabled)
+    override fun setGltfReformAffordanceEnabled(
+        impressNode: ImpressNode,
+        enabled: Boolean,
+        systemMovable: Boolean,
+    ): Unit =
+        nSetGltfReformAffordanceEnabled(
+            getViewNativeHandle(view),
+            impressNode.handle,
+            enabled,
+            systemMovable,
+        )
+
+    /**
+     * Starts an animation on an instanced glTF model on a specific channel.
+     *
+     * @param impressNode The integer ID of the Impress node for the instance of the GLTF
+     * @param animationName A nullable String which contains a requested animation to play. If null
+     *   is provided, this will attempt to play the first animation it finds
+     * @param looping True if the animation should loop. Note that if the animation is looped, the
+     *   returned Future will never fire successfully.
+     * @param speed The speed of the animation where 1.0 is the normal speed and negative values
+     *   will play the animation in reverse.
+     * @param startTime The start time of the animation in seconds.
+     * @param channel The channel of the animation.
+     * @return a [Void] result when the animation completed.
+     */
+    override suspend fun animateGltfModelNew(
+        impressNode: ImpressNode,
+        animationName: String?,
+        looping: Boolean,
+        speed: Float,
+        startTime: Float,
+        channel: Int,
+    ): Void? = suspendCancellableCoroutine { continuation ->
+        nAnimateGltfModelNew(
+            getViewNativeHandle(view),
+            impressNode.handle,
+            animationName,
+            looping,
+            speed,
+            startTime,
+            channel,
+            object : AssetAnimator {
+                override fun onComplete() {
+                    continuation.resume(null)
+                }
+
+                override fun onFailure(message: String) {
+                    // We can safely check for the CANCELLED string here since we
+                    // know that the underlying absl Status code is being
+                    // translated to a java Exception and the message is being
+                    // propagated. Ideally the native code would generate a separate
+                    // signal call for this.
+                    // TODO: b/374217508 - Publish a more precisely typed Exception
+                    // interface for this.
+                    if (message.contains("CANCELLED")) {
+                        onCancelled(message)
+                    } else {
+                        continuation.resumeWithException(Exception(message))
+                    }
+                }
+
+                override fun onCancelled(message: String) {
+                    continuation.cancel(Exception(message))
+                }
+            },
+        )
+        "AnimateGltfModel Operation"
+    }
 
     /**
      * Starts an animation on an instanced GLTFModel.
@@ -386,6 +459,8 @@ public class ImpressApiImpl : ImpressApi {
      * @return a [Void] result when the animation stops. An exception is thrown if the animation
      *   can't play.
      */
+    // TODO: b/465818627 - Remove old animation APIs once all clients are migrated
+    // to new animation system.
     override suspend fun animateGltfModel(
         impressNode: ImpressNode,
         animationName: String?,
@@ -429,11 +504,109 @@ public class ImpressApiImpl : ImpressApi {
      *
      * @param impressNode The integer ID of the Impress node for the instance of the GLTF
      */
+    // TODO: b/465818627 - Remove old animation APIs once all clients are migrated
+    // to new animation system.
     override fun stopGltfModelAnimation(impressNode: ImpressNode): Unit =
         nStopGltfModelAnimation(getViewNativeHandle(view), impressNode.handle)
 
+    /**
+     * Stops an animation on an instanced glTF model on a specific channel.
+     *
+     * @param impressNode The integer ID of the Impress node for the instance of the GLTF
+     * @param channel The channel of the animation.
+     */
+    override fun stopGltfModelAnimationNew(impressNode: ImpressNode, channel: Int): Unit =
+        nStopGltfModelAnimationNew(getViewNativeHandle(view), impressNode.handle, channel)
+
+    /**
+     * Toggles an animation on an instanced glTF model on a specific channel.
+     *
+     * @param impressNode The integer ID of the Impress node for the instance of the GLTF
+     * @param playing True if the animation should play, false if it should stop.
+     * @param channel The channel of the animation.
+     */
+    override fun toggleGltfModelAnimationNew(
+        impressNode: ImpressNode,
+        playing: Boolean,
+        channel: Int,
+    ): Unit =
+        nToggleGltfModelAnimationNew(
+            getViewNativeHandle(view),
+            impressNode.handle,
+            playing,
+            channel,
+        )
+
+    /**
+     * Toggles an animation on an instanced GLTFModel.
+     *
+     * @param impressNode The integer ID of the Impress node for the instance of the GLTF
+     * @param playing True if the animation should play, false if it should stop.
+     */
+    // TODO: b/465818627 - Remove old animation APIs once all clients are migrated
+    // to new animation system.
     override fun toggleGltfModelAnimation(impressNode: ImpressNode, playing: Boolean): Unit =
         nToggleGltfModelAnimation(getViewNativeHandle(view), impressNode.handle, playing)
+
+    /**
+     * Sets the playback time of an animation on an instanced glTF model on a specific channel.
+     *
+     * @param impressNode The integer ID of the Impress node for the instance of the GLTF
+     * @param playbackTime The playback time of the animation.
+     * @param channel The channel of the animation.
+     */
+    override fun setGltfModelAnimationPlaybackTime(
+        impressNode: ImpressNode,
+        playbackTime: Float,
+        channel: Int,
+    ): Unit =
+        nSetGltfModelAnimationPlaybackTime(
+            getViewNativeHandle(view),
+            impressNode.handle,
+            playbackTime,
+            channel,
+        )
+
+    /**
+     * Sets the playback speed of an animation on an instanced glTF model on a specific channel.
+     *
+     * @param impressNode The integer ID of the Impress node for the instance of the GLTF
+     * @param speed The speed of the animation where 1.0 is the normal speed and negative values
+     *   will play the animation in reverse.
+     * @param channel The channel of the animation.
+     */
+    override fun setGltfModelAnimationSpeed(
+        impressNode: ImpressNode,
+        speed: Float,
+        channel: Int,
+    ): Unit =
+        nSetGltfModelAnimationSpeed(getViewNativeHandle(view), impressNode.handle, speed, channel)
+
+    /**
+     * Returns the number of animations on an instanced glTF model.
+     *
+     * @param impressNode The integer ID of the Impress node for the instance of the GLTF
+     */
+    override fun getGltfModelAnimationCount(impressNode: ImpressNode): Int =
+        nGetGltfModelAnimationCount(getViewNativeHandle(view), impressNode.handle)
+
+    /**
+     * Returns the name of the animation on an instanced glTF model.
+     *
+     * @param impressNode The integer ID of the Impress node for the instance of the GLTF
+     * @param index The index of the animation as defined in the glTF file.
+     */
+    override fun getGltfModelAnimationName(impressNode: ImpressNode, index: Int): String? =
+        nGetGltfModelAnimationName(getViewNativeHandle(view), impressNode.handle, index)
+
+    /**
+     * Returns the duration in seconds of the animation on an instanced glTF model.
+     *
+     * @param impressNode The integer ID of the Impress node for the instance of the GLTF
+     * @param index The index of the animation as defined in the glTF file.
+     */
+    override fun getGltfModelAnimationDurationSeconds(impressNode: ImpressNode, index: Int): Float =
+        nGetGltfModelAnimationDurationSeconds(getViewNativeHandle(view), impressNode.handle, index)
 
     override fun createImpressNode(): ImpressNode =
         ImpressNode(nCreateImpressNode(getViewNativeHandle(view)))
@@ -474,6 +647,118 @@ public class ImpressApiImpl : ImpressApi {
             impressNodeChild.handle,
             impressNodeParent.handle,
         )
+
+    override fun getImpressNodeParent(impressNode: ImpressNode): ImpressNode =
+        ImpressNode(nGetImpressNodeParent(getViewNativeHandle(view), impressNode.handle))
+
+    override fun getImpressNodeChildCount(impressNode: ImpressNode): Int =
+        nGetImpressNodeChildCount(getViewNativeHandle(view), impressNode.handle)
+
+    override fun getImpressNodeChildAt(impressNode: ImpressNode, childIndex: Int): ImpressNode =
+        ImpressNode(
+            nGetImpressNodeChildAt(getViewNativeHandle(view), impressNode.handle, childIndex)
+        )
+
+    override fun getImpressNodeName(impressNode: ImpressNode): String =
+        nGetImpressNodeName(getViewNativeHandle(view), impressNode.handle)
+
+    override fun setImpressNodeLocalTransform(impressNode: ImpressNode, transform: Matrix4) {
+        val pose = transform.pose
+        val scale = transform.scale
+        nSetImpressNodeLocalTransform(
+            getViewNativeHandle(view),
+            impressNode.handle,
+            pose.translation.x,
+            pose.translation.y,
+            pose.translation.z,
+            pose.rotation.x,
+            pose.rotation.y,
+            pose.rotation.z,
+            pose.rotation.w,
+            scale.x,
+            scale.y,
+            scale.z,
+        )
+    }
+
+    override fun getImpressNodeLocalTransform(impressNode: ImpressNode): Matrix4 {
+        val buffer = FloatArray(10)
+        nGetImpressNodeLocalTransform(getViewNativeHandle(view), impressNode.handle, buffer)
+
+        return Matrix4.fromTrs(
+            Vector3(buffer[0], buffer[1], buffer[2]),
+            Quaternion(buffer[3], buffer[4], buffer[5], buffer[6]),
+            Vector3(buffer[7], buffer[8], buffer[9]),
+        )
+    }
+
+    override fun setImpressNodeRelativeTransform(
+        impressNode: ImpressNode,
+        relativeNode: ImpressNode,
+        transform: Matrix4,
+    ) {
+        val pose = transform.pose
+        val scale = transform.scale
+        nSetImpressNodeRelativeTransform(
+            getViewNativeHandle(view),
+            impressNode.handle,
+            relativeNode.handle,
+            pose.translation.x,
+            pose.translation.y,
+            pose.translation.z,
+            pose.rotation.x,
+            pose.rotation.y,
+            pose.rotation.z,
+            pose.rotation.w,
+            scale.x,
+            scale.y,
+            scale.z,
+        )
+    }
+
+    override fun getImpressNodeRelativeTransform(
+        impressNode: ImpressNode,
+        relativeNode: ImpressNode,
+    ): Matrix4 {
+        val buffer = FloatArray(10)
+        nGetImpressNodeRelativeTransform(
+            getViewNativeHandle(view),
+            impressNode.handle,
+            relativeNode.handle,
+            buffer,
+        )
+
+        return Matrix4.fromTrs(
+            Vector3(buffer[0], buffer[1], buffer[2]),
+            Quaternion(buffer[3], buffer[4], buffer[5], buffer[6]),
+            Vector3(buffer[7], buffer[8], buffer[9]),
+        )
+    }
+
+    override fun scheduleGltfReskinning(impressNode: ImpressNode) {
+        nScheduleGltfReskinning(getViewNativeHandle(view), impressNode.handle)
+    }
+
+    override fun setGltfModelNodeMaterialOverride(
+        impressNode: ImpressNode,
+        nativeMaterial: Long,
+        primitiveIndex: Int,
+    ) {
+        nSetGltfModelNodeMaterialOverride(
+            getViewNativeHandle(view),
+            impressNode.handle,
+            nativeMaterial,
+            primitiveIndex,
+        )
+    }
+
+    override fun clearGltfModelNodeMaterialOverride(impressNode: ImpressNode, primitiveIndex: Int) {
+        nClearGltfModelNodeMaterialOverride(
+            getViewNativeHandle(view),
+            impressNode.handle,
+            primitiveIndex,
+        )
+    }
 
     override fun createStereoSurface(@StereoMode stereoMode: Int): ImpressNode =
         createStereoSurface(stereoMode, ContentSecurityLevel.NONE)
@@ -546,6 +831,28 @@ public class ImpressApiImpl : ImpressApi {
             radius,
         )
 
+    override fun setStereoSurfaceEntityCanvasShapeCustomMesh(
+        impressNode: ImpressNode,
+        leftPositions: FloatBuffer,
+        leftTexCoords: FloatBuffer,
+        leftIndices: IntBuffer?,
+        rightPositions: FloatBuffer?,
+        rightTexCoords: FloatBuffer?,
+        rightIndices: IntBuffer?,
+        @DrawMode drawMode: Int,
+    ): Unit =
+        nSetStereoSurfaceEntityCanvasShapeCustomMesh(
+            getViewNativeHandle(view),
+            impressNode.handle,
+            leftPositions,
+            leftTexCoords,
+            leftIndices,
+            rightPositions,
+            rightTexCoords,
+            rightIndices,
+            drawMode,
+        )
+
     override fun setStereoSurfaceEntityColliderEnabled(
         impressNode: ImpressNode,
         enableCollider: Boolean,
@@ -564,6 +871,16 @@ public class ImpressApiImpl : ImpressApi {
             getViewNativeHandle(view),
             panelImpressNode.handle,
             validateStereoMode(stereoMode),
+        )
+
+    override fun setBlendingModeForStereoSurfaceEntity(
+        panelImpressNode: ImpressNode,
+        @MediaBlendingMode blendingMode: Int,
+    ): Unit =
+        nSetBlendingModeForStereoSurfaceEntity(
+            getViewNativeHandle(view),
+            panelImpressNode.handle,
+            validateMediaBlendingMode(blendingMode),
         )
 
     override fun setContentColorMetadataForStereoSurface(
@@ -1402,39 +1719,16 @@ public class ImpressApiImpl : ImpressApi {
     override fun destroyNativeObject(nativeHandle: Long): Unit =
         nDestroyNativeObject(getViewNativeHandle(view), nativeHandle)
 
-    override fun setMaterialOverride(
-        impressNode: ImpressNode,
-        nativeMaterial: Long,
-        nodeName: String,
-        primitiveIndex: Int,
-    ): Unit =
-        nSetMaterialOverride(
-            getViewNativeHandle(view),
-            impressNode.handle,
-            nativeMaterial,
-            nodeName,
-            primitiveIndex,
-        )
-
-    override fun clearMaterialOverride(
-        impressNode: ImpressNode,
-        nodeName: String,
-        primitiveIndex: Int,
-    ): Unit =
-        nClearMaterialOverride(
-            getViewNativeHandle(view),
-            impressNode.handle,
-            nodeName,
-            primitiveIndex,
-        )
-
     override fun setPreferredEnvironmentLight(iblToken: Long): Unit =
         nSetEnvironmentLight(getViewNativeHandle(view), iblToken)
 
     override fun clearPreferredEnvironmentIblAsset(): Unit =
         nClearEnvironmentLight(getViewNativeHandle(view))
 
-    override fun disposeAllResources(): Unit = nDisposeAllResources(getViewNativeHandle(view))
+    override fun disposeAllResources(): Unit {
+        resourceManager.disable()
+        nDisposeAllResources(getViewNativeHandle(view))
+    }
 
     private fun getViewNativeHandle(view: View?): Long {
         if (view != null) {
@@ -1490,8 +1784,22 @@ public class ImpressApiImpl : ImpressApi {
         view: Long,
         impressNode: Int,
         enabled: Boolean,
+        systemMovable: Boolean,
     )
 
+    private external fun nAnimateGltfModelNew(
+        view: Long,
+        impressNode: Int,
+        animationName: String?,
+        loop: Boolean,
+        speed: Float,
+        startTime: Float,
+        channelId: Int,
+        assetAnimator: AssetAnimator,
+    )
+
+    // TODO: b/465818627 - Remove old animation APIs once all clients are
+    // migrated to new animation system.
     private external fun nAnimateGltfModel(
         view: Long,
         impressNode: Int,
@@ -1500,9 +1808,50 @@ public class ImpressApiImpl : ImpressApi {
         assetAnimator: AssetAnimator,
     )
 
+    private external fun nStopGltfModelAnimationNew(view: Long, impressNode: Int, channelId: Int)
+
+    // TODO: b/465818627 - Remove old animation APIs once all clients are
+    // migrated to new animation system.
     private external fun nStopGltfModelAnimation(view: Long, impressNode: Int)
 
+    private external fun nToggleGltfModelAnimationNew(
+        view: Long,
+        impressNode: Int,
+        toggle: Boolean,
+        channelId: Int,
+    )
+
+    // TODO: b/465818627 - Remove old animation APIs once all clients are
+    // migrated to new animation system.
     private external fun nToggleGltfModelAnimation(view: Long, impressNode: Int, toggle: Boolean)
+
+    private external fun nSetGltfModelAnimationPlaybackTime(
+        view: Long,
+        impressNode: Int,
+        playbackTime: Float,
+        channelId: Int,
+    )
+
+    private external fun nSetGltfModelAnimationSpeed(
+        view: Long,
+        impressNode: Int,
+        speed: Float,
+        channelId: Int,
+    )
+
+    private external fun nGetGltfModelAnimationCount(view: Long, impressNode: Int): Int
+
+    private external fun nGetGltfModelAnimationName(
+        view: Long,
+        impressNode: Int,
+        index: Int,
+    ): String?
+
+    private external fun nGetGltfModelAnimationDurationSeconds(
+        view: Long,
+        impressNode: Int,
+        index: Int,
+    ): Float
 
     private external fun nGetGltfModelLocalBounds(
         view: Long,
@@ -1519,6 +1868,73 @@ public class ImpressApiImpl : ImpressApi {
         view: Long,
         impressNodeChild: Int,
         impressNodeParent: Int,
+    )
+
+    private external fun nGetImpressNodeParent(view: Long, impressNode: Int): Int
+
+    private external fun nGetImpressNodeChildCount(view: Long, impressNode: Int): Int
+
+    private external fun nGetImpressNodeChildAt(view: Long, impressNode: Int, index: Int): Int
+
+    private external fun nGetImpressNodeName(view: Long, impressNode: Int): String
+
+    private external fun nSetImpressNodeLocalTransform(
+        view: Long,
+        impressNode: Int,
+        tx: Float,
+        ty: Float,
+        tz: Float,
+        qx: Float,
+        qy: Float,
+        qz: Float,
+        qw: Float,
+        sx: Float,
+        sy: Float,
+        sz: Float,
+    )
+
+    private external fun nGetImpressNodeLocalTransform(
+        view: Long,
+        impressNode: Int,
+        outTransform: FloatArray,
+    )
+
+    private external fun nSetImpressNodeRelativeTransform(
+        view: Long,
+        impressNode: Int,
+        relativeNode: Int,
+        tx: Float,
+        ty: Float,
+        tz: Float,
+        qx: Float,
+        qy: Float,
+        qz: Float,
+        qw: Float,
+        sx: Float,
+        sy: Float,
+        sz: Float,
+    )
+
+    private external fun nGetImpressNodeRelativeTransform(
+        view: Long,
+        impressNode: Int,
+        relativeNode: Int,
+        outTransform: FloatArray,
+    )
+
+    private external fun nScheduleGltfReskinning(view: Long, impressNode: Int)
+
+    private external fun nSetGltfModelNodeMaterialOverride(
+        view: Long,
+        impressNode: Int,
+        material: Long,
+        primitiveIndex: Int,
+    )
+
+    private external fun nClearGltfModelNodeMaterialOverride(
+        view: Long,
+        impressNode: Int,
+        primitiveIndex: Int,
     )
 
     private external fun nCreateStereoSurfaceEntity(
@@ -1556,6 +1972,18 @@ public class ImpressApiImpl : ImpressApi {
         radius: Float,
     )
 
+    private external fun nSetStereoSurfaceEntityCanvasShapeCustomMesh(
+        view: Long,
+        impressNode: Int,
+        leftPositions: FloatBuffer,
+        leftTexCoords: FloatBuffer,
+        leftIndices: IntBuffer?,
+        rightPositions: FloatBuffer?,
+        rightTexCoords: FloatBuffer?,
+        rightIndices: IntBuffer?,
+        drawMode: Int,
+    )
+
     private external fun nSetStereoSurfaceEntityColliderEnabled(
         view: Long,
         impressNode: Int,
@@ -1578,6 +2006,12 @@ public class ImpressApiImpl : ImpressApi {
         view: Long,
         panelImpressNode: Int,
         stereoMode: Int,
+    )
+
+    private external fun nSetBlendingModeForStereoSurfaceEntity(
+        view: Long,
+        panelImpressNode: Int,
+        blendingMode: Int,
     )
 
     private external fun nSetContentColorMetadataForStereoSurfaceEntity(
@@ -2036,21 +2470,6 @@ public class ImpressApiImpl : ImpressApi {
     )
 
     private external fun nDestroyNativeObject(view: Long, nativeHandle: Long)
-
-    private external fun nSetMaterialOverride(
-        view: Long,
-        impressNode: Int,
-        nativeMaterial: Long,
-        nodeName: String,
-        primitiveIndex: Int,
-    )
-
-    private external fun nClearMaterialOverride(
-        view: Long,
-        impressNode: Int,
-        nodeName: String,
-        primitiveIndex: Int,
-    )
 
     private external fun nSetEnvironmentLight(view: Long, iblToken: Long)
 

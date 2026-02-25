@@ -70,6 +70,7 @@ public class DrawCircle extends DrawBase3 {
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("draw_circle")
                 .description("Draw a Circle")
                 .field(
                         DocumentedOperation.FLOAT,

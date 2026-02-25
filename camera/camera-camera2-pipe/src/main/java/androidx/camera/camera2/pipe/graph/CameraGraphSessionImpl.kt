@@ -44,6 +44,11 @@ internal class CameraGraphSessionImpl(
     private val listeners: CameraGraphRequestListenersImpl,
 ) : CameraGraph.Session {
     private val debugId = cameraGraphSessionIds.incrementAndGet()
+    override var repeatingRequest: Request?
+        get() = graphProcessor.repeatingRequest
+        set(request) {
+            graphProcessor.repeatingRequest = request
+        }
 
     override fun submit(request: Request) {
         check(!token.released) { "Cannot call submit on $this after close." }
@@ -84,10 +89,10 @@ internal class CameraGraphSessionImpl(
     }
 
     override fun close() {
-        val unappliedParameters = parameters.fetchUpdatedParameters()
-        if (unappliedParameters != null) {
-            graphProcessor.updateGraphParameters(unappliedParameters)
-        }
+        // Apply any pending changes to parameters. Since we are already holding a session it's
+        // good to apply them, so that we avoid acquisition of a new session.
+        parameters.flush()
+
         val unappliedListeners = listeners.fetchUpdatedListeners()
         if (unappliedListeners != null) {
             graphProcessor.updateRequestListeners(unappliedListeners)

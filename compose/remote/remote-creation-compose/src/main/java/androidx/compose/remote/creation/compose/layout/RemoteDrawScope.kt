@@ -31,7 +31,6 @@ import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * A remote-compatible drawing scope for RemoteCompose. Unlike [DrawScope], this class uses remote
@@ -39,21 +38,18 @@ import androidx.compose.ui.unit.LayoutDirection
  * API incompatibilities.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public open class RemoteDrawScope(
-    public val remoteCanvas: RemoteCanvas,
-    public val fontScale: RemoteFloat,
-    public val layoutDirection: LayoutDirection,
-) : RemoteStateScope by remoteCanvas {
+public open class RemoteDrawScope internal constructor(public val remoteCanvas: RemoteCanvas) :
+    RemoteStateScope by remoteCanvas {
     public val remoteComposeCreationState: RemoteComposeCreationState
         get() = remoteCanvas.creationState
 
     /** The width of the drawing area as a [RemoteFloat]. */
     public val remoteWidth: RemoteFloat
-        get() = remoteCanvas.componentWidth
+        get() = remoteCanvas.remote.component.width
 
     /** The height of the drawing area as a [RemoteFloat]. */
     public val remoteHeight: RemoteFloat
-        get() = remoteCanvas.componentHeight
+        get() = remoteCanvas.remote.component.height
 
     /** The center of the drawing area as a [RemoteOffset]. */
     public val remoteCenter: RemoteOffset
@@ -244,12 +240,12 @@ public open class RemoteDrawScope(
         text: RemoteString,
         anchorX: RemoteFloat,
         anchorY: RemoteFloat,
-        panx: RemoteFloat = 0f.rf,
-        pany: RemoteFloat = 0f.rf,
+        panX: RemoteFloat = 0f.rf,
+        panY: RemoteFloat = 0f.rf,
         flags: Int = 0,
         paint: RemotePaint,
     ) {
-        remoteCanvas.drawAnchoredText(text, anchorX, anchorY, panx, pany, flags, paint)
+        remoteCanvas.drawAnchoredText(text, anchorX, anchorY, panX, panY, flags, paint)
     }
 
     /** Draws text along a path. */
@@ -266,6 +262,15 @@ public open class RemoteDrawScope(
     /** Performs a rotation. */
     public fun rotate(degrees: RemoteFloat, block: RemoteDrawScope.() -> Unit) {
         withTransform({ rotate(degrees) }, block)
+    }
+
+    /** Performs a rotation. */
+    public fun rotate(
+        degrees: RemoteFloat,
+        pivot: RemoteOffset,
+        block: RemoteDrawScope.() -> Unit,
+    ) {
+        withTransform({ rotate(degrees, pivot) }, block)
     }
 
     /** Performs a translation. */
@@ -386,5 +391,5 @@ public open class RemoteDrawScope(
     }
 
     /** Access to remote-specific utilities like time and animations. */
-    public val remote: RemoteAccess = RemoteAccess(this, remoteComposeCreationState)
+    public val remote: RemoteAccess = RemoteAccess(this)
 }

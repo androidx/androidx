@@ -45,6 +45,7 @@ import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDe
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.metadata
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.runtime.samples.Dashboard
@@ -91,13 +92,15 @@ fun SceneNav() {
                 }
                 entry<Dashboard>(
                     metadata =
-                        NavDisplay.predictivePopTransitionSpec { swipeEdge ->
-                            if (swipeEdge == NavigationEvent.EDGE_RIGHT) {
-                                slideInHorizontally(tween(700)) { it / 2 } togetherWith
-                                    slideOutHorizontally(tween(700)) { -it / 2 }
-                            } else {
-                                slideInHorizontally(tween(700)) { -it / 2 } togetherWith
-                                    slideOutHorizontally(tween(700)) { it / 2 }
+                        metadata {
+                            put(NavDisplay.PredictivePopTransitionKey) { swipeEdge: Int ->
+                                if (swipeEdge == NavigationEvent.EDGE_RIGHT) {
+                                    slideInHorizontally(tween(700)) { it / 2 } togetherWith
+                                        slideOutHorizontally(tween(700)) { -it / 2 }
+                                } else {
+                                    slideInHorizontally(tween(700)) { -it / 2 } togetherWith
+                                        slideOutHorizontally(tween(700)) { it / 2 }
+                                }
                             }
                         }
                 ) { dashboardArgs ->

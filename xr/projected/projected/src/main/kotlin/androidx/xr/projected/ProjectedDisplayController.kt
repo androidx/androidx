@@ -20,7 +20,10 @@ import android.app.Activity
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.view.WindowManager
+import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.xr.projected.ProjectedDisplayController.Companion.create
 import androidx.xr.projected.ProjectedDisplayController.PresentationMode.Companion.VISUALS_ON
 import androidx.xr.projected.binding.ProjectedServiceConnection
@@ -71,7 +74,7 @@ private constructor(
      * If an unsupported flag is passed, this method does nothing.
      */
     @ExperimentalProjectedApi
-    public fun addLayoutParamsFlags(flags: Int) {
+    public fun addLayoutParamsFlags(@ProjectedLayoutParamsFlags flags: Int) {
         projectedService.addWindowFlags(flags)
     }
 
@@ -85,7 +88,7 @@ private constructor(
      * If an unsupported flag is passed, this method does nothing.
      */
     @ExperimentalProjectedApi
-    public fun removeLayoutParamsFlags(flags: Int) {
+    public fun removeLayoutParamsFlags(@ProjectedLayoutParamsFlags flags: Int) {
         projectedService.clearWindowFlags(flags)
     }
 
@@ -242,4 +245,12 @@ private constructor(
             )
         }
     }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(
+        flag = true, // Indicates these constants can be combined using bitwise ops.
+        value = [WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON],
+    )
+    public annotation class ProjectedLayoutParamsFlags
 }

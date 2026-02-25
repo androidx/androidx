@@ -471,6 +471,8 @@ RemovedMethod: androidx.wear.compose.material.ChipDefaults#primaryChipColors(lon
     Binary breaking change: Removed method androidx.wear.compose.material.ChipDefaults.primaryChipColors(long,long,long,long)
 RemovedMethod: androidx.wear.compose.material.ChipDefaults#secondaryChipColors(long, long, long, long):
     Binary breaking change: Removed method androidx.wear.compose.material.ChipDefaults.secondaryChipColors(long,long,long,long)
+RemovedMethod: androidx.wear.compose.material.Colors#Colors():
+    Binary breaking change: Removed constructor androidx.wear.compose.material.Colors()
 RemovedMethod: androidx.wear.compose.material.Colors#copy(long, long, long, long, long, long, long, long, long, long, long, long, long):
     Binary breaking change: Removed method androidx.wear.compose.material.Colors.copy(long,long,long,long,long,long,long,long,long,long,long,long,long)
 RemovedMethod: androidx.wear.compose.material.ColorsKt#contentColorFor(androidx.wear.compose.material.Colors, long):

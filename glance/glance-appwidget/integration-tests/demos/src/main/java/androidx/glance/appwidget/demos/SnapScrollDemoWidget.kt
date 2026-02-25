@@ -17,11 +17,11 @@
 package androidx.glance.appwidget.demos
 
 import android.content.Context
+import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.glance.GlanceBackendPreference
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
@@ -33,8 +33,8 @@ import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.components.FilledButton
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.lazy.LazyColumn
+import androidx.glance.appwidget.lazy.VerticalScrollMode
 import androidx.glance.appwidget.provideContent
-import androidx.glance.appwidget.remotecompose.components.VerticalSnapScrollMode
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
@@ -73,8 +73,6 @@ class SnapScrollDemoWidgetReceiver : GlanceAppWidgetReceiver() {
 }
 
 class SnapScrollDemoWidget : GlanceAppWidget() {
-    override val backendPreference: GlanceBackendPreference
-        get() = GlanceBackendPreference.RemoteCompose
 
     override val sizeMode: SizeMode
         get() = SizeMode.Exact
@@ -88,10 +86,14 @@ class SnapScrollDemoWidget : GlanceAppWidget() {
 private fun SnapScrollingBobaDemo(cardTexts: List<Pair<String, String>>) {
     // as of 2025-6-1, heights must be identical for everything in a snap scrolling view.
 
+    val scrollMode =
+        if (Build.VERSION.SDK_INT >= 36)
+            VerticalScrollMode.SnapScrollMatchHeight(LocalSize.current.height)
+        else VerticalScrollMode.Normal
+
     Box(GlanceModifier.fillMaxSize()) {
         LazyColumn(
-            rcSnapScrolling =
-                VerticalSnapScrollMode.SnapScrollMatchHeight(LocalSize.current.height),
+            verticalScrollMode = scrollMode,
             modifier = GlanceModifier.fillMaxWidth().fillMaxHeight().cornerRadius(16.dp),
         ) {
             val cardModifier = GlanceModifier.fillMaxWidth().height(99.dp)

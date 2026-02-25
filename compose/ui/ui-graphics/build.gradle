@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -69,10 +68,6 @@ androidXMultiplatform {
             implementation libs.androidx.core
             api("androidx.annotation:annotation-experimental:1.4.1")
         }
-
-        commonStubsMain.dependsOn(commonMain)
-        jvmStubsMain.dependsOn(commonStubsMain)
-        linuxx64StubsMain.dependsOn(commonStubsMain)
 
         androidDeviceTest.dependencies {
             implementation(project(":compose:ui:ui-graphics:ui-graphics-samples"))

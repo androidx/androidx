@@ -18,6 +18,8 @@ package androidx.navigation.internal
 
 internal actual class Log {
     actual companion object {
-        actual fun i(tag: String, message: String): Unit = Unit
+        actual fun i(tag: String, message: String) {
+            println("[$tag] $message")
+        }
     }
 }

@@ -47,31 +47,31 @@ class GeneratedCustomConverterTest {
             Source.kotlin(
                 "Sources.kt",
                 """
-            import androidx.room3.*
+                import androidx.room3.*
 
-            @Database(entities = [MyEntity::class], version = 1, exportSchema = false)
-            @TypeConverters(Generated_CustomConverters::class)
-            abstract class MyDatabase : RoomDatabase() {
-              abstract fun getMyDao(): MyDao
-            }
+                @Database(entities = [MyEntity::class], version = 1, exportSchema = false)
+                @TypeConverters(Generated_CustomConverters::class)
+                abstract class MyDatabase : RoomDatabase() {
+                  abstract fun getMyDao(): MyDao
+                }
 
-            @Dao
-            interface MyDao {
-              @Query("SELECT * FROM MyEntity")
-              fun getMyEntity(): MyEntity
-            }
+                @Dao
+                interface MyDao {
+                  @Query("SELECT * FROM MyEntity")
+                  fun getMyEntity(): MyEntity
+                }
 
-            @Entity
-            @GenConverter
-            data class MyEntity(
-              @PrimaryKey val id: Long,
-              val data: Foo
-            )
+                @Entity
+                @GenConverter
+                data class MyEntity(
+                  @PrimaryKey val id: Long,
+                  val data: Foo
+                )
 
-            class Foo
+                class Foo
 
-            annotation class GenConverter
-            """
+                annotation class GenConverter
+                """
                     .trimIndent(),
             )
         runKspProcessorTest(

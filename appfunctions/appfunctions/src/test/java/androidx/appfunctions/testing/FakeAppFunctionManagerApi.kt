@@ -19,12 +19,14 @@ package androidx.appfunctions.testing
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.internal.AppFunctionManagerApi
+import androidx.appfunctions.metadata.AppFunctionMetadata
 
 class FakeAppFunctionManagerApi : AppFunctionManagerApi {
     var executeAppFunctionResponse: ExecuteAppFunctionResponse? = null
 
     override suspend fun executeAppFunction(
-        request: ExecuteAppFunctionRequest
+        request: ExecuteAppFunctionRequest,
+        functionMetadata: AppFunctionMetadata,
     ): ExecuteAppFunctionResponse =
         executeAppFunctionResponse
             ?: throw IllegalStateException("Make sure you set the fake response first.")

@@ -34,7 +34,7 @@ import androidx.annotation.RequiresPermission
  * The data is sourced from an XML resource file that is linked via a `<meta-data>` tag within the
  * complication provider service's declaration in the manifest.
  */
-object StaticPreviewDataParser {
+public object StaticPreviewDataParser {
     private const val TAG = "StaticPreviewDataParser"
     private const val META_DATA_KEY =
         "com.google.android.wearable.complications.STATIC_PREVIEW_DATA"
@@ -81,7 +81,7 @@ object StaticPreviewDataParser {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @RequiresPermission("com.google.wear.permission.SET_COMPLICATION_EXTRAS")
     @JvmStatic
-    fun parsePreviewData(context: Context, providerComponent: ComponentName): PreviewData? {
+    public fun parsePreviewData(context: Context, providerComponent: ComponentName): PreviewData? {
         val packageManager = context.packageManager
         try {
             val serviceInfo =
@@ -98,7 +98,7 @@ object StaticPreviewDataParser {
                     Context.CONTEXT_IGNORE_SECURITY,
                 )
             providerContext.resources.getXml(xmlResId).use { parser ->
-                return PreviewData.inflate(context, providerContext, parser)
+                return PreviewData.inflate(providerComponent, context, providerContext, parser)
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error parsing complication preview data for $providerComponent", e)

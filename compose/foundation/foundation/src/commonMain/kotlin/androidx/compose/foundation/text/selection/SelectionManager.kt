@@ -153,6 +153,13 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     private val isDraggingInProgress
         get() = draggingHandle != null
 
+    /**
+     * When set to true, it will make SelectionManager ignore a copy key event (Ctrl/Cmd + C). It's
+     * necessary when it's preferred to handle the native Clipboard copy event, rather than the key
+     * event.
+     */
+    internal var shouldIgnoreCopyKeyEvent: Boolean = false
+
     /** Modifier for selection container. */
     val modifier
         get() =
@@ -168,7 +175,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                 .focusable()
                 .updateSelectionTouchMode { isInTouchMode = it }
                 .onKeyEvent {
-                    if (isCopyKeyEvent(it)) {
+                    if (!shouldIgnoreCopyKeyEvent && isCopyKeyEvent(it)) {
                         copy()
                         true
                     } else {

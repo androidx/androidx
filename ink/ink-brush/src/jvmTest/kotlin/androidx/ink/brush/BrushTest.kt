@@ -50,15 +50,18 @@ class BrushTest {
     @Suppress("Range") // Testing error cases.
     fun constructor_withBadSize_willThrow() {
         assertFailsWith<IllegalArgumentException> {
-            Brush(family, color, -2F, epsilon) // non-positive size.
+            // non-positive size
+            Brush.createWithColorIntArgb(family, color.toArgb(), -2F, epsilon)
         }
 
         assertFailsWith<IllegalArgumentException> {
-            Brush(family, color, Float.POSITIVE_INFINITY, epsilon) // non-finite size.
+            // non-finite size
+            Brush.createWithColorIntArgb(family, color.toArgb(), Float.POSITIVE_INFINITY, epsilon)
         }
 
         assertFailsWith<IllegalArgumentException> {
-            Brush(family, color, Float.NaN, epsilon) // non-finite size.
+            // non-finite size
+            Brush.createWithColorIntArgb(family, color.toArgb(), Float.NaN, epsilon)
         }
     }
 
@@ -66,15 +69,18 @@ class BrushTest {
     @Suppress("Range") // Testing error cases.
     fun constructor_withBadEpsilon_willThrow() {
         assertFailsWith<IllegalArgumentException> {
-            Brush(family, color, size, -2F) // non-positive epsilon.
+            // non-positive epsilon
+            Brush.createWithColorIntArgb(family, color.toArgb(), size, -2F)
         }
 
         assertFailsWith<IllegalArgumentException> {
-            Brush(family, color, size, Float.POSITIVE_INFINITY) // non-finite epsilon.
+            // non-finite epsilon
+            Brush.createWithColorIntArgb(family, color.toArgb(), size, Float.POSITIVE_INFINITY)
         }
 
         assertFailsWith<IllegalArgumentException> {
-            Brush(family, color, size, Float.NaN) // non-finite epsilon.
+            // non-finite epsilon
+            Brush.createWithColorIntArgb(family, color.toArgb(), size, Float.NaN)
         }
     }
 
@@ -118,8 +124,8 @@ class BrushTest {
 
     @Test
     fun equals_returnsTrueForIdenticalBrushes() {
-        val brush = Brush(family, color, size, epsilon)
-        val otherBrush = Brush(family, color, size, epsilon)
+        val brush = Brush.createWithColorIntArgb(family, color.toArgb(), size, epsilon)
+        val otherBrush = Brush.createWithColorIntArgb(family, color.toArgb(), size, epsilon)
         assertThat(brush == brush).isTrue()
         assertThat(brush == otherBrush).isTrue()
         assertThat(otherBrush == brush).isTrue()
@@ -127,8 +133,8 @@ class BrushTest {
 
     @Test
     fun hashCode_isEqualForIdenticalBrushes() {
-        val brush = Brush(family, color, size, epsilon)
-        val otherBrush = Brush(family, color, size, epsilon)
+        val brush = Brush.createWithColorIntArgb(family, color.toArgb(), size, epsilon)
+        val otherBrush = Brush.createWithColorIntArgb(family, color.toArgb(), size, epsilon)
         assertThat(brush == brush).isTrue()
         assertThat(brush == otherBrush).isTrue()
         assertThat(otherBrush == brush).isTrue()
@@ -136,10 +142,15 @@ class BrushTest {
 
     @Test
     fun equals_returnsFalseIfAnyFieldsDiffer() {
-        val brush = Brush(family, color, size, epsilon)
+        val brush = Brush.createWithColorIntArgb(family, color.toArgb(), size, epsilon)
 
         val differentFamilyBrush =
-            Brush(BrushFamily(clientBrushFamilyId = "/brush-family:pencil:1"), color, size, epsilon)
+            Brush.createWithColorIntArgb(
+                BrushFamily(clientBrushFamilyId = "/brush-family:pencil:1"),
+                color.toArgb(),
+                size,
+                epsilon,
+            )
         assertThat(brush == differentFamilyBrush).isFalse()
         assertThat(differentFamilyBrush == brush).isFalse()
         assertThat(brush != differentFamilyBrush).isTrue()
@@ -155,13 +166,13 @@ class BrushTest {
         assertThat(brush != differentcolorBrush).isTrue()
         assertThat(differentcolorBrush != brush).isTrue()
 
-        val differentSizeBrush = Brush(family, color, 9.0f, epsilon)
+        val differentSizeBrush = Brush.createWithColorIntArgb(family, color.toArgb(), 9.0f, epsilon)
         assertThat(brush == differentSizeBrush).isFalse()
         assertThat(differentSizeBrush == brush).isFalse()
         assertThat(brush != differentSizeBrush).isTrue()
         assertThat(differentSizeBrush != brush).isTrue()
 
-        val differentEpsilonBrush = Brush(family, color, size, 1.1f)
+        val differentEpsilonBrush = Brush.createWithColorIntArgb(family, color.toArgb(), size, 1.1f)
         assertThat(brush == differentEpsilonBrush).isFalse()
         assertThat(differentEpsilonBrush == brush).isFalse()
         assertThat(brush != differentEpsilonBrush).isTrue()
@@ -170,10 +181,15 @@ class BrushTest {
 
     @Test
     fun hashCode_differsIfAnyFieldsDiffer() {
-        val brush = Brush(family, color, size, epsilon)
+        val brush = Brush.createWithColorIntArgb(family, color.toArgb(), size, epsilon)
 
         val differentFamilyBrush =
-            Brush(BrushFamily(clientBrushFamilyId = "/brush-family:pencil:1"), color, size, epsilon)
+            Brush.createWithColorIntArgb(
+                BrushFamily(clientBrushFamilyId = "/brush-family:pencil:1"),
+                color.toArgb(),
+                size,
+                epsilon,
+            )
         assertThat(differentFamilyBrush.hashCode()).isNotEqualTo(brush.hashCode())
 
         val otherColor =
@@ -183,10 +199,10 @@ class BrushTest {
         val differentcolorBrush = Brush.createWithColorLong(family, otherColor, size, epsilon)
         assertThat(differentcolorBrush.hashCode()).isNotEqualTo(brush.hashCode())
 
-        val differentSizeBrush = Brush(family, color, 9.0f, epsilon)
+        val differentSizeBrush = Brush.createWithColorIntArgb(family, color.toArgb(), 9.0f, epsilon)
         assertThat(differentSizeBrush.hashCode()).isNotEqualTo(brush.hashCode())
 
-        val differentEpsilonBrush = Brush(family, color, size, 1.1f)
+        val differentEpsilonBrush = Brush.createWithColorIntArgb(family, color.toArgb(), size, 1.1f)
         assertThat(differentEpsilonBrush.hashCode()).isNotEqualTo(brush.hashCode())
     }
 
@@ -366,7 +382,7 @@ class BrushTest {
 
     /** Brush with every field different from default values. */
     private fun buildTestBrush(): Brush =
-        Brush(
+        Brush.createWithColorIntArgb(
             BrushFamily(
                 tip =
                     BrushTip(
@@ -398,7 +414,7 @@ class BrushTest {
                 paint = BrushPaint(),
                 clientBrushFamilyId = "/brush-family:marker:1",
             ),
-            color,
+            color.toArgb(),
             13F,
             0.1234F,
         )

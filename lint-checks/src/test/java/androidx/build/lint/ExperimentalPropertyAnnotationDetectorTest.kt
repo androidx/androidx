@@ -448,13 +448,13 @@ class ExperimentalPropertyAnnotationDetectorTest :
             arrayOf(
                 kotlin(
                     """
-                package java.androidx
+                    package java.androidx
 
-                fun functionWithProperty() {
-                    @ExperimentalKotlinAnnotation
-                    val experimentalProperty = 3
-                }
-                """
+                    fun functionWithProperty() {
+                        @ExperimentalKotlinAnnotation
+                        val experimentalProperty = 3
+                    }
+                    """
                         .trimIndent()
                 )
             )
@@ -505,13 +505,13 @@ class ExperimentalPropertyAnnotationDetectorTest :
             arrayOf(
                 kotlin(
                     """
-                package java.androidx
+                    package java.androidx
 
-                private class AnnotatedProperty {
-                    @ExperimentalKotlinAnnotation
-                    var experimentalProperty = 3
-                }
-                """
+                    private class AnnotatedProperty {
+                        @ExperimentalKotlinAnnotation
+                        var experimentalProperty = 3
+                    }
+                    """
                         .trimIndent()
                 )
             )

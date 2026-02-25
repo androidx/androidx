@@ -51,7 +51,7 @@ internal class EmptyWindowAreaControllerImpl : WindowAreaController() {
     @ExperimentalWindowApi
     override fun getActivePresentationSession(
         windowAreaToken: WindowAreaToken
-    ): WindowAreaSessionPresenter {
-        throw IllegalArgumentException("There is no active session")
+    ): WindowAreaSessionPresenter? {
+        return null
     }
 }

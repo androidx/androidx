@@ -45,12 +45,7 @@ abstract class FtsMigrationDb : RoomDatabase() {
 
     @Entity
     @Fts4(matchInfo = FtsOptions.MatchInfo.FTS3)
-    data class Book(
-        var title: String?,
-        var author: String?,
-        var numOfPages: Int,
-        var text: String?,
-    )
+    data class Book(var title: String?, var author: String?, var numOfPages: Int, var text: String?)
 
     @Entity
     data class User(

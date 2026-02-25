@@ -29,7 +29,7 @@ import kotlin.jvm.JvmOverloads
  */
 @JvmOverloads
 @VisibleForTesting
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun buildStrokeInputBatchFromPoints(
     points: FloatArray,
     toolType: InputToolType = InputToolType.STYLUS,

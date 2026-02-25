@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("BanConcurrentHashMap")
 
 package androidx.xr.arcore.testapp.helloar.rendering
 
@@ -34,7 +35,7 @@ import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.scene
 import java.nio.file.Paths
-import java.util.Collections
+import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.CompletableJob
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -46,7 +47,7 @@ import kotlinx.coroutines.launch
 internal class PlaneRenderer(val session: Session, val coroutineScope: CoroutineScope) :
     DefaultLifecycleObserver {
 
-    private val _planesModelsMap = Collections.synchronizedMap(HashMap<String, GltfModel?>())
+    private val _planesModelsMap = ConcurrentHashMap<String, GltfModel?>()
     private val _renderedPlanes: MutableStateFlow<List<PlaneModel>> =
         MutableStateFlow(mutableListOf<PlaneModel>())
     internal val renderedPlanes: StateFlow<Collection<PlaneModel>> = _renderedPlanes.asStateFlow()
@@ -86,7 +87,7 @@ internal class PlaneRenderer(val session: Session, val coroutineScope: Coroutine
         _planesModelsMap["DEFAULT"] = assetToModel[DEFAULT_OBJECT_MODEL]
     }
 
-    private fun updatePlaneModels(planes: Collection<Plane>) {
+    private suspend fun updatePlaneModels(planes: Collection<Plane>) {
         val planesToRender = _renderedPlanes.value.toMutableList()
         // Create renderers for new planes.
         for (plane in planes) {
@@ -104,10 +105,19 @@ internal class PlaneRenderer(val session: Session, val coroutineScope: Coroutine
         _renderedPlanes.value = planesToRender
     }
 
-    private fun addPlaneModel(plane: Plane, planesToRender: MutableList<PlaneModel>) {
-        val category = plane.state.value.label.toString()
-        val model = _planesModelsMap[category] ?: _planesModelsMap["DEFAULT"]
-        val modelEntity: GltfModelEntity = GltfModelEntity.create(session, model!!)
+    private suspend fun addPlaneModel(plane: Plane, planesToRender: MutableList<PlaneModel>) {
+        val label = plane.state.value.label.toString()
+        val asset =
+            if (SUPPORTED_OBJECT_MODELS.containsKey(label)) {
+                SUPPORTED_OBJECT_MODELS[label]
+            } else {
+                DEFAULT_OBJECT_MODEL
+            }
+        val model =
+            _planesModelsMap.getOrPut(label) {
+                GltfModel.create(session, Paths.get("models", asset))
+            }
+        val modelEntity = GltfModelEntity.create(session, _planesModelsMap[label]!!)
 
         // The counter starts at max to trigger the resize on the first update loop since emulators
         // only

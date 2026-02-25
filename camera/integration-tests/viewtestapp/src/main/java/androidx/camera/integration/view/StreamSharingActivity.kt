@@ -26,7 +26,6 @@ import android.widget.Button
 import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
@@ -76,11 +75,6 @@ private const val INTENT_PREVIEW_VIEW_MODE = "preview_view_mode"
 private const val PREVIEW_VIEW_COMPATIBLE_MODE = "compatible"
 private const val PREVIEW_VIEW_PERFORMANCE_MODE = "performance"
 
-// Possible values for this intent key (case-insensitive): "camera2", "camera_pipe".
-private const val INTENT_EXTRA_CAMERA_IMPLEMENTATION = "camera_implementation"
-private const val CAMERA_IMPLEMENTATION_CAMERA2 = "camera2"
-private const val CAMERA_IMPLEMENTATION_CAMERA_PIPE = "camera_pipe"
-
 class StreamSharingActivity : AppCompatActivity() {
 
     private lateinit var previewView: PreviewView
@@ -118,7 +112,6 @@ class StreamSharingActivity : AppCompatActivity() {
         if (bundle != null) {
             parseScreenOrientationAndSetValueIfNeed(bundle)
             parseCameraSelector(bundle)
-            parseCameraImplementation(bundle)
             parsePreviewViewMode(bundle)
         }
 
@@ -165,15 +158,6 @@ class StreamSharingActivity : AppCompatActivity() {
             cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
         } else if (CAMERA_DIRECTION_FRONT.equals(cameraDirection, true)) {
             cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
-        }
-    }
-
-    private fun parseCameraImplementation(bundle: Bundle) {
-        val implementation = bundle.getString(INTENT_EXTRA_CAMERA_IMPLEMENTATION)
-        if (CAMERA_IMPLEMENTATION_CAMERA2.equals(implementation, true)) {
-            cameraXConfig = Camera2Config.defaultConfig()
-        } else if (CAMERA_IMPLEMENTATION_CAMERA_PIPE.equals(implementation, true)) {
-            cameraXConfig = CameraPipeConfig.defaultConfig()
         }
     }
 

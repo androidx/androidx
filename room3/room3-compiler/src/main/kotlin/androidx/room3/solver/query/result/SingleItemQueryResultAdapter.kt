@@ -19,6 +19,7 @@ package androidx.room3.solver.query.result
 import androidx.room3.compiler.codegen.CodeLanguage
 import androidx.room3.compiler.codegen.XCodeBlock.Builder.Companion.applyTo
 import androidx.room3.compiler.processing.XNullability
+import androidx.room3.ext.SQLiteDriverMemberNames
 import androidx.room3.solver.CodeGenScope
 
 /** Wraps a row adapter when there is only 1 item in the result */
@@ -30,9 +31,8 @@ class SingleItemQueryResultAdapter(private val rowAdapter: RowAdapter) :
         scope.builder.apply {
             rowAdapter.onStatementReady(stmtVarName = stmtVarName, scope = scope)
             addLocalVariable(outVarName, type.asTypeName())
-            beginControlFlow("if (%L.step())", stmtVarName).apply {
-                rowAdapter.convert(outVarName, stmtVarName, scope)
-            }
+            beginControlFlow("if (%L.%M())", stmtVarName, SQLiteDriverMemberNames.STATEMENT_STEP)
+                .apply { rowAdapter.convert(outVarName, stmtVarName, scope) }
             nextControlFlow("else").applyTo { language ->
                 val defaultValue = rowAdapter.out.defaultValue()
                 if (

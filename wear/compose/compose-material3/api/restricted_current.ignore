@@ -609,6 +609,8 @@ RemovedMethod: androidx.wear.compose.material3.CircularProgressIndicatorKt#Circu
     Binary breaking change: Removed method androidx.wear.compose.material3.CircularProgressIndicatorKt.CircularProgressIndicator(kotlin.jvm.functions.Function0<java.lang.Float>,androidx.compose.ui.Modifier,boolean,boolean,float,float,androidx.wear.compose.material3.ProgressIndicatorColors,float,float)
 RemovedMethod: androidx.wear.compose.material3.CircularProgressIndicatorKt#drawCircularProgressIndicator(androidx.compose.ui.graphics.drawscope.DrawScope, float, androidx.wear.compose.material3.ProgressIndicatorColors, float, boolean, float, boolean, float, float, float):
     Binary breaking change: Removed method androidx.wear.compose.material3.CircularProgressIndicatorKt.drawCircularProgressIndicator(androidx.compose.ui.graphics.drawscope.DrawScope,float,androidx.wear.compose.material3.ProgressIndicatorColors,float,boolean,float,boolean,float,float,float)
+RemovedMethod: androidx.wear.compose.material3.ColorScheme#ColorScheme():
+    Binary breaking change: Removed constructor androidx.wear.compose.material3.ColorScheme()
 RemovedMethod: androidx.wear.compose.material3.ColorScheme#copy(long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long, long):
     Binary breaking change: Removed method androidx.wear.compose.material3.ColorScheme.copy(long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long,long)
 RemovedMethod: androidx.wear.compose.material3.ColorSchemeKt#contentColorFor(androidx.wear.compose.material3.ColorScheme, long):

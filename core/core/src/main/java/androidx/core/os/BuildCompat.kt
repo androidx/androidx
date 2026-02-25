@@ -325,9 +325,7 @@ public object BuildCompat {
      * Additionally, pre-release checks **may not** return `true` when run on a finalized version of
      * the SDK associated with the codename.
      */
-    @RequiresOptIn
-    @Retention(AnnotationRetention.BINARY)
-    public annotation class PrereleaseSdkCheck
+    @RequiresOptIn @Retention(AnnotationRetention.BINARY) public annotation class PrereleaseSdkCheck
 
     /**
      * The value of `SdkExtensions.getExtensionVersion(R)`. This is a convenience constant which

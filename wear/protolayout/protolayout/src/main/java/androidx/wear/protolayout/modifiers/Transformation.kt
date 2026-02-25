@@ -44,7 +44,7 @@ import androidx.wear.protolayout.types.prop
  * @param dynamicValueDp The dynamic offset for animations or state binding.
  */
 @RequiresSchemaVersion(major = 1, minor = 400)
-fun LayoutModifier.translateX(
+public fun LayoutModifier.translateX(
     @Dimension(unit = DP) staticValueDp: Float,
     dynamicValueDp: DynamicFloat? = null,
 ): LayoutModifier =
@@ -60,7 +60,7 @@ fun LayoutModifier.translateX(
  * @param dynamicValueDp The dynamic offset for animations or state binding.
  */
 @RequiresSchemaVersion(major = 1, minor = 400)
-fun LayoutModifier.translateY(
+public fun LayoutModifier.translateY(
     @Dimension(unit = DP) staticValueDp: Float,
     dynamicValueDp: DynamicFloat? = null,
 ): LayoutModifier =
@@ -76,7 +76,7 @@ fun LayoutModifier.translateY(
  * @param dynamicValue The dynamic scale factor for animations or state binding.
  */
 @RequiresSchemaVersion(major = 1, minor = 400)
-fun LayoutModifier.scaleX(
+public fun LayoutModifier.scaleX(
     @FloatRange(from = 0.0) staticValue: Float,
     dynamicValue: DynamicFloat? = null,
 ): LayoutModifier =
@@ -92,7 +92,7 @@ fun LayoutModifier.scaleX(
  * @param dynamicValue The dynamic scale factor for animations or state binding.
  */
 @RequiresSchemaVersion(major = 1, minor = 400)
-fun LayoutModifier.scaleY(
+public fun LayoutModifier.scaleY(
     @FloatRange(from = 0.0) staticValue: Float,
     dynamicValue: DynamicFloat? = null,
 ): LayoutModifier =
@@ -108,7 +108,7 @@ fun LayoutModifier.scaleY(
  * @param dynamicValueDegrees The dynamic rotations angle for animations or state binding.
  */
 @RequiresSchemaVersion(major = 1, minor = 400)
-fun LayoutModifier.rotate(
+public fun LayoutModifier.rotate(
     staticValueDegrees: Float,
     dynamicValueDegrees: DynamicFloat? = null,
 ): LayoutModifier =
@@ -126,7 +126,7 @@ fun LayoutModifier.rotate(
  * @param dynamicValueDp The dynamic horizontal pivot offset.
  */
 @RequiresSchemaVersion(major = 1, minor = 400)
-fun LayoutModifier.pivotX(
+public fun LayoutModifier.pivotX(
     @Dimension(unit = DP) staticValueDp: Float,
     dynamicValueDp: DynamicFloat? = null,
 ): LayoutModifier =
@@ -143,7 +143,7 @@ fun LayoutModifier.pivotX(
  * @param dynamicValueDp The dynamic vertical pivot offset.
  */
 @RequiresSchemaVersion(major = 1, minor = 400)
-fun LayoutModifier.pivotY(
+public fun LayoutModifier.pivotY(
     @Dimension(unit = DP) staticValueDp: Float,
     dynamicValueDp: DynamicFloat? = null,
 ): LayoutModifier =
@@ -161,7 +161,7 @@ fun LayoutModifier.pivotY(
  * @param dynamicRatio The dynamic horizontal pivot ratio.
  */
 @RequiresSchemaVersion(major = 1, minor = 400)
-fun LayoutModifier.ratioPivotX(
+public fun LayoutModifier.ratioPivotX(
     staticRatio: Float,
     dynamicRatio: DynamicFloat? = null,
 ): LayoutModifier =
@@ -179,7 +179,7 @@ fun LayoutModifier.ratioPivotX(
  * @param dynamicRatio The dynamic vertical pivot ratio.
  */
 @RequiresSchemaVersion(major = 1, minor = 400)
-fun LayoutModifier.ratioPivotY(
+public fun LayoutModifier.ratioPivotY(
     staticRatio: Float,
     dynamicRatio: DynamicFloat? = null,
 ): LayoutModifier =

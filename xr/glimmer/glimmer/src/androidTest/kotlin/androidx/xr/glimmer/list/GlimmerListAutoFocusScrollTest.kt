@@ -19,21 +19,16 @@ package androidx.xr.glimmer.list
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.focus.FocusManager
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.isFocused
-import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.printToString
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
+import androidx.xr.glimmer.testutils.setContentWithDensity
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -47,11 +42,7 @@ internal class GlimmerListAutoFocusScrollTest(private val testCase: FocusStrateg
     fun verifyFocusIsSetCorrectlyAtEachScrollStep() {
         val state = ListState()
         val density = Density(1f)
-        rule.setContentForTestCase {
-            CompositionLocalProvider(LocalDensity provides density) {
-                FocusableTestList(state, testCase)
-            }
-        }
+        rule.setContentWithDensity(density) { FocusableTestList(state, testCase) }
 
         runTestCase(state, density, testCase)
     }
@@ -87,17 +78,6 @@ internal class GlimmerListAutoFocusScrollTest(private val testCase: FocusStrateg
             state.scrollByAndWaitForIdle(itemSizePx)
             ++expectedFocusIndex
         } while (expectedFocusIndex < testCase.itemsCount)
-    }
-
-    private fun ComposeContentTestRule.setContentForTestCase(content: @Composable () -> Unit) {
-        lateinit var focusManager: FocusManager
-        setContent {
-            focusManager = LocalFocusManager.current
-            content()
-        }
-        // Move focus to the list.
-        rule.runOnIdle { focusManager.moveFocus(FocusDirection.Next) }
-        rule.waitForIdle()
     }
 
     @Composable

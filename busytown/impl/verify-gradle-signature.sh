@@ -29,8 +29,6 @@ DISTRIBUTION_SIGNATURE="${DISTRIBUTION_FILE}.asc"
 WRAPPER_FILE="$SCRIPT_DIR/../../gradle/wrapper/gradle-wrapper.jar"
 WRAPPER_SIGNATURE="${WRAPPER_FILE}.asc"
 
-echo "Validating the signature of $DISTRIBUTION_FILE"
-
 # Check if input files exist
 if [[ ! -f "$DISTRIBUTION_FILE" ]]; then
     echo "Error: File '$DISTRIBUTION_FILE' not found."
@@ -136,20 +134,18 @@ if [ $? -ne 0 ] || [ ! -s "$WORK_DIR/keyring.gpg" ]; then
     exit 1
 fi
 
-echo "--- Verifying ... ---"
-
 # 4. Use gpgv to verify using the temp binary keyring
-if gpgv --keyring "$WORK_DIR/keyring.gpg" "$DISTRIBUTION_SIGNATURE" "$DISTRIBUTION_FILE"; then
-    if gpgv --keyring "$WORK_DIR/keyring.gpg" "$WRAPPER_SIGNATURE" "$WRAPPER_FILE"; then
-        echo ""
-        echo "✅ SUCCESS: The gradle distribution and wrapper signatures are valid."
+if OUTPUT=$(gpgv --keyring "$WORK_DIR/keyring.gpg" "$DISTRIBUTION_SIGNATURE" "$DISTRIBUTION_FILE" 2>&1); then
+    if OUTPUT=$(gpgv --keyring "$WORK_DIR/keyring.gpg" "$WRAPPER_SIGNATURE" "$WRAPPER_FILE" 2>&1); then
         exit 0
     else
+        echo "$OUTPUT"
         echo ""
         echo "❌ FAILURE: The gradle wrapper signature is invalid."
         exit 1
     fi
 else
+    echo "$OUTPUT"
     echo ""
     echo "❌ FAILURE: The gradle distribution signature is invalid."
     exit 1

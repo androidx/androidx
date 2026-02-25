@@ -28,7 +28,7 @@ public sealed interface AuthenticationResult {
      */
     public class Success(
         public val crypto: BiometricPrompt.CryptoObject?,
-        @BiometricPrompt.AuthenticationResultType public val authType: Int,
+        @param:BiometricPrompt.AuthenticationResultType public val authType: Int,
     ) : AuthenticationResult {
         override fun success(): Success {
             return this
@@ -43,7 +43,7 @@ public sealed interface AuthenticationResult {
      * @see [BiometricPrompt.AuthenticationError]
      */
     public class Error(
-        @BiometricPrompt.AuthenticationError public val errorCode: Int,
+        @param:BiometricPrompt.AuthenticationError public val errorCode: Int,
         public val errString: CharSequence,
     ) : AuthenticationResult {
         override fun error(): Error {

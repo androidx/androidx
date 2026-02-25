@@ -2,11 +2,15 @@ import androidx.room3.EntityDeleteOrUpdateAdapter
 import androidx.room3.EntityInsertAdapter
 import androidx.room3.EntityUpsertAdapter
 import androidx.room3.RoomDatabase
+import androidx.room3.guava.GuavaDaoReturnTypeConverter
 import androidx.room3.guava.createListenableFuture
 import androidx.room3.util.appendPlaceholders
 import androidx.room3.util.getColumnIndexOrThrow
 import androidx.room3.util.getLastInsertedRowId
+import androidx.room3.util.performSuspending
 import androidx.sqlite.SQLiteStatement
+import androidx.sqlite.prepare
+import androidx.sqlite.step
 import com.google.common.util.concurrent.ListenableFuture
 import java.lang.Void
 import javax.`annotation`.processing.Generated
@@ -32,6 +36,9 @@ internal class MyDao_Impl(
   private val __updateAdapterOfMyEntity: EntityDeleteOrUpdateAdapter<MyEntity>
 
   private val __upsertAdapterOfMyEntity: EntityUpsertAdapter<MyEntity>
+
+  private val __guavaDaoReturnTypeConverter: GuavaDaoReturnTypeConverter =
+      GuavaDaoReturnTypeConverter()
   init {
     this.__db = __db
     this.__insertAdapterOfMyEntity = object : EntityInsertAdapter<MyEntity>() {
@@ -105,33 +112,35 @@ internal class MyDao_Impl(
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
-    return createListenableFuture(__db, true, false) { _connection ->
-      val _stmt: SQLiteStatement = _connection.prepare(_sql)
-      try {
-        var _argIndex: Int = 1
-        for (_item: String? in arg) {
-          if (_item == null) {
-            _stmt.bindNull(_argIndex)
-          } else {
-            _stmt.bindText(_argIndex, _item)
+    return __guavaDaoReturnTypeConverter.convertAsync(__db, false) {
+      performSuspending(__db, true, false) { _connection ->
+        val _stmt: SQLiteStatement = _connection.prepare(_sql)
+        try {
+          var _argIndex: Int = 1
+          for (_item: String? in arg) {
+            if (_item == null) {
+              _stmt.bindNull(_argIndex)
+            } else {
+              _stmt.bindText(_argIndex, _item)
+            }
+            _argIndex++
           }
-          _argIndex++
+          val _columnIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
+          val _columnIndexOfOther: Int = getColumnIndexOrThrow(_stmt, "other")
+          val _result: MyEntity
+          if (_stmt.step()) {
+            val _tmpPk: Int
+            _tmpPk = _stmt.getLong(_columnIndexOfPk).toInt()
+            val _tmpOther: String
+            _tmpOther = _stmt.getText(_columnIndexOfOther)
+            _result = MyEntity(_tmpPk,_tmpOther)
+          } else {
+            error("The query result was empty, but expected a single row to return a NON-NULL object of type 'MyEntity'.")
+          }
+          _result
+        } finally {
+          _stmt.close()
         }
-        val _columnIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
-        val _columnIndexOfOther: Int = getColumnIndexOrThrow(_stmt, "other")
-        val _result: MyEntity
-        if (_stmt.step()) {
-          val _tmpPk: Int
-          _tmpPk = _stmt.getLong(_columnIndexOfPk).toInt()
-          val _tmpOther: String
-          _tmpOther = _stmt.getText(_columnIndexOfOther)
-          _result = MyEntity(_tmpPk,_tmpOther)
-        } else {
-          error("The query result was empty, but expected a single row to return a NON-NULL object of type 'MyEntity'.")
-        }
-        _result
-      } finally {
-        _stmt.close()
       }
     }
   }
@@ -143,33 +152,35 @@ internal class MyDao_Impl(
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
-    return createListenableFuture(__db, true, false) { _connection ->
-      val _stmt: SQLiteStatement = _connection.prepare(_sql)
-      try {
-        var _argIndex: Int = 1
-        for (_item: String? in arg) {
-          if (_item == null) {
-            _stmt.bindNull(_argIndex)
-          } else {
-            _stmt.bindText(_argIndex, _item)
+    return __guavaDaoReturnTypeConverter.convertAsync(__db, false) {
+      performSuspending(__db, true, false) { _connection ->
+        val _stmt: SQLiteStatement = _connection.prepare(_sql)
+        try {
+          var _argIndex: Int = 1
+          for (_item: String? in arg) {
+            if (_item == null) {
+              _stmt.bindNull(_argIndex)
+            } else {
+              _stmt.bindText(_argIndex, _item)
+            }
+            _argIndex++
           }
-          _argIndex++
+          val _columnIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
+          val _columnIndexOfOther: Int = getColumnIndexOrThrow(_stmt, "other")
+          val _result: MyEntity?
+          if (_stmt.step()) {
+            val _tmpPk: Int
+            _tmpPk = _stmt.getLong(_columnIndexOfPk).toInt()
+            val _tmpOther: String
+            _tmpOther = _stmt.getText(_columnIndexOfOther)
+            _result = MyEntity(_tmpPk,_tmpOther)
+          } else {
+            _result = null
+          }
+          _result
+        } finally {
+          _stmt.close()
         }
-        val _columnIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
-        val _columnIndexOfOther: Int = getColumnIndexOrThrow(_stmt, "other")
-        val _result: MyEntity?
-        if (_stmt.step()) {
-          val _tmpPk: Int
-          _tmpPk = _stmt.getLong(_columnIndexOfPk).toInt()
-          val _tmpOther: String
-          _tmpOther = _stmt.getText(_columnIndexOfOther)
-          _result = MyEntity(_tmpPk,_tmpOther)
-        } else {
-          _result = null
-        }
-        _result
-      } finally {
-        _stmt.close()
       }
     }
   }

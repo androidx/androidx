@@ -24,7 +24,6 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_NV21
 import androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888
 import androidx.camera.core.Logger
-import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.LabTestRule
@@ -59,7 +58,6 @@ class ImageProcessingLatencyTest(private val targetResolution: Size) {
     @get:Rule val labTest: LabTestRule = LabTestRule()
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
-    private lateinit var camera: CameraUseCaseAdapter
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var fakeLifecycleOwner: FakeLifecycleOwner
 

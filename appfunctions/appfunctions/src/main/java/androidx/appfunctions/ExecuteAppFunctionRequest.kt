@@ -64,8 +64,15 @@ constructor(
             .build()
     }
 
+    /**
+     * Converts [androidx.appfunctions.ExecuteAppFunctionRequest] to
+     * [android.app.appfunctions.ExecuteAppFunctionRequest].
+     *
+     * @return The converted [android.app.appfunctions.ExecuteAppFunctionRequest].
+     */
     @RequiresApi(Build.VERSION_CODES.BAKLAVA)
-    internal fun toPlatformClass(): android.app.appfunctions.ExecuteAppFunctionRequest {
+    public fun toPlatformExecuteAppFunctionRequest():
+        android.app.appfunctions.ExecuteAppFunctionRequest {
         return android.app.appfunctions.ExecuteAppFunctionRequest.Builder(
                 targetPackageName,
                 functionIdentifier,
@@ -81,8 +88,8 @@ constructor(
     }
 
     override fun toString(): String {
-        return "ExecuteAppFunctionRequest(targetPackageName=$targetPackageName, " +
-            "functionIdentifier=$functionIdentifier, functionParameters=$functionParameters)"
+        return "ExecuteAppFunctionRequest(functionMetadata.packageName=$targetPackageName, " +
+            "functionMetadata.id=$functionIdentifier, functionParameters=$functionParameters)"
     }
 
     @RestrictTo(LIBRARY_GROUP)
@@ -114,7 +121,6 @@ constructor(
                 functionParameters =
                     createAppFunctionDataWithParameterSpec(
                         functionMetadata,
-                        request.functionIdentifier,
                         AppFunctionData(
                             request.parameters,
                             request.extras.getBundle(EXTRA_PARAMETERS) ?: Bundle.EMPTY,
@@ -123,30 +129,39 @@ constructor(
                 useJetpackSchema = request.extras.getBoolean(EXTRA_USE_JETPACK_SCHEMA, false),
             )
 
+        /**
+         * Creates a [androidx.appfunctions.ExecuteAppFunctionRequest] from
+         * [android.app.appfunctions.ExecuteAppFunctionRequest].
+         *
+         * The provided [AppFunctionMetadata] is used to validate the created
+         * [androidx.appfunctions.ExecuteAppFunctionRequest].
+         *
+         * @param functionMetadata the [AppFunctionMetadata] of the function to be executed.
+         * @return The created [androidx.appfunctions.ExecuteAppFunctionRequest].
+         */
         @RequiresApi(Build.VERSION_CODES.BAKLAVA)
-        internal fun fromPlatformClass(
-            request: android.app.appfunctions.ExecuteAppFunctionRequest,
-            functionMetadata: AppFunctionMetadata,
+        @JvmStatic
+        public fun android.app.appfunctions.ExecuteAppFunctionRequest
+            .toCompatExecuteAppFunctionRequest(
+            functionMetadata: AppFunctionMetadata
         ): ExecuteAppFunctionRequest =
             ExecuteAppFunctionRequest(
-                targetPackageName = request.targetPackageName,
-                functionIdentifier = request.functionIdentifier,
+                targetPackageName = this.targetPackageName,
+                functionIdentifier = this.functionIdentifier,
                 functionParameters =
                     createAppFunctionDataWithParameterSpec(
                         functionMetadata,
-                        request.functionIdentifier,
                         AppFunctionData(
-                            request.parameters,
-                            request.extras.getBundle(EXTRA_PARAMETERS) ?: Bundle.EMPTY,
+                            this.parameters,
+                            this.extras.getBundle(EXTRA_PARAMETERS) ?: Bundle.EMPTY,
                         ),
                     ),
-                useJetpackSchema = request.extras.getBoolean(EXTRA_USE_JETPACK_SCHEMA, false),
+                useJetpackSchema = this.extras.getBoolean(EXTRA_USE_JETPACK_SCHEMA, false),
             )
 
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         private fun createAppFunctionDataWithParameterSpec(
             functionMetadata: AppFunctionMetadata,
-            functionIdentifier: String,
             parametersAfd: AppFunctionData,
         ): AppFunctionData =
             parametersAfd.replaceSpecWith(functionMetadata.parameters, functionMetadata.components)

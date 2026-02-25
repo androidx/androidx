@@ -18,6 +18,7 @@ package androidx.pdf.annotation.models
 
 import android.graphics.RectF
 import android.os.Parcel
+import androidx.pdf.annotation.models.PathPdfObject.PathInput
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,11 +57,11 @@ class StampAnnotationTest {
                 brushWidth = 10f,
                 inputs =
                     listOf(
-                        PathPdfObject.PathInput(10f, 10f),
-                        PathPdfObject.PathInput(20f, 20f),
-                        PathPdfObject.PathInput(30f, 30f),
-                        PathPdfObject.PathInput(40f, 40f),
-                        PathPdfObject.PathInput(50f, 50f),
+                        PathInput(10f, 10f, PathInput.MOVE_TO),
+                        PathInput(20f, 20f, PathInput.LINE_TO),
+                        PathInput(30f, 30f, PathInput.LINE_TO),
+                        PathInput(40f, 40f, PathInput.LINE_TO),
+                        PathInput(50f, 50f, PathInput.LINE_TO),
                     ),
             )
         }
@@ -92,6 +93,7 @@ class StampAnnotationTest {
                     val expectedPathInput = expectedPathPdfObject.inputs[j]
                     assertEquals(actualPathInput.x, expectedPathInput.x)
                     assertEquals(actualPathInput.y, expectedPathInput.y)
+                    assertEquals(actualPathInput.command, expectedPathInput.command)
                 }
             }
         }

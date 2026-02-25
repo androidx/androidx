@@ -100,8 +100,21 @@ internal constructor(
     @JvmField
     public var counterLongValue: Long?,
 
+    /** The optional correlation id associated with the event. */
+    @field:Suppress(
+        "MutableBareField", // public / mutable to minimize overhead
+        "AutoBoxing", // An optional correlation id
+    )
+    @JvmField
+    public var correlationId: Long?,
+
+    /** The optional correlation id as [String] that is associated with the event. */
+    @field:Suppress("MutableBareField") // public / mutable to minimize overhead
+    @JvmField
+    public var correlationIdString: String?,
+
     /** List of trace flows associated with this event. */
-    // ideally this would be a array to avoid boxing, but proto libs consume longs anyway :|
+    // ideally this would be an array to avoid boxing, but proto libs consume longs anyway :|
     @field:Suppress("MutableBareField") // public / mutable to minimize overhead
     @JvmField
     public var flowIds: List<Long>,
@@ -168,6 +181,8 @@ internal constructor(
             name = null,
             counterDoubleValue = null,
             counterLongValue = null,
+            correlationId = null,
+            correlationIdString = null,
             flowIds = emptyList(),
             trackDescriptor = null,
             primaryCategory = DEFAULT_STRING,
@@ -248,6 +263,8 @@ internal constructor(
         name = null
         counterDoubleValue = null
         counterLongValue = null
+        correlationId = null
+        correlationIdString = null
         flowIds = emptyList()
         trackDescriptor = null
         primaryCategory = DEFAULT_STRING

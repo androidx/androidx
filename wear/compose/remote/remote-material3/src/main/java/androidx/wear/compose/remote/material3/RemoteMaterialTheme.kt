@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 @file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@file:Suppress("RestrictedApiAndroidX")
 
 package androidx.wear.compose.remote.material3
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.wear.compose.material3.ProvideTextStyle
-import androidx.wear.compose.material3.Shapes
-import androidx.wear.compose.material3.Typography
 
 @Composable
 @RemoteComposable
@@ -40,7 +37,7 @@ public fun RemoteMaterialTheme(
         LocalRemoteShapes provides shapes,
         LocalRemoteTypography provides typography,
     ) {
-        ProvideTextStyle(value = typography.typography.bodyLarge, content = content)
+        ProvideRemoteTextStyle(value = typography.bodyLarge, content = content)
     }
 }
 
@@ -60,18 +57,9 @@ public object RemoteMaterialTheme {
         @Composable @RemoteComposable get() = LocalRemoteShapes.current
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public object RemoteTypography {
-    internal val typography: Typography = Typography()
-}
-
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public object RemoteShapes {
-    internal val shapes: Shapes = Shapes()
-}
-
 internal val LocalRemoteColorScheme = staticCompositionLocalOf { RemoteColorScheme() }
 
-internal val LocalRemoteShapes = staticCompositionLocalOf { RemoteShapes }
+internal val LocalRemoteTypography = staticCompositionLocalOf { RemoteTypography() }
 
-internal val LocalRemoteTypography = staticCompositionLocalOf { RemoteTypography }
+@Suppress("RestrictedApiAndroidX")
+internal val LocalRemoteTextStyle = staticCompositionLocalOf { RemoteTextStyle() }

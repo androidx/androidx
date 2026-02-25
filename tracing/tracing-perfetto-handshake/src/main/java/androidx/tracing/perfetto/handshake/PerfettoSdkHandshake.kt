@@ -55,6 +55,7 @@ public class PerfettoSdkHandshake(
      *
      * @param librarySource optional AAR or an APK containing `libtracing_perfetto.so`
      */
+    @Suppress("MissingJvmstatic")
     public fun enableTracingImmediate(librarySource: LibrarySource? = null): Response =
         safeExecute {
             val libPath =

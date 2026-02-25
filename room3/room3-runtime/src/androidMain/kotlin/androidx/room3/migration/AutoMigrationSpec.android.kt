@@ -32,5 +32,5 @@ public actual interface AutoMigrationSpec {
      *
      * @param connection The database connection.
      */
-    public actual fun onPostMigrate(connection: SQLiteConnection) {}
+    public actual suspend fun onPostMigrate(connection: SQLiteConnection) {}
 }

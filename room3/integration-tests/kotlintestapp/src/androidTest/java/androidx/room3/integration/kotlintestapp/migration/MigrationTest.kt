@@ -82,7 +82,7 @@ class MigrationTest {
     }
 
     @Test
-    fun giveBadResource() {
+    fun giveBadResource() = runTest {
         val helper =
             MigrationTestHelper(
                 instrumentation = instrumentation,
@@ -96,7 +96,7 @@ class MigrationTest {
     }
 
     @Test
-    fun startInCurrentVersion() {
+    fun startInCurrentVersion() = runTest {
         helper.createDatabase(MigrationDb.LATEST_VERSION).use {
             val dao = MigrationDb.DaoV1(it)
             dao.insertIntoEntity1(2, "x")
@@ -108,7 +108,7 @@ class MigrationTest {
     }
 
     @Test
-    fun addTable() {
+    fun addTable() = runTest {
         helper.createDatabase(1).use {
             val dao = MigrationDb.DaoV1(it)
             dao.insertIntoEntity1(2, "foo")
@@ -129,13 +129,10 @@ class MigrationTest {
         assertThat(entity2s.size).isEqualTo(2)
     }
 
-    @Test
-    fun addTableFailure() {
-        testFailure(1, 2)
-    }
+    @Test fun addTableFailure() = runTest { testFailure(1, 2) }
 
     @Test
-    fun addColumnFailure() {
+    fun addColumnFailure() = runTest {
         helper.createDatabase(2).close()
 
         assertThrows<IllegalStateException> {
@@ -144,7 +141,7 @@ class MigrationTest {
     }
 
     @Test
-    fun addColumn() {
+    fun addColumn() = runTest {
         helper.createDatabase(2).use {
             val v2Dao = MigrationDb.DaoV2(it)
             v2Dao.insertIntoEntity2(7, "blah")
@@ -163,13 +160,10 @@ class MigrationTest {
         assertThat(entity2Pojos.single().addedInV3).isNull()
     }
 
-    @Test
-    fun failedToRemoveColumn() {
-        testFailure(4, 5)
-    }
+    @Test fun failedToRemoveColumn() = runTest { testFailure(4, 5) }
 
     @Test
-    fun removeColumn() {
+    fun removeColumn() = runTest {
         helper.createDatabase(4).close()
         val connection =
             helper.runMigrationsAndValidate(version = 5, migrations = listOf(MIGRATION_4_5))
@@ -178,7 +172,7 @@ class MigrationTest {
     }
 
     @Test
-    fun dropTable() {
+    fun dropTable() = runTest {
         helper.createDatabase(5).close()
         val connection =
             helper.runMigrationsAndValidate(version = 6, migrations = listOf(MIGRATION_5_6))
@@ -188,12 +182,10 @@ class MigrationTest {
 
     @Test
     @Ignore("b/445891912") // Add API to validate dropped tables.
-    fun failedToDropTable() {
-        testFailure(5, 6)
-    }
+    fun failedToDropTable() = runTest { testFailure(5, 6) }
 
     @Test
-    fun failedToDropTableDontVerify() {
+    fun failedToDropTableDontVerify() = runTest {
         helper.createDatabase(5).close()
         val connection = helper.runMigrationsAndValidate(6, listOf(EmptyMigration(5, 6)))
         val info = TableInfo.read(connection, MigrationDb.Entity3.TABLE_NAME)
@@ -201,7 +193,7 @@ class MigrationTest {
     }
 
     @Test
-    fun failedForeignKey() {
+    fun failedForeignKey() = runTest {
         helper.createDatabase(6).close()
 
         assertThrows<IllegalStateException> {
@@ -210,7 +202,7 @@ class MigrationTest {
                     migrations =
                         listOf(
                             object : Migration(6, 7) {
-                                override fun migrate(connection: SQLiteConnection) {
+                                override suspend fun migrate(connection: SQLiteConnection) {
                                     connection.execSQL(
                                         "CREATE TABLE Entity4 (`id` INTEGER, `name` TEXT," +
                                             " PRIMARY KEY(`id`))"
@@ -225,7 +217,7 @@ class MigrationTest {
     }
 
     @Test
-    fun newTableWithForeignKey() {
+    fun newTableWithForeignKey() = runTest {
         helper.createDatabase(6).close()
         val connection =
             helper.runMigrationsAndValidate(version = 7, migrations = listOf(MIGRATION_6_7))
@@ -233,7 +225,7 @@ class MigrationTest {
         assertThat(info.foreignKeys.size).isEqualTo(1)
     }
 
-    private fun testFailure(startVersion: Int, endVersion: Int) {
+    private suspend fun testFailure(startVersion: Int, endVersion: Int) {
         helper.createDatabase(startVersion).close()
 
         assertThrows<IllegalStateException> {
@@ -247,7 +239,7 @@ class MigrationTest {
     }
 
     @Test
-    fun addDefaultValue() {
+    fun addDefaultValue() = runTest {
         helper.createDatabase(8).use { connection ->
             connection.execSQL("INSERT INTO " + MigrationDb.Entity5.TABLE_NAME + " (id) VALUES (1)")
         }
@@ -262,7 +254,7 @@ class MigrationTest {
     }
 
     @Test
-    fun addDefaultValueWithSurroundingParenthesis() {
+    fun addDefaultValueWithSurroundingParenthesis() = runTest {
         helper.createDatabase(9).use { connection ->
             connection.execSQL("INSERT INTO " + MigrationDb.Entity5.TABLE_NAME + " (id) VALUES (1)")
         }
@@ -278,7 +270,7 @@ class MigrationTest {
     }
 
     @Test
-    fun invalidHash() {
+    fun invalidHash() = runTest {
         // Create database at version 1
         helper.createDatabase(1).use { connection ->
             // Set its version to 2
@@ -302,70 +294,73 @@ class MigrationTest {
     }
 
     @Test
-    fun fallbackToDestructiveMigrationFrom_destructiveMigrationOccursForSuppliedVersion() {
-        helper.createDatabase(6).use { connection ->
-            val dao = MigrationDb.DaoV1(connection)
-            dao.insertIntoEntity1(2, "foo")
-            dao.insertIntoEntity1(3, "bar")
-        }
+    fun fallbackToDestructiveMigrationFrom_destructiveMigrationOccursForSuppliedVersion() =
+        runTest {
+            helper.createDatabase(6).use { connection ->
+                val dao = MigrationDb.DaoV1(connection)
+                dao.insertIntoEntity1(2, "foo")
+                dao.insertIntoEntity1(3, "bar")
+            }
 
-        val db =
-            Room.databaseBuilder<MigrationDb>(context, TEST_DB)
-                .setDriver(AndroidSQLiteDriver())
-                .fallbackToDestructiveMigrationFrom(true, 6)
-                .build()
-        assertThat(db.dao().loadAllEntity1s()).hasSize(0)
-        db.close()
-    }
-
-    @Test
-    fun fallbackToDestructiveMigrationFrom_suppliedValueIsMigrationStartVersion_inconsistent() {
-        helper.createDatabase(6).use { connection ->
-            val dao = MigrationDb.DaoV1(connection)
-            dao.insertIntoEntity1(2, "foo")
-            dao.insertIntoEntity1(3, "bar")
-        }
-
-        assertThrows<IllegalArgumentException> {
+            val db =
                 Room.databaseBuilder<MigrationDb>(context, TEST_DB)
                     .setDriver(AndroidSQLiteDriver())
-                    .addMigrations(MIGRATION_6_7)
                     .fallbackToDestructiveMigrationFrom(true, 6)
                     .build()
-            }
-            .hasMessageThat()
-            .isEqualTo(
-                "Inconsistency detected. A Migration was supplied to addMigration() that " +
-                    "has a start or end version equal to a start version supplied to " +
-                    "fallbackToDestructiveMigrationFrom(). Start version is: 6"
-            )
-    }
-
-    @Test
-    fun fallbackToDestructiveMigrationFrom_suppliedValueIsMigrationEndVersion_inconsistent() {
-        helper.createDatabase(5).use { connection ->
-            val dao = MigrationDb.DaoV1(connection)
-            dao.insertIntoEntity1(2, "foo")
-            dao.insertIntoEntity1(3, "bar")
+            assertThat(db.dao().loadAllEntity1s()).hasSize(0)
+            db.close()
         }
 
-        assertThrows<IllegalArgumentException> {
-                Room.databaseBuilder<MigrationDb>(context, TEST_DB)
-                    .setDriver(AndroidSQLiteDriver())
-                    .addMigrations(MIGRATION_5_6)
-                    .fallbackToDestructiveMigrationFrom(true, 6)
-                    .build()
+    @Test
+    fun fallbackToDestructiveMigrationFrom_suppliedValueIsMigrationStartVersion_inconsistent() =
+        runTest {
+            helper.createDatabase(6).use { connection ->
+                val dao = MigrationDb.DaoV1(connection)
+                dao.insertIntoEntity1(2, "foo")
+                dao.insertIntoEntity1(3, "bar")
             }
-            .hasMessageThat()
-            .isEqualTo(
-                "Inconsistency detected. A Migration was supplied to addMigration() that " +
-                    "has a start or end version equal to a start version supplied to " +
-                    "fallbackToDestructiveMigrationFrom(). Start version is: 6"
-            )
-    }
+
+            assertThrows<IllegalArgumentException> {
+                    Room.databaseBuilder<MigrationDb>(context, TEST_DB)
+                        .setDriver(AndroidSQLiteDriver())
+                        .addMigrations(MIGRATION_6_7)
+                        .fallbackToDestructiveMigrationFrom(true, 6)
+                        .build()
+                }
+                .hasMessageThat()
+                .isEqualTo(
+                    "Inconsistency detected. A Migration was supplied to addMigration() that " +
+                        "has a start or end version equal to a start version supplied to " +
+                        "fallbackToDestructiveMigrationFrom(). Start version is: 6"
+                )
+        }
 
     @Test
-    fun fallbackToDestructiveMigration_upgrade() {
+    fun fallbackToDestructiveMigrationFrom_suppliedValueIsMigrationEndVersion_inconsistent() =
+        runTest {
+            helper.createDatabase(5).use { connection ->
+                val dao = MigrationDb.DaoV1(connection)
+                dao.insertIntoEntity1(2, "foo")
+                dao.insertIntoEntity1(3, "bar")
+            }
+
+            assertThrows<IllegalArgumentException> {
+                    Room.databaseBuilder<MigrationDb>(context, TEST_DB)
+                        .setDriver(AndroidSQLiteDriver())
+                        .addMigrations(MIGRATION_5_6)
+                        .fallbackToDestructiveMigrationFrom(true, 6)
+                        .build()
+                }
+                .hasMessageThat()
+                .isEqualTo(
+                    "Inconsistency detected. A Migration was supplied to addMigration() that " +
+                        "has a start or end version equal to a start version supplied to " +
+                        "fallbackToDestructiveMigrationFrom(). Start version is: 6"
+                )
+        }
+
+    @Test
+    fun fallbackToDestructiveMigration_upgrade() = runTest {
         helper.createDatabase(1).use { connection ->
             val dao = MigrationDb.DaoV1(connection)
             dao.insertIntoEntity1(2, "foo")
@@ -382,7 +377,7 @@ class MigrationTest {
     }
 
     @Test
-    fun fallbackToDestructiveMigration_downgrade() {
+    fun fallbackToDestructiveMigration_downgrade() = runTest {
         helper.createDatabase(1000).use { connection ->
             val dao = MigrationDb.DaoV1(connection)
             dao.insertIntoEntity1(2, "foo")
@@ -399,7 +394,7 @@ class MigrationTest {
     }
 
     @Test
-    fun fallbackToDestructiveMigrationOnDowngrade_upgrade() {
+    fun fallbackToDestructiveMigrationOnDowngrade_upgrade() = runTest {
         helper.createDatabase(1).use { connection ->
             val dao = MigrationDb.DaoV1(connection)
             dao.insertIntoEntity1(2, "foo")
@@ -422,7 +417,7 @@ class MigrationTest {
     }
 
     @Test
-    fun fallbackToDestructiveMigrationOnDowngrade_downgrade() {
+    fun fallbackToDestructiveMigrationOnDowngrade_downgrade() = runTest {
         helper.createDatabase(1000).use { connection ->
             val dao = MigrationDb.DaoV1(connection)
             dao.insertIntoEntity1(2, "foo")
@@ -452,7 +447,7 @@ class MigrationTest {
                 .fallbackToDestructiveMigration(true)
                 .addCallback(
                     object : RoomDatabase.Callback() {
-                        override fun onDestructiveMigration(connection: SQLiteConnection) {
+                        override suspend fun onDestructiveMigration(connection: SQLiteConnection) {
                             super.onDestructiveMigration(connection)
                             onDestructiveMigrationInvoked = true
                         }
@@ -510,7 +505,7 @@ class MigrationTest {
 
     private val MIGRATION_1_2: Migration =
         object : Migration(1, 2) {
-            override fun migrate(connection: SQLiteConnection) {
+            override suspend fun migrate(connection: SQLiteConnection) {
                 connection.execSQL(
                     "CREATE TABLE IF NOT EXISTS `Entity2` (`id` INTEGER NOT NULL," +
                         " `name` TEXT, PRIMARY KEY(`id`))"
@@ -520,7 +515,7 @@ class MigrationTest {
 
     private val MIGRATION_2_3: Migration =
         object : Migration(2, 3) {
-            override fun migrate(connection: SQLiteConnection) {
+            override suspend fun migrate(connection: SQLiteConnection) {
                 connection.execSQL(
                     "ALTER TABLE " + MigrationDb.Entity2.TABLE_NAME + " ADD COLUMN addedInV3 TEXT"
                 )
@@ -529,7 +524,7 @@ class MigrationTest {
 
     private val MIGRATION_3_4: Migration =
         object : Migration(3, 4) {
-            override fun migrate(connection: SQLiteConnection) {
+            override suspend fun migrate(connection: SQLiteConnection) {
                 connection.execSQL(
                     "CREATE TABLE IF NOT EXISTS `Entity3` (`id` INTEGER NOT NULL," +
                         " `removedInV5` TEXT, `name` TEXT, PRIMARY KEY(`id`))"
@@ -539,7 +534,7 @@ class MigrationTest {
 
     private val MIGRATION_4_5: Migration =
         object : Migration(4, 5) {
-            override fun migrate(connection: SQLiteConnection) {
+            override suspend fun migrate(connection: SQLiteConnection) {
                 connection.execSQL(
                     "CREATE TABLE IF NOT EXISTS `Entity3_New` (`id` INTEGER NOT NULL," +
                         " `name` TEXT, PRIMARY KEY(`id`))"
@@ -554,14 +549,14 @@ class MigrationTest {
 
     private val MIGRATION_5_6: Migration =
         object : Migration(5, 6) {
-            override fun migrate(connection: SQLiteConnection) {
+            override suspend fun migrate(connection: SQLiteConnection) {
                 connection.execSQL("DROP TABLE " + MigrationDb.Entity3.TABLE_NAME)
             }
         }
 
     private val MIGRATION_6_7: Migration =
         object : Migration(6, 7) {
-            override fun migrate(connection: SQLiteConnection) {
+            override suspend fun migrate(connection: SQLiteConnection) {
                 connection.execSQL(
                     "CREATE TABLE IF NOT EXISTS " +
                         MigrationDb.Entity4.TABLE_NAME +
@@ -579,7 +574,7 @@ class MigrationTest {
 
     private val MIGRATION_8_9: Migration =
         object : Migration(8, 9) {
-            override fun migrate(connection: SQLiteConnection) {
+            override suspend fun migrate(connection: SQLiteConnection) {
                 // Add column Entity4.addedInV9 with DEFAULT.
                 connection.execSQL(
                     "ALTER TABLE " + MigrationDb.Entity5.TABLE_NAME + " RENAME TO save_Entity5"
@@ -601,7 +596,7 @@ class MigrationTest {
 
     private val MIGRATION_9_10: Migration =
         object : Migration(9, 10) {
-            override fun migrate(connection: SQLiteConnection) {
+            override suspend fun migrate(connection: SQLiteConnection) {
                 connection.execSQL(
                     "ALTER TABLE " +
                         MigrationDb.Entity5.TABLE_NAME +
@@ -624,7 +619,7 @@ class MigrationTest {
 
     private class EmptyMigration(startVersion: Int, endVersion: Int) :
         Migration(startVersion, endVersion) {
-        override fun migrate(connection: SQLiteConnection) {
+        override suspend fun migrate(connection: SQLiteConnection) {
             // do nothing
         }
     }

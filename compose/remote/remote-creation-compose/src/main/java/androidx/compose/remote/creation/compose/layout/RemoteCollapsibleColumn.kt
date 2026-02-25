@@ -27,15 +27,17 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toComposeUiLayout
 import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.v2.RemoteCollapsibleColumnV2
+import androidx.compose.remote.creation.compose.v2.RemoteComposeApplierV2
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 
 /** Utility modifier to record the layout information */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteComposeCollapsibleColumnModifier(
+internal class RemoteComposeCollapsibleColumnModifier(
     public val modifier: RecordingModifier,
     public val horizontalAlignment: RemoteAlignment.Horizontal = RemoteAlignment.Start,
     public val verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Top,
@@ -70,6 +72,7 @@ public class RemoteCollapsibleColumnScope {
  * RemoteRow to both work as a normal Row when called within a normal Compose tree, and capture the
  * layout information when called within a capture pass for RemoteCompose.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RemoteComposable
 @Composable
 public fun RemoteCollapsibleColumn(
@@ -78,6 +81,10 @@ public fun RemoteCollapsibleColumn(
     verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Top,
     content: @Composable RemoteCollapsibleColumnScope.() -> Unit,
 ) {
+    if (currentComposer.applier is RemoteComposeApplierV2) {
+        RemoteCollapsibleColumnV2(modifier, horizontalAlignment, verticalArrangement, content)
+        return
+    }
 
     val creationState = LocalRemoteComposeCreationState.current
     val scope = remember { RemoteCollapsibleColumnScope() }

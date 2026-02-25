@@ -77,6 +77,8 @@ class PageTest {
 
     private val errorFlow = MutableSharedFlow<Throwable>()
 
+    private val pageUpdatedEvents = mutableListOf<PageBitmapState>()
+
     private fun createPage(): Page {
         return Page(
             pageNum = 0,
@@ -84,7 +86,7 @@ class PageTest {
             pdfDocument = pdfDocument,
             backgroundScope = testScope,
             maxBitmapSizePx = MAX_BITMAP_SIZE,
-            onBitmapReady = invalidationTracker,
+            onBitmapReady = { pageUpdatedEvents.add(PageBitmapState.PageBitmapReady(0)) },
             onFormWidgetReady = invalidationTracker,
             onPageTextReady = onPageTextReady,
             errorFlow = errorFlow,
@@ -107,6 +109,7 @@ class PageTest {
                     ),
                 ),
             pdfFormFillingConfig = PdfFormFillingConfig({ false }, Color.CYAN),
+            onBitmapCleared = { pageUpdatedEvents.add(PageBitmapState.PageBitmapCleared(0)) },
         )
     }
 
@@ -118,6 +121,24 @@ class PageTest {
         pageTextReadyCounter = 0
 
         page = createPage()
+    }
+
+    @Test
+    fun pageBitmapState_PageBitmapCleared() {
+        assertThat(pageUpdatedEvents.size).isEqualTo(0)
+        page.setVisible(zoom = 1.5F, FULL_PAGE_RECT)
+        testDispatcher.scheduler.runCurrent()
+        assertThat(pageUpdatedEvents.size).isEqualTo(1)
+        val pageUpdatedState = pageUpdatedEvents.first()
+        assertThat(pageUpdatedState is PageBitmapState.PageBitmapReady).isTrue()
+        assertThat((pageUpdatedState as PageBitmapState.PageBitmapReady).pageNum).isEqualTo(0)
+
+        page.setInvisible()
+        testDispatcher.scheduler.runCurrent()
+        assertThat(pageUpdatedEvents.size).isEqualTo(2)
+        val pageClearedState = pageUpdatedEvents.last()
+        assertThat(pageClearedState is PageBitmapState.PageBitmapCleared).isTrue()
+        assertThat((pageClearedState as PageBitmapState.PageBitmapCleared).pageNum).isEqualTo(0)
     }
 
     @Test

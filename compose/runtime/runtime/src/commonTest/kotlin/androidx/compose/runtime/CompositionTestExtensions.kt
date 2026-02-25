@@ -21,4 +21,8 @@ fun Composition.getSlots(): Iterable<Any?> = (this as CompositionImpl).slotStora
 
 @TestOnly
 fun Composer.getInsertTableSlots(): Iterable<Any?> =
-    (this as GapComposer).insertTable.slots.asIterable()
+    when (this) {
+        is GapComposer -> insertTable.slots.asIterable()
+        is LinkComposer -> insertTable.getSlots()
+        else -> composeRuntimeError("Unknown composer implementation")
+    }

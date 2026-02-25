@@ -73,7 +73,7 @@ public interface ComplicationDataSourceUpdateRequester {
     public companion object {
         /** The package of the service that accepts complication data source requests. */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public const val UPDATE_REQUEST_RECEIVER_PACKAGE = "com.google.android.wearable.app"
+        public const val UPDATE_REQUEST_RECEIVER_PACKAGE: String = "com.google.android.wearable.app"
 
         /** An override to [UPDATE_REQUEST_RECEIVER_PACKAGE] for tests. */
         internal var overrideUpdateRequestsReceiverPackage: String? = null

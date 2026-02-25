@@ -9302,6 +9302,11 @@ public class AppSearchImplTest {
             public boolean doesCallerHaveSystemAccess(@NonNull String callerPackageName) {
                 return false;
             }
+
+            @Override
+            public boolean isPrivateComputeCoreUid(int uid) {
+                return false;
+            }
         };
 
         mAppSearchImpl = AppSearchImpl.create(
@@ -9909,6 +9914,11 @@ public class AppSearchImplTest {
             public boolean doesCallerHaveSystemAccess(@NonNull String callerPackageName) {
                 return false;
             }
+
+            @Override
+            public boolean isPrivateComputeCoreUid(int uid) {
+                return false;
+            }
         };
 
         mAppSearchImpl = AppSearchImpl.create(
@@ -9987,6 +9997,11 @@ public class AppSearchImplTest {
 
             @Override
             public boolean doesCallerHaveSystemAccess(@NonNull String callerPackageName) {
+                return false;
+            }
+
+            @Override
+            public boolean isPrivateComputeCoreUid(int uid) {
                 return false;
             }
         };
@@ -10089,6 +10104,11 @@ public class AppSearchImplTest {
 
             @Override
             public boolean doesCallerHaveSystemAccess(@NonNull String callerPackageName) {
+                return false;
+            }
+
+            @Override
+            public boolean isPrivateComputeCoreUid(int uid) {
                 return false;
             }
         };
@@ -10390,6 +10410,11 @@ public class AppSearchImplTest {
 
             @Override
             public boolean doesCallerHaveSystemAccess(@NonNull String callerPackageName) {
+                return false;
+            }
+
+            @Override
+            public boolean isPrivateComputeCoreUid(int uid) {
                 return false;
             }
         };
@@ -10823,6 +10848,11 @@ public class AppSearchImplTest {
             public boolean doesCallerHaveSystemAccess(@NonNull String callerPackageName) {
                 return false;
             }
+
+            @Override
+            public boolean isPrivateComputeCoreUid(int uid) {
+                return false;
+            }
         };
         mAppSearchImpl.close();
         mAppSearchImpl = AppSearchImpl.create(
@@ -10998,6 +11028,11 @@ public class AppSearchImplTest {
             public boolean doesCallerHaveSystemAccess(@NonNull String callerPackageName) {
                 return false;
             }
+
+            @Override
+            public boolean isPrivateComputeCoreUid(int uid) {
+                return false;
+            }
         };
         mAppSearchImpl.close();
         mAppSearchImpl = AppSearchImpl.create(
@@ -11101,6 +11136,11 @@ public class AppSearchImplTest {
 
             @Override
             public boolean doesCallerHaveSystemAccess(@NonNull String callerPackageName) {
+                return false;
+            }
+
+            @Override
+            public boolean isPrivateComputeCoreUid(int uid) {
                 return false;
             }
         };
@@ -11210,6 +11250,11 @@ public class AppSearchImplTest {
 
             @Override
             public boolean doesCallerHaveSystemAccess(@NonNull String callerPackageName) {
+                return false;
+            }
+
+            @Override
+            public boolean isPrivateComputeCoreUid(int uid) {
                 return false;
             }
         };

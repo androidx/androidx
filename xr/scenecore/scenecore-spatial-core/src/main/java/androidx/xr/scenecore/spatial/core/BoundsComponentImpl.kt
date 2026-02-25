@@ -44,8 +44,8 @@ internal class BoundsComponentImpl : BoundsComponent {
         val wasEmpty = listeners.isEmpty()
         listeners[listener] = executor
 
-        if (entity is GltfEntityImpl) {
-            val gltfEntity = entity as GltfEntityImpl
+        if (entity is GltfEntity) {
+            val gltfEntity = entity as GltfEntity
             if (wasEmpty) {
                 gltfEntity.addOnBoundsUpdateListener(frameListener)
             }
@@ -58,8 +58,8 @@ internal class BoundsComponentImpl : BoundsComponent {
     override fun removeOnBoundsUpdateListener(listener: Consumer<BoundingBox>) {
         listeners.remove(listener)
 
-        if (entity is GltfEntityImpl && listeners.isEmpty()) {
-            (entity as GltfEntityImpl).removeOnBoundsUpdateListener(frameListener)
+        if (entity is GltfEntity && listeners.isEmpty()) {
+            (entity as GltfEntity).removeOnBoundsUpdateListener(frameListener)
         }
     }
 
@@ -74,7 +74,7 @@ internal class BoundsComponentImpl : BoundsComponent {
         this.entity = entity
 
         if (listeners.isNotEmpty()) {
-            val gltfEntity = entity as GltfEntityImpl
+            val gltfEntity = entity as GltfEntity
             gltfEntity.addOnBoundsUpdateListener(frameListener)
 
             val currentBox = gltfEntity.gltfModelBoundingBox
@@ -87,7 +87,7 @@ internal class BoundsComponentImpl : BoundsComponent {
     }
 
     override fun onDetach(entity: Entity) {
-        if (entity is GltfEntityImpl) {
+        if (entity is GltfEntity) {
             entity.removeOnBoundsUpdateListener(frameListener)
         }
 

@@ -251,7 +251,7 @@ package androidx.browser.customtabs {
     method @Dimension(unit=androidx.annotation.Dimension.PX) public static int getInitialActivityWidthPx(android.content.Intent);
     method public static int getMaxToolbarItems();
     method public static android.net.Network? getNetwork(android.content.Intent);
-    method @SuppressCompatibility @androidx.browser.customtabs.ExperimentalOpenInBrowser public static int getOpenInBrowserButtonState(android.content.Intent);
+    method public static int getOpenInBrowserButtonState(android.content.Intent);
     method public static android.app.PendingIntent? getSecondaryToolbarSwipeUpGesture(android.content.Intent);
     method @Dimension(unit=androidx.annotation.Dimension.DP) public static int getToolbarCornerRadiusDp(android.content.Intent);
     method public static java.util.Locale? getTranslateLocale(android.content.Intent);
@@ -321,7 +321,7 @@ package androidx.browser.customtabs {
     field public static final String EXTRA_NAVIGATION_BAR_COLOR = "androidx.browser.customtabs.extra.NAVIGATION_BAR_COLOR";
     field public static final String EXTRA_NAVIGATION_BAR_DIVIDER_COLOR = "androidx.browser.customtabs.extra.NAVIGATION_BAR_DIVIDER_COLOR";
     field public static final String EXTRA_NETWORK = "androidx.browser.customtabs.extra.NETWORK";
-    field @SuppressCompatibility @androidx.browser.customtabs.ExperimentalOpenInBrowser public static final String EXTRA_OPEN_IN_BROWSER_STATE = "androidx.browser.customtabs.extra.OPEN_IN_BROWSER_STATE";
+    field public static final String EXTRA_OPEN_IN_BROWSER_STATE = "androidx.browser.customtabs.extra.OPEN_IN_BROWSER_STATE";
     field public static final String EXTRA_REMOTEVIEWS = "android.support.customtabs.extra.EXTRA_REMOTEVIEWS";
     field public static final String EXTRA_REMOTEVIEWS_CLICKED_ID = "android.support.customtabs.extra.EXTRA_REMOTEVIEWS_CLICKED_ID";
     field public static final String EXTRA_REMOTEVIEWS_PENDINGINTENT = "android.support.customtabs.extra.EXTRA_REMOTEVIEWS_PENDINGINTENT";
@@ -344,9 +344,9 @@ package androidx.browser.customtabs {
     field public static final String KEY_MENU_ITEM_TITLE = "android.support.customtabs.customaction.MENU_ITEM_TITLE";
     field public static final String KEY_PENDING_INTENT = "android.support.customtabs.customaction.PENDING_INTENT";
     field public static final int NO_TITLE = 0; // 0x0
-    field @SuppressCompatibility @androidx.browser.customtabs.ExperimentalOpenInBrowser public static final int OPEN_IN_BROWSER_STATE_DEFAULT = 0; // 0x0
-    field @SuppressCompatibility @androidx.browser.customtabs.ExperimentalOpenInBrowser public static final int OPEN_IN_BROWSER_STATE_OFF = 2; // 0x2
-    field @SuppressCompatibility @androidx.browser.customtabs.ExperimentalOpenInBrowser public static final int OPEN_IN_BROWSER_STATE_ON = 1; // 0x1
+    field public static final int OPEN_IN_BROWSER_STATE_DEFAULT = 0; // 0x0
+    field public static final int OPEN_IN_BROWSER_STATE_OFF = 2; // 0x2
+    field public static final int OPEN_IN_BROWSER_STATE_ON = 1; // 0x1
     field public static final int SHARE_STATE_DEFAULT = 0; // 0x0
     field public static final int SHARE_STATE_OFF = 2; // 0x2
     field public static final int SHARE_STATE_ON = 1; // 0x1
@@ -392,7 +392,7 @@ package androidx.browser.customtabs {
     method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder setNavigationBarColor(@ColorInt int);
     method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder setNavigationBarDividerColor(@ColorInt int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setNetwork(android.net.Network);
-    method @SuppressCompatibility @androidx.browser.customtabs.ExperimentalOpenInBrowser public androidx.browser.customtabs.CustomTabsIntent.Builder setOpenInBrowserButtonState(int);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setOpenInBrowserButtonState(int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setPendingSession(androidx.browser.customtabs.CustomTabsSession.PendingSession);
     method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder setSecondaryToolbarColor(@ColorInt int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setSecondaryToolbarSwipeUpGesture(android.app.PendingIntent?);
@@ -503,9 +503,6 @@ package androidx.browser.customtabs {
   }
 
   @SuppressCompatibility @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.WARNING) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalInitialNavigationCanLeaveBrowser {
-  }
-
-  @SuppressCompatibility @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.WARNING) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalOpenInBrowser {
   }
 
   @SuppressCompatibility @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.WARNING) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalPendingSession {

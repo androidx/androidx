@@ -24,7 +24,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import platform.posix.remove
 
-class BuilderTest : BaseBuilderTest() {
+class BuilderTest : BaseNonWebBuilderTest() {
 
     private val filename = "/tmp/test-${Random.nextInt()}.db"
 

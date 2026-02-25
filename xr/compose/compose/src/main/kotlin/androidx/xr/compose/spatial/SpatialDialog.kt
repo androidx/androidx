@@ -18,7 +18,6 @@ package androidx.xr.compose.spatial
 
 import android.content.Context
 import android.view.View
-import android.view.ViewParent
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.animateFloat
@@ -27,7 +26,6 @@ import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.DisposableEffect
@@ -46,21 +44,12 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.core.viewtree.setViewTreeDisjointParent
-import androidx.lifecycle.findViewTreeLifecycleOwner
-import androidx.lifecycle.findViewTreeViewModelStoreOwner
-import androidx.lifecycle.setViewTreeLifecycleOwner
-import androidx.lifecycle.setViewTreeViewModelStoreOwner
-import androidx.savedstate.findViewTreeSavedStateRegistryOwner
-import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import androidx.xr.compose.R
 import androidx.xr.compose.platform.LocalDialogManager
 import androidx.xr.compose.platform.LocalSession
@@ -68,7 +57,7 @@ import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.platform.findNearestParentEntity
 import androidx.xr.compose.subspace.layout.CoreEntity
 import androidx.xr.compose.subspace.layout.CorePanelEntity
-import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
+import androidx.xr.compose.subspace.spatialComposeView
 import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.compose.unit.Meter.Companion.meters
 import androidx.xr.compose.unit.toMeter
@@ -197,6 +186,8 @@ private fun LayoutSpatialDialog(
     val parentEntity = findNearestParentEntity()
     val context = LocalContext.current
     val compositionContext = rememberCompositionContext()
+    // TODO(b/474652577): Update from deprecated currentCompositeKey to currentCompositeKeyCode
+    //  once we update JXR Compose to Compile SDK 35
     @Suppress("DEPRECATION") val localId = currentCompositeKeyHash
 
     BackHandler {
@@ -239,11 +230,11 @@ private fun LayoutSpatialDialog(
     val holder =
         remember(parentView) {
             SpatialDialogRenderer(
+                localId = localId,
                 context = context,
+                session = session,
                 parentView = parentView,
                 compositionContext = compositionContext,
-                session = session,
-                localId = localId,
             )
         }
 
@@ -264,24 +255,18 @@ private fun LayoutSpatialDialog(
  *
  * All external configuration changes (pose, parent, content) are synchronized to the internal state
  * and the [CorePanelEntity].
- *
- * @param context The [Context] used to create the internal [ComposeView].
- * @param parentView The parent Android [View] used to establish View Tree ownership (Lifecycle,
- *   ViewModel, etc.).
- * @param compositionContext The parent's [CompositionContext] to ensure proper disposal.
- * @param session The active XR [Session] required to create the [PanelEntity].
- * @param localId A unique ID for saving/restoring the Compose state.
  */
 private class SpatialDialogRenderer(
-    private var context: Context,
-    private var parentView: View,
-    private var compositionContext: CompositionContext,
-    private var session: Session,
-    private var localId: Int,
+    private val localId: Int,
+    private val context: Context,
+    private val session: Session,
+    private val parentView: View,
+    private val compositionContext: CompositionContext,
 ) : RememberObserver {
 
-    private var view: ComposeView? = null
     private var panelEntity: CorePanelEntity? = null
+    private var view: ComposeView? = null
+
     var parentEntity: CoreEntity? = null
         set(value) {
             if (field != value) {
@@ -301,47 +286,18 @@ private class SpatialDialogRenderer(
     var content: @Composable () -> Unit by mutableStateOf(EmptyContent)
 
     override fun onRemembered() {
-
-        val view =
-            ComposeView(context).apply {
-                id = View.generateViewId()
-
-                setViewTreeLifecycleOwner(parentView.findViewTreeLifecycleOwner())
-                setViewTreeViewModelStoreOwner(parentView.findViewTreeViewModelStoreOwner())
-                setViewTreeSavedStateRegistryOwner(parentView.findViewTreeSavedStateRegistryOwner())
-                setViewTreeDisjointParent(parentView as? ViewParent ?: parentView.parent)
-
-                // Set the strategy to automatically dispose the composition
-                // when the ComposeView is detached from the window.
-                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
-                // Dispose of the Composition when the view's LifecycleOwner is destroyed
-                setParentCompositionContext(compositionContext)
-
-                // Set unique id for AbstractComposeView. This allows state restoration
-                // for the state defined inside the SpatialElevation via rememberSaveable().
-                setTag(
-                    androidx.compose.ui.R.id.compose_view_saveable_id_tag,
-                    "ComposeView:$localId",
-                )
-
-                // Enable children to draw their shadow by not clipping them
-                clipChildren = false
-            }
+        val view = spatialComposeView(parentView, context, compositionContext, localId)
         this.view = view
         panelEntity =
-            view
-                .let {
-                    CorePanelEntity(
-                        PanelEntity.create(
-                            session = session,
-                            view = it,
-                            pixelDimensions = IntSize2d(IntSize.Zero.width, IntSize.Zero.height),
-                            name = "ElevatedPanel:${it.id}",
-                        )
+            CorePanelEntity(
+                    PanelEntity.create(
+                        session = session,
+                        view = view,
+                        pixelDimensions = IntSize2d(IntSize.Zero.width, IntSize.Zero.height),
+                        name = "ElevatedPanel:${view.id}",
                     )
-                }
+                )
                 .apply {
-                    setShape(SpatialRoundedCornerShape(ZeroCornerSize), Density(1.0f))
                     parent = parentEntity
                     view.setTag(R.id.compose_xr_local_view_entity, this)
                 }

@@ -48,6 +48,7 @@ import androidx.compose.foundation.text.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text.input.TextFieldLineLimits.SingleLine
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.material3.MaterialTheme.LocalMaterialTheme
 import androidx.compose.material3.TextFieldDefaults.defaultTextFieldColors
 import androidx.compose.material3.internal.AboveLabelBottomPadding
 import androidx.compose.material3.internal.AboveLabelHorizontalPadding
@@ -1484,7 +1485,8 @@ internal class IndicatorLineNode(
     private val colors: TextFieldColors
         get() =
             _colors
-                ?: currentValueOf(LocalColorScheme)
+                ?: currentValueOf(LocalMaterialTheme)
+                    .colorScheme
                     .defaultTextFieldColors(currentValueOf(LocalTextSelectionColors))
 
     // Must be initialized in `onAttach` so `colors` can read from the `MaterialTheme`
@@ -1500,7 +1502,10 @@ internal class IndicatorLineNode(
 
     private val shape: Shape
         get() =
-            _shape ?: currentValueOf(LocalShapes).fromToken(FilledTextFieldTokens.ContainerShape)
+            _shape
+                ?: currentValueOf(LocalMaterialTheme)
+                    .shapes
+                    .fromToken(FilledTextFieldTokens.ContainerShape)
 
     private val widthAnimatable: Animatable<Dp, AnimationVector1D> =
         Animatable(
@@ -1600,8 +1605,9 @@ internal class IndicatorLineNode(
                 targetValue = colors.indicatorColor(enabled, isError, focused),
                 animationSpec =
                     if (enabled) {
-                        currentValueOf(MaterialTheme.LocalMotionScheme)
-                            .fromToken(MotionSchemeKeyTokens.FastEffects)
+                        currentValueOf(LocalMaterialTheme)
+                            .motionScheme
+                            .fromToken<Color>(MotionSchemeKeyTokens.FastEffects)
                     } else {
                         snap()
                     },
@@ -1613,8 +1619,9 @@ internal class IndicatorLineNode(
                     if (focused && enabled) focusedIndicatorWidth else unfocusedIndicatorWidth,
                 animationSpec =
                     if (enabled) {
-                        currentValueOf(MaterialTheme.LocalMotionScheme)
-                            .fromToken(MotionSchemeKeyTokens.FastSpatial)
+                        currentValueOf(LocalMaterialTheme)
+                            .motionScheme
+                            .fromToken<Dp>(MotionSchemeKeyTokens.FastSpatial)
                     } else {
                         snap()
                     },

@@ -74,6 +74,17 @@ interface HealthConnectFeatures {
          */
         const val FEATURE_EXTENDED_DEVICE_TYPES = 8
 
+        /**
+         * Feature constant for exercise session improvements.
+         *
+         * When this feature is available, the following fields are supported:
+         * - `ExerciseSessionRecord.rateOfPerceivedExertion`
+         * - `ExerciseSegment.weight`
+         * - `ExerciseSegment.setIndex`
+         * - `ExerciseSegment.rateOfPerceivedExertion`
+         */
+        const val FEATURE_EXERCISE_SESSION_IMPROVEMENTS = 9
+
         @OptIn(ExperimentalPersonalHealthRecordApi::class)
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(
@@ -87,6 +98,7 @@ interface HealthConnectFeatures {
                     FEATURE_MINDFULNESS_SESSION,
                     FEATURE_ACTIVITY_INTENSITY,
                     FEATURE_EXTENDED_DEVICE_TYPES,
+                    FEATURE_EXERCISE_SESSION_IMPROVEMENTS,
                 ]
         )
         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -116,6 +128,8 @@ interface HealthConnectFeatures {
             HealthConnectPlatformVersion(buildVersionCode = 34, sdkExtensionVersion = 16)
         private val SDK_EXT_19_PLATFORM_VERSION: HealthConnectPlatformVersion =
             HealthConnectPlatformVersion(buildVersionCode = 34, sdkExtensionVersion = 19)
+        private val SDK_EXT_21_PLATFORM_VERSION: HealthConnectPlatformVersion =
+            HealthConnectPlatformVersion(buildVersionCode = 34, sdkExtensionVersion = 21)
 
         @OptIn(ExperimentalPersonalHealthRecordApi::class)
         internal val FEATURE_TO_VERSION_INFO_MAP: Map<Int, HealthConnectVersionInfo> =
@@ -151,6 +165,8 @@ interface HealthConnectFeatures {
                     ),
                 FEATURE_EXTENDED_DEVICE_TYPES to
                     HealthConnectVersionInfo(platformVersion = SDK_EXT_19_PLATFORM_VERSION),
+                FEATURE_EXERCISE_SESSION_IMPROVEMENTS to
+                    HealthConnectVersionInfo(platformVersion = SDK_EXT_21_PLATFORM_VERSION),
             )
     }
 }

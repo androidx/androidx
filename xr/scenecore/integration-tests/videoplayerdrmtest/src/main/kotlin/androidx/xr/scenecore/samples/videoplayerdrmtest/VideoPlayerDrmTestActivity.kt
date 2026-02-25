@@ -23,7 +23,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.MediaCodecInfo
 import android.media.MediaCodecList
-import android.media.MediaDrm
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
@@ -71,7 +70,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import androidx.xr.runtime.Config
-import androidx.xr.runtime.Config.DeviceTrackingMode
+import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.FloatSize2d

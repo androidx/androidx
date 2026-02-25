@@ -40,8 +40,7 @@ internal object KotlinCliRunner {
         destinationDir: File,
         /** List of plugin registrars for the compilation. */
         @OptIn(ExperimentalCompilerApi::class)
-        pluginRegistrars: PluginRegistrarArguments =
-            PluginRegistrarArguments(emptyList(), emptyList()),
+        pluginRegistrars: PluginRegistrarArguments = PluginRegistrarArguments(emptyList()),
     ): KotlinCliResult {
         val compiler = K2JVMCompiler()
         destinationDir.mkdirs()
@@ -87,18 +86,13 @@ internal object KotlinCliRunner {
             ?: TestDefaultOptions.jvmTarget
     }
 
-    /** Get the jvm default mode specified with `-Xjvm-default=xxx`. */
-    fun getLegacyJvmDefaultMode(kotlincArguments: List<String>): LegacyJvmDefaultMode {
-        return parseArguments(kotlincArguments).jvmDefault.let {
-            LegacyJvmDefaultMode.fromStringOrNull(it)
-        } ?: TestDefaultOptions.legacyJvmDefaultMode
-    }
-
     /** Get the jvm default mode specified with `-jvm-default=xxx`. */
+    @Suppress("DEPRECATION") // Due to jvmDefault
     fun getJvmDefaultMode(kotlincArguments: List<String>): JvmDefaultMode {
-        return parseArguments(kotlincArguments).jvmDefault.let {
-            JvmDefaultMode.fromStringOrNull(it)
-        } ?: TestDefaultOptions.jvmDefaultMode
+        val parsedArgs = parseArguments(kotlincArguments)
+        return parsedArgs.jvmDefaultStable.let { JvmDefaultMode.fromStringOrNull(it) }
+            ?: parsedArgs.jvmDefault.let { JvmDefaultMode.fromStringOrNullOld(it) }
+            ?: TestDefaultOptions.jvmDefaultMode
     }
 
     /** Get the JVM module name specified with `-module-name`. */
@@ -128,7 +122,6 @@ internal object KotlinCliRunner {
         cliArguments.languageVersion = languageVersion.versionString
         cliArguments.apiVersion = getApiVersion(kotlincArguments).versionString
         cliArguments.jvmTarget = getJvmTarget(kotlincArguments).description
-        cliArguments.jvmDefault = getLegacyJvmDefaultMode(kotlincArguments).description
         cliArguments.jvmDefaultStable = getJvmDefaultMode(kotlincArguments).description
 
         // useJavac & compileJava are experimental so lets not use it for now.

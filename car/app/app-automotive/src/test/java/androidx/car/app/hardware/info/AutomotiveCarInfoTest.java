@@ -22,7 +22,7 @@ import static android.car.VehiclePropertyIds.EV_CHARGE_PORT_OPEN;
 import static android.car.VehiclePropertyIds.FUEL_LEVEL;
 import static android.car.VehiclePropertyIds.FUEL_LEVEL_LOW;
 import static android.car.VehiclePropertyIds.FUEL_VOLUME_DISPLAY_UNITS;
-import static android.car.VehiclePropertyIds.INFO_EV_BATTERY_CAPACITY;
+import static android.car.VehiclePropertyIds.EV_CURRENT_BATTERY_CAPACITY;
 import static android.car.VehiclePropertyIds.INFO_EV_CONNECTOR_TYPE;
 import static android.car.VehiclePropertyIds.INFO_FUEL_CAPACITY;
 import static android.car.VehiclePropertyIds.INFO_FUEL_TYPE;
@@ -129,7 +129,7 @@ public class AutomotiveCarInfoTest {
     private static final Integer[]
             TEST_EXTERIOR_DIMENSIONS_VALUES = new Integer[]{1, 2, 3, 4, 5, 6, 7, 8};
     private static final CarPropertyResponse<?> EV_BATTERY_CAPACITY_RESPONSE_SUCCESS =
-            CarPropertyResponse.builder().setPropertyId(INFO_EV_BATTERY_CAPACITY).setStatus(
+            CarPropertyResponse.builder().setPropertyId(EV_CURRENT_BATTERY_CAPACITY).setStatus(
                     STATUS_SUCCESS).setTimestampMillis(DEFAULT_TIMESTAMP_MILLIS).setValue(
                     EV_BATTERY_CAPACITY).build();
     private static final CarPropertyResponse<?> FUEL_CAPACITY_RESPONSE_SUCCESS =
@@ -978,8 +978,8 @@ public class AutomotiveCarInfoTest {
     private void getEnergyLevelHelperFunction(List<CarPropertyResponse<?>> energyCapacities,
             List<CarPropertyResponse<?>> energyResponses, EnergyLevel expectedEnergyLevel) throws
             InterruptedException {
-        // Add "INFO_EV_BATTERY_CAPACITY" and "INFO_FUEL_CAPACITY" to the request.
-        mGetPropertyRequests.add(GetPropertyRequest.create(INFO_EV_BATTERY_CAPACITY));
+        // Add "EV_CURRENT_BATTERY_CAPACITY" and "INFO_FUEL_CAPACITY" to the request.
+        mGetPropertyRequests.add(GetPropertyRequest.create(EV_CURRENT_BATTERY_CAPACITY));
         mGetPropertyRequests.add(GetPropertyRequest.create(INFO_FUEL_CAPACITY));
 
         ListenableFuture<List<CarPropertyResponse<?>>> future = Futures.immediateFuture(
@@ -1089,7 +1089,7 @@ public class AutomotiveCarInfoTest {
     @Test
     public void getEnergyLevel_withUnavailableCapacityValues() throws InterruptedException {
         List<CarPropertyResponse<?>> energyCapacities = Arrays.asList(
-                CarPropertyResponse.builder().setPropertyId(INFO_EV_BATTERY_CAPACITY).setStatus(
+                CarPropertyResponse.builder().setPropertyId(EV_CURRENT_BATTERY_CAPACITY).setStatus(
                         STATUS_UNAVAILABLE).setTimestampMillis(DEFAULT_TIMESTAMP_MILLIS).build(),
                 CarPropertyResponse.builder().setPropertyId(INFO_FUEL_CAPACITY).setStatus(
                         STATUS_UNAVAILABLE).setTimestampMillis(DEFAULT_TIMESTAMP_MILLIS).build());
@@ -1117,7 +1117,7 @@ public class AutomotiveCarInfoTest {
     @Test
     public void getEnergyLevel_withUnimplementedEvBatteryCapacity() throws InterruptedException {
         List<CarPropertyResponse<?>> energyCapacities = Arrays.asList(
-                CarPropertyResponse.builder().setPropertyId(INFO_EV_BATTERY_CAPACITY).setStatus(
+                CarPropertyResponse.builder().setPropertyId(EV_CURRENT_BATTERY_CAPACITY).setStatus(
                         STATUS_UNIMPLEMENTED).setTimestampMillis(DEFAULT_TIMESTAMP_MILLIS).build(),
                 FUEL_CAPACITY_RESPONSE_SUCCESS);
 
@@ -1168,7 +1168,7 @@ public class AutomotiveCarInfoTest {
     @Test
     public void getEnergyLevel_withUnknownEvBatteryCapacity() throws InterruptedException {
         List<CarPropertyResponse<?>> energyCapacities = Arrays.asList(
-                CarPropertyResponse.builder().setPropertyId(INFO_EV_BATTERY_CAPACITY).setStatus(
+                CarPropertyResponse.builder().setPropertyId(EV_CURRENT_BATTERY_CAPACITY).setStatus(
                         STATUS_UNKNOWN).setTimestampMillis(DEFAULT_TIMESTAMP_MILLIS).build(),
                 FUEL_CAPACITY_RESPONSE_SUCCESS);
 

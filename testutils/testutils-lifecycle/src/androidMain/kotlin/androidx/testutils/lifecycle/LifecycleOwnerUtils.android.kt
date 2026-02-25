@@ -104,9 +104,8 @@ public object LifecycleOwnerUtils {
      * instance is resumed.
      */
     @Throws(Throwable::class)
-    public fun <T> waitForRecreation(activity: T, actionOnUiThread: Runnable?): T where
-    T : Activity,
-    T : LifecycleOwner {
+    public fun <T> waitForRecreation(activity: T, actionOnUiThread: Runnable?): T
+        where T : Activity, T : LifecycleOwner {
         val monitor = ActivityMonitor(activity::class.qualifiedName, null, false)
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         instrumentation.addMonitor(monitor)

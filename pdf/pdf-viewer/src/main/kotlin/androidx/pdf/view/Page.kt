@@ -70,6 +70,7 @@ internal class Page(
     /** A list represent the [FormWidgetInfo] present on the page. */
     formWidgetInfos: List<FormWidgetInfo>? = null,
     private val pdfFormFillingConfig: PdfFormFillingConfig,
+    private val onBitmapCleared: (Int) -> Unit,
 ) {
     init {
         require(pageNum >= 0) { "Invalid negative page" }
@@ -181,6 +182,11 @@ internal class Page(
 
     /** Puts this page into an "invisible" state, i.e. retaining only the minimum data required */
     fun setInvisible() {
+        if (bitmapFetcher != null) {
+            // Bitmaps are managed by BitmapFetcher; only signal clearing if it was active for this
+            // page.
+            onBitmapCleared(pageNum)
+        }
         bitmapFetcher?.close()
         bitmapFetcher = null
         pageText = null

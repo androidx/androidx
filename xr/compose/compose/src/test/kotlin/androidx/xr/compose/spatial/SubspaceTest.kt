@@ -41,14 +41,17 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.arcore.Anchor
 import androidx.xr.arcore.AnchorCreateSuccess
+import androidx.xr.arcore.testing.FakeLifecycleManager
 import androidx.xr.arcore.testing.FakePerceptionRuntime
 import androidx.xr.arcore.testing.FakeRuntimeAnchor
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.platform.SceneManager
+import androidx.xr.compose.subspace.ArDeviceTarget
 import androidx.xr.compose.subspace.FollowBehavior
 import androidx.xr.compose.subspace.FollowTarget
 import androidx.xr.compose.subspace.SpatialBox
 import androidx.xr.compose.subspace.SpatialPanel
+import androidx.xr.compose.subspace.TrackedDimensions
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.depth
 import androidx.xr.compose.subspace.layout.fillMaxDepth
@@ -79,9 +82,11 @@ import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.compose.testing.session
 import androidx.xr.compose.testing.toDp
 import androidx.xr.compose.unit.Meter
+import androidx.xr.compose.unit.Meter.Companion.meters
 import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.runtime.Config
-import androidx.xr.runtime.Config.PlaneTrackingMode
+import androidx.xr.runtime.DeviceTrackingMode
+import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.BoundingBox
@@ -102,7 +107,14 @@ import androidx.xr.scenecore.scene
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -111,12 +123,26 @@ import org.junit.runner.RunWith
 @Suppress("COMPOSE_APPLIER_CALL_MISMATCH")
 class SubspaceTest {
 
+    private val testDispatcher = StandardTestDispatcher()
     // Migrate to `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule`,
     // available starting with v1.11.0.
     // See API docs for details.
     @Suppress("DEPRECATION")
     @get:Rule
     val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
+
+    @Before
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    fun setUp() {
+        FollowBehavior.dispatcherOverride = testDispatcher
+        FakeRuntimeAnchor.anchorsCreatedCount = 0
+    }
+
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    @After
+    fun tearDown() {
+        FollowBehavior.dispatcherOverride = Dispatchers.Default
+    }
 
     private object DefaultTestRecommendedBoxSize {
         const val WIDTH_METERS: Float = 1.73f
@@ -157,6 +183,34 @@ class SubspaceTest {
                 }
             }
         )
+    }
+
+    private fun configureSessionWithDeviceTracking(): Session {
+        val result = Session.create(composeTestRule.activity, testDispatcher)
+        val session = assertIs<SessionCreateSuccess>(result).session
+        session.configure(
+            config = session.config.copy(deviceTracking = DeviceTrackingMode.LAST_KNOWN)
+        )
+
+        return session
+    }
+
+    private fun translateDevice(fakeRuntime: FakePerceptionRuntime, offset: Vector3) {
+        val arDevice = fakeRuntime.perceptionManager.arDevice
+        arDevice.devicePose = arDevice.devicePose.translate(translation = offset)
+        testDispatcher.scheduler.advanceUntilIdle()
+        fakeRuntime.lifecycleManager.allowOneMoreCallToUpdate()
+    }
+
+    private fun rotateDevice(fakeRuntime: FakePerceptionRuntime, offset: Quaternion) {
+        val fakePerceptionManager = fakeRuntime.perceptionManager
+        val fakeLifecycleManager: FakeLifecycleManager = fakeRuntime.lifecycleManager
+
+        fakePerceptionManager.arDevice.devicePose =
+            fakePerceptionManager.arDevice.devicePose.rotate(rotation = offset)
+
+        testDispatcher.scheduler.advanceUntilIdle()
+        fakeLifecycleManager.allowOneMoreCallToUpdate()
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -923,11 +977,668 @@ class SubspaceTest {
     // ---------------------------------------------------------------------------------------------
     //                                    FollowingSubspace Tests
     // ---------------------------------------------------------------------------------------------
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    @Test
+    fun followingSubspace_whenNoDeviceTracking_DoNotRender() {
+        composeTestRule.setContent {
+            FollowingSubspace(
+                target = FollowTarget.ArDevice(assertNotNull(LocalSession.current)),
+                behavior = FollowBehavior.Static,
+                modifier = SubspaceModifier.testTag("FollowingSubspace"),
+            ) {}
+        }
+
+        composeTestRule.onSubspaceNodeWithTag("FollowingSubspace").assertDoesNotExist()
+    }
+
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    @Test
+    fun followingSubspace_whenArDeviceTightUsedTogether_DoNotRender() {
+        composeTestRule.session = configureSessionWithDeviceTracking()
+
+        composeTestRule.setContent {
+            FollowingSubspace(
+                target = FollowTarget.ArDevice(assertNotNull(composeTestRule.session)),
+                behavior = FollowBehavior.Tight,
+                modifier = SubspaceModifier.testTag("FollowingSubspace"),
+            ) {}
+        }
+
+        composeTestRule.onSubspaceNodeWithTag("FollowingSubspace").assertDoesNotExist()
+    }
+
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    @Test
+    fun followingSubspace_whenLoads_respectsDefaultOffset() =
+        runTest(testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTracking()
+            val session = assertNotNull(composeTestRule.session)
+
+            composeTestRule.setContent {
+                FollowingSubspace(
+                    target = FollowTarget.ArDevice(session),
+                    behavior = FollowBehavior.Soft(durationMs = 1000),
+                ) {
+                    SpatialPanel(modifier = SubspaceModifier.testTag("HeadPanel")) {}
+                }
+            }
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            val headPanelPose = getSemanticsNodeWorldPose("HeadPanel")
+            assertThat(headPanelPose).isEqualTo(ArDeviceTarget.DEFAULT_OFFSET)
+        }
+
     @Test
     @OptIn(ExperimentalFollowingSubspaceApi::class)
-    fun followingSubspace_whenCreated_isParentedToAnchor() {
-        val session = composeTestRule.configureFakeSession()
+    fun followingSubspace_whenScaleChanges_subspaceScaleUpdates() =
+        runTest(testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTracking()
+            val session = assertNotNull(composeTestRule.session)
+            var forceRecompose by mutableStateOf(false)
 
+            composeTestRule.setContent {
+                val _forceRecompose = forceRecompose
+                FollowingSubspace(
+                    target = FollowTarget.ArDevice(session),
+                    behavior = FollowBehavior.Soft(),
+                    modifier = SubspaceModifier.testTag("FollowingSubspace"),
+                ) {}
+            }
+
+            var spaceNode =
+                composeTestRule.onSubspaceNodeWithTag("FollowingSubspace").fetchSemanticsNode()
+            val initialSpaceRoot = spaceNode.semanticsEntity?.parent?.parent
+            var expectedScale = spaceNode.semanticsEntity?.getScale(Space.REAL_WORLD)
+            assertNotNull(expectedScale)
+            assertThat(initialSpaceRoot?.getScale(Space.REAL_WORLD)).isEqualTo(expectedScale)
+
+            expectedScale += .1f
+            session.scene.keyEntity?.setScale(expectedScale, Space.REAL_WORLD)
+            forceRecompose = !forceRecompose
+
+            spaceNode =
+                composeTestRule.onSubspaceNodeWithTag("FollowingSubspace").fetchSemanticsNode()
+            val updatedSpaceRoot = spaceNode.semanticsEntity?.parent?.parent
+            val spaceScale = updatedSpaceRoot?.getScale(Space.REAL_WORLD)
+            assertThat(spaceScale).isEqualTo(expectedScale)
+        }
+
+    @Test
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    fun followingSubspace_whenFollowTargetChanges_switchesTarget() =
+        runTest(testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTracking()
+            val session = assertNotNull(composeTestRule.session)
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+            var followTarget by mutableStateOf(FollowTarget.ArDevice(session))
+            var followBehavior by mutableStateOf(FollowBehavior.Soft(durationMs = 1000))
+
+            composeTestRule.setContent {
+                FollowingSubspace(
+                    target = followTarget,
+                    behavior = followBehavior,
+                    modifier = SubspaceModifier.testTag("FollowingSubspace"),
+                ) {}
+            }
+
+            val arDeviceTranslation = Vector3(x = 1F, y = 2F, z = 3F)
+            translateDevice(fakeRuntime, arDeviceTranslation)
+
+            var subspaceCurrentPose = getSemanticsNodeWorldPose("FollowingSubspace")
+            assertThat(subspaceCurrentPose.translation).isEqualTo(arDeviceTranslation)
+
+            // Switch to an anchor target
+            val anchorTranslation = Vector3(20.0f, 30.0f, 40.0f)
+            val anchorResult = Anchor.create(session, Pose(anchorTranslation))
+            val success = assertIs<AnchorCreateSuccess>(anchorResult)
+            val anchorEntity = AnchorEntity.create(session, anchor = success.anchor)
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            followTarget = FollowTarget.Anchor(anchorEntity)
+            followBehavior = FollowBehavior.Tight
+            subspaceCurrentPose = getSemanticsNodeWorldPose("FollowingSubspace")
+            assertThat(subspaceCurrentPose.translation).isEqualTo(anchorTranslation)
+        }
+
+    @Test
+    @OptIn(ExperimentalFollowingSubspaceApi::class, ExperimentalCoroutinesApi::class)
+    fun followingSubspace_whenFollowBehaviorChanges_actsLikeNewBehavior() =
+        runTest(testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTracking()
+            val session = assertNotNull(composeTestRule.session)
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+            var followBehavior by mutableStateOf(FollowBehavior.Soft(durationMs = 1000))
+
+            composeTestRule.setContent {
+                FollowingSubspace(
+                    target = FollowTarget.ArDevice(session),
+                    behavior = followBehavior,
+                    modifier = SubspaceModifier.testTag("FollowingSubspace"),
+                ) {}
+            }
+
+            val unitVector = Vector3(x = 1F, y = 1F, z = 1F)
+            translateDevice(fakeRuntime, unitVector)
+            translateDevice(fakeRuntime, unitVector)
+
+            // With Soft behavior, subspace should have moved 2 unit vectors.
+            var subspaceCurrentPose = getSemanticsNodeWorldPose("FollowingSubspace")
+            assertThat(subspaceCurrentPose.translation).isEqualTo(unitVector * 2F)
+
+            followBehavior = FollowBehavior.Static
+            composeTestRule.waitForIdle()
+            translateDevice(fakeRuntime, unitVector)
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            // With Static behavior, it should not move any more since it already moved.
+            subspaceCurrentPose = getSemanticsNodeWorldPose("FollowingSubspace")
+            assertThat(subspaceCurrentPose.translation).isEqualTo(unitVector * 2F)
+        }
+
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    @Test
+    fun followingSubspace_whenStaticBehavior_OnlyMovesOnce() =
+        runTest(testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTracking()
+            val session = assertNotNull(composeTestRule.session)
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+
+            composeTestRule.setContent {
+                FollowingSubspace(
+                    target = FollowTarget.ArDevice(session),
+                    behavior = FollowBehavior.Static,
+                    dimensions =
+                        TrackedDimensions(
+                            isTranslationXTracked = true,
+                            isTranslationYTracked = true,
+                            isTranslationZTracked = true,
+                        ),
+                    modifier = SubspaceModifier.testTag("FollowingSubspace"),
+                ) {}
+            }
+
+            val unitVector = Vector3(x = 1F, y = 1F, z = 1F)
+            translateDevice(fakeRuntime, unitVector)
+            translateDevice(fakeRuntime, unitVector)
+
+            val subspaceCurrentPose = getSemanticsNodeWorldPose("FollowingSubspace")
+            // Device was moved 1 unit vector twice but is still just offset 1 unit vector.
+            assertThat(subspaceCurrentPose.translation).isEqualTo(unitVector)
+        }
+
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    @Test
+    fun followingSubspace_whenNoDimensionsTracked_DoesNotMove() =
+        runTest(testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTracking()
+            val session = assertNotNull(composeTestRule.session)
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+
+            composeTestRule.setContent {
+                FollowingSubspace(
+                    target = FollowTarget.ArDevice(session),
+                    behavior = FollowBehavior.Soft(durationMs = 1000),
+                    dimensions =
+                        TrackedDimensions(
+                            isTranslationXTracked = false,
+                            isTranslationYTracked = false,
+                            isTranslationZTracked = false,
+                            isRotationXTracked = false,
+                            isRotationYTracked = false,
+                            isRotationZTracked = false,
+                        ),
+                ) {
+                    SpatialPanel(modifier = SubspaceModifier.testTag("HeadPanel")) {}
+                }
+            }
+
+            val headPanelInitialPose = getSemanticsNodeWorldPose("HeadPanel")
+            val offsetTranslation = Vector3(x = 1F, y = 2F, z = 3F)
+            translateDevice(fakeRuntime, offsetTranslation)
+
+            val offsetRotation = Quaternion.fromEulerAngles(pitch = 15F, yaw = 30F, roll = 45F)
+            rotateDevice(fakeRuntime, offsetRotation)
+
+            assertThat(getSemanticsNodeWorldPose("HeadPanel")).isEqualTo(headPanelInitialPose)
+        }
+
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    @Test
+    fun followingSubspace_whenDeviceTranslatesAndRotates_MatchesMovement() =
+        runTest(testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTracking()
+            val session = assertNotNull(composeTestRule.session)
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+
+            composeTestRule.setContent {
+                FollowingSubspace(
+                    target = FollowTarget.ArDevice(session),
+                    behavior = FollowBehavior.Soft(durationMs = 1000),
+                    modifier = SubspaceModifier.testTag("FollowingSubspace"),
+                ) {}
+            }
+
+            val offsetTranslation = Vector3(x = 1F, y = 2F, z = 3F)
+            translateDevice(fakeRuntime, offsetTranslation)
+
+            val offsetRotation = Quaternion.fromEulerAngles(pitch = 15F, yaw = 30F, roll = 45F)
+            rotateDevice(fakeRuntime, offsetRotation)
+
+            val subspaceWorldPose = getSemanticsNodeWorldPose("FollowingSubspace")
+            assertThat(subspaceWorldPose)
+                .isEqualTo(fakeRuntime.perceptionManager.arDevice.devicePose)
+        }
+
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    @Test
+    fun followingSubspace_whenDeviceTranslates_MatchesMovement() =
+        runTest(testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTracking()
+            val session = assertNotNull(composeTestRule.session)
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+
+            composeTestRule.setContent {
+                FollowingSubspace(
+                    target = FollowTarget.ArDevice(session),
+                    behavior = FollowBehavior.Soft(durationMs = 1000),
+                    dimensions =
+                        TrackedDimensions(
+                            isTranslationXTracked = true,
+                            isTranslationYTracked = true,
+                            isTranslationZTracked = true,
+                        ),
+                    modifier = SubspaceModifier.testTag("FollowingSubspace"),
+                ) {}
+            }
+
+            val subspaceInitialPose = getSemanticsNodeWorldPose("FollowingSubspace")
+            val offsetTranslation = Vector3(x = 1F, y = 2F, z = 3F)
+            translateDevice(fakeRuntime, offsetTranslation)
+
+            val offsetRotation = Quaternion.fromEulerAngles(pitch = 15F, yaw = 30F, roll = 45F)
+            rotateDevice(fakeRuntime, offsetRotation)
+
+            val subspaceCurrentPose = getSemanticsNodeWorldPose("FollowingSubspace")
+            assertThat(subspaceCurrentPose.translation)
+                .isEqualTo(fakeRuntime.perceptionManager.arDevice.devicePose.translation)
+            // Panel should not rotate because rotation is not being tracked.
+            assertThat(subspaceCurrentPose.rotation).isEqualTo(subspaceInitialPose.rotation)
+        }
+
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    @Test
+    fun followingSubspace_whenOnlyXTranslationTracked_OnlyXTranslationMatches() =
+        runTest(testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTracking()
+            val session = assertNotNull(composeTestRule.session)
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+            val fakeArDevice = fakeRuntime.perceptionManager.arDevice
+
+            composeTestRule.setContent {
+                FollowingSubspace(
+                    target = FollowTarget.ArDevice(session),
+                    behavior = FollowBehavior.Soft(durationMs = 1000),
+                    dimensions = TrackedDimensions(isTranslationXTracked = true),
+                    modifier = SubspaceModifier.testTag("FollowingSubspace"),
+                ) {}
+            }
+
+            val subspaceInitialPose = getSemanticsNodeWorldPose("FollowingSubspace")
+            val offsetTranslation = Vector3(x = 1F, y = 2F, z = 3F)
+            translateDevice(fakeRuntime, offsetTranslation)
+
+            val offsetRotation = Quaternion.fromEulerAngles(pitch = 15F, yaw = 30F, roll = 45F)
+            rotateDevice(fakeRuntime, offsetRotation)
+
+            val subspaceCurrentPose = getSemanticsNodeWorldPose("FollowingSubspace")
+            val expectedTranslation = Vector3(fakeArDevice.devicePose.translation.x, 0F, 0F)
+
+            assertThat(subspaceCurrentPose.translation).isEqualTo(expectedTranslation)
+            // Panel should not rotate because rotation is not being tracked.
+            assertThat(subspaceCurrentPose.rotation).isEqualTo(subspaceInitialPose.rotation)
+        }
+
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    @Test
+    fun followingSubspace_whenOnlyYTranslationTracked_OnlyYTranslationMatches() =
+        runTest(testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTracking()
+            val session = assertNotNull(composeTestRule.session)
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+            val fakeArDevice = fakeRuntime.perceptionManager.arDevice
+
+            composeTestRule.setContent {
+                FollowingSubspace(
+                    target = FollowTarget.ArDevice(session),
+                    behavior = FollowBehavior.Soft(durationMs = 1000),
+                    dimensions = TrackedDimensions(isTranslationYTracked = true),
+                    modifier = SubspaceModifier.testTag("FollowingSubspace"),
+                ) {}
+            }
+
+            val subspaceInitialPose = getSemanticsNodeWorldPose("FollowingSubspace")
+            val offsetTranslation = Vector3(x = 1F, y = 2F, z = 3F)
+            translateDevice(fakeRuntime, offsetTranslation)
+
+            val offsetRotation = Quaternion.fromEulerAngles(pitch = 15F, yaw = 30F, roll = 45F)
+            rotateDevice(fakeRuntime, offsetRotation)
+
+            val subspaceCurrentPose = getSemanticsNodeWorldPose("FollowingSubspace")
+            val expectedTranslation = Vector3(0F, fakeArDevice.devicePose.translation.y, 0F)
+
+            assertThat(subspaceCurrentPose.translation).isEqualTo(expectedTranslation)
+            // Panel should not rotate because rotation is not being tracked.
+            assertThat(subspaceCurrentPose.rotation).isEqualTo(subspaceInitialPose.rotation)
+        }
+
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    @Test
+    fun followingSubspace_whenOnlyZTranslationTracked_OnlyZTranslationMatches() =
+        runTest(testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTracking()
+            val session = assertNotNull(composeTestRule.session)
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+            val fakeArDevice = fakeRuntime.perceptionManager.arDevice
+
+            composeTestRule.setContent {
+                FollowingSubspace(
+                    target = FollowTarget.ArDevice(session),
+                    behavior = FollowBehavior.Soft(durationMs = 1000),
+                    dimensions = TrackedDimensions(isTranslationZTracked = true),
+                    modifier = SubspaceModifier.testTag("FollowingSubspace"),
+                ) {}
+            }
+
+            val subspaceInitialPose = getSemanticsNodeWorldPose("FollowingSubspace")
+            val offsetTranslation = Vector3(x = 1F, y = 2F, z = 3F)
+            translateDevice(fakeRuntime, offsetTranslation)
+
+            val offsetRotation = Quaternion.fromEulerAngles(pitch = 15F, yaw = 30F, roll = 45F)
+            rotateDevice(fakeRuntime, offsetRotation)
+
+            val subspaceCurrentPose = getSemanticsNodeWorldPose("FollowingSubspace")
+            val expectedTranslation = Vector3(0F, 0F, fakeArDevice.devicePose.translation.z)
+            assertThat(subspaceCurrentPose.translation).isEqualTo(expectedTranslation)
+            // Panel should not rotate because rotation is not being tracked.
+            assertThat(subspaceCurrentPose.rotation).isEqualTo(subspaceInitialPose.rotation)
+        }
+
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    @Test
+    fun followingSubspace_whenDeviceRotates_MatchesMovement() =
+        runTest(testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTracking()
+            val session = assertNotNull(composeTestRule.session)
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+            val fakeArDevice = fakeRuntime.perceptionManager.arDevice
+
+            composeTestRule.setContent {
+                FollowingSubspace(
+                    target = FollowTarget.ArDevice(session),
+                    behavior = FollowBehavior.Soft(durationMs = 1000),
+                    dimensions =
+                        TrackedDimensions(
+                            isRotationXTracked = true,
+                            isRotationYTracked = true,
+                            isRotationZTracked = true,
+                        ),
+                    modifier = SubspaceModifier.testTag("FollowingSubspace"),
+                ) {}
+            }
+
+            val headPanelInitialPose = getSemanticsNodeWorldPose("FollowingSubspace")
+            val offsetTranslation = Vector3(x = 1F, y = 2F, z = 3F)
+            translateDevice(fakeRuntime, offsetTranslation)
+
+            val offsetRotation = Quaternion.fromEulerAngles(pitch = 15F, yaw = 30F, roll = 45F)
+            rotateDevice(fakeRuntime, offsetRotation)
+
+            assertThat(getSemanticsNodeWorldPose("FollowingSubspace").rotation)
+                .isEqualTo(fakeArDevice.devicePose.rotation)
+            assertThat(getSemanticsNodeWorldPose("FollowingSubspace").translation)
+                .isEqualTo(headPanelInitialPose.translation)
+        }
+
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    @Test
+    fun followingSubspace_whenOnlyXRotationTracked_OnlyXRotationMatches() =
+        runTest(testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTracking()
+            val session = assertNotNull(composeTestRule.session)
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+            val fakeArDevice = fakeRuntime.perceptionManager.arDevice
+
+            composeTestRule.setContent {
+                FollowingSubspace(
+                    target = FollowTarget.ArDevice(session),
+                    behavior = FollowBehavior.Soft(durationMs = 1000),
+                    dimensions = TrackedDimensions(isRotationXTracked = true),
+                    modifier = SubspaceModifier.testTag("FollowingSubspace"),
+                ) {}
+            }
+
+            val headPanelInitialPose = getSemanticsNodeWorldPose("FollowingSubspace")
+            val offsetTranslation = Vector3(x = 1F, y = 2F, z = 3F)
+            translateDevice(fakeRuntime, offsetTranslation)
+
+            val offsetRotation = Quaternion.fromEulerAngles(pitch = 15F, yaw = 30F, roll = 45F)
+            rotateDevice(fakeRuntime, offsetRotation)
+
+            val currentTranslation = getSemanticsNodeWorldPose("FollowingSubspace").translation
+            val currentRotation = getSemanticsNodeWorldPose("FollowingSubspace").rotation
+            val deviceRotation = fakeArDevice.devicePose.rotation.eulerAngles
+            val expectedRotation =
+                Quaternion.fromEulerAngles(pitch = deviceRotation.x, yaw = 0F, roll = 0F)
+
+            assertThat(currentRotation.x).isWithin(1f).of(expectedRotation.x)
+            assertThat(currentRotation.y).isWithin(0f).of(expectedRotation.y)
+            assertThat(currentRotation.z).isWithin(0f).of(expectedRotation.z)
+            assertThat(currentRotation.w).isWithin(1f).of(expectedRotation.w)
+            assertThat(currentTranslation).isEqualTo(headPanelInitialPose.translation)
+        }
+
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    @Test
+    fun followingSubspace_whenOnlyYRotationTracked_OnlyYRotationMatches() =
+        runTest(testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTracking()
+            val session = assertNotNull(composeTestRule.session)
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+            val fakeArDevice = fakeRuntime.perceptionManager.arDevice
+
+            composeTestRule.setContent {
+                FollowingSubspace(
+                    target = FollowTarget.ArDevice(session),
+                    behavior = FollowBehavior.Soft(durationMs = 1000),
+                    dimensions = TrackedDimensions(isRotationYTracked = true),
+                    modifier = SubspaceModifier.testTag("FollowingSubspace"),
+                ) {}
+            }
+
+            val headPanelInitialPose = getSemanticsNodeWorldPose("FollowingSubspace")
+            val offsetTranslation = Vector3(x = 1F, y = 2F, z = 3F)
+            translateDevice(fakeRuntime, offsetTranslation)
+
+            val offsetRotation = Quaternion.fromEulerAngles(pitch = 15F, yaw = 30F, roll = 45F)
+            rotateDevice(fakeRuntime, offsetRotation)
+
+            val currentTranslation = getSemanticsNodeWorldPose("FollowingSubspace").translation
+            val currentRotation = getSemanticsNodeWorldPose("FollowingSubspace").rotation
+            val deviceRotation = fakeArDevice.devicePose.rotation.eulerAngles
+            val expectedRotation =
+                Quaternion.fromEulerAngles(pitch = 0F, yaw = deviceRotation.y, roll = 0F)
+
+            assertThat(currentRotation.x).isWithin(0f).of(expectedRotation.x)
+            assertThat(currentRotation.y).isWithin(1f).of(expectedRotation.y)
+            assertThat(currentRotation.z).isWithin(0f).of(expectedRotation.z)
+            assertThat(currentRotation.w).isWithin(1f).of(expectedRotation.w)
+            assertThat(currentTranslation).isEqualTo(headPanelInitialPose.translation)
+        }
+
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    @Test
+    fun followingSubspace_whenOnlyZRotationTracked_OnlyZRotationMatches() =
+        runTest(testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTracking()
+            val session = assertNotNull(composeTestRule.session)
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+            val fakeArDevice = fakeRuntime.perceptionManager.arDevice
+
+            composeTestRule.setContent {
+                FollowingSubspace(
+                    target = FollowTarget.ArDevice(session),
+                    behavior = FollowBehavior.Soft(durationMs = 1000),
+                    dimensions = TrackedDimensions(isRotationZTracked = true),
+                    modifier = SubspaceModifier.testTag("FollowingSubspace"),
+                ) {}
+            }
+
+            val headPanelInitialPose = getSemanticsNodeWorldPose("FollowingSubspace")
+            val offsetTranslation = Vector3(x = 1F, y = 2F, z = 3F)
+            translateDevice(fakeRuntime, offsetTranslation)
+
+            val offsetRotation = Quaternion.fromEulerAngles(pitch = 15F, yaw = 30F, roll = 45F)
+            rotateDevice(fakeRuntime, offsetRotation)
+
+            val currentTranslation = getSemanticsNodeWorldPose("FollowingSubspace").translation
+            val currentRotation = getSemanticsNodeWorldPose("FollowingSubspace").rotation
+            val deviceRotation = fakeArDevice.devicePose.rotation.eulerAngles
+            val expectedRotation =
+                Quaternion.fromEulerAngles(pitch = 0F, yaw = 0F, roll = deviceRotation.z)
+
+            assertThat(currentRotation.x).isWithin(0f).of(expectedRotation.x)
+            assertThat(currentRotation.y).isWithin(0f).of(expectedRotation.y)
+            assertThat(currentRotation.z).isWithin(1f).of(expectedRotation.z)
+            assertThat(currentRotation.w).isWithin(1f).of(expectedRotation.w)
+            assertThat(currentTranslation).isEqualTo(headPanelInitialPose.translation)
+        }
+
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    @Test
+    fun followingSubspace_whenTrackedDimensionsChange_MatchedDimensionsChange() =
+        runTest(testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTracking()
+            val session = assertNotNull(composeTestRule.session)
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+            val fakeArDevice = fakeRuntime.perceptionManager.arDevice
+            var trackedDimensions by mutableStateOf(TrackedDimensions(isTranslationXTracked = true))
+
+            composeTestRule.session = session
+            composeTestRule.setContent {
+                FollowingSubspace(
+                    target = FollowTarget.ArDevice(session),
+                    behavior = FollowBehavior.Soft(durationMs = 1000),
+                    dimensions = trackedDimensions,
+                    modifier = SubspaceModifier.testTag("FollowingSubspace"),
+                ) {}
+            }
+
+            translateDevice(fakeRuntime, Vector3(x = 1F, y = 2F, z = 3F))
+
+            var subspaceCurrentPose = getSemanticsNodeWorldPose("FollowingSubspace")
+            var expectedTranslation = Vector3(fakeArDevice.devicePose.translation.x, 0F, 0F)
+            assertThat(subspaceCurrentPose.translation).isEqualTo(expectedTranslation)
+
+            // Switch x-only tracking to y-only tracking.
+            trackedDimensions = TrackedDimensions(isTranslationYTracked = true)
+            composeTestRule.waitForIdle()
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            subspaceCurrentPose = getSemanticsNodeWorldPose("FollowingSubspace")
+            expectedTranslation += Vector3(0F, fakeArDevice.devicePose.translation.y, 0F)
+            assertThat(subspaceCurrentPose.translation).isEqualTo(expectedTranslation)
+        }
+
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    @Test
+    fun followingSubspace_whenRemovedFromComposition_isDisposed() {
+        composeTestRule.session = configureSessionWithDeviceTracking()
+        val session = assertNotNull(composeTestRule.session)
+        var showSubspace by mutableStateOf(true)
+
+        composeTestRule.setContent {
+            if (showSubspace) {
+                FollowingSubspace(
+                    target = FollowTarget.ArDevice(session),
+                    behavior = FollowBehavior.Soft(),
+                ) {
+                    SpatialPanel(SubspaceModifier.testTag("panel")) {}
+                }
+            }
+        }
+
+        assertThat(composeTestRule.onSubspaceNodeWithTag("panel")).isNotNull()
+
+        showSubspace = false
+
+        composeTestRule.onSubspaceNodeWithTag("panel").assertDoesNotExist()
+    }
+
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    @Test
+    fun followingSubspace_withFillMaxSizeAndHigherDensity_respectsConstraints() {
+        composeTestRule.session = configureSessionWithDeviceTracking()
+        val session = assertNotNull(composeTestRule.session)
+        var density: Density? = null
+        composeTestRule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(2f)) {
+                density = LocalDensity.current
+                FollowingSubspace(
+                    target = FollowTarget.ArDevice(session),
+                    behavior = FollowBehavior.Soft(),
+                ) {
+                    SpatialBox(SubspaceModifier.fillMaxSize(1.0f).testTag("box")) {}
+                }
+            }
+        }
+
+        assertNotNull(density)
+        assertThat(density.density).isEqualTo(2f)
+        val expectedWidthPx = Meter(DefaultTestRecommendedBoxSize.WIDTH_METERS).roundToPx(density)
+        val expectedHeightPx = Meter(DefaultTestRecommendedBoxSize.HEIGHT_METERS).roundToPx(density)
+        val expectedDepthPx = Meter(DefaultTestRecommendedBoxSize.DEPTH_METERS).roundToPx(density)
+        composeTestRule
+            .onSubspaceNodeWithTag("box")
+            .assertWidthIsEqualTo(expectedWidthPx.toDp())
+            .assertHeightIsEqualTo(expectedHeightPx.toDp())
+            .assertDepthIsEqualTo(expectedDepthPx.toDp())
+    }
+
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    @Test
+    fun followingSubspace_whenUnbounded_withFillMaxSize_doesNotRespectConstraints() {
+        composeTestRule.session = configureSessionWithDeviceTracking()
+        val session = assertNotNull(composeTestRule.session)
+
+        composeTestRule.setContent {
+            FollowingSubspace(
+                target = FollowTarget.ArDevice(session),
+                behavior = FollowBehavior.Soft(),
+                allowUnboundedSubspace = true,
+            ) {
+                SpatialBox(
+                    SubspaceModifier.fillMaxWidth(1.0f).fillMaxHeight(1.0f).testTag("box")
+                ) {}
+            }
+        }
+
+        composeTestRule
+            .onSubspaceNodeWithTag("box")
+            .assertPositionInRootIsEqualTo(
+                0.dp,
+                0.dp,
+                ArDeviceTarget.DEFAULT_OFFSET.translation.z.meters.toDp(),
+            )
+            .assertWidthIsNotEqualTo(VolumeConstraints().maxWidth.toDp())
+            .assertHeightIsNotEqualTo(VolumeConstraints().maxHeight.toDp())
+            .assertDepthIsNotEqualTo(VolumeConstraints().maxDepth.toDp())
+    }
+
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    @Test
+    fun followingSubspace_whenCreated_isParentedToAnchor() {
+        composeTestRule.session = composeTestRule.configureFakeSession()
+        val session = assertNotNull(composeTestRule.session)
         session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
         val anchorEntity =
             AnchorEntity.create(session, FloatSize2d(), PlaneOrientation.ANY, PlaneSemanticType.ANY)
@@ -947,8 +1658,8 @@ class SubspaceTest {
     @Test
     @OptIn(ExperimentalFollowingSubspaceApi::class)
     fun followingSubspace_withContent_positionsAtOrigin() {
-        val session = composeTestRule.configureFakeSession()
-
+        composeTestRule.session = composeTestRule.configureFakeSession()
+        val session = assertNotNull(composeTestRule.session)
         session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
         val anchorEntity =
             AnchorEntity.create(session, FloatSize2d(), PlaneOrientation.ANY, PlaneSemanticType.ANY)
@@ -971,8 +1682,8 @@ class SubspaceTest {
     @Test
     @OptIn(ExperimentalFollowingSubspaceApi::class)
     fun followingSubspace_whenNested_positionsRelativeToAnchor() {
-        val session = composeTestRule.configureFakeSession()
-
+        composeTestRule.session = composeTestRule.configureFakeSession()
+        val session = assertNotNull(composeTestRule.session)
         session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
         val anchorEntity =
             AnchorEntity.create(session, FloatSize2d(), PlaneOrientation.ANY, PlaneSemanticType.ANY)
@@ -1007,12 +1718,12 @@ class SubspaceTest {
     @Test
     @OptIn(ExperimentalFollowingSubspaceApi::class)
     fun followingSubspace_whenAnchoredToIdentity_positionsAtOrigin() {
-        val session = assertIs<SessionCreateSuccess>(Session.create(composeTestRule.activity))
-        composeTestRule.session = session.session
+        composeTestRule.session = composeTestRule.configureFakeSession()
+        val session = assertNotNull(composeTestRule.session)
 
-        val anchorResult = Anchor.create(session.session, Pose.Identity)
+        val anchorResult = Anchor.create(session, Pose.Identity)
         val success = assertIs<AnchorCreateSuccess>(anchorResult)
-        val anchorEntity = AnchorEntity.create(session.session, anchor = success.anchor)
+        val anchorEntity = AnchorEntity.create(session, anchor = success.anchor)
 
         composeTestRule.setContent {
             FollowingSubspace(
@@ -1032,32 +1743,29 @@ class SubspaceTest {
     @Test
     @OptIn(ExperimentalFollowingSubspaceApi::class)
     fun followingSubspace_whenLocked_isPositionedCorrectly() {
-        val session = assertIs<SessionCreateSuccess>(Session.create(composeTestRule.activity))
-        composeTestRule.session = session.session
+        composeTestRule.session = composeTestRule.configureFakeSession()
+        val session = assertNotNull(composeTestRule.session)
 
-        val anchorResult = Anchor.create(session.session, Pose(Vector3(20.0f, 30.0f, 40.0f)))
+        val anchorResult = Anchor.create(session, Pose(Vector3(20.0f, 30.0f, 40.0f)))
         val success = assertIs<AnchorCreateSuccess>(anchorResult)
-        val anchorEntity = AnchorEntity.create(session.session, anchor = success.anchor)
+        val anchorEntity = AnchorEntity.create(session, anchor = success.anchor)
 
         composeTestRule.setContent {
             FollowingSubspace(
                 target = FollowTarget.Anchor(anchorEntity),
                 behavior = FollowBehavior.Tight,
             ) {
-                SpatialPanel(SubspaceModifier.fillMaxSize().testTag("panel")) {}
+                SpatialPanel(SubspaceModifier.fillMaxSize().testTag("Panel")) {}
             }
         }
 
-        val node = composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode()
-        val panelEntity = assertNotNull(node.semanticsEntity)
-
         val anchorWorldPose = anchorEntity.getPose(Space.REAL_WORLD)
-        val panelWorldPose = panelEntity.getPose(Space.REAL_WORLD)
+        val panelWorldPose = getSemanticsNodeWorldPose("Panel")
         assertThat(anchorWorldPose).isEqualTo(Pose(Vector3(20.0f, 30.0f, 40.0f)))
         assertThat(panelWorldPose).isEqualTo(Pose(Vector3(20.0f, 30.0f, 40.0f)))
 
         composeTestRule
-            .onSubspaceNodeWithTag("panel")
+            .onSubspaceNodeWithTag("Panel")
             .assertExists()
             .assertPositionIsEqualTo(0.dp, 0.dp, 0.dp)
             .assertPositionInRootIsEqualTo(0.dp, 0.dp, 0.dp)
@@ -1066,93 +1774,175 @@ class SubspaceTest {
     @Test
     @OptIn(ExperimentalFollowingSubspaceApi::class)
     fun followingSubspace_whenAnchorChanges_repositions() {
-        val session = assertIs<SessionCreateSuccess>(Session.create(composeTestRule.activity))
-        composeTestRule.session = session.session
+        composeTestRule.session = composeTestRule.configureFakeSession()
+        val session = assertNotNull(composeTestRule.session)
 
         val initialPose = Pose(Vector3(10f, 20f, 30f), Quaternion(10f, 20f, 30f, 40f))
-        val anchorResult = Anchor.create(session.session, initialPose)
+        val anchorResult = Anchor.create(session, initialPose)
         val anchorEntity =
             AnchorEntity.create(
-                session.session,
+                session,
                 anchor = assertIs<AnchorCreateSuccess>(anchorResult).anchor,
             )
 
         val updatedPose = Pose(Vector3(40f, 50f, 60f), Quaternion(15f, 25f, 35f, 45f))
-        val updatedAnchorResult = Anchor.create(session.session, updatedPose)
+        val updatedAnchorResult = Anchor.create(session, updatedPose)
         val updatedAnchorEntity =
             AnchorEntity.create(
-                session.session,
+                session,
                 anchor = assertIs<AnchorCreateSuccess>(updatedAnchorResult).anchor,
             )
 
         val currentAnchorState = mutableStateOf(anchorEntity)
 
         composeTestRule.setContent {
-            val lockEntity = assertNotNull(currentAnchorState.value)
             FollowingSubspace(
-                target = FollowTarget.Anchor(lockEntity),
+                target = FollowTarget.Anchor(assertNotNull(currentAnchorState.value)),
                 behavior = FollowBehavior.Tight,
             ) {
-                SpatialPanel(SubspaceModifier.fillMaxSize().testTag("panel")) {}
+                SpatialPanel(SubspaceModifier.fillMaxSize().testTag("Panel")) {}
             }
         }
 
-        val panelNode = composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode()
-        val panelEntity = assertNotNull(panelNode.semanticsEntity)
-        assertThat(panelEntity.getPose(Space.REAL_WORLD)).isEqualTo(initialPose)
-        composeTestRule.onSubspaceNodeWithTag("panel").assertPositionIsEqualTo(0.dp, 0.dp, 0.dp)
+        assertThat(getSemanticsNodeWorldPose("Panel")).isEqualTo(initialPose)
+        composeTestRule.onSubspaceNodeWithTag("Panel").assertPositionIsEqualTo(0.dp, 0.dp, 0.dp)
 
         currentAnchorState.value = updatedAnchorEntity
         composeTestRule.waitForIdle()
 
-        assertThat(panelEntity.getPose(Space.REAL_WORLD)).isEqualTo(updatedPose)
+        assertThat(getSemanticsNodeWorldPose("Panel")).isEqualTo(updatedPose)
 
-        composeTestRule.onSubspaceNodeWithTag("panel").assertPositionIsEqualTo(0.dp, 0.dp, 0.dp)
+        composeTestRule.onSubspaceNodeWithTag("Panel").assertPositionIsEqualTo(0.dp, 0.dp, 0.dp)
     }
 
     @Test
     @OptIn(ExperimentalFollowingSubspaceApi::class)
     fun followingSubspace_whenAnchorPoseChanges_repositions() {
         runBlocking {
-            val session = assertIs<SessionCreateSuccess>(Session.create(composeTestRule.activity))
-            composeTestRule.session = session.session
-
+            composeTestRule.session = composeTestRule.configureFakeSession()
+            val session = assertNotNull(composeTestRule.session)
             val initialPose = Pose(Vector3(10f, 20f, 30f), Quaternion(10f, 20f, 30f, 40f))
-
-            val fakeRuntime =
-                session.session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
             val fakePerceptionManager = fakeRuntime.perceptionManager
-
             val runtimeAnchor = fakePerceptionManager.createAnchor(initialPose) as FakeRuntimeAnchor
-            val underTest = Anchor(runtimeAnchor)
-            assertThat(underTest.state.value.pose).isEqualTo(initialPose)
-
-            val anchorEntity = AnchorEntity.create(session.session, anchor = underTest)
+            val anchorUnderTest = Anchor(runtimeAnchor)
+            assertThat(anchorUnderTest.state.value.pose).isEqualTo(initialPose)
+            val anchorEntity = AnchorEntity.create(session, anchor = anchorUnderTest)
 
             composeTestRule.setContent {
-                val lockEntity = assertNotNull(anchorEntity)
                 FollowingSubspace(
-                    target = FollowTarget.Anchor(lockEntity),
+                    target = FollowTarget.Anchor(assertNotNull(anchorEntity)),
                     behavior = FollowBehavior.Tight,
                 ) {
-                    SpatialPanel(SubspaceModifier.fillMaxSize().testTag("panel")) {}
+                    SpatialPanel(SubspaceModifier.fillMaxSize().testTag("Panel")) {}
                 }
             }
 
-            val panelNode = composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode()
-            val panelEntity = assertNotNull(panelNode.semanticsEntity)
-            assertThat(panelEntity.getPose(Space.REAL_WORLD)).isEqualTo(initialPose)
-            composeTestRule.onSubspaceNodeWithTag("panel").assertPositionIsEqualTo(0.dp, 0.dp, 0.dp)
+            assertThat(getSemanticsNodeWorldPose("Panel")).isEqualTo(initialPose)
+            composeTestRule.onSubspaceNodeWithTag("Panel").assertPositionIsEqualTo(0.dp, 0.dp, 0.dp)
 
             val updatedPose = Pose(Vector3(40f, 50f, 60f), Quaternion(15f, 25f, 35f, 45f))
             runtimeAnchor.pose = updatedPose
-            underTest.update()
+            anchorUnderTest.update()
 
-            assertThat(underTest.state.value.pose).isEqualTo(updatedPose)
+            assertThat(anchorUnderTest.state.value.pose).isEqualTo(updatedPose)
+            assertThat(getSemanticsNodeWorldPose("Panel")).isEqualTo(updatedPose)
+            composeTestRule.onSubspaceNodeWithTag("Panel").assertPositionIsEqualTo(0.dp, 0.dp, 0.dp)
+        }
+    }
+
+    @Test
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    fun followingSubspace_whenAnchorUsesSoftFollow_repositions() {
+        runTest(testDispatcher) {
+            composeTestRule.session = composeTestRule.configureFakeSession()
+            val session = assertNotNull(composeTestRule.session)
+            val initialAnchorPose = Pose(Vector3(10f, 20f, 30f), Quaternion(10f, 20f, 30f, 40f))
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+            val fakePerceptionManager = fakeRuntime.perceptionManager
+            val runtimeAnchor =
+                fakePerceptionManager.createAnchor(initialAnchorPose) as FakeRuntimeAnchor
+            val anchorUnderTest = Anchor(runtimeAnchor)
+            assertThat(anchorUnderTest.state.value.pose).isEqualTo(initialAnchorPose)
+            val anchorEntity = AnchorEntity.create(session, anchor = anchorUnderTest)
+
+            composeTestRule.setContent {
+                FollowingSubspace(
+                    target = FollowTarget.Anchor(assertNotNull(anchorEntity)),
+                    behavior = FollowBehavior.Soft(durationMs = 1000),
+                ) {
+                    SpatialPanel(SubspaceModifier.fillMaxSize().testTag("Panel")) {}
+                }
+            }
+
+            // Update anchor's pose and verify the Panel is at the new location.
+            val updatedPose = Pose(Vector3(40f, 50f, 60f), Quaternion(15f, 25f, 35f, 45f))
+            runtimeAnchor.pose = updatedPose
+            anchorUnderTest.update()
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            assertThat(anchorUnderTest.state.value.pose).isEqualTo(updatedPose)
+            val currentTranslation = getSemanticsNodeWorldPose("Panel").translation
+            val currentRotation = getSemanticsNodeWorldPose("Panel").rotation
+
+            assertThat(currentRotation.x).isWithin(1f).of(updatedPose.rotation.x)
+            assertThat(currentRotation.y).isWithin(1f).of(updatedPose.rotation.y)
+            assertThat(currentRotation.z).isWithin(1f).of(updatedPose.rotation.z)
+            assertThat(currentRotation.w).isWithin(1f).of(updatedPose.rotation.w)
+            assertThat(currentTranslation).isEqualTo(updatedPose.translation)
+        }
+    }
+
+    @Test
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    fun followingSubspace_whenAnchorUsesStaticFollow_movesOnlyOnce() {
+        runTest(testDispatcher) {
+            composeTestRule.session = composeTestRule.configureFakeSession()
+            val session = assertNotNull(composeTestRule.session)
+            val initialPose = Pose(Vector3(10f, 20f, 30f), Quaternion(10f, 20f, 30f, 40f))
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+            val fakePerceptionManager = fakeRuntime.perceptionManager
+            val runtimeAnchor = fakePerceptionManager.createAnchor(initialPose) as FakeRuntimeAnchor
+            val anchorUnderTest = Anchor(runtimeAnchor)
+            assertThat(anchorUnderTest.state.value.pose).isEqualTo(initialPose)
+            val anchorEntity = AnchorEntity.create(session, anchor = anchorUnderTest)
+
+            composeTestRule.setContent {
+                FollowingSubspace(
+                    target = FollowTarget.Anchor(assertNotNull(anchorEntity)),
+                    behavior = FollowBehavior.Static,
+                ) {
+                    SpatialPanel(SubspaceModifier.fillMaxSize().testTag("Panel")) {}
+                }
+            }
+
+            // Verify the panel is not at its destination immediately but after waiting, it is
+            // there.
+            assertThat(getSemanticsNodeWorldPose("Panel").translation)
+                .isNotEqualTo(initialPose.translation)
+
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            assertThat(getSemanticsNodeWorldPose("Panel").translation)
+                .isEqualTo(initialPose.translation)
+
+            // Verify the panel doesn't move if pose changes again.
+            val updatedPose = Pose(Vector3(40f, 50f, 60f), Quaternion(15f, 25f, 35f, 45f))
+            runtimeAnchor.pose = updatedPose
+            anchorUnderTest.update()
+
+            assertThat(anchorUnderTest.state.value.pose).isEqualTo(updatedPose)
+
             composeTestRule.waitForIdle()
 
-            assertThat(panelEntity.getPose(Space.REAL_WORLD)).isEqualTo(updatedPose)
-            composeTestRule.onSubspaceNodeWithTag("panel").assertPositionIsEqualTo(0.dp, 0.dp, 0.dp)
+            assertThat(getSemanticsNodeWorldPose("Panel").translation)
+                .isNotEqualTo(updatedPose.translation)
+            composeTestRule.onSubspaceNodeWithTag("Panel").assertPositionIsEqualTo(0.dp, 0.dp, 0.dp)
         }
+    }
+
+    private fun getSemanticsNodeWorldPose(testTag: String): Pose {
+        val node = composeTestRule.onSubspaceNodeWithTag(testTag).fetchSemanticsNode()
+        return assertNotNull(node.semanticsEntity).getPose(relativeTo = Space.REAL_WORLD)
     }
 }

@@ -23,9 +23,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMap
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.subspace.SpatialGltfModelSource.Companion.fromData
 import androidx.xr.compose.subspace.SpatialGltfModelSource.Companion.fromPath
@@ -41,8 +45,10 @@ import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.FloatSize3d
+import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
+import androidx.xr.scenecore.GltfModelNode
 import java.nio.file.Path
 import kotlin.coroutines.resume
 import kotlin.math.roundToInt
@@ -52,32 +58,33 @@ import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
- * A composable that loads and displays a 3D glTF model in the scene.
- *
- * This composable renders a `glTF` or `.glb` model that is loaded asynchronously from the provided
- * `source`.
+ * This composable renders a glTF or .glb model that is loaded asynchronously from the provided
+ * source.
  *
  * ### Layout and Sizing
  *
- * The `SpatialGltfModel`'s layout size is determined by the bounding box size of the glTF model
- * that is being displayed coerced into the constraints of the layout.
+ * The SpatialGltfModel's layout size is determined by the bounding box size of the glTFmodel that
+ * is being displayed coerced into the constraints of the layout.
  * - By default, the layout size will match the bounding box of the loaded 3D asset once it is
  *   loaded bounded by the current constraints.
- * - To force the `SpatialGltfModel` to a specific size, use a size modifier like
- *   `SubspaceModifier.size()`.
+ * - To force the SpatialGltfModel to a specific size, use a size modifier like
+ *   SubspaceModifier.size().
  * - The rendered model will be scaled uniformly to fit within the constraints imposed by the layout
  *   and modifiers.
+ * - The [content] will be positioned at the center of the SpatialGltfModel by default. The
+ *   developer may use GltfModelNode pose and size information to offset content relative to a
+ *   desired position. **Note:** Because the model is loaded asynchronously, its intrinsic size will
+ *   be zero during initial composition. The layout will be remeasured with the correct size once
+ *   the model has finished loading. You can use the [state] parameter to observe the loading status
+ *   via [SpatialGltfModelState.status].
  *
- * **Note:** Because the model is loaded asynchronously, its intrinsic size may be zero during
- * initial composition. The layout will be remeasured with the correct size once the model has
- * finished loading. You can use the [state] parameter to observe the loading status via
- * [SpatialGltfModelState.status].
- *
- * @param state A [SpatialGltfModelState] object to observe and control the `SpatialGltfModel`. This
+ * @param state A [SpatialGltfModelState] object to observe and control the SpatialGltfModel. This
  *   can be created using [rememberSpatialGltfModelState]. The state should be created with a
  *   [SpatialGltfModelSource] that defines where to load the 3D model from. Use the helper functions
  *   [fromPath], [fromUri], or [fromData] to create a [SpatialGltfModelSource].
- * @param modifier The [SubspaceModifier] to be applied to this `SpatialGltfModel`.
+ * @param modifier The [SubspaceModifier] to be applied to this SpatialGltfModel.
+ * @param content The content within the space of the [SpatialGltfModel]
+ * @sample androidx.xr.compose.samples.SpatialGltfModelSample
  */
 @Composable
 @SubspaceComposable
@@ -85,6 +92,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 public fun SpatialGltfModel(
     state: SpatialGltfModelState,
     modifier: SubspaceModifier = SubspaceModifier,
+    content: @Composable @SubspaceComposable () -> Unit = {},
 ) {
     var loadingFailed by remember(state) { mutableStateOf(false) }
     if (loadingFailed) return // Do not proceed until the source has changed.
@@ -116,6 +124,7 @@ public fun SpatialGltfModel(
         modifier = modifier,
         coreEntity = coreModelEntity,
         measurePolicy = SpatialGltfModelMeasurePolicy(intrinsicSize),
+        content = content,
     )
 }
 
@@ -155,6 +164,11 @@ public class SpatialGltfModelState(internal val source: SpatialGltfModelSource) 
     public val status: State<SpatialGltfModelStatus>
         get() = _status
 
+    public val nodes: List<GltfModelNode>
+        get() = _nodes
+
+    private val _nodes: SnapshotStateList<GltfModelNode> = mutableStateListOf()
+
     private val _status: MutableState<SpatialGltfModelStatus> =
         mutableStateOf(SpatialGltfModelStatus.Loading())
 
@@ -188,10 +202,13 @@ public class SpatialGltfModelState(internal val source: SpatialGltfModelSource) 
             .onSuccess { coreEntity ->
                 coreEntityActionQueue.value = coreEntity
                 _status.value = SpatialGltfModelStatus.Loaded()
+                _nodes.clear()
+                _nodes.addAll(coreEntity.nodes)
             }
             .onFailure { exception -> _status.value = SpatialGltfModelStatus.Failed(exception) }
     }
 
+    @Suppress("DEPRECATION")
     internal suspend fun watchAnimationState() {
         val entity = suspendCancellableCoroutine { continuation ->
             coreEntityActionQueue.executeWhenAvailable { continuation.resume(it) }
@@ -346,27 +363,25 @@ private class SpatialGltfModelMeasurePolicy(private val intrinsicSize: IntVolume
         measurables: List<SubspaceMeasurable>,
         constraints: VolumeConstraints,
     ): SubspaceMeasureResult {
-        if (intrinsicSize == IntVolumeSize.Zero) {
-            return layout(constraints.minWidth, constraints.minHeight, constraints.minDepth) {}
+
+        val boxSize: IntVolumeSize =
+            if (intrinsicSize == IntVolumeSize.Zero) {
+                IntVolumeSize(constraints.minWidth, constraints.minHeight, constraints.minDepth)
+            } else {
+                val scales =
+                    constraints.map(intrinsicSize.toFloatSize3d()) { value, min, max ->
+                        value.coerceIn(min, max) / value.coerceAtLeast(1f)
+                    }
+                val scaleFactor = minOf(scales.width, scales.height, scales.depth)
+
+                constraints.map(intrinsicSize) { value, min, max ->
+                    (value * scaleFactor).roundToInt().coerceIn(min, max)
+                }
+            }
+        val placeables = measurables.fastMap { it.measure(constraints) }
+        return layout(boxSize.width, boxSize.height, boxSize.depth) {
+            placeables.fastForEach { placeable -> placeable.place(Pose.Identity) }
         }
-
-        val scales =
-            constraints.map(intrinsicSize.toFloatSize3d()) { value, min, max ->
-                value.coerceIn(min, max) / value.coerceAtLeast(1f)
-            }
-
-        // The uniform scale factor is the minimum scale factor necessary to fit the size of
-        // the glTF into the provided constraints.
-        val scaleFactor = minOf(scales.width, scales.height, scales.depth)
-
-        // The final layout size is the size of the glTF times the scale factor coerced into the
-        // provided constraints.
-        val finalSize =
-            constraints.map(intrinsicSize) { value, min, max ->
-                (value * scaleFactor).roundToInt().coerceIn(min, max)
-            }
-
-        return layout(finalSize.width, finalSize.height, finalSize.depth) {}
     }
 
     private fun IntVolumeSize.toFloatSize3d() =

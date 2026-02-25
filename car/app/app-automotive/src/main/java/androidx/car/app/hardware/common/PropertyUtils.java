@@ -91,7 +91,7 @@ public final class PropertyUtils {
             append(VehiclePropertyIds.INFO_MODEL_YEAR, Car.PERMISSION_CAR_INFO);
             append(VehiclePropertyIds.INFO_FUEL_CAPACITY, Car.PERMISSION_CAR_INFO);
             append(VehiclePropertyIds.INFO_FUEL_TYPE, Car.PERMISSION_CAR_INFO);
-            append(VehiclePropertyIds.INFO_EV_BATTERY_CAPACITY, Car.PERMISSION_CAR_INFO);
+            append(VehiclePropertyIds.EV_CURRENT_BATTERY_CAPACITY, Car.PERMISSION_ENERGY);
             append(VehiclePropertyIds.INFO_EV_CONNECTOR_TYPE, Car.PERMISSION_CAR_INFO);
             append(VehiclePropertyIds.INFO_DRIVER_SEAT, Car.PERMISSION_CAR_INFO);
             // VehiclePropertyId added in SDK 31

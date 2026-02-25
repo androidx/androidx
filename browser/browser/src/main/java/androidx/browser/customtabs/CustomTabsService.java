@@ -358,6 +358,11 @@ public abstract class CustomTabsService extends Service {
                 return false;
             }
         }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
     };
 
     @Override

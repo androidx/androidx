@@ -34,6 +34,7 @@ import androidx.xr.scenecore.runtime.PointerCaptureComponent
 import androidx.xr.scenecore.runtime.ScenePose
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.SpaceValue
+import androidx.xr.scenecore.runtime.impl.BaseEntity
 import com.android.extensions.xr.XrExtensions
 import com.android.extensions.xr.function.Consumer
 import com.android.extensions.xr.node.InputEvent
@@ -57,7 +58,7 @@ import java.util.concurrent.ScheduledExecutorService
 public abstract class AndroidXrEntity(
     context: Context?,
     // Returns the underlying extension Node for the Entity.
-    @JvmField protected val mNode: Node,
+    @JvmField internal val mNode: Node,
     @JvmField protected val mExtensions: XrExtensions,
     @JvmField protected val mEntityManager: EntityManager,
     @JvmField protected val mExecutor: ScheduledExecutorService,
@@ -285,7 +286,7 @@ public abstract class AndroidXrEntity(
     }
 
     /** Handles an incoming input event from the underlying node and dispatches it appropriately. */
-    private fun handleInputEvent(xrInputEvent: InputEvent) {
+    public fun handleInputEvent(xrInputEvent: InputEvent) {
         if (xrInputEvent.dispatchFlags == InputEvent.DISPATCH_FLAG_CAPTURED_POINTER) {
             dispatchCapturedPointerEvent(xrInputEvent)
         } else {

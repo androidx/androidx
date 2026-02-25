@@ -192,7 +192,7 @@ public final class WebViewBuilder {
     @RequiresFeature(
             name = WebViewFeature.WEBVIEW_BUILDER_EXPERIMENTAL_V2,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @SuppressWarnings("BuilderSetStyle")
     public <T extends WebView> @NonNull T applyTo(@NonNull T webview) {
         final ApiFeature.NoFramework feature = WebViewFeatureInternal.WEBVIEW_BUILDER_V2;
         if (!feature.isSupportedByWebView()) {

@@ -115,17 +115,7 @@ class InitializationTest(private val config: TestConfig) {
     @Test
     fun canAutoInitialize() {
         val intent =
-            Intent(
-                    ApplicationProvider.getApplicationContext<Context>(),
-                    CameraXActivity::class.java,
-                )
-                .apply {
-                    putExtra(
-                        CameraXActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION,
-                        // Ensure default config provider is used for camera implementation
-                        CameraXViewModel.IMPLICIT_IMPLEMENTATION_OPTION,
-                    )
-                }
+            Intent(ApplicationProvider.getApplicationContext(), CameraXActivity::class.java)
         with(ActivityScenario.launch<CameraXActivity>(intent)) {
             use {
                 val initIdlingResource = withActivity { initializationIdlingResource }

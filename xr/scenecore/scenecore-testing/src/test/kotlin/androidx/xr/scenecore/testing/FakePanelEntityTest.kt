@@ -18,7 +18,6 @@ package androidx.xr.scenecore.testing
 
 import android.app.Activity
 import android.view.View
-import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector2
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.Dimensions
@@ -42,6 +41,18 @@ class FakePanelEntityTest {
     @Before
     fun setUp() {
         underTest = FakePanelEntity(view)
+    }
+
+    @Test
+    fun name_isNotSetByDefault() {
+        assertThat(underTest.name).isEqualTo("")
+    }
+
+    @Test
+    fun name_isSet() {
+        // Dispose underTest so we can reuse view.
+        underTest.dispose()
+        assertThat(FakePanelEntity(view, "test").name).isEqualTo("test")
     }
 
     @Test
@@ -95,30 +106,30 @@ class FakePanelEntityTest {
     }
 
     @Test
-    fun transformPixelCoordinatesToPose_center_returnsIdentity() {
+    fun transformPixelCoordinatesToLocalPosition_center_returnsZero() {
         underTest.sizeInPixels = PixelDimensions(640, 480)
-        val pose: Pose = underTest.transformPixelCoordinatesToPose(Vector2(320f, 240f))
-        assertThat(pose).isEqualTo(Pose.Identity)
+        val position = underTest.transformPixelCoordinatesToLocalPosition(Vector2(320f, 240f))
+        assertThat(position).isEqualTo(Vector3.Zero)
     }
 
     @Test
-    fun transformPixelCoordinatesToPose_topLeft_returnsCorrectPose() {
-        val pose: Pose = underTest.transformPixelCoordinatesToPose(Vector2(0f, 0f))
+    fun transformPixelCoordinatesToLocalPosition_topLeft_returnsCorrectPosition() {
+        val position = underTest.transformPixelCoordinatesToLocalPosition(Vector2(0f, 0f))
         val expected = Vector3(underTest.size.width * -0.5f, underTest.size.height * 0.5f, 0.0f)
-        assertThat(pose.translation).isEqualTo(expected)
+        assertThat(position).isEqualTo(expected)
     }
 
     @Test
-    fun transformNormalizedCoordinatesToPose_center_returnsIdentity() {
-        val pose: Pose = underTest.transformNormalizedCoordinatesToPose(Vector2(0f, 0f))
-        assertThat(pose).isEqualTo(Pose.Identity)
+    fun transformNormalizedCoordinatesToLocalPosition_center_returnsZero() {
+        val position = underTest.transformNormalizedCoordinatesToLocalPosition(Vector2(0f, 0f))
+        assertThat(position).isEqualTo(Vector3.Zero)
     }
 
     @Test
-    fun transformNormalizedCoordinatesToPose_topLeft_returnsCorrectPose() {
-        val pose: Pose = underTest.transformNormalizedCoordinatesToPose(Vector2(-1f, 1f))
+    fun transformNormalizedCoordinatesToLocalPosition_topLeft_returnsCorrectPosition() {
+        val position = underTest.transformNormalizedCoordinatesToLocalPosition(Vector2(-1f, 1f))
         val expected = Vector3(underTest.size.width * -0.5f, underTest.size.height * 0.5f, 0.0f)
-        assertThat(pose.translation).isEqualTo(expected)
+        assertThat(position).isEqualTo(expected)
     }
 
     @Test

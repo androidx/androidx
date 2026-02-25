@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -42,8 +41,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-text:1.6.0")
     implementation("androidx.compose.ui:ui-tooling:1.6.0")
     implementation("androidx.compose.ui:ui-tooling-preview:1.6.0")
-    implementation("androidx.navigation3:navigation3-ui:1.0.0")
-    implementation("androidx.navigation3:navigation3-runtime:1.0.0")
+    implementation(project(":navigation3:navigation3-ui"))
     implementation(project(":wear:compose:compose-material3"))
     implementation(project(":wear:compose:compose-foundation"))
     implementation(project(":wear:compose:compose-navigation3"))

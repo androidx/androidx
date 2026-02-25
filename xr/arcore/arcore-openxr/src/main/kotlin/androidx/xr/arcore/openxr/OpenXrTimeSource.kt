@@ -39,8 +39,8 @@ internal class OpenXrTimeSource : AbstractLongTimeSource(DurationUnit.NANOSECOND
     }
 
     /**
-     * Returns the XrTime corresponding to [timeMark]. This calculation is only valid if [timeMark]
-     * was created with this [TimeSource].
+     * Returns the `XrTime` corresponding to [timeMark]. This calculation is only valid if
+     * [timeMark] was created with this time source.
      */
     internal fun getXrTime(timeMark: ComparableTimeMark): Long {
         check(zeroXrTime != null && ::zeroTimeMark.isInitialized)

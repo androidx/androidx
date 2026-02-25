@@ -65,10 +65,7 @@ public class CameraPresenceProvider(
     @GuardedBy("observerLock")
     private val cameraStateObservers = mutableMapOf<String, Observer<CameraState>>()
 
-    private data class ListenerWrapper(
-        val listener: CameraPresenceListener,
-        val executor: Executor,
-    )
+    private data class ListenerWrapper(val listener: CameraPresenceListener, val executor: Executor)
 
     /**
      * Starts monitoring camera presence.

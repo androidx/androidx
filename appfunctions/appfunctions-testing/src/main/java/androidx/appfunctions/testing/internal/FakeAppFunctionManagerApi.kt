@@ -26,6 +26,7 @@ import androidx.appfunctions.internal.AggregatedAppFunctionInventory
 import androidx.appfunctions.internal.AppFunctionManagerApi
 import androidx.appfunctions.internal.NullTranslatorSelector
 import androidx.appfunctions.internal.findImpl
+import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.service.AppFunctionServiceDelegate
 import androidx.appfunctions.service.internal.AggregatedAppFunctionInvoker
 import kotlinx.coroutines.Dispatchers
@@ -38,7 +39,8 @@ internal class FakeAppFunctionManagerApi(
 ) : AppFunctionManagerApi {
     @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun executeAppFunction(
-        request: ExecuteAppFunctionRequest
+        request: ExecuteAppFunctionRequest,
+        functionMetadata: AppFunctionMetadata,
     ): ExecuteAppFunctionResponse =
         AppFunctionServiceDelegate(
                 context,

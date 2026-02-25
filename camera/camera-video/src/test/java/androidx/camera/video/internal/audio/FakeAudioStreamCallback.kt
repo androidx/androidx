@@ -27,6 +27,7 @@ class FakeAudioStreamCallback : AudioStream.AudioStreamCallback {
         onSilencedCallbacks.accept(silenced)
     }
 
+    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // intentionally using java.* types
     fun verifyOnSilenceStateChangedCall(
         callTimes: CallTimes,
         timeoutMs: Long = MockConsumer.NO_TIMEOUT,

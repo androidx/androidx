@@ -21,13 +21,18 @@ import androidx.xr.runtime.CoreState
 import androidx.xr.runtime.StateExtender
 import androidx.xr.runtime.internal.JxrRuntime
 
+/**
+ * Fake implementation of [StateExtender] for testing purposes.
+ *
+ * @property isInitialized [Boolean] to indicate whether the [StateExtender] has been initialized or
+ *   not
+ * @property extended a [MutableList] of [CoreStates][CoreState] that have been extended
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeStateExtender() : StateExtender {
 
-    /** Whether the [StateExtender] has been initialized or not. */
     public var isInitialized: Boolean = false
 
-    /** List of [androidx.xr.runtime.CoreState] instances that have been extended. */
     public val extended: MutableList<CoreState> = mutableListOf<CoreState>()
 
     override fun initialize(runtimes: List<JxrRuntime>) {
@@ -39,13 +44,16 @@ public class FakeStateExtender() : StateExtender {
     }
 }
 
+/**
+ * @property isInitialized [Boolean] to indicate whether the [StateExtender] has been initialized or
+ *   not
+ * @property extended a [MutableList] of [CoreStates][CoreState] that have been extended
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AnotherFakeStateExtender() : StateExtender {
 
-    /** Whether the [StateExtender] has been initialized or not. */
     public var isInitialized: Boolean = false
 
-    /** List of [CoreState] instances that have been extended. */
     public val extended: MutableList<CoreState> = mutableListOf<CoreState>()
 
     override fun initialize(runtimes: List<JxrRuntime>) {

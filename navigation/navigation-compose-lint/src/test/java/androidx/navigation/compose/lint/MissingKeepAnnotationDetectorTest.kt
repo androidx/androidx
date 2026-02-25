@@ -81,11 +81,11 @@ class MissingKeepAnnotationDetectorTest : LintDetectorTest() {
             .run()
             .expect(
                 """
-src/com/example/TestEnum.kt:6: Warning: To prevent this Enum's serializer from being obfuscated in minified builds, annotate it with @androidx.annotation.Keep [MissingKeepAnnotation]
-enum class TestEnum { ONE, TWO }
-           ~~~~~~~~
-0 errors, 1 warnings
-            """
+                src/com/example/TestEnum.kt:6: Warning: To prevent this Enum's serializer from being obfuscated in minified builds, annotate it with @androidx.annotation.Keep [MissingKeepAnnotation]
+                enum class TestEnum { ONE, TWO }
+                           ~~~~~~~~
+                0 errors, 1 warnings
+                """
                     .trimIndent()
             )
     }
@@ -146,11 +146,11 @@ enum class TestEnum { ONE, TWO }
             .run()
             .expect(
                 """
-src/com/example/RouteClass.kt:7: Warning: To prevent this Enum's serializer from being obfuscated in minified builds, annotate it with @androidx.annotation.Keep [MissingKeepAnnotation]
-enum class TestEnum { ONE, TWO }
-           ~~~~~~~~
-0 errors, 1 warnings
-            """
+                src/com/example/RouteClass.kt:7: Warning: To prevent this Enum's serializer from being obfuscated in minified builds, annotate it with @androidx.annotation.Keep [MissingKeepAnnotation]
+                enum class TestEnum { ONE, TWO }
+                           ~~~~~~~~
+                0 errors, 1 warnings
+                """
                     .trimIndent()
             )
     }
@@ -211,11 +211,11 @@ enum class TestEnum { ONE, TWO }
             .run()
             .expect(
                 """
-src/com/example/RouteClass.kt:7: Warning: To prevent this Enum's serializer from being obfuscated in minified builds, annotate it with @androidx.annotation.Keep [MissingKeepAnnotation]
-enum class TestEnum { ONE, TWO }
-           ~~~~~~~~
-0 errors, 1 warnings
-            """
+                src/com/example/RouteClass.kt:7: Warning: To prevent this Enum's serializer from being obfuscated in minified builds, annotate it with @androidx.annotation.Keep [MissingKeepAnnotation]
+                enum class TestEnum { ONE, TWO }
+                           ~~~~~~~~
+                0 errors, 1 warnings
+                """
                     .trimIndent()
             )
     }
@@ -272,11 +272,11 @@ enum class TestEnum { ONE, TWO }
             .run()
             .expect(
                 """
-src/com/example/TestEnum.kt:6: Warning: To prevent this Enum's serializer from being obfuscated in minified builds, annotate it with @androidx.annotation.Keep [MissingKeepAnnotation]
-enum class TestEnum { ONE, TWO }
-           ~~~~~~~~
-0 errors, 1 warnings
-            """
+                src/com/example/TestEnum.kt:6: Warning: To prevent this Enum's serializer from being obfuscated in minified builds, annotate it with @androidx.annotation.Keep [MissingKeepAnnotation]
+                enum class TestEnum { ONE, TWO }
+                           ~~~~~~~~
+                0 errors, 1 warnings
+                """
                     .trimIndent()
             )
     }
@@ -337,11 +337,11 @@ enum class TestEnum { ONE, TWO }
             .run()
             .expect(
                 """
-src/com/example/RouteClass.kt:7: Warning: To prevent this Enum's serializer from being obfuscated in minified builds, annotate it with @androidx.annotation.Keep [MissingKeepAnnotation]
-enum class TestEnum { ONE, TWO }
-           ~~~~~~~~
-0 errors, 1 warnings
-            """
+                src/com/example/RouteClass.kt:7: Warning: To prevent this Enum's serializer from being obfuscated in minified builds, annotate it with @androidx.annotation.Keep [MissingKeepAnnotation]
+                enum class TestEnum { ONE, TWO }
+                           ~~~~~~~~
+                0 errors, 1 warnings
+                """
                     .trimIndent()
             )
     }

@@ -81,6 +81,7 @@
     <string name="form_click_toggle_instruction" msgid="7171111300244445911">"クリックすると、値が切り替わります。"</string>
     <string name="form_click_opens_choices_menu_instruction" msgid="5648228168212004143">"クリックすると、選択肢の選択メニューが開きます。"</string>
     <string name="form_click_enters_text_edit_mode_instruction" msgid="2305283577544618880">"クリックすると、テキスト編集モードになります。"</string>
+    <string name="combobox_custom_option" msgid="8730230629127076731">"カスタム"</string>
     <string name="form_unknown" msgid="6371515914365431330">"不明"</string>
     <string name="form_widget_type_push_button" msgid="3595388398616291441">"プッシュボタン"</string>
     <string name="form_widget_type_checkbox" msgid="5165655383070460151">"チェックボックス"</string>

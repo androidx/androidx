@@ -24,7 +24,6 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Ray
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.runtime.testing.math.assertRotation
 import androidx.xr.scenecore.ScenePose.HitTestFilter
 import androidx.xr.scenecore.runtime.ActivitySpace as RtActivitySpace
 import androidx.xr.scenecore.runtime.AnchorPlacement as RtAnchorPlacement
@@ -768,19 +767,5 @@ class UtilsTest {
 
         assertThat(result)
             .isInstanceOf(PerceivedResolutionResult.InvalidRenderViewpoint::class.java)
-    }
-
-    @Test
-    fun rotateEntityToPlane_rotatesToPlan() {
-        // Moving from (0f, 0f, 0f, 1f) int the common space to (0f, 0f, 0f, 1f) in the plane
-        // rotation results in an updated rotation of (-0.707f, 0f, 0f, 0.707f). This quaternion
-        // represents a 90 degree rotation around the x-axis Which is expected when the panel is
-        // rotated into the plane's reference space.
-        val planeRotation = Quaternion(0f, 0f, 0f, 1f)
-        val proposedRotation = Quaternion(0f, 0f, 0f, 1f)
-        val updatedRotation = rotateEntityToPlane(proposedRotation, planeRotation)
-        val expectedRotation = Quaternion(-0.707f, 0f, 0f, 0.707f)
-
-        assertRotation(updatedRotation, expectedRotation)
     }
 }

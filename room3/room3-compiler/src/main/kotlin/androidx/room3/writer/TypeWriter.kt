@@ -190,10 +190,17 @@ abstract class TypeWriter(val context: WriterContext) {
 
         abstract fun getUniqueKey(): String
 
+        protected open fun isSuspendFun() = false
+
         abstract fun prepare(functionName: String, writer: TypeWriter, builder: XFunSpec.Builder)
 
         fun build(writer: TypeWriter, name: String): XFunSpec {
-            val builder = XFunSpec.builder(name, VisibilityModifier.PRIVATE)
+            val builder =
+                XFunSpec.builder(
+                    name = name,
+                    visibility = VisibilityModifier.PRIVATE,
+                    isSuspend = isSuspendFun(),
+                )
             prepare(name, writer, builder)
             return builder.build()
         }

@@ -24,7 +24,7 @@ import org.junit.Test
 class RecyclingTest {
     private val sink = NoOpSink()
     private val context: TraceContext = TraceContext(sink = sink, isEnabled = true, isDebug = true)
-    private val tracer: Tracer = context.createTracer(name = "RecyclingTest")
+    private val tracer: Tracer = context.createTracer()
     private val category: String = "Tests"
 
     fun TraceContext.validateEachTrackHasOnePoolable() {

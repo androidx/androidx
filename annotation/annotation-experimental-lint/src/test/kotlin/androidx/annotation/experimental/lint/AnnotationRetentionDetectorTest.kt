@@ -50,11 +50,11 @@ class AnnotationRetentionDetectorTest {
 
         val expected =
             """
-src/sample/optin/ExperimentalJavaAnnotationWrongRetention.java:28: Error: Experimental annotation has RUNTIME retention, should use default (CLASS) [ExperimentalAnnotationRetention]
-public @interface ExperimentalJavaAnnotationWrongRetention {}
-                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-1 errors, 0 warnings
-        """
+            src/sample/optin/ExperimentalJavaAnnotationWrongRetention.java:28: Error: Experimental annotation has RUNTIME retention, should use default (CLASS) [ExperimentalAnnotationRetention]
+            public @interface ExperimentalJavaAnnotationWrongRetention {}
+                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            1 errors, 0 warnings
+            """
                 .trimIndent()
 
         check(*input).expect(expected)
@@ -71,11 +71,11 @@ public @interface ExperimentalJavaAnnotationWrongRetention {}
 
         val expected =
             """
-src/sample/optin/ExperimentalKotlinAnnotationWrongRetention.kt:21: Error: Experimental annotation has default (RUNTIME) retention, should use BINARY [ExperimentalAnnotationRetention]
-annotation class ExperimentalKotlinAnnotationWrongRetention
-                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-1 errors, 0 warnings
-        """
+            src/sample/optin/ExperimentalKotlinAnnotationWrongRetention.kt:21: Error: Experimental annotation has default (RUNTIME) retention, should use BINARY [ExperimentalAnnotationRetention]
+            annotation class ExperimentalKotlinAnnotationWrongRetention
+                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            1 errors, 0 warnings
+            """
                 .trimIndent()
 
         check(*input).expect(expected)
@@ -91,11 +91,11 @@ annotation class ExperimentalKotlinAnnotationWrongRetention
 
         val expected =
             """
-src/sample/kotlin/ExperimentalKotlinAnnotationWrongAnnotation.kt:22: Error: Experimental annotation should use kotlin.RequiresOptIn [WrongRequiresOptIn]
-annotation class ExperimentalKotlinAnnotationWrongAnnotation
-                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-1 errors, 0 warnings
-        """
+            src/sample/kotlin/ExperimentalKotlinAnnotationWrongAnnotation.kt:22: Error: Experimental annotation should use kotlin.RequiresOptIn [WrongRequiresOptIn]
+            annotation class ExperimentalKotlinAnnotationWrongAnnotation
+                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            1 errors, 0 warnings
+            """
                 .trimIndent()
 
         check(*input).expect(expected)

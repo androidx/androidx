@@ -35,7 +35,6 @@ import android.os.RemoteException;
 import android.support.customtabs.IAuthTabCallback;
 import android.support.customtabs.ICustomTabsCallback;
 import android.support.customtabs.ICustomTabsService;
-import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.browser.auth.AuthTabCallback;
@@ -450,6 +449,11 @@ public class CustomTabsClient {
                     Binder.restoreCallingIdentity(identity);
                 }
             }
+
+            @Override
+            public int getInterfaceVersion() {
+                return super.VERSION;
+            }
         };
     }
 
@@ -638,6 +642,11 @@ public class CustomTabsClient {
                         callback.onUnminimized(extras);
                     }
                 });
+            }
+
+            @Override
+            public int getInterfaceVersion() {
+                return super.VERSION;
             }
         };
     }

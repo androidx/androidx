@@ -60,6 +60,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
@@ -83,6 +84,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeUp
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.Velocity
@@ -90,6 +92,7 @@ import androidx.compose.ui.unit.coerceAtMost
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.width
+import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -299,8 +302,7 @@ class ModalBottomSheetTest {
         var screenWidth by mutableStateOf(0)
 
         rule.setContent {
-            val context = LocalContext.current
-            screenWidth = context.resources.displayMetrics.widthPixels
+            screenWidth = LocalResources.current.displayMetrics.widthPixels
 
             ModalBottomSheet(onDismissRequest = {}) {
                 Box(
@@ -398,8 +400,7 @@ class ModalBottomSheetTest {
             latch.await(3000, TimeUnit.MILLISECONDS)
             var screenWidthPx by mutableStateOf(0)
             rule.setContent {
-                val context = LocalContext.current
-                screenWidthPx = context.resources.displayMetrics.widthPixels
+                screenWidthPx = LocalResources.current.displayMetrics.widthPixels
                 ModalBottomSheet(onDismissRequest = {}, sheetMaxWidth = Dp.Unspecified) {
                     Box(Modifier.testTag(sheetTag).fillMaxHeight(0.4f))
                 }
@@ -506,6 +507,40 @@ class ModalBottomSheetTest {
     }
 
     @Test
+    fun modalBottomSheet_doesNotDismissOnBack_whenPropertyFalse() {
+        var dismissCount = 0
+        lateinit var sheetState: SheetState
+
+        rule.setContent {
+            sheetState = rememberModalBottomSheetState()
+            val scope = rememberCoroutineScope()
+
+            // Explicitly set shouldDismissOnBackPress = false
+            ModalBottomSheet(
+                onDismissRequest = { dismissCount++ },
+                sheetState = sheetState,
+                properties = ModalBottomSheetProperties(shouldDismissOnBackPress = false),
+            ) {
+                Box(Modifier.fillMaxSize())
+            }
+
+            // Ensure sheet is expanded to start
+            if (!sheetState.isVisible) {
+                androidx.compose.runtime.LaunchedEffect(Unit) { sheetState.show() }
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(sheetState.isVisible).isTrue()
+
+        Espresso.pressBackUnconditionally()
+        rule.waitForIdle()
+
+        assertThat(sheetState.isVisible).isTrue()
+        assertThat(dismissCount).isEqualTo(0)
+    }
+
+    @Test
     fun modalBottomSheet_tallSheet_isDismissedOnBackPress() {
         var showBottomSheet by mutableStateOf(true)
         lateinit var sheetState: SheetState
@@ -587,9 +622,8 @@ class ModalBottomSheetTest {
         var screenWidth by mutableStateOf(0.dp)
         rule.setContent {
             sheetMaxWidth = remember { mutableStateOf(0.dp) }
-            val context = LocalContext.current
             val density = LocalDensity.current
-            screenWidth = with(density) { context.resources.displayMetrics.widthPixels.toDp() }
+            screenWidth = with(density) { LocalResources.current.displayMetrics.widthPixels.toDp() }
             ModalBottomSheet(onDismissRequest = {}, sheetMaxWidth = sheetMaxWidth.value) {
                 Box(Modifier.fillMaxWidth().testTag(sheetTag))
             }
@@ -883,7 +917,7 @@ class ModalBottomSheetTest {
             sheetState = rememberModalBottomSheetState()
             scope = rememberCoroutineScope()
             ModalBottomSheet(onDismissRequest = {}, sheetState = sheetState) {
-                Box(Modifier.fillMaxSize().testTag(sheetTag))
+                Box(Modifier.fillMaxSize().weight(1f).testTag(sheetTag))
             }
         }
 
@@ -1127,15 +1161,18 @@ class ModalBottomSheetTest {
         rule.waitForIdle()
 
         assertThat(sheetState.isVisible).isTrue()
-        // animateTo with a non-existent targetValue will force currentValue to the targetValue
-        // (Expanded). TargetValue then returns to the nearest available anchor (Hidden).
+        // animateTo with a non-existent target will force currentValue to the targetValue
+        // (Expanded). This allows moving the sheet to an anchor that we anticipate will be
+        // available in the next composition/layout pass, meaning the sheet will
+        // reconcile to that anchor when the sheet is re-laid out.
         assertThat(sheetState.currentValue).isEqualTo(SheetValue.Expanded)
-        assertThat(sheetState.targetValue).isEqualTo(SheetValue.Hidden)
+        assertThat(sheetState.targetValue).isEqualTo(SheetValue.Expanded)
         assertThat(sheetState.requireOffset()).isEqualTo(rule.rootHeightPx())
 
         hasSheetContent = true // Recompose with sheet content
         rule.waitForIdle()
         assertThat(sheetState.currentValue).isEqualTo(SheetValue.Expanded)
+        assertThat(sheetState.targetValue).isEqualTo(SheetValue.Expanded)
         assertThat(sheetState.requireOffset()).isWithin(1f).of(rule.rootHeightPx() * 0.6f)
     }
 
@@ -1341,12 +1378,15 @@ class ModalBottomSheetTest {
             }
         }
 
-        // wait for layout
         rule.waitForIdle()
         assertThat(sheetState.requireOffset()).isGreaterThan(providedTopInsets)
-        // Consumed insets are the larger of the two provided consumed insets, in this case, the
-        // sheets offset as inset 1, and top window insets as inset 2.
-        assertThat(consumedTopInsets).isEqualTo(sheetState.requireOffset().toInt())
+        // UPDATED BEHAVIOR:
+        // The content inside the sheet only consumes the insets explicitly provided
+        // to it (10px). It does NOT consume the empty space (offset) above the sheet
+        // because that space is outside the content's coordinate system.
+        // This is functionally the same for users for as long as the sheets offset is larger than
+        // or equal to the provided insets, the visual padding will remain 0.
+        assertThat(consumedTopInsets).isEqualTo(providedTopInsets)
     }
 
     @Test
@@ -1481,6 +1521,52 @@ class ModalBottomSheetTest {
             rule.waitForIdle()
             assertThat(sheetState.currentValue).isEqualTo(SheetValue.Expanded)
         }
+
+    @Test
+    fun sheetWindowInsets_reportsOffset_asTopInset() {
+        lateinit var state: SheetState
+        lateinit var scope: CoroutineScope
+        lateinit var insets: WindowInsets
+        lateinit var density: Density
+
+        rule.setContent {
+            state = rememberSheetState(initialValue = SheetValue.PartiallyExpanded)
+            scope = rememberCoroutineScope()
+            density = LocalDensity.current
+            insets = remember(state) { SheetWindowInsets(state) }
+
+            Box(Modifier.fillMaxSize()) {
+                BottomSheet(
+                    state = state,
+                    onDismissRequest = {},
+                    content = { Box(Modifier.fillMaxSize()) },
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            val reportedTopInset = insets.getTop(density).toFloat()
+            val actualOffset = state.requireOffset()
+            assertThat(reportedTopInset).isWithin(1f).of(actualOffset)
+            assertThat(reportedTopInset).isGreaterThan(0)
+        }
+
+        scope.launch { state.expand() }
+        rule.runOnIdle {
+            val reportedTopInset = insets.getTop(density).toFloat()
+            val actualOffset = state.requireOffset()
+            assertThat(reportedTopInset).isWithin(1f).of(actualOffset)
+            assertThat(reportedTopInset).isEqualTo(0)
+        }
+
+        scope.launch { state.hide() }
+        rule.runOnIdle {
+            val reportedTopInset = insets.getTop(density).toFloat()
+            val actualOffset = state.requireOffset()
+            assertThat(reportedTopInset).isWithin(1f).of(actualOffset)
+            assertThat(reportedTopInset).isGreaterThan(0)
+        }
+    }
 
     private val Bundle.traversalBefore: Int
         get() = getInt("android.view.accessibility.extra.EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL")

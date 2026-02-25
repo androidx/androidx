@@ -37,15 +37,16 @@ import androidx.compose.runtime.MovableContentState
 import androidx.compose.runtime.MovableContentStateReference
 import androidx.compose.runtime.RecomposeScope
 import androidx.compose.runtime.RecomposeScopeImpl
-import androidx.compose.runtime.RememberManager
 import androidx.compose.runtime.RememberObserverHolder
 import androidx.compose.runtime.SlotStorage
+import androidx.compose.runtime.asGapRememberObserverHolder
 import androidx.compose.runtime.checkPrecondition
 import androidx.compose.runtime.collection.fastCopyInto
 import androidx.compose.runtime.collection.fastFilter
 import androidx.compose.runtime.collection.sortedBy
 import androidx.compose.runtime.composeRuntimeError
 import androidx.compose.runtime.composer.GroupSourceInformation
+import androidx.compose.runtime.composer.RememberManager
 import androidx.compose.runtime.deactivateCurrentGroup
 import androidx.compose.runtime.debugRuntimeCheck
 import androidx.compose.runtime.extractMovableContentAtCurrent
@@ -2229,7 +2230,7 @@ internal class SlotWriter(
                     val address = dataIndexToDataAddress(slotIndex)
                     val value = slots[address]
                     if (value is RememberObserverHolder) {
-                        val after = value.afterGroupIndex
+                        val after = value.asGapRememberObserverHolder().afterGroupIndex
                         if (after >= 0) {
                             // If the data is a remember holder that has an anchor, it must be
                             // emitted after the group it is anchored so defer it now.

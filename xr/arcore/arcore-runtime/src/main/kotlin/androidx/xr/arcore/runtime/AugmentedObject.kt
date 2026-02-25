@@ -21,20 +21,16 @@ import androidx.xr.runtime.AugmentedObjectCategory
 import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.Pose
 
-/** Describes an object that's being tracked in the real world. */
+/**
+ * Describes an object that's being tracked in the real world.
+ *
+ * @property category the [AugmentedObjectCategory] of this tracked object
+ * @property centerPose the [Pose] determined to represent the center of this object
+ * @property extents a set of extents to used to determine the size of the object
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface AugmentedObject : Trackable {
-    /** The [androidx.xr.runtime.AugmentedObjectCategory] of this tracked object. */
     public val category: AugmentedObjectCategory
-    /**
-     * The [androidx.xr.runtime.math.Pose] determined to represent the center of this object.
-     *
-     * This value may or may not overlap with the object's center of gravity.
-     */
     public val centerPose: Pose
-    /**
-     * A set of extents to used to determine the size of the object. These are assumed to originate
-     * from the [centerPose].
-     */
     public val extents: FloatSize3d
 }

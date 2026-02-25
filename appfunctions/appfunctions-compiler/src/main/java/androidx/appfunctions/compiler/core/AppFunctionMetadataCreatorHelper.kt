@@ -81,7 +81,7 @@ class AppFunctionMetadataCreatorHelper(
                 AppFunctionAnnotation.PROPERTY_IS_ENABLED,
                 Boolean::class,
             )
-        val isDescribedByKdoc =
+        val isDescribedByKDoc =
             appFunctionAnnotation?.requirePropertyValueOfType(
                 AppFunctionAnnotation.PROPERTY_IS_DESCRIBED_BY_KDOC,
                 Boolean::class,
@@ -106,7 +106,7 @@ class AppFunctionMetadataCreatorHelper(
 
         return AppFunctionAnnotationProperties(
             enabled,
-            isDescribedByKdoc,
+            isDescribedByKDoc,
             schemaName,
             schemaVersion,
             schemaCategory,
@@ -586,7 +586,7 @@ class AppFunctionMetadataCreatorHelper(
                                 .map {
                                     AppFunctionPropertyDeclaration(
                                         property = it,
-                                        isDescribedByKdoc = false,
+                                        isDescribedByKDoc = false,
                                         // Property from interface is always required as there is
                                         // no existing API to tell if the interface property has
                                         // default value or not.
@@ -849,7 +849,7 @@ class AppFunctionMetadataCreatorHelper(
      */
     data class AppFunctionAnnotationProperties(
         val isEnabledByDefault: Boolean?,
-        val isDescribedByKdoc: Boolean?,
+        val isDescribedByKDoc: Boolean?,
         val schemaName: String?,
         val schemaVersion: Long?,
         val schemaCategory: String?,

@@ -44,17 +44,6 @@ limitations under the License.
             </intent-filter>
         </activity>
         <activity
-            android:name=".CameraPipeActivity"
-            android:exported="true"
-            android:label="CameraPipe Core Test App"
-            android:taskAffinity="androidx.camera.integration.core.CameraPipeActivity"
-            android:theme="@android:style/Theme.Dialog">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
             android:name=".OpenGLActivity"
             android:exported="true"
             android:label="Camera Core Test App (OpenGL Activity)"

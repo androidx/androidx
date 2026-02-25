@@ -26,6 +26,7 @@ import androidx.room3.compiler.processing.XExecutableElement
 import androidx.room3.compiler.processing.XExecutableParameterElement
 import androidx.room3.compiler.processing.XMethodElement
 import androidx.room3.compiler.processing.XMethodType
+import androidx.room3.compiler.processing.XNullability
 import androidx.room3.compiler.processing.XRawType
 import androidx.room3.compiler.processing.XType
 import androidx.room3.compiler.processing.XTypeElement
@@ -33,9 +34,11 @@ import androidx.room3.compiler.processing.isKotlinUnit
 import androidx.room3.compiler.processing.isSuspendFunction
 import androidx.room3.ext.KotlinTypeNames.NO_ARG_SUSPEND_LAMBDA
 import androidx.room3.ext.KotlinTypeNames.SINGLE_ARG_SUSPEND_LAMBDA
+import androidx.room3.ext.getRequiredFunctionParamTypes
 import androidx.room3.processor.ProcessorErrors.DAO_RETURN_TYPE_CONVERTER_EMPTY_CLASS
 import androidx.room3.processor.ProcessorErrors.DAO_RETURN_TYPE_CONVERTER_FUNCTIONS_MUST_HAVE_AT_MOST_ONE_TYPE_PARAMETER
 import androidx.room3.processor.ProcessorErrors.DAO_RETURN_TYPE_CONVERTER_FUNCTIONS_WITHOUT_TYPE_PARAM_SHOULD_RETURN_UNIT
+import androidx.room3.processor.ProcessorErrors.DAO_RETURN_TYPE_CONVERTER_LAMBDA_MUST_BE_LAST_PARAM
 import androidx.room3.processor.ProcessorErrors.DAO_RETURN_TYPE_CONVERTER_MUST_CONTAIN_AN_ANNOTATED_FUNCTION
 import androidx.room3.processor.ProcessorErrors.DAO_RETURN_TYPE_CONVERTER_MUST_HAVE_ONE_LAMBDA_PARAM_THAT_IS_SUSPEND
 import androidx.room3.processor.ProcessorErrors.daoReturnTypeConverterFunctionsWithATypeParamShouldHaveReturnTypeContainingTheSameTypeArg
@@ -101,7 +104,13 @@ class DaoReturnTypeConverterProcessor(
             )
             return null
         }
-        val suspendLambdaParam = findAndValidateLambdaParams(function, lambdaTypes)
+        val requiredFunctionNonLambdaParamTypes = function.getRequiredFunctionParamTypes()
+        val suspendLambdaParam =
+            findAndValidateLambdaParams(
+                function,
+                lambdaTypes,
+                requiredFunctionNonLambdaParamTypes.lastIndex + 1,
+            )
         if (suspendLambdaParam == null) {
             context.logger.e(
                 element = function,
@@ -112,6 +121,21 @@ class DaoReturnTypeConverterProcessor(
             val rowAdapterPosition =
                 findRowAdapterTypeArgPosition(functionType, to, function, suspendLambdaParam)
 
+            val lambaParam = function.parameters.last().type.typeArguments.last()
+            val functionParamType =
+                function.executableType.typeVariables.singleOrNull()?.upperBounds?.singleOrNull()
+            val functionReturnType =
+                if (rowAdapterPosition > -1) {
+                    to.typeArguments[rowAdapterPosition]
+                } else {
+                    to
+                }
+            val hasNullableLambdaReturnType =
+                (lambaParam.nullability != XNullability.NONNULL) &&
+                    (functionParamType == null ||
+                        functionParamType.nullability == XNullability.NONNULL &&
+                            functionReturnType.nullability == XNullability.NONNULL)
+
             return DaoReturnTypeConverterWrapper(
                 CustomDaoReturnTypeConverter(
                     to = to,
@@ -119,7 +143,9 @@ class DaoReturnTypeConverterProcessor(
                     isEnclosingClassKotlinObject = false,
                     function = function,
                     isProvidedConverter = false,
+                    hasNullableLambdaReturnType = hasNullableLambdaReturnType,
                     rowAdapterTypeArgPosition = rowAdapterPosition,
+                    requiredFunctionParamTypes = requiredFunctionNonLambdaParamTypes,
                 )
             )
         }
@@ -128,14 +154,24 @@ class DaoReturnTypeConverterProcessor(
     private fun findAndValidateLambdaParams(
         function: XExecutableElement,
         lambdaTypes: LambdaTypeConstants,
+        expectedIndexOfLambdaParam: Int,
     ): XExecutableParameterElement? {
         fun XExecutableParameterElement.isSuspendFunction(): Boolean =
             lambdaTypes.noArgSuspendLambda.isAssignableFrom(this.type.rawType) ||
                 lambdaTypes.singleArgSuspendLambda.isAssignableFrom(this.type.rawType)
 
-        val suspendLambdaParams = function.parameters.filter { it.isSuspendFunction() }
+        val suspendLambdaParamCandidates = function.parameters.filter { it.isSuspendFunction() }
+        val suspendLambdaParam = suspendLambdaParamCandidates.singleOrNull()
 
-        return suspendLambdaParams.singleOrNull()
+        val actualIndexOfLambdaParam = function.parameters.indexOf(suspendLambdaParam)
+        context.checker.check(
+            predicate =
+                suspendLambdaParam == null ||
+                    actualIndexOfLambdaParam == (expectedIndexOfLambdaParam),
+            element = function,
+            errorMsg = DAO_RETURN_TYPE_CONVERTER_LAMBDA_MUST_BE_LAST_PARAM,
+        )
+        return suspendLambdaParam
     }
 
     private fun findRowAdapterTypeArgPosition(

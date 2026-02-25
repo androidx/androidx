@@ -23,9 +23,6 @@ import android.os.Build
 import android.util.Size
 import androidx.camera.camera2.compat.quirk.DeviceQuirks as Camera2DeviceQuirks
 import androidx.camera.camera2.compat.quirk.ExtraCroppingQuirk as Camera2ExtraCroppingQuirk
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
-import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks as PipeDeviceQuirks
-import androidx.camera.camera2.pipe.integration.compat.quirk.ExtraCroppingQuirk as PipeExtraCroppingQuirk
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
@@ -52,9 +49,7 @@ fun assumeExtraCroppingQuirk(implName: String) {
 }
 
 fun hasExtraCroppingQuirk(implName: String): Boolean {
-    return (implName.contains(CameraPipeConfig::class.simpleName!!) &&
-        PipeDeviceQuirks[PipeExtraCroppingQuirk::class.java] != null) ||
-        Camera2DeviceQuirks.get(Camera2ExtraCroppingQuirk::class.java) != null
+    return Camera2DeviceQuirks.get(Camera2ExtraCroppingQuirk::class.java) != null
 }
 
 fun assumeStopCodecAfterSurfaceRemovalCrashMediaServerQuirk() {

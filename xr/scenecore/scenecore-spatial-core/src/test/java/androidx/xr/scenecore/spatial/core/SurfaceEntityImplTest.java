@@ -85,14 +85,14 @@ public final class SurfaceEntityImplTest {
         mFakeSurfaceFeature = new FakeSurfaceFeature(nodeHolder);
         mEntityManager = new EntityManager();
 
-        mActivitySpace = new ActivitySpaceImpl(
-                mXrExtensions.createNode(),
-                mActivity,
-                mXrExtensions,
-                mEntityManager,
-                mSpatialStateProvider,
-                false,
-                mExecutor);
+        mActivitySpace =
+                new ActivitySpaceImpl(
+                        mXrExtensions.createNode(),
+                        mActivity,
+                        mXrExtensions,
+                        mEntityManager,
+                        mSpatialStateProvider,
+                        mExecutor);
         mEntityManager.addSystemSpaceActivityPose(new PerceptionSpaceScenePoseImpl(mActivitySpace));
 
         mSurfaceEntity =

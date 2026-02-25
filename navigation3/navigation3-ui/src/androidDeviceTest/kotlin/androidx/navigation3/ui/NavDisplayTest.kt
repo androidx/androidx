@@ -112,7 +112,7 @@ class NavDisplayTest {
             NavDisplay(
                 backStack = backStack,
                 onBack = { backStack.removeAt(backStack.lastIndex) },
-                sceneStrategy = DialogSceneStrategy(),
+                sceneStrategies = listOf(DialogSceneStrategy()),
             ) {
                 when (it) {
                     first ->
@@ -676,7 +676,10 @@ class NavDisplayTest {
 
         val backStack = mutableStateListOf("left", "right")
         composeTestRule.setContent {
-            NavDisplay(sceneStrategy = TestTwoPaneSceneStrategy(), backStack = backStack) { key ->
+            NavDisplay(
+                sceneStrategies = listOf(TestTwoPaneSceneStrategy()),
+                backStack = backStack,
+            ) { key ->
                 when (key) {
                     "left" -> NavEntry("left") { Text(leftText) }
                     "right" -> NavEntry("right") { Text(rightText) }
@@ -759,11 +762,12 @@ class NavDisplayTest {
     }
 
     @Test
-    fun testSceneStrategyThenFirstStrategy() {
+    fun testSceneStrategiesThenFirstStrategy() {
         composeTestRule.setContent {
             NavDisplay(
                 backStack = listOf(first, second),
-                sceneStrategy = TestTwoPaneSceneStrategy<String>() then (SinglePaneSceneStrategy()),
+                sceneStrategies =
+                    listOf(TestTwoPaneSceneStrategy<String>(), SinglePaneSceneStrategy()),
             ) {
                 when (it) {
                     first -> NavEntry(first) { Text(first) }
@@ -778,11 +782,12 @@ class NavDisplayTest {
     }
 
     @Test
-    fun testSceneStrategyThenChainedStrategy() {
+    fun testSceneStrategiesThenChainedStrategy() {
         composeTestRule.setContent {
             NavDisplay(
                 backStack = listOf(first),
-                sceneStrategy = TestTwoPaneSceneStrategy<String>() then (SinglePaneSceneStrategy()),
+                sceneStrategies =
+                    listOf(TestTwoPaneSceneStrategy<String>(), SinglePaneSceneStrategy()),
             ) {
                 when (it) {
                     first -> NavEntry(first) { Text(first) }

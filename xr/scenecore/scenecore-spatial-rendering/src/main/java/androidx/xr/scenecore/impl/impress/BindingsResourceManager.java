@@ -27,6 +27,7 @@ import java.lang.ref.ReferenceQueue;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Manages the lifecycle of Impress objects by hooking into the JVM Garbage Collector using
@@ -40,6 +41,7 @@ public class BindingsResourceManager {
     private final ReferenceQueue<Object> mQueue = new ReferenceQueue<>();
     private final Set<BindingsObjectPhantomReference> mPhantomReferences =
             Collections.synchronizedSet(new HashSet<>());
+    private final AtomicBoolean mIsDisabled = new AtomicBoolean(false);
 
     public BindingsResourceManager(@NonNull Handler mainThreadHandler) {
         this.mMainThreadHandler = mainThreadHandler;
@@ -58,6 +60,14 @@ public class BindingsResourceManager {
         mPhantomReferences.add(new BindingsObjectPhantomReference(object, mQueue, callback));
     }
 
+    /**
+     * Stops the resource manager from processing any further cleanup callbacks after the rendering
+     * engine is torn down.
+     */
+    public void disable() {
+        mIsDisabled.set(true);
+    }
+
     private void processQueue() {
         while (true) {
             try {
@@ -65,8 +75,11 @@ public class BindingsResourceManager {
                         (BindingsObjectPhantomReference) mQueue.remove();
                 mMainThreadHandler.post(
                         () -> {
-                            ref.cleanup();
                             mPhantomReferences.remove(ref);
+
+                            if (!mIsDisabled.get()) {
+                                ref.cleanup();
+                            }
                         });
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();

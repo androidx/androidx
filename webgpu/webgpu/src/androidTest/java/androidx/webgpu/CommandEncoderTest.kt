@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.webgpu
 
 import androidx.test.filters.SmallTest
@@ -37,7 +36,6 @@ class CommandEncoderTest {
 
     private lateinit var device: GPUDevice
     private lateinit var webGpu: WebGpu
-
     @get:Rule val apiSkipRule = ApiLevelSkipRule()
 
     @Before

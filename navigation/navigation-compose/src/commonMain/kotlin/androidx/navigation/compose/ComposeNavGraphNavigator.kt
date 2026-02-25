@@ -60,6 +60,16 @@ internal class ComposeNavGraphNavigator(navigatorProvider: NavigatorProvider) :
             AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? =
             null
 
+        internal var predictivePopEnterTransition:
+            (@JvmSuppressWildcards
+            AnimatedContentTransitionScope<NavBackStackEntry>.(Int) -> EnterTransition?)? =
+            null
+
+        internal var predictivePopExitTransition:
+            (@JvmSuppressWildcards
+            AnimatedContentTransitionScope<NavBackStackEntry>.(Int) -> ExitTransition?)? =
+            null
+
         internal var sizeTransform:
             (@JvmSuppressWildcards
             AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)? =

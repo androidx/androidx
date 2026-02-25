@@ -1,4 +1,6 @@
 // Baseline format: 1.0
+ConcreteCollection: androidx.constraintlayout.compose.DesignElements#define(String, kotlin.jvm.functions.Function2<? super java.lang.String,? super java.util.HashMap<java.lang.String,java.lang.String>,kotlin.Unit>) parameter #1:
+    Parameter type is concrete collection (`kotlin.jvm.functions.Function2`); must be higher-level interface
 ConcreteCollection: androidx.constraintlayout.compose.DesignElements#getMap():
     Return type is concrete collection (`java.util.HashMap`); must be higher-level interface
 ConcreteCollection: androidx.constraintlayout.compose.DesignElements#setMap(java.util.HashMap<java.lang.String,kotlin.jvm.functions.Function2<java.lang.String,java.util.HashMap<java.lang.String,java.lang.String>,kotlin.Unit>>) parameter #0:

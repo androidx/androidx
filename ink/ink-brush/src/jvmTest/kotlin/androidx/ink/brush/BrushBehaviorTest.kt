@@ -252,13 +252,13 @@ class BrushBehaviorTest {
     }
 
     @Test
-    fun dampingSourceToString_returnsCorrectString() {
-        assertThat(BrushBehavior.DampingSource.DISTANCE_IN_CENTIMETERS.toString())
-            .isEqualTo("BrushBehavior.DampingSource.DISTANCE_IN_CENTIMETERS")
-        assertThat(BrushBehavior.DampingSource.DISTANCE_IN_MULTIPLES_OF_BRUSH_SIZE.toString())
-            .isEqualTo("BrushBehavior.DampingSource.DISTANCE_IN_MULTIPLES_OF_BRUSH_SIZE")
-        assertThat(BrushBehavior.DampingSource.TIME_IN_SECONDS.toString())
-            .isEqualTo("BrushBehavior.DampingSource.TIME_IN_SECONDS")
+    fun progressDomainToString_returnsCorrectString() {
+        assertThat(BrushBehavior.ProgressDomain.DISTANCE_IN_CENTIMETERS.toString())
+            .isEqualTo("BrushBehavior.ProgressDomain.DISTANCE_IN_CENTIMETERS")
+        assertThat(BrushBehavior.ProgressDomain.DISTANCE_IN_MULTIPLES_OF_BRUSH_SIZE.toString())
+            .isEqualTo("BrushBehavior.ProgressDomain.DISTANCE_IN_MULTIPLES_OF_BRUSH_SIZE")
+        assertThat(BrushBehavior.ProgressDomain.TIME_IN_SECONDS.toString())
+            .isEqualTo("BrushBehavior.ProgressDomain.TIME_IN_SECONDS")
     }
 
     @Test
@@ -361,57 +361,57 @@ class BrushBehaviorTest {
         assertFailsWith<IllegalArgumentException> {
             BrushBehavior.NoiseNode(
                 12345,
-                BrushBehavior.DampingSource.TIME_IN_SECONDS,
+                BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
                 Float.POSITIVE_INFINITY,
             )
         }
         assertFailsWith<IllegalArgumentException> {
-            BrushBehavior.NoiseNode(12345, BrushBehavior.DampingSource.TIME_IN_SECONDS, Float.NaN)
+            BrushBehavior.NoiseNode(12345, BrushBehavior.ProgressDomain.TIME_IN_SECONDS, Float.NaN)
         }
     }
 
     @Test
     fun noiseNodeConstructor_throwsForNegativeBasePeriod() {
         assertFailsWith<IllegalArgumentException> {
-            BrushBehavior.NoiseNode(12345, BrushBehavior.DampingSource.TIME_IN_SECONDS, -1f)
+            BrushBehavior.NoiseNode(12345, BrushBehavior.ProgressDomain.TIME_IN_SECONDS, -1f)
         }
     }
 
     @Test
     fun noiseNodeToString() {
-        val node = BrushBehavior.NoiseNode(12345, BrushBehavior.DampingSource.TIME_IN_SECONDS, 1f)
+        val node = BrushBehavior.NoiseNode(12345, BrushBehavior.ProgressDomain.TIME_IN_SECONDS, 1f)
         assertThat(node.toString()).isEqualTo("NoiseNode(12345, TIME_IN_SECONDS, 1.0)")
     }
 
     @Test
     fun noiseNodeEquals_checksEqualityOfValues() {
-        val node = BrushBehavior.NoiseNode(12345, BrushBehavior.DampingSource.TIME_IN_SECONDS, 1f)
+        val node = BrushBehavior.NoiseNode(12345, BrushBehavior.ProgressDomain.TIME_IN_SECONDS, 1f)
         assertThat(node)
             .isEqualTo(
-                BrushBehavior.NoiseNode(12345, BrushBehavior.DampingSource.TIME_IN_SECONDS, 1f)
+                BrushBehavior.NoiseNode(12345, BrushBehavior.ProgressDomain.TIME_IN_SECONDS, 1f)
             )
         assertThat(node)
             .isNotEqualTo(
-                BrushBehavior.NoiseNode(12346, BrushBehavior.DampingSource.TIME_IN_SECONDS, 1f)
+                BrushBehavior.NoiseNode(12346, BrushBehavior.ProgressDomain.TIME_IN_SECONDS, 1f)
             )
         assertThat(node)
             .isNotEqualTo(
                 BrushBehavior.NoiseNode(
                     12345,
-                    BrushBehavior.DampingSource.DISTANCE_IN_CENTIMETERS,
+                    BrushBehavior.ProgressDomain.DISTANCE_IN_CENTIMETERS,
                     1f,
                 )
             )
         assertThat(node)
             .isNotEqualTo(
-                BrushBehavior.NoiseNode(12345, BrushBehavior.DampingSource.TIME_IN_SECONDS, 2f)
+                BrushBehavior.NoiseNode(12345, BrushBehavior.ProgressDomain.TIME_IN_SECONDS, 2f)
             )
     }
 
     @Test
     fun noiseNodeHashCode_withIdenticalValues_match() {
-        val node1 = BrushBehavior.NoiseNode(12345, BrushBehavior.DampingSource.TIME_IN_SECONDS, 1f)
-        val node2 = BrushBehavior.NoiseNode(12345, BrushBehavior.DampingSource.TIME_IN_SECONDS, 1f)
+        val node1 = BrushBehavior.NoiseNode(12345, BrushBehavior.ProgressDomain.TIME_IN_SECONDS, 1f)
+        val node2 = BrushBehavior.NoiseNode(12345, BrushBehavior.ProgressDomain.TIME_IN_SECONDS, 1f)
         assertThat(node1.hashCode()).isEqualTo(node2.hashCode())
     }
 
@@ -543,13 +543,17 @@ class BrushBehaviorTest {
         val input = BrushBehavior.ConstantNode(0f)
         assertFailsWith<IllegalArgumentException> {
             BrushBehavior.DampingNode(
-                BrushBehavior.DampingSource.TIME_IN_SECONDS,
+                BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
                 Float.POSITIVE_INFINITY,
                 input,
             )
         }
         assertFailsWith<IllegalArgumentException> {
-            BrushBehavior.DampingNode(BrushBehavior.DampingSource.TIME_IN_SECONDS, Float.NaN, input)
+            BrushBehavior.DampingNode(
+                BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
+                Float.NaN,
+                input,
+            )
         }
     }
 
@@ -557,21 +561,23 @@ class BrushBehaviorTest {
     fun dampingNodeConstructor_throwsForNegativeDampingGap() {
         val input = BrushBehavior.ConstantNode(0f)
         assertFailsWith<IllegalArgumentException> {
-            BrushBehavior.DampingNode(BrushBehavior.DampingSource.TIME_IN_SECONDS, -1f, input)
+            BrushBehavior.DampingNode(BrushBehavior.ProgressDomain.TIME_IN_SECONDS, -1f, input)
         }
     }
 
     @Test
     fun dampingNodeInputs_containsInput() {
         val input = BrushBehavior.ConstantNode(0f)
-        val node = BrushBehavior.DampingNode(BrushBehavior.DampingSource.TIME_IN_SECONDS, 1f, input)
+        val node =
+            BrushBehavior.DampingNode(BrushBehavior.ProgressDomain.TIME_IN_SECONDS, 1f, input)
         assertThat(node.inputs).containsExactly(input)
     }
 
     @Test
     fun dampingNodeToString() {
         val input = BrushBehavior.ConstantNode(0f)
-        val node = BrushBehavior.DampingNode(BrushBehavior.DampingSource.TIME_IN_SECONDS, 1f, input)
+        val node =
+            BrushBehavior.DampingNode(BrushBehavior.ProgressDomain.TIME_IN_SECONDS, 1f, input)
         assertThat(node.toString())
             .isEqualTo("DampingNode(TIME_IN_SECONDS, 1.0, ConstantNode(0.0))")
     }
@@ -580,19 +586,19 @@ class BrushBehaviorTest {
     fun dampingNodeEquals_checksEqualityOfValues() {
         val node1 =
             BrushBehavior.DampingNode(
-                BrushBehavior.DampingSource.TIME_IN_SECONDS,
+                BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
                 1f,
                 BrushBehavior.ConstantNode(1f),
             )
         val node2 =
             BrushBehavior.DampingNode(
-                BrushBehavior.DampingSource.TIME_IN_SECONDS,
+                BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
                 1f,
                 BrushBehavior.ConstantNode(1f),
             )
         val node3 =
             BrushBehavior.DampingNode(
-                BrushBehavior.DampingSource.TIME_IN_SECONDS,
+                BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
                 1f,
                 BrushBehavior.ConstantNode(2f),
             )
@@ -604,19 +610,19 @@ class BrushBehaviorTest {
     fun dampingNodeHashCode_withIdenticalValues_match() {
         val node1 =
             BrushBehavior.DampingNode(
-                BrushBehavior.DampingSource.TIME_IN_SECONDS,
+                BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
                 1f,
                 BrushBehavior.ConstantNode(1f),
             )
         val node2 =
             BrushBehavior.DampingNode(
-                BrushBehavior.DampingSource.TIME_IN_SECONDS,
+                BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
                 1f,
                 BrushBehavior.ConstantNode(1f),
             )
         val node3 =
             BrushBehavior.DampingNode(
-                BrushBehavior.DampingSource.TIME_IN_SECONDS,
+                BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
                 1f,
                 BrushBehavior.ConstantNode(2f),
             )
@@ -675,6 +681,132 @@ class BrushBehaviorTest {
         val node3 =
             BrushBehavior.ResponseNode(
                 EasingFunction.Predefined.EASE,
+                BrushBehavior.ConstantNode(2f),
+            )
+        assertThat(node1.hashCode()).isEqualTo(node2.hashCode())
+        assertThat(node1.hashCode()).isNotEqualTo(node3.hashCode())
+    }
+
+    @Test
+    fun integralNodeConstructor_throwsForNonFiniteValueRange() {
+        val input = BrushBehavior.ConstantNode(0f)
+        assertFailsWith<IllegalArgumentException> {
+            BrushBehavior.IntegralNode(
+                BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
+                integralValueRangeStart = Float.NaN,
+                integralValueRangeEnd = 5f,
+                BrushBehavior.OutOfRange.REPEAT,
+                input,
+            )
+        }
+        assertFailsWith<IllegalArgumentException> {
+            BrushBehavior.IntegralNode(
+                BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
+                integralValueRangeStart = 0f,
+                integralValueRangeEnd = Float.POSITIVE_INFINITY,
+                BrushBehavior.OutOfRange.REPEAT,
+                input,
+            )
+        }
+    }
+
+    @Test
+    fun integralNodeConstructor_throwsForEmptyValueRange() {
+        val input = BrushBehavior.ConstantNode(0f)
+        assertFailsWith<IllegalArgumentException> {
+            BrushBehavior.IntegralNode(
+                BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
+                integralValueRangeStart = 5f,
+                integralValueRangeEnd = 5f,
+                BrushBehavior.OutOfRange.REPEAT,
+                input,
+            )
+        }
+    }
+
+    @Test
+    fun integralNodeInputs_containsInput() {
+        val input = BrushBehavior.ConstantNode(0f)
+        val node =
+            BrushBehavior.IntegralNode(
+                BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
+                integralValueRangeStart = 0f,
+                integralValueRangeEnd = 5f,
+                BrushBehavior.OutOfRange.REPEAT,
+                input,
+            )
+        assertThat(node.inputs).containsExactly(input)
+    }
+
+    @Test
+    fun integralNodeToString() {
+        val input = BrushBehavior.ConstantNode(0f)
+        val node =
+            BrushBehavior.IntegralNode(
+                BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
+                integralValueRangeStart = 0f,
+                integralValueRangeEnd = 5f,
+                BrushBehavior.OutOfRange.REPEAT,
+                input,
+            )
+        assertThat(node.toString())
+            .isEqualTo("IntegralNode(TIME_IN_SECONDS, 0.0, 5.0, REPEAT, ConstantNode(0.0))")
+    }
+
+    @Test
+    fun integralNodeEquals_checksEqualityOfValues() {
+        val node1 =
+            BrushBehavior.IntegralNode(
+                BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
+                integralValueRangeStart = 0f,
+                integralValueRangeEnd = 5f,
+                BrushBehavior.OutOfRange.REPEAT,
+                BrushBehavior.ConstantNode(1f),
+            )
+        val node2 =
+            BrushBehavior.IntegralNode(
+                BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
+                integralValueRangeStart = 0f,
+                integralValueRangeEnd = 5f,
+                BrushBehavior.OutOfRange.REPEAT,
+                BrushBehavior.ConstantNode(1f),
+            )
+        val node3 =
+            BrushBehavior.IntegralNode(
+                BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
+                integralValueRangeStart = 0f,
+                integralValueRangeEnd = 5f,
+                BrushBehavior.OutOfRange.REPEAT,
+                BrushBehavior.ConstantNode(2f),
+            )
+        assertThat(node1).isEqualTo(node2)
+        assertThat(node1).isNotEqualTo(node3)
+    }
+
+    @Test
+    fun integralNodeHashCode_withIdenticalValues_match() {
+        val node1 =
+            BrushBehavior.IntegralNode(
+                BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
+                integralValueRangeStart = 0f,
+                integralValueRangeEnd = 5f,
+                BrushBehavior.OutOfRange.REPEAT,
+                BrushBehavior.ConstantNode(1f),
+            )
+        val node2 =
+            BrushBehavior.IntegralNode(
+                BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
+                integralValueRangeStart = 0f,
+                integralValueRangeEnd = 5f,
+                BrushBehavior.OutOfRange.REPEAT,
+                BrushBehavior.ConstantNode(1f),
+            )
+        val node3 =
+            BrushBehavior.IntegralNode(
+                BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
+                integralValueRangeStart = 0f,
+                integralValueRangeEnd = 5f,
+                BrushBehavior.OutOfRange.REPEAT,
                 BrushBehavior.ConstantNode(2f),
             )
         assertThat(node1.hashCode()).isEqualTo(node2.hashCode())
@@ -1291,13 +1423,14 @@ class BrushBehaviorTest {
                                         sourceValueRangeEnd = 1.0f,
                                     ),
                             )
-                        )
+                        ),
+                        developerComment = "foobar",
                     )
                     .toString()
             )
             .isEqualTo(
                 "BrushBehavior([TargetNode(WIDTH_MULTIPLIER, 1.0, 1.75, " +
-                    "SourceNode(NORMALIZED_PRESSURE, 0.0, 1.0, CLAMP))])"
+                    "SourceNode(NORMALIZED_PRESSURE, 0.0, 1.0, CLAMP))], developerComment=foobar)"
             )
     }
 

@@ -283,7 +283,16 @@ class FontProvider {
                                 : 400;
                         boolean italic = italicColumnIndex != -1 && cursor.getInt(italicColumnIndex)
                                 == 1;
-                        result.add(FontInfo.create(fileUri, ttcIndex, weight, italic, resultCode));
+
+                        // Font variation settings can originate from either a font provider or an
+                        // XML definition. While merging or prioritizing these sources would be
+                        // ideal, settings from font providers have historically been ignored and
+                        // are currently unused by any provider.
+                        // Therefore, XML-defined settings are used exclusively for now.
+                        String fontVariationSettings = request.getVariationSettings();
+
+                        result.add(new FontInfo(fileUri, ttcIndex, weight, italic,
+                                fontVariationSettings, resultCode));
                     }
                 }
             } finally {

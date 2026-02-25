@@ -77,7 +77,7 @@ class WrongPopBackStackRouteDetector : Detector(), SourceCodeScanner {
                 context.getNameLocation(startNode as UElement),
                 """
                 Use popBackStack with reified class instead.
-                    """
+                """
                     .trimIndent(),
                 LintFix.create()
                     .replace()

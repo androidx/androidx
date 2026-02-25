@@ -82,7 +82,7 @@ class FakeImageReaderTest {
         val fakeListener = FakeOnImageListener()
 
         imageReader.simulateImage(100)
-        imageReader.setOnImageListener(fakeListener)
+        imageReader.onImageListener = fakeListener
         val image2 = imageReader.simulateImage(200)
         val image3 = imageReader.simulateImage(300)
 

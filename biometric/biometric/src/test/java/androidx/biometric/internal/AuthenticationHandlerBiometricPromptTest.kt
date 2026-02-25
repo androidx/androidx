@@ -22,6 +22,7 @@ import android.content.Context
 import android.os.Build
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
+import androidx.biometric.internal.data.CanceledFrom
 import androidx.biometric.internal.data.FakeAuthenticationStateRepository
 import androidx.biometric.internal.data.FakePromptConfigRepository
 import androidx.biometric.internal.viewmodel.AuthenticationViewModel

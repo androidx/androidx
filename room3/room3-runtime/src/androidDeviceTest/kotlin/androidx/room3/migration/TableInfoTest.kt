@@ -22,6 +22,7 @@ import androidx.sqlite.driver.AndroidSQLiteDriver
 import androidx.sqlite.execSQL
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -29,7 +30,7 @@ import org.junit.runner.RunWith
 @SmallTest
 class TableInfoTest {
     @Test
-    fun readSimple() {
+    fun readSimple() = runTest {
         openDatabase("CREATE TABLE foo (id INTEGER PRIMARY KEY AUTOINCREMENT," + "name TEXT)")
             .use { connection ->
                 val dbInfo = TableInfo.read(connection, "foo")
@@ -62,7 +63,7 @@ class TableInfoTest {
     }
 
     @Test
-    fun readSimple_toStringCheck() {
+    fun readSimple_toStringCheck() = runTest {
         openDatabase("CREATE TABLE foo (id INTEGER PRIMARY KEY AUTOINCREMENT," + "name TEXT)")
             .use { connection ->
                 val dbInfo = TableInfo.read(connection, "foo")
@@ -99,7 +100,7 @@ class TableInfoTest {
     }
 
     @Test
-    fun multiplePrimaryKeys() {
+    fun multiplePrimaryKeys() = runTest {
         openDatabase("CREATE TABLE foo (id INTEGER," + "name TEXT, PRIMARY KEY(name, id))").use {
             connection ->
             val dbInfo = TableInfo.read(connection, "foo")
@@ -132,7 +133,7 @@ class TableInfoTest {
     }
 
     @Test
-    fun alteredTable() {
+    fun alteredTable() = runTest {
         openDatabase("CREATE TABLE foo (id INTEGER," + "name TEXT, PRIMARY KEY(name))").use {
             connection ->
             connection.execSQL("ALTER TABLE foo ADD COLUMN added REAL;")
@@ -174,7 +175,7 @@ class TableInfoTest {
     }
 
     @Test
-    fun nonNull() {
+    fun nonNull() = runTest {
         openDatabase("CREATE TABLE foo (name TEXT NOT NULL)").use { connection ->
             val dbInfo = TableInfo.read(connection, "foo")
             val expectedInfo =
@@ -198,7 +199,7 @@ class TableInfoTest {
     }
 
     @Test
-    fun defaultValue() {
+    fun defaultValue() = runTest {
         openDatabase("CREATE TABLE foo (name TEXT DEFAULT blah)").use { connection ->
             val dbInfo = TableInfo.read(connection, "foo")
             val expectedInfo =
@@ -222,7 +223,7 @@ class TableInfoTest {
     }
 
     @Test
-    fun defaultValue_missing() {
+    fun defaultValue_missing() = runTest {
         openDatabase("CREATE TABLE foo (name TEXT)").use { connection ->
             val dbInfo = TableInfo.read(connection, "foo")
             val expectedInfo =
@@ -246,7 +247,7 @@ class TableInfoTest {
     }
 
     @Test
-    fun defaultValue_missing_should_print_undefined() {
+    fun defaultValue_missing_should_print_undefined() = runTest {
         openDatabase("CREATE TABLE foo (name TEXT)").use { connection ->
             val dbInfo = TableInfo.read(connection, "foo")
             val columnInfo = dbInfo.columns["name"]
@@ -268,7 +269,7 @@ class TableInfoTest {
     }
 
     @Test
-    fun defaultValue_null_should_print_null() {
+    fun defaultValue_null_should_print_null() = runTest {
         openDatabase("CREATE TABLE foo (name TEXT DEFAULT null)").use { connection ->
             val dbInfo = TableInfo.read(connection, "foo")
             val columnInfo = dbInfo.columns["name"]
@@ -290,7 +291,7 @@ class TableInfoTest {
     }
 
     @Test
-    fun defaultValue_unaccounted() {
+    fun defaultValue_unaccounted() = runTest {
         openDatabase("CREATE TABLE foo (name TEXT DEFAULT blah)").use { connection ->
             val dbInfo = TableInfo.read(connection, "foo")
             val expectedInfo =
@@ -345,7 +346,7 @@ class TableInfoTest {
     }
 
     @Test
-    fun foreignKey() {
+    fun foreignKey() = runTest {
         openDatabase(
                 "CREATE TABLE foo (name TEXT)",
                 "CREATE TABLE bar(barName TEXT, FOREIGN KEY(barName) REFERENCES foo(name))",
@@ -363,7 +364,7 @@ class TableInfoTest {
     }
 
     @Test
-    fun multipleForeignKeys() {
+    fun multipleForeignKeys() = runTest {
         openDatabase(
                 "CREATE TABLE foo (name TEXT, lastName TEXT)",
                 "CREATE TABLE foo2 (name TEXT, lastName TEXT)",
@@ -396,7 +397,7 @@ class TableInfoTest {
     }
 
     @Test
-    fun compositeForeignKey() {
+    fun compositeForeignKey() = runTest {
         openDatabase(
                 "CREATE TABLE foo (name TEXT, lastName TEXT)",
                 "CREATE TABLE bar(barName TEXT, barLastName TEXT, " +
@@ -419,7 +420,7 @@ class TableInfoTest {
     }
 
     @Test
-    fun caseInsensitiveTypeName() {
+    fun caseInsensitiveTypeName() = runTest {
         openDatabase("CREATE TABLE foo (n integer)").use { connection ->
             val dbInfo = TableInfo.read(connection, "foo")
             val expectedInfo =
@@ -443,7 +444,7 @@ class TableInfoTest {
     }
 
     @Test
-    fun readIndices() {
+    fun readIndices() = runTest {
         openDatabase(
                 "CREATE TABLE foo (n INTEGER, indexed TEXT, unique_indexed TEXT," +
                     "a INTEGER, b INTEGER);",
@@ -525,7 +526,7 @@ class TableInfoTest {
     }
 
     @Test
-    fun compatColumnTypes() {
+    fun compatColumnTypes() = runTest {
         // see:https://www.sqlite.org/datatype3.html 3.1
         val testCases =
             listOf(
@@ -575,7 +576,7 @@ class TableInfoTest {
     }
 
     @Test
-    fun testSurroundingParenthesis() {
+    fun testSurroundingParenthesis() = runTest {
         openDatabase("CREATE TABLE foo (name INTEGER NOT NULL DEFAULT ((0) + (1 + 2)))").use {
             connection ->
             val dbInfo = TableInfo.read(connection, "foo")
@@ -586,7 +587,7 @@ class TableInfoTest {
     }
 
     @Test
-    fun testDoubleSurroundingParenthesis() {
+    fun testDoubleSurroundingParenthesis() = runTest {
         openDatabase("CREATE TABLE foo (name INTEGER NOT NULL DEFAULT (((0) + (1 + 2))))").use {
             connection ->
             val dbInfo = TableInfo.read(connection, "foo")
@@ -599,7 +600,7 @@ class TableInfoTest {
     }
 
     @Test
-    fun testMultipleParenthesisWithSurrounding() {
+    fun testMultipleParenthesisWithSurrounding() = runTest {
         openDatabase(
                 "CREATE TABLE foo (name INTEGER NOT NULL DEFAULT (((3 + 5) + (2 + 1)) + (1 + 2)))"
             )
@@ -618,7 +619,7 @@ class TableInfoTest {
     }
 
     @Test
-    fun testSurroundingParenthesisWithSpacesBefore() {
+    fun testSurroundingParenthesisWithSpacesBefore() = runTest {
         openDatabase("CREATE TABLE foo (name INTEGER NOT NULL DEFAULT (    (0) + (1 + 2)))").use {
             connection ->
             val dbInfo = TableInfo.read(connection, "foo")
@@ -631,7 +632,7 @@ class TableInfoTest {
     }
 
     @Test
-    fun testSurroundingParenthesisWithSpacesAfter() {
+    fun testSurroundingParenthesisWithSpacesAfter() = runTest {
         openDatabase("CREATE TABLE foo (name INTEGER NOT NULL DEFAULT ((0) + (1 + 2)    ))").use {
             connection ->
             val dbInfo = TableInfo.read(connection, "foo")

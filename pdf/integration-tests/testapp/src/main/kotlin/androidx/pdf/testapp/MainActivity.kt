@@ -16,7 +16,6 @@
 
 package androidx.pdf.testapp
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -31,7 +30,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.pdf.featureflag.PdfFeatureFlags
 import androidx.pdf.testapp.databinding.MainActivityBinding
 import androidx.pdf.testapp.databinding.ScenarioButtonsBinding
 import androidx.pdf.testapp.ui.XmlStyledPdfFragment
@@ -42,7 +40,6 @@ import androidx.pdf.testapp.ui.v2.TabbedPdfViewerFragment
 import androidx.pdf.testapp.ui.v2.compose.PdfComposeFragment
 import com.google.android.material.button.MaterialButton
 
-@SuppressLint("RestrictedApiAndroidX")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class MainActivity : AppCompatActivity() {
 
@@ -64,8 +61,6 @@ class MainActivity : AppCompatActivity() {
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        enableFeatureFlags()
 
         val mainActivity = MainActivityBinding.inflate(layoutInflater)
         setContentView(mainActivity.root)
@@ -117,11 +112,6 @@ class MainActivity : AppCompatActivity() {
             // Set Fragment Container Visible
             fragmentContainer.visibility = View.VISIBLE
         }
-    }
-
-    /** Enables new feature for test app. */
-    private fun enableFeatureFlags() {
-        PdfFeatureFlags.isExternalHardwareInteractionEnabled = true
     }
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)

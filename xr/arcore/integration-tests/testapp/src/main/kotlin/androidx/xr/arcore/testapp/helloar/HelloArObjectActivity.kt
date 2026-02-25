@@ -52,6 +52,7 @@ import androidx.xr.compose.subspace.layout.size
 import androidx.xr.compose.unit.DpVolumeSize
 import androidx.xr.runtime.AugmentedObjectCategory
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.Session
 
 class HelloArObjectActivity : ComponentActivity() {
@@ -68,7 +69,7 @@ class HelloArObjectActivity : ComponentActivity() {
             SessionLifecycleHelper(
                 this,
                 Config(
-                    deviceTracking = Config.DeviceTrackingMode.LAST_KNOWN,
+                    deviceTracking = DeviceTrackingMode.LAST_KNOWN,
                     augmentedObjectCategories =
                         listOf(
                             AugmentedObjectCategory.KEYBOARD,

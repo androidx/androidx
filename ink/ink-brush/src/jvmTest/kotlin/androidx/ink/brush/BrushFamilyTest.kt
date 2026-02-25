@@ -27,7 +27,8 @@ import org.junit.runners.JUnit4
 class BrushFamilyTest {
     @Test
     fun constructor_withValidArguments_returnsABrushFamily() {
-        assertThat(BrushFamily(customTip, customPaint, customBrushFamilyId)).isNotNull()
+        assertThat(BrushFamily(customTip, customPaint, clientBrushFamilyId = customBrushFamilyId))
+            .isNotNull()
     }
 
     @Test
@@ -49,14 +50,24 @@ class BrushFamilyTest {
     @Test
     fun equals_comparesValues() {
         val brushFamily =
-            BrushFamily(customTip, customPaint, customBrushFamilyId, BrushFamily.SPRING_MODEL)
+            BrushFamily(
+                customTip,
+                customPaint,
+                inputModel = BrushFamily.SPRING_MODEL,
+                clientBrushFamilyId = customBrushFamilyId,
+            )
         val differentCoat = BrushCoat(BrushTip(), BrushPaint())
         val differentId = "different"
 
         // same values are equal.
         assertThat(brushFamily)
             .isEqualTo(
-                BrushFamily(customTip, customPaint, customBrushFamilyId, BrushFamily.SPRING_MODEL)
+                BrushFamily(
+                    tip = customTip,
+                    paint = customPaint,
+                    inputModel = BrushFamily.SPRING_MODEL,
+                    clientBrushFamilyId = customBrushFamilyId,
+                )
             )
 
         // different values are not equal.
@@ -75,11 +86,11 @@ class BrushFamilyTest {
     fun toString_returnsExpectedValues() {
         assertThat(BrushFamily(inputModel = BrushFamily.SPRING_MODEL).toString())
             .isEqualTo(
-                "BrushFamily(coats=[BrushCoat(tip=BrushTip(scale=(1.0, 1.0), " +
+                "BrushFamily(developerComment=, coats=[BrushCoat(tip=BrushTip(scale=(1.0, 1.0), " +
                     "cornerRounding=1.0, slantDegrees=0.0, pinch=0.0, rotationDegrees=0.0, " +
                     "particleGapDistanceScale=0.0, particleGapDurationMillis=0, behaviors=[]), " +
                     "paintPreferences=[BrushPaint(textureLayers=[], colorFunctions=[], " +
-                    "selfOverlap=SelfOverlap.ANY)])], clientBrushFamilyId=, inputModel=SpringModel)"
+                    "selfOverlap=SelfOverlap.ANY)])], inputModel=SpringModel, clientBrushFamilyId=)"
             )
     }
 
@@ -156,7 +167,8 @@ class BrushFamilyTest {
 
     @Test
     fun copy_whenSameContents_returnsSameInstance() {
-        val customFamily = BrushFamily(customTip, customPaint, customBrushFamilyId)
+        val customFamily =
+            BrushFamily(customTip, customPaint, clientBrushFamilyId = customBrushFamilyId)
 
         // A pure copy returns `this`.
         val copy = customFamily.copy()
@@ -165,24 +177,28 @@ class BrushFamilyTest {
 
     @Test
     fun copy_withArguments_createsCopyWithChanges() {
-        val brushFamily = BrushFamily(customTip, customPaint, customBrushFamilyId)
+        val brushFamily =
+            BrushFamily(customTip, customPaint, clientBrushFamilyId = customBrushFamilyId)
         val differentCoats = listOf(BrushCoat(BrushTip(), BrushPaint()))
         val differentId = "different"
 
         assertThat(brushFamily.copy(coats = differentCoats))
-            .isEqualTo(BrushFamily(differentCoats, customBrushFamilyId))
+            .isEqualTo(BrushFamily(differentCoats, clientBrushFamilyId = customBrushFamilyId))
         assertThat(brushFamily.copy(clientBrushFamilyId = differentId))
-            .isEqualTo(BrushFamily(customTip, customPaint, differentId))
+            .isEqualTo(BrushFamily(customTip, customPaint, clientBrushFamilyId = differentId))
     }
 
     @Test
     fun builder_createsExpectedBrushFamily() {
         val family =
             BrushFamily.Builder()
-                .setCoat(customTip, customPaint)
+                .setCoats(listOf(BrushCoat(customTip, customPaint)))
                 .setClientBrushFamilyId(customBrushFamilyId)
                 .build()
-        assertThat(family).isEqualTo(BrushFamily(customTip, customPaint, customBrushFamilyId))
+        assertThat(family)
+            .isEqualTo(
+                BrushFamily(customTip, customPaint, clientBrushFamilyId = customBrushFamilyId)
+            )
     }
 
     /**
@@ -276,5 +292,5 @@ class BrushFamilyTest {
 
     /** Brush Family with every field different from default values. */
     private fun newCustomBrushFamily(): BrushFamily =
-        BrushFamily(customTip, customPaint, customBrushFamilyId)
+        BrushFamily(customTip, customPaint, clientBrushFamilyId = customBrushFamilyId)
 }

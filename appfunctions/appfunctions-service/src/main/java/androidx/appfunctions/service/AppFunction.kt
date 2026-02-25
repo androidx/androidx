@@ -140,7 +140,7 @@ public annotation class AppFunction(
      * * @return The created note.
      * * @throws IllegalArgumentException if the `title` or `content` is empty or too long.
      * */
-     * @AppFunction(isDescribedByKdoc = true)
+     * @AppFunction(isDescribedByKDoc = true)
      * fun CreateNote(title: String, content: String): Note { .. }
      * ```
      *
@@ -152,5 +152,5 @@ public annotation class AppFunction(
      *   the note."
      * - `AppFunctionResponseMetadata.description` will be: "The created note."
      */
-    public val isDescribedByKdoc: Boolean = false,
+    public val isDescribedByKDoc: Boolean = false,
 )

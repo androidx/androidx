@@ -98,8 +98,6 @@ public interface Frame : FrameReference, AutoCloseable {
      * If an image is not available, [imageStatus] can be used to understand the reason this image
      * was not produced by the camera. Each call produces a unique [OutputImage] that *must* be
      * closed to avoid memory leaks.
-     *
-     * TODO: b/474658963 - Deprecate this API once the new await/get image APIs are implemented.
      */
     public suspend fun awaitImage(streamId: StreamId): OutputImage? = null
 
@@ -110,8 +108,6 @@ public interface Frame : FrameReference, AutoCloseable {
      * If an image is not available, [imageStatus] can be used to understand the reason this image
      * was not produced by the camera. Each call produces a unique [OutputImage] that *must* be
      * closed to avoid memory leaks.
-     *
-     * TODO: b/474658963 - Deprecate this API once the new await/get image APIs are implemented.
      */
     public fun getImage(streamId: StreamId): OutputImage? = null
 
@@ -212,6 +208,9 @@ public interface Frame : FrameReference, AutoCloseable {
 
         public fun FrameReference.isImageAvailable(streamId: StreamId): Boolean =
             this.imageStatus(streamId) == OutputStatus.AVAILABLE
+
+        public fun FrameReference.isImageAvailable(outputId: OutputId): Boolean =
+            this.imageStatus(outputId) == OutputStatus.AVAILABLE
 
         /** Utility for safely using and closing each [Frame] in a list. */
         public inline fun List<Frame>.useEach(action: (Frame) -> Unit) {
@@ -461,11 +460,7 @@ public interface FrameReference {
     /** Get the current [OutputStatus] for the FrameInfo of this Frame. */
     public val frameInfoStatus: OutputStatus
 
-    /**
-     * Get the current [OutputStatus] of the output for a given [streamId].
-     *
-     * TODO: b/474658963 - Deprecate this API once the new await/get image APIs are implemented.
-     */
+    /** Get the current [OutputStatus] of the output for a given [streamId]. */
     public fun imageStatus(streamId: StreamId): OutputStatus
 
     /** Get the current [OutputStatus] of the output for a given [outputId]. */

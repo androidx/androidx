@@ -26,10 +26,10 @@ import androidx.compose.runtime.MovableContentStateReference
 import androidx.compose.runtime.OffsetApplier
 import androidx.compose.runtime.RecomposeScopeImpl
 import androidx.compose.runtime.RecomposeScopeOwner
-import androidx.compose.runtime.RememberManager
 import androidx.compose.runtime.RememberObserverHolder
 import androidx.compose.runtime.TestOnly
 import androidx.compose.runtime.composeRuntimeError
+import androidx.compose.runtime.composer.RememberManager
 import androidx.compose.runtime.composer.gapbuffer.GapAnchor
 import androidx.compose.runtime.composer.gapbuffer.SlotTable
 import androidx.compose.runtime.composer.gapbuffer.SlotWriter

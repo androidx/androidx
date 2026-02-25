@@ -19,6 +19,8 @@ import androidx.annotation.RestrictTo
 import androidx.room3.util.getTotalChangedRows
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteStatement
+import androidx.sqlite.prepare
+import androidx.sqlite.step
 
 /**
  * Implementations of this class know how to delete or update a particular entity.
@@ -52,7 +54,7 @@ public abstract class EntityDeleteOrUpdateAdapter<T> {
      * @param entity The entity to delete or update
      * @return The number of affected rows
      */
-    public fun handle(connection: SQLiteConnection, entity: T?): Int {
+    public suspend fun handle(connection: SQLiteConnection, entity: T?): Int {
         if (entity == null) return 0
         connection.prepare(createQuery()).use { stmt ->
             bind(stmt, entity)
@@ -67,7 +69,7 @@ public abstract class EntityDeleteOrUpdateAdapter<T> {
      * @param entities Entities to delete or update
      * @return The number of affected rows
      */
-    public fun handleMultiple(connection: SQLiteConnection, entities: Iterable<T?>?): Int {
+    public suspend fun handleMultiple(connection: SQLiteConnection, entities: Iterable<T?>?): Int {
         if (entities == null) return 0
         var total = 0
         connection.prepare(createQuery()).use { stmt ->
@@ -88,7 +90,7 @@ public abstract class EntityDeleteOrUpdateAdapter<T> {
      * @param entities Entities to delete or update
      * @return The number of affected rows
      */
-    public fun handleMultiple(connection: SQLiteConnection, entities: Array<out T?>?): Int {
+    public suspend fun handleMultiple(connection: SQLiteConnection, entities: Array<out T?>?): Int {
         if (entities == null) return 0
         var total = 0
         connection.prepare(createQuery()).use { stmt ->

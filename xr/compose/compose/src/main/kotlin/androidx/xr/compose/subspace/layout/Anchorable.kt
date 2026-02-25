@@ -27,39 +27,32 @@ import androidx.xr.compose.subspace.node.SubspaceLayoutAwareModifierNode
 import androidx.xr.compose.subspace.node.SubspaceLayoutModifierNode
 import androidx.xr.compose.subspace.node.SubspaceModifierNodeElement
 import androidx.xr.compose.subspace.node.currentValueOf
-import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.compose.unit.toDimensionsInMeters
-import androidx.xr.compose.unit.toIntVolumeSize
-import androidx.xr.runtime.Config
+import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_COARSE
 import androidx.xr.runtime.math.Pose
-import androidx.xr.runtime.math.Ray
 import androidx.xr.scenecore.AnchorPlacement
-import androidx.xr.scenecore.Entity
-import androidx.xr.scenecore.EntityMoveListener
 import androidx.xr.scenecore.MovableComponent
-import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.PlaneOrientation as SceneCorePlaneOrientation
 import androidx.xr.scenecore.PlaneSemanticType as SceneCorePlaneSemantic
-import java.util.concurrent.Executor
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.asExecutor
 
 /**
- * When the movable modifier is present and enabled, draggable UI controls will be shown that allow
- * the user to move the element in 3D space. This feature is only available for
- * [SpatialPanels][androidx.xr.compose.subspace.SpatialPanel] at the moment. This overload of the
- * modifier allows the element to be anchored to a plane in the real world.
+ * When the anchorable modifier is present and enabled, draggable UI controls will be shown that
+ * allow the user to move the element in 3D space. This feature is only available for
+ * [SpatialPanels][androidx.xr.compose.subspace.SpatialPanel] at the moment. This modifier allows
+ * the element to be anchored to a plane in the real world.
  *
  * This modifier requires requires [androidx.xr.runtime.Session.configure] to be called with
- * [androidx.xr.runtime.Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL]. This configuration
- * requires that the `SCENE_UNDERSTANDING_COARSE` Android permission is granted. If not granted, the
- * `anchorable` functionality will be disabled, and the element will behave as if the anchorable
- * modifier was not applied.
+ * [androidx.xr.runtime.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL]. This configuration requires that
+ * the `SCENE_UNDERSTANDING_COARSE` Android permission is granted. If not granted, the `anchorable`
+ * functionality will be disabled, and the element will behave as if the anchorable modifier was not
+ * applied.
  *
- * @param enabled true if this composable should be movable.
+ * @param enabled true if this composable should be anchorable.
+ * @param stickyPose if enabled, the user specified position will be retained when the modifier is
+ *   disabled or removed.
  * @param anchorPlaneOrientations when supplied, this movable entity can be anchored to Horizontal
  *   or Vertical planes or both (ANY). Can be used without anchorPlaneSemantics being supplied.
  * @param anchorPlaneSemantics when supplied, this movable entity can be anchored to planes which
@@ -68,19 +61,14 @@ import kotlinx.coroutines.asExecutor
  */
 internal fun SubspaceModifier.anchorable(
     enabled: Boolean = true,
-    onMoveStart: ((SpatialMoveStartEvent) -> Unit)? = null,
-    onMoveEnd: ((SpatialMoveEndEvent) -> Unit)? = null,
-    onMove: ((SpatialMoveEvent) -> Boolean)? = null,
+    stickyPose: Boolean = true,
     @Suppress("PrimitiveInCollection") anchorPlaneOrientations: Set<PlaneOrientation> = emptySet(),
     @Suppress("PrimitiveInCollection") anchorPlaneSemantics: Set<PlaneSemantic> = emptySet(),
 ): SubspaceModifier =
     this.then(
         AnchorableElement(
             enabled,
-            onMoveStart = onMoveStart,
-            onMoveEnd = onMoveEnd,
-            onMove = onMove,
-            stickyPose = true,
+            stickyPose = stickyPose,
             scaleWithDistance = true,
             anchorPlaneOrientations,
             anchorPlaneSemantics,
@@ -89,9 +77,6 @@ internal fun SubspaceModifier.anchorable(
 
 private class AnchorableElement(
     private val enabled: Boolean,
-    private val onMoveStart: ((SpatialMoveStartEvent) -> Unit)?,
-    private val onMoveEnd: ((SpatialMoveEndEvent) -> Unit)?,
-    private val onMove: ((SpatialMoveEvent) -> Boolean)?,
     private val stickyPose: Boolean,
     private val scaleWithDistance: Boolean,
     @Suppress("PrimitiveInCollection")
@@ -103,9 +88,6 @@ private class AnchorableElement(
         AnchorableNode(
             enabled = enabled,
             stickyPose = stickyPose,
-            onMoveStart = onMoveStart,
-            onMoveEnd = onMoveEnd,
-            onMove = onMove,
             scaleWithDistance = scaleWithDistance,
             anchorPlaneOrientations = anchorPlaneOrientations,
             anchorPlaneSemantics = anchorPlaneSemantics,
@@ -113,9 +95,6 @@ private class AnchorableElement(
 
     override fun update(node: AnchorableNode) {
         node.enabled = enabled
-        node.onMoveStart = onMoveStart
-        node.onMoveEnd = onMoveEnd
-        node.onMove = onMove
         node.stickyPose = stickyPose
         node.scaleWithDistance = scaleWithDistance
         node.anchorPlaneOrientations = anchorPlaneOrientations
@@ -126,9 +105,6 @@ private class AnchorableElement(
         if (this === other) return true
         if (other !is AnchorableElement) return false
         if (enabled != other.enabled) return false
-        if (onMoveStart !== other.onMoveStart) return false
-        if (onMoveEnd !== other.onMoveEnd) return false
-        if (onMove !== other.onMove) return false
         if (stickyPose != other.stickyPose) return false
         if (scaleWithDistance != other.scaleWithDistance) return false
         if (anchorPlaneOrientations != other.anchorPlaneOrientations) return false
@@ -138,9 +114,6 @@ private class AnchorableElement(
 
     override fun hashCode(): Int {
         var result = enabled.hashCode()
-        result = 31 * result + onMoveStart.hashCode()
-        result = 31 * result + onMoveEnd.hashCode()
-        result = 31 * result + onMove.hashCode()
         result = 31 * result + stickyPose.hashCode()
         result = 31 * result + scaleWithDistance.hashCode()
         result = 31 * result + anchorPlaneOrientations.hashCode()
@@ -153,9 +126,6 @@ internal class AnchorableNode(
     var enabled: Boolean,
     var stickyPose: Boolean,
     var scaleWithDistance: Boolean,
-    var onMoveStart: ((SpatialMoveStartEvent) -> Unit)?,
-    var onMoveEnd: ((SpatialMoveEndEvent) -> Unit)?,
-    var onMove: ((SpatialMoveEvent) -> Boolean)?,
     @Suppress("PrimitiveInCollection")
     var anchorPlaneOrientations: Set<PlaneOrientation> = emptySet(),
     @Suppress("PrimitiveInCollection") var anchorPlaneSemantics: Set<PlaneSemantic> = emptySet(),
@@ -164,7 +134,6 @@ internal class AnchorableNode(
     CompositionLocalConsumerSubspaceModifierNode,
     CoreEntityNode,
     SubspaceLayoutAwareModifierNode,
-    EntityMoveListener,
     SubspaceLayoutModifierNode {
     private inline val density: Density
         get() = currentValueOf(LocalDensity)
@@ -172,8 +141,6 @@ internal class AnchorableNode(
     private inline val session: Session
         get() = checkNotNull(currentValueOf(LocalSession)) { "Movable requires a Session." }
 
-    /** Pose based on user adjustments from MoveEvents from SceneCore. */
-    private var userPose: Pose = Pose.Identity
     /** The scale of this entity when it is moved. */
     private var scaleFromMovement: Float = 1.0F
     private var component: MovableComponent? = null
@@ -197,7 +164,10 @@ internal class AnchorableNode(
         updateAnchorableState()
         val placeable = measurable.measure(constraints)
         return layout(placeable.measuredWidth, placeable.measuredHeight, placeable.measuredDepth) {
-            placeable.place(userPose)
+            // Place at the position calculated by SceneCore
+            placeable.place(
+                coreEntity.poseInMeters.convertMetersToPixels(currentValueOf(LocalDensity))
+            )
         }
     }
 
@@ -223,32 +193,22 @@ internal class AnchorableNode(
     private fun enableAnchorableComponent() {
         check(component == null) { "MovableComponent already enabled." }
 
-        if (session.config.planeTracking == Config.PlaneTrackingMode.DISABLED) {
+        if (session.config.planeTracking == PlaneTrackingMode.DISABLED) {
             return
         }
 
         val anchorPlacement = convertToAnchorPlacement()
 
-        if (!anchorPlacement.isEmpty()) {
-            if (
-                ContextCompat.checkSelfPermission(
-                    currentValueOf(LocalContext),
-                    SCENE_UNDERSTANDING_COARSE,
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                return
-            }
+        if (
+            ContextCompat.checkSelfPermission(
+                currentValueOf(LocalContext),
+                SCENE_UNDERSTANDING_COARSE,
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
         }
 
-        // The developer could have used the movable overload which allows them to supply their own
-        // onMove logic, or they could have used the overload which provides the anchoring ability
-        // (where the movement is managed by the system).
-        if (anchorPlacement.isEmpty()) {
-            return
-        } else {
-            component = MovableComponent.createAnchorable(session, anchorPlacement)
-            component?.addMoveListener(this)
-        }
+        component = MovableComponent.createAnchorable(session, anchorPlacement)
         coreEntity.onEntityAttached {
             check(component?.let { coreEntity.addComponent(it) } == true) {
                 "Could not add MovableComponent to Core Entity."
@@ -262,11 +222,11 @@ internal class AnchorableNode(
      */
     private fun disableAnchorableComponent() {
         check(component != null) { "MovableComponent already disabled." }
-        component?.removeMoveListener(this)
         component?.let { coreEntity.removeComponent(it) }
         component = null
         if (!stickyPose) {
-            userPose = Pose.Identity
+            coreEntity.poseInMeters = Pose.Identity
+            invalidatePlacement()
         }
     }
 
@@ -290,67 +250,6 @@ internal class AnchorableNode(
         if (planeSemanticFilter.isEmpty()) planeSemanticFilter.add(SceneCorePlaneSemantic.ANY)
 
         return mutableSetOf(AnchorPlacement.createForPlanes(planeTypeFilter, planeSemanticFilter))
-    }
-
-    override fun onMoveStart(
-        entity: Entity,
-        initialInputRay: Ray,
-        initialPose: Pose,
-        initialScale: Float,
-        initialParent: Entity,
-    ) {
-        val initialSize: IntVolumeSize =
-            when (entity) {
-                is PanelEntity -> entity.size.to3d().toIntVolumeSize(density)
-                else -> IntVolumeSize.Zero
-            }
-        val event =
-            SpatialMoveStartEvent(
-                initialPose.convertMetersToPixels(density),
-                initialScale,
-                initialSize,
-            )
-        onMoveStart?.invoke(event)
-    }
-
-    override fun onMoveUpdate(
-        entity: Entity,
-        currentInputRay: Ray,
-        currentPose: Pose,
-        currentScale: Float,
-    ) {
-
-        userPose = currentPose.convertMetersToPixels(density)
-        val initialSize: IntVolumeSize =
-            when (entity) {
-                is PanelEntity -> entity.size.to3d().toIntVolumeSize(density)
-                else -> IntVolumeSize.Zero
-            }
-        val event =
-            SpatialMoveEvent(currentPose.convertMetersToPixels(density), currentScale, initialSize)
-        onMove?.invoke(event)
-    }
-
-    override fun onMoveEnd(
-        entity: Entity,
-        finalInputRay: Ray,
-        finalPose: Pose,
-        finalScale: Float,
-        updatedParent: Entity?,
-    ) {
-        userPose = finalPose.convertMetersToPixels(density)
-        val finalSize: IntVolumeSize =
-            when (entity) {
-                is PanelEntity -> entity.size.to3d().toIntVolumeSize(density)
-                else -> IntVolumeSize.Zero
-            }
-        val event =
-            SpatialMoveEndEvent(finalPose.convertMetersToPixels(density), finalScale, finalSize)
-        onMoveEnd?.invoke(event)
-    }
-
-    companion object {
-        private val MainExecutor: Executor = Dispatchers.Main.asExecutor()
     }
 }
 

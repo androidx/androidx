@@ -153,4 +153,4 @@ fun clock(
     }
 }
 
-@Preview @Composable fun BasicClockPreview() = RemoteDocPreview(basicClock())
+@Preview @Composable private fun BasicClockPreview() = RemoteDocPreview(basicClock())

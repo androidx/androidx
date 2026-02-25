@@ -75,6 +75,8 @@ public interface SubspaceModifier {
 
         internal var parent: Node? = null
         internal var child: Node? = null
+        internal var kindSet: Int = 0
+        internal var aggregateChildKindSet: Int = 0.inv()
         internal var layoutNode: SubspaceLayoutNode? = null
         internal val coordinator: SubspaceLayoutModifierNodeCoordinator? =
             if (this is SubspaceLayoutModifierNode) {

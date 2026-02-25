@@ -39,6 +39,8 @@ abstract class DaoReturnTypeConverter(val to: XType) {
 
     // A value of `-1` indicates that the row adapter does not have a type argument.
     abstract val rowAdapterTypeArgPosition: Int
+    abstract val hasNullableLambdaReturnType: Boolean
+    abstract val requiredFunctionParamTypes: List<XType>
 
     /**
      * Returns a [XCodeBlock] that will compute the converted [to] value.

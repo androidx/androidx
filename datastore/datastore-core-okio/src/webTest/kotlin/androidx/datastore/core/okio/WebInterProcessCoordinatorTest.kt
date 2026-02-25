@@ -16,7 +16,6 @@
 
 package androidx.datastore.core.okio
 
-import androidx.datastore.core.Closeable
 import androidx.kruth.assertThat
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -72,7 +71,6 @@ class WebInterProcessCoordinatorTest {
 
             listenerJob.cancel()
         } finally {
-            (coordinator as Closeable).close()
             sessionStorage.removeItem(versionKey)
         }
     }
@@ -118,7 +116,6 @@ class WebInterProcessCoordinatorTest {
 
             listenerJob.cancel()
         } finally {
-            (coordinator as Closeable).close()
             // Clean up for next test
             localStorage.removeItem(versionKey)
         }
@@ -176,8 +173,6 @@ class WebInterProcessCoordinatorTest {
 
             listenerJob.cancel()
         } finally {
-            (tabWithUpdate as Closeable).close()
-            (tabReceivingUpdate as Closeable).close()
             localStorage.removeItem(versionKey)
         }
     }

@@ -27,7 +27,6 @@ import android.view.MotionEvent
 import android.view.ViewGroup
 import androidx.pdf.PdfPoint
 import androidx.pdf.content.PdfPageTextContent
-import androidx.pdf.featureflag.PdfFeatureFlags
 import androidx.pdf.selection.model.TextSelection
 import androidx.pdf.util.ZoomUtils
 import androidx.test.core.app.ActivityScenario
@@ -74,13 +73,11 @@ class PdfViewExternalInputTest {
                 )
             }
         }
-        PdfFeatureFlags.isExternalHardwareInteractionEnabled = true
     }
 
     @After
     fun tearDown() {
         PdfViewTestActivity.onCreateCallback = {}
-        PdfFeatureFlags.isExternalHardwareInteractionEnabled = false
     }
 
     @Test

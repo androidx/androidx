@@ -140,7 +140,7 @@ class PanelEmbeddedSubspace : ComponentActivity() {
                                     var count by remember { mutableIntStateOf(0) }
                                     SpatialRow(
                                         modifier = SubspaceModifier.fillMaxSize(),
-                                        alignment = SpatialAlignment.Center,
+                                        verticalAlignment = SpatialAlignment.CenterVertically,
                                     ) {
                                         SpatialPanel(
                                             SubspaceModifier.fillMaxSize(0.5f).offset(z = 150.dp)

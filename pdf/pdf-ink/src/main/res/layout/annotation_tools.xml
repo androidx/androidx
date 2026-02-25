@@ -59,6 +59,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:focusable="false"
+        android:clipToOutline="true"
         android:background="@drawable/annotation_tool_container_background">
 
         <androidx.pdf.ink.view.tool.AnnotationToolView
@@ -68,6 +69,7 @@
             android:layout_marginEnd="@dimen/margin_4dp"
             android:contentDescription="@string/annotation_undo_button_content_desc"
             app:backgroundTint="@android:color/transparent"
+            app:rippleColor="?attr/colorPrimaryContainer"
             app:elevation="0dp"
             app:iconTint="?attr/colorOnSurfaceVariant"
             app:icon="@drawable/undo_drawable"/>
@@ -78,6 +80,7 @@
             android:layout_height="@dimen/annotation_tool_height"
             android:contentDescription="@string/annotation_redo_button_content_desc"
             app:backgroundTint="@android:color/transparent"
+            app:rippleColor="?attr/colorPrimaryContainer"
             app:elevation="0dp"
             app:iconTint="?attr/colorOnSurfaceVariant"
             app:icon="@drawable/redo_drawable"/>

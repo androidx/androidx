@@ -495,49 +495,64 @@ internal class CaptureSessionState(
             captureSession = cameraCaptureSession
             pendingOutputs = pendingOutputMap
             pendingSurfaces = pendingSurfaceMap
-        }
 
-        if (captureSession != null && pendingOutputs != null && pendingSurfaces != null) {
-            Debug.traceStart { "$this#finalizeOutputConfigurations" }
-            val finalizedStartTime = Timestamps.now(timeSource)
-            for ((streamId, outputConfig) in pendingOutputs) {
-                // TODO: Consider adding support for experimental libraries on older devices.
-
-                val surface = checkNotNull(pendingSurfaces[streamId])
-                outputConfig.addSurface(surface)
+            // Cannot finalize the output configuration just yet. Return.
+            if (captureSession == null || pendingOutputs == null || pendingSurfaces == null) {
+                return
             }
 
-            // It's possible that more than one stream maps to the same output configuration since
-            // output configurations support multiple surfaces. If this happens, we may have more
-            // deferred outputs than outputConfiguration objects.
-            val distinctOutputs = pendingOutputs.mapTo(mutableSetOf()) { it.value }.toList()
-            captureSession.session.finalizeOutputConfigurations(distinctOutputs)
+            // The capture session is configured and pending outputs and surfaces are available.
+            // Clear out the pending variables so that they are not used again
+            // (finalizeOutputsIfAvailable may be invoked in parallel).
+            pendingOutputMap = null
+            pendingSurfaceMap = null
+        }
 
-            var tryResubmit = false
-            synchronized(lock) {
-                if (state == State.CREATED) {
-                    activeStreamSurfaceMap.putAll(pendingSurfaces)
-                    for ((streamId, surface) in pendingSurfaces) {
-                        val cameraStream = checkNotNull(streamGraph[streamId])
-                        check(cameraStream.outputs.size == 1) {
-                            "Cannot finalize a multi-output stream!"
-                        }
-                        activeOutputSurfaceMap[cameraStream.outputs.single().id] = surface
+        // If any of these were null, we would've returned early. These checks are made to make
+        // the Kotlin compiler happy.
+        checkNotNull(captureSession)
+        checkNotNull(pendingOutputs)
+        checkNotNull(pendingSurfaces)
+
+        Debug.traceStart { "$this#finalizeOutputConfigurations" }
+        val finalizedStartTime = Timestamps.now(timeSource)
+        for ((streamId, outputConfig) in pendingOutputs) {
+            // TODO: Consider adding support for experimental libraries on older devices.
+
+            val surface = checkNotNull(pendingSurfaces[streamId])
+            outputConfig.addSurface(surface)
+        }
+
+        // It's possible that more than one stream maps to the same output configuration since
+        // output configurations support multiple surfaces. If this happens, we may have more
+        // deferred outputs than outputConfiguration objects.
+        val distinctOutputs = pendingOutputs.mapTo(mutableSetOf()) { it.value }.toList()
+        captureSession.session.finalizeOutputConfigurations(distinctOutputs)
+
+        var tryResubmit = false
+        synchronized(lock) {
+            if (state == State.CREATED) {
+                activeStreamSurfaceMap.putAll(pendingSurfaces)
+                for ((streamId, surface) in pendingSurfaces) {
+                    val cameraStream = checkNotNull(streamGraph[streamId])
+                    check(cameraStream.outputs.size == 1) {
+                        "Cannot finalize a multi-output stream!"
                     }
-                    Log.info {
-                        val finalizationTime = Timestamps.now(timeSource) - finalizedStartTime
-                        "Finalized ${pendingOutputs.map { it.key }} for $this in " +
-                            finalizationTime.formatMs()
-                    }
-                    tryResubmit = true
+                    activeOutputSurfaceMap[cameraStream.outputs.single().id] = surface
                 }
+                Log.info {
+                    val finalizationTime = Timestamps.now(timeSource) - finalizedStartTime
+                    "Finalized ${pendingOutputs.map { it.key }} for $this in " +
+                        finalizationTime.formatMs()
+                }
+                tryResubmit = true
             }
-
-            if (tryResubmit && retryAllowed) {
-                graphListener.onGraphModified(captureSession.processor)
-            }
-            Debug.traceStop()
         }
+
+        if (tryResubmit && retryAllowed) {
+            graphListener.onGraphModified(captureSession.processor)
+        }
+        Debug.traceStop()
     }
 
     private suspend fun tryCreateCaptureSession() {

@@ -52,6 +52,13 @@ internal interface ImeEditCommandScope {
     fun mapToTransformed(range: TextRange): TextRange
 
     /**
+     * The length of the text in the transformed space. Please note that this value is calculated in
+     * the current TextFieldState. This means that the ongoing edits are not visible to this value
+     * yet.
+     */
+    val transformedLength: Int
+
+    /**
      * Start a batch edit. All [edit] calls coming after [beginBatchEdit] are only executed after
      * corresponding [endBatchEdit] call comes. Returns true if a successful new batch is started.
      */
@@ -98,6 +105,9 @@ internal class DefaultImeEditCommandScope(
      */
     override fun mapToTransformed(range: TextRange) =
         transformedTextFieldState.mapToTransformed(range)
+
+    override val transformedLength: Int
+        get() = transformedTextFieldState.visualText.length
 
     private val editCommands = mutableVectorOf<TextFieldBuffer.() -> Unit>()
 
@@ -278,9 +288,9 @@ internal fun ImeEditCommandScope.deleteSurroundingText(
 
         // calculate the end with safe addition since lengthAfterCursor can be set to e.g. Int.MAX
         // by the input
-        val end = transformedSelection.end.addExactOrElse(lengthAfterCursor) { length }
+        val end = transformedSelection.end.addExactOrElse(lengthAfterCursor) { transformedLength }
         val untransformedDeleteRangeAfter =
-            mapFromTransformed(TextRange(transformedSelection.end, minOf(end, length)))
+            mapFromTransformed(TextRange(transformedSelection.end, minOf(end, transformedLength)))
         imeDelete(untransformedDeleteRangeAfter.min, untransformedDeleteRangeAfter.max)
 
         // calculate the start with safe subtraction since lengthBeforeCursor can be set to e.g.

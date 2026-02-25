@@ -20,7 +20,8 @@ import androidx.annotation.RestrictTo
 import androidx.ink.brush.color.Color as ComposeColor
 import androidx.ink.brush.color.colorspace.ColorSpace as ComposeColorSpace
 import androidx.ink.brush.color.colorspace.ColorSpaces as ComposeColorSpaces
-import androidx.ink.brush.color.colorspace.Rgb as ComposeRgbColorSpace
+import androidx.ink.nativeloader.NativeLoader
+import androidx.ink.nativeloader.UsedByNative
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun ComposeColor.toColorInInkSupportedColorSpace(): ComposeColor {
@@ -38,7 +39,7 @@ internal fun ComposeColorSpace.toInkColorSpaceId() =
         else -> throw IllegalArgumentException("Unsupported Compose color space")
     }
 
-internal fun composeColorSpaceFromInkColorSpaceId(id: Int): ComposeRgbColorSpace =
+internal fun composeColorSpaceFromInkColorSpaceId(id: Int) =
     when (id) {
         0 -> ComposeColorSpaces.Srgb
         1 -> ComposeColorSpaces.DisplayP3
@@ -47,3 +48,33 @@ internal fun composeColorSpaceFromInkColorSpaceId(id: Int): ComposeRgbColorSpace
 
 internal fun ComposeColorSpace.isSupportedInInk() =
     (this == ComposeColorSpaces.Srgb || this == ComposeColorSpaces.DisplayP3)
+
+@UsedByNative
+internal object ColorNative {
+    init {
+        NativeLoader.load()
+    }
+
+    /**
+     * This is a callback used by BrushNative.computeComposeColorLong and
+     * ColorFunctionNative.computeReplaceColorLong.
+     */
+    @UsedByNative
+    @JvmStatic
+    fun composeColorLongFromComponents(
+        colorSpaceId: Int,
+        redGammaCorrected: Float,
+        greenGammaCorrected: Float,
+        blueGammaCorrected: Float,
+        alpha: Float,
+    ): Long =
+        ComposeColor(
+                redGammaCorrected,
+                greenGammaCorrected,
+                blueGammaCorrected,
+                alpha,
+                colorSpace = composeColorSpaceFromInkColorSpaceId(colorSpaceId),
+            )
+            .value
+            .toLong()
+}

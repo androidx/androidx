@@ -19,6 +19,7 @@ package androidx.webkit.internal;
 import androidx.webkit.Navigation;
 import androidx.webkit.Page;
 import androidx.webkit.WebNavigationClient;
+import androidx.webkit.WebResourceErrorCompat;
 
 import org.chromium.support_lib_boundary.WebViewNavigationBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
@@ -120,5 +121,16 @@ public class NavigationImpl implements Navigation {
     @Override
     public int getStatusCode() {
         return mImpl.getStatusCode();
+    }
+
+    @Override
+    public @Nullable WebResourceErrorCompat getWebResourceError() {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.NAVIGATION_GET_WEB_RESOURCE_ERROR;
+        if (feature.isSupportedByWebView()) {
+            if (mImpl.getWebResourceError() == null) return null;
+            return new WebResourceErrorImpl(mImpl.getWebResourceError());
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
     }
 }

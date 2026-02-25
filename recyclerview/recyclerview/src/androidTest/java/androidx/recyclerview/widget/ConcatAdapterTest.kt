@@ -830,10 +830,11 @@ class ConcatAdapterTest {
         assertThat(concatenated).hasItemCount(43)
         adapter3.changeDataSet(newSize = 0)
         observer.assertEventsAndClear(
-            """when an adapter changes size to 0, it should still come as 0 as we cannot
-                |rely on itemCount changing immediately. In theory we would but adapter might be
-                |faulty and not update its size immediately, which would work fine in RV because
-                |everything is delayed but not here if we immediately read the item count
+            """
+            |when an adapter changes size to 0, it should still come as 0 as we cannot
+            |rely on itemCount changing immediately. In theory we would but adapter might be
+            |faulty and not update its size immediately, which would work fine in RV because
+            |everything is delayed but not here if we immediately read the item count
             """
                 .trimMargin(),
             DataSetChanged,
@@ -1026,9 +1027,9 @@ class ConcatAdapterTest {
             ConcatAdapter::class.java.declaredMethods.map { it.describe() }
         assertWithMessage(
                 """
-            ConcatAdapter should override all methods in RecyclerView.Adapter for future 
-            compatibility. If you want to exclude a method, update the test.
-            """
+                ConcatAdapter should override all methods in RecyclerView.Adapter for future 
+                compatibility. If you want to exclude a method, update the test.
+                """
                     .trimIndent()
             )
             .that(concatenatedAdapterMethods)

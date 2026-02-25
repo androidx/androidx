@@ -2,13 +2,14 @@
 # -----------------------------------------------------------------------------
 # All of the following should be updated in sync.
 # -----------------------------------------------------------------------------
-androidGradlePlugin = "9.1.0-alpha02"
+androidGradlePlugin = "9.1.0-alpha06"
 # NOTE: When updating the lint version we also need to update the `api` version
 # supported by `IssueRegistry`'s.' For e.g. r.android.com/1331903
-androidLint = "32.1.0-alpha02"
+androidLint = "32.1.0-alpha06"
 # Once you have a chosen version of AGP to upgrade to, go to
 # https://developer.android.com/studio/archive and find the matching version of Studio.
-androidStudio = "2025.3.1.2"
+androidStudioIj = "2025.3.2.1"
+androidStudioName = "panda2-canary1"
 # -----------------------------------------------------------------------------
 
 androidLintMin = "31.1.1"
@@ -32,8 +33,8 @@ builder = "8.6.0-alpha05"
 byteBuddy = "1.14.9"
 asm = "9.7"
 cmake = "3.22.1"
-composeCompilerPlugin = "2.2.20"
-dagger = "2.57.1"
+composeCompilerPlugin = "2.3.10"
+dagger = "2.59"
 dependencyAnalysisGradlePlugin = "2.11.0"
 dexmaker = "2.28.6"
 espresso = "3.7.0"
@@ -41,18 +42,18 @@ espressoDevice = "1.1.0"
 grpc = "1.52.0"
 guavaJre = "33.2.1-jre"
 hamcrestCore = "1.3"
-hilt = "2.57.1"
+hilt = "2.59"
 incap = "0.2"
 javaxInject = "1"
 jcodec = "0.2.5"
 kotlin18 = "1.8.22"
 kotlin19 = "1.9.24"
 # Use the most up-to-date patch
-kotlin20 = "2.0.21"
 kotlin21 = "2.1.20"
 kotlin22 = "2.2.20"
-kotlin = "2.2.20"
-kotlinBenchmark = "0.4.14"
+kotlin23 = "2.3.10"
+kotlin = "2.3.10"
+kotlinBenchmark = "0.4.15"
 kotlinGradlePluginAnnotations = "1.9.24"
 kotlinGradlePluginApi = "1.9.24"
 kotlinCompileTesting = "1.4.9"
@@ -61,10 +62,10 @@ kotlinNativeUtils = "1.9.24"
 kotlinSerialization = "1.7.3"
 kotlinToolingCore = "1.9.24"
 ksp = "2.3.4"
-ktfmt = "0.54"
+ktfmt = "0.61"
 # Version format is: 1.KOTLIN_MAJOR_VERSION.0.KTFMT_VERSION
 # When updated, the id and checksum in StudioTask needs to be updated too
-ktfmtIdeaPlugin = "1.2.0.54"
+ktfmtIdeaPlugin = "1.3.0.61"
 leakcanary = "2.13"
 media3 = "1.4.1"
 metalava = "1.0.0-alpha14"
@@ -80,7 +81,7 @@ wire = "5.4.0"
 core = "1.12.0"
 xmlApis = "1.4.01"
 yarn = "1.22.17"
-extensionsXr = "1.3.0-alpha01"
+extensionsXr = "1.3.0-alpha02"
 
 [libraries]
 agpTestingPlatformCoreProto =  { module = "com.google.testing.platform:core-proto", version = "0.0.8-alpha08" }
@@ -130,7 +131,7 @@ byteBuddyAgent = { module = "net.bytebuddy:byte-buddy-agent", version.ref = "byt
 checkerframework = { module = "org.checkerframework:checker-qual", version = "2.5.3" }
 checkmark = { module = "net.saff.checkmark:checkmark", version = "0.1.6" }
 constraintLayout = { module = "androidx.constraintlayout:constraintlayout", version = "2.0.1"}
-dackka = { module = "com.google.devsite:dackka", version = "1.6.6" }
+dackka = { module = "com.google.devsite:dackka", version = "1.8.0" }
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
 daggerCompiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger" }
 dependency-analysis-gradle-plugin = { module = "com.autonomousapps:dependency-analysis-gradle-plugin", version.ref = "dependencyAnalysisGradlePlugin" }
@@ -182,7 +183,7 @@ grpcStub = { module = "io.grpc:grpc-stub", version.ref = "grpc" }
 grpcTesting = { module = "io.grpc:grpc-testing", version.ref = "grpc" }
 gson = { module = "com.google.code.gson:gson", version = "2.9.0" }
 guava = { module = "com.google.guava:guava", version.ref = "guavaJre" }
-guavaAndroid = { module = "com.google.guava:guava", version = "31.1-android" }
+guavaAndroid = { module = "com.google.guava:guava", version = "32.0.1-android" }
 guavaListenableFuture = { module = "com.google.guava:listenablefuture", version = "1.0" }
 guavaTestlib = { module = "com.google.guava:guava-testlib", version.ref = "guavaJre" }
 gradleIncapHelper = { module = "net.ltgt.gradle.incap:incap", version.ref = "incap" }
@@ -261,11 +262,11 @@ opentest4j = { module = "org.opentest4j:opentest4j", version = "1.2.0" }
 playFeatureDelivery = { module = "com.google.android.play:feature-delivery", version = "2.1.0" }
 playServicesAuth = {module = "com.google.android.gms:play-services-auth", version = "21.1.1"}
 playServicesBase = { module = "com.google.android.gms:play-services-base", version = "17.0.0" }
-playServicesBasement = { module = "com.google.android.gms:play-services-basement", version = "17.0.0" }
+playServicesBasement = { module = "com.google.android.gms:play-services-basement", version = "18.10.0" }
 playServicesBlockstore = {module = "com.google.android.gms:play-services-auth-blockstore", version = "16.4.0"}
 playServicesDevicePerformance = { module = "com.google.android.gms:play-services-deviceperformance", version = "16.0.0" }
 playServicesFido = {module = "com.google.android.gms:play-services-fido", version = "21.0.0"}
-playServicesIdentityCredentials = {module = "com.google.android.gms:play-services-identity-credentials", version = "16.0.0-alpha08"}
+playServicesIdentityCredentials = {module = "com.google.android.gms:play-services-identity-credentials", version = "16.0.0-alpha11"}
 playServicesWearable = { module = "com.google.android.gms:play-services-wearable", version = "17.1.0" }
 protobuf = { module = "com.google.protobuf:protobuf-java", version.ref = "protobuf" }
 protobufCompiler = { module = "com.google.protobuf:protoc", version.ref = "protobuf" }
@@ -275,7 +276,7 @@ protobufKotlinLite = { module = "com.google.protobuf:protobuf-kotlin-lite", vers
 reactiveStreams = { module = "org.reactivestreams:reactive-streams", version = "1.0.0" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofitConverterWire = { module = "com.squareup.retrofit2:converter-wire", version.ref = "retrofit" }
-robolectric = { module = "org.robolectric:robolectric", version = "4.16-beta-1" }
+robolectric = { module = "org.robolectric:robolectric", version = "4.16.1" }
 rxjava2 = { module = "io.reactivex.rxjava2:rxjava", version = "2.2.9" }
 rxjava3 = { module = "io.reactivex.rxjava3:rxjava", version = "3.0.0" }
 sdklib = { module = "com.android.tools:sdklib", version.ref = "androidLint" }

@@ -20,6 +20,7 @@ import android.os.Build
 import androidx.annotation.RequiresExtension
 import androidx.pdf.DraftEditResult
 import androidx.pdf.InsertDraftEditOperation
+import androidx.pdf.PdfDocument.Companion.LINEARIZATION_STATUS_NOT_LINEARIZED
 import androidx.pdf.RemoveDraftEditOperation
 import androidx.pdf.UpdateDraftEditOperation
 import androidx.pdf.adapter.FakePdfDocumentRenderer
@@ -40,7 +41,12 @@ class PdfRendererAnnotationsProcessorTest {
 
     @Before
     fun setUp() {
-        fakeRenderer = FakePdfDocumentRenderer(isLinearized = false, pageCount = 10, formType = 0)
+        fakeRenderer =
+            FakePdfDocumentRenderer(
+                linearizationStatus = LINEARIZATION_STATUS_NOT_LINEARIZED,
+                pageCount = 10,
+                formType = 0,
+            )
         processor = PdfRendererAnnotationsProcessor(fakeRenderer)
     }
 

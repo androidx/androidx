@@ -34,33 +34,33 @@ class TypeMirrorToStringTest :
             arrayOf(
                 java(
                     """
-                        package androidx.test;
-                        import javax.lang.model.type.TypeMirror;
-                        public class Foo {
-                            public String getStringForType(TypeMirror tm) {
-                                return tm.toString();
-                            }
+                    package androidx.test;
+                    import javax.lang.model.type.TypeMirror;
+                    public class Foo {
+                        public String getStringForType(TypeMirror tm) {
+                            return tm.toString();
                         }
+                    }
                     """
                         .trimIndent()
                 )
             )
         val expected =
             """
-                src/androidx/test/Foo.java:5: Error: TypeMirror.toString includes annotations [TypeMirrorToString]
-                        return tm.toString();
-                               ~~~~~~~~~~~~~
-                1 errors, 0 warnings
+            src/androidx/test/Foo.java:5: Error: TypeMirror.toString includes annotations [TypeMirrorToString]
+                    return tm.toString();
+                           ~~~~~~~~~~~~~
+            1 errors, 0 warnings
             """
                 .trimIndent()
         val expectedFixDiffs =
             """
-                Autofix for src/androidx/test/Foo.java line 5: Use TypeName.toString:
-                @@ -2 +2
-                + import com.squareup.javapoet.TypeName;
-                @@ -5 +6
-                -         return tm.toString();
-                +         return TypeName.get(tm).toString();
+            Autofix for src/androidx/test/Foo.java line 5: Use TypeName.toString:
+            @@ -2 +2
+            + import com.squareup.javapoet.TypeName;
+            @@ -5 +6
+            -         return tm.toString();
+            +         return TypeName.get(tm).toString();
             """
                 .trimIndent()
 
@@ -73,36 +73,36 @@ class TypeMirrorToStringTest :
             arrayOf(
                 java(
                     """
-                        package androidx.test;
-                        import javax.lang.model.type.TypeMirror;
-                        public class Foo {
-                            public TypeMirror getMirror() {
-                                return null;
-                            }
-                            public String getStringForType() {
-                                return getMirror().toString();
-                            }
+                    package androidx.test;
+                    import javax.lang.model.type.TypeMirror;
+                    public class Foo {
+                        public TypeMirror getMirror() {
+                            return null;
                         }
+                        public String getStringForType() {
+                            return getMirror().toString();
+                        }
+                    }
                     """
                         .trimIndent()
                 )
             )
         val expected =
             """
-                src/androidx/test/Foo.java:8: Error: TypeMirror.toString includes annotations [TypeMirrorToString]
-                        return getMirror().toString();
-                               ~~~~~~~~~~~~~~~~~~~~~~
-                1 errors, 0 warnings
+            src/androidx/test/Foo.java:8: Error: TypeMirror.toString includes annotations [TypeMirrorToString]
+                    return getMirror().toString();
+                           ~~~~~~~~~~~~~~~~~~~~~~
+            1 errors, 0 warnings
             """
                 .trimIndent()
         val expectedFixDiffs =
             """
-                Autofix for src/androidx/test/Foo.java line 8: Use TypeName.toString:
-                @@ -2 +2
-                + import com.squareup.javapoet.TypeName;
-                @@ -8 +9
-                -         return getMirror().toString();
-                +         return TypeName.get(getMirror()).toString();
+            Autofix for src/androidx/test/Foo.java line 8: Use TypeName.toString:
+            @@ -2 +2
+            + import com.squareup.javapoet.TypeName;
+            @@ -8 +9
+            -         return getMirror().toString();
+            +         return TypeName.get(getMirror()).toString();
             """
                 .trimIndent()
 

@@ -4,27 +4,27 @@ ActionValue: androidx.leanback.app.GuidedStepSupportFragment#EXTRA_UI_STYLE:
 
 
 ArrayReturn: androidx.leanback.app.SearchSupportFragment#displayCompletions(android.view.inputmethod.CompletionInfo[]) parameter #0:
-    Method parameter should be Collection<CompletionInfo> (or subclass) instead of raw array; was `android.view.inputmethod.CompletionInfo[]`
+    Method parameter should be Collection<android.view.inputmethod.CompletionInfo> (or subclass) instead of raw array; was `android.view.inputmethod.CompletionInfo[]`
 ArrayReturn: androidx.leanback.widget.AbstractMediaItemPresenter.ViewHolder#getMediaItemRowActions():
-    Method should return Collection<MultiAction> (or subclass) instead of raw array; was `androidx.leanback.widget.MultiActionsProvider.MultiAction[]`
+    Method should return Collection<androidx.leanback.widget.MultiActionsProvider.MultiAction> (or subclass) instead of raw array; was `androidx.leanback.widget.MultiActionsProvider.MultiAction[]`
 ArrayReturn: androidx.leanback.widget.ClassPresenterSelector#getPresenters():
-    Method should return Collection<Presenter> (or subclass) instead of raw array; was `androidx.leanback.widget.Presenter[]`
+    Method should return Collection<androidx.leanback.widget.Presenter> (or subclass) instead of raw array; was `androidx.leanback.widget.Presenter[]`
 ArrayReturn: androidx.leanback.widget.ControlButtonPresenterSelector#getPresenters():
-    Method should return Collection<Presenter> (or subclass) instead of raw array; was `androidx.leanback.widget.Presenter[]`
+    Method should return Collection<androidx.leanback.widget.Presenter> (or subclass) instead of raw array; was `androidx.leanback.widget.Presenter[]`
 ArrayReturn: androidx.leanback.widget.MultiActionsProvider#getActions():
-    Method should return Collection<MultiAction> (or subclass) instead of raw array; was `androidx.leanback.widget.MultiActionsProvider.MultiAction[]`
+    Method should return Collection<androidx.leanback.widget.MultiActionsProvider.MultiAction> (or subclass) instead of raw array; was `androidx.leanback.widget.MultiActionsProvider.MultiAction[]`
 ArrayReturn: androidx.leanback.widget.MultiActionsProvider.MultiAction#getDrawables():
-    Method should return Collection<Drawable> (or subclass) instead of raw array; was `android.graphics.drawable.Drawable[]`
+    Method should return Collection<android.graphics.drawable.Drawable> (or subclass) instead of raw array; was `android.graphics.drawable.Drawable[]`
 ArrayReturn: androidx.leanback.widget.MultiActionsProvider.MultiAction#setDrawables(android.graphics.drawable.Drawable[]) parameter #0:
-    Method parameter should be Collection<Drawable> (or subclass) instead of raw array; was `android.graphics.drawable.Drawable[]`
+    Method parameter should be Collection<android.graphics.drawable.Drawable> (or subclass) instead of raw array; was `android.graphics.drawable.Drawable[]`
 ArrayReturn: androidx.leanback.widget.PlaybackControlsRow.MultiAction#setDrawables(android.graphics.drawable.Drawable[]) parameter #0:
-    Method parameter should be Collection<Drawable> (or subclass) instead of raw array; was `android.graphics.drawable.Drawable[]`
+    Method parameter should be Collection<android.graphics.drawable.Drawable> (or subclass) instead of raw array; was `android.graphics.drawable.Drawable[]`
 ArrayReturn: androidx.leanback.widget.PresenterSelector#getPresenters():
-    Method should return Collection<Presenter> (or subclass) instead of raw array; was `androidx.leanback.widget.Presenter[]`
+    Method should return Collection<androidx.leanback.widget.Presenter> (or subclass) instead of raw array; was `androidx.leanback.widget.Presenter[]`
 ArrayReturn: androidx.leanback.widget.SearchBar#displayCompletions(android.view.inputmethod.CompletionInfo[]) parameter #0:
-    Method parameter should be Collection<CompletionInfo> (or subclass) instead of raw array; was `android.view.inputmethod.CompletionInfo[]`
+    Method parameter should be Collection<android.view.inputmethod.CompletionInfo> (or subclass) instead of raw array; was `android.view.inputmethod.CompletionInfo[]`
 ArrayReturn: androidx.leanback.widget.SinglePresenterSelector#getPresenters():
-    Method should return Collection<Presenter> (or subclass) instead of raw array; was `androidx.leanback.widget.Presenter[]`
+    Method should return Collection<androidx.leanback.widget.Presenter> (or subclass) instead of raw array; was `androidx.leanback.widget.Presenter[]`
 ArrayReturn: androidx.leanback.widget.picker.PickerColumn#getStaticLabels():
     Method should return Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
 ArrayReturn: androidx.leanback.widget.picker.PickerColumn#setStaticLabels(CharSequence[]) parameter #0:

@@ -33,3 +33,4 @@ If a patch file cannot be applied, follow these steps to fix it:
 | Gradle Nightly Test         | gradle-nightly.patch         |
 | Gradle Release Nightly Test | gradle-release-nightly.patch |
 | KGP Nightly Test            | kgp-nightly.patch            |
+| KSP Nightly Test            | ksp-snapshot.patch           |

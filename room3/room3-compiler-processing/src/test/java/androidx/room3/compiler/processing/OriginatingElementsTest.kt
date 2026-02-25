@@ -45,14 +45,14 @@ class OriginatingElementsTest {
                     Source.java(
                         "foo.bar.Baz",
                         """
-                package foo.bar;
-                public class Baz {
-                    private void foo() {}
-                    public String bar(String[] param1) {
-                        return "";
-                    }
-                }
-                    """
+                        package foo.bar;
+                        public class Baz {
+                            private void foo() {}
+                            public String bar(String[] param1) {
+                                return "";
+                            }
+                        }
+                        """
                             .trimIndent(),
                     )
                 )
@@ -107,13 +107,13 @@ class OriginatingElementsTest {
             Source.kotlin(
                 "Foo.kt",
                 """
-            class Foo {
-                companion object {
-                    @JvmStatic
-                    var bar = 1
+                class Foo {
+                    companion object {
+                        @JvmStatic
+                        var bar = 1
+                    }
                 }
-            }
-            """
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(source)) { invocation ->
@@ -184,14 +184,14 @@ class OriginatingElementsTest {
                     Source.java(
                         "foo.bar.Baz",
                         """
-                package foo.bar;
-                public class Baz {
-                    private void foo() {}
-                    public String bar(String[] param1) {
-                        return "";
-                    }
-                }
-                    """
+                        package foo.bar;
+                        public class Baz {
+                            private void foo() {}
+                            public String bar(String[] param1) {
+                                return "";
+                            }
+                        }
+                        """
                             .trimIndent(),
                     )
                 )
@@ -220,9 +220,9 @@ class OriginatingElementsTest {
             Source.kotlin(
                 "foo.bar.Baz.kt",
                 """
-            package foo.bar
-            fun f(): String = TODO()
-            """
+                package foo.bar
+                fun f(): String = TODO()
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(source)) {

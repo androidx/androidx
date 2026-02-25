@@ -27,7 +27,6 @@ import androidx.camera.camera2.pipe.compat.Camera2Quirks
 import androidx.camera.camera2.pipe.graph.GraphProcessorImpl
 import androidx.camera.camera2.pipe.graph.GraphRequestProcessor
 import androidx.camera.camera2.pipe.graph.Listener3A
-import androidx.camera.camera2.pipe.graph.SessionLock
 import androidx.camera.camera2.pipe.testing.FakeCamera2MetadataProvider
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor
@@ -90,7 +89,7 @@ class CameraGraphListenersImplTest {
             val newListener: Request.Listener = mock()
 
             val listeners =
-                CameraGraphRequestListenersImpl(SessionLock(), graphProcessor, testScope)
+                CameraGraphRequestListenersImpl(GraphSessionLock(), graphProcessor, testScope)
             listeners.add(newListener)
             advanceUntilIdle()
 
@@ -110,7 +109,7 @@ class CameraGraphListenersImplTest {
             advanceUntilIdle()
 
             val listeners =
-                CameraGraphRequestListenersImpl(SessionLock(), graphProcessor, testScope)
+                CameraGraphRequestListenersImpl(GraphSessionLock(), graphProcessor, testScope)
             listeners.add(newListener)
             advanceUntilIdle()
 
@@ -131,7 +130,7 @@ class CameraGraphListenersImplTest {
             advanceUntilIdle()
 
             val listeners =
-                CameraGraphRequestListenersImpl(SessionLock(), graphProcessor, testScope)
+                CameraGraphRequestListenersImpl(GraphSessionLock(), graphProcessor, testScope)
             listeners.add(newListener1)
             advanceUntilIdle()
             listeners.addAll(listOf(newListener2, newListener3))
@@ -153,7 +152,7 @@ class CameraGraphListenersImplTest {
             advanceUntilIdle()
 
             val listeners =
-                CameraGraphRequestListenersImpl(SessionLock(), graphProcessor, testScope)
+                CameraGraphRequestListenersImpl(GraphSessionLock(), graphProcessor, testScope)
             listeners.addAll(listOf(newListener1, newListener2))
             advanceUntilIdle()
             listeners.remove(newListener2)
@@ -178,7 +177,7 @@ class CameraGraphListenersImplTest {
             advanceUntilIdle()
 
             val listeners =
-                CameraGraphRequestListenersImpl(SessionLock(), graphProcessor, testScope)
+                CameraGraphRequestListenersImpl(GraphSessionLock(), graphProcessor, testScope)
             listeners.addAll(listOf(newListener1, newListener2, newListener3))
             advanceUntilIdle()
             listeners.remove(newListener1)
@@ -201,7 +200,7 @@ class CameraGraphListenersImplTest {
             advanceUntilIdle()
 
             val listeners =
-                CameraGraphRequestListenersImpl(SessionLock(), graphProcessor, testScope)
+                CameraGraphRequestListenersImpl(GraphSessionLock(), graphProcessor, testScope)
             listeners.add(newListener)
             advanceUntilIdle()
 

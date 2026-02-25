@@ -61,7 +61,7 @@ import kotlinx.coroutines.runBlocking
  * }
  * ```
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @ExperimentalLatencyDataApi
 public class PercentileLatencyAggregator
 private constructor(private val implementationHelper: ImplementationHelper) : LatencyAggregator {

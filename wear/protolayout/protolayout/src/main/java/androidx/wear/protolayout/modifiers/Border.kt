@@ -30,7 +30,7 @@ import androidx.wear.protolayout.types.dp
  * @param width The width of the border, in `DP`.
  * @param color The color of the border.
  */
-fun LayoutModifier.border(@Dimension(DP) width: Float, color: LayoutColor): LayoutModifier =
+public fun LayoutModifier.border(@Dimension(DP) width: Float, color: LayoutColor): LayoutModifier =
     this then BaseBorderElement(width, color)
 
 internal class BaseBorderElement(@Dimension(DP) val width: Float, val color: LayoutColor) :

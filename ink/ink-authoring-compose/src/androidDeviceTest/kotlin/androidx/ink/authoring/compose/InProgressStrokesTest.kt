@@ -32,7 +32,6 @@ import androidx.ink.brush.Brush
 import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.StockBrushes
 import androidx.ink.brush.StockBrushes.MarkerVersion
-import androidx.ink.brush.StockTextureBitmapStore
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onIdle
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -399,36 +398,6 @@ class InProgressStrokesTest {
 
         // Single dot.
         assertThatTakingScreenshotMatchesGolden("down_with_mask_path")
-        activityScenarioRule.scenario.onActivity { activity ->
-            assertThat(activity.finishedStrokeCohorts).isEmpty()
-        }
-    }
-
-    @Test
-    fun downEvent_withTextureBitmapStore_showsPencilStrokeWithNoCallback() {
-        val stylusInputStream =
-            InputStreamBuilder.stylusLine(startX = 25F, startY = 25F, endX = 105F, endY = 205F)
-        activityScenarioRule.scenario.onActivity { activity ->
-            activity.init(
-                nextBrush = {
-                    Brush.createWithColorIntArgb(
-                        StockBrushes.pencilUnstable,
-                        AVOCADO_GREEN,
-                        25F,
-                        0.1F,
-                    )
-                },
-                textureBitmapStore = StockTextureBitmapStore(activity.resources),
-            )
-        }
-        yieldingSleep()
-
-        activityScenarioRule.scenario.onActivity { activity ->
-            activity.rootView.dispatchTouchEvent(stylusInputStream.getDownEvent())
-        }
-
-        // Single dot.
-        assertThatTakingScreenshotMatchesGolden("down_with_pencil_texture")
         activityScenarioRule.scenario.onActivity { activity ->
             assertThat(activity.finishedStrokeCohorts).isEmpty()
         }

@@ -65,3 +65,11 @@ public class PdfRect(
         return "PdfRect: page $pageNum area ($left, $top, $right, $bottom)"
     }
 }
+
+/** Calculates the center point of a [PdfRect]. */
+internal val PdfRect.centerPoint: PdfPoint
+    get() {
+        val x = (left + right) / 2
+        val y = (top + bottom) / 2
+        return PdfPoint(pageNum, x, y)
+    }

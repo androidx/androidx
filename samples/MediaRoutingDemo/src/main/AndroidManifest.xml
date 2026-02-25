@@ -84,7 +84,13 @@
         <activity android:name=".activities.systemrouting.SystemRoutingActivity"
             android:exported="false" />
 
-        <receiver android:name="androidx.mediarouter.media.MediaTransferReceiver"
+        <activity
+            android:name=".activities.DeviceSuggestionsActivity"
+            android:exported="false"
+            android:label="@string/device_suggestions_activity_label" />
+
+        <receiver
+            android:name="androidx.mediarouter.media.MediaTransferReceiver"
             android:exported="true" />
 
         <receiver android:name="androidx.mediarouter.media.SystemRoutingUsingMediaRouter2Receiver"

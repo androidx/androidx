@@ -23,7 +23,6 @@ import android.graphics.Matrix
 import androidx.core.graphics.withMatrix
 import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.InputToolType
-import androidx.ink.brush.StockBrushes
 import androidx.ink.brush.StockTextureBitmapStore
 import androidx.ink.geometry.BoxAccumulator
 import androidx.ink.rendering.test.R
@@ -71,7 +70,6 @@ class StockBrushesTestHelper(private val context: Context) {
     private var bounds = BoxAccumulator()
     private val textureStore =
         StockTextureBitmapStore(resources).apply {
-            preloadStockBrushesTextures(StockBrushes.pencilUnstable)
             check(
                 addTexture(
                     "emoji_heart",

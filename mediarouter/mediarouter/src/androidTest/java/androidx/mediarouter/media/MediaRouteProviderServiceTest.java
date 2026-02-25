@@ -745,8 +745,13 @@ public class MediaRouteProviderServiceTest {
 
         @Override
         public void onDestroy() {
-            assertNotNull(sInstance);
-            sInstance = null;
+            // This test resets both CountDownLatches to non-null at the test setup. If they are
+            // null, then the onDestroy comes from other tests and sInstance is null.
+            if (sClientInfoListenerAdditionCountDownLatch != null
+                    && sClientInfoListenerRemovalCountDownLatch != null) {
+                assertNotNull(sInstance);
+                sInstance = null;
+            }
             super.onDestroy();
         }
 

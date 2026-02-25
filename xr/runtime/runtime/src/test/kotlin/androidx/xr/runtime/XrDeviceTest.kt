@@ -19,7 +19,6 @@ import androidx.activity.ComponentActivity
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.arcore.testing.FakeLifecycleManager
 import androidx.xr.arcore.testing.FakePerceptionRuntime
-import androidx.xr.runtime.XrDevice.DisplayBlendMode
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -32,6 +31,7 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 
 @RunWith(AndroidJUnit4::class)
+@Suppress("deprecation")
 class XrDeviceTest {
 
     private lateinit var session: Session
@@ -62,6 +62,15 @@ class XrDeviceTest {
 
         assertThat(XrDevice.getCurrentDevice(session).getPreferredDisplayBlendMode())
             .isEqualTo(DisplayBlendMode.ADDITIVE)
+    }
+
+    @OptIn(ExperimentalXrDeviceLifecycleApi::class)
+    @Test
+    fun lifecycle_returnsLifecycleFromSession() {
+        val session = createSession()
+        val xrDevice = XrDevice.getCurrentDevice(session)
+
+        assertThat(xrDevice.getLifecycle()).isEqualTo((session.lifecycleOwner.lifecycle))
     }
 
     private fun createSession(coroutineDispatcher: CoroutineDispatcher = testDispatcher): Session {

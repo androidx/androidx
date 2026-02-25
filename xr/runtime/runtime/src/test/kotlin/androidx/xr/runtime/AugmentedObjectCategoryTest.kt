@@ -38,11 +38,4 @@ class AugmentedObjectCategoryTest {
 
         assertThat(category1).isNotEqualTo(category2)
     }
-
-    @Test
-    fun toString_returnsCorrectValues() {
-        assertThat(AugmentedObjectCategory.LAPTOP.toString()).isEqualTo("Laptop")
-        assertThat(AugmentedObjectCategory.MOUSE.toString()).isEqualTo("Mouse")
-        assertThat(AugmentedObjectCategory.KEYBOARD.toString()).isEqualTo("Keyboard")
-    }
 }

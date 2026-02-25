@@ -21,7 +21,6 @@ import android.view.View
 import android.view.WindowManager
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.FieldOfView
-import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector2
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.Dimensions
@@ -33,7 +32,8 @@ import kotlin.math.roundToInt
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.PanelEntity] */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public open class FakePanelEntity(private val view: View? = null) : FakeEntity(), PanelEntity {
+public open class FakePanelEntity(public val view: View? = null, name: String = "") :
+    FakeEntity(name), PanelEntity {
 
     private val context = view?.context
     private val windowManager = context?.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
@@ -159,15 +159,15 @@ public open class FakePanelEntity(private val view: View? = null) : FakeEntity()
         return Dimensions(this.width / pixelsPerMeter, this.height / pixelsPerMeter, 0f)
     }
 
-    override fun transformPixelCoordinatesToPose(coordinates: Vector2): Pose {
+    override fun transformPixelCoordinatesToLocalPosition(coordinates: Vector2): Vector3 {
         val u = coordinates.x / sizeInPixels.width
         val v = coordinates.y / sizeInPixels.height
-        return transformNormalizedCoordinatesToPose(Vector2(u * 2 - 1, (1 - v) * 2 - 1))
+        return transformNormalizedCoordinatesToLocalPosition(Vector2(u * 2 - 1, (1 - v) * 2 - 1))
     }
 
-    override fun transformNormalizedCoordinatesToPose(coordinates: Vector2): Pose {
+    override fun transformNormalizedCoordinatesToLocalPosition(coordinates: Vector2): Vector3 {
         val xInLocal3DSpace = coordinates.x * size.width / 2f
         val yInLocal3DSpace = coordinates.y * size.height / 2f
-        return Pose(Vector3(xInLocal3DSpace, yInLocal3DSpace, 0f))
+        return Vector3(xInLocal3DSpace, yInLocal3DSpace, 0f)
     }
 }

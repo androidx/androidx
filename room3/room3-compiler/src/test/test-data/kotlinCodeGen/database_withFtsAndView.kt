@@ -7,7 +7,7 @@ import androidx.room3.util.TableInfo
 import androidx.room3.util.ViewInfo
 import androidx.room3.util.dropFtsSyncTriggers
 import androidx.sqlite.SQLiteConnection
-import androidx.sqlite.execSQL
+import androidx.sqlite.executeSQL
 import javax.`annotation`.processing.Generated
 import kotlin.Lazy
 import kotlin.String
@@ -35,39 +35,39 @@ internal class MyDatabase_Impl : MyDatabase() {
 
   protected override fun createOpenDelegate(): RoomOpenDelegate {
     val _openDelegate: RoomOpenDelegate = object : RoomOpenDelegate(1, "89ba16fb8b062b50acf0eb06c853efcb", "8a71a68e07bdd62aa8c8324d870cf804") {
-      public override fun createAllTables(connection: SQLiteConnection) {
-        connection.execSQL("CREATE TABLE IF NOT EXISTS `MyParentEntity` (`parentKey` INTEGER NOT NULL, PRIMARY KEY(`parentKey`))")
-        connection.execSQL("CREATE TABLE IF NOT EXISTS `MyEntity` (`pk` INTEGER NOT NULL, `indexedCol` TEXT NOT NULL, PRIMARY KEY(`pk`), FOREIGN KEY(`indexedCol`) REFERENCES `MyParentEntity`(`parentKey`) ON UPDATE NO ACTION ON DELETE CASCADE )")
-        connection.execSQL("CREATE INDEX IF NOT EXISTS `index_MyEntity_indexedCol` ON `MyEntity` (`indexedCol`)")
-        connection.execSQL("CREATE VIRTUAL TABLE IF NOT EXISTS `MyFtsEntity` USING FTS4(`text` TEXT NOT NULL)")
-        connection.execSQL("CREATE VIEW `MyView` AS SELECT text FROM MyFtsEntity")
-        connection.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)")
-        connection.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '89ba16fb8b062b50acf0eb06c853efcb')")
+      public override suspend fun createAllTables(connection: SQLiteConnection) {
+        connection.executeSQL("CREATE TABLE IF NOT EXISTS `MyParentEntity` (`parentKey` INTEGER NOT NULL, PRIMARY KEY(`parentKey`))")
+        connection.executeSQL("CREATE TABLE IF NOT EXISTS `MyEntity` (`pk` INTEGER NOT NULL, `indexedCol` TEXT NOT NULL, PRIMARY KEY(`pk`), FOREIGN KEY(`indexedCol`) REFERENCES `MyParentEntity`(`parentKey`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+        connection.executeSQL("CREATE INDEX IF NOT EXISTS `index_MyEntity_indexedCol` ON `MyEntity` (`indexedCol`)")
+        connection.executeSQL("CREATE VIRTUAL TABLE IF NOT EXISTS `MyFtsEntity` USING FTS4(`text` TEXT NOT NULL)")
+        connection.executeSQL("CREATE VIEW `MyView` AS SELECT text FROM MyFtsEntity")
+        connection.executeSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)")
+        connection.executeSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '89ba16fb8b062b50acf0eb06c853efcb')")
       }
 
-      public override fun dropAllTables(connection: SQLiteConnection) {
-        connection.execSQL("DROP TABLE IF EXISTS `MyParentEntity`")
-        connection.execSQL("DROP TABLE IF EXISTS `MyEntity`")
-        connection.execSQL("DROP TABLE IF EXISTS `MyFtsEntity`")
-        connection.execSQL("DROP VIEW IF EXISTS `MyView`")
+      public override suspend fun dropAllTables(connection: SQLiteConnection) {
+        connection.executeSQL("DROP TABLE IF EXISTS `MyParentEntity`")
+        connection.executeSQL("DROP TABLE IF EXISTS `MyEntity`")
+        connection.executeSQL("DROP TABLE IF EXISTS `MyFtsEntity`")
+        connection.executeSQL("DROP VIEW IF EXISTS `MyView`")
       }
 
-      public override fun onCreate(connection: SQLiteConnection) {
+      public override suspend fun onCreate(connection: SQLiteConnection) {
       }
 
-      public override fun onOpen(connection: SQLiteConnection) {
-        connection.execSQL("PRAGMA foreign_keys = ON")
+      public override suspend fun onOpen(connection: SQLiteConnection) {
+        connection.executeSQL("PRAGMA foreign_keys = ON")
         internalInitInvalidationTracker(connection)
       }
 
-      public override fun onPreMigrate(connection: SQLiteConnection) {
+      public override suspend fun onPreMigrate(connection: SQLiteConnection) {
         dropFtsSyncTriggers(connection)
       }
 
-      public override fun onPostMigrate(connection: SQLiteConnection) {
+      public override suspend fun onPostMigrate(connection: SQLiteConnection) {
       }
 
-      public override fun onValidateSchema(connection: SQLiteConnection): RoomOpenDelegate.ValidationResult {
+      public override suspend fun onValidateSchema(connection: SQLiteConnection): RoomOpenDelegate.ValidationResult {
         val _columnsMyParentEntity: MutableMap<String, TableInfo.Column> = mutableMapOf()
         _columnsMyParentEntity.put("parentKey", TableInfo.Column("parentKey", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY))
         val _foreignKeysMyParentEntity: MutableSet<TableInfo.ForeignKey> = mutableSetOf()

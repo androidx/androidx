@@ -22,7 +22,7 @@ import kotlin.reflect.KClass
  * Specifies the classes that contain **DAO return type converters** that a RoomDatabase can use.
  *
  * This annotation is used to register converter classes that contain methods annotated with
- * [DaoReturnTypeConverter] via annotating a [Database].
+ * [DaoReturnTypeConverter] via annotating a [Database] or [Dao].
  *
  * All [Dao] methods in that database will be able to use the converters. These converters allow you
  * to wrap or transform the result of a DAO method into a custom Kotlin return type (e.g.,

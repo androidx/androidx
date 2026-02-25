@@ -22,7 +22,6 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.util.Log
 import android.util.Size
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
@@ -40,7 +39,6 @@ import androidx.camera.integration.core.util.StressTestUtil.VERIFICATION_TARGET_
 import androidx.camera.integration.core.util.StressTestUtil.VERIFICATION_TARGET_VIDEO_CAPTURE
 import androidx.camera.integration.core.util.StressTestUtil.createCameraSelectorById
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.GLUtil
 import androidx.camera.testing.impl.LabTestRule
@@ -87,10 +85,6 @@ class BindUnbindUseCasesStressTest(
     val cameraConfig: CameraXConfig,
     val cameraId: String,
 ) {
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
-
     @get:Rule
     val useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(

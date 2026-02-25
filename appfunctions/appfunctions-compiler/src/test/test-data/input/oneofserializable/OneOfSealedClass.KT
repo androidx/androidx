@@ -21,13 +21,13 @@ import androidx.appfunctions.AppFunctionSerializable
 import androidx.appfunctions.AppFunctionTextResource
 
 /** I am a KDoc for OneOfSealedClass */
-@AppFunctionSerializable(isDescribedByKdoc = true)
+@AppFunctionSerializable(isDescribedByKDoc = true)
 sealed class OneOfSealedClass {
 
     abstract val interfaceProperty: String
 
     /** I am a KDoc for OneOfSealedClass.ASubclass */
-    @AppFunctionSerializable(isDescribedByKdoc = true)
+    @AppFunctionSerializable(isDescribedByKDoc = true)
     class ASubclass(
         override val interfaceProperty: String,
         val str: String,
@@ -35,6 +35,6 @@ sealed class OneOfSealedClass {
     ) : OneOfSealedClass(), AppFunctionResourceContainer
 
     /** I am a KDoc for OneOfSealedClass.BSubclass */
-    @AppFunctionSerializable(isDescribedByKdoc = true)
+    @AppFunctionSerializable(isDescribedByKDoc = true)
     class BSubclass(override val interfaceProperty: String, val integer: Int) : OneOfSealedClass()
 }

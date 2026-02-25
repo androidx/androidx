@@ -59,7 +59,7 @@ fun SwipeDismissableSceneStrategyDemo(hasBackstack: Boolean, onCheckedChange: ()
 
     NavDisplay(
         backStack = backStack,
-        sceneStrategy = rememberSwipeDismissableSceneStrategy(),
+        sceneStrategies = listOf(rememberSwipeDismissableSceneStrategy()),
         onBack = { backStack.removeLastOrNull() },
         entryProvider =
             entryProvider {

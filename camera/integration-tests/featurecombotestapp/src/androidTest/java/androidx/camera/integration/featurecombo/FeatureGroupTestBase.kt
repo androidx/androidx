@@ -29,8 +29,7 @@ import android.util.Range
 import android.util.Size
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
-import androidx.camera.camera2.pipe.integration.adapter.awaitUntil
+import androidx.camera.camera2.adapter.awaitUntil
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
@@ -60,7 +59,6 @@ import androidx.camera.integration.featurecombo.AppUseCase.PREVIEW
 import androidx.camera.integration.featurecombo.AppUseCase.VIDEO_CAPTURE
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.Camera2CaptureCallbackImpl
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.GLUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
@@ -81,7 +79,6 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import kotlin.collections.forEach
 import kotlin.math.min
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -101,18 +98,8 @@ open class FeatureGroupTestBase(
     @get:Rule
     val useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-            CameraUtil.PreTestCameraIdList(
-                if (implName == Camera2Config::class.simpleName) {
-                    Camera2Config.defaultConfig()
-                } else {
-                    CameraPipeConfig.defaultConfig()
-                }
-            )
+            CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
         )
-
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
 
     @get:Rule val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
 

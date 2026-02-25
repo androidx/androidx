@@ -33,6 +33,7 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.BottomSheet
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
@@ -44,6 +45,7 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scrim
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -51,6 +53,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,6 +69,53 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Sampled
+@Preview
+@Composable
+fun ManualModalBottomSheetSample() {
+    var showSheet by remember { mutableStateOf(false) }
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Button(onClick = { showSheet = true }) { Text("Show Manual Sheet") }
+    }
+    val sheetState = rememberModalBottomSheetState()
+
+    if (showSheet) {
+        Scrim("scrim", onClick = { showSheet = false })
+        BottomSheet(
+            modifier = Modifier,
+            state = sheetState,
+            onDismissRequest = { showSheet = false },
+        ) {
+            LazyColumn {
+                items(25) {
+                    ListItem(
+                        headlineContent = { Text("Item $it") },
+                        leadingContent = {
+                            Icon(
+                                Icons.Default.Favorite,
+                                contentDescription = "Localized description",
+                            )
+                        },
+                        colors =
+                            ListItemDefaults.colors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                            ),
+                    )
+                }
+            }
+        }
+    }
+    // Handle sheet animations
+    LaunchedEffect(showSheet) {
+        if (showSheet) {
+            sheetState.show()
+        } else {
+            sheetState.hide()
+        }
+    }
+}
 
 @Preview
 @Sampled

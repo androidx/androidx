@@ -4,7 +4,7 @@ go/androidx-compose-api-guidelines
 
 <!--*
 # Document freshness: For more information, see go/fresh-source.
-freshness: { owner: 'seanmcq' reviewed: '2024-09-27' }
+freshness: { owner: 'seanmcq' reviewed: '2025-12-04' }
 *-->
 
 [TOC]
@@ -29,3 +29,5 @@ a target of Compose Framework Developers.
 <!--#include file="/company/teams/androidx/api_guidelines/compose_api_guidelines/basic_patterns.md"-->
 
 <!--#include file="/company/teams/androidx/api_guidelines/compose_api_guidelines/naming.md"-->
+
+<!--#include file="/company/teams/androidx/api_guidelines/compose_api_guidelines/cross_platform_patterns.md" -->

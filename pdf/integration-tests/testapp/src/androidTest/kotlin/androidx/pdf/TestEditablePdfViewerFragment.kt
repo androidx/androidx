@@ -29,8 +29,11 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.pdf.annotation.KeyedPdfAnnotation
 import androidx.pdf.idlingresource.PdfIdlingResource
 import androidx.pdf.ink.EditablePdfViewerFragment
+import androidx.pdf.models.FormEditInfo
 import androidx.pdf.testapp.R
+import androidx.pdf.view.PdfContentLayout
 import androidx.pdf.view.PdfView
+import androidx.pdf.viewer.fragment.R as PdfR
 import java.util.UUID
 
 /**
@@ -45,6 +48,7 @@ internal class TestEditablePdfViewerFragment : EditablePdfViewerFragment {
     val pdfLoadingIdlingResource = PdfIdlingResource(PDF_LOAD_RESOURCE_NAME)
     val pdfScrollIdlingResource = PdfIdlingResource(PDF_SCROLL_RESOURCE_NAME)
     val pdfApplyEditsIdlingResource = PdfIdlingResource(APPLY_EDITS_RESOURCE_NAME)
+    val pdfFormFillingIdlingResource = PdfIdlingResource(FORM_FILLING_RESOURCE_NAME)
 
     var pdfDocument: PdfDocument? = null
     var documentLoaded = false
@@ -55,7 +59,9 @@ internal class TestEditablePdfViewerFragment : EditablePdfViewerFragment {
     var onApplyEditsFailedCalled = false
 
     var onEnterEditModeCalled = false
+    var onEnterEditModeCalledCount = 0
     var onExitEditModeCalled = false
+    var onFormWidgetInfoUpdatedCalled = false
 
     private var gestureStateChangedListener: PdfView.OnGestureStateChangedListener? = null
     private var writeHandle: PdfWriteHandle? = null
@@ -80,6 +86,11 @@ internal class TestEditablePdfViewerFragment : EditablePdfViewerFragment {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        with(view) {
+            findViewById<PdfContentLayout>(PdfR.id.pdfContentLayout).pdfView.apply {
+                isFormFillingEnabled = true
+            }
+        }
         gestureStateChangedListener =
             object : PdfView.OnGestureStateChangedListener {
                     override fun onGestureStateChanged(newState: Int) {
@@ -89,6 +100,19 @@ internal class TestEditablePdfViewerFragment : EditablePdfViewerFragment {
                     }
                 }
                 .also { pdfView.addOnGestureStateChangedListener(it) }
+    }
+
+    @OptIn(ExperimentalPdfApi::class)
+    override fun onPdfViewCreated(pdfView: PdfView) {
+        super.onPdfViewCreated(pdfView)
+        pdfView.addOnFormWidgetInfoUpdatedListener(
+            object : PdfView.OnFormWidgetInfoUpdatedListener {
+                override fun onFormWidgetInfoUpdated(formEditInfo: FormEditInfo) {
+                    onFormWidgetInfoUpdatedCalled = true
+                    pdfFormFillingIdlingResource.decrement()
+                }
+            }
+        )
     }
 
     override fun onDestroyView() {
@@ -126,6 +150,7 @@ internal class TestEditablePdfViewerFragment : EditablePdfViewerFragment {
     override fun onEnterEditMode() {
         super.onEnterEditMode()
         onEnterEditModeCalled = true
+        onEnterEditModeCalledCount += 1
     }
 
     override fun onExitEditMode() {
@@ -150,6 +175,7 @@ internal class TestEditablePdfViewerFragment : EditablePdfViewerFragment {
         private val PDF_LOAD_RESOURCE_NAME = "PdfLoad-${UUID.randomUUID()}"
         private val PDF_SCROLL_RESOURCE_NAME = "PdfScroll-${UUID.randomUUID()}"
         private val APPLY_EDITS_RESOURCE_NAME = "ApplyEdits-${UUID.randomUUID()}"
+        private val FORM_FILLING_RESOURCE_NAME = "FormFilling-${UUID.randomUUID()}"
 
         fun handleInsets(hostView: View) {
             ViewCompat.setOnApplyWindowInsetsListener(hostView) { view, insets ->

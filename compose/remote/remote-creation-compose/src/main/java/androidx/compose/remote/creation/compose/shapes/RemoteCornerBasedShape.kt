@@ -18,6 +18,7 @@
 package androidx.compose.remote.creation.compose.shapes
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.ui.unit.LayoutDirection
@@ -40,12 +41,13 @@ public abstract class RemoteCornerBasedShape(
 ) : RemoteShape {
     final override fun createOutline(
         size: RemoteSize,
+        density: RemoteDensity,
         layoutDirection: LayoutDirection,
     ): RemoteOutline {
-        var topStart = topStart.toPx(size)
-        var topEnd = topEnd.toPx(size)
-        var bottomEnd = bottomEnd.toPx(size)
-        var bottomStart = bottomStart.toPx(size)
+        var topStart = topStart.toPx(size, density)
+        var topEnd = topEnd.toPx(size, density)
+        var bottomEnd = bottomEnd.toPx(size, density)
+        var bottomStart = bottomStart.toPx(size, density)
 
         val minDimension = size.minDimension
         val shouldScaleStart = (topStart + bottomStart).gt(minDimension)

@@ -59,19 +59,19 @@ internal fun readAnnotationsFromPfd(pfd: ParcelFileDescriptor): List<PdfAnnotati
  *   list is empty.
  */
 internal fun List<PathInput>.getPathFromPathInputs(): Path {
-    val pathInputs = this
-    if (pathInputs.isEmpty()) return Path()
-
     val path = Path()
-    path.moveTo(pathInputs[0].x, pathInputs[0].y)
-    for (i in 1 until pathInputs.size) {
-        path.lineTo(pathInputs[i].x, pathInputs[i].y)
+    forEach { pathInput ->
+        if (pathInput.command == PathInput.MOVE_TO) {
+            path.moveTo(pathInput.x, pathInput.y)
+        } else if (pathInput.command == PathInput.LINE_TO) {
+            path.lineTo(pathInput.x, pathInput.y)
+        }
     }
     return path
 }
 
 /**
- * Creates a a list of [PathInput] points from [Path] object.
+ * Creates a list of [PathInput] points from [Path] object.
  *
  * @return A list of [PathInput] constructed from the path object. Returns an empty list if the path
  *   is empty.
@@ -79,10 +79,21 @@ internal fun List<PathInput>.getPathFromPathInputs(): Path {
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public fun Path.getPathInputsFromPath(): List<PathInput> {
     val pathInputs = mutableListOf<PathInput>()
+    // Approx array for a path is in the format [fraction, x0, y0, fraction, x1, y1...]
     val approx: FloatArray = this.approximate(ACCEPTABLE_TOLERANCE_IN_PATH)
 
     for (i in 0 until approx.size step 3) {
-        pathInputs.add(PathInput(approx[i + 1], approx[i + 2]))
+        // Determine the operation command based on the approximation array.
+        // approx[i] is the fractional distance along the path.
+        // If it equals the previous point's fraction, it indicates a new contour (MOVE).
+        val command =
+            if (i == 0 || approx[i] == approx[i - 3]) {
+                PathInput.MOVE_TO
+            } else {
+                PathInput.LINE_TO
+            }
+
+        pathInputs.add(PathInput(approx[i + 1], approx[i + 2], command))
     }
     return pathInputs
 }

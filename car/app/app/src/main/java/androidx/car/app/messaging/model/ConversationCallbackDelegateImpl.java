@@ -113,5 +113,10 @@ class ConversationCallbackDelegateImpl implements ConversationCallbackDelegate {
                     }
             );
         }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
     }
 }

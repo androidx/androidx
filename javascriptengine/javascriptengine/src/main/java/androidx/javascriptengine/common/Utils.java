@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * Utility methods for use in both service and client side of JavaScriptEngine.
@@ -70,6 +71,9 @@ public class Utils {
 
     /**
      * Creates a pipe, writes the given bytes into one end and returns the other end.
+     *
+     * @throws RejectedExecutionException if the ExecutorService rejects the task used for writing
+     * the bytes in the background.
      */
     @NonNull
     public static AssetFileDescriptor writeBytesIntoPipeAsync(byte @NonNull [] inputBytes,
@@ -79,8 +83,13 @@ public class Utils {
         ParcelFileDescriptor writeSide = pipe[1];
         OutputStream outputStream =
                 new ParcelFileDescriptor.AutoCloseOutputStream(writeSide);
-        executorService.execute(
-                () -> Utils.writeByteArrayToStream(inputBytes, outputStream));
+        try {
+            executorService.execute(
+                    () -> Utils.writeByteArrayToStream(inputBytes, outputStream));
+        } catch (RejectedExecutionException e) {
+            closeQuietly(outputStream);
+            throw e;
+        }
         return new AssetFileDescriptor(readSide, 0, inputBytes.length);
     }
 
@@ -162,13 +171,11 @@ public class Utils {
     }
 
     /**
-     * Read from a AssetFileDescriptor into a String and closes it in case of both success and
+     * Read from an AssetFileDescriptor into a byte[] and close it in case of both success and
      * failure.
      */
-    @NonNull
-    public static String readToString(@NonNull AssetFileDescriptor afd, int maxLength,
-            boolean truncate)
-            throws IOException, LengthLimitExceededException {
+    public static byte @NonNull [] readToBytes(@NonNull AssetFileDescriptor afd, int maxLength,
+            boolean truncate) throws IOException, LengthLimitExceededException {
         try {
             Utils.checkAssetFileDescriptor(afd, /*allowUnknownLength=*/ false);
             int lengthToRead = (int) afd.getLength();
@@ -194,17 +201,30 @@ public class Utils {
                             + "AssetFileDescriptor");
                 }
             }
-            int validUtf8PrefixLength = lengthToRead;
-            if (truncate) {
-                // Ignoring the last partial/complete codepoint.
-                validUtf8PrefixLength = getLastUTF8StartingByteIndex(bytes);
-            }
-            // This process can be made more memory efficient by converting the UTF-8 encoded
-            // bytes to String by reading from the pipe in chunks.
-            return new String(bytes, 0, validUtf8PrefixLength, StandardCharsets.UTF_8);
+            return bytes;
         } finally {
             afd.close();
         }
+    }
+
+    /**
+     * Read from an AssetFileDescriptor into a String and close it in case of both success and
+     * failure.
+     */
+    @NonNull
+    public static String readToString(@NonNull AssetFileDescriptor afd, int maxLength,
+            boolean truncate) throws IOException, LengthLimitExceededException {
+        // Closes the AFD in both success and failure cases.
+        byte[] bytes = readToBytes(afd, maxLength, truncate);
+
+        int validUtf8PrefixLength = bytes.length;
+        if (truncate) {
+            // Ignoring the last partial/complete codepoint.
+            validUtf8PrefixLength = getLastUTF8StartingByteIndex(bytes);
+        }
+        // This process can be made more memory efficient by converting the UTF-8 encoded
+        // bytes to String by reading from the pipe in chunks.
+        return new String(bytes, 0, validUtf8PrefixLength, StandardCharsets.UTF_8);
     }
 
     /**

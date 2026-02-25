@@ -316,6 +316,11 @@ public class AppManager implements Manager {
                             return null;
                         });
             }
+
+            @Override
+            public int getInterfaceVersion() {
+                return super.VERSION;
+            }
         };
 
         mLocationUpdateHandlerThread = new HandlerThread("LocationUpdateThread");

@@ -861,9 +861,6 @@ internal class CanvasMeshRenderer(
     )
 
     companion object {
-        init {
-            NativeLoader.load()
-        }
 
         private val SUPPORTED_SELF_OVERLAP_MODES = setOf(SelfOverlap.ANY, SelfOverlap.ACCUMULATE)
 

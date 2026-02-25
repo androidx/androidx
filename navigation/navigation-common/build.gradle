@@ -15,16 +15,15 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
-import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
+import com.android.build.api.dsl.KotlinMultiplatformAndroidHostTestCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
@@ -40,13 +39,16 @@ androidXMultiplatform {
             it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
         }
         androidResources.enable = true
+        compilations.withType(KotlinMultiplatformAndroidHostTestCompilation) {
+            it.returnDefaultValues = true
+        }
     }
-    jvmStubs()
-    linuxX64Stubs()
-//    desktop()
-//    mac()
-//    linux()
-//    ios()
+    desktop()
+    linux()
+    mac()
+    ios()
+    js()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -56,13 +58,13 @@ androidXMultiplatform {
         }
 
         commonMain.dependencies {
-            api("androidx.annotation:annotation:1.8.1")
-            api("androidx.lifecycle:lifecycle-common:2.9.1")
-            api("androidx.lifecycle:lifecycle-runtime:2.9.1")
-            api("androidx.lifecycle:lifecycle-viewmodel:2.9.1")
-            api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.1")
-            api("androidx.savedstate:savedstate:1.3.0")
-            implementation("androidx.collection:collection:1.4.2")
+            api("androidx.annotation:annotation:1.9.1")
+            api("androidx.lifecycle:lifecycle-common:2.9.4")
+            api("androidx.lifecycle:lifecycle-runtime:2.9.4")
+            api("androidx.lifecycle:lifecycle-viewmodel:2.9.4")
+            api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.4")
+            api("androidx.savedstate:savedstate:1.4.0")
+            implementation("androidx.collection:collection:1.5.0")
             implementation(libs.kotlinSerializationCore)
         }
         commonTest.dependencies {
@@ -70,12 +72,6 @@ androidXMultiplatform {
             implementation(project(":kruth:kruth"))
             implementation(project(":navigation:navigation-testing"))
         }
-
-        nonAndroidMain.dependsOn(commonMain)
-        nonAndroidTest.dependsOn(commonTest)
-
-        jvmStubsMain.dependsOn(nonAndroidMain)
-        jvmStubsTest.dependsOn(nonAndroidTest)
 
         androidMain.dependencies {
             api(project(":lifecycle:lifecycle-runtime"))
@@ -105,8 +101,19 @@ androidXMultiplatform {
             implementation(libs.dexmakerMockito)
         }
 
-        nonJvmMain.dependsOn(nonAndroidMain)
-        nonJvmTest.dependsOn(nonAndroidTest)
+        create("androidTest").dependsOn(jvmAndAndroidTest)
+        androidDeviceTest.dependsOn(androidTest)
+        androidHostTest.dependsOn(androidTest)
+
+        create("nonAndroidMain").dependsOn(commonMain)
+        desktopMain.dependsOn(nonAndroidMain)
+        nativeMain.dependsOn(nonAndroidMain)
+        webMain.dependsOn(nonAndroidMain)
+
+        create("nonAndroidTest").dependsOn(commonTest)
+        desktopTest.dependsOn(nonAndroidTest)
+        nativeTest.dependsOn(nonAndroidTest)
+        webTest.dependsOn(nonAndroidTest)
     }
 }
 

@@ -47,6 +47,23 @@ public interface FrameGraph : CameraGraphBase<FrameGraph.Session>, CameraControl
     }
 
     /**
+     * Submit the [Request] to the camera, and aggregate the results into a [FrameCapture], which
+     * can be used to wait for the [Frame] to start using [FrameCapture.awaitFrame].
+     *
+     * The [FrameCapture] **must** be closed, or it will result in a memory leak.
+     */
+    public fun capture(request: Request): FrameCapture
+
+    /**
+     * Submit the [Request]s to the camera, and aggregate the results into a list of
+     * [FrameCapture]s, which can be used to wait for the associated [Frame] using
+     * [FrameCapture.awaitFrame].
+     *
+     * Each [FrameCapture] **must** be closed, or it will result in a memory leak.
+     */
+    public fun capture(requests: List<Request>): List<FrameCapture>
+
+    /**
      * Add the set of [streamIds] and [parameters] to the current repeating request, updating and
      * submitting a new repeating repeating request as needed.
      *

@@ -41,13 +41,16 @@ constructor(
     onBindStatement: (SQLiteStatement) -> Unit = {},
 ) {
     private val bindingFunction: (SQLiteStatement) -> Unit = {
-        onBindStatement.invoke(BindOnlySQLiteStatement(it))
+        onBindStatement.invoke(newBindOnlySQLiteStatement(it))
     }
 
     public fun getBindingFunction(): (SQLiteStatement) -> Unit = bindingFunction
 }
 
-private class BindOnlySQLiteStatement(delegate: SQLiteStatement) : SQLiteStatement by delegate {
+internal expect fun newBindOnlySQLiteStatement(delegate: SQLiteStatement): BindOnlySQLiteStatement
+
+internal abstract class BindOnlySQLiteStatement protected constructor(delegate: SQLiteStatement) :
+    SQLiteStatement by delegate {
 
     override fun getBlob(index: Int): ByteArray {
         error(ONLY_BIND_CALLS_ALLOWED_ERROR)
@@ -81,10 +84,6 @@ private class BindOnlySQLiteStatement(delegate: SQLiteStatement) : SQLiteStateme
         error(ONLY_BIND_CALLS_ALLOWED_ERROR)
     }
 
-    override fun step(): Boolean {
-        error(ONLY_BIND_CALLS_ALLOWED_ERROR)
-    }
-
     override fun reset() {
         error(ONLY_BIND_CALLS_ALLOWED_ERROR)
     }
@@ -94,7 +93,7 @@ private class BindOnlySQLiteStatement(delegate: SQLiteStatement) : SQLiteStateme
     }
 
     companion object {
-        private const val ONLY_BIND_CALLS_ALLOWED_ERROR =
+        protected const val ONLY_BIND_CALLS_ALLOWED_ERROR =
             "Only bind*() calls are allowed on the RoomRawQuery received statement."
     }
 }

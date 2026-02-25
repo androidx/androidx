@@ -31,6 +31,7 @@ import androidx.room3.RoomDatabaseConstructor
 import androidx.room3.TypeConverter
 import androidx.room3.TypeConverters
 import androidx.room3.integration.multiplatformtestapp.test.BaseTypeConverterTest.TestDatabase
+import androidx.room3.util.getQualifiedName
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 
@@ -61,7 +62,8 @@ abstract class BaseTypeConverterTest {
             .hasMessageThat()
             .isEqualTo(
                 "A required type converter (" +
-                    "${BarConverter::class.qualifiedName}) for ${TestDao::class.qualifiedName} is " +
+                    "${BarConverter::class.getQualifiedName()}) for " +
+                    "${TestDao::class.getQualifiedName()} is " +
                     "missing in the database configuration."
             )
     }

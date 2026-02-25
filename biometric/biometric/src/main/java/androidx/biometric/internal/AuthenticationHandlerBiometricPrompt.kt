@@ -34,6 +34,7 @@ import androidx.biometric.BiometricPrompt.AuthenticationCallback
 import androidx.biometric.BiometricPrompt.CryptoObject
 import androidx.biometric.BiometricPrompt.PromptInfo
 import androidx.biometric.R
+import androidx.biometric.internal.data.CanceledFrom
 import androidx.biometric.internal.viewmodel.AuthenticationViewModel
 import androidx.biometric.utils.AuthenticatorUtils
 import androidx.biometric.utils.CryptoObjectUtils

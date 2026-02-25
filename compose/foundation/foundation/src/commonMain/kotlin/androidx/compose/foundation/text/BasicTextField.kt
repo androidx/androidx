@@ -541,11 +541,11 @@ private fun Modifier.addContextMenuComponents(
 @Composable
 internal fun TextFieldCursorHandle(selectionState: TextFieldSelectionState) {
     // Does not recompose if only position of the handle changes.
-    val cursorHandleState by
+    val cursorHandleVisible by
         remember(selectionState) {
-            derivedStateOf { selectionState.getCursorHandleState(includePosition = false) }
+            derivedStateOf { selectionState.getCursorHandleState(includePosition = false).visible }
         }
-    if (cursorHandleState.visible) {
+    if (cursorHandleVisible) {
         CursorHandle(
             offsetProvider = {
                 selectionState.getCursorHandleState(includePosition = true).position
@@ -571,7 +571,9 @@ internal fun TextFieldSelectionHandles(selectionState: TextFieldSelectionState) 
                 )
             }
         }
-    if (startHandleState.visible) {
+    // Read once here to avoid repeating derived state reads
+    val startHandle = startHandleState
+    if (startHandle.visible) {
         SelectionHandle(
             offsetProvider = {
                 selectionState
@@ -579,13 +581,13 @@ internal fun TextFieldSelectionHandles(selectionState: TextFieldSelectionState) 
                     .position
             },
             isStartHandle = true,
-            direction = startHandleState.direction,
-            handlesCrossed = startHandleState.handlesCrossed,
+            direction = startHandle.direction,
+            handlesCrossed = startHandle.handlesCrossed,
             modifier =
                 Modifier.pointerInput(selectionState) {
                     with(selectionState) { selectionHandleGestures(true) }
                 },
-            lineHeight = startHandleState.lineHeight,
+            lineHeight = startHandle.lineHeight,
             minTouchTargetSize = MinTouchTargetSizeForHandles,
         )
     }
@@ -600,7 +602,9 @@ internal fun TextFieldSelectionHandles(selectionState: TextFieldSelectionState) 
                 )
             }
         }
-    if (endHandleState.visible) {
+    // Read once here to avoid repeating derived state reads
+    val endHandle = endHandleState
+    if (endHandle.visible) {
         SelectionHandle(
             offsetProvider = {
                 selectionState
@@ -608,13 +612,13 @@ internal fun TextFieldSelectionHandles(selectionState: TextFieldSelectionState) 
                     .position
             },
             isStartHandle = false,
-            direction = endHandleState.direction,
-            handlesCrossed = endHandleState.handlesCrossed,
+            direction = endHandle.direction,
+            handlesCrossed = endHandle.handlesCrossed,
             modifier =
                 Modifier.pointerInput(selectionState) {
                     with(selectionState) { selectionHandleGestures(false) }
                 },
-            lineHeight = endHandleState.lineHeight,
+            lineHeight = endHandle.lineHeight,
             minTouchTargetSize = MinTouchTargetSizeForHandles,
         )
     }

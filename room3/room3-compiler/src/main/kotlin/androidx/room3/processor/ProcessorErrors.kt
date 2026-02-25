@@ -264,6 +264,9 @@ object ProcessorErrors {
     const val DAO_RETURN_TYPE_CONVERTER_MUST_HAVE_ONE_LAMBDA_PARAM_THAT_IS_SUSPEND =
         "DaoReturnTypeConverter functions must have exactly ONE lambda parameter, must be suspend and can have at most one parameter."
 
+    const val DAO_RETURN_TYPE_CONVERTER_LAMBDA_MUST_BE_LAST_PARAM =
+        "The lambda parameter of a DaoReturnTypeConverter function should be the last parameter."
+
     const val DAO_RETURN_TYPE_CONVERTER_FUNCTIONS_WITHOUT_TYPE_PARAM_SHOULD_RETURN_UNIT =
         "DaoReturnTypeConverter functions without a type parameter should have a suspend lambda returning `Unit`."
 

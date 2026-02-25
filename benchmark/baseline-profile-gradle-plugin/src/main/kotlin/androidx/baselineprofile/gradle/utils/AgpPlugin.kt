@@ -416,10 +416,10 @@ private class OnVariantBlockScheduler<T : Variant>(private val variantTypeName: 
         if (variant.name in publishedVariants)
             throw IllegalStateException(
                 """
-            A variant was published more than once. This can only happen if the AgpPlugin base
-            class is used and an additional onVariants callback is directly registered with the
-            base components.
-        """
+                A variant was published more than once. This can only happen if the AgpPlugin base
+                class is used and an additional onVariants callback is directly registered with the
+                base components.
+                """
                     .trimIndent()
             )
 

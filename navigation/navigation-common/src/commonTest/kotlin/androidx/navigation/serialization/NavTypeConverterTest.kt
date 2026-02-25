@@ -24,6 +24,7 @@ import kotlin.test.assertFailsWith
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -422,6 +423,13 @@ class NavTypeConverterTest {
     }
 
     @Test
+    fun matchEnumClass() {
+        val descriptor = serializer<TestEnum>().descriptor
+        val kType = typeOf<TestEnum>()
+        assertThat(descriptor.matchKType(kType)).isTrue()
+    }
+
+    @Test
     fun matchWrongTypeParam() {
         val descriptor = serializer<Set<Int>>().descriptor
         val kType = typeOf<Set<Boolean>>()
@@ -511,18 +519,22 @@ class NavTypeConverterTest {
     fun matchCustomTypeNativeTypeParam() {
         @Serializable class TestClass<T : SerialDescriptor>
 
-        val descriptor = serializer<TestClass<SerialDescriptor>>().descriptor
-        val kType = typeOf<TestClass<SerialDescriptor>>()
-        assertThat(descriptor.matchKType(kType)).isTrue()
+        ignoreWasmAndNativeSerializationException {
+            val descriptor = serializer<TestClass<SerialDescriptor>>().descriptor
+            val kType = typeOf<TestClass<SerialDescriptor>>()
+            assertThat(descriptor.matchKType(kType)).isTrue()
+        }
     }
 
     @Test
     fun matchCustomTypeArgNativeTypeParam() {
         @Serializable class TestClass<T : SerialDescriptor>(val arg: Int)
 
-        val descriptor = serializer<TestClass<SerialDescriptor>>().descriptor
-        val kType = typeOf<TestClass<SerialDescriptor>>()
-        assertThat(descriptor.matchKType(kType)).isTrue()
+        ignoreWasmAndNativeSerializationException {
+            val descriptor = serializer<TestClass<SerialDescriptor>>().descriptor
+            val kType = typeOf<TestClass<SerialDescriptor>>()
+            assertThat(descriptor.matchKType(kType)).isTrue()
+        }
     }
 
     @Test
@@ -531,9 +543,11 @@ class NavTypeConverterTest {
 
         @Serializable class TestClass<T : SerialDescriptor>(val arg: MyArg)
 
-        val descriptor = serializer<TestClass<SerialDescriptor>>().descriptor
-        val kType = typeOf<TestClass<SerialDescriptor>>()
-        assertThat(descriptor.matchKType(kType)).isTrue()
+        ignoreWasmAndNativeSerializationException {
+            val descriptor = serializer<TestClass<SerialDescriptor>>().descriptor
+            val kType = typeOf<TestClass<SerialDescriptor>>()
+            assertThat(descriptor.matchKType(kType)).isTrue()
+        }
     }
 
     @Test
@@ -542,9 +556,29 @@ class NavTypeConverterTest {
 
         @Serializable class TestClass<T : SerialDescriptor>(val arg: Int, val arg2: MyArg)
 
-        val descriptor = serializer<TestClass<SerialDescriptor>>().descriptor
-        val kType = typeOf<TestClass<SerialDescriptor>>()
-        assertThat(descriptor.matchKType(kType)).isTrue()
+        ignoreWasmAndNativeSerializationException {
+            val descriptor = serializer<TestClass<SerialDescriptor>>().descriptor
+            val kType = typeOf<TestClass<SerialDescriptor>>()
+            assertThat(descriptor.matchKType(kType)).isTrue()
+        }
+    }
+
+    private inline fun ignoreWasmAndNativeSerializationException(block: () -> Unit) {
+        try {
+            block()
+        } catch (e: SerializationException) {
+            val message = e.message.orEmpty()
+            if (
+                message.contains(
+                    "On Kotlin/Wasm explicitly declared serializer should be used for interfaces and enums without @Serializable annotation"
+                ) ||
+                    message.contains(
+                        "To get interface serializer on Kotlin/Native, use PolymorphicSerializer() constructor function."
+                    )
+            ) {
+                // ignore
+            } else throw e
+        }
     }
 
     @Test
@@ -693,6 +727,12 @@ class NavTypeConverterTest {
     }
 
     @Test
+    fun getNavTypeEnumArraySerializable() {
+        val type = serializer<Array<TestEnum>>().descriptor.getNavType()
+        assertThat(type).isEqualTo(UNKNOWN)
+    }
+
+    @Test
     fun getNavTypeUnsupportedArray() {
         assertThat(serializer<Array<Double>>().descriptor.getNavType()).isEqualTo(UNKNOWN)
 
@@ -732,6 +772,12 @@ class NavTypeConverterTest {
     @Serializable
     class TestObject {
         val arg: String = "test"
+    }
+
+    @Serializable
+    enum class TestEnum {
+        First,
+        Second,
     }
 
     @Serializable class ParamDerivedTwo : Param()

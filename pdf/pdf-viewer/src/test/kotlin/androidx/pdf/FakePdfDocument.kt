@@ -28,7 +28,9 @@ import android.util.Size
 import android.util.SparseArray
 import androidx.annotation.OpenForTesting
 import androidx.annotation.RequiresExtension
+import androidx.pdf.PdfDocument.Companion.LINEARIZATION_STATUS_UNKNOWN
 import androidx.pdf.annotation.KeyedPdfAnnotation
+import androidx.pdf.annotation.models.ImagePdfObject
 import androidx.pdf.annotation.models.PdfObject
 import androidx.pdf.content.PageMatchBounds
 import androidx.pdf.content.PageSelection
@@ -53,6 +55,7 @@ import kotlinx.coroutines.withTimeout
 internal open class FakePdfDocument(
     internal val pages: List<Point?> = listOf(),
     override val formType: Int = PDF_FORM_TYPE_NONE,
+    @Deprecated("Deprecated in Java, Use getLinearizationStatus() instead")
     override val isLinearized: Boolean = false,
     override val renderParams: RenderParams = RenderParams(RenderParams.RENDER_MODE_FOR_DISPLAY),
     private val searchResults: SparseArray<List<PageMatchBounds>> = SparseArray(),
@@ -61,6 +64,7 @@ internal open class FakePdfDocument(
     private val textContents: List<PdfPageTextContent> = emptyList(),
     private val pageFormWidgetInfos: Map<Int, List<FormWidgetInfo>> = mapOf(),
     private val annotationsPerPage: Map<Int, List<KeyedPdfAnnotation>> = mapOf(),
+    override val linearizationStatus: Int = LINEARIZATION_STATUS_UNKNOWN,
 ) : PdfDocument {
     override val pageCount: Int = pages.size
 
@@ -104,7 +108,8 @@ internal open class FakePdfDocument(
     }
 
     override suspend fun getTopPageObjectAtPosition(pageNum: Int, point: PointF): PdfObject? {
-        TODO("Not yet implemented")
+        if (pageNum == -1) return null
+        return getSampleImagePdfObject()
     }
 
     override fun addOnPdfContentInvalidatedListener(
@@ -341,6 +346,12 @@ internal open class FakePdfDocument(
                             ),
                     ),
             )
+
+        fun getSampleImagePdfObject(): ImagePdfObject {
+            val bounds = RectF(0f, 100f, 0f, 100f)
+            val bitmap = Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888)
+            return ImagePdfObject(bitmap, bounds)
+        }
     }
 }
 

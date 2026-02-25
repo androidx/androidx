@@ -26,7 +26,7 @@ import java.util.ArrayList;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DebugLog {
 
-    public static final boolean DEBUG_LAYOUT_ON = false;
+    public static boolean DEBUG_LAYOUT_ON = false;
 
     private DebugLog() {}
 

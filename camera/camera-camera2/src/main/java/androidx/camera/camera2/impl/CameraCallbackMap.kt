@@ -33,6 +33,7 @@ import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
+import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.RequestMetadata
@@ -74,7 +75,8 @@ public class CameraCallbackMap @Inject constructor() : Request.Listener {
     override fun onBufferLost(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
-        stream: StreamId,
+        streamId: StreamId,
+        outputId: OutputId,
     ) {
         for ((callback, executor) in callbacks) {
             if (
@@ -84,7 +86,7 @@ public class CameraCallbackMap @Inject constructor() : Request.Listener {
                 val session: CameraCaptureSession? =
                     requestMetadata.unwrapAs(CameraCaptureSession::class)
                 val request: CaptureRequest? = requestMetadata.unwrapAs(CaptureRequest::class)
-                val surface: Surface? = requestMetadata.streams[stream]
+                val surface: Surface? = requestMetadata.streams[streamId]
                 if (session != null && request != null && surface != null) {
                     executor.execute {
                         Api24Compat.onCaptureBufferLost(

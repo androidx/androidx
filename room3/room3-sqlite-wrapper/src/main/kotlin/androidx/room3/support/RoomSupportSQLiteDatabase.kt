@@ -24,7 +24,7 @@ import android.os.CancellationSignal
 import android.util.Pair
 import androidx.room3.RoomDatabase
 import androidx.room3.Transactor.SQLiteTransactionType
-import androidx.room3.execSQL
+import androidx.room3.executeSQL
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteStatement
@@ -104,7 +104,7 @@ internal class RoomSupportSQLiteDatabase(roomDatabase: RoomDatabase) : SupportSQ
         set(value): Unit {
             check(value >= 1) { "Version must be >=1, was $value" }
             session.useWriterBlocking { connection ->
-                connection.execSQL("PRAGMA user_version = $value")
+                connection.executeSQL("PRAGMA user_version = $value")
             }
         }
 
@@ -146,7 +146,7 @@ internal class RoomSupportSQLiteDatabase(roomDatabase: RoomDatabase) : SupportSQ
             }
         set(value) =
             session.useWriterBlocking { connection ->
-                connection.execSQL("PRAGMA page_size = $value")
+                connection.executeSQL("PRAGMA page_size = $value")
             }
 
     override fun query(query: String): Cursor =
@@ -266,7 +266,7 @@ internal class RoomSupportSQLiteDatabase(roomDatabase: RoomDatabase) : SupportSQ
     }
 
     override fun execSQL(sql: String): Unit =
-        session.useWriterBlocking { connection -> connection.execSQL(sql) }
+        session.useWriterBlocking { connection -> connection.executeSQL(sql) }
 
     override fun execSQL(sql: String, bindArgs: Array<out Any?>): Unit =
         session.useWriterBlocking { connection ->
@@ -300,7 +300,7 @@ internal class RoomSupportSQLiteDatabase(roomDatabase: RoomDatabase) : SupportSQ
     override fun setForeignKeyConstraintsEnabled(enabled: Boolean): Unit =
         session.useWriterBlocking { connection ->
             val onOffString = if (enabled) "ON" else "OFF"
-            connection.execSQL("PRAGMA foreign_keys = $onOffString")
+            connection.executeSQL("PRAGMA foreign_keys = $onOffString")
         }
 
     override fun enableWriteAheadLogging(): Boolean {

@@ -97,11 +97,11 @@ class DiagnosticsTest internal constructor(private val runTest: TestRunner) : Mu
             Source.kotlin(
                 "Subject.kt",
                 """
-            package foo.bar
-            class Subject {
-                val field: String = "foo"
-            }
-            """
+                package foo.bar
+                class Subject {
+                    val field: String = "foo"
+                }
+                """
                     .trimIndent(),
             )
         runTest(listOf(source)) { invocation ->
@@ -127,11 +127,11 @@ class DiagnosticsTest internal constructor(private val runTest: TestRunner) : Mu
             Source.java(
                 "foo.bar.Subject",
                 """
-            package foo.bar;
-            public class Subject {
-                String field = "";
-            }
-            """
+                package foo.bar;
+                public class Subject {
+                    String field = "";
+                }
+                """
                     .trimIndent(),
             )
         runTest(listOf(source)) { invocation ->
@@ -157,10 +157,10 @@ class DiagnosticsTest internal constructor(private val runTest: TestRunner) : Mu
             Source.java(
                 "foo.bar.Subject",
                 """
-            package foo.bar;
-            public class Subject {
-            }
-            """
+                package foo.bar;
+                public class Subject {
+                }
+                """
                     .trimIndent(),
             )
         cleanCompilationHasNoWarnings(javaSource)
@@ -173,10 +173,10 @@ class DiagnosticsTest internal constructor(private val runTest: TestRunner) : Mu
             Source.kotlin(
                 "Subject.kt",
                 """
-            package foo.bar
-            class Subject {
-            }
-            """
+                package foo.bar
+                class Subject {
+                }
+                """
                     .trimIndent(),
             )
         cleanCompilationHasNoWarnings(kotlinSource)
@@ -189,19 +189,19 @@ class DiagnosticsTest internal constructor(private val runTest: TestRunner) : Mu
             Source.java(
                 "foo.bar.MyAnnotation",
                 """
-            package foo.bar;
-            public @interface MyAnnotation {}
-            """
+                package foo.bar;
+                public @interface MyAnnotation {}
+                """
                     .trimIndent(),
             )
         val source =
             Source.java(
                 "foo.bar.Subject",
                 """
-            package foo.bar;
-            @MyAnnotation
-            public class Subject {}
-            """
+                package foo.bar;
+                @MyAnnotation
+                public class Subject {}
+                """
                     .trimIndent(),
             )
         cleanCompilationHasNoWarnings(annotation, source)
@@ -213,11 +213,11 @@ class DiagnosticsTest internal constructor(private val runTest: TestRunner) : Mu
             Source.kotlin(
                 "Foo.kt",
                 """
-            annotation class MyAnnotation
+                annotation class MyAnnotation
 
-            @MyAnnotation
-            class Subject {}
-            """
+                @MyAnnotation
+                class Subject {}
+                """
                     .trimIndent(),
             )
         cleanCompilationHasNoWarnings(source)

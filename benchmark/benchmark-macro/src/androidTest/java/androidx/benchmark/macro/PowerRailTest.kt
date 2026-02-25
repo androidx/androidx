@@ -65,7 +65,7 @@ class PowerRailTest {
 
             On battery measured charge stats (microcoulombs)
                 Not supported on this device.
-        """
+            """
                 .trimIndent()
 
         assertFailsWith<UnsupportedOperationException> {
@@ -87,7 +87,7 @@ class PowerRailTest {
             ChannelId: 2, ChannelName: VSYS_PWR_RFFE, ChannelSubsystem: Cellular
             ChannelId: 3, ChannelName: S2M_VDD_CPUCL2, ChannelSubsystem: CPU(BIG)
             ChannelId: 4, ChannelName: S3M_VDD_CPUCL1, ChannelSubsystem: CPU(MID)
-        """
+            """
                 .trimIndent()
 
         assertTrue(PowerRail.hasMetrics(output, throwOnMissingMetrics = false))

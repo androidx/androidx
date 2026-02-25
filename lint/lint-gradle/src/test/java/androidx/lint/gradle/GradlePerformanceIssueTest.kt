@@ -37,19 +37,19 @@ class GradlePerformanceIssueTest :
                     task.shouldRunAfter(":oneTask")
                     task.mustRunAfter(":anotherTask")
                 }
-            """
+                """
                     .trimIndent()
             )
 
         val expected =
             """
-                src/test.kt:4: Error: Avoid using method shouldRunAfter [GradlePerformance]
-                    task.shouldRunAfter(":oneTask")
-                         ~~~~~~~~~~~~~~
-                src/test.kt:5: Error: Avoid using method mustRunAfter [GradlePerformance]
-                    task.mustRunAfter(":anotherTask")
-                         ~~~~~~~~~~~~
-                2 errors
+            src/test.kt:4: Error: Avoid using method shouldRunAfter [GradlePerformance]
+                task.shouldRunAfter(":oneTask")
+                     ~~~~~~~~~~~~~~
+            src/test.kt:5: Error: Avoid using method mustRunAfter [GradlePerformance]
+                task.mustRunAfter(":anotherTask")
+                     ~~~~~~~~~~~~
+            2 errors
             """
                 .trimIndent()
 

@@ -33,17 +33,17 @@ androidXMultiplatform {
         commonMain.dependencies {
             api(libs.kotlinCoroutinesCore)
             api(libs.androidx.annotation)
-            implementation("androidx.collection:collection:1.4.5")
+            implementation("androidx.collection:collection:1.5.0")
         }
 
         commonTest.dependencies {
-                implementation(libs.kotlinTest)
-                implementation(libs.kotlinCoroutinesCore)
-                implementation(libs.kotlinCoroutinesTest)
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinCoroutinesCore)
+            implementation(libs.kotlinCoroutinesTest)
         }
 
         androidMain.dependencies {
-            implementation("androidx.annotation:annotation:1.8.1")
+            implementation("androidx.annotation:annotation:1.9.1")
         }
 
         desktopTest.dependencies {

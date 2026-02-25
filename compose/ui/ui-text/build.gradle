@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -70,10 +69,6 @@ androidXMultiplatform {
             implementation("androidx.core:core:1.7.0")
             implementation("androidx.emoji2:emoji2:1.4.0")
         }
-
-        commonStubsMain.dependsOn(commonMain)
-        jvmStubsMain.dependsOn(commonStubsMain)
-        linuxx64StubsMain.dependsOn(commonStubsMain)
 
         androidDeviceTest.dependencies {
             implementation("androidx.emoji2:emoji2-bundled:1.4.0")

@@ -129,7 +129,7 @@ class CurvedLayout : ComponentActivity() {
 
             SpatialCurvedRow(
                 modifier = SubspaceModifier.width(2000.dp).height(600.dp),
-                alignment = SpatialAlignment.BottomCenter,
+                verticalAlignment = SpatialAlignment.Bottom,
                 curveRadius = curveRadius,
                 horizontalArrangement = SpatialArrangement.SpaceEvenly,
             ) {

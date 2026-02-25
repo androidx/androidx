@@ -48,7 +48,7 @@ tasks.withType(KotlinCompile).configureEach { task ->
         if (task.path == ":imports:binary-compatibility-validator:compileKotlin") {
             friendPaths.from(configurations.friends.incoming.files)
         }
-        languageVersion.set(KotlinVersion.KOTLIN_2_0)
-        apiVersion.set(KotlinVersion.KOTLIN_2_0)
+        languageVersion.set(KotlinVersion.KOTLIN_2_1)
+        apiVersion.set(KotlinVersion.KOTLIN_2_1)
     }
 }

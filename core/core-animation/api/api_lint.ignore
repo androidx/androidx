@@ -18,4 +18,4 @@ BuilderSetStyle: androidx.core.animation.AnimatorSet.Builder#with(androidx.core.
 
 
 StaticFinalBuilder: androidx.core.animation.AnimatorSet.Builder:
-    Builder must be final: androidx.core.animation.AnimatorSet.Builder
+    Builder must be static: androidx.core.animation.AnimatorSet.Builder

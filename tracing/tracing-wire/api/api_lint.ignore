@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+StreamFiles: androidx.tracing.wire.$TopLevelDeclarations#TraceSink(java.io.File, kotlin.Int, kotlin.coroutines.CoroutineContext):
+    Methods accepting `File` should also accept `FileDescriptor` or streams: method androidx.tracing.wire.$TopLevelDeclarations.TraceSink(java.io.File,kotlin.Int,kotlin.coroutines.CoroutineContext)

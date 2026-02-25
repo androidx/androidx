@@ -44,7 +44,7 @@ import androidx.annotation.VisibleForTesting
  * continue to generalize that utility there may not be much need to maintain this separately.
  */
 @VisibleForTesting
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 public class InputStreamBuilder(
     private val streamToolType: Int = MotionEvent.TOOL_TYPE_STYLUS,
     private val buttons: Int = 0,

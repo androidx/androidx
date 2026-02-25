@@ -1,0 +1,34 @@
+// Signature format: 4.0
+package androidx.xr.runtime.interfaces {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class Feature {
+    field public static final androidx.xr.runtime.interfaces.Feature.Companion Companion;
+    field public static final androidx.xr.runtime.interfaces.Feature FULLSTACK;
+    field public static final androidx.xr.runtime.interfaces.Feature OPEN_XR;
+    field public static final androidx.xr.runtime.interfaces.Feature PROJECTED;
+    field public static final androidx.xr.runtime.interfaces.Feature SPATIAL;
+  }
+
+  public static final class Feature.Companion {
+    property public androidx.xr.runtime.interfaces.Feature FULLSTACK;
+    property public androidx.xr.runtime.interfaces.Feature OPEN_XR;
+    property public androidx.xr.runtime.interfaces.Feature PROJECTED;
+    property public androidx.xr.runtime.interfaces.Feature SPATIAL;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface Service {
+    method @InaccessibleFromKotlin public java.util.Set<androidx.xr.runtime.interfaces.Feature> getRequirements();
+    property public abstract java.util.Set<androidx.xr.runtime.interfaces.Feature> requirements;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface XrDeviceCapabilityProvider extends androidx.lifecycle.LifecycleOwner {
+    method @InaccessibleFromKotlin public android.content.Context getContext();
+    property public abstract android.content.Context context;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface XrDeviceCapabilityProviderFactory extends androidx.xr.runtime.interfaces.Service {
+    method public androidx.xr.runtime.interfaces.XrDeviceCapabilityProvider create(android.content.Context context, kotlin.coroutines.CoroutineContext coroutineContext);
+  }
+
+}
+

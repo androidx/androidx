@@ -48,7 +48,7 @@ class FakeSceneRuntimeTest {
 
     @Before
     fun setUp() {
-        fakeSceneRuntime = FakeSceneRuntime(unscaledGravityAlignedActivitySpace = false)
+        fakeSceneRuntime = FakeSceneRuntime()
     }
 
     @Test
@@ -145,6 +145,7 @@ class FakeSceneRuntimeTest {
         assertThat(panelEntity.size.height).isWithin(0.001f).of(dimensions.height)
         assertThat(panelEntity.size.depth).isWithin(0.001f).of(dimensions.depth)
         assertThat(panelEntity.parent).isEqualTo(parent)
+        assertThat((panelEntity as FakeEntity).name).isEqualTo(name)
     }
 
     @Test
@@ -162,6 +163,7 @@ class FakeSceneRuntimeTest {
         assertThat(panelEntity.getPose()).isEqualTo(pose)
         assertThat(panelEntity.sizeInPixels).isEqualTo(pixelDimensions)
         assertThat(panelEntity.parent).isEqualTo(parent)
+        assertThat((panelEntity as FakeEntity).name).isEqualTo(name)
     }
 
     @Test
@@ -184,6 +186,7 @@ class FakeSceneRuntimeTest {
         assertThat(activityPanelEntity.getPose()).isEqualTo(pose)
         assertThat(activityPanelEntity.sizeInPixels).isEqualTo(windowBoundsPx)
         assertThat(activityPanelEntity.parent).isEqualTo(parent)
+        assertThat((activityPanelEntity as FakeEntity).name).isEqualTo(name)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -205,6 +208,7 @@ class FakeSceneRuntimeTest {
         assertThat(groupEntity).isInstanceOf(FakeEntity::class.java)
         assertThat(groupEntity.getPose()).isEqualTo(pose)
         assertThat(groupEntity.parent).isEqualTo(parent)
+        assertThat((groupEntity as FakeEntity).name).isEqualTo(name)
     }
 
     @Test

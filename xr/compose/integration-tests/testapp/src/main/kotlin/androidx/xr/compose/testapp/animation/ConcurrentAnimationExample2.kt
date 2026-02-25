@@ -197,7 +197,10 @@ fun ConcurrentAnimationExample2(modifier: SubspaceModifier = SubspaceModifier) {
             },
         )
 
-    SpatialColumn(modifier = modifier.padding(5.dp), alignment = SpatialAlignment.Center) {
+    SpatialColumn(
+        modifier = modifier.padding(5.dp),
+        horizontalAlignment = SpatialAlignment.CenterHorizontally,
+    ) {
         SpatialPanel {
             Button(onClick = { isShrink = !isShrink }) {
                 Text(if (isShrink) "Expand" else "Shrink")

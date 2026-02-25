@@ -40,7 +40,7 @@ public actual suspend fun <R> performSuspending(
     db: RoomDatabase,
     isReadOnly: Boolean,
     inTransaction: Boolean,
-    block: (SQLiteConnection) -> R,
+    block: suspend (SQLiteConnection) -> R,
 ): R =
     withContext(db.getCoroutineContext(inTransaction)) {
         db.internalPerform(isReadOnly, inTransaction) { connection ->
@@ -56,7 +56,7 @@ public fun <R> performBlocking(
     db: RoomDatabase,
     isReadOnly: Boolean,
     inTransaction: Boolean,
-    block: (SQLiteConnection) -> R,
+    block: suspend (SQLiteConnection) -> R,
 ): R {
     db.assertNotMainThread()
     val context = db.suspendingTransactionContext.get() ?: EmptyCoroutineContext

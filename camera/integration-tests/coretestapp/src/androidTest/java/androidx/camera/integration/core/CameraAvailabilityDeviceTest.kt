@@ -19,7 +19,6 @@ package androidx.camera.integration.core
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraIdentifier
 import androidx.camera.core.CameraPresenceListener
@@ -33,7 +32,6 @@ import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.core.impl.Observable
 import androidx.camera.core.internal.StreamSpecsCalculator
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
@@ -73,10 +71,6 @@ class CameraAvailabilityDeviceTest(
     private val baseConfig: CameraXConfig,
 ) {
     @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName.contains(CameraPipeConfig::class.simpleName!!))
-
-    @get:Rule
     val cameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             CameraUtil.PreTestCameraIdList(baseConfig)
@@ -90,7 +84,6 @@ class CameraAvailabilityDeviceTest(
         fun data() =
             mutableListOf<Array<Any?>>().apply {
                 add(arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()))
-                add(arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig()))
             }
     }
 

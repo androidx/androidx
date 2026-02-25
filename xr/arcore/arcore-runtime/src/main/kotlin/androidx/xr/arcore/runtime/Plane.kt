@@ -21,27 +21,24 @@ import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector2
 
-/** Describes the current best knowledge of a real-world planar surface. */
+/**
+ * Describes the current best knowledge of a real-world planar surface.
+ *
+ * @property type the [Type] of the plane
+ * @property label the [Label] of the plane
+ * @property centerPose the center of the detected plane
+ * @property extents the dimensions of the detected plane
+ * @property subsumedBy if this plane has been subsumed, returns the plane this plane was merged
+ *   into
+ * @property vertices the [Vector2] vertices of a convex polygon approximating the detected plane
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public interface Plane : Trackable {
-    /** The [Type] of the plane */
+public interface Plane : Anchorable {
     public val type: Type
-
-    /* The [Label] of the plane */
     public val label: Label
-
-    /** The center of the detected plane. */
     public val centerPose: Pose
-
-    /** The dimensions of the detected plane. */
     public val extents: FloatSize2d
-
-    /** If this plane has been subsumed, returns the plane this plane was merged into. */
     public val subsumedBy: Plane?
-
-    /**
-     * Returns the 2D vertices (three or more) of a convex polygon approximating the detected plane.
-     */
     public val vertices: List<Vector2>
 
     /** Simple summary of the normal vector of a plane, for filtering purposes. */

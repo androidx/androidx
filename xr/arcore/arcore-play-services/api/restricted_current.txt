@@ -105,7 +105,7 @@ package androidx.xr.arcore.playservices {
     method public java.util.List<androidx.xr.arcore.runtime.HitResult> hitTest(androidx.xr.runtime.math.Ray ray);
     method @SuppressCompatibility @androidx.xr.arcore.playservices.UnsupportedArCoreCompatApi public com.google.ar.core.Frame lastFrame();
     method public androidx.xr.arcore.runtime.Anchor loadAnchor(java.util.UUID uuid);
-    method public void setDepthEstimationMode(androidx.xr.runtime.Config.DepthEstimationMode depthMode);
+    method public void setDepthEstimationMode(androidx.xr.runtime.DepthEstimationMode depthMode);
     method public void setDisplayRotation(int rotation, int width, int height);
     method public void unpersistAnchor(java.util.UUID uuid);
     property public androidx.xr.arcore.playservices.ArCoreDevice arDevice;
@@ -153,9 +153,9 @@ package androidx.xr.arcore.playservices {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class ArCoreRuntimeFactory implements androidx.xr.runtime.internal.PerceptionRuntimeFactory {
     ctor public ArCoreRuntimeFactory();
-    method public androidx.xr.arcore.runtime.PerceptionRuntime createRuntime(android.app.Activity activity, kotlin.coroutines.CoroutineContext coroutineContext);
-    method @InaccessibleFromKotlin public java.util.Set<androidx.xr.runtime.internal.Feature> getRequirements();
-    property public java.util.Set<androidx.xr.runtime.internal.Feature> requirements;
+    method public androidx.xr.arcore.runtime.PerceptionRuntime createRuntime(android.content.Context context, kotlin.coroutines.CoroutineContext coroutineContext);
+    method @InaccessibleFromKotlin public java.util.Set<androidx.xr.runtime.interfaces.Feature> getRequirements();
+    property public java.util.Set<androidx.xr.runtime.interfaces.Feature> requirements;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class CameraState {

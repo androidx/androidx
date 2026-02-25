@@ -383,12 +383,12 @@ public annotation class DeprecatedSinceApi(
         val JvmDefaultWithCompatibility =
             TestFiles.kotlin(
                 """
-package kotlin.jvm
+                package kotlin.jvm
 
-@Retention(AnnotationRetention.SOURCE)
-@Target(AnnotationTarget.CLASS)
-annotation class JvmDefaultWithCompatibility
-            """
+                @Retention(AnnotationRetention.SOURCE)
+                @Target(AnnotationTarget.CLASS)
+                annotation class JvmDefaultWithCompatibility
+                """
                     .trimIndent()
             )
 
@@ -396,30 +396,30 @@ annotation class JvmDefaultWithCompatibility
         val JetpackOptIn: TestFile =
             LintDetectorTest.kotlin(
                 """
-package androidx.annotation
+                package androidx.annotation
 
-import kotlin.annotation.Retention
-import kotlin.annotation.Target
-import kotlin.reflect.KClass
+                import kotlin.annotation.Retention
+                import kotlin.annotation.Target
+                import kotlin.reflect.KClass
 
-@Retention(AnnotationRetention.BINARY)
-@Target(
-    AnnotationTarget.CLASS,
-    AnnotationTarget.PROPERTY,
-    AnnotationTarget.LOCAL_VARIABLE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.CONSTRUCTOR,
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.PROPERTY_GETTER,
-    AnnotationTarget.PROPERTY_SETTER,
-    AnnotationTarget.FILE,
-    AnnotationTarget.TYPEALIAS
-)
-annotation class OptIn(
-    @get:Suppress("ArrayReturn")
-    vararg val markerClass: KClass<out Annotation>
-)
-    """
+                @Retention(AnnotationRetention.BINARY)
+                @Target(
+                    AnnotationTarget.CLASS,
+                    AnnotationTarget.PROPERTY,
+                    AnnotationTarget.LOCAL_VARIABLE,
+                    AnnotationTarget.VALUE_PARAMETER,
+                    AnnotationTarget.CONSTRUCTOR,
+                    AnnotationTarget.FUNCTION,
+                    AnnotationTarget.PROPERTY_GETTER,
+                    AnnotationTarget.PROPERTY_SETTER,
+                    AnnotationTarget.FILE,
+                    AnnotationTarget.TYPEALIAS
+                )
+                annotation class OptIn(
+                    @get:Suppress("ArrayReturn")
+                    vararg val markerClass: KClass<out Annotation>
+                )
+                """
                     .trimIndent()
             )
 
@@ -429,22 +429,22 @@ annotation class OptIn(
         val JetpackRequiresOptIn: TestFile =
             LintDetectorTest.kotlin(
                 """
-package androidx.annotation
+                package androidx.annotation
 
-import kotlin.annotation.Retention
-import kotlin.annotation.Target
+                import kotlin.annotation.Retention
+                import kotlin.annotation.Target
 
-@Retention(AnnotationRetention.BINARY)
-@Target(AnnotationTarget.ANNOTATION_CLASS)
-annotation class RequiresOptIn(
-    val level: Level = Level.ERROR
-) {
-    enum class Level {
-        WARNING,
-        ERROR
-    }
-}
-    """
+                @Retention(AnnotationRetention.BINARY)
+                @Target(AnnotationTarget.ANNOTATION_CLASS)
+                annotation class RequiresOptIn(
+                    val level: Level = Level.ERROR
+                ) {
+                    enum class Level {
+                        WARNING,
+                        ERROR
+                    }
+                }
+                """
                     .trimIndent()
             )
 
@@ -452,21 +452,21 @@ annotation class RequiresOptIn(
         val VisibleForTesting: TestFile =
             LintDetectorTest.kotlin(
                 """
-package androidx.annotation
+                package androidx.annotation
 
-@MustBeDocumented
-@Retention(AnnotationRetention.BINARY)
-public annotation class VisibleForTesting(
-    @ProductionVisibility val otherwise: Int = PRIVATE
-) {
-    public companion object {
-        public const val PRIVATE: Int = 2
-        public const val PACKAGE_PRIVATE: Int = 3
-        public const val PROTECTED: Int = 4
-        public const val NONE: Int = 5
-    }
-}
-            """
+                @MustBeDocumented
+                @Retention(AnnotationRetention.BINARY)
+                public annotation class VisibleForTesting(
+                    @ProductionVisibility val otherwise: Int = PRIVATE
+                ) {
+                    public companion object {
+                        public const val PRIVATE: Int = 2
+                        public const val PACKAGE_PRIVATE: Int = 3
+                        public const val PROTECTED: Int = 4
+                        public const val NONE: Int = 5
+                    }
+                }
+                """
                     .trimIndent()
             )
 
@@ -474,54 +474,54 @@ public annotation class VisibleForTesting(
         val BuildCompat: TestFile =
             LintDetectorTest.java(
                 """
-package androidx.core.os;
+                package androidx.core.os;
 
-import android.os.Build;
-import android.os.Build.VERSION;
+                import android.os.Build;
+                import android.os.Build.VERSION;
 
-import androidx.annotation.ChecksSdkIntAtLeast;
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresOptIn;
-import androidx.annotation.RestrictTo;
+                import androidx.annotation.ChecksSdkIntAtLeast;
+                import androidx.annotation.NonNull;
+                import androidx.annotation.RequiresOptIn;
+                import androidx.annotation.RestrictTo;
 
-import java.util.Locale;
+                import java.util.Locale;
 
-public class BuildCompat {
-    private BuildCompat() {}
+                public class BuildCompat {
+                    private BuildCompat() {}
 
-    @RestrictTo(RestrictTo.Scope.TESTS)
-    protected static boolean isAtLeastPreReleaseCodename(@NonNull String codename, @NonNull String buildCodename) {
-        if ("REL".equals(buildCodename)) {
-            return false;
-        }
-        final String buildCodenameUpper = buildCodename.toUpperCase(Locale.ROOT);
-        final String codenameUpper = codename.toUpperCase(Locale.ROOT);
-        return buildCodenameUpper.compareTo(codenameUpper) >= 0;
-    }
+                    @RestrictTo(RestrictTo.Scope.TESTS)
+                    protected static boolean isAtLeastPreReleaseCodename(@NonNull String codename, @NonNull String buildCodename) {
+                        if ("REL".equals(buildCodename)) {
+                            return false;
+                        }
+                        final String buildCodenameUpper = buildCodename.toUpperCase(Locale.ROOT);
+                        final String codenameUpper = codename.toUpperCase(Locale.ROOT);
+                        return buildCodenameUpper.compareTo(codenameUpper) >= 0;
+                    }
 
-    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.N)
-    @Deprecated
-    public static boolean isAtLeastN() {
-        return VERSION.SDK_INT >= 24;
-    }
+                    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.N)
+                    @Deprecated
+                    public static boolean isAtLeastN() {
+                        return VERSION.SDK_INT >= 24;
+                    }
 
-    @PrereleaseSdkCheck
-    @ChecksSdkIntAtLeast(api = 32, codename = "Sv2")
-    @Deprecated
-    public static boolean isAtLeastSv2() {
-        return VERSION.SDK_INT >= 32 || (VERSION.SDK_INT >= 31 && isAtLeastPreReleaseCodename("Sv2", VERSION.CODENAME));
-    }
+                    @PrereleaseSdkCheck
+                    @ChecksSdkIntAtLeast(api = 32, codename = "Sv2")
+                    @Deprecated
+                    public static boolean isAtLeastSv2() {
+                        return VERSION.SDK_INT >= 32 || (VERSION.SDK_INT >= 31 && isAtLeastPreReleaseCodename("Sv2", VERSION.CODENAME));
+                    }
 
-    @PrereleaseSdkCheck
-    @ChecksSdkIntAtLeast(codename = "UpsideDownCake")
-    public static boolean isAtLeastU() {
-        return VERSION.SDK_INT >= 33 && isAtLeastPreReleaseCodename("UpsideDownCake", VERSION.CODENAME);
-    }
+                    @PrereleaseSdkCheck
+                    @ChecksSdkIntAtLeast(codename = "UpsideDownCake")
+                    public static boolean isAtLeastU() {
+                        return VERSION.SDK_INT >= 33 && isAtLeastPreReleaseCodename("UpsideDownCake", VERSION.CODENAME);
+                    }
 
-    @RequiresOptIn
-    public @interface PrereleaseSdkCheck { }
-}
-        """
+                    @RequiresOptIn
+                    public @interface PrereleaseSdkCheck { }
+                }
+                """
                     .trimIndent()
             )
 

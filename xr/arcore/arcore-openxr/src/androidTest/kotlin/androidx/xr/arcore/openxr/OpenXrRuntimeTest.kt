@@ -22,8 +22,8 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import androidx.xr.runtime.Config
-import androidx.xr.runtime.XrDevice.DisplayBlendMode
+import androidx.xr.runtime.DisplayBlendMode
+import androidx.xr.runtime.GeospatialMode
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -58,7 +58,7 @@ class OpenXrRuntimeTest {
     @Test
     fun isSupported_geospatialVpsAndGps_returnsTrue() = initOpenXrRuntimeAndRunTest {
         // Result comes from //third_party/jetpack_xr_natives/openxr/openxr_stub.cc.
-        assertThat(underTest.isSupported(Config.GeospatialMode.VPS_AND_GPS)).isTrue()
+        assertThat(underTest.isSupported(GeospatialMode.VPS_AND_GPS)).isTrue()
     }
 
     private fun initOpenXrRuntimeAndRunTest(testBody: () -> Unit) {

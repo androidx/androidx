@@ -37,10 +37,15 @@ internal data class State3A(
     val afRegions: List<MeteringRectangle>? = null,
     val awbRegions: List<MeteringRectangle>? = null,
     val aeLock: Boolean? = null,
+    val afLock: Boolean? = null,
     val awbLock: Boolean? = null,
 )
 
-/** Converts a State3A object into a map of parameters for a [CaptureRequest]. */
+/**
+ * Converts a State3A object into a map of parameters for a [CaptureRequest]. Note that the
+ * parameter for autofocus is intentionally excluded since they are usually submitted as a single
+ * request.
+ */
 internal fun State3A.toCaptureRequestParameterMap(): Map<CaptureRequest.Key<*>, Any> {
     return mutableMapOf<CaptureRequest.Key<*>, Any>().apply {
         aeMode?.let { put(CaptureRequest.CONTROL_AE_MODE, it.value) }
@@ -65,6 +70,16 @@ internal fun State3A.wasAeLocked(current: State3A): Boolean {
 internal fun State3A.wasAeUnlocked(current: State3A): Boolean {
     // True if initial was effectively true AND current is effectively false.
     return (this.aeLock ?: false) && !(current.aeLock ?: false)
+}
+
+/** Checks if the AF lock state changed from unlocked to locked between two states. */
+internal fun State3A.wasAfLocked(current: State3A): Boolean {
+    return !(this.afLock ?: false) && (current.afLock ?: false)
+}
+
+/** Checks if the AF lock state changed from locked to unlocked between two states. */
+internal fun State3A.wasAfUnlocked(current: State3A): Boolean {
+    return (this.afLock ?: false) && !(current.afLock ?: false)
 }
 
 /** Checks if the AWB lock state changed from unlocked to locked between two states. */
@@ -113,6 +128,7 @@ internal class GraphState3A @Inject constructor() {
         afRegions: List<MeteringRectangle>? = null,
         awbRegions: List<MeteringRectangle>? = null,
         aeLock: Boolean? = null,
+        afLock: Boolean? = null,
         awbLock: Boolean? = null,
     ) {
         _state.update { currentState ->
@@ -125,6 +141,7 @@ internal class GraphState3A @Inject constructor() {
                 afRegions = afRegions?.ifEmpty { null } ?: currentState.afRegions,
                 awbRegions = awbRegions?.ifEmpty { null } ?: currentState.awbRegions,
                 aeLock = aeLock ?: currentState.aeLock,
+                afLock = afLock ?: currentState.afLock,
                 awbLock = awbLock ?: currentState.awbLock,
             )
         }

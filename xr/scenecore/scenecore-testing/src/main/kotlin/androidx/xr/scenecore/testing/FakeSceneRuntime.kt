@@ -59,10 +59,8 @@ import java.util.function.Consumer
  * @param executor This used to input [executor] for tests.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class FakeSceneRuntime(
-    unscaledGravityAlignedActivitySpace: Boolean,
-    public val executor: Executor? = null,
-) : SceneRuntime, RenderingEntityFactory {
+public class FakeSceneRuntime(public val executor: Executor? = null) :
+    SceneRuntime, RenderingEntityFactory {
 
     /* Tracks the current state of the adapter according to where it is in its lifecycle. */
     public enum class State {
@@ -73,6 +71,10 @@ public class FakeSceneRuntime(
     }
 
     private var _state: Enum<State> = State.CREATED
+
+    /** The last [FakeMovableComponent] created or injected via [createMovableComponent]. */
+    public var lastMovableComponent: FakeMovableComponent? = null
+        private set
 
     /**
      * The current state of the adapter will transition based on the lifecycle of the adapter. It
@@ -92,8 +94,7 @@ public class FakeSceneRuntime(
             }
         }
 
-    override val activitySpace: FakeActivitySpace =
-        FakeActivitySpace(unscaledGravityAlignedActivitySpace)
+    override val activitySpace: FakeActivitySpace = FakeActivitySpace()
 
     override val perceptionSpaceActivityPose: PerceptionSpaceScenePose =
         FakePerceptionSpaceScenePose()
@@ -108,6 +109,8 @@ public class FakeSceneRuntime(
         FakeMediaPlayerExtensionsWrapper()
 
     override val mainPanelEntity: PanelEntity = FakePanelEntity()
+
+    override var keyEntity: Entity? = null
 
     override val spatialEnvironment: FakeSpatialEnvironment = FakeSpatialEnvironment()
 
@@ -128,7 +131,7 @@ public class FakeSceneRuntime(
         name: String,
         parent: Entity?,
     ): PanelEntity =
-        FakePanelEntity(view).apply {
+        FakePanelEntity(view, name).apply {
             dpPerMeter = deviceDpPerMeter
             size = dimensions
             this.parent = parent
@@ -143,7 +146,7 @@ public class FakeSceneRuntime(
         name: String,
         parent: Entity?,
     ): PanelEntity =
-        FakePanelEntity(view).apply {
+        FakePanelEntity(view, name).apply {
             dpPerMeter = deviceDpPerMeter
             sizeInPixels = pixelDimensions
             this.parent = parent
@@ -157,7 +160,7 @@ public class FakeSceneRuntime(
         hostActivity: Activity,
         parent: Entity?,
     ): ActivityPanelEntity =
-        FakeActivityPanelEntity().apply {
+        FakeActivityPanelEntity(name).apply {
             dpPerMeter = deviceDpPerMeter
             sizeInPixels = windowBoundsPx
             this.parent = parent
@@ -196,7 +199,7 @@ public class FakeSceneRuntime(
     }
 
     override fun createGroupEntity(pose: Pose, name: String, parent: Entity?): Entity {
-        val entity = FakeEntity()
+        val entity = FakeEntity(name)
         entity.setPose(pose)
         entity.parent = parent
 
@@ -359,6 +362,7 @@ public class FakeSceneRuntime(
         movableComponent.systemMovable = systemMovable
         movableComponent.scaleInZ = scaleInZ
         movableComponent.userAnchorable = userAnchorable
+        lastMovableComponent = movableComponent
         return movableComponent
     }
 

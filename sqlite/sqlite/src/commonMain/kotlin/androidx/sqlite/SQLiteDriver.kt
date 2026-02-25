@@ -19,7 +19,7 @@ package androidx.sqlite
 import kotlin.jvm.JvmName
 
 /** An interface to open database connections. */
-public interface SQLiteDriver {
+public expect interface SQLiteDriver {
 
     /**
      * Identifies whether the driver has an internal connection pool or not.
@@ -35,16 +35,15 @@ public interface SQLiteDriver {
      */
     @Suppress("INAPPLICABLE_JVM_NAME") // Due to KT-31420
     @get:JvmName("hasConnectionPool")
-    public val hasConnectionPool: Boolean
-        get() = false
+    public open val hasConnectionPool: Boolean
 
     /**
-     * Opens a new database connection.
+     * Opens a new database connection asynchronously.
      *
      * To open an in-memory database use the special name `:memory:` as the [fileName].
      *
      * @param fileName Name of the database file.
      * @return the database connection.
      */
-    public fun open(fileName: String): SQLiteConnection
+    public open suspend fun openAsync(fileName: String): SQLiteConnection
 }

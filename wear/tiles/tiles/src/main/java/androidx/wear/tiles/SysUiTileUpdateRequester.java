@@ -77,7 +77,10 @@ class SysUiTileUpdateRequester implements TileUpdateRequester {
 
     public SysUiTileUpdateRequester(@NonNull Context appContext) {
         this.mAppContext = appContext;
-        this.mUnbindExecutor = Executors.newSingleThreadExecutor();
+        this.mUnbindExecutor =
+                TestDetector.isRunningInTest()
+                        ? Runnable::run // Main thread executor
+                        : Executors.newSingleThreadExecutor();
     }
 
     @VisibleForTesting

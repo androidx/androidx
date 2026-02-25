@@ -22,18 +22,16 @@ import java.nio.ShortBuffer
 
 /**
  * Represents a polygon mesh describing a piece of geometry as perceived by the perception system.
+ *
+ * @property triangleIndices a [ShortBuffer] of triangles' indices in consecutive triplets
+ * @property vertices a [FloatBuffer] of 3D vertices in (x, y, z) packing
+ * @property normals a [FloatBuffer] of 3D normals in (x, y, z) packing
+ * @property textureCoordinates a [FloatBuffer] of UV texture coordinates in (u, v) packing
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class Mesh(
-    /** [ShortBuffer] of triangles' indices in consecutive triplets. */
     public val triangleIndices: ShortBuffer?,
-
-    /** [FloatBuffer] of 3D vertices in (x, y, z) packing. */
     public val vertices: FloatBuffer?,
-
-    /** [FloatBuffer] of 3D normals in (x, y, z) packing. */
     public val normals: FloatBuffer?,
-
-    /** [FloatBuffer] of UV texture coordinates in (u, v) packing. */
     public val textureCoordinates: FloatBuffer?,
 )

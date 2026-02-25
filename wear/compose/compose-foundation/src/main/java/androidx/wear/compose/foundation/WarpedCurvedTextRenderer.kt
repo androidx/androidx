@@ -19,23 +19,18 @@ package androidx.wear.compose.foundation
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
+import android.graphics.PathIterator
 import android.graphics.PathMeasure
 import android.icu.lang.UCharacter
 import android.icu.lang.UProperty
 import android.os.Build
 import android.text.GraphemeClusterSegmentFinder
-import android.text.Spannable
 import android.text.TextDirectionHeuristics
 import android.text.TextPaint
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.util.fastForEach
 import androidx.core.text.TextDirectionHeuristicsCompat
-import androidx.emoji2.text.EmojiCompat
-import androidx.emoji2.text.EmojiSpan
-import androidx.graphics.path.PathIterator
-import androidx.graphics.path.PathSegment
-import androidx.graphics.path.iterator
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
@@ -51,8 +46,8 @@ import kotlin.math.sin
  * determines how far away from the baseline is the warping line, which is the horizontal (before
  * warping) line of the text that will maintain its size.
  */
-@RequiresApi(29)
-internal class WarpedCurvedTextRenderer() : CurvedTextRenderer {
+@RequiresApi(34)
+internal class WarpedCurvedTextRenderer : CurvedTextRenderer {
     override fun preRender(
         center: Offset,
         radius: Float,
@@ -63,6 +58,14 @@ internal class WarpedCurvedTextRenderer() : CurvedTextRenderer {
         paint: TextPaint,
         warpRadiusOffset: Float,
     ) {
+        this.center = center
+        this.radius = radius
+        this.clockwise = clockwise
+        this.sweepDegree = sweepDegree
+        this.startAngleRadians = startAngleRadians
+        this.text = text
+        this.warpRadiusOffset = warpRadiusOffset
+
         // Get text direction
         val hasRtl = TextDirectionHeuristicsCompat.ANYRTL_LTR.isRtl(text, 0, text.length)
         val textDir = if (hasRtl) TextDirectionHeuristics.RTL else TextDirectionHeuristics.LTR
@@ -86,9 +89,10 @@ internal class WarpedCurvedTextRenderer() : CurvedTextRenderer {
         }
         val totalAdvance = startingPositions[text.length]
 
-        // Ideally, PositionedGlyphs would indicate if a glyph can be represented as a path. However
-        // that info is not available to us, so instead we identify which sections of the strings
-        // are emojis, and assume that any glyphs that aren't emojis can be represented by a path.
+        // Ideally, PositionedGlyphs would indicate if a glyph can be represented as a path.
+        // However, that info is not available to us, so instead we identify which sections of the
+        // strings are emojis, and assume that any glyphs that aren't emojis can be represented by a
+        // path.
         emojis.clear()
         textRuns.clear()
         EmojiRunProcessorManager.buildRuns(
@@ -111,27 +115,39 @@ internal class WarpedCurvedTextRenderer() : CurvedTextRenderer {
         }
 
         warpRadius = if (clockwise) radius + warpRadiusOffset else radius - warpRadiusOffset
-        this.clockwise = clockwise
-        this.center = center
-        baselineRadius = radius
-        this.startAngle = startAngleRadians + if (clockwise) 0f else sweepDegree.toRadians()
-        this.warpRadiusOffset = warpRadiusOffset
     }
 
+    private var text: String = ""
     private var textRuns: MutableList<TextRunInfo> = mutableListOf()
     private var emojis: MutableList<EmojiInfo> = mutableListOf()
     private var clockwise: Boolean = true
     private var warpRadius: Float = 0f
     private var center: Offset = Offset.Zero
-    private var baselineRadius: Float = 0f
-    private var startAngle: Float = 0f
+    private var radius: Float = 0f
+    private var startAngleRadians: Float = 0f
     private var warpRadiusOffset: Float = 0f
+    private var sweepDegree: Float = 0f
 
     private var textPath = Path()
 
     override fun render(canvas: Canvas, text: String, paint: TextPaint) {
+        // if the text doesn't match (usually because of ellipsis), we have to redo the preRender
+        if (text != this@WarpedCurvedTextRenderer.text) {
+            preRender(
+                center,
+                radius,
+                clockwise,
+                sweepDegree,
+                startAngleRadians,
+                text,
+                paint,
+                warpRadiusOffset,
+            )
+        }
+
         // Render warped paths
         val d = if (clockwise) 1f else -1f
+        var actualStartAngle = startAngleRadians + if (clockwise) 0f else sweepDegree.toRadians()
         textRuns.fastForEach { run ->
             val tt = text.substring(run.start, run.end)
             val angleAdj = run.startPosition / warpRadius * d
@@ -141,12 +157,12 @@ internal class WarpedCurvedTextRenderer() : CurvedTextRenderer {
 
             val warpedPath =
                 warpPath(
-                    textPath.iterator(),
+                    textPath.pathIterator,
                     run.advance,
                     center.x,
                     center.y,
-                    baselineRadius,
-                    startAngle + angleAdj,
+                    radius,
+                    actualStartAngle + angleAdj,
                     clockwise,
                     warpRadiusOffset,
                 )
@@ -159,14 +175,15 @@ internal class WarpedCurvedTextRenderer() : CurvedTextRenderer {
             val prevAlign = paint.textAlign
             paint.textAlign = Paint.Align.CENTER
             if (!clockwise)
-                startAngle = 2f * PI.toFloat() - startAngle // account for inside path being CCW
+                actualStartAngle =
+                    2f * PI.toFloat() - actualStartAngle // account for inside path being CCW
             val dir = if (clockwise) Path.Direction.CW else Path.Direction.CCW
             val circle = Path()
-            circle.addCircle(center.x, center.y, baselineRadius, dir)
+            circle.addCircle(center.x, center.y, radius, dir)
             val pm = PathMeasure(circle, false)
             emojis.fastForEach { emoji ->
-                val warpRadiusDist = warpRadius * startAngle + emoji.centeredPosition
-                val baselineDist = (warpRadiusDist * baselineRadius / warpRadius).mod(pm.length)
+                val warpRadiusDist = warpRadius * actualStartAngle + emoji.centeredPosition
+                val baselineDist = (warpRadiusDist * radius / warpRadius).mod(pm.length)
 
                 val pos = FloatArray(2)
                 val tan = FloatArray(2)
@@ -182,15 +199,10 @@ internal class WarpedCurvedTextRenderer() : CurvedTextRenderer {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 private class EmojiRunProcessorManager {
     companion object {
-        val processor: EmojiRunProcessor by lazy {
-            if (Build.VERSION.SDK_INT >= 34) {
-                EmojiRunProcessorGCSF()
-            } else {
-                EmojiRunProcessorEC()
-            }
-        }
+        val processor: EmojiRunProcessor = EmojiRunProcessorGCSF()
 
         fun buildRuns(
             text: String,
@@ -202,7 +214,7 @@ private class EmojiRunProcessorManager {
         ) = processor.buildRuns(text, startingPositions, totalAdvance, paint, textRuns, emojis)
     }
 
-    internal interface EmojiRunProcessor {
+    interface EmojiRunProcessor {
         fun buildRuns(
             text: String,
             startingPositions: FloatArray,
@@ -213,87 +225,11 @@ private class EmojiRunProcessorManager {
         )
     }
 
-    // Fallback for when everything else fails. Mark all text as non-emoji.
-    internal class EmojiRunProcessorBase() : EmojiRunProcessor {
-        override fun buildRuns(
-            text: String,
-            startingPositions: FloatArray,
-            totalAdvance: Float,
-            paint: TextPaint,
-            textRuns: MutableList<TextRunInfo>,
-            emojis: MutableList<EmojiInfo>,
-        ) {}
-    }
-
-    // Builds text and emoji runs using EmojiCompat (requires Android API 19)
-    internal class EmojiRunProcessorEC() : EmojiRunProcessor {
-        override fun buildRuns(
-            text: String,
-            startingPositions: FloatArray,
-            totalAdvance: Float,
-            paint: TextPaint,
-            textRuns: MutableList<TextRunInfo>,
-            emojis: MutableList<EmojiInfo>,
-        ) {
-            val ec = EmojiCompat.get()
-            if (ec.loadState != EmojiCompat.LOAD_STATE_SUCCEEDED) {
-                textRuns.add(
-                    TextRunInfo(
-                        start = 0,
-                        end = text.length,
-                        startPosition = 0f,
-                        advance = totalAdvance,
-                    )
-                )
-                return
-            }
-            val processed = ec.process(text)
-            var lastIdx = 0
-            if (processed != null && processed is Spannable) {
-                val spans = processed.getSpans(0, processed.length, EmojiSpan::class.java)
-                for (span in spans) {
-                    val spanStart: Int = processed.getSpanStart(span)
-                    val spanEnd: Int = processed.getSpanEnd(span)
-                    val emojiSubStr = processed.subSequence(spanStart, spanEnd)
-
-                    val emojiStart = startingPositions[spanStart]
-                    val emojiEnd = startingPositions[spanEnd]
-
-                    // Create text run from the last emoji seen to this one
-                    textRuns.add(
-                        TextRunInfo(
-                            lastIdx,
-                            spanStart,
-                            startingPositions[lastIdx],
-                            emojiStart - startingPositions[lastIdx],
-                        )
-                    )
-
-                    // Create emoji info
-                    emojis.add(EmojiInfo(emojiSubStr, emojiStart + (emojiEnd - emojiStart) / 2f))
-
-                    lastIdx = spanEnd
-                }
-            }
-
-            // Add the final text run
-            textRuns.add(
-                TextRunInfo(
-                    lastIdx,
-                    text.length,
-                    startingPositions[lastIdx],
-                    totalAdvance - startingPositions[lastIdx],
-                )
-            )
-        }
-    }
-
     /**
      * Builds text and emoji runs using GraphemeClusterSegmentFinder (requires Android API 34).
      * Prefer this over EmojiCompat, since that requires some initialization time.
      */
-    @RequiresApi(34)
-    internal class EmojiRunProcessorGCSF : EmojiRunProcessor {
+    class EmojiRunProcessorGCSF : EmojiRunProcessor {
         override fun buildRuns(
             text: String,
             startingPositions: FloatArray,
@@ -371,7 +307,7 @@ private data class TextRunInfo(
     var advance: Float,
 )
 
-@RequiresApi(29)
+@RequiresApi(34)
 internal fun warpPath(
     path: PathIterator,
     totalAdvance: Float,
@@ -390,37 +326,37 @@ internal fun warpPath(
     val cubic = FloatArray(8)
     val points = FloatArray(8)
     while (path.hasNext()) {
-        val next = path.next(points)
+        val next = path.next(points, 0)
         // Move y according to the warpRadiusOffset
         repeat(4) { points[it * 2 + 1] += warpRadiusOffset }
 
         var doCubic = false
         when (next) {
-            PathSegment.Type.Move -> {
+            PathIterator.VERB_MOVE -> {
                 warper.warpPoint(points)
                 retPath.moveTo(points[0], points[1])
             }
-            PathSegment.Type.Line -> {
+            PathIterator.VERB_LINE -> {
                 lerpPoint(cubic, 0, points, 0, 2, 0f)
                 lerpPoint(cubic, 2, points, 0, 2, 1f / 3)
                 lerpPoint(cubic, 4, points, 0, 2, 2f / 3)
                 lerpPoint(cubic, 6, points, 0, 2, 1f)
                 doCubic = true
             }
-            PathSegment.Type.Quadratic -> {
+            PathIterator.VERB_QUAD -> {
                 lerpPoint(cubic, 0, points, 0, 2, 0f)
                 lerpPoint(cubic, 2, points, 0, 2, 2f / 3)
                 lerpPoint(cubic, 4, points, 2, 4, 1f / 3)
                 lerpPoint(cubic, 6, points, 2, 4, 1f)
                 doCubic = true
             }
-            PathSegment.Type.Cubic -> {
+            PathIterator.VERB_CUBIC -> {
                 points.copyInto(cubic)
                 doCubic = true
             }
-            PathSegment.Type.Conic -> throw UnsupportedOperationException()
-            PathSegment.Type.Close -> retPath.close()
-            PathSegment.Type.Done -> return retPath
+            PathIterator.VERB_CONIC -> throw UnsupportedOperationException()
+            PathIterator.VERB_CLOSE -> retPath.close()
+            PathIterator.VERB_DONE -> return retPath
         }
         if (doCubic) {
             warper.warpCubic(cubic)

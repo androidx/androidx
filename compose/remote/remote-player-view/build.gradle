@@ -33,7 +33,7 @@ android {
     namespace = "androidx.compose.remote.player.view"
     compileSdk { version = release(35) }
     defaultConfig {
-        minSdk { version = release(29) }
+        minSdk { version = release(26) }
     }
 }
 

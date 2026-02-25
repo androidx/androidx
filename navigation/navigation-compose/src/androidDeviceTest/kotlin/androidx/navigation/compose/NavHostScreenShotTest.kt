@@ -126,8 +126,8 @@ class NavHostScreenShotTest {
                 navController = navController,
                 startDestination = FIRST,
                 route = "start",
-                enterTransition = { EnterTransition.None },
-                exitTransition = { slideOutHorizontally { -it / 2 } },
+                predictivePopEnterTransition = { EnterTransition.None },
+                predictivePopExitTransition = { slideOutHorizontally { -it / 2 } },
                 modifier = Modifier.testTag(navHostTag),
             ) {
                 composable(FIRST) { BasicText(FIRST) }
@@ -187,8 +187,8 @@ class NavHostScreenShotTest {
                 navController = navController,
                 startDestination = FIRST,
                 route = "start",
-                enterTransition = { slideInHorizontally { it / 2 } },
-                exitTransition = { slideOutHorizontally { -it / 2 } },
+                predictivePopEnterTransition = { slideInHorizontally { it / 2 } },
+                predictivePopExitTransition = { slideOutHorizontally { -it / 2 } },
                 modifier = Modifier.testTag(navHostTag),
             ) {
                 composable(FIRST) { BasicText(FIRST) }
@@ -227,6 +227,61 @@ class NavHostScreenShotTest {
             .onNodeWithTag(navHostTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "testNavHostPredictiveBackAnimations")
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    fun testNavHostPredictiveBackAnimationsWithCustomTransitions() {
+        lateinit var navController: NavHostController
+        lateinit var backPressedDispatcher: OnBackPressedDispatcher
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            backPressedDispatcher =
+                LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
+            NavHost(
+                navController = navController,
+                startDestination = FIRST,
+                route = "start",
+                enterTransition = { EnterTransition.None },
+                exitTransition = { ExitTransition.None },
+                predictivePopEnterTransition = { slideInHorizontally { -it } },
+                predictivePopExitTransition = { slideOutHorizontally { it } },
+                modifier = Modifier.testTag(navHostTag),
+            ) {
+                composable(FIRST) {
+                    Box(Modifier.fillMaxSize().background(Color.Green)) { BasicText(FIRST) }
+                }
+                composable(SECOND) {
+                    Box(Modifier.fillMaxSize().background(Color.Blue)) { BasicText(SECOND) }
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle { navController.navigate(SECOND) }
+
+        composeTestRule.runOnIdle {
+            backPressedDispatcher.dispatchOnBackStarted(
+                BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT)
+            )
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.runOnIdle {
+            backPressedDispatcher.dispatchOnBackProgressed(
+                BackEventCompat(0.1F, 0.1F, 0.5F, BackEvent.EDGE_LEFT)
+            )
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule
+            .onNodeWithTag(navHostTag)
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "testNavHostPredictiveBackAnimationsWithCustomTransitions",
+            )
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)

@@ -126,11 +126,11 @@ class TraceProcessorBenchmark {
     private fun TraceProcessor.Session.runSlicesQuery() {
         query(
             """
-                SELECT slice.name, slice.ts, slice.dur, thread_track.id, thread_track.name
-                FROM slice
-                INNER JOIN thread_track on slice.track_id = thread_track.id
-                INNER JOIN thread USING(utid)
-                INNER JOIN process USING(upid)
+            SELECT slice.name, slice.ts, slice.dur, thread_track.id, thread_track.name
+            FROM slice
+            INNER JOIN thread_track on slice.track_id = thread_track.id
+            INNER JOIN thread USING(utid)
+            INNER JOIN process USING(upid)
             """
                 .trimIndent()
         )
@@ -139,9 +139,9 @@ class TraceProcessorBenchmark {
     private fun TraceProcessor.Session.runCounterQuery() {
         query(
             """
-                SELECT track.name, counter.value, counter.ts
-                FROM track
-                JOIN counter ON track.id = counter.track_id
+            SELECT track.name, counter.value, counter.ts
+            FROM track
+            JOIN counter ON track.id = counter.track_id
             """
                 .trimIndent()
         )
@@ -150,10 +150,10 @@ class TraceProcessorBenchmark {
     private fun TraceProcessor.Session.runProcessQuery() {
         query(
             """
-                SELECT upid
-                FROM counter
-                JOIN process_counter_track ON process_counter_track.id = counter.track_id
-                WHERE process_counter_track.name = 'mem.swap' AND value > 1000
+            SELECT upid
+            FROM counter
+            JOIN process_counter_track ON process_counter_track.id = counter.track_id
+            WHERE process_counter_track.name = 'mem.swap' AND value > 1000
             """
                 .trimIndent()
         )

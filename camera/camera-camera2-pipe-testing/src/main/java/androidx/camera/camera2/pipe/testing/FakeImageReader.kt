@@ -37,7 +37,6 @@ private constructor(
 ) : ImageReaderWrapper {
     private val debugId = debugIds.incrementAndGet()
     private val closed = atomic(false)
-    private val onImageListener = atomic<ImageReaderWrapper.OnImageListener?>(null)
 
     private val lock = Any()
     private val _images = mutableListOf<FakeImage>()
@@ -79,12 +78,17 @@ private constructor(
                 _images.add(image)
             }
         }
-        onImageListener.value?.onImage(streamId, outputId, image)
+        onImageListener?.onImage(streamId, outputId, image)
     }
 
-    override fun setOnImageListener(onImageListener: ImageReaderWrapper.OnImageListener) {
-        this.onImageListener.value = onImageListener
+    public fun simulateExpectedOutputs(timestamp: Long, outputIds: Set<OutputId>) {
+        onExpectedOutputsListener?.onExpectedOutputs(timestamp, outputIds)
     }
+
+    override var onImageListener: ImageReaderWrapper.OnImageListener? by atomic(null)
+
+    override var onExpectedOutputsListener: ImageReaderWrapper.OnExpectedOutputsListener? by
+        atomic(null)
 
     override fun flush() {
         // NoOp

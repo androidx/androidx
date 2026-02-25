@@ -99,7 +99,7 @@ class RemoveUnusedColumnsTest {
                         public String name;
                         public String lastName;
                     }
-                """
+                    """
                         .trimIndent(),
                 )
             val dao =

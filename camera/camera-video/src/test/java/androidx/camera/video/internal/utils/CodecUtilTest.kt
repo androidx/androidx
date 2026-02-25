@@ -26,6 +26,8 @@ import android.media.MediaFormat.createVideoFormat
 import androidx.annotation.RequiresApi
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
+import org.junit.After
+import org.junit.Before
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -37,6 +39,21 @@ import org.robolectric.shadows.ShadowMediaCodecList
 @DoNotInstrument
 @Config(sdk = [Config.ALL_SDKS])
 class CodecUtilTest {
+
+    @Before
+    fun setUp() {
+        resetCodecState()
+    }
+
+    @After
+    fun tearDown() {
+        resetCodecState()
+    }
+
+    private fun resetCodecState() {
+        CodecUtil.reset()
+        ShadowMediaCodecList.reset()
+    }
 
     @Config(minSdk = 29)
     @Test

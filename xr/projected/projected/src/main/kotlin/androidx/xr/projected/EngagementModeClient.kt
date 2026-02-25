@@ -212,6 +212,8 @@ internal class EngagementModeClient(context: Context, private val mHandler: Hand
                     executor.execute { callback.accept(updatedFlags) }
                 }
             }
+
+            override fun getInterfaceVersion(): Int = VERSION
         }
 
     private fun verifyProviderIsSystemApp(packageName: String): Boolean {

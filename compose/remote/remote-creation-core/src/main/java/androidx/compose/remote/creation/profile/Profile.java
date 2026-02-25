@@ -15,7 +15,6 @@
  */
 package androidx.compose.remote.creation.profile;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CompanionOperation;
 import androidx.compose.remote.core.Operations;
@@ -27,7 +26,6 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Set;
-import java.util.function.Supplier;
 
 /**
  * Represent a RemoteCompose profile
@@ -54,8 +52,16 @@ public class Profile {
     @NonNull
     RemoteComposeWriterFactory mFactory;
 
-    @Nullable
-    Supplier<Set<Integer>> mSupportedOperations;
+    @NonNull
+    SupportedOperationsProvider mSupportedOperationsProvider = () -> {
+        Operations.UniqueIntMap<CompanionOperation> operations = Operations.getOperations(
+                mApiLevel, mOperationsProfiles);
+
+        if (operations == null) {
+            throw new IllegalStateException("No supported operations defined");
+        }
+        return operations.keySet();
+    };
 
     /**
      * Profile constructor
@@ -84,7 +90,7 @@ public class Profile {
      * @param operationProfiles   the operation profiles bitmask (specifying valid set of
      *                            operations)
      * @param platform            a platform services implementation
-     * @param supportedOperations supplier of supported operations
+     * @param supportedOperationsProvider supplier of supported operations
      * @param factory             a valid factory returning a RemoteComposeWriter
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -92,13 +98,13 @@ public class Profile {
             int apiLevel,
             int operationProfiles,
             @NonNull RcPlatformServices platform,
-            @NonNull Supplier<Set<Integer>> supportedOperations,
+            @NonNull SupportedOperationsProvider supportedOperationsProvider,
             @NonNull RemoteComposeWriterFactory factory) {
         mApiLevel = apiLevel;
         mOperationsProfiles = operationProfiles;
         mPlatform = platform;
         mFactory = factory;
-        mSupportedOperations = supportedOperations;
+        mSupportedOperationsProvider = supportedOperationsProvider;
     }
 
     /**
@@ -161,19 +167,18 @@ public class Profile {
      * @return a set of operations
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @RequiresApi(24)
     public @NonNull Set<Integer> getSupportedOperations() {
-        if (mSupportedOperations == null) {
-            Operations.UniqueIntMap<CompanionOperation> operations = Operations.getOperations(
-                    mApiLevel, mOperationsProfiles);
+        return mSupportedOperationsProvider.getSupportedOperations();
+    }
 
-            if (operations == null) {
-                throw new IllegalStateException("No supported operations defined");
-            }
-
-            return operations.keySet();
-        } else {
-            return mSupportedOperations.get();
-        }
+    /**
+     * Interface for providing a set of supported operations.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public interface SupportedOperationsProvider {
+        /**
+         * Returns the set of supported operations.
+         */
+        @NonNull Set<Integer> getSupportedOperations();
     }
 }

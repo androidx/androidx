@@ -26,6 +26,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.RestrictTo
 import androidx.pdf.R
+import androidx.pdf.featureflag.PdfFeatureFlags
 
 /**
  * A [ViewGroup] that hosts [PdfView] for adding overlays on it using the [ViewGroup.addView]
@@ -60,6 +61,11 @@ public class PdfContentLayout(context: Context, attrs: AttributeSet? = null) :
 
     override fun dispatchDraw(canvas: Canvas) {
         super.dispatchDraw(canvas)
+        if (PdfFeatureFlags.isMultiTouchScrollEnabled && _pdfView.isAccessibilityEnabled) {
+            _pdfView.fastScrollVisibility = PdfView.FastScrollVisibility.ALWAYS_SHOW
+        } else {
+            _pdfView.fastScrollVisibility = PdfView.FastScrollVisibility.AUTO_HIDE
+        }
         _pdfView.drawFastScroller(canvas)
     }
 

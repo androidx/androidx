@@ -37,14 +37,14 @@ class BanUncheckedReflectionTest :
 
         val expected =
             """
-src/androidx/sample/core/app/ActivityRecreator.java:261: Error: Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
-                        performStopActivity3ParamsMethod.invoke(activityThread,
-                        ^
-src/androidx/sample/core/app/ActivityRecreator.java:264: Error: Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
-                        performStopActivity2ParamsMethod.invoke(activityThread,
-                        ^
-2 errors, 0 warnings
-        """
+            src/androidx/sample/core/app/ActivityRecreator.java:261: Error: Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
+                                    performStopActivity3ParamsMethod.invoke(activityThread,
+                                    ^
+            src/androidx/sample/core/app/ActivityRecreator.java:264: Error: Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
+                                    performStopActivity2ParamsMethod.invoke(activityThread,
+                                    ^
+            2 errors, 0 warnings
+            """
                 .trimIndent()
 
         check(*input).expect(expected)
@@ -56,14 +56,14 @@ src/androidx/sample/core/app/ActivityRecreator.java:264: Error: Method.invoke re
 
         val expected =
             """
-src/androidx/sample/core/app/ActivityRecreatorKt.kt:172: Error: Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
-                        performStopActivity3ParamsMethod!!.invoke(
-                        ^
-src/androidx/sample/core/app/ActivityRecreatorKt.kt:179: Error: Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
-                        performStopActivity2ParamsMethod!!.invoke(activityThread, token, false)
-                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-2 errors, 0 warnings
-        """
+            src/androidx/sample/core/app/ActivityRecreatorKt.kt:172: Error: Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
+                                    performStopActivity3ParamsMethod!!.invoke(
+                                    ^
+            src/androidx/sample/core/app/ActivityRecreatorKt.kt:179: Error: Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API. [BanUncheckedReflection]
+                                    performStopActivity2ParamsMethod!!.invoke(activityThread, token, false)
+                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            2 errors, 0 warnings
+            """
                 .trimIndent()
 
         lint().files(*input).run().expect(expected)
@@ -76,8 +76,8 @@ src/androidx/sample/core/app/ActivityRecreatorKt.kt:179: Error: Method.invoke re
 
         val expected =
             """
-No warnings.
-        """
+            No warnings.
+            """
                 .trimIndent()
 
         check(*input).expect(expected)
@@ -96,20 +96,20 @@ No warnings.
         val input =
             kotlin(
                 """
-            package androidx.foo
+                package androidx.foo
 
-            import android.os.Build
+                import android.os.Build
 
-            fun forceEnablePlatformTracing() {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) return
-                if (Build.VERSION.SDK_INT >= 29) return
-                val method = android.os.Trace::class.java.getMethod(
-                    "setAppTracingAllowed",
-                    Boolean::class.javaPrimitiveType
-                )
-                method.invoke(null, true)
-            }
-        """
+                fun forceEnablePlatformTracing() {
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) return
+                    if (Build.VERSION.SDK_INT >= 29) return
+                    val method = android.os.Trace::class.java.getMethod(
+                        "setAppTracingAllowed",
+                        Boolean::class.javaPrimitiveType
+                    )
+                    method.invoke(null, true)
+                }
+                """
                     .trimIndent()
             )
 
@@ -122,20 +122,20 @@ No warnings.
             arrayOf(
                 kotlin(
                     """
-            package androidx.foo
+                    package androidx.foo
 
-            import android.os.Build
-            import androidx.annotation.DeprecatedSinceApi
+                    import android.os.Build
+                    import androidx.annotation.DeprecatedSinceApi
 
-            @DeprecatedSinceApi(29)
-            fun forceEnablePlatformTracing() {
-                val method = android.os.Trace::class.java.getMethod(
-                    "setAppTracingAllowed",
-                    Boolean::class.javaPrimitiveType
-                )
-                method.invoke(null, true)
-            }
-        """
+                    @DeprecatedSinceApi(29)
+                    fun forceEnablePlatformTracing() {
+                        val method = android.os.Trace::class.java.getMethod(
+                            "setAppTracingAllowed",
+                            Boolean::class.javaPrimitiveType
+                        )
+                        method.invoke(null, true)
+                    }
+                    """
                         .trimIndent()
                 ),
                 Stubs.DeprecatedSinceApi,
@@ -150,29 +150,29 @@ No warnings.
             arrayOf(
                 java(
                     """
-            package androidx.foo;
+                    package androidx.foo;
 
-            import android.os.Build;
-            import androidx.annotation.DeprecatedSinceApi;
+                    import android.os.Build;
+                    import androidx.annotation.DeprecatedSinceApi;
 
-            public class OuterClass {
-                public static void doCheckedReflection() {
-                    if (Build.VERSION.SDK_INT < 29) {
-                        PreApi29Impl.forceEnablePlatformTracing();
+                    public class OuterClass {
+                        public static void doCheckedReflection() {
+                            if (Build.VERSION.SDK_INT < 29) {
+                                PreApi29Impl.forceEnablePlatformTracing();
+                            }
+                        }
+
+                        @DeprecatedSinceApi(29)
+                        static class PreApi29Impl {
+                            public static void forceEnablePlatformTracing() {
+                                android.os.Trace.class.getMethod(
+                                    "setAppTracingAllowed",
+                                    Boolean.class
+                                ).invoke(null, true);
+                            }
+                        }
                     }
-                }
-
-                @DeprecatedSinceApi(29)
-                static class PreApi29Impl {
-                    public static void forceEnablePlatformTracing() {
-                        android.os.Trace.class.getMethod(
-                            "setAppTracingAllowed",
-                            Boolean.class
-                        ).invoke(null, true);
-                    }
-                }
-            }
-        """
+                    """
                         .trimIndent()
                 ),
                 Stubs.DeprecatedSinceApi,
@@ -187,20 +187,20 @@ No warnings.
             arrayOf(
                 kotlin(
                     """
-                package androidx.foo
+                    package androidx.foo
 
-                import android.os.Build
+                    import android.os.Build
 
-                fun forceEnablePlatformTracing() {
-                    if (Build.VERSION.SDK_INT in 18..28) {
-                        val method = android.os.Trace::class.java.getMethod(
-                            "setAppTracingAllowed",
-                            Boolean::class.javaPrimitiveType
-                        )
-                        method.invoke(null, true)
+                    fun forceEnablePlatformTracing() {
+                        if (Build.VERSION.SDK_INT in 18..28) {
+                            val method = android.os.Trace::class.java.getMethod(
+                                "setAppTracingAllowed",
+                                Boolean::class.javaPrimitiveType
+                            )
+                            method.invoke(null, true)
+                        }
                     }
-                }
-            """
+                    """
                         .trimIndent()
                 )
             )

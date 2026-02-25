@@ -1,0 +1,9 @@
+{
+  "name": "@androidx/sqlite-web-worker",
+  "version": "0.0.0",
+  "description": "androidx SQLite Web Worker",
+  "license": "APACHE-2.0",
+  "dependencies": {
+    "@sqlite.org/sqlite-wasm": "^3.50.1-build1"
+  }
+}

@@ -30,6 +30,7 @@ public object ColorSpaces {
     internal val SrgbPrimaries = floatArrayOf(0.640f, 0.330f, 0.300f, 0.600f, 0.150f, 0.060f)
     internal val Ntsc1953Primaries = floatArrayOf(0.67f, 0.33f, 0.21f, 0.71f, 0.14f, 0.08f)
     internal val Bt2020Primaries = floatArrayOf(0.708f, 0.292f, 0.170f, 0.797f, 0.131f, 0.046f)
+
     internal val SrgbTransferParameters =
         TransferParameters(2.4, 1 / 1.055, 0.055 / 1.055, 1 / 12.92, 0.04045)
     private val NoneTransferParameters =
@@ -362,7 +363,7 @@ public object ColorSpaces {
     internal inline fun getColorSpace(id: Int): ColorSpace = ColorSpacesArray[id]
 
     /** These MUST be in the order of their IDs */
-    internal val ColorSpacesArray =
+    internal val ColorSpacesArray: Array<ColorSpace> =
         arrayOf(
             Srgb,
             LinearSrgb,

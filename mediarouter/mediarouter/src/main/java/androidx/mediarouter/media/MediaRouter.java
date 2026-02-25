@@ -60,6 +60,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 /**
  * MediaRouter allows applications to control the routing of media channels
@@ -1080,6 +1081,90 @@ public final class MediaRouter {
     public void setRouteListingPreference(@Nullable RouteListingPreference routeListingPreference) {
         checkCallingThread();
         getGlobalRouter().setRouteListingPreference(routeListingPreference);
+    }
+
+    /**
+     * Sets a list of {@link SuggestedDeviceInfo device suggestions}.
+     *
+     * <p>Use this method to advertise device suggestions for routing. UI elements in the system and
+     * within the app may use these suggestions to show one-tap transfer affordances to the user.
+     *
+     * <p>Suggestions may be expired automatically by the system, at which point you should call
+     * this method again if the suggestion is still relevant and should still be surfaced.
+     *
+     * <p>Call this method with an empty list to explicitly recommend that no suggestions are
+     * appropriate.
+     *
+     * @param deviceSuggestions The {@link SuggestedDeviceInfo} the router suggests should be
+     *     provided to the user.
+     */
+    @MainThread
+    public void setDeviceSuggestions(@NonNull List<SuggestedDeviceInfo> deviceSuggestions) {
+        checkCallingThread();
+        getGlobalRouter().setDeviceSuggestions(deviceSuggestions);
+    }
+
+    /**
+     * Clears the {@link SuggestedDeviceInfo device suggestions} provided by this router.
+     *
+     * <p>If the router explicitly wants to recommend that no suggestions are appropriate, use
+     * {@link #setDeviceSuggestions} with an empty list.
+     */
+    @MainThread
+    public void clearDeviceSuggestions() {
+        checkCallingThread();
+        getGlobalRouter().clearDeviceSuggestions();
+    }
+
+    /**
+     * Gets the current suggested devices.
+     *
+     * <p>The suggestions returned by this method include suggestions coming from other packages.
+     * For example, the route provider itself may include suggestions based on the likelihood of the
+     * user selecting a given route.
+     *
+     * @return the suggested devices, keyed by the package name providing each suggestion list.
+     */
+    // Device suggestions can be provided by multiple apps, while setting the device suggestions
+    // is only done for the app calling this method.
+    @SuppressWarnings("KotlinPropertyAccess")
+    @MainThread
+    @NonNull
+    public Map<String, List<SuggestedDeviceInfo>> getDeviceSuggestions() {
+        checkCallingThread();
+        return getGlobalRouter().getDeviceSuggestions();
+    }
+
+    /**
+     * Registers the given callback to be invoked when the {@link SuggestedDeviceInfo} of the router
+     * changes.
+     *
+     * @param deviceSuggestionsUpdatesCallback the callback to register.
+     * @param executor the executor to run the callback on. If the executor is passed in as null,
+     *     the callback will run on the main thread.
+     */
+    @MainThread
+    public void registerDeviceSuggestionsUpdatesCallback(
+            @NonNull DeviceSuggestionsUpdatesCallback deviceSuggestionsUpdatesCallback,
+            @Nullable Executor executor) {
+        checkCallingThread();
+        getGlobalRouter()
+                .registerDeviceSuggestionsUpdatesCallback(
+                        deviceSuggestionsUpdatesCallback, executor);
+    }
+
+    /**
+     * Unregisters the given callback to be invoked when the {@link SuggestedDeviceInfo} of the
+     * router changes.
+     *
+     * @param deviceSuggestionsUpdatesCallback the callback to unregister.
+     */
+    @MainThread
+    public void unregisterDeviceSuggestionsUpdatesCallback(
+            @NonNull DeviceSuggestionsUpdatesCallback deviceSuggestionsUpdatesCallback) {
+        checkCallingThread();
+        getGlobalRouter()
+                .unregisterDeviceSuggestionsUpdatesCallback(deviceSuggestionsUpdatesCallback);
     }
 
     /**
@@ -3020,6 +3105,36 @@ public final class MediaRouter {
         @Nullable
         ListenableFuture<Void> onPrepareTransfer(
                 @NonNull RouteInfo fromRoute, @NonNull RouteInfo toRoute);
+    }
+
+    /**
+     * Callback for receiving events about {@link MediaRouter#getDeviceSuggestions() device
+     * suggestions}.
+     *
+     * @see MediaRouter#registerDeviceSuggestionsUpdatesCallback
+     * @see MediaRouter#unregisterDeviceSuggestionsUpdatesCallback
+     */
+    public interface DeviceSuggestionsUpdatesCallback {
+
+        /**
+         * Called when suggestions are updated.
+         *
+         * @param suggestingPackageName the package that provided the suggestions.
+         * @param suggestedDeviceInfo the suggestions provided by the package.
+         */
+        void onSuggestionsUpdated(
+                @NonNull String suggestingPackageName,
+                @NonNull List<SuggestedDeviceInfo> suggestedDeviceInfo);
+
+        /**
+         * Called when suggestions are cleared.
+         *
+         * @param suggestingPackageName the package that cleared their provided suggestions.
+         */
+        void onSuggestionsCleared(@NonNull String suggestingPackageName);
+
+        /** Called when a router requests suggestions from suggestion providers. */
+        void onSuggestionsRequested();
     }
 
     /**

@@ -32,6 +32,10 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
+/**
+ * @param session the [Session] to get the augmented objects from
+ * @param lifecycle the [Lifecycle] to scope the coroutine to
+ */
 @Sampled
 fun getAugmentedObjects(session: Session, lifecycle: Lifecycle) {
     // Use a coroutine to listen to changes to the set of detected objects.

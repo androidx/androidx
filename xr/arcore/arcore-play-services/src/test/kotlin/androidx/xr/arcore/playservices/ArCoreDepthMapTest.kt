@@ -18,7 +18,7 @@ package androidx.xr.arcore.playservices
 
 import android.media.Image
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.xr.runtime.Config
+import androidx.xr.runtime.DepthEstimationMode
 import com.google.ar.core.Frame as ARCore1xFrame
 import com.google.common.truth.Truth.assertThat
 import java.nio.ByteBuffer
@@ -85,7 +85,7 @@ class ArCoreDepthMapTest {
         whenever(mockDepthMapImage.width).thenReturn(imageWidth)
         whenever(mockDepthMapImage.height).thenReturn(imageHeight)
 
-        underTest.updateDepthEstimationMode(Config.DepthEstimationMode.RAW_ONLY)
+        underTest.updateDepthEstimationMode(DepthEstimationMode.RAW_ONLY)
         underTest.update(mockLastFrame)
 
         assertThat(underTest.rawConfidenceMap!![0]).isEqualTo(rawConfidenceValues.get(0))
@@ -142,7 +142,7 @@ class ArCoreDepthMapTest {
         whenever(mockDepthMapImage.height).thenReturn(imageHeight)
         whenever(mockSmoothDepthMapImage.height).thenReturn(imageHeight)
 
-        underTest.updateDepthEstimationMode(Config.DepthEstimationMode.SMOOTH_AND_RAW)
+        underTest.updateDepthEstimationMode(DepthEstimationMode.SMOOTH_AND_RAW)
         underTest.update(mockLastFrame)
 
         assertThat(underTest.rawConfidenceMap!![0]).isEqualTo(rawConfidenceValues.get(0))

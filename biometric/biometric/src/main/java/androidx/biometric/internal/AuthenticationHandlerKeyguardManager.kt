@@ -19,6 +19,7 @@ package androidx.biometric.internal
 import android.content.Context
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.BiometricPrompt.AuthenticationCallback
+import androidx.biometric.internal.data.CanceledFrom
 import androidx.biometric.internal.viewmodel.AuthenticationViewModel
 import androidx.lifecycle.LifecycleOwner
 import java.util.concurrent.Executor

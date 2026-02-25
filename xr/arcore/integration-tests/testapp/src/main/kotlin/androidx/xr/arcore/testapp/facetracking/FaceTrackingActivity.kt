@@ -58,6 +58,7 @@ import androidx.xr.arcore.testapp.common.BackToMainActivityButton
 import androidx.xr.arcore.testapp.common.SessionLifecycleHelper
 import androidx.xr.arcore.testapp.ui.theme.GoogleYellow
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.FaceTrackingMode
 import androidx.xr.runtime.RequiredCalibrationType
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.TrackingState
@@ -103,7 +104,7 @@ class FaceTrackingActivity : ComponentActivity() {
         sessionHelper =
             SessionLifecycleHelper(
                 this,
-                Config(faceTracking = Config.FaceTrackingMode.BLEND_SHAPES),
+                Config(faceTracking = FaceTrackingMode.BLEND_SHAPES),
                 onSessionAvailable = { session ->
                     this.session = session
                     lifecycleScope.launch {

@@ -53,6 +53,8 @@ import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.DepthEstimationMode
+import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.Log
 import androidx.xr.runtime.Session
 import javax.microedition.khronos.egl.EGLConfig
@@ -84,13 +86,13 @@ class DepthMapActivity : ComponentActivity(), GLSurfaceView.Renderer {
     private var selectedView by mutableStateOf(ViewSelection.LEFT)
     private val rawConfig =
         Config(
-            depthEstimation = Config.DepthEstimationMode.RAW_ONLY,
-            deviceTracking = Config.DeviceTrackingMode.LAST_KNOWN,
+            depthEstimation = DepthEstimationMode.RAW_ONLY,
+            deviceTracking = DeviceTrackingMode.LAST_KNOWN,
         )
     private val smoothConfig =
         Config(
-            depthEstimation = Config.DepthEstimationMode.SMOOTH_ONLY,
-            deviceTracking = Config.DeviceTrackingMode.LAST_KNOWN,
+            depthEstimation = DepthEstimationMode.SMOOTH_ONLY,
+            deviceTracking = DeviceTrackingMode.LAST_KNOWN,
         )
     private var configurationMutex = Mutex()
 
@@ -121,6 +123,7 @@ class DepthMapActivity : ComponentActivity(), GLSurfaceView.Renderer {
                     surfaceView.setWillNotDraw(false)
                     setContent { DepthMapPanel(surfaceView) }
                 },
+                context = applicationContext,
             )
         sessionHelper.tryCreateSession()
     }

@@ -29,7 +29,8 @@ import androidx.xr.arcore.runtime.PerceptionManager
 import androidx.xr.arcore.runtime.Plane
 import androidx.xr.arcore.runtime.RenderViewpoint
 import androidx.xr.arcore.runtime.Trackable
-import androidx.xr.runtime.Config
+import androidx.xr.runtime.DepthEstimationMode
+import androidx.xr.runtime.EyeTrackingMode
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Ray
 import androidx.xr.runtime.math.Vector3
@@ -37,7 +38,25 @@ import java.nio.ByteBuffer
 import java.util.Arrays
 import java.util.UUID
 
-/** Implementation of the perception capabilities of a runtime using OpenXR. */
+/**
+ * Implementation of the perception capabilities of a runtime using OpenXR.
+ *
+ * @property xrResources the [XrResources] for this manager
+ * @property trackables the collection of [Trackable] objects
+ * @property leftEye the left [Eye], or null if not available
+ * @property rightEye the right [Eye], or null if not available
+ * @property leftHand the left [Hand], or null if not available
+ * @property rightHand the right [Hand], or null if not available
+ * @property arDevice the [OpenXrDevice] instance
+ * @property leftRenderViewpoint the left [RenderViewpoint], or null if not available
+ * @property rightRenderViewpoint the right [RenderViewpoint], or null if not available
+ * @property monoRenderViewpoint the mono [RenderViewpoint], or null if not available
+ * @property userFace the user's [Face], or null if not available
+ * @property geospatial the [OpenXrGeospatial] instance
+ * @property leftDepthMap the left [DepthMap], or null if not available
+ * @property rightDepthMap the right [DepthMap], or null if not available
+ * @property monoDepthMap the mono [DepthMap], or null if not available
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class OpenXrPerceptionManager
 internal constructor(private val timeSource: OpenXrTimeSource) : PerceptionManager {
@@ -133,16 +152,16 @@ internal constructor(private val timeSource: OpenXrTimeSource) : PerceptionManag
     // Mono depth map is not supported in OpenXR.
     override val monoDepthMap: DepthMap? = null
 
-    internal var depthEstimationMode = Config.DepthEstimationMode.DISABLED
+    internal var depthEstimationMode = DepthEstimationMode.DISABLED
 
-    internal var eyeTrackingMode = Config.EyeTrackingMode.DISABLED
+    internal var eyeTrackingMode = EyeTrackingMode.DISABLED
 
     private var lastUpdateXrTime: Long = 0L
 
     /**
      * Updates the perception manager.
      *
-     * @param xrTime the number of nanoseconds since the start of the OpenXR epoch.
+     * @param xrTime the number of nanoseconds since the start of the OpenXR epoch
      */
     public fun update(xrTime: Long) {
         for (updatable in xrResources.updatables) {
@@ -153,13 +172,13 @@ internal constructor(private val timeSource: OpenXrTimeSource) : PerceptionManag
         // TODO(b/421191332): Add the View Camera config and apply it for poseInUnboundedSpace.
         updateRenderViewpoints(xrTime, false)
 
-        if (depthEstimationMode != Config.DepthEstimationMode.DISABLED) {
+        if (depthEstimationMode != DepthEstimationMode.DISABLED) {
             val depthMapBuffers = nativeGetDepthImagesDataBuffers(xrTime)
             xrResources.leftDepthMap.update(depthMapBuffers)
             xrResources.rightDepthMap.update(depthMapBuffers)
         }
 
-        if (eyeTrackingMode != Config.EyeTrackingMode.DISABLED) {
+        if (eyeTrackingMode != EyeTrackingMode.DISABLED) {
             updateEyes(xrTime)
         }
 

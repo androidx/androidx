@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("TYPE_INTERSECTION_AS_REIFIED_WARNING")
-
 package androidx.kruth
 
 import kotlin.test.Test
@@ -25,31 +23,31 @@ class ObjectArraySubjectTest {
 
     @Test
     fun isEqualTo() {
-        assertThat(arrayOf("A", 5L)).isEqualTo(arrayOf("A", 5L))
+        assertThat(arrayOf<Any>("A", 5L)).isEqualTo(arrayOf<Any>("A", 5L))
     }
 
     @Test
     fun isEqualTo_same() {
-        val same = arrayOf("A", 5L)
+        val same = arrayOf<Any>("A", 5L)
         assertThat(same).isEqualTo(same)
     }
 
     @Test
     fun asList() {
-        assertThat(arrayOf("A", 5L)).asList().contains("A")
+        assertThat(arrayOf<Any>("A", 5L)).asList().contains("A")
     }
 
     @Test
     fun hasLength() {
         assertThat(emptyArray<Any>()).hasLength(0)
-        assertThat(arrayOf("A", 5L)).hasLength(2)
+        assertThat(arrayOf<Any>("A", 5L)).hasLength(2)
         assertThat(arrayOf<Array<Any>>()).hasLength(0)
         assertThat(arrayOf<Array<Any>>(emptyArray())).hasLength(1)
     }
 
     @Test
     fun hasLengthFail() {
-        assertFailsWith<AssertionError> { assertThat(arrayOf("A", 5L)).hasLength(1) }
+        assertFailsWith<AssertionError> { assertThat(arrayOf<Any>("A", 5L)).hasLength(1) }
     }
 
     @Test
@@ -72,12 +70,12 @@ class ObjectArraySubjectTest {
 
     @Test
     fun isEmptyFail() {
-        assertFailsWith<AssertionError> { assertThat(arrayOf("A", 5L)).isEmpty() }
+        assertFailsWith<AssertionError> { assertThat(arrayOf<Any>("A", 5L)).isEmpty() }
     }
 
     @Test
     fun isNotEmpty() {
-        assertThat(arrayOf("A", 5L)).isNotEmpty()
+        assertThat(arrayOf<Any>("A", 5L)).isNotEmpty()
         assertThat(arrayOf(arrayOf("A"), arrayOf(5L))).isNotEmpty()
     }
 
@@ -88,7 +86,9 @@ class ObjectArraySubjectTest {
 
     @Test
     fun isEqualTo_fail_unequalOrdering() {
-        assertFailsWith<AssertionError> { assertThat(arrayOf("A", 5L)).isEqualTo(arrayOf(5L, "A")) }
+        assertFailsWith<AssertionError> {
+            assertThat(arrayOf<Any>("A", 5L)).isEqualTo(arrayOf<Any>(5L, "A"))
+        }
     }
 
     @Test
@@ -117,19 +117,19 @@ class ObjectArraySubjectTest {
 
     @Test
     fun isEqualTo_fail_notAnArray() {
-        assertFailsWith<AssertionError> { assertThat(arrayOf("A", 5L)).isEqualTo(Any()) }
+        assertFailsWith<AssertionError> { assertThat(arrayOf<Any>("A", 5L)).isEqualTo(Any()) }
     }
 
     @Test
     fun isNotEqualTo_sameLengths() {
-        assertThat(arrayOf("A", 5L)).isNotEqualTo(arrayOf("C", 5L))
+        assertThat(arrayOf<Any>("A", 5L)).isNotEqualTo(arrayOf<Any>("C", 5L))
         assertThat(arrayOf(arrayOf("A"), arrayOf(5L)))
             .isNotEqualTo(arrayOf(arrayOf("C"), arrayOf(5L)))
     }
 
     @Test
     fun isNotEqualTo_differentLengths() {
-        assertThat(arrayOf("A", 5L)).isNotEqualTo(arrayOf("A", 5L, "c"))
+        assertThat(arrayOf<Any>("A", 5L)).isNotEqualTo(arrayOf<Any>("A", 5L, "c"))
         assertThat(arrayOf(arrayOf("A"), arrayOf(5L)))
             .isNotEqualTo(arrayOf(arrayOf("A", "c"), arrayOf(5L)))
         assertThat(arrayOf(arrayOf("A"), arrayOf(5L)))
@@ -138,13 +138,13 @@ class ObjectArraySubjectTest {
 
     @Test
     fun isNotEqualTo_differentTypes() {
-        assertThat(arrayOf("A", 5L)).isNotEqualTo(Any())
+        assertThat(arrayOf<Any>("A", 5L)).isNotEqualTo(Any())
     }
 
     @Test
     fun isNotEqualTo_failEquals() {
         assertFailsWith<AssertionError> {
-            assertThat(arrayOf("A", 5L)).isNotEqualTo(arrayOf("A", 5L))
+            assertThat(arrayOf<Any>("A", 5L)).isNotEqualTo(arrayOf<Any>("A", 5L))
         }
     }
 
@@ -158,7 +158,7 @@ class ObjectArraySubjectTest {
 
     @Test
     fun isNotEqualTo_failSame() {
-        val same = arrayOf("A", 5L)
+        val same = arrayOf<Any>("A", 5L)
         assertFailsWith<AssertionError> { assertThat(same).isNotEqualTo(same) }
     }
 

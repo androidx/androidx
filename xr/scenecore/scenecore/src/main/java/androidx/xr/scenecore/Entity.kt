@@ -81,21 +81,6 @@ public interface Entity : ScenePose {
     public fun getPose(): Pose = getPose(Space.PARENT)
 
     /**
-     * Calculates a gravity-aligned version of a given pose.
-     *
-     * This function takes a pose in **PARENT space** and returns a new pose in the **PARENT
-     * space**. The new pose will have the same position as the input, but its rotation will be
-     * aligned with the direction of gravity. This effectively preserves the original yaw (Y-axis
-     * rotation) while setting the pitch (X-axis rotation) and roll (Z-axis rotation) to zero.
-     *
-     * @param pose The input [Pose] relative to the **PARENT space**.
-     * @return A new [Pose] in the **PARENT space**, with its rotation aligned to gravity.
-     * @throws IllegalStateException if the entity does not have a parent.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public fun getGravityAlignedPose(pose: Pose = Pose.Identity): Pose
-
-    /**
      * Sets the scale of this Entity relative to the given Space. This value will affect the
      * rendering of this Entity's children. As the scale increases, this will uniformly stretch the
      * content of the Entity.
@@ -325,12 +310,6 @@ internal constructor(rtEntity: RtEntityType, private val entityManager: EntityMa
     override fun getPose(relativeTo: Space): Pose {
         checkNotDisposed()
         return rtEntity!!.getPose(relativeTo.toRtSpace())
-    }
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    override fun getGravityAlignedPose(pose: Pose): Pose {
-        checkNotDisposed()
-        return rtEntity!!.getGravityAlignedPose(pose)
     }
 
     override fun setScale(scale: Float, relativeTo: Space) {

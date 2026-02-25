@@ -80,13 +80,12 @@ public class ConfigurationErrorTest {
         assertEquals("ID1_ID2_", suppression.prefix)
         assertEquals(
             """
-                |WARNING: summary1
-                |    message1
-
-                |WARNING: summary2
-                |    message2
-
-            """
+            |WARNING: summary1
+            |    message1
+            |
+            |WARNING: summary2
+            |    message2
+            |"""
                 .trimMargin(),
             suppression.warningMessage,
         )
@@ -113,8 +112,7 @@ public class ConfigurationErrorTest {
                 |
                 |ERROR: summary2
                 |    message2
-                |
-            """
+                |"""
                     .trimMargin()
             )
         )

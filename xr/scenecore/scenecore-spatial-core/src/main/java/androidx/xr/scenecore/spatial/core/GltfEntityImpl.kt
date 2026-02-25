@@ -1,0 +1,102 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package androidx.xr.scenecore.spatial.core
+
+import android.content.Context
+import androidx.annotation.RestrictTo
+import androidx.xr.runtime.math.BoundingBox
+import androidx.xr.scenecore.runtime.Entity
+import androidx.xr.scenecore.runtime.GltfAnimationFeature
+import androidx.xr.scenecore.runtime.GltfEntity
+import androidx.xr.scenecore.runtime.GltfFeature
+import androidx.xr.scenecore.runtime.GltfModelNodeFeature
+import com.android.extensions.xr.XrExtensions
+import java.util.concurrent.Executor
+import java.util.concurrent.ScheduledExecutorService
+import java.util.function.Consumer
+
+/**
+ * Implementation of a SceneCore GltfEntity.
+ *
+ * This is used to create an entity that contains a glTF object.
+ */
+internal class GltfEntityImpl(
+    context: Context,
+    private val gltfFeature: GltfFeature,
+    parentEntity: Entity?,
+    extensions: XrExtensions,
+    entityManager: EntityManager,
+    executor: ScheduledExecutorService,
+) : BaseRenderingEntity(context, gltfFeature, extensions, entityManager, executor), GltfEntity {
+    init {
+        parent = parentEntity
+    }
+
+    override val nodes: List<GltfModelNodeFeature>
+        get() = gltfFeature.nodes
+
+    override val gltfModelBoundingBox: BoundingBox
+        get() = gltfFeature.getGltfModelBoundingBox()
+
+    override val animations: List<GltfAnimationFeature>
+        get() = gltfFeature.getAnimations(mExecutor)
+
+    override fun startAnimation(loop: Boolean, animationName: String?) {
+        gltfFeature.startAnimation(loop, animationName, mExecutor)
+    }
+
+    override fun stopAnimation() {
+        gltfFeature.stopAnimation()
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    override fun pauseAnimation() {
+        gltfFeature.pauseAnimation()
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    override fun resumeAnimation() {
+        gltfFeature.resumeAnimation()
+    }
+
+    @GltfEntity.AnimationStateValue
+    override val animationState: Int
+        get() = gltfFeature.animationState
+
+    override fun setColliderEnabled(enabled: Boolean) {
+        gltfFeature.setColliderEnabled(enabled)
+    }
+
+    override fun addAnimationStateListener(executor: Executor, listener: Consumer<Int>) {
+        gltfFeature.addAnimationStateListener(executor, listener)
+    }
+
+    override fun removeAnimationStateListener(listener: Consumer<Int>) {
+        gltfFeature.removeAnimationStateListener(listener)
+    }
+
+    override fun addOnBoundsUpdateListener(listener: Consumer<BoundingBox>) {
+        gltfFeature.addOnBoundsUpdateListener(listener)
+    }
+
+    override fun removeOnBoundsUpdateListener(listener: Consumer<BoundingBox>) {
+        gltfFeature.removeOnBoundsUpdateListener(listener)
+    }
+
+    override fun setReformAffordanceEnabled(enabled: Boolean, systemMovable: Boolean) {
+        gltfFeature.setReformAffordanceEnabled(this, enabled, mExecutor, systemMovable)
+    }
+}

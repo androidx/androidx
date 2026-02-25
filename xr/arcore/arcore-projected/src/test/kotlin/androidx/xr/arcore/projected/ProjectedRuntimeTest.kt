@@ -17,7 +17,13 @@
 package androidx.xr.arcore.projected
 
 import android.app.Activity
-import androidx.xr.runtime.Config
+import androidx.xr.runtime.AnchorPersistenceMode
+import androidx.xr.runtime.DepthEstimationMode
+import androidx.xr.runtime.DeviceTrackingMode
+import androidx.xr.runtime.EyeTrackingMode
+import androidx.xr.runtime.FaceTrackingMode
+import androidx.xr.runtime.HandTrackingMode
+import androidx.xr.runtime.PlaneTrackingMode
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
 import org.junit.Before
@@ -60,16 +66,16 @@ class ProjectedRuntimeTest {
     fun isSupported_unsupportedModes_returnsFalse() {
         val unsupportedModes =
             listOf(
-                Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                Config.HandTrackingMode.BOTH,
-                Config.DeviceTrackingMode.LAST_KNOWN,
-                Config.DepthEstimationMode.RAW_ONLY,
-                Config.DepthEstimationMode.SMOOTH_ONLY,
-                Config.DepthEstimationMode.SMOOTH_AND_RAW,
-                Config.AnchorPersistenceMode.LOCAL,
-                Config.FaceTrackingMode.BLEND_SHAPES,
-                Config.EyeTrackingMode.COARSE_TRACKING,
-                Config.EyeTrackingMode.FINE_TRACKING,
+                PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
+                HandTrackingMode.BOTH,
+                DeviceTrackingMode.LAST_KNOWN,
+                DepthEstimationMode.RAW_ONLY,
+                DepthEstimationMode.SMOOTH_ONLY,
+                DepthEstimationMode.SMOOTH_AND_RAW,
+                AnchorPersistenceMode.LOCAL,
+                FaceTrackingMode.BLEND_SHAPES,
+                EyeTrackingMode.COARSE_TRACKING,
+                EyeTrackingMode.FINE_TRACKING,
             )
 
         for (mode in unsupportedModes) {

@@ -70,6 +70,7 @@ public class DrawOval extends DrawBase4 {
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("draw_oval")
                 .description("Draw the specified oval")
                 .field(DocumentedOperation.FLOAT, "left", "The left side of the oval")
                 .field(DocumentedOperation.FLOAT, "top", "The top of the oval")

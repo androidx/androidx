@@ -20,7 +20,7 @@ import androidx.ink.authoring.ExperimentalLatencyDataApi
 import com.google.common.truth.Correspondence
 
 @ExperimentalLatencyDataApi
-public val latencyDataEqual: Correspondence<LatencyData, LatencyData> =
+val latencyDataEqual: Correspondence<LatencyData, LatencyData> =
     Correspondence.from(
         { actual: LatencyData?, expected: LatencyData? ->
             if (expected == null || actual == null) return@from actual == expected

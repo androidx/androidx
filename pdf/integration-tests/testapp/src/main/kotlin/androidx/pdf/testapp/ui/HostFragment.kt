@@ -16,7 +16,6 @@
 
 package androidx.pdf.testapp.ui
 
-import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -35,7 +34,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
  * adds a FloatingActionButton for search functionality and manages its visibility based on the
  * immersive mode state.
  */
-@SuppressLint("RestrictedApiAndroidX")
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
 class HostFragment : PdfViewerFragmentV1() {
     private var hostView: ConstraintLayout? = null

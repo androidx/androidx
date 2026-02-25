@@ -25,6 +25,7 @@ import android.view.Gravity
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
+import androidx.core.widget.doOnTextChanged
 import androidx.pdf.R
 import androidx.pdf.models.FormWidgetInfo
 import androidx.pdf.view.fastscroll.getDimensions
@@ -44,15 +45,21 @@ internal class FormFillingTextInputFactory(private val context: Context) {
         pageNum: Int,
         formWidgetInfo: FormWidgetInfo,
         startingText: String? = null,
+        onTextChanged: (String) -> Unit,
     ): FormFillingEditText {
-        require(formWidgetInfo.widgetType == FormWidgetInfo.WIDGET_TYPE_TEXTFIELD)
-        return EditText(context).withFormWidget(pageNum, formWidgetInfo, startingText)
+        require(
+            formWidgetInfo.widgetType == FormWidgetInfo.WIDGET_TYPE_TEXTFIELD ||
+                formWidgetInfo.widgetType == FormWidgetInfo.WIDGET_TYPE_COMBOBOX
+        )
+        return EditText(context)
+            .withFormWidget(pageNum, formWidgetInfo, startingText, onTextChanged)
     }
 
     private fun EditText.withFormWidget(
         pageNum: Int,
         formWidget: FormWidgetInfo,
         startingText: String?,
+        onTextChanged: (String) -> Unit,
     ): FormFillingEditText {
         setBackgroundResource(R.drawable.form_edit_text_background)
         setTextColor(Color.BLACK)
@@ -69,6 +76,7 @@ internal class FormFillingTextInputFactory(private val context: Context) {
         inputType = configureInputType(formWidget.isMultiLineText)
         configureText(startingText, formWidget, this)
         imeOptions = DEFAULT_IME_OPTIONS
+        doOnTextChanged { text, _, _, _ -> onTextChanged(text.toString()) }
         return FormFillingEditText(this, textSize, pageNum, formWidget)
     }
 

@@ -133,6 +133,9 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
                     override val text: TextFieldCharSequence
                         get() = state.visualText
 
+                    override val transformedLength: Int
+                        get() = imeEditCommandScope.transformedLength
+
                     override fun sendKeyEvent(keyEvent: KeyEvent) {
                         composeImm.sendKeyEvent(keyEvent)
                     }

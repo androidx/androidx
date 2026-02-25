@@ -27,6 +27,8 @@ import android.media.MediaFormat.MIMETYPE_VIDEO_MPEG4
 import android.media.MediaFormat.MIMETYPE_VIDEO_VP8
 import android.media.MediaRecorder.VideoEncoder.H264
 import android.media.MediaRecorder.VideoEncoder.HEVC
+import androidx.camera.core.DynamicRange
+import androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT
 import androidx.camera.core.DynamicRange.HLG_10_BIT
 import androidx.camera.core.DynamicRange.SDR
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy
@@ -39,6 +41,7 @@ import androidx.camera.testing.impl.EncoderProfilesUtil.createFakeAudioProfilePr
 import androidx.camera.testing.impl.EncoderProfilesUtil.createFakeVideoProfileProxy
 import androidx.camera.video.AudioSpec
 import androidx.camera.video.MediaSpec
+import androidx.camera.video.MediaSpec.Companion.OUTPUT_FORMAT_MPEG_4
 import androidx.camera.video.MediaSpec.Companion.OUTPUT_FORMAT_UNSPECIFIED
 import androidx.camera.video.VideoSpec
 import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy
@@ -60,9 +63,11 @@ class MediaConfigUtilTest {
         private const val VIDEO_MPEG4 = MIMETYPE_VIDEO_MPEG4
         private const val VIDEO_HEVC = MIMETYPE_VIDEO_HEVC
         private const val VIDEO_VP8 = MIMETYPE_VIDEO_VP8
+        private const val VIDEO_UNKNOWN = "video/unknown-codec"
         private const val AUDIO_AAC = MIMETYPE_AUDIO_AAC
         private const val AUDIO_AMR_NB = MIMETYPE_AUDIO_AMR_NB
         private const val AUDIO_VORBIS = MIMETYPE_AUDIO_VORBIS
+        private const val AUDIO_UNKNOWN = "audio/unknown-codec"
 
         private val VIDEO_PROFILE_SDR_AVC =
             createFakeVideoProfileProxy(
@@ -99,8 +104,7 @@ class MediaConfigUtilTest {
         val mediaInfo = MediaConfigUtil.resolveMediaInfo(mediaSpec, SDR, encoderProfiles)
 
         // Assert: It should resolve using the provided profiles without needing fallback
-        assertThat(mediaInfo).isNotNull()
-        assertThat(mediaInfo!!.videoMimeInfo.mimeType).isEqualTo(VIDEO_AVC)
+        assertThat(mediaInfo.videoMimeInfo.mimeType).isEqualTo(VIDEO_AVC)
         assertThat(mediaInfo.videoMimeInfo.compatibleVideoProfile).isEqualTo(VIDEO_PROFILE_SDR_AVC)
     }
 
@@ -117,8 +121,7 @@ class MediaConfigUtilTest {
         val mediaInfo = MediaConfigUtil.resolveMediaInfo(mediaSpec, SDR, null)
 
         // Assert: Resolved via Registry. Compatible profiles will be null.
-        assertThat(mediaInfo).isNotNull()
-        assertThat(mediaInfo!!.videoMimeInfo.mimeType).isEqualTo(VIDEO_AVC)
+        assertThat(mediaInfo.videoMimeInfo.mimeType).isEqualTo(VIDEO_AVC)
         assertThat(mediaInfo.audioMimeInfo!!.mimeType).isEqualTo(AUDIO_AAC)
         assertThat(mediaInfo.videoMimeInfo.compatibleVideoProfile).isNull()
         assertThat(mediaInfo.audioMimeInfo.compatibleAudioProfile).isNull()
@@ -142,8 +145,7 @@ class MediaConfigUtilTest {
 
         // Assert: Since HLG HEVC profile isn't SDR compatible, it falls back to Registry (SDR ->
         // AVC)
-        assertThat(mediaInfo).isNotNull()
-        assertThat(mediaInfo!!.videoMimeInfo.mimeType).isEqualTo(VIDEO_AVC)
+        assertThat(mediaInfo.videoMimeInfo.mimeType).isEqualTo(VIDEO_AVC)
         assertThat(mediaInfo.videoMimeInfo.compatibleVideoProfile).isNull()
     }
 
@@ -161,8 +163,7 @@ class MediaConfigUtilTest {
         val mediaInfo = MediaConfigUtil.resolveMediaInfo(mediaSpec, HLG_10_BIT, null)
 
         // Assert: Should resolve to HEVC as it's the standard for HLG
-        assertThat(mediaInfo).isNotNull()
-        assertThat(mediaInfo!!.videoMimeInfo.mimeType).isEqualTo(VIDEO_HEVC)
+        assertThat(mediaInfo.videoMimeInfo.mimeType).isEqualTo(VIDEO_HEVC)
     }
 
     @Test
@@ -179,13 +180,12 @@ class MediaConfigUtilTest {
         val mediaInfo = MediaConfigUtil.resolveMediaInfo(mediaSpec, SDR, null)
 
         // Assert
-        assertThat(mediaInfo).isNotNull()
-        assertThat(mediaInfo!!.videoMimeInfo.mimeType).isEqualTo(explicitMime)
+        assertThat(mediaInfo.videoMimeInfo.mimeType).isEqualTo(explicitMime)
     }
 
     @Test
-    fun resolveMediaInfo_returnsNull_whenDeviceDoesNotSupport() {
-        // Arrange: Spec wants HEVC, but device only has AVC
+    fun resolveMediaInfo_fallsBackToFirstRegistryCombo_whenDeviceDoesNotSupportMime() {
+        // Arrange: Spec wants MPEG4, but device only supports AVC
         MediaConfigUtil.setSupportedEncoderMimeTypes(
             videoMimes = listOf(VIDEO_AVC),
             audioMimes = listOf(AUDIO_AAC),
@@ -195,8 +195,58 @@ class MediaConfigUtilTest {
         // Act
         val mediaInfo = MediaConfigUtil.resolveMediaInfo(mediaSpec, SDR, null)
 
-        // Assert
-        assertThat(mediaInfo).isNull()
+        // Assert: Resolved via FormatComboRegistry.
+        // The first combo for MPEG4 is MPEG4 + AAC (even if device support is missing)
+        assertThat(mediaInfo.containerInfo.outputFormat).isEqualTo(OUTPUT_FORMAT_MPEG_4)
+        assertThat(mediaInfo.videoMimeInfo.mimeType).isEqualTo(VIDEO_MPEG4)
+        assertThat(mediaInfo.audioMimeInfo!!.mimeType).isEqualTo(AUDIO_AAC)
+    }
+
+    @Test
+    fun resolveMediaInfo_usesDefaultAudioMime_whenVideoMimeIsUnknownToRegistry() {
+        // Arrange: Unknown Video MIME forces resolveByDefault()
+        val videoMime = VIDEO_UNKNOWN
+        val mediaSpec = createMediaSpec(videoMime = videoMime)
+
+        // Act
+        val mediaInfo = MediaConfigUtil.resolveMediaInfo(mediaSpec, SDR, null)
+
+        // Assert: Video remains as requested, Audio falls back to container default (AAC for MP4)
+        assertThat(mediaInfo.containerInfo.outputFormat).isEqualTo(OUTPUT_FORMAT_MPEG_4)
+        assertThat(mediaInfo.videoMimeInfo.mimeType).isEqualTo(videoMime)
+        assertThat(mediaInfo.audioMimeInfo!!.mimeType).isEqualTo(AUDIO_AAC)
+    }
+
+    @Test
+    fun resolveMediaInfo_usesDynamicRangeDefaultVideo_whenAudioMimeIsUnknownToRegistry() {
+        // Arrange: Unknown Audio MIME forces resolveByDefault()
+        val audioMime = AUDIO_UNKNOWN
+        val dynamicRange = HLG_10_BIT
+        val mediaSpec = createMediaSpec(audioMime = audioMime)
+
+        // Act: Use HLG which prefers HEVC
+        val mediaInfo = MediaConfigUtil.resolveMediaInfo(mediaSpec, dynamicRange, null)
+
+        // Assert: Video falls back to DynamicRange default (HEVC), Audio remains as requested
+        assertThat(mediaInfo.containerInfo.outputFormat).isEqualTo(OUTPUT_FORMAT_MPEG_4)
+        assertThat(mediaInfo.videoMimeInfo.mimeType).isEqualTo(VIDEO_HEVC)
+        assertThat(mediaInfo.audioMimeInfo!!.mimeType).isEqualTo(audioMime)
+    }
+
+    @Test
+    fun resolveMediaInfo_usesOutputFormatDefaultVideo_whenMimeAndDynamicRangeAreUnknown() {
+        // Arrange: Unknown Audio MIME + Unknown Dynamic Range forces the final fallback
+        val audioMime = AUDIO_UNKNOWN
+        val dynamicRange = DynamicRange(Int.MAX_VALUE, BIT_DEPTH_10_BIT)
+        val mediaSpec = createMediaSpec(audioMime = audioMime)
+
+        // Act
+        val mediaInfo = MediaConfigUtil.resolveMediaInfo(mediaSpec, dynamicRange, null)
+
+        // Assert: Video falls back to the absolute default for the output format (AVC for MP4)
+        assertThat(mediaInfo.containerInfo.outputFormat).isEqualTo(OUTPUT_FORMAT_MPEG_4)
+        assertThat(mediaInfo.videoMimeInfo.mimeType).isEqualTo(VIDEO_AVC)
+        assertThat(mediaInfo.audioMimeInfo!!.mimeType).isEqualTo(audioMime)
     }
 
     @Test
@@ -216,8 +266,7 @@ class MediaConfigUtilTest {
 
         // Assert: Not "fully compatible" because audio mime doesn't match, but it should find and
         // attach the AVC profile to the fallback.
-        assertThat(mediaInfo).isNotNull()
-        assertThat(mediaInfo!!.videoMimeInfo.mimeType).isEqualTo(VIDEO_AVC)
+        assertThat(mediaInfo.videoMimeInfo.mimeType).isEqualTo(VIDEO_AVC)
         assertThat(mediaInfo.audioMimeInfo!!.mimeType).isEqualTo(AUDIO_AMR_NB)
         assertThat(mediaInfo.videoMimeInfo.compatibleVideoProfile).isEqualTo(VIDEO_PROFILE_SDR_AVC)
         assertThat(mediaInfo.audioMimeInfo.compatibleAudioProfile).isNull()
@@ -236,8 +285,7 @@ class MediaConfigUtilTest {
         val mediaInfo = MediaConfigUtil.resolveMediaInfo(mediaSpec, SDR, null)
 
         // Assert: Should resolve to VP8 with no audio
-        assertThat(mediaInfo).isNotNull()
-        assertThat(mediaInfo!!.videoMimeInfo.mimeType).isEqualTo(VIDEO_VP8)
+        assertThat(mediaInfo.videoMimeInfo.mimeType).isEqualTo(VIDEO_VP8)
         assertThat(mediaInfo.audioMimeInfo).isNull()
     }
 
@@ -256,8 +304,7 @@ class MediaConfigUtilTest {
         val mediaInfo = MediaConfigUtil.resolveMediaInfo(webmSpec, SDR, mp4Profiles)
 
         // Assert: Should ignore the MP4 profiles and fallback to SDR WebM registry
-        assertThat(mediaInfo).isNotNull()
-        assertThat(mediaInfo!!.containerInfo.outputFormat).isEqualTo(MediaSpec.OUTPUT_FORMAT_WEBM)
+        assertThat(mediaInfo.containerInfo.outputFormat).isEqualTo(MediaSpec.OUTPUT_FORMAT_WEBM)
         assertThat(mediaInfo.containerInfo.compatibleEncoderProfiles).isNull()
     }
 

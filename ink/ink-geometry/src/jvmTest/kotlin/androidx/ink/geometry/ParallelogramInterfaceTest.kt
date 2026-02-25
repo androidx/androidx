@@ -25,95 +25,59 @@ import org.junit.runners.JUnit4
 class ParallelogramInterfaceTest {
 
     @Test
-    fun normalizeAndRun_withNegativeWidth_normalizesWidthHeightAndRotation() {
-        val expectedWidth = 5f
-        val expectedHeight = -3f
-        val expectedRotationDegrees = Angle.QUARTER_TURN_DEGREES + Angle.HALF_TURN_DEGREES
-        val assertExpectedValues: (Float, Float, Float) -> Parallelogram =
-            { normalizedWidth: Float, normalizedHeight: Float, normalizedRotation: Float ->
-                assertThat(normalizedWidth).isEqualTo(expectedWidth)
-                assertThat(normalizedHeight).isEqualTo(expectedHeight)
-                assertThat(normalizedRotation).isWithin(tolerance).of(expectedRotationDegrees)
-                ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
-                    ImmutableVec(0f, 0f),
-                    expectedWidth,
-                    expectedHeight,
-                    expectedRotationDegrees,
-                    0f,
-                )
-            }
-        Parallelogram.normalizeAndRun(
-            width = -5f,
-            height = 3f,
-            rotationDegrees = Angle.QUARTER_TURN_DEGREES,
-            runBlock = assertExpectedValues,
-        )
+    fun fromCenterDimensionsRotationInDegreesAndSkew_withNegativeWidth_normalizes() {
+        val parallelogram =
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
+                width = -5f,
+                height = 3f,
+                rotationDegrees = Angle.QUARTER_TURN_DEGREES,
+                skew = 0f,
+            )
+        assertThat(parallelogram.width).isEqualTo(5f)
+        assertThat(parallelogram.height).isEqualTo(-3f)
+        assertThat(parallelogram.rotationDegrees)
+            .isWithin(tolerance)
+            .of(Angle.QUARTER_TURN_DEGREES + Angle.HALF_TURN_DEGREES)
     }
 
     @Test
-    fun normalizeAndRun_withHighRotation_normalizesRotation() {
-        val expectedWidth = 5f
-        val expectedHeight = 3f
-        val expectedRotationDegrees =
-            Angle.QUARTER_TURN_DEGREES // 5 Pi normalized to range [0, 2*pi]
-        val assertExpectedValues: (Float, Float, Float) -> Parallelogram =
-            { normalizedWidth: Float, normalizedHeight: Float, normalizedRotation: Float ->
-                assertThat(normalizedWidth).isEqualTo(expectedWidth)
-                assertThat(normalizedHeight).isEqualTo(expectedHeight)
-                assertThat(normalizedRotation).isWithin(tolerance).of(expectedRotationDegrees)
-                ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
-                    ImmutableVec(0f, 0f),
-                    expectedWidth,
-                    expectedHeight,
-                    expectedRotationDegrees,
-                    0f,
-                )
-            }
-
-        Parallelogram.normalizeAndRun(
-            width = 5f,
-            height = 3f,
-            rotationDegrees = 5 * Angle.QUARTER_TURN_DEGREES,
-            runBlock = assertExpectedValues,
-        )
+    fun fromCenterDimensionsRotationInDegreesAndSkew_withHighRotation_normalizesRotation() {
+        val parallelogram =
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
+                width = 5f,
+                height = 3f,
+                rotationDegrees = 5 * Angle.QUARTER_TURN_DEGREES,
+                skew = 0f,
+            )
+        assertThat(parallelogram.width).isEqualTo(5f)
+        assertThat(parallelogram.height).isEqualTo(3f)
+        assertThat(parallelogram.rotationDegrees).isWithin(tolerance).of(Angle.QUARTER_TURN_DEGREES)
     }
 
     @Test
     fun signedArea_calculatesArea() {
         val parallelogram =
-            Parallelogram.normalizeAndRun(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
                 width = 5f,
                 height = 3f,
                 rotationDegrees = Angle.QUARTER_TURN_DEGREES,
-                runBlock = { w: Float, h: Float, r: Float ->
-                    ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
-                        ImmutableVec(0f, 0f),
-                        w,
-                        h,
-                        r,
-                        0f,
-                    )
-                },
+                skew = 0f,
             )
         assertThat(parallelogram.computeSignedArea()).isEqualTo(15f)
     }
 
     @Test
-    fun computeBoundingBox_returnsCorrectBoundingBoxNoShear() {
+    fun computeBoundingBox_returnsCorrectBoundingBoxNoSkew() {
         val parallelogram =
-            Parallelogram.normalizeAndRun(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
                 width = 5f,
                 height = 3f,
                 rotationDegrees = Angle.QUARTER_TURN_DEGREES,
-                runBlock = { w: Float, h: Float, r: Float ->
-                    ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
-                        ImmutableVec(0f, 0f),
-                        w,
-                        h,
-                        r,
-                        0f,
-                    )
-                },
+                skew = 0f,
             )
         assertThat(
                 parallelogram
@@ -130,21 +94,14 @@ class ParallelogramInterfaceTest {
     }
 
     @Test
-    fun computeBoundingBox_populatesBoundingBoxNoShear() {
+    fun computeBoundingBox_populatesBoundingBoxNoSkew() {
         val parallelogram =
-            Parallelogram.normalizeAndRun(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
                 width = 5f,
                 height = 3f,
                 rotationDegrees = Angle.QUARTER_TURN_DEGREES,
-                runBlock = { w: Float, h: Float, r: Float ->
-                    ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
-                        ImmutableVec(0f, 0f),
-                        w,
-                        h,
-                        r,
-                        0f,
-                    )
-                },
+                skew = 0f,
             )
         val box = MutableBox()
         parallelogram.computeBoundingBox(box)
@@ -163,19 +120,12 @@ class ParallelogramInterfaceTest {
     @Test
     fun computeBoundingBox_returnsCorrectBoundingBoxWithShear() {
         val parallelogram =
-            Parallelogram.normalizeAndRun(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
                 width = 5f,
                 height = 3f,
                 rotationDegrees = Angle.QUARTER_TURN_DEGREES,
-                runBlock = { w: Float, h: Float, r: Float ->
-                    ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
-                        ImmutableVec(0f, 0f),
-                        w,
-                        h,
-                        r,
-                        2f,
-                    )
-                },
+                skew = 2f,
             )
         assertThat(
                 parallelogram
@@ -194,19 +144,12 @@ class ParallelogramInterfaceTest {
     @Test
     fun computeBoundingBox_populatesBoundingBoxWithShear() {
         val parallelogram =
-            Parallelogram.normalizeAndRun(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
                 width = 5f,
                 height = 3f,
                 rotationDegrees = Angle.QUARTER_TURN_DEGREES,
-                runBlock = { w: Float, h: Float, r: Float ->
-                    ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
-                        ImmutableVec(0f, 0f),
-                        w,
-                        h,
-                        r,
-                        2f,
-                    )
-                },
+                skew = 2f,
             )
         val box = MutableBox()
         parallelogram.computeBoundingBox(box)
@@ -225,20 +168,14 @@ class ParallelogramInterfaceTest {
     @Test
     fun computeSemiAxes_returnsCorrectSemiAxes() {
         val parallelogram =
-            Parallelogram.normalizeAndRun(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
                 width = 5f,
                 height = 3f,
                 rotationDegrees = Angle.HALF_TURN_DEGREES,
-                runBlock = { w: Float, h: Float, r: Float ->
-                    ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
-                        ImmutableVec(0f, 0f),
-                        w,
-                        h,
-                        r,
-                        2f,
-                    )
-                },
+                skew = 2f,
             )
+
         val axes = parallelogram.computeSemiAxes()
         assertThat(axes.size).isEqualTo(2)
         assertThat(axes.get(0).isAlmostEqual(ImmutableVec(-2.5f, 0f), tolerance)).isTrue()
@@ -248,19 +185,12 @@ class ParallelogramInterfaceTest {
     @Test
     fun computeSemiAxes_populatesSemiAxes() {
         val parallelogram =
-            Parallelogram.normalizeAndRun(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
                 width = 5f,
                 height = 3f,
                 rotationDegrees = Angle.HALF_TURN_DEGREES,
-                runBlock = { w: Float, h: Float, r: Float ->
-                    ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
-                        ImmutableVec(0f, 0f),
-                        w,
-                        h,
-                        r,
-                        2f,
-                    )
-                },
+                skew = 2f,
             )
         val axis1 = MutableVec()
         val axis2 = MutableVec()
@@ -272,19 +202,12 @@ class ParallelogramInterfaceTest {
     @Test
     fun computeCorners_returnsCorrectCorners() {
         val parallelogram =
-            Parallelogram.normalizeAndRun(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
                 width = 5f,
                 height = 3f,
                 rotationDegrees = Angle.QUARTER_TURN_DEGREES,
-                runBlock = { w: Float, h: Float, r: Float ->
-                    ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
-                        ImmutableVec(0f, 0f),
-                        w,
-                        h,
-                        r,
-                        2f,
-                    )
-                },
+                skew = 2f,
             )
         val corners = parallelogram.computeCorners()
         assertThat(corners.size).isEqualTo(4)
@@ -297,19 +220,12 @@ class ParallelogramInterfaceTest {
     @Test
     fun computeCorners_populatesCorrectCorners() {
         val parallelogram =
-            Parallelogram.normalizeAndRun(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
                 width = 5f,
                 height = 3f,
                 rotationDegrees = Angle.QUARTER_TURN_DEGREES,
-                runBlock = { w: Float, h: Float, r: Float ->
-                    ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
-                        ImmutableVec(0f, 0f),
-                        w,
-                        h,
-                        r,
-                        2f,
-                    )
-                },
+                skew = 2f,
             )
         val corner1 = MutableVec()
         val corner2 = MutableVec()
@@ -325,19 +241,12 @@ class ParallelogramInterfaceTest {
     @Test
     fun isAlmostEqual_withToleranceGiven_returnsCorrectValue() {
         val parallelogram =
-            Parallelogram.normalizeAndRun(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
                 width = 5f,
                 height = 3f,
                 rotationDegrees = Angle.ZERO_DEGREES,
-                runBlock = { w: Float, h: Float, r: Float ->
-                    ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
-                        ImmutableVec(0f, 0f),
-                        w,
-                        h,
-                        r,
-                        2f,
-                    )
-                },
+                skew = 2f,
             )
         val corner1 = MutableVec()
         val corner2 = MutableVec()
@@ -354,19 +263,12 @@ class ParallelogramInterfaceTest {
     @Test
     fun contains_returnsCorrectValue() {
         val parallelogram =
-            Parallelogram.normalizeAndRun(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
                 width = 5f,
                 height = 3f,
                 rotationDegrees = Angle.ZERO_DEGREES,
-                runBlock = { w: Float, h: Float, r: Float ->
-                    ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
-                        ImmutableVec(0f, 0f),
-                        w,
-                        h,
-                        r,
-                        2f,
-                    )
-                },
+                skew = 2f,
             )
         // Center of the parallelogram
         assertThat(parallelogram.contains(ImmutableVec(0f, 0f))).isTrue()
@@ -379,34 +281,20 @@ class ParallelogramInterfaceTest {
     @Test
     fun isAlmostEqual_withinToleranceReturnsTrue() {
         val parallelogram =
-            Parallelogram.normalizeAndRun(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
                 width = 5f,
                 height = 3f,
                 rotationDegrees = Angle.ZERO_DEGREES,
-                runBlock = { w: Float, h: Float, r: Float ->
-                    ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
-                        ImmutableVec(0f, 0f),
-                        w,
-                        h,
-                        r,
-                        2f,
-                    )
-                },
+                skew = 2f,
             )
         val other =
-            Parallelogram.normalizeAndRun(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
                 width = 5.0000009f,
                 height = 3f,
                 rotationDegrees = Angle.ZERO_DEGREES,
-                runBlock = { w: Float, h: Float, r: Float ->
-                    ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
-                        ImmutableVec(0f, 0f),
-                        w,
-                        h,
-                        r,
-                        2f,
-                    )
-                },
+                skew = 2f,
             )
         assertThat(parallelogram.isAlmostEqual(other, tolerance)).isTrue()
     }
@@ -414,34 +302,20 @@ class ParallelogramInterfaceTest {
     @Test
     fun isAlmostEqual_outsideToleranceReturnsFalse() {
         val parallelogram =
-            Parallelogram.normalizeAndRun(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
                 width = 5f,
                 height = 3f,
                 rotationDegrees = Angle.ZERO_DEGREES,
-                runBlock = { w: Float, h: Float, r: Float ->
-                    ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
-                        ImmutableVec(0f, 0f),
-                        w,
-                        h,
-                        r,
-                        2f,
-                    )
-                },
+                skew = 2f,
             )
         val other =
-            Parallelogram.normalizeAndRun(
+            ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
+                center = ImmutableVec(0f, 0f),
                 width = 5.000009f,
                 height = 3f,
                 rotationDegrees = Angle.ZERO_DEGREES,
-                runBlock = { w: Float, h: Float, r: Float ->
-                    ImmutableParallelogram.fromCenterDimensionsRotationInDegreesAndSkew(
-                        ImmutableVec(0f, 0f),
-                        w,
-                        h,
-                        r,
-                        2f,
-                    )
-                },
+                skew = 2f,
             )
         assertThat(parallelogram.isAlmostEqual(other, 1e-6f)).isFalse()
     }

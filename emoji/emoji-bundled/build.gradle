@@ -1,8 +1,7 @@
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -17,10 +16,14 @@ ext {
 }
 
 android {
-    sourceSets {
-        main.assets.srcDirs new File(fontDir, "font").getAbsolutePath()
-    }
     namespace = "androidx.emoji.bundled"
+}
+
+androidComponents {
+    def fontAssetsPath = new File(fontDir, "font").getAbsolutePath()
+    onVariants(selector().all()) { variant ->
+        variant.sources.assets.addStaticSourceDirectory(fontAssetsPath)
+    }
 }
 
 dependencies {

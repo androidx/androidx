@@ -36,8 +36,7 @@ import androidx.compose.ui.unit.IntSize
 public fun Modifier.remoteComponent(): Modifier = then(RemoteComposeComponentModifier())
 
 /** Allows us to encapsulate a normal composable as an opaque component with a fixed size */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteComposeComponentModifier() : DrawModifier, OnGloballyPositionedModifier {
+internal class RemoteComposeComponentModifier() : DrawModifier, OnGloballyPositionedModifier {
     public val modifier: RecordingModifier = RecordingModifier()
     public var origin: Offset = Offset(-1f, -1f)
     public var asize: IntSize = IntSize(0, 0)
@@ -57,11 +56,11 @@ public class RemoteComposeComponentModifier() : DrawModifier, OnGloballyPosition
     }
 }
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun Modifier.remoteDocument(content: (RemoteComposeWriter) -> Unit): Modifier =
     then(RemoteComposeDocumentModifier(content))
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteComposeDocumentModifier(public val content: (RemoteComposeWriter) -> Unit) :
+internal class RemoteComposeDocumentModifier(public val content: (RemoteComposeWriter) -> Unit) :
     DrawModifier {
     public val modifier: RecordingModifier = RecordingModifier()
 
@@ -70,6 +69,7 @@ public class RemoteComposeDocumentModifier(public val content: (RemoteComposeWri
     }
 }
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RemoteComposable
 @Composable
 public fun Document(content: (RemoteComposeWriter) -> Unit) {

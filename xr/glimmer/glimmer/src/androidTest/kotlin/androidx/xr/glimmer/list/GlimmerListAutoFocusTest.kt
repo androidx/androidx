@@ -25,7 +25,6 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -86,21 +85,6 @@ class GlimmerListAutoFocusTest : BaseListTestWithOrientation(Orientation.Vertica
         // TODO: b/433687753 - performScrollToIndex() isn't aligned with the auto-focused item.
         // We brought item-25 to the top, but centered item-27 is focused.
         rule.onListItem(27).assertIsFocused()
-    }
-
-    @Test
-    fun animateScrollToItem_movesAutoFocus() {
-        rule.setAutoFocusContent {
-            val state = remember { ListState() }
-            FocusableTestList(state = state, itemsCount = 100)
-            LaunchedEffect(Unit) { state.animateScrollToItem(42) }
-        }
-
-        rule.waitForIdle()
-
-        // TODO: b/433687753 - animateScrollToItem() isn't aligned with the auto-focused item.
-        // We brought item-42 to the top, but centered item-44 is focused.
-        rule.onListItem(44).assertIsFocused()
     }
 
     @Test

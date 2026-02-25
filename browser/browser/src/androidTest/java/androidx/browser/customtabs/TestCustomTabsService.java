@@ -153,6 +153,11 @@ public class TestCustomTabsService extends CustomTabsService {
                 throws RemoteException {
             return false;
         }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
     };
 
     @Override

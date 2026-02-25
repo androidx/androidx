@@ -19,6 +19,7 @@ package androidx.pdf.utils
 import android.graphics.RectF
 import androidx.pdf.annotation.models.EditId
 import androidx.pdf.annotation.models.PathPdfObject
+import androidx.pdf.annotation.models.PathPdfObject.PathInput
 import androidx.pdf.annotation.models.PdfAnnotationData
 import androidx.pdf.annotation.models.StampAnnotation
 import com.google.common.truth.Truth.assertThat
@@ -36,11 +37,11 @@ private fun getSamplePathObject(): PathPdfObject {
         255,
         10f,
         listOf(
-            PathPdfObject.PathInput(10f, 10f),
-            PathPdfObject.PathInput(20f, 20f),
-            PathPdfObject.PathInput(30f, 30f),
-            PathPdfObject.PathInput(40f, 40f),
-            PathPdfObject.PathInput(50f, 50f),
+            PathInput(10f, 10f, PathInput.MOVE_TO),
+            PathInput(20f, 20f, PathInput.LINE_TO),
+            PathInput(30f, 30f, PathInput.LINE_TO),
+            PathInput(40f, 40f, PathInput.LINE_TO),
+            PathInput(50f, 50f, PathInput.LINE_TO),
         ),
     )
 }
@@ -129,15 +130,17 @@ fun createPathPdfObjectList(size: Int): List<PathPdfObject> {
 fun randomizePathPdfObject(pathLength: Int): PathPdfObject =
     PathPdfObject(brushColor = 0, brushWidth = 0f, inputs = randomizePathInputs(pathLength))
 
-fun randomizePathInputs(pathLength: Int): List<PathPdfObject.PathInput> =
-    IntArray(pathLength).map {
-        PathPdfObject.PathInput(
+fun randomizePathInputs(pathLength: Int): List<PathInput> =
+    IntArray(pathLength).mapIndexed { index, _ ->
+        val command = if (index == 0) PathInput.MOVE_TO else PathInput.LINE_TO
+        PathInput(
             x = abs(Random.nextInt(100, 1000).toFloat()),
             y = abs(Random.nextInt(100, 1000).toFloat()),
+            command = command,
         )
     }
 
-fun List<PathPdfObject.PathInput>.computeBounds(): RectF {
+fun List<PathInput>.computeBounds(): RectF {
     val left = this.fold(MAX_VALUE) { acc, input -> min(acc, input.x) }
     val top = this.fold(MAX_VALUE) { acc, input -> min(acc, input.y) }
     val right = this.fold(MIN_VALUE) { acc, input -> max(acc, input.x) }

@@ -20,10 +20,12 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.focusGroup
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -45,6 +47,8 @@ internal val FocusDemos =
         ComposableDemo("List + Initial Focus") { FocusableListInitialFocusSample() },
         ComposableDemo("VerticalList") { VerticalListFocusSample() },
         ComposableDemo("VerticalList + Initial Focus") { ListFocusInitialFocusSample() },
+        ComposableDemo("Focus Restoration") { FocusRestorationSample() },
+        ComposableDemo("Nested Focus Restoration") { NestedFocusRestorationSample() },
         ComposableDemo("Show/Hide + Focus Restoration") { ShowHideFocusRestorationSample() },
     )
 
@@ -104,14 +108,51 @@ private fun ListFocusInitialFocusSample() {
 }
 
 @Composable
+private fun FocusRestorationSample() {
+    Column(Modifier.focusRestorer().focusGroup()) {
+        Text("Focus on an item and rotate the screen to see restored focus")
+        ListItem { Text("Button 1") }
+        ListItem { Text("Button 2") }
+        ListItem { Text("Button 3") }
+    }
+}
+
+@Composable
+private fun NestedFocusRestorationSample() {
+    Column(Modifier.focusRestorer().focusGroup()) {
+        Text("Focus on an item and rotate the screen to see restored focus")
+        key(1) {
+            Column(Modifier.focusRestorer().focusGroup()) {
+                ListItem { Text("Button 1") }
+                ListItem { Text("Button 2") }
+            }
+        }
+        key(2) {
+            Column(Modifier.focusRestorer().focusGroup()) {
+                ListItem { Text("Button 3") }
+                ListItem { Text("Button 4") }
+            }
+        }
+        key(3) {
+            Column(Modifier.focusRestorer().focusGroup()) {
+                ListItem { Text("Button 5") }
+                ListItem { Text("Button 6") }
+            }
+        }
+    }
+}
+
+@Composable
 private fun ShowHideFocusRestorationSample() {
     var visible by remember { mutableStateOf(true) }
-
-    AnimatedVisibility(visible = visible, enter = fadeIn(), exit = fadeOut()) {
-        Column(Modifier.focusRestorer().focusGroup()) {
-            ListItem { Text("Button 1") }
-            ListItem { Text("Button 2") }
-            ListItem { Text("Button 3") }
+    // This is not ideal, but we have to hoist the focusRestorer outside the animated content.
+    Box(Modifier.focusRestorer().focusGroup()) {
+        AnimatedVisibility(visible = visible, enter = fadeIn(), exit = fadeOut()) {
+            Column {
+                ListItem { Text("Button 1") }
+                ListItem { Text("Button 2") }
+                ListItem { Text("Button 3") }
+            }
         }
     }
 

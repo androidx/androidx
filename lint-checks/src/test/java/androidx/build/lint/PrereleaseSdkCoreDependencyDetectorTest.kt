@@ -46,15 +46,15 @@ class PrereleaseSdkCoreDependencyDetectorTest :
                     fun callIsAtLeastU() {
                         return BuildCompat.isAtLeastU()
                     }
-                """
+                    """
                         .trimIndent()
                 ),
                 gradle(
                     """
-                dependencies {
-                    implementation("androidx.core:core:1.9.0")
-                }
-            """
+                    dependencies {
+                        implementation("androidx.core:core:1.9.0")
+                    }
+                    """
                         .trimIndent()
                 ),
             )
@@ -65,7 +65,7 @@ class PrereleaseSdkCoreDependencyDetectorTest :
                 return BuildCompat.isAtLeastU()
                        ~~~~~~~~~~~~~~~~~~~~~~~~
             1 errors, 0 warnings
-        """
+            """
                 .trimIndent()
 
         check(*input).expect(expected)
@@ -84,15 +84,15 @@ class PrereleaseSdkCoreDependencyDetectorTest :
                     fun callIsAtLeastU() {
                         return BuildCompat.isAtLeastU()
                     }
-                """
+                    """
                         .trimIndent()
                 ),
                 gradle(
                     """
-                dependencies {
-                    implementation(project(":core:core"))
-                }
-            """
+                    dependencies {
+                        implementation(project(":core:core"))
+                    }
+                    """
                         .trimIndent()
                 ),
             )
@@ -113,15 +113,15 @@ class PrereleaseSdkCoreDependencyDetectorTest :
                     fun callIsAtLeastSv2() {
                         return BuildCompat.isAtLeastSv2()
                     }
-                """
+                    """
                         .trimIndent()
                 ),
                 gradle(
                     """
-                dependencies {
-                    implementation("androidx.core:core:1.9.0")
-                }
-            """
+                    dependencies {
+                        implementation("androidx.core:core:1.9.0")
+                    }
+                    """
                         .trimIndent()
                 ),
             )
@@ -132,7 +132,7 @@ class PrereleaseSdkCoreDependencyDetectorTest :
                 return BuildCompat.isAtLeastSv2()
                        ~~~~~~~~~~~~~~~~~~~~~~~~~~
             1 errors, 0 warnings
-        """
+            """
                 .trimIndent()
 
         check(*input).expect(expected)
@@ -151,15 +151,15 @@ class PrereleaseSdkCoreDependencyDetectorTest :
                     fun callIsAtLeastN() {
                         return BuildCompat.isAtLeastN()
                     }
-                """
+                    """
                         .trimIndent()
                 ),
                 gradle(
                     """
-                dependencies {
-                    implementation("androidx.core:core:1.9.0")
-                }
-            """
+                    dependencies {
+                        implementation("androidx.core:core:1.9.0")
+                    }
+                    """
                         .trimIndent()
                 ),
             )

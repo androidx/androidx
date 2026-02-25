@@ -217,7 +217,7 @@ public constructor(
         oetfOrig(x).coerceIn(min.toDouble(), max.toDouble())
     }
 
-    internal val oetfFunc: DoubleFunction = DoubleFunction { x ->
+    internal val oetfFunc = DoubleFunction { x ->
         oetfOrig(x).coerceIn(min.toDouble(), max.toDouble())
     }
 

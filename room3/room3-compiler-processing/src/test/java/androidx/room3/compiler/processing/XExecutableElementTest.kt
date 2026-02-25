@@ -55,15 +55,15 @@ class XExecutableElementTest {
                     Source.java(
                         "foo.bar.Baz",
                         """
-                package foo.bar;
-                public class Baz {
-                    public Baz(String param1) {}
-                    private void foo() {}
-                    public String bar(String[] param1) {
-                        return "";
-                    }
-                }
-                    """
+                        package foo.bar;
+                        public class Baz {
+                            public Baz(String param1) {}
+                            private void foo() {}
+                            public String bar(String[] param1) {
+                                return "";
+                            }
+                        }
+                        """
                             .trimIndent(),
                     )
                 )
@@ -105,12 +105,12 @@ class XExecutableElementTest {
             Source.java(
                 "foo.bar.Baz",
                 """
-            package foo.bar;
-            interface Baz {
-                void method(String... inputs);
-                void methodPrimitive(int... inputs);
-            }
-            """
+                package foo.bar;
+                interface Baz {
+                    void method(String... inputs);
+                    void methodPrimitive(int... inputs);
+                }
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(subject)) {
@@ -147,14 +147,14 @@ class XExecutableElementTest {
             Source.kotlin(
                 "Subject.kt",
                 """
-            interface Subject {
-                fun method(vararg inputs: String)
-                suspend fun suspendMethod(vararg inputs: String)
-                fun method2(vararg inputs: String, arg: Int)
-                fun methodPrimitive(vararg inputs: Int)
-                fun String.extFun(vararg inputs: String)
-            }
-            """
+                interface Subject {
+                    fun method(vararg inputs: String)
+                    suspend fun suspendMethod(vararg inputs: String)
+                    fun method2(vararg inputs: String, arg: Int)
+                    fun methodPrimitive(vararg inputs: Int)
+                    fun String.extFun(vararg inputs: String)
+                }
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(subject)) {
@@ -235,23 +235,23 @@ class XExecutableElementTest {
             Source.kotlin(
                 "Baz.kt",
                 """
-            package foo.bar
+                package foo.bar
 
-            interface Base {
-                fun noDefault()
-                fun withDefault(): Int {
-                    return 3
+                interface Base {
+                    fun noDefault()
+                    fun withDefault(): Int {
+                        return 3
+                    }
+                    fun nameMatch()
+                    fun nameMatch(param:Int) {}
+                    fun withDefaultWithParams(param1:Int, param2:String) {}
+                    fun withDefaultWithTypeArgs(param1: List<String>): String {
+                        return param1.first()
+                    }
                 }
-                fun nameMatch()
-                fun nameMatch(param:Int) {}
-                fun withDefaultWithParams(param1:Int, param2:String) {}
-                fun withDefaultWithTypeArgs(param1: List<String>): String {
-                    return param1.first()
-                }
-            }
 
-            interface Sub : Base
-            """
+                interface Sub : Base
+                """
                     .trimIndent(),
             )
         val (sources, classpath) =
@@ -313,37 +313,37 @@ class XExecutableElementTest {
             Source.kotlin(
                 "Baz.kt",
                 """
-            package foo.bar
+                package foo.bar
 
-            interface Base<T1, T2> {
-                fun noDefault(t : T1)
-                fun withDefault_noArg(): Int {
-                    return 3
-                }
-                fun nameMatch()
-                fun nameMatch(param:T1) {}
-                fun withDefaultWithParams(param1:T1, param2:T2) {}
-                fun withDefaultWithTypeArgs(param1: List<String>): String {
-                    return param1.first()
-                }
-            }
-
-            interface Sub : Base<Int, String>
-
-            interface Base2<T1, T2, in T3, out T4, T5 : Number> {
-
-                fun withDefaultWithInProjectionType(param1: T3) {}
-
-                fun withDefaultWithOutProjectionType(): T4? {
-                    return null
+                interface Base<T1, T2> {
+                    fun noDefault(t : T1)
+                    fun withDefault_noArg(): Int {
+                        return 3
+                    }
+                    fun nameMatch()
+                    fun nameMatch(param:T1) {}
+                    fun withDefaultWithParams(param1:T1, param2:T2) {}
+                    fun withDefaultWithTypeArgs(param1: List<String>): String {
+                        return param1.first()
+                    }
                 }
 
-                fun withDefaultWithSubtypeArg(param: T5) { }
-            }
+                interface Sub : Base<Int, String>
 
-            interface Sub2 : Base2<Int, String, Number, Number, Long>
+                interface Base2<T1, T2, in T3, out T4, T5 : Number> {
 
-            """
+                    fun withDefaultWithInProjectionType(param1: T3) {}
+
+                    fun withDefaultWithOutProjectionType(): T4? {
+                        return null
+                    }
+
+                    fun withDefaultWithSubtypeArg(param: T5) { }
+                }
+
+                interface Sub2 : Base2<Int, String, Number, Number, Long>
+
+                """
                     .trimIndent(),
             )
         val (sources, classpath) =
@@ -409,12 +409,12 @@ class XExecutableElementTest {
             Source.kotlin(
                 "Foo.kt",
                 """
-            class Subject {
-                suspend fun noArg():Unit = TODO()
-                suspend fun intReturn(): Int = TODO()
-                suspend fun twoParams(param1:String, param2:Int): Pair<String, Int> = TODO()
-            }
-            """
+                class Subject {
+                    suspend fun noArg():Unit = TODO()
+                    suspend fun intReturn(): Int = TODO()
+                    suspend fun twoParams(param1:String, param2:Int): Pair<String, Int> = TODO()
+                }
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
@@ -491,22 +491,22 @@ class XExecutableElementTest {
             Source.kotlin(
                 "Foo.kt",
                 """
-            data class MyDataClass(val x:String, var y:String, private val z:String) {
-                val prop1: String = ""
-                var prop2: String = ""
-                var prop3: String = TODO()
-                    private set
-                    get() = TODO()
-                private val prop4:String = ""
-                protected var prop5:String = ""
-                var prop6: String
-                    get // this cannot be protected, https://youtrack.jetbrains.com/issue/KT-3110
-                    protected set
-                protected var prop7: String
-                    private set
-                internal var prop8: String
-            }
-            """
+                data class MyDataClass(val x:String, var y:String, private val z:String) {
+                    val prop1: String = ""
+                    var prop2: String = ""
+                    var prop3: String = TODO()
+                        private set
+                        get() = TODO()
+                    private val prop4:String = ""
+                    protected var prop5:String = ""
+                    var prop6: String
+                        get // this cannot be protected, https://youtrack.jetbrains.com/issue/KT-3110
+                        protected set
+                    protected var prop7: String
+                        private set
+                    internal var prop8: String
+                }
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
@@ -578,12 +578,12 @@ class XExecutableElementTest {
             Source.kotlin(
                 "Foo.kt",
                 """
-            open class Base<T> {
-                fun foo(t:T, nullableT:T?): List<T?> = TODO()
-            }
-            class Subject : Base<String>()
-            class NullableSubject: Base<String?>()
-            """
+                open class Base<T> {
+                    fun foo(t:T, nullableT:T?): List<T?> = TODO()
+                }
+                class Subject : Base<String>()
+                class NullableSubject: Base<String?>()
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(source)) { invocation ->
@@ -626,32 +626,32 @@ class XExecutableElementTest {
             Source.kotlin(
                 "Foo.kt",
                 """
-            interface MyInterface {
-                val x:Int
-                var y:Int
-            }
-            class MyImpl : MyInterface {
-                override var x: Int = 1
-                override var y: Int = 1
-            }
-            """
+                interface MyInterface {
+                    val x:Int
+                    var y:Int
+                }
+                class MyImpl : MyInterface {
+                    override var x: Int = 1
+                    override var y: Int = 1
+                }
+                """
                     .trimIndent(),
             )
         val javaSrc =
             Source.java(
                 "JavaImpl",
                 """
-            class JavaImpl implements MyInterface {
-                public int getX() {
-                    return 1;
+                class JavaImpl implements MyInterface {
+                    public int getX() {
+                        return 1;
+                    }
+                    public int getY() {
+                        return 1;
+                    }
+                    public void setY(int value) {
+                    }
                 }
-                public int getY() {
-                    return 1;
-                }
-                public void setY(int value) {
-                }
-            }
-            """
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(src, javaSrc)) { invocation ->
@@ -740,35 +740,35 @@ class XExecutableElementTest {
             Source.java(
                 "JavaInterface",
                 """
-            interface JavaInterface {
-                void interfaceMethod();
-            }
-            """
+                interface JavaInterface {
+                    void interfaceMethod();
+                }
+                """
                     .trimIndent(),
             )
         val javaAbstractClass =
             Source.java(
                 "JavaAbstractClass",
                 """
-            abstract class JavaAbstractClass {
-                abstract void abstractMethod();
-                void nonAbstractMethod() {}
-            }
-            """
+                abstract class JavaAbstractClass {
+                    abstract void abstractMethod();
+                    void nonAbstractMethod() {}
+                }
+                """
                     .trimIndent(),
             )
         val kotlinSource =
             Source.kotlin(
                 "kotlin.kt",
                 """
-            interface KotlinInterface {
-                fun interfaceMethod(): Unit
-            }
-            abstract class KotlinAbstractClass {
-                abstract fun abstractMethod(): Unit
-                fun nonAbstractMethod() {}
-            }
-            """
+                interface KotlinInterface {
+                    fun interfaceMethod(): Unit
+                }
+                abstract class KotlinAbstractClass {
+                    abstract fun abstractMethod(): Unit
+                    fun nonAbstractMethod() {}
+                }
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(javaInterface, javaAbstractClass, kotlinSource)) {
@@ -794,28 +794,28 @@ class XExecutableElementTest {
             Source.kotlin(
                 "MyInterface.kt",
                 """
-            interface MyInterface {
-                val x:Int
-                var y:Int
-            }
-            """
+                interface MyInterface {
+                    val x:Int
+                    var y:Int
+                }
+                """
                     .trimIndent(),
             )
         val javaImpl =
             Source.java(
                 "JavaImpl",
                 """
-            class JavaImpl implements MyInterface {
-                public int getX() {
-                    return 1;
+                class JavaImpl implements MyInterface {
+                    public int getX() {
+                        return 1;
+                    }
+                    public int getY() {
+                        return 1;
+                    }
+                    public void setY(int value) {
+                    }
                 }
-                public int getY() {
-                    return 1;
-                }
-                public void setY(int value) {
-                }
-            }
-            """
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(myInterface, javaImpl)) { invocation ->
@@ -835,28 +835,28 @@ class XExecutableElementTest {
             Source.kotlin(
                 "MyInterface.kt",
                 """
-            interface MyInterface<T> {
-                val x:T
-                var y:T
-            }
-            """
+                interface MyInterface<T> {
+                    val x:T
+                    var y:T
+                }
+                """
                     .trimIndent(),
             )
         val javaImpl =
             Source.java(
                 "JavaImpl",
                 """
-            class JavaImpl implements MyInterface<Integer> {
-                public Integer getX() {
-                    return 1;
+                class JavaImpl implements MyInterface<Integer> {
+                    public Integer getX() {
+                        return 1;
+                    }
+                    public Integer getY() {
+                        return 1;
+                    }
+                    public void setY(Integer value) {
+                    }
                 }
-                public Integer getY() {
-                    return 1;
-                }
-                public void setY(Integer value) {
-                }
-            }
-            """
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(myInterface, javaImpl)) { invocation ->
@@ -1245,31 +1245,31 @@ class XExecutableElementTest {
             Source.kotlin(
                 "Foo.kt",
                 """
-            interface Base<Key> {
-                fun getKey(id: Key): Unit
-                fun getKeyOverridden(id: Key): Unit
-                fun returnKey(): Key
-                fun returnKeyOverridden(): Key
-                fun getAndReturnKey(key: Key): Key
-                fun getAndReturnKeyOverridden(key: Key): Key
-            }
-            interface NonNullPrimitiveOverride : Base<Int> {
-                override fun getKeyOverridden(id: Int): Unit
-                override fun returnKeyOverridden(): Int
-                override fun getAndReturnKeyOverridden(key: Int): Int
-            }
-            interface NullablePrimitiveOverride : Base<Int?> {
-                override fun getKeyOverridden(id: Int?): Unit
-                override fun returnKeyOverridden(): Int?
-                override fun getAndReturnKeyOverridden(key: Int?): Int?
-            }
-            class Item
-            interface ClassOverride : Base<Item> {
-                override fun getKeyOverridden(id: Item): Unit
-                override fun returnKeyOverridden(): Item
-                override fun getAndReturnKeyOverridden(key: Item): Item
-            }
-            """
+                interface Base<Key> {
+                    fun getKey(id: Key): Unit
+                    fun getKeyOverridden(id: Key): Unit
+                    fun returnKey(): Key
+                    fun returnKeyOverridden(): Key
+                    fun getAndReturnKey(key: Key): Key
+                    fun getAndReturnKeyOverridden(key: Key): Key
+                }
+                interface NonNullPrimitiveOverride : Base<Int> {
+                    override fun getKeyOverridden(id: Int): Unit
+                    override fun returnKeyOverridden(): Int
+                    override fun getAndReturnKeyOverridden(key: Int): Int
+                }
+                interface NullablePrimitiveOverride : Base<Int?> {
+                    override fun getKeyOverridden(id: Int?): Unit
+                    override fun returnKeyOverridden(): Int?
+                    override fun getAndReturnKeyOverridden(key: Int?): Int?
+                }
+                class Item
+                interface ClassOverride : Base<Item> {
+                    override fun getKeyOverridden(id: Item): Unit
+                    override fun returnKeyOverridden(): Item
+                    override fun getAndReturnKeyOverridden(key: Item): Item
+                }
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(source)) { invocation ->
@@ -1305,15 +1305,15 @@ class XExecutableElementTest {
             assertThat(nonNullOverride.methodsSignature())
                 .isEqualTo(
                     """
-                getAndReturnKey(java.lang.Integer):java.lang.Integer
-                getAndReturnKeyOverridden(java.lang.Integer):java.lang.Integer
-                getAndReturnKeyOverridden(int):java.lang.Integer
-                getKey(java.lang.Integer):void
-                getKeyOverridden(java.lang.Integer):void
-                getKeyOverridden(int):void
-                returnKey():java.lang.Integer
-                returnKeyOverridden():java.lang.Integer
-                """
+                    getAndReturnKey(java.lang.Integer):java.lang.Integer
+                    getAndReturnKeyOverridden(java.lang.Integer):java.lang.Integer
+                    getAndReturnKeyOverridden(int):java.lang.Integer
+                    getKey(java.lang.Integer):void
+                    getKeyOverridden(java.lang.Integer):void
+                    getKeyOverridden(int):void
+                    returnKey():java.lang.Integer
+                    returnKeyOverridden():java.lang.Integer
+                    """
                         .trimIndent()
                 )
             val nullableOverride =
@@ -1321,26 +1321,26 @@ class XExecutableElementTest {
             assertThat(nullableOverride.methodsSignature())
                 .isEqualTo(
                     """
-                getAndReturnKey(java.lang.Integer):java.lang.Integer
-                getAndReturnKeyOverridden(java.lang.Integer):java.lang.Integer
-                getKey(java.lang.Integer):void
-                getKeyOverridden(java.lang.Integer):void
-                returnKey():java.lang.Integer
-                returnKeyOverridden():java.lang.Integer
-                """
+                    getAndReturnKey(java.lang.Integer):java.lang.Integer
+                    getAndReturnKeyOverridden(java.lang.Integer):java.lang.Integer
+                    getKey(java.lang.Integer):void
+                    getKeyOverridden(java.lang.Integer):void
+                    returnKey():java.lang.Integer
+                    returnKeyOverridden():java.lang.Integer
+                    """
                         .trimIndent()
                 )
             val classOverride = invocation.processingEnv.requireTypeElement("ClassOverride")
             assertThat(classOverride.methodsSignature())
                 .isEqualTo(
                     """
-                getAndReturnKey(Item):Item
-                getAndReturnKeyOverridden(Item):Item
-                getKey(Item):void
-                getKeyOverridden(Item):void
-                returnKey():Item
-                returnKeyOverridden():Item
-                """
+                    getAndReturnKey(Item):Item
+                    getAndReturnKeyOverridden(Item):Item
+                    getKey(Item):void
+                    getKeyOverridden(Item):void
+                    returnKey():Item
+                    returnKeyOverridden():Item
+                    """
                         .trimIndent()
                 )
         }
@@ -1430,14 +1430,14 @@ class XExecutableElementTest {
             Source.kotlin(
                 "Foo.kt",
                 """
-            abstract class Foo {
-                abstract fun hashSet(param: HashSet<Char>): HashSet<String>
-                abstract fun myType(param: MyType<Float>): MyType<Double>
-                abstract fun myTypeAlias(param: MyTypeAlias<Integer>): MyTypeAlias<Long>
-            }
-            typealias MyTypeAlias<T> = MyType<T>
-            class MyType<T>
-            """
+                abstract class Foo {
+                    abstract fun hashSet(param: HashSet<Char>): HashSet<String>
+                    abstract fun myType(param: MyType<Float>): MyType<Double>
+                    abstract fun myTypeAlias(param: MyTypeAlias<Integer>): MyTypeAlias<Long>
+                }
+                typealias MyTypeAlias<T> = MyType<T>
+                class MyType<T>
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(source)) { invocation ->
@@ -1460,10 +1460,10 @@ class XExecutableElementTest {
             assertThat(foo.jMethodSignatures())
                 .isEqualTo(
                     """
-                hashSet(java.util.HashSet<java.lang.Character>):java.util.HashSet<java.lang.String>
-                myType(MyType<java.lang.Float>):MyType<java.lang.Double>
-                myTypeAlias(MyType<java.lang.Integer>):MyType<java.lang.Long>
-                """
+                    hashSet(java.util.HashSet<java.lang.Character>):java.util.HashSet<java.lang.String>
+                    myType(MyType<java.lang.Float>):MyType<java.lang.Double>
+                    myTypeAlias(MyType<java.lang.Integer>):MyType<java.lang.Long>
+                    """
                         .trimIndent()
                 )
         }
@@ -1477,11 +1477,11 @@ class XExecutableElementTest {
                     Source.kotlin(
                         "Usage.kt",
                         """
-                    class Usage {
-                      fun <T> Foo<T>.method(param: Foo<String>): Foo<T> = this
-                    }
-                    class Foo<T>
-                    """
+                        class Usage {
+                          fun <T> Foo<T>.method(param: Foo<String>): Foo<T> = this
+                        }
+                        class Foo<T>
+                        """
                             .trimIndent(),
                     )
                 )
@@ -1519,25 +1519,25 @@ class XExecutableElementTest {
             Source.java(
                 "foo.bar.Baz",
                 """
-            package foo.bar;
-            public abstract class Baz {
-                void jf(String param1) {}
-                abstract void jaf(String param1);
-                native void jnf(String param1);
-            }
-            """
+                package foo.bar;
+                public abstract class Baz {
+                    void jf(String param1) {}
+                    abstract void jaf(String param1);
+                    native void jnf(String param1);
+                }
+                """
                     .trimIndent(),
             )
         val kotlinSource =
             Source.kotlin(
                 "foo.bar.Baz.kt",
                 """
-            package foo.bar
-            abstract class Baz {
-                fun kf(param1: String): Unit = TODO()
-                abstract fun kaf(param1: String): Unit
-            }
-            """
+                package foo.bar
+                abstract class Baz {
+                    fun kf(param1: String): Unit = TODO()
+                    abstract fun kaf(param1: String): Unit
+                }
+                """
                     .trimIndent(),
             )
 
@@ -1622,19 +1622,19 @@ class XExecutableElementTest {
             Source.kotlin(
                 "foo.bar.Subject.kt",
                 """
-            package foo.bar
-            abstract class Subject {
-                fun Bar.method(): Unit = TODO()
-                fun Bar.methodWithParam(name: String): Unit = TODO()
-                abstract fun Bar.abstractMethod()
-                abstract fun Bar.abstractMethodWithParam(name: String)
-                @JvmName("newMethodWithJvmName")
-                fun Bar.methodWithJvmName(): Unit = TODO()
-                @JvmName("newMethodWithJvmNameAndParam")
-                fun Bar.methodWithJvmNameAndParam(name: String): Unit = TODO()
-            }
-            class Bar
-            """
+                package foo.bar
+                abstract class Subject {
+                    fun Bar.method(): Unit = TODO()
+                    fun Bar.methodWithParam(name: String): Unit = TODO()
+                    abstract fun Bar.abstractMethod()
+                    abstract fun Bar.abstractMethodWithParam(name: String)
+                    @JvmName("newMethodWithJvmName")
+                    fun Bar.methodWithJvmName(): Unit = TODO()
+                    @JvmName("newMethodWithJvmNameAndParam")
+                    fun Bar.methodWithJvmNameAndParam(name: String): Unit = TODO()
+                }
+                class Bar
+                """
                     .trimIndent(),
             )
         runProcessorTest(
@@ -1677,11 +1677,11 @@ class XExecutableElementTest {
             Source.kotlin(
                 "foo.bar.Subject.kt",
                 """
-            package test
-            abstract class Subject(long: Long) {
-                fun method(int: Int): Unit = TODO()
-            }
-            """
+                package test
+                abstract class Subject(long: Long) {
+                    fun method(int: Int): Unit = TODO()
+                }
+                """
                     .trimIndent(),
             )
         runProcessorTest(

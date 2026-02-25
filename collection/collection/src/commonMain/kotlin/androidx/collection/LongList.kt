@@ -693,6 +693,7 @@ public class MutableLongList(initialCapacity: Int = 16) : LongList(initialCapaci
      *
      * @see ensureCapacity
      */
+    @JvmOverloads
     public fun trim(minCapacity: Int = _size) {
         val minSize = maxOf(minCapacity, _size)
         if (capacity > minSize) {

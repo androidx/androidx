@@ -48,7 +48,7 @@ actual constructor(
      * @param connection The database connection
      * @throws NotImplementedError if a driver is provided, but this function is not overridden.
      */
-    public actual abstract fun migrate(connection: SQLiteConnection)
+    public actual abstract suspend fun migrate(connection: SQLiteConnection)
 }
 
 /**
@@ -78,7 +78,7 @@ public fun Migration(
 private class MigrationImpl(
     startVersion: Int,
     endVersion: Int,
-    val migrateCallback: (SQLiteConnection) -> Unit,
+    val migrateCallback: suspend (SQLiteConnection) -> Unit,
 ) : Migration(startVersion, endVersion) {
-    override fun migrate(connection: SQLiteConnection) = migrateCallback(connection)
+    override suspend fun migrate(connection: SQLiteConnection) = migrateCallback(connection)
 }

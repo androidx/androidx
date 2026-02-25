@@ -26,8 +26,12 @@ import androidx.sqlite.SQLITE_DATA_TEXT
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.SQLiteException
-import androidx.sqlite.execSQL
+import androidx.sqlite.executeSQL
+import androidx.sqlite.open
+import androidx.sqlite.prepare
+import androidx.sqlite.step
 import kotlin.test.Test
+import kotlinx.coroutines.test.runTest
 
 abstract class BaseConformanceTest {
 
@@ -39,10 +43,15 @@ abstract class BaseConformanceTest {
         ANDROID_FRAMEWORK, // :sqlite:sqlite-framework (Android)
         NATIVE_FRAMEWORK, // :sqlite:sqlite-framework (Native)
         BUNDLED, // :sqlite:sqlite-bundled (Android, Native, JVM)
+        WEB, // :sqlite-sqlite-web (JS)
     }
 
     @Test
-    fun openAndCloseConnection() {
+    fun openAndCloseConnection() = runTest {
+        if (driverType == TestDriverType.WEB) {
+            // No 'encoding' for web driver
+            return@runTest
+        }
         val driver = getDriver()
         val connection = driver.open(":memory:")
         try {
@@ -59,7 +68,7 @@ abstract class BaseConformanceTest {
 
     @Test
     fun bindAndReadColumns() = testWithConnection { connection ->
-        connection.execSQL(
+        connection.executeSQL(
             """
             CREATE TABLE Test(
                 integerCol_long INTEGER,
@@ -76,16 +85,16 @@ abstract class BaseConformanceTest {
         connection
             .prepare(
                 """
-            INSERT INTO Test (
-                integerCol_long,
-                integerCol_int,
-                integerCol_boolean,
-                realCol_double,
-                realCol_float,
-                textCol,
-                blobCol
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
-        """
+                INSERT INTO Test (
+                    integerCol_long,
+                    integerCol_int,
+                    integerCol_boolean,
+                    realCol_double,
+                    realCol_float,
+                    textCol,
+                    blobCol
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                """
                     .trimIndent()
             )
             .use {
@@ -138,10 +147,76 @@ abstract class BaseConformanceTest {
     }
 
     @Test
+    fun bindAndReadNumberLimits() = testWithConnection { connection ->
+        // TODO(b/485611476): Support big integers for web
+        // Due to conversion to JsNumber to transfer values to and from the web worker and because
+        // kotlin.Long is an emulated object, values outside the range of Number.MAX_SAFE_INTEGER
+        // and Number.MIN_SAFE_INTEGER are currently not possible.
+        if (driverType == TestDriverType.WEB) {
+            return@testWithConnection
+        }
+
+        connection.executeSQL(
+            """
+            CREATE TABLE Test(
+                integerCol_long INTEGER,
+                integerCol_int INTEGER,
+                realCol_double REAL,
+                realCol_float REAL
+            )
+            """
+                .trimIndent()
+        )
+        connection
+            .prepare(
+                """
+                INSERT INTO Test (
+                    integerCol_long,
+                    integerCol_int,
+                    realCol_double,
+                    realCol_float
+                ) VALUES (?, ?, ?, ?)
+                """
+                    .trimIndent()
+            )
+            .use {
+                it.bindLong(1, Long.MIN_VALUE)
+                it.bindInt(2, Int.MIN_VALUE)
+                it.bindDouble(3, Double.MIN_VALUE)
+                it.bindFloat(4, Float.MIN_VALUE)
+                it.step()
+
+                it.reset()
+
+                it.bindLong(1, Long.MAX_VALUE)
+                it.bindInt(2, Int.MAX_VALUE)
+                it.bindDouble(3, Double.MAX_VALUE)
+                it.bindFloat(4, Float.MAX_VALUE)
+                it.step()
+            }
+        connection.prepare("SELECT * FROM Test").use {
+            assertThat(it.step()).isTrue() // SQLITE_ROW
+
+            assertThat(it.getLong(0)).isEqualTo(Long.MIN_VALUE)
+            assertThat(it.getInt(1)).isEqualTo(Int.MIN_VALUE)
+            assertThat(it.getDouble(2)).isEqualTo(Double.MIN_VALUE)
+            assertThat(it.getFloat(3)).isEqualTo(Float.MIN_VALUE)
+
+            assertThat(it.step()).isTrue() // SQLITE_ROW
+            assertThat(it.getLong(0)).isEqualTo(Long.MAX_VALUE)
+            assertThat(it.getInt(1)).isEqualTo(Int.MAX_VALUE)
+            assertThat(it.getDouble(2)).isEqualTo(Double.MAX_VALUE)
+            assertThat(it.getFloat(3)).isEqualTo(Float.MAX_VALUE)
+
+            assertThat(it.step()).isFalse() // SQLITE_DONE
+        }
+    }
+
+    @Test
     fun bindAndReadTextUtf8() = testWithConnection { connection ->
         val konnichiwa = "こんにちわ"
         val world = "κόσμε"
-        connection.execSQL("CREATE TABLE Test (textCol TEXT)")
+        connection.executeSQL("CREATE TABLE Test (textCol TEXT)")
         connection.prepare("INSERT INTO Test (textCol) VALUES (?)").use {
             it.bindText(1, konnichiwa)
             assertThat(it.step()).isFalse() // SQLITE_DONE
@@ -159,7 +234,7 @@ abstract class BaseConformanceTest {
 
     @Test
     fun bindAndReadZeroLengthBlob() = testWithConnection { connection ->
-        connection.execSQL("CREATE TABLE Test (data BLOB)")
+        connection.executeSQL("CREATE TABLE Test (data BLOB)")
         connection.prepare("INSERT INTO Test (data) VALUES (?)").use {
             it.bindBlob(1, ByteArray(0))
             assertThat(it.step()).isFalse() // SQLITE_DONE
@@ -172,7 +247,7 @@ abstract class BaseConformanceTest {
 
     @Test
     fun bindAndReadEmptyString() = testWithConnection { connection ->
-        connection.execSQL("CREATE TABLE Test (data TEXT)")
+        connection.executeSQL("CREATE TABLE Test (data TEXT)")
         connection.prepare("INSERT INTO Test (data) VALUES (?)").use {
             it.bindText(1, "")
             assertThat(it.step()).isFalse() // SQLITE_DONE
@@ -185,7 +260,7 @@ abstract class BaseConformanceTest {
 
     @Test
     fun bindTextInExpression() = testWithConnection { connection ->
-        connection.execSQL("CREATE TABLE Test (date TEXT)")
+        connection.executeSQL("CREATE TABLE Test (date TEXT)")
         connection.prepare("INSERT INTO Test (date) VALUES (?)").use {
             it.bindText(1, "1991-04-18")
             assertThat(it.step()).isFalse() // SQLITE_DONE
@@ -198,7 +273,7 @@ abstract class BaseConformanceTest {
 
     @Test
     fun bindAndReadNull() = testWithConnection { connection ->
-        connection.execSQL("CREATE TABLE Test (col)")
+        connection.executeSQL("CREATE TABLE Test (col)")
         connection.prepare("INSERT INTO Test (col) VALUES (?)").use {
             it.bindNull(1)
             assertThat(it.step()).isFalse() // SQLITE_DONE
@@ -212,7 +287,7 @@ abstract class BaseConformanceTest {
 
     @Test
     open fun bindInvalidParam() = testWithConnection { connection ->
-        connection.execSQL("CREATE TABLE Test (col)")
+        connection.executeSQL("CREATE TABLE Test (col)")
         connection.prepare("SELECT 1 FROM Test").use {
             val expectedMessage = "Error code: 25, message: column index out of range"
             assertThrows<SQLiteException> { it.bindNull(1) }
@@ -241,8 +316,8 @@ abstract class BaseConformanceTest {
 
     @Test
     fun readInvalidColumn() = testWithConnection { connection ->
-        connection.execSQL("CREATE TABLE Test (col)")
-        connection.execSQL("INSERT INTO Test (col) VALUES ('')")
+        connection.executeSQL("CREATE TABLE Test (col)")
+        connection.executeSQL("INSERT INTO Test (col) VALUES ('')")
         connection.prepare("SELECT * FROM Test").use {
             assertThat(it.step()).isTrue() // SQLITE_ROW
             val expectedMessage = "Error code: 25, message: column index out of range"
@@ -272,8 +347,8 @@ abstract class BaseConformanceTest {
 
     @Test
     fun readColumnWithoutStep() = testWithConnection { connection ->
-        connection.execSQL("CREATE TABLE Test (col)")
-        connection.execSQL("INSERT INTO Test (col) VALUES ('')")
+        connection.executeSQL("CREATE TABLE Test (col)")
+        connection.executeSQL("INSERT INTO Test (col) VALUES ('')")
         connection.prepare("SELECT * FROM Test").use {
             assertThrows<SQLiteException> { it.getText(1) }
                 .hasMessageThat()
@@ -283,7 +358,7 @@ abstract class BaseConformanceTest {
 
     @Test
     fun readColumnNameWithoutStep() = testWithConnection { connection ->
-        connection.execSQL("CREATE TABLE Test (col)")
+        connection.executeSQL("CREATE TABLE Test (col)")
         connection.prepare("SELECT col FROM Test").use {
             assertThat(it.getColumnCount()).isEqualTo(1)
             assertThat(it.getColumnName(0)).isEqualTo("col")
@@ -292,7 +367,7 @@ abstract class BaseConformanceTest {
 
     @Test
     fun readColumnOfInsertStatement() = testWithConnection { connection ->
-        connection.execSQL("CREATE TABLE Test (col)")
+        connection.executeSQL("CREATE TABLE Test (col)")
         connection.prepare("INSERT INTO Test (col) VALUES (?)").use {
             assertThrows<SQLiteException> { it.getText(0) }
                 .hasMessageThat()
@@ -309,13 +384,13 @@ abstract class BaseConformanceTest {
 
     @Test
     fun prepareInvalidWriteStatement() = testWithConnection {
-        assertThrows<SQLiteException> { it.execSQL("INSERT INTO Foo (id) VALUES (1)") }
+        assertThrows<SQLiteException> { it.executeSQL("INSERT INTO Foo (id) VALUES (1)") }
             .hasMessageThat()
             .contains("no such table: Foo")
     }
 
     @Test
-    fun useClosedConnection() {
+    fun useClosedConnection() = runTest {
         val driver = getDriver()
         val connection = driver.open(":memory:")
         connection.close()
@@ -324,7 +399,7 @@ abstract class BaseConformanceTest {
 
     @Test
     fun useClosedSelectStatement() = testWithConnection {
-        it.execSQL("CREATE TABLE Foo (id)")
+        it.executeSQL("CREATE TABLE Foo (id)")
         val statement = it.prepare("SELECT * FROM Foo")
         statement.close()
         assertThrows<SQLiteException> { statement.step() }
@@ -332,7 +407,7 @@ abstract class BaseConformanceTest {
 
     @Test
     fun useClosedInsertStatement() = testWithConnection {
-        it.execSQL("CREATE TABLE Foo (id)")
+        it.executeSQL("CREATE TABLE Foo (id)")
         val statement = it.prepare("INSERT INTO Foo (id) VALUES (1)")
         statement.close()
         assertThrows<SQLiteException> { statement.step() }
@@ -340,8 +415,8 @@ abstract class BaseConformanceTest {
 
     @Test
     fun clearBindings() = testWithConnection { connection ->
-        connection.execSQL("CREATE TABLE Foo (id)")
-        connection.execSQL("INSERT INTO Foo (id) VALUES (1)")
+        connection.executeSQL("CREATE TABLE Foo (id)")
+        connection.executeSQL("INSERT INTO Foo (id) VALUES (1)")
         connection.prepare("SELECT * FROM Foo WHERE id = ?").use {
             it.bindLong(1, 1)
             assertThat(it.step()).isTrue()
@@ -353,7 +428,7 @@ abstract class BaseConformanceTest {
 
     @Test
     fun readLastRowId() = testWithConnection { connection ->
-        connection.execSQL("CREATE TABLE Test (col)")
+        connection.executeSQL("CREATE TABLE Test (col)")
         connection.prepare("INSERT INTO Test (col) VALUES (?)").use {
             it.bindNull(1)
             assertThat(it.step()).isFalse() // SQLITE_DONE
@@ -372,7 +447,7 @@ abstract class BaseConformanceTest {
 
     @Test
     fun changes() = testWithConnection { connection ->
-        connection.execSQL("CREATE TABLE Test (col)")
+        connection.executeSQL("CREATE TABLE Test (col)")
         connection.prepare("INSERT INTO Test (col) VALUES (?),(?),(?)").use {
             it.bindNull(1)
             it.bindNull(2)
@@ -396,7 +471,7 @@ abstract class BaseConformanceTest {
                 WITH RECURSIVE
                   cnt(x) AS (VALUES(1) UNION ALL SELECT x + 1 FROM cnt WHERE x < 10)
                 SELECT x FROM cnt;
-            """
+                """
                     .trimIndent()
             )
             .use {
@@ -410,30 +485,30 @@ abstract class BaseConformanceTest {
     @Test
     fun inTransaction() = testWithConnection { connection ->
         assertThat(connection.inTransaction()).isFalse()
-        connection.execSQL("BEGIN TRANSACTION")
+        connection.executeSQL("BEGIN TRANSACTION")
         assertThat(connection.inTransaction()).isTrue()
-        connection.execSQL("END TRANSACTION")
+        connection.executeSQL("END TRANSACTION")
         assertThat(connection.inTransaction()).isFalse()
-        connection.execSQL("BEGIN DEFERRED TRANSACTION")
+        connection.executeSQL("BEGIN DEFERRED TRANSACTION")
         assertThat(connection.inTransaction()).isTrue()
-        connection.execSQL("END TRANSACTION")
+        connection.executeSQL("END TRANSACTION")
         assertThat(connection.inTransaction()).isFalse()
-        connection.execSQL("BEGIN IMMEDIATE TRANSACTION")
+        connection.executeSQL("BEGIN IMMEDIATE TRANSACTION")
         assertThat(connection.inTransaction()).isTrue()
-        connection.execSQL("END TRANSACTION")
+        connection.executeSQL("END TRANSACTION")
         assertThat(connection.inTransaction()).isFalse()
-        connection.execSQL("BEGIN EXCLUSIVE TRANSACTION")
+        connection.executeSQL("BEGIN EXCLUSIVE TRANSACTION")
         assertThat(connection.inTransaction()).isTrue()
-        connection.execSQL("END TRANSACTION")
+        connection.executeSQL("END TRANSACTION")
         assertThat(connection.inTransaction()).isFalse()
     }
 
     @Test
     fun commitImmediateTransaction() = testWithConnection { connection ->
-        connection.execSQL("CREATE TABLE Test (col)")
-        connection.execSQL("BEGIN IMMEDIATE TRANSACTION")
-        connection.execSQL("INSERT INTO Test (col) VALUES (1)")
-        connection.execSQL("END TRANSACTION")
+        connection.executeSQL("CREATE TABLE Test (col)")
+        connection.executeSQL("BEGIN IMMEDIATE TRANSACTION")
+        connection.executeSQL("INSERT INTO Test (col) VALUES (1)")
+        connection.executeSQL("END TRANSACTION")
 
         val count =
             connection.prepare("SELECT COUNT(*) FROM Test").use {
@@ -445,10 +520,10 @@ abstract class BaseConformanceTest {
 
     @Test
     fun commitExclusiveTransaction() = testWithConnection { connection ->
-        connection.execSQL("CREATE TABLE Test (col)")
-        connection.execSQL("BEGIN EXCLUSIVE TRANSACTION")
-        connection.execSQL("INSERT INTO Test (col) VALUES (1)")
-        connection.execSQL("END TRANSACTION")
+        connection.executeSQL("CREATE TABLE Test (col)")
+        connection.executeSQL("BEGIN EXCLUSIVE TRANSACTION")
+        connection.executeSQL("INSERT INTO Test (col) VALUES (1)")
+        connection.executeSQL("END TRANSACTION")
 
         val count =
             connection.prepare("SELECT COUNT(*) FROM Test").use {
@@ -460,10 +535,10 @@ abstract class BaseConformanceTest {
 
     @Test
     fun rollbackTransaction() = testWithConnection { connection ->
-        connection.execSQL("CREATE TABLE Test (col)")
-        connection.execSQL("BEGIN IMMEDIATE TRANSACTION")
-        connection.execSQL("INSERT INTO Test (col) VALUES (1)")
-        connection.execSQL("ROLLBACK TRANSACTION")
+        connection.executeSQL("CREATE TABLE Test (col)")
+        connection.executeSQL("BEGIN IMMEDIATE TRANSACTION")
+        connection.executeSQL("INSERT INTO Test (col) VALUES (1)")
+        connection.executeSQL("ROLLBACK TRANSACTION")
 
         val count =
             connection.prepare("SELECT COUNT(*) FROM Test").use {
@@ -475,28 +550,29 @@ abstract class BaseConformanceTest {
 
     @Test
     fun foreignKeysCheck() = testWithConnection { connection ->
-        connection.execSQL("CREATE TABLE Parent (pid PRIMARY KEY)")
-        connection.execSQL(
+        connection.executeSQL("CREATE TABLE Parent (pid PRIMARY KEY)")
+        connection.executeSQL(
             """
             CREATE TABLE Child (
                 cid PRIMARY KEY,
                 pid,
                 FOREIGN KEY(pid) REFERENCES Parent(pid)
-            )"""
+            )
+            """
                 .trimIndent()
         )
-        connection.execSQL("INSERT INTO Parent (pid) VALUES ('p1')")
-        connection.execSQL("INSERT INTO Child (cid, pid) VALUES ('c1', 'p1')")
+        connection.executeSQL("INSERT INTO Parent (pid) VALUES ('p1')")
+        connection.executeSQL("INSERT INTO Child (cid, pid) VALUES ('c1', 'p1')")
 
         // Disable FKs checks (a new connection should be off by default, but making sure)
-        connection.execSQL("PRAGMA foreign_keys = OFF")
+        connection.executeSQL("PRAGMA foreign_keys = OFF")
 
-        connection.execSQL("BEGIN IMMEDIATE TRANSACTION")
-        connection.execSQL("DELETE FROM Parent WHERE pid = 'p1'") // OK, FKs not enabled
-        connection.execSQL("ROLLBACK TRANSACTION")
+        connection.executeSQL("BEGIN IMMEDIATE TRANSACTION")
+        connection.executeSQL("DELETE FROM Parent WHERE pid = 'p1'") // OK, FKs not enabled
+        connection.executeSQL("ROLLBACK TRANSACTION")
 
-        connection.execSQL("BEGIN IMMEDIATE TRANSACTION")
-        connection.execSQL("DELETE FROM Parent WHERE pid = 'p1'") // OK, FKs not enabled
+        connection.executeSQL("BEGIN IMMEDIATE TRANSACTION")
+        connection.executeSQL("DELETE FROM Parent WHERE pid = 'p1'") // OK, FKs not enabled
         connection.prepare("PRAGMA foreign_key_check").use { stmt ->
             assertThat(stmt.step()).isTrue()
             assertThat(stmt.getText(0)).isEqualTo("Child")
@@ -504,14 +580,14 @@ abstract class BaseConformanceTest {
             assertThat(stmt.getText(2)).isEqualTo("Parent")
             assertThat(stmt.getLong(3)).isEqualTo(0)
         }
-        connection.execSQL("ROLLBACK TRANSACTION")
+        connection.executeSQL("ROLLBACK TRANSACTION")
 
         // Enable foreign keys checks
-        connection.execSQL("PRAGMA foreign_keys = ON")
+        connection.executeSQL("PRAGMA foreign_keys = ON")
 
-        connection.execSQL("BEGIN IMMEDIATE TRANSACTION")
+        connection.executeSQL("BEGIN IMMEDIATE TRANSACTION")
         assertThrows<SQLiteException> {
-                connection.execSQL("DELETE FROM Parent WHERE pid = 'p1'") // Fail, FKs enabled
+                connection.executeSQL("DELETE FROM Parent WHERE pid = 'p1'") // Fail, FKs enabled
             }
             .hasMessageThat()
             .let {
@@ -522,16 +598,17 @@ abstract class BaseConformanceTest {
                     it.isEqualTo("Error code: 787, message: FOREIGN KEY constraint failed")
                 }
             }
-        connection.execSQL("ROLLBACK TRANSACTION")
+        connection.executeSQL("ROLLBACK TRANSACTION")
     }
 
-    private inline fun testWithConnection(block: (SQLiteConnection) -> Unit) {
-        val driver = getDriver()
-        val connection = driver.open(":memory:")
-        try {
-            block.invoke(connection)
-        } finally {
-            connection.close()
+    private inline fun testWithConnection(crossinline block: suspend (SQLiteConnection) -> Unit) =
+        runTest {
+            val driver = getDriver()
+            val connection = driver.open(":memory:")
+            try {
+                block.invoke(connection)
+            } finally {
+                connection.close()
+            }
         }
-    }
 }

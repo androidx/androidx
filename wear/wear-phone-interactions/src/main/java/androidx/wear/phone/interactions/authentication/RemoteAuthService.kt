@@ -172,5 +172,7 @@ public abstract class RemoteAuthService : Service() {
                 )
             }
         }
+
+        override fun getInterfaceVersion(): Int = VERSION
     }
 }

@@ -27,6 +27,7 @@ import androidx.room3.ext.CommonTypeNames
 import androidx.room3.ext.InvokeWithLambdaParameter
 import androidx.room3.ext.LambdaSpec
 import androidx.room3.ext.RoomTypeNames
+import androidx.room3.ext.SQLiteDriverMemberNames
 import androidx.room3.ext.SQLiteDriverTypeNames
 import androidx.room3.solver.CodeGenScope
 
@@ -67,8 +68,9 @@ class CoroutineFlowResultBinder(
                             addLocalVal(
                                 statementVar,
                                 SQLiteDriverTypeNames.STATEMENT,
-                                "%L.prepare(%L)",
+                                "%L.%M(%L)",
                                 connectionVar,
+                                SQLiteDriverMemberNames.CONNECTION_PREPARE,
                                 sqlQueryVar,
                             )
                             beginControlFlow("try")

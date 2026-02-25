@@ -19,7 +19,7 @@ package androidx.xr.projected.platform;
 import androidx.xr.projected.platform.IProjectedDeviceStateListener;
 import androidx.xr.projected.platform.IProjectedInputEventListener;
 
-@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX)")
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)")
 interface IProjectedService {
   void registerProjectedInputEventListener(in IProjectedInputEventListener listener);
   void unregisterProjectedInputEventListener(in IProjectedInputEventListener listener);

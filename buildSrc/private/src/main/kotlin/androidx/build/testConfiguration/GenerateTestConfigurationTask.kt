@@ -78,6 +78,8 @@ abstract class GenerateTestConfigurationTask : DefaultTask() {
 
     @get:Input abstract val instrumentationArgs: MapProperty<String, String>
 
+    @get:Input abstract val useOrchestrator: Property<Boolean>
+
     @get:OutputFile abstract val outputXml: RegularFileProperty
 
     /**
@@ -107,6 +109,7 @@ abstract class GenerateTestConfigurationTask : DefaultTask() {
         configBuilder.additionalApkKeys(additionalApkKeys.get())
         val isPresubmit = presubmit.get()
         configBuilder.isPostsubmit(!isPresubmit)
+        configBuilder.useOrchestrator = useOrchestrator.get()
         // This section adds metadata tags that will help filter runners to specific modules.
         if (hasBenchmarkPlugin.get()) {
             configBuilder.isMicrobenchmark(true)

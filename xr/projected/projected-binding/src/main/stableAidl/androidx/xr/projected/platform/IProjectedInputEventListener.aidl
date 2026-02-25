@@ -18,7 +18,7 @@ package androidx.xr.projected.platform;
 
 import androidx.xr.projected.platform.ProjectedInputEvent;
 
-@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX)")
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)")
 interface IProjectedInputEventListener {
   void onProjectedInputEvent(in ProjectedInputEvent inputEvent);
 }

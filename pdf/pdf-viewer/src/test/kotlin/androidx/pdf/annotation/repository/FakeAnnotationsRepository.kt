@@ -32,4 +32,8 @@ class FakeAnnotationsRepository : AnnotationsRepository {
     override suspend fun getAnnotation(pageNum: Int, annotationId: String): KeyedPdfAnnotation? {
         return data[pageNum]?.find { it.key == annotationId }
     }
+
+    override fun clear() {
+        data.clear()
+    }
 }

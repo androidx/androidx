@@ -18,6 +18,7 @@ package androidx.xr.arcore.testing
 
 import androidx.kruth.assertThat
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.FaceTrackingMode
 import kotlin.test.assertFailsWith
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.test.runTest
@@ -108,7 +109,7 @@ class FakeLifecycleManagerTest {
         underTest.create()
         underTest.shouldSupportFaceTracking = false
         assertFailsWith<UnsupportedOperationException> {
-            underTest.configure(Config(faceTracking = Config.FaceTrackingMode.BLEND_SHAPES))
+            underTest.configure(Config(faceTracking = FaceTrackingMode.BLEND_SHAPES))
         }
     }
 

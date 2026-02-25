@@ -37,16 +37,16 @@ class ObsoleteBuildCompatUsageDetectorTest :
         val input =
             java(
                 """
-            package foo;
-            import androidx.core.os.BuildCompat;
-            public class Example {
-              public static void main(String... args) {
-                if (BuildCompat.isAtLeastN()) {
-                  System.out.println("Hey");
+                package foo;
+                import androidx.core.os.BuildCompat;
+                public class Example {
+                  public static void main(String... args) {
+                    if (BuildCompat.isAtLeastN()) {
+                      System.out.println("Hey");
+                    }
+                  }
                 }
-              }
-            }
-            """
+                """
                     .trimIndent()
             )
 
@@ -75,16 +75,16 @@ class ObsoleteBuildCompatUsageDetectorTest :
         val input =
             java(
                 """
-            package foo;
-            import static androidx.core.os.BuildCompat.isAtLeastN;
-            public class Example {
-              public static void main(String... args) {
-                if (isAtLeastN()) {
-                  System.out.println("Hey");
+                package foo;
+                import static androidx.core.os.BuildCompat.isAtLeastN;
+                public class Example {
+                  public static void main(String... args) {
+                    if (isAtLeastN()) {
+                      System.out.println("Hey");
+                    }
+                  }
                 }
-              }
-            }
-            """
+                """
                     .trimIndent()
             )
 
@@ -113,16 +113,16 @@ class ObsoleteBuildCompatUsageDetectorTest :
         val input =
             java(
                 """
-            package foo;
-            import androidx.core.os.BuildCompat;
-            public class Example {
-              public static void main(String... args) {
-                if (BuildCompat.isAtLeastNMR1()) {
-                  System.out.println("Hey");
+                package foo;
+                import androidx.core.os.BuildCompat;
+                public class Example {
+                  public static void main(String... args) {
+                    if (BuildCompat.isAtLeastNMR1()) {
+                      System.out.println("Hey");
+                    }
+                  }
                 }
-              }
-            }
-            """
+                """
                     .trimIndent()
             )
 
@@ -151,16 +151,16 @@ class ObsoleteBuildCompatUsageDetectorTest :
         val input =
             java(
                 """
-            package foo;
-            import androidx.core.os.BuildCompat;
-            public class Example {
-              public static void main(String... args) {
-                if (BuildCompat.isAtLeastO()) {
-                  System.out.println("Hey");
+                package foo;
+                import androidx.core.os.BuildCompat;
+                public class Example {
+                  public static void main(String... args) {
+                    if (BuildCompat.isAtLeastO()) {
+                      System.out.println("Hey");
+                    }
+                  }
                 }
-              }
-            }
-            """
+                """
                     .trimIndent()
             )
 
@@ -189,16 +189,16 @@ class ObsoleteBuildCompatUsageDetectorTest :
         val input =
             java(
                 """
-            package foo;
-            import androidx.core.os.BuildCompat;
-            public class Example {
-              public static void main(String... args) {
-                if (BuildCompat.isAtLeastOMR1()) {
-                  System.out.println("Hey");
+                package foo;
+                import androidx.core.os.BuildCompat;
+                public class Example {
+                  public static void main(String... args) {
+                    if (BuildCompat.isAtLeastOMR1()) {
+                      System.out.println("Hey");
+                    }
+                  }
                 }
-              }
-            }
-            """
+                """
                     .trimIndent()
             )
 
@@ -227,16 +227,16 @@ class ObsoleteBuildCompatUsageDetectorTest :
         val input =
             java(
                 """
-            package foo;
-            import androidx.core.os.BuildCompat;
-            public class Example {
-              public static void main(String... args) {
-                if (BuildCompat.isAtLeastP()) {
-                  System.out.println("Hey");
+                package foo;
+                import androidx.core.os.BuildCompat;
+                public class Example {
+                  public static void main(String... args) {
+                    if (BuildCompat.isAtLeastP()) {
+                      System.out.println("Hey");
+                    }
+                  }
                 }
-              }
-            }
-            """
+                """
                     .trimIndent()
             )
 
@@ -265,16 +265,16 @@ class ObsoleteBuildCompatUsageDetectorTest :
         val input =
             java(
                 """
-            package foo;
-            import androidx.core.os.BuildCompat;
-            public class Example {
-              public static void main(String... args) {
-                if (BuildCompat.isAtLeastQ()) {
-                  System.out.println("Hey");
+                package foo;
+                import androidx.core.os.BuildCompat;
+                public class Example {
+                  public static void main(String... args) {
+                    if (BuildCompat.isAtLeastQ()) {
+                      System.out.println("Hey");
+                    }
+                  }
                 }
-              }
-            }
-            """
+                """
                     .trimIndent()
             )
 
@@ -301,16 +301,16 @@ class ObsoleteBuildCompatUsageDetectorTest :
         private val BuildCompat =
             java(
                 """
-            package androidx.core.os;
-            public class BuildCompat {
-              public static boolean isAtLeastN() { return false; }
-              public static boolean isAtLeastNMR1() { return false; }
-              public static boolean isAtLeastO() { return false; }
-              public static boolean isAtLeastOMR1() { return false; }
-              public static boolean isAtLeastP() { return false; }
-              public static boolean isAtLeastQ() { return false; }
-            }
-            """
+                package androidx.core.os;
+                public class BuildCompat {
+                  public static boolean isAtLeastN() { return false; }
+                  public static boolean isAtLeastNMR1() { return false; }
+                  public static boolean isAtLeastO() { return false; }
+                  public static boolean isAtLeastOMR1() { return false; }
+                  public static boolean isAtLeastP() { return false; }
+                  public static boolean isAtLeastQ() { return false; }
+                }
+                """
                     .trimIndent()
             )
     }

@@ -62,6 +62,7 @@ tasks.withType(KotlinCompilationTask).configureEach {
 dependencies {
     implementation(project(":room3:room3-common"))
     implementation(project(":room3:room3-runtime"))
+    implementation(project(":room3:room3-livedata"))
     implementation(project(":room3:room3-paging"))
     implementation(project(":room3:room3-sqlite-wrapper"))
     implementation(project(":paging:paging-runtime"))

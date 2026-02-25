@@ -65,11 +65,7 @@ class ModeChange : ComponentActivity() {
 
         setContent {
             val renderingSession = remember {
-                (Session.create(
-                        activity = this@ModeChange,
-                        unscaledGravityAlignedActivitySpace = true,
-                    ) as SessionCreateSuccess)
-                    .session
+                (Session.create(activity = this@ModeChange) as SessionCreateSuccess).session
             }
             IntegrationTestsAppTheme {
                 if (LocalSpatialCapabilities.current.isSpatialUiEnabled) {

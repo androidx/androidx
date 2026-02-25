@@ -275,7 +275,7 @@ class KspFilerTest {
                 package foo.bar;
 
                 class Baz
-            """
+                """
                     .trimIndent(),
             )
     }

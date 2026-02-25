@@ -19,13 +19,14 @@ package androidx.xr.arcore.runtime
 import android.os.IBinder
 import androidx.annotation.RestrictTo
 
-/** Wraps the minimum necessary information to export an anchor to another Jetpack XR module. */
+/**
+ * Wraps the minimum necessary information to export an anchor to another Jetpack XR module.
+ *
+ * @property nativePointer a native pointer to this Anchor
+ * @property anchorToken an [IBinder] reference with which to import the Anchor
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface ExportableAnchor : Anchor {
-    /* nativePointer to the [XrSpace] instance that backs this anchor */
     public val nativePointer: Long
-
-    /* anchorToken is a Binder reference of the anchor, it can be used to import the anchor by an
-     * OpenXR session. */
     public val anchorToken: IBinder
 }

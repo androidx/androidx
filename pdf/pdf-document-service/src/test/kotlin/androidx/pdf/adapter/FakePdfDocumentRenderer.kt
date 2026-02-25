@@ -17,9 +17,10 @@
 package androidx.pdf.adapter
 
 import android.os.ParcelFileDescriptor
+import androidx.pdf.PdfDocument.Companion.LINEARIZATION_STATUS_NOT_LINEARIZED
 
 class FakePdfDocumentRenderer(
-    override val isLinearized: Boolean = false,
+    override val linearizationStatus: Int = LINEARIZATION_STATUS_NOT_LINEARIZED,
     override val pageCount: Int = 10,
     override val formType: Int = 0,
 ) : PdfDocumentRenderer {

@@ -93,11 +93,7 @@ public class CompilationInfoRequestException(
 ) :
     Exception(
         (if (status != CompilationInfoRequestStatus.Success)
-            "${
-        CompilationInfoRequestStatus.toString(
-            status
-        )
-    }: "
+            "${ CompilationInfoRequestStatus.toString(status)}: "
         else "") + reason
     ) {}
 
@@ -107,7 +103,7 @@ public class CreatePipelineAsyncException(
 ) :
     Exception(
         (if (status != CreatePipelineAsyncStatus.Success)
-            "${CreatePipelineAsyncStatus.toString(status)}: "
+            "${ CreatePipelineAsyncStatus.toString(status)}: "
         else "") + reason
     ) {}
 
@@ -116,7 +112,7 @@ public class MapAsyncException(
     @MapAsyncStatus public val status: Int = MapAsyncStatus.Success,
 ) :
     Exception(
-        (if (status != MapAsyncStatus.Success) "${MapAsyncStatus.toString(status)}: " else "") +
+        (if (status != MapAsyncStatus.Success) "${ MapAsyncStatus.toString(status)}: " else "") +
             reason
     ) {}
 
@@ -125,7 +121,7 @@ public class PopErrorScopeException(
     @PopErrorScopeStatus public val status: Int = PopErrorScopeStatus.Success,
 ) :
     Exception(
-        (if (status != PopErrorScopeStatus.Success) "${PopErrorScopeStatus.toString(status)}: "
+        (if (status != PopErrorScopeStatus.Success) "${ PopErrorScopeStatus.toString(status)}: "
         else "") + reason
     ) {}
 
@@ -134,7 +130,7 @@ public class QueueWorkDoneException(
     @QueueWorkDoneStatus public val status: Int = QueueWorkDoneStatus.Success,
 ) :
     Exception(
-        (if (status != QueueWorkDoneStatus.Success) "${QueueWorkDoneStatus.toString(status)}: "
+        (if (status != QueueWorkDoneStatus.Success) "${ QueueWorkDoneStatus.toString(status)}: "
         else "") + reason
     ) {}
 
@@ -143,7 +139,7 @@ public class RequestAdapterException(
     @RequestAdapterStatus public val status: Int = RequestAdapterStatus.Success,
 ) :
     Exception(
-        (if (status != RequestAdapterStatus.Success) "${RequestAdapterStatus.toString(status)}: "
+        (if (status != RequestAdapterStatus.Success) "${ RequestAdapterStatus.toString(status)}: "
         else "") + reason
     ) {}
 
@@ -152,14 +148,14 @@ public class RequestDeviceException(
     @RequestDeviceStatus public val status: Int = RequestDeviceStatus.Success,
 ) :
     Exception(
-        (if (status != RequestDeviceStatus.Success) "${RequestDeviceStatus.toString(status)}: "
+        (if (status != RequestDeviceStatus.Success) "${ RequestDeviceStatus.toString(status)}: "
         else "") + reason
     ) {}
 
 public class WebGpuException(
     public val reason: String = "",
     @Status public val status: Int = Status.Success,
-) : Exception((if (status != Status.Success) "${Status.toString(status)}: " else "") + reason) {}
+) : Exception((if (status != Status.Success) "${ Status.toString(status)}: " else "") + reason) {}
 
 public class SurfaceGetCurrentTextureException(
     public val reason: String = "",
@@ -168,10 +164,6 @@ public class SurfaceGetCurrentTextureException(
 ) :
     Exception(
         (if (status != SurfaceGetCurrentTextureStatus.SuccessOptimal)
-            "${
-        SurfaceGetCurrentTextureStatus.toString(
-            status
-        )
-    }: "
+            "${ SurfaceGetCurrentTextureStatus.toString(status)}: "
         else "") + reason
     ) {}

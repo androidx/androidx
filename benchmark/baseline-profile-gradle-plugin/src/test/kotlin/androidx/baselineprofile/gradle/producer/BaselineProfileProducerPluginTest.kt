@@ -36,22 +36,22 @@ import org.junit.runners.Parameterized
 
 private val GRADLE_PRINT_ARGS_TASK =
     """
-abstract class PrintArgsTask extends DefaultTask {
-    @Input abstract MapProperty<String, String> getProperties()
-    @TaskAction void exec() {
-        for (Map.Entry<String, String> e : getProperties().get().entrySet()) {
-            println(e.key + "=" + e.value)
+    abstract class PrintArgsTask extends DefaultTask {
+        @Input abstract MapProperty<String, String> getProperties()
+        @TaskAction void exec() {
+            for (Map.Entry<String, String> e : getProperties().get().entrySet()) {
+                println(e.key + "=" + e.value)
+            }
         }
     }
-}
-androidComponents {
-    onVariants(selector()) { variant ->
-        tasks.register(variant.name + "Arguments", PrintArgsTask) { t ->
-            t.properties.set(variant.instrumentationRunnerArguments)
+    androidComponents {
+        onVariants(selector()) { variant ->
+            tasks.register(variant.name + "Arguments", PrintArgsTask) { t ->
+                t.properties.set(variant.instrumentationRunnerArguments)
+            }
         }
     }
-}
-"""
+    """
         .trimIndent()
 
 @RunWith(Parameterized::class)
@@ -98,7 +98,7 @@ class BaselineProfileProducerPluginTest(agpVersion: TestAgpVersion) {
             baselineProfileBlock =
                 """
                 managedDevices = ["nonExisting"]
-            """
+                """
                     .trimIndent(),
         )
 
@@ -117,7 +117,7 @@ class BaselineProfileProducerPluginTest(agpVersion: TestAgpVersion) {
             baselineProfileBlock =
                 """
                 managedDevices = ["somePixelDevice"]
-            """
+                """
                     .trimIndent(),
         )
 
@@ -149,7 +149,7 @@ class BaselineProfileProducerPluginTest(agpVersion: TestAgpVersion) {
             baselineProfileBlock =
                 """
                 managedDevices = ["somePixelDevice"]
-            """
+                """
                     .trimIndent(),
             additionalGradleCodeBlock =
                 """
@@ -161,7 +161,7 @@ class BaselineProfileProducerPluginTest(agpVersion: TestAgpVersion) {
                         println(taskName + "=" + task.enabled)
                     }
                 }
-            """
+                """
                     .trimIndent(),
         )
 
@@ -192,7 +192,7 @@ class BaselineProfileProducerPluginTest(agpVersion: TestAgpVersion) {
                 """
                 managedDevices = ["somePixelDevice"]
                 useConnectedDevices = false
-            """
+                """
                     .trimIndent(),
         )
 
@@ -219,7 +219,7 @@ class BaselineProfileProducerPluginTest(agpVersion: TestAgpVersion) {
                 """
                 managedDevices = ["somePixelDevice"]
                 useConnectedDevices = false
-            """
+                """
                     .trimIndent(),
         )
 

@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -37,13 +36,14 @@ dependencies {
     api(project(":xr:arcore:arcore-testing"))
     api(project(":xr:scenecore:scenecore-runtime"))
 
-    implementation("com.google.ar:impress:0.0.11")
+    implementation("com.google.ar:impress:0.0.12")
     implementation(libs.testExtTruth)
     implementation("androidx.annotation:annotation:1.8.1")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
 
     testImplementation(project(":kruth:kruth"))
     testImplementation(libs.testRunner)
+    testImplementation(libs.testExtJunit)
 
     testImplementation(files(new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/extensions/com.android.extensions.xr.host.test.jar")))
 }

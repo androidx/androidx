@@ -16,16 +16,18 @@
 
 package androidx.biometric.internal
 
+import android.app.Activity
 import android.content.Context
 import android.os.Build
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.BiometricPrompt.AuthenticationCallback
 import androidx.biometric.R
+import androidx.biometric.internal.data.CanceledFrom
 import androidx.biometric.internal.viewmodel.AuthenticationViewModel
 import androidx.biometric.utils.AuthenticatorUtils
 import androidx.biometric.utils.DeviceUtils
-import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -134,14 +136,26 @@ internal class AuthenticationManager(
         // reconnecting view models.
         val observer = LifecycleEventObserver { owner, event ->
             when (event) {
-                Lifecycle.Event.ON_START ->
+                Lifecycle.Event.ON_START -> {
                     if (viewModel.isPromptShowing) {
                         startObservingAuth()
                     }
+                }
+                Lifecycle.Event.ON_STOP -> {
+                    // cancel authentication when the client is permanently removed
+                    if (
+                        owner.isPermanentlyRemoved(event) &&
+                            viewModel.isPromptShowing &&
+                            !viewModel.isConfirmingDeviceCredential
+                    ) {
+                        cancelAuthentication(CanceledFrom.INTERNAL)
+                    }
+                }
 
                 Lifecycle.Event.ON_DESTROY -> {
                     stopObservingAuth()
                     viewModel.resetManagerKey()
+
                     lifecycleContainer.clearObservers()
                 }
 
@@ -175,6 +189,7 @@ internal class AuthenticationManager(
         viewModel.isIdentityCheckAvailable =
             BiometricManager.from(context).isIdentityCheckAvailable()
         viewModel.cryptoObject = crypto
+        viewModel.canceledFrom = CanceledFrom.INTERNAL
 
         viewModel.setNegativeButtonTextOverride(
             if (context.isManagingDeviceCredentialButton(viewModel.allowedAuthenticators)) {
@@ -247,11 +262,6 @@ internal class AuthenticationManager(
             viewModel.isIgnoringCancel = true
             viewModel.setDelayedIgnoringCancel(false, 250L)
         }
-
-        // TODO(b/263800618): Add lifecycle observer to cancel authentication when the app enters
-        // the background. ProcessLifecycleOwner.get().lifecycle.addObserver(processObserver), or
-        // find a better alternative to handle backgrounded cancelling authentication, e.g. combine
-        // LifecycleEventObserver and fragment.isRemoving()/!activity.isChangingConfigurations().
     }
 
     /**
@@ -262,9 +272,6 @@ internal class AuthenticationManager(
         isAuthenticationPrepared = false
         disconnectCallbackObservers()
         uiStateObserver?.disconnectObservers()
-
-        // TODO(b/263800618): Remove lifecycle observer
-        // ProcessLifecycleOwner.get().lifecycle.removeObserver(processObserver)
     }
 
     /**
@@ -343,18 +350,13 @@ internal class AuthenticationManager(
     }
 }
 
-/** Represents the source or reason why an authentication operation was canceled. */
-internal enum class CanceledFrom {
-    INTERNAL,
-    USER,
-    NEGATIVE_BUTTON,
-    CLIENT,
-    MORE_OPTIONS_BUTTON,
-}
-
-private class AppLifecycleListener(val onBackgrounded: () -> Unit = {}) : DefaultLifecycleObserver {
-    override fun onStop(owner: LifecycleOwner) {
-        // app moved to background
-        onBackgrounded()
-    }
+private fun LifecycleOwner.isPermanentlyRemoved(event: Lifecycle.Event): Boolean {
+    val isDestroying = event == Lifecycle.Event.ON_STOP || event == Lifecycle.Event.ON_DESTROY
+    val isNotChangingConfigurations =
+        when (this) {
+            is Activity -> isFinishing || !isChangingConfigurations
+            is Fragment -> isRemoving && (activity == null || !activity!!.isChangingConfigurations)
+            else -> false
+        }
+    return isDestroying && isNotChangingConfigurations
 }

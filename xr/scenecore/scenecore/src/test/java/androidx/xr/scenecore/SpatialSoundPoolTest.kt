@@ -77,6 +77,7 @@ class SpatialSoundPoolTest {
                 activity,
                 runtimes =
                     listOf(fakePerceptionRuntimeFactory.createRuntime(activity), mockSceneRuntime),
+                lifecycleOwner = activity,
             )
     }
 

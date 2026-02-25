@@ -57,8 +57,8 @@ private constructor(
          * if it is released nearby. By default this the Entity will be anchored to any plane. If no
          * PlaneOrientation or no PlaneSemanticType is set the Entity will not be anchored. This
          * setting requires [androidx.xr.runtime.Session.configure] to be called with
-         * [androidx.xr.runtime.Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL] in order to be
-         * able to discover planes.
+         * [androidx.xr.runtime.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL] in order to be able to
+         * discover planes.
          *
          * When an Entity is anchored to the plane the pose will be rotated so that it's Z-vector
          * will be pointing out of the plane (i.e. if it is a panel it will be flat along the

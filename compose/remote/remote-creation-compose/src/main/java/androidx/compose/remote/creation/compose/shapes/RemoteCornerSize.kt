@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.shapes
 
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
@@ -31,7 +32,7 @@ import androidx.compose.runtime.Immutable
 public interface RemoteCornerSize {
 
     /** Converts the [RemoteCornerSize] to pixels in RemoteFloat. */
-    public fun toPx(shapeSize: RemoteSize): RemoteFloat
+    public fun toPx(shapeSize: RemoteSize, density: RemoteDensity): RemoteFloat
 }
 
 /**
@@ -45,8 +46,8 @@ public fun RemoteCornerSize(size: RemoteDp): RemoteCornerSize = RemoteDpCornerSi
 private data class RemoteDpCornerSize(private val size: RemoteDp) : RemoteCornerSize {
     override fun toString(): String = "CornerSize(size = ${size.value}.dp)"
 
-    override fun toPx(shapeSize: RemoteSize): RemoteFloat {
-        return size.toPx()
+    override fun toPx(shapeSize: RemoteSize, density: RemoteDensity): RemoteFloat {
+        return size.toPx(density)
     }
 }
 
@@ -61,7 +62,7 @@ public fun RemoteCornerSize(size: RemoteFloat): RemoteCornerSize = PxCornerSize(
 private data class PxCornerSize(private val size: RemoteFloat) : RemoteCornerSize {
     override fun toString(): String = "CornerSize(size = $size.px)"
 
-    override fun toPx(shapeSize: RemoteSize): RemoteFloat {
+    override fun toPx(shapeSize: RemoteSize, density: RemoteDensity): RemoteFloat {
         return size
     }
 }
@@ -86,7 +87,7 @@ public fun RemoteCornerSize(@IntRange(from = 0, to = 100) percent: Int): RemoteC
 public data class RemotePercentCornerSize(public val percent: Int) : RemoteCornerSize {
     override fun toString(): String = "CornerSize(size = $percent%)"
 
-    override fun toPx(shapeSize: RemoteSize): RemoteFloat {
+    override fun toPx(shapeSize: RemoteSize, density: RemoteDensity): RemoteFloat {
         return shapeSize.minDimension * (percent.toFloat().rf / 100f)
     }
 }

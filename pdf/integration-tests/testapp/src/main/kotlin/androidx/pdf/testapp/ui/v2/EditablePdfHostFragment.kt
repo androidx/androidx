@@ -16,13 +16,14 @@
 
 package androidx.pdf.testapp.ui.v2
 
-import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.ParcelFileDescriptor
+import android.os.ext.SdkExtensions
+import android.view.ActionMode
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,17 +36,21 @@ import androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
 import androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.WRAP_CONTENT
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.pdf.PdfWriteHandle
 import androidx.pdf.ink.EditablePdfViewerFragment
 import androidx.pdf.ink.R
+import androidx.pdf.selection.Selection
+import androidx.pdf.selection.model.ImageSelection
 import androidx.pdf.testapp.R as testR
+import androidx.pdf.view.PdfView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import java.io.IOException
 import kotlinx.coroutines.launch
 
-@SuppressLint("RestrictedApiAndroidX")
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
 class EditablePdfHostFragment : EditablePdfViewerFragment() {
     private val viewModel: EditablePdfHostViewModel by viewModels()
@@ -59,6 +64,7 @@ class EditablePdfHostFragment : EditablePdfViewerFragment() {
     private val discardDialog: AlertDialog by lazy { createDiscardDialog(requireContext()) }
 
     private lateinit var loadingProgressBar: ProgressBar
+    private var imageSelectionActionMode: ActionMode? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -81,39 +87,95 @@ class EditablePdfHostFragment : EditablePdfViewerFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupBackPressedCallback()
+
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.saveState.collect { state ->
-                when (state) {
-                    is SaveState.Success -> {
-                        isEditModeEnabled = false
-                        viewModel.resetSaveState()
-                        loadingProgressBar.isVisible = false
-                    }
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.saveState.collect { state ->
+                        when (state) {
+                            is SaveState.Success -> {
+                                isEditModeEnabled = false
+                                viewModel.resetSaveState()
+                                loadingProgressBar.isVisible = false
+                            }
 
-                    is SaveState.Error -> {
-                        viewModel.resetSaveState()
-                        loadingProgressBar.isVisible = false
-                        Snackbar.make(
-                            requireView(),
-                            getString(
-                                testR.string.write_error_message,
-                                state.error.message.toString(),
-                            ),
-                            Snackbar.LENGTH_SHORT,
-                        )
-                        // Show error dialog or log error
-                    }
+                            is SaveState.Error -> {
+                                viewModel.resetSaveState()
+                                loadingProgressBar.isVisible = false
+                                Snackbar.make(
+                                    requireView(),
+                                    getString(
+                                        testR.string.write_error_message,
+                                        state.error.message.toString(),
+                                    ),
+                                    Snackbar.LENGTH_SHORT,
+                                )
+                                // Show error dialog or log error
+                            }
 
-                    SaveState.Ready -> {
-                        // Re-enable the save button
-                        fragmentListener?.onSaveComplete()
+                            SaveState.Ready -> {
+                                // Re-enable the save button
+                                fragmentListener?.onSaveComplete()
+                            }
+                            SaveState.Saving -> {
+                                loadingProgressBar.isVisible = true
+                            }
+                        }
                     }
-                    SaveState.Saving -> {
-                        loadingProgressBar.isVisible = true
+                }
+
+                launch {
+                    viewModel.isDiscardDialogShown.collect { isShown ->
+                        if (isShown) {
+                            if (!discardDialog.isShowing) {
+                                discardDialog.show()
+                            }
+                        } else {
+                            if (discardDialog.isShowing) {
+                                discardDialog.dismiss()
+                            }
+                        }
                     }
                 }
             }
         }
+        if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= 19) {
+            pdfView.isImageSelectionEnabled = true
+        }
+        pdfView.isFormFillingEnabled = true
+        setupPdfViewListeners()
+    }
+
+    private fun setupPdfViewListeners() {
+        pdfView.addOnSelectionChangedListener(
+            object : PdfView.OnSelectionChangedListener {
+                override fun onSelectionChanged(newSelection: Selection?) {
+                    if (newSelection == null) {
+                        imageSelectionActionMode?.finish()
+                        imageSelectionActionMode = null
+                        return
+                    }
+
+                    isTextSearchActive = false
+                    when (newSelection) {
+                        is ImageSelection -> onImageSelected(newSelection)
+                    }
+                }
+            }
+        )
+    }
+
+    private fun onImageSelected(imageSelection: ImageSelection) {
+        val context = context ?: return
+        val callback =
+            ImageSelectionActionModeCallback(
+                requireContext(),
+                imageSelection,
+                lifecycleScope,
+                pdfView::pdfToViewPoint,
+            )
+        imageSelectionActionMode =
+            requireActivity().startActionMode(callback, ActionMode.TYPE_FLOATING)
     }
 
     override fun onApplyEditsSuccess(handle: PdfWriteHandle) {
@@ -158,7 +220,7 @@ class EditablePdfHostFragment : EditablePdfViewerFragment() {
             object : OnBackPressedCallback(enabled = false) {
                 override fun handleOnBackPressed() {
                     if (hasUnsavedChanges) {
-                        discardDialog.show()
+                        viewModel.showDiscardDialog(true)
                     } else {
                         isEditModeEnabled = false
                     }
@@ -177,12 +239,13 @@ class EditablePdfHostFragment : EditablePdfViewerFragment() {
             .setTitle(getString(R.string.discard_changes_dialog_title))
             .setMessage(getString(R.string.discard_changes_dialog_message))
             .setNegativeButton(getString(R.string.keep_editing_button)) { dialog, _ ->
-                dialog.dismiss()
+                viewModel.showDiscardDialog(false)
             }
             .setPositiveButton(getString(R.string.discard_button)) { dialog, _ ->
-                dialog.dismiss()
+                viewModel.showDiscardDialog(false)
                 isEditModeEnabled = false
             }
+            .setOnCancelListener { viewModel.showDiscardDialog(false) }
             .create()
 
     private fun getParcelFileDescriptorFromUri(
@@ -190,7 +253,7 @@ class EditablePdfHostFragment : EditablePdfViewerFragment() {
         uri: Uri,
     ): ParcelFileDescriptor? {
         return try {
-            contentResolver.openFileDescriptor(uri, "rw")
+            contentResolver.openFileDescriptor(uri, "rwt")
         } catch (e: IOException) {
             null
         }

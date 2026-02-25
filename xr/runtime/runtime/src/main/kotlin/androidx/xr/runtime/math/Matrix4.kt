@@ -260,7 +260,7 @@ public class Matrix4(dataToCopy: FloatArray) {
      *
      * @param data the new data for the copied matrix
      */
-    public fun copy(data: FloatArray = this.data): Matrix4 = Matrix4(data)
+    @JvmOverloads public fun copy(data: FloatArray = this.data): Matrix4 = Matrix4(data)
 
     public companion object {
         /** Returns an identity matrix. */

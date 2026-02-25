@@ -25,7 +25,19 @@ import androidx.xr.runtime.math.Pose
 import com.google.ar.core.AugmentedFace
 import java.lang.IllegalStateException
 
-/** Wraps the native [AugmentedFace] with the [Face] interface. */
+/**
+ * Wraps an ARCore [AugmentedFace] with the [Face] interface.
+ *
+ * @property trackingState the [TrackingState] of the face
+ * @property isValid whether the face is valid
+ * @property blendShapeValues the blend shape values of the face
+ * @property confidenceValues the confidence values of the face
+ * @property centerPose the [Pose] of the center of the face
+ * @property mesh the face [Mesh]
+ * @property noseTipPose the [Pose] of the nose tip
+ * @property foreheadLeftPose the [Pose] of the left forehead
+ * @property foreheadRightPose the [Pose] of the right forehead
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class ArCoreFace internal constructor(private val arCoreFace: AugmentedFace) : Face {
     @UnsupportedArCoreCompatApi public fun arCoreAugmentedFace(): AugmentedFace = arCoreFace
@@ -70,6 +82,8 @@ public class ArCoreFace internal constructor(private val arCoreFace: AugmentedFa
      * attaching anchors nor raycast hit testing. Calling [createAnchor] will always throw
      * [IllegalStateException].
      *
+     * @param pose the [Pose] to create the anchor at
+     * @return an [Anchor]
      * @throws [IllegalStateException]
      */
     override fun createAnchor(pose: Pose): Anchor =

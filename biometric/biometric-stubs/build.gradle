@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -40,8 +39,7 @@ android {
 
 androidx {
     name = "androidx.biometric:biometric-stubs"
-    type = SoftwareType.PUBLISHED_LIBRARY
-    doNotDocumentReason = "Not published to maven"
+    type = SoftwareType.SNAPSHOT_ONLY_LIBRARY
     inceptionYear = "2025"
     description = "Stubs for Android Biometric classes in older Android APIs"
 }

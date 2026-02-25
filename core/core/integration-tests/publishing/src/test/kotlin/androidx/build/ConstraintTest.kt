@@ -58,42 +58,42 @@ class ConstraintTest {
     fun getConstraintVersionTest() {
         val metadata =
             """
-              "version": {
-                "requires": "1.0.0"
+                "version": {
+                  "requires": "1.0.0"
+                }
               }
-            }
-          ],
-          variants: [
-            {
-              "name": "releaseVariantReleaseApiPublication",
-              "dependencyConstraints": [
-                {
-                   "group": "org.jetbrains.kotlin",
-                   "module": "kotlin-stdlib",
-                   "version": {
-                     "requires": "1.8.22"
-                   }
-                }
-              ],
-             },
-             {
-              "name": "releaseVariantReleaseRuntimePublication",
-              "dependencyConstraints": [
-                {
-                  "group": "androidx.preference",
-                  "module": "preference-ktx",
-                  "version": {
-                    "requires": "1.3.0-alpha01"
+            ],
+            variants: [
+              {
+                "name": "releaseVariantReleaseApiPublication",
+                "dependencyConstraints": [
+                  {
+                     "group": "org.jetbrains.kotlin",
+                     "module": "kotlin-stdlib",
+                     "version": {
+                       "requires": "1.8.22"
+                     }
                   }
-                }
-              ],
-             }
-          ]
-          "files": [
-            {
-              "name": "preference-1.3.0-alpha01.aar",
-              "url": "preference-1.3.0-alpha01.aar",
-        """
+                ],
+               },
+               {
+                "name": "releaseVariantReleaseRuntimePublication",
+                "dependencyConstraints": [
+                  {
+                    "group": "androidx.preference",
+                    "module": "preference-ktx",
+                    "version": {
+                      "requires": "1.3.0-alpha01"
+                    }
+                  }
+                ],
+               }
+            ]
+            "files": [
+              {
+                "name": "preference-1.3.0-alpha01.aar",
+                "url": "preference-1.3.0-alpha01.aar",
+            """
                 .trimIndent()
 
         val requiresVersion =

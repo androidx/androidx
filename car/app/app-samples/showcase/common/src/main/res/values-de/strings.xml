@@ -242,6 +242,7 @@
     <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Liste 2"</string>
     <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Subtext unter jeder Liste"</string>
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Demo zu Bild und Aktionen beenden"</string>
+    <string name="filter_chip_demo_title" msgid="92190365856639582">"Demo des Infofelds für Filter"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demo der Bereichsvorlage"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demo der Ortslistenvorlage"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Orte durchsuchen"</string>
@@ -315,7 +316,7 @@
     <string name="task_step_of_title" msgid="2791717962535723839">"Aufgabe: Schritt %1$d von %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Klicken, um fortzufahren"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Bitte rufe die verschiedenen Vorlagen auf und achte darauf, dass sich das Auto im Fahrmodus befindet"</string>
-    <string name="toggle_button_demo_title" msgid="3179103600967398928">"Demo der Ein-/Aus-Schaltfläche"</string>
+    <string name="toggle_button_demo_title" msgid="3179103600967398928">"Demo des Ein-/Aus-Buttons"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"Test der Ein-/Aus-Schaltfläche"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Zustandsorientierte Änderungen sind erlaubt"</string>
     <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"Test der Ein-/Aus-Schaltfläche aktivieren"</string>

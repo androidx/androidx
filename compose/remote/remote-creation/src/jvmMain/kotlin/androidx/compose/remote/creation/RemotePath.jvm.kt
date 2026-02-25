@@ -27,7 +27,7 @@ internal actual typealias RectF = Rectangle2D.Float
 
 internal actual typealias Path = Path2D.Float
 
-internal actual typealias Matrix = AffineTransform
+internal actual typealias MatrixTransform = AffineTransform
 
 internal actual val RectF.left: Float
     get() = this.x
@@ -55,7 +55,7 @@ public actual class RemotePath : RemotePathBase {
             TODO()
         }
 
-    public actual fun transform(matrix: Matrix) {
+    public actual fun transform(matrix: MatrixTransform) {
         var i = 0
         while (i < size) {
             when (Utils.idFromNan(pathArray[i])) {

@@ -40,7 +40,7 @@ import androidx.wear.protolayout.modifiers.LayoutModifier.Element
 /** Creates a [ModifiersBuilders.Modifiers] from a [LayoutModifier]. */
 @SuppressLint("ProtoLayoutMinSchema")
 @OptIn(ProtoLayoutExperimental::class)
-fun LayoutModifier.toProtoLayoutModifiers(): ModifiersBuilders.Modifiers {
+public fun LayoutModifier.toProtoLayoutModifiers(): ModifiersBuilders.Modifiers {
     var semantics: Semantics.Builder? = null
     var background: Background.Builder? = null
     var corners: Corner.Builder? = null

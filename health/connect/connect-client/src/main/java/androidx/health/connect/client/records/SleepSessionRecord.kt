@@ -15,9 +15,11 @@
  */
 package androidx.health.connect.client.records
 
+import android.os.Build
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.aggregate.AggregateMetric
+import androidx.health.connect.client.impl.platform.records.toPlatformRecord
 import androidx.health.connect.client.records.metadata.Metadata
 import java.time.Duration
 import java.time.Instant
@@ -48,20 +50,24 @@ class SleepSessionRecord(
 ) : IntervalRecord {
 
     init {
-        require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
-        if (stages.isNotEmpty()) {
-            val sortedStages = stages.sortedWith { a, b -> a.startTime.compareTo(b.startTime) }
-            for (i in 0 until sortedStages.lastIndex) {
-                require(!sortedStages[i].endTime.isAfter(sortedStages[i + 1].startTime)) {
-                    "Sleep stages must not overlap."
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            this.toPlatformRecord()
+        } else {
+            require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
+            if (stages.isNotEmpty()) {
+                val sortedStages = stages.sortedWith { a, b -> a.startTime.compareTo(b.startTime) }
+                for (i in 0 until sortedStages.lastIndex) {
+                    require(!sortedStages[i].endTime.isAfter(sortedStages[i + 1].startTime)) {
+                        "Sleep stages must not overlap."
+                    }
                 }
-            }
-            // check all stages are within parent session duration
-            require(!sortedStages.first().startTime.isBefore(startTime)) {
-                "The first sleep stage must start within parent session duration."
-            }
-            require(!sortedStages.last().endTime.isAfter(endTime)) {
-                "The last sleep stage must end within parent session duration."
+                // check all stages are within parent session duration
+                require(!sortedStages.first().startTime.isBefore(startTime)) {
+                    "The first sleep stage must start within parent session duration."
+                }
+                require(!sortedStages.last().endTime.isAfter(endTime)) {
+                    "The last sleep stage must end within parent session duration."
+                }
             }
         }
     }

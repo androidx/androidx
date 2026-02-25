@@ -17,7 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="tooltip_description" msgid="3765533235322692011">"အကြံပြုချက်ပြ ပေါ့အပ် ဝင်းဒိုး"</string>
+    <string name="tooltip_description" msgid="3765533235322692011">"အကြံပြုချက်အကွက်"</string>
     <string name="tooltip_label" msgid="3124740595719787496">"အကြံပြုချက်ပြ ပေါ့အပ်ဝင်းဒိုး ပြရန်"</string>
     <string name="androidx_compose_foundation_autofill" msgid="8719607706653693137">"အော်တိုဖြည့်"</string>
 </resources>

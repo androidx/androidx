@@ -19,10 +19,8 @@ package androidx.camera.integration.uiwidgets.rotations
 import android.content.Context
 import android.content.Intent
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.testing.impl.InternalTestConvenience.useInCameraTest
@@ -51,27 +49,13 @@ import org.junit.Rule
  * - Wait a couple of frames
  * - Verify the image analysis image rotation
  */
-abstract class ImageAnalysisBaseTest<A : CameraActivity>(
-    cameraXConfig: String = CameraActivity.CAMERA2_IMPLEMENTATION_OPTION
-) {
-
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(
-            active = cameraXConfig == CameraActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION
-        )
+abstract class ImageAnalysisBaseTest<A : CameraActivity> {
 
     @get:Rule
     val useCameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             testCameraRule,
-            CameraUtil.PreTestCameraIdList(
-                if (cameraXConfig == CameraActivity.CAMERA2_IMPLEMENTATION_OPTION) {
-                    Camera2Config.defaultConfig()
-                } else {
-                    CameraPipeConfig.defaultConfig()
-                }
-            ),
+            CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig()),
         )
 
     @get:Rule
@@ -107,10 +91,9 @@ abstract class ImageAnalysisBaseTest<A : CameraActivity>(
 
     protected inline fun <reified A : CameraActivity> verifyRotation(
         lensFacing: Int,
-        cameraXConfig: String = CameraActivity.CAMERA2_IMPLEMENTATION_OPTION,
         rotate: ActivityScenario<A>.() -> Unit,
     ) {
-        val activityScenario: ActivityScenario<A> = launchActivity(lensFacing, cameraXConfig)
+        val activityScenario: ActivityScenario<A> = launchActivity(lensFacing)
         activityScenario.useInCameraTest { scenario ->
 
             // Wait until the camera is set up and analysis starts receiving frames
@@ -143,14 +126,11 @@ abstract class ImageAnalysisBaseTest<A : CameraActivity>(
     }
 
     protected inline fun <reified A : CameraActivity> launchActivity(
-        lensFacing: Int,
-        cameraXConfig: String,
+        lensFacing: Int
     ): ActivityScenario<A> {
         val intent =
             Intent(ApplicationProvider.getApplicationContext(), A::class.java).apply {
                 putExtra(CameraActivity.KEY_LENS_FACING, lensFacing)
-                putExtra(CameraActivity.KEY_CAMERA_IMPLEMENTATION, cameraXConfig)
-                putExtra(CameraActivity.KEY_CAMERA_IMPLEMENTATION_NO_HISTORY, true)
             }
         return ActivityScenario.launch<A>(intent)
     }
@@ -176,13 +156,6 @@ abstract class ImageAnalysisBaseTest<A : CameraActivity>(
                 CameraSelector.LENS_FACING_BACK,
                 CameraSelector.LENS_FACING_FRONT,
                 CameraSelector.LENS_FACING_EXTERNAL,
-            )
-
-        @JvmStatic
-        protected val cameraXConfigList =
-            arrayOf(
-                CameraActivity.CAMERA2_IMPLEMENTATION_OPTION,
-                CameraActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION,
             )
 
         @JvmStatic lateinit var testCameraRule: CameraUtil.PreTestCamera

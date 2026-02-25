@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -37,18 +36,35 @@ androidXMultiplatform {
         namespace = "androidx.sqlite.db"
     }
     ios()
+    js()
     jvm()
     linux()
     mac()
     tvos()
+    wasmJs()
     watchos()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain.dependencies {
-            api("androidx.annotation:annotation:1.9.1")
+        commonMain {
+            dependencies {
+                api("androidx.annotation:annotation:1.9.1")
+            }
         }
+        nonWebMain {
+            dependsOn(commonMain)
+        }
+        androidMain {
+            dependsOn(nonWebMain)
+        }
+        jvmMain {
+            dependsOn(nonWebMain)
+        }
+        nativeMain {
+            dependsOn(nonWebMain)
+        }
+
         commonTest.dependencies {
             implementation(libs.kotlinTest)
         }

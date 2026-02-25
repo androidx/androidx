@@ -71,12 +71,13 @@ class PerceivedResolutionUtilsTest {
             FieldOfView(atan(1.0f), atan(1.0f), atan(1.0f), atan(1.0f)) // tan(angle) = 1 => 45 deg
         cameraDisplayResolution = PixelDimensions(1000, 1000) // 1000x1000 display
 
-        fakeSceneRuntime = FakeSceneRuntime(unscaledGravityAlignedActivitySpace = true)
+        fakeSceneRuntime = FakeSceneRuntime()
         session =
             Session(
                 activity,
                 runtimes =
                     listOf(fakePerceptionRuntimeFactory.createRuntime(activity), fakeSceneRuntime),
+                lifecycleOwner = activity,
             )
     }
 

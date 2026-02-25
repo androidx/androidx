@@ -6,9 +6,9 @@ NullableCollection: androidx.appsearch.app.GenericDocument#getPropertyStringArra
 
 
 TypeParameterName: androidx.appsearch.app.AppSearchBatchResult:
-    Invalid type parameter name "KeyType". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+    Invalid type parameter names "KeyType", "ValueType". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
 TypeParameterName: androidx.appsearch.app.AppSearchBatchResult.Builder:
-    Invalid type parameter name "KeyType". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+    Invalid type parameter names "KeyType", "ValueType". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
 TypeParameterName: androidx.appsearch.app.AppSearchResult:
     Invalid type parameter name "ValueType". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
 TypeParameterName: androidx.appsearch.app.AppSearchResult#newFailedResult(int, String):

@@ -31,16 +31,16 @@ import androidx.wear.protolayout.types.cornerRadius
 import androidx.wear.protolayout.types.dp
 
 /** Sets the background color to [color]. */
-fun LayoutModifier.background(color: LayoutColor): LayoutModifier =
+public fun LayoutModifier.background(color: LayoutColor): LayoutModifier =
     this then BaseBackgroundElement(color)
 
 /** Sets the background brush to [brush]. */
 @RequiresSchemaVersion(major = 1, minor = 500)
-fun LayoutModifier.background(brush: Brush): LayoutModifier =
+public fun LayoutModifier.background(brush: Brush): LayoutModifier =
     this then BaseBackgroundElement(brush = brush)
 
 /** Clips the element to a rounded rectangle with four corners with [cornerRadius] radius. */
-fun LayoutModifier.clip(@Dimension(DP) cornerRadius: Float): LayoutModifier =
+public fun LayoutModifier.clip(@Dimension(DP) cornerRadius: Float): LayoutModifier =
     this then BaseCornerElement(cornerRadius)
 
 /**
@@ -48,7 +48,7 @@ fun LayoutModifier.clip(@Dimension(DP) cornerRadius: Float): LayoutModifier =
  * radius on the vertical axis for the four corners.
  */
 @RequiresSchemaVersion(major = 1, minor = 400)
-fun LayoutModifier.clip(@Dimension(DP) x: Float, @Dimension(DP) y: Float): LayoutModifier {
+public fun LayoutModifier.clip(@Dimension(DP) x: Float, @Dimension(DP) y: Float): LayoutModifier {
     val r = cornerRadius(x, y)
     return this then
         BaseCornerElement(
@@ -60,7 +60,7 @@ fun LayoutModifier.clip(@Dimension(DP) x: Float, @Dimension(DP) y: Float): Layou
 }
 
 /** Clips the element to a rounded rectangle with corners specified in [corner]. */
-fun LayoutModifier.clip(corner: Corner): LayoutModifier =
+public fun LayoutModifier.clip(corner: Corner): LayoutModifier =
     this then
         BaseCornerElement(
             cornerRadiusDp = corner.radius?.value,
@@ -75,7 +75,7 @@ fun LayoutModifier.clip(corner: Corner): LayoutModifier =
  * the radius on the vertical axis.
  */
 @RequiresSchemaVersion(major = 1, minor = 400)
-fun LayoutModifier.clipTopLeft(
+public fun LayoutModifier.clipTopLeft(
     @Dimension(DP) x: Float,
     @Dimension(DP) y: Float = x,
 ): LayoutModifier = this then BaseCornerElement(topLeftRadius = cornerRadius(x, y))
@@ -85,7 +85,7 @@ fun LayoutModifier.clipTopLeft(
  * as the radius on the vertical axis.
  */
 @RequiresSchemaVersion(major = 1, minor = 400)
-fun LayoutModifier.clipTopRight(
+public fun LayoutModifier.clipTopRight(
     @Dimension(DP) x: Float,
     @Dimension(DP) y: Float = x,
 ): LayoutModifier = this then BaseCornerElement(topRightRadius = cornerRadius(x, y))
@@ -95,7 +95,7 @@ fun LayoutModifier.clipTopRight(
  * as the radius on the vertical axis.
  */
 @RequiresSchemaVersion(major = 1, minor = 400)
-fun LayoutModifier.clipBottomLeft(
+public fun LayoutModifier.clipBottomLeft(
     @Dimension(DP) x: Float,
     @Dimension(DP) y: Float = x,
 ): LayoutModifier = this then BaseCornerElement(bottomLeftRadius = cornerRadius(x, y))
@@ -105,7 +105,7 @@ fun LayoutModifier.clipBottomLeft(
  * [y] as the radius on the vertical axis.
  */
 @RequiresSchemaVersion(major = 1, minor = 400)
-fun LayoutModifier.clipBottomRight(
+public fun LayoutModifier.clipBottomRight(
     @Dimension(DP) x: Float,
     @Dimension(DP) y: Float = x,
 ): LayoutModifier = this then BaseCornerElement(bottomRightRadius = cornerRadius(x, y))

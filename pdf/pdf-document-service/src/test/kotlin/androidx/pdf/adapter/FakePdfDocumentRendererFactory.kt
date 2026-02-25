@@ -27,7 +27,6 @@ class FakePdfDocumentRendererFactory(
         if (exceptionToThrow != null) {
             throw exceptionToThrow
         }
-        return rendererToReturn
-            ?: FakePdfDocumentRenderer(isLinearized = false, pageCount = 10, formType = 0)
+        return rendererToReturn ?: FakePdfDocumentRenderer(pageCount = 10, formType = 0)
     }
 }

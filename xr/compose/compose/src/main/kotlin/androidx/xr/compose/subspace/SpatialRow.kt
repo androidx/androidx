@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastRoundToInt
 import androidx.xr.compose.subspace.layout.SpatialAlignment
 import androidx.xr.compose.subspace.layout.SpatialArrangement
+import androidx.xr.compose.subspace.layout.SpatialBiasAlignment
 import androidx.xr.compose.subspace.layout.SubspaceLayout
 import androidx.xr.compose.subspace.layout.SubspaceMeasurable
 import androidx.xr.compose.subspace.layout.SubspaceMeasurePolicy
@@ -46,7 +47,8 @@ import kotlin.math.sin
  * vertically, see [SpatialColumn].
  *
  * @param modifier Appearance modifiers to apply to this Composable.
- * @param alignment The default alignment for child elements within the row.
+ * @param verticalAlignment The default vertical alignment for child elements within the row.
+ * @param depthAlignment The default depth alignment for child elements within the row.
  * @param horizontalArrangement The horizontal arrangement of the children.
  * @param content The composable content to be laid out horizontally in the row.
  */
@@ -54,16 +56,24 @@ import kotlin.math.sin
 @SubspaceComposable
 public inline fun SpatialRow(
     modifier: SubspaceModifier = SubspaceModifier,
-    alignment: SpatialAlignment = SpatialAlignment.Center,
+    verticalAlignment: SpatialAlignment.Vertical = SpatialAlignment.CenterVertically,
+    depthAlignment: SpatialAlignment.Depth = SpatialAlignment.CenterDepthwise,
     horizontalArrangement: SpatialArrangement.Horizontal = SpatialArrangement.Center,
     crossinline content: @Composable @SubspaceComposable SpatialRowScope.() -> Unit,
 ) {
-    SpatialCurvedRow(
+    val measurePolicy =
+        spatialRowMeasurePolicy(
+            curveRadius = Dp.Infinity,
+            verticalAlignment = verticalAlignment,
+            depthAlignment = depthAlignment,
+            horizontalArrangement = horizontalArrangement,
+        )
+
+    SubspaceLayout(
         modifier = modifier,
-        alignment = alignment,
-        horizontalArrangement = horizontalArrangement,
-        curveRadius = Dp.Infinity,
-        content = content,
+        content = { SpatialRowScopeInstance.content() },
+        coreEntityName = "SpatialRow",
+        measurePolicy = measurePolicy,
     )
 }
 
@@ -71,7 +81,8 @@ public inline fun SpatialRow(
  * A layout composable that arranges its children in a curved horizontal sequence.
  *
  * @param modifier Appearance modifiers to apply to this Composable.
- * @param alignment The default alignment for child elements within the row.
+ * @param verticalAlignment The default vertical alignment for child elements within the row.
+ * @param depthAlignment The default depth alignment for child elements within the row.
  * @param horizontalArrangement The horizontal arrangement of the children.
  * @param curveRadius Defines the curve of the row by specifying its radius in Dp. A larger radius
  *   creates a gentler curve (less curvature), while a smaller positive radius results in a sharper
@@ -84,7 +95,8 @@ public inline fun SpatialRow(
 @SubspaceComposable
 public inline fun SpatialCurvedRow(
     modifier: SubspaceModifier = SubspaceModifier,
-    alignment: SpatialAlignment = SpatialAlignment.Center,
+    verticalAlignment: SpatialAlignment.Vertical = SpatialAlignment.CenterVertically,
+    depthAlignment: SpatialAlignment.Depth = SpatialAlignment.CenterDepthwise,
     horizontalArrangement: SpatialArrangement.Horizontal = SpatialArrangement.Center,
     curveRadius: Dp = SpatialCurvedRowDefaults.curveRadius,
     crossinline content: @Composable @SubspaceComposable SpatialRowScope.() -> Unit,
@@ -92,7 +104,8 @@ public inline fun SpatialCurvedRow(
     val measurePolicy =
         spatialRowMeasurePolicy(
             curveRadius = if (curveRadius > 0.dp) curveRadius else Dp.Infinity,
-            alignment = alignment,
+            verticalAlignment = verticalAlignment,
+            depthAlignment = depthAlignment,
             horizontalArrangement = horizontalArrangement,
         )
 
@@ -107,7 +120,7 @@ public inline fun SpatialCurvedRow(
 internal val DefaultSpatialRowMeasurePolicy: SubspaceMeasurePolicy =
     SpatialRowMeasurePolicy(
         curveRadius = Dp.Infinity,
-        alignment = SpatialAlignment.Center,
+        alignment = SpatialAlignment.CenterVertically + SpatialAlignment.CenterDepthwise,
         horizontalArrangement = SpatialArrangement.Center,
     )
 
@@ -115,20 +128,22 @@ internal val DefaultSpatialRowMeasurePolicy: SubspaceMeasurePolicy =
 @Composable
 internal fun spatialRowMeasurePolicy(
     curveRadius: Dp,
-    alignment: SpatialAlignment,
+    verticalAlignment: SpatialAlignment.Vertical,
+    depthAlignment: SpatialAlignment.Depth,
     horizontalArrangement: SpatialArrangement.Horizontal,
 ): SubspaceMeasurePolicy =
     if (
         curveRadius == Dp.Infinity &&
-            alignment == SpatialAlignment.Center &&
+            verticalAlignment == SpatialAlignment.CenterVertically &&
+            depthAlignment == SpatialAlignment.CenterDepthwise &&
             horizontalArrangement == SpatialArrangement.Center
     ) {
         DefaultSpatialRowMeasurePolicy
     } else {
-        remember(curveRadius, alignment, horizontalArrangement) {
+        remember(curveRadius, verticalAlignment, depthAlignment, horizontalArrangement) {
             SpatialRowMeasurePolicy(
                 curveRadius = curveRadius,
-                alignment = alignment,
+                alignment = verticalAlignment + depthAlignment,
                 horizontalArrangement = horizontalArrangement,
             )
         }
@@ -402,3 +417,21 @@ internal object SpatialRowScopeInstance : SpatialRowScope {
         return this then RowColumnAlignElement(depthSpatialAlignment = alignment)
     }
 }
+
+private operator fun SpatialAlignment.Vertical.plus(
+    other: SpatialAlignment.Depth
+): SpatialAlignment =
+    when (this) {
+        is SpatialBiasAlignment.Vertical ->
+            SpatialBiasAlignment(
+                horizontalBias = 0f,
+                verticalBias = bias,
+                depthBias =
+                    when (other) {
+                        is SpatialBiasAlignment.Depth -> other.bias
+                        else -> 0f
+                    },
+            )
+
+        else -> SpatialBiasAlignment(0f, 0f, 0f)
+    }

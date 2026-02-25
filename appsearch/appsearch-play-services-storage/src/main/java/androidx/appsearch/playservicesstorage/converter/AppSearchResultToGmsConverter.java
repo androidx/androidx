@@ -16,6 +16,8 @@
 
 package androidx.appsearch.playservicesstorage.converter;
 
+import static com.google.android.gms.appsearch.AppSearchResult.RESULT_NOT_FOUND;
+
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchResult;
@@ -126,10 +128,18 @@ public final class AppSearchResultToGmsConverter {
         for (Map.Entry<K,
                 com.google.android.gms.appsearch.AppSearchResult<GmsValue>> failure :
                 gmsResult.getFailures().entrySet()) {
+            int resultCode = failure.getValue().getResultCode();
+            String errorMessage = failure.getValue().getErrorMessage();
+            // In some situations the error message maybe null if the result code is
+            // RESULT_NOT_FOUND.
+            // In these cases we should populate the error message.
+            if (resultCode == RESULT_NOT_FOUND && errorMessage == null) {
+                errorMessage = "Document id '" + failure.getKey() + "' doesn't exist";
+            }
             jetpackResult.setFailure(
                     failure.getKey(),
-                    failure.getValue().getResultCode(),
-                    failure.getValue().getErrorMessage());
+                    resultCode,
+                    errorMessage);
         }
         return jetpackResult.build();
     }

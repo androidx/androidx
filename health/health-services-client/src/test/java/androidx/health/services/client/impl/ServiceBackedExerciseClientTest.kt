@@ -505,5 +505,7 @@ class ServiceBackedExerciseClientTest {
             this.exerciseConfig = newExerciseConfig
             this.statusCallbackAction.invoke(statuscallback)
         }
+
+        override fun getInterfaceVersion(): Int = VERSION
     }
 }

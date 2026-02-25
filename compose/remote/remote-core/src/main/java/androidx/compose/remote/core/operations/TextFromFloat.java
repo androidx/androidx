@@ -251,13 +251,13 @@ public class TextFromFloat extends Operation implements VariableSupport, Seriali
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Expressions Operations", OP_CODE, CLASS_NAME)
-                .description("Draw text along path object")
-                .field(DocumentedOperation.INT, "textId", "id of the text generated")
-                .field(INT, "value", "Value to add")
-                .field(SHORT, "prePoint", "digits before the decimal point")
-                .field(SHORT, "pstPoint", "digit after the decimal point")
-                .field(INT, "flags", "options on padding");
+        doc.operation("Text Operations", OP_CODE, CLASS_NAME)
+                .description("Convert a float value into a formatted string")
+                .field(DocumentedOperation.INT, "textId", "The ID of the resulting text")
+                .field(DocumentedOperation.FLOAT, "value", "The float value to convert")
+                .field(SHORT, "digitsBefore", "Number of digits before the decimal point")
+                .field(SHORT, "digitsAfter", "Number of digits after the decimal point")
+                .field(INT, "flags", "Formatting and padding flags");
     }
 
     @Override

@@ -17,12 +17,13 @@
 package androidx.compose.foundation
 
 import androidx.collection.mutableLongObjectMapOf
-import androidx.compose.foundation.ComposeFoundationFlags.isDetectTapGesturesImmediateCoroutineDispatchEnabled
+import androidx.compose.foundation.ComposeFoundationFlags.isDelayPressesUsingGestureConsumptionEnabled
 import androidx.compose.foundation.gestures.PressGestureScope
 import androidx.compose.foundation.gestures.ScrollableContainerNode
-import androidx.compose.foundation.gestures.detectTapAndPress
+import androidx.compose.foundation.gestures.changedToDownIgnoreConsumed
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.isChangedToDown
+import androidx.compose.foundation.gestures.isDeepPress
 import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -80,6 +81,7 @@ import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastAny
+import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
 import kotlin.math.max
 import kotlinx.coroutines.Job
@@ -680,6 +682,7 @@ private val KeyEvent.isEnter: Boolean
             Key.Enter,
             Key.NumPadEnter,
             Key.Spacebar -> true
+
             else -> false
         }
 
@@ -870,39 +873,8 @@ internal open class ClickableNode(
         onClick = onClick,
     ) {
 
-    @OptIn(ExperimentalFoundationApi::class)
-    private val isSuspendingPointerInputEnabled =
-        // old behavior prior this flag was heavily relying on coroutines dispatching
-        !isDetectTapGesturesImmediateCoroutineDispatchEnabled
-
-    override fun createPointerInputNodeIfNeeded(): SuspendingPointerInputModifierNode? =
-        if (isSuspendingPointerInputEnabled) {
-            SuspendingPointerInputModifierNode {
-                detectTapAndPress(
-                    onPress = { offset ->
-                        if (enabled) {
-                            handlePressInteraction(offset)
-                        }
-                    },
-                    onTap = { if (enabled) onClick() },
-                )
-            }
-        } else {
-            null
-        }
-
-    private fun getExtendedTouchPadding(size: IntSize): Size {
-        // copied from SuspendingPointerInputModifierNodeImpl.extendedTouchPadding:
-        // TODO expose this as a new public api available outside of suspending apis b/422396609
-        val minimumTouchTargetSizeDp = currentValueOf(LocalViewConfiguration).minimumTouchTargetSize
-        val minimumTouchTargetSize = with(requireDensity()) { minimumTouchTargetSizeDp.toSize() }
-        val size = size
-        val horizontal = max(0f, minimumTouchTargetSize.width - size.width) / 2f
-        val vertical = max(0f, minimumTouchTargetSize.height - size.height) / 2f
-        return Size(horizontal, vertical)
-    }
-
     private var downEvent: PointerInputChange? = null
+    private var indirectDownEvent: IndirectPointerInputChange? = null
 
     @OptIn(ExperimentalFoundationApi::class)
     override fun onPointerEvent(
@@ -911,58 +883,151 @@ internal open class ClickableNode(
         bounds: IntSize,
     ) {
         super.onPointerEvent(pointerEvent, pass, bounds)
-        if (isSuspendingPointerInputEnabled) {
-            return
-        }
         if (pass == PointerEventPass.Main) {
-            val downEvent = this.downEvent
             if (downEvent == null) {
                 if (pointerEvent.isChangedToDown(requireUnconsumed = true)) {
-                    val change = pointerEvent.changes[0]
-                    change.consume()
-                    this.downEvent = change
-                    if (enabled) {
-                        handlePressInteractionStart(change.position, indirectPointer = false)
-                    }
+                    handleDownEvent(pointerEvent.changes[0])
                 }
-            } else if (pointerEvent.changes.fastAll { it.changedToUp() }) {
-                // All pointers are up
-                val up = pointerEvent.changes[0]
-                up.consume()
-                if (enabled) {
-                    handlePressInteractionRelease(downEvent.position, indirectPointer = false)
-                    onClick()
-                }
-                this.downEvent = null
             } else {
-                val touchPadding = getExtendedTouchPadding(bounds)
-                if (
-                    pointerEvent.changes.fastAny {
-                        it.isConsumed || it.isOutOfBounds(bounds, touchPadding)
-                    }
-                ) {
-                    // Canceled
-                    this.downEvent = null
-                    handlePressInteractionCancel(indirectPointer = false)
+                if (pointerEvent.changes.fastAll { it.changedToUp() }) {
+                    // All pointers are up
+                    handleUpEvent(pointerEvent.changes[0])
+                } else {
+                    // Other events need to be checked for consumption / bounds related
+                    // cancellation.
+                    handleNonUpEventIfNeeded(pointerEvent, bounds)
                 }
             }
-        } else if (pass == PointerEventPass.Final && downEvent != null) {
+        } else if (pass == PointerEventPass.Final) {
+            checkForCancellation(pointerEvent)
+        }
+    }
+
+    override fun onIndirectPointerEvent(event: IndirectPointerEvent, pass: PointerEventPass) {
+        super.onIndirectPointerEvent(event, pass)
+        if (pass == PointerEventPass.Main) {
+            if (indirectDownEvent == null) {
+                if (event.changes.fastAny { it.changedToDownIgnoreConsumed() }) {
+                    handleDownEvent(event.changes[0])
+                }
+            } else {
+                if (event.changes.fastAll { it.changedToUp() }) {
+                    // All pointers are up
+                    handleUpEvent(event.changes[0])
+                } else {
+                    // Other events need to be checked for consumption / exceeding touch slop
+                    handleNonUpEventIfNeeded(event)
+                }
+            }
+        } else if (pass == PointerEventPass.Final) {
+            checkForCancellation(event)
+        }
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    private fun handleDownEvent(down: PointerInputChange) {
+        down.consume()
+        this.downEvent = down
+        if (enabled) {
+            if (isDelayPressesUsingGestureConsumptionEnabled) {
+                handlePressInteractionStart(down)
+            } else {
+                handlePressInteractionStart(down.position, false)
+            }
+        }
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    private fun handleDownEvent(down: IndirectPointerInputChange) {
+        down.consume()
+        this.indirectDownEvent = down
+        if (enabled) {
+            if (isDelayPressesUsingGestureConsumptionEnabled) {
+                handlePressInteractionStart(down)
+            } else {
+                handlePressInteractionStart(down.position, true)
+            }
+        }
+    }
+
+    private fun handleUpEvent(up: PointerInputChange) {
+        up.consume()
+        if (enabled) {
+            handlePressInteractionRelease(downEvent!!.position, indirectPointer = false)
+            onClick()
+        }
+        this.downEvent = null
+    }
+
+    private fun handleUpEvent(up: IndirectPointerInputChange) {
+        up.consume()
+        if (enabled) {
+            handlePressInteractionRelease(indirectDownEvent!!.position, indirectPointer = true)
+            onClick()
+        }
+        this.indirectDownEvent = null
+    }
+
+    private fun handleNonUpEventIfNeeded(pointerEvent: PointerEvent, bounds: IntSize) {
+        val touchPadding = getExtendedTouchPadding(bounds)
+        if (
+            pointerEvent.changes.fastAny { it.isConsumed || it.isOutOfBounds(bounds, touchPadding) }
+        ) {
+            cancelInput(indirectPointer = false)
+        }
+    }
+
+    private fun handleNonUpEventIfNeeded(indirectPointerEvent: IndirectPointerEvent) {
+        val touchSlop = currentValueOf(LocalViewConfiguration).touchSlop
+        if (
+            indirectPointerEvent.changes.fastAny {
+                val distanceFromPress = it.position - indirectDownEvent!!.position
+                val isOutOfBounds = abs(distanceFromPress.getDistance()) > touchSlop
+                it.isConsumed || isOutOfBounds
+            }
+        ) {
+            cancelInput(indirectPointer = true)
+        }
+    }
+
+    private fun checkForCancellation(pointerEvent: PointerEvent) {
+        if (downEvent != null) {
             // Check for cancel by position consumption. We can look on the Final pass of the
             // existing pointer event because it comes after the pass we checked above.
             if (pointerEvent.changes.fastAny { it.isConsumed && it != downEvent }) {
-                // Canceled
-                downEvent = null
-                handlePressInteractionCancel(indirectPointer = false)
+                cancelInput(indirectPointer = false)
+            }
+        }
+    }
+
+    private fun checkForCancellation(indirectPointerEvent: IndirectPointerEvent) {
+        if (indirectDownEvent != null) {
+            // Check for cancel by position consumption. We can look on the Final pass of the
+            // existing pointer event because it comes after the pass we checked above.
+            if (indirectPointerEvent.changes.fastAny { it.isConsumed && it != indirectDownEvent }) {
+                cancelInput(indirectPointer = true)
             }
         }
     }
 
     override fun onCancelPointerInput() {
         super.onCancelPointerInput()
-        if (downEvent != null) {
+        cancelInput(indirectPointer = false)
+    }
+
+    override fun onCancelIndirectPointerInput() {
+        cancelInput(indirectPointer = true)
+    }
+
+    private fun cancelInput(indirectPointer: Boolean) {
+        // Don't cancel pointer events when cancelling indirect events (because of losing focus for
+        // example), and vice versa.
+        if (indirectPointer) {
+            indirectDownEvent = null
+        } else {
             downEvent = null
-            handlePressInteractionCancel(indirectPointer = false)
         }
+        handlePressInteractionCancel(indirectPointer = indirectPointer)
     }
 
     fun update(
@@ -975,7 +1040,7 @@ internal open class ClickableNode(
         onClick: () -> Unit,
     ) {
         // enabled and onClick are captured inside callbacks, not as an input to detectTapGestures,
-        // so no need need to reset pointer input handling when they change
+        // so no need to reset pointer input handling when they change
         updateCommon(
             interactionSource = interactionSource,
             indicationNodeFactory = indicationNodeFactory,
@@ -1024,34 +1089,369 @@ private class CombinedClickableNode(
 
     private val longKeyPressJobs = mutableLongObjectMapOf<Job>()
     private val doubleKeyClickStates = mutableLongObjectMapOf<DoubleKeyClickState>()
+    @OptIn(ExperimentalFoundationApi::class)
+    private val isSuspendingPointerInputEnabled =
+        !ComposeFoundationFlags.isNonSuspendingPointerInputInCombinedClickableEnabled
+    private var downEvent: PointerInputChange? = null
+    private var longPressJob: Job? = null
+    private var tapJob: Job? = null
+    private var isSecondTap = false
+    private var longPressTriggered = false
+    private var firstTapUpTime = -1L
+    private var ignoreNextUp = false
 
-    override fun createPointerInputNodeIfNeeded() = SuspendingPointerInputModifierNode {
-        detectTapGestures(
-            onDoubleTap =
-                if (enabled && onDoubleClick != null) {
-                    { onDoubleClick?.invoke() }
-                } else null,
-            onLongPress =
-                if (enabled && onLongClick != null) {
-                    {
+    private var indirectDownEvent: IndirectPointerInputChange? = null
+    private var indirectLongPressJob: Job? = null
+    private var indirectTapJob: Job? = null
+    private var indirectIsSecondTap = false
+    private var indirectLongPressTriggered = false
+    private var indirectFirstTapUpTime = -1L
+    private var indirectIgnoreNextUp = false
+
+    override fun createPointerInputNodeIfNeeded(): SuspendingPointerInputModifierNode? {
+        if (isSuspendingPointerInputEnabled) {
+            return SuspendingPointerInputModifierNode {
+                detectTapGestures(
+                    onDoubleTap =
+                        if (enabled && onDoubleClick != null) {
+                            { onDoubleClick?.invoke() }
+                        } else null,
+                    onLongPress =
+                        if (enabled && onLongClick != null) {
+                            {
+                                onLongClick?.invoke()
+                                if (hapticFeedbackEnabled) {
+                                    currentValueOf(LocalHapticFeedback)
+                                        .performHapticFeedback(HapticFeedbackType.LongPress)
+                                }
+                            }
+                        } else null,
+                    onPress = { offset ->
+                        if (enabled) {
+                            handlePressInteraction(offset)
+                        }
+                    },
+                    onTap = {
+                        if (enabled) {
+                            onClick()
+                        }
+                    },
+                )
+            }
+        }
+        return null
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    override fun onPointerEvent(
+        pointerEvent: PointerEvent,
+        pass: PointerEventPass,
+        bounds: IntSize,
+    ) {
+        super.onPointerEvent(pointerEvent, pass, bounds)
+        if (isSuspendingPointerInputEnabled) return
+
+        if (pass == PointerEventPass.Main) {
+            if (downEvent == null) {
+                if (pointerEvent.isChangedToDown(requireUnconsumed = true)) {
+                    handleDownEvent(pointerEvent.changes[0])
+                }
+            } else {
+                if (pointerEvent.isDeepPress) {
+                    handleDeepPress()
+                }
+                if (pointerEvent.changes.fastAll { it.changedToUp() }) {
+                    // All pointers are up
+                    val up = pointerEvent.changes[0]
+                    up.consume()
+                    handleUpEvent(uptimeMillis = up.uptimeMillis, downChange = downEvent!!)
+                } else {
+                    // Once a long press has triggered, consume every event until pointers are up
+                    if (longPressTriggered) {
+                        pointerEvent.changes.fastForEach { it.consume() }
+                    } else {
+                        // Other events need to be checked for consumption / bounds related
+                        // cancellation.
+                        handleNonUpEventIfNeeded(pointerEvent, bounds)
+                    }
+                }
+            }
+        } else if (pass == PointerEventPass.Final) {
+            checkForCancellation(pointerEvent)
+        }
+    }
+
+    override fun onIndirectPointerEvent(event: IndirectPointerEvent, pass: PointerEventPass) {
+        super.onIndirectPointerEvent(event, pass)
+        if (pass == PointerEventPass.Main) {
+            if (indirectDownEvent == null) {
+                if (event.changes.fastAny { it.changedToDownIgnoreConsumed() }) {
+                    handleDownEvent(event.changes[0])
+                }
+            } else {
+                if (event.changes.fastAll { it.changedToUp() }) {
+                    // All pointers are up
+                    val up = event.changes[0]
+                    up.consume()
+                    handleUpEvent(uptimeMillis = up.uptimeMillis, downChange = indirectDownEvent!!)
+                } else {
+                    // Once a long press has triggered, consume every event until pointers are up
+                    if (indirectLongPressTriggered) {
+                        event.changes.fastForEach { it.consume() }
+                    } else {
+                        // Other events need to be checked for consumption / exceeding touch slop
+                        handleNonUpEventIfNeeded(event)
+                    }
+                }
+            }
+        } else if (pass == PointerEventPass.Final) {
+            checkForCancellation(event)
+        }
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    private fun handleDownEvent(down: PointerInputChange) {
+        down.consume()
+        this.downEvent = down
+
+        if (enabled) {
+            if (tapJob?.isActive == true) {
+                val minTime = currentValueOf(LocalViewConfiguration).doubleTapMinTimeMillis
+                if (down.uptimeMillis - firstTapUpTime < minTime) {
+                    ignoreNextUp = true
+                    // Ignore this down event, don't check for long press / emit press
+                    // interactions
+                    return
+                } else {
+                    isSecondTap = true
+                    tapJob?.cancel()
+                    tapJob = null
+                }
+            }
+            longPressTriggered = false
+
+            if (isDelayPressesUsingGestureConsumptionEnabled) {
+                handlePressInteractionStart(down)
+            } else {
+                handlePressInteractionStart(down.position, false)
+            }
+
+            if (onLongClick != null) {
+                longPressJob =
+                    coroutineScope.launch {
+                        delay(currentValueOf(LocalViewConfiguration).longPressTimeoutMillis)
                         onLongClick?.invoke()
                         if (hapticFeedbackEnabled) {
                             currentValueOf(LocalHapticFeedback)
                                 .performHapticFeedback(HapticFeedbackType.LongPress)
                         }
+                        longPressTriggered = true
+                        tapJob?.cancel()
+                        tapJob = null
+                        longPressJob = null
                     }
-                } else null,
-            onPress = { offset ->
-                if (enabled) {
-                    handlePressInteraction(offset)
+            }
+        }
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    private fun handleDownEvent(down: IndirectPointerInputChange) {
+        down.consume()
+        this.indirectDownEvent = down
+
+        if (enabled) {
+            if (indirectTapJob?.isActive == true) {
+                val minTime = currentValueOf(LocalViewConfiguration).doubleTapMinTimeMillis
+                if (down.uptimeMillis - indirectFirstTapUpTime < minTime) {
+                    indirectIgnoreNextUp = true
+                    // Ignore this down event, don't check for long press / emit press
+                    // interactions
+                    return
+                } else {
+                    indirectIsSecondTap = true
+                    indirectTapJob?.cancel()
+                    indirectTapJob = null
                 }
-            },
-            onTap = {
-                if (enabled) {
-                    onClick()
+            }
+            indirectLongPressTriggered = false
+
+            if (isDelayPressesUsingGestureConsumptionEnabled) {
+                handlePressInteractionStart(down)
+            } else {
+                handlePressInteractionStart(down.position, true)
+            }
+
+            if (onLongClick != null) {
+                indirectLongPressJob =
+                    coroutineScope.launch {
+                        delay(currentValueOf(LocalViewConfiguration).longPressTimeoutMillis)
+                        onLongClick?.invoke()
+                        if (hapticFeedbackEnabled) {
+                            currentValueOf(LocalHapticFeedback)
+                                .performHapticFeedback(HapticFeedbackType.LongPress)
+                        }
+                        indirectLongPressTriggered = true
+                        indirectTapJob?.cancel()
+                        indirectTapJob = null
+                        indirectLongPressJob = null
+                    }
+            }
+        }
+    }
+
+    private fun handleUpEvent(uptimeMillis: Long, downChange: PointerInputChange) {
+        if (enabled && !ignoreNextUp) {
+            handlePressInteractionRelease(downChange.position, indirectPointer = false)
+            firstTapUpTime = uptimeMillis // store uptime for double tap check
+            if (!longPressTriggered) {
+                if (isSecondTap) {
+                    onDoubleClick?.invoke()
+                } else {
+                    if (onDoubleClick != null) {
+                        tapJob =
+                            coroutineScope.launch {
+                                delay(currentValueOf(LocalViewConfiguration).doubleTapTimeoutMillis)
+                                onClick()
+                                tapJob = null
+                            }
+                    } else {
+                        onClick()
+                    }
                 }
-            },
-        )
+            }
+        }
+        this.downEvent = null
+        ignoreNextUp = false
+        isSecondTap = false
+        longPressJob?.cancel()
+        longPressJob = null
+        longPressTriggered = false
+    }
+
+    private fun handleUpEvent(uptimeMillis: Long, downChange: IndirectPointerInputChange) {
+        if (enabled && !indirectIgnoreNextUp) {
+            handlePressInteractionRelease(downChange.position, indirectPointer = true)
+            indirectFirstTapUpTime = uptimeMillis // store uptime for double tap check
+            if (!indirectLongPressTriggered) {
+                if (indirectIsSecondTap) {
+                    onDoubleClick?.invoke()
+                } else {
+                    if (onDoubleClick != null) {
+                        indirectTapJob =
+                            coroutineScope.launch {
+                                delay(currentValueOf(LocalViewConfiguration).doubleTapTimeoutMillis)
+                                onClick()
+                                indirectTapJob = null
+                            }
+                    } else {
+                        onClick()
+                    }
+                }
+            }
+        }
+        this.indirectDownEvent = null
+        indirectIgnoreNextUp = false
+        indirectIsSecondTap = false
+        indirectLongPressJob?.cancel()
+        indirectLongPressJob = null
+        indirectLongPressTriggered = false
+    }
+
+    private fun handleNonUpEventIfNeeded(pointerEvent: PointerEvent, bounds: IntSize) {
+        val touchPadding = getExtendedTouchPadding(bounds)
+        if (
+            pointerEvent.changes.fastAny { change ->
+                change.isConsumed || change.isOutOfBounds(bounds, touchPadding)
+            }
+        ) {
+            cancelInput(indirectPointer = false)
+        }
+    }
+
+    private fun handleNonUpEventIfNeeded(indirectPointerEvent: IndirectPointerEvent) {
+        val touchSlop = currentValueOf(LocalViewConfiguration).touchSlop
+        if (
+            indirectPointerEvent.changes.fastAny { change ->
+                val distanceFromPress = change.position - indirectDownEvent!!.position
+                val isOutOfBounds = abs(distanceFromPress.getDistance()) > touchSlop
+                change.isConsumed || isOutOfBounds
+            }
+        ) {
+            cancelInput(indirectPointer = true)
+        }
+    }
+
+    private fun handleDeepPress() {
+        if (!longPressTriggered && enabled && onLongClick != null) {
+            longPressJob?.cancel()
+            longPressJob = null
+            onLongClick?.invoke()
+            if (hapticFeedbackEnabled) {
+                currentValueOf(LocalHapticFeedback)
+                    .performHapticFeedback(HapticFeedbackType.LongPress)
+            }
+            longPressTriggered = true
+        }
+    }
+
+    private fun checkForCancellation(pointerEvent: PointerEvent) {
+        if (downEvent != null && !longPressTriggered) {
+            // Check for cancel by position consumption. We can look on the Final pass of the
+            // existing pointer event because it comes after the pass we checked above. We ignore
+            // cases where the long press has already triggered, as in this case we will consume
+            // events ourselves until the pointer is released.
+            if (pointerEvent.changes.fastAny { it.isConsumed && it != downEvent }) {
+                // Canceled
+                cancelInput(indirectPointer = false)
+            }
+        }
+    }
+
+    private fun checkForCancellation(indirectPointerEvent: IndirectPointerEvent) {
+        if (indirectDownEvent != null && !indirectLongPressTriggered) {
+            // Check for cancel by position consumption. We can look on the Final pass of the
+            // existing pointer event because it comes after the pass we checked above. We ignore
+            // cases where the long press has already triggered, as in this case we will consume
+            // events ourselves until the pointer is released.
+            if (indirectPointerEvent.changes.fastAny { it.isConsumed && it != indirectDownEvent }) {
+                // Canceled
+                cancelInput(indirectPointer = true)
+            }
+        }
+    }
+
+    override fun onCancelPointerInput() {
+        super.onCancelPointerInput()
+        cancelInput(indirectPointer = false)
+    }
+
+    override fun onCancelIndirectPointerInput() {
+        cancelInput(indirectPointer = true)
+    }
+
+    private fun cancelInput(indirectPointer: Boolean) {
+        if (indirectPointer) {
+            indirectDownEvent = null
+            indirectLongPressJob?.cancel()
+            indirectLongPressJob = null
+            indirectTapJob?.cancel()
+            indirectTapJob = null
+            indirectIsSecondTap = false
+            indirectLongPressTriggered = false
+            indirectFirstTapUpTime = -1L
+            indirectIgnoreNextUp = false
+        } else {
+            downEvent = null
+            longPressJob?.cancel()
+            longPressJob = null
+            tapJob?.cancel()
+            tapJob = null
+            isSecondTap = false
+            longPressTriggered = false
+            firstTapUpTime = -1L
+            ignoreNextUp = false
+        }
+        handlePressInteractionCancel(indirectPointer)
     }
 
     fun update(
@@ -1069,7 +1469,7 @@ private class CombinedClickableNode(
         var resetPointerInputHandling = false
 
         // onClick is captured inside a callback, not as an input to detectTapGestures,
-        // so no need need to reset pointer input handling
+        // so no need to reset pointer input handling
 
         if (this.onLongClickLabel != onLongClickLabel) {
             this.onLongClickLabel = onLongClickLabel
@@ -1078,7 +1478,7 @@ private class CombinedClickableNode(
 
         // We capture onLongClick and onDoubleClick inside the callback, so if the lambda changes
         // value we don't want to reset input handling - only reset if they go from not-defined to
-        // defined, and vice-versa, as that is what is captured in the parameter to
+        // defined, and vice versa, as that is what is captured in the parameter to
         // detectTapGestures.
         if ((this.onLongClick == null) != (onLongClick == null)) {
             // Adding or removing longClick should cancel any existing press interactions
@@ -1112,7 +1512,11 @@ private class CombinedClickableNode(
             onClick = onClick,
         )
 
-        if (resetPointerInputHandling) resetPointerInputHandler()
+        if (resetPointerInputHandling) {
+            resetPointerInputHandler()
+            cancelInput(indirectPointer = false)
+            cancelInput(indirectPointer = true)
+        }
     }
 
     override fun SemanticsPropertyReceiver.applyAdditionalSemantics() {
@@ -1256,7 +1660,8 @@ internal abstract class AbstractClickableNode(
     TraversableNode,
     CompositionLocalConsumerModifierNode,
     ObserverModifierNode,
-    IndirectPointerInputModifierNode {
+    IndirectPointerInputModifierNode,
+    GestureConnection {
     protected var enabled = enabled
         private set
 
@@ -1275,6 +1680,7 @@ internal abstract class AbstractClickableNode(
     private var localIndicationNodeFactory: IndicationNodeFactory? = null
 
     private var pointerInputNode: SuspendingPointerInputModifierNode? = null
+    private var gestureNode: DelegatableNode? = null
     private var indicationNode: DelegatableNode? = null
 
     private var pressInteraction: PressInteraction.Press? = null
@@ -1293,13 +1699,13 @@ internal abstract class AbstractClickableNode(
 
     private fun shouldLazilyCreateIndication() = userProvidedInteractionSource == null
 
-    private var indirectPointerClickDetector: IndirectPointerClickDetector? = null
-
     /**
      * Handles subclass-specific click related pointer input logic. Hover is already handled
      * elsewhere, so this should only handle clicks.
+     *
+     * TODO(b/477836055) Migrate to non-suspending API.
      */
-    abstract fun createPointerInputNodeIfNeeded(): SuspendingPointerInputModifierNode?
+    open fun createPointerInputNodeIfNeeded(): SuspendingPointerInputModifierNode? = null
 
     open fun SemanticsPropertyReceiver.applyAdditionalSemantics() {}
 
@@ -1366,18 +1772,21 @@ internal abstract class AbstractClickableNode(
         focusableNode.update(this.interactionSource)
     }
 
+    protected fun getExtendedTouchPadding(size: IntSize): Size {
+        // copied from SuspendingPointerInputModifierNodeImpl.extendedTouchPadding:
+        // TODO expose this as a new public api available outside of suspending apis b/422396609
+        val minimumTouchTargetSizeDp = currentValueOf(LocalViewConfiguration).minimumTouchTargetSize
+        val minimumTouchTargetSize = with(requireDensity()) { minimumTouchTargetSizeDp.toSize() }
+        val horizontal = max(0f, minimumTouchTargetSize.width - size.width) / 2f
+        val vertical = max(0f, minimumTouchTargetSize.height - size.height) / 2f
+        return Size(horizontal, vertical)
+    }
+
     override fun onIndirectPointerEvent(event: IndirectPointerEvent, pass: PointerEventPass) {
         initializeIndicationAndInteractionSourceIfNeeded()
         if (enabled) {
-            if (indirectPointerClickDetector == null) {
-                indirectPointerClickDetector = IndirectPointerClickDetector(this)
-            }
-            indirectPointerClickDetector?.processRawEvent(event, pass, onClick)
+            initializeGestureCoordination()
         }
-    }
-
-    override fun onCancelIndirectPointerInput() {
-        indirectPointerClickDetector?.resetDetector()
     }
 
     final override fun onAttach() {
@@ -1419,6 +1828,9 @@ internal abstract class AbstractClickableNode(
         // Remove indication in case we are reused / moved - we will create a new node when needed
         indicationNode?.let { undelegate(it) }
         indicationNode = null
+
+        gestureNode?.let { undelegate(it) }
+        gestureNode = null
     }
 
     protected fun disposeInteractions() {
@@ -1491,6 +1903,14 @@ internal abstract class AbstractClickableNode(
         }
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
+    private fun initializeGestureCoordination() {
+        if (!isDelayPressesUsingGestureConsumptionEnabled) return
+        if (gestureNode == null) {
+            gestureNode = delegate(gestureNode(this))
+        }
+    }
+
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,
@@ -1499,6 +1919,7 @@ internal abstract class AbstractClickableNode(
         centerOffset = bounds.center.toOffset()
         initializeIndicationAndInteractionSourceIfNeeded()
         if (enabled) {
+            initializeGestureCoordination()
             if (pass == PointerEventPass.Main) {
                 when (pointerEvent.type) {
                     PointerEventType.Enter -> coroutineScope.launch { emitHoverEnter() }
@@ -1550,6 +1971,7 @@ internal abstract class AbstractClickableNode(
                 }
                 onClickKeyDownEvent(event) || wasInteractionHandled
             }
+
             enabled && event.isClick -> {
                 val press = currentKeyPressInteractions.remove(keyCode)
                 if (press != null) {
@@ -1565,6 +1987,7 @@ internal abstract class AbstractClickableNode(
                 // Only consume if we were previously pressed for this key event
                 press != null
             }
+
             else -> false
         }
     }
@@ -1607,17 +2030,52 @@ internal abstract class AbstractClickableNode(
 
     private var delayJob: Job? = null
 
-    /**
-     * Handles emitting a [PressInteraction.Press].
-     *
-     * @param offset offset of the press
-     * @param indirectPointer whether the source of this press was indirect pointer. False for
-     *   pointer input.
-     */
+    /** Handles emitting a [PressInteraction.Press]. */
+    protected fun handlePressInteractionStart(event: IndirectPointerInputChange) {
+        interactionSource?.let { interactionSource ->
+            val press = PressInteraction.Press(event.position)
+            if (delayPressInteraction(event)) {
+                delayJob =
+                    coroutineScope.launch {
+                        delay(TapIndicationDelay)
+                        interactionSource.emit(press)
+                        indirectPointerPressInteraction = press
+                    }
+            } else {
+                indirectPointerPressInteraction = press
+                coroutineScope.launch { interactionSource.emit(press) }
+            }
+        }
+    }
+
+    protected fun handlePressInteractionStart(event: PointerInputChange) {
+        interactionSource?.let { interactionSource ->
+            val press = PressInteraction.Press(event.position)
+            if (delayPressInteraction(event)) {
+                delayJob =
+                    coroutineScope.launch {
+                        delay(TapIndicationDelay)
+                        interactionSource.emit(press)
+                        pressInteraction = press
+                    }
+            } else {
+                pressInteraction = press
+                coroutineScope.launch { interactionSource.emit(press) }
+            }
+        }
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
     protected fun handlePressInteractionStart(offset: Offset, indirectPointer: Boolean) {
         interactionSource?.let { interactionSource ->
             val press = PressInteraction.Press(offset)
-            if (delayPressInteraction()) {
+            val shouldDelayPress =
+                if (isDelayPressesUsingGestureConsumptionEnabled) {
+                    delayPressInteraction(null)
+                } else {
+                    delayPressInteraction()
+                }
+            if (shouldDelayPress) {
                 delayJob =
                     coroutineScope.launch {
                         delay(TapIndicationDelay)
@@ -1735,11 +2193,18 @@ internal abstract class AbstractClickableNode(
         }
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
     protected suspend fun PressGestureScope.handlePressInteraction(offset: Offset) {
         interactionSource?.let { interactionSource ->
             coroutineScope {
                 val delayJob = launch {
-                    if (delayPressInteraction()) {
+                    val shouldDelayPress =
+                        if (isDelayPressesUsingGestureConsumptionEnabled) {
+                            delayPressInteraction(null)
+                        } else {
+                            delayPressInteraction()
+                        }
+                    if (shouldDelayPress) {
                         delay(TapIndicationDelay)
                     }
                     val press = PressInteraction.Press(offset)
@@ -1777,6 +2242,19 @@ internal abstract class AbstractClickableNode(
     private fun delayPressInteraction(): Boolean =
         hasScrollableContainer() || isComposeRootInScrollableContainer()
 
+    private fun delayPressInteraction(event: PointerInputChange?): Boolean {
+        val hasInterestedParent =
+            if (event == null) {
+                parentGestureConnection != null
+            } else {
+                hasInterestedParent(event)
+            }
+        return hasInterestedParent || isComposeRootInScrollableContainer()
+    }
+
+    private fun delayPressInteraction(event: IndirectPointerInputChange): Boolean =
+        hasInterestedParent(event) || isComposeRootInScrollableContainer()
+
     private fun emitHoverEnter() {
         if (hoverInteraction == null) {
             val interaction = HoverInteraction.Enter()
@@ -1799,63 +2277,27 @@ internal abstract class AbstractClickableNode(
 
     override val traverseKey: Any = TraverseKey
 
-    class IndirectPointerClickDetector(val node: AbstractClickableNode) {
-        private var downEvent: IndirectPointerInputChange? = null
-
-        // TODO(b/449944873): Align PointerInput and IndirectTouchInput implementations
-        fun processRawEvent(
-            pointerEvent: IndirectPointerEvent,
-            pass: PointerEventPass,
-            onClick: () -> Unit,
-        ) {
-            if (pass == PointerEventPass.Main) {
-                val downEvent = this.downEvent
-                if (downEvent == null) {
-                    if (pointerEvent.changes.fastAny { it.changedToDownIgnoreConsumed() }) {
-                        val change = pointerEvent.changes[0]
-                        this.downEvent = change
-                        node.handlePressInteractionStart(change.position, indirectPointer = true)
-                        change.consume()
-                    }
-                } else if (pointerEvent.changes.fastAny { it.isMovingIgnoreConsumed() }) {
-                    val change = pointerEvent.changes[0]
-                    val distanceFromPress = change.position - downEvent.position
-                    val touchSlop = node.currentValueOf(LocalViewConfiguration).touchSlop
-                    if (abs(distanceFromPress.getDistance()) > touchSlop) {
-                        resetDetector()
-                    }
-                } else if (pointerEvent.changes.fastAll { it.changedToUp() }) {
-                    // All pointers are up
-                    val up = pointerEvent.changes[0]
-                    up.consume()
-                    node.handlePressInteractionRelease(downEvent.position, indirectPointer = true)
-                    onClick()
-                    this.downEvent = null
-                } else {
-                    if (pointerEvent.changes.fastAny { it.isConsumed }) {
-                        // Canceled
-                        resetDetector()
-                    }
-                }
-            } else if (pass == PointerEventPass.Final && downEvent != null) {
-                // Check for cancel by position consumption. We can look on the Final pass of the
-                // existing pointer event because it comes after the pass we checked above.
-                if (pointerEvent.changes.fastAny { it.isConsumed && it != downEvent }) {
-                    // Canceled
-                    resetDetector()
-                }
-            }
-        }
-
-        fun resetDetector() {
-            if (downEvent != null) {
-                downEvent = null
-                node.handlePressInteractionCancel(indirectPointer = true)
-            }
-        }
-    }
-
     companion object TraverseKey
+}
+
+internal fun DelegatingNode.hasInterestedParent(event: IndirectPointerInputChange): Boolean {
+    var hasInterestedParent = false
+    traverseAncestorGestureConnections { coordinator ->
+        val isCoordinatorInterested = coordinator.isInterested(event)
+        hasInterestedParent = hasInterestedParent || isCoordinatorInterested
+        !hasInterestedParent
+    }
+    return hasInterestedParent
+}
+
+internal fun DelegatingNode.hasInterestedParent(event: PointerInputChange): Boolean {
+    var hasInterestedParent = false
+    traverseAncestorGestureConnections { coordinator ->
+        val isCoordinatorInterested = coordinator.isInterested(event)
+        hasInterestedParent = hasInterestedParent || isCoordinatorInterested
+        !hasInterestedParent
+    }
+    return hasInterestedParent
 }
 
 internal fun TraversableNode.hasScrollableContainer(): Boolean {
@@ -1876,7 +2318,3 @@ private fun unsupportedIndicationExceptionMessage(indication: Indication): Strin
 }
 
 private fun IndirectPointerInputChange.changedToUp() = !isConsumed && previousPressed && !pressed
-
-private fun IndirectPointerInputChange.changedToDownIgnoreConsumed() = !previousPressed && pressed
-
-private fun IndirectPointerInputChange.isMovingIgnoreConsumed() = previousPressed && pressed

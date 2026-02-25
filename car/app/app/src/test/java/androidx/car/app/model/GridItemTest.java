@@ -273,4 +273,39 @@ public class GridItemTest {
         verify(onClickListener).onClick();
         verify(onDoneCallback).onSuccess(null);
     }
+
+    @Test
+    public void setProgressBar() {
+        CarProgressBar bar = new CarProgressBar.Builder(0.5f).build();
+        GridItem gridItem = new GridItem.Builder().setTitle("Title").setImage(BACK)
+                .setProgressBar(bar).build();
+
+        assertThat(gridItem.getProgressBar()).isEqualTo(bar);
+    }
+
+    @Test
+    public void notEquals_differentProgressBar() {
+        CarProgressBar bar1 = new CarProgressBar.Builder(0.5f).build();
+        CarProgressBar bar2 = new CarProgressBar.Builder(0.6f).build();
+        GridItem gridItem = new GridItem.Builder().setTitle("Title").setImage(BACK)
+                .setProgressBar(bar1).build();
+        GridItem gridItem2 = new GridItem.Builder().setTitle("Title").setImage(BACK)
+                .setProgressBar(bar2).build();
+
+        assertThat(gridItem2).isNotEqualTo(gridItem);
+    }
+
+    @Test
+    public void textAndProgressBarSet_textIgnored() {
+        CarProgressBar bar = new CarProgressBar.Builder(0.5f).build();
+        GridItem gridItem = new GridItem.Builder()
+                .setTitle("Title")
+                .setImage(BACK)
+                .setText("Text")
+                .setProgressBar(bar)
+                .build();
+
+        assertThat(gridItem.getProgressBar()).isEqualTo(bar);
+        assertThat(gridItem.getText()).isNull();
+    }
 }

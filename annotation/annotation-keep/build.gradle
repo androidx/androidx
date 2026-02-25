@@ -40,7 +40,6 @@ androidx {
     name = "Keep Annotation"
     type = SoftwareType.SNAPSHOT_ONLY_LIBRARY_WITH_API_TASKS
     mavenVersion = LibraryVersions.ANNOTATION_KEEP_QUARANTINE
-    kotlinTarget = KotlinTarget.KOTLIN_2_0
     inceptionYear = "2025"
     description = "Provides annotations to guide optimizers / code shrinkers."
 }

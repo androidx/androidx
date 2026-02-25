@@ -360,17 +360,14 @@ public interface IcingOptionsConfig {
                                 : getCompressionMemLevel())
                 .setEnableSchemaDatabase(
                         Flags.enableDatabaseScopedSchemaOperations() || isVMEnabled)
-                .setEnableSmallerDecompressionBufferSize(
-                        Flags.enableSmallerDecompressionBufferSize() || isVMEnabled)
+                .setEnableSmallerDecompressionBufferSize(true)
                 .setEnableEigenEmbeddingScoring(Flags.enableEigenEmbeddingScoring() || isVMEnabled)
                 .setEnablePassingFilterToChildren(
                         Flags.enablePassingFilterToChildren() || isVMEnabled)
                 .setEnableProtoLogNewHeaderFormat(
                         Flags.enableProtoLogNewHeaderFormat() || isVMEnabled)
-                .setEnableEmbeddingIteratorV2(
-                        Flags.enableEmbeddingIteratorV2() || isVMEnabled)
-                .setEnableReusableDecompressionBuffer(
-                        Flags.enableReusableDecompressionBuffer() || isVMEnabled)
+                .setEnableEmbeddingIteratorV2(true)
+                .setEnableReusableDecompressionBuffer(true)
                 .setEmbeddingIndexNumShards(
                         Flags.enableShardedEmbeddingStorage()
                                 ? Math.max(1, getEmbeddingIndexNumShards()) : 1)

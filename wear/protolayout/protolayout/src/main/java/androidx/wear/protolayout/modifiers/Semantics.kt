@@ -37,7 +37,7 @@ import java.util.Objects
  *   itself is dynamic.
  */
 @SuppressLint("ProtoLayoutMinSchema") // 1.2 schema only used when dynamicValue is non-null
-fun LayoutModifier.contentDescription(
+public fun LayoutModifier.contentDescription(
     staticValue: String,
     @RequiresSchemaVersion(major = 1, minor = 200) dynamicValue: DynamicString? = null,
 ): LayoutModifier =
@@ -53,16 +53,16 @@ fun LayoutModifier.contentDescription(
  * Adds the semantic role of user interface element. Accessibility services might use this to
  * describe the element or do customizations.
  */
-fun LayoutModifier.semanticsRole(@SemanticsRole semanticsRole: Int): LayoutModifier =
+public fun LayoutModifier.semanticsRole(@SemanticsRole semanticsRole: Int): LayoutModifier =
     this then BaseSemanticElement(semanticsRole = semanticsRole)
 
 /** Mark the element as heading for a section of content for accessibility purpose. */
 @RequiresSchemaVersion(major = 1, minor = 600)
-fun LayoutModifier.semanticsHeading(heading: Boolean): LayoutModifier =
+public fun LayoutModifier.semanticsHeading(heading: Boolean): LayoutModifier =
     this then BaseSemanticElement(heading = heading)
 
 /** Clears the semantics, including [contentDescription] and [semanticsRole], from the modifier. */
-fun LayoutModifier.clearSemantics(): LayoutModifier = this then CLEAR_SEMANTIC_ELEMENT
+public fun LayoutModifier.clearSemantics(): LayoutModifier = this then CLEAR_SEMANTIC_ELEMENT
 
 internal class BaseSemanticElement(
     val contentDescription: StringProp? = null,

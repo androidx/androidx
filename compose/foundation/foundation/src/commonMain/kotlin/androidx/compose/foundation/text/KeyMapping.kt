@@ -18,9 +18,6 @@ package androidx.compose.foundation.text
 
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.isAltPressed
-import androidx.compose.ui.input.key.isCtrlPressed
-import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 
 internal interface KeyMapping {
@@ -32,19 +29,21 @@ internal interface KeyMapping {
 internal expect val platformDefaultKeyMapping: KeyMapping
 
 // It's common for all platforms key mapping
-internal fun commonKeyMapping(shortcutModifier: (KeyEvent) -> Boolean): KeyMapping {
+internal fun commonKeyMapping(systemShortcutModifiers: KeyModifiers): KeyMapping {
     return object : KeyMapping {
         override fun map(event: KeyEvent): KeyCommand? {
-            return when {
-                shortcutModifier(event) && event.isShiftPressed ->
+            val keyModifiers = event.modifiers
+            return when (keyModifiers) {
+                systemShortcutModifiers + KeyModifiers.Shift ->
                     when (event.key) {
                         Key.Z -> KeyCommand.REDO
                         else -> null
                     }
-                shortcutModifier(event) ->
+                systemShortcutModifiers ->
                     when (event.key) {
                         Key.C,
-                        Key.Insert -> KeyCommand.COPY
+                        Key.Insert,
+                        Key.NumPadInsert -> KeyCommand.COPY
                         Key.V -> KeyCommand.PASTE
                         Key.X -> KeyCommand.CUT
                         Key.A -> KeyCommand.SELECT_ALL
@@ -52,31 +51,47 @@ internal fun commonKeyMapping(shortcutModifier: (KeyEvent) -> Boolean): KeyMappi
                         Key.Z -> KeyCommand.UNDO
                         else -> null
                     }
-                event.isCtrlPressed -> null
-                event.isShiftPressed ->
+                KeyModifiers.Shift ->
                     when (event.key) {
-                        Key.DirectionLeft -> KeyCommand.SELECT_LEFT_CHAR
-                        Key.DirectionRight -> KeyCommand.SELECT_RIGHT_CHAR
-                        Key.DirectionUp -> KeyCommand.SELECT_UP
-                        Key.DirectionDown -> KeyCommand.SELECT_DOWN
-                        Key.PageUp -> KeyCommand.SELECT_PAGE_UP
-                        Key.PageDown -> KeyCommand.SELECT_PAGE_DOWN
-                        Key.MoveHome -> KeyCommand.SELECT_LINE_START
-                        Key.MoveEnd -> KeyCommand.SELECT_LINE_END
-                        Key.Insert -> KeyCommand.PASTE
+                        Key.DirectionLeft,
+                        Key.NumPadDirectionLeft -> KeyCommand.SELECT_LEFT_CHAR
+                        Key.DirectionRight,
+                        Key.NumPadDirectionRight -> KeyCommand.SELECT_RIGHT_CHAR
+                        Key.DirectionUp,
+                        Key.NumPadDirectionUp -> KeyCommand.SELECT_UP
+                        Key.DirectionDown,
+                        Key.NumPadDirectionDown -> KeyCommand.SELECT_DOWN
+                        Key.PageUp,
+                        Key.NumPadPageUp -> KeyCommand.SELECT_PAGE_UP
+                        Key.PageDown,
+                        Key.NumPadPageDown -> KeyCommand.SELECT_PAGE_DOWN
+                        Key.MoveHome,
+                        Key.NumPadMoveHome -> KeyCommand.SELECT_LINE_START
+                        Key.MoveEnd,
+                        Key.NumPadMoveEnd -> KeyCommand.SELECT_LINE_END
+                        Key.Insert,
+                        Key.NumPadInsert -> KeyCommand.PASTE
                         else -> null
                     }
-                else ->
+                KeyModifiers.None ->
                     when (event.key) {
-                        Key.DirectionLeft -> KeyCommand.LEFT_CHAR
-                        Key.DirectionRight -> KeyCommand.RIGHT_CHAR
-                        Key.DirectionUp -> KeyCommand.UP
-                        Key.DirectionDown -> KeyCommand.DOWN
+                        Key.DirectionLeft,
+                        Key.NumPadDirectionLeft -> KeyCommand.LEFT_CHAR
+                        Key.DirectionRight,
+                        Key.NumPadDirectionRight -> KeyCommand.RIGHT_CHAR
+                        Key.DirectionUp,
+                        Key.NumPadDirectionUp -> KeyCommand.UP
+                        Key.DirectionDown,
+                        Key.NumPadDirectionDown -> KeyCommand.DOWN
                         Key.DirectionCenter -> KeyCommand.CENTER
-                        Key.PageUp -> KeyCommand.PAGE_UP
-                        Key.PageDown -> KeyCommand.PAGE_DOWN
-                        Key.MoveHome -> KeyCommand.LINE_START
-                        Key.MoveEnd -> KeyCommand.LINE_END
+                        Key.PageUp,
+                        Key.NumPadPageUp -> KeyCommand.PAGE_UP
+                        Key.PageDown,
+                        Key.NumPadPageDown -> KeyCommand.PAGE_DOWN
+                        Key.MoveHome,
+                        Key.NumPadMoveHome -> KeyCommand.LINE_START
+                        Key.MoveEnd,
+                        Key.NumPadMoveEnd -> KeyCommand.LINE_END
                         Key.Enter,
                         Key.NumPadEnter -> KeyCommand.NEW_LINE
                         Key.Backspace -> KeyCommand.DELETE_PREV_CHAR
@@ -87,6 +102,7 @@ internal fun commonKeyMapping(shortcutModifier: (KeyEvent) -> Boolean): KeyMappi
                         Key.Tab -> KeyCommand.TAB
                         else -> null
                     }
+                else -> null
             }
         }
     }
@@ -94,39 +110,64 @@ internal fun commonKeyMapping(shortcutModifier: (KeyEvent) -> Boolean): KeyMappi
 
 // It's "default" or actually "non macOS" key mapping
 internal val defaultKeyMapping: KeyMapping =
-    commonKeyMapping(KeyEvent::isCtrlPressed).let { common ->
+    commonKeyMapping(KeyModifiers.Ctrl).let { common ->
         object : KeyMapping {
             override fun map(event: KeyEvent): KeyCommand? {
-                return when {
-                    event.isShiftPressed && event.isCtrlPressed ->
-                        when (event.key) {
-                            Key.DirectionLeft -> KeyCommand.SELECT_LEFT_WORD
-                            Key.DirectionRight -> KeyCommand.SELECT_RIGHT_WORD
-                            Key.DirectionUp -> KeyCommand.SELECT_PREV_PARAGRAPH
-                            Key.DirectionDown -> KeyCommand.SELECT_NEXT_PARAGRAPH
+                val keyModifiers = event.modifiers
+                when (event.key) {
+                    Key.Backspace ->
+                        when (keyModifiers) {
+                            KeyModifiers.None,
+                            KeyModifiers.Shift,
+                            KeyModifiers.ShiftMeta -> KeyCommand.DELETE_PREV_CHAR
+                            KeyModifiers.Ctrl,
+                            KeyModifiers.CtrlShift -> KeyCommand.DELETE_PREV_WORD
+                            KeyModifiers.Alt -> KeyCommand.DELETE_FROM_LINE_START
                             else -> null
                         }
-                    event.isCtrlPressed ->
+                    else -> null
+                }?.let {
+                    return it
+                }
+
+                return when (event.modifiers) {
+                    KeyModifiers.CtrlShift ->
                         when (event.key) {
-                            Key.DirectionLeft -> KeyCommand.LEFT_WORD
-                            Key.DirectionRight -> KeyCommand.RIGHT_WORD
-                            Key.DirectionUp -> KeyCommand.PREV_PARAGRAPH
-                            Key.DirectionDown -> KeyCommand.NEXT_PARAGRAPH
+                            Key.DirectionLeft,
+                            Key.NumPadDirectionLeft -> KeyCommand.SELECT_LEFT_WORD
+                            Key.DirectionRight,
+                            Key.NumPadDirectionRight -> KeyCommand.SELECT_RIGHT_WORD
+                            Key.DirectionUp,
+                            Key.NumPadDirectionUp -> KeyCommand.SELECT_PREV_PARAGRAPH
+                            Key.DirectionDown,
+                            Key.NumPadDirectionDown -> KeyCommand.SELECT_NEXT_PARAGRAPH
+                            else -> null
+                        }
+                    KeyModifiers.Ctrl ->
+                        when (event.key) {
+                            Key.DirectionLeft,
+                            Key.NumPadDirectionLeft -> KeyCommand.LEFT_WORD
+                            Key.DirectionRight,
+                            Key.NumPadDirectionRight -> KeyCommand.RIGHT_WORD
+                            Key.DirectionUp,
+                            Key.NumPadDirectionUp -> KeyCommand.PREV_PARAGRAPH
+                            Key.DirectionDown,
+                            Key.NumPadDirectionDown -> KeyCommand.NEXT_PARAGRAPH
                             Key.H -> KeyCommand.DELETE_PREV_CHAR
                             Key.Delete -> KeyCommand.DELETE_NEXT_WORD
-                            Key.Backspace -> KeyCommand.DELETE_PREV_WORD
                             Key.Backslash -> KeyCommand.DESELECT
                             else -> null
                         }
-                    event.isShiftPressed ->
+                    KeyModifiers.Shift ->
                         when (event.key) {
-                            Key.MoveHome -> KeyCommand.SELECT_LINE_START
-                            Key.MoveEnd -> KeyCommand.SELECT_LINE_END
+                            Key.MoveHome,
+                            Key.NumPadMoveHome -> KeyCommand.SELECT_LINE_START
+                            Key.MoveEnd,
+                            Key.NumPadMoveEnd -> KeyCommand.SELECT_LINE_END
                             else -> null
                         }
-                    event.isAltPressed ->
+                    KeyModifiers.Alt ->
                         when (event.key) {
-                            Key.Backspace -> KeyCommand.DELETE_FROM_LINE_START
                             Key.Delete -> KeyCommand.DELETE_TO_LINE_END
                             else -> null
                         }

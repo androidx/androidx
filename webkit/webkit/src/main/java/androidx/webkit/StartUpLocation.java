@@ -28,5 +28,5 @@ public interface StartUpLocation {
     /**
      * Gets information about the code location including the stack trace.
      */
-    @NonNull String getStackInformation();
+    @NonNull Throwable getStackInformation();
 }

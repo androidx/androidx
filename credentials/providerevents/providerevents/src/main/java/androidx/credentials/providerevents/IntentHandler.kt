@@ -165,7 +165,7 @@ public class IntentHandler {
         ) {
             intent.putExtra(
                 EXTRA_IMPORT_CREDENTIALS_EXCEPTION,
-                ImportCredentialsException.asBundle(exception),
+                ImportCredentialsException.toBundle(exception),
             )
         }
 

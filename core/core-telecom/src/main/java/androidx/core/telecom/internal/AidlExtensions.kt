@@ -257,8 +257,7 @@ internal class LocalCallSilenceStateListener(
  * @param binder the remote binder interface.
  */
 @ExperimentalAppActions
-internal class CapabilityExchangeRemote(binder: ICapabilityExchange) :
-    ICapabilityExchange by binder
+internal class CapabilityExchangeRemote(binder: ICapabilityExchange) : ICapabilityExchange by binder
 
 /**
  * Remote interface for [ICapabilityExchangeListener] that InCallServices use to communicate with

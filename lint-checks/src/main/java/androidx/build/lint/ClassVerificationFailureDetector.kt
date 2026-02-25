@@ -74,6 +74,7 @@ import org.jetbrains.kotlin.psi.KtReturnExpression
 import org.jetbrains.kotlin.psi.KtValueArgument
 import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.capitalizeAsciiOnly
+import org.jetbrains.kotlin.utils.exceptions.KotlinIllegalArgumentExceptionWithAttachments
 import org.jetbrains.uast.UBinaryExpression
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UClass
@@ -269,7 +270,15 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             if (psi != null && psi.toUElement() != node) return
 
             // Get the expression type and expected type based on the expression's usage
-            val actualType = node.getExpressionType() ?: return
+            val actualType =
+                try {
+                    node.getExpressionType() ?: return
+                } catch (e: KotlinIllegalArgumentExceptionWithAttachments) {
+                    // b/483489537: fail with more detail about what went wrong.
+                    e.printStackTrace()
+                    val attachments = e.attachments.joinToString { it.displayText }
+                    throw IllegalStateException("${e.message}, attachments: $attachments", e)
+                }
             val actualTypeStr = actualType.canonicalText
             val actualTypeApi = getMinApiOfClass(actualTypeStr) ?: return
 

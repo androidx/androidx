@@ -16,6 +16,7 @@
 package androidx.lifecycle
 
 import androidx.annotation.RestrictTo
+import androidx.collection.mutableScatterMapOf
 
 /**
  * Stores [ViewModel] instances by key.
@@ -38,7 +39,7 @@ import androidx.annotation.RestrictTo
  */
 public open class ViewModelStore {
 
-    private val map = mutableMapOf<String, ViewModel>()
+    private val map = mutableScatterMapOf<String, ViewModel>()
 
     /**
      * Stores [viewModel] under [key], replacing any existing entry.
@@ -60,7 +61,10 @@ public open class ViewModelStore {
      *
      * The returned set is not backed by this store and will not reflect subsequent changes.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun keys(): Set<String> = map.keys.toSet()
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun keys(): Set<String> {
+        return buildSet(capacity = map.size) { map.forEachKey { key -> add(key) } }
+    }
 
     /**
      * Clears this store and notifies all stored [ViewModel] instances that they are no longer used.
@@ -70,9 +74,7 @@ public open class ViewModelStore {
      * @see ViewModel.onCleared
      */
     public fun clear() {
-        for (vm in map.values) {
-            vm.clear()
-        }
+        map.forEachValue { viewModel -> viewModel.clear() }
         map.clear()
     }
 
@@ -81,6 +83,6 @@ public open class ViewModelStore {
         val className = this::class.simpleName ?: "ViewModelStore"
         // Discourage relying on the string output.
         val identity = hashCode().toString(radix = 16)
-        return "$className#$identity(keys=${map.keys})"
+        return "$className#$identity(keys=${keys()})"
     }
 }

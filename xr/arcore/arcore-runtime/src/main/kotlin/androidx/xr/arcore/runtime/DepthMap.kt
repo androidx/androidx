@@ -23,25 +23,20 @@ import java.nio.FloatBuffer
 /**
  * Contains depth related information corresponding to the latest frame from the perspective of a
  * particular view.
+ *
+ * @property width the width of the depth map
+ * @property height the height of the depth map
+ * @property rawDepthMap raw depth values representing meters from the image plane
+ * @property rawConfidenceMap confidence values for the raw depth map
+ * @property smoothDepthMap smooth depth values representing meters from the image plane
+ * @property smoothConfidenceMap confidence values for the smooth depth map
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface DepthMap {
-
-    /** The width of the depth map. */
     public val width: Int
-
-    /** The height of the depth map. */
     public val height: Int
-
-    /** Raw depth values representing meters from the image plane. */
     public val rawDepthMap: FloatBuffer?
-
-    /** Confidence values for the raw depth map. Higher values represent higher confidence. */
     public val rawConfidenceMap: ByteBuffer?
-
-    /** Smooth depth values representing meters from the image plane. */
     public val smoothDepthMap: FloatBuffer?
-
-    /** Confidence values for the smooth depth map. Higher values represent higher confidence. */
     public val smoothConfidenceMap: ByteBuffer?
 }

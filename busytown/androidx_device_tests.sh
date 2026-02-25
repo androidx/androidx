@@ -20,7 +20,7 @@ deleteOldOutDir
 # previous runs
 # find script
 SCRIPT_DIR="$(pwd)"
-TEST_XML_CONFIGS="$SCRIPT_DIR/../../../out/androidx/build/test-xml-configs"
+TEST_XML_CONFIGS="$SCRIPT_DIR/../../../out/test-xml-configs"
 echo "Deleting $TEST_XML_CONFIGS"
 rm -fr $TEST_XML_CONFIGS
 

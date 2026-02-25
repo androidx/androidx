@@ -1,5 +1,3 @@
-@file:JvmName("StreamsUtils")
-
 /*
  * Copyright 2025 The Android Open Source Project
  *
@@ -15,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:JvmName("StreamsUtils")
+
 package androidx.webgpu.helper
 
 import java.io.InputStream

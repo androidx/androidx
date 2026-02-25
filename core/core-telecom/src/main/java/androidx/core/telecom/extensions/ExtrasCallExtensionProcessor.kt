@@ -121,21 +121,20 @@ internal class ExtrasCallExtensionProcessor(
      * [CompletableDeferred] to ensure all asynchronous operations related to extension setup are
      * completed before returning.
      *
-     * @param detailsFlow A [Flow] of [Call.Details], providing updates to the call's state and
-     *   extras.
+     * @param extrasFlow A [Flow] of [Bundle], providing updates to the call's extras.
      * @return A [CapabilityExchangeResult] containing the negotiated capabilities, or `null` if no
      *   relevant extras were found.
      */
     internal suspend fun handleExtrasExtensionsFromVoipApp(
-        detailsFlow: Flow<Call.Details>
+        extrasFlow: Flow<Bundle>
     ): CapabilityExchangeResult? {
         Log.i(TAG, "handleExtrasExtensionsFromVoipApp: consuming extras")
         val callbackRepository = CapabilityExchangeRepository(callScope)
         initMeetingExtension(callbackRepository)
         initCallIconExtension(callbackRepository)
         initLocalSilenceExtension(callbackRepository)
-        callScope.launch { detailsFlow.collect { details -> processExtras(details.extras) } }
-        return getExtensionsUpdateFromNewExtras(detailsFlow.first(), callbackRepository)
+        callScope.launch { extrasFlow.collect { extras -> processExtras(extras) } }
+        return getExtensionsUpdateFromNewExtras(extrasFlow.first(), callbackRepository)
     }
 
     /**
@@ -144,16 +143,16 @@ internal class ExtrasCallExtensionProcessor(
      * constructs a set of supported capabilities. It then calls [processExtras] to handle the
      * individual extra values.
      *
-     * @param details The current [Call.Details] of the call.
+     * @param extras The current [Bundle] extras of the call.
      * @param r The [CapabilityExchangeRepository] instance for capability exchange.
      * @return A [CapabilityExchangeResult] representing the updated capabilities and remote
      *   listener, or `null` if no relevant extras are found.
      */
     private suspend fun getExtensionsUpdateFromNewExtras(
-        details: Call.Details,
+        extras: Bundle,
         r: CapabilityExchangeRepository,
     ): CapabilityExchangeResult? {
-        val extras = details.extras?.takeIf { it.size() > 0 } ?: return null
+        if (extras.isEmpty) return null
 
         val apiVersion = extras.getInt(EXTRA_VOIP_API_VERSION, 0)
         if (extras.containsKey(EXTRA_USE_LOCAL_CALL_SILENCE_CAPABILITY)) {

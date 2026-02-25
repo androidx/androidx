@@ -26,6 +26,7 @@ class ConfigBuilder {
     var isMicrobenchmark: Boolean = false
     var isMacrobenchmark: Boolean = false
     var isPostsubmit: Boolean = true
+    var useOrchestrator: Boolean = false
     lateinit var minSdk: String
     val tags = mutableListOf<String>()
     lateinit var testApkName: String
@@ -90,6 +91,7 @@ class ConfigBuilder {
                 "appApkSha256" to appApk?.sha256,
                 "instrumentationArgs" to instrumentationArgsList,
                 "additionalApkKeys" to additionalApkKeys,
+                "useOrchestrator" to useOrchestrator,
             )
         return gson.toJson(values)
     }
@@ -202,20 +204,20 @@ private val XML_HEADER_AND_LICENSE =
     See the License for the specific language governing permissions
     and limitations under the License.-->
 
-"""
+    """
         .trimIndent()
 
 private val CONFIGURATION_OPEN =
     """
     <configuration description="Runs tests for the module">
 
-"""
+    """
         .trimIndent()
 
 private val CONFIGURATION_CLOSE =
     """
     </configuration>
-"""
+    """
         .trimIndent()
 
 private val MIN_API_LEVEL_CONTROLLER_OBJECT =
@@ -224,28 +226,28 @@ private val MIN_API_LEVEL_CONTROLLER_OBJECT =
     <option name="min-api-level" value="MIN_SDK" />
     </object>
 
-"""
+    """
         .trimIndent()
 
 private val TEST_SUITE_TAG_OPTION =
     """
     <option name="test-suite-tag" value="TEST_SUITE_TAG" />
 
-"""
+    """
         .trimIndent()
 
 private val MODULE_METADATA_TAG_OPTION =
     """
     <option name="config-descriptor:metadata" key="applicationId" value="APPLICATION_ID" />
 
-"""
+    """
         .trimIndent()
 
 private val WIFI_DISABLE_OPTION =
     """
     <option name="wifi:disable" value="true" />
 
-"""
+    """
         .trimIndent()
 
 private fun benchmarkPostInstallCommandOption(packageName: String) =
@@ -266,7 +268,7 @@ private val SETUP_INCLUDE =
     """
     <include name="google/unbundled/common/setup" />
 
-"""
+    """
         .trimIndent()
 
 /**
@@ -280,63 +282,63 @@ private val TARGET_PREPARER_OPEN =
     <option name="cleanup-apks" value="CLEANUP_APKS" />
     <option name="install-arg" value="-t" />
 
-"""
+    """
         .trimIndent()
 
 private val TARGET_PREPARER_CLOSE =
     """
     </target_preparer>
 
-"""
+    """
         .trimIndent()
 
 private val APK_INSTALL_OPTION =
     """
     <option name="test-file-name" value="APK_NAME" />
 
-"""
+    """
         .trimIndent()
 
 private val APK_WITH_SPLITS_INSTALL_OPTION =
     """
     <option name="split-apk-file-names" value="APK_LIST" />
 
-"""
+    """
         .trimIndent()
 
 private val TEST_BLOCK_OPEN =
     """
     <test class="com.android.tradefed.testtype.AndroidJUnitTest">
 
-"""
+    """
         .trimIndent()
 
 private val TEST_BLOCK_CLOSE =
     """
     </test>
 
-"""
+    """
         .trimIndent()
 
 private val RUNNER_OPTION =
     """
     <option name="runner" value="TEST_RUNNER"/>
 
-"""
+    """
         .trimIndent()
 
 private val PACKAGE_OPTION =
     """
     <option name="package" value="APPLICATION_ID" />
 
-"""
+    """
         .trimIndent()
 
 private val BENCHMARK_PRESUBMIT_INST_ARGS =
     """
     <option name="instrumentation-arg" key="androidx.benchmark.dryRunMode.enable" value="true" />
 
-"""
+    """
         .trimIndent()
 
 /** These args may never be passed in CI, even if they are set per module */
@@ -347,7 +349,7 @@ private val MICROBENCHMARK_POSTSUBMIT_LISTENERS =
     <option name="device-listeners" value="androidx.benchmark.junit4.InstrumentationResultsRunListener" />
     <option name="device-listeners" value="androidx.benchmark.junit4.SideEffectRunListener" />
 
-"""
+    """
         .trimIndent()
 
 // NOTE: listeners are duplicated in macro package due to no common module w/ junit dependency
@@ -357,12 +359,12 @@ private val MACROBENCHMARK_POSTSUBMIT_LISTENERS =
     <option name="device-listeners" value="androidx.benchmark.macro.junit4.InstrumentationResultsRunListener" />
     <option name="device-listeners" value="androidx.benchmark.macro.junit4.SideEffectRunListener" />
 
-"""
+    """
         .trimIndent()
 
 private val FLAKY_TEST_OPTION =
     """
     <option name="instrumentation-arg" key="notAnnotation" value="androidx.test.filters.FlakyTest" />
 
-"""
+    """
         .trimIndent()

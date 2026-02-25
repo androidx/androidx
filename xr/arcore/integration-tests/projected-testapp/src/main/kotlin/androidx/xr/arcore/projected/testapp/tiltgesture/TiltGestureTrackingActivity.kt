@@ -37,14 +37,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
+import androidx.xr.arcore.ExperimentalGesturesApi
 import androidx.xr.arcore.TiltGesture
 import androidx.xr.glimmer.Button
 import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.Icon
 import androidx.xr.glimmer.Text
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.Session
-import androidx.xr.runtime.SessionConfigureGooglePlayServicesLocationLibraryNotLinked
 import androidx.xr.runtime.SessionConfigureSuccess
 import androidx.xr.runtime.SessionCreateApkRequired
 import androidx.xr.runtime.SessionCreateSuccess
@@ -62,8 +63,10 @@ class TiltGestureTrackingActivity : ComponentActivity() {
 
     private lateinit var session: Session
     private val sessionInitialized = CompletableDeferred<Unit>()
+    @OptIn(ExperimentalGesturesApi::class)
     private var tiltFlow by mutableStateOf<Flow<TiltGesture.State>?>(null)
 
+    @OptIn(ExperimentalGesturesApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         lifecycleScope.launch(Dispatchers.IO) {
@@ -86,6 +89,7 @@ class TiltGestureTrackingActivity : ComponentActivity() {
             }
     }
 
+    @OptIn(ExperimentalGesturesApi::class)
     @Composable
     private fun TiltDemoApp(state: TiltGesture.State) {
         Column(
@@ -120,18 +124,9 @@ class TiltGestureTrackingActivity : ComponentActivity() {
             is SessionCreateSuccess -> {
                 session = result.session
                 try {
-                    when (
-                        session.configure(
-                            Config(deviceTracking = Config.DeviceTrackingMode.LAST_KNOWN)
-                        )
-                    ) {
-                        is SessionConfigureGooglePlayServicesLocationLibraryNotLinked -> {
-                            Log.e(
-                                TAG,
-                                "Google Play Services Location Library is not linked, this should not happen.",
-                            )
-                        }
-
+                    val configResult =
+                        session.configure(Config(deviceTracking = DeviceTrackingMode.LAST_KNOWN))
+                    when (configResult) {
                         is SessionConfigureSuccess -> {
                             Log.i(TAG, "Session created successfully!!")
                         }
@@ -152,6 +147,10 @@ class TiltGestureTrackingActivity : ComponentActivity() {
             is SessionCreateUnsupportedDevice -> {
                 Log.e(TAG, "Can't create session, unsupported device")
                 finish()
+            }
+
+            else -> {
+                Log.e(TAG, "Unexpected ${result::class.simpleName}")
             }
         }
     }

@@ -65,7 +65,42 @@ public class CoreDocumentAccessibility implements RemoteComposeDocumentAccessibi
     @Nullable
     @Override
     public Integer getComponentIdAt(@NonNull PointF point) {
+        Component rootComponent = findComponentById(RootId);
+
+        // allocate once
+        int[] boundsInParent = new int[4];
+
+        if (rootComponent != null) {
+            return getComponentIdAt(rootComponent, point, boundsInParent);
+        }
+
         return RootId;
+    }
+
+    private int getComponentIdAt(Component component, @NonNull PointF point,
+            int @NonNull [] boundsInParent) {
+        List<Integer> children = semanticallyRelevantChildComponents(
+                component, false);
+
+        for (Integer childId : children) {
+            Component childComponent = findComponentById(childId);
+
+            if (childComponent != null) {
+                childComponent.getBoundsInSemanticParent(boundsInParent,
+                        component.getComponentId());
+
+                if (contains(boundsInParent, point.x, point.y)) {
+                    point.offset(-boundsInParent[0], -boundsInParent[1]);
+                    return getComponentIdAt(childComponent, point, boundsInParent);
+                }
+            }
+        }
+
+        return component.getComponentId();
+    }
+
+    private boolean contains(int[] bounds, float x, float y) {
+        return bounds[0] <= x && bounds[2] >= x && bounds[1] <= y && bounds[3] >= y;
     }
 
     @Override

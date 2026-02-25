@@ -24,9 +24,11 @@ import androidx.core.util.forEach
 import androidx.pdf.PdfPoint
 import androidx.pdf.selection.model.GoToLinkSelection
 import androidx.pdf.selection.model.HyperLinkSelection
+import androidx.pdf.selection.model.ImageSelection
 import androidx.pdf.selection.model.TextSelection
 import androidx.pdf.selection.model.goToLinkSelectionFromParcel
 import androidx.pdf.selection.model.hyperLinkSelectionFromParcel
+import androidx.pdf.selection.model.imageSelectionFromParcel
 import androidx.pdf.selection.model.textSelectionFromParcel
 
 /**
@@ -42,6 +44,7 @@ internal class DocumentSelection(val selectedContents: SparseArray<List<Selectio
             const val GOTOLINK = 1
             const val HYPERLINK = 2
             const val TEXT = 3
+            const val IMAGE = 4
         }
     }
 
@@ -121,6 +124,10 @@ internal class DocumentSelection(val selectedContents: SparseArray<List<Selectio
                         dest.writeInt(SelectionType.GOTOLINK)
                         selection.writeToParcel(dest, flags)
                     }
+                    is ImageSelection -> {
+                        dest.writeInt(SelectionType.IMAGE)
+                        selection.writeToParcel(dest, flags)
+                    }
                 }
             }
         }
@@ -141,6 +148,7 @@ internal class DocumentSelection(val selectedContents: SparseArray<List<Selectio
                             SelectionType.TEXT -> textSelectionFromParcel(parcel)
                             SelectionType.HYPERLINK -> hyperLinkSelectionFromParcel(parcel)
                             SelectionType.GOTOLINK -> goToLinkSelectionFromParcel(parcel)
+                            SelectionType.IMAGE -> imageSelectionFromParcel(parcel)
                             else -> null
                         }
                     selection?.let { selections.add(selection) }

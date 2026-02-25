@@ -19,7 +19,6 @@ package androidx.webkit.internal;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
-import android.os.Build;
 import android.util.TypedValue;
 
 import org.jspecify.annotations.NonNull;
@@ -172,13 +171,7 @@ public class AssetHelper {
      * @return data dir {@link File} for that app.
      */
     public static @NonNull File getDataDir(@NonNull Context context) {
-        // Context#getDataDir is only available in APIs >= 24.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            return ApiHelperForN.getDataDir(context);
-        } else {
-            // For APIs < 24 cache dir is created under the data dir.
-            return context.getCacheDir().getParentFile();
-        }
+        return context.getDataDir();
     }
 
     /**

@@ -30,6 +30,7 @@ import androidx.appsearch.safeparcel.PackageIdentifierParcel;
 import androidx.appsearch.safeparcel.SafeParcelable;
 import androidx.appsearch.safeparcel.stub.StubCreators.VisibilityConfigCreator;
 import androidx.collection.ArraySet;
+import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -217,6 +218,11 @@ public final class SchemaVisibilityConfig extends AbstractSafeParcelable {
         @CanIgnoreReturnValue
         public @NonNull Builder addRequiredPermissions(@NonNull Set<Integer> visibleToPermissions) {
             Objects.requireNonNull(visibleToPermissions);
+            if (AppSearchEnvironmentFactory.getEnvironmentInstance().getEnvironment()
+                    != AppSearchEnvironment.FRAMEWORK_ENVIRONMENT) {
+                Preconditions.checkArgument(!visibleToPermissions.isEmpty(),
+                        "The set of required permissions cannot be empty");
+            }
             resetIfBuilt();
             mRequiredPermissions.add(new VisibilityPermissionConfig(visibleToPermissions));
             return this;

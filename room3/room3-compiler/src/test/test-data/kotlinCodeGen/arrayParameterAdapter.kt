@@ -3,6 +3,8 @@ import androidx.room3.util.appendPlaceholders
 import androidx.room3.util.getColumnIndexOrThrow
 import androidx.room3.util.performBlocking
 import androidx.sqlite.SQLiteStatement
+import androidx.sqlite.prepare
+import androidx.sqlite.step
 import javax.`annotation`.processing.Generated
 import kotlin.Array
 import kotlin.Int

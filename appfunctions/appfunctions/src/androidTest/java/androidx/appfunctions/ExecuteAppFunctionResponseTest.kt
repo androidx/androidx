@@ -18,9 +18,13 @@ package androidx.appfunctions
 
 import android.os.Build
 import android.os.Bundle
+import androidx.appfunctions.ExecuteAppFunctionResponse.Success.Companion.toCompatExecuteAppFunctionResponse
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
+import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionParameterMetadata
+import androidx.appfunctions.metadata.AppFunctionResponseMetadata
 import androidx.appfunctions.metadata.AppFunctionStringTypeMetadata
+import androidx.appfunctions.metadata.AppFunctionUnitTypeMetadata
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.AssumptionViolatedException
@@ -52,10 +56,10 @@ class ExecuteAppFunctionResponseTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
-    fun toPlatformClass_success() {
+    fun toPlatformExecuteAppFunctionResponse_success() {
         val appFunctionData = TEST_APP_FUNCTION_DATA
         val response = ExecuteAppFunctionResponse.Success(appFunctionData)
-        val platformResponse = response.toPlatformClass()
+        val platformResponse = response.toPlatformExecuteAppFunctionResponse()
 
         assertThat(platformResponse.resultDocument).isEqualTo(appFunctionData.genericDocument)
         assertThat(platformResponse.extras.isEmpty()).isTrue()
@@ -65,7 +69,7 @@ class ExecuteAppFunctionResponseTest {
         bundle.putLong("longKey", 123L)
         val appFunctionDataWithExtras = AppFunctionData(appFunctionData.genericDocument, bundle)
         val responseWithExtras = ExecuteAppFunctionResponse.Success(appFunctionDataWithExtras)
-        val platformResponseWithExtras = responseWithExtras.toPlatformClass()
+        val platformResponseWithExtras = responseWithExtras.toPlatformExecuteAppFunctionResponse()
 
         assertThat(platformResponseWithExtras.resultDocument)
             .isEqualTo(appFunctionData.genericDocument)
@@ -81,7 +85,10 @@ class ExecuteAppFunctionResponseTest {
                 appFunctionData.genericDocument
             )
         val response =
-            ExecuteAppFunctionResponse.Success.fromPlatformExtensionClass(platformResponse)
+            ExecuteAppFunctionResponse.Success.fromPlatformExtensionClass(
+                platformResponse,
+                TEST_APP_FUNCTION_METADATA,
+            )
 
         assertThat(response.returnValue.genericDocument).isEqualTo(appFunctionData.genericDocument)
         assertThat(response.returnValue.extras.isEmpty).isTrue()
@@ -89,11 +96,12 @@ class ExecuteAppFunctionResponseTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
-    fun fromPlatformClass_success() {
+    fun toCompatExecuteAppFunctionResponse_success() {
         val appFunctionData = TEST_APP_FUNCTION_DATA
         val platformResponse =
             android.app.appfunctions.ExecuteAppFunctionResponse(appFunctionData.genericDocument)
-        val response = ExecuteAppFunctionResponse.Success.fromPlatformClass(platformResponse)
+        val response =
+            platformResponse.toCompatExecuteAppFunctionResponse(TEST_APP_FUNCTION_METADATA)
 
         assertThat(response.returnValue.genericDocument).isEqualTo(appFunctionData.genericDocument)
         assertThat(response.returnValue.extras.isEmpty).isTrue()
@@ -109,8 +117,13 @@ class ExecuteAppFunctionResponseTest {
     }
 
     companion object {
-        private val TEST_APP_FUNCTION_DATA: AppFunctionData =
-            AppFunctionData.Builder(
+        private val TEST_APP_FUNCTION_METADATA =
+            AppFunctionMetadata(
+                id = "testId",
+                packageName = "testPackage",
+                components = AppFunctionComponentsMetadata(),
+                schema = null,
+                parameters =
                     listOf(
                         AppFunctionParameterMetadata(
                             name = "testString",
@@ -118,6 +131,13 @@ class ExecuteAppFunctionResponseTest {
                             dataType = AppFunctionStringTypeMetadata(isNullable = false),
                         )
                     ),
+                response = AppFunctionResponseMetadata(AppFunctionUnitTypeMetadata(false)),
+                isEnabled = true,
+            )
+
+        private val TEST_APP_FUNCTION_DATA: AppFunctionData =
+            AppFunctionData.Builder(
+                    TEST_APP_FUNCTION_METADATA.parameters,
                     AppFunctionComponentsMetadata(),
                 )
                 .setString("testString", "value")

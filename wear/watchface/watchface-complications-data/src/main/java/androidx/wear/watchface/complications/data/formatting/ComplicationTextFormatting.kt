@@ -37,24 +37,24 @@ import java.util.regex.Pattern
  * It also includes hardcoded overrides for specific locales where standard patterns are known to be
  * too long.
  */
-class ComplicationTextFormatting
+public class ComplicationTextFormatting
 internal constructor(private val mLocale: Locale, private val mDateFormat: WrappedDateFormat) {
     /**
      * Creates a new instance of [ComplicationTextFormatting] for the given locale.
      *
      * @param locale The [Locale] that defines the formatting conventions.
      */
-    constructor(locale: Locale) : this(locale, WrappedDateFormat.DEFAULT)
+    public constructor(locale: Locale) : this(locale, WrappedDateFormat.DEFAULT)
 
     /**
      * Returns a 12-hour time format pattern suitable for a short text field (e.g., "1:37"). This
      * version may shorten the AM/PM marker (e.g., from "a.m." to "am") to meet length constraints.
      */
-    val shortTextTimeFormat12Hour
+    public val shortTextTimeFormat12Hour: String?
         get() = getShortTextTimeFormat(use24Hour = false, allowAmPmShortening = true)
 
     /** Returns a 24-hour time format pattern suitable for a short text field (e.g., "13:37"). */
-    val shortTextTimeFormat24Hour
+    public val shortTextTimeFormat24Hour: String?
         get() = getShortTextTimeFormat(use24Hour = true, allowAmPmShortening = true)
 
     /**
@@ -63,7 +63,7 @@ internal constructor(private val mLocale: Locale, private val mDateFormat: Wrapp
      * This version preserves the full, locale-specific AM/PM marker (e.g., "a.m." with periods) and
      * does not attempt to shorten it to save space.
      */
-    val shortTextTimeFormat12HourWithoutAmPmShortening: String?
+    public val shortTextTimeFormat12HourWithoutAmPmShortening: String?
         get() = getShortTextTimeFormat(use24Hour = false, allowAmPmShortening = false)
 
     /**
@@ -72,7 +72,7 @@ internal constructor(private val mLocale: Locale, private val mDateFormat: Wrapp
      * Note: This is functionally identical to [shortTextTimeFormat24Hour], as AM/PM shortening is
      * not applicable to 24-hour formats.
      */
-    val shortTextTimeFormat24HourWithoutAmPmShortening: String?
+    public val shortTextTimeFormat24HourWithoutAmPmShortening: String?
         get() = getShortTextTimeFormat(use24Hour = true, allowAmPmShortening = false)
 
     /**
@@ -89,7 +89,7 @@ internal constructor(private val mLocale: Locale, private val mDateFormat: Wrapp
      *   suitable.
      * @return The best-fitting date pattern string, or the [fallback].
      */
-    fun getBestShortTextDateFormat(skeletons: Array<String>, fallback: String?): String? {
+    public fun getBestShortTextDateFormat(skeletons: Array<String>, fallback: String?): String? {
         for (skeleton in skeletons) {
             var pattern: String? = null
             // Check for hardcoded overrides for known problematic locales.
@@ -158,21 +158,21 @@ internal constructor(private val mLocale: Locale, private val mDateFormat: Wrapp
      * Returns a date format pattern for a short day-and-month representation (e.g., "Dec 25").
      * Tries skeletons in the order of `MMMd`, `MMd`, and `Md`. Falls back to `d/MM`.
      */
-    val shortTextDayMonthFormat
+    public val shortTextDayMonthFormat: String?
         get() = getBestShortTextDateFormat(arrayOf("MMMd", "MMd", "Md"), "d/MM")
 
     /**
      * Returns a date format pattern for a short month representation (e.g., "Dec"). Tries skeletons
      * in the order of `MMM`, `MM`, and `M`. Falls back to `MM`.
      */
-    val shortTextMonthFormat
+    public val shortTextMonthFormat: String?
         get() = getBestShortTextDateFormat(arrayOf("MMM", "MM", "M"), "MM")
 
     /**
      * Returns a date format pattern for the day of the month (e.g., "25"). Tries skeletons `dd` and
      * `d`. Falls back to `dd`.
      */
-    val shortTextDayOfMonthFormat
+    public val shortTextDayOfMonthFormat: String?
         get() = getBestShortTextDateFormat(arrayOf("dd", "d"), "dd")
 
     /**
@@ -180,14 +180,14 @@ internal constructor(private val mLocale: Locale, private val mDateFormat: Wrapp
      * skeletons `EEE` (abbreviation), `EEEEEE` (2-letter), and `EEEEE` (1-letter). Falls back to
      * `EEEEE`.
      */
-    val shortTextDayOfWeekFormat
+    public val shortTextDayOfWeekFormat: String?
         get() = getBestShortTextDateFormat(arrayOf("EEE", "EEEEEE", "EEEEE"), "EEEEE")
 
     /**
      * Returns a date format pattern for the full day-of-week name (e.g., "Tuesday"). This is
      * intended for `LONG_TEXT` fields and is not length-checked.
      */
-    val fullTextDayOfWeekFormat
+    public val fullTextDayOfWeekFormat: String
         get() = mDateFormat.getBestDateTimePattern(mLocale, FULL_DAY_OF_WEEK_TEXT_SKELETON)
 
     /**
@@ -198,7 +198,7 @@ internal constructor(private val mLocale: Locale, private val mDateFormat: Wrapp
      * @param use24Hour If `true`, formats in 24-hour time; otherwise, 12-hour.
      * @return The final, formatted time string, ready for display.
      */
-    fun getFormattedTimeForShortText(
+    public fun getFormattedTimeForShortText(
         timeInMillis: Long,
         timeZone: TimeZone?,
         use24Hour: Boolean,
@@ -216,7 +216,7 @@ internal constructor(private val mLocale: Locale, private val mDateFormat: Wrapp
      * @param timeZone The target [TimeZone] for the output string. `null` uses the system default.
      * @return The final, formatted day-of-week string, ready for display.
      */
-    fun getFormattedDayOfWeekForShortText(timeInMillis: Long, timeZone: TimeZone?): String? {
+    public fun getFormattedDayOfWeekForShortText(timeInMillis: Long, timeZone: TimeZone?): String? {
         val pattern = shortTextDayOfWeekFormat
         val format = SimpleDateFormat(pattern, mLocale)
         format.timeZone = timeZone

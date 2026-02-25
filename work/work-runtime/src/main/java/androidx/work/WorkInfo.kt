@@ -110,6 +110,9 @@ constructor(
      * [STOP_REASON_NOT_STOPPED].
      */
     @StopReason @get:RequiresApi(31) public val stopReason: Int = STOP_REASON_NOT_STOPPED,
+
+    /** The worker class specified when the work request was enqueued. */
+    public val workerClassName: String? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -125,6 +128,7 @@ constructor(
         if (periodicityInfo != workInfo.periodicityInfo) return false
         if (nextScheduleTimeMillis != workInfo.nextScheduleTimeMillis) return false
         if (stopReason != workInfo.stopReason) return false
+        if (workerClassName != workInfo.workerClassName) return false
         return if (tags != workInfo.tags) false else progress == workInfo.progress
     }
 
@@ -141,6 +145,7 @@ constructor(
         result = 31 * result + periodicityInfo.hashCode()
         result = 31 * result + nextScheduleTimeMillis.hashCode()
         result = 31 * result + stopReason.hashCode()
+        result = 31 * result + workerClassName.hashCode()
         return result
     }
 
@@ -151,7 +156,7 @@ constructor(
             "constraints=$constraints, initialDelayMillis=$initialDelayMillis, " +
             "periodicityInfo=$periodicityInfo, " +
             "nextScheduleTimeMillis=$nextScheduleTimeMillis}, " +
-            "stopReason=$stopReason")
+            "stopReason=$stopReason, workerClassName=$workerClassName")
     }
 
     /** The current lifecycle state of a [WorkRequest]. */

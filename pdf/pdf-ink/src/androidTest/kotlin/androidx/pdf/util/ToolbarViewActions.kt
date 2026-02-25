@@ -16,14 +16,15 @@
 
 package androidx.pdf.util
 
+import android.os.SystemClock
+import android.view.MotionEvent
 import android.view.View
 import androidx.pdf.ink.view.draganddrop.ToolbarCoordinator
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.GeneralLocation
-import androidx.test.espresso.action.GeneralSwipeAction
-import androidx.test.espresso.action.Press
-import androidx.test.espresso.action.Swipe
-import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.UiController
+import androidx.test.espresso.ViewAction
+import androidx.test.espresso.matcher.ViewMatchers
+import org.hamcrest.Matcher
 
 internal object ToolbarViewActions {
 
@@ -37,38 +38,93 @@ internal object ToolbarViewActions {
      * @param to The target edge to drag the toolbar towards.
      */
     fun performDragAndDrop(toolbarId: Int, to: DragTarget) {
-        onView(withId(toolbarId))
+        onView(ViewMatchers.withId(toolbarId))
             .perform(
-                GeneralSwipeAction(
-                    Swipe.FAST,
-                    GeneralLocation.CENTER,
-                    { view ->
-                        val coordinator = view.parent as View
-                        val screenPos = IntArray(2)
-                        coordinator.getLocationOnScreen(screenPos)
-                        val x: Float
-                        val y: Float
+                object : ViewAction {
+                    override fun getConstraints(): Matcher<View> = ViewMatchers.isDisplayed()
 
+                    override fun getDescription(): String = "Long press and drag toolbar to $to"
+
+                    override fun perform(uiController: UiController, view: View) {
+                        val screenPos = IntArray(2)
+                        view.getLocationOnScreen(screenPos)
+
+                        // Calculate Start (Center of toolbar)
+                        val startX = screenPos[0] + view.width / 2f
+                        val startY = screenPos[1] + view.height / 2f
+
+                        // Calculate End (Target edge of Coordinator)
+                        val coordinator = view.parent as View
+                        val coordPos = IntArray(2)
+                        coordinator.getLocationOnScreen(coordPos)
+
+                        val endX: Float
+                        val endY: Float
                         when (to) {
                             DragTarget.LEFT -> {
-                                x = screenPos[0].toFloat() + DELTA_FROM_BOUNDARY
-                                y = screenPos[1].toFloat() + (coordinator.height / 2f)
+                                endX = coordPos[0].toFloat() + DELTA_FROM_BOUNDARY
+                                endY = coordPos[1].toFloat() + (coordinator.height / 2f)
                             }
                             DragTarget.RIGHT -> {
-                                x = screenPos[0].toFloat() + coordinator.width - DELTA_FROM_BOUNDARY
-                                y = screenPos[1].toFloat() + (coordinator.height / 2f)
+                                endX =
+                                    coordPos[0].toFloat() + coordinator.width - DELTA_FROM_BOUNDARY
+                                endY = coordPos[1].toFloat() + (coordinator.height / 2f)
                             }
                             DragTarget.BOTTOM -> {
-                                x = screenPos[0].toFloat() + (coordinator.width / 2f)
-                                y =
-                                    screenPos[1].toFloat() + coordinator.height -
-                                        DELTA_FROM_BOUNDARY
+                                endX = coordPos[0].toFloat() + (coordinator.width / 2f)
+                                endY =
+                                    coordPos[1].toFloat() + coordinator.height - DELTA_FROM_BOUNDARY
                             }
                         }
-                        floatArrayOf(x, y)
-                    },
-                    Press.FINGER,
-                )
+
+                        // --- Dispatch Events ---
+                        val downTime = SystemClock.uptimeMillis()
+
+                        // Trigger point: ACTION_DOWN
+                        val downEvent =
+                            MotionEvent.obtain(
+                                downTime,
+                                downTime,
+                                MotionEvent.ACTION_DOWN,
+                                startX,
+                                startY,
+                                0,
+                            )
+                        view.dispatchTouchEvent(downEvent)
+                        downEvent.recycle()
+
+                        // We don't have to wait for long press to trigger, as for tests we've
+                        // short-circuited drag route by disabling animations.
+
+                        // ACTION_MOVE (Drag to destination)
+                        val moveTime = SystemClock.uptimeMillis()
+                        val moveEvent =
+                            MotionEvent.obtain(
+                                downTime,
+                                moveTime,
+                                MotionEvent.ACTION_MOVE,
+                                endX,
+                                endY,
+                                0,
+                            )
+                        view.dispatchTouchEvent(moveEvent)
+                        moveEvent.recycle()
+
+                        // ACTION_UP (Release)
+                        val upTime = SystemClock.uptimeMillis()
+                        val upEvent =
+                            MotionEvent.obtain(
+                                downTime,
+                                upTime,
+                                MotionEvent.ACTION_UP,
+                                endX,
+                                endY,
+                                0,
+                            )
+                        view.dispatchTouchEvent(upEvent)
+                        upEvent.recycle()
+                    }
+                }
             )
     }
 

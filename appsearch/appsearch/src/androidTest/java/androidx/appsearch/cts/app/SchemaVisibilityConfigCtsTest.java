@@ -18,6 +18,11 @@ package androidx.appsearch.cts.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assume.assumeTrue;
+
+import androidx.appsearch.app.AppSearchEnvironment;
+import androidx.appsearch.app.AppSearchEnvironmentFactory;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SchemaVisibilityConfig;
 
@@ -100,5 +105,23 @@ public class SchemaVisibilityConfigCtsTest {
         assertThat(rebuild.getAllowedPackages()).isEmpty();
         assertThat(rebuild.getPubliclyVisibleTargetPackage()).isNull();
         assertThat(rebuild.getRequiredPermissions()).isEmpty();
+    }
+
+    @Test
+    public void testAddRequiredPermissions_emptySet_throwsIllegalArgumentException() {
+        assumeTrue(AppSearchEnvironmentFactory.getEnvironmentInstance()
+                .getEnvironment()
+                != AppSearchEnvironment.FRAMEWORK_ENVIRONMENT);
+        SchemaVisibilityConfig.Builder builder = new SchemaVisibilityConfig.Builder();
+
+        // Attempt to add an empty set of required permissions
+        IllegalArgumentException thrown = assertThrows(
+                IllegalArgumentException.class,
+                () -> builder.addRequiredPermissions(ImmutableSet.of())
+        );
+
+        // Verify the exception message
+        assertThat(thrown).hasMessageThat()
+                        .contains("The set of required permissions cannot be empty");
     }
 }

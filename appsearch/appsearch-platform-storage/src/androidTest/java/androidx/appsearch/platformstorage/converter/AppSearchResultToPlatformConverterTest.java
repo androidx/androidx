@@ -22,6 +22,7 @@ import static org.junit.Assert.assertThrows;
 
 import android.os.Build;
 
+import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.filters.SdkSuppress;
@@ -29,8 +30,32 @@ import androidx.test.filters.SdkSuppress;
 import org.junit.Test;
 
 import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
 
 public class AppSearchResultToPlatformConverterTest {
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+    public void testPlatformAppSearchResultToJetpack_addsErrorMessageForResultNoFound() {
+        android.app.appsearch.AppSearchBatchResult<String, Void> platformBatchResult =
+                new android.app.appsearch.AppSearchBatchResult.Builder<String, Void>()
+                        .setFailure("123", AppSearchResult.RESULT_NOT_FOUND, /*errorMessage=*/ null)
+                        .build();
+        AppSearchBatchResult<String, Void> jetpackBatchResult =
+                AppSearchResultToPlatformConverter.platformAppSearchBatchResultToJetpack(
+                        platformBatchResult,
+                        Function.identity(),
+                        Function.identity()
+                );
+        assertThat(jetpackBatchResult.isSuccess()).isFalse();
+        assertThat(jetpackBatchResult.getFailures())
+                .containsExactly("123",
+                        AppSearchResult
+                                .newFailedResult(AppSearchResult.RESULT_NOT_FOUND,
+                                        "Document id '123' doesn't exist"));
+
+    }
+
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     public void testPlatformAppSearchResultToJetpack_catchException() {

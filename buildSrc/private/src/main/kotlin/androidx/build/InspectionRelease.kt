@@ -16,11 +16,14 @@
 
 package androidx.build
 
+import androidx.inspection.gradle.GenerateInspectionPlatformVersionTask
 import androidx.inspection.gradle.InspectionExtension
 import androidx.inspection.gradle.InspectionPlugin
 import androidx.inspection.gradle.createConsumeInspectionConfiguration
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.withType
 
 /** Copies artifacts prepared by InspectionPlugin into $destDir/inspection */
 fun Project.publishInspectionArtifacts() {
@@ -31,6 +34,14 @@ fun Project.publishInspectionArtifacts() {
                 createConsumeInspectionConfiguration(),
                 "inspection",
             )
+            tasks.withType<GenerateInspectionPlatformVersionTask>().configureEach {
+                it.inspectionProjectVersion.set(
+                    extensions
+                        .getByType<AndroidXExtension>()
+                        .LibraryVersions["INSPECTION"]
+                        .toString()
+                )
+            }
         }
     }
 }

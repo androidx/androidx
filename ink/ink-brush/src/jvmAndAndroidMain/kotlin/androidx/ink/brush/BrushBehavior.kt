@@ -59,7 +59,7 @@ import kotlin.jvm.JvmStatic
  * before being applied: The rates of change of shape properties may be constrained to keep them
  * from changing too rapidly with respect to distance traveled from one input to the next.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @ExperimentalInkCustomBrushApi
 // NotCloseable: Finalize is only used to free the native peer.
 @Suppress("NotCloseable")
@@ -72,11 +72,19 @@ private constructor(
 ) {
     public val terminalNodes: List<TerminalNode> = unmodifiableList(terminalNodes.toList())
 
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    public val developerComment: String = BrushBehaviorNative.getDeveloperComment(nativePointer)
+
     /** Constructs a [BrushBehavior] from a list of [TerminalNode]s. */
+    @JvmOverloads
     public constructor(
         // The [terminalNodes] val above is a defensive copy of this parameter.
-        terminalNodes: List<TerminalNode>
-    ) : this(BrushBehaviorNative.createFromTerminalNodes(terminalNodes), terminalNodes)
+        terminalNodes: List<TerminalNode>,
+        developerComment: String = "",
+    ) : this(
+        BrushBehaviorNative.createFromTerminalNodes(terminalNodes, developerComment),
+        terminalNodes,
+    )
 
     /**
      * Constructs a simple [BrushBehavior] using whatever [Node]s are necessary for the specified
@@ -117,7 +125,7 @@ private constructor(
             if (responseTimeMillis != 0L) {
                 node =
                     DampingNode(
-                        DampingSource.TIME_IN_SECONDS,
+                        ProgressDomain.TIME_IN_SECONDS,
                         responseTimeMillis.toFloat() / 1000.0f,
                         node,
                     )
@@ -154,43 +162,59 @@ private constructor(
         private var enabledToolTypes: Set<InputToolType> = ALL_TOOL_TYPES
         private var isFallbackFor: OptionalInputProperty? = null
 
+        // These setters fall afoul of lint because there aren't corresponding fields on the
+        // BrushBehavior object. That's because this, like the brush behavior constructor that takes
+        // these parameters, provides a simplified interface over the more complicated constructor
+        // interface which takes a list of terminal nodes.
+
+        @Suppress("MissingGetterMatchingBuilder")
         public fun setSource(source: Source): Builder = apply { this.source = source }
 
+        @Suppress("MissingGetterMatchingBuilder")
         public fun setTarget(target: Target): Builder = apply { this.target = target }
 
+        @Suppress("MissingGetterMatchingBuilder")
         public fun setSourceOutOfRangeBehavior(sourceOutOfRangeBehavior: OutOfRange): Builder =
             apply {
                 this.sourceOutOfRangeBehavior = sourceOutOfRangeBehavior
             }
 
+        @Suppress("MissingGetterMatchingBuilder")
         public fun setSourceValueRangeStart(sourceValueRangeStart: Float): Builder = apply {
             this.sourceValueRangeStart = sourceValueRangeStart
         }
 
+        @Suppress("MissingGetterMatchingBuilder")
         public fun setSourceValueRangeEnd(sourceValueRangeEnd: Float): Builder = apply {
             this.sourceValueRangeEnd = sourceValueRangeEnd
         }
 
+        @Suppress("MissingGetterMatchingBuilder")
         public fun setTargetModifierRangeStart(targetModifierRangeStart: Float): Builder = apply {
             this.targetModifierRangeStart = targetModifierRangeStart
         }
 
+        @Suppress("MissingGetterMatchingBuilder")
         public fun setTargetModifierRangeEnd(targetModifierRangeEnd: Float): Builder = apply {
             this.targetModifierRangeEnd = targetModifierRangeEnd
         }
 
+        @Suppress("MissingGetterMatchingBuilder")
         public fun setResponseCurve(responseCurve: EasingFunction): Builder = apply {
             this.responseCurve = responseCurve
         }
 
+        @Suppress("MissingGetterMatchingBuilder")
         public fun setResponseTimeMillis(responseTimeMillis: Long): Builder = apply {
             this.responseTimeMillis = responseTimeMillis
         }
 
+        @Suppress("MissingGetterMatchingBuilder")
         public fun setEnabledToolTypes(enabledToolTypes: Set<InputToolType>): Builder = apply {
             this.enabledToolTypes = enabledToolTypes.toSet()
         }
 
+        @Suppress("MissingGetterMatchingBuilder")
         public fun setIsFallbackFor(isFallbackFor: OptionalInputProperty?): Builder = apply {
             this.isFallbackFor = isFallbackFor
         }
@@ -214,14 +238,17 @@ private constructor(
     override fun equals(other: Any?): Boolean {
         if (other == null || other !is BrushBehavior) return false
         if (other === this) return true
-        return terminalNodes == other.terminalNodes
+        return terminalNodes == other.terminalNodes && developerComment == other.developerComment
     }
 
     override fun hashCode(): Int {
-        return terminalNodes.hashCode()
+        var result = terminalNodes.hashCode()
+        result = 31 * result + developerComment.hashCode()
+        return result
     }
 
-    override fun toString(): String = "BrushBehavior($terminalNodes)"
+    override fun toString(): String =
+        "BrushBehavior($terminalNodes, developerComment=$developerComment)"
 
     /** Delete native BrushBehavior memory. */
     // NOMUTANTS -- Not tested post garbage collection.
@@ -847,45 +874,46 @@ private constructor(
         }
     }
 
-    /** Dimensions/units for measuring the [dampingGap] field of a [DampingNode] */
-    public class DampingSource
+    /** Dimensions and units for measuring distance/time along the length/duration of a stroke. */
+    public class ProgressDomain
     internal constructor(@JvmField internal val value: Int, private val name: String) {
         init {
-            check(value !in VALUE_TO_INSTANCE) { "Duplicate DampingSource value: $value." }
+            check(value !in VALUE_TO_INSTANCE) { "Duplicate ProgressDomain value: $value." }
             VALUE_TO_INSTANCE[value] = this
         }
 
         internal fun toSimpleString(): String = name
 
-        override fun toString(): String = "BrushBehavior.DampingSource.$name"
+        override fun toString(): String = "BrushBehavior.ProgressDomain.$name"
 
         public companion object {
 
-            private val VALUE_TO_INSTANCE = MutableIntObjectMap<DampingSource>()
+            private val VALUE_TO_INSTANCE = MutableIntObjectMap<ProgressDomain>()
 
-            internal fun fromInt(value: Int): DampingSource =
-                checkNotNull(VALUE_TO_INSTANCE.get(value)) { "Invalid DampingSource value: $value" }
+            internal fun fromInt(value: Int): ProgressDomain =
+                checkNotNull(VALUE_TO_INSTANCE.get(value)) {
+                    "Invalid ProgressDomain value: $value"
+                }
 
             /**
-             * Value damping occurs over distance traveled by the input pointer, and the
-             * [dampingGap] is measured in centimeters. If the input data does not indicate the
-             * relationship between stroke units and physical units (e.g. as may be the case for
-             * programmatically-generated inputs), then no damping will be performed (i.e. the
-             * [dampingGap] will be treated as zero).
+             * Progress in input distance traveled since the start of the stroke, measured in
+             * centimeters. If the input data does not indicate the relationship between stroke
+             * units and physical units (e.g. as may be the case for programmatically-generated
+             * inputs), then special handling will be applied based on the node type.
              */
             @JvmField
-            public val DISTANCE_IN_CENTIMETERS: DampingSource =
-                DampingSource(0, "DISTANCE_IN_CENTIMETERS")
+            public val DISTANCE_IN_CENTIMETERS: ProgressDomain =
+                ProgressDomain(0, "DISTANCE_IN_CENTIMETERS")
             /**
-             * Value damping occurs over distance traveled by the input pointer, and the
-             * [dampingGap] is measured in multiples of the brush size.
+             * Progress in input distance traveled since the start of the stroke, measured in
+             * multiples of the brush size.
              */
             @JvmField
-            public val DISTANCE_IN_MULTIPLES_OF_BRUSH_SIZE: DampingSource =
-                DampingSource(1, "DISTANCE_IN_MULTIPLES_OF_BRUSH_SIZE")
-            /** Value damping occurs over time, and the [dampingGap] is measured in seconds. */
+            public val DISTANCE_IN_MULTIPLES_OF_BRUSH_SIZE: ProgressDomain =
+                ProgressDomain(1, "DISTANCE_IN_MULTIPLES_OF_BRUSH_SIZE")
+            /** Progress in input time since the start of the stroke, measured in seconds. */
             @JvmField
-            public val TIME_IN_SECONDS: DampingSource = DampingSource(2, "TIME_IN_SECONDS")
+            public val TIME_IN_SECONDS: ProgressDomain = ProgressDomain(2, "TIME_IN_SECONDS")
         }
     }
 
@@ -928,6 +956,7 @@ private constructor(
      * their inputs must be chosen at construction time; therefore, they can only ever be assembled
      * into an acyclic graph.
      */
+    @Suppress("NotCloseable") // Finalize is only used to free the native peer.
     public abstract class Node
     internal constructor(
         internal val nativePointer: Long,
@@ -947,7 +976,7 @@ private constructor(
         }
 
         public companion object {
-            public fun wrapNative(
+            internal fun wrapNative(
                 unownedNativePointer: Long,
                 inputStack: ArrayDeque<ValueNode>,
             ): Node =
@@ -959,10 +988,11 @@ private constructor(
                     4 -> ToolTypeFilterNode.wrapNative(unownedNativePointer, inputStack)
                     5 -> DampingNode.wrapNative(unownedNativePointer, inputStack)
                     6 -> ResponseNode.wrapNative(unownedNativePointer, inputStack)
-                    7 -> BinaryOpNode.wrapNative(unownedNativePointer, inputStack)
-                    8 -> InterpolationNode.wrapNative(unownedNativePointer, inputStack)
-                    9 -> TargetNode.wrapNative(unownedNativePointer, inputStack)
-                    10 -> PolarTargetNode.wrapNative(unownedNativePointer, inputStack)
+                    7 -> IntegralNode.wrapNative(unownedNativePointer, inputStack)
+                    8 -> BinaryOpNode.wrapNative(unownedNativePointer, inputStack)
+                    9 -> InterpolationNode.wrapNative(unownedNativePointer, inputStack)
+                    10 -> TargetNode.wrapNative(unownedNativePointer, inputStack)
+                    11 -> PolarTargetNode.wrapNative(unownedNativePointer, inputStack)
                     else ->
                         throw IllegalArgumentException(
                             "Unknown node type: ${BrushBehaviorNodeNative.getNodeType(unownedNativePointer)}"
@@ -976,8 +1006,7 @@ private constructor(
      * input by other [Node]s, and may itself depend on zero or more inputs.
      */
     public abstract class ValueNode
-    internal constructor(nativePointer: Long, inputs: List<ValueNode>) :
-        Node(nativePointer, inputs)
+    internal constructor(nativePointer: Long, inputs: List<ValueNode>) : Node(nativePointer, inputs)
 
     /** A [ValueNode] that gets data from the stroke input batch. */
     public class SourceNode private constructor(nativePointer: Long) :
@@ -1081,7 +1110,7 @@ private constructor(
          */
         public constructor(
             seed: Int,
-            varyOver: DampingSource,
+            varyOver: ProgressDomain,
             basePeriod: Float,
         ) : this(BrushBehaviorNodeNative.createNoise(seed, varyOver.value, basePeriod))
 
@@ -1093,7 +1122,8 @@ private constructor(
         public val seed: Int
             get() = BrushBehaviorNodeNative.getNoiseSeed(nativePointer)
 
-        public val varyOver: DampingSource = BrushBehaviorNodeNative.getNoiseVaryOver(nativePointer)
+        public val varyOver: ProgressDomain =
+            BrushBehaviorNodeNative.getNoiseVaryOver(nativePointer)
 
         public val basePeriod: Float
             get() = BrushBehaviorNodeNative.getNoiseBasePeriod(nativePointer)
@@ -1250,7 +1280,7 @@ private constructor(
          * @param input input node that produces the value to be modified by the damping
          */
         public constructor(
-            dampingSource: DampingSource,
+            dampingSource: ProgressDomain,
             dampingGap: Float,
             input: ValueNode,
         ) : this(BrushBehaviorNodeNative.createDamping(dampingSource.value, dampingGap), input)
@@ -1262,7 +1292,7 @@ private constructor(
             ): DampingNode = DampingNode(unownedNativePointer, input = inputStack.removeLast())
         }
 
-        public val dampingSource: DampingSource =
+        public val dampingSource: ProgressDomain =
             BrushBehaviorNodeNative.getDampingSource(nativePointer)
 
         public val dampingGap: Float
@@ -1336,6 +1366,80 @@ private constructor(
 
         override fun hashCode(): Int {
             var result = responseCurve.hashCode()
+            result = 31 * result + input.hashCode()
+            return result
+        }
+    }
+
+    /** A [ValueNode] that integrates an input value over time or distance. */
+    public class IntegralNode
+    private constructor(nativePointer: Long, public val input: ValueNode) :
+        ValueNode(nativePointer, listOf(input)) {
+
+        /**
+         * Creates an [IntegralNode] that integrates over an input value.
+         *
+         * @param integrateOver the metric to integrate the input over
+         * @param integralValueRangeStart the start of the range of values that the integral can
+         *   produce
+         * @param integralValueRangeEnd the end of the range of values that the integral can produce
+         * @param integralOutOfRangeBehavior the behavior to use if the integral produces a value
+         *   outside the specified range
+         * @param input input node that produces the value to be integrated
+         */
+        public constructor(
+            integrateOver: ProgressDomain,
+            integralValueRangeStart: Float,
+            integralValueRangeEnd: Float,
+            integralOutOfRangeBehavior: OutOfRange,
+            input: ValueNode,
+        ) : this(
+            BrushBehaviorNodeNative.createIntegral(
+                integrateOver.value,
+                integralValueRangeStart,
+                integralValueRangeEnd,
+                integralOutOfRangeBehavior.value,
+            ),
+            input,
+        )
+
+        internal companion object {
+            internal fun wrapNative(
+                unownedNativePointer: Long,
+                inputStack: ArrayDeque<ValueNode>,
+            ): IntegralNode = IntegralNode(unownedNativePointer, input = inputStack.removeLast())
+        }
+
+        public val integrateOver: ProgressDomain =
+            BrushBehaviorNodeNative.getIntegrateOver(nativePointer)
+
+        public val integralValueRangeStart: Float
+            get() = BrushBehaviorNodeNative.getIntegralValueRangeStart(nativePointer)
+
+        public val integralValueRangeEnd: Float
+            get() = BrushBehaviorNodeNative.getIntegralValueRangeEnd(nativePointer)
+
+        public val integralOutOfRangeBehavior: OutOfRange =
+            BrushBehaviorNodeNative.getIntegralOutOfRangeBehavior(nativePointer)
+
+        override fun toString(): String =
+            "IntegralNode(${integrateOver.toSimpleString()}, $integralValueRangeStart, $integralValueRangeEnd, ${integralOutOfRangeBehavior.toSimpleString()}, $input)"
+
+        override fun equals(other: Any?): Boolean {
+            if (other == null || other !is IntegralNode) return false
+            if (other === this) return true
+            return integrateOver == other.integrateOver &&
+                integralValueRangeStart == other.integralValueRangeStart &&
+                integralValueRangeEnd == other.integralValueRangeEnd &&
+                integralOutOfRangeBehavior == other.integralOutOfRangeBehavior &&
+                input == other.input
+        }
+
+        override fun hashCode(): Int {
+            var result = integrateOver.hashCode()
+            result = 31 * result + integralValueRangeStart.hashCode()
+            result = 31 * result + integralValueRangeEnd.hashCode()
+            result = 31 * result + integralOutOfRangeBehavior.hashCode()
             result = 31 * result + input.hashCode()
             return result
         }
@@ -1656,7 +1760,10 @@ private object BrushBehaviorNative {
         NativeLoader.load()
     }
 
-    fun createFromTerminalNodes(terminalNodes: List<BrushBehavior.TerminalNode>): Long {
+    fun createFromTerminalNodes(
+        terminalNodes: List<BrushBehavior.TerminalNode>,
+        developerComment: String,
+    ): Long {
         val orderedNodes = ArrayDeque<BrushBehavior.Node>()
         val stack = ArrayDeque<BrushBehavior.Node>(terminalNodes)
         while (!stack.isEmpty()) {
@@ -1665,17 +1772,26 @@ private object BrushBehaviorNative {
                 stack.addAll(node.inputs)
             }
         }
-        return createFromOrderedNodes(orderedNodes.map { it.nativePointer }.toLongArray())
+        return createFromOrderedNodes(
+            orderedNodes.map { it.nativePointer }.toLongArray(),
+            developerComment = developerComment,
+        )
     }
 
     /** Creates a new native `BrushBehavior` with the given ordered nodes. */
-    @UsedByNative external fun createFromOrderedNodes(orderdNodeNativePointers: LongArray): Long
+    @UsedByNative
+    external fun createFromOrderedNodes(
+        orderdNodeNativePointers: LongArray,
+        developerComment: String,
+    ): Long
 
     /** Release the underlying memory allocated in [createFromOrderedNodes]. */
     @UsedByNative external fun free(nativePointer: Long)
 
     /** Returns the number of `BrushBehavior::Node`s in the native `BrushBehavior`. */
     @UsedByNative external fun getNodeCount(nativePointer: Long): Int
+
+    @UsedByNative external fun getDeveloperComment(nativePointer: Long): String
 
     /**
      * Returns an unowned native pointer to a new, stack-allocated copy of the native
@@ -1723,6 +1839,14 @@ private object BrushBehaviorNodeNative {
     @UsedByNative external fun createDamping(dampingSource: Int, dampingGap: Float): Long
 
     @UsedByNative external fun createResponse(easingFunctionNativePointer: Long): Long
+
+    @UsedByNative
+    external fun createIntegral(
+        integrateOver: Int,
+        integralValueRangeStart: Float,
+        integralValueRangeEnd: Float,
+        integralOutOfRangeBehavior: Int,
+    ): Long
 
     @UsedByNative external fun createBinaryOp(operation: Int): Long
 
@@ -1772,8 +1896,8 @@ private object BrushBehaviorNodeNative {
 
     @UsedByNative external fun getNoiseSeed(nativePointer: Long): Int
 
-    fun getNoiseVaryOver(nativePointer: Long): BrushBehavior.DampingSource =
-        BrushBehavior.DampingSource.fromInt(getNoiseVaryOverInt(nativePointer))
+    fun getNoiseVaryOver(nativePointer: Long): BrushBehavior.ProgressDomain =
+        BrushBehavior.ProgressDomain.fromInt(getNoiseVaryOverInt(nativePointer))
 
     @UsedByNative private external fun getNoiseVaryOverInt(nativePointer: Long): Int
 
@@ -1800,16 +1924,32 @@ private object BrushBehaviorNodeNative {
 
     // DampingNode accessors:
 
-    fun getDampingSource(nativePointer: Long): BrushBehavior.DampingSource =
-        BrushBehavior.DampingSource.fromInt(getDampingSourceInt(nativePointer))
+    fun getDampingSource(nativePointer: Long): BrushBehavior.ProgressDomain =
+        BrushBehavior.ProgressDomain.fromInt(getDampingSourceInt(nativePointer))
 
     @UsedByNative private external fun getDampingSourceInt(nativePointer: Long): Int
 
     @UsedByNative external fun getDampingGap(nativePointer: Long): Float
 
-    // Getters for ResponseNode:
+    // ResponseNode accessors:
 
     @UsedByNative external fun newCopyOfResponseEasingFunction(nativePointer: Long): Long
+
+    // IntegralNode accessors:
+
+    fun getIntegrateOver(nativePointer: Long): BrushBehavior.ProgressDomain =
+        BrushBehavior.ProgressDomain.fromInt(getIntegrateOverInt(nativePointer))
+
+    @UsedByNative private external fun getIntegrateOverInt(nativePointer: Long): Int
+
+    @UsedByNative external fun getIntegralValueRangeStart(nativePointer: Long): Float
+
+    @UsedByNative external fun getIntegralValueRangeEnd(nativePointer: Long): Float
+
+    fun getIntegralOutOfRangeBehavior(nativePointer: Long): BrushBehavior.OutOfRange =
+        BrushBehavior.OutOfRange.fromInt(getIntegralOutOfRangeBehaviorInt(nativePointer))
+
+    @UsedByNative private external fun getIntegralOutOfRangeBehaviorInt(nativePointer: Long): Int
 
     // BinaryOpNode accessors:
 

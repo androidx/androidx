@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.modifier
 
@@ -34,9 +33,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.text
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public data class SemanticsModifier(val mergeMode: Mode, val semantics: AccessibilitySemantics) :
+internal data class SemanticsModifier(val mergeMode: Mode, val semantics: AccessibilitySemantics) :
     RemoteModifier.Element {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.SemanticsModifier(
             CoreSemantics().apply {
@@ -74,10 +73,12 @@ public data class AccessibilitySemantics(
     public var enabled: Boolean? = null,
 )
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.clearAndSetSemantics(
     fn: AccessibilitySemantics.() -> Unit
 ): RemoteModifier = then(SemanticsModifier(CLEAR_AND_SET, AccessibilitySemantics().apply(fn)))
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.semantics(
     mergeDescendants: Boolean = false,
     fn: AccessibilitySemantics.() -> Unit,

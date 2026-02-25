@@ -34,7 +34,6 @@ import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector2
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.ExperimentalPanelCoordinateApi
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.MovableComponent
@@ -232,19 +231,24 @@ class PanelCoordinateActivity : AppCompatActivity() {
         }
     }
 
-    @OptIn(ExperimentalPanelCoordinateApi::class)
     private fun updateXyzPose() {
         if (!(::panel.isInitialized && ::xyzEntity.isInitialized)) return
 
         if (coordinateTypeRadioGroup.checkedRadioButtonId == R.id.pixel_coordinate_radio_button) {
             xyzEntity.setPose(
-                panel.transformPixelCoordinatesToPose(
-                    Vector2(xPixelSlider.value, yPixelSlider.value)
+                Pose(
+                    panel.transformPixelCoordinatesToLocalPosition(
+                        Vector2(xPixelSlider.value, yPixelSlider.value)
+                    )
                 )
             )
         } else {
             xyzEntity.setPose(
-                panel.transformNormalizedCoordinatesToPose(Vector2(uSlider.value, vSlider.value))
+                Pose(
+                    panel.transformNormalizedCoordinatesToLocalPosition(
+                        Vector2(uSlider.value, vSlider.value)
+                    )
+                )
             )
         }
     }

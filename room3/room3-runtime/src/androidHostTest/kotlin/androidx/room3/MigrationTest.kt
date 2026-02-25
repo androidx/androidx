@@ -20,6 +20,7 @@ import androidx.kruth.assertThat
 import androidx.room3.migration.Migration
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteStatement
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -28,7 +29,7 @@ import org.junit.runners.JUnit4
 class MigrationTest {
 
     @Test
-    fun testMigrationExtension() {
+    fun testMigrationExtension() = runTest {
         var calledWithConnection: SQLiteConnection? = null
         val migration = Migration(10, 20) { calledWithConnection = it }
         val fakeConnection = FakeConnection()

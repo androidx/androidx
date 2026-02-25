@@ -27,6 +27,10 @@ import androidx.xr.runtime.math.Vector3
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
+/**
+ * @param session the [Session] to get the hand from
+ * @param lifecycle the [Lifecycle] to scope the coroutine to
+ */
 @Sampled
 fun getLeftHand(session: Session, lifecycle: Lifecycle) {
     val gestureRecognizer =
@@ -208,6 +212,10 @@ fun getLeftHand(session: Session, lifecycle: Lifecycle) {
     }
 }
 
+/**
+ * @param session the [Session] to get the hand from
+ * @param lifecycle the [Lifecycle] to scope the coroutine to
+ */
 @Sampled
 fun getRightHand(session: Session, lifecycle: Lifecycle) {
     val gestureRecognizer =

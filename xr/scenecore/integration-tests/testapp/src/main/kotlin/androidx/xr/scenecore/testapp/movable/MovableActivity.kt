@@ -22,10 +22,14 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.CheckBox
+import android.widget.LinearLayout
+import android.widget.RadioGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
@@ -34,6 +38,8 @@ import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.AnchorPlacement
 import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.EntityMoveListener
+import androidx.xr.scenecore.GltfModel
+import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.MovableComponent
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.PlaneOrientation
@@ -43,7 +49,9 @@ import androidx.xr.scenecore.testapp.R
 import androidx.xr.scenecore.testapp.common.managers.SessionManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.materialswitch.MaterialSwitch
+import java.nio.file.Paths
 import java.util.concurrent.Executors
+import kotlinx.coroutines.launch
 
 /**
  * A simple activity that creates a panel and attaches a movable component to it.
@@ -59,9 +67,21 @@ import java.util.concurrent.Executors
 @SuppressLint("SetTextI18n", "RestrictedApi")
 class MovableActivity : AppCompatActivity() {
     private var session: Session? = null
-    private var systemMovable = false
+
+    private enum class MovableType {
+        ANCHORABLE,
+        SYSTEM,
+        CUSTOM,
+    }
+
+    private var movableType = MovableType.ANCHORABLE
     private var scaleInZ = false
-    private var anchorable = false
+
+    private lateinit var scaleInZSwitch: MaterialSwitch
+    private lateinit var anchorableSection: View
+    private lateinit var customBehaviorSection: View
+    private lateinit var customBehaviorGroup: RadioGroup
+
     private var movableComponent: MovableComponent? = null
     private val executor = Executors.newSingleThreadExecutor()
     private var planeOrientationFilter: MutableSet<Int> = mutableSetOf()
@@ -75,20 +95,30 @@ class MovableActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.common_test_panel)
 
-        // Create session
+        if (!setupSession()) return
+        initializeUI()
+        val stationaryPanelEntity = createStationaryPanel()
+        setupMovablePanel(stationaryPanelEntity)
+        createAnchorableGltfEntity()
+    }
+
+    private fun setupSession(): Boolean {
         session = SessionManager(this).createSession()
         if (session == null) {
             Log.e(TAG, "Failed to create a session. Finishing activity.")
             finish()
-            return
+            return false
         }
-        session!!.configure(Config(Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
+        session!!.configure(Config(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
         session!!.scene.keyEntity = session!!.scene.mainPanelEntity
 
         // Enable passthrough by default to allow interaction with the real world,
         // which is necessary for testing anchoring functionality.
         session!!.scene.spatialEnvironment.preferredPassthroughOpacity = 1.0f
+        return true
+    }
 
+    private fun initializeUI() {
         // Toolbar action
         findViewById<Toolbar>(R.id.top_app_bar_activity_panel).also {
             setSupportActionBar(it)
@@ -102,7 +132,9 @@ class MovableActivity : AppCompatActivity() {
             it.tooltipText = getString(R.string.fab_recreate_activity_tooltip)
             it.setOnClickListener { ActivityCompat.recreate(this@MovableActivity) }
         }
+    }
 
+    private fun createStationaryPanel(): PanelEntity {
         @SuppressLint("InflateParams")
         val stationaryPanelContentView = layoutInflater.inflate(R.layout.activity_panel, null)
         stationaryPanelContentView.findViewById<Toolbar>(R.id.activity_panel_tool_bar).also {
@@ -119,6 +151,19 @@ class MovableActivity : AppCompatActivity() {
                 Pose(Vector3(0.9f, 0f, 0f)),
             )
         stationaryPanelEntity.parent = session!!.scene.keyEntity
+        return stationaryPanelEntity
+    }
+
+    private fun updateUiForMovableType() {
+        scaleInZSwitch.visibility =
+            if (movableType != MovableType.ANCHORABLE) View.VISIBLE else View.GONE
+        customBehaviorSection.visibility =
+            if (movableType == MovableType.CUSTOM) View.VISIBLE else View.GONE
+        anchorableSection.visibility =
+            if (movableType == MovableType.ANCHORABLE) View.VISIBLE else View.GONE
+    }
+
+    private fun setupMovablePanel(stationaryPanelEntity: Entity) {
         // Create a single panel with text
         @SuppressLint("InflateParams")
         val movablePanelContentView = layoutInflater.inflate(R.layout.panel_movable, null)
@@ -131,37 +176,46 @@ class MovableActivity : AppCompatActivity() {
                 Pose(Vector3(0f, 0f, 0.1f)),
             )
         movablePanelEntity.parent = session!!.scene.keyEntity
-        val sysMovSwitch = movablePanelContentView.findViewById<MaterialSwitch>(R.id.sys_mov_switch)
-        sysMovSwitch.setOnCheckedChangeListener { _, isChecked: Boolean ->
-            systemMovable = isChecked
+        val enableMovableSwitch =
+            movablePanelContentView.findViewById<MaterialSwitch>(R.id.enable_movable_switch)
+        val movableOptionsContainer =
+            movablePanelContentView.findViewById<LinearLayout>(R.id.movable_options_container)
+        enableMovableSwitch.setOnCheckedChangeListener { _, isChecked ->
+            movableOptionsContainer.visibility = if (isChecked) View.VISIBLE else View.GONE
+            if (isChecked) {
+                if (movableComponent == null) {
+                    replaceMovableComponent(movablePanelEntity)
+                }
+            } else {
+                movableComponent?.let { movablePanelEntity.removeComponent(it) }
+                movableComponent = null
+            }
+            updateUiForMovableType()
+        }
+        val movableTypeGroup =
+            movablePanelContentView.findViewById<RadioGroup>(R.id.movable_type_group)
+        movableTypeGroup.setOnCheckedChangeListener { _, checkedId ->
+            movableType =
+                when (checkedId) {
+                    R.id.radio_anchorable -> MovableType.ANCHORABLE
+                    R.id.radio_custom -> MovableType.CUSTOM
+                    R.id.radio_system -> MovableType.SYSTEM
+                    else -> MovableType.ANCHORABLE // Should not happen, but fallback
+                }
+            updateUiForMovableType()
             replaceMovableComponent(movablePanelEntity)
         }
-        val scaleInZSwitch =
+
+        scaleInZSwitch =
             movablePanelContentView.findViewById<MaterialSwitch>(R.id.scale_in_z_switch)
         scaleInZSwitch.setOnCheckedChangeListener { _, isChecked: Boolean ->
             scaleInZ = isChecked
             replaceMovableComponent(movablePanelEntity)
         }
-        val anchorableSwitch =
-            movablePanelContentView.findViewById<MaterialSwitch>(R.id.anchorable_switch)
-        anchorableSwitch.setOnCheckedChangeListener { _, isChecked: Boolean ->
-            anchorable = isChecked
-            // When an MovableComponent is anchorable, the scaleInZ option should be disabled.
-            // MovableComponent.createAnchorable() does not support or utilize the scaleInZ
-            // parameter.
-            // Anchorable components are designed to maintain a consistent scale relative to the
-            // real-world
-            // surface they are attached to, preserving the sense of presence in the augmented
-            // environment.
-            // Automatic scaling based on Z-distance (scaleInZ) is not applicable in this mode.
-            if (isChecked) {
-                scaleInZSwitch.isChecked = false
-                scaleInZSwitch.isEnabled = false
-            } else {
-                scaleInZSwitch.isEnabled = true
-            }
-            replaceMovableComponent(movablePanelEntity)
-        }
+
+        anchorableSection = movablePanelContentView.findViewById(R.id.anchorable_section)
+        customBehaviorSection = movablePanelContentView.findViewById(R.id.custom_behavior_section)
+
         val parentSwitch = movablePanelContentView.findViewById<MaterialSwitch>(R.id.parent_switch)
         parentSwitch.setOnCheckedChangeListener { _, isChecked: Boolean ->
             when (isChecked) {
@@ -173,7 +227,8 @@ class MovableActivity : AppCompatActivity() {
 
         setupAnchorPlacementCheckboxes(movablePanelContentView, movablePanelEntity)
 
-        replaceMovableComponent(movablePanelEntity)
+        customBehaviorGroup =
+            movablePanelContentView.findViewById<RadioGroup>(R.id.custom_behavior_group)
     }
 
     private fun setupAnchorPlacementCheckboxes(view: View, movablePanelEntity: Entity) {
@@ -228,14 +283,14 @@ class MovableActivity : AppCompatActivity() {
 
     private fun replaceMovableComponent(movablePanelEntity: Entity) {
         movableComponent?.let { movablePanelEntity.removeComponent(it) }
-        val anchorPlacementSet: MutableSet<AnchorPlacement> = mutableSetOf()
 
-        if (anchorable) {
+        if (movableType == MovableType.ANCHORABLE) {
+            val anchorPlacementSet: MutableSet<AnchorPlacement> = mutableSetOf()
             anchorPlacementSet.add(
                 AnchorPlacement.createForPlanes(planeOrientationFilter, planeSemanticFilter)
             )
             movableComponent = MovableComponent.createAnchorable(session!!, anchorPlacementSet)
-        } else if (systemMovable) {
+        } else if (movableType == MovableType.SYSTEM) {
             movableComponent = MovableComponent.createSystemMovable(session!!, scaleInZ)
         } else {
             movableComponent =
@@ -250,7 +305,16 @@ class MovableActivity : AppCompatActivity() {
                             currentPose: Pose,
                             currentScale: Float,
                         ) {
-                            entity.setPose(currentPose)
+                            val newPose =
+                                when (customBehaviorGroup.checkedRadioButtonId) {
+                                    R.id.radio_translation_only ->
+                                        Pose(currentPose.translation, entity.getPose().rotation)
+                                    R.id.radio_rotation_only ->
+                                        Pose(entity.getPose().translation, currentPose.rotation)
+                                    else -> currentPose
+                                }
+
+                            entity.setPose(newPose)
                             entity.setScale(currentScale)
                         }
 
@@ -269,5 +333,40 @@ class MovableActivity : AppCompatActivity() {
                 )
         }
         movablePanelEntity.addComponent(movableComponent!!)
+    }
+
+    @SuppressLint("ExceptionMessage")
+    private fun createAnchorableGltfEntity() {
+        lifecycleScope.launch {
+            val gltfModel =
+                GltfModel.create(
+                    session = checkNotNull(session),
+                    path = Paths.get("models", "Dragon_Evolved.gltf"),
+                )
+
+            val anchorPlacementSet: Set<AnchorPlacement> =
+                setOf(
+                    AnchorPlacement.createForPlanes(
+                        anchorablePlaneOrientations = setOf(PlaneOrientation.ANY),
+                        anchorablePlaneSemanticTypes = setOf(PlaneSemanticType.ANY),
+                    )
+                )
+            val movableComponent =
+                MovableComponent.createAnchorable(
+                    session = checkNotNull(session),
+                    anchorPlacement = anchorPlacementSet,
+                    disposeParentOnReAnchor = true,
+                )
+
+            val gltfModelEntity =
+                GltfModelEntity.create(
+                    session = checkNotNull(session),
+                    model = gltfModel,
+                    pose = Pose(Vector3(-2f, -1.5f, -2f)),
+                )
+
+            gltfModelEntity.setScale(0.5f)
+            gltfModelEntity.addComponent(component = movableComponent)
+        }
     }
 }

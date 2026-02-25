@@ -55,11 +55,11 @@ class XElementTest {
             Source.kotlin(
                 "Subject.kt",
                 """
-            object Subject {
-                @Transient val transientProp:Int = 0
-                @JvmStatic val staticProp:Int = 0
-            }
-            """
+                object Subject {
+                    @Transient val transientProp:Int = 0
+                    @JvmStatic val staticProp:Int = 0
+                }
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
@@ -77,23 +77,23 @@ class XElementTest {
                 Source.java(
                     "foo.bar.Baz",
                     """
-                package foo.bar;
-                public abstract class Baz {
-                    private int privateField;
-                    int packagePrivateField;
-                    protected int protectedField;
-                    public int publicField;
-                    transient int transientField;
-                    static int staticField;
+                    package foo.bar;
+                    public abstract class Baz {
+                        private int privateField;
+                        int packagePrivateField;
+                        protected int protectedField;
+                        public int publicField;
+                        transient int transientField;
+                        static int staticField;
 
-                    private void privateMethod() {}
-                    void packagePrivateMethod() {}
-                    public void publicMethod() {}
-                    protected void protectedMethod() {}
-                    final void finalMethod() {}
-                    abstract void abstractMethod();
-                    static void staticMethod() {}
-                }
+                        private void privateMethod() {}
+                        void packagePrivateMethod() {}
+                        public void publicMethod() {}
+                        protected void protectedMethod() {}
+                        final void finalMethod() {}
+                        abstract void abstractMethod();
+                        static void staticMethod() {}
+                    }
                     """
                         .trimIndent(),
                 )
@@ -181,7 +181,7 @@ class XElementTest {
                         throw new RuntimeException("Stub");
                     }
                 }
-            """
+                """
                     .trimIndent(),
             )
         val boundedChild =
@@ -191,7 +191,7 @@ class XElementTest {
                 package foo.bar;
                 public class Child extends Base<String> {
                 }
-            """
+                """
                     .trimIndent(),
             )
         runProcessorTest(listOf(genericBase, boundedChild)) {
@@ -300,21 +300,21 @@ class XElementTest {
             Source.java(
                 "foo.bar.Baz",
                 """
-            package foo.bar;
-            import org.junit.*;
-            import org.junit.runner.*;
-            import org.junit.runners.*;
-            import androidx.room3.compiler.processing.testcode.OtherAnnotation;
+                package foo.bar;
+                import org.junit.*;
+                import org.junit.runner.*;
+                import org.junit.runners.*;
+                import androidx.room3.compiler.processing.testcode.OtherAnnotation;
 
-            @RunWith(JUnit4.class)
-            class Baz {
-                @OtherAnnotation(value="xx")
-                String testField;
+                @RunWith(JUnit4.class)
+                class Baz {
+                    @OtherAnnotation(value="xx")
+                    String testField;
 
-                @org.junit.Test
-                void testMethod() {}
-            }
-            """
+                    @org.junit.Test
+                    void testMethod() {}
+                }
+                """
                     .trimIndent(),
             )
         runProcessorTest(listOf(source)) {
@@ -342,22 +342,22 @@ class XElementTest {
             Source.java(
                 "foo.bar.Baz",
                 """
-            package foo.bar;
-            import org.junit.*;
-            import org.junit.runner.*;
-            import org.junit.runners.*;
-            import androidx.room3.compiler.processing.testcode.OtherAnnotation;
+                package foo.bar;
+                import org.junit.*;
+                import org.junit.runner.*;
+                import org.junit.runners.*;
+                import androidx.room3.compiler.processing.testcode.OtherAnnotation;
 
-            @RunWith(JUnit4.class)
-            class Baz {
-                @OtherAnnotation(value="xx")
-                String testField;
+                @RunWith(JUnit4.class)
+                class Baz {
+                    @OtherAnnotation(value="xx")
+                    String testField;
 
-                @org.junit.Test
-                @OtherAnnotation(value="yy")
-                void testMethod() {}
-            }
-            """
+                    @org.junit.Test
+                    @OtherAnnotation(value="yy")
+                    void testMethod() {}
+                }
+                """
                     .trimIndent(),
             )
         runProcessorTest(listOf(source)) {
@@ -493,22 +493,22 @@ class XElementTest {
             Source.java(
                 "foo.bar.Baz",
                 """
-            package foo.bar;
-            import org.junit.*;
-            import org.junit.runner.*;
-            import org.junit.runners.*;
-            import androidx.room3.compiler.processing.testcode.OtherAnnotation;
+                package foo.bar;
+                import org.junit.*;
+                import org.junit.runner.*;
+                import org.junit.runners.*;
+                import androidx.room3.compiler.processing.testcode.OtherAnnotation;
 
-            @RunWith(JUnit4.class)
-            class Baz {
-                @OtherAnnotation(value="xx")
-                String testField;
+                @RunWith(JUnit4.class)
+                class Baz {
+                    @OtherAnnotation(value="xx")
+                    String testField;
 
-                @org.junit.Test
-                @OtherAnnotation(value="yy")
-                void testMethod() {}
-            }
-            """
+                    @org.junit.Test
+                    @OtherAnnotation(value="yy")
+                    void testMethod() {}
+                }
+                """
                     .trimIndent(),
             )
         runProcessorTest(listOf(source)) { it ->
@@ -640,10 +640,10 @@ class XElementTest {
             Source.java(
                 "foo.bar.Baz",
                 """
-            package foo.bar;
-            class Baz {
-            }
-            """
+                package foo.bar;
+                class Baz {
+                }
+                """
                     .trimIndent(),
             )
         runProcessorTest(listOf(source)) {
@@ -659,14 +659,14 @@ class XElementTest {
             Source.java(
                 "foo.bar.Baz",
                 """
-            package foo.bar;
-            class Baz {
-                int field;
+                package foo.bar;
+                class Baz {
+                    int field;
 
-                void method() {}
-                static interface Inner {}
-            }
-            """
+                    void method() {}
+                    static interface Inner {}
+                }
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(subject)) {
@@ -697,11 +697,11 @@ class XElementTest {
             Source.java(
                 "foo.bar.Baz",
                 """
-            package foo.bar;
-            class Baz {
-                public static int x;
-            }
-            """
+                package foo.bar;
+                class Baz {
+                    public static int x;
+                }
+                """
                     .trimIndent(),
             )
         runProcessorTest(listOf(source)) {
@@ -719,19 +719,19 @@ class XElementTest {
             Source.java(
                 "foo.bar.Baz",
                 """
-            package foo.bar;
+                package foo.bar;
 
-            import androidx.annotation.*;
-            import java.util.List;
-            class Baz {
-                public static int primitiveInt;
-                public static Integer boxedInt;
-                @NonNull
-                public static List<String> nonNullAnnotated;
-                @Nullable
-                public static List<String> nullableAnnotated;
-            }
-            """
+                import androidx.annotation.*;
+                import java.util.List;
+                class Baz {
+                    public static int primitiveInt;
+                    public static Integer boxedInt;
+                    @NonNull
+                    public static List<String> nonNullAnnotated;
+                    @Nullable
+                    public static List<String> nullableAnnotated;
+                }
+                """
                     .trimIndent(),
             )
         // enable once https://github.com/google/ksp/issues/167 is fixed
@@ -773,22 +773,22 @@ class XElementTest {
             Source.java(
                 "JavaSubject",
                 """
-            /**
-             * javadocs
-             */
-            public class JavaSubject {}
-            """
+                /**
+                 * javadocs
+                 */
+                public class JavaSubject {}
+                """
                     .trimIndent(),
             )
         val kotlinSrc =
             Source.kotlin(
                 "KotlinSubject.kt",
                 """
-            /**
-             * kdocs
-             */
-            class KotlinSubject
-            """
+                /**
+                 * kdocs
+                 */
+                class KotlinSubject
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(javaSrc, kotlinSrc)) { invocation ->
@@ -849,21 +849,21 @@ class XElementTest {
                 Source.kotlin(
                     "Test.kt",
                     """
-            package foo.bar
-            class KotlinClass(val property: String) {
-                companion object {
-                    val companionObjectProperty: String = "hello"
-                    @JvmStatic
-                    val companionObjectPropertyJvmStatic: String = "hello"
-                    @JvmField val companionObjectPropertyJvmField: String = "hello"
-                    lateinit var companionObjectPropertyLateinit: String
-                    const val companionObjectPropertyConst: String = "hello"
-                    fun companionObjectFunction(companionFunctionParam: String) {}
-                    @JvmStatic
-                    fun companionObjectFunctionJvmStatic(companionFunctionParam: String) {}
-                }
-            }
-            """
+                    package foo.bar
+                    class KotlinClass(val property: String) {
+                        companion object {
+                            val companionObjectProperty: String = "hello"
+                            @JvmStatic
+                            val companionObjectPropertyJvmStatic: String = "hello"
+                            @JvmField val companionObjectPropertyJvmField: String = "hello"
+                            lateinit var companionObjectPropertyLateinit: String
+                            const val companionObjectPropertyConst: String = "hello"
+                            fun companionObjectFunction(companionFunctionParam: String) {}
+                            @JvmStatic
+                            fun companionObjectFunctionJvmStatic(companionFunctionParam: String) {}
+                        }
+                    }
+                    """
                         .trimIndent(),
                 )
             )
@@ -1069,28 +1069,28 @@ class XElementTest {
             Source.java(
                 "foo.bar.Foo",
                 """
-            package foo.bar;
-            class Foo {
-                void f(String a) {}
-                static class Nested {}
-            }
-            """
+                package foo.bar;
+                class Foo {
+                    void f(String a) {}
+                    static class Nested {}
+                }
+                """
                     .trimIndent(),
             )
         val kotlinSource =
             Source.kotlin(
                 "Bar.kt",
                 """
-            package foo.bar
-            fun tlf(a: String) = "hello"
-            class Bar {
-                var p: String = "hello"
-                fun f(a: String) {}
-                suspend fun sf(a: String) {}
-                class Nested
-            }
-            fun Bar.ef(a: String) {}
-            """
+                package foo.bar
+                fun tlf(a: String) = "hello"
+                class Bar {
+                    var p: String = "hello"
+                    fun f(a: String) {}
+                    suspend fun sf(a: String) {}
+                    class Nested
+                }
+                fun Bar.ef(a: String) {}
+                """
                     .trimIndent(),
             )
         runProcessorTestHelper(listOf(javaSource, kotlinSource)) { invocation, _ ->
@@ -1202,22 +1202,22 @@ class XElementTest {
             Source.java(
                 "foo.bar.Foo",
                 """
-            package foo.bar;
-            class Foo {
-                DoNotExist ep;
-            }
-            """
+                package foo.bar;
+                class Foo {
+                    DoNotExist ep;
+                }
+                """
                     .trimIndent(),
             )
         val kotlinSource =
             Source.kotlin(
                 "Bar.kt",
                 """
-            package foo.bar
-            class Bar {
-                val ep: DoNotExist = TODO()
-            }
-            """
+                package foo.bar
+                class Bar {
+                    val ep: DoNotExist = TODO()
+                }
+                """
                     .trimIndent(),
             )
         // Can't use runProcessorTestHelper() as we can't compile the files referencing an
@@ -1248,44 +1248,44 @@ class XElementTest {
         Source.java(
             "foo.bar.Test",
             """
-        package foo.bar;
-        enum JavaEnum {
-            A(3), B(5), C(7);
-            JavaEnum(int i) { javaEnumField = i; }
-            private int javaEnumField;
-            int javaEnumMethod() {
-               return javaEnumField;
+            package foo.bar;
+            enum JavaEnum {
+                A(3), B(5), C(7);
+                JavaEnum(int i) { javaEnumField = i; }
+                private int javaEnumField;
+                int javaEnumMethod() {
+                   return javaEnumField;
+                }
+                static void javaStaticEnumMethod() {}
             }
-            static void javaStaticEnumMethod() {}
-        }
-        interface JavaInterface {
-            void baseMethod(String i);
-        }
-        class JavaBase implements JavaInterface {
-            String baseField;
-            static String staticField;
-            JavaBase(String s) {}
-            @Override public void baseMethod(String s) {}
-            static public void staticMethod(String s) {}
-            static class JavaNestedStatic {
-                String nestedStaticClassField;
-                public void nestedStaticClassMethod(String s) {}
+            interface JavaInterface {
+                void baseMethod(String i);
             }
-            class JavaNestedNonStatic {
-                String nestedClassField;
-                public void nestedClassMethod(String s) {}
+            class JavaBase implements JavaInterface {
+                String baseField;
+                static String staticField;
+                JavaBase(String s) {}
+                @Override public void baseMethod(String s) {}
+                static public void staticMethod(String s) {}
+                static class JavaNestedStatic {
+                    String nestedStaticClassField;
+                    public void nestedStaticClassMethod(String s) {}
+                }
+                class JavaNestedNonStatic {
+                    String nestedClassField;
+                    public void nestedClassMethod(String s) {}
+                }
             }
-        }
-        class JavaDerived extends JavaBase {
-            String derivedField;
-            JavaDerived(String t) {
-                super(t);
+            class JavaDerived extends JavaBase {
+                String derivedField;
+                JavaDerived(String t) {
+                    super(t);
+                }
+                void derivedMethod(String t) {}
+                @Override
+                public void baseMethod(String t) {}
             }
-            void derivedMethod(String t) {}
-            @Override
-            public void baseMethod(String t) {}
-        }
-        """
+            """
                 .trimIndent(),
         )
 
@@ -1293,32 +1293,32 @@ class XElementTest {
         Source.kotlin(
             "Test.kt",
             """
-        package foo.bar
-        enum class KotlinEnum(val enumProperty: Int) {
-            A(3), B(5), C(7);
-            fun enumFunction() = enumProperty + 1
-        }
-        open class KotlinBaseClass(val baseProperty: String) {
-            object NestedObject {
-                val nestedObjectProperty: String = "hello"
-                fun nestedObjectFunction(nestedObjectFunctionParam: String) {}
+            package foo.bar
+            enum class KotlinEnum(val enumProperty: Int) {
+                A(3), B(5), C(7);
+                fun enumFunction() = enumProperty + 1
             }
-            class KotlinNestedClass(val nestedProperty: String) {
-                val nestedClassProperty: String = "hello"
-                fun nestedClassFunction(nestedClassFunctionParam: String) {}
+            open class KotlinBaseClass(val baseProperty: String) {
+                object NestedObject {
+                    val nestedObjectProperty: String = "hello"
+                    fun nestedObjectFunction(nestedObjectFunctionParam: String) {}
+                }
+                class KotlinNestedClass(val nestedProperty: String) {
+                    val nestedClassProperty: String = "hello"
+                    fun nestedClassFunction(nestedClassFunctionParam: String) {}
+                }
+                fun baseFunction(baseFunctionParam: String) {}
             }
-            fun baseFunction(baseFunctionParam: String) {}
-        }
-        class KotlinDerivedClass(val derivedProperty: String):
-                KotlinBaseClass(derivedProperty) {
-            fun derivedFunction(derivedFunctionParam: String) {}
-        }
-        data class KotlinDataClass(val property: String)
-        object KotlinObject {
-            val objectProperty: String = "hello"
-            fun objectFunction(objectFunctionParam: String) {}
-        }
-        """
+            class KotlinDerivedClass(val derivedProperty: String):
+                    KotlinBaseClass(derivedProperty) {
+                fun derivedFunction(derivedFunctionParam: String) {}
+            }
+            data class KotlinDataClass(val property: String)
+            object KotlinObject {
+                val objectProperty: String = "hello"
+                fun objectFunction(objectFunctionParam: String) {}
+            }
+            """
                 .trimIndent(),
         )
 
@@ -1326,10 +1326,10 @@ class XElementTest {
         Source.kotlin(
             "Test.kt",
             """
-        package foo.bar
-        val topLevelProperty: String = "hello"
-        fun topLevelFunction(p: String) {}
-        """
+            package foo.bar
+            val topLevelProperty: String = "hello"
+            fun topLevelFunction(p: String) {}
+            """
                 .trimIndent(),
         )
 

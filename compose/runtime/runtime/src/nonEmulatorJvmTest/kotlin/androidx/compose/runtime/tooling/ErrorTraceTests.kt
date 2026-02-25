@@ -26,6 +26,7 @@ import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.composer.gapbuffer.SlotTable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mock.ComposerToUse
 import androidx.compose.runtime.mock.CompositionTestScope
 import androidx.compose.runtime.mock.compositionTest
 import androidx.compose.runtime.mutableStateOf
@@ -697,6 +698,7 @@ class ErrorTraceTests {
             advance()
         }
 
+    @Suppress("VisibleForTests")
     @Test
     fun setContentNoSourceInformation() {
         Composer.setDiagnosticStackTraceMode(ComposeStackTraceMode.SourceInformation)
@@ -716,6 +718,8 @@ class ErrorTraceTests {
                 // configuring stack trace mode as well.
                 when (val slotStorage = (composition as CompositionImpl).slotStorage) {
                     is SlotTable -> slotStorage.sourceInformationMap = null
+                    is androidx.compose.runtime.composer.linkbuffer.SlotTable ->
+                        slotStorage.addressSpace.sourceInformationMap = null
                     else ->
                         throw UnsupportedOperationException(
                             "Unsupported slot storage implementation $slotStorage"
@@ -742,9 +746,9 @@ private fun exceptionTest(
     block: suspend CompositionTestScope.() -> Unit,
 ) {
     Composer.setDiagnosticStackTraceMode(ComposeStackTraceMode.SourceInformation)
-    assertTrace(sourceTrace) { compositionTest(block = block) }
+    assertTrace(sourceTrace) { compositionTest(ComposerToUse.Both, block = block) }
     Composer.setDiagnosticStackTraceMode(ComposeStackTraceMode.GroupKeys)
-    assertTrace(groupKeyTrace) { compositionTest(block = block) }
+    assertTrace(groupKeyTrace) { compositionTest(ComposerToUse.Both, block = block) }
     Composer.setDiagnosticStackTraceMode(ComposeStackTraceMode.Auto)
 }
 

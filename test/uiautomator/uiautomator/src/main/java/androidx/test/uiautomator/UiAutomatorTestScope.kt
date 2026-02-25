@@ -87,12 +87,15 @@ public open class UiAutomatorTestScope protected constructor() {
      * Macrobenchmark to verify synchronous launches more aggressively.
      */
     protected open fun startIntentAndWait(intent: Intent) {
-        Shell.application().amStartActivityIntent(intent)
+        Shell.application.amStartActivityIntent(intent)
     }
 
     /** Unregisters all the watchers previously registered with [watchFor]. */
     public fun unregisterWatchers() {
-        watcherRegistrations.forEach { it.unregister() }
+        // watcherRegistrations set will be modified in this loop, so we need to iterate on a copy.
+        for (registration in watcherRegistrations.toSet()) {
+            registration.unregister()
+        }
     }
 
     /**

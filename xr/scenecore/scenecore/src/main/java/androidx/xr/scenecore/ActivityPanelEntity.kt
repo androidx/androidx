@@ -127,7 +127,7 @@ private constructor(
                 session.scene.entityManager,
                 pixelDimensions,
                 name,
-                session.activity,
+                session.context as Activity,
                 pose,
                 parent,
             )
@@ -157,7 +157,7 @@ private constructor(
                 session.scene.entityManager,
                 pixelDimensions,
                 name,
-                session.activity,
+                session.context as Activity,
                 pose,
             )
     }

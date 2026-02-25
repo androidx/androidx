@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -36,13 +35,13 @@ dependencies {
     // See b/283315121 for context, However we cannot depend on tip of the tree dependency because
     // it prevents our library releases, so we should update this dependency manually whenever
     // there is a new stable release of it.
-    implementation(project(":core:core"))
+    implementation("androidx.core:core:1.17.0")
     implementation("androidx.appcompat:appcompat:1.1.0")
     implementation("androidx.palette:palette:1.0.0")
     implementation("androidx.recyclerview:recyclerview:1.1.0")
     implementation("androidx.appcompat:appcompat-resources:1.2.0")
 
-    implementation(project(":annotation:annotation"))
+    implementation("androidx.annotation:annotation:1.9.1")
 
     testImplementation(libs.junit)
     testImplementation(libs.testCore)

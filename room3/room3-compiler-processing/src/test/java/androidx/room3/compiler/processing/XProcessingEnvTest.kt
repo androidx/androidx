@@ -86,13 +86,13 @@ class XProcessingEnvTest {
                 Source.java(
                     "foo.bar.Baz",
                     """
-                package foo.bar;
-                public class Baz {
-                    private void foo() {}
-                    public int bar(int param1) {
-                        return 3;
+                    package foo.bar;
+                    public class Baz {
+                        private void foo() {}
+                        public int bar(int param1) {
+                            return 3;
+                        }
                     }
-                }
                     """
                         .trimIndent(),
                 )
@@ -117,10 +117,10 @@ class XProcessingEnvTest {
             Source.java(
                 "foo.bar.Baz",
                 """
-            package foo.bar;
-            class Baz {
-            }
-            """
+                package foo.bar;
+                class Baz {
+                }
+                """
                     .trimIndent(),
             )
         runProcessorTest(listOf(source)) { invocation ->
@@ -143,12 +143,12 @@ class XProcessingEnvTest {
             Source.java(
                 "foo.bar.Outer",
                 """
-            package foo.bar;
-            public class Outer {
-                public static class Inner {
+                package foo.bar;
+                public class Outer {
+                    public static class Inner {
+                    }
                 }
-            }
-            """
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) {
@@ -188,20 +188,20 @@ class XProcessingEnvTest {
             Source.java(
                 "foo.bar.AccessGenerated",
                 """
-            package foo.bar;
-            public class AccessGenerated {
-                ToBeGenerated x;
-            }
-            """
+                package foo.bar;
+                public class AccessGenerated {
+                    ToBeGenerated x;
+                }
+                """
                     .trimIndent(),
             )
         val kotlinSrc =
             Source.kotlin(
                 "AccessGenerated.kt",
                 """
-            package foo.bar;
-            public class AccessGenerated(x: ToBeGenerated)
-            """
+                package foo.bar;
+                public class AccessGenerated(x: ToBeGenerated)
+                """
                     .trimIndent(),
             )
         listOf(javaSrc, kotlinSrc).forEach { src ->
@@ -225,8 +225,8 @@ class XProcessingEnvTest {
             Source.java(
                 "Foo",
                 """
-            class Foo {}
-            """
+                class Foo {}
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) {
@@ -244,13 +244,13 @@ class XProcessingEnvTest {
             Source.java(
                 "JavaSubject",
                 """
-            class JavaSubject {
-                NestedClass nestedClass;
-                class NestedClass {
-                    int x;
+                class JavaSubject {
+                    NestedClass nestedClass;
+                    class NestedClass {
+                        int x;
+                    }
                 }
-            }
-            """
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
@@ -268,10 +268,10 @@ class XProcessingEnvTest {
                     Source.java(
                         "foo.bar.Baz",
                         """
-                package foo.bar;
-                public class Baz {
-                }
-                    """
+                        package foo.bar;
+                        public class Baz {
+                        }
+                        """
                             .trimIndent(),
                     )
                 ),

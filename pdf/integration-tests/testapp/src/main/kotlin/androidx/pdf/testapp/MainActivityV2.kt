@@ -16,7 +16,6 @@
 
 package androidx.pdf.testapp
 
-import android.annotation.SuppressLint
 import android.database.Cursor
 import android.net.Uri
 import android.os.Build
@@ -46,7 +45,6 @@ import com.google.android.material.button.MaterialButton
 
 // TODO(b/386721657): Remove this activity once the switch to V2 completes
 
-@SuppressLint("RestrictedApiAndroidX")
 @Suppress("NewApi")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class MainActivityV2 : AppCompatActivity(), EditablePdfHostFragment.FragmentListener {

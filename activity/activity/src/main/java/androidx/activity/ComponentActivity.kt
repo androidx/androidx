@@ -448,8 +448,8 @@ public open class ComponentActivity() :
      *
      * Any listener added here will receive a callback as part of `super.onCreate()`, but
      * importantly **before** any other logic is done (including calling through to the framework
-     * [Activity.onCreate] with the exception of restoring the state of the [savedStateRegistry] for
-     * use in your listener.
+     * [Activity.onCreate]) with the exception of restoring the state of the [savedStateRegistry]
+     * for use in your listener.
      */
     final override fun addOnContextAvailableListener(listener: OnContextAvailableListener) {
         contextAwareHelper.addOnContextAvailableListener(listener)
@@ -470,7 +470,7 @@ public open class ComponentActivity() :
     override fun onCreatePanelMenu(featureId: Int, menu: Menu): Boolean {
         if (featureId == Window.FEATURE_OPTIONS_PANEL) {
             super.onCreatePanelMenu(featureId, menu)
-            menuHostHelper.onCreateMenu(menu, getMenuInflater())
+            menuHostHelper.onCreateMenu(menu, menuInflater)
         }
         return true
     }
@@ -654,6 +654,11 @@ public open class ComponentActivity() :
      *
      * This dispatcher acts as the central point for back navigation events. When a navigation event
      * occurs (e.g., a back gesture), it safely invokes [ComponentActivity.onBackPressed].
+     *
+     * ### Not stable for override
+     *
+     * **This property is not intended for override.** It is technically `open` for binary
+     * compatibility with previous versions, but overriding this property is unsupported.
      */
     override val navigationEventDispatcher: NavigationEventDispatcher
         get() = onBackPressedDispatcher.eventDispatcher
@@ -663,7 +668,7 @@ public open class ComponentActivity() :
         lifecycle.addObserver(
             LifecycleEventObserver { _, event ->
                 if (event == Lifecycle.Event.ON_CREATE) {
-                    dispatcher.setOnBackInvokedDispatcher(getOnBackInvokedDispatcher())
+                    dispatcher.setOnBackInvokedDispatcher(onBackInvokedDispatcher)
                 }
             }
         )
@@ -1100,13 +1105,13 @@ public open class ComponentActivity() :
         override fun viewCreated(view: View) {
             if (!onDrawScheduled) {
                 onDrawScheduled = true
-                view.getViewTreeObserver().addOnDrawListener(this)
+                view.viewTreeObserver.addOnDrawListener(this)
             }
         }
 
         override fun activityDestroyed() {
             window.decorView.removeCallbacks(this)
-            window.decorView.getViewTreeObserver().removeOnDrawListener(this)
+            window.decorView.viewTreeObserver.removeOnDrawListener(this)
         }
 
         /**
@@ -1125,7 +1130,7 @@ public open class ComponentActivity() :
                     decorView.postInvalidate()
                 }
             } else {
-                // We've already gotten past the 10 second timeout and dropped the
+                // We've already gotten past the 10-second timeout and dropped the
                 // OnPreDrawListener, so we just run on the next frame.
                 decorView.postOnAnimation {
                     if (currentRunnable != null) {
@@ -1158,7 +1163,7 @@ public open class ComponentActivity() :
          * within the onDraw() method.
          */
         override fun run() {
-            window.decorView.getViewTreeObserver().removeOnDrawListener(this)
+            window.decorView.viewTreeObserver.removeOnDrawListener(this)
         }
     }
 

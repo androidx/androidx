@@ -90,12 +90,7 @@ abstract class MultiProcessDataStoreSingleProcessTest<F : TestFile<F>>(
             storage =
                 testIO.getStorage(
                     serializerConfig,
-                    {
-                        MultiProcessCoordinator(
-                            dataStoreScope.coroutineContext,
-                            getJavaFile(testFile),
-                        )
-                    },
+                    { MultiProcessCoordinator(scope.coroutineContext, getJavaFile(file)) },
                 ) {
                     file
                 },
@@ -899,6 +894,39 @@ abstract class MultiProcessDataStoreSingleProcessTest<F : TestFile<F>>(
         )
         val dataStore =
             newDataStore(file = testFile, scope = CoroutineScope(newSingleThreadContext("test")))
+        assertThat(dataStore.data.first()).isEqualTo(0)
+        StrictMode.allowThreadDiskReads()
+        StrictMode.allowThreadDiskWrites()
+    }
+
+    @Test
+    fun testCreateDataStoreAndRead_asyncCreateFile_withStrictMode() = runTest {
+        StrictMode.setThreadPolicy(
+            StrictMode.ThreadPolicy.Builder()
+                .detectDiskReads()
+                .detectDiskWrites()
+                .penaltyDeath()
+                .build()
+        )
+        var localFile: F? = null
+        val createFile = {
+            if (localFile == null) {
+                localFile = synchronized(this) { testIO.newTempFile(parentFile = tempFolder) }
+            }
+            localFile
+        }
+        val localContext = newSingleThreadContext("test")
+        val dataStore =
+            DataStoreImpl(
+                storage =
+                    testIO.getStorage(
+                        serializerConfig,
+                        { MultiProcessCoordinator(localContext, getJavaFile(createFile())) },
+                        createFile,
+                    ),
+                scope = CoroutineScope(localContext),
+                corruptionHandler = ReThrowCorruptionHandler<Byte>(),
+            )
         assertThat(dataStore.data.first()).isEqualTo(0)
         StrictMode.allowThreadDiskReads()
         StrictMode.allowThreadDiskWrites()

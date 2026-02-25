@@ -28,6 +28,7 @@ import androidx.xr.scenecore.scene
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
+/** @param session the [Session] to get the eye from */
 @Sampled
 fun getLeftEye(session: Session) {
     // We need the ArDevice object to properly transform the eye pose coordinate space into
@@ -75,6 +76,7 @@ fun getLeftEye(session: Session) {
     }
 }
 
+/** @param session the [Session] to get the eye from */
 @Sampled
 fun getRightEye(session: Session) {
     // We need the ArDevice object to properly transform the eye pose coordinate space into

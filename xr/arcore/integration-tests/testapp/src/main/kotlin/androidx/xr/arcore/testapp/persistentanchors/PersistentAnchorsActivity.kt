@@ -65,9 +65,9 @@ import androidx.xr.arcore.RenderViewpoint
 import androidx.xr.arcore.testapp.common.BackToMainActivityButton
 import androidx.xr.arcore.testapp.common.SessionLifecycleHelper
 import androidx.xr.arcore.testapp.ui.theme.GoogleYellow
+import androidx.xr.runtime.AnchorPersistenceMode
 import androidx.xr.runtime.Config
-import androidx.xr.runtime.Config.AnchorPersistenceMode
-import androidx.xr.runtime.Config.DeviceTrackingMode
+import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.FieldOfView
 import androidx.xr.runtime.Log
 import androidx.xr.runtime.Session
@@ -94,7 +94,7 @@ class PersistentAnchorsActivity : ComponentActivity() {
     private lateinit var session: Session
     private lateinit var sessionHelper: SessionLifecycleHelper
     private lateinit var movableEntity: Entity
-    private val movableEntityOffset = Pose(Vector3(0f, 0.75f, -1.3f))
+    private val movableEntityOffset = Pose(Vector3(0f, 0.0f, -1.3f))
     private val uuids = MutableStateFlow<List<UUID>>(emptyList())
     private var anchorOffset = MutableStateFlow<Float>(0f)
     private lateinit var arDevice: ArDevice
@@ -139,7 +139,7 @@ class PersistentAnchorsActivity : ComponentActivity() {
                         arDevice.state.collect { arDeviceState -> updatePanelEntity(arDeviceState) }
                     }
 
-                    session.scene.activitySpace.addOnSpaceUpdatedListener {
+                    session.scene.activitySpace.addOnOriginChangedListener {
                         updatePanelEntity(arDevice.state.value)
                         updatePanelInViewStatusUpdates(renderViewpoints.map { it.state.value })
                     }
@@ -362,7 +362,7 @@ class PersistentAnchorsActivity : ComponentActivity() {
 
         Column(
             modifier =
-                Modifier.background(color = Color.White)
+                Modifier.background(color = Color.LightGray)
                     .fillMaxHeight()
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp),

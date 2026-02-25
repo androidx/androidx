@@ -16,7 +16,6 @@
 
 package androidx.pdf.testapp.ui.v2.compose
 
-import android.annotation.SuppressLint
 import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -38,7 +37,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /** [ViewModel] to load [PdfDocument]s and maintain state on behalf of [PdfComposeFragment] */
-@SuppressLint("RestrictedApiAndroidX")
 internal class PdfComposeViewModel(
     private val pdfLoader: PdfLoader,
     private val savedStateHandle: SavedStateHandle,

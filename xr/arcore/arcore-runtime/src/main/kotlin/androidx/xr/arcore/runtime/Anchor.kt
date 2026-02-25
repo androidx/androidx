@@ -21,7 +21,14 @@ import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
 import java.util.UUID
 
-/** Describes a fixed location and orientation in the real world. */
+/**
+ * Describes a fixed location and orientation in the real world.
+ *
+ * @property pose the location of the anchor in the world coordinate space
+ * @property trackingState the current state of the pose of this anchor
+ * @property persistenceState the [PersistenceState] for this anchor
+ * @property uuid the [UUID] that identifies this Anchor if it is persisted
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface Anchor {
 
@@ -39,16 +46,9 @@ public interface Anchor {
         }
     }
 
-    /** The location of the anchor in the world coordinate space. */
     public val pose: Pose
-
-    /** The current state of the pose of this anchor. */
     public val trackingState: TrackingState
-
-    /** The [PersistenceState] for this anchor. */
     public val persistenceState: PersistenceState
-
-    /** The [UUID] that identifies this Anchor if it is persisted. */
     public val uuid: UUID?
 
     /**

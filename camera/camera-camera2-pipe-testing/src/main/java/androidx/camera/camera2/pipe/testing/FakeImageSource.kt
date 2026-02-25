@@ -45,6 +45,10 @@ private constructor(
         return fakeImageReader.simulateImage(timestamp, outputId)
     }
 
+    public fun simulateExpectedOutputs(timestamp: Long, outputIds: Set<OutputId>) {
+        fakeImageReader.simulateExpectedOutputs(timestamp, outputIds)
+    }
+
     override fun close() {
         if (closed.compareAndSet(expect = false, update = true)) {
             imageSource.close()

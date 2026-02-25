@@ -20,21 +20,41 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation.Type
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.rf
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Sets the width and height of the content.
+ *
+ * @param width The width to apply.
+ * @param height The height to apply.
+ */
 public fun RemoteModifier.size(width: RemoteDp, height: RemoteDp): RemoteModifier =
     width(width).height(height)
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/** Sets both the width and height of the content to [size]. */
 public fun RemoteModifier.size(size: RemoteDp): RemoteModifier = width(size).height(size)
 
-public fun RemoteModifier.fillMaxSize(fraction: Float = 1f): RemoteModifier =
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteModifier.fillMaxSize(fraction: Float): RemoteModifier =
     fillMaxWidth(fraction).fillMaxHeight(fraction)
 
+/**
+ * Fills the parent's maximum available width and height.
+ *
+ * @param fraction The fraction of the parent's maximum size to use.
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteModifier.fillMaxSize(fraction: RemoteFloat): RemoteModifier =
+public fun RemoteModifier.fillParentMaxSize(fraction: Float): RemoteModifier =
+    fillParentMaxWidth(fraction).fillParentMaxHeight(fraction)
+
+/**
+ * Fills the parent's maximum available width and height.
+ *
+ * @param fraction The fraction of the parent's maximum size to use.
+ */
+public fun RemoteModifier.fillMaxSize(fraction: RemoteFloat = 1f.rf): RemoteModifier =
     fillMaxWidth(fraction).fillMaxHeight(fraction)
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/** Wraps the content size to its intrinsic dimensions. */
 public fun RemoteModifier.wrapContentSize(): RemoteModifier =
     then(WidthModifier(Type.WRAP, RemoteFloat(1f))).then(HeightModifier(Type.WRAP, RemoteFloat(1f)))

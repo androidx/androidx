@@ -51,7 +51,7 @@ package androidx.room3 {
   }
 
   public interface PooledConnection {
-    method public suspend <R> Object? usePrepared(String sql, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteStatement,? extends R> block, kotlin.coroutines.Continuation<? super R>);
+    method public suspend <R> Object? usePrepared(String sql, kotlin.jvm.functions.Function2<? super androidx.sqlite.SQLiteStatement,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
   }
 
   public final class Room {
@@ -101,9 +101,9 @@ package androidx.room3 {
 
   public abstract static class RoomDatabase.Callback {
     ctor public RoomDatabase.Callback();
-    method public void onCreate(androidx.sqlite.SQLiteConnection connection);
-    method public void onDestructiveMigration(androidx.sqlite.SQLiteConnection connection);
-    method public void onOpen(androidx.sqlite.SQLiteConnection connection);
+    method public suspend Object? onCreate(androidx.sqlite.SQLiteConnection connection, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? onDestructiveMigration(androidx.sqlite.SQLiteConnection connection, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? onOpen(androidx.sqlite.SQLiteConnection connection, kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
   public static final class RoomDatabase.Companion {
@@ -171,7 +171,7 @@ package androidx.room3 {
   public final class TransactorKt {
     method public static suspend <R> Object? deferredTransaction(androidx.room3.Transactor, kotlin.jvm.functions.Function2<? super androidx.room3.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
     method public static suspend <R> Object? exclusiveTransaction(androidx.room3.Transactor, kotlin.jvm.functions.Function2<? super androidx.room3.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
-    method public static suspend Object? execSQL(androidx.room3.PooledConnection, String sql, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public static suspend Object? executeSQL(androidx.room3.PooledConnection, String sql, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public static suspend <R> Object? immediateTransaction(androidx.room3.Transactor, kotlin.jvm.functions.Function2<? super androidx.room3.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
   }
 
@@ -190,12 +190,12 @@ package androidx.room3.concurrent {
 package androidx.room3.migration {
 
   public interface AutoMigrationSpec {
-    method public default void onPostMigrate(androidx.sqlite.SQLiteConnection connection);
+    method public default suspend Object? onPostMigrate(androidx.sqlite.SQLiteConnection connection, kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
   public abstract class Migration {
     ctor public Migration(int startVersion, int endVersion);
-    method public abstract void migrate(androidx.sqlite.SQLiteConnection connection);
+    method public abstract suspend Object? migrate(androidx.sqlite.SQLiteConnection connection, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public final int endVersion;
     property public final int startVersion;
     field public final int endVersion;

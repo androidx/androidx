@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -46,7 +45,6 @@ dependencies {
 
     // Camera
     implementation(project(":camera:camera-camera2"))
-    implementation(project(":camera:camera-camera2-pipe-integration"))
     implementation(project(":camera:camera-core"))
     implementation(project(":camera:camera-effects"))
     implementation(project(":camera:camera-lifecycle"))

@@ -24,8 +24,6 @@ import androidx.webkit.WebSettingsCompat;
 import androidx.webkit.WebViewMediaIntegrityApiStatusConfig;
 
 import org.chromium.support_lib_boundary.WebSettingsBoundaryInterface;
-import org.chromium.support_lib_boundary.WebViewBackForwardCacheSettingsBoundaryInterface;
-import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -301,37 +299,34 @@ public class WebSettingsAdapter {
     }
 
     /**
-     * Adapter method for
-     * {@link androidx.webkit.WebSettingsCompat#getBackForwardCacheSettings(WebSettings)}
+     * Adapter method for {@link BackForwardCacheSettings#getTimeoutSeconds()}
      */
     @WebSettingsCompat.ExperimentalBackForwardCacheSettings
-    public @NonNull BackForwardCacheSettings getBackForwardCacheSettings() {
-        WebViewBackForwardCacheSettingsBoundaryInterface boundaryInterface =
-                BoundaryInterfaceReflectionUtil.castToSuppLibClass(
-                        WebViewBackForwardCacheSettingsBoundaryInterface.class,
-                        mBoundaryInterface.getBackForwardCacheSettings());
-
-        BackForwardCacheSettings settings =
-                (BackForwardCacheSettings) boundaryInterface.getOrCreatePeer(
-                        () -> new BackForwardCacheSettings.Builder().setMaxPagesInCache(
-                                boundaryInterface.getMaxPagesInCache()).setTimeoutSeconds(
-                                boundaryInterface.getTimeoutInSeconds()).build()
-                );
-
-        if (settings != null) return settings;
-        return new BackForwardCacheSettings.Builder().build();
+    public long getBackForwardCacheTimeoutSeconds() {
+        return mBoundaryInterface.getBackForwardCacheSettingsTimeout();
     }
 
     /**
-     * Adapter method for
-     * {@link androidx.webkit.WebSettingsCompat#setBackForwardCacheSettings(WebSettings, BackForwardCacheSettings)}
+     * Adapter method for {@link BackForwardCacheSettings#getMaxPagesInCache()}
      */
     @WebSettingsCompat.ExperimentalBackForwardCacheSettings
-    public void setBackForwardCacheSettings(@NonNull BackForwardCacheSettings settings) {
-        WebViewBackForwardCacheSettingsBoundaryInterface boundaryInterface =
-                new BackForwardCacheSettingsImpl(settings);
+    public int getBackForwardCacheMaxPagesInCache() {
+        return mBoundaryInterface.getBackForwardCacheSettingsMaxPagesInCache();
+    }
 
-        mBoundaryInterface.setBackForwardCacheSettings(
-                BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(boundaryInterface));
+    /**
+     * Adapter method for {@link BackForwardCacheSettings#setTimeoutSeconds(long)}
+     */
+    @WebSettingsCompat.ExperimentalBackForwardCacheSettings
+    public void setBackForwardCacheTimeoutSeconds(long timeout) {
+        mBoundaryInterface.setBackForwardCacheSettingsTimeout(timeout);
+    }
+
+    /**
+     * Adapter method for {@link BackForwardCacheSettings#setMaxPagesInCache(int)}
+     */
+    @WebSettingsCompat.ExperimentalBackForwardCacheSettings
+    public void setBackForwardCacheMaxPagesInCache(int maxPages) {
+        mBoundaryInterface.setBackForwardCacheSettingsMaxPagesInCache(maxPages);
     }
 }

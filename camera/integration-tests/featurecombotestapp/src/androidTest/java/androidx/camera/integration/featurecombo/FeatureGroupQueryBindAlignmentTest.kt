@@ -19,7 +19,6 @@ package androidx.camera.integration.featurecombo
 import android.util.Log
 import android.util.Range
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
@@ -28,7 +27,6 @@ import androidx.camera.core.featuregroup.GroupableFeature
 import androidx.camera.integration.featurecombo.FeatureGroupQueryBindAlignmentTest.VerificationScenario.PREFERRED_FEATURES
 import androidx.camera.integration.featurecombo.FeatureGroupQueryBindAlignmentTest.VerificationScenario.REQUIRED_FEATURES
 import androidx.camera.testing.impl.CameraUtil
-import androidx.camera.testing.impl.LabTestRule.Companion.isInLabTest
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
@@ -204,23 +202,6 @@ class FeatureGroupQueryBindAlignmentTest(
                                     useCases,
                                 )
                             )
-
-                            // CameraPipeConfig will be removed soon, so running these tests in lab
-                            // env only to save testing time and resources.
-                            if (isInLabTest()) {
-                                add(
-                                    arrayOf(
-                                        "config=${CameraPipeConfig::class.simpleName}" +
-                                            " lensFacing={$lens} featureGroup={$featureGroup}" +
-                                            " useCases = {$useCases}",
-                                        selector,
-                                        CameraPipeConfig::class.simpleName,
-                                        CameraPipeConfig.defaultConfig(),
-                                        featureGroup,
-                                        useCases,
-                                    )
-                                )
-                            }
                         }
                     }
 
@@ -241,22 +222,6 @@ class FeatureGroupQueryBindAlignmentTest(
                                     useCases,
                                 )
                             )
-
-                            // CameraPipeConfig will be removed soon, so running these tests in lab
-                            // env only to save testing time and resources.
-                            if (isInLabTest()) {
-                                add(
-                                    arrayOf(
-                                        "config=${CameraPipeConfig::class.simpleName} lensFacing={$lens}" +
-                                            " featureGroup={$featureGroup} useCases = {$useCases}",
-                                        selector,
-                                        CameraPipeConfig::class.simpleName,
-                                        CameraPipeConfig.defaultConfig(),
-                                        featureGroup,
-                                        useCases,
-                                    )
-                                )
-                            }
                         }
                     }
                 }

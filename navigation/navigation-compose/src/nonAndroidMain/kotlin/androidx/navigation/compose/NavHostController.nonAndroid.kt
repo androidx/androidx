@@ -20,7 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.Navigator
-import androidx.navigation.implementedInJetBrainsFork
+import androidx.navigation.compose.internal.implementedInJetBrainsFork
 
 @Composable
 public actual fun rememberNavController(

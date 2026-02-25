@@ -66,7 +66,10 @@ import androidx.xr.arcore.hitTest
 import androidx.xr.arcore.playservices.UnsupportedArCoreCompatApi
 import androidx.xr.arcore.playservices.cameraState
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.DeviceTrackingMode
+import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.Log
+import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Ray
@@ -96,9 +99,9 @@ class GeospatialActivity : ComponentActivity(), DefaultLifecycleObserver {
                 this,
                 config =
                     Config(
-                        planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                        deviceTracking = Config.DeviceTrackingMode.LAST_KNOWN,
-                        geospatial = Config.GeospatialMode.VPS_AND_GPS,
+                        planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
+                        deviceTracking = DeviceTrackingMode.LAST_KNOWN,
+                        geospatial = GeospatialMode.VPS_AND_GPS,
                     ),
                 onSessionAvailable = { session ->
                     this.session = session
@@ -274,14 +277,14 @@ class GeospatialActivity : ComponentActivity(), DefaultLifecycleObserver {
                 ) {
                     is CreateGeospatialPoseFromPoseSuccess ->
                         """
-            Localization Status:
-              Lat: ${"%.6f".format(result.pose.latitude)}
-              Lng: ${"%.6f".format(result.pose.longitude)}
-              Alt: ${"%.3f".format(result.pose.altitude)}
-              Horizontal Accuracy: ${"%.3f".format(result.horizontalAccuracy)}
-              Vertical Accuracy: ${"%.3f".format(result.verticalAccuracy)}
-              Yaw Accuracy: ${"%.3f".format(result.orientationYawAccuracy)}
-            """
+                        Localization Status:
+                          Lat: ${"%.6f".format(result.pose.latitude)}
+                          Lng: ${"%.6f".format(result.pose.longitude)}
+                          Alt: ${"%.3f".format(result.pose.altitude)}
+                          Horizontal Accuracy: ${"%.3f".format(result.horizontalAccuracy)}
+                          Vertical Accuracy: ${"%.3f".format(result.verticalAccuracy)}
+                          Yaw Accuracy: ${"%.3f".format(result.orientationYawAccuracy)}
+                        """
                             .trimIndent()
                     is CreateGeospatialPoseFromPoseNotTracking ->
                         "Localization Status: Not tracking"

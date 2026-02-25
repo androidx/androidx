@@ -23,10 +23,10 @@ import java.util.zip.GZIPInputStream
 /** Gets decompressed [ByteArray] from an [InputStream] of GZIP-compressed bytes. */
 internal class DecompressedBytes(compressedBytesInputStream: InputStream) {
     /** The first [size] bytes of this contain the decompressed bytes, the rest are zero. */
-    public val bytes: ByteArray
+    val bytes: ByteArray
 
     /** The size of the initial portion of [bytes] containing the decompressed bytes. */
-    public val size: Int
+    val size: Int
 
     init {
         var byteArray = ByteArray(DECOMPRESSED_BYTES_INITIAL_CAPACITY)
@@ -59,7 +59,7 @@ internal class DecompressedBytes(compressedBytesInputStream: InputStream) {
         }
     }
 
-    public companion object {
-        public const val DECOMPRESSED_BYTES_INITIAL_CAPACITY: Int = 32 * 1024
+    companion object {
+        const val DECOMPRESSED_BYTES_INITIAL_CAPACITY: Int = 32 * 1024
     }
 }

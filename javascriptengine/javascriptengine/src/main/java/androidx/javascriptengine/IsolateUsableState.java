@@ -89,59 +89,81 @@ final class IsolateUsableState implements IsolateState {
         @Override
         public void reportResultWithFd(AssetFileDescriptor afd) {
             Objects.requireNonNull(afd);
-            // The completer needs to be removed before offloading to the executor, otherwise there
-            // is a race to complete it if all evaluations are cancelled.
-            removePending(mCompleter);
-            mJsIsolate.mJsSandbox.mThreadPoolTaskExecutor.execute(
-                    () -> {
-                        String result;
-                        try {
-                            result = Utils.readToString(afd,
-                                    mMaxEvaluationReturnSizeBytes,
-                                    /*truncate=*/false);
-                        } catch (IOException | UnsupportedOperationException ex) {
-                            mCompleter.setException(
-                                    new JavaScriptException(
-                                            "Retrieving result failed: " + ex.getMessage()));
-                            return;
-                        } catch (LengthLimitExceededException ex) {
-                            if (ex.getMessage() != null) {
+            try {
+                mJsIsolate.mJsSandbox.mThreadPoolTaskExecutor.execute(
+                        () -> {
+                            // There could have been a race that removes the completer before this
+                            // if all evaluations for the isolate were canceled due to termination.
+                            // However, it's safe to proceed regardless.
+                            removePending(mCompleter);
+                            String result;
+                            try {
+                                result = Utils.readToString(afd,
+                                        mMaxEvaluationReturnSizeBytes,
+                                        /*truncate=*/false);
+                            } catch (IOException | UnsupportedOperationException ex) {
                                 mCompleter.setException(
-                                        new EvaluationResultSizeLimitExceededException(
-                                                ex.getMessage()));
-                            } else {
-                                mCompleter.setException(
-                                        new EvaluationResultSizeLimitExceededException());
+                                        new JavaScriptException(
+                                                "Retrieving result failed: " + ex.getMessage()));
+                                return;
+                            } catch (LengthLimitExceededException ex) {
+                                if (ex.getMessage() != null) {
+                                    mCompleter.setException(
+                                            new EvaluationResultSizeLimitExceededException(
+                                                    ex.getMessage()));
+                                } else {
+                                    mCompleter.setException(
+                                            new EvaluationResultSizeLimitExceededException());
+                                }
+                                return;
                             }
-                            return;
-                        }
-                        handleEvaluationResult(mCompleter, result);
-                    });
+                            handleEvaluationResult(mCompleter, result);
+                        });
+            } catch (RejectedExecutionException e) {
+                // The sandbox could have been killed/closed soon after this result started to
+                // arrive, in which case the executor service may have shutdown. The completer will
+                // be setExceptioned as part of the close/crash handling. Just release the FD.
+                Utils.closeQuietly(afd);
+            }
         }
 
         @Override
         public void reportErrorWithFd(@ExecutionErrorTypes int type, AssetFileDescriptor afd) {
             Objects.requireNonNull(afd);
-            // The completer needs to be removed before offloading to the executor, otherwise there
-            // is a race to complete it if all evaluations are cancelled.
-            removePending(mCompleter);
-            mJsIsolate.mJsSandbox.mThreadPoolTaskExecutor.execute(
-                    () -> {
-                        String error;
-                        try {
-                            error = Utils.readToString(afd,
-                                    mMaxEvaluationReturnSizeBytes,
-                                    /*truncate=*/true);
-                        } catch (IOException | UnsupportedOperationException ex) {
-                            mCompleter.setException(
-                                    new JavaScriptException(
-                                            "Retrieving error failed: " + ex.getMessage()));
-                            return;
-                        } catch (LengthLimitExceededException ex) {
-                            throw new AssertionError("unreachable");
-                        }
-                        handleEvaluationError(mCompleter, type, error);
-                    });
+            try {
+                mJsIsolate.mJsSandbox.mThreadPoolTaskExecutor.execute(
+                        () -> {
+                            // We'd still potentially need to process the result even if this
+                            // returns false (the completer isn't pending; for example, if the
+                            // isolate was closed). The result might indicate an OOM that requires
+                            // app-side intervention to kill the sandbox.
+                            removePending(mCompleter);
+                            String error;
+                            try {
+                                error = Utils.readToString(afd,
+                                        mMaxEvaluationReturnSizeBytes,
+                                        /*truncate=*/true);
+                            } catch (IOException | UnsupportedOperationException ex) {
+                                mCompleter.setException(
+                                        new JavaScriptException(
+                                                "Retrieving error failed: " + ex.getMessage()));
+                                return;
+                            } catch (LengthLimitExceededException ex) {
+                                throw new AssertionError("unreachable");
+                            }
+                            handleEvaluationError(mCompleter, type, error);
+                        });
+            } catch (RejectedExecutionException e) {
+                // The sandbox could have been killed/closed soon after this result started to
+                // arrive, in which case the executor service may have shutdown. The completer will
+                // be setExceptioned as part of the close/crash handling. Just release the FD.
+                Utils.closeQuietly(afd);
+            }
+        }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
         }
     }
 
@@ -156,6 +178,9 @@ final class IsolateUsableState implements IsolateState {
         @Override
         public void reportResult(String result) {
             Objects.requireNonNull(result);
+            // There could have been a race that removes the completer before this
+            // if all evaluations for the isolate were canceled due to termination.
+            // However, it's safe to proceed regardless.
             removePending(mCompleter);
             final long identityToken = Binder.clearCallingIdentity();
             try {
@@ -168,6 +193,10 @@ final class IsolateUsableState implements IsolateState {
         @Override
         public void reportError(@ExecutionErrorTypes int type, String error) {
             Objects.requireNonNull(error);
+            // We'd still potentially need to process the result even if this
+            // returns false (the completer isn't pending; for example, if the
+            // isolate was closed). The result might indicate an OOM that requires
+            // app-side intervention to kill the sandbox.
             removePending(mCompleter);
             final long identityToken = Binder.clearCallingIdentity();
             try {
@@ -175,6 +204,11 @@ final class IsolateUsableState implements IsolateState {
             } finally {
                 Binder.restoreCallingIdentity(identityToken);
             }
+        }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
         }
     }
 
@@ -225,6 +259,11 @@ final class IsolateUsableState implements IsolateState {
             } finally {
                 Binder.restoreCallingIdentity(identity);
             }
+        }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
         }
 
     }
@@ -328,6 +367,9 @@ final class IsolateUsableState implements IsolateState {
     public void provideNamedData(@NonNull String name, byte @NonNull [] inputBytes) {
         // We pass the codeAfd to the separate sandbox process but we still need to close
         // it on our end to avoid file descriptor leaks.
+        //
+        // Don't catch RejectedExecutionException, as it shouldn't be possible for the
+        // ExecutorService to have shut down without the isolate having been notified.
         try (AssetFileDescriptor codeAfd = Utils.writeBytesIntoPipeAsync(inputBytes,
                 mJsIsolate.mJsSandbox.mThreadPoolTaskExecutor)) {
             try {
@@ -439,6 +481,8 @@ final class IsolateUsableState implements IsolateState {
             final String futureDebugMessage = "evaluateJavascript Future";
             IJsSandboxIsolateSyncCallbackStubWrapper callbackStub =
                     new IJsSandboxIsolateSyncCallbackStubWrapper(completer);
+            // Don't catch RejectedExecutionException, as it shouldn't be possible for the
+            // ExecutorService to have shut down without the isolate having been notified.
             try (AssetFileDescriptor codeAfd = Utils.writeBytesIntoPipeAsync(code,
                     mJsIsolate.mJsSandbox.mThreadPoolTaskExecutor)) {
                 // We pass the codeAfd to the separate sandbox process but we still need to
@@ -446,13 +490,13 @@ final class IsolateUsableState implements IsolateState {
                 try {
                     mJsIsolateStub.evaluateJavascriptWithFd(codeAfd,
                             callbackStub);
+                    addPending(completer);
                 } catch (DeadObjectException e) {
                     final TerminationInfo terminationInfo = killSandbox(e);
                     completer.setException(terminationInfo.toJavaScriptException());
                 } catch (RemoteException | RuntimeException e) {
                     throw killSandboxAndGetRuntimeException(e);
                 }
-                addPending(completer);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

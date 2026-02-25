@@ -475,17 +475,17 @@ class PreferencesTest {
         assertThat(stringValue)
             .isEqualTo(
                 """
-            {
-              int_key = 123,
-              boolean_key = false,
-              float_key = 3.14,
-              double_key = 3.1415,
-              string_key = abc,
-              string_set_key = [1, 2, 3],
-              long_key = 10000000000,
-              byte_array_key = [1, 2, 3, 4]
-            }
-        """
+                {
+                  int_key = 123,
+                  boolean_key = false,
+                  float_key = 3.14,
+                  double_key = 3.1415,
+                  string_key = abc,
+                  string_set_key = [1, 2, 3],
+                  long_key = 10000000000,
+                  byte_array_key = [1, 2, 3, 4]
+                }
+                """
                     .trimIndent()
             )
     }

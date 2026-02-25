@@ -21,29 +21,9 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.state.RemoteBitmap
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
-
-@Composable
-@RemoteComposable
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun RemoteImageV2(
-    bitmap: ImageBitmap,
-    modifier: RemoteModifier = RemoteModifier,
-    contentScale: ContentScale = ContentScale.Fit,
-    alpha: RemoteFloat = RemoteFloat(1f),
-) {
-    RemoteComposeNode(
-        factory = { RemoteImageNodeV2() },
-        update = {
-            set(modifier) { nodeModifier -> this.modifier = nodeModifier }
-            set(bitmap) { this.image = it }
-            set(contentScale) { this.contentScale = it }
-            set(alpha) { this.alpha = it }
-        },
-    )
-}
 
 @Composable
 @RemoteComposable
@@ -53,14 +33,16 @@ public fun RemoteImageV2(
     modifier: RemoteModifier = RemoteModifier,
     contentScale: ContentScale = ContentScale.Fit,
     alpha: RemoteFloat = RemoteFloat(1f),
+    contentDescription: RemoteString? = null,
 ) {
     RemoteComposeNode(
-        factory = { RemoteImageNodeV2() },
+        factory = ::RemoteImageNodeV2,
         update = {
             set(modifier) { nodeModifier -> this.modifier = nodeModifier }
             set(remoteBitmap) { this.remoteBitmap = it }
             set(contentScale) { this.contentScale = it }
             set(alpha) { this.alpha = it }
+            set(contentDescription) { this.contentDescription = it }
         },
     )
 }

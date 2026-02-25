@@ -18,7 +18,6 @@
 package androidx.compose.remote.integration.view.demos.examples
 
 import android.graphics.BitmapFactory
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.remote.creation.compose.layout.FitBox
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
@@ -27,6 +26,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteCollapsibleColumn
 import androidx.compose.remote.creation.compose.layout.RemoteCollapsibleRow
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteImage
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -40,8 +40,10 @@ import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.modifier.widthIn
+import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.integration.view.demos.R
 import androidx.compose.remote.tooling.preview.RemotePreview
 import androidx.compose.runtime.Composable
@@ -49,11 +51,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 @RemoteComposable
 @Composable
@@ -68,7 +69,7 @@ fun WeatherDemo() {
             horizontalAlignment = RemoteAlignment.CenterHorizontally,
         ) {
             FitBox(RemoteModifier.fillMaxSize(), verticalArrangement = RemoteArrangement.Top) {
-                val res = LocalContext.current.resources
+                val res = LocalResources.current
                 val image = remember {
                     BitmapFactory.decodeResource(
                             res,
@@ -80,8 +81,8 @@ fun WeatherDemo() {
                 RemoteCollapsibleColumn(
                     modifier =
                         RemoteModifier.fillMaxWidth()
-                            .widthIn(min = 180.dp)
-                            .clip(RoundedCornerShape(24.dp))
+                            .widthIn(min = 50.dp)
+                            .clip(RemoteRoundedCornerShape(24.rdp))
                             .background(Color(219, 247, 239))
                 ) {
                     WeatherHeader()
@@ -96,7 +97,7 @@ fun WeatherDemo() {
                     RemoteColumn(
                         modifier =
                             RemoteModifier.height(120.rdp)
-                                .clip(RoundedCornerShape(8.dp))
+                                .clip(RemoteRoundedCornerShape(8.rdp))
                                 .background(Color(219, 247, 239))
                                 //                            .background(Color.Blue)
                                 .padding(8.dp),
@@ -104,9 +105,9 @@ fun WeatherDemo() {
                         horizontalAlignment = RemoteAlignment.CenterHorizontally,
                     ) {
                         RemoteText("Rio de Janeiro")
-                        RemoteText("100º", fontSize = 26.sp, fontWeight = FontWeight.Medium)
+                        RemoteText("100º", fontSize = 26.rsp, fontWeight = FontWeight.Medium)
                         RemoteImage(image, RemoteString(""), modifier = RemoteModifier.size(48.rdp))
-                        RemoteText("H: 62º - L: 54º", fontSize = 10.sp)
+                        RemoteText("H: 62º - L: 54º", fontSize = 10.rsp)
                     }
                 }
             }
@@ -114,20 +115,19 @@ fun WeatherDemo() {
     }
 }
 
-@Preview @Composable fun WeatherDemoPreview() = RemotePreview { WeatherDemo() }
+@Preview @Composable private fun WeatherDemoPreview() = RemotePreview { WeatherDemo() }
 
 @RemoteComposable
 @Composable
 fun WeatherHeader() {
-    val res = LocalContext.current.resources
+    val res = LocalResources.current
     val image = remember {
         BitmapFactory.decodeResource(res, R.drawable.mostly_cloudy, BitmapFactory.Options())
             .asImageBitmap()
     }
     RemoteRow(
         modifier =
-            RemoteModifier.widthIn(min = 180.dp)
-                .width(400.rdp)
+            RemoteModifier.widthIn(min = 100.dp)
                 .heightIn(min = rowHeightDp)
                 .padding(8.dp), // .background(Color.Red),
         verticalAlignment = RemoteAlignment.CenterVertically,
@@ -138,7 +138,7 @@ fun WeatherHeader() {
     }
 }
 
-@Preview @Composable fun WeatherHeaderPreview() = RemotePreview { WeatherHeader() }
+@Preview @Composable private fun WeatherHeaderPreview() = RemotePreview { WeatherHeader() }
 
 val rowHeight = 90.rdp
 val rowHeightDp = 90.dp
@@ -152,17 +152,17 @@ fun WeatherBox() {
         verticalArrangement = RemoteArrangement.Center,
     ) {
         RemoteText("Rio de Janeiro")
-        RemoteText("100º", fontSize = 38.sp, fontWeight = FontWeight.Medium)
-        RemoteText("High: 62º - Low: 54º", fontSize = 10.sp)
+        RemoteText("100º", fontSize = 38.rsp, fontWeight = FontWeight.Medium)
+        RemoteText("High: 62º - Low: 54º", fontSize = 10.rsp)
     }
 }
 
-@Preview @Composable fun WeatherBoxPreview() = RemotePreview { WeatherBox() }
+@Preview @Composable private fun WeatherBoxPreview() = RemotePreview { WeatherBox() }
 
 @RemoteComposable
 @Composable
 fun WeatherBox2() {
-    val res = LocalContext.current.resources
+    val res = LocalResources.current
     val image = remember {
         BitmapFactory.decodeResource(res, R.drawable.mostly_cloudy, BitmapFactory.Options())
             .asImageBitmap()
@@ -178,11 +178,11 @@ fun WeatherBox2() {
     ) {
         RemoteImage(refresh, RemoteString(""), modifier = RemoteModifier.size(20.rdp))
         RemoteImage(image, RemoteString(""), modifier = RemoteModifier.size(48.rdp))
-        RemoteText("Mostly cloudy", fontSize = 10.sp)
+        RemoteText("Mostly cloudy", fontSize = 10.rsp)
     }
 }
 
-@Preview @Composable fun WeatherBox2Preview() = RemotePreview { WeatherBox2() }
+@Preview @Composable private fun WeatherBox2Preview() = RemotePreview { WeatherBox2() }
 
 @RemoteComposable
 @Composable
@@ -201,12 +201,12 @@ fun WeatherRow() {
     }
 }
 
-@Preview @Composable fun WeatherRowPreview() = RemotePreview { WeatherRow() }
+@Preview @Composable private fun WeatherRowPreview() = RemotePreview { WeatherRow() }
 
 @RemoteComposable
 @Composable
 fun Weather(temperature: String, hour: String, resource: Int) {
-    val res = LocalContext.current.resources
+    val res = LocalResources.current
     val image = remember {
         BitmapFactory.decodeResource(res, resource, BitmapFactory.Options()).asImageBitmap()
     }
@@ -228,7 +228,7 @@ fun WeatherDays() {
         modifier =
             RemoteModifier.fillMaxWidth()
                 .padding(16.dp)
-                .clip(RoundedCornerShape(8.dp))
+                .clip(RemoteRoundedCornerShape(8.rdp))
                 .background(Color(205, 232, 225))
                 .padding(8.dp),
         verticalArrangement = RemoteArrangement.SpaceEvenly,
@@ -244,12 +244,12 @@ fun WeatherDays() {
     }
 }
 
-@Preview @Composable fun WeatherDaysPreview() = RemotePreview { WeatherDays() }
+@Preview @Composable private fun WeatherDaysPreview() = RemotePreview { WeatherDays() }
 
 @RemoteComposable
 @Composable
 fun WeatherDay(day: String, precipitation: String, image: Int, temperature: String) {
-    val res = LocalContext.current.resources
+    val res = LocalResources.current
     val image = remember {
         BitmapFactory.decodeResource(res, image, BitmapFactory.Options()).asImageBitmap()
     }

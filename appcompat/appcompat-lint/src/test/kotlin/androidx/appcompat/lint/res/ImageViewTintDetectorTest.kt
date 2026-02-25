@@ -53,21 +53,21 @@ class ImageViewTintDetectorTest {
             .run()
             .expect(
                 """
-res/layout/image_view.xml:10: Error: Must use app:tint instead of android:tint [UseAppTint]
-        android:tint="#FF0000" />
-        ~~~~~~~~~~~~~~~~~~~~~~
-1 errors, 0 warnings
+                res/layout/image_view.xml:10: Error: Must use app:tint instead of android:tint [UseAppTint]
+                        android:tint="#FF0000" />
+                        ~~~~~~~~~~~~~~~~~~~~~~
+                1 errors, 0 warnings
                 """
                     .trimIndent()
             )
             .expectFixDiffs(
                 """
-Fix for res/layout/image_view.xml line 10: Use `app:tint` instead of `android:tint`:
-@@ -3 +3
-+     xmlns:app="http://schemas.android.com/apk/res-auto"
-@@ -11 +12
--         android:tint="#FF0000" />
-+         app:tint="#FF0000" />
+                Fix for res/layout/image_view.xml line 10: Use `app:tint` instead of `android:tint`:
+                @@ -3 +3
+                +     xmlns:app="http://schemas.android.com/apk/res-auto"
+                @@ -11 +12
+                -         android:tint="#FF0000" />
+                +         app:tint="#FF0000" />
                 """
                     .trimIndent()
             )

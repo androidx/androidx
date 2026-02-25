@@ -23,68 +23,81 @@ import java.util.UUID
 
 /**
  * Describes the perception functionality that is required from a [PerceptionRuntime]
- * implementation. It is expected that these functions are only valid while the [PerceptionRuntime]
- * is in a resumed state.
+ * implementation.
+ *
+ * It is expected that these functions are only valid while the [PerceptionRuntime] is in a resumed
+ * state.
+ *
+ * @property trackables the [Collection] of all known [Trackables][Trackable]
+ * @property leftEye the left [Eye], or null if not available
+ * @property rightEye the right [Eye], or null if not available
+ * @property leftHand the left [Hand], or null if not available
+ * @property rightHand the right [Hand], or null if not available
+ * @property arDevice the [ArDevice] instance
+ * @property leftRenderViewpoint the left [RenderViewpoint], or null if not available
+ * @property rightRenderViewpoint the right [RenderViewpoint], or null if not available
+ * @property monoRenderViewpoint the mono [RenderViewpoint], or null if not available
+ * @property geospatial the [Geospatial] instance
+ * @property leftDepthMap the left [DepthMap], or null if not available
+ * @property rightDepthMap the right [DepthMap], or null if not available
+ * @property monoDepthMap the mono [DepthMap], or null if not available
+ * @property userFace the user's [Face], or null if not available
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface PerceptionManager {
-    /** Defines a tracked location in the physical world. */
+    /**
+     * Defines a tracked location in the physical world.
+     *
+     * @param pose the [Pose] of the anchor
+     * @return the created [Anchor]
+     */
     public fun createAnchor(pose: Pose): Anchor
 
-    /** Performs a ray cast in the direction of the given [ray] in the latest camera view. */
+    /**
+     * Performs a ray cast in the direction of the given [ray] in the latest camera view.
+     *
+     * @param ray the [Ray] to cast
+     * @return a list of [HitResult] objects
+     */
     public fun hitTest(ray: Ray): List<HitResult>
 
-    /** Retrieves all the [UUID] instances from [Anchor] objects that have been persisted. */
+    /**
+     * Retrieves all the [UUID] instances from [Anchor] objects that have been persisted.
+     *
+     * @return a list of [UUID]s
+     */
     public fun getPersistedAnchorUuids(): List<UUID>
 
-    /** Loads an [Anchor] from local storage. */
+    /**
+     * Loads an [Anchor] from local storage.
+     *
+     * @param uuid the [UUID] of the anchor to load
+     * @return the loaded [Anchor]
+     */
     public fun loadAnchor(uuid: UUID): Anchor
 
-    /** Deletes a persisted [androidx.xr.arcore.internal.Anchor] from local storage. */
+    /**
+     * Deletes a persisted [Anchor] from local storage.
+     *
+     * @param uuid the [UUID] of the anchor to unpersist
+     */
     public fun unpersistAnchor(uuid: UUID)
 
-    /** Returns the list of all known trackables. */
     public val trackables: Collection<Trackable>
-
-    /** Eye tracking information for the left [Eye]. Only available on supported platforms. */
     public val leftEye: Eye?
-
-    /** Eye tracking information for the right [Eye]. Only available on supported platforms. */
     public val rightEye: Eye?
-
-    /** Hand tracking information for the left [Hand]. Only available on supported platforms. */
     public val leftHand: Hand?
-
-    /** Hand tracking information for the right [Hand]. Only available on supported platforms. */
     public val rightHand: Hand?
-
-    /** AR device tracking information. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val arDevice: ArDevice
-
-    /** Left View Camera information. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public val leftRenderViewpoint: RenderViewpoint?
-
-    /** Right View Camera information. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public val rightRenderViewpoint: RenderViewpoint?
-
-    /** Mono View Camera information. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public val monoRenderViewpoint: RenderViewpoint?
-
-    /** [Earth] tracking information. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val geospatial: Geospatial
-
-    /** Left [DepthMap]'s current frame information */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val leftDepthMap: DepthMap?
-
-    /** Right [DepthMap]'s current frame information */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val rightDepthMap: DepthMap?
-
-    /** Mono [DepthMap]'s current frame information */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val monoDepthMap: DepthMap?
-
-    /** Face tracking information for the face. Only available on supported platforms. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val userFace: Face?
 }

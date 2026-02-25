@@ -31,16 +31,16 @@ class FallbackLocationInformationTest {
             Source.kotlin(
                 "KotlinSubject.kt",
                 """
-            package foo.bar
-            class KotlinSubject(val constructorProp:Int, constructorArg:Int) {
-                var prop: String = ""
-                var propWithAccessors: String
-                    get() = ""
-                    set(myValue) = TODO()
-                fun method1(arg1: Int): String = ""
-                suspend fun suspendFun(arg1:Int): String = ""
-            }
-            """
+                package foo.bar
+                class KotlinSubject(val constructorProp:Int, constructorArg:Int) {
+                    var prop: String = ""
+                    var propWithAccessors: String
+                        get() = ""
+                        set(myValue) = TODO()
+                    fun method1(arg1: Int): String = ""
+                    suspend fun suspendFun(arg1:Int): String = ""
+                }
+                """
                     .trimIndent(),
             )
 
@@ -48,16 +48,16 @@ class FallbackLocationInformationTest {
             Source.java(
                 "foo.bar.JavaSubject",
                 """
-            package foo.bar;
-            class JavaSubject {
-                String field1;
-                // naming this arg0 because javac cannot read the real param name after compilation
-                JavaSubject(int p0) {
+                package foo.bar;
+                class JavaSubject {
+                    String field1;
+                    // naming this arg0 because javac cannot read the real param name after compilation
+                    JavaSubject(int p0) {
+                    }
+                    // naming this arg0 because javac cannot read the real param name after compilation
+                    void method1(int p0) {}
                 }
-                // naming this arg0 because javac cannot read the real param name after compilation
-                void method1(int p0) {}
-            }
-            """
+                """
                     .trimIndent(),
             )
         // add a placeholder to not run tests w/ javac since we depend on compiled kotlin

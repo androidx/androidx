@@ -70,6 +70,22 @@ public abstract class WebResourceErrorCompat {
     public abstract @NetErrorCode int getErrorCode();
 
     /**
+     * Internal error code that may not be stable over time.
+     * Intended purely for debugging purposes.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#NAVIGATION_GET_WEB_RESOURCE_ERROR}.
+     *
+     * @return The internal error code
+     */
+    @RequiresFeature(name = WebViewFeature.NAVIGATION_GET_WEB_RESOURCE_ERROR,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public abstract int getDebugCode();
+
+    /**
      * Gets the string describing the error. Descriptions are localized,
      * and thus can be used for communicating the problem to the user.
      *

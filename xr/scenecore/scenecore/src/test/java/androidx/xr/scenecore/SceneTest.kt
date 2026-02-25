@@ -20,6 +20,7 @@ import android.os.Looper
 import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.FloatSize2d
@@ -41,9 +42,10 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.Config as RoboConfig
 
 @RunWith(RobolectricTestRunner::class)
-@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
+@RoboConfig(sdk = [RoboConfig.TARGET_SDK])
 class SceneTest {
     private val activityController = Robolectric.buildActivity(ComponentActivity::class.java)
     private val activity = activityController.create().start().get()
@@ -59,7 +61,7 @@ class SceneTest {
 
         session = (result as SessionCreateSuccess).session
         sceneRuntime = session.sceneRuntime
-        session.configure(Config(planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
+        session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
     }
 
     @Test
@@ -416,6 +418,20 @@ class SceneTest {
 
         session.scene.keyEntity = null // Clear it
         assertThat(session.scene.keyEntity).isNull()
+    }
+
+    @Test
+    fun keyEntity_setNewEntity_setsNewRtKeyEntity() {
+        val entity = GroupEntity.create(session, "Entity")
+        val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
+
+        session.scene.keyEntity = entity
+
+        assertThat(fakeSceneRuntime.keyEntity).isNotNull()
+
+        session.scene.keyEntity = null
+
+        assertThat(fakeSceneRuntime.keyEntity).isNull()
     }
 
     @Test

@@ -33,7 +33,7 @@ class TestFunctions2 {
      * @param str2 The second string.
      * @return The result of concatenating the two strings.
      */
-    @AppFunction(isDescribedByKdoc = true)
+    @AppFunction(isDescribedByKDoc = true)
     fun concat(appFunctionContext: AppFunctionContext, str1: String, str2: String) = str1 + str2
 
     @AppFunction
@@ -63,14 +63,14 @@ class TestFunctions2 {
 }
 
 /** AppFunctionSerializable in non-root library. */
-@AppFunctionSerializable(isDescribedByKdoc = true)
+@AppFunctionSerializable(isDescribedByKDoc = true)
 class ExampleSerializable(
     /** Int property of ExampleSerializable. */
     val intProperty: Int
 )
 
 /** Example parameterized AppFunctionSerializable in another package. */
-@AppFunctionSerializable(isDescribedByKdoc = true)
+@AppFunctionSerializable(isDescribedByKDoc = true)
 class GenericSerializable<T>(
     /** Value property of GenericSerializable. */
     val value: T

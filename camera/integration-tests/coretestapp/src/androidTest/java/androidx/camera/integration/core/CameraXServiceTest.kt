@@ -26,7 +26,6 @@ import android.content.ServiceConnection
 import android.os.Build
 import android.os.IBinder
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageAnalysis
@@ -40,7 +39,6 @@ import androidx.camera.integration.core.CameraXService.EXTRA_IMAGE_ANALYSIS_ENAB
 import androidx.camera.integration.core.CameraXService.EXTRA_IMAGE_CAPTURE_ENABLED
 import androidx.camera.integration.core.CameraXService.EXTRA_VIDEO_CAPTURE_ENABLED
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.hasCameraWithLensFacing
 import androidx.camera.testing.impl.IgnoreVideoRecordingProblematicDeviceRule.Companion.skipVideoRecordingTestIfNotSupportedByEmulator
@@ -85,18 +83,10 @@ class CameraXServiceTest(private val implName: String, private val cameraXConfig
             Manifest.permission.RECORD_AUDIO,
         )
 
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
-
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() =
-            listOf(
-                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig()),
-            )
+        fun data() = listOf(arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()))
     }
 
     private val context = ApplicationProvider.getApplicationContext<Context>()

@@ -32,6 +32,7 @@ import androidx.sqlite.execSQL
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -107,14 +108,14 @@ class ProvidedAutoMigrationSpecTest {
         internal class MyProvidedAutoMigration() : AutoMigrationSpec {
             var onPostMigrateCalled = false
 
-            override fun onPostMigrate(connection: SQLiteConnection) {
+            override suspend fun onPostMigrate(connection: SQLiteConnection) {
                 onPostMigrateCalled = true
             }
         }
     }
 
     // Run this to create the very 1st version of the db.
-    private fun createFirstVersion() {
+    private fun createFirstVersion() = runTest {
         helperWithoutSpec.createDatabase(1).use {
             it.execSQL("INSERT INTO Entity1 (id, name) VALUES (1, 'row1')")
         }
@@ -126,7 +127,7 @@ class ProvidedAutoMigrationSpecTest {
     }
 
     @Test
-    fun testOnPostMigrate() {
+    fun testOnPostMigrate() = runTest {
         createFirstVersion()
         helperWithSpec.runMigrationsAndValidate(version = 2, migrations = emptyList()).use {
             assertThat(providedSpec.onPostMigrateCalled).isTrue()
@@ -134,7 +135,7 @@ class ProvidedAutoMigrationSpecTest {
     }
 
     @Test
-    fun testNoSpecProvidedInConfig() {
+    fun testNoSpecProvidedInConfig() = runTest {
         createFirstVersion()
 
         assertThrows<IllegalArgumentException> {

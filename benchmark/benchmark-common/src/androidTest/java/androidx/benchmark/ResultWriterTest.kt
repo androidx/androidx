@@ -224,19 +224,19 @@ class ResultWriterTest {
         assertContains(
             reportText,
             """
-                |            "profilerOutputs": [
-                |                {
-                |                    "type": "PerfettoTrace",
-                |                    "label": "Trace",
-                |                    "filename": "trace.perfetto-trace"
-                |                },
-                |                {
-                |                    "type": "MethodTrace",
-                |                    "label": "Method Trace",
-                |                    "filename": "trace.trace"
-                |                }
-                |            ]
-                """
+            |            "profilerOutputs": [
+            |                {
+            |                    "type": "PerfettoTrace",
+            |                    "label": "Trace",
+            |                    "filename": "trace.perfetto-trace"
+            |                },
+            |                {
+            |                    "type": "MethodTrace",
+            |                    "label": "Method Trace",
+            |                    "filename": "trace.trace"
+            |                }
+            |            ]
+            """
                 .trimMargin(),
         )
     }
@@ -262,12 +262,12 @@ class ResultWriterTest {
         assertContains(
             reportText,
             """
-                |            "name": "MethodWithParams[number=2,primeNumber=true]",
-                |            "params": {
-                |                "number": "2",
-                |                "primeNumber": "true"
-                |            },
-                """
+            |            "name": "MethodWithParams[number=2,primeNumber=true]",
+            |            "params": {
+            |                "number": "2",
+            |                "primeNumber": "true"
+            |            },
+            """
                 .trimMargin(),
         )
     }

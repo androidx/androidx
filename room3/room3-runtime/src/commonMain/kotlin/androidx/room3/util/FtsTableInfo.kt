@@ -45,7 +45,8 @@ public expect class FtsTableInfo {
          * @param tableName The table name.
          * @return A FtsTableInfo containing the columns and options for the provided table name.
          */
-        @JvmStatic public fun read(connection: SQLiteConnection, tableName: String): FtsTableInfo
+        @JvmStatic
+        public suspend fun read(connection: SQLiteConnection, tableName: String): FtsTableInfo
     }
 }
 

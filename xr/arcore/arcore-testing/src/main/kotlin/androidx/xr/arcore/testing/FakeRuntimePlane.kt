@@ -19,21 +19,21 @@ package androidx.xr.arcore.testing
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.Anchor as RuntimeAnchor
 import androidx.xr.arcore.runtime.Plane as RuntimePlane
+import androidx.xr.arcore.runtime.Plane.Label
+import androidx.xr.arcore.runtime.Plane.Type
 import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector2
 
 /**
- * Test-only implementation of [androidx.xr.arcore.runtime.Plane]
+ * Fake implementation of [Plane][RuntimePlane].
  *
- * The properties of the [FakeRuntimePlane] can be set manually in order to simulate a runtime plane
+ * The properties of the FakeRuntimePlane can be set manually in order to simulate a runtime plane
  * in the environment.
  *
- * For example, for a [FakeRuntimePlane] with
- * [androidx.xr.arcore.runtime.Plane.Label.Companion.WALL],
- * [androidx.xr.arcore.runtime.Plane.Type.Companion.VERTICAL] and
- * [androidx.xr.runtime.TrackingState.Companion.PAUSED]:
+ * For example, for a FakeRuntimePlane with [Label.WALL], [Type.VERTICAL] and
+ * [TrackingState.PAUSED]:
  * ```
  * val plane = FakeRuntimePlane(type = RuntimePlane.Type.VERTICAL,
  *                              label = RuntimePlane.Label.WALL,
@@ -47,28 +47,30 @@ import androidx.xr.runtime.math.Vector2
  *     centerPose = Pose(Vector3(1f, 2f, 3f), Quaternion(0f, 0f, 0f, 1f))
  * }
  * ```
+ *
+ * @property anchors list of the [FakeRuntimeAnchors][FakeRuntimeAnchor] that are attached to the
+ *   plane
  */
 @SuppressWarnings("HiddenSuperclass")
 public class FakeRuntimePlane(
-    override val type: RuntimePlane.Type = RuntimePlane.Type.HORIZONTAL_UPWARD_FACING,
-    override val label: RuntimePlane.Label = RuntimePlane.Label.FLOOR,
+    override val type: Type = RuntimePlane.Type.HORIZONTAL_UPWARD_FACING,
+    override val label: Label = RuntimePlane.Label.FLOOR,
     override var trackingState: TrackingState = TrackingState.TRACKING,
     override var centerPose: Pose = Pose(),
     override var extents: FloatSize2d = FloatSize2d(),
     override var vertices: List<Vector2> = emptyList(),
     override var subsumedBy: RuntimePlane? = null,
-    /** The anchors that are attached to this plane. */
     public val anchors: MutableCollection<RuntimeAnchor> = mutableListOf(),
 ) : RuntimePlane, AnchorHolder {
 
-    /** Creates a new [FakeRuntimeAnchor] and adds it to the [anchors] property. */
+    /** Creates a new [FakeRuntimeAnchor] and adds it to [anchors]. */
     override fun createAnchor(pose: Pose): RuntimeAnchor {
-        val anchor = FakeRuntimeAnchor(pose, this)
+        val anchor = FakeRuntimeAnchor(centerPose.compose(pose), this)
         anchors.add(anchor)
         return anchor
     }
 
-    /** Removes the given [anchor] from the [anchors] property. */
+    /** Removes the given [anchor] from [anchors]. */
     override fun detachAnchor(anchor: RuntimeAnchor) {
         anchors.remove(anchor)
     }

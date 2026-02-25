@@ -23,14 +23,11 @@ import androidx.xr.arcore.Plane
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.IntSize2d
-import androidx.xr.runtime.math.Matrix4
-import androidx.xr.runtime.math.Matrix4.Companion.fromQuaternion
-import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Ray
-import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.HitTestResult.SurfaceType
 import androidx.xr.scenecore.InputEvent.HitInfo
 import androidx.xr.scenecore.ScenePose.HitTestFilter
+import androidx.xr.scenecore.SurfaceEntity.Shape.TriangleMesh
 import androidx.xr.scenecore.runtime.AnchorEntity as RtAnchorEntity
 import androidx.xr.scenecore.runtime.AnchorPlacement as RtAnchorPlacement
 import androidx.xr.scenecore.runtime.Dimensions as RtDimensions
@@ -52,6 +49,7 @@ import androidx.xr.scenecore.runtime.SpatialCapabilities as RtSpatialCapabilitie
 import androidx.xr.scenecore.runtime.SpatialPointerIcon as RtSpatialPointerIcon
 import androidx.xr.scenecore.runtime.SpatialPointerIconType as RtSpatialPointerIconType
 import androidx.xr.scenecore.runtime.SpatialVisibility as RtSpatialVisibility
+import androidx.xr.scenecore.runtime.SurfaceEntity.Shape.TriangleMesh as RtTriangleMesh
 import androidx.xr.scenecore.runtime.TextureSampler as RtTextureSampler
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.Executor
@@ -527,69 +525,6 @@ internal fun AlphaMode.toRtKhronosPbrMaterialSpec(): RtKhronosPbrMaterialSpec {
 }
 
 /**
- * Gets the rotation relative to the plane to rotate the entity to be parallel to the plane.
- *
- * @param proposedRotation the initial rotation of the entity.
- * @param planeRotation the rotation of the plane.
- * @return the rotation of the panel rotated to be parallel to the plane relative to the plane.
- */
-internal fun rotateEntityToPlane(
-    proposedRotation: Quaternion,
-    planeRotation: Quaternion,
-): Quaternion {
-    // The y-vector of the plane is the normal of the plane. We need to rotate the panel so that
-    // the y-vector of the panel points along the plane and the z-vector is normal to the plane.
-    // Otherwise the panel will be sticking out of the plane.
-
-    // Create a rotation matrix from the quaternion of the plane to extract the normal.
-    val planeMatrix = fromQuaternion(planeRotation)
-    // Create a rotation matrix from the quaternion for the proposed pose.
-    val proposedRotationMatrix = fromQuaternion(proposedRotation)
-
-    // The z-vector of the panel should be the normal of the plane (which is the y-vector of the
-    // plane) so that the panel will be facing out of the plane.
-    val planeMatrixData = planeMatrix.data
-    val zRotation =
-        Vector3(planeMatrixData[4], planeMatrixData[5], planeMatrixData[6]).toNormalized()
-    // Get the x-vector of the panel so that we can use it to create the y-vector that is in the
-    // direction of the panel.
-    val poseMatrixData = proposedRotationMatrix.data
-    val poseVectorX =
-        Vector3(poseMatrixData[0], poseMatrixData[1], poseMatrixData[2]).toNormalized()
-    // The y-vector is the cross product of the panel x-vector and the z-vector.
-    val yRotation = zRotation.cross(poseVectorX).toNormalized()
-    // The x-vector is the cross product of the y-vector and the z-vector so that they will all
-    // be orthogonal.
-    val xRotation = yRotation.cross(zRotation).toNormalized()
-    // Create a new rotation matrix from the x, y, and z vectors.
-    val rotationMatrix = getRotationMatrixFromAxes(xRotation, yRotation, zRotation)
-    return rotationMatrix.rotation
-}
-
-private fun getRotationMatrixFromAxes(xAxis: Vector3, yAxis: Vector3, zAxis: Vector3): Matrix4 {
-    return Matrix4(
-        floatArrayOf(
-            xAxis.x,
-            xAxis.y,
-            xAxis.z,
-            0f,
-            yAxis.x,
-            yAxis.y,
-            yAxis.z,
-            0f,
-            zAxis.x,
-            zAxis.y,
-            zAxis.z,
-            0f,
-            0f,
-            0f,
-            0f,
-            1f,
-        )
-    )
-}
-
-/**
  * Extension function that converts a [androidx.xr.scenecore.runtime.PerceivedResolutionResult] to
  * [PerceivedResolutionResult].
  */
@@ -626,4 +561,12 @@ internal object DirectExecutor : Executor {
     override fun execute(command: Runnable) {
         command.run()
     }
+}
+
+internal fun RtTriangleMesh.toTriangleMesh(): TriangleMesh {
+    return TriangleMesh(positions = positions, texCoords = texCoords, indices = indices)
+}
+
+internal fun TriangleMesh.toRtTriangleMesh(): RtTriangleMesh {
+    return RtTriangleMesh(positions = positions, texCoords = texCoords, indices = indices)
 }

@@ -22,7 +22,6 @@ import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraEffect
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
@@ -39,7 +38,6 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.processing.DefaultSurfaceProcessor
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.media3.effect.Media3Effect
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.LabTestRule
@@ -77,10 +75,6 @@ import org.junit.runners.Parameterized
 class ConcurrentCameraTest(private val implName: String, private val cameraConfig: CameraXConfig) {
 
     @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
-
-    @get:Rule
     val cameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraConfig))
 
@@ -91,11 +85,7 @@ class ConcurrentCameraTest(private val implName: String, private val cameraConfi
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() =
-            listOf(
-                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig()),
-            )
+        fun data() = listOf(arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()))
     }
 
     private val context: Context = ApplicationProvider.getApplicationContext()

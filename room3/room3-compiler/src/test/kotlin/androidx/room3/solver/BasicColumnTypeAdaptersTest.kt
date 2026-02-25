@@ -71,7 +71,7 @@ class BasicColumnTypeAdaptersTest(
                 arrayOf(
                     XTypeName.PRIMITIVE_CHAR,
                     "st.bindLong(6, inp.toLong())",
-                    "out = readSt.getLong(9).toChar()",
+                    "out = readSt.getLong(9).toInt().toChar()",
                 ),
                 arrayOf(
                     XTypeName.PRIMITIVE_FLOAT,

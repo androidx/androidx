@@ -31,49 +31,49 @@ class ExperimentalCompanionWithNonExperimentalElementsDetectorTest :
 
         val expected =
             """
-        src/androidx/MyAnnotation.kt:28: Error: Elements in an experimental companion object must be annotated as experimental [ExperimentalCompanionElement]
-                @MyAnnotation const val A: Int = 1
-                                        ~
-        src/androidx/MyAnnotation.kt:32: Error: Elements in an experimental companion object must be annotated as experimental [ExperimentalCompanionElement]
-                const val C: Int = 3
-                          ~
-        src/androidx/MyAnnotation.kt:34: Error: Elements in an experimental companion object must be annotated as experimental [ExperimentalCompanionElement]
-                @MyAnnotation fun myFun() {}
-                                  ~~~~~
-        src/androidx/MyAnnotation.kt:38: Error: Elements in an experimental companion object must be annotated as experimental [ExperimentalCompanionElement]
-                fun myFun3() {}
-                    ~~~~~~
-        src/androidx/MyAnnotation.kt:93: Error: Elements in an experimental companion object must be annotated as experimental [ExperimentalCompanionElement]
-                    val A: Int = 1
-                        ~
-        src/androidx/MyAnnotation.kt:97: Error: Elements in an experimental companion object must be annotated as experimental [ExperimentalCompanionElement]
-                    var C: Int = 1
-                        ~
-        6 errors
-        """
+            src/androidx/MyAnnotation.kt:28: Error: Elements in an experimental companion object must be annotated as experimental [ExperimentalCompanionElement]
+                    @MyAnnotation const val A: Int = 1
+                                            ~
+            src/androidx/MyAnnotation.kt:32: Error: Elements in an experimental companion object must be annotated as experimental [ExperimentalCompanionElement]
+                    const val C: Int = 3
+                              ~
+            src/androidx/MyAnnotation.kt:34: Error: Elements in an experimental companion object must be annotated as experimental [ExperimentalCompanionElement]
+                    @MyAnnotation fun myFun() {}
+                                      ~~~~~
+            src/androidx/MyAnnotation.kt:38: Error: Elements in an experimental companion object must be annotated as experimental [ExperimentalCompanionElement]
+                    fun myFun3() {}
+                        ~~~~~~
+            src/androidx/MyAnnotation.kt:93: Error: Elements in an experimental companion object must be annotated as experimental [ExperimentalCompanionElement]
+                        val A: Int = 1
+                            ~
+            src/androidx/MyAnnotation.kt:97: Error: Elements in an experimental companion object must be annotated as experimental [ExperimentalCompanionElement]
+                        var C: Int = 1
+                            ~
+            6 errors
+            """
                 .trimIndent()
 
         val expectedFixDiffs =
             """
-        Autofix for src/androidx/MyAnnotation.kt line 28: Annotate as experimental:
-        @@ -27,0 +28 @@
-        +        @ExperimentalSampleAnnotation
-        Autofix for src/androidx/MyAnnotation.kt line 32: Annotate as experimental:
-        @@ -31,0 +32 @@
-        +        @ExperimentalSampleAnnotation
-        Autofix for src/androidx/MyAnnotation.kt line 34: Annotate as experimental:
-        @@ -33,0 +34 @@
-        +        @ExperimentalSampleAnnotation
-        Autofix for src/androidx/MyAnnotation.kt line 38: Annotate as experimental:
-        @@ -37,0 +38 @@
-        +        @ExperimentalSampleAnnotation
-        Autofix for src/androidx/MyAnnotation.kt line 93: Annotate as experimental:
-        @@ -92,0 +93 @@
-        +            @ExperimentalSampleAnnotation
-        Autofix for src/androidx/MyAnnotation.kt line 97: Annotate as experimental:
-        @@ -96,0 +97 @@
-        +            @ExperimentalSampleAnnotation
-        """
+            Autofix for src/androidx/MyAnnotation.kt line 28: Annotate as experimental:
+            @@ -27,0 +28 @@
+            +        @ExperimentalSampleAnnotation
+            Autofix for src/androidx/MyAnnotation.kt line 32: Annotate as experimental:
+            @@ -31,0 +32 @@
+            +        @ExperimentalSampleAnnotation
+            Autofix for src/androidx/MyAnnotation.kt line 34: Annotate as experimental:
+            @@ -33,0 +34 @@
+            +        @ExperimentalSampleAnnotation
+            Autofix for src/androidx/MyAnnotation.kt line 38: Annotate as experimental:
+            @@ -37,0 +38 @@
+            +        @ExperimentalSampleAnnotation
+            Autofix for src/androidx/MyAnnotation.kt line 93: Annotate as experimental:
+            @@ -92,0 +93 @@
+            +            @ExperimentalSampleAnnotation
+            Autofix for src/androidx/MyAnnotation.kt line 97: Annotate as experimental:
+            @@ -96,0 +97 @@
+            +            @ExperimentalSampleAnnotation
+            """
                 .trimIndent()
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)

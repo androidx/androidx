@@ -16,33 +16,34 @@
 
 package androidx.xr.compose.spatial
 
+import android.content.Context
 import android.graphics.Rect
 import android.view.View
-import android.view.ViewParent
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.updateTransition
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.currentCompositeKeyHash
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
@@ -52,18 +53,21 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.util.fastFold
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
-import androidx.core.viewtree.setViewTreeDisjointParent
 import androidx.xr.compose.R
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.platform.findNearestParentEntity
+import androidx.xr.compose.subspace.layout.CoreEntity
 import androidx.xr.compose.subspace.layout.CorePanelEntity
-import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
-import androidx.xr.compose.subspace.rememberComposeView
+import androidx.xr.compose.subspace.spatialComposeView
 import androidx.xr.compose.unit.IntVolumeSize
+import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.scenecore.PanelEntity
 
@@ -162,122 +166,196 @@ private fun LayoutSpatialPopup(
     properties: PopupProperties = PopupProperties(),
     content: @Composable () -> Unit,
 ) {
-    var contentSize: IntSize by remember { mutableStateOf(IntSize.Zero) }
-    var parentLayoutDirection = LocalLayoutDirection.current
-    var anchorBounds by remember { mutableStateOf(IntRect.Zero) }
     val fullScreenRect = getWindowVisibleDisplayFrame()
     val windowSize = IntSize(fullScreenRect.width(), fullScreenRect.height())
     val session = checkNotNull(LocalSession.current) { "session must be initialized" }
     val parentView = LocalView.current
+    val parentLayoutDirection = LocalLayoutDirection.current
     val parentEntity = findNearestParentEntity()
-    val view = rememberComposeView()
-    val density = LocalDensity.current
     val transition = updateTransition(targetState = elevation, label = "restingLevelTransition")
-
-    val popupOffset by remember {
-        derivedStateOf {
-            popupPositionProvider.calculatePosition(
-                anchorBounds,
-                windowSize,
-                parentLayoutDirection,
-                contentSize,
-            )
-        }
-    }
+    val context = LocalContext.current
+    val compositionContext = rememberCompositionContext()
+    // TODO(b/474652577): Update from deprecated currentCompositeKey to currentCompositeKeyCode
+    //  once we update JXR Compose to Compile SDK 35
+    @Suppress("DEPRECATION") val localId = currentCompositeKeyHash
 
     BackHandler(enabled = properties.dismissOnBackPress) { onDismissRequest?.invoke() }
 
-    // The coordinates should be re-calculated on every layout to properly retrieve the absolute
-    // bounds for popup content offset calculation.
-    Layout(
-        content = {},
-        modifier =
-            Modifier.onGloballyPositioned { childCoordinates ->
-                val parentCoordinates = childCoordinates.parentLayoutCoordinates!!
-                val layoutSize = parentCoordinates.size
-                val position = parentCoordinates.positionInWindow()
-                val layoutPosition =
-                    IntOffset(position.x.fastRoundToInt(), position.y.fastRoundToInt())
+    val holder =
+        remember(parentView) {
+            SpatialPopupRenderer(
+                localId = localId,
+                context = context,
+                parentView = parentView,
+                compositionContext = compositionContext,
+                session = session,
+                transition = transition,
+                initialPopupProperties = properties,
+                initialParentLayoutDirection = parentLayoutDirection,
+                initialPopupPositionProvider = popupPositionProvider,
+                initialOnDismissRequest = onDismissRequest,
+            )
+        }
 
-                anchorBounds = IntRect(layoutPosition, layoutSize)
-            },
-    ) { _, _ ->
-        parentLayoutDirection = layoutDirection
-        layout(0, 0) {}
-    }
-
-    val zDepth by
-        transition.animateDp(transitionSpec = { spring() }, label = "zDepth") { state -> state }
-
-    var parentViewSize by remember { mutableStateOf(parentView.size) }
     DisposableEffect(parentView) {
         val listener =
             View.OnLayoutChangeListener { _, _, _, right, bottom, _, _, _, _ ->
-                parentViewSize = IntSize(right, bottom)
+                holder.parentViewSize = IntSize(right, bottom)
             }
         parentView.addOnLayoutChangeListener(listener)
         onDispose { parentView.removeOnLayoutChangeListener(listener) }
     }
 
-    val panelEntity: CorePanelEntity = remember {
-        CorePanelEntity(
-                PanelEntity.create(
-                    session = session,
-                    view = view,
-                    pixelDimensions = contentSize.run { IntSize2d(width, height) },
-                    name = "ElevatedPanel:${view.id}",
-                )
-            )
-            .also {
-                it.setShape(SpatialRoundedCornerShape(ZeroCornerSize), density)
-                view.setTag(R.id.compose_xr_local_view_entity, it)
+    Layout(modifier = Modifier) { _, _ ->
+        holder.parentLayoutDirection = layoutDirection
+        layout(0, 0) {
+            // Access coordinates immediately during placement phase
+            val coordinatePair = coordinates
+            if (coordinatePair != null) {
+                val parentCoordinates = coordinatePair.parentLayoutCoordinates
+                if (parentCoordinates != null) {
+                    val layoutSize = parentCoordinates.size
+                    val position = parentCoordinates.positionInWindow()
+                    val layoutPosition =
+                        IntOffset(position.x.fastRoundToInt(), position.y.fastRoundToInt())
+
+                    holder.anchorBounds = IntRect(layoutPosition, layoutSize)
+                }
             }
-    }
-
-    SideEffect { view.setViewTreeDisjointParent(parentView as? ViewParent ?: parentView.parent) }
-
-    LaunchedEffect(density) {
-        panelEntity.setShape(SpatialRoundedCornerShape(ZeroCornerSize), density)
-    }
-
-    view.setContent {
-        Box(
-            Modifier.onClickOutside(
-                    enabled = properties.dismissOnClickOutside,
-                    onClickOutside = { onDismissRequest?.invoke() },
-                )
-                .constrainTo(
-                    Constraints(
-                        minWidth = 0,
-                        maxWidth = Constraints.Infinity,
-                        minHeight = 0,
-                        maxHeight = Constraints.Infinity,
-                    )
-                )
-                .onSizeChanged { contentSize = it }
-        ) {
-            content()
         }
     }
 
-    DisposableEffect(panelEntity) { onDispose { panelEntity.dispose() } }
+    SideEffect {
+        holder.parentEntity = parentEntity
+        holder.popupProperties = properties
+        holder.content = content
+        holder.positionProvider = popupPositionProvider
+        holder.windowSize = windowSize
+        holder.onDismissRequest = onDismissRequest
+    }
+}
 
-    panelEntity.poseInMeters =
-        rememberCalculatePose(
-            Offset(popupOffset.x.toFloat(), popupOffset.y.toFloat()),
-            parentViewSize,
-            contentSize,
-            zDepth,
-        )
+private val EmptyContent: @Composable () -> Unit = {}
 
-    LaunchedEffect(contentSize) {
-        val width = contentSize.width
-        val height = contentSize.height
+/**
+ * A helper class that manages the lifecycle, rendering, and 3D positioning of a spatial popup.
+ *
+ * This renderer implements [RememberObserver] to bridge the Jetpack Compose lifecycle with the
+ * underlying XR resources. It is responsible for:
+ * - Creating and disposing the [CorePanelEntity] and off-screen [ComposeView] when the popup enters
+ *   or leaves the composition.
+ * - Hoisting the user's content into the [ComposeView] and measuring it.
+ * - continuously calculating and updating the 3D pose of the panel based on the provided
+ *   [PopupPositionProvider], anchor bounds, and Z-depth transition.
+ */
+private class SpatialPopupRenderer(
+    private val localId: Int,
+    private val context: Context,
+    private val parentView: View,
+    private val compositionContext: CompositionContext,
+    private val session: Session,
+    private val transition: Transition<Dp>,
+    initialPopupProperties: PopupProperties,
+    initialParentLayoutDirection: LayoutDirection,
+    initialPopupPositionProvider: PopupPositionProvider,
+    initialOnDismissRequest: (() -> Unit)?,
+) : RememberObserver {
 
-        panelEntity.size = IntVolumeSize(width = width, height = height, depth = 0)
+    var popupProperties by mutableStateOf(initialPopupProperties)
+    var positionProvider by mutableStateOf(initialPopupPositionProvider)
+    var onDismissRequest by mutableStateOf(initialOnDismissRequest)
+
+    var parentLayoutDirection by mutableStateOf(initialParentLayoutDirection)
+    var anchorBounds by mutableStateOf(IntRect.Zero)
+    var parentViewSize by mutableStateOf(parentView.size)
+    var windowSize by mutableStateOf(IntSize.Zero)
+
+    var content: @Composable () -> Unit by mutableStateOf(EmptyContent)
+    var parentEntity: CoreEntity? by mutableStateOf(null)
+
+    private var panelEntity: CorePanelEntity? = null
+    private var view: ComposeView? = null
+
+    override fun onRemembered() {
+        val view = spatialComposeView(parentView, context, compositionContext, localId)
+        this.view = view
+        panelEntity =
+            CorePanelEntity(
+                    PanelEntity.create(
+                        session = session,
+                        view = view,
+                        pixelDimensions = IntSize2d(IntSize.Zero.width, IntSize.Zero.height),
+                        name = "ElevatedPanel:${view.id}",
+                    )
+                )
+                .apply { view.setTag(R.id.compose_xr_local_view_entity, this) }
+
+        view.setContent {
+            val density = LocalDensity.current
+            val zDepth by
+                transition.animateDp(transitionSpec = { spring() }, label = "zDepth") { it }
+
+            Layout(
+                content = content,
+                modifier =
+                    Modifier.onClickOutside(
+                            enabled = popupProperties.dismissOnClickOutside,
+                            onClickOutside = { onDismissRequest?.invoke() },
+                        )
+                        .constrainTo(Constraints()),
+            ) { measurables, constraints ->
+                val placeables = measurables.fastMap { it.measure(constraints) }
+                val contentSize =
+                    placeables.fastFold(IntSize.Zero) { acc, placeable ->
+                        IntSize(
+                            acc.width.coerceAtLeast(placeable.width),
+                            acc.height.coerceAtLeast(placeable.height),
+                        )
+                    }
+
+                val currentParent = parentEntity
+                val provider = positionProvider
+
+                if (!anchorBounds.isEmpty) {
+                    val popupOffset =
+                        provider.calculatePosition(
+                            anchorBounds,
+                            windowSize,
+                            parentLayoutDirection,
+                            contentSize,
+                        )
+
+                    panelEntity?.apply {
+                        size = IntVolumeSize(contentSize.width, contentSize.height, 0)
+                        poseInMeters =
+                            calculatePose(
+                                contentOffset =
+                                    Offset(popupOffset.x.toFloat(), popupOffset.y.toFloat()),
+                                parentViewSize = parentViewSize,
+                                contentSize = contentSize,
+                                zDepth = zDepth,
+                                density = density,
+                            )
+                        parent = currentParent
+                    }
+                }
+
+                layout(contentSize.width, contentSize.height) {
+                    placeables.fastForEach { it.place(0, 0) }
+                }
+            }
+        }
     }
 
-    LaunchedEffect(parentEntity) { panelEntity.parent = parentEntity }
+    override fun onForgotten() {
+        panelEntity?.dispose()
+        view?.disposeComposition()
+    }
+
+    override fun onAbandoned() {
+        // No-op. If resources were created during 'init' (constructor),
+        // they should be released here since onRemembered() was never called.
+    }
 }
 
 // Get the visible display Rect for the current window of the device

@@ -26,7 +26,7 @@ import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.UnsafeWrapper
 
 /**
- * An ImageSource produces images from a CameraStream via an [ImageSourceListener].
+ * An ImageSource produces images from a CameraStream via an [ImageListener].
  *
  * This interface is an abstraction over [ImageReader] and [MultiResolutionImageReader] that is
  * designed to eliminate several subtle and difficult to avoid pitfalls that can occur when using
@@ -55,11 +55,13 @@ public interface ImageSource : UnsafeWrapper, AutoCloseable {
     /** The graphics surface that the Camera produces images into. */
     public val surface: Surface
 
-    public fun setListener(listener: ImageSourceListener)
+    public var imageListener: ImageListener?
+
+    public var expectedOutputsListener: ExpectedOutputsListener?
 }
 
 /** Listener for handling [ImageWrapper]s as they are produced. */
-public fun interface ImageSourceListener {
+public fun interface ImageListener {
     /**
      * Handle the next image from the [ImageSource]. Implementations *must* close the [image] when
      * they are done with it. Receiving a null [image] indicates the that an image was produced, but
@@ -72,6 +74,20 @@ public fun interface ImageSourceListener {
         outputTimestamp: Long,
         image: ImageWrapper?,
     )
+}
+
+/**
+ * Listener for being notified about the set of [OutputId]s that are expected to produce images for
+ * a specific timestamp.
+ */
+public fun interface ExpectedOutputsListener {
+    /**
+     * Called to indicate which [outputIds] are expected for a specific [outputTimestamp].
+     *
+     * This method will always be invoked *before* any calls to [ImageListener.onImage] for the same
+     * timestamp.
+     */
+    public fun onExpectedOutputs(outputTimestamp: Long, outputIds: Set<OutputId>)
 }
 
 /** Provider for creating an [ImageSource] based on an [ImageSourceConfig] */

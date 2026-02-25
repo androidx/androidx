@@ -51,8 +51,8 @@
     <string name="desc_page_range" msgid="5286496438609641577">"էջ <xliff:g id="FIRST">%1$d</xliff:g>–<xliff:g id="LAST">%2$d</xliff:g>՝ <xliff:g id="TOTAL">%3$d</xliff:g>-ից"</string>
     <string name="desc_image_alt_text" msgid="7700601988820586333">"Պատկեր՝ <xliff:g id="ALT_TEXT">%1$s</xliff:g>"</string>
     <string name="hint_find" msgid="5385388836603550565">"Գտեք ֆայլում"</string>
-    <string name="previous_button_description" msgid="1169511027880317546">"Նախորդը"</string>
-    <string name="next_button_description" msgid="4702699322249103693">"Հաջորդը"</string>
+    <string name="previous_button_description" msgid="1169511027880317546">"Նախորդ"</string>
+    <string name="next_button_description" msgid="4702699322249103693">"Հաջորդ"</string>
     <string name="close_button_description" msgid="7379823906921067675">"Փակել"</string>
     <string name="message_match_status" msgid="6288242289981639727">"<xliff:g id="POSITION">%1$d</xliff:g>/<xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="match_status_description" msgid="4996847358326345288">"<xliff:g id="POSITION">%1$d</xliff:g>՝ <xliff:g id="TOTAL">%2$d</xliff:g>-ից"</string>
@@ -81,6 +81,8 @@
     <string name="form_click_toggle_instruction" msgid="7171111300244445911">"Սեղմեք փոխարկելու համար։"</string>
     <string name="form_click_opens_choices_menu_instruction" msgid="5648228168212004143">"Սեղմեք՝ ընտրության ընտրացանկը բացելու համար։"</string>
     <string name="form_click_enters_text_edit_mode_instruction" msgid="2305283577544618880">"Սեղմեք՝ տեքստի խմբագրման ռեժիմին անցնելու համար։"</string>
+    <!-- no translation found for combobox_custom_option (8730230629127076731) -->
+    <skip />
     <string name="form_unknown" msgid="6371515914365431330">"Անհայտ"</string>
     <string name="form_widget_type_push_button" msgid="3595388398616291441">"Կոճակ"</string>
     <string name="form_widget_type_checkbox" msgid="5165655383070460151">"Նշավանդակ"</string>

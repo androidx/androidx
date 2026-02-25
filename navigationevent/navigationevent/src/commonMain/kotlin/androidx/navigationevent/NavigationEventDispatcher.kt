@@ -19,6 +19,10 @@ package androidx.navigationevent
 import androidx.annotation.IntDef
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
+import androidx.collection.MutableOrderedScatterSet
+import androidx.collection.OrderedScatterSet
+import androidx.collection.emptyOrderedScatterSet
+import androidx.collection.mutableOrderedScatterSetOf
 import androidx.navigationevent.NavigationEventDispatcher.Companion.PRIORITY_DEFAULT
 import androidx.navigationevent.NavigationEventDispatcher.Companion.PRIORITY_OVERLAY
 import androidx.navigationevent.NavigationEventTransitionState.Direction
@@ -166,7 +170,7 @@ private constructor(
      *
      * **This is primarily for cleanup when this dispatcher is no longer needed.**
      */
-    internal val childDispatchers = mutableSetOf<NavigationEventDispatcher>()
+    internal val childDispatchers = mutableOrderedScatterSetOf<NavigationEventDispatcher>()
 
     /**
      * A set of [NavigationEventHandler] instances directly registered with *this specific*
@@ -178,7 +182,7 @@ private constructor(
      *
      * **This is primarily for cleanup when this dispatcher is no longer needed.**
      */
-    private val handlers = mutableSetOf<NavigationEventHandler<*>>()
+    private val handlers = mutableOrderedScatterSetOf<NavigationEventHandler<*>>()
 
     /**
      * A set of [NavigationEventInput] instances that are directly managed by this dispatcher.
@@ -188,7 +192,7 @@ private constructor(
      *
      * **This is primarily for cleanup when this dispatcher is no longer needed.**
      */
-    private val inputs = mutableSetOf<NavigationEventInput>()
+    private val inputs = mutableOrderedScatterSetOf<NavigationEventInput>()
 
     /**
      * The globally observable, read-only state of the physical navigation gesture.
@@ -430,18 +434,20 @@ private constructor(
 
             // Add 'currentDispatcher's children to the queue before processing 'currentDispatcher's
             // own cleanup. This ensures a complete traversal of the sub-hierarchy.
-            dispatchersToDispose += currentDispatcher.childDispatchers
+            currentDispatcher.childDispatchers.forEach { dispatcher ->
+                dispatchersToDispose += dispatcher
+            }
 
             // Notify all registered inputs that this dispatcher is being disposed.
             // This gives them a chance to clean up their own state, severing the lifecycle link
             // and preventing them from interacting with a disposed object.
-            for (input in currentDispatcher.inputs.toList()) {
+            currentDispatcher.inputs.toOrderedScatterSet().forEach { input ->
                 sharedProcessor.removeInput(input)
             }
             currentDispatcher.inputs.clear()
 
             // Remove handlers directly owned by the currentDispatcher from the shared processor.
-            for (handler in currentDispatcher.handlers.toList()) {
+            currentDispatcher.handlers.toOrderedScatterSet().forEach { handler ->
                 // Always use the public API for removal. This ensures the component's internal
                 // state is handled correctly and prevents unexpected behavior.
                 handler.remove()
@@ -498,5 +504,13 @@ private constructor(
          * components have been given a chance to handle them.
          */
         public const val PRIORITY_DEFAULT: Int = 1
+    }
+}
+
+private fun <T> OrderedScatterSet<T>.toOrderedScatterSet(): OrderedScatterSet<T> {
+    return if (isEmpty()) {
+        emptyOrderedScatterSet()
+    } else {
+        MutableOrderedScatterSet<T>(size).also { it.addAll(this) }
     }
 }

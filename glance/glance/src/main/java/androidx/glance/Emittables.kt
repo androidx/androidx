@@ -25,6 +25,8 @@ public interface Emittable {
     public var modifier: GlanceModifier
 
     public fun copy(): Emittable
+
+    public fun requiresRemoteCompose(): Boolean = false
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -35,6 +37,11 @@ public abstract class EmittableWithChildren(
     public val children: MutableList<Emittable> = mutableListOf<Emittable>()
 
     protected fun childrenToString(): String = children.joinToString(",\n").prependIndent("  ")
+
+    @Suppress("ListIterator")
+    override fun requiresRemoteCompose(): Boolean {
+        return children.any { it.requiresRemoteCompose() }
+    }
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -54,9 +61,9 @@ public abstract class EmittableLazyItemWithChildren : EmittableWithChildren() {
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class EmittableWithText : Emittable {
-    public var text: String = ""
+    public open var text: String = ""
     public var style: TextStyle? = null
-    public var maxLines: Int = Int.MAX_VALUE
+    public open var maxLines: Int = Int.MAX_VALUE
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

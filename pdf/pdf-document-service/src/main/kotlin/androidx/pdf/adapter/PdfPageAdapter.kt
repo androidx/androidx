@@ -55,9 +55,14 @@ import androidx.pdf.utils.toAndroidClass
 internal class PdfPageAdapter(private val page: PdfRenderer.Page) : PdfPage {
     override val height = page.height
     override val width = page.width
+    override var isClosed = false
 
     override fun renderPage(bitmap: Bitmap, renderParams: RenderParams) {
-        page.render(bitmap, null, null, renderParams.toAndroidClass())
+        val renderParams = renderParams.toAndroidClass()
+        if (isClosed) {
+            throw IllegalStateException("Page is closed")
+        }
+        page.render(bitmap, null, null, renderParams)
     }
 
     override fun renderTile(
@@ -77,7 +82,11 @@ internal class PdfPageAdapter(private val page: PdfRenderer.Page) : PdfPage {
                 width,
                 height,
             )
-        page.render(bitmap, null, transformationMatrix, renderParams.toAndroidClass())
+        val renderParams = renderParams.toAndroidClass()
+        if (isClosed) {
+            throw IllegalStateException("Page is closed")
+        }
+        page.render(bitmap, null, transformationMatrix, renderParams)
     }
 
     override fun getPageTextContents(): List<PdfPageTextContent> {
@@ -113,6 +122,7 @@ internal class PdfPageAdapter(private val page: PdfRenderer.Page) : PdfPage {
     }
 
     override fun close() {
+        isClosed = true
         page.close()
     }
 

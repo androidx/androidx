@@ -206,7 +206,7 @@ class PrepackageTest(private val useDriver: UseDriver) {
                 .createFromAsset("databases/products_v1.db")
                 .addMigrations(
                     object : Migration(1, 2) {
-                        override fun migrate(connection: SQLiteConnection) {
+                        override suspend fun migrate(connection: SQLiteConnection) {
                             connection.execSQL(
                                 "INSERT INTO Products (id, name) VALUES (null, 'Mofongo')"
                             )
@@ -298,7 +298,7 @@ class PrepackageTest(private val useDriver: UseDriver) {
                 .createFromAsset("databases/products_v1.db")
                 .addMigrations(
                     object : Migration(1, 2) {
-                        override fun migrate(connection: SQLiteConnection) {
+                        override suspend fun migrate(connection: SQLiteConnection) {
                             connection.execSQL(
                                 "INSERT INTO Products (id, name) VALUES (null, 'Mofongo')"
                             )

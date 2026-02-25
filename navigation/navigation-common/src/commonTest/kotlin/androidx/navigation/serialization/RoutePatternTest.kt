@@ -533,7 +533,8 @@ internal sealed class SealedClass {
 @Serializable(with = CustomSerializer::class)
 internal open class CustomSerializerClass(val longArg: Long)
 
-internal class CustomSerializer : KSerializer<CustomSerializerClass> {
+// the object class is required here because of https://youtrack.jetbrains.com/issue/KT-71530
+internal object CustomSerializer : KSerializer<CustomSerializerClass> {
     override val descriptor: SerialDescriptor =
         PrimitiveSerialDescriptor("Date", PrimitiveKind.LONG)
 

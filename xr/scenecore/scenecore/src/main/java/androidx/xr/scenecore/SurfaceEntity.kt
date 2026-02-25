@@ -29,6 +29,8 @@ import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.runtime.SurfaceEntity as RtSurfaceEntity
+import java.nio.FloatBuffer
+import java.nio.IntBuffer
 
 /**
  * SurfaceEntity is an [Entity] that hosts a [Surface], which will be texture mapped onto the
@@ -130,6 +132,58 @@ private constructor(
                 require(radius >= 0.0f) { "radius must be non-negative" }
             }
         }
+
+        /**
+         * Geometric Data for a triangle mesh which can be used by the CustomMesh Shape. [positions]
+         * must have 3 entries for every 2 in [texCoords].
+         *
+         * @property positions A FloatBuffer containing {x,y,z} position data for each vertex
+         * @property texCoords A FloatBuffer containing {u,v} texture coordinate data for each
+         *   vertex.
+         * @property indices An optional IntBuffer containing an index traversal in Triangle list
+         *   format for the vertex data in [positions] and [texCoords]. If this is null, then the
+         *   geometry will be assembled (according to the [DrawMode]) from the vertex data
+         *   sequentially.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        public class TriangleMesh(
+            public val positions: FloatBuffer,
+            public val texCoords: FloatBuffer,
+            public val indices: IntBuffer? = null,
+        ) {}
+
+        /**
+         * Specifies vertex geometry for the projection surface. Vertex positions should be
+         * expressed in the coordinate space of the SurfaceEntity.
+         *
+         * Note that UV's will be interpreted differently depending on the StereoMode applied to the
+         * SurfaceEntity. It is expected that the UV's of each mesh are mapped to the range of the
+         * rectangular sub-region of the image that is meant to be mapped to that eye. For example,
+         * if the TOP_BOTTOM stereoMode was specified when creating the [SurfaceEntity] to which
+         * this [Shape] is bound, then a [1,1] UV coordinate in the rightEye [TriangleMesh] will map
+         * to [1, 0.5] on the sampled [Surface]. Likewise, if the SIDE_BY_SIDE stereoMode was
+         * specified, a UV of [0,0] in the rightEye mesh would map to [0.5, 0] on the sampled
+         * [Surface]. The MONO stereoMode will not modify UVs, and the MULTIVIEW stereoModes will
+         * not modify UVs, but the underlying texture sampling will come from the Left and Right
+         * buffers of the [Surface].
+         *
+         * Triangle mesh data will be stored within the system when this CanvasShape is set on a
+         * SurfaceEntity instance. Modifying the data within the [TriangleMesh]es supplied at
+         * creation time will not alter the geometry of the SurfaceEntity at the time of
+         * modification; to update the geometry the shape must be re-set.
+         *
+         * @property leftEye [TriangleMesh] data for the geometry shown in the left eye
+         * @property rightEye An optional [TriangleMesh] data for geometry shown in the right eye.
+         *   If this is null, the data from leftEye will be displayed in the right eye.
+         * @property drawMode The [DrawMode] to use when drawing the mesh. Default is
+         *   [DrawMode.TRIANGLES].
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        public class CustomMesh(
+            public val leftEye: TriangleMesh,
+            public val rightEye: TriangleMesh? = null,
+            public val drawMode: DrawMode = DrawMode.TRIANGLES,
+        ) : Shape {}
     }
 
     /** Represents edge fading effects for a SurfaceEntity. */
@@ -202,6 +256,21 @@ private constructor(
         override fun toString(): String = name
     }
 
+    /** Specifies the drawing mode for a [Shape.TriangleMesh]. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public class DrawMode private constructor(private val name: String) {
+        public companion object {
+            /** Draw the mesh as a list of triangles. */
+            @JvmField public val TRIANGLES: DrawMode = DrawMode("TRIANGLES")
+            /** Draw the mesh as a triangle strip. */
+            @JvmField public val TRIANGLE_STRIP: DrawMode = DrawMode("TRIANGLE_STRIP")
+            /** Draw the mesh as a triangle fan. */
+            @JvmField public val TRIANGLE_FAN: DrawMode = DrawMode("TRIANGLE_FAN")
+        }
+
+        override fun toString(): String = name
+    }
+
     /**
      * Specifies how the surface content will be routed for stereo viewing. Applications must render
      * into the surface in accordance with what they provided here in order for the compositor to
@@ -230,6 +299,20 @@ private constructor(
             /** Multiview video, [primary, auxiliary] views will map to [right, left] eyes */
             @JvmField
             public val MULTIVIEW_RIGHT_PRIMARY: StereoMode = StereoMode("MULTIVIEW_RIGHT_PRIMARY")
+        }
+
+        override fun toString(): String = name
+    }
+
+    /** Specifies the blending mode of the content. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public class MediaBlendingMode private constructor(private val name: String) {
+        public companion object {
+            /** Content is alpha-blended with the background. */
+            @JvmField public val TRANSPARENT: MediaBlendingMode = MediaBlendingMode("TRANSPARENT")
+
+            /** Content is opaque and does not blend with the background. */
+            @JvmField public val OPAQUE: MediaBlendingMode = MediaBlendingMode("OPAQUE")
         }
 
         override fun toString(): String = name
@@ -458,6 +541,22 @@ private constructor(
             }
         }
 
+        private fun getRtMediaBlendingMode(mediaBlendingMode: MediaBlendingMode): Int {
+            return when (mediaBlendingMode) {
+                MediaBlendingMode.TRANSPARENT -> RtSurfaceEntity.MediaBlendingMode.TRANSPARENT
+                MediaBlendingMode.OPAQUE -> RtSurfaceEntity.MediaBlendingMode.OPAQUE
+                else -> RtSurfaceEntity.MediaBlendingMode.TRANSPARENT
+            }
+        }
+
+        private fun getMediaBlendingModeFromRt(mediaBlendingMode: Int): MediaBlendingMode {
+            return when (mediaBlendingMode) {
+                RtSurfaceEntity.MediaBlendingMode.TRANSPARENT -> MediaBlendingMode.TRANSPARENT
+                RtSurfaceEntity.MediaBlendingMode.OPAQUE -> MediaBlendingMode.OPAQUE
+                else -> MediaBlendingMode.TRANSPARENT
+            }
+        }
+
         private fun getRtSurfaceProtection(surfaceProtection: SurfaceProtection): Int {
             return when (surfaceProtection) {
                 SurfaceProtection.NONE -> RtSurfaceEntity.SurfaceProtection.NONE
@@ -474,6 +573,15 @@ private constructor(
             }
         }
 
+        private fun getRtDrawMode(drawMode: DrawMode): Int {
+            return when (drawMode) {
+                DrawMode.TRIANGLES -> RtSurfaceEntity.DrawMode.TRIANGLES
+                DrawMode.TRIANGLE_STRIP -> RtSurfaceEntity.DrawMode.TRIANGLE_STRIP
+                DrawMode.TRIANGLE_FAN -> RtSurfaceEntity.DrawMode.TRIANGLE_FAN
+                else -> RtSurfaceEntity.DrawMode.TRIANGLES
+            }
+        }
+
         /**
          * Factory method for SurfaceEntity.
          *
@@ -481,6 +589,8 @@ private constructor(
          * @param renderingRuntime RenderingRuntime to use.
          * @param entityManager A SceneCore EntityManager
          * @param stereoMode An [Int] which defines how surface subregions map to eyes
+         * @param mediaBlendingMode The [MediaBlendingMode] which describes the blending mode of the
+         *   content.
          * @param pose Pose for this StereoSurface entity, relative to its parent.
          * @param shape The [Shape] which describes the spatialized shape of the canvas.
          * @param surfaceProtection The Int member of [SurfaceProtection] which describes whether
@@ -497,6 +607,7 @@ private constructor(
         internal fun create(
             session: Session,
             stereoMode: StereoMode = StereoMode.MONO,
+            mediaBlendingMode: MediaBlendingMode = MediaBlendingMode.TRANSPARENT,
             pose: Pose = Pose.Identity,
             shape: Shape = Shape.Quad(FloatSize2d(1.0f, 1.0f)),
             surfaceProtection: SurfaceProtection = SurfaceProtection.NONE,
@@ -510,6 +621,12 @@ private constructor(
                     is Shape.Quad -> RtSurfaceEntity.Shape.Quad(shape.extents, shape.cornerRadius)
                     is Shape.Sphere -> RtSurfaceEntity.Shape.Sphere(shape.radius)
                     is Shape.Hemisphere -> RtSurfaceEntity.Shape.Hemisphere(shape.radius)
+                    is Shape.CustomMesh ->
+                        RtSurfaceEntity.Shape.CustomMesh(
+                            shape.leftEye.toRtTriangleMesh(),
+                            shape.rightEye?.toRtTriangleMesh(),
+                            getRtDrawMode(shape.drawMode),
+                        )
                     else -> throw IllegalArgumentException("Unsupported shape: $shape")
                 }
             val surfaceEntity =
@@ -517,6 +634,7 @@ private constructor(
                     session.scene.perceptionSpace,
                     session.renderingRuntime.createSurfaceEntity(
                         getRtStereoMode(stereoMode),
+                        getRtMediaBlendingMode(mediaBlendingMode),
                         pose,
                         rtShape,
                         getRtSurfaceProtection(surfaceProtection),
@@ -565,6 +683,7 @@ private constructor(
             SurfaceEntity.create(
                 session,
                 stereoMode,
+                MediaBlendingMode.TRANSPARENT,
                 pose,
                 shape,
                 surfaceProtection,
@@ -580,6 +699,8 @@ private constructor(
          * @param shape The [Shape] which describes the spatialized shape of the canvas. The default
          *   value is [Shape.Quad] with a width and height of 1 meter.
          * @param stereoMode Stereo mode for the surface. The default value is [StereoMode.MONO].
+         * @param mediaBlendingMode The [MediaBlendingMode] which describes the blending mode of the
+         *   content. The default value is [MediaBlendingMode.TRANSPARENT].
          * @param superSampling The [SuperSampling] which describes whether super sampling is
          *   enabled for the surface. The default value is [SuperSampling.PENTAGON].
          * @param surfaceProtection The [SurfaceProtection] which describes whether the hosted
@@ -599,6 +720,7 @@ private constructor(
             pose: Pose = Pose.Identity,
             shape: Shape = Shape.Quad(FloatSize2d(1.0f, 1.0f)),
             stereoMode: StereoMode = StereoMode.MONO,
+            mediaBlendingMode: MediaBlendingMode = MediaBlendingMode.TRANSPARENT,
             superSampling: SuperSampling = SuperSampling.PENTAGON,
             surfaceProtection: SurfaceProtection = SurfaceProtection.NONE,
             parent: Entity? = session.scene.activitySpace,
@@ -606,6 +728,7 @@ private constructor(
             SurfaceEntity.create(
                 session,
                 stereoMode,
+                mediaBlendingMode,
                 pose,
                 shape,
                 surfaceProtection,
@@ -631,6 +754,25 @@ private constructor(
         set(value) {
             checkNotDisposed()
             rtEntity!!.stereoMode = getRtStereoMode(value)
+        }
+
+    /**
+     * Controls the blending mode of the content.
+     *
+     * @throws IllegalStateException when setting this value if the Entity has been disposed.
+     */
+    public var mediaBlendingMode: MediaBlendingMode
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        get() {
+            checkNotDisposed()
+            return getMediaBlendingModeFromRt(rtEntity!!.mediaBlendingMode)
+        }
+        @MainThread
+        @SuppressLint("HiddenTypeParameter")
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        set(value) {
+            checkNotDisposed()
+            rtEntity!!.mediaBlendingMode = getRtMediaBlendingMode(value)
         }
 
     /**
@@ -660,6 +802,12 @@ private constructor(
                     is Shape.Quad -> RtSurfaceEntity.Shape.Quad(value.extents, value.cornerRadius)
                     is Shape.Sphere -> RtSurfaceEntity.Shape.Sphere(value.radius)
                     is Shape.Hemisphere -> RtSurfaceEntity.Shape.Hemisphere(value.radius)
+                    is Shape.CustomMesh ->
+                        RtSurfaceEntity.Shape.CustomMesh(
+                            value.leftEye.toRtTriangleMesh(),
+                            value.rightEye?.toRtTriangleMesh(),
+                            getRtDrawMode(value.drawMode),
+                        )
                     else -> throw IllegalArgumentException("Unsupported canvas shape: $value")
                 }
             rtEntity!!.shape = rtShape

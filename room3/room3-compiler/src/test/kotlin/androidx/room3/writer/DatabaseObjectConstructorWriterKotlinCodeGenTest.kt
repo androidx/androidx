@@ -62,10 +62,10 @@ class DatabaseObjectConstructorWriterKotlinCodeGenTest {
             Source.kotlin(
                 "MyDatabaseCtor.kt",
                 """
-            import androidx.room3.*
+                import androidx.room3.*
 
-            expect object MyDatabaseCtor : RoomDatabaseConstructor<MyDatabase>
-            """
+                expect object MyDatabaseCtor : RoomDatabaseConstructor<MyDatabase>
+                """
                     .trimIndent(),
             )
         runTest(
@@ -80,10 +80,10 @@ class DatabaseObjectConstructorWriterKotlinCodeGenTest {
             Source.kotlin(
                 "MyDatabaseCtor.kt",
                 """
-            import androidx.room3.*
+                import androidx.room3.*
 
-            internal expect object MyDatabaseCtor : RoomDatabaseConstructor<MyDatabase>
-            """
+                internal expect object MyDatabaseCtor : RoomDatabaseConstructor<MyDatabase>
+                """
                     .trimIndent(),
             )
         runTest(
@@ -98,12 +98,12 @@ class DatabaseObjectConstructorWriterKotlinCodeGenTest {
             Source.kotlin(
                 "MyDatabaseCtor.kt",
                 """
-            import androidx.room3.*
+                import androidx.room3.*
 
-            expect object MyDatabaseCtor : RoomDatabaseConstructor<MyDatabase> {
-                override fun initialize(): MyDatabase
-            }
-            """
+                expect object MyDatabaseCtor : RoomDatabaseConstructor<MyDatabase> {
+                    override fun initialize(): MyDatabase
+                }
+                """
                     .trimIndent(),
             )
         runTest(

@@ -140,6 +140,25 @@ fun <A : ComponentActivity> AndroidComposeUiTestEnvironmentNoSuspendingLambda(
 }
 
 /**
+ * Sets up the test environment, runs the given [test][block] and then tears down the test
+ * environment. Use the methods on [ComposeUiTest] in the test to find Compose content and make
+ * assertions on it. If you need access to platform specific elements (such as the Activity on
+ * Android), use one of the platform specific variants of this method, e.g.
+ * [runAndroidComposeUiTest] on Android.
+ *
+ * Implementations of this method will launch a Compose host (such as an Activity on Android) for
+ * you. If your test needs to launch its own host, use a platform specific variant that doesn't
+ * launch anything for you (if available), e.g. [runEmptyComposeUiTest] on Android. Always make sure
+ * that the Compose content is set during execution of the [test lambda][block] so the test
+ * framework is aware of the content. Whether you need to launch the host from within the test
+ * lambda as well depends on the platform.
+ *
+ * Keeping a reference to the [ComposeUiTest] outside of this function is an error. Also avoid using
+ * [ComposeTestRule] (e.g., createComposeRule) inside [runComposeUiTest][block] or any of their
+ * respective variants. Since these APIs independently manage the test environment, mixing them may
+ * lead to unexpected behavior.
+ *
+ * @sample androidx.compose.ui.test.samples.RunComposeUiTestSample
  * @param effectContext The [CoroutineContext] used to run the composition. The context for
  *   `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context. If this
  *   context contains a [TestDispatcher] or [TestCoroutineScheduler] (in that order), it will be
@@ -153,9 +172,10 @@ fun <A : ComponentActivity> AndroidComposeUiTestEnvironmentNoSuspendingLambda(
  */
 @Deprecated(
     message =
-        "Use `androidx.compose.ui.test.v2.runComposeUiTest` instead. The v2 APIs use " +
-            "`StandardTestDispatcher` by default to better simulate production behavior where " +
-            "coroutines are queued rather than executed immediately.",
+        "Use `androidx.compose.ui.test.v2.runComposeUiTest` instead. The v2 APIs align with " +
+            "standard coroutine behavior by queuing tasks rather than executing them " +
+            "immediately. Tests relying on immediate execution may require explicit " +
+            "synchronization. Please refer to the migration guide for more details.",
     level = DeprecationLevel.WARNING,
 )
 @Suppress("RedundantUnitReturnType")
@@ -181,6 +201,10 @@ actual fun runComposeUiTest(
  * launch, you cannot use [setContent][ComposeUiTest.setContent] on the ComposeUiTest anymore as
  * this would override the content and can lead to subtle bugs.
  *
+ * Avoid using [ComposeTestRule] (e.g., createComposeRule) inside [runAndroidComposeUiTest][block]
+ * or any of their respective variants. Since these APIs independently manage the test environment,
+ * mixing them may lead to unexpected behavior.
+ *
  * @param A The Activity type to be launched, which typically (but not necessarily) hosts the
  *   Compose content
  * @param effectContext The [CoroutineContext] used to run the composition. The context for
@@ -196,9 +220,10 @@ actual fun runComposeUiTest(
  */
 @Deprecated(
     message =
-        "Use `androidx.compose.ui.test.v2.runAndroidComposeUiTest` instead. The v2 APIs use " +
-            "`StandardTestDispatcher` by default to better simulate production behavior where " +
-            "coroutines are queued rather than executed immediately.",
+        "Use `androidx.compose.ui.test.v2.runAndroidComposeUiTest` instead. The v2 APIs align with " +
+            "standard coroutine behavior by queuing tasks rather than executing them " +
+            "immediately. Tests relying on immediate execution may require explicit " +
+            "synchronization. Please refer to the migration guide for more details.",
     level = DeprecationLevel.WARNING,
 )
 @Suppress("RedundantUnitReturnType")
@@ -218,6 +243,10 @@ inline fun <reified A : ComponentActivity> runAndroidComposeUiTest(
  * launch, you cannot use [setContent][ComposeUiTest.setContent] on the ComposeUiTest anymore as
  * this would override the content and can lead to subtle bugs.
  *
+ * Avoid using [ComposeTestRule] (e.g., createComposeRule) inside [runAndroidComposeUiTest][block]
+ * or any of their respective variants. Since these APIs independently manage the test environment,
+ * mixing them may lead to unexpected behavior.
+ *
  * @param A The Activity type to be launched, which typically (but not necessarily) hosts the
  *   Compose content
  * @param activityClass The [Class] of the Activity type to be launched, corresponding to [A].
@@ -234,9 +263,11 @@ inline fun <reified A : ComponentActivity> runAndroidComposeUiTest(
  */
 @Deprecated(
     message =
-        "Use `androidx.compose.ui.test.v2.runAndroidComposeUiTest` instead. The v2 APIs use " +
-            "`StandardTestDispatcher` by default to better simulate production behavior where " +
-            "coroutines are queued rather than executed immediately.",
+        "Use `androidx.compose.ui.test.v2.runAndroidComposeUiTest` instead. " +
+            "The v2 APIs use StandardTestDispatcher instead of UnconfinedTestDispatcher, " +
+            "which aligns with standard coroutine behavior by queuing tasks rather than " +
+            "executing them immediately. Tests relying on immediate execution may require " +
+            "explicit synchronization. Please refer to the migration guide for more details.",
     level = DeprecationLevel.WARNING,
 )
 @Suppress("RedundantUnitReturnType")
@@ -302,12 +333,17 @@ fun <A : ComponentActivity> runAndroidComposeUiTest(
  * directly on the Activity or on an [androidx.compose.ui.platform.AbstractComposeView]. You will
  * need to do this from within the [test lambda][block], or the test framework will not be able to
  * find the content.
+ *
+ * Avoid using [ComposeTestRule] (e.g., createComposeRule) inside [runEmptyComposeUiTest][block] or
+ * any of their respective variants. Since these APIs independently manage the test environment,
+ * mixing them may lead to unexpected behavior.
  */
 @Deprecated(
     message =
-        "Use `androidx.compose.ui.test.v2.runEmptyComposeUiTest` instead. The v2 APIs use " +
-            "`StandardTestDispatcher` by default to better simulate production behavior where " +
-            "coroutines are queued rather than executed immediately.",
+        "Use `androidx.compose.ui.test.v2.runEmptyComposeUiTest` instead. The v2 APIs align with " +
+            "standard coroutine behavior by queuing tasks rather than executing them " +
+            "immediately. Tests relying on immediate execution may require explicit " +
+            "synchronization. Please refer to the migration guide for more details.",
     level = DeprecationLevel.WARNING,
 )
 @Suppress("RedundantUnitReturnType")
@@ -386,9 +422,10 @@ sealed interface AndroidComposeUiTest<A : ComponentActivity> : ComposeUiTest {
  */
 @Deprecated(
     message =
-        "Use `androidx.compose.ui.test.v2.AndroidComposeUiTestEnvironment` instead. The v2 APIs use " +
-            "`StandardTestDispatcher` by default to better simulate production behavior where " +
-            "coroutines are queued rather than executed immediately.",
+        "Use `androidx.compose.ui.test.v2.AndroidComposeUiTestEnvironment` instead. The v2 APIs align with " +
+            "standard coroutine behavior by queuing tasks rather than executing them " +
+            "immediately. Tests relying on immediate execution may require explicit " +
+            "synchronization. Please refer to the migration guide for more details.",
     level = DeprecationLevel.WARNING,
 )
 @ExperimentalTestApi
@@ -624,7 +661,11 @@ internal constructor(
                 ) {
                     if (HasRobolectricFingerprint) {
                         idlingStrategy =
-                            RobolectricIdlingStrategy(composeRootRegistry, composeIdlingResource)
+                            RobolectricIdlingStrategy(
+                                composeRootRegistry,
+                                composeIdlingResource,
+                                idlingResourceRegistry,
+                            )
                     }
                     // Need to await quiescence before registering our ComposeIdlingResource because
                     // the

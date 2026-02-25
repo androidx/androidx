@@ -27,7 +27,7 @@ fun Canvas(image: ImageBitmap): Canvas = ActualCanvas(image)
 
 internal expect fun ActualCanvas(image: ImageBitmap): Canvas
 
-expect class NativeCanvas
+@Deprecated("Use direct reference to platform type instead of typealias") expect class NativeCanvas
 
 /**
  * Saves a copy of the current transform and clip on the save stack and executes the provided lambda
@@ -38,7 +38,7 @@ expect class NativeCanvas
  *
  * [Canvas.saveLayer], which does the same thing but additionally also groups the commands
  */
-/* expect */ inline fun Canvas.withSave(block: () -> Unit) {
+inline fun Canvas.withSave(block: () -> Unit) {
     try {
         save()
         block()
@@ -145,9 +145,6 @@ fun Canvas.scale(sx: Float, sy: Float = sx, pivotX: Float, pivotY: Float) {
     scale(sx, sy)
     translate(-pivotX, -pivotY)
 }
-
-/** Return an instance of the native primitive that implements the Canvas interface */
-expect val Canvas.nativeCanvas: NativeCanvas
 
 @JvmDefaultWithCompatibility
 interface Canvas {

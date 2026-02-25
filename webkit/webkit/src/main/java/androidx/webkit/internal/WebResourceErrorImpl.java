@@ -41,8 +41,7 @@ public class WebResourceErrorImpl extends WebResourceErrorCompat {
     private WebResourceError mFrameworksImpl;
 
     /**
-     * Support library glue implementation - do not use this directly, instead use
-     * {@link #getBoundaryInterface()} to ensure this variable has been instantiated correctly.
+     * Support library glue implementation.
      */
     private WebResourceErrorBoundaryInterface mBoundaryInterface;
 
@@ -66,6 +65,16 @@ public class WebResourceErrorImpl extends WebResourceErrorCompat {
     @Override
     public int getErrorCode() {
         return getFrameworksImpl().getErrorCode();
+    }
+
+    @Override
+    public int getDebugCode() {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.NAVIGATION_GET_WEB_RESOURCE_ERROR;
+        if (feature.isSupportedByWebView()) {
+            return mBoundaryInterface.getDebugCode();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
     }
 
     @Override

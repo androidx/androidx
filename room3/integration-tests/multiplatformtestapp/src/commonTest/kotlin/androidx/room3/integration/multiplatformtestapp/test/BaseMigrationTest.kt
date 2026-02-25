@@ -31,9 +31,9 @@ import androidx.room3.integration.multiplatformtestapp.test.BaseMigrationTest.Mi
 import androidx.room3.migration.Migration
 import androidx.room3.testing.MigrationTestHelper
 import androidx.sqlite.SQLiteConnection
-import androidx.sqlite.SQLiteDriver
-import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import androidx.sqlite.execSQL
+import androidx.sqlite.executeSQL
+import androidx.sqlite.prepare
+import androidx.sqlite.step
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -62,8 +62,8 @@ abstract class BaseMigrationTest {
             getDatabaseBuilder()
                 .addMigrations(
                     object : Migration(1, 2) {
-                        override fun migrate(connection: SQLiteConnection) {
-                            connection.execSQL(
+                        override suspend fun migrate(connection: SQLiteConnection) {
+                            connection.executeSQL(
                                 "ALTER TABLE MigrationEntity ADD COLUMN addedInV2 TEXT"
                             )
                         }
@@ -92,8 +92,8 @@ abstract class BaseMigrationTest {
 
         val migration =
             object : Migration(1, 2) {
-                override fun migrate(connection: SQLiteConnection) {
-                    connection.execSQL("ALTER TABLE MigrationEntity ADD COLUMN addedInV2 TEXT")
+                override suspend fun migrate(connection: SQLiteConnection) {
+                    connection.executeSQL("ALTER TABLE MigrationEntity ADD COLUMN addedInV2 TEXT")
                 }
             }
         // Migrate to V2 and validate data is still present
@@ -133,7 +133,7 @@ abstract class BaseMigrationTest {
             getDatabaseBuilder()
                 .addMigrations(
                     object : Migration(1, 2) {
-                        override fun migrate(connection: SQLiteConnection) {}
+                        override suspend fun migrate(connection: SQLiteConnection) {}
                     }
                 )
                 .build()
@@ -201,7 +201,7 @@ abstract class BaseMigrationTest {
                 getDatabaseBuilder()
                     .addMigrations(
                         object : Migration(1, 2) {
-                            override fun migrate(connection: SQLiteConnection) {}
+                            override suspend fun migrate(connection: SQLiteConnection) {}
                         }
                     )
                     .fallbackToDestructiveMigrationFrom(dropAllTables = true, 1)
@@ -212,7 +212,7 @@ abstract class BaseMigrationTest {
     }
 
     @Test
-    fun misuseTestHelperAlreadyCreatedDatabase() {
+    fun misuseTestHelperAlreadyCreatedDatabase() = runTest {
         val migrationTestHelper = getTestHelper()
 
         // Create database V1
@@ -231,7 +231,7 @@ abstract class BaseMigrationTest {
     }
 
     @Test
-    fun misuseTestHelperMissingDatabaseForValidateMigrations() {
+    fun misuseTestHelperMissingDatabaseForValidateMigrations() = runTest {
         val migrationTestHelper = getTestHelper()
 
         // Try to validate migrations, but fail due to no previous database created.
@@ -240,40 +240,6 @@ abstract class BaseMigrationTest {
             }
             .hasMessageThat()
             .contains("Creation of tables should never occur while validating migrations.")
-    }
-
-    // Validates that the type of connection created by the given driver are used in migrations.
-    @Test
-    fun customConnectionsOnMigrate() = runTest {
-        val migrationTestHelper = getTestHelper()
-        val connection = migrationTestHelper.createDatabase(1)
-        connection.close()
-
-        class MyConnection(private val delegate: SQLiteConnection) : SQLiteConnection by delegate
-
-        val bundledDriver = BundledSQLiteDriver()
-        val dbVersion2 =
-            getDatabaseBuilder()
-                .addMigrations(
-                    object : Migration(1, 2) {
-                        override fun migrate(connection: SQLiteConnection) {
-                            assertThat(connection).isInstanceOf<MyConnection>()
-                            connection.execSQL(
-                                "ALTER TABLE MigrationEntity ADD COLUMN addedInV2 TEXT"
-                            )
-                        }
-                    }
-                )
-                .setDriver(
-                    object : SQLiteDriver by bundledDriver {
-                        override fun open(fileName: String): SQLiteConnection {
-                            return MyConnection(bundledDriver.open(fileName))
-                        }
-                    }
-                )
-                .build()
-        dbVersion2.dao().getSingleItem(1)
-        dbVersion2.close()
     }
 
     @Entity data class MigrationEntity(@PrimaryKey val pk: Long, val addedInV2: String?)

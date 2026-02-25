@@ -685,13 +685,21 @@ public class WebViewFeatureInternal {
     /**
      * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
      * This feature covers
-     * {@link WebSettingsCompat#setBackForwardCacheSettings(WebSettings, BackForwardCacheSettings)}
      * {@link WebSettingsCompat#getBackForwardCacheSettings(WebSettings)}
      */
     public static final ApiFeature.NoFramework BACK_FORWARD_CACHE_SETTINGS =
             new ApiFeature.NoFramework(WebViewFeature.BACK_FORWARD_CACHE_SETTINGS,
                     Features.BACK_FORWARD_CACHE_SETTINGS);
 
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers
+     * {@link BackForwardCacheSettings#setMaxPagesInCache(int)}
+     * {@link BackForwardCacheSettings#setTimeoutSeconds(long)}
+     */
+    public static final ApiFeature.NoFramework BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3 =
+            new ApiFeature.NoFramework(WebViewFeature.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3,
+                    Features.BACK_FORWARD_CACHE_SETTINGS_V3);
 
     public static final ApiFeature.NoFramework DELETE_BROWSING_DATA = new ApiFeature.NoFramework(
             WebViewFeature.DELETE_BROWSING_DATA, Features.WEB_STORAGE_DELETE_BROWSING_DATA
@@ -775,6 +783,18 @@ public class WebViewFeatureInternal {
 
     /**
      * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers
+     * {@link Navigation#getWebResourceError()}
+     * {@link WebResourceErrorCompat#getDebugCode()}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final ApiFeature.NoFramework NAVIGATION_GET_WEB_RESOURCE_ERROR =
+            new ApiFeature.NoFramework(
+                    WebViewFeature.NAVIGATION_GET_WEB_RESOURCE_ERROR,
+                    Features.NAVIGATION_GET_WEB_RESOURCE_ERROR);
+
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
      * This feature covers {@link WebNavigationClient} and all methods within.
      * This feature covers basic methods in {@link Navigation}.
      * This feature covers basic version of {@link Page}.
@@ -804,10 +824,29 @@ public class WebViewFeatureInternal {
      * {@link NavigationListener#onLargestContentfulPaintMillis(Page, long)},
      * {@link NavigationListener#onPerformanceMarkMillis(Page, String, long)}
      */
-    public static final ApiFeature.NoFramework WEB_VIEW_NAVIGATION_LISTENER_V2 =
+    public static final ApiFeature.NoFramework NAVIGATION_LISTENER_V2 = new ApiFeature.NoFramework(
+            WebViewFeature.NAVIGATION_LISTENER_V2, Features.WEB_VIEW_NAVIGATION_LISTENER_V2);
+
+    /**
+     * Feature for {@link WebSettingsFeature#isFeatureSupported(String)}.
+     * This feature covers a behavior change in {@link androidx.webkit.NavigationListener},
+     * see WebViewFeature javadoc for more info.
+     */
+    public static final ApiFeature.NoFramework
+            NAVIGATION_LISTENER_ON_COMPLETED_FIRES_FOR_NON_COMMITTED =
             new ApiFeature.NoFramework(
-            WebViewFeature.WEB_VIEW_NAVIGATION_LISTENER_EXPERIMENTAL_V2,
-                    Features.WEB_VIEW_NAVIGATION_LISTENER_V2);
+                    WebViewFeature.NAVIGATION_LISTENER_ON_COMPLETED_FIRES_FOR_NON_COMMITTED,
+                    Features.ON_NAVIGATION_COMPLETED_NON_COMMITTED);
+
+    /**
+     * Feature for {@link WebSettingsFeature#isFeatureSupported(String)}.
+     * See {@link WebViewFeature#NAVIGATION_LISTENER_NON_NULL_PAGE_FOR_SAME_DOCUMENT_NAVIGATIONS}.
+     */
+    public static final ApiFeature.NoFramework
+            NAVIGATION_LISTENER_NON_NULL_PAGE_FOR_SAME_DOCUMENT_NAVIGATION =
+            new ApiFeature.NoFramework(
+                    WebViewFeature.NAVIGATION_LISTENER_NON_NULL_PAGE_FOR_SAME_DOCUMENT_NAVIGATIONS,
+                    Features.COMMITTED_NAVIGATION_GET_PAGE_NON_NULL);
 
     /**
      * This is an internal only feature that indicate whether it is safe to cache WebView Provider
@@ -959,25 +998,13 @@ public class WebViewFeatureInternal {
                     Features.HYPERLINK_CONTEXT_MENU_ITEMS);
 
     /**
-     * Feature for {@link WebSettingsFeature#isFeatureSupported(String)}.
-     * This feature covers a behavior change in {@link androidx.webkit.NavigationListener},
-     * see WebViewFeature javadoc for more info.
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers {@link Page#getUrl()}
      */
-    public static final ApiFeature.NoFramework
-            NAVIGATION_LISTENER_ON_COMPLETED_FIRES_FOR_NON_COMMITTED =
+    public static final ApiFeature.NoFramework PAGE_GET_URL =
             new ApiFeature.NoFramework(
-                    WebViewFeature.NAVIGATION_LISTENER_ON_COMPLETED_FIRES_FOR_NON_COMMITTED,
-                    Features.ON_NAVIGATION_COMPLETED_NON_COMMITTED);
-
-    /**
-     * Feature for {@link WebSettingsFeature#isFeatureSupported(String)}.
-     * See {@link WebViewFeature#NAVIGATION_LISTENER_NON_NULL_PAGE_FOR_SAME_DOCUMENT_NAVIGATIONS}.
-     */
-    public static final ApiFeature.NoFramework
-            NAVIGATION_LISTENER_NON_NULL_PAGE_FOR_SAME_DOCUMENT_NAVIGATION =
-            new ApiFeature.NoFramework(
-                    WebViewFeature.NAVIGATION_LISTENER_NON_NULL_PAGE_FOR_SAME_DOCUMENT_NAVIGATIONS,
-                    Features.COMMITTED_NAVIGATION_GET_PAGE_NON_NULL);
+                    WebViewFeature.PAGE_GET_URL,
+                    Features.PAGE_GET_URL);
 
     // --- Add new feature constants above this line ---
 

@@ -27,11 +27,9 @@ import android.hardware.camera2.CameraManager
 import android.os.Build
 import android.os.Bundle
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraFilter
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraXConfig
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.extensions.ExtensionMode.AUTO
 import androidx.camera.extensions.ExtensionMode.BOKEH
@@ -41,7 +39,6 @@ import androidx.camera.extensions.ExtensionMode.NIGHT
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.CoreAppTestUtil
@@ -70,13 +67,9 @@ import org.junit.runners.Parameterized
 class ReleaseApkTest(private val config: CameraXExtensionTestParams) {
 
     @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = config.implName == CameraPipeConfig::class.simpleName)
-
-    @get:Rule
     val cameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-            PreTestCameraIdList(config.cameraXConfig)
+            PreTestCameraIdList(Camera2Config.defaultConfig())
         )
 
     @get:Rule val labTestRule = LabTestRule()
@@ -122,14 +115,6 @@ class ReleaseApkTest(private val config: CameraXExtensionTestParams) {
                 putExtra(
                     INTENT_EXTRA_BUNDLE,
                     Bundle().apply {
-                        putString(
-                            INTENT_EXTRA_CAMERA_IMPLEMENTATION,
-                            if (config.implName == CameraPipeConfig::class.simpleName) {
-                                CAMERA_PIPE_IMPLEMENTATION_OPTION
-                            } else {
-                                CAMERA2_IMPLEMENTATION_OPTION
-                            },
-                        )
                         putString(INTENT_EXTRA_RUNNING_MODE_CHECK, "release")
                         putString(INTENT_EXTRA_KEY_CAMERA_ID, config.cameraId)
                         putInt(INTENT_EXTRA_KEY_EXTENSION_MODE, config.extensionMode)
@@ -156,9 +141,6 @@ class ReleaseApkTest(private val config: CameraXExtensionTestParams) {
     }
 
     companion object {
-        /** Launches the activity with the specified CameraX implementation. */
-        private const val INTENT_EXTRA_CAMERA_IMPLEMENTATION = "camera_implementation"
-
         /** Launches the activity with the specified id of camera. */
         private const val INTENT_EXTRA_KEY_CAMERA_ID = "camera_id"
 
@@ -171,9 +153,6 @@ class ReleaseApkTest(private val config: CameraXExtensionTestParams) {
         /** Result error code - no error */
         private const val RESULT_ERROR_NONE = 0
 
-        private const val CAMERA2_IMPLEMENTATION_OPTION: String = "camera2"
-        private const val CAMERA_PIPE_IMPLEMENTATION_OPTION: String = "camera_pipe"
-
         private val context = ApplicationProvider.getApplicationContext<Context>()!!
 
         @Parameterized.Parameters(name = "config = {0}")
@@ -183,12 +162,7 @@ class ReleaseApkTest(private val config: CameraXExtensionTestParams) {
                 getAllCameraIdExtensionModeCombinations()
             } else listOf()
 
-        data class CameraXExtensionTestParams(
-            val implName: String,
-            val cameraXConfig: CameraXConfig,
-            val cameraId: String,
-            val extensionMode: Int,
-        )
+        data class CameraXExtensionTestParams(val cameraId: String, val extensionMode: Int)
 
         /** Gets a list of all camera id and extension mode combinations. */
         @JvmStatic
@@ -198,15 +172,8 @@ class ReleaseApkTest(private val config: CameraXExtensionTestParams) {
             filterOutUnavailableMode(
                 context,
                 CameraUtil.getBackwardCompatibleCameraIdListOrThrow().flatMap { cameraId ->
-                    AVAILABLE_EXTENSION_MODES.flatMap { extensionMode ->
-                        CAMERAX_CONFIGS.map { config ->
-                            CameraXExtensionTestParams(
-                                config.first!!,
-                                config.second,
-                                cameraId,
-                                extensionMode,
-                            )
-                        }
+                    AVAILABLE_EXTENSION_MODES.map { extensionMode ->
+                        CameraXExtensionTestParams(cameraId, extensionMode)
                     }
                 },
             )
@@ -324,12 +291,5 @@ class ReleaseApkTest(private val config: CameraXExtensionTestParams) {
 
         @JvmStatic
         private val AVAILABLE_EXTENSION_MODES = arrayOf(BOKEH, HDR, NIGHT, FACE_RETOUCH, AUTO)
-
-        /** A list of supported implementation options and their respective [CameraXConfig]. */
-        private val CAMERAX_CONFIGS =
-            listOf(
-                Pair(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-                Pair(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig()),
-            )
     }
 }

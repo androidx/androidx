@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -41,6 +40,7 @@ dependencies {
     implementation("androidx.exifinterface:exifinterface:1.4.2")
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
     implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
+    implementation("androidx.core:core-backported-fixes:1.0.0")
     implementation("androidx.lifecycle:lifecycle-common:2.1.0")
     implementation("androidx.tracing:tracing:1.3.0")
     implementation(libs.autoValueAnnotations)

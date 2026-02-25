@@ -135,11 +135,11 @@ public class DebugMessage extends Operation implements VariableSupport {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("DebugMessage Operations", id(), CLASS_NAME)
+        doc.operation("Protocol Operations", id(), CLASS_NAME)
                 .description("Print debugging messages")
-                .field(DocumentedOperation.INT, "textId", "test to print")
-                .field(DocumentedOperation.FLOAT, "value", "value of a float to print")
-                .field(DocumentedOperation.INT, "flags", "print additional information");
+                .field(DocumentedOperation.INT, "textId", "The ID of the text to print")
+                .field(DocumentedOperation.FLOAT, "value", "The float value to print")
+                .field(DocumentedOperation.INT, "flags", "Flags for additional information");
     }
 
     @Override

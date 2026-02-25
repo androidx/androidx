@@ -128,6 +128,8 @@ public abstract class PassiveListenerService : Service() {
         override fun getApiVersion(): Int {
             return API_VERSION
         }
+
+        override fun getInterfaceVersion(): Int = VERSION
     }
 
     private companion object {

@@ -34,9 +34,10 @@ import java.util.List;
 
 /** Operation convert int index of a list to text */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class TextLookupInt extends Operation implements VariableSupport, Serializable {
+public class TextLookupInt extends Operation implements VariableSupport, ComponentData,
+        Serializable {
     private static final int OP_CODE = Operations.TEXT_LOOKUP_INT;
-    private static final String CLASS_NAME = "TextFromINT";
+    private static final String CLASS_NAME = "TextLookupInt";
     public int mTextId;
     public int mDataSetId;
     public int mOutIndex;
@@ -74,6 +75,7 @@ public class TextLookupInt extends Operation implements VariableSupport, Seriali
     @Override
     public void registerListening(@NonNull RemoteContext context) {
         context.listensTo(mIndex, this);
+        context.listensTo(mDataSetId, this);
     }
 
     /**
@@ -129,11 +131,11 @@ public class TextLookupInt extends Operation implements VariableSupport, Seriali
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Expressions Operations", OP_CODE, CLASS_NAME)
-                .description("Look up an array and turn into a text object")
-                .field(DocumentedOperation.INT, "textId", "id of the text generated")
-                .field(INT, "dataSetId", "id to the array/list to turn int a string")
-                .field(INT, "index", "index of the element to return");
+        doc.operation("Text Operations", OP_CODE, CLASS_NAME)
+                .description("Look up a string from a collection via an integer index variable")
+                .field(DocumentedOperation.INT, "textId", "The ID of the resulting text")
+                .field(INT, "dataSetId", "The ID of the string collection")
+                .field(INT, "indexId", "The ID of the integer index variable");
     }
 
     @Override

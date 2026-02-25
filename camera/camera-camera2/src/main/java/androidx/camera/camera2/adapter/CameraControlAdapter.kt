@@ -200,10 +200,6 @@ constructor(
         zslControl.addZslConfig(sessionConfigBuilder)
     }
 
-    override fun setLowLightBoostDisabledByUseCaseSessionConfig(disabled: Boolean) {
-        lowLightBoostControl.setLowLightBoostDisabledByUseCaseSessionConfig(disabled)
-    }
-
     override fun clearZslConfig() {
         zslControl.clearZslConfig()
     }

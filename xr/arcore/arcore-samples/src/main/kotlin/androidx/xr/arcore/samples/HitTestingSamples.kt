@@ -28,6 +28,11 @@ import androidx.xr.runtime.math.Ray
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.scene
 
+/**
+ * @param session the [Session] to use for the hit test
+ * @param hitOrigin the [Vector3] origin of the hit test ray
+ * @param hitDirection the [Vector3] direction of the hit test ray
+ */
 @Sampled
 fun callHitTest(session: Session, hitOrigin: Vector3, hitDirection: Vector3) {
     val arDevice = ArDevice.getInstance(session)

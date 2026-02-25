@@ -25,7 +25,21 @@ import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector2
 
-/** Wraps the native [XrTrackableANDROID] with the [androidx.xr.arcore.runtime.Plane] interface. */
+/**
+ * Wraps a native
+ * [XrTrackablePlaneANDROID](https://registry.khronos.org/OpenXR/specs/1.1/man/html/XrTrackablePlaneANDROID.html)
+ * with the [Plane] interface.
+ *
+ * @property planeId the ID of the plane
+ * @property type the [Type] of the plane
+ * @property timeSource the [OpenXrTimeSource] for the plane
+ * @property label the [Label] of the plane
+ * @property centerPose the [Pose] of the center of the plane
+ * @property vertices the vertices of the plane
+ * @property extents the extents of the plane
+ * @property subsumedBy the plane that subsumed this plane
+ * @property trackingState the [TrackingState] of the plane
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class OpenXrPlane
 internal constructor(
@@ -61,6 +75,11 @@ internal constructor(
         return anchor
     }
 
+    /**
+     * Updates the entity retrieving its state at [xrTime].
+     *
+     * @param xrTime the number of nanoseconds since the start of the OpenXR epoch
+     */
     override fun update(xrTime: Long) {
         val planeState = nativeGetPlaneState(planeId, xrTime)
         if (planeState == null) {
@@ -96,8 +115,11 @@ internal constructor(
 }
 
 /**
- * Create a [androidx.xr.arcore.runtime.Plane.Type] from an integer value corresponding to an
- * [XrPlaneTypeANDROID].
+ * Create a [Plane.Type] from an integer value corresponding to
+ * [XrPlaneTypeANDROID](https://registry.khronos.org/OpenXR/specs/1.1/man/html/XrPlaneTypeANDROID.html).
+ *
+ * @param type the integer value representing the OpenXR plane type
+ * @return the corresponding [Plane.Type]
  */
 internal fun Plane.Type.Companion.fromOpenXrType(type: Int): Plane.Type =
     when (type) {
@@ -112,8 +134,11 @@ internal fun Plane.Type.Companion.fromOpenXrType(type: Int): Plane.Type =
     }
 
 /**
- * Create a [androidx.xr.arcore.runtime.Plane.Label] from an integer value corresponding to an
- * [XrPlaneLabelANDROID].
+ * Create a [Plane.Label] from an integer value corresponding to
+ * [XrPlaneLabelANDROID](https://registry.khronos.org/OpenXR/specs/1.1/man/html/XrPlaneLabelANDROID.html).
+ *
+ * @param label the integer value representing the OpenXR plane label
+ * @return the corresponding [Plane.Label]
  */
 internal fun Plane.Label.Companion.fromOpenXrLabel(label: Int): Plane.Label =
     when (label) {

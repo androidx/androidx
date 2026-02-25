@@ -354,9 +354,9 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
                 )
                 .withDependencyGraph(
                     """
-                +--- androidx.fragment:fragment-ktx:1.2.4
-                     \--- androidx.fragment:fragment:1.2.4
-            """
+                    +--- androidx.fragment:fragment-ktx:1.2.4
+                         \--- androidx.fragment:fragment:1.2.4
+                    """
                         .trimIndent()
                 )
 

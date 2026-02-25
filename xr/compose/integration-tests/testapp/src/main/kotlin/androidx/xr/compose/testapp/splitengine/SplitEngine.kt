@@ -64,9 +64,10 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.ExrImage
+import androidx.xr.scenecore.GltfAnimation
+import androidx.xr.scenecore.GltfAnimationStartOptions
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
-import androidx.xr.scenecore.GltfModelEntity.AnimationState
 import androidx.xr.scenecore.InputEvent
 import androidx.xr.scenecore.InteractableComponent
 import androidx.xr.scenecore.MovableComponent
@@ -319,7 +320,10 @@ class SplitEngine : ComponentActivity() {
                                         Pose.Identity,
                                     )
                             }
-                            glimmerEntity.value!!.startAnimation(false)
+                            glimmerEntity.value!!
+                                .animations
+                                .firstOrNull()
+                                ?.start(GltfAnimationStartOptions(shouldLoop = false))
                         }
                     }
                 }
@@ -333,7 +337,7 @@ class SplitEngine : ComponentActivity() {
         val dragonEntity = remember { mutableStateOf<GltfModelEntity?>(null) }
         var isChecked by remember { mutableStateOf(false) } // State for the switch
         val dragonAnimationState = remember {
-            androidx.compose.runtime.mutableStateOf(GltfModelEntity.AnimationState.STOPPED)
+            androidx.compose.runtime.mutableStateOf(GltfAnimation.AnimationState.STOPPED)
         }
         val scope = rememberCoroutineScope()
 
@@ -398,19 +402,27 @@ class SplitEngine : ComponentActivity() {
                     ) {
                         val modifier = Modifier.weight(1F)
                         ApiButton("Animate Dragon Entity", modifier) {
-                            dragonEntity.value!!.startAnimation(false, "Fast_Flying")
+                            dragonEntity.value!!
+                                .animations
+                                .find { it.name == "Fast_Flying" }
+                                ?.start(GltfAnimationStartOptions(shouldLoop = false))
                         }
                         ApiButton("Loop Animate Dragon Entity", modifier) {
-                            dragonEntity.value!!.startAnimation(true, "Fast_Flying")
+                            val fastFlyingAnim =
+                                dragonEntity.value!!.animations.find { it.name == "Fast_Flying" }
+                            fastFlyingAnim?.start(GltfAnimationStartOptions(shouldLoop = true))
+
                             dragonAnimationState.value =
-                                dragonEntity.value?.animationState ?: AnimationState.STOPPED
+                                fastFlyingAnim?.animationState
+                                    ?: GltfAnimation.AnimationState.STOPPED
                         }
                         ApiButton("Stop Animate Dragon Entity", modifier) {
-                            if (dragonEntity.value!!.animationState == AnimationState.PLAYING) {
-                                dragonEntity.value!!.stopAnimation()
+                            dragonEntity.value!!.animations.forEach { anim ->
+                                if (anim.animationState == GltfAnimation.AnimationState.PLAYING) {
+                                    anim.stop()
+                                }
                             }
-                            dragonAnimationState.value =
-                                dragonEntity.value?.animationState ?: AnimationState.STOPPED
+                            dragonAnimationState.value = GltfAnimation.AnimationState.STOPPED
                         }
                     }
                 }

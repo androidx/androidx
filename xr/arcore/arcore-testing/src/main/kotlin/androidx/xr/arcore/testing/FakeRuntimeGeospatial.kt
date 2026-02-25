@@ -26,37 +26,30 @@ import androidx.xr.runtime.math.GeospatialPose
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 
-/** Test-only implementation of [androidx.xr.arcore.runtime.Geospatial]. */
+/**
+ * Fake implementation of [Geospatial][RuntimeGeospatial] for testing purposes.
+ *
+ * @property nextGeospatialPoseResult the next [GeospatialPoseResult] that will be returned by
+ *   [createGeospatialPoseFromPose]
+ * @property nextPose the next [Pose] that will be returned by [createPoseFromGeospatialPose]
+ * @property nextException the next [Exception] that will be thrown by any function
+ * @property nextAnchor the next [Anchor] that will be returned by [createAnchor]
+ * @property nextVpsAvailabilityResult the [VpsAvailabilityResult] to be returned by
+ *   [checkVpsAvailability]
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class FakeRuntimeGeospatial(
     override var state: RuntimeGeospatial.State = RuntimeGeospatial.State.NOT_RUNNING
 ) : RuntimeGeospatial {
 
-    /**
-     * The next [androidx.xr.arcore.runtime.Geospatial.GeospatialPoseResult] that will be returned
-     * by [createGeospatialPoseFromPose]. Is reset after the result is returned.
-     */
     public var nextGeospatialPoseResult: GeospatialPoseResult? = null
 
-    /**
-     * The next Pose that will be returned by FakeRuntimeGeospatial by
-     * [createPoseFromGeospatialPose]. Is reset after the result is returned.
-     */
     public var nextPose: Pose? = null
 
-    /**
-     * The next Exception that will be thrown by FakeRuntimeGeospatial for any function. Is reset
-     * after the exception is thrown.
-     */
     public var nextException: Exception? = null
 
-    /**
-     * The next Anchor that will be returned by FakeRuntimeGeospatial by [createAnchor]. Is reset
-     * after the result is returned.
-     */
     public var nextAnchor: Anchor? = null
 
-    /** The VpsAvailabilityResult to be returned by [checkVpsAvailability]. */
     public var nextVpsAvailabilityResult: VpsAvailabilityResult = VpsAvailabilityAvailable()
 
     /**
@@ -73,10 +66,9 @@ public class FakeRuntimeGeospatial(
     }
 
     /**
-     * Returns the supplied [androidx.xr.arcore.runtime.Geospatial.GeospatialPoseResult].
+     * Returns the supplied [GeospatialPoseResult].
      *
-     * @throws IllegalStateException if no
-     *   [androidx.xr.arcore.runtime.Geospatial.GeospatialPoseResult] is set.
+     * @throws IllegalStateException if no [GeospatialPoseResult] is set.
      */
     override public fun createGeospatialPoseFromPose(pose: Pose): GeospatialPoseResult {
         maybeThrowException()

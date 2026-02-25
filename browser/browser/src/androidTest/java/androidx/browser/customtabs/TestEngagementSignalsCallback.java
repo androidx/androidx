@@ -50,6 +50,11 @@ public class TestEngagementSignalsCallback implements EngagementSignalsCallback 
         public void onSessionEnded(boolean didUserInteract, Bundle extras) throws RemoteException {
             TestEngagementSignalsCallback.this.onSessionEnded(didUserInteract, extras);
         }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
     };
 
     @Override

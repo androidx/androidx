@@ -40,7 +40,7 @@ import kotlin.jvm.JvmSynthetic
  * be used to augment the [Brush] color when drawing. The default values below produce a static
  * circular tip shape with diameter equal to the [Brush] size and no color shift.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @ExperimentalInkCustomBrushApi
 @Suppress("NotCloseable") // Finalize is only used to free the native peer.
 public class BrushTip

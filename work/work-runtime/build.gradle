@@ -15,15 +15,15 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.KotlinTarget
 import androidx.build.ProjectLayoutType
 import androidx.build.SoftwareType
+import com.android.build.api.variant.HasAndroidTest
 
 import static androidx.inspection.gradle.InspectionPluginKt.packageInspector
 
@@ -56,10 +56,13 @@ android {
         }
     }
     compileSdk { version = release(35) }
-    sourceSets {
-        androidTest.assets.srcDirs += files("$projectDir/src/schemas".toString())
-    }
     namespace = "androidx.work"
+}
+
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        (variant as HasAndroidTest).androidTest.sources.assets.addStaticSourceDirectory("src/schemas")
+    }
 }
 
 dependencies {
@@ -111,6 +114,7 @@ ksp {
 kotlin {
     compilerOptions {
         optIn.add("androidx.work.ExperimentalConfigurationApi")
+        optIn.add("androidx.work.ExperimentalEventsApi")
     }
 }
 

@@ -17,7 +17,6 @@ package androidx.compose.remote.player.view.accessibility;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.graphics.Rect;
 import android.util.Log;
 
 import androidx.annotation.RestrictTo;
@@ -54,13 +53,9 @@ public abstract class BaseSemanticNodeApplier<N> implements SemanticNodeApplier<
     public void applyComponent(
             @NonNull RemoteComposeDocumentAccessibility remoteComposeAccessibility,
             @NonNull N nodeInfo, @NonNull Component component,
-            @NonNull List<AccessibilitySemantics> semantics) {
-        float[] locationInWindow = new float[2];
-        component.getLocationInWindow(locationInWindow);
-        Rect bounds = new Rect((int) locationInWindow[0], (int) locationInWindow[1],
-                (int) (locationInWindow[0] + component.getWidth()),
-                (int) (locationInWindow[1] + component.getHeight()));
-        setBoundsInScreen(nodeInfo, bounds);
+            @NonNull List<AccessibilitySemantics> semantics,
+            @Nullable Integer parentId) {
+        setBoundsInParentOrScreen(nodeInfo, component, parentId);
 
         setUniqueId(nodeInfo, String.valueOf(component.getComponentId()));
 
@@ -89,6 +84,10 @@ public abstract class BaseSemanticNodeApplier<N> implements SemanticNodeApplier<
             }
         }
     }
+
+    protected abstract void setBoundsInParentOrScreen(@NonNull N nodeInfo,
+            @NonNull Component component,
+            @Nullable Integer parentId);
 
     protected void applySemantics(
             @NonNull RemoteComposeDocumentAccessibility remoteComposeAccessibility,
@@ -212,8 +211,6 @@ public abstract class BaseSemanticNodeApplier<N> implements SemanticNodeApplier<
 
     protected abstract void setContentDescription(@NonNull N nodeInfo,
             @Nullable CharSequence charSequence);
-
-    protected abstract void setBoundsInScreen(@NonNull N nodeInfo, @NonNull Rect bounds);
 
     protected abstract void setUniqueId(@NonNull N nodeInfo, @NonNull String s);
 

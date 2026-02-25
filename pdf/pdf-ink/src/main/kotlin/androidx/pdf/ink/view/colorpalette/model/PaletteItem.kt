@@ -70,8 +70,7 @@ internal data class Color(
     val color: Int,
     val outlineColor: Int,
     val tickColor: Int,
-    // TODO(b/452270462) Remove default string and correct contentDesc
-    override val contentDescription: String = "",
+    override val contentDescription: String,
 ) : PaletteItem(contentDescription) {
 
     /**

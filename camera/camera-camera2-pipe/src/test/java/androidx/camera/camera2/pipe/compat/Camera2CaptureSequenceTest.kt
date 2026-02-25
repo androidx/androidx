@@ -29,6 +29,7 @@ import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.CaptureSequence
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameNumber
+import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.Request.Listener
@@ -157,6 +158,7 @@ internal class Camera2CaptureSequenceTest {
         )
         assertThat(listener.lastFrameNumber?.value).isEqualTo(frameNumber)
         assertThat(listener.lastStreamId).isEqualTo(streamId)
+        assertThat(listener.lastOutputId).isEqualTo(outputId)
     }
 
     @Test
@@ -198,6 +200,7 @@ internal class Camera2CaptureSequenceTest {
         )
         assertThat(listener.lastFrameNumber?.value).isEqualTo(frameNumber1)
         assertThat(listener.lastStreamId).isEqualTo(stream.id)
+        assertThat(listener.lastOutputId).isEqualTo(output1.id)
 
         camera2CaptureSequence.onCaptureBufferLost(
             captureSession,
@@ -207,6 +210,7 @@ internal class Camera2CaptureSequenceTest {
         )
         assertThat(listener.lastFrameNumber?.value).isEqualTo(frameNumber2)
         assertThat(listener.lastStreamId).isEqualTo(stream.id)
+        assertThat(listener.lastOutputId).isEqualTo(output2.id)
     }
 
     private class FakeRequestListener : Listener {
@@ -217,6 +221,7 @@ internal class Camera2CaptureSequenceTest {
         var lastRequestFailure: RequestFailure? = null
         var lastSensorTimeStamp: SensorTimestamp? = null
         var lastStreamId: StreamId? = null
+        var lastOutputId: OutputId? = null
 
         override fun onStarted(
             requestMetadata: RequestMetadata,
@@ -257,10 +262,12 @@ internal class Camera2CaptureSequenceTest {
         override fun onBufferLost(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
-            stream: StreamId,
+            streamId: StreamId,
+            outputId: OutputId,
         ) {
             lastFrameNumber = frameNumber
-            lastStreamId = stream
+            lastStreamId = streamId
+            lastOutputId = outputId
         }
     }
 }

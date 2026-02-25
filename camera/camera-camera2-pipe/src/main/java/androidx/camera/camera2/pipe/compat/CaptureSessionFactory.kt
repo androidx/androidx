@@ -17,7 +17,6 @@
 package androidx.camera.camera2.pipe.compat
 
 import android.annotation.SuppressLint
-import android.hardware.camera2.MultiResolutionImageReader
 import android.hardware.camera2.params.InputConfiguration
 import android.hardware.camera2.params.OutputConfiguration
 import android.os.Build
@@ -26,6 +25,7 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.compat.OutputConfigurationWrapper.Companion.SURFACE_GROUP_ID_NONE
 import androidx.camera.camera2.pipe.config.Camera2ControllerScope
 import androidx.camera.camera2.pipe.core.HandlerExecutor
@@ -33,6 +33,7 @@ import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl.OutputConfig
+import androidx.camera.camera2.pipe.media.AndroidMultiResolutionImageReader
 import dagger.Module
 import dagger.Provides
 import javax.inject.Inject
@@ -300,6 +301,7 @@ constructor(
     private val graphConfig: CameraGraph.Config,
     private val streamGraph: StreamGraphImpl,
     private val camera2MetadataProvider: Camera2MetadataProvider,
+    private val strictMode: StrictMode,
 ) : CaptureSessionFactory {
     override fun create(
         cameraDevice: CameraDeviceWrapper,
@@ -324,18 +326,18 @@ constructor(
 
         check(graphConfig.input == null) { "Reprocessing is not supported for Extensions" }
 
+        // On certain platforms, supported extensions may return an empty list, but said
+        // extension mode may actually be supported. See b/477805428 for an example.
         val cameraMetadata = camera2MetadataProvider.awaitCameraMetadata(cameraDevice.cameraId)
-
         val supportedExtensions = cameraMetadata.supportedExtensions
-
-        check(extensionMode in supportedExtensions) {
+        strictMode.check(extensionMode in supportedExtensions) {
             "$cameraDevice does not support extension mode $extensionMode. Supported " +
-                "extensions are ${supportedExtensions.stream()}"
+                "extensions are $supportedExtensions"
         }
 
         if (graphConfig.postviewStream != null) {
             val cameraExtensionMetadata = cameraMetadata.awaitExtensionMetadata(extensionMode)
-            check(cameraExtensionMetadata.isPostviewSupported) {
+            strictMode.check(cameraExtensionMetadata.isPostviewSupported) {
                 "$cameraDevice does not support Postview streams"
             }
             check(graphConfig.postviewStream.outputs.size == 1) {
@@ -412,10 +414,8 @@ internal fun buildOutputConfigurations(
             // used to create the MultiResolutionImageReader. As such, we can line up our
             // OutputStreams with the returned OutputConfigurations one-by-one.
             val multiResImageReader =
-                checkNotNull(imageSource.unwrapAs(MultiResolutionImageReader::class))
-            val outputConfigurations =
-                OutputConfiguration.createInstancesForMultiResolutionOutput(multiResImageReader)
-                    .toList()
+                checkNotNull(imageSource.unwrapAs(AndroidMultiResolutionImageReader::class))
+            val outputConfigurations = multiResImageReader.outputConfigurations
             check(outputConfigurations.size == outputs.size)
 
             for (outputIdx in outputs.indices) {

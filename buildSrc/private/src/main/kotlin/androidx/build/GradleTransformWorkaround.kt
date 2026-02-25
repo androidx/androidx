@@ -44,8 +44,8 @@ object GradleTransformWorkaround {
     fun maybeApply(rootProject: Project) {
         check(rootProject.isRoot) {
             """
-                GradleTransformWorkaround must be invoked with the root project
-                because it needs to be applied to all sub-projects.
+            GradleTransformWorkaround must be invoked with the root project
+            because it needs to be applied to all sub-projects.
             """
                 .trimIndent()
         }

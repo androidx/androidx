@@ -58,14 +58,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
- * Provides non-system routes (and related RouteControllers) by using MediaRouter2.
- * This provider is added only when media transfer feature is enabled.
+ * Provides non-system routes (and related RouteControllers) by using MediaRouter2. This provider is
+ * added only when media transfer feature is enabled.
  */
 @RequiresApi(Build.VERSION_CODES.R)
 @SuppressWarnings({"unused", "ClassCanBeStatic"}) // TODO: Remove this.
-class MediaRoute2Provider extends MediaRouteProvider {
+class MediaRoute2Provider extends MediaRouteProvider
+        implements GlobalMediaRouter.IDeviceSuggestionsImpl {
     static final String TAG = "MR2Provider";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
     private static final String PACKAGE_NAME_SEPARATOR = "/";
@@ -403,6 +405,57 @@ class MediaRoute2Provider extends MediaRouteProvider {
                             ? routeListingPreference.toPlatformRouteListingPreference()
                             : null);
         }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES_FULL.BAKLAVA_1)
+    @Override
+    public void setDeviceSuggestions(@NonNull List<SuggestedDeviceInfo> deviceSuggestions) {
+        MediaRoute2Provider.Api36Impl.setPlatformDeviceSuggestions(
+                mMediaRouter2,
+                deviceSuggestions.stream()
+                        .map(MediaRouter2Utils.Api36Impl::toFwkSuggestedDeviceInfo)
+                        .toList());
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES_FULL.BAKLAVA_1)
+    @Override
+    public void clearDeviceSuggestions() {
+        MediaRoute2Provider.Api36Impl.clearPlatformDeviceSuggestions(mMediaRouter2);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES_FULL.BAKLAVA_1)
+    @Override
+    public Map<String, List<SuggestedDeviceInfo>> getDeviceSuggestions() {
+        return MediaRoute2Provider.Api36Impl.getPlatformDeviceSuggestions(mMediaRouter2)
+                .entrySet()
+                .stream()
+                .collect(
+                        Collectors.toMap(
+                                Map.Entry::getKey,
+                                entry ->
+                                        entry.getValue().stream()
+                                                .map(
+                                                        MediaRouter2Utils.Api36Impl
+                                                                ::toAndroidXSuggestedDeviceInfo)
+                                                .toList()));
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES_FULL.BAKLAVA_1)
+    @Override
+    public void registerDeviceSuggestionsUpdatesCallback(
+            @NonNull MediaRouter.DeviceSuggestionsUpdatesCallback deviceSuggestionsUpdatesCallback,
+            @NonNull Executor executor) {
+        MediaRoute2Provider.Api36Impl.registerDeviceSuggestionsUpdatesCallback(
+                mMediaRouter2, executor, deviceSuggestionsUpdatesCallback);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES_FULL.BAKLAVA_1)
+    @Override
+    public void unregisterDeviceSuggestionsUpdatesCallback(
+            @NonNull
+                    MediaRouter.DeviceSuggestionsUpdatesCallback deviceSuggestionsUpdatesCallback) {
+        MediaRoute2Provider.Api36Impl.unregisterDeviceSuggestionsUpdatesCallback(
+                mMediaRouter2, deviceSuggestionsUpdatesCallback);
     }
 
     abstract static class Callback {
@@ -768,6 +821,91 @@ class MediaRoute2Provider extends MediaRouteProvider {
                 @NonNull MediaRouter2 mediaRouter2,
                 @Nullable android.media.RouteListingPreference routeListingPreference) {
             mediaRouter2.setRouteListingPreference(routeListingPreference);
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES_FULL.BAKLAVA_1)
+    private static class Api36Impl {
+
+        private static final Map<
+                        MediaRouter.DeviceSuggestionsUpdatesCallback,
+                        MediaRouter2.DeviceSuggestionsUpdatesCallback>
+                mDeviceSuggestionsUpdatesCallbackMap = new ArrayMap<>();
+
+        private Api36Impl() {
+            // This class is not instantiable.
+        }
+
+        @NonNull
+        static Map<String, List<android.media.SuggestedDeviceInfo>> getPlatformDeviceSuggestions(
+                @NonNull MediaRouter2 mediaRouter2) {
+            return mediaRouter2.getDeviceSuggestions();
+        }
+
+        static void setPlatformDeviceSuggestions(
+                @NonNull MediaRouter2 mediaRouter2,
+                @NonNull List<android.media.SuggestedDeviceInfo> deviceSuggestions) {
+            mediaRouter2.setDeviceSuggestions(deviceSuggestions);
+        }
+
+        static void clearPlatformDeviceSuggestions(@NonNull MediaRouter2 mediaRouter2) {
+            mediaRouter2.clearDeviceSuggestions();
+        }
+
+        static void registerDeviceSuggestionsUpdatesCallback(
+                @NonNull MediaRouter2 mediaRouter2,
+                @NonNull Executor executor,
+                @NonNull
+                        MediaRouter.DeviceSuggestionsUpdatesCallback
+                                deviceSuggestionsUpdatesCallback) {
+            unregisterDeviceSuggestionsUpdatesCallback(
+                    mediaRouter2, deviceSuggestionsUpdatesCallback);
+            MediaRouter2.DeviceSuggestionsUpdatesCallback adapter;
+            adapter =
+                    new MediaRouter2.DeviceSuggestionsUpdatesCallback() {
+                        @Override
+                        public void onSuggestionsCleared(@NonNull String suggestingPackageName) {
+                            deviceSuggestionsUpdatesCallback.onSuggestionsCleared(
+                                    suggestingPackageName);
+                        }
+
+                        @Override
+                        public void onSuggestionsRequested() {
+                            deviceSuggestionsUpdatesCallback.onSuggestionsRequested();
+                        }
+
+                        @Override
+                        public void onSuggestionsUpdated(
+                                @NonNull String suggestingPackageName,
+                                @NonNull
+                                        List<android.media.SuggestedDeviceInfo>
+                                                suggestedDeviceInfo) {
+                            deviceSuggestionsUpdatesCallback.onSuggestionsUpdated(
+                                    suggestingPackageName,
+                                    suggestedDeviceInfo.stream()
+                                            .map(
+                                                    MediaRouter2Utils.Api36Impl
+                                                            ::toAndroidXSuggestedDeviceInfo)
+                                            .toList());
+                        }
+                    };
+
+            mDeviceSuggestionsUpdatesCallbackMap.put(deviceSuggestionsUpdatesCallback, adapter);
+            mediaRouter2.registerDeviceSuggestionsUpdatesCallback(executor, adapter);
+        }
+
+        static void unregisterDeviceSuggestionsUpdatesCallback(
+                @NonNull MediaRouter2 mediaRouter2,
+                @NonNull
+                        MediaRouter.DeviceSuggestionsUpdatesCallback
+                                deviceSuggestionsUpdatesCallback) {
+            MediaRouter2.DeviceSuggestionsUpdatesCallback adapter =
+                    mDeviceSuggestionsUpdatesCallbackMap.remove(deviceSuggestionsUpdatesCallback);
+            if (adapter == null) {
+                Log.e(TAG, "DeviceSuggestionsUpdatesCallback not found for unregistering");
+                return;
+            }
+            mediaRouter2.unregisterDeviceSuggestionsUpdatesCallback(adapter);
         }
     }
 }

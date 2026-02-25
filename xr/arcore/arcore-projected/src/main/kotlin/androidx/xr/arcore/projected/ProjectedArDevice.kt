@@ -21,6 +21,10 @@ import androidx.xr.arcore.runtime.ArDevice as RuntimeArDevice
 import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
 
+/**
+ * @property devicePose the [Pose] of the device
+ * @property deviceTrackingState the [TrackingState] of the device
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class ProjectedArDevice() : RuntimeArDevice {
 

@@ -16,6 +16,7 @@
 
 package androidx.pdf.annotation.repository
 
+import androidx.annotation.VisibleForTesting
 import androidx.pdf.PdfDocument
 import androidx.pdf.annotation.KeyedPdfAnnotation
 import java.util.Collections
@@ -68,6 +69,12 @@ internal class PdfDocumentAnnotationsRepository(private val document: PdfDocumen
             cachedAnnotationsPerPage.getValue(pageNum)
         }
     }
+
+    override fun clear() {
+        cachedAnnotationsPerPage.clear()
+    }
+
+    @VisibleForTesting fun isCacheEmpty(): Boolean = cachedAnnotationsPerPage.isEmpty()
 
     private companion object {
         private const val MAX_MUTEX_POOL_SIZE = 16

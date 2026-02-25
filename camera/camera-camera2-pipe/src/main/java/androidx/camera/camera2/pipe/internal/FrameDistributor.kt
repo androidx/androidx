@@ -26,6 +26,7 @@ import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.FrameReference
 import androidx.camera.camera2.pipe.ImageSourceConfig
+import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.OutputStatus
 import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.Request
@@ -35,6 +36,8 @@ import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import androidx.camera.camera2.pipe.media.ClosingFinalizer
+import androidx.camera.camera2.pipe.media.ExpectedOutputsListener
+import androidx.camera.camera2.pipe.media.ImageListener
 import androidx.camera.camera2.pipe.media.ImageSource
 import androidx.camera.camera2.pipe.media.NoOpFinalizer
 import androidx.camera.camera2.pipe.media.OutputImage
@@ -59,7 +62,7 @@ import androidx.camera.camera2.pipe.media.OutputImage
  * that were previously started.
  */
 internal class FrameDistributor(
-    streamGraphImpl: StreamGraphImpl,
+    private val streamGraphImpl: StreamGraphImpl,
     private val frameCaptureQueue: FrameCaptureQueue,
     isCameraTimebaseRealtime: Boolean,
     realtimeToMonotonicOffsetNs: Long,
@@ -94,46 +97,86 @@ internal class FrameDistributor(
     // In this scenario the FrameDistributor will handle distributing images to Stream-2 and
     // to Stream-3 if they are configured with an ImageSource. Each of these streams is
     // associated with its own OutputDistributor for error handling and grouping.
-    private val imageDistributors =
-        streamGraphImpl.imageSourceMap.mapValues { (cameraStreamId, imageSource) ->
-            val cameraStreamConfig = streamGraphImpl.getCameraStreamConfig(cameraStreamId)!!
-            val imageSourceConfig = cameraStreamConfig.imageSourceConfig!!
-            val outputMatcher =
-                selectTimestampMatcher(
-                    cameraStreamId,
-                    cameraStreamConfig,
-                    imageSourceConfig,
-                    isCameraTimebaseRealtime,
-                    realtimeToMonotonicOffsetNs,
-                )
-
-            val imageDistributor =
-                OutputDistributor<OutputImage>(
-                    outputFinalizer = ClosingFinalizer,
-                    outputMatcher = outputMatcher,
-                )
-
-            // Bind the listener on the ImageSource to the imageDistributor. This listener
-            // and the imageDistributor may be invoked on a different thread.
-            imageSource.setListener { imageStreamId, imageOutputId, outputTimestamp, image ->
-                if (image != null) {
-                    imageDistributor.onOutputResult(
-                        outputTimestamp,
-                        OutputResult.from(OutputImage.from(imageStreamId, imageOutputId, image)),
-                    )
-                } else {
-                    imageDistributor.onOutputResult(
-                        outputTimestamp,
-                        OutputResult.failure(OutputStatus.ERROR_OUTPUT_DROPPED),
-                    )
-                }
-            }
-
-            imageDistributor
-        }
-    private val imageStreams: Set<StreamId> = imageDistributors.keys
+    private val imageDistributors: Map<StreamId, Map<OutputId, OutputDistributor<OutputImage>>>
+    private val imageStreams: Set<CameraStream>
+    private val concurrentImageStreams: Set<StreamId>?
 
     var frameStartedListener: FrameStartedListener = FrameStartedListener {}
+
+    init {
+        val streams = mutableSetOf<CameraStream>()
+        val concurrentStreams = mutableSetOf<StreamId>()
+        imageDistributors =
+            streamGraphImpl.imageSourceMap.mapValues { (cameraStreamId, imageSource) ->
+                val cameraStream = checkNotNull(streamGraphImpl[cameraStreamId])
+                val cameraStreamConfig = streamGraphImpl.getCameraStreamConfig(cameraStreamId)!!
+                val imageSourceConfig = cameraStreamConfig.imageSourceConfig!!
+
+                streams.add(cameraStream)
+                if (cameraStreamConfig.imageSourceConfig.enableConcurrentOutputs) {
+                    concurrentStreams.add(cameraStreamId)
+                }
+                val outputMatcher =
+                    selectTimestampMatcher(
+                        cameraStreamId,
+                        cameraStreamConfig,
+                        imageSourceConfig,
+                        isCameraTimebaseRealtime,
+                        realtimeToMonotonicOffsetNs,
+                    )
+
+                val imageDistributorMap = buildMap {
+                    for (outputStream in cameraStream.outputs) {
+                        val imageDistributor =
+                            OutputDistributor<OutputImage>(
+                                outputFinalizer = ClosingFinalizer,
+                                outputMatcher = outputMatcher,
+                            )
+                        put(outputStream.id, imageDistributor)
+                    }
+                }
+
+                imageSource.imageListener =
+                    ImageListener { streamId, outputId, outputTimestamp, image ->
+                        val imageDistributor =
+                            checkNotNull(imageDistributorMap[outputId]) {
+                                "Received unexpected images on $imageSource from ($streamId, $outputId)"
+                            }
+                        if (image != null) {
+                            imageDistributor.onOutputResult(
+                                outputTimestamp,
+                                OutputResult.from(OutputImage.from(streamId, outputId, image)),
+                            )
+                        } else {
+                            imageDistributor.onOutputResult(
+                                outputTimestamp,
+                                OutputResult.failure(OutputStatus.ERROR_OUTPUT_DROPPED),
+                            )
+                        }
+                    }
+
+                imageSource.expectedOutputsListener =
+                    ExpectedOutputsListener { timestamp, outputIds ->
+                        val outputs = cameraStream.outputs
+                        for (i in outputs.indices) {
+                            val outputId = outputs[i].id
+                            if (!outputIds.contains(outputId)) {
+                                // Not expecting output for this output stream.
+                                val imageDistributor = checkNotNull(imageDistributorMap[outputId])
+                                imageDistributor.onOutputResult(
+                                    timestamp,
+                                    OutputResult.failure(OutputStatus.UNAVAILABLE),
+                                )
+                            }
+                        }
+                    }
+
+                imageDistributorMap
+            }
+
+        imageStreams = streams
+        concurrentImageStreams = if (concurrentStreams.isEmpty()) null else concurrentStreams
+    }
 
     /**
      * Create and distribute a [Frame] to the pending [FrameCapture] (If one has been registered for
@@ -147,7 +190,14 @@ internal class FrameDistributor(
         // When the camera begins exposing a frame, create a placeholder for all of the outputs that
         // will be produced, and tell each of the image distributors to expect results for this
         // frameNumber and timestamp.
-        val frameState = FrameState(requestMetadata, frameNumber, timestamp, imageStreams)
+        val frameState =
+            FrameState(
+                requestMetadata,
+                frameNumber,
+                timestamp,
+                imageStreams,
+                concurrentImageStreams,
+            )
 
         // Tell the frameInfo distributor to expect FrameInfo at the provided FrameNumber
         frameInfoDistributor.onOutputStarted(
@@ -160,7 +210,8 @@ internal class FrameDistributor(
         // Tell each imageDistributor to expect an Image at the provided CameraTimestamp.
         for (i in frameState.imageOutputs.indices) {
             val imageOutput = frameState.imageOutputs[i]
-            val imageDistributor = imageDistributors[imageOutput.streamId]!!
+            val imageDistributorMap = checkNotNull(imageDistributors[imageOutput.streamId])
+            val imageDistributor = checkNotNull(imageDistributorMap[imageOutput.outputId])
 
             // Images are matched to the frame based on the cameraTimestamp.
             imageDistributor.onOutputStarted(
@@ -210,12 +261,25 @@ internal class FrameDistributor(
     override fun onBufferLost(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
-        stream: StreamId,
+        streamId: StreamId,
+        outputId: OutputId,
     ) {
+        val imageDistributorMap = imageDistributors[streamId] ?: return
+
         // Tell the specific image distributor for this stream that the output has failed and will
         // not arrive for this frame. When onBufferLost occurs, other images and metadata may still
         // complete successfully.
-        imageDistributors[stream]?.onOutputFailure(frameNumber)
+        if (concurrentImageStreams?.contains(streamId) == true) {
+            // If this is a concurrent multi-output stream, we will be notified on each buffer lost.
+            checkNotNull(imageDistributorMap[outputId]).onOutputFailure(frameNumber)
+        } else {
+            check(imageDistributorMap.contains(outputId))
+            // If this is not a concurrent multi-output stream, we will only be notified once per
+            // stream, and thus we would need to inform all image distributors.
+            for (imageDistributor in imageDistributorMap.values) {
+                imageDistributor.onOutputFailure(frameNumber)
+            }
+        }
     }
 
     override fun onFailed(
@@ -240,7 +304,10 @@ internal class FrameDistributor(
             //   may be different than requestMetadata.request.streams if one of the surfaces was
             //   not ready or available. Make sure we iterate over `requestMetadata.streams`
             for (stream in requestMetadata.streams.keys) {
-                imageDistributors[stream]?.onOutputFailure(frameNumber)
+                val imageDistributorMap = imageDistributors[stream] ?: continue
+                for (imageDistributor in imageDistributorMap.values) {
+                    imageDistributor.onOutputFailure(frameNumber)
+                }
             }
         }
     }
@@ -264,8 +331,10 @@ internal class FrameDistributor(
         frameInfoDistributor.close()
 
         // Stop distributing Images
-        for (imageDistributor in imageDistributors.values) {
-            imageDistributor.close()
+        for (imageDistributorMap in imageDistributors.values) {
+            for (imageDistributor in imageDistributorMap.values) {
+                imageDistributor.close()
+            }
         }
     }
 

@@ -60,4 +60,10 @@ public class SpeculativeLoadingParametersAdapter
         if (mSpeculativeLoadingParameters == null) return false;
         return mSpeculativeLoadingParameters.isJavaScriptEnabled();
     }
+
+    @Override
+    public @Nullable Integer getVariationsId() {
+        if (mSpeculativeLoadingParameters == null) return null;
+        return mSpeculativeLoadingParameters.getVariationsId();
+    }
 }

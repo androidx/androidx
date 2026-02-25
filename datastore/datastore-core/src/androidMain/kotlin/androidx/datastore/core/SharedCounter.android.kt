@@ -105,7 +105,7 @@ internal interface SharedCounter {
                 error(
                     """
                     DataStore failed to load the native library to create SharedCounter.
-                """
+                    """
                         .trimIndent()
                 )
             }

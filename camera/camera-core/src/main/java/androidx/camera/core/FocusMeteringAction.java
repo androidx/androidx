@@ -59,14 +59,20 @@ import java.util.concurrent.TimeUnit;
  * done successfully or not. If an AF point is not specified, it will not trigger autofocus and
  * simply wait for specified AE/AWB regions being updated to complete the returned
  * {@link ListenableFuture}. In the case of AF points not specified,
- * {@link FocusMeteringResult#isFocusSuccessful()} will be set to false. If Af points are
+ * {@link FocusMeteringResult#isFocusSuccessful()} will be set to {@code false}. If Af points are
  * specified but current camera does not support auto focus,
- * {@link FocusMeteringResult#isFocusSuccessful()} will be set to true .
+ * {@link FocusMeteringResult#isFocusSuccessful()} will be set to {@code true}.
  *
  * <p>App can set a auto-cancel duration to let CameraX call
  * {@link CameraControl#cancelFocusAndMetering()} automatically in the specified duration. By
  * default the auto-cancel duration is 5 seconds. Apps can call {@link Builder#disableAutoCancel()}
  * to disable auto-cancel.
+ *
+ * <p>If a focus-metering action is completed with
+ * {@link FocusMeteringResult#isFocusSuccessful()} {@code true}, the focus distance will be
+ * locked and continuous auto-focus will be disabled. Continuous autofocus will be re-enabled
+ * when {@link CameraControl#cancelFocusAndMetering()} is called or the auto-cancel duration is
+ * reached.
  */
 public final class FocusMeteringAction {
 
@@ -107,7 +113,7 @@ public final class FocusMeteringAction {
     }
 
     /**
-     * Returns auto-cancel duration.  Returns 0 if auto-cancel is disabled.
+     * Returns auto-cancel duration. Returns {@code 0} if auto-cancel is disabled.
      */
     public long getAutoCancelDurationInMillis() {
         return mAutoCancelDurationInMillis;
@@ -144,7 +150,6 @@ public final class FocusMeteringAction {
     /**
      * Focus/Metering mode used to specify which 3A regions is activated for corresponding
      * {@link MeteringPoint}.
-     *
      */
     @IntDef(flag = true, value = {FLAG_AF, FLAG_AE, FLAG_AWB})
     @Retention(RetentionPolicy.SOURCE)
@@ -280,7 +285,7 @@ public final class FocusMeteringAction {
 
         /**
          *
-         * Remove all points of the given meteringMode.
+         * Removes all points of the given metering mode.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         public @NonNull Builder removePoints(@MeteringMode int meteringMode) {

@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.layout.SpatialAlignment
+import androidx.xr.compose.subspace.layout.SpatialArrangement
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.size
@@ -93,7 +94,8 @@ class SpatialRowColumnTest {
             Subspace {
                 SpatialRow(
                     SubspaceModifier.testTag("row1").size(20.dp),
-                    alignment = SpatialAlignment.CenterStart,
+                    verticalAlignment = SpatialAlignment.CenterVertically,
+                    horizontalArrangement = SpatialArrangement.Start,
                 ) {
                     SpatialColumn(SubspaceModifier.testTag("column1").size(5.dp)) {
                         SpatialPanel { Text(text = "Column 1") }
@@ -128,7 +130,7 @@ class SpatialRowColumnTest {
             Subspace {
                 SpatialRow(
                     SubspaceModifier.testTag("row1").size(20.dp),
-                    alignment = SpatialAlignment.CenterStart,
+                    verticalAlignment = SpatialAlignment.CenterVertically,
                 ) {
                     SpatialColumn(
                         SubspaceModifier.testTag("column1").size(10.dp).align(SpatialAlignment.Top)
@@ -157,7 +159,8 @@ class SpatialRowColumnTest {
             Subspace {
                 SpatialColumn(
                     SubspaceModifier.testTag("column1").size(20.dp),
-                    alignment = SpatialAlignment.TopCenter,
+                    horizontalAlignment = SpatialAlignment.CenterHorizontally,
+                    verticalArrangement = SpatialArrangement.Top,
                 ) {
                     SpatialRow(SubspaceModifier.testTag("row1").size(5.dp)) {
                         SpatialPanel { Text(text = "SpatialRow 1") }
@@ -192,7 +195,7 @@ class SpatialRowColumnTest {
             Subspace {
                 SpatialColumn(
                     SubspaceModifier.testTag("column1").size(20.dp),
-                    alignment = SpatialAlignment.TopCenter,
+                    horizontalAlignment = SpatialAlignment.CenterHorizontally,
                 ) {
                     SpatialRow(
                         SubspaceModifier.testTag("row1").size(10.dp).align(SpatialAlignment.Start)
@@ -385,7 +388,7 @@ class SpatialRowColumnTest {
             Subspace {
                 SpatialCurvedRow(
                     SubspaceModifier.testTag("row1").width(500.dp),
-                    curveRadius = -100.dp,
+                    curveRadius = (-100).dp,
                 ) {
                     SpatialColumn(SubspaceModifier.testTag("column1").width(250.dp)) {
                         SpatialPanel { Text(text = "Column 1") }
@@ -508,5 +511,104 @@ class SpatialRowColumnTest {
             .assertYPositionInRootIsEqualTo(0.dp)
             .assertZPositionInRootIsEqualTo(18.dp) // Offset by -50.dp.
             .assertRotationInRootIsEqualTo(Quaternion(0.0f, -0.58509725f, 0.0f, 0.8109631f))
+    }
+
+    @Test
+    @Suppress("DEPRECATION")
+    fun deprecatedSpatialRowColumn_internalElementsAreLaidOutProperly() {
+        composeTestRule.setContent {
+            Subspace {
+                SpatialRow(SubspaceModifier.testTag("row1").width(10.dp)) {
+                    // This column will get the first 7dp
+                    SpatialColumn(SubspaceModifier.testTag("column1").width(7.dp)) {
+                        SpatialPanel { Text(text = "Column 1") }
+                    }
+                    // There are only 3dp left, so this column will end up being 3dp
+                    SpatialColumn(SubspaceModifier.testTag("column2").width(7.dp)) {
+                        SpatialPanel { Text(text = "Column 2") }
+                    }
+                }
+            }
+        }
+
+        composeTestRule
+            .onSubspaceNodeWithTag("row1")
+            .assertLeftPositionInRootIsEqualTo(-5.dp)
+            .assertXPositionInRootIsEqualTo(0.dp)
+            .assertWidthIsEqualTo(10.dp)
+
+        composeTestRule
+            .onSubspaceNodeWithTag("column1")
+            .assertLeftPositionInRootIsEqualTo(-5.dp)
+            .assertWidthIsEqualTo(7.dp)
+
+        composeTestRule
+            .onSubspaceNodeWithTag("column2")
+            .assertLeftPositionInRootIsEqualTo(2.dp)
+            .assertWidthIsEqualTo(3.dp)
+    }
+
+    @Test
+    @Suppress("DEPRECATION")
+    fun deprecatedSpatialColumn_internalElementsAreAligned() {
+        composeTestRule.setContent {
+            Subspace {
+                SpatialColumn(
+                    SubspaceModifier.testTag("column1").size(20.dp),
+                    alignment = SpatialAlignment.TopCenter,
+                ) {
+                    SpatialRow(SubspaceModifier.testTag("row1").size(5.dp)) {
+                        SpatialPanel { Text(text = "SpatialRow 1") }
+                    }
+                    SpatialRow(SubspaceModifier.testTag("row2").size(5.dp)) {
+                        SpatialPanel { Text(text = "SpatialRow 2") }
+                    }
+                }
+            }
+        }
+
+        composeTestRule
+            .onSubspaceNodeWithTag("column1")
+            .assertTopPositionInRootIsEqualTo(10.dp)
+            .assertYPositionInRootIsEqualTo(0.dp)
+            .assertHeightIsEqualTo(20.dp)
+
+        composeTestRule
+            .onSubspaceNodeWithTag("row1")
+            .assertTopPositionInRootIsEqualTo(10.dp)
+            .assertHeightIsEqualTo(5.dp)
+
+        composeTestRule
+            .onSubspaceNodeWithTag("row2")
+            .assertTopPositionInRootIsEqualTo(5.dp)
+            .assertHeightIsEqualTo(5.dp)
+    }
+
+    @Test
+    @Suppress("DEPRECATION")
+    fun deprecatedSpatialColumn_internalElementsAreAligned_withModifier() {
+        composeTestRule.setContent {
+            Subspace {
+                SpatialColumn(
+                    SubspaceModifier.testTag("column1").size(20.dp),
+                    alignment = SpatialAlignment.TopCenter,
+                ) {
+                    SpatialRow(
+                        SubspaceModifier.testTag("row1").size(10.dp).align(SpatialAlignment.Start)
+                    ) {
+                        SpatialPanel { Text(text = "SpatialRow 1") }
+                    }
+                    SpatialRow(
+                        SubspaceModifier.testTag("row2").size(10.dp).align(SpatialAlignment.Back)
+                    ) {
+                        SpatialPanel { Text(text = "SpatialRow 2") }
+                    }
+                }
+            }
+        }
+
+        composeTestRule.onSubspaceNodeWithTag("row1").assertXPositionInRootIsEqualTo(-5.dp)
+
+        composeTestRule.onSubspaceNodeWithTag("row2").assertZPositionInRootIsEqualTo(-5.dp)
     }
 }

@@ -115,24 +115,19 @@ interchangeably within AndroidX, with *project* being the technical term used by
 Gradle to describe a build target, e.g. a library that maps to a single AAR.
 
 New projects can be created using our
-[project creation script](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:development/project-creator/?q=project-creator&ss=androidx%2Fplatform%2Fframeworks%2Fsupport)
+[project creation gradle task](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/private/src/main/kotlin/androidx/build/ProjectCreatorTask.kt)
 available in our repo.
 
 It will create a new project with the proper structure and configuration based
 on your project needs!
 
-To use it, first install the virtualenv if it is not already installed
-
-*   (Linux) `sudo apt-get install virtualenv python3-venv`
-*   (Mac) `pip3 install virtualenv`
-*   (Mac homebrew) `brew install virtualenv`
-
-Then run the script:
+To use it, run the task:
 
 ```sh
-cd ~/androidx-main/frameworks/support && \
-./development/project-creator/create_project.sh androidx.foo foo-bar
+cd ~/androidx-main/frameworks/support && ./gradlew :createProject
 ```
+
+You will be prompted to enter the project details.
 
 If the module you are creating is an application (not a library), such as you
 might want for integration-tests, edit the project's `build.gradle` file and

@@ -18,14 +18,12 @@ package androidx.camera.view
 import android.content.Context
 import android.os.Build
 import android.view.WindowManager
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.Api27Impl.setShowWhenLocked
 import androidx.camera.testing.impl.Api27Impl.setTurnScreenOn
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.CoreAppTestUtil
@@ -57,10 +55,6 @@ class PreviewViewBitmapTest(private val implName: String, private val cameraConf
     @get:Rule
     var useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraConfig))
-
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
 
     private var cameraProvider: ProcessCameraProvider? = null
     private lateinit var cameraSelector: CameraSelector

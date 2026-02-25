@@ -1,0 +1,246 @@
+/*
+ * Copyright 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.sqlite
+
+import androidx.annotation.IntRange
+
+/**
+ * SQLite statement definition.
+ *
+ * A prepared statement is a resource that must be released once it is no longer needed via its
+ * [close] function.
+ *
+ * See also [Prepared Statement](https://www.sqlite.org/c3ref/stmt.html)
+ */
+@Suppress("NotCloseable")
+public actual interface SQLiteStatement : AutoCloseable {
+    /**
+     * Binds a ByteArray value to this statement at an index.
+     *
+     * @param index the 1-based index of the parameter to bind
+     * @param value the value to bind
+     */
+    public actual fun bindBlob(@IntRange(from = 1) index: Int, value: ByteArray)
+
+    /**
+     * Binds a Double value to this statement at an index.
+     *
+     * @param index the 1-based index of the parameter to bind
+     * @param value the value to bind
+     */
+    public actual fun bindDouble(@IntRange(from = 1) index: Int, value: Double)
+
+    /**
+     * Binds a Float value to this statement at an index.
+     *
+     * @param index the 1-based index of the parameter to bind
+     * @param value the value to bind
+     */
+    public actual fun bindFloat(@IntRange(from = 1) index: Int, value: Float) {
+        bindDouble(index, value.toDouble())
+    }
+
+    /**
+     * Binds a Long value to this statement at an index.
+     *
+     * @param index the 1-based index of the parameter to bind
+     * @param value the value to bind
+     */
+    public actual fun bindLong(@IntRange(from = 1) index: Int, value: Long)
+
+    /**
+     * Binds a Int value to this statement at an index.
+     *
+     * @param index the 1-based index of the parameter to bind
+     * @param value the value to bind
+     */
+    public actual fun bindInt(@IntRange(from = 1) index: Int, value: Int) {
+        bindLong(index, value.toLong())
+    }
+
+    /**
+     * Binds a Boolean value to this statement at an index.
+     *
+     * @param index the 1-based index of the parameter to bind
+     * @param value the value to bind
+     */
+    public actual fun bindBoolean(@IntRange(from = 1) index: Int, value: Boolean) {
+        bindLong(index, if (value) 1L else 0L)
+    }
+
+    /**
+     * Binds a String value to this statement at an index.
+     *
+     * @param index the 1-based index of the parameter to bind
+     * @param value the value to bind
+     */
+    public actual fun bindText(@IntRange(from = 1) index: Int, value: String)
+
+    /**
+     * Binds a NULL value to this statement at an index.
+     *
+     * @param index the 1-based index of the parameter to bind
+     */
+    public actual fun bindNull(@IntRange(from = 1) index: Int)
+
+    /**
+     * Returns the value of the column at [index] as a ByteArray.
+     *
+     * @param index the 0-based index of the column
+     * @return the value of the column
+     */
+    public actual fun getBlob(@IntRange(from = 0) index: Int): ByteArray
+
+    /**
+     * Returns the value of the column at [index] as a Double.
+     *
+     * @param index the 0-based index of the column
+     * @return the value of the column
+     */
+    public actual fun getDouble(@IntRange(from = 0) index: Int): Double
+
+    /**
+     * Returns the value of the column at [index] as a Float.
+     *
+     * @param index the 0-based index of the column
+     * @return the value of the column
+     */
+    public actual fun getFloat(@IntRange(from = 0) index: Int): Float {
+        return getDouble(index).toFloat()
+    }
+
+    /**
+     * Returns the value of the column at [index] as a Long.
+     *
+     * @param index the 0-based index of the column
+     * @return the value of the column
+     */
+    public actual fun getLong(@IntRange(from = 0) index: Int): Long
+
+    /**
+     * Returns the value of the column at [index] as a Int.
+     *
+     * @param index the 0-based index of the column
+     * @return the value of the column
+     */
+    public actual fun getInt(@IntRange(from = 0) index: Int): Int {
+        return getLong(index).toInt()
+    }
+
+    /**
+     * Returns the value of the column at [index] as a Boolean.
+     *
+     * @param index the 0-based index of the column
+     * @return the value of the column
+     */
+    public actual fun getBoolean(@IntRange(from = 0) index: Int): Boolean {
+        return getLong(index) != 0L
+    }
+
+    /**
+     * Returns the value of the column at [index] as a String.
+     *
+     * @param index the 0-based index of the column
+     * @return the value of the column
+     */
+    public actual fun getText(@IntRange(from = 0) index: Int): String
+
+    /**
+     * Returns true if the value of the column at [index] is NULL.
+     *
+     * @param index the 0-based index of the column
+     * @return true if the column value is NULL, false otherwise
+     */
+    public actual fun isNull(@IntRange(from = 0) index: Int): Boolean
+
+    /**
+     * Returns the number of columns in the result of the statement.
+     *
+     * @return the number of columns
+     */
+    public actual fun getColumnCount(): Int
+
+    /**
+     * Returns the name of a column at [index] in the result of the statement.
+     *
+     * @param index the 0-based index of the column
+     * @return the name of the column
+     */
+    public actual fun getColumnName(@IntRange(from = 0) index: Int): String
+
+    /**
+     * Returns the name of the columns in the result of the statement ordered by their index.
+     *
+     * @return the names of the columns
+     */
+    public actual fun getColumnNames(): List<String> {
+        return List(getColumnCount()) { i -> getColumnName(i) }
+    }
+
+    /**
+     * Returns the data type of a column at [index] in the result of the statement.
+     *
+     * The data type can be used to determine the preferred `get*()` function to be used for the
+     * column but other getters may perform data type conversion.
+     *
+     * @param index the 0-based index of the column
+     * @return the data type of the column
+     */
+    @DataType public actual fun getColumnType(@IntRange(from = 0) index: Int): Int
+
+    /**
+     * Executes the statement and evaluates the next result row if available.
+     *
+     * A statement is initially prepared and compiled but is not executed until one or more calls to
+     * this function. If the statement execution produces result rows then this function will return
+     * `true` indicating there is a new row of data ready to be read.
+     *
+     * @return true if there are more rows to evaluate or false if the statement is done executing
+     */
+    public fun step(): Boolean
+
+    /**
+     * Executes the statement asynchronously and evaluates the next result row if available.
+     *
+     * A statement is initially prepared and compiled but is not executed until one or more calls to
+     * this function. If the statement execution produces result rows then this function will return
+     * `true` indicating there is a new row of data ready to be read.
+     *
+     * @return true if there are more rows to evaluate or false if the statement is done executing
+     */
+    @Deprecated("Avoid async API on non-Web source sets.", level = DeprecationLevel.HIDDEN)
+    public actual suspend fun stepAsync(): Boolean {
+        return step()
+    }
+
+    /**
+     * Resets the prepared statement back to initial state so that it can be re-executed via [step].
+     * Any parameter bound via the `bind*()` APIs will retain their value.
+     */
+    public actual fun reset()
+
+    /** Clears all parameter bindings. Unset bindings are treated as NULL. */
+    public actual fun clearBindings()
+
+    /**
+     * Closes the statement.
+     *
+     * Once a statement is closed it should no longer be used. Calling this function on an already
+     * closed statement is a no-op.
+     */
+    public actual override fun close()
+}

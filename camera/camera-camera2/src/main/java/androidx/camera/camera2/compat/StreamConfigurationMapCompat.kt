@@ -42,16 +42,12 @@ constructor(map: StreamConfigurationMap?, private val outputSizesCorrector: Outp
     private val cachedFormatOutputSizes = mutableMapOf<Int, Array<Size>>()
     private val cachedFormatHighResolutionOutputSizes = mutableMapOf<Int, Array<Size>?>()
     private val cachedClassOutputSizes = mutableMapOf<Class<*>, Array<Size>>()
-    private var impl: StreamConfigurationMapCompatImpl
-
-    init {
-        impl =
-            if (Build.VERSION.SDK_INT >= 23) {
-                StreamConfigurationMapCompatApi23Impl(map)
-            } else {
-                StreamConfigurationMapCompatBaseImpl(map)
-            }
-    }
+    private var impl: StreamConfigurationMapCompatImpl =
+        if (Build.VERSION.SDK_INT >= 34) {
+            StreamConfigurationMapCompatApi34Impl(map)
+        } else {
+            StreamConfigurationMapCompatBaseImpl(map)
+        }
 
     /**
      * Get the image format output formats in this stream configuration.

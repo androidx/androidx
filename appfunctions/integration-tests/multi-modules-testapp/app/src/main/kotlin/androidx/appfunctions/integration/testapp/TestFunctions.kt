@@ -53,7 +53,7 @@ class TestFunctions {
      * @param num2 The second number.
      * @return The sum of the two numbers.
      */
-    @AppFunction(isDescribedByKdoc = true)
+    @AppFunction(isDescribedByKDoc = true)
     fun add(appFunctionContext: AppFunctionContext, num1: Long, num2: Long) = num1 + num2
 
     @AppFunction
@@ -308,7 +308,7 @@ class NotesFunctions : CreateNoteAppFunction {
      * @return [androidx.appfunction.integration.test.sharedschema.CreateNoteAppFunction.Response]
      *   as response.
      */
-    @AppFunction(isDescribedByKdoc = true)
+    @AppFunction(isDescribedByKDoc = true)
     override suspend fun createNote(
         appFunctionContext: AppFunctionContext,
         parameters: CreateNoteAppFunction.Parameters,

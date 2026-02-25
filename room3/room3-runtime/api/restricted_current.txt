@@ -42,39 +42,39 @@ package androidx.room3 {
     ctor public EntityDeleteOrUpdateAdapter();
     method protected abstract void bind(androidx.sqlite.SQLiteStatement statement, T entity);
     method protected abstract String createQuery();
-    method public final int handle(androidx.sqlite.SQLiteConnection connection, T? entity);
-    method public final int handleMultiple(androidx.sqlite.SQLiteConnection connection, Iterable<? extends T?>? entities);
-    method public final int handleMultiple(androidx.sqlite.SQLiteConnection connection, T?[]? entities);
+    method public final suspend Object? handle(androidx.sqlite.SQLiteConnection connection, T? entity, kotlin.coroutines.Continuation<? super java.lang.Integer>);
+    method public final suspend Object? handleMultiple(androidx.sqlite.SQLiteConnection connection, Iterable<? extends T?>? entities, kotlin.coroutines.Continuation<? super java.lang.Integer>);
+    method public final suspend Object? handleMultiple(androidx.sqlite.SQLiteConnection connection, T?[]? entities, kotlin.coroutines.Continuation<? super java.lang.Integer>);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class EntityInsertAdapter<T> {
     ctor public EntityInsertAdapter();
     method protected abstract void bind(androidx.sqlite.SQLiteStatement statement, T entity);
     method protected abstract String createQuery();
-    method public final void insert(androidx.sqlite.SQLiteConnection connection, Iterable<? extends T?>? entities);
-    method public final void insert(androidx.sqlite.SQLiteConnection connection, T? entity);
-    method public final void insert(androidx.sqlite.SQLiteConnection connection, T?[]? entities);
-    method public final long insertAndReturnId(androidx.sqlite.SQLiteConnection connection, T? entity);
-    method public final long[] insertAndReturnIdsArray(androidx.sqlite.SQLiteConnection connection, java.util.Collection<? extends T?>? entities);
-    method public final long[] insertAndReturnIdsArray(androidx.sqlite.SQLiteConnection connection, T?[]? entities);
-    method public final Long[] insertAndReturnIdsArrayBox(androidx.sqlite.SQLiteConnection connection, java.util.Collection<? extends T?>? entities);
-    method public final Long[] insertAndReturnIdsArrayBox(androidx.sqlite.SQLiteConnection connection, T?[]? entities);
-    method public final java.util.List<java.lang.Long> insertAndReturnIdsList(androidx.sqlite.SQLiteConnection connection, java.util.Collection<? extends T?>? entities);
-    method public final java.util.List<java.lang.Long> insertAndReturnIdsList(androidx.sqlite.SQLiteConnection connection, T?[]? entities);
+    method public final suspend Object? insert(androidx.sqlite.SQLiteConnection connection, Iterable<? extends T?>? entities, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public final suspend Object? insert(androidx.sqlite.SQLiteConnection connection, T? entity, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public final suspend Object? insert(androidx.sqlite.SQLiteConnection connection, T?[]? entities, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public final suspend Object? insertAndReturnId(androidx.sqlite.SQLiteConnection connection, T? entity, kotlin.coroutines.Continuation<? super java.lang.Long>);
+    method public final suspend Object? insertAndReturnIdsArray(androidx.sqlite.SQLiteConnection connection, java.util.Collection<? extends T?>? entities, kotlin.coroutines.Continuation<? super long[]>);
+    method public final suspend Object? insertAndReturnIdsArray(androidx.sqlite.SQLiteConnection connection, T?[]? entities, kotlin.coroutines.Continuation<? super long[]>);
+    method public final suspend Object? insertAndReturnIdsArrayBox(androidx.sqlite.SQLiteConnection connection, java.util.Collection<? extends T?>? entities, kotlin.coroutines.Continuation<? super java.lang.Long[]>);
+    method public final suspend Object? insertAndReturnIdsArrayBox(androidx.sqlite.SQLiteConnection connection, T?[]? entities, kotlin.coroutines.Continuation<? super java.lang.Long[]>);
+    method public final suspend Object? insertAndReturnIdsList(androidx.sqlite.SQLiteConnection connection, java.util.Collection<? extends T?>? entities, kotlin.coroutines.Continuation<? super java.util.List<java.lang.Long>>);
+    method public final suspend Object? insertAndReturnIdsList(androidx.sqlite.SQLiteConnection connection, T?[]? entities, kotlin.coroutines.Continuation<? super java.util.List<java.lang.Long>>);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class EntityUpsertAdapter<T> {
     ctor public EntityUpsertAdapter(androidx.room3.EntityInsertAdapter<T> entityInsertAdapter, androidx.room3.EntityDeleteOrUpdateAdapter<T> updateAdapter);
-    method public void upsert(androidx.sqlite.SQLiteConnection connection, Iterable<? extends T?>? entities);
-    method public void upsert(androidx.sqlite.SQLiteConnection connection, T? entity);
-    method public void upsert(androidx.sqlite.SQLiteConnection connection, T?[]? entities);
-    method public long upsertAndReturnId(androidx.sqlite.SQLiteConnection connection, T? entity);
-    method public long[] upsertAndReturnIdsArray(androidx.sqlite.SQLiteConnection connection, java.util.Collection<? extends T?>? entities);
-    method public long[] upsertAndReturnIdsArray(androidx.sqlite.SQLiteConnection connection, T?[]? entities);
-    method public Long[] upsertAndReturnIdsArrayBox(androidx.sqlite.SQLiteConnection connection, java.util.Collection<? extends T?>? entities);
-    method public Long[] upsertAndReturnIdsArrayBox(androidx.sqlite.SQLiteConnection connection, T?[]? entities);
-    method public java.util.List<java.lang.Long> upsertAndReturnIdsList(androidx.sqlite.SQLiteConnection connection, java.util.Collection<? extends T?>? entities);
-    method public java.util.List<java.lang.Long> upsertAndReturnIdsList(androidx.sqlite.SQLiteConnection connection, T?[]? entities);
+    method public suspend Object? upsert(androidx.sqlite.SQLiteConnection connection, Iterable<? extends T?>? entities, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? upsert(androidx.sqlite.SQLiteConnection connection, T? entity, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? upsert(androidx.sqlite.SQLiteConnection connection, T?[]? entities, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? upsertAndReturnId(androidx.sqlite.SQLiteConnection connection, T? entity, kotlin.coroutines.Continuation<? super java.lang.Long>);
+    method public suspend Object? upsertAndReturnIdsArray(androidx.sqlite.SQLiteConnection connection, java.util.Collection<? extends T?>? entities, kotlin.coroutines.Continuation<? super long[]>);
+    method public suspend Object? upsertAndReturnIdsArray(androidx.sqlite.SQLiteConnection connection, T?[]? entities, kotlin.coroutines.Continuation<? super long[]>);
+    method public suspend Object? upsertAndReturnIdsArrayBox(androidx.sqlite.SQLiteConnection connection, java.util.Collection<? extends T?>? entities, kotlin.coroutines.Continuation<? super java.lang.Long[]>);
+    method public suspend Object? upsertAndReturnIdsArrayBox(androidx.sqlite.SQLiteConnection connection, T?[]? entities, kotlin.coroutines.Continuation<? super java.lang.Long[]>);
+    method public suspend Object? upsertAndReturnIdsList(androidx.sqlite.SQLiteConnection connection, java.util.Collection<? extends T?>? entities, kotlin.coroutines.Continuation<? super java.util.List<java.lang.Long>>);
+    method public suspend Object? upsertAndReturnIdsList(androidx.sqlite.SQLiteConnection connection, T?[]? entities, kotlin.coroutines.Continuation<? super java.util.List<java.lang.Long>>);
     field public static final androidx.room3.EntityUpsertAdapter.Companion Companion;
   }
 
@@ -89,7 +89,6 @@ package androidx.room3 {
     method public final kotlinx.coroutines.flow.Flow<java.util.Set<java.lang.String>> createFlow(java.lang.String... tables);
     method public final kotlinx.coroutines.flow.Flow<java.util.Set<java.lang.String>> createFlow(String[] tables, optional boolean emitInitialState);
     method @BytecodeOnly public static kotlinx.coroutines.flow.Flow! createFlow$default(androidx.room3.InvalidationTracker!, String![]!, boolean, int, Object!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final <T> androidx.lifecycle.LiveData<T> createLiveData(String[] tableNames, boolean inTransaction, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteConnection,? extends T> computeFunction);
     method public final void refreshAsync();
   }
 
@@ -99,7 +98,7 @@ package androidx.room3 {
   }
 
   public interface PooledConnection {
-    method public suspend <R> Object? usePrepared(String sql, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteStatement,? extends R> block, kotlin.coroutines.Continuation<? super R>);
+    method public suspend <R> Object? usePrepared(String sql, kotlin.jvm.functions.Function2<? super androidx.sqlite.SQLiteStatement,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
   }
 
   public final class Room {
@@ -126,7 +125,7 @@ package androidx.room3 {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected java.util.Map<java.lang.Class<? extends java.lang.Object?>,java.util.List<java.lang.Class<? extends java.lang.Object?>>> getRequiredTypeConverters();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final <T> T getTypeConverter(kotlin.reflect.KClass<T> klass);
     method @CallSuper public void init(androidx.room3.DatabaseConfiguration configuration);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected final void internalInitInvalidationTracker(androidx.sqlite.SQLiteConnection connection);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected final suspend Object? internalInitInvalidationTracker(androidx.sqlite.SQLiteConnection connection, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public androidx.room3.InvalidationTracker invalidationTracker;
     field public static final androidx.room3.RoomDatabase.Companion Companion;
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int MAX_BIND_PARAMETER_CNT = 999; // 0x3e7
@@ -160,9 +159,9 @@ package androidx.room3 {
 
   public abstract static class RoomDatabase.Callback {
     ctor public RoomDatabase.Callback();
-    method public void onCreate(androidx.sqlite.SQLiteConnection connection);
-    method public void onDestructiveMigration(androidx.sqlite.SQLiteConnection connection);
-    method public void onOpen(androidx.sqlite.SQLiteConnection connection);
+    method public suspend Object? onCreate(androidx.sqlite.SQLiteConnection connection, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? onDestructiveMigration(androidx.sqlite.SQLiteConnection connection, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? onOpen(androidx.sqlite.SQLiteConnection connection, kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
   public static final class RoomDatabase.Companion {
@@ -202,16 +201,16 @@ package androidx.room3 {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class RoomOpenDelegate implements androidx.room3.RoomOpenDelegateMarker {
     ctor public RoomOpenDelegate(int version, String identityHash, String legacyIdentityHash);
-    method public abstract void createAllTables(androidx.sqlite.SQLiteConnection connection);
-    method public abstract void dropAllTables(androidx.sqlite.SQLiteConnection connection);
+    method public abstract suspend Object? createAllTables(androidx.sqlite.SQLiteConnection connection, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public abstract suspend Object? dropAllTables(androidx.sqlite.SQLiteConnection connection, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @InaccessibleFromKotlin public final String getIdentityHash();
     method @InaccessibleFromKotlin public final String getLegacyIdentityHash();
     method @InaccessibleFromKotlin public final int getVersion();
-    method public abstract void onCreate(androidx.sqlite.SQLiteConnection connection);
-    method public abstract void onOpen(androidx.sqlite.SQLiteConnection connection);
-    method public abstract void onPostMigrate(androidx.sqlite.SQLiteConnection connection);
-    method public abstract void onPreMigrate(androidx.sqlite.SQLiteConnection connection);
-    method public abstract androidx.room3.RoomOpenDelegate.ValidationResult onValidateSchema(androidx.sqlite.SQLiteConnection connection);
+    method public abstract suspend Object? onCreate(androidx.sqlite.SQLiteConnection connection, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public abstract suspend Object? onOpen(androidx.sqlite.SQLiteConnection connection, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public abstract suspend Object? onPostMigrate(androidx.sqlite.SQLiteConnection connection, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public abstract suspend Object? onPreMigrate(androidx.sqlite.SQLiteConnection connection, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public abstract suspend Object? onValidateSchema(androidx.sqlite.SQLiteConnection connection, kotlin.coroutines.Continuation<? super androidx.room3.RoomOpenDelegate.ValidationResult>);
     property public final String identityHash;
     property public final String legacyIdentityHash;
     property public final int version;
@@ -256,7 +255,7 @@ package androidx.room3 {
   public final class TransactorKt {
     method public static suspend <R> Object? deferredTransaction(androidx.room3.Transactor, kotlin.jvm.functions.Function2<? super androidx.room3.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
     method public static suspend <R> Object? exclusiveTransaction(androidx.room3.Transactor, kotlin.jvm.functions.Function2<? super androidx.room3.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
-    method public static suspend Object? execSQL(androidx.room3.PooledConnection, String sql, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public static suspend Object? executeSQL(androidx.room3.PooledConnection, String sql, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public static suspend <R> Object? immediateTransaction(androidx.room3.Transactor, kotlin.jvm.functions.Function2<? super androidx.room3.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
   }
 
@@ -275,7 +274,7 @@ package androidx.room3.concurrent {
 package androidx.room3.coroutines {
 
   public final class FlowUtil {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <R> kotlinx.coroutines.flow.Flow<R> createFlow(androidx.room3.RoomDatabase db, boolean inTransaction, String[] tableNames, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteConnection,? extends R> block);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <R> kotlinx.coroutines.flow.Flow<R> createFlow(androidx.room3.RoomDatabase db, boolean inTransaction, String[] tableNames, kotlin.jvm.functions.Function2<? super androidx.sqlite.SQLiteConnection,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block);
   }
 
 }
@@ -283,12 +282,12 @@ package androidx.room3.coroutines {
 package androidx.room3.migration {
 
   public interface AutoMigrationSpec {
-    method public default void onPostMigrate(androidx.sqlite.SQLiteConnection connection);
+    method public default suspend Object? onPostMigrate(androidx.sqlite.SQLiteConnection connection, kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
   public abstract class Migration {
     ctor public Migration(int startVersion, int endVersion);
-    method public abstract void migrate(androidx.sqlite.SQLiteConnection connection);
+    method public abstract suspend Object? migrate(androidx.sqlite.SQLiteConnection connection, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public final int endVersion;
     property public final int startVersion;
     field public final int endVersion;
@@ -310,12 +309,12 @@ package androidx.room3.util {
   }
 
   public final class DBUtil {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void dropFtsSyncTriggers(androidx.sqlite.SQLiteConnection connection);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void foreignKeyCheck(androidx.sqlite.SQLiteConnection db, String tableName);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <R> R performBlocking(androidx.room3.RoomDatabase db, boolean isReadOnly, boolean inTransaction, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteConnection,? extends R> block);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static suspend Object? dropFtsSyncTriggers(androidx.sqlite.SQLiteConnection connection, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static suspend Object? foreignKeyCheck(androidx.sqlite.SQLiteConnection db, String tableName, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <R> R performBlocking(androidx.room3.RoomDatabase db, boolean isReadOnly, boolean inTransaction, kotlin.jvm.functions.Function2<? super androidx.sqlite.SQLiteConnection,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <R> R performInTransactionBlocking(androidx.room3.RoomDatabase db, kotlin.jvm.functions.Function0<? extends R> block);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static suspend <R> Object? performInTransactionSuspending(androidx.room3.RoomDatabase db, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static suspend <R> Object? performSuspending(androidx.room3.RoomDatabase db, boolean isReadOnly, boolean inTransaction, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteConnection,? extends R> block, kotlin.coroutines.Continuation<? super R>);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static suspend <R> Object? performSuspending(androidx.room3.RoomDatabase db, boolean isReadOnly, boolean inTransaction, kotlin.jvm.functions.Function2<? super androidx.sqlite.SQLiteConnection,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
   }
 
   @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class FileUtil {
@@ -325,7 +324,7 @@ package androidx.room3.util {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FtsTableInfo {
     ctor public FtsTableInfo(String name, java.util.Set<java.lang.String> columns, String createSql);
     ctor public FtsTableInfo(String name, java.util.Set<java.lang.String> columns, java.util.Set<java.lang.String> options);
-    method public static androidx.room3.util.FtsTableInfo read(androidx.sqlite.SQLiteConnection connection, String tableName);
+    method public static suspend Object? read(androidx.sqlite.SQLiteConnection connection, String tableName, kotlin.coroutines.Continuation<? super androidx.room3.util.FtsTableInfo>);
     property public java.util.Set<java.lang.String> columns;
     property public String name;
     property public java.util.Set<java.lang.String> options;
@@ -336,24 +335,24 @@ package androidx.room3.util {
   }
 
   public static final class FtsTableInfo.Companion {
-    method public androidx.room3.util.FtsTableInfo read(androidx.sqlite.SQLiteConnection connection, String tableName);
+    method public suspend Object? read(androidx.sqlite.SQLiteConnection connection, String tableName, kotlin.coroutines.Continuation<? super androidx.room3.util.FtsTableInfo>);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class KClassUtil {
+  public final class KClassUtil {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <T, C> T findAndInstantiateDatabaseImpl(Class<C> klass, optional String suffix);
     method @BytecodeOnly @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static Object! findAndInstantiateDatabaseImpl$default(Class!, String!, int, Object!);
   }
 
   public final class RelationUtil {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <K, V> void recursiveFetchArrayMap(androidx.collection.ArrayMap<K,V> map, boolean isRelationCollection, kotlin.jvm.functions.Function1<? super androidx.collection.ArrayMap<K,V>,kotlin.Unit> fetchBlock);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <K, V> void recursiveFetchHashMap(java.util.HashMap<K,V> map, boolean isRelationCollection, kotlin.jvm.functions.Function1<? super java.util.HashMap<K,V>,kotlin.Unit> fetchBlock);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <V> void recursiveFetchLongSparseArray(androidx.collection.LongSparseArray<V> map, boolean isRelationCollection, kotlin.jvm.functions.Function1<? super androidx.collection.LongSparseArray<V>,kotlin.Unit> fetchBlock);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <K, V> void recursiveFetchMap(java.util.Map<K,V> map, boolean isRelationCollection, kotlin.jvm.functions.Function1<? super java.util.Map<K,V>,kotlin.Unit> fetchBlock);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static suspend <K, V> Object? recursiveFetchArrayMap(androidx.collection.ArrayMap<K,V> map, boolean isRelationCollection, kotlin.jvm.functions.Function2<? super androidx.collection.ArrayMap<K,V>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> fetchBlock, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static suspend <K, V> Object? recursiveFetchHashMap(java.util.HashMap<K,V> map, boolean isRelationCollection, kotlin.jvm.functions.Function2<? super java.util.HashMap<K,V>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> fetchBlock, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static suspend <V> Object? recursiveFetchLongSparseArray(androidx.collection.LongSparseArray<V> map, boolean isRelationCollection, kotlin.jvm.functions.Function2<? super androidx.collection.LongSparseArray<V>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> fetchBlock, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static suspend <K, V> Object? recursiveFetchMap(java.util.Map<K,V> map, boolean isRelationCollection, kotlin.jvm.functions.Function2<? super java.util.Map<K,V>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> fetchBlock, kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
   public final class SQLiteConnectionUtil {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static long getLastInsertedRowId(androidx.sqlite.SQLiteConnection connection);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static int getTotalChangedRows(androidx.sqlite.SQLiteConnection connection);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static suspend Object? getLastInsertedRowId(androidx.sqlite.SQLiteConnection connection, kotlin.coroutines.Continuation<? super java.lang.Long>);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static suspend Object? getTotalChangedRows(androidx.sqlite.SQLiteConnection connection, kotlin.coroutines.Continuation<? super java.lang.Integer>);
   }
 
   public final class SQLiteStatementUtil {
@@ -371,7 +370,7 @@ package androidx.room3.util {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class TableInfo {
     ctor @BytecodeOnly public TableInfo(String!, java.util.Map!, java.util.Set!, java.util.Set!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public TableInfo(String name, java.util.Map<java.lang.String,androidx.room3.util.TableInfo.Column> columns, java.util.Set<androidx.room3.util.TableInfo.ForeignKey> foreignKeys, optional java.util.Set<androidx.room3.util.TableInfo.Index>? indices);
-    method public static androidx.room3.util.TableInfo read(androidx.sqlite.SQLiteConnection connection, String tableName);
+    method public static suspend Object? read(androidx.sqlite.SQLiteConnection connection, String tableName, kotlin.coroutines.Continuation<? super androidx.room3.util.TableInfo>);
     property public java.util.Map<java.lang.String,androidx.room3.util.TableInfo.Column> columns;
     property public java.util.Set<androidx.room3.util.TableInfo.ForeignKey> foreignKeys;
     property public java.util.Set<androidx.room3.util.TableInfo.Index>? indices;
@@ -413,7 +412,7 @@ package androidx.room3.util {
   }
 
   public static final class TableInfo.Companion {
-    method public androidx.room3.util.TableInfo read(androidx.sqlite.SQLiteConnection connection, String tableName);
+    method public suspend Object? read(androidx.sqlite.SQLiteConnection connection, String tableName, kotlin.coroutines.Continuation<? super androidx.room3.util.TableInfo>);
     property public static int CREATED_FROM_DATABASE;
     property public static int CREATED_FROM_ENTITY;
     property public static int CREATED_FROM_UNKNOWN;
@@ -458,7 +457,7 @@ package androidx.room3.util {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class ViewInfo {
     ctor public ViewInfo(String name, String? sql);
-    method public static androidx.room3.util.ViewInfo read(androidx.sqlite.SQLiteConnection connection, String viewName);
+    method public static suspend Object? read(androidx.sqlite.SQLiteConnection connection, String viewName, kotlin.coroutines.Continuation<? super androidx.room3.util.ViewInfo>);
     property public String name;
     property public String? sql;
     field public static final androidx.room3.util.ViewInfo.Companion Companion;
@@ -467,7 +466,7 @@ package androidx.room3.util {
   }
 
   public static final class ViewInfo.Companion {
-    method public androidx.room3.util.ViewInfo read(androidx.sqlite.SQLiteConnection connection, String viewName);
+    method public suspend Object? read(androidx.sqlite.SQLiteConnection connection, String viewName, kotlin.coroutines.Continuation<? super androidx.room3.util.ViewInfo>);
   }
 
 }

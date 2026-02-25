@@ -1,8 +1,11 @@
 import androidx.lifecycle.LiveData
 import androidx.room3.RoomDatabase
+import androidx.room3.livedata.LiveDataDaoReturnTypeConverter
 import androidx.room3.util.appendPlaceholders
 import androidx.room3.util.getColumnIndexOrThrow
+import androidx.room3.util.performSuspending
 import androidx.sqlite.SQLiteStatement
+import androidx.sqlite.step
 import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.String
@@ -17,6 +20,9 @@ internal class MyDao_Impl(
   __db: RoomDatabase,
 ) : MyDao {
   private val __db: RoomDatabase
+
+  private val __liveDataDaoReturnTypeConverter: LiveDataDaoReturnTypeConverter =
+      LiveDataDaoReturnTypeConverter()
   init {
     this.__db = __db
   }
@@ -28,33 +34,35 @@ internal class MyDao_Impl(
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
-    return __db.invalidationTracker.createLiveData(arrayOf("MyEntity"), false) { _connection ->
-      val _stmt: SQLiteStatement = _connection.prepare(_sql)
-      try {
-        var _argIndex: Int = 1
-        for (_item: String? in arg) {
-          if (_item == null) {
-            _stmt.bindNull(_argIndex)
-          } else {
-            _stmt.bindText(_argIndex, _item)
+    return __liveDataDaoReturnTypeConverter.convert(__db, arrayOf("MyEntity")) {
+      performSuspending(__db, true, false) { _connection ->
+        val _stmt: SQLiteStatement = _connection.prepare(_sql)
+        try {
+          var _argIndex: Int = 1
+          for (_item: String? in arg) {
+            if (_item == null) {
+              _stmt.bindNull(_argIndex)
+            } else {
+              _stmt.bindText(_argIndex, _item)
+            }
+            _argIndex++
           }
-          _argIndex++
+          val _columnIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
+          val _columnIndexOfOther: Int = getColumnIndexOrThrow(_stmt, "other")
+          val _result: MyEntity
+          if (_stmt.step()) {
+            val _tmpPk: Int
+            _tmpPk = _stmt.getLong(_columnIndexOfPk).toInt()
+            val _tmpOther: String
+            _tmpOther = _stmt.getText(_columnIndexOfOther)
+            _result = MyEntity(_tmpPk,_tmpOther)
+          } else {
+            error("The query result was empty, but expected a single row to return a NON-NULL object of type 'MyEntity'.")
+          }
+          _result
+        } finally {
+          _stmt.close()
         }
-        val _columnIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
-        val _columnIndexOfOther: Int = getColumnIndexOrThrow(_stmt, "other")
-        val _result: MyEntity
-        if (_stmt.step()) {
-          val _tmpPk: Int
-          _tmpPk = _stmt.getLong(_columnIndexOfPk).toInt()
-          val _tmpOther: String
-          _tmpOther = _stmt.getText(_columnIndexOfOther)
-          _result = MyEntity(_tmpPk,_tmpOther)
-        } else {
-          error("The query result was empty, but expected a single row to return a NON-NULL object of type 'MyEntity'.")
-        }
-        _result
-      } finally {
-        _stmt.close()
       }
     }
   }
@@ -66,33 +74,35 @@ internal class MyDao_Impl(
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
-    return __db.invalidationTracker.createLiveData(arrayOf("MyEntity"), false) { _connection ->
-      val _stmt: SQLiteStatement = _connection.prepare(_sql)
-      try {
-        var _argIndex: Int = 1
-        for (_item: String? in arg) {
-          if (_item == null) {
-            _stmt.bindNull(_argIndex)
-          } else {
-            _stmt.bindText(_argIndex, _item)
+    return __liveDataDaoReturnTypeConverter.convert(__db, arrayOf("MyEntity")) {
+      performSuspending(__db, true, false) { _connection ->
+        val _stmt: SQLiteStatement = _connection.prepare(_sql)
+        try {
+          var _argIndex: Int = 1
+          for (_item: String? in arg) {
+            if (_item == null) {
+              _stmt.bindNull(_argIndex)
+            } else {
+              _stmt.bindText(_argIndex, _item)
+            }
+            _argIndex++
           }
-          _argIndex++
+          val _columnIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
+          val _columnIndexOfOther: Int = getColumnIndexOrThrow(_stmt, "other")
+          val _result: MyEntity?
+          if (_stmt.step()) {
+            val _tmpPk: Int
+            _tmpPk = _stmt.getLong(_columnIndexOfPk).toInt()
+            val _tmpOther: String
+            _tmpOther = _stmt.getText(_columnIndexOfOther)
+            _result = MyEntity(_tmpPk,_tmpOther)
+          } else {
+            _result = null
+          }
+          _result
+        } finally {
+          _stmt.close()
         }
-        val _columnIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
-        val _columnIndexOfOther: Int = getColumnIndexOrThrow(_stmt, "other")
-        val _result: MyEntity?
-        if (_stmt.step()) {
-          val _tmpPk: Int
-          _tmpPk = _stmt.getLong(_columnIndexOfPk).toInt()
-          val _tmpOther: String
-          _tmpOther = _stmt.getText(_columnIndexOfOther)
-          _result = MyEntity(_tmpPk,_tmpOther)
-        } else {
-          _result = null
-        }
-        _result
-      } finally {
-        _stmt.close()
       }
     }
   }

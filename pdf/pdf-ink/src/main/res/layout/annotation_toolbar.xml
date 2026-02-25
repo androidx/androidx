@@ -64,9 +64,9 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/margin_16dp"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/tool_tray"
-        app:layout_constraintEnd_toEndOf="@+id/tool_tray"
-        app:layout_constraintStart_toStartOf="@+id/tool_tray"
+        app:layout_constraintBottom_toTopOf="@+id/scrollable_tool_tray_container"
+        app:layout_constraintEnd_toEndOf="@+id/scrollable_tool_tray_container"
+        app:layout_constraintStart_toStartOf="@+id/scrollable_tool_tray_container"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.pdf.ink.view.colorpalette.ColorPaletteView
@@ -75,8 +75,8 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/margin_16dp"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/tool_tray"
-        app:layout_constraintEnd_toEndOf="@id/tool_tray"
-        app:layout_constraintStart_toStartOf="@id/tool_tray"
+        app:layout_constraintBottom_toTopOf="@+id/scrollable_tool_tray_container"
+        app:layout_constraintEnd_toEndOf="@id/scrollable_tool_tray_container"
+        app:layout_constraintStart_toStartOf="@id/scrollable_tool_tray_container"
         app:layout_constraintTop_toTopOf="parent" />
 </merge>

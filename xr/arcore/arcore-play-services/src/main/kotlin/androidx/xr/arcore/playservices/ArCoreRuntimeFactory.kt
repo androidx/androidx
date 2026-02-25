@@ -15,10 +15,10 @@
  */
 package androidx.xr.arcore.playservices
 
-import android.app.Activity
+import android.content.Context
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.PerceptionRuntime
-import androidx.xr.runtime.internal.Feature
+import androidx.xr.runtime.interfaces.Feature
 import androidx.xr.runtime.internal.PerceptionRuntimeFactory
 import kotlin.coroutines.CoroutineContext
 
@@ -28,13 +28,13 @@ public class ArCoreRuntimeFactory() : PerceptionRuntimeFactory {
     override val requirements: Set<Feature> = setOf(Feature.FULLSTACK)
 
     override fun createRuntime(
-        activity: Activity,
+        context: Context,
         coroutineContext: CoroutineContext,
     ): PerceptionRuntime {
         // b/396235304 -- Provide a way to configure the session.
         val timeSource = ArCoreTimeSource()
         val perceptionManager = ArCorePerceptionManager(timeSource)
-        val manager = ArCoreManager(activity, perceptionManager, timeSource)
+        val manager = ArCoreManager(context, perceptionManager, timeSource)
         return ArCoreRuntime(manager, perceptionManager)
     }
 }

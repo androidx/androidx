@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.StateFlow
  * @param navigatorProvider NavigatorProvider used to retrieve the correct [Navigator] to navigate
  *   to the start destination
  */
+@Suppress("RUNTIME_ANNOTATION_NOT_SUPPORTED") // the annotation is used on android only
 @Navigator.Name("navigation")
 public open class NavGraphNavigator(private val navigatorProvider: NavigatorProvider) :
     Navigator<NavGraph>(NAME) {

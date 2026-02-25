@@ -23,7 +23,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.xr.arcore.Anchor
 import androidx.xr.arcore.AnchorCreateSuccess
 import androidx.xr.arcore.Plane
-import androidx.xr.runtime.Config.PlaneTrackingMode
+import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
@@ -346,36 +346,38 @@ private constructor(rtEntity: RtAnchorEntity, entityManager: EntityManager) :
     }
 
     /**
-     * Registers a listener to be called when the [Anchor] moves relative to its underlying space.
+     * Registers a listener to be called when the [Anchor]'s origin moves relative to its underlying
+     * space.
      *
-     * The callback is triggered on the supplied [Executor] by any anchor movements such as those
-     * made by the underlying perception stack to maintain the anchor's position relative to the
-     * real world. Any cached data relative to the activity space or any other "space" should be
-     * updated when this callback is triggered. It will be automatically unregistered when the
-     * entity is disposed.
+     * The callback is triggered on the supplied [Executor] by any anchor movements, for example
+     * when the perception system moves the anchor's origin to maintain the anchor's position
+     * relative to the real world. Any cached data relative to the activity space or any other
+     * "space" should be updated when this callback is triggered. It will be automatically
+     * unregistered when the entity is disposed.
      *
      * @param executor The executor to run the listener on.
      * @param listener The listener to register if non-null, else stops listening if null.
      */
-    public fun setOnSpaceUpdatedListener(executor: Executor, listener: Runnable?) {
+    public fun setOnOriginChangedListener(executor: Executor, listener: Runnable?) {
         checkNotDisposed()
-        rtEntity!!.setOnSpaceUpdatedListener(listener, executor)
+        rtEntity!!.setOnOriginChangedListener(listener, executor)
     }
 
     /**
-     * Registers a listener to be called when the [Anchor] moves relative to its underlying space.
+     * Registers a listener to be called when the [Anchor]'s origin moves relative to its underlying
+     * space.
      *
-     * The callback is triggered on the default SceneCore [Executor] by any anchor movements such as
-     * those made by the underlying perception stack to maintain the anchor's position relative to
-     * the real world. Any cached data relative to the activity space or any other "space" should be
-     * updated when this callback is triggered. It will be automatically unregistered when the
-     * entity is disposed.
+     * The callback is triggered on the default SceneCore [Executor] by any anchor movements, for
+     * example when the perception system moves the anchor's origin to maintain the anchor's
+     * position relative to the real world. Any cached data relative to the activity space or any
+     * other "space" should be updated when this callback is triggered. It will be automatically
+     * unregistered when the entity is disposed.
      *
      * @param listener The listener to register if non-null, else stops listening if null.
      */
-    public fun setOnSpaceUpdatedListener(listener: Runnable?) {
+    public fun setOnOriginChangedListener(listener: Runnable?) {
         checkNotDisposed()
-        rtEntity!!.setOnSpaceUpdatedListener(listener, null)
+        rtEntity!!.setOnOriginChangedListener(listener, null)
     }
 
     /**
@@ -495,7 +497,7 @@ private constructor(rtEntity: RtAnchorEntity, entityManager: EntityManager) :
 
     override fun dispose() {
         if (rtEntity != null) {
-            setOnSpaceUpdatedListener(null)
+            setOnOriginChangedListener(null)
             setOnStateChangedListener(null)
         }
         super.dispose()

@@ -57,17 +57,17 @@ class ClassVerificationFailureDetectorTest :
 
         val expected =
             """
-src/androidx/ClassVerificationFailureFromJava.java:37: Error: This call references a method added in API level 21; however, the containing class androidx.ClassVerificationFailureFromJava is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
-            view.setBackgroundTintList(tint);
-                 ~~~~~~~~~~~~~~~~~~~~~
-src/androidx/ClassVerificationFailureFromJava.java:46: Error: This call references a method added in API level 17; however, the containing class androidx.ClassVerificationFailureFromJava is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
-            return View.generateViewId();
-                        ~~~~~~~~~~~~~~
-src/androidx/ClassVerificationFailureFromJava.java:56: Error: This call references a method added in API level 23; however, the containing class androidx.ClassVerificationFailureFromJava is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
-        return view.getAccessibilityClassName();
-                    ~~~~~~~~~~~~~~~~~~~~~~~~~
-3 errors, 0 warnings
-        """
+            src/androidx/ClassVerificationFailureFromJava.java:37: Error: This call references a method added in API level 21; however, the containing class androidx.ClassVerificationFailureFromJava is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+                        view.setBackgroundTintList(tint);
+                             ~~~~~~~~~~~~~~~~~~~~~
+            src/androidx/ClassVerificationFailureFromJava.java:46: Error: This call references a method added in API level 17; however, the containing class androidx.ClassVerificationFailureFromJava is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+                        return View.generateViewId();
+                                    ~~~~~~~~~~~~~~
+            src/androidx/ClassVerificationFailureFromJava.java:56: Error: This call references a method added in API level 23; however, the containing class androidx.ClassVerificationFailureFromJava is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+                    return view.getAccessibilityClassName();
+                                ~~~~~~~~~~~~~~~~~~~~~~~~~
+            3 errors, 0 warnings
+            """
                 .trimIndent()
 
         check(*input).expect(expected)
@@ -79,65 +79,65 @@ src/androidx/ClassVerificationFailureFromJava.java:56: Error: This call referenc
 
         val expected =
             """
-src/androidx/sample/core/widget/ListViewCompat.java:39: Error: This call references a method added in API level 19; however, the containing class androidx.sample.core.widget.ListViewCompat is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
-            listView.scrollListBy(y);
-                     ~~~~~~~~~~~~
-src/androidx/sample/core/widget/ListViewCompat.java:69: Error: This call references a method added in API level 19; however, the containing class androidx.sample.core.widget.ListViewCompat is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
-            return listView.canScrollList(direction);
-                            ~~~~~~~~~~~~~
-2 errors, 0 warnings
-        """
+            src/androidx/sample/core/widget/ListViewCompat.java:39: Error: This call references a method added in API level 19; however, the containing class androidx.sample.core.widget.ListViewCompat is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+                        listView.scrollListBy(y);
+                                 ~~~~~~~~~~~~
+            src/androidx/sample/core/widget/ListViewCompat.java:69: Error: This call references a method added in API level 19; however, the containing class androidx.sample.core.widget.ListViewCompat is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+                        return listView.canScrollList(direction);
+                                        ~~~~~~~~~~~~~
+            2 errors, 0 warnings
+            """
                 .trimIndent()
 
         val expectedFix =
             """
-Fix for src/androidx/sample/core/widget/ListViewCompat.java line 39: Extract to static inner class:
-@@ -21 +21
-+ import android.widget.AbsListView;
-@@ -23 +24
-+ import androidx.annotation.DoNotInline;
-@@ -24 +26
-+ import androidx.annotation.RequiresApi;
-@@ -39 +42
--             listView.scrollListBy(y);
-+             Api19Impl.scrollListBy(listView, y);
-@@ -91 +94
-+
-+ @RequiresApi(19)
-+ static class Api19Impl {
-+     private Api19Impl() {
-+         // This class is not instantiable.
-+     }
-+     @DoNotInline
-+     static void scrollListBy(AbsListView absListView, int y) {
-+         absListView.scrollListBy(y);
-+     }
-@@ -92 +105
-+ }
-Fix for src/androidx/sample/core/widget/ListViewCompat.java line 69: Extract to static inner class:
-@@ -21 +21
-+ import android.widget.AbsListView;
-@@ -23 +24
-+ import androidx.annotation.DoNotInline;
-@@ -24 +26
-+ import androidx.annotation.RequiresApi;
-@@ -69 +72
--             return listView.canScrollList(direction);
-+             return Api19Impl.canScrollList(listView, direction);
-@@ -91 +94
-+
-+ @RequiresApi(19)
-+ static class Api19Impl {
-+     private Api19Impl() {
-+         // This class is not instantiable.
-+     }
-+     @DoNotInline
-+     static boolean canScrollList(AbsListView absListView, int direction) {
-+         return absListView.canScrollList(direction);
-+     }
-@@ -92 +105
-+ }
-        """
+            Fix for src/androidx/sample/core/widget/ListViewCompat.java line 39: Extract to static inner class:
+            @@ -21 +21
+            + import android.widget.AbsListView;
+            @@ -23 +24
+            + import androidx.annotation.DoNotInline;
+            @@ -24 +26
+            + import androidx.annotation.RequiresApi;
+            @@ -39 +42
+            -             listView.scrollListBy(y);
+            +             Api19Impl.scrollListBy(listView, y);
+            @@ -91 +94
+            +
+            + @RequiresApi(19)
+            + static class Api19Impl {
+            +     private Api19Impl() {
+            +         // This class is not instantiable.
+            +     }
+            +     @DoNotInline
+            +     static void scrollListBy(AbsListView absListView, int y) {
+            +         absListView.scrollListBy(y);
+            +     }
+            @@ -92 +105
+            + }
+            Fix for src/androidx/sample/core/widget/ListViewCompat.java line 69: Extract to static inner class:
+            @@ -21 +21
+            + import android.widget.AbsListView;
+            @@ -23 +24
+            + import androidx.annotation.DoNotInline;
+            @@ -24 +26
+            + import androidx.annotation.RequiresApi;
+            @@ -69 +72
+            -             return listView.canScrollList(direction);
+            +             return Api19Impl.canScrollList(listView, direction);
+            @@ -91 +94
+            +
+            + @RequiresApi(19)
+            + static class Api19Impl {
+            +     private Api19Impl() {
+            +         // This class is not instantiable.
+            +     }
+            +     @DoNotInline
+            +     static boolean canScrollList(AbsListView absListView, int direction) {
+            +         return absListView.canScrollList(direction);
+            +     }
+            @@ -92 +105
+            + }
+            """
                 .trimIndent()
 
         check(*input).expect(expected).expectFixDiffs(expectedFix)
@@ -149,59 +149,59 @@ Fix for src/androidx/sample/core/widget/ListViewCompat.java line 69: Extract to 
 
         val expected =
             """
-src/androidx/sample/core/widget/ListViewCompatKotlin.kt:33: Error: This call references a method added in API level 19; however, the containing class androidx.sample.core.widget.ListViewCompatKotlin is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
-            listView.scrollListBy(y)
-                     ~~~~~~~~~~~~
-src/androidx/sample/core/widget/ListViewCompatKotlin.kt:56: Error: This call references a method added in API level 19; however, the containing class androidx.sample.core.widget.ListViewCompatKotlin is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
-            listView.canScrollList(direction)
-                     ~~~~~~~~~~~~~
-2 errors, 0 warnings
-        """
+            src/androidx/sample/core/widget/ListViewCompatKotlin.kt:33: Error: This call references a method added in API level 19; however, the containing class androidx.sample.core.widget.ListViewCompatKotlin is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+                        listView.scrollListBy(y)
+                                 ~~~~~~~~~~~~
+            src/androidx/sample/core/widget/ListViewCompatKotlin.kt:56: Error: This call references a method added in API level 19; however, the containing class androidx.sample.core.widget.ListViewCompatKotlin is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+                        listView.canScrollList(direction)
+                                 ~~~~~~~~~~~~~
+            2 errors, 0 warnings
+            """
                 .trimIndent()
 
         val expectedFix =
             """
-Fix for src/androidx/sample/core/widget/ListViewCompatKotlin.kt line 33: Extract to static inner class:
-@@ -20 +20
-+ import android.widget.AbsListView
-@@ -21 +22
-+ import androidx.annotation.DoNotInline
-+ import androidx.annotation.RequiresApi
-@@ -33 +36
--             listView.scrollListBy(y)
-+             Api19Impl.scrollListBy(listView, y)
-@@ -75 +78
-+
-+ @RequiresApi(19)
-+ internal object Api19Impl {
-+     @DoNotInline
-+     @JvmStatic
-+     fun scrollListBy(absListView: AbsListView, y: Int): Unit {
-+         absListView.scrollListBy(y)
-+     }
-@@ -76 +87
-+ }
-Fix for src/androidx/sample/core/widget/ListViewCompatKotlin.kt line 56: Extract to static inner class:
-@@ -20 +20
-+ import android.widget.AbsListView
-@@ -21 +22
-+ import androidx.annotation.DoNotInline
-+ import androidx.annotation.RequiresApi
-@@ -56 +59
--             listView.canScrollList(direction)
-+             Api19Impl.canScrollList(listView, direction)
-@@ -75 +78
-+
-+ @RequiresApi(19)
-+ internal object Api19Impl {
-+     @DoNotInline
-+     @JvmStatic
-+     fun canScrollList(absListView: AbsListView, direction: Int): Boolean {
-+         return absListView.canScrollList(direction)
-+     }
-@@ -76 +87
-+ }
-        """
+            Fix for src/androidx/sample/core/widget/ListViewCompatKotlin.kt line 33: Extract to static inner class:
+            @@ -20 +20
+            + import android.widget.AbsListView
+            @@ -21 +22
+            + import androidx.annotation.DoNotInline
+            + import androidx.annotation.RequiresApi
+            @@ -33 +36
+            -             listView.scrollListBy(y)
+            +             Api19Impl.scrollListBy(listView, y)
+            @@ -75 +78
+            +
+            + @RequiresApi(19)
+            + internal object Api19Impl {
+            +     @DoNotInline
+            +     @JvmStatic
+            +     fun scrollListBy(absListView: AbsListView, y: Int): Unit {
+            +         absListView.scrollListBy(y)
+            +     }
+            @@ -76 +87
+            + }
+            Fix for src/androidx/sample/core/widget/ListViewCompatKotlin.kt line 56: Extract to static inner class:
+            @@ -20 +20
+            + import android.widget.AbsListView
+            @@ -21 +22
+            + import androidx.annotation.DoNotInline
+            + import androidx.annotation.RequiresApi
+            @@ -56 +59
+            -             listView.canScrollList(direction)
+            +             Api19Impl.canScrollList(listView, direction)
+            @@ -75 +78
+            +
+            + @RequiresApi(19)
+            + internal object Api19Impl {
+            +     @DoNotInline
+            +     @JvmStatic
+            +     fun canScrollList(absListView: AbsListView, direction: Int): Boolean {
+            +         return absListView.canScrollList(direction)
+            +     }
+            @@ -76 +87
+            + }
+            """
                 .trimIndent()
 
         check(*input).expect(expected).expectFixDiffs(expectedFix)
@@ -213,8 +213,8 @@ Fix for src/androidx/sample/core/widget/ListViewCompatKotlin.kt line 56: Extract
 
         val expected =
             """
-No warnings.
-        """
+            No warnings.
+            """
                 .trimIndent()
 
         check(*input).expect(expected)
@@ -226,20 +226,20 @@ No warnings.
 
         val expected =
             """
-src/androidx/RequiresApiKotlinOuter19Passes.kt:67: Error: This call references a method added in API level 19; however, the containing class androidx.RequiresApiKotlinNoAnnotationFails.MyStaticClass is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
-            Character.isSurrogate(c)
-                      ~~~~~~~~~~~
-src/androidx/RequiresApiKotlinOuter19Passes.kt:77: Error: This call references a method added in API level 19; however, the containing class androidx.RequiresApiKotlinOuter16Fails.MyStaticClass is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
-            Character.isSurrogate(c)
-                      ~~~~~~~~~~~
-src/androidx/RequiresApiKotlinOuter19Passes.kt:87: Error: This call references a method added in API level 19; however, the containing class androidx.RequiresApiKotlinInner16Fails.MyStaticClass is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
-            Character.isSurrogate(c)
-                      ~~~~~~~~~~~
-src/androidx/RequiresApiKotlinOuter19Passes.kt:98: Error: This call references a method added in API level 19; however, the containing class androidx.RequiresApiKotlinInner16Outer16Fails.MyStaticClass is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
-            Character.isSurrogate(c)
-                      ~~~~~~~~~~~
-4 errors, 0 warnings
-        """
+            src/androidx/RequiresApiKotlinOuter19Passes.kt:67: Error: This call references a method added in API level 19; however, the containing class androidx.RequiresApiKotlinNoAnnotationFails.MyStaticClass is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+                        Character.isSurrogate(c)
+                                  ~~~~~~~~~~~
+            src/androidx/RequiresApiKotlinOuter19Passes.kt:77: Error: This call references a method added in API level 19; however, the containing class androidx.RequiresApiKotlinOuter16Fails.MyStaticClass is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+                        Character.isSurrogate(c)
+                                  ~~~~~~~~~~~
+            src/androidx/RequiresApiKotlinOuter19Passes.kt:87: Error: This call references a method added in API level 19; however, the containing class androidx.RequiresApiKotlinInner16Fails.MyStaticClass is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+                        Character.isSurrogate(c)
+                                  ~~~~~~~~~~~
+            src/androidx/RequiresApiKotlinOuter19Passes.kt:98: Error: This call references a method added in API level 19; however, the containing class androidx.RequiresApiKotlinInner16Outer16Fails.MyStaticClass is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+                        Character.isSurrogate(c)
+                                  ~~~~~~~~~~~
+            4 errors, 0 warnings
+            """
                 .trimIndent()
 
         check(*input).expect(expected)
@@ -251,27 +251,27 @@ src/androidx/RequiresApiKotlinOuter19Passes.kt:98: Error: This call references a
 
         val expectedFix =
             """
-Fix for src/androidx/AutofixUnsafeVoidMethodReferenceJava.java line 34: Extract to static inner class:
-@@ -22 +22
-+ import androidx.annotation.DoNotInline;
-+ import androidx.annotation.RequiresApi;
-@@ -34 +36
--             view.setBackgroundTintList(new ColorStateList(null, null));
-+             Api21Impl.setBackgroundTintList(view, new ColorStateList(null, null));
-@@ -37 +39
-+
-+ @RequiresApi(21)
-+ static class Api21Impl {
-+     private Api21Impl() {
-+         // This class is not instantiable.
-+     }
-+     @DoNotInline
-+     static void setBackgroundTintList(View view, ColorStateList tint) {
-+         view.setBackgroundTintList(tint);
-+     }
-@@ -38 +50
-+ }
-        """
+            Fix for src/androidx/AutofixUnsafeVoidMethodReferenceJava.java line 34: Extract to static inner class:
+            @@ -22 +22
+            + import androidx.annotation.DoNotInline;
+            + import androidx.annotation.RequiresApi;
+            @@ -34 +36
+            -             view.setBackgroundTintList(new ColorStateList(null, null));
+            +             Api21Impl.setBackgroundTintList(view, new ColorStateList(null, null));
+            @@ -37 +39
+            +
+            + @RequiresApi(21)
+            + static class Api21Impl {
+            +     private Api21Impl() {
+            +         // This class is not instantiable.
+            +     }
+            +     @DoNotInline
+            +     static void setBackgroundTintList(View view, ColorStateList tint) {
+            +         view.setBackgroundTintList(tint);
+            +     }
+            @@ -38 +50
+            + }
+            """
                 .trimIndent()
 
         check(*input).expectFixDiffs(expectedFix)
@@ -283,25 +283,25 @@ Fix for src/androidx/AutofixUnsafeVoidMethodReferenceJava.java line 34: Extract 
 
         val expectedFix =
             """
-Fix for src/androidx/AutofixUnsafeVoidMethodReferenceKotlin.kt line 28: Extract to static inner class:
-@@ -21 +21
-+ import androidx.annotation.DoNotInline
-+ import androidx.annotation.RequiresApi
-@@ -28 +30
--             view.setBackgroundTintList(ColorStateList(null, null))
-+             Api21Impl.setBackgroundTintList(view, ColorStateList(null, null))
-@@ -31 +33
-+
-+ @RequiresApi(21)
-+ internal object Api21Impl {
-+     @DoNotInline
-+     @JvmStatic
-+     fun setBackgroundTintList(view: View, tint: ColorStateList): Unit {
-+         view.setBackgroundTintList(tint)
-+     }
-@@ -32 +42
-+ }
-        """
+            Fix for src/androidx/AutofixUnsafeVoidMethodReferenceKotlin.kt line 28: Extract to static inner class:
+            @@ -21 +21
+            + import androidx.annotation.DoNotInline
+            + import androidx.annotation.RequiresApi
+            @@ -28 +30
+            -             view.setBackgroundTintList(ColorStateList(null, null))
+            +             Api21Impl.setBackgroundTintList(view, ColorStateList(null, null))
+            @@ -31 +33
+            +
+            + @RequiresApi(21)
+            + internal object Api21Impl {
+            +     @DoNotInline
+            +     @JvmStatic
+            +     fun setBackgroundTintList(view: View, tint: ColorStateList): Unit {
+            +         view.setBackgroundTintList(tint)
+            +     }
+            @@ -32 +42
+            + }
+            """
                 .trimIndent()
 
         check(*input).expectFixDiffs(expectedFix)
@@ -313,27 +313,27 @@ Fix for src/androidx/AutofixUnsafeVoidMethodReferenceKotlin.kt line 28: Extract 
 
         val expectedFix =
             """
-Fix for src/androidx/AutofixUnsafeConstructorReferenceJava.java line 35: Extract to static inner class:
-@@ -23 +23
-+ import androidx.annotation.DoNotInline;
-+ import androidx.annotation.RequiresApi;
-@@ -35 +37
--             AccessibilityNodeInfo node = new AccessibilityNodeInfo(new View(context), 1);
-+             AccessibilityNodeInfo node = Api30Impl.createAccessibilityNodeInfo(new View(context), 1);
-@@ -38 +40
-+
-+ @RequiresApi(30)
-+ static class Api30Impl {
-+     private Api30Impl() {
-+         // This class is not instantiable.
-+     }
-+     @DoNotInline
-+     static AccessibilityNodeInfo createAccessibilityNodeInfo(View root, int virtualDescendantId) {
-+         return new AccessibilityNodeInfo(root, virtualDescendantId);
-+     }
-@@ -39 +51
-+ }
-        """
+            Fix for src/androidx/AutofixUnsafeConstructorReferenceJava.java line 35: Extract to static inner class:
+            @@ -23 +23
+            + import androidx.annotation.DoNotInline;
+            + import androidx.annotation.RequiresApi;
+            @@ -35 +37
+            -             AccessibilityNodeInfo node = new AccessibilityNodeInfo(new View(context), 1);
+            +             AccessibilityNodeInfo node = Api30Impl.createAccessibilityNodeInfo(new View(context), 1);
+            @@ -38 +40
+            +
+            + @RequiresApi(30)
+            + static class Api30Impl {
+            +     private Api30Impl() {
+            +         // This class is not instantiable.
+            +     }
+            +     @DoNotInline
+            +     static AccessibilityNodeInfo createAccessibilityNodeInfo(View root, int virtualDescendantId) {
+            +         return new AccessibilityNodeInfo(root, virtualDescendantId);
+            +     }
+            @@ -39 +51
+            + }
+            """
                 .trimIndent()
 
         check(*input).expectFixDiffs(expectedFix)
@@ -345,25 +345,25 @@ Fix for src/androidx/AutofixUnsafeConstructorReferenceJava.java line 35: Extract
 
         val expectedFix =
             """
-Fix for src/androidx/AutofixUnsafeConstructorReferenceKotlin.kt line 29: Extract to static inner class:
-@@ -22 +22
-+ import androidx.annotation.DoNotInline
-+ import androidx.annotation.RequiresApi
-@@ -29 +31
--             val node = AccessibilityNodeInfo(View(context), 1)
-+             val node = Api30Impl.createAccessibilityNodeInfo(View(context), 1)
-@@ -32 +34
-+
-+ @RequiresApi(30)
-+ internal object Api30Impl {
-+     @DoNotInline
-+     @JvmStatic
-+     fun createAccessibilityNodeInfo(root: View, virtualDescendantId: Int): AccessibilityNodeInfo {
-+         return AccessibilityNodeInfo(root, virtualDescendantId)
-+     }
-@@ -33 +43
-+ }
-        """
+            Fix for src/androidx/AutofixUnsafeConstructorReferenceKotlin.kt line 29: Extract to static inner class:
+            @@ -22 +22
+            + import androidx.annotation.DoNotInline
+            + import androidx.annotation.RequiresApi
+            @@ -29 +31
+            -             val node = AccessibilityNodeInfo(View(context), 1)
+            +             val node = Api30Impl.createAccessibilityNodeInfo(View(context), 1)
+            @@ -32 +34
+            +
+            + @RequiresApi(30)
+            + internal object Api30Impl {
+            +     @DoNotInline
+            +     @JvmStatic
+            +     fun createAccessibilityNodeInfo(root: View, virtualDescendantId: Int): AccessibilityNodeInfo {
+            +         return AccessibilityNodeInfo(root, virtualDescendantId)
+            +     }
+            @@ -33 +43
+            + }
+            """
                 .trimIndent()
 
         check(*input).expectFixDiffs(expectedFix)
@@ -375,27 +375,27 @@ Fix for src/androidx/AutofixUnsafeConstructorReferenceKotlin.kt line 29: Extract
 
         val expectedFix =
             """
-Fix for src/androidx/AutofixUnsafeStaticMethodReferenceJava.java line 33: Extract to static inner class:
-@@ -21 +21
-+ import androidx.annotation.DoNotInline;
-+ import androidx.annotation.RequiresApi;
-@@ -33 +35
--             return View.generateViewId();
-+             return Api17Impl.generateViewId();
-@@ -37 +39
-+
-+ @RequiresApi(17)
-+ static class Api17Impl {
-+     private Api17Impl() {
-+         // This class is not instantiable.
-+     }
-+     @DoNotInline
-+     static int generateViewId() {
-+         return View.generateViewId();
-+     }
-@@ -38 +50
-+ }
-        """
+            Fix for src/androidx/AutofixUnsafeStaticMethodReferenceJava.java line 33: Extract to static inner class:
+            @@ -21 +21
+            + import androidx.annotation.DoNotInline;
+            + import androidx.annotation.RequiresApi;
+            @@ -33 +35
+            -             return View.generateViewId();
+            +             return Api17Impl.generateViewId();
+            @@ -37 +39
+            +
+            + @RequiresApi(17)
+            + static class Api17Impl {
+            +     private Api17Impl() {
+            +         // This class is not instantiable.
+            +     }
+            +     @DoNotInline
+            +     static int generateViewId() {
+            +         return View.generateViewId();
+            +     }
+            @@ -38 +50
+            + }
+            """
                 .trimIndent()
 
         check(*input).expectFixDiffs(expectedFix)
@@ -407,25 +407,25 @@ Fix for src/androidx/AutofixUnsafeStaticMethodReferenceJava.java line 33: Extrac
 
         val expectedFix =
             """
-Fix for src/androidx/AutofixUnsafeStaticMethodReferenceKotlin.kt line 27: Extract to static inner class:
-@@ -20 +20
-+ import androidx.annotation.DoNotInline
-+ import androidx.annotation.RequiresApi
-@@ -27 +29
--             return View.generateViewId()
-+             return Api17Impl.generateViewId()
-@@ -31 +33
-+
-+ @RequiresApi(17)
-+ internal object Api17Impl {
-+     @DoNotInline
-+     @JvmStatic
-+     fun generateViewId(): Int {
-+         return View.generateViewId()
-+     }
-@@ -32 +42
-+ }
-        """
+            Fix for src/androidx/AutofixUnsafeStaticMethodReferenceKotlin.kt line 27: Extract to static inner class:
+            @@ -20 +20
+            + import androidx.annotation.DoNotInline
+            + import androidx.annotation.RequiresApi
+            @@ -27 +29
+            -             return View.generateViewId()
+            +             return Api17Impl.generateViewId()
+            @@ -31 +33
+            +
+            + @RequiresApi(17)
+            + internal object Api17Impl {
+            +     @DoNotInline
+            +     @JvmStatic
+            +     fun generateViewId(): Int {
+            +         return View.generateViewId()
+            +     }
+            @@ -32 +42
+            + }
+            """
                 .trimIndent()
 
         check(*input).expectFixDiffs(expectedFix)
@@ -437,27 +437,27 @@ Fix for src/androidx/AutofixUnsafeStaticMethodReferenceKotlin.kt line 27: Extrac
 
         val expectedFix =
             """
-Fix for src/androidx/AutofixUnsafeGenericMethodReferenceJava.java line 34: Extract to static inner class:
-@@ -21 +21
-+ import androidx.annotation.DoNotInline;
-+ import androidx.annotation.RequiresApi;
-@@ -34 +36
--             return context.getSystemService(serviceClass);
-+             return Api23Impl.getSystemService(context, serviceClass);
-@@ -38 +40
-+
-+ @RequiresApi(23)
-+ static class Api23Impl {
-+     private Api23Impl() {
-+         // This class is not instantiable.
-+     }
-+     @DoNotInline
-+     static <T> T getSystemService(Context context, Class<T> serviceClass) {
-+         return context.getSystemService(serviceClass);
-+     }
-@@ -39 +51
-+ }
-        """
+            Fix for src/androidx/AutofixUnsafeGenericMethodReferenceJava.java line 34: Extract to static inner class:
+            @@ -21 +21
+            + import androidx.annotation.DoNotInline;
+            + import androidx.annotation.RequiresApi;
+            @@ -34 +36
+            -             return context.getSystemService(serviceClass);
+            +             return Api23Impl.getSystemService(context, serviceClass);
+            @@ -38 +40
+            +
+            + @RequiresApi(23)
+            + static class Api23Impl {
+            +     private Api23Impl() {
+            +         // This class is not instantiable.
+            +     }
+            +     @DoNotInline
+            +     static <T> T getSystemService(Context context, Class<T> serviceClass) {
+            +         return context.getSystemService(serviceClass);
+            +     }
+            @@ -39 +51
+            + }
+            """
                 .trimIndent()
 
         check(*input).expectFixDiffs(expectedFix)
@@ -469,25 +469,25 @@ Fix for src/androidx/AutofixUnsafeGenericMethodReferenceJava.java line 34: Extra
 
         val expectedFix =
             """
-Fix for src/androidx/AutofixUnsafeGenericMethodReferenceKotlin.kt line 30: Extract to static inner class:
-@@ -20 +20
-+ import androidx.annotation.DoNotInline
-+ import androidx.annotation.RequiresApi
-@@ -30 +32
--             return context.getSystemService<T?>(serviceClass)
-+             return Api23Impl.getSystemService(context, serviceClass)
-@@ -34 +36
-+
-+ @RequiresApi(23)
-+ internal object Api23Impl {
-+     @DoNotInline
-+     @JvmStatic
-+     fun <T> getSystemService(context: Context, serviceClass: Class<T>): T {
-+         return context.getSystemService(serviceClass)
-+     }
-@@ -35 +45
-+ }
-        """
+            Fix for src/androidx/AutofixUnsafeGenericMethodReferenceKotlin.kt line 30: Extract to static inner class:
+            @@ -20 +20
+            + import androidx.annotation.DoNotInline
+            + import androidx.annotation.RequiresApi
+            @@ -30 +32
+            -             return context.getSystemService<T?>(serviceClass)
+            +             return Api23Impl.getSystemService(context, serviceClass)
+            @@ -34 +36
+            +
+            + @RequiresApi(23)
+            + internal object Api23Impl {
+            +     @DoNotInline
+            +     @JvmStatic
+            +     fun <T> getSystemService(context: Context, serviceClass: Class<T>): T {
+            +         return context.getSystemService(serviceClass)
+            +     }
+            @@ -35 +45
+            + }
+            """
                 .trimIndent()
 
         check(*input).expectFixDiffs(expectedFix)
@@ -500,26 +500,26 @@ Fix for src/androidx/AutofixUnsafeGenericMethodReferenceKotlin.kt line 30: Extra
 
         val expectedFix =
             """
-Fix for src/androidx/AutofixUnsafeReferenceWithExistingClassJava.java line 36: Extract to static inner class:
-@@ -23 +23
-+ import androidx.annotation.DoNotInline;
-@@ -36 +37
--             view.setBackgroundTintList(new ColorStateList(null, null));
-+             Api21Impl.setBackgroundTintList(view, new ColorStateList(null, null));
-@@ -46 +47
-+
-+ @RequiresApi(21)
-+ static class Api21Impl {
-+     private Api21Impl() {
-+         // This class is not instantiable.
-+     }
-+     @DoNotInline
-+     static void setBackgroundTintList(View view, ColorStateList tint) {
-+         view.setBackgroundTintList(tint);
-+     }
-@@ -47 +58
-+ }
-        """
+            Fix for src/androidx/AutofixUnsafeReferenceWithExistingClassJava.java line 36: Extract to static inner class:
+            @@ -23 +23
+            + import androidx.annotation.DoNotInline;
+            @@ -36 +37
+            -             view.setBackgroundTintList(new ColorStateList(null, null));
+            +             Api21Impl.setBackgroundTintList(view, new ColorStateList(null, null));
+            @@ -46 +47
+            +
+            + @RequiresApi(21)
+            + static class Api21Impl {
+            +     private Api21Impl() {
+            +         // This class is not instantiable.
+            +     }
+            +     @DoNotInline
+            +     static void setBackgroundTintList(View view, ColorStateList tint) {
+            +         view.setBackgroundTintList(tint);
+            +     }
+            @@ -47 +58
+            + }
+            """
                 .trimIndent()
 
         check(*input).expectFixDiffs(expectedFix)
@@ -532,24 +532,24 @@ Fix for src/androidx/AutofixUnsafeReferenceWithExistingClassJava.java line 36: E
 
         val expectedFix =
             """
-Fix for src/androidx/AutofixUnsafeReferenceWithExistingClassKotlin.kt line 29: Extract to static inner class:
-@@ -21 +21
-+ import androidx.annotation.DoNotInline
-@@ -29 +30
--             view.setBackgroundTintList(ColorStateList(null, null))
-+             Api21Impl.setBackgroundTintList(view, ColorStateList(null, null))
-@@ -34 +35
-+
-+ @RequiresApi(21)
-+ internal object Api21Impl {
-+     @DoNotInline
-+     @JvmStatic
-+     fun setBackgroundTintList(view: View, tint: ColorStateList): Unit {
-+         view.setBackgroundTintList(tint)
-+     }
-@@ -35 +44
-+ }
-        """
+            Fix for src/androidx/AutofixUnsafeReferenceWithExistingClassKotlin.kt line 29: Extract to static inner class:
+            @@ -21 +21
+            + import androidx.annotation.DoNotInline
+            @@ -29 +30
+            -             view.setBackgroundTintList(ColorStateList(null, null))
+            +             Api21Impl.setBackgroundTintList(view, ColorStateList(null, null))
+            @@ -34 +35
+            +
+            + @RequiresApi(21)
+            + internal object Api21Impl {
+            +     @DoNotInline
+            +     @JvmStatic
+            +     fun setBackgroundTintList(view: View, tint: ColorStateList): Unit {
+            +         view.setBackgroundTintList(tint)
+            +     }
+            @@ -35 +44
+            + }
+            """
                 .trimIndent()
 
         check(*input).expectFixDiffs(expectedFix)
@@ -566,33 +566,33 @@ Fix for src/androidx/AutofixUnsafeReferenceWithExistingClassKotlin.kt line 29: E
 
         val expectedFix =
             """
-Fix for src/androidx/Api21Impl.kt line 31: Extract to static inner class:
-@@ -31 +31
--     view.setBackgroundTintList(ColorStateList(null, null))
-+     Api21Impl.setBackgroundTintList(view, ColorStateList(null, null))
-Fix for src/androidx/Api21Impl.kt line 37: Extract to static inner class:
-@@ -37 +37
--     val outline = Outline()
-+     val outline = Api21Impl.createOutline()
-@@ -49 +49
-+ @DoNotInline
-+ @JvmStatic
-+ fun createOutline(): Outline {
-+     return Outline()
-@@ -50 +54
-+ }
-Fix for src/androidx/Api21Impl.kt line 38: Extract to static inner class:
-@@ -38 +38
--     drawable.getOutline(outline)
-+     Api21Impl.getOutline(drawable, outline)
-@@ -49 +49
-+ @DoNotInline
-+ @JvmStatic
-+ fun getOutline(drawable: Drawable, outline: Outline): Unit {
-+     drawable.getOutline(outline)
-@@ -50 +54
-+ }
-        """
+            Fix for src/androidx/Api21Impl.kt line 31: Extract to static inner class:
+            @@ -31 +31
+            -     view.setBackgroundTintList(ColorStateList(null, null))
+            +     Api21Impl.setBackgroundTintList(view, ColorStateList(null, null))
+            Fix for src/androidx/Api21Impl.kt line 37: Extract to static inner class:
+            @@ -37 +37
+            -     val outline = Outline()
+            +     val outline = Api21Impl.createOutline()
+            @@ -49 +49
+            + @DoNotInline
+            + @JvmStatic
+            + fun createOutline(): Outline {
+            +     return Outline()
+            @@ -50 +54
+            + }
+            Fix for src/androidx/Api21Impl.kt line 38: Extract to static inner class:
+            @@ -38 +38
+            -     drawable.getOutline(outline)
+            +     Api21Impl.getOutline(drawable, outline)
+            @@ -49 +49
+            + @DoNotInline
+            + @JvmStatic
+            + fun getOutline(drawable: Drawable, outline: Outline): Unit {
+            +     drawable.getOutline(outline)
+            @@ -50 +54
+            + }
+            """
                 .trimIndent()
 
         check(*input).expectFixDiffs(expectedFix)
@@ -697,57 +697,57 @@ Fix for src/androidx/AutofixUnsafeReferenceWithExistingFixKotlin.kt line 38: Ext
 
         val expected =
             """
-src/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java:71: Error: This call references a method added in API level 21; however, the containing class androidx.sample.appcompat.widget.ActionBarBackgroundDrawable is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
-                mContainer.mSplitBackground.getOutline(outline);
-                                            ~~~~~~~~~~
-src/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java:76: Error: This call references a method added in API level 21; however, the containing class androidx.sample.appcompat.widget.ActionBarBackgroundDrawable is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
-                mContainer.mBackground.getOutline(outline);
-                                       ~~~~~~~~~~
-2 errors, 0 warnings
-        """
+            src/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java:71: Error: This call references a method added in API level 21; however, the containing class androidx.sample.appcompat.widget.ActionBarBackgroundDrawable is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+                            mContainer.mSplitBackground.getOutline(outline);
+                                                        ~~~~~~~~~~
+            src/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java:76: Error: This call references a method added in API level 21; however, the containing class androidx.sample.appcompat.widget.ActionBarBackgroundDrawable is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+                            mContainer.mBackground.getOutline(outline);
+                                                   ~~~~~~~~~~
+            2 errors, 0 warnings
+            """
                 .trimIndent()
 
         val expectedFix =
             """
-Fix for src/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java line 71: Extract to static inner class:
-@@ -25 +25
-+ import androidx.annotation.DoNotInline;
-@@ -71 +72
--                 mContainer.mSplitBackground.getOutline(outline);
-+                 Api21Impl.getOutline(mContainer.mSplitBackground, outline);
-@@ -90 +91
-+
-+ @RequiresApi(21)
-+ static class Api21Impl {
-+     private Api21Impl() {
-+         // This class is not instantiable.
-+     }
-+     @DoNotInline
-+     static void getOutline(Drawable drawable, Outline outline) {
-+         drawable.getOutline(outline);
-+     }
-@@ -91 +102
-+ }
-Fix for src/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java line 76: Extract to static inner class:
-@@ -25 +25
-+ import androidx.annotation.DoNotInline;
-@@ -76 +77
--                 mContainer.mBackground.getOutline(outline);
-+                 Api21Impl.getOutline(mContainer.mBackground, outline);
-@@ -90 +91
-+
-+ @RequiresApi(21)
-+ static class Api21Impl {
-+     private Api21Impl() {
-+         // This class is not instantiable.
-+     }
-+     @DoNotInline
-+     static void getOutline(Drawable drawable, Outline outline) {
-+         drawable.getOutline(outline);
-+     }
-@@ -91 +102
-+ }
-        """
+            Fix for src/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java line 71: Extract to static inner class:
+            @@ -25 +25
+            + import androidx.annotation.DoNotInline;
+            @@ -71 +72
+            -                 mContainer.mSplitBackground.getOutline(outline);
+            +                 Api21Impl.getOutline(mContainer.mSplitBackground, outline);
+            @@ -90 +91
+            +
+            + @RequiresApi(21)
+            + static class Api21Impl {
+            +     private Api21Impl() {
+            +         // This class is not instantiable.
+            +     }
+            +     @DoNotInline
+            +     static void getOutline(Drawable drawable, Outline outline) {
+            +         drawable.getOutline(outline);
+            +     }
+            @@ -91 +102
+            + }
+            Fix for src/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java line 76: Extract to static inner class:
+            @@ -25 +25
+            + import androidx.annotation.DoNotInline;
+            @@ -76 +77
+            -                 mContainer.mBackground.getOutline(outline);
+            +                 Api21Impl.getOutline(mContainer.mBackground, outline);
+            @@ -90 +91
+            +
+            + @RequiresApi(21)
+            + static class Api21Impl {
+            +     private Api21Impl() {
+            +         // This class is not instantiable.
+            +     }
+            +     @DoNotInline
+            +     static void getOutline(Drawable drawable, Outline outline) {
+            +         drawable.getOutline(outline);
+            +     }
+            @@ -91 +102
+            + }
+            """
                 .trimIndent()
 
         check(*input).expect(expected).expectFixDiffs(expectedFix)
@@ -1569,34 +1569,34 @@ Fix for src/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCastKotlin.kt line 47
 
         val expected =
             """
-src/com/example/test.kt:6: Error: This call references a method guarded by Trunk Stable flag "android.test.myFlag"; however, the containing class com.example.TestKt is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
-    FlaggedApiContainer.flaggedApi()
-                        ~~~~~~~~~~
-1 error
-        """
+            src/com/example/test.kt:6: Error: This call references a method guarded by Trunk Stable flag "android.test.myFlag"; however, the containing class com.example.TestKt is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+                FlaggedApiContainer.flaggedApi()
+                                    ~~~~~~~~~~
+            1 error
+            """
                 .trimIndent()
 
         val expectedFixDiffs =
             """
-Fix for src/com/example/test.kt line 6: Extract to static inner class:
-@@ -3,0 +4,3 @@
-+import androidx.annotation.DoNotInline
-+import androidx.annotation.RequiresFlag
-+
-@@ -4,0 +8,9 @@
-+@RequiresApi(10000) // Required when calling pre-release APIs
-+@RequiresFlag("android.test.myFlag")
-+internal object FlagMyFlagImpl {
-+    @DoNotInline
-+    @JvmStatic
-+    fun flaggedApi(flaggedApiContainer: FlaggedApiContainer): Unit {
-+        flaggedApiContainer.flaggedApi()
-+    }
-+}
-@@ -6 +18 @@
--    FlaggedApiContainer.flaggedApi()
-+    FlagMyFlagImpl.flaggedApi(FlaggedApiContainer)
-        """
+            Fix for src/com/example/test.kt line 6: Extract to static inner class:
+            @@ -3,0 +4,3 @@
+            +import androidx.annotation.DoNotInline
+            +import androidx.annotation.RequiresFlag
+            +
+            @@ -4,0 +8,9 @@
+            +@RequiresApi(10000) // Required when calling pre-release APIs
+            +@RequiresFlag("android.test.myFlag")
+            +internal object FlagMyFlagImpl {
+            +    @DoNotInline
+            +    @JvmStatic
+            +    fun flaggedApi(flaggedApiContainer: FlaggedApiContainer): Unit {
+            +        flaggedApiContainer.flaggedApi()
+            +    }
+            +}
+            @@ -6 +18 @@
+            -    FlaggedApiContainer.flaggedApi()
+            +    FlagMyFlagImpl.flaggedApi(FlaggedApiContainer)
+            """
                 .trimIndent()
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
@@ -1639,36 +1639,36 @@ Fix for src/com/example/test.kt line 6: Extract to static inner class:
 
         val expected =
             """
-src/com/example/MyClass.java:7: Error: This call references a method guarded by Trunk Stable flag "test.pkg.myFlag"; however, the containing class com.example.MyClass is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
-       FlaggedApiContainer.flaggedApi();
-                           ~~~~~~~~~~
-1 error
-        """
+            src/com/example/MyClass.java:7: Error: This call references a method guarded by Trunk Stable flag "test.pkg.myFlag"; however, the containing class com.example.MyClass is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+                   FlaggedApiContainer.flaggedApi();
+                                       ~~~~~~~~~~
+            1 error
+            """
                 .trimIndent()
 
         val expectedFixDiffs =
             """
-Fix for src/com/example/MyClass.java line 7: Extract to static inner class:
-@@ -3,0 +4,2 @@
-+import androidx.annotation.DoNotInline;
-+import androidx.annotation.RequiresFlag;
-@@ -7 +9,12 @@
--       FlaggedApiContainer.flaggedApi();
-+       FlagMyFlagImpl.flaggedApi();
-+    }
-+
-+@RequiresApi(10000) // Required when calling pre-release APIs
-+@RequiresFlag("test.pkg.myFlag")
-+static class FlagMyFlagImpl {
-+    private FlagMyFlagImpl() {
-+        // This class is not instantiable.
-+    }
-+    @DoNotInline
-+    static void flaggedApi() {
-+        FlaggedApiContainer.flaggedApi();
-@@ -8,0 +22 @@
-+}
-        """
+            Fix for src/com/example/MyClass.java line 7: Extract to static inner class:
+            @@ -3,0 +4,2 @@
+            +import androidx.annotation.DoNotInline;
+            +import androidx.annotation.RequiresFlag;
+            @@ -7 +9,12 @@
+            -       FlaggedApiContainer.flaggedApi();
+            +       FlagMyFlagImpl.flaggedApi();
+            +    }
+            +
+            +@RequiresApi(10000) // Required when calling pre-release APIs
+            +@RequiresFlag("test.pkg.myFlag")
+            +static class FlagMyFlagImpl {
+            +    private FlagMyFlagImpl() {
+            +        // This class is not instantiable.
+            +    }
+            +    @DoNotInline
+            +    static void flaggedApi() {
+            +        FlaggedApiContainer.flaggedApi();
+            @@ -8,0 +22 @@
+            +}
+            """
                 .trimIndent()
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
@@ -1687,14 +1687,14 @@ Fix for src/com/example/MyClass.java line 7: Extract to static inner class:
 
         val expected =
             """
-src/flaggedapi/FlaggedUsageWithoutOutline.kt:26: Error: This call references a method guarded by Trunk Stable flag "flaggedapi.myFlag"; however, the containing class flaggedapi.FlaggedUsageWithoutOutline is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
-            FlaggedApiContainer.innerApi()
-                                ~~~~~~~~
-src/flaggedapi/FlaggedUsageWithoutOutline.kt:31: Error: This call references a method guarded by Trunk Stable flag "flaggedapi.myFlag"; however, the containing class flaggedapi.FlaggedUsageWithoutOutline is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
-        FlaggedApiContainer.innerApi()
-                            ~~~~~~~~
-2 errors
-        """
+            src/flaggedapi/FlaggedUsageWithoutOutline.kt:26: Error: This call references a method guarded by Trunk Stable flag "flaggedapi.myFlag"; however, the containing class flaggedapi.FlaggedUsageWithoutOutline is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+                        FlaggedApiContainer.innerApi()
+                                            ~~~~~~~~
+            src/flaggedapi/FlaggedUsageWithoutOutline.kt:31: Error: This call references a method guarded by Trunk Stable flag "flaggedapi.myFlag"; however, the containing class flaggedapi.FlaggedUsageWithoutOutline is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+                    FlaggedApiContainer.innerApi()
+                                        ~~~~~~~~
+            2 errors
+            """
                 .trimIndent()
 
         // Due to b/417243329 these do not reflect actual IDE auto-fix behavior. The flag string
@@ -1702,44 +1702,44 @@ src/flaggedapi/FlaggedUsageWithoutOutline.kt:31: Error: This call references a m
         // "flaggedapi.myFlag", in practice.
         val expectedFixDiffs =
             """
-Fix for src/flaggedapi/FlaggedUsageWithoutOutline.kt line 26: Extract to static inner class:
-@@ -19,0 +20,2 @@
-+import androidx.annotation.DoNotInline
-+import androidx.annotation.RequiresFlag
-@@ -26 +28 @@
--            FlaggedApiContainer.innerApi()
-+            FlagMyFlagImpl.innerApi()
-@@ -31,0 +34,9 @@
-+    }
-+
-+@RequiresApi(10000) // Required when calling pre-release APIs
-+@RequiresFlag("flaggedapi.myFlag")
-+internal object FlagMyFlagImpl {
-+    @DoNotInline
-+    @JvmStatic
-+    fun innerApi(): Boolean {
-+        return FlaggedApiContainer.innerApi()
-@@ -32,0 +44 @@
-+}
-Fix for src/flaggedapi/FlaggedUsageWithoutOutline.kt line 31: Extract to static inner class:
-@@ -19,0 +20,2 @@
-+import androidx.annotation.DoNotInline
-+import androidx.annotation.RequiresFlag
-@@ -31 +33,10 @@
--        FlaggedApiContainer.innerApi()
-+        FlagMyFlagImpl.innerApi()
-+    }
-+
-+@RequiresApi(10000) // Required when calling pre-release APIs
-+@RequiresFlag("flaggedapi.myFlag")
-+internal object FlagMyFlagImpl {
-+    @DoNotInline
-+    @JvmStatic
-+    fun innerApi(): Boolean {
-+        return FlaggedApiContainer.innerApi()
-@@ -32,0 +44 @@
-+}
-        """
+            Fix for src/flaggedapi/FlaggedUsageWithoutOutline.kt line 26: Extract to static inner class:
+            @@ -19,0 +20,2 @@
+            +import androidx.annotation.DoNotInline
+            +import androidx.annotation.RequiresFlag
+            @@ -26 +28 @@
+            -            FlaggedApiContainer.innerApi()
+            +            FlagMyFlagImpl.innerApi()
+            @@ -31,0 +34,9 @@
+            +    }
+            +
+            +@RequiresApi(10000) // Required when calling pre-release APIs
+            +@RequiresFlag("flaggedapi.myFlag")
+            +internal object FlagMyFlagImpl {
+            +    @DoNotInline
+            +    @JvmStatic
+            +    fun innerApi(): Boolean {
+            +        return FlaggedApiContainer.innerApi()
+            @@ -32,0 +44 @@
+            +}
+            Fix for src/flaggedapi/FlaggedUsageWithoutOutline.kt line 31: Extract to static inner class:
+            @@ -19,0 +20,2 @@
+            +import androidx.annotation.DoNotInline
+            +import androidx.annotation.RequiresFlag
+            @@ -31 +33,10 @@
+            -        FlaggedApiContainer.innerApi()
+            +        FlagMyFlagImpl.innerApi()
+            +    }
+            +
+            +@RequiresApi(10000) // Required when calling pre-release APIs
+            +@RequiresFlag("flaggedapi.myFlag")
+            +internal object FlagMyFlagImpl {
+            +    @DoNotInline
+            +    @JvmStatic
+            +    fun innerApi(): Boolean {
+            +        return FlaggedApiContainer.innerApi()
+            @@ -32,0 +44 @@
+            +}
+            """
                 .trimIndent()
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
@@ -1758,8 +1758,8 @@ Fix for src/flaggedapi/FlaggedUsageWithoutOutline.kt line 31: Extract to static 
 
         val expected =
             """
-No warnings.
-        """
+            No warnings.
+            """
                 .trimIndent()
 
         check(*input).expect(expected)
@@ -1782,64 +1782,64 @@ No warnings.
         // to the generated call -- that's fine, the developer can easily fix that.
         val expectedFix =
             """
-Fix for src/flaggedapi/AutofixUnsafeUsageWithTypeConversion.kt line 25: Extract to static inner class:
-@@ -19,0 +20,2 @@
-+import androidx.annotation.DoNotInline
-+import androidx.annotation.RequiresFlag
-@@ -25 +27 @@
--            val resultA = FlaggedApiContainer.apiWithTypeArgument(null)
-+            val resultA = FlagMyFlagImpl.apiWithTypeArgument(null)
-@@ -28,0 +31,9 @@
-+    }
-+
-+@RequiresApi(10000) // Required when calling pre-release APIs
-+@RequiresFlag("flaggedapi.myFlag")
-+internal object FlagMyFlagImpl {
-+    @DoNotInline
-+    @JvmStatic
-+    fun apiWithTypeArgument(param: BiConsumer<Integer, Float>): List<Array<Int>> {
-+        return FlaggedApiContainer.apiWithTypeArgument(param)
-@@ -29,0 +41 @@
-+}
-Fix for src/flaggedapi/AutofixUnsafeUsageWithTypeConversion.kt line 26: Extract to static inner class:
-@@ -19,0 +20,2 @@
-+import androidx.annotation.DoNotInline
-+import androidx.annotation.RequiresFlag
-@@ -26 +28 @@
--            val resultB = FlaggedApiContainer.apiWithGenericType<Int?, Float>(null)
-+            val resultB = FlagMyFlagImpl.apiWithGenericType(null)
-@@ -28,0 +31,9 @@
-+    }
-+
-+@RequiresApi(10000) // Required when calling pre-release APIs
-+@RequiresFlag("flaggedapi.myFlag")
-+internal object FlagMyFlagImpl {
-+    @DoNotInline
-+    @JvmStatic
-+    fun <T, R> apiWithGenericType(param: R): T {
-+        return FlaggedApiContainer.apiWithGenericType(param)
-@@ -29,0 +41 @@
-+}
-Fix for src/flaggedapi/AutofixUnsafeUsageWithTypeConversion.kt line 27: Extract to static inner class:
-@@ -19,0 +20,2 @@
-+import androidx.annotation.DoNotInline
-+import androidx.annotation.RequiresFlag
-@@ -27 +29 @@
--            val resultC = FlaggedApiContainer.apiWithTwoDimensionalArray(null)
-+            val resultC = FlagMyFlagImpl.apiWithTwoDimensionalArray(null)
-@@ -28,0 +31,9 @@
-+    }
-+
-+@RequiresApi(10000) // Required when calling pre-release APIs
-+@RequiresFlag("flaggedapi.myFlag")
-+internal object FlagMyFlagImpl {
-+    @DoNotInline
-+    @JvmStatic
-+    fun apiWithTwoDimensionalArray(param: Array<Int>): Array<Array<Float>> {
-+        return FlaggedApiContainer.apiWithTwoDimensionalArray(param)
-@@ -29,0 +41 @@
-+}
-        """
+            Fix for src/flaggedapi/AutofixUnsafeUsageWithTypeConversion.kt line 25: Extract to static inner class:
+            @@ -19,0 +20,2 @@
+            +import androidx.annotation.DoNotInline
+            +import androidx.annotation.RequiresFlag
+            @@ -25 +27 @@
+            -            val resultA = FlaggedApiContainer.apiWithTypeArgument(null)
+            +            val resultA = FlagMyFlagImpl.apiWithTypeArgument(null)
+            @@ -28,0 +31,9 @@
+            +    }
+            +
+            +@RequiresApi(10000) // Required when calling pre-release APIs
+            +@RequiresFlag("flaggedapi.myFlag")
+            +internal object FlagMyFlagImpl {
+            +    @DoNotInline
+            +    @JvmStatic
+            +    fun apiWithTypeArgument(param: BiConsumer<Integer, Float>): List<Array<Int>> {
+            +        return FlaggedApiContainer.apiWithTypeArgument(param)
+            @@ -29,0 +41 @@
+            +}
+            Fix for src/flaggedapi/AutofixUnsafeUsageWithTypeConversion.kt line 26: Extract to static inner class:
+            @@ -19,0 +20,2 @@
+            +import androidx.annotation.DoNotInline
+            +import androidx.annotation.RequiresFlag
+            @@ -26 +28 @@
+            -            val resultB = FlaggedApiContainer.apiWithGenericType<Int?, Float>(null)
+            +            val resultB = FlagMyFlagImpl.apiWithGenericType(null)
+            @@ -28,0 +31,9 @@
+            +    }
+            +
+            +@RequiresApi(10000) // Required when calling pre-release APIs
+            +@RequiresFlag("flaggedapi.myFlag")
+            +internal object FlagMyFlagImpl {
+            +    @DoNotInline
+            +    @JvmStatic
+            +    fun <T, R> apiWithGenericType(param: R): T {
+            +        return FlaggedApiContainer.apiWithGenericType(param)
+            @@ -29,0 +41 @@
+            +}
+            Fix for src/flaggedapi/AutofixUnsafeUsageWithTypeConversion.kt line 27: Extract to static inner class:
+            @@ -19,0 +20,2 @@
+            +import androidx.annotation.DoNotInline
+            +import androidx.annotation.RequiresFlag
+            @@ -27 +29 @@
+            -            val resultC = FlaggedApiContainer.apiWithTwoDimensionalArray(null)
+            +            val resultC = FlagMyFlagImpl.apiWithTwoDimensionalArray(null)
+            @@ -28,0 +31,9 @@
+            +    }
+            +
+            +@RequiresApi(10000) // Required when calling pre-release APIs
+            +@RequiresFlag("flaggedapi.myFlag")
+            +internal object FlagMyFlagImpl {
+            +    @DoNotInline
+            +    @JvmStatic
+            +    fun apiWithTwoDimensionalArray(param: Array<Int>): Array<Array<Float>> {
+            +        return FlaggedApiContainer.apiWithTwoDimensionalArray(param)
+            @@ -29,0 +41 @@
+            +}
+            """
                 .trimIndent()
 
         check(*input).expectFixDiffs(expectedFix)

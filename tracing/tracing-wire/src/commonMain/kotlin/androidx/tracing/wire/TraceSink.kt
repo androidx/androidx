@@ -27,8 +27,8 @@ import kotlin.coroutines.Continuation
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED
 import kotlin.coroutines.intrinsics.createCoroutineUnintercepted
+import kotlin.coroutines.intrinsics.suspendCoroutineUninterceptedOrReturn
 import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
@@ -104,8 +104,9 @@ public class TraceSink(
             suspend {
                     coroutineContext[Job]?.invokeOnCompletion { makeDrainRequest() }
                     while (true) {
-                        drainQueue() // Sets drainRequested to false on completion
-                        suspendCoroutine<Unit> { continuation ->
+                        drainQueue()
+                        // Set drainRequested to false on completion
+                        suspendCoroutineUninterceptedOrReturn { continuation ->
                             synchronized(drainLock) {
                                 drainRequested = false
                                 resumeDrain = continuation

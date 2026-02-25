@@ -25,8 +25,7 @@ import android.util.Pair
 import android.util.Range
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
-import androidx.camera.camera2.pipe.integration.adapter.ZoomValue
+import androidx.camera.camera2.adapter.ZoomValue
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraInfo
@@ -39,7 +38,6 @@ import androidx.camera.core.impl.AdapterCameraInfo
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.internal.ImmutableZoomState
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.ExtensionsUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
@@ -83,10 +81,6 @@ class ZoomControlDeviceTest(
     private val implName: String,
     private val cameraConfig: CameraXConfig,
 ) {
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
-
     @get:Rule
     val cameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
@@ -960,14 +954,6 @@ class ZoomControlDeviceTest(
                             selector,
                             Camera2Config::class.simpleName,
                             Camera2Config.defaultConfig(),
-                        )
-                    )
-                    add(
-                        arrayOf(
-                            "config=${CameraPipeConfig::class.simpleName} lensFacing={$lens}",
-                            selector,
-                            CameraPipeConfig::class.simpleName,
-                            CameraPipeConfig.defaultConfig(),
                         )
                     )
                 }

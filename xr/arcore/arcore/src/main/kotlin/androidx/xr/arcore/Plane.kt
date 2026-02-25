@@ -20,7 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.Anchor as RuntimeAnchor
 import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException
 import androidx.xr.arcore.runtime.Plane as RuntimePlane
-import androidx.xr.runtime.Config
+import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.math.FloatSize2d
@@ -33,12 +33,17 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transform
 
-/** Describes the system's current best knowledge of a real-world planar surface. */
+/**
+ * Describes the system's current best knowledge of a real-world planar surface.
+ *
+ * @property state the current [State] of the plane
+ * @property type the [Type] of the plane
+ */
 public class Plane
 internal constructor(
     internal val runtimePlane: RuntimePlane,
     private val xrResourceManager: XrResourcesManager,
-) : Trackable<Plane.State>, Updatable {
+) : Anchorable<Plane.State>, Updatable {
 
     public companion object {
         /**
@@ -48,15 +53,16 @@ internal constructor(
          * Instances of the same [Plane] will remain between subsequent emits to the [StateFlow] as
          * long as they remain tracking.
          *
+         * @param session the [Session] to track planes from
          * @throws [IllegalStateException] if [Session.config] is set to
-         *   [Config.PlaneTrackingMode.DISABLED]
-         *     @sample androidx.xr.arcore.samples.getPlanes
+         *   [androidx.xr.runtime.PlaneTrackingMode.DISABLED]
+         * @sample androidx.xr.arcore.samples.getPlanes
          */
         @JvmStatic
         public fun subscribe(session: Session): StateFlow<Collection<Plane>> {
             check(
                 session.perceptionRuntime.lifecycleManager.config.planeTracking !=
-                    Config.PlaneTrackingMode.DISABLED
+                    PlaneTrackingMode.DISABLED
             ) {
                 "Config.PlaneTrackingMode is set to DISABLED."
             }
@@ -80,17 +86,20 @@ internal constructor(
      * The representation of the current state of a [Plane]. A [Plane] is represented as a finite
      * polygon with an arbitrary amount of [vertices] around a [centerPose].
      *
-     * @property trackingState whether this plane is being tracked or not.
-     * @property label The [Label] associated with the plane.
-     * @property centerPose The [Pose] of the center of the detected plane's bounding box in the
-     *   world coordinate space. The +Y axis relative to the [centerPose] is equivalent to the
-     *   normal of the [Plane].
-     * @property extents The dimensions of the bounding box of the detected plane.
-     * @property vertices The 2D vertices of a convex polygon approximating the detected plane,
-     *   relative to its [centerPose] in the X and Z axes.
-     * @property subsumedBy If this plane has been subsumed, returns the plane this plane was merged
-     *   into. If the subsuming plane is also subsumed by another plane, this plane will continue to
-     *   be subsumed by the former.
+     * @property trackingState whether this plane is being tracked or not
+     * @property label the [Label] associated with the plane
+     * @property centerPose the [Pose] of the center of the detected plane's bounding box in the
+     *   world coordinate space
+     *
+     * The +Y axis relative to the [centerPose] is equivalent to the normal of the [Plane].
+     *
+     * @property extents the dimensions of the bounding box of the detected plane
+     * @property vertices the 2D vertices of a convex polygon approximating the detected plane
+     * @property subsumedBy if this plane has been subsumed, returns the plane this plane was merged
+     *   into
+     *
+     * If the subsuming plane is also subsumed by another plane, this plane will continue to be
+     * subsumed by the former.
      */
     public class State
     internal constructor(
@@ -185,14 +194,9 @@ internal constructor(
                 subsumedByFromRuntimePlane(),
             )
         )
-    /**
-     * The current state of the [Plane].
-     *
-     * @sample androidx.xr.arcore.samples.getPlanes
-     */
+
     public override val state: StateFlow<Plane.State> = _state.asStateFlow()
 
-    /** The [Type] of the [Plane]. */
     public val type: Type
         get() = typeFromRuntimeType()
 
@@ -200,13 +204,12 @@ internal constructor(
      * Creates an [Anchor] that is attached to this trackable, using the given initial [pose] in the
      * world coordinate space.
      *
-     * @throws [IllegalStateException] if [Session.config] is set to
-     *   [Config.PlaneTrackingMode.DISABLED].
+     * @param pose the initial [Pose] of the [Anchor]
+     * @throws [IllegalStateException] if [Session.config] is set to [PlaneTrackingMode.DISABLED]
      */
     override fun createAnchor(pose: Pose): AnchorCreateResult {
         check(
-            xrResourceManager.lifecycleManager.config.planeTracking !=
-                Config.PlaneTrackingMode.DISABLED
+            xrResourceManager.lifecycleManager.config.planeTracking != PlaneTrackingMode.DISABLED
         ) {
             "Config.PlaneTrackingMode is set to DISABLED."
         }

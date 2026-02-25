@@ -13,7 +13,7 @@ package androidx.camera.mlkit.vision {
     ctor public MlKitAnalyzer.Result(java.util.Map<com.google.mlkit.vision.interfaces.Detector<? extends java.lang.Object!>!,java.lang.Object!>, long, java.util.Map<com.google.mlkit.vision.interfaces.Detector<? extends java.lang.Object!>!,java.lang.Throwable!>);
     method public Throwable? getThrowable(com.google.mlkit.vision.interfaces.Detector<? extends java.lang.Object!>);
     method public long getTimestamp();
-    method public <T> T? getValue(com.google.mlkit.vision.interfaces.Detector<T!>);
+    method public <T> T? getValue(com.google.mlkit.vision.interfaces.Detector<T>);
   }
 
 }

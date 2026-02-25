@@ -17,9 +17,8 @@
 package androidx.compose.foundation.text.input.internal
 
 import androidx.compose.foundation.implementedInJetBrainsFork
-import androidx.compose.ui.text.intl.PlatformLocale
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextDirection
 
-internal actual fun resolveTextDirectionForKeyboardTypePhone(
-    locale: PlatformLocale
-): TextDirection = implementedInJetBrainsFork()
+internal actual fun resolveTextDirectionForKeyboardTypePhone(locale: Locale): TextDirection =
+    implementedInJetBrainsFork()

@@ -92,6 +92,7 @@ import androidx.compose.remote.core.operations.Rem;
 import androidx.compose.remote.core.operations.RootContentBehavior;
 import androidx.compose.remote.core.operations.RootContentDescription;
 import androidx.compose.remote.core.operations.ShaderData;
+import androidx.compose.remote.core.operations.Skip;
 import androidx.compose.remote.core.operations.TextAttribute;
 import androidx.compose.remote.core.operations.TextData;
 import androidx.compose.remote.core.operations.TextFromFloat;
@@ -128,6 +129,7 @@ import androidx.compose.remote.core.operations.layout.managers.CollapsibleRowLay
 import androidx.compose.remote.core.operations.layout.managers.ColumnLayout;
 import androidx.compose.remote.core.operations.layout.managers.CoreText;
 import androidx.compose.remote.core.operations.layout.managers.FitBoxLayout;
+import androidx.compose.remote.core.operations.layout.managers.FlowLayout;
 import androidx.compose.remote.core.operations.layout.managers.ImageLayout;
 import androidx.compose.remote.core.operations.layout.managers.RowLayout;
 import androidx.compose.remote.core.operations.layout.managers.StateLayout;
@@ -311,6 +313,7 @@ public class Operations {
     public static final int LAYOUT_FIT_BOX = 176;
     public static final int LAYOUT_ROW = 203;
     public static final int LAYOUT_COLLAPSIBLE_ROW = 230;
+    public static final int LAYOUT_FLOW = 240;
     public static final int LAYOUT_COLUMN = 204;
     public static final int LAYOUT_COLLAPSIBLE_COLUMN = 233;
     public static final int LAYOUT_CANVAS = 205;
@@ -366,6 +369,7 @@ public class Operations {
     public static final int ANIMATION_SPEC = 14;
 
     public static final int COMPONENT_VALUE = 150;
+    public static final int SKIP = 241;
 
     ////////////////////////////////////////
     // Profiles management
@@ -458,6 +462,7 @@ public class Operations {
             sMapV7AndroidX.put(PARTICLE_COMPARE, ParticlesCompare::read);
             sMapV7AndroidX.put(DYNAMIC_FLOAT_LIST, DataDynamicListFloat::read);
             sMapV7AndroidX.put(UPDATE_DYNAMIC_FLOAT_LIST, UpdateDynamicFloatList::read);
+            sMapV7AndroidX.put(SKIP, Skip::read);
         }
         return sMapV7AndroidX;
     }
@@ -471,7 +476,7 @@ public class Operations {
             sMapV7AndroidXExperimental.put(CORE_TEXT, CoreText::read);
             sMapV7AndroidXExperimental.put(TEXT_TRANSFORM, TextTransform::read);
             sMapV7AndroidXExperimental.put(COLOR_THEME, ColorTheme::read);
-
+            sMapV7AndroidXExperimental.put(LAYOUT_FLOW, FlowLayout::read);
         }
         return sMapV7AndroidXExperimental;
     }
@@ -499,6 +504,7 @@ public class Operations {
             sMapV7Widgets.put(PARTICLE_COMPARE, ParticlesCompare::read);
             sMapV7Widgets.put(DYNAMIC_FLOAT_LIST, DataDynamicListFloat::read);
             sMapV7Widgets.put(UPDATE_DYNAMIC_FLOAT_LIST, UpdateDynamicFloatList::read);
+            sMapV7Widgets.put(SKIP, Skip::read);
 
         }
         return sMapV7Widgets;
@@ -513,7 +519,7 @@ public class Operations {
             sMapV7WidgetsExperimental.put(CORE_TEXT, CoreText::read);
             sMapV7WidgetsExperimental.put(TEXT_TRANSFORM, TextTransform::read);
             sMapV7WidgetsExperimental.put(COLOR_THEME, ColorTheme::read);
-
+            sMapV7WidgetsExperimental.put(LAYOUT_FLOW, FlowLayout::read);
         }
         return sMapV7WidgetsExperimental;
     }

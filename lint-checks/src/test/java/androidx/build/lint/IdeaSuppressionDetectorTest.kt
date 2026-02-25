@@ -51,17 +51,17 @@ class IdeaSuppressionDetectorTest :
 
                     public void notDeprecatedMethod() {}
                 }
-            """
+                """
                     .trimIndent(),
             )
 
         val expected =
             """
-src/androidx/IdeaSuppressionJava.java:5: Error: Uses IntelliJ-specific suppression, should use @SuppressWarnings("deprecation") [IdeaSuppression]
-        //noinspection deprecation
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~
-1 errors, 0 warnings
-        """
+            src/androidx/IdeaSuppressionJava.java:5: Error: Uses IntelliJ-specific suppression, should use @SuppressWarnings("deprecation") [IdeaSuppression]
+                    //noinspection deprecation
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+            1 errors, 0 warnings
+            """
                 .trimIndent()
 
         lint()
@@ -93,17 +93,17 @@ src/androidx/IdeaSuppressionJava.java:5: Error: Uses IntelliJ-specific suppressi
 
                     fun notDeprecatedMethod() {}
                 }
-            """
+                """
                     .trimIndent(),
             )
 
         val expected =
             """
-src/androidx/IdeaSuppressionKotlin.kt:5: Error: Uses IntelliJ-specific suppression, should use @SuppressWarnings("deprecation") [IdeaSuppression]
-        //noinspection deprecation
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~
-1 errors, 0 warnings
-        """
+            src/androidx/IdeaSuppressionKotlin.kt:5: Error: Uses IntelliJ-specific suppression, should use @SuppressWarnings("deprecation") [IdeaSuppression]
+                    //noinspection deprecation
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+            1 errors, 0 warnings
+            """
                 .trimIndent()
 
         lint()

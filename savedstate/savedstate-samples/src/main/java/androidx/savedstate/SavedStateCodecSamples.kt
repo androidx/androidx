@@ -138,9 +138,7 @@ fun decodeWithExplicitSerializerAndConfig() {
 @Sampled
 fun savedStateSerializer() {
     @Serializable
-    data class MyModel(
-        @Serializable(with = SavedStateSerializer::class) val savedState: SavedState
-    )
+    data class MyModel(@Serializable(with = SavedStateSerializer::class) val savedState: SavedState)
 }
 
 @Sampled

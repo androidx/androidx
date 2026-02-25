@@ -107,11 +107,11 @@ src/androidx/AutofixUnsafeCallToThis.java:57: Error: This call references a meth
 
         val expected =
             """
-src/com/example/test.kt:6: Error: This call references a method guarded by Trunk Stable flag "android.test.myFlag"; however, the containing class com.example.TestKt is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
-    FlaggedApiContainer.flaggedApi()
-                        ~~~~~~~~~~
-1 error
-        """
+            src/com/example/test.kt:6: Error: This call references a method guarded by Trunk Stable flag "android.test.myFlag"; however, the containing class com.example.TestKt is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+                FlaggedApiContainer.flaggedApi()
+                                    ~~~~~~~~~~
+            1 error
+            """
                 .trimIndent()
 
         check(*input).expect(expected)
@@ -154,36 +154,36 @@ src/com/example/test.kt:6: Error: This call references a method guarded by Trunk
 
         val expected =
             """
-src/com/example/MyClass.java:7: Error: This call references a method guarded by Trunk Stable flag "test.pkg.myFlag"; however, the containing class com.example.MyClass is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
-       FlaggedApiContainer.flaggedApi();
-                           ~~~~~~~~~~
-1 error
-        """
+            src/com/example/MyClass.java:7: Error: This call references a method guarded by Trunk Stable flag "test.pkg.myFlag"; however, the containing class com.example.MyClass is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+                   FlaggedApiContainer.flaggedApi();
+                                       ~~~~~~~~~~
+            1 error
+            """
                 .trimIndent()
 
         val expectedFixDiffs =
             """
-Fix for src/com/example/MyClass.java line 7: Extract to static inner class:
-@@ -3,0 +4,2 @@
-+import androidx.annotation.DoNotInline;
-+import androidx.annotation.RequiresFlag;
-@@ -7 +9,12 @@
--       FlaggedApiContainer.flaggedApi();
-+       FlagMyFlagImpl.flaggedApi();
-+    }
-+
-+@RequiresApi(10000) // Required when calling pre-release APIs
-+@RequiresFlag("test.pkg.myFlag")
-+static class FlagMyFlagImpl {
-+    private FlagMyFlagImpl() {
-+        // This class is not instantiable.
-+    }
-+    @DoNotInline
-+    static void flaggedApi() {
-+        FlaggedApiContainer.flaggedApi();
-@@ -8,0 +22 @@
-+}
-        """
+            Fix for src/com/example/MyClass.java line 7: Extract to static inner class:
+            @@ -3,0 +4,2 @@
+            +import androidx.annotation.DoNotInline;
+            +import androidx.annotation.RequiresFlag;
+            @@ -7 +9,12 @@
+            -       FlaggedApiContainer.flaggedApi();
+            +       FlagMyFlagImpl.flaggedApi();
+            +    }
+            +
+            +@RequiresApi(10000) // Required when calling pre-release APIs
+            +@RequiresFlag("test.pkg.myFlag")
+            +static class FlagMyFlagImpl {
+            +    private FlagMyFlagImpl() {
+            +        // This class is not instantiable.
+            +    }
+            +    @DoNotInline
+            +    static void flaggedApi() {
+            +        FlaggedApiContainer.flaggedApi();
+            @@ -8,0 +22 @@
+            +}
+            """
                 .trimIndent()
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
@@ -201,14 +201,14 @@ Fix for src/com/example/MyClass.java line 7: Extract to static inner class:
 
         val expected =
             """
-src/flaggedapi/FlaggedUsageWithoutOutline.kt:26: Error: This call references a method guarded by Trunk Stable flag "flaggedapi.myFlag"; however, the containing class flaggedapi.FlaggedUsageWithoutOutline is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
-            FlaggedApiContainer.innerApi()
-                                ~~~~~~~~
-src/flaggedapi/FlaggedUsageWithoutOutline.kt:31: Error: This call references a method guarded by Trunk Stable flag "flaggedapi.myFlag"; however, the containing class flaggedapi.FlaggedUsageWithoutOutline is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
-        FlaggedApiContainer.innerApi()
-                            ~~~~~~~~
-2 errors
-        """
+            src/flaggedapi/FlaggedUsageWithoutOutline.kt:26: Error: This call references a method guarded by Trunk Stable flag "flaggedapi.myFlag"; however, the containing class flaggedapi.FlaggedUsageWithoutOutline is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+                        FlaggedApiContainer.innerApi()
+                                            ~~~~~~~~
+            src/flaggedapi/FlaggedUsageWithoutOutline.kt:31: Error: This call references a method guarded by Trunk Stable flag "flaggedapi.myFlag"; however, the containing class flaggedapi.FlaggedUsageWithoutOutline is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+                    FlaggedApiContainer.innerApi()
+                                        ~~~~~~~~
+            2 errors
+            """
                 .trimIndent()
 
         check(*input).expect(expected)

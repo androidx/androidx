@@ -286,7 +286,7 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
                         }
                     }
                 }
-            """
+                """
                     .trimIndent(),
         )
 
@@ -416,7 +416,7 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
                 filter {
                     include("com.sample.Utils")
                 }
-            """
+                """
                     .trimIndent(),
         )
         projectSetup.producer.setupWithFreeAndPaidFlavors(
@@ -467,7 +467,7 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
                         filter { include("com.sample.Fragment") }
                     }
                 }
-            """
+                """
                     .trimIndent(),
         )
 
@@ -519,7 +519,7 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
                 """
                 saveInSrc = true
                 automaticGenerationDuringBuild = true
-            """
+                """
                     .trimIndent(),
         )
         projectSetup.producer.setupWithFreeAndPaidFlavors(
@@ -557,7 +557,7 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
                 """
                 saveInSrc = true
                 automaticGenerationDuringBuild = false
-            """
+                """
                     .trimIndent(),
         )
         projectSetup.producer.setupWithFreeAndPaidFlavors(
@@ -593,7 +593,7 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
                 """
                 saveInSrc = false
                 automaticGenerationDuringBuild = true
-            """
+                """
                     .trimIndent(),
         )
         projectSetup.producer.setupWithFreeAndPaidFlavors(
@@ -649,7 +649,7 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
                 """
                 saveInSrc = false
                 automaticGenerationDuringBuild = false
-            """
+                """
                     .trimIndent(),
         )
         gradleRunner
@@ -673,7 +673,7 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
             baselineProfileBlock =
                 """
                 filter { include("nothing.**") }
-            """
+                """
                     .trimIndent(),
         )
         projectSetup.producer.setupWithoutFlavors(
@@ -737,7 +737,7 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
                     }
                 }
 
-            """
+                """
                     .trimIndent(),
         )
 
@@ -794,7 +794,7 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
                     }
                 }
 
-            """
+                """
                     .trimIndent(),
         )
 
@@ -837,7 +837,7 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
                     }
                 }
 
-            """
+                """
                     .trimIndent(),
         )
         gradleRunner
@@ -993,7 +993,7 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
                 """
                 saveInSrc = true
                 automaticGenerationDuringBuild = true
-            """
+                """
                     .trimIndent(),
         )
 
@@ -1058,7 +1058,7 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
                     dimension "color"
                     matchingFallbacks += "red"
                 }
-            """
+                """
                     .trimIndent(),
             buildTypesBlock = "",
             dependencyOnProducerProject = false,
@@ -1175,12 +1175,12 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
                 flavorDimensions = ["tier"]
                 free { dimension "tier" }
                 paid { dimension "tier" }
-            """
+                """
                     .trimIndent(),
             buildTypesBlock =
                 """
                 anotherRelease { initWith(release) }
-            """
+                """
                     .trimIndent(),
             dependencyOnProducerProject = true,
             dependenciesBlock =
@@ -1275,7 +1275,7 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
                         variant.enable = variant.buildType != "benchmarkRelease"
                     }
                 }
-            """
+                """
                     .trimIndent(),
         )
         projectSetup.producer.setupWithoutFlavors(
@@ -1440,7 +1440,7 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
                 warnings {
                     maxAgpVersion = false
                 }
-            """
+                """
                     .trimIndent(),
         )
         projectSetup.consumer.gradleRunner.build(
@@ -1620,7 +1620,7 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
                 """
                 saveInSrc = true
                 automaticGenerationDuringBuild = true
-            """
+                """
                     .trimIndent(),
             additionalGradleCodeBlock =
                 """
@@ -1631,7 +1631,7 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
                         }
                     }
                 }
-            """
+                """
                     .trimIndent(),
         )
         projectSetup.producer.setupWithFreeAndPaidFlavors(
@@ -1676,7 +1676,7 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
                 """
                 saveInSrc = true
                 automaticGenerationDuringBuild = true
-            """
+                """
                     .trimIndent(),
         )
         projectSetup.producer.setupWithoutFlavors(
@@ -1712,7 +1712,7 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
                 """
                 baselineProfileRulesRewrite = true
                 dexLayoutOptimization = true
-            """
+                """
                     .trimIndent(),
         )
 
@@ -1740,7 +1740,7 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
             baselineProfileBlock =
                 """
                 mergeIntoMain = true
-            """
+                """
                     .trimIndent(),
         )
         projectSetup.producer.setupWithFreeAndPaidFlavors(
@@ -1816,7 +1816,7 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
             baselineProfileBlock =
                 """
                 hideSyntheticBuildTypesInAndroidStudio = false
-            """
+                """
                     .trimIndent(),
         )
         taskList.forEach {
@@ -1834,7 +1834,7 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
             baselineProfileBlock =
                 """
                 hideSyntheticBuildTypesInAndroidStudio = true
-            """
+                """
                     .trimIndent(),
         )
         taskList.forEach {
@@ -1873,7 +1873,7 @@ class BaselineProfileConsumerPluginTestWithAgp83(private val agpVersion: TestAgp
                         }
                     }
                 }
-            """
+                """
                     .trimIndent(),
         )
 
@@ -1924,7 +1924,7 @@ class BaselineProfileConsumerPluginTestWithKmp(agpVersion: TestAgpVersion) {
             otherPluginsBlock =
                 """
                 id("org.jetbrains.kotlin.multiplatform")
-            """
+                """
                     .trimIndent(),
             dependenciesBlock =
                 """
@@ -1948,7 +1948,7 @@ class BaselineProfileConsumerPluginTestWithKmp(agpVersion: TestAgpVersion) {
                         }
                     }
                 }
-            """
+                """
                     .trimIndent(),
         )
 
@@ -1974,7 +1974,7 @@ class BaselineProfileConsumerPluginTestWithKmp(agpVersion: TestAgpVersion) {
                 """
                 android.newDsl=false
                 android.builtInKotlin=false
-            """
+                """
                     .trimIndent()
             )
         gradleRunner.buildAndAssertThatOutput("releaseSources") {
@@ -1990,7 +1990,7 @@ class BaselineProfileConsumerPluginTestWithKmp(agpVersion: TestAgpVersion) {
             otherPluginsBlock =
                 """
                 id("org.jetbrains.kotlin.multiplatform")
-            """
+                """
                     .trimIndent(),
             dependenciesBlock =
                 """
@@ -2011,7 +2011,7 @@ class BaselineProfileConsumerPluginTestWithKmp(agpVersion: TestAgpVersion) {
                         }
                     }
                 }
-            """
+                """
                     .trimIndent(),
         )
 
@@ -2037,7 +2037,7 @@ class BaselineProfileConsumerPluginTestWithKmp(agpVersion: TestAgpVersion) {
                 """
                 android.newDsl=false
                 android.builtInKotlin=false
-            """
+                """
                     .trimIndent()
             )
         gradleRunner.buildAndAssertThatOutput("releaseSources") {

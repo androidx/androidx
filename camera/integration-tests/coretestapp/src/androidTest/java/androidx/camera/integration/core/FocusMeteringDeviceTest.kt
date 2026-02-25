@@ -24,7 +24,6 @@ import android.hardware.camera2.CameraCharacteristics.CONTROL_MAX_REGIONS_AWB
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.MeteringRectangle
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraSelector
@@ -36,7 +35,6 @@ import androidx.camera.core.FocusMeteringAction.FLAG_AWB
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.LabTestRule.Companion.isLensFacingEnabledInLabTest
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
@@ -71,10 +69,6 @@ class FocusMeteringDeviceTest(
     private val cameraXConfig: CameraXConfig,
 ) {
     @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
-
-    @get:Rule
     val cameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             CameraUtil.PreTestCameraIdList(cameraXConfig)
@@ -95,14 +89,6 @@ class FocusMeteringDeviceTest(
                             selector,
                             Camera2Config::class.simpleName,
                             Camera2Config.defaultConfig(),
-                        )
-                    )
-                    add(
-                        arrayOf(
-                            "config=${CameraPipeConfig::class.simpleName} lensFacing={$lens}",
-                            selector,
-                            CameraPipeConfig::class.simpleName,
-                            CameraPipeConfig.defaultConfig(),
                         )
                     )
                 }

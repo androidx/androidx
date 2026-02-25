@@ -84,7 +84,8 @@ internal fun Class<out Any>.findMethod(
  * invoking the method whose FQN is set in the `tools:tilePreviewMethodFqn` attribute.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-class TileServiceViewAdapter(context: Context, attrs: AttributeSet) : FrameLayout(context, attrs) {
+public class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
+    FrameLayout(context, attrs) {
 
     private val executor = ContextCompat.getMainExecutor(context)
 
@@ -147,7 +148,6 @@ class TileServiceViewAdapter(context: Context, attrs: AttributeSet) : FrameLayou
                         .build()
                 tilePreview.onTileResourceRequest(resourcesRequest)
             }
-        scope.clearAll()
 
         val inflateFuture = inflateAsync(layout, resources, this@TileServiceViewAdapter)
         inflateFuture.addListener(
@@ -160,7 +160,7 @@ class TileServiceViewAdapter(context: Context, attrs: AttributeSet) : FrameLayou
         )
     }
 
-    fun getAnimations(): List<DynamicTypeAnimator> {
+    public fun getAnimations(): List<DynamicTypeAnimator> {
         return tileRenderer.animations
     }
 

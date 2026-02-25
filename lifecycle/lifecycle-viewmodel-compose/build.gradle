@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -36,8 +35,15 @@ androidXMultiplatform {
         compileSdk { version = release(35) }
         namespace = "androidx.lifecycle.viewmodel.compose"
     }
-    jvmStubs()
-    linuxX64Stubs()
+    desktop()
+    mac()
+    linux()
+    ios()
+    watchos()
+    tvos()
+    mingwX64()
+    js()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -47,8 +53,8 @@ androidXMultiplatform {
             api(project(":lifecycle:lifecycle-viewmodel"))
             api(project(":lifecycle:lifecycle-viewmodel-savedstate"))
             api("androidx.annotation:annotation:1.9.1")
-            api("androidx.compose.runtime:runtime:1.9.0")
-            api("androidx.compose.runtime:runtime-saveable:1.9.0")
+            api(project(":compose:runtime:runtime"))
+            api(project(":compose:runtime:runtime-saveable"))
             api(libs.kotlinSerializationCore)
         }
 
@@ -58,7 +64,10 @@ androidXMultiplatform {
         }
 
         androidMain.dependencies {
-            api("androidx.compose.ui:ui:1.9.0")
+            // TODO(mgalhardo): Change this to constraint once Compose 1.11 prebuilds are released.
+            implementation(project(":compose:ui:ui")) {
+                because("Ensure we are using the Compose-UI 1.11 or above")
+            }
             // Converting `lifecycle-viewmodel-compose` to KMP and including a transitive
             // dependency on `lifecycle-livedata-core` triggered a Gradle bug. Adding the
             // `livedata` dependency directly works around the issue.
@@ -83,11 +92,13 @@ androidXMultiplatform {
             implementation(project(":lifecycle:lifecycle-common-java8"))
             implementation("androidx.activity:activity-compose:1.10.1")
         }
-
-        commonStubsMain.dependsOn(commonMain)
-        jvmStubsMain.dependsOn(commonStubsMain)
-        linuxx64StubsMain.dependsOn(commonStubsMain)
     }
+}
+
+dependencies.constraints {
+    // TODO(mgalhardo): Add constraints to properly migrate from the JetBrains fork.
+    //  We need to prevent symbol duplication with old versions of the fork.
+    //  Once the fork publishes a version that redirects to this artifact.
 }
 
 dependencies {

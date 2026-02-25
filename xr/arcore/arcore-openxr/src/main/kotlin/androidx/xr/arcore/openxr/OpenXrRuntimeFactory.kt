@@ -15,11 +15,11 @@
  */
 package androidx.xr.arcore.openxr
 
-import android.app.Activity
+import android.content.Context
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.runtime.Log
-import androidx.xr.runtime.internal.Feature
+import androidx.xr.runtime.interfaces.Feature
 import androidx.xr.runtime.internal.PerceptionRuntimeFactory
 import kotlin.coroutines.CoroutineContext
 
@@ -41,13 +41,13 @@ public class OpenXrRuntimeFactory() : PerceptionRuntimeFactory {
     override val requirements: Set<Feature> = setOf(Feature.FULLSTACK, Feature.OPEN_XR)
 
     override fun createRuntime(
-        activity: Activity,
+        context: Context,
         coroutineContext: CoroutineContext,
     ): PerceptionRuntime {
         val timeSource = OpenXrTimeSource()
         val perceptionManager = OpenXrPerceptionManager(timeSource)
         return OpenXrRuntime(
-            OpenXrManager(activity, perceptionManager, timeSource),
+            OpenXrManager(context, perceptionManager, timeSource),
             perceptionManager,
         )
     }

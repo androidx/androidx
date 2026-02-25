@@ -18,13 +18,15 @@ package androidx.lifecycle.viewmodel.compose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.HostDefaultKey
 import androidx.compose.runtime.ProvidedValue
-import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.compositionLocalWithHostDefaultOf
 import androidx.lifecycle.ViewModelStoreOwner
 
 /** The CompositionLocal containing the current [ViewModelStoreOwner]. */
 public object LocalViewModelStoreOwner {
-    private val LocalViewModelStoreOwner = compositionLocalOf<ViewModelStoreOwner?> { null }
+    private val LocalViewModelStoreOwner =
+        compositionLocalWithHostDefaultOf(ViewModelStoreOwnerHostDefaultKey)
 
     /**
      * Returns current composition local value for the owner or `null` if one has not been provided.
@@ -33,7 +35,7 @@ public object LocalViewModelStoreOwner {
      * [androidx.compose.ui.platform.LocalView].
      */
     public val current: ViewModelStoreOwner?
-        @Composable get() = LocalViewModelStoreOwner.current ?: findDefaultViewModelStoreOwner()
+        @Composable get() = LocalViewModelStoreOwner.current
 
     /**
      * Associates a [LocalViewModelStoreOwner] key to a value in a call to
@@ -46,4 +48,17 @@ public object LocalViewModelStoreOwner {
     }
 }
 
-@Composable internal expect fun findDefaultViewModelStoreOwner(): ViewModelStoreOwner?
+/**
+ * A [HostDefaultKey] used to retrieve the [ViewModelStoreOwner] provided by the current hosting
+ * environment.
+ *
+ * This key allows the composition to access the host's [ViewModelStoreOwner] through a decoupled
+ * mechanism, typically used by [compositionLocalWithHostDefaultOf].
+ *
+ * On platforms where a [ViewModelStoreOwner] is not present or supported, this may resolve to
+ * `null`.
+ *
+ * @see HostDefaultKey
+ * @see compositionLocalWithHostDefaultOf
+ */
+public expect val ViewModelStoreOwnerHostDefaultKey: HostDefaultKey<ViewModelStoreOwner?>

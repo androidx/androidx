@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.material3.tokens.FilledTextButtonTokens
 import androidx.wear.compose.material3.tokens.FilledTonalTextButtonTokens
 import androidx.wear.compose.material3.tokens.OutlinedTextButtonTokens
@@ -145,6 +146,16 @@ public object TextButtonDefaults {
     /** Recommended pressed [Shape] for [TextButton]. */
     public val pressedShape: CornerBasedShape
         @Composable get() = MaterialTheme.shapes.small
+
+    /**
+     * The minimum vertical content padding for the list when a [TextButton] is placed at the top or
+     * bottom edge. Recommended for use with [TransformingLazyColumnItemScope]'s
+     * [Modifier.minimumVerticalContentPadding], which allows items to choose a preferred content
+     * padding for the list. [TransformingLazyColumn] takes its contentPadding as the maximum of the
+     * preferred content padding values and its own contentPadding parameter.
+     */
+    public val minimumVerticalListContentPadding: Dp
+        @Composable get() = screenHeightFraction(SMALL_VERTICAL_CONTENT_PADDING_FRACTION)
 
     /** Returns the default [TextButtonShapes] for a static [TextButton]. */
     @Composable public fun shapes(): TextButtonShapes = MaterialTheme.shapes.defaultTextButtonShapes

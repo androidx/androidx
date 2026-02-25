@@ -95,10 +95,12 @@ class InspectionPlugin : Plugin<Project> {
         project.afterEvaluate {
             if (!foundLibraryPlugin) {
                 throw StopExecutionException(
-                    """A required plugin, com.android.library, was not found.
-                        The androidx.inspection plugin currently only supports android library
-                        modules, so ensure that com.android.library is applied in the project
-                        build.gradle file."""
+                    """
+                    A required plugin, com.android.library, was not found.
+                                            The androidx.inspection plugin currently only supports android library
+                                            modules, so ensure that com.android.library is applied in the project
+                                            build.gradle file.
+                    """
                         .trimIndent()
                 )
             }

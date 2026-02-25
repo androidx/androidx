@@ -56,8 +56,10 @@ import androidx.wear.compose.materialcore.currentTimeMillis
 import androidx.wear.compose.materialcore.is24HourFormat
 import java.util.Calendar
 import java.util.Locale
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flowOn
 
 /**
  * Layout to show the current time and a label, they will be drawn in a curve, following the top
@@ -250,16 +252,19 @@ internal fun currentTime(time: () -> Long, timeFormat: String): State<String> {
     val context = LocalContext.current
     remember(context) {
             callbackFlow<Unit> {
-                val receiver =
-                    TimeBroadcastReceiver(
-                        // Either time or timezone changed, or we got the tick sent every minute.
-                        onChange = {
-                            timeText.value = formatTime(Calendar.getInstance(), time(), timeFormat)
-                        }
-                    )
-                receiver.register(context)
-                awaitClose { receiver.unregister(context) }
-            }
+                    val receiver =
+                        TimeBroadcastReceiver(
+                            // Either time or timezone changed, or we got the tick sent every
+                            // minute.
+                            onChange = {
+                                timeText.value =
+                                    formatTime(Calendar.getInstance(), time(), timeFormat)
+                            }
+                        )
+                    receiver.register(context)
+                    awaitClose { receiver.unregister(context) }
+                }
+                .flowOn(Dispatchers.Main)
         }
         .collectAsState(Unit)
     return timeText

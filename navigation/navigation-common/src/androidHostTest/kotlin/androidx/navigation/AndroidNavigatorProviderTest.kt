@@ -17,24 +17,34 @@
 package androidx.navigation
 
 import androidx.kruth.assertThat
-import kotlin.test.Test
-import kotlin.test.fail
+import org.junit.Assert.fail
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
+@RunWith(JUnit4::class)
 class AndroidNavigatorProviderTest {
-
     @Test
-    fun addWithExplicitNameGetWithExplicitName() {
+    fun addWithMissingAnnotationName() {
         val provider = NavigatorProvider()
-        val navigator = EmptyNavigator()
-        provider.addNavigator("name", navigator)
-
-        assertThat(provider.getNavigator<EmptyNavigator>("name")).isEqualTo(navigator)
+        val navigator = NoNameNavigator()
         try {
-            provider.getNavigator(EmptyNavigator::class.java)
-            fail("getNavigator(Class) with an invalid name should cause an IllegalStateException")
-        } catch (e: IllegalStateException) {
+            provider.addNavigator(navigator)
+            fail(
+                "Adding a provider with no @Navigator.Name should cause an " +
+                    "IllegalArgumentException"
+            )
+        } catch (e: IllegalArgumentException) {
             // Expected
         }
+    }
+
+    @Test
+    fun addWithMissingAnnotationNameGetWithExplicitName() {
+        val provider = NavigatorProvider()
+        val navigator = NoNameNavigator()
+        provider.addNavigator("name", navigator)
+        assertThat(provider.getNavigator<NoNameNavigator>("name")).isEqualTo(navigator)
     }
 
     @Test

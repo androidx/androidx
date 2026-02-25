@@ -97,40 +97,40 @@ private fun OnSwipeTestJson() {
             MotionScene(
                 content =
                     """
-       {
-         ConstraintSets: {
-           start: {
-             box: {
-               width: 20, height: 20,
-               bottom: ['parent', 'bottom', 10],
-               start: ['parent', 'start', 10]
-             }
-           },
-           end: {
-             Extends: 'start',
-             box: {
-               clear: ['constraints'],
-               top: ['parent', 'top', 10],
-               end: ['parent', 'end', 10],
-             }
-           }
-         },
-         Transitions: {
-           default: {
-              from: 'start',
-              to: 'end',
-              onSwipe: {
-                anchor: 'box',
-                direction: 'end',
-                side: 'end',
-                mode: 'spring',
-                touchUp: 'neverCompleteStart',
-                stopThreshold: 0.0001
-              }
-           }
-         }
-       }
-        """
+                    {
+                      ConstraintSets: {
+                        start: {
+                          box: {
+                            width: 20, height: 20,
+                            bottom: ['parent', 'bottom', 10],
+                            start: ['parent', 'start', 10]
+                          }
+                        },
+                        end: {
+                          Extends: 'start',
+                          box: {
+                            clear: ['constraints'],
+                            top: ['parent', 'top', 10],
+                            end: ['parent', 'end', 10],
+                          }
+                        }
+                      },
+                      Transitions: {
+                        default: {
+                           from: 'start',
+                           to: 'end',
+                           onSwipe: {
+                             anchor: 'box',
+                             direction: 'end',
+                             side: 'end',
+                             mode: 'spring',
+                             touchUp: 'neverCompleteStart',
+                             stopThreshold: 0.0001
+                           }
+                        }
+                      }
+                    }
+                    """
                         .trimIndent()
             ),
         progress = 0.0f,

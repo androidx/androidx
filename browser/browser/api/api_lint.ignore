@@ -220,4 +220,4 @@ StreamFiles: androidx.browser.customtabs.TrustedWebUtils#transferSplashImage(and
 
 
 TopLevelBuilder: androidx.browser.trusted.TrustedWebActivityIntentBuilder:
-    Builder should be defined as inner class: androidx.browser.trusted.TrustedWebActivityIntentBuilder
+    Builder should be defined as nested class: androidx.browser.trusted.TrustedWebActivityIntentBuilder

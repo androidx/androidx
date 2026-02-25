@@ -53,7 +53,7 @@ androidXMultiplatform {
             implementation(project(":kruth:kruth"))
         }
 
-        jvmNativeMain.dependsOn(commonMain)
+        create("jvmNativeMain").dependsOn(commonMain)
 
         jvmMain.dependsOn(jvmNativeMain)
 

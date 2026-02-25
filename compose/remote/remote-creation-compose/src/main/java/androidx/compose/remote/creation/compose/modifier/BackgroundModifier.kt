@@ -17,7 +17,6 @@
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.painter.RemotePainter
 import androidx.compose.remote.creation.compose.painter.painterRemoteColor
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
@@ -27,11 +26,10 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.modifiers.SolidBackgroundModifier
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public data class BackgroundModifier(val color: RemoteColor) : RemoteModifier.Element {
+internal data class BackgroundModifier(val color: RemoteColor) : RemoteModifier.Element {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         return SolidBackgroundModifier(
             color.red.floatId,
@@ -42,21 +40,26 @@ public data class BackgroundModifier(val color: RemoteColor) : RemoteModifier.El
     }
 }
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.background(color: Color): RemoteModifier =
     this.then(BackgroundModifier(color.rc))
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RemoteComposable
-@Composable
+/**
+ * Draws a solid [color] background behind the content.
+ *
+ * @param color The [RemoteColor] to use for the background.
+ */
 public fun RemoteModifier.background(color: RemoteColor): RemoteModifier =
-    this.drawWithContent {
-        with(painterRemoteColor(color)) { onDraw() }
-        drawContent()
+    if (color.hasConstantValue) {
+        this.background(color.constantValue)
+    } else {
+        this.drawWithContent {
+            with(painterRemoteColor(color)) { onDraw() }
+            drawContent()
+        }
     }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RemoteComposable
-@Composable
 public fun RemoteModifier.background(brush: RemoteBrush): RemoteModifier =
     this.drawWithContent {
         drawRect(paint = RemotePaint().apply { applyRemoteBrush(brush, remoteSize) })
@@ -64,8 +67,6 @@ public fun RemoteModifier.background(brush: RemoteBrush): RemoteModifier =
     }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RemoteComposable
-@Composable
 public fun RemoteModifier.background(remotePainter: RemotePainter): RemoteModifier =
     this.drawWithContent {
         with(remotePainter) { onDraw() }

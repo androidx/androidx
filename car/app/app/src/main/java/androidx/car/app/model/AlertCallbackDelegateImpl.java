@@ -101,5 +101,10 @@ public class AlertCallbackDelegateImpl implements AlertCallbackDelegate {
                 return null;
             });
         }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
     }
 }

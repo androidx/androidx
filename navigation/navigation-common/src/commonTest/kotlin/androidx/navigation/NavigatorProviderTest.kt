@@ -19,32 +19,26 @@ package androidx.navigation
 import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
 import androidx.navigation.testing.TestNavigatorState
-import androidx.savedstate.SavedState
 import kotlin.test.Test
 import kotlin.test.fail
+import kotlinx.coroutines.Dispatchers
 
+@IgnoreAndroidHostTestTarget
 class NavigatorProviderTest {
+
     @Test
-    fun addWithMissingAnnotationName() {
+    fun addWithExplicitNameGetWithExplicitName() {
         val provider = NavigatorProvider()
-        val navigator = NoNameNavigator()
+        val navigator = EmptyNavigator()
+        provider.addNavigator("name", navigator)
+
+        assertThat(provider.getNavigator<EmptyNavigator>("name")).isEqualTo(navigator)
         try {
-            provider.addNavigator(navigator)
-            fail(
-                "Adding a provider with no @Navigator.Name should cause an " +
-                    "IllegalArgumentException"
-            )
-        } catch (e: IllegalArgumentException) {
+            provider.getNavigator<EmptyNavigator>(EmptyNavigator.NAME)
+            fail("getNavigator(Class) with an invalid name should cause an IllegalStateException")
+        } catch (e: IllegalStateException) {
             // Expected
         }
-    }
-
-    @Test
-    fun addWithMissingAnnotationNameGetWithExplicitName() {
-        val provider = NavigatorProvider()
-        val navigator = NoNameNavigator()
-        provider.addNavigator("name", navigator)
-        assertThat(provider.getNavigator<NoNameNavigator>("name")).isEqualTo(navigator)
     }
 
     @Test
@@ -57,7 +51,7 @@ class NavigatorProviderTest {
 
     @Test
     fun addExistingNavigatorDoesntReplace() {
-        val navigatorState = TestNavigatorState()
+        val navigatorState = TestNavigatorState(Dispatchers.Unconfined)
         val provider = NavigatorProvider()
         val navigator = EmptyNavigator()
 
@@ -96,6 +90,22 @@ class NavigatorProviderTest {
         assertThat(provider.getNavigator<EmptyNavigator>(EmptyNavigator.NAME)).isEqualTo(navigatorB)
     }
 
+    @Test
+    fun replaceNavigatorOfCommonTypeWhenGetByType() {
+        val provider = NavigatorProvider()
+        val navigatorA = EmptyNavigator()
+
+        val navigatorB = EmptyNavigator2()
+
+        assertThat(navigatorA).isNotEqualTo(navigatorB)
+
+        provider.addNavigator(navigatorA)
+        assertThat(provider[EmptyNavigator::class]).isEqualTo(navigatorA)
+
+        provider.addNavigator(navigatorB)
+        assertThat(provider[EmptyNavigator::class]).isEqualTo(navigatorB)
+    }
+
     private val provider = NavigatorProvider()
 
     @Test
@@ -118,49 +128,26 @@ class NavigatorProviderTest {
     }
 }
 
-class NoNameNavigator : Navigator<NavDestination>() {
-    override fun createDestination(): NavDestination {
-        throw IllegalStateException("createDestination is not supported")
-    }
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+internal expect class NoNameNavigator() : Navigator<NavDestination> {
+    override fun createDestination(): NavDestination
 
-    override fun navigate(
-        destination: NavDestination,
-        args: SavedState?,
-        navOptions: NavOptions?,
-        navigatorExtras: Extras?,
-    ): NavDestination? {
-        throw IllegalStateException("navigate is not supported")
-    }
-
-    override fun popBackStack(): Boolean {
-        throw IllegalStateException("popBackStack is not supported")
-    }
+    override fun popBackStack(): Boolean
 }
 
 /** An empty [Navigator] used to test [NavigatorProvider]. */
-@Navigator.Name(EmptyNavigator.NAME)
-internal open class EmptyNavigator : Navigator<NavDestination>() {
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+internal expect open class EmptyNavigator() : Navigator<NavDestination> {
 
     companion object {
-        const val NAME = "empty"
+        val NAME: String
     }
 
-    override fun createDestination(): NavDestination {
-        throw IllegalStateException("createDestination is not supported")
-    }
+    override fun createDestination(): NavDestination
 
-    override fun navigate(
-        destination: NavDestination,
-        args: SavedState?,
-        navOptions: NavOptions?,
-        navigatorExtras: Extras?,
-    ): NavDestination? {
-        throw IllegalStateException("navigate is not supported")
-    }
-
-    override fun popBackStack(): Boolean {
-        throw IllegalStateException("popBackStack is not supported")
-    }
+    override fun popBackStack(): Boolean
 }
+
+internal expect class EmptyNavigator2() : EmptyNavigator
 
 private const val NAME = "TEST"

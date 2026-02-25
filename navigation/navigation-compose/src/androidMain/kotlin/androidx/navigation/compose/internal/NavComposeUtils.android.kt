@@ -46,3 +46,5 @@ internal actual class WeakReference<T : Any> actual constructor(reference: T) {
 
     actual fun clear() = weakReference.clear()
 }
+
+internal actual typealias DefaultNavTransitions = StandardDefaultNavTransitions

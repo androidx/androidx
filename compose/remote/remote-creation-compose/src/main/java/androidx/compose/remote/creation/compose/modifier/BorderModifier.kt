@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.modifier
 
@@ -32,13 +31,14 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.BorderModifier as CreationBorderModifier
 import androidx.compose.remote.creation.modifiers.DynamicBorderModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
+import androidx.compose.ui.graphics.toArgb
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class BorderModifier(
+internal class BorderModifier(
     public val width: RemoteFloat,
     public val color: RemoteColor,
     public val shape: RemoteShape = RemoteRectangleShape,
 ) : RemoteModifier.Element {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         var shapeType = ShapeType.RECTANGLE
         var roundedCorner = 0f
@@ -52,7 +52,7 @@ public class BorderModifier(
             shapeType = ShapeType.ROUNDED_RECTANGLE
 
             val remoteSize = RemoteSize(context.componentWidth(), context.componentHeight())
-            roundedCorner = shape.topStart.toPx(remoteSize).floatId
+            roundedCorner = shape.topStart.toPx(remoteSize, remoteDensity).floatId
         }
 
         val constantColor = color.constantValueOrNull
@@ -78,4 +78,6 @@ public fun RemoteModifier.border(
     width: RemoteDp,
     color: RemoteColor,
     shape: RemoteShape = RemoteRectangleShape,
-): RemoteModifier = then(BorderModifier(width.toPx(), color, shape))
+): RemoteModifier {
+    return then(BorderModifier(width.toPx(), color, shape))
+}

@@ -137,6 +137,11 @@ public class AppSearchTestUtils {
             public boolean doesCallerHaveSystemAccess(@NonNull String s) {
                 return false;
             }
+
+            @Override
+            public boolean isPrivateComputeCoreUid(int uid) {
+                return false;
+            }
         };
     }
 
@@ -161,6 +166,11 @@ public class AppSearchTestUtils {
 
             @Override
             public boolean doesCallerHaveSystemAccess(@NonNull String s) {
+                return false;
+            }
+
+            @Override
+            public boolean isPrivateComputeCoreUid(int uid) {
                 return false;
             }
         };

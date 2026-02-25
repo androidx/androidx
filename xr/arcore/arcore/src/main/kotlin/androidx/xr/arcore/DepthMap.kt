@@ -25,14 +25,18 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-/** Contains the depth map information corresponding to a specific [RenderViewpoint] */
+/**
+ * Contains the depth map information corresponding to a specific [RenderViewpoint].
+ *
+ * @property state the current [State] of the depth map
+ */
 public class DepthMap internal constructor(internal val runtimeDepthMap: RuntimeDepthMap) :
     Updatable {
     public companion object {
         /**
          * Returns the DepthMap associated with the left display.
          *
-         * @param session the currently active [Session].
+         * @param session the currently active [Session]
          * @note Supported only on devices that use stereo displays for rendering.
          */
         @JvmStatic
@@ -44,7 +48,7 @@ public class DepthMap internal constructor(internal val runtimeDepthMap: Runtime
         /**
          * Returns the DepthMap associated with the right display.
          *
-         * @param session the currently active [Session].
+         * @param session the currently active [Session]
          * @note Supported only on devices that use stereo displays for rendering.
          */
         @JvmStatic
@@ -56,7 +60,7 @@ public class DepthMap internal constructor(internal val runtimeDepthMap: Runtime
         /**
          * Returns the DepthMap associated with the single device display.
          *
-         * @param session the currently active [Session].
+         * @param session the currently active [Session]
          * @note When the device uses a single display, this will return the depth map for that
          *   display. When the device uses stereo displays, this will return the depth map for the
          *   center of the two displays.
@@ -77,18 +81,19 @@ public class DepthMap internal constructor(internal val runtimeDepthMap: Runtime
     }
 
     /**
-     * Contains the current state of depth tracking
+     * Contains the current state of depth tracking.
      *
-     * @property width The width of the depth map.
-     * @property height The height of the depth map.
-     * @property rawDepthMap Buffer of size [width x height] representing raw depth in meters from
-     *   the image plane. The row and pixel stride of the buffer are both zero.
-     * @property rawConfidenceMap Confidence for each pixel in [rawDepthMap], with 0 representing
-     *   the lowest confidence and 255 representing the highest confidence.
-     * @property smoothDepthMap Buffer of size [width x height] representing smooth depth in meters
-     *   from the image plane. The row and pixel stride of the buffer are both zero.
-     * @property smoothConfidenceMap Confidence for each pixel in [smoothDepthMap], with 0
-     *   representing the lowest confidence and 255 representing the highest confidence.
+     * @property width the width of the depth map
+     * @property height the height of the depth map
+     * @property rawDepthMap a buffer of size [width] x [height] representing raw depth in meters
+     *   from the image plane, with both row and pixel stride equal to 0
+     * @property rawConfidenceMap a buffer of confidence values for each pixel in [rawDepthMap],
+     *   with 0 representing the lowest confidence and 255 representing the highest confidence
+     * @property smoothDepthMap a buffer of size [width] x [height] representing smooth depth in
+     *   meters from the image plane, with both row and pixel stride equal to 0
+     * @property smoothConfidenceMap a buffer of confidence values for each pixel in
+     *   [smoothDepthMap], with 0 representing the lowest confidence and 255 representing the
+     *   highest confidence
      */
     public class State
     internal constructor(
@@ -133,7 +138,6 @@ public class DepthMap internal constructor(internal val runtimeDepthMap: Runtime
             )
         )
 
-    /** The current [State] of the depth map. */
     public val state: StateFlow<DepthMap.State> = _state.asStateFlow()
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)

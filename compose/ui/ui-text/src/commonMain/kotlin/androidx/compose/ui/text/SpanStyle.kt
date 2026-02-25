@@ -764,11 +764,39 @@ fun lerp(start: SpanStyle, stop: SpanStyle, fraction: Float): SpanStyle {
         localeList = lerpDiscrete(start.localeList, stop.localeList, fraction),
         background = lerp(start.background, stop.background, fraction),
         textDecoration = lerpDiscrete(start.textDecoration, stop.textDecoration, fraction),
-        shadow = lerp(start.shadow ?: Shadow(), stop.shadow ?: Shadow(), fraction),
+        shadow = nullSafeLerp(start.shadow, stop.shadow, fraction),
         platformStyle = lerpPlatformStyle(start.platformStyle, stop.platformStyle, fraction),
         drawStyle = lerpDiscrete(start.drawStyle, stop.drawStyle, fraction),
     )
 }
+
+/**
+ * Linearly interpolates between two [Shadow]s.
+ *
+ * If one of the shadows is null, it is treated as a transparent shadow. If both are null, null is
+ * returned.
+ */
+@OptIn(ExperimentalTextApi::class)
+internal fun nullSafeLerp(lhs: Shadow?, rhs: Shadow?, fraction: Float): Shadow? {
+    // TODO(b/474421710) remove the next three lines once release is completed
+    if (!ComposeUiTextFlags.isCorrectShadowLerpWithNullsEnabled) {
+        return lerp(lhs ?: Shadow(), rhs ?: Shadow(), fraction)
+    }
+    // END FLAG REMOVAL BLOCK -- KEEP LINES BELOW THIS
+    if (lhs == null && rhs == null) {
+        return null
+    }
+    if (lhs == null) {
+        return lerp(rhs!!.dropAlpha(), rhs, fraction)
+    }
+    if (rhs == null) {
+        return lerp(lhs, lhs.dropAlpha(), fraction)
+    }
+    return lerp(lhs, rhs, fraction)
+}
+
+/** Returns a copy of this [Shadow] with its alpha component set to 0f. */
+private fun Shadow.dropAlpha(): Shadow = copy(color = color.copy(alpha = 0f))
 
 private fun lerpPlatformStyle(
     start: PlatformSpanStyle?,

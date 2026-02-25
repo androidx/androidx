@@ -18,29 +18,58 @@ package androidx.paging
 
 internal data class TransformablePage<T : Any>(
     /**
-     * List of original (pre-transformation) page offsets the original page relative to initial = 0,
-     * that this [TransformablePage] depends on.
+     * List of original, pre-transformation pageOffsets from the initial refresh (0) that this
+     * [TransformablePage] anchors on. This array is always sorted.
      *
-     * This array is always sorted.
+     * In general this IntArray contains only the [hintOriginalPageOffset]. In the case of pages
+     * inserted after data was loaded, such as separators added through [insertSeparators],
+     * [originalPageOffsets] would contain the [originalPageOffsets] of the pages that the inserted
+     * page anchors on (non-empty pages before and/or after the inserted page).
+     *
+     * For example:
+     * - PRE-TRANSFORM: page1 = ["add", "ant"], page2 = [], page3 = ["cat", "cant"]
+     * - POST-TRANSFORM:page1 = ["add", "ant"], page2 = [], page3 = ["C"], page4 = ["cat", "cant"]
+     *
+     * The inserted page's originalPageOffsets = [0, 2] which is calculated from PRE-TRANSFORM's
+     * [`page1.originalPageOffsets` + `page3.originalPageOffsets`].
+     *
+     * Given the same example except that page1 was empty:
+     * - PRE-TRANSFORM: page1 = [], page2 = [], page3 = ["cat", "cant"]
+     * - POST-TRANSFORM: page1 = [], page2 = [], page3 = ["C"], page4 = ["cat", "cant"]
+     *
+     * The resulting inserted page's originalPageOffsets = [2], which is taken from PRE-TRANSFORM's
+     * `page3.originalPageOffsets`
      */
     val originalPageOffsets: IntArray,
 
-    /** Data to present (post-transformation) */
+    /**
+     * Data contained in this page
+     *
+     * If [hintOriginalIndices] were null, the data has not been transformed. Otherwise, the data is
+     * post-transform.
+     */
     val data: List<T>,
 
     /**
      * Original (pre-transformation) page offset relative to initial = 0, that [hintOriginalIndices]
      * are associated with.
+     *
+     * For example if there were 5 loaded pages consisting of 2 prepends, 1 refresh, and then 3
+     * appends, their offset would be [-2] [-1] [0] [1] [2] [3] respectively.
      */
     val hintOriginalPageOffset: Int,
 
     /**
-     * Optional lookup table for page indices.
+     * Optional lookup table for page indices. Represents the original item indices of [data] before
+     * they were transformed.
      *
-     * If provided, this table provides a mapping from presentation index -> original,
-     * pre-transformation index.
+     * If null, the indices of [data] map directly to their original pre-transformation index. This
+     * could mean that this page has yet to be transformed (i.e. created with raw loaded data), or
+     * the transform was no-op.
      *
-     * If null, the indices of [data] map directly to their original pre-transformation index.
+     * If provided, this page has already been transformed. For example if the original
+     * TransformablePage contains data [a, b, c] and was transformed into current TransformablePage
+     * with data [a, c], then current [hintOriginalIndices] = [0, 2].
      *
      * Note: [hintOriginalIndices] refers to indices of the original item which can be found in the
      * loaded pages with pageOffset == [hintOriginalPageOffset].
@@ -115,9 +144,6 @@ internal data class TransformablePage<T : Any>(
     }
 
     companion object {
-        @Suppress("UNCHECKED_CAST")
-        fun <T : Any> empty() = EMPTY_INITIAL_PAGE as TransformablePage<T>
-
-        val EMPTY_INITIAL_PAGE: TransformablePage<Any> = TransformablePage(0, emptyList())
+        fun <T : Any> empty(): TransformablePage<T> = TransformablePage(0, emptyList())
     }
 }

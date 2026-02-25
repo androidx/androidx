@@ -32,25 +32,18 @@ class ImageCaptureLockedOrientationTest(
     private val lensFacing: Int,
     private val rotationDegrees: Int,
     private val captureMode: Int,
-    private val cameraXConfig: String,
-) : ImageCaptureBaseTest<LockedOrientationActivity>(cameraXConfig) {
+) : ImageCaptureBaseTest<LockedOrientationActivity>() {
 
     companion object {
         private val rotationDegrees = arrayOf(0, 90, 180, 270)
 
         @JvmStatic
-        @Parameterized.Parameters(
-            name = "lensFacing={0}, rotationDegrees={1}, captureMode={2}, cameraXConfig={3}"
-        )
+        @Parameterized.Parameters(name = "lensFacing={0}, rotationDegrees={1}, captureMode={2}")
         fun data() =
             mutableListOf<Array<Any?>>().apply {
                 lensFacingList.forEach { lens ->
                     rotationDegrees.forEach { rotation ->
-                        captureModes.forEach { mode ->
-                            cameraXConfigList.forEach { cameraXConfig ->
-                                add(arrayOf(lens, rotation, mode, cameraXConfig))
-                            }
-                        }
+                        captureModes.forEach { mode -> add(arrayOf(lens, rotation, mode)) }
                     }
                 }
             }
@@ -70,7 +63,7 @@ class ImageCaptureLockedOrientationTest(
     @Test
     @SdkSuppress(maxSdkVersion = 33) // b/360867144: Module crashes on API34
     fun verifyRotation() {
-        verifyRotation<LockedOrientationActivity>(lensFacing, captureMode, cameraXConfig) {
+        verifyRotation<LockedOrientationActivity>(lensFacing, captureMode) {
             rotate(rotationDegrees)
         }
     }

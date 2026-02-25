@@ -41,32 +41,32 @@ class GradleLikelyBugIssueTest :
                 fun configureProperty(property: Property<Any>) {
                     property.toString()
                 }
-            """
+                """
                     .trimIndent()
             )
 
         val expected =
             """
-                src/test.kt:5: Error: Use get instead of toString [GradleLikelyBug]
-                    provider.toString()
-                             ~~~~~~~~
-                src/test.kt:9: Error: Use get instead of toString [GradleLikelyBug]
-                    property.toString()
-                             ~~~~~~~~
-                2 errors, 0 warnings
-        """
+            src/test.kt:5: Error: Use get instead of toString [GradleLikelyBug]
+                provider.toString()
+                         ~~~~~~~~
+            src/test.kt:9: Error: Use get instead of toString [GradleLikelyBug]
+                property.toString()
+                         ~~~~~~~~
+            2 errors, 0 warnings
+            """
                 .trimIndent()
         val expectedFixDiffs =
             """
-                Fix for src/test.kt line 5: Replace with get:
-                @@ -5 +5
-                -     provider.toString()
-                +     provider.get()
-                Fix for src/test.kt line 9: Replace with get:
-                @@ -9 +9
-                -     property.toString()
-                +     property.get()
-        """
+            Fix for src/test.kt line 5: Replace with get:
+            @@ -5 +5
+            -     provider.toString()
+            +     provider.get()
+            Fix for src/test.kt line 9: Replace with get:
+            @@ -9 +9
+            -     property.toString()
+            +     property.get()
+            """
                 .trimIndent()
 
         check(input).expect(expected).expectFixDiffs(expectedFixDiffs)
@@ -99,39 +99,39 @@ class GradleLikelyBugIssueTest :
 
         val expected =
             """
-                src/Foo.kt:6: Error: Implicit usage of toString on a Provider [GradleLikelyBug]
-                                    "this is a provider: ＄provider"
-                                                          ~~~~~~~~
-                src/Foo.kt:7: Error: Implicit usage of toString on a Provider [GradleLikelyBug]
-                                    "this is another provider ＄{Foo.getProvider()}"
-                                                                ~~~~~~~~~~~~~~~~~
-                src/Foo.kt:11: Error: Implicit usage of toString on a Provider [GradleLikelyBug]
-                                    "this is a property: ＄{property}"
-                                                           ~~~~~~~~
-                src/Foo.kt:12: Error: Implicit usage of toString on a Provider [GradleLikelyBug]
-                                    "this is another property ＄{Foo.getProperty()}"
-                                                                ~~~~~~~~~~~~~~~~~
-                4 errors, 0 warnings
+            src/Foo.kt:6: Error: Implicit usage of toString on a Provider [GradleLikelyBug]
+                                "this is a provider: ＄provider"
+                                                      ~~~~~~~~
+            src/Foo.kt:7: Error: Implicit usage of toString on a Provider [GradleLikelyBug]
+                                "this is another provider ＄{Foo.getProvider()}"
+                                                            ~~~~~~~~~~~~~~~~~
+            src/Foo.kt:11: Error: Implicit usage of toString on a Provider [GradleLikelyBug]
+                                "this is a property: ＄{property}"
+                                                       ~~~~~~~~
+            src/Foo.kt:12: Error: Implicit usage of toString on a Provider [GradleLikelyBug]
+                                "this is another property ＄{Foo.getProperty()}"
+                                                            ~~~~~~~~~~~~~~~~~
+            4 errors, 0 warnings
             """
                 .trimIndent()
         val expectedFixDiffs =
             """
-                Fix for src/Foo.kt line 6: Replace with {provider.get()}:
-                @@ -6 +6
-                -                     "this is a provider: ＄provider"
-                +                     "this is a provider: ＄{provider.get()}"
-                Fix for src/Foo.kt line 7: Replace with Foo.getProvider().get():
-                @@ -7 +7
-                -                     "this is another provider ＄{Foo.getProvider()}"
-                +                     "this is another provider ＄{Foo.getProvider().get()}"
-                Fix for src/Foo.kt line 11: Replace with property.get():
-                @@ -11 +11
-                -                     "this is a property: ＄{property}"
-                +                     "this is a property: ＄{property.get()}"
-                Fix for src/Foo.kt line 12: Replace with Foo.getProperty().get():
-                @@ -12 +12
-                -                     "this is another property ＄{Foo.getProperty()}"
-                +                     "this is another property ＄{Foo.getProperty().get()}"
+            Fix for src/Foo.kt line 6: Replace with {provider.get()}:
+            @@ -6 +6
+            -                     "this is a provider: ＄provider"
+            +                     "this is a provider: ＄{provider.get()}"
+            Fix for src/Foo.kt line 7: Replace with Foo.getProvider().get():
+            @@ -7 +7
+            -                     "this is another provider ＄{Foo.getProvider()}"
+            +                     "this is another provider ＄{Foo.getProvider().get()}"
+            Fix for src/Foo.kt line 11: Replace with property.get():
+            @@ -11 +11
+            -                     "this is a property: ＄{property}"
+            +                     "this is a property: ＄{property.get()}"
+            Fix for src/Foo.kt line 12: Replace with Foo.getProperty().get():
+            @@ -12 +12
+            -                     "this is another property ＄{Foo.getProperty()}"
+            +                     "this is another property ＄{Foo.getProperty().get()}"
             """
                 .trimIndent()
 
@@ -159,25 +159,25 @@ class GradleLikelyBugIssueTest :
 
         val expected =
             """
-                src/test.kt:5: Error: Implicit usage of toString on a Provider [GradleLikelyBug]
-                    val s = "hello" + provider
-                                      ~~~~~~~~
-                src/test.kt:9: Error: Implicit usage of toString on a Provider [GradleLikelyBug]
-                    val s = "hello" + property
-                                      ~~~~~~~~
-                2 errors, 0 warnings
-        """
+            src/test.kt:5: Error: Implicit usage of toString on a Provider [GradleLikelyBug]
+                val s = "hello" + provider
+                                  ~~~~~~~~
+            src/test.kt:9: Error: Implicit usage of toString on a Provider [GradleLikelyBug]
+                val s = "hello" + property
+                                  ~~~~~~~~
+            2 errors, 0 warnings
+            """
                 .trimIndent()
         val expectedFixDiffs =
             """
-                Fix for src/test.kt line 5: Replace with provider.get():
-                @@ -5 +5
-                -     val s = "hello" + provider
-                +     val s = "hello" + provider.get()
-                Fix for src/test.kt line 9: Replace with property.get():
-                @@ -9 +9
-                -     val s = "hello" + property
-                +     val s = "hello" + property.get()
+            Fix for src/test.kt line 5: Replace with provider.get():
+            @@ -5 +5
+            -     val s = "hello" + provider
+            +     val s = "hello" + provider.get()
+            Fix for src/test.kt line 9: Replace with property.get():
+            @@ -9 +9
+            -     val s = "hello" + property
+            +     val s = "hello" + property.get()
             """
                 .trimIndent()
 

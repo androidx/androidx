@@ -37,7 +37,7 @@ import androidx.wear.protolayout.expression.RequiresSchemaVersion
  */
 @RequiresSchemaVersion(major = 1, minor = 300)
 @ProtoLayoutExperimental
-fun LayoutModifier.visibility(
+public fun LayoutModifier.visibility(
     staticVisibility: Boolean,
     dynamicVisibility: DynamicBool? = null,
 ): LayoutModifier = this then BaseVisibilityElement(staticVisibility, dynamicVisibility)

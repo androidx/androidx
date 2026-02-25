@@ -39,29 +39,42 @@ androidXMultiplatform {
     }
     ios()
     jvm()
+    js()
     linux()
     mac()
     tvos()
     watchos()
+    wasmJs()
 
     sourceSets {
         commonTest {
             dependencies {
                 implementation(project(":room3:room3-runtime"))
                 implementation(project(":room3:room3-testing"))
-                implementation(project(":room3:room3-paging"))
-                implementation(project(":sqlite:sqlite-bundled"))
                 implementation(project(":kruth:kruth"))
-                implementation(project(":paging:paging-common"))
                 implementation(libs.kotlinTest)
                 implementation(libs.kotlinCoroutinesTest)
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.8.1")
             }
         }
+        nonWebTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(project(":sqlite:sqlite-bundled"))
+            }
+        }
         // b/432783733: Test source set dedicating to room-paging since watchOS and tvOS are not
         // supported targets.
-        pagingCommonTest.dependsOn(commonTest)
-        jvmAndAndroidTest.dependsOn(pagingCommonTest)
+        pagingCommonTest {
+            dependsOn(nonWebTest)
+            dependencies {
+                implementation(project(":room3:room3-paging"))
+                implementation(project(":paging:paging-common"))
+            }
+        }
+        jvmAndAndroidTest {
+            dependsOn(pagingCommonTest)
+        }
         androidDeviceTest.dependencies {
             implementation(libs.kotlinTestJunit)
             implementation(libs.testRunner)
@@ -70,6 +83,8 @@ androidXMultiplatform {
         jvmTest.dependencies {
             implementation(libs.kotlinTestJunit)
         }
+
+        nativeTest.dependsOn(nonWebTest)
 
         // Host OSes (Linux and Mac)
         hostNativeTest {
@@ -81,7 +96,7 @@ androidXMultiplatform {
         linuxTest.dependsOn(hostNativeTest)
 
         // iOS, watchOS and tvOS families, but not Mac OS
-        appleOsNativeTest.dependsOn(nativeTest)
+        create("appleOsNativeTest").dependsOn(nativeTest)
         tvosTest.dependsOn(appleOsNativeTest)
         watchosTest.dependsOn(appleOsNativeTest)
 
@@ -89,6 +104,11 @@ androidXMultiplatform {
         iosTest {
             dependsOn(appleOsNativeTest)
             dependsOn(pagingCommonTest)
+        }
+
+        webTest.dependencies {
+            implementation(project(":sqlite:sqlite-web"))
+            implementation(project(":sqlite:sqlite-web-worker-test"))
         }
     }
 }
@@ -108,6 +128,10 @@ dependencies {
         add("kspTvosSimulatorArm64Test", roomCompilerDependency)
         add("kspWatchosArm64Test", roomCompilerDependency)
         add("kspWatchosSimulatorArm64Test", roomCompilerDependency)
+    }
+    if (!androidx.isIsolatedProjectsEnabled()) {
+        add("kspJsTest", roomCompilerDependency)
+        add("kspWasmJsTest", roomCompilerDependency)
     }
 }
 

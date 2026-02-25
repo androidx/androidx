@@ -84,7 +84,7 @@ constructor(
             "com.google.android.wearable.intent.action.REMOTE_INTENT"
 
         /** The remote activity's availability is unknown. */
-        public const val STATUS_UNKNOWN = 0
+        public const val STATUS_UNKNOWN: Int = 0
 
         /**
          * The remote auth's availability is unknown.
@@ -93,7 +93,7 @@ constructor(
          * states. To preserve compatibility with existing devices behavior, try
          * [startRemoteActivity] and handle error codes accordingly.
          */
-        public const val STATUS_UNAVAILABLE = 1
+        public const val STATUS_UNAVAILABLE: Int = 1
 
         /**
          * Indicates that remote activity is temporarily unavailable.
@@ -101,14 +101,14 @@ constructor(
          * There is a known paired device, but it is not currently connected or reachable to handle
          * the remote interaction.
          */
-        public const val STATUS_TEMPORARILY_UNAVAILABLE = 2
+        public const val STATUS_TEMPORARILY_UNAVAILABLE: Int = 2
 
         /**
          * Indicates that remote activity is available.
          *
          * There is a connected device capable to handle the remote interaction.
          */
-        public const val STATUS_AVAILABLE = 3
+        public const val STATUS_AVAILABLE: Int = 3
 
         private const val EXTRA_INTENT: String = "com.google.android.wearable.intent.extra.INTENT"
 

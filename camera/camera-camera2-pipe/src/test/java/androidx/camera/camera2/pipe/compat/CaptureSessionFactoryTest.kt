@@ -188,6 +188,8 @@ class FakeCameraPipeModule(
     @Provides fun provideFakeCamera() = fakeCamera
 
     @Provides @Singleton fun provideFakeCameraPipeConfig() = CameraPipe.Config(context)
+
+    @Provides @Singleton fun provideFakeCameraPipeFlags(config: CameraPipe.Config) = config.flags
 }
 
 @Module(includes = [SharedCameraGraphModules::class])

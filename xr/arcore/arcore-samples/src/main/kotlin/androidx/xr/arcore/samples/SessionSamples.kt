@@ -29,12 +29,18 @@ import androidx.xr.runtime.SessionConfigureCalibrationRequired
 import androidx.xr.runtime.SessionConfigureSuccess
 import androidx.xr.runtime.SessionCreateApkRequired
 import androidx.xr.runtime.SessionCreateSuccess
+import androidx.xr.runtime.SessionCreateTimedOut
+import androidx.xr.runtime.SessionCreateUnknownError
 import androidx.xr.runtime.SessionCreateUnsupportedDevice
 import com.google.ar.core.ArCoreApk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+/**
+ * @param activity the [ComponentActivity] to create the session in
+ * @param userRequestedInstall whether the user has requested to install the ARCore APK
+ */
 @Sampled
 fun callSessionCreate(activity: ComponentActivity, userRequestedInstall: Boolean = false) {
     // Note: registerForActivityResult must be called before the Activity is STARTED.
@@ -142,6 +148,13 @@ fun callSessionCreate(activity: ComponentActivity, userRequestedInstall: Boolean
                         )
                         .show()
                     activity.finish()
+                }
+
+                is SessionCreateTimedOut -> {
+                    Toast.makeText(activity, "Session creation timed out.", Toast.LENGTH_LONG)
+                }
+                is SessionCreateUnknownError -> {
+                    Toast.makeText(activity, result.errorMessage, Toast.LENGTH_LONG)
                 }
             }
         } catch (e: SecurityException) {

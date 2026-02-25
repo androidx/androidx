@@ -51,28 +51,28 @@ class MissingRobolectricSdkConfigDetectorTest :
 
         val expected =
             """
-src/test/com/example/MyRobolectricTest.kt:8: Error: Robolectric tests require an @Config annotation to explicitly specify an SDK level. [RobolectricSdkConfigRequired]
-            @RunWith(RobolectricTestRunner::class)
-            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-1 errors, 0 warnings
-"""
+            src/test/com/example/MyRobolectricTest.kt:8: Error: Robolectric tests require an @Config annotation to explicitly specify an SDK level. [RobolectricSdkConfigRequired]
+                        @RunWith(RobolectricTestRunner::class)
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            1 errors, 0 warnings
+            """
                 .trimIndent()
 
         // Although no line separator is added between the two annotations in this test,
         // in practice,they do get separated to different lines, probably due to reformatting.
         val expectedFix =
             """
-Fix for src/test/com/example/MyRobolectricTest.kt line 8: Add @Config(sdk = [Config.TARGET_SDK]):
-@@ -6,0 +7 @@
-+import org.robolectric.annotation.Config
-@@ -8,0 +10 @@
-+@Config(sdk = [Config.TARGET_SDK])
-Fix for src/test/com/example/MyRobolectricTest.kt line 8: Add @Config(sdk = [Config.ALL_SDKS]):
-@@ -6,0 +7 @@
-+import org.robolectric.annotation.Config
-@@ -8,0 +10 @@
-+@Config(sdk = [Config.ALL_SDKS])
-"""
+            Fix for src/test/com/example/MyRobolectricTest.kt line 8: Add @Config(sdk = [Config.TARGET_SDK]):
+            @@ -6,0 +7 @@
+            +import org.robolectric.annotation.Config
+            @@ -8,0 +10 @@
+            +@Config(sdk = [Config.TARGET_SDK])
+            Fix for src/test/com/example/MyRobolectricTest.kt line 8: Add @Config(sdk = [Config.ALL_SDKS]):
+            @@ -6,0 +7 @@
+            +import org.robolectric.annotation.Config
+            @@ -8,0 +10 @@
+            +@Config(sdk = [Config.ALL_SDKS])
+            """
                 .trimIndent()
 
         check(input).expect(expected).expectFixDiffs(expectedFix)
@@ -177,24 +177,24 @@ Fix for src/test/com/example/MyRobolectricTest.kt line 8: Add @Config(sdk = [Con
 
         val expected =
             """
-src/test/com/example/MyRobolectricTest.kt:9: Error: Robolectric @Config must specify an SDK level (e.g., sdk, minSdk, or maxSdk). [RobolectricSdkConfigRequired]
-            @Config
-            ~~~~~~~
-1 errors, 0 warnings
-"""
+            src/test/com/example/MyRobolectricTest.kt:9: Error: Robolectric @Config must specify an SDK level (e.g., sdk, minSdk, or maxSdk). [RobolectricSdkConfigRequired]
+                        @Config
+                        ~~~~~~~
+            1 errors, 0 warnings
+            """
                 .trimIndent()
 
         val expectedFix =
             """
-Fix for src/test/com/example/MyRobolectricTest.kt line 9: Add @Config(sdk = [Config.TARGET_SDK]):
-@@ -9 +9 @@
--            @Config
-+            @Config(sdk = [Config.TARGET_SDK])
-Fix for src/test/com/example/MyRobolectricTest.kt line 9: Add @Config(sdk = [Config.ALL_SDKS]):
-@@ -9 +9 @@
--            @Config
-+            @Config(sdk = [Config.ALL_SDKS])
-"""
+            Fix for src/test/com/example/MyRobolectricTest.kt line 9: Add @Config(sdk = [Config.TARGET_SDK]):
+            @@ -9 +9 @@
+            -            @Config
+            +            @Config(sdk = [Config.TARGET_SDK])
+            Fix for src/test/com/example/MyRobolectricTest.kt line 9: Add @Config(sdk = [Config.ALL_SDKS]):
+            @@ -9 +9 @@
+            -            @Config
+            +            @Config(sdk = [Config.ALL_SDKS])
+            """
                 .trimIndent()
 
         check(input).expect(expected).expectFixDiffs(expectedFix)
@@ -224,24 +224,24 @@ Fix for src/test/com/example/MyRobolectricTest.kt line 9: Add @Config(sdk = [Con
 
         val expected =
             """
-src/test/com/example/MyRobolectricTest.kt:10: Error: Robolectric @Config must specify an SDK level (e.g., sdk, minSdk, or maxSdk). [RobolectricSdkConfigRequired]
-            @Config(fontScale = 0.85f)
-            ~~~~~~~~~~~~~~~~~~~~~~~~~~
-1 errors, 0 warnings
-"""
+            src/test/com/example/MyRobolectricTest.kt:10: Error: Robolectric @Config must specify an SDK level (e.g., sdk, minSdk, or maxSdk). [RobolectricSdkConfigRequired]
+                        @Config(fontScale = 0.85f)
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~
+            1 errors, 0 warnings
+            """
                 .trimIndent()
 
         val expectedFix =
             """
-Fix for src/test/com/example/MyRobolectricTest.kt line 10: Add @Config(sdk = [Config.TARGET_SDK]):
-@@ -10 +10 @@
--            @Config(fontScale = 0.85f)
-+            @Config(fontScale = 0.85f, sdk = [Config.TARGET_SDK])
-Fix for src/test/com/example/MyRobolectricTest.kt line 10: Add @Config(sdk = [Config.ALL_SDKS]):
-@@ -10 +10 @@
--            @Config(fontScale = 0.85f)
-+            @Config(fontScale = 0.85f, sdk = [Config.ALL_SDKS])
-"""
+            Fix for src/test/com/example/MyRobolectricTest.kt line 10: Add @Config(sdk = [Config.TARGET_SDK]):
+            @@ -10 +10 @@
+            -            @Config(fontScale = 0.85f)
+            +            @Config(fontScale = 0.85f, sdk = [Config.TARGET_SDK])
+            Fix for src/test/com/example/MyRobolectricTest.kt line 10: Add @Config(sdk = [Config.ALL_SDKS]):
+            @@ -10 +10 @@
+            -            @Config(fontScale = 0.85f)
+            +            @Config(fontScale = 0.85f, sdk = [Config.ALL_SDKS])
+            """
                 .trimIndent()
 
         check(input).expect(expected).expectFixDiffs(expectedFix)
@@ -292,11 +292,11 @@ Fix for src/test/com/example/MyRobolectricTest.kt line 10: Add @Config(sdk = [Co
 
         val expected =
             """
-src/test/com/example/MyCustomRobolectricTest.kt:8: Error: Robolectric tests require an @Config annotation to explicitly specify an SDK level. [RobolectricSdkConfigRequired]
-            @RunWith(CustomRobolectricTestRunner::class)
-            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-1 errors, 0 warnings
-"""
+            src/test/com/example/MyCustomRobolectricTest.kt:8: Error: Robolectric tests require an @Config annotation to explicitly specify an SDK level. [RobolectricSdkConfigRequired]
+                        @RunWith(CustomRobolectricTestRunner::class)
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            1 errors, 0 warnings
+            """
                 .trimIndent()
 
         check(input).expect(expected)
@@ -324,26 +324,26 @@ src/test/com/example/MyCustomRobolectricTest.kt:8: Error: Robolectric tests requ
 
         val expected =
             """
-src/test/com/example/MyRobolectricTest.java:8: Error: Robolectric tests require an @Config annotation to explicitly specify an SDK level. [RobolectricSdkConfigRequired]
-            @RunWith(RobolectricTestRunner.class)
-            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-1 errors, 0 warnings
-"""
+            src/test/com/example/MyRobolectricTest.java:8: Error: Robolectric tests require an @Config annotation to explicitly specify an SDK level. [RobolectricSdkConfigRequired]
+                        @RunWith(RobolectricTestRunner.class)
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            1 errors, 0 warnings
+            """
                 .trimIndent()
 
         val expectedFix =
             """
-Fix for src/test/com/example/MyRobolectricTest.java line 8: Add @Config(sdk = {Config.TARGET_SDK}):
-@@ -6,0 +7 @@
-+import org.robolectric.annotation.Config;
-@@ -8,0 +10 @@
-+@Config(sdk = {Config.TARGET_SDK})
-Fix for src/test/com/example/MyRobolectricTest.java line 8: Add @Config(sdk = {Config.ALL_SDKS}):
-@@ -6,0 +7 @@
-+import org.robolectric.annotation.Config;
-@@ -8,0 +10 @@
-+@Config(sdk = {Config.ALL_SDKS})
-"""
+            Fix for src/test/com/example/MyRobolectricTest.java line 8: Add @Config(sdk = {Config.TARGET_SDK}):
+            @@ -6,0 +7 @@
+            +import org.robolectric.annotation.Config;
+            @@ -8,0 +10 @@
+            +@Config(sdk = {Config.TARGET_SDK})
+            Fix for src/test/com/example/MyRobolectricTest.java line 8: Add @Config(sdk = {Config.ALL_SDKS}):
+            @@ -6,0 +7 @@
+            +import org.robolectric.annotation.Config;
+            @@ -8,0 +10 @@
+            +@Config(sdk = {Config.ALL_SDKS})
+            """
                 .trimIndent()
 
         check(input).expect(expected).expectFixDiffs(expectedFix)

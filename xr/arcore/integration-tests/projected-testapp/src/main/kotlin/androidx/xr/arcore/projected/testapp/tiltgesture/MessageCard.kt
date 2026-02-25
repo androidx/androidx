@@ -22,12 +22,14 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.xr.arcore.ExperimentalGesturesApi
 import androidx.xr.arcore.Tilt
 import androidx.xr.glimmer.Button
 import androidx.xr.glimmer.Card
 import androidx.xr.glimmer.Icon
 import androidx.xr.glimmer.Text
 
+@OptIn(ExperimentalGesturesApi::class)
 @Composable
 fun MessageCard(modifier: Modifier = Modifier, sender: String, message: String, tilt: Tilt) {
     Card(

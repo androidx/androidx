@@ -25,7 +25,7 @@ import kotlin.io.path.Path
 import kotlin.io.path.createTempFile
 import org.junit.Rule
 
-class MigrationTest : BaseMigrationTest() {
+class MigrationTest : BaseNonWebMigrationTest() {
     private val tempFilePath = createTempFile("test.db").also { it.toFile().deleteOnExit() }
     private val driver: SQLiteDriver = BundledSQLiteDriver()
 

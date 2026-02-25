@@ -757,7 +757,7 @@ class KspTypeNamesGoldenTest {
                 suspend fun suspendDefinedTypesFinal2(objList: List<List<Long>>): List<List<Long>>
                 suspend fun suspendDefinedTypesOpen2(objList: List<List<Number>>): List<List<Number>>
             }
-        """
+            """
                 .trimIndent()
 
         fun buildInterface(name: String, typeArg: String) =
@@ -820,7 +820,7 @@ class KspTypeNamesGoldenTest {
                 fun receiveTArrayOverridden(t: Array<T>): Unit
                 suspend fun suspendReceiveTArrayOverridden(t: Array<T>): Unit
             }
-        """
+            """
                 .trimIndent()
 
         fun buildInterface(name: String, typeArg: String) =
@@ -998,7 +998,7 @@ class KspTypeNamesGoldenTest {
                 fun subReceiveReturnRListOverridden(r : List<R>): List<R>
                 suspend fun subSuspendReceiveReturnRListOverridden(r : List<R>): List<R>
             }
-        """
+            """
                 .trimIndent()
 
         fun buildInterface(name: String, typeArg: String) =
@@ -1097,7 +1097,7 @@ class KspTypeNamesGoldenTest {
             class FinalCloseable(): Closeable {
                 override open fun close() { TODO() }
             }
-        """
+            """
                 .trimIndent()
 
         fun buildInterface(name: String, typeArg: String) =
@@ -1170,7 +1170,7 @@ class KspTypeNamesGoldenTest {
                 override fun foo() { TODO() }
                 override fun bar() { TODO() }
             }
-        """
+            """
                 .trimIndent()
 
         fun buildInterface(name: String, typeArg: String) =

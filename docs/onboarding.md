@@ -88,9 +88,9 @@ Finally, you will need to either start a new terminal session or run `source
 >
 > Run the `Install Certificates.command` in the Python folder of Application
 > (e.g. `/Applications/Python\ 3.11/Install\ Certificates.command`). You may
-> also need to install `pip` via `python3 -m ensurepip` to run this command. For
-> more information about SSL/TLS certificate validation, you can read the
-> "Important Information" displayed during Python installation.
+> also need to install `certifi` via `python3 -m pip install certifi` to run
+> this command. For more information about SSL/TLS certificate validation, you
+> can read the "Important Information" displayed during Python installation.
 
 ### Windows {#setup-win}
 
@@ -216,12 +216,12 @@ compatibility between various components of the development workflow.
 From the `frameworks/support` directory, you can use
 
 ```shell
-PROJECT_PREFIX=:core:,:work: ./gradlew :studio
+./studiow :core:,:work:
 ```
 
-where `PROJECT_PREFIX` is comma separated list of project prefixes for projects
-you want to work on. This will automatically download and run the correct
-version of Studio to work on the selected libraries.
+where the argument is comma separated list of project prefixes for projects you
+want to work on. This will automatically download and run the correct version of
+Studio to work on the selected libraries.
 
 If you want to open all projects, you can run
 

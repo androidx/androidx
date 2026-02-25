@@ -23,6 +23,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.xr.arcore.runtime.HandJointType
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.HandTrackingMode
 import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
@@ -110,7 +111,7 @@ class OpenXrHandTest {
             openXrManager = OpenXrManager(it, perceptionManager, timeSource)
             openXrManager.create()
             openXrManager.resume()
-            openXrManager.configure(Config(handTracking = Config.HandTrackingMode.BOTH))
+            openXrManager.configure(Config(handTracking = HandTrackingMode.BOTH))
 
             testBody()
 

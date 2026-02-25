@@ -46,13 +46,13 @@ import com.google.devtools.ksp.symbol.KSAnnotated
  *
  * class NoteFunction: CreateNote {
  *   /** Creates a new note. */
- *   @AppFunction(isDescribedByKdoc = true)
+ *   @AppFunction(isDescribedByKDoc = true)
  *   override suspend fun createNote(): Note { ... }
  * }
  *
  * class TaskFunction: CreateTask {
  *   /** Creates a new task. */
- *   @AppFunction(isDescribedByKdoc = true)
+ *   @AppFunction(isDescribedByKDoc = true)
  *   override suspend fun createTask(): Task { ... }
  * }
  * ```
@@ -106,7 +106,7 @@ class AppFunctionComponentRegistryProcessor(private val codeGenerator: CodeGener
                     AppFunctionComponent(
                         qualifiedName = annotatedSerializable.jvmQualifiedName,
                         docString =
-                            if (annotatedSerializable.isDescribedByKdoc) {
+                            if (annotatedSerializable.isDescribedByKDoc) {
                                 annotatedSerializable.getDescription()
                             } else {
                                 ""
@@ -145,7 +145,7 @@ class AppFunctionComponentRegistryProcessor(private val codeGenerator: CodeGener
                                 qualifiedName = function.ensureQualifiedName(),
                                 sourceFiles = annotatedAppFunction.getSourceFiles(),
                                 docString =
-                                    if (annotatedAppFunction.isDescribedByKdoc(function)) {
+                                    if (annotatedAppFunction.isDescribedByKDoc(function)) {
                                         function.docString ?: ""
                                     } else {
                                         ""

@@ -230,5 +230,10 @@ public class UnusedAppRestrictionsBackportServiceConnectionTest {
             mCallCount++;
             callback.onIsPermissionRevocationEnabledForAppResult(mSuccess, mEnabled);
         }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
     }
 }

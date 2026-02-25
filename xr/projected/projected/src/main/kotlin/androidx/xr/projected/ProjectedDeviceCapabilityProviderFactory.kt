@@ -17,9 +17,9 @@
 package androidx.xr.projected
 
 import android.content.Context
-import androidx.xr.runtime.internal.Feature
-import androidx.xr.runtime.internal.XrDeviceCapabilityProvider
-import androidx.xr.runtime.internal.XrDeviceCapabilityProviderFactory
+import androidx.xr.runtime.interfaces.Feature
+import androidx.xr.runtime.interfaces.XrDeviceCapabilityProvider
+import androidx.xr.runtime.interfaces.XrDeviceCapabilityProviderFactory
 import kotlin.coroutines.CoroutineContext
 
 internal class ProjectedDeviceCapabilityProviderFactory : XrDeviceCapabilityProviderFactory {

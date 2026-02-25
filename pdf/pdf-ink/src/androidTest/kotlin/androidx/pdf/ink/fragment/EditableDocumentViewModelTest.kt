@@ -20,6 +20,7 @@ import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.RectF
 import android.net.Uri
+import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.SavedStateHandle
 import androidx.pdf.FakeEditablePdfDocument
 import androidx.pdf.SandboxedPdfLoader
@@ -31,6 +32,10 @@ import androidx.pdf.coroutines.collectTill
 import androidx.pdf.ink.EditableDocumentViewModel
 import androidx.pdf.ink.model.ApplyEditsState
 import androidx.pdf.ink.state.AnnotationDrawingMode
+import androidx.pdf.ink.state.PdfEditMode
+import androidx.pdf.ink.state.PdfEditMode.Companion.EDITING_JOURNEY_ANNOTATIONS
+import androidx.pdf.ink.state.PdfEditMode.Companion.EDITING_JOURNEY_FORM_FILLING
+import androidx.pdf.ink.util.InkDefaults
 import androidx.pdf.ink.view.tool.Eraser
 import androidx.pdf.ink.view.tool.Highlighter
 import androidx.pdf.ink.view.tool.Pen
@@ -90,13 +95,27 @@ class EditableDocumentViewModelTest {
 
     @Test
     fun statePersistence_restoresEditMode_afterRecreation() = runTest {
-        annotationsViewModel.isEditModeEnabled = true
+        annotationsViewModel.pdfEditMode = PdfEditMode.Enabled()
 
         val newViewModel =
             EditableDocumentViewModel(savedStateHandle, SandboxedPdfLoader(appContext, dispatcher))
 
-        assertThat(newViewModel.isEditModeEnabled).isTrue()
-        assertThat(newViewModel.isEditModeEnabledFlow.first()).isTrue()
+        assertThat(newViewModel.pdfEditMode is PdfEditMode.Enabled).isTrue()
+        assertThat(newViewModel.pdfEditModeFlow.first() is PdfEditMode.Enabled).isTrue()
+        assertThat((newViewModel.pdfEditModeFlow.first() as PdfEditMode.Enabled).journey)
+            .isEqualTo(EDITING_JOURNEY_ANNOTATIONS)
+    }
+
+    @Test
+    fun editMode_setJourneyFormFilling() = runTest {
+        assertThat(annotationsViewModel.pdfEditMode is PdfEditMode.Disabled).isTrue()
+        annotationsViewModel.pdfEditMode =
+            PdfEditMode.Enabled(journey = EDITING_JOURNEY_ANNOTATIONS)
+
+        assertThat(annotationsViewModel.pdfEditMode is PdfEditMode.Enabled).isTrue()
+        assertThat(annotationsViewModel.pdfEditModeFlow.first() is PdfEditMode.Enabled).isTrue()
+        assertThat((annotationsViewModel.pdfEditModeFlow.first() as PdfEditMode.Enabled).journey)
+            .isEqualTo(EDITING_JOURNEY_ANNOTATIONS)
     }
 
     @Test
@@ -114,11 +133,11 @@ class EditableDocumentViewModelTest {
     fun resetState_clearsAnnotationStateAndDisablesEditMode() = runTest {
         val annotation = createAnnotation(pageNum = 0)
         annotationsViewModel.addDraftAnnotation(annotation)
-        annotationsViewModel.isEditModeEnabled = true
+        annotationsViewModel.pdfEditMode = PdfEditMode.Enabled()
 
         annotationsViewModel.resetState()
 
-        assertThat(annotationsViewModel.isEditModeEnabledFlow.first()).isFalse()
+        assertThat(annotationsViewModel.pdfEditModeFlow.first() is PdfEditMode.Enabled).isFalse()
         val annotationsDisplayState = annotationsViewModel.annotationsDisplayStateFlow.first()
         assertThat(annotationsDisplayState).isEqualTo(AnnotationsDisplayState.EMPTY)
         assertThat(annotationsViewModel.applyEditsStatus.value).isEqualTo(ApplyEditsState.Ready)
@@ -131,7 +150,7 @@ class EditableDocumentViewModelTest {
 
         val initialDocUri = Uri.parse("content://test/test1.pdf")
         savedStateHandle[EditableDocumentViewModel.LOADED_DOCUMENT_URI_KEY] = initialDocUri
-
+        annotationsViewModel.onBitmapFetched(0)
         assertThat(
                 annotationsViewModel.annotationsDisplayStateFlow.value.visiblePageAnnotations
                     .pageAnnotations
@@ -152,6 +171,35 @@ class EditableDocumentViewModelTest {
             .isEqualTo(newDocUri)
     }
 
+    @Test
+    fun cannotSwitchEditingJourney_withoutDisablingEditModeFirst() = runTest {
+        // Check Editing Journey is disabled
+        assertThat(annotationsViewModel.pdfEditMode is PdfEditMode.Disabled).isTrue()
+
+        // Switch editing journey to annotations
+        annotationsViewModel.pdfEditMode = PdfEditMode.Enabled(EDITING_JOURNEY_ANNOTATIONS)
+        assertThat(annotationsViewModel.pdfEditMode is PdfEditMode.Enabled).isTrue()
+        var editMode = annotationsViewModel.pdfEditMode as PdfEditMode.Enabled
+        assertThat(editMode.journey).isEqualTo(EDITING_JOURNEY_ANNOTATIONS)
+
+        // Try switching to form-filling
+        annotationsViewModel.pdfEditMode = PdfEditMode.Enabled(EDITING_JOURNEY_FORM_FILLING)
+        assertThat(annotationsViewModel.pdfEditMode is PdfEditMode.Enabled).isTrue()
+        editMode = annotationsViewModel.pdfEditMode as PdfEditMode.Enabled
+        // editMode should not change
+        assertThat(editMode.journey).isEqualTo(EDITING_JOURNEY_ANNOTATIONS)
+
+        // Disable and then try switching
+        annotationsViewModel.pdfEditMode = PdfEditMode.Disabled
+        assertThat(annotationsViewModel.pdfEditMode is PdfEditMode.Disabled).isTrue()
+        // Switch to form-filling now
+        annotationsViewModel.pdfEditMode = PdfEditMode.Enabled(EDITING_JOURNEY_FORM_FILLING)
+        assertThat(annotationsViewModel.pdfEditMode is PdfEditMode.Enabled).isTrue()
+        editMode = annotationsViewModel.pdfEditMode as PdfEditMode.Enabled
+        // editMode should successfully change to form-filling
+        assertThat(editMode.journey).isEqualTo(EDITING_JOURNEY_FORM_FILLING)
+    }
+
     // --- Annotation Editing Tests ---
 
     @Test
@@ -159,6 +207,7 @@ class EditableDocumentViewModelTest {
         val annotation = createAnnotation(pageNum = 0)
 
         annotationsViewModel.addDraftAnnotation(annotation)
+        annotationsViewModel.onBitmapFetched(0)
 
         val firstPageEdits =
             annotationsViewModel.annotationsDisplayStateFlow.value.visiblePageAnnotations
@@ -176,6 +225,7 @@ class EditableDocumentViewModelTest {
 
         annotationsViewModel.addDraftAnnotation(annotation1)
         annotationsViewModel.addDraftAnnotation(annotation2)
+        annotationsViewModel.onBitmapFetched(0)
 
         val firstPageEdits =
             annotationsViewModel.annotationsDisplayStateFlow.value.visiblePageAnnotations
@@ -211,6 +261,7 @@ class EditableDocumentViewModelTest {
         annotationsViewModel.addDraftAnnotation(annotation)
         annotationsViewModel.undo()
         annotationsViewModel.redo()
+        annotationsViewModel.onBitmapFetched(0)
 
         val firstPageEdits =
             annotationsViewModel.annotationsDisplayStateFlow.value.visiblePageAnnotations
@@ -225,6 +276,7 @@ class EditableDocumentViewModelTest {
         val annotation = createAnnotation(pageNum = 0)
         annotationsViewModel.addDraftAnnotation(annotation)
         annotationsViewModel.addDraftAnnotation(annotation)
+        annotationsViewModel.onBitmapFetched(0)
 
         // The annotations should be added and pageAnnotations List size should be 2.
         var firstPageEdits =
@@ -234,6 +286,7 @@ class EditableDocumentViewModelTest {
         assertThat(firstPageEdits).hasSize(2)
 
         annotationsViewModel.removeAnnotation(firstPageEdits!!.first().key)
+        annotationsViewModel.onBitmapFetched(0)
 
         // The annotation should be removed and pageAnnotations List size should now be 1.
         firstPageEdits =
@@ -256,6 +309,7 @@ class EditableDocumentViewModelTest {
         annotationsViewModel.maybeInitialiseForDocument(documentWithAnnotation)
 
         annotationsViewModel.fetchAnnotationsForPageRange(0, 0)
+        annotationsViewModel.onBitmapFetched(0)
 
         // The annotations should be present and pageAnnotations List size should be 2.
         var firstPageEdits =
@@ -286,6 +340,7 @@ class EditableDocumentViewModelTest {
         annotationsViewModel.maybeInitialiseForDocument(documentWithAnnotation)
 
         annotationsViewModel.fetchAnnotationsForPageRange(0, 0)
+        annotationsViewModel.onBitmapFetched(0)
 
         val firstPageEdits =
             annotationsViewModel.annotationsDisplayStateFlow.value.visiblePageAnnotations
@@ -301,6 +356,7 @@ class EditableDocumentViewModelTest {
         val annotationPage1 = createAnnotation(pageNum = 1)
         annotationsViewModel.visiblePageRange = 1..1
         annotationsViewModel.addDraftAnnotation(annotationPage1)
+        annotationsViewModel.onBitmapFetched(1)
 
         assertThat(
                 annotationsViewModel.annotationsDisplayStateFlow.value.visiblePageAnnotations
@@ -335,13 +391,15 @@ class EditableDocumentViewModelTest {
     @Test
     fun initialAreAnnotationsEnabled_isTrue() = runTest {
         assertThat(annotationsViewModel.isAnnotationInteractionEnabled.first()).isFalse()
-        annotationsViewModel.isEditModeEnabled = true
+        annotationsViewModel.pdfEditMode = PdfEditMode.Enabled()
+
         assertThat(annotationsViewModel.isAnnotationInteractionEnabled.first()).isTrue()
     }
 
     @Test
     fun setAnnotationVisibility_updatesIsAnnotationInteractionEnabled() = runTest {
-        annotationsViewModel.isEditModeEnabled = true
+        annotationsViewModel.pdfEditMode = PdfEditMode.Enabled()
+
         annotationsViewModel.areAnnotationsVisible = false
         assertThat(annotationsViewModel.isAnnotationInteractionEnabled.first()).isFalse()
 
@@ -351,7 +409,8 @@ class EditableDocumentViewModelTest {
 
     @Test
     fun isPdfViewGestureActive_updatesIsAnnotationInteractionEnabled() = runTest {
-        annotationsViewModel.isEditModeEnabled = true
+        annotationsViewModel.pdfEditMode = PdfEditMode.Enabled()
+
         annotationsViewModel.areAnnotationsVisible = true
         assertThat(annotationsViewModel.isAnnotationInteractionEnabled.value).isTrue()
 
@@ -362,6 +421,41 @@ class EditableDocumentViewModelTest {
         // Re-enable interaction by deactivating gesture
         annotationsViewModel.isPdfViewGestureActive = false
         assertThat(annotationsViewModel.isAnnotationInteractionEnabled.value).isTrue()
+    }
+
+    @Test
+    fun updateDisplayState_onBitmapUpdated() = runTest {
+        val annotationPage1 = createAnnotation(pageNum = 1)
+        val annotationPage2 = createAnnotation(pageNum = 2)
+        annotationsViewModel.visiblePageRange = 1..2
+        annotationsViewModel.addDraftAnnotation(annotationPage1)
+        annotationsViewModel.addDraftAnnotation(annotationPage2)
+        annotationsViewModel.onBitmapFetched(1)
+
+        assertThat(
+                annotationsViewModel.annotationsDisplayStateFlow.value.visiblePageAnnotations
+                    .pageAnnotations[1]
+            )
+            .hasSize(1)
+        annotationsViewModel.onBitmapFetched(2)
+        assertThat(
+                annotationsViewModel.annotationsDisplayStateFlow.value.visiblePageAnnotations
+                    .pageAnnotations
+                    .size
+            )
+            .isEqualTo(2)
+
+        annotationsViewModel.onBitmapCleared(1)
+        assertThat(
+                annotationsViewModel.annotationsDisplayStateFlow.value.visiblePageAnnotations
+                    .pageAnnotations
+                    .size
+            )
+            .isEqualTo(1)
+
+        annotationsViewModel.onBitmapCleared(2)
+        val state = annotationsViewModel.annotationsDisplayStateFlow.value
+        assertThat(state.visiblePageAnnotations.pageAnnotations[1]).isNull()
     }
 
     // --- Apply Edits Tests ---
@@ -447,7 +541,9 @@ class EditableDocumentViewModelTest {
         val drawingMode = annotationsViewModel.drawingMode.first()
         assertThat(drawingMode).isInstanceOf(AnnotationDrawingMode.HighlighterMode::class.java)
         assertThat((drawingMode as AnnotationDrawingMode.HighlighterMode).size).isEqualTo(10.0f)
-        assertThat(drawingMode.color).isEqualTo(Color.YELLOW)
+        val colorWithHighlighterAlpha =
+            ColorUtils.setAlphaComponent(Color.YELLOW, InkDefaults.HIGHLIGHTER_ALPHA)
+        assertThat(drawingMode.color).isEqualTo(colorWithHighlighterAlpha)
     }
 
     @Test

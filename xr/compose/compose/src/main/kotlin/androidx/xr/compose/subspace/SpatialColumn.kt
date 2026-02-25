@@ -24,6 +24,8 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastRoundToInt
 import androidx.xr.compose.subspace.layout.SpatialAlignment
 import androidx.xr.compose.subspace.layout.SpatialArrangement
+import androidx.xr.compose.subspace.layout.SpatialBiasAbsoluteAlignment
+import androidx.xr.compose.subspace.layout.SpatialBiasAlignment
 import androidx.xr.compose.subspace.layout.SubspaceLayout
 import androidx.xr.compose.subspace.layout.SubspaceMeasurable
 import androidx.xr.compose.subspace.layout.SubspaceMeasurePolicy
@@ -43,7 +45,8 @@ import androidx.xr.runtime.math.Vector3
  * For arranging children horizontally, see [SpatialRow].
  *
  * @param modifier Modifiers to apply to the layout.
- * @param alignment The default alignment for child elements within the column.
+ * @param horizontalAlignment The default horizontal alignment for child elements within the column.
+ * @param depthAlignment The default depth alignment for child elements within the column.
  * @param verticalArrangement The vertical arrangement of the children.
  * @param content The composable content to be laid out vertically.
  */
@@ -51,10 +54,68 @@ import androidx.xr.runtime.math.Vector3
 @SubspaceComposable
 public inline fun SpatialColumn(
     modifier: SubspaceModifier = SubspaceModifier,
-    alignment: SpatialAlignment = SpatialAlignment.Center,
+    horizontalAlignment: SpatialAlignment.Horizontal = SpatialAlignment.CenterHorizontally,
+    depthAlignment: SpatialAlignment.Depth = SpatialAlignment.CenterDepthwise,
     verticalArrangement: SpatialArrangement.Vertical = SpatialArrangement.Center,
     crossinline content: @Composable @SubspaceComposable SpatialColumnScope.() -> Unit,
 ) {
+    val measurePolicy =
+        spatialColumnMeasurePolicy(
+            horizontalAlignment = horizontalAlignment,
+            depthAlignment = depthAlignment,
+            verticalArrangement = verticalArrangement,
+        )
+
+    SubspaceLayout(
+        modifier = modifier,
+        content = { SpatialColumnScopeInstance.content() },
+        coreEntityName = "SpatialColumn",
+        measurePolicy = measurePolicy,
+    )
+}
+
+@PublishedApi
+@Composable
+internal fun spatialColumnMeasurePolicy(
+    horizontalAlignment: SpatialAlignment.Horizontal,
+    depthAlignment: SpatialAlignment.Depth,
+    verticalArrangement: SpatialArrangement.Vertical,
+): SubspaceMeasurePolicy =
+    if (
+        horizontalAlignment == SpatialAlignment.CenterHorizontally &&
+            depthAlignment == SpatialAlignment.CenterDepthwise &&
+            verticalArrangement == SpatialArrangement.Center
+    ) {
+        DefaultSpatialColumnMeasurePolicy
+    } else {
+        remember(horizontalAlignment, depthAlignment, verticalArrangement) {
+            SpatialColumnMeasurePolicy(
+                alignment = horizontalAlignment + depthAlignment,
+                verticalArrangement = verticalArrangement,
+            )
+        }
+    }
+
+/**
+ * A layout composable that arranges its children in a vertical sequence.
+ *
+ * For arranging children horizontally, see [SpatialRow].
+ *
+ * @param modifier Modifiers to apply to the layout.
+ * @param alignment The default alignment for child elements within the column.
+ * @param verticalArrangement The vertical arrangement of the children.
+ * @param content The composable content to be laid out vertically.
+ */
+@Composable
+@SubspaceComposable
+@Deprecated("Use SpatialColumn with horizontalAlignment and depthAlignment instead.")
+public inline fun SpatialColumn(
+    modifier: SubspaceModifier = SubspaceModifier,
+    alignment: SpatialAlignment,
+    verticalArrangement: SpatialArrangement.Vertical = SpatialArrangement.Center,
+    crossinline content: @Composable @SubspaceComposable SpatialColumnScope.() -> Unit,
+) {
+    @Suppress("DEPRECATION")
     val measurePolicy =
         spatialColumnMeasurePolicy(alignment = alignment, verticalArrangement = verticalArrangement)
 
@@ -68,12 +129,13 @@ public inline fun SpatialColumn(
 
 internal val DefaultSpatialColumnMeasurePolicy: SubspaceMeasurePolicy =
     SpatialColumnMeasurePolicy(
-        alignment = SpatialAlignment.Center,
+        alignment = SpatialAlignment.CenterHorizontally + SpatialAlignment.CenterDepthwise,
         verticalArrangement = SpatialArrangement.Center,
     )
 
 @PublishedApi
 @Composable
+@Deprecated("Use SpatialColumn with horizontalAlignment and depthAlignment instead.")
 internal fun spatialColumnMeasurePolicy(
     alignment: SpatialAlignment,
     verticalArrangement: SpatialArrangement.Vertical,
@@ -294,3 +356,32 @@ internal object SpatialColumnScopeInstance : SpatialColumnScope {
         return this then RowColumnAlignElement(depthSpatialAlignment = alignment)
     }
 }
+
+private operator fun SpatialAlignment.Horizontal.plus(
+    other: SpatialAlignment.Depth
+): SpatialAlignment =
+    when (this) {
+        is SpatialBiasAlignment.Horizontal ->
+            SpatialBiasAlignment(
+                horizontalBias = bias,
+                verticalBias = 0f,
+                depthBias =
+                    when (other) {
+                        is SpatialBiasAlignment.Depth -> other.bias
+                        else -> 0f
+                    },
+            )
+
+        is SpatialBiasAbsoluteAlignment.Horizontal ->
+            SpatialBiasAbsoluteAlignment(
+                horizontalBias = bias,
+                verticalBias = 0f,
+                depthBias =
+                    when (other) {
+                        is SpatialBiasAlignment.Depth -> other.bias
+                        else -> 0f
+                    },
+            )
+
+        else -> SpatialBiasAlignment(0f, 0f, 0f)
+    }

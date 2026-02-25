@@ -45,6 +45,7 @@ import androidx.credentials.exceptions.ClearCredentialProviderConfigurationExcep
 import androidx.credentials.exceptions.ClearCredentialUnknownException
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.CreateCredentialProviderConfigurationException
+import androidx.credentials.exceptions.CreateCredentialUnsupportedException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.GetCredentialProviderConfigurationException
 import androidx.credentials.exceptions.publickeycredential.SignalCredentialStateException
@@ -158,7 +159,27 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
                 }
             }
             is CreatePublicKeyCredentialRequest -> {
-                if (isAvailableOnDevice(PRE_U_MIN_GMS_APK_VERSION) || request.isConditional) {
+                // Conditional create flow
+                if (request.isConditional) {
+                    if (!isAvailableOnDevice(MIN_GMS_APK_VERSION_CONDITIONAL_CREATE_PASSKEY)) {
+                        cancellationReviewerWithCallback(cancellationSignal) {
+                            executor.execute {
+                                callback.onError(
+                                    CreateCredentialUnsupportedException(
+                                        "Conditional create flow is not supported " +
+                                            "on this version of Google Play Services"
+                                    )
+                                )
+                            }
+                        }
+                        return
+                    }
+                    CreatePublicKeyCredentialController.getInstance(context)
+                        .invokePlayServices(request, callback, executor, cancellationSignal)
+                    return
+                }
+                // Regular create flow
+                if (isAvailableOnDevice(PRE_U_MIN_GMS_APK_VERSION)) {
                     CreatePublicKeyCredentialController.getInstance(context)
                         .invokePlayServices(request, callback, executor, cancellationSignal)
                 } else {
@@ -166,7 +187,6 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
                         .invokePlayServices(request, callback, executor, cancellationSignal)
                 }
             }
-
             is CreateRestoreCredentialRequest -> {
                 if (!isAvailableOnDevice(MIN_GMS_APK_VERSION_RESTORE_CRED)) {
                     cancellationReviewerWithCallback(cancellationSignal) {
@@ -368,6 +388,8 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
         const val MIN_GMS_APK_VERSION_DIGITAL_CRED = 243100000
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         const val MIN_GMS_APK_VERSION_SIGNAL_API = 254625000
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        const val MIN_GMS_APK_VERSION_CONDITIONAL_CREATE_PASSKEY = 251300000
 
         internal fun cancellationReviewerWithCallback(
             cancellationSignal: CancellationSignal?,

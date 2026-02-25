@@ -121,30 +121,33 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public con
      * 1. The previous value of [keyEntity] was `null`.
      * 2. There are cached pose and scale values, provided by the system earlier.
      */
-    public var keyEntity: Entity?
-        get() = _keyEntity
+    public var keyEntity: Entity? = null
         set(value) {
             when (value) {
                 is AnchorEntity ->
                     throw IllegalArgumentException("AnchorEntity cannot be set as the keyEntity.")
+
                 is ActivitySpace ->
                     throw IllegalArgumentException("ActivitySpace cannot be set as the keyEntity.")
+
                 else -> {
                     // If the previous keyEntity was from null value, invoke the
                     // spatialModeChangedListener to apply cached values to new keyEntity.
-                    if (
-                        _keyEntity == null &&
-                            value != null &&
-                            lastRecommendedPose != null &&
-                            lastRecommendedScale != null
-                    ) {
-                        val event =
-                            SpatialModeChangeEvent(lastRecommendedPose!!, lastRecommendedScale!!.x)
-                        spatialModeChangedExecutor.execute {
-                            spatialModeChangedListener.accept(event)
+                    val wasNull = field == null
+                    field = value
+                    sceneRuntime.keyEntity = (value as? BaseEntity<*>)?.rtEntity
+                    // If we've just transitioned from a null to a non-null entity,
+                    // and we have cached values, apply them to the new entity.
+                    if (wasNull && value != null) {
+                        lastRecommendedPose?.let { pose ->
+                            lastRecommendedScale?.let { scale ->
+                                val event = SpatialModeChangeEvent(pose, scale.x)
+                                spatialModeChangedExecutor.execute {
+                                    spatialModeChangedListener.accept(event)
+                                }
+                            }
                         }
                     }
-                    _keyEntity = value
                 }
             }
         }
@@ -166,7 +169,6 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public con
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
         get() = sceneRuntime.isBoundaryConsentGranted
 
-    private var _keyEntity: Entity? = null
     private var lastRecommendedPose: Pose? = null
     private var lastRecommendedScale: Vector3? = null
 
@@ -194,7 +196,7 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public con
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override fun initialize(runtimes: List<JxrRuntime>) {
         this.sceneRuntime = runtimes.filterIsInstance<SceneRuntime>().first()
-        spatialEnvironment = SpatialEnvironment(sceneRuntime)
+        spatialEnvironment = SpatialEnvironment(sceneRuntime, entityManager)
         perceptionSpace = PerceptionSpace.create(sceneRuntime)
         activitySpace = ActivitySpace.create(sceneRuntime, entityManager)
         val perceptionRuntime = runtimes.filterIsInstance<PerceptionRuntime>().first()

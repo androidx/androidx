@@ -41,15 +41,7 @@ import androidx.xr.scenecore.GroupEntity
  * The measurement, layout and intrinsic measurement behaviors of this layout will be defined by the
  * [SubspaceMeasurePolicy] instance. See [SubspaceMeasurePolicy] for more details.
  *
- * Example:
- * ```kotlin
- * fun ExactSizeSpacer(size: IntVolumeSize) {
- *   SubspaceLayout(SubspaceModifier.testTag("exactSizeSpacer")) {
- *     _, _ -> layout(size.width, size.height, size.depth) {}
- *   }
- * }
- * ```
- *
+ * @sample androidx.xr.compose.samples.SubspaceLayoutWithoutContentSample
  * @param modifier SubspaceModifier to apply during layout.
  * @param measurePolicy a policy defining the measurement and positioning of the layout.
  */
@@ -83,77 +75,8 @@ public inline fun SubspaceLayout(
  * The measurement, layout and intrinsic measurement behaviors of this layout will be defined by the
  * [SubspaceMeasurePolicy] instance. See [SubspaceMeasurePolicy] for more details.
  *
- * Example:
- * ```kotlin
- * fun MyLayout(
- *     modifier: SubspaceModifier = SubspaceModifier,
- *     content: @SubspaceComposable @Composable () -> Unit) {
- *   SubspaceLayout(content = content, modifier = modifier) {
- *     measurables, constraints ->
- *     val placeables = measurables.map { it.measure(constraints) }
- *     layout(constraints.maxWidth, constraints.maxHeight, constraints.maxDepth) {
- *       placeables.forEach { it.place(Pose.Identity) }
- *     }
- *   }
- * }
- * ```
- *
- * @param modifier SubspaceModifier to apply during layout
- * @param content the child composables to be laid out.
- * @param measurePolicy a policy defining the measurement and positioning of the layout.
- */
-@Suppress("ComposableLambdaParameterPosition", "NOTHING_TO_INLINE")
-@SubspaceComposable
-@Composable
-public inline fun SubspaceLayout(
-    crossinline content: @Composable @SubspaceComposable () -> Unit,
-    modifier: SubspaceModifier = SubspaceModifier,
-    measurePolicy: SubspaceMeasurePolicy,
-) {
-    check(currentComposer.applier.current is ComposeSubspaceNode) {
-        "SubspaceComposable functions are expected to be used within the context of a " +
-            "Subspace composition. Please ensure that this component is in a Subspace or " +
-            " is a child of another SubspaceComposable."
-    }
-
-    val coreEntity = rememberOpaqueEntity { GroupEntity.create(session = this, name = "Entity") }
-    val compositionLocalMap = currentComposer.currentCompositionLocalMap
-    CompositionLocalProvider(LocalOpaqueEntity provides coreEntity) {
-        ComposeNode<ComposeSubspaceNode, Applier<Any>>(
-            factory = ComposeSubspaceNode.Constructor,
-            update = {
-                set(compositionLocalMap, SetCompositionLocalMap)
-                set(measurePolicy, SetMeasurePolicy)
-                set(coreEntity, SetCoreEntity)
-                set(modifier, SetModifier)
-            },
-            content = content,
-        )
-    }
-}
-
-/**
- * [SubspaceLayout] is the main core component for layout. It can be used to measure and position
- * zero or more layout children.
- *
- * The measurement, layout and intrinsic measurement behaviors of this layout will be defined by the
- * [SubspaceMeasurePolicy] instance. See [SubspaceMeasurePolicy] for more details.
- *
- * Example:
- * ```kotlin
- * fun MyLayout(
- *     modifier: SubspaceModifier = SubspaceModifier,
- *     content: @SubspaceComposable @Composable () -> Unit) {
- *   SubspaceLayout(content = content, modifier = modifier) {
- *     measurables, constraints ->
- *     val placeables = measurables.map { it.measure(constraints) }
- *     layout(constraints.maxWidth, constraints.maxHeight, constraints.maxDepth) {
- *       placeables.forEach { it.place(Pose.Identity) }
- *     }
- *   }
- * }
- * ```
- *
+ * @sample androidx.xr.compose.samples.SubspaceLayoutWithContentSample
+ * @sample androidx.xr.compose.samples.SubspaceLayoutWithCoreEntityNameSample
  * @param modifier SubspaceModifier to apply during layout
  * @param content the child composables to be laid out.
  * @param coreEntityName A name for the underlying [androidx.xr.scenecore.GroupEntity] that is
@@ -167,8 +90,8 @@ public inline fun SubspaceLayout(
 @Composable
 public inline fun SubspaceLayout(
     crossinline content: @Composable @SubspaceComposable () -> Unit,
-    coreEntityName: String,
     modifier: SubspaceModifier = SubspaceModifier,
+    coreEntityName: String = "Entity",
     measurePolicy: SubspaceMeasurePolicy,
 ) {
     check(currentComposer.applier.current is ComposeSubspaceNode) {
@@ -224,7 +147,7 @@ internal fun rememberOpaqueEntity(
 @Composable
 internal inline fun SubspaceLayout(
     modifier: SubspaceModifier = SubspaceModifier,
-    coreEntity: CoreEntity? = null,
+    coreEntity: CoreEntity,
     measurePolicy: SubspaceMeasurePolicy,
 ) {
     check(currentComposer.applier.current is ComposeSubspaceNode) {
@@ -267,12 +190,9 @@ internal inline fun SubspaceLayout(
 internal inline fun SubspaceLayout(
     crossinline content: @Composable @SubspaceComposable () -> Unit,
     modifier: SubspaceModifier = SubspaceModifier,
-    coreEntity: CoreEntity? = null,
+    coreEntity: CoreEntity,
     measurePolicy: SubspaceMeasurePolicy,
 ) {
-
-    val coreGroupEntity =
-        coreEntity ?: rememberOpaqueEntity { GroupEntity.create(this, name = "Entity") }
 
     check(currentComposer.applier.current is ComposeSubspaceNode) {
         "SubspaceComposable functions are expected to be used within the context of a " +
@@ -286,7 +206,7 @@ internal inline fun SubspaceLayout(
             update = {
                 set(compositionLocalMap, SetCompositionLocalMap)
                 set(measurePolicy, SetMeasurePolicy)
-                set(coreGroupEntity, SetCoreEntity)
+                set(coreEntity, SetCoreEntity)
                 set(modifier, SetModifier)
             },
             content = content,

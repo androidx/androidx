@@ -19,14 +19,17 @@ package androidx.pdf.annotation
 import android.graphics.Matrix
 import android.graphics.RectF
 
-internal class FakePageInfoProvider : PageInfoProvider {
+internal class FakePageInfoProvider(private val pageBounds: RectF = RectF(0f, 0f, 500f, 500f)) :
+    PageInfoProvider {
     override fun getPageInfoFromViewCoordinates(
         viewX: Float,
         viewY: Float,
-    ): PageInfoProvider.PageInfo {
+    ): PageInfoProvider.PageInfo? {
+        if (!pageBounds.contains(viewX, viewY)) return null
+
         return PageInfoProvider.PageInfo(
             pageNum = 0,
-            pageBounds = RectF(0f, 0f, 500f, 500f),
+            pageBounds = pageBounds,
             pageToViewTransform = Matrix(),
             viewToPageTransform = Matrix(),
         )

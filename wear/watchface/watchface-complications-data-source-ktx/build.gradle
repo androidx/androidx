@@ -42,7 +42,6 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2021"
     description = "Kotlin suspend wrapper for Android Wear Complications Data Source"
-    legacyDisableKotlinStrictApiMode = true
     enableRobolectric()
 }
 

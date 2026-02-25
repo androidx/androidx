@@ -21,6 +21,7 @@ import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LE
 import android.hardware.camera2.CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.Frame
@@ -37,6 +38,7 @@ import androidx.camera.camera2.pipe.OutputStatus
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import androidx.camera.camera2.pipe.internal.FrameImpl
 import androidx.camera.camera2.pipe.internal.FrameState
 import androidx.camera.camera2.pipe.internal.OutputResult
@@ -87,6 +89,9 @@ class FrameBufferImplTest {
     private val defaultStreams = setOf(stream1Id, stream2Id)
     private val defaultParameters = mapOf<Any, Any?>("paramKey" to "paramValue")
     private val defaultCapacity = 3
+    private val frameInfoDoneFilter: (FrameReference) -> Boolean = {
+        it.frameInfoStatus == OutputStatus.AVAILABLE
+    }
     private lateinit var frameBuffer: FrameBufferImpl
 
     private fun createFrameBuffer(
@@ -105,6 +110,23 @@ class FrameBufferImplTest {
     private fun createTestFrame(frameNumberValue: Long): Frame {
         val frameNumber = FrameNumber(frameNumberValue)
         val frameTimestamp = CameraTimestamp(101L)
+        val cameraId = CameraId("0")
+        val output1 =
+            StreamGraphImpl.OutputStreamImpl(
+                OutputId(1),
+                Size(200, 100),
+                StreamFormat.YUV_420_888,
+                cameraId,
+            )
+        val output2 =
+            StreamGraphImpl.OutputStreamImpl(
+                OutputId(1),
+                Size(200, 100),
+                StreamFormat.YUV_420_888,
+                cameraId,
+            )
+        val stream1 = CameraStream(stream1Id, listOf(output1)).apply { output1.stream = this }
+        val stream2 = CameraStream(stream2Id, listOf(output2)).apply { output2.stream = this }
         val frameState =
             FrameState(
                 requestMetadata =
@@ -118,7 +140,8 @@ class FrameBufferImplTest {
                     ),
                 frameNumber = frameNumber,
                 frameTimestamp = frameTimestamp,
-                imageStreams = setOf(stream1Id, stream2Id),
+                imageStreams = setOf(stream1, stream2),
+                concurrentImageStreams = emptySet(),
             )
 
         val frame = FrameImpl(frameState)
@@ -374,6 +397,186 @@ class FrameBufferImplTest {
             advanceUntilIdle()
 
             assertThat(frameBuffer.removeAllReferences()).isEmpty()
+        }
+
+    @Test
+    fun removeFirstFrameReferenceAndAcquire_emptyBuffer_returnsNull() =
+        testScope.runTest {
+            assertThat(frameBuffer.removeFirstFrameReferenceAndAcquire(frameInfoDoneFilter))
+                .isNull()
+            assertThat(frameBuffer.size.value).isEqualTo(0)
+        }
+
+    @Test
+    fun removeFirstFrameReferenceAndAcquire_zeroCapacityBuffer_returnsNull() =
+        testScope.runTest {
+            val frameBuffer = createFrameBuffer(capacity = 0)
+
+            assertThat(frameBuffer.removeFirstFrameReferenceAndAcquire(frameInfoDoneFilter))
+                .isNull()
+        }
+
+    @Test
+    fun removeFirstFrameReferenceAndAcquire_removesFirstMatchingFrame_updatesSize() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+            val frameRef2 = createTestFrame(2)
+            val frameIdFilter: (FrameReference) -> Boolean = {
+                it.frameId.value == frameRef2.frameId.value
+            }
+            frameBuffer.onFrameStarted(frameRef1)
+            frameBuffer.onFrameStarted(frameRef2)
+            advanceUntilIdle()
+
+            val removed = frameBuffer.removeFirstFrameReferenceAndAcquire(frameIdFilter)
+
+            assertThat(removed!!.frameNumber).isEqualTo(frameRef2.frameNumber)
+            assertThat(frameBuffer.size.value).isEqualTo(1)
+
+            removed.close()
+        }
+
+    @Test
+    fun removeFirstFrameReferenceAndAcquire_noMatches_returnsNull() =
+        testScope.runTest {
+            val undefinedFrameIdFilter: (FrameReference) -> Boolean = { it.frameId.value == -1L }
+            val frameRef1 = createTestFrame(1)
+            frameBuffer.onFrameStarted(frameRef1)
+
+            assertThat(frameBuffer.removeFirstFrameReferenceAndAcquire(undefinedFrameIdFilter))
+                .isNull()
+            assertThat(frameBuffer.size.value).isEqualTo(1)
+        }
+
+    @Test
+    fun removeFirstFrameReferenceAndAcquire_whenBufferIsClosed_returnsNull() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+            frameBuffer.onFrameStarted(frameRef1)
+            advanceUntilIdle()
+            frameBuffer.close()
+            advanceUntilIdle()
+
+            assertThat(frameBuffer.removeFirstFrameReferenceAndAcquire(frameInfoDoneFilter))
+                .isNull()
+        }
+
+    @Test
+    fun removeLastFrameReferenceAndAcquire_emptyBuffer_returnsNull() =
+        testScope.runTest {
+            assertThat(frameBuffer.removeLastFrameReferenceAndAcquire(frameInfoDoneFilter)).isNull()
+            assertThat(frameBuffer.size.value).isEqualTo(0)
+        }
+
+    @Test
+    fun removeLastFrameReferenceAndAcquire_zeroCapacityBuffer_returnsNull() =
+        testScope.runTest {
+            val frameBuffer = createFrameBuffer(capacity = 0)
+
+            assertThat(frameBuffer.removeLastFrameReferenceAndAcquire(frameInfoDoneFilter)).isNull()
+        }
+
+    @Test
+    fun removeLastFrameReferenceAndAcquire_removesLastMatchingFrame_updatesSize() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+            val frameRef2 = createTestFrame(2)
+            val frameIdFilter: (FrameReference) -> Boolean = {
+                it.frameId.value == frameRef1.frameId.value
+            }
+            frameBuffer.onFrameStarted(frameRef1)
+            frameBuffer.onFrameStarted(frameRef2)
+            advanceUntilIdle()
+
+            val removed = frameBuffer.removeLastFrameReferenceAndAcquire(frameIdFilter)
+
+            assertThat(removed!!.frameNumber).isEqualTo(frameRef1.frameNumber)
+            assertThat(frameBuffer.size.value).isEqualTo(1)
+
+            removed.close()
+        }
+
+    @Test
+    fun removeLastFrameReferenceAndAcquire_whenBufferIsClosed_returnsNull() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+            frameBuffer.onFrameStarted(frameRef1)
+            advanceUntilIdle()
+            frameBuffer.close()
+            advanceUntilIdle()
+
+            assertThat(frameBuffer.removeLastFrameReferenceAndAcquire(frameInfoDoneFilter)).isNull()
+        }
+
+    @Test
+    fun removeLastFrameReferenceAndAcquire_noMatches_returnsNull() =
+        testScope.runTest {
+            val undefinedFrameIdFilter: (FrameReference) -> Boolean = { it.frameId.value == -1L }
+            val frameRef1 = createTestFrame(1)
+            frameBuffer.onFrameStarted(frameRef1)
+
+            assertThat(frameBuffer.removeLastFrameReferenceAndAcquire(undefinedFrameIdFilter))
+                .isNull()
+            assertThat(frameBuffer.size.value).isEqualTo(1)
+        }
+
+    @Test
+    fun removeAllFrameReferencesAndAcquire_emptyBuffer_returnsEmptyList() =
+        testScope.runTest {
+            assertThat(frameBuffer.removeAllFrameReferencesAndAcquire(frameInfoDoneFilter))
+                .isEmpty()
+            assertThat(frameBuffer.size.value).isEqualTo(0)
+        }
+
+    @Test
+    fun removeAllFrameReferencesAndAcquire_zeroCapacityBuffer_returnsEmptyList() =
+        testScope.runTest {
+            val frameBuffer = createFrameBuffer(capacity = 0)
+
+            assertThat(frameBuffer.removeAllFrameReferencesAndAcquire(frameInfoDoneFilter))
+                .isEmpty()
+        }
+
+    @Test
+    fun removeAllFrameReferencesAndAcquire_removesAllMatchingFrames_updatesSize() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+            val frameRef2 = createTestFrame(2)
+            frameBuffer.onFrameStarted(frameRef1)
+            frameBuffer.onFrameStarted(frameRef2)
+            advanceUntilIdle()
+
+            val removed = frameBuffer.removeAllFrameReferencesAndAcquire(frameInfoDoneFilter)
+
+            assertThat(frameBuffer.size.value).isEqualTo(0)
+            assertThat(removed.size).isEqualTo(2)
+
+            removed.forEach { it.close() }
+        }
+
+    @Test
+    fun removeAllFrameReferencesAndAcquire_whenBufferIsClosed_returnsEmptyList() =
+        testScope.runTest {
+            val frameRef1 = createTestFrame(1)
+            frameBuffer.onFrameStarted(frameRef1)
+            advanceUntilIdle()
+            frameBuffer.close()
+            advanceUntilIdle()
+
+            assertThat(frameBuffer.removeAllFrameReferencesAndAcquire(frameInfoDoneFilter))
+                .isEmpty()
+        }
+
+    @Test
+    fun removeAllFrameReferencesAndAcquire_noMatches_returnsEmptyList() =
+        testScope.runTest {
+            val undefinedFrameIdFilter: (FrameReference) -> Boolean = { it.frameId.value == -1L }
+            val frameRef1 = createTestFrame(1)
+            frameBuffer.onFrameStarted(frameRef1)
+
+            assertThat(frameBuffer.removeAllFrameReferencesAndAcquire(undefinedFrameIdFilter))
+                .isEmpty()
+            assertThat(frameBuffer.size.value).isEqualTo(1)
         }
 
     @Test
@@ -876,6 +1079,88 @@ class FrameBufferImplTest {
 
             assertThat(frameBuffer.size.value).isEqualTo(0)
             assertThat(acquiredFrame.isClosed()).isFalse()
+        }
+
+    @Test
+    fun setCapacity_increaseCapacity_doesNotEvictFrames() =
+        testScope.runTest {
+            val frame1 = createTestFrame(1)
+            val frame2 = createTestFrame(2)
+            val frame3 = createTestFrame(3)
+            frameBuffer.onFrameStarted(frame1)
+            frameBuffer.onFrameStarted(frame2)
+            frameBuffer.onFrameStarted(frame3)
+            val newCapacity = 4
+
+            frameBuffer.capacity = newCapacity
+
+            assertThat(frameBuffer.size.value).isEqualTo(defaultCapacity)
+            assertThat(frameBuffer.capacity).isEqualTo(newCapacity)
+            assertThat(frameBuffer.peekFirstReference()?.frameNumber?.value).isEqualTo(1L)
+
+            frame1.close()
+            frame2.close()
+            frame3.close()
+        }
+
+    @Test
+    fun setCapacity_sameCapacity_doesNothing() =
+        testScope.runTest {
+            val frame1 = createTestFrame(1)
+            val frame2 = createTestFrame(2)
+            val frame3 = createTestFrame(3)
+            frameBuffer.onFrameStarted(frame1)
+            frameBuffer.onFrameStarted(frame2)
+            frameBuffer.onFrameStarted(frame3)
+
+            frameBuffer.capacity = defaultCapacity
+
+            assertThat(frameBuffer.size.value).isEqualTo(defaultCapacity)
+            assertThat(frameBuffer.capacity).isEqualTo(defaultCapacity)
+
+            frame1.close()
+            frame2.close()
+            frame3.close()
+        }
+
+    @Test
+    fun setCapacity_decreaseCapacity_evictsOldestFrames() =
+        testScope.runTest {
+            val frame1 = createTestFrame(1)
+            val frame2 = createTestFrame(2)
+            val frame3 = createTestFrame(3)
+            frameBuffer.onFrameStarted(frame1)
+            frameBuffer.onFrameStarted(frame2)
+            frameBuffer.onFrameStarted(frame3)
+            advanceUntilIdle()
+            val newCapacity = 2
+
+            frameBuffer.capacity = newCapacity
+            advanceUntilIdle()
+
+            assertThat(frameBuffer.size.value).isEqualTo(newCapacity)
+            assertThat(frameBuffer.capacity).isEqualTo(newCapacity)
+            assertThat(frameBuffer.peekFirstReference()?.frameNumber?.value).isEqualTo(2L)
+
+            frame1.close()
+            frame2.close()
+            frame3.close()
+        }
+
+    @Test
+    fun setCapacity_afterClose_doesNothing() =
+        testScope.runTest {
+            val frame1 = createTestFrame(1)
+            frameBuffer.onFrameStarted(frame1)
+            frameBuffer.close()
+            advanceUntilIdle()
+            val newCapacity = 5
+
+            frameBuffer.capacity = newCapacity
+
+            assertThat(frameBuffer.capacity).isEqualTo(defaultCapacity)
+
+            frame1.close()
         }
 
     @After

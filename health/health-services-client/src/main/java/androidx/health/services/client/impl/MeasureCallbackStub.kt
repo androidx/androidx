@@ -110,6 +110,8 @@ private constructor(callbackKey: MeasureCallbackKey, private val callback: Measu
         }
     }
 
+    override fun getInterfaceVersion(): Int = VERSION
+
     private data class MeasureCallbackKey(
         private val dataType: DataType<*, *>,
         private val measureCallback: MeasureCallback,

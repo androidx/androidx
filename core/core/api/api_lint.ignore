@@ -78,47 +78,47 @@ ActionValue: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#ACTION
 
 
 ArrayReturn: androidx.core.app.FrameMetricsAggregator#getMetrics():
-    Method should return Collection<SparseIntArray> (or subclass) instead of raw array; was `android.util.SparseIntArray[]`
+    Method should return Collection<android.util.SparseIntArray> (or subclass) instead of raw array; was `android.util.SparseIntArray[]`
 ArrayReturn: androidx.core.app.FrameMetricsAggregator#remove(android.app.Activity):
-    Method should return Collection<SparseIntArray> (or subclass) instead of raw array; was `android.util.SparseIntArray[]`
+    Method should return Collection<android.util.SparseIntArray> (or subclass) instead of raw array; was `android.util.SparseIntArray[]`
 ArrayReturn: androidx.core.app.FrameMetricsAggregator#reset():
-    Method should return Collection<SparseIntArray> (or subclass) instead of raw array; was `android.util.SparseIntArray[]`
+    Method should return Collection<android.util.SparseIntArray> (or subclass) instead of raw array; was `android.util.SparseIntArray[]`
 ArrayReturn: androidx.core.app.FrameMetricsAggregator#stop():
-    Method should return Collection<SparseIntArray> (or subclass) instead of raw array; was `android.util.SparseIntArray[]`
+    Method should return Collection<android.util.SparseIntArray> (or subclass) instead of raw array; was `android.util.SparseIntArray[]`
 ArrayReturn: androidx.core.app.NotificationCompat.Action#getDataOnlyRemoteInputs():
-    Method should return Collection<RemoteInput> (or subclass) instead of raw array; was `androidx.core.app.RemoteInput[]`
+    Method should return Collection<androidx.core.app.RemoteInput> (or subclass) instead of raw array; was `androidx.core.app.RemoteInput[]`
 ArrayReturn: androidx.core.app.NotificationCompat.Action#getRemoteInputs():
-    Method should return Collection<RemoteInput> (or subclass) instead of raw array; was `androidx.core.app.RemoteInput[]`
+    Method should return Collection<androidx.core.app.RemoteInput> (or subclass) instead of raw array; was `androidx.core.app.RemoteInput[]`
 ArrayReturn: androidx.core.app.NotificationCompat.Builder#setRemoteInputHistory(CharSequence[]) parameter #0:
     Method parameter should be Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
 ArrayReturn: androidx.core.app.RemoteInput#addResultsToIntent(androidx.core.app.RemoteInput[], android.content.Intent, android.os.Bundle) parameter #0:
-    Method parameter should be Collection<RemoteInput> (or subclass) instead of raw array; was `androidx.core.app.RemoteInput[]`
+    Method parameter should be Collection<androidx.core.app.RemoteInput> (or subclass) instead of raw array; was `androidx.core.app.RemoteInput[]`
 ArrayReturn: androidx.core.app.RemoteInput#getChoices():
     Method should return Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
 ArrayReturn: androidx.core.app.RemoteInput.Builder#setChoices(CharSequence[]) parameter #0:
     Method parameter should be Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
 ArrayReturn: androidx.core.app.TaskStackBuilder#getIntents():
-    Method should return Collection<Intent> (or subclass) instead of raw array; was `android.content.Intent[]`
+    Method should return Collection<android.content.Intent> (or subclass) instead of raw array; was `android.content.Intent[]`
 ArrayReturn: androidx.core.content.ContextCompat#startActivities(android.content.Context, android.content.Intent[]) parameter #1:
-    Method parameter should be Collection<Intent> (or subclass) instead of raw array; was `android.content.Intent[]`
+    Method parameter should be Collection<android.content.Intent> (or subclass) instead of raw array; was `android.content.Intent[]`
 ArrayReturn: androidx.core.content.ContextCompat#startActivities(android.content.Context, android.content.Intent[], android.os.Bundle) parameter #1:
-    Method parameter should be Collection<Intent> (or subclass) instead of raw array; was `android.content.Intent[]`
+    Method parameter should be Collection<android.content.Intent> (or subclass) instead of raw array; was `android.content.Intent[]`
 ArrayReturn: androidx.core.content.pm.ShortcutInfoCompat#getIntents():
-    Method should return Collection<Intent> (or subclass) instead of raw array; was `android.content.Intent[]`
+    Method should return Collection<android.content.Intent> (or subclass) instead of raw array; was `android.content.Intent[]`
 ArrayReturn: androidx.core.content.pm.ShortcutInfoCompat.Builder#setIntents(android.content.Intent[]) parameter #0:
-    Method parameter should be Collection<Intent> (or subclass) instead of raw array; was `android.content.Intent[]`
+    Method parameter should be Collection<android.content.Intent> (or subclass) instead of raw array; was `android.content.Intent[]`
 ArrayReturn: androidx.core.content.pm.ShortcutInfoCompat.Builder#setPersons(androidx.core.app.Person[]) parameter #0:
-    Method parameter should be Collection<Person> (or subclass) instead of raw array; was `androidx.core.app.Person[]`
+    Method parameter should be Collection<androidx.core.app.Person> (or subclass) instead of raw array; was `androidx.core.app.Person[]`
 ArrayReturn: androidx.core.hardware.display.DisplayManagerCompat#getDisplays():
-    Method should return Collection<Display> (or subclass) instead of raw array; was `android.view.Display[]`
+    Method should return Collection<android.view.Display> (or subclass) instead of raw array; was `android.view.Display[]`
 ArrayReturn: androidx.core.hardware.display.DisplayManagerCompat#getDisplays(String):
-    Method should return Collection<Display> (or subclass) instead of raw array; was `android.view.Display[]`
+    Method should return Collection<android.view.Display> (or subclass) instead of raw array; was `android.view.Display[]`
 ArrayReturn: androidx.core.provider.FontsContractCompat#buildTypeface(android.content.Context, android.os.CancellationSignal, androidx.core.provider.FontsContractCompat.FontInfo[]) parameter #2:
-    Method parameter should be Collection<FontInfo> (or subclass) instead of raw array; was `androidx.core.provider.FontsContractCompat.FontInfo[]`
+    Method parameter should be Collection<androidx.core.provider.FontsContractCompat.FontInfo> (or subclass) instead of raw array; was `androidx.core.provider.FontsContractCompat.FontInfo[]`
 ArrayReturn: androidx.core.provider.FontsContractCompat.FontFamilyResult#getFonts():
-    Method should return Collection<FontInfo> (or subclass) instead of raw array; was `androidx.core.provider.FontsContractCompat.FontInfo[]`
+    Method should return Collection<androidx.core.provider.FontsContractCompat.FontInfo> (or subclass) instead of raw array; was `androidx.core.provider.FontsContractCompat.FontInfo[]`
 ArrayReturn: androidx.core.text.PrecomputedTextCompat#getSpans(int, int, Class<T>):
-    Method should return Collection<Object> (or subclass) instead of raw array; was `T[]`
+    Method should return Collection<T> (or subclass) instead of raw array; was `T[]`
 
 
 AsyncSuffixFuture: androidx.core.content.PackageManagerCompat#getUnusedAppRestrictionsStatus(android.content.Context):

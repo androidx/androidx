@@ -21,6 +21,7 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.HitTestResult
 import androidx.xr.scenecore.runtime.ScenePose
+import androidx.xr.scenecore.runtime.impl.BaseScenePose
 
 /**
  * A test double for [androidx.xr.scenecore.runtime.ScenePose], designed for use in unit or
@@ -34,9 +35,13 @@ import androidx.xr.scenecore.runtime.ScenePose
  * @see androidx.xr.scenecore.runtime.ScenePose
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public open class FakeScenePose : ScenePose {
+public open class FakeScenePose : BaseScenePose() {
     /** Returns the pose for this entity, relative to the activity space root. */
     override var activitySpacePose: Pose = Pose.Identity
+    override val poseInActivitySpace: Pose
+        get() {
+            return activitySpacePose
+        }
 
     /**
      * Returns the scale of this ScenePose. For base ScenePoses, the scale is (1,1,1). For entities
@@ -52,42 +57,6 @@ public open class FakeScenePose : ScenePose {
      * calculation.
      */
     override var activitySpaceScale: Vector3 = Vector3.One
-
-    /**
-     * Returns a pose relative to this entity transformed into a pose relative to the destination.
-     *
-     * @param pose A pose in this entity's local coordinate space.
-     * @param destination The entity which the returned pose will be relative to.
-     * @return The pose relative to the destination entity.
-     */
-    override fun transformPoseTo(pose: Pose, destination: ScenePose): Pose {
-        val destinationScale = destination.activitySpaceScale
-        val inverseDestinationScale =
-            Vector3(1f / destinationScale.x, 1f / destinationScale.y, 1f / destinationScale.z)
-
-        val activityToLocal = activitySpacePose
-        val activityToDestination = destination.activitySpacePose
-        val destinationToActivity =
-            Pose(
-                    activityToDestination.translation.scale(inverseDestinationScale),
-                    activityToDestination.rotation,
-                )
-                .inverse
-        val destinationToLocal =
-            destinationToActivity.compose(
-                Pose(
-                    activityToLocal.translation.scale(inverseDestinationScale),
-                    activityToLocal.rotation,
-                )
-            )
-
-        return destinationToLocal.compose(
-            Pose(
-                pose.translation.scale(this.activitySpaceScale).scale(inverseDestinationScale),
-                pose.rotation,
-            )
-        )
-    }
 
     /**
      * For test purposes only.

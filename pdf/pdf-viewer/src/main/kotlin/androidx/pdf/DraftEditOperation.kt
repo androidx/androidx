@@ -29,6 +29,16 @@ internal const val TAG_REMOVE = 3
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface DraftEditOperation : Parcelable {
 
+    /** Returns the page number of the operation. */
+    public fun getPage(): Int {
+        return when (this) {
+            is InsertDraftEditOperation -> this.annotation.pageNum
+            is UpdateDraftEditOperation -> this.annotation.pageNum
+            is RemoveDraftEditOperation -> this.pageNum
+            else -> -1
+        }
+    }
+
     public companion object {
         @JvmField
         public val CREATOR: Parcelable.Creator<DraftEditOperation> =

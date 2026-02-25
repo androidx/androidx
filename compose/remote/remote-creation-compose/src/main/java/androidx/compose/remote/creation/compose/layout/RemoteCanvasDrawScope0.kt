@@ -29,9 +29,9 @@ import androidx.compose.remote.core.RemoteContext.FLOAT_TIME_IN_MIN
 import androidx.compose.remote.core.RemoteContext.FLOAT_TIME_IN_SEC
 import androidx.compose.remote.core.RemoteContext.FLOAT_WEEK_DAY
 import androidx.compose.remote.core.operations.Utils
-import androidx.compose.remote.creation.compose.capture.NoRemoteCompose
 import androidx.compose.remote.creation.compose.capture.RecordingCanvas
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.capture.RemoteDrawScope0
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.state.AnimatedRemoteFloat
@@ -61,6 +61,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope.Companion.DefaultFilterQ
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.nativePaint
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.TextLayoutResult
@@ -86,6 +87,9 @@ public open class RemoteCanvasDrawScope0(
     override val creationState: RemoteComposeCreationState
         get() = remoteComposeCreationState
 
+    override val remoteDensity: RemoteDensity
+        get() = creationState.remoteDensity
+
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public class RemoteAccess(
         public val remoteDrawScope: RemoteCanvasDrawScope0,
@@ -101,39 +105,19 @@ public open class RemoteCanvasDrawScope0(
             public val drawScope: DrawScope,
             public val remoteComposeCreationState: RemoteComposeCreationState,
         ) {
-            private fun pickValue(default: Float, value: () -> RemoteFloat): RemoteFloat {
-                if (
-                    drawScope.drawContext.canvas.nativeCanvas is RecordingCanvas &&
-                        remoteComposeCreationState !is NoRemoteCompose
-                ) {
-                    return value()
-                }
-                return RemoteFloat(default)
-            }
+            private val context = RemoteFloatContext(remoteComposeCreationState)
 
             public val width: RemoteFloat
-                get() =
-                    pickValue(drawScope.size.width) {
-                        remoteComponentWidth(remoteComposeCreationState)
-                    }
+                get() = context.componentWidth()
 
             public val height: RemoteFloat
-                get() =
-                    pickValue(drawScope.size.height) {
-                        remoteComponentHeight(remoteComposeCreationState)
-                    }
+                get() = context.componentHeight()
 
             public val centerX: RemoteFloat
-                get() =
-                    pickValue(drawScope.center.x) {
-                        remoteComponentCenterX(remoteComposeCreationState)
-                    }
+                get() = context.componentCenterX()
 
             public val centerY: RemoteFloat
-                get() =
-                    pickValue(drawScope.center.y) {
-                        remoteComponentCenterY(remoteComposeCreationState)
-                    }
+                get() = context.componentCenterY()
         }
 
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -691,7 +675,7 @@ public open class RemoteCanvasDrawScope0(
             center.x.floatId,
             center.y.floatId,
             radius.floatId,
-            toPaint(color, style, alpha.floatId, colorFilter, blendMode).asFrameworkPaint(),
+            toPaint(color, style, alpha.floatId, colorFilter, blendMode).nativePaint,
         )
     }
 

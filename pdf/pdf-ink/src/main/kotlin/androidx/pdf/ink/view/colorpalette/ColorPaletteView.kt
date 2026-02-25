@@ -102,6 +102,17 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
         }
     }
 
+    fun requestFocusOnSelectedItem() {
+        post {
+            val selectedIndex = colorPaletteAdapter.selectedPosition
+            val viewHolder = findViewHolderForAdapterPosition(selectedIndex)
+            viewHolder?.itemView?.let {
+                it.isFocusableInTouchMode = true
+                it.requestFocus()
+            }
+        }
+    }
+
     private fun setupRecyclerView() {
         setHasFixedSize(true)
 

@@ -177,6 +177,7 @@ class LatencyDataTest {
             .isEqualTo(LatencyData.EventAction.UNKNOWN)
     }
 
+    @Test
     fun eventActionFromMotionEvent_predictedOnlyAppliesToMove() {
         assertThat(
                 LatencyData.EventAction.fromMotionEvent(

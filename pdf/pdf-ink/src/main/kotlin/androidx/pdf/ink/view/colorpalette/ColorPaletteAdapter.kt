@@ -35,7 +35,8 @@ internal class ColorPaletteAdapter(private var onItemClicked: (Int, PaletteItem)
     @VisibleForTesting var areAnimationsEnabled: Boolean = true
 
     // Store the position of the selected item. Initialize to no selection.
-    private var selectedPosition = RecyclerView.NO_POSITION
+    var selectedPosition = RecyclerView.NO_POSITION
+        private set
 
     /** Sets the currently selected item in the palette. */
     fun setSelection(itemPos: Int) {

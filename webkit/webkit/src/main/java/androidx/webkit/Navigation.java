@@ -19,6 +19,9 @@ package androidx.webkit;
 import android.os.Bundle;
 import android.webkit.WebView;
 
+import androidx.annotation.RequiresFeature;
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -141,5 +144,22 @@ public interface Navigation {
      * @return True if session restore, false otherwise.
      */
     boolean isRestore();
+
+    /**
+     * Navigation error information for the navigation load.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#NAVIGATION_GET_WEB_RESOURCE_ERROR}.
+     *
+     * @return The {@link WebResourceErrorCompat} object, or {@code null} if there is no
+     * error for this navigation.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(name = WebViewFeature.NAVIGATION_GET_WEB_RESOURCE_ERROR,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @Nullable
+    WebResourceErrorCompat getWebResourceError();
 
 }

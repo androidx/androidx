@@ -22,6 +22,7 @@ import android.content.Context;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.playservicesstorage.PlayServicesStorage;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.SdkSuppress;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -30,6 +31,7 @@ import org.junit.Assume;
 
 import java.util.concurrent.ExecutorService;
 
+@SdkSuppress(minSdkVersion = 24)
 public class AppSearchSessionGmsCtsTest extends AppSearchSessionCtsTestBase {
 
     private boolean mIsGmsAvailable;

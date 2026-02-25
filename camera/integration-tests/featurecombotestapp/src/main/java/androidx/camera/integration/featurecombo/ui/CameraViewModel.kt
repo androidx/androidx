@@ -19,8 +19,6 @@ import android.content.ContentValues
 import android.content.Context
 import android.provider.MediaStore
 import android.util.Log
-import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraEffect
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
@@ -43,13 +41,11 @@ import androidx.camera.integration.featurecombo.DynamicRange
 import androidx.camera.integration.featurecombo.Effect
 import androidx.camera.integration.featurecombo.Fps
 import androidx.camera.integration.featurecombo.ImageFormat
-import androidx.camera.integration.featurecombo.MainActivity
 import androidx.camera.integration.featurecombo.PrimitiveCollections.distinctIntList
 import androidx.camera.integration.featurecombo.RecordingQuality
 import androidx.camera.integration.featurecombo.StabilizationMode
 import androidx.camera.integration.featurecombo.effects.BouncyLogoOverlayEffect
 import androidx.camera.integration.featurecombo.effects.BouncyLogoOverlayEffect.Companion.supportsEffect
-import androidx.camera.lifecycle.ExperimentalCameraProviderConfiguration
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.lifecycle.awaitInstance
 import androidx.camera.video.GroupableFeatures
@@ -80,15 +76,9 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-@androidx.annotation.OptIn(ExperimentalCameraProviderConfiguration::class)
 class CameraViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel() {
     private lateinit var appContext: Context
     private var bouncyLogoOverlayEffect: BouncyLogoOverlayEffect? = null
-
-    private val isCameraPipe: Boolean by lazy {
-        savedStateHandle.get<String>(MainActivity.INTENT_EXTRA_CAMERA_IMPLEMENTATION) ==
-            CAMERA_PIPE_IMPLEMENTATION_OPTION
-    }
 
     private val cameraProviderDeferred = CompletableDeferred<ProcessCameraProvider>()
 
@@ -167,16 +157,6 @@ class CameraViewModel(private val savedStateHandle: SavedStateHandle) : ViewMode
     private var bindStartTime: Long = Long.MIN_VALUE
 
     private var imageAnalysisJob: Job? = null
-
-    init {
-        ProcessCameraProvider.configureInstance(
-            if (isCameraPipe) {
-                CameraPipeConfig.defaultConfig()
-            } else {
-                Camera2Config.defaultConfig()
-            }
-        )
-    }
 
     fun setupCamera(applicationContext: Context, lifecycleOwner: LifecycleOwner) {
         appContext = applicationContext
@@ -775,8 +755,6 @@ class CameraViewModel(private val savedStateHandle: SavedStateHandle) : ViewMode
     companion object {
         private const val TAG = "CamXFcqViewModel"
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
-
-        const val CAMERA_PIPE_IMPLEMENTATION_OPTION: String = "camera_pipe"
 
         private val DEFAULT_USE_CASES = buildMap {
             put(PREVIEW, true)

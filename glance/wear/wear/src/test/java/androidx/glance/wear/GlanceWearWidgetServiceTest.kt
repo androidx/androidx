@@ -21,6 +21,9 @@ import android.content.Intent
 import android.os.IBinder
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.ui.graphics.Color
+import androidx.glance.wear.core.WearWidgetParams
+import androidx.glance.wear.core.WearWidgetProviderInfo
+import androidx.glance.wear.core.WidgetInstanceId
 import androidx.glance.wear.parcel.IWearWidgetProvider
 import androidx.glance.wear.parcel.legacy.TileProvider
 import com.google.common.truth.Truth.assertThat
@@ -99,7 +102,7 @@ class GlanceWearWidgetServiceTest {
         }
     }
 
-    private class TestService() : GlanceWearWidgetService() {
+    private class TestService : GlanceWearWidgetService() {
         override val widget = TestWidget()
     }
 }

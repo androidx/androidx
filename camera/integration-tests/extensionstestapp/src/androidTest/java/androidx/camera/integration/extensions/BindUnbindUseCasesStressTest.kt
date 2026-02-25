@@ -21,20 +21,18 @@ import android.graphics.SurfaceTexture
 import android.os.Handler
 import android.os.HandlerThread
 import android.util.Size
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.extensions.ExtensionsManager
-import androidx.camera.integration.extensions.CameraExtensionsActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
-import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.CameraXExtensionTestParams
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.VERIFICATION_TARGET_IMAGE_CAPTURE
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.VERIFICATION_TARGET_PREVIEW
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.ExtensionsUtil.assumePcsSupportedForImageCapture
@@ -65,15 +63,11 @@ private var texId = INVALID_TEX_ID
 
 @LargeTest
 @RunWith(Parameterized::class)
-class BindUnbindUseCasesStressTest(private val config: CameraXExtensionTestParams) {
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = config.implName == CAMERA_PIPE_IMPLEMENTATION_OPTION)
-
+class BindUnbindUseCasesStressTest(private val cameraId: String, private val extensionMode: Int) {
     @get:Rule
     val useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-            PreTestCameraIdList(config.cameraXConfig)
+            PreTestCameraIdList(Camera2Config.defaultConfig())
         )
 
     private lateinit var cameraProvider: ProcessCameraProvider
@@ -88,8 +82,6 @@ class BindUnbindUseCasesStressTest(private val config: CameraXExtensionTestParam
     @Before
     fun setUp(): Unit = runBlocking {
         assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
-        val (_, cameraXConfig, cameraId, extensionMode) = config
-        ProcessCameraProvider.configureInstance(cameraXConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
 
@@ -128,8 +120,8 @@ class BindUnbindUseCasesStressTest(private val config: CameraXExtensionTestParam
 
         val context = ApplicationProvider.getApplicationContext<Context>()
         @JvmStatic
-        @get:Parameterized.Parameters(name = "config = {0}")
-        val parameters: Collection<CameraXExtensionTestParams>
+        @get:Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
+        val parameters: Collection<Array<Any>>
             get() = CameraXExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
     }
 

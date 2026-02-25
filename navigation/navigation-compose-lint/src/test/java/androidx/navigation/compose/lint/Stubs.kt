@@ -266,26 +266,26 @@ internal val COMPOSE_NAVIGATOR_DESTINATION_BUILDER =
         "androidx/navigation/compose",
         0xcdeb9868,
         """
-package androidx.navigation.compose
+        package androidx.navigation.compose
 
-import kotlin.reflect.KClass
-import androidx.navigation.*
+        import kotlin.reflect.KClass
+        import androidx.navigation.*
 
-public abstract class Navigator<D : NavDestination>
+        public abstract class Navigator<D : NavDestination>
 
-public open class ComposeNavigator : Navigator<ComposeNavigator.Destination>() {
-    public open class Destination: NavDestination()
-}
+        public open class ComposeNavigator : Navigator<ComposeNavigator.Destination>() {
+            public open class Destination: NavDestination()
+        }
 
-public class ComposeNavigatorDestinationBuilder :
-    NavDestinationBuilder<ComposeNavigator.Destination> {
-        public constructor(route: KClass<out Any>)
-    }
+        public class ComposeNavigatorDestinationBuilder :
+            NavDestinationBuilder<ComposeNavigator.Destination> {
+                public constructor(route: KClass<out Any>)
+            }
 
-public inline fun <reified T : Any> NavGraphBuilder.composable() {}
+        public inline fun <reified T : Any> NavGraphBuilder.composable() {}
 
-public inline fun <reified T : Any> NavGraphBuilder.navigation() {}
-            """
+        public inline fun <reified T : Any> NavGraphBuilder.navigation() {}
+        """
             .trimIndent(),
         """
                 META-INF/main.kotlin_module:
@@ -376,22 +376,22 @@ internal val DIALOG_NAVIGATOR_DESTINATION_BUILDER =
         "androidx/navigation/compose",
         0xe5b79ce2,
         """
-package androidx.navigation.compose
+        package androidx.navigation.compose
 
-import kotlin.reflect.KClass
-import androidx.navigation.*
+        import kotlin.reflect.KClass
+        import androidx.navigation.*
 
-public open class DialogNavigator : Navigator<DialogNavigator.Destination>() {
-    public open class Destination: NavDestination()
-}
+        public open class DialogNavigator : Navigator<DialogNavigator.Destination>() {
+            public open class Destination: NavDestination()
+        }
 
-public class DialogNavigatorDestinationBuilder :
-    NavDestinationBuilder<DialogNavigator.Destination> {
-        public constructor(route: KClass<out Any>)
-    }
+        public class DialogNavigatorDestinationBuilder :
+            NavDestinationBuilder<DialogNavigator.Destination> {
+                public constructor(route: KClass<out Any>)
+            }
 
-public inline fun <reified T : Any> NavGraphBuilder.dialog() {}
-            """
+        public inline fun <reified T : Any> NavGraphBuilder.dialog() {}
+        """
             .trimIndent(),
         """
                 META-INF/main.kotlin_module:

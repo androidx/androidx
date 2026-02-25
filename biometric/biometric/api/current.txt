@@ -95,8 +95,8 @@ package androidx.biometric {
   }
 
   public static final class AuthenticationRequest.Companion {
-    method @InaccessibleFromJava @kotlin.jvm.JvmSynthetic public inline androidx.biometric.AuthenticationRequest.Biometric biometricRequest(String title, androidx.biometric.AuthenticationRequest.Biometric.Fallback authFallback, kotlin.jvm.functions.Function1<androidx.biometric.AuthenticationRequest.Biometric.Builder,kotlin.Unit> init);
-    method @InaccessibleFromJava @RequiresApi(android.os.Build.VERSION_CODES.R) @kotlin.jvm.JvmSynthetic public androidx.biometric.AuthenticationRequest.Credential credentialRequest(String title, kotlin.jvm.functions.Function1<androidx.biometric.AuthenticationRequest.Credential.Builder,kotlin.Unit> init);
+    method public inline androidx.biometric.AuthenticationRequest.Biometric biometricRequest(String title, androidx.biometric.AuthenticationRequest.Biometric.Fallback authFallback, kotlin.jvm.functions.Function1<? super androidx.biometric.AuthenticationRequest.Biometric.Builder,kotlin.Unit> init);
+    method @RequiresApi(android.os.Build.VERSION_CODES.R) public androidx.biometric.AuthenticationRequest.Credential credentialRequest(String title, kotlin.jvm.functions.Function1<? super androidx.biometric.AuthenticationRequest.Credential.Builder,kotlin.Unit> init);
   }
 
   @RequiresApi(android.os.Build.VERSION_CODES.R) public static final class AuthenticationRequest.Credential extends androidx.biometric.AuthenticationRequest {

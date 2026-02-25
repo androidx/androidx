@@ -20,6 +20,7 @@ import android.content.ComponentName
 import android.content.Context
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.ui.graphics.Color
+import androidx.glance.wear.core.WearWidgetParams
 import androidx.glance.wear.parcel.WidgetUpdateClient
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4

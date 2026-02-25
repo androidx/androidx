@@ -63,7 +63,7 @@ internal class PageLayoutManager(
     internal val pdfFormFillingState: PdfFormFillingState =
         PdfFormFillingState(pdfDocument.pageCount),
     private val errorFlow: MutableSharedFlow<Throwable>,
-    private val isFormFillingEnabled: Boolean = false,
+    internal var isFormFillingEnabled: () -> Boolean = { false },
 ) {
     /** The 0-indexed maximum page number whose dimensions are known to this model */
     val reach
@@ -387,7 +387,7 @@ internal class PageLayoutManager(
                 try {
                     val pageInfoFlags =
                         if (
-                            isFormFillingEnabled and
+                            isFormFillingEnabled() and
                                 (pdfDocument.formType != PdfDocument.PDF_FORM_TYPE_NONE)
                         )
                             PdfDocument.PAGE_INFO_INCLUDE_FORM_WIDGET

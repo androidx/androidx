@@ -1,21 +1,3 @@
 // Baseline format: 1.0
-BecameUnchecked: androidx.compose.material.ChipKt:
-    Removed class androidx.compose.material.ChipKt from compatibility checked API surface
-BecameUnchecked: androidx.compose.material.ExposedDropdownMenu_androidKt:
-    Removed class androidx.compose.material.ExposedDropdownMenu_androidKt from compatibility checked API surface
-BecameUnchecked: androidx.compose.material.ListItemKt:
-    Removed class androidx.compose.material.ListItemKt from compatibility checked API surface
-BecameUnchecked: androidx.compose.material.SwipeToDismissKt:
-    Removed class androidx.compose.material.SwipeToDismissKt from compatibility checked API surface
-BecameUnchecked: androidx.compose.material.SwipeableKt:
-    Removed class androidx.compose.material.SwipeableKt from compatibility checked API surface
-BecameUnchecked: androidx.compose.material.pullrefresh:
-    Removed package androidx.compose.material.pullrefresh from compatibility checked API surface
-BecameUnchecked: androidx.compose.material.pullrefresh.PullRefreshIndicatorKt:
-    Removed class androidx.compose.material.pullrefresh.PullRefreshIndicatorKt from compatibility checked API surface
-BecameUnchecked: androidx.compose.material.pullrefresh.PullRefreshIndicatorTransformKt:
-    Removed class androidx.compose.material.pullrefresh.PullRefreshIndicatorTransformKt from compatibility checked API surface
-BecameUnchecked: androidx.compose.material.pullrefresh.PullRefreshKt:
-    Removed class androidx.compose.material.pullrefresh.PullRefreshKt from compatibility checked API surface
-BecameUnchecked: androidx.compose.material.pullrefresh.PullRefreshStateKt:
-    Removed class androidx.compose.material.pullrefresh.PullRefreshStateKt from compatibility checked API surface
+RemovedMethod: androidx.compose.material.RippleConfiguration#RippleConfiguration():
+    Binary breaking change: Removed constructor androidx.compose.material.RippleConfiguration()

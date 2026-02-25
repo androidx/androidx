@@ -348,10 +348,10 @@ class ScenePoseTest {
     }
 
     @Test
-    fun allScenePoseGetActivitySpacePose_callsRuntimeScenePoseImplGetActivitySpacePose() {
+    fun poseInActivitySpace_defaultsToIdentity() {
         val pose = Pose.Identity
 
-        assertThat(perceptionSpace.activitySpacePose).isEqualTo(pose)
+        assertThat(perceptionSpace.poseInActivitySpace).isEqualTo(pose)
     }
 
     @Test

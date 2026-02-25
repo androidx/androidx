@@ -45,5 +45,5 @@ public expect abstract class Migration(startVersion: Int, endVersion: Int) {
      *
      * @param connection The database connection
      */
-    public abstract fun migrate(connection: SQLiteConnection)
+    public abstract suspend fun migrate(connection: SQLiteConnection)
 }

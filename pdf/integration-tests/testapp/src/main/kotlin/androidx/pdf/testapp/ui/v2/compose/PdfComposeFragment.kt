@@ -16,7 +16,6 @@
 
 package androidx.pdf.testapp.ui.v2.compose
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -42,7 +41,6 @@ import com.google.android.material.snackbar.Snackbar
  * [View]s to exist in the layout. This will follow the recommended UDF architecture for Compose-
  * based UIs. The Fragment is simply a container for Compose in an otherwise View-based app.
  */
-@SuppressLint("RestrictedApiAndroidX")
 class PdfComposeFragment() : Fragment() {
     private lateinit var composeView: ComposeView
 

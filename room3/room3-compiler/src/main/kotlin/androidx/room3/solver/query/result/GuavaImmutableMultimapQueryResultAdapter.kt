@@ -20,6 +20,7 @@ import androidx.room3.compiler.codegen.XClassName
 import androidx.room3.compiler.codegen.XCodeBlock
 import androidx.room3.compiler.processing.XType
 import androidx.room3.ext.GuavaTypeNames
+import androidx.room3.ext.SQLiteDriverMemberNames
 import androidx.room3.parser.ParsedQuery
 import androidx.room3.processor.Context
 import androidx.room3.solver.CodeGenScope
@@ -88,27 +89,32 @@ class GuavaImmutableMultimapQueryResultAdapter(
 
             val tmpKeyVarName = scope.getTmpVar("_key")
             val tmpValueVarName = scope.getTmpVar("_value")
-            beginControlFlow("while (%L.step())", stmtVarName).apply {
-                addLocalVariable(name = tmpKeyVarName, typeName = keyTypeArg.asTypeName())
-                keyRowAdapter.convert(tmpKeyVarName, stmtVarName, scope)
+            beginControlFlow("while (%L.%M())", stmtVarName, SQLiteDriverMemberNames.STATEMENT_STEP)
+                .apply {
+                    addLocalVariable(name = tmpKeyVarName, typeName = keyTypeArg.asTypeName())
+                    keyRowAdapter.convert(tmpKeyVarName, stmtVarName, scope)
 
-                // Iterate over all matched fields to check if all are null. If so, we continue in
-                // the while loop to the next iteration.
-                check(valueRowAdapter is QueryMappedRowAdapter)
-                val valueIndexVars =
-                    dupeColumnsIndexAdapter?.getIndexVarsForMapping(valueRowAdapter.mapping)
-                        ?: valueRowAdapter.getDefaultIndexAdapter().getIndexVars()
-                val columnNullCheckCodeBlock =
-                    getColumnNullCheckCode(stmtVarName = stmtVarName, indexVars = valueIndexVars)
-                // Perform column null check
-                beginControlFlow("if (%L)", columnNullCheckCodeBlock)
-                    .apply { addStatement("continue") }
-                    .endControlFlow()
+                    // Iterate over all matched fields to check if all are null. If so, we continue
+                    // in
+                    // the while loop to the next iteration.
+                    check(valueRowAdapter is QueryMappedRowAdapter)
+                    val valueIndexVars =
+                        dupeColumnsIndexAdapter?.getIndexVarsForMapping(valueRowAdapter.mapping)
+                            ?: valueRowAdapter.getDefaultIndexAdapter().getIndexVars()
+                    val columnNullCheckCodeBlock =
+                        getColumnNullCheckCode(
+                            stmtVarName = stmtVarName,
+                            indexVars = valueIndexVars,
+                        )
+                    // Perform column null check
+                    beginControlFlow("if (%L)", columnNullCheckCodeBlock)
+                        .apply { addStatement("continue") }
+                        .endControlFlow()
 
-                addLocalVariable(name = tmpValueVarName, typeName = valueTypeArg.asTypeName())
-                valueRowAdapter.convert(tmpValueVarName, stmtVarName, scope)
-                addStatement("%L.put(%L, %L)", mapVarName, tmpKeyVarName, tmpValueVarName)
-            }
+                    addLocalVariable(name = tmpValueVarName, typeName = valueTypeArg.asTypeName())
+                    valueRowAdapter.convert(tmpValueVarName, stmtVarName, scope)
+                    addStatement("%L.put(%L, %L)", mapVarName, tmpKeyVarName, tmpValueVarName)
+                }
             endControlFlow()
             addLocalVariable(
                 name = outVarName,

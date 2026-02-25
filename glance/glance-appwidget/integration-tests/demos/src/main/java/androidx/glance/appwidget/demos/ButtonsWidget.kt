@@ -18,22 +18,26 @@ package androidx.glance.appwidget.demos
 
 import android.content.Context
 import android.os.Build
+import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
+import androidx.glance.Button
 import androidx.glance.ButtonColors
 import androidx.glance.ButtonDefaults
-import androidx.glance.GlanceBackendPreference
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.ImageProvider
+import androidx.glance.LocalContext
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.components.CircleIconButton
 import androidx.glance.appwidget.components.FilledButton
+import androidx.glance.appwidget.components.OutlineButton
 import androidx.glance.appwidget.components.SquareIconButton
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.lazy.LazyItemScope
@@ -63,9 +67,6 @@ class ButtonsWidget() : GlanceAppWidget() {
     override val sizeMode: SizeMode
         get() = SizeMode.Exact // one callback each time widget resized
 
-    override val backendPreference: GlanceBackendPreference
-        get() = GlanceBackendPreference.RemoteCompose
-
     private val buttons: List<@Composable () -> Unit>
         @Composable
         get() {
@@ -73,54 +74,69 @@ class ButtonsWidget() : GlanceAppWidget() {
             val onPrimary = GlanceTheme.colors.onPrimary
             val colors =
                 ButtonDefaults.buttonColors(backgroundColor = primary, contentColor = onPrimary)
+
+            val c = LocalContext.current
             return listOf(
-                // TODO: uncomment once b/464058224 is resolved. Right now this demo repros it.
-                //                {
-                //                    Button(
-                //                        text = "Standard Button",
-                //                        onClick = {},
-                //                        modifier = GlanceModifier,
-                //                        colors = colors,
-                //                        maxLines = 1,
-                //                    )
-                //                },
-                //                {
-                //                    FilledButton(
-                //                        text = "Filled Button",
-                //                        colors = colors,
-                //                        modifier = GlanceModifier,
-                //                        onClick = {},
-                //                    )
-                //                },
-                //                {
-                //                    FilledButton(
-                //                        text = "Filled Button",
-                //                        icon = ImageProvider(R.drawable.baseline_add_24),
-                //                        colors = colors,
-                //                        modifier = GlanceModifier,
-                //                        onClick = {},
-                //                    )
-                //                },
-                //                {
-                //                    OutlineButton(
-                //                        text = "Outline Button",
-                //                        contentColor = primary,
-                //                        modifier = GlanceModifier,
-                //                        onClick = {},
-                //                    )
-                //                },
-                //                {
-                //                    OutlineButton(
-                //                        text = "Outline Button",
-                //                        icon = ImageProvider(R.drawable.baseline_add_24),
-                //                        contentColor = primary,
-                //                        modifier = GlanceModifier,
-                //                        onClick = {},
-                //                    )
-                //                },
-                { LongTextButtons(GlanceModifier, colors) }
-                //                { IconButtons() },
-                )
+                {
+                    Button(
+                        text = "Standard Button",
+                        onClick = { logClick(c) },
+                        modifier = GlanceModifier,
+                        colors = colors,
+                        maxLines = 1,
+                    )
+                },
+                {
+                    FilledButton(
+                        text = "Filled Button",
+                        colors = colors,
+                        modifier = GlanceModifier,
+                        onClick = { logClick(c) },
+                    )
+                },
+                {
+                    FilledButton(
+                        text = "Filled Button",
+                        icon = ImageProvider(R.drawable.baseline_add_24),
+                        colors = colors,
+                        modifier = GlanceModifier,
+                        onClick = { logClick(c) },
+                    )
+                },
+                {
+                    OutlineButton(
+                        text = "Outline Button",
+                        contentColor = primary,
+                        modifier = GlanceModifier,
+                        onClick = { logClick(c) },
+                    )
+                },
+                {
+                    OutlineButton(
+                        text = "Outline Button",
+                        icon = ImageProvider(R.drawable.baseline_add_24),
+                        contentColor = primary,
+                        modifier = GlanceModifier,
+                        onClick = { logClick(c) },
+                    )
+                },
+                {
+                    SquareIconButton(
+                        imageProvider = ImageProvider(R.drawable.baseline_add_24),
+                        contentDescription = "Content description",
+                        onClick = { logClick(c) },
+                        modifier = GlanceModifier,
+                    )
+                },
+                {
+                    CircleIconButton(
+                        imageProvider = ImageProvider(R.drawable.baseline_add_24),
+                        contentDescription = "Content description",
+                        onClick = { logClick(c) },
+                        modifier = GlanceModifier,
+                    )
+                },
+            )
         }
 
     private val columnModifiers
@@ -134,13 +150,7 @@ class ButtonsWidget() : GlanceAppWidget() {
 
     @RequiresApi(Build.VERSION_CODES.S)
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        provideContent {
-            val buttonList = buttons
-            Column(columnModifiers) {
-                //                buttonList.forEach { button -> paddedItem { button() } }
-                buttonList.forEach { Button -> Button() }
-            } // end lazy column
-        }
+        provideContent { Column(columnModifiers) { buttons.forEach { Button -> Button() } } }
     }
 
     override suspend fun providePreview(context: Context, widgetCategory: Int) {
@@ -165,6 +175,22 @@ private fun LazyListScope.paddedItem(content: @Composable LazyItemScope.() -> Un
             Space()
         }
     }
+}
+
+// TODO: remove after fixing. For reproducing a multi-line bug in remote compose
+@Composable
+fun TodoTempContent() {
+    val primary = GlanceTheme.colors.primary
+    val onPrimary = GlanceTheme.colors.onPrimary
+    val colors = ButtonDefaults.buttonColors(backgroundColor = primary, contentColor = onPrimary)
+
+    FilledButton(
+        text = "Three\nLines\nof text",
+        icon = ImageProvider(R.drawable.baseline_add_24),
+        colors = colors,
+        modifier = GlanceModifier,
+        onClick = {},
+    )
 }
 
 @Composable
@@ -224,3 +250,8 @@ private fun IconButtons() {
 }
 
 @Composable private fun Space() = Spacer(GlanceModifier.size(8.dp))
+
+private fun logClick(context: Context) {
+    Log.d("ButtonsWidget", "onClick()")
+    Toast.makeText(context, "click", Toast.LENGTH_SHORT).show()
+}

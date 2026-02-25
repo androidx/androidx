@@ -49,6 +49,9 @@ internal class GlimmerListScrollScope(private val state: ListState, scrollScope:
     override val itemCount: Int
         get() = state.layoutInfo.totalItemsCount
 
+    internal val autofocusState: GlimmerListAutoFocusState
+        get() = state.autoFocusState
+
     override fun snapToItem(index: Int, offset: Int) {
         state.snapToItemIndexInternal(index, offset)
     }
@@ -66,6 +69,10 @@ internal class GlimmerListScrollScope(private val state: ListState, scrollScope:
             visibleItem?.offset ?: 0
         } + targetOffset
     }
+
+    internal fun getItemSize(index: Int): Int {
+        return state.layoutInfo.visibleItemsInfo.fastFirstOrNull { it.index == index }?.size ?: 0
+    }
 }
 
 /**
@@ -77,13 +84,15 @@ internal class GlimmerListScrollScope(private val state: ListState, scrollScope:
  *   ahead/back to avoid composing intermediate items.
  * @param density A [Density] instance.
  */
-internal suspend fun LazyLayoutScrollScope.animateScrollToItem(
+internal suspend fun GlimmerListScrollScope.animateScrollToItem(
     index: Int,
     scrollOffset: Int,
     numOfItemsForTeleport: Int,
     density: Density,
 ) {
     requirePrecondition(index >= 0f) { "Index should be non-negative" }
+
+    val isAutofocusEnabledInScroll = autofocusState.isAutoFocusEnabled
 
     try {
         val targetDistancePx = with(density) { TargetDistance.toPx() }
@@ -228,7 +237,16 @@ internal suspend fun LazyLayoutScrollScope.animateScrollToItem(
         // We found it, animate to it
         // Bring to the requested position - will be automatically stopped if not possible
         val anim = itemFound.previousAnimation.copy(value = 0f)
-        val target = (itemFound.itemOffset + scrollOffset).toFloat()
+        val scrollAdjustment =
+            if (isAutofocusEnabledInScroll) {
+                val mainAxisHalfSizeForIndex = getItemSize(index) / 2f
+                // Calculate the scroll adjustment to make the item shown on the focus line
+                scrollOffset + mainAxisHalfSizeForIndex -
+                    (autofocusState.properties?.focusScroll?.toFloat() ?: 0f)
+            } else {
+                scrollOffset.toFloat()
+            }
+        val target = itemFound.itemOffset + scrollAdjustment
         var prevValue = 0f
         debugLog { "Seeking by $target at velocity ${itemFound.previousAnimation.velocity}" }
         anim.animateTo(target, sequentialAnimation = (anim.velocity != 0f)) {
@@ -257,11 +275,13 @@ internal suspend fun LazyLayoutScrollScope.animateScrollToItem(
             }
             prevValue += delta
         }
-        // Once we're finished the animation, snap to the exact position to account for
-        // rounding error (otherwise we tend to end up with the previous item scrolled the
-        // tiniest bit onscreen)
-        // TODO: b/427148034 - Prevent temporarily scrolling *past* the item
-        snapToItem(index = index, offset = scrollOffset)
+        // TODO(b/483977184): Use snapToItem when behavior is fixed for autofocus
+        if (!isAutofocusEnabledInScroll) {
+            // Once we're finished the animation, snap to the exact position to account for
+            // rounding error (otherwise we tend to end up with the previous item scrolled the
+            // tiniest bit onscreen)
+            snapToItem(index = index, offset = scrollOffset)
+        }
     }
 }
 

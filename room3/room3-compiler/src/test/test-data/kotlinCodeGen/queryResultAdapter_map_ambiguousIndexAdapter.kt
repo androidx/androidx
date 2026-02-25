@@ -4,6 +4,8 @@ import androidx.room3.util.getColumnIndex
 import androidx.room3.util.performBlocking
 import androidx.room3.util.wrapMappedColumns
 import androidx.sqlite.SQLiteStatement
+import androidx.sqlite.prepare
+import androidx.sqlite.step
 import javax.`annotation`.processing.Generated
 import kotlin.Array
 import kotlin.Int

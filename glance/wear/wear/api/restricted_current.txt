@@ -3,10 +3,16 @@ package androidx.glance.wear {
 
   public abstract class GlanceWearWidget {
     ctor public GlanceWearWidget();
-    method @MainThread public suspend Object? onAdded(android.content.Context context, androidx.glance.wear.ActiveWearWidgetHandle widgetHandle, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method @MainThread public suspend Object? onRemoved(android.content.Context context, androidx.glance.wear.ActiveWearWidgetHandle widgetHandle, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method @MainThread public abstract suspend Object? provideWidgetData(android.content.Context context, androidx.glance.wear.WearWidgetParams params, kotlin.coroutines.Continuation<? super androidx.glance.wear.WearWidgetData>);
+    method @MainThread public suspend Object? onAdded(android.content.Context context, androidx.glance.wear.core.ActiveWearWidgetHandle widgetHandle, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @MainThread public suspend Object? onEvents(android.content.Context context, java.util.List<? extends androidx.glance.wear.core.WearWidgetEvent> events, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @MainThread public suspend Object? onRemoved(android.content.Context context, androidx.glance.wear.core.ActiveWearWidgetHandle widgetHandle, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @MainThread public abstract suspend Object? provideWidgetData(android.content.Context context, androidx.glance.wear.core.WearWidgetParams params, kotlin.coroutines.Continuation<? super androidx.glance.wear.WearWidgetData>);
     method public final void triggerUpdate(android.content.Context context, android.content.ComponentName provider);
+  }
+
+  public final class GlanceWearWidgetManager {
+    ctor public GlanceWearWidgetManager(android.content.Context context);
+    method public suspend Object? fetchActiveWidgets(kotlin.coroutines.Continuation<? super java.util.List<androidx.glance.wear.core.ActiveWearWidgetHandle>>);
   }
 
   public abstract class GlanceWearWidgetService extends androidx.lifecycle.LifecycleService {

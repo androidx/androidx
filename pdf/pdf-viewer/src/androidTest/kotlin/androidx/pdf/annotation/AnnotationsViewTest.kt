@@ -30,6 +30,7 @@ import androidx.pdf.annotation.AnnotationsView.AnnotationMode
 import androidx.pdf.annotation.AnnotationsView.PageAnnotationsData
 import androidx.pdf.annotation.highlights.InProgressHighlightsView
 import androidx.pdf.annotation.models.PathPdfObject
+import androidx.pdf.annotation.models.PathPdfObject.PathInput
 import androidx.pdf.annotation.models.StampAnnotation
 import androidx.pdf.content.PdfPageTextContent
 import androidx.pdf.view.FakePdfDocument
@@ -247,11 +248,11 @@ class AnnotationsViewTest {
         // Mock a simple rectangular path slightly inset from bounds
         val pathInputs =
             listOf(
-                PathPdfObject.PathInput(bounds.left + width / 4, bounds.top + height / 4),
-                PathPdfObject.PathInput(bounds.right - width / 4, bounds.top + height / 4),
-                PathPdfObject.PathInput(bounds.right - width / 4, bounds.bottom - height / 4),
-                PathPdfObject.PathInput(bounds.left + width / 4, bounds.bottom - height / 4),
-                PathPdfObject.PathInput(bounds.left + width / 4, bounds.top + height / 4),
+                PathInput(bounds.left + width / 4, bounds.top + height / 4, PathInput.MOVE_TO),
+                PathInput(bounds.right - width / 4, bounds.top + height / 4, PathInput.LINE_TO),
+                PathInput(bounds.right - width / 4, bounds.bottom - height / 4, PathInput.LINE_TO),
+                PathInput(bounds.left + width / 4, bounds.bottom - height / 4, PathInput.LINE_TO),
+                PathInput(bounds.left + width / 4, bounds.top + height / 4, PathInput.LINE_TO),
             )
 
         val pathObject = PathPdfObject(Color.RED, 10f, pathInputs)

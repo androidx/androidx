@@ -28,4 +28,54 @@
     <string name="annotation_undo_button_content_desc" msgid="479267370046825819">"Tendua"</string>
     <string name="annotation_redo_button_content_desc" msgid="3758120724922767367">"Rejesha"</string>
     <string name="annotation_toggle_annotation_button_content_desc" msgid="7425032497404166935">"Geuza Kidokezo"</string>
+    <string name="pdf_pen_color_palette_item_black" msgid="1193850318058674733">"Nyeusi"</string>
+    <string name="pdf_pen_color_palette_item_dark_blue" msgid="3709903694487096403">"Buluu iliyokolea"</string>
+    <string name="pdf_pen_color_palette_item_red" msgid="7822500272989225395">"Nyekundu"</string>
+    <string name="pdf_pen_color_palette_item_green" msgid="5819181960831423028">"Kijani"</string>
+    <string name="pdf_pen_color_palette_item_gold" msgid="3115612006626679755">"Rangi ya dhahabu"</string>
+    <string name="pdf_pen_color_palette_item_olive_green" msgid="8682186726127294387">"Rangi ya kijani ya zeituni"</string>
+    <string name="pdf_pen_color_palette_item_brown" msgid="6232950817278059536">"Kahawia"</string>
+    <string name="pdf_pen_color_palette_item_gray" msgid="6163892444815389053">"Kijivu"</string>
+    <string name="pdf_pen_color_palette_item_blue" msgid="7457564074074521904">"Samawati"</string>
+    <string name="pdf_pen_color_palette_item_coral_red" msgid="7031815032565562240">"Nyekundu ya marijani"</string>
+    <string name="pdf_pen_color_palette_item_lime_green" msgid="3841967923966525202">"Rangi ya kijani cha ndimu"</string>
+    <string name="pdf_pen_color_palette_item_yellow" msgid="4727631332525029494">"Njano"</string>
+    <string name="pdf_pen_color_palette_item_pale_lime" msgid="788428039617260017">"Kijani cha ndimu isiyokolea"</string>
+    <string name="pdf_pen_color_palette_item_tan" msgid="8683991930359923110">"Hudhurungi"</string>
+    <string name="pdf_pen_color_palette_item_light_gray" msgid="1826258279260761568">"Kijivu iliyofifia"</string>
+    <string name="pdf_pen_color_palette_item_purple" msgid="4874203867122898447">"Rangi ya zambarau"</string>
+    <string name="pdf_pen_color_palette_item_pink" msgid="910303583995020849">"Rangi ya waridi"</string>
+    <string name="pdf_pen_color_palette_item_mint_green" msgid="3466695895495074727">"Kijani iliyofifia"</string>
+    <string name="pdf_pen_color_palette_item_orange" msgid="8386255929980628111">"Rangi ya chungwa"</string>
+    <string name="pdf_pen_color_palette_item_steel_blue" msgid="3154206559377052556">"Samawati ya chuma"</string>
+    <string name="pdf_pen_color_palette_item_deep_red" msgid="4239541789778061549">"Nyekundu iliyokolea"</string>
+    <string name="pdf_pen_color_palette_item_white" msgid="8144463165091121076">"Nyeupe"</string>
+    <string name="pdf_pen_color_palette_item_lavender" msgid="1775986939316611290">"Urujuani"</string>
+    <string name="pdf_pen_color_palette_item_pale_pink" msgid="1141881885074993872">"Rangi ya waridi isiyokolea"</string>
+    <string name="pdf_pen_color_palette_item_pale_green" msgid="792103596873317647">"Rangi ya kijani isiyokolea"</string>
+    <string name="pdf_pen_color_palette_item_peach" msgid="708830522451831539">"Rangi ya pichi"</string>
+    <string name="pdf_pen_color_palette_item_light_blue" msgid="2417180972880324689">"Buluu iliyofifia"</string>
+    <string name="pdf_pen_color_palette_item_salmon" msgid="6163374875760492193">"Rangi ya samoni"</string>
+    <string name="pdf_highlighter_color_palette_item_dark_gray" msgid="1838666264159845710">"Rangi ya kijivu iliyokolea"</string>
+    <string name="pdf_highlighter_color_palette_item_white" msgid="8644005777632868460">"Nyeupe"</string>
+    <string name="pdf_highlighter_color_palette_item_coral_red" msgid="1813490531181208077">"Nyekundu ya marijani"</string>
+    <string name="pdf_highlighter_color_palette_item_lime_green" msgid="6425999517080100086">"Rangi ya kijani cha ndimu"</string>
+    <string name="pdf_highlighter_color_palette_item_periwinkle_blue" msgid="5699667219502054262">"Rangi ya buluu na zambarau"</string>
+    <string name="pdf_highlighter_color_palette_item_orange" msgid="5231185833927668570">"Rangi ya chungwa"</string>
+    <string name="pdf_highlighter_color_palette_item_yellow" msgid="416381392408268015">"Njano"</string>
+    <string name="pdf_highlighter_color_palette_item_pale_pink" msgid="2619944780773837664">"Rangi ya waridi isiyokolea"</string>
+    <string name="pdf_highlighter_color_palette_item_light_blue" msgid="3792266639825110183">"Buluu iliyofifia"</string>
+    <string name="pdf_highlighter_color_palette_item_pale_green" msgid="6277595714452533675">"Rangi ya kijani isiyokolea"</string>
+    <string name="pdf_highlighter_color_palette_item_bright_yellow" msgid="7631420996977636184">"Njano inayong\'aa"</string>
+    <string name="pdf_highlighter_color_palette_item_peach" msgid="3074189144452054229">"Rangi ya pichi"</string>
+    <string name="pdf_highlighter_color_palette_item_dusty_rose" msgid="5604104736640334540">"Waridi iliyopauka"</string>
+    <string name="pdf_highlighter_color_palette_item_olive_green" msgid="515781557822485029">"Rangi ya kijani ya zeituni"</string>
+    <string name="pdf_highlighter_color_palette_item_medium_purple" msgid="2072323998502107059">"Rangi ya zambarau ya wastani"</string>
+    <string name="pdf_highlighter_color_palette_item_medium_green" msgid="7887546086583310004">"Rangi ya kijani ya wastani"</string>
+    <string name="pdf_highlighter_color_palette_item_rose_pink" msgid="3327080834957606964">"Rangi ya waridi nyekundu"</string>
+    <string name="pdf_highlighter_color_palette_item_steel_blue" msgid="1879951396340830723">"Samawati ya chuma"</string>
+    <string name="pdf_highlighter_color_palette_item_lilac" msgid="2273341586636082345">"Lilaki"</string>
+    <string name="pdf_highlighter_color_palette_item_sage_green" msgid="1036901682730984808">"Kijani cha kijivu"</string>
+    <string name="pdf_highlighter_color_palette_item_beige" msgid="1804950940020440334">"Rangi ya mchanga"</string>
+    <string name="pdf_brush_slider_content_description" msgid="3435156728997667269">"Upana wa mstari"</string>
 </resources>

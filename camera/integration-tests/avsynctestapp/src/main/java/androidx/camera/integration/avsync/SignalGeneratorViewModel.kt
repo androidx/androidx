@@ -22,7 +22,6 @@ import android.media.AudioManager
 import androidx.camera.core.Logger
 import androidx.camera.integration.avsync.model.AudioGenerator
 import androidx.camera.integration.avsync.model.CameraHelper
-import androidx.camera.integration.avsync.model.CameraHelper.Companion.CameraImplementation
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -76,12 +75,8 @@ class SignalGeneratorViewModel : ViewModel() {
     var isPaused: Boolean by mutableStateOf(false)
         private set
 
-    suspend fun initialRecorder(
-        context: Context,
-        lifecycleOwner: LifecycleOwner,
-        cameraImplementation: CameraImplementation,
-    ) {
-        cameraHelper = CameraHelper(cameraImplementation)
+    suspend fun initialRecorder(context: Context, lifecycleOwner: LifecycleOwner) {
+        cameraHelper = CameraHelper()
         withContext(Dispatchers.Main) {
             isRecorderReady = cameraHelper.bindCamera(context, lifecycleOwner)
         }

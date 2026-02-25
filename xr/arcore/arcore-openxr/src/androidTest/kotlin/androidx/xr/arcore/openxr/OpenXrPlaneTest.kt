@@ -24,6 +24,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException
 import androidx.xr.arcore.runtime.Plane
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
@@ -229,7 +230,7 @@ class OpenXrPlaneTest {
             openXrManager.create()
             openXrManager.resume()
             openXrManager.configure(
-                Config(planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+                Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
             )
 
             testBody()

@@ -99,6 +99,25 @@ public object DynamicRangeFormatComboRegistry {
     }
 
     /**
+     * Returns the supported [DynamicRange]s for the given video MIME type.
+     *
+     * @param videoMime The video MIME type to query.
+     * @return A [Set] of [DynamicRange] compatible with the video MIME type.
+     */
+    public fun getDynamicRangesForVideoMime(videoMime: String): Set<DynamicRange> {
+        val supportedRanges = mutableSetOf<DynamicRange>()
+
+        for ((range, registry) in registries) {
+            // Check only for video support in this registry
+            if (registry.getCombosForVideo(videoMime).isNotEmpty()) {
+                supportedRanges.add(range)
+            }
+        }
+
+        return supportedRanges
+    }
+
+    /**
      * Reference:
      * https://developer.android.com/reference/android/media/MediaMuxer#addTrack(android.media.MediaFormat)
      */

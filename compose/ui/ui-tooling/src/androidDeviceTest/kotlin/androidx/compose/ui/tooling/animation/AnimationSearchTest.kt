@@ -78,7 +78,7 @@ class AnimationSearchTest {
 
     @Test
     fun targetBasedAnimationIsConnected() {
-        val clock = PreviewAnimationClock {}
+        val clock = PreviewAnimationClock({}, {})
         rule.attachAllAnimations(clock) { TargetBasedAnimationPreview() }
         assertEquals(1, clock.trackedUnsupportedAnimations.size)
     }
@@ -102,7 +102,7 @@ class AnimationSearchTest {
 
     @Test
     fun decayAnimationIsConnected() {
-        val clock = PreviewAnimationClock {}
+        val clock = PreviewAnimationClock({}, {})
         rule.attachAllAnimations(clock) { DecayAnimationPreview() }
         assertEquals(1, clock.trackedUnsupportedAnimations.size)
     }
@@ -133,9 +133,9 @@ class AnimationSearchTest {
 
     @Test
     fun infiniteTransitionIsConnected() {
-        val clock = PreviewAnimationClock {}
+        val clock = PreviewAnimationClock({}, {})
         rule.attachAllAnimations(clock) { InfiniteTransitionPreview() }
-        assertEquals(1, clock.infiniteTransitionClocks.size)
+        assertEquals(1, clock.animationClocks.size)
     }
 
     @Test
@@ -161,13 +161,15 @@ class AnimationSearchTest {
         assertEquals(2, search.animations.size)
         search.animations.first().let {
             assertTrue(it.animationSpec is SpringSpec)
-            Assert.assertNotNull(it.toolingState)
+            Assert.assertNotNull(it.toolingOverride.state)
+            Assert.assertNotNull(it.toolingOverride.override)
             Assert.assertNotNull(it.animatable)
             assertEquals("IntAnimation", it.animatable.label)
         }
         search.animations.last().let {
             assertTrue(it.animationSpec is SpringSpec)
-            Assert.assertNotNull(it.toolingState)
+            Assert.assertNotNull(it.toolingOverride.state)
+            Assert.assertNotNull(it.toolingOverride.override)
             Assert.assertNotNull(it.animatable)
             assertEquals("DpAnimation", it.animatable.label)
         }
@@ -184,9 +186,9 @@ class AnimationSearchTest {
 
     @Test
     fun animatedXAsStateSearchIsConnected() {
-        val clock = PreviewAnimationClock {}
+        val clock = PreviewAnimationClock({}, {})
         rule.attachAllAnimations(clock) { AnimateAsStatePreview() }
-        assertEquals(2, clock.animateXAsStateClocks.size)
+        assertEquals(2, clock.animationClocks.size)
     }
 
     @Test
@@ -198,13 +200,15 @@ class AnimationSearchTest {
         assertEquals(2, search.animations.size)
         search.animations.first().let {
             assertTrue(it.animationSpec is SpringSpec)
-            Assert.assertNotNull(it.toolingState)
+            Assert.assertNotNull(it.toolingOverride.state)
+            Assert.assertNotNull(it.toolingOverride.override)
             Assert.assertNotNull(it.animatable)
             assertEquals("CustomIntLabel", it.animatable.label)
         }
         search.animations.last().let {
             assertTrue(it.animationSpec is SpringSpec)
-            Assert.assertNotNull(it.toolingState)
+            Assert.assertNotNull(it.toolingOverride.state)
+            Assert.assertNotNull(it.toolingOverride.override)
             Assert.assertNotNull(it.animatable)
             assertEquals("CustomDpLabel", it.animatable.label)
         }
@@ -216,9 +220,9 @@ class AnimationSearchTest {
 
     @Test
     fun animatedXAsStateWithLabelsSearchIsConnected() {
-        val clock = PreviewAnimationClock {}
+        val clock = PreviewAnimationClock({}, {})
         rule.attachAllAnimations(clock) { AnimateAsStateWithLabelsPreview() }
-        assertEquals(2, clock.animateXAsStateClocks.size)
+        assertEquals(2, clock.animationClocks.size)
     }
 
     @Test
@@ -241,7 +245,7 @@ class AnimationSearchTest {
 
     @Test
     fun animatedContentSizeIsConnected() {
-        val clock = PreviewAnimationClock {}
+        val clock = PreviewAnimationClock({}, {})
         rule.attachAllAnimations(clock) { AnimateContentSizePreview() }
         assertEquals(1, clock.trackedUnsupportedAnimations.size)
     }
@@ -255,7 +259,7 @@ class AnimationSearchTest {
         assertEquals(1, search.animations.size)
         search.track()
         assertEquals(1, callbacks)
-        assertEquals("checkBoxAnim", search.animations.first().label)
+        assertEquals("checkBoxAnim", search.animations.first().transition.label)
     }
 
     @Test
@@ -265,9 +269,9 @@ class AnimationSearchTest {
 
     @Test
     fun transitionIsConnected() {
-        val clock = PreviewAnimationClock {}
+        val clock = PreviewAnimationClock({}, {})
         rule.attachAllAnimations(clock) { TransitionPreview() }
-        assertEquals(1, clock.transitionClocks.size)
+        assertEquals(1, clock.animationClocks.size)
     }
 
     @Test
@@ -300,9 +304,9 @@ class AnimationSearchTest {
 
     @Test
     fun animatedVisibilityExtensionIsConnected() {
-        val clock = PreviewAnimationClock {}
+        val clock = PreviewAnimationClock({}, {})
         rule.attachAllAnimations(clock) { TransitionAnimatedVisibilityPreview() }
-        assertEquals(1, clock.transitionClocks.size)
+        assertEquals(1, clock.animationClocks.size)
     }
 
     @Test
@@ -314,8 +318,8 @@ class AnimationSearchTest {
         assertEquals(1, search.animations.size)
         search.track()
         assertEquals(1, callbacks)
-        assertEquals("A", search.animations.first().targetState)
-        assertEquals("Crossfade", search.animations.first().label)
+        assertEquals("A", search.animations.first().transition.targetState)
+        assertEquals("Crossfade", search.animations.first().transition.label)
     }
 
     @Test
@@ -325,9 +329,9 @@ class AnimationSearchTest {
 
     @Test
     fun crossFadeIsConnectedAsTransition() {
-        val clock = PreviewAnimationClock {}
+        val clock = PreviewAnimationClock({}, {})
         rule.attachAllAnimations(clock) { CrossFadePreview() }
-        assertEquals(1, clock.transitionClocks.size)
+        assertEquals(1, clock.animationClocks.size)
     }
 
     @Test
@@ -339,15 +343,15 @@ class AnimationSearchTest {
         assertEquals(1, search.animations.size)
         search.track()
         assertEquals(1, callbacks)
-        assertEquals("A", search.animations.first().targetState)
-        assertEquals("CrossfadeWithLabel", search.animations.first().label)
+        assertEquals("A", search.animations.first().transition.targetState)
+        assertEquals("CrossfadeWithLabel", search.animations.first().transition.label)
     }
 
     @Test
     fun crossFadeWithLabelIsConnectedAsTransition() {
-        val clock = PreviewAnimationClock {}
+        val clock = PreviewAnimationClock({}, {})
         rule.attachAllAnimations(clock) { CrossFadeWithLabelPreview() }
-        assertEquals(1, clock.transitionClocks.size)
+        assertEquals(1, clock.animationClocks.size)
     }
 
     @Test
@@ -359,7 +363,7 @@ class AnimationSearchTest {
         assertEquals(1, search.animations.size)
         search.track()
         assertEquals(1, callbacks)
-        assertEquals("My Animated Visibility", search.animations.first().label)
+        assertEquals("My Animated Visibility", search.animations.first().transition.label)
     }
 
     @Test
@@ -371,9 +375,9 @@ class AnimationSearchTest {
 
     @Test
     fun animatedVisibilityIsConnected() {
-        val clock = PreviewAnimationClock {}
+        val clock = PreviewAnimationClock({}, {})
         rule.attachAllAnimations(clock) { AnimatedVisibilityPreview() }
-        assertEquals(1, clock.animatedVisibilityClocks.size)
+        assertEquals(1, clock.animationClocks.size)
     }
 
     @Test
@@ -385,7 +389,7 @@ class AnimationSearchTest {
         assertEquals(1, search.animations.size)
         search.track()
         assertEquals(1, callbacks)
-        assertEquals(0, search.animations.first().targetState)
+        assertEquals(0, search.animations.first().transition.targetState)
     }
 
     @Test
@@ -395,33 +399,33 @@ class AnimationSearchTest {
 
     @Test
     fun animatedContentIsConnected() {
-        val clock = PreviewAnimationClock {}
+        val clock = PreviewAnimationClock({}, {})
         rule.attachAllAnimations(clock) { AnimatedContentPreview() }
-        assertEquals(1, clock.animatedContentClocks.size)
+        assertEquals(1, clock.animationClocks.size)
     }
 
     @Test
     fun nullAnimatedContentIsConnectedAsUnsupported() {
-        val clock = PreviewAnimationClock()
+        val clock = PreviewAnimationClock({}, {})
         rule.attachAllAnimations(clock) { NullAnimatedContentPreview() }
         assertEquals(1, clock.trackedUnsupportedAnimations.size)
-        assertTrue(clock.animatedContentClocks.isEmpty())
+        assertTrue(clock.animationClocks.isEmpty())
     }
 
     @Test
     fun nullAnimatedXAsStateIsConnectedAsUnsupported() {
-        val clock = PreviewAnimationClock()
+        val clock = PreviewAnimationClock({}, {})
         rule.attachAllAnimations(clock) { NullAnimateAsStatePreview() }
         assertEquals(1, clock.trackedUnsupportedAnimations.size)
-        assertTrue(clock.animateXAsStateClocks.isEmpty())
+        assertTrue(clock.animationClocks.isEmpty())
     }
 
     @Test
     fun nullTransitionIsConnectedAsUnsupported() {
-        val clock = PreviewAnimationClock()
+        val clock = PreviewAnimationClock({}, {})
         rule.attachAllAnimations(clock) { NullTransitionPreview() }
         assertEquals(1, clock.trackedUnsupportedAnimations.size)
-        assertTrue(clock.transitionClocks.isEmpty())
+        assertTrue(clock.animationClocks.isEmpty())
     }
 
     @Test
@@ -446,9 +450,9 @@ class AnimationSearchTest {
 
     @Test
     fun animatedContentExtensionIsFoundAsTransitionAndSupported() {
-        val clock = PreviewAnimationClock()
+        val clock = PreviewAnimationClock({}, {})
         rule.attachAllAnimations(clock) { AnimatedContentExtensionPreview() }
-        assertEquals(1, clock.transitionClocks.size)
+        assertEquals(1, clock.animationClocks.size)
     }
 
     private fun animationIsFound(

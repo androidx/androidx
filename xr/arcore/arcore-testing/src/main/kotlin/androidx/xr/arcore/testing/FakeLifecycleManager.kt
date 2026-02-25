@@ -17,20 +17,33 @@
 package androidx.xr.arcore.testing
 
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.AnchorPersistenceMode
 import androidx.xr.runtime.AugmentedObjectCategory
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.DepthEstimationMode
+import androidx.xr.runtime.DeviceTrackingMode
+import androidx.xr.runtime.FaceTrackingMode
+import androidx.xr.runtime.HandTrackingMode
+import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.internal.LifecycleManager
 import kotlin.time.ComparableTimeMark
 import kotlin.time.TestTimeSource
 import kotlinx.coroutines.sync.Semaphore
 
 /**
- * Test-only implementation of [androidx.xr.runtime.internal.LifecycleManager] used to validate
- * state transitions.
+ * Fake implementation of [LifecycleManager] used to validate state transitions.
+ *
+ * @property hasCreatePermission if false, [create] will throw an exception during testing
+ * @property state the current [State] of the runtime
+ * @property timeSource the [TestTimeSource] used for this runtime
+ * @property hasMissingPermission if true, [configure] will emulate the failure case for missing
+ *   permissions
+ * @property shouldSupportPlaneTracking if false, [configure] will throw an exception if the config
+ *   enables plane tracking
+ * @property config the current [Config] of the session
  */
 @Suppress("NotCloseable")
 public class FakeLifecycleManager(
-    /** If false, [create] will throw an exception during testing. */
     @get:JvmName("hasCreatePermission") public var hasCreatePermission: Boolean = true
 ) : LifecycleManager {
 
@@ -49,22 +62,17 @@ public class FakeLifecycleManager(
         DESTROYED,
     }
 
-    /** The current state of the runtime. */
     public var state: State = State.NOT_INITIALIZED
         private set
 
-    /** The time source used for this runtime. */
     public val timeSource: TestTimeSource = TestTimeSource()
 
     private val semaphore = Semaphore(1)
 
-    /** If true, [configure] will emulate the failure case for missing permissions. */
     @get:JvmName("hasMissingPermission") public var hasMissingPermission: Boolean = false
 
-    /** If false, [configure] will throw an Exception if the config enables PlaneTracking. */
     @get:JvmName("shouldSupportPlaneTracking") public var shouldSupportPlaneTracking: Boolean = true
 
-    /** If false, [configure] will throw an exception if the config enables FaceTracking */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -86,12 +94,12 @@ public class FakeLifecycleManager(
 
     override var config: Config =
         Config(
-            Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-            augmentedObjectCategories = AugmentedObjectCategory.Companion.all(),
-            Config.HandTrackingMode.BOTH,
-            Config.DeviceTrackingMode.LAST_KNOWN,
-            Config.DepthEstimationMode.SMOOTH_AND_RAW,
-            Config.AnchorPersistenceMode.LOCAL,
+            PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
+            HandTrackingMode.BOTH,
+            DeviceTrackingMode.LAST_KNOWN,
+            DepthEstimationMode.SMOOTH_AND_RAW,
+            AnchorPersistenceMode.LOCAL,
+            augmentedObjectCategories = AugmentedObjectCategory.allSupported(),
         )
 
     override fun configure(config: Config) {
@@ -101,16 +109,11 @@ public class FakeLifecycleManager(
                 state == State.RESUMED ||
                 state == State.PAUSED
         )
-        if (
-            !shouldSupportPlaneTracking && config.planeTracking != Config.PlaneTrackingMode.DISABLED
-        ) {
+        if (!shouldSupportPlaneTracking && config.planeTracking != PlaneTrackingMode.DISABLED) {
             throw UnsupportedOperationException()
         }
 
-        if (
-            !shouldSupportFaceTracking &&
-                config.faceTracking == Config.FaceTrackingMode.BLEND_SHAPES
-        ) {
+        if (!shouldSupportFaceTracking && config.faceTracking == FaceTrackingMode.BLEND_SHAPES) {
             throw UnsupportedOperationException()
         }
 
@@ -124,8 +127,10 @@ public class FakeLifecycleManager(
     }
 
     /**
-     * Retrieves the latest time mark. The first call to this method will execute immediately.
-     * Subsequent calls will be blocked until [allowOneMoreCallToUpdate] is called.
+     * Retrieves the latest time mark.
+     *
+     * The first call to this method will execute immediately. Subsequent calls will be blocked
+     * until [allowOneMoreCallToUpdate] is called.
      */
     override suspend fun update(): ComparableTimeMark {
         check(state == State.RESUMED)
@@ -134,9 +139,10 @@ public class FakeLifecycleManager(
     }
 
     /**
-     * Allows an additional call to [update] to not be blocked. Requires that [update] has been
-     * called exactly once before each call to this method. Failure to do so will result in an
-     * [IllegalStateException].
+     * Allows an additional call to [update] to not be blocked.
+     *
+     * Requires that [update] has been called exactly once before each call to this method. Failure
+     * to do so will result in an [IllegalStateException].
      */
     public fun allowOneMoreCallToUpdate() {
         semaphore.release()

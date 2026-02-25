@@ -25,7 +25,9 @@ import androidx.xr.runtime.internal.JxrRuntime
 import kotlin.time.ComparableTimeMark
 
 /** [StateExtender] in charge of extending [CoreState] with [PerceptionState]. */
-internal class PerceptionStateExtender : StateExtender {
+// TODO: b/455593773 - Restrict ctor once YTXR ports to JXR proper, and is no longer a chimeric app.
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public class PerceptionStateExtender : StateExtender {
 
     internal companion object {
         internal const val MAX_PERCEPTION_STATE_EXTENSION_SIZE = 100

@@ -18,8 +18,8 @@ package androidx.camera.extensions
 
 import android.content.Context
 import android.graphics.Bitmap
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
@@ -30,7 +30,6 @@ import androidx.camera.core.impl.Identifier
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
@@ -67,22 +66,14 @@ import org.mockito.Mockito
 @LargeTest
 @RunWith(Parameterized::class)
 class ExtensionSessionConfigTest(
-    private val implName: String,
-    private val cameraXConfig: CameraXConfig,
     @field:ExtensionMode.Mode @param:ExtensionMode.Mode private val extensionMode: Int,
     @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int,
 ) {
 
     @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(
-            active = implName == ExtensionsTestUtil.CAMERA_PIPE_IMPLEMENTATION_OPTION
-        )
-
-    @get:Rule
     val useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-            CameraUtil.PreTestCameraIdList(cameraXConfig)
+            CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
         )
 
     @get:Rule
@@ -122,7 +113,6 @@ class ExtensionSessionConfigTest(
         assumeTrue(
             ExtensionsTestUtil.isTargetDeviceAvailableForExtensions(lensFacing, extensionMode)
         )
-        ProcessCameraProvider.configureInstance(cameraXConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
         extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
@@ -154,9 +144,9 @@ class ExtensionSessionConfigTest(
         val context: Context = ApplicationProvider.getApplicationContext()
 
         @JvmStatic
-        @Parameterized.Parameters(name = "cameraXConfig = {0}, mode = {2}, facing = {3}")
+        @Parameterized.Parameters(name = "mode = {0}, facing = {1}")
         fun data(): Collection<Array<Any>> {
-            return ExtensionsTestUtil.getAllImplExtensionsLensFacingCombinations(context, true)
+            return ExtensionsTestUtil.getAllExtensionsLensFacingCombinations(context, true)
         }
     }
 

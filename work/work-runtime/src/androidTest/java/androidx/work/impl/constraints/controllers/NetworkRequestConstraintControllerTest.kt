@@ -20,6 +20,7 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -143,16 +144,39 @@ class NetworkRequestConstraintControllerTest {
             suspendCancellableCoroutine<Unit> { cont ->
                 val callback =
                     object : ConnectivityManager.NetworkCallback() {
+                        var isBlocked = if (Build.VERSION.SDK_INT >= 29) null else false
+                        var isAvailable: Boolean? = null
+
                         override fun onAvailable(network: Network) {
-                            if (enable && cont.isActive) cont.resume(Unit)
+                            isAvailable = true
+                            maybeContinue()
+                        }
+
+                        override fun onBlockedStatusChanged(network: Network, blocked: Boolean) {
+                            isBlocked = blocked
+                            maybeContinue()
                         }
 
                         override fun onLost(network: Network) {
-                            if (!enable && cont.isActive) cont.resume(Unit)
+                            isAvailable = false
+                            maybeContinue()
+                        }
+
+                        private fun maybeContinue() {
+                            if (!cont.isActive) {
+                                return
+                            }
+                            if (isAvailable == null || isBlocked == null) {
+                                return
+                            }
+                            val hasConnectivity = isAvailable!! && !isBlocked!!
+                            if (enable == hasConnectivity) {
+                                cont.resume(Unit)
+                            }
                         }
                     }
                 connectivityManager.registerNetworkCallback(createWifiNetworkRequest(), callback)
-                if (enable == isWifiConnected() && cont.isActive) {
+                if (Build.VERSION.SDK_INT < 29 && enable == isWifiConnected() && cont.isActive) {
                     // already enabled / disabled
                     cont.resume(Unit)
                 }

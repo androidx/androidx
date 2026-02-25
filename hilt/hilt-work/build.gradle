@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -50,5 +49,5 @@ androidx {
     mavenVersion = LibraryVersions.HILT
     inceptionYear = "2020"
     description = "Android Lifecycle WorkManager Hilt Extension"
-    kotlinTarget = KotlinTarget.KOTLIN_2_1
+    kotlinTarget = KotlinTarget.KOTLIN_2_2
 }

@@ -23,7 +23,6 @@ import androidx.compose.remote.creation.compose.capture.RecordingCanvas
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toComposeUiLayout
 import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
-import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.v2.RemoteCanvasV2
 import androidx.compose.remote.creation.compose.v2.RemoteComposeApplierV2
 import androidx.compose.remote.creation.modifiers.RecordingModifier
@@ -61,9 +60,7 @@ public fun RemoteCanvas(
                             remoteCanvas =
                                 RemoteCanvas(
                                     this.drawContext.canvas.nativeCanvas as RecordingCanvas
-                                ),
-                            fontScale = this.fontScale.rf,
-                            layoutDirection = this.layoutDirection,
+                                )
                         )
                         .content()
                 }
@@ -72,8 +69,7 @@ public fun RemoteCanvas(
 }
 
 /** Utility modifier to record the layout information */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteComposeCanvasModifier(public val modifier: RecordingModifier) : DrawModifier {
+internal class RemoteComposeCanvasModifier(public val modifier: RecordingModifier) : DrawModifier {
     override fun ContentDrawScope.draw() {
         drawIntoRemoteCanvas { canvas ->
             canvas.document.startCanvas(modifier)

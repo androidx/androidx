@@ -16,7 +16,12 @@
 
 package androidx.navigation.compose.internal
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.SizeTransform
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavBackStackEntry
 import kotlin.experimental.and
 import kotlin.experimental.or
 import kotlin.random.Random
@@ -67,4 +72,26 @@ internal actual class WeakReference<T : Any> actual constructor(reference: T) {
     actual fun get(): T? = implementedInJetBrainsFork()
 
     actual fun clear(): Unit = implementedInJetBrainsFork()
+}
+
+internal actual object DefaultNavTransitions {
+    actual val enterTransition:
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition
+        get() = implementedInJetBrainsFork()
+
+    actual val exitTransition:
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition
+        get() = implementedInJetBrainsFork()
+
+    actual val predictivePopEnterTransition:
+        AnimatedContentTransitionScope<NavBackStackEntry>.(Int) -> EnterTransition
+        get() = implementedInJetBrainsFork()
+
+    actual val predictivePopExitTransition:
+        AnimatedContentTransitionScope<NavBackStackEntry>.(Int) -> ExitTransition
+        get() = implementedInJetBrainsFork()
+
+    actual val sizeTransform:
+        (AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)?
+        get() = implementedInJetBrainsFork()
 }

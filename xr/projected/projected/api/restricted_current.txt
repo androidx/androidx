@@ -3,14 +3,16 @@ package androidx.xr.projected {
 
   @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public final class ProjectedActivityCompat implements java.lang.AutoCloseable {
     method public void close();
-    method public static suspend Object? create(android.content.Context context, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedActivityCompat>);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static suspend Object? create(android.app.Activity activity, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedActivityCompat>);
+    method @Deprecated public static suspend Object? create(android.content.Context context, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedActivityCompat>);
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.Flow<androidx.xr.projected.ProjectedInputEvent> getProjectedInputEvents();
     property public kotlinx.coroutines.flow.Flow<androidx.xr.projected.ProjectedInputEvent> projectedInputEvents;
     field public static final androidx.xr.projected.ProjectedActivityCompat.Companion Companion;
   }
 
   @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public static final class ProjectedActivityCompat.Companion {
-    method public suspend Object? create(android.content.Context context, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedActivityCompat>);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public suspend Object? create(android.app.Activity activity, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedActivityCompat>);
+    method @Deprecated public suspend Object? create(android.content.Context context, kotlin.coroutines.Continuation<? super androidx.xr.projected.ProjectedActivityCompat>);
   }
 
   @SuppressCompatibility @androidx.xr.projected.experimental.ExperimentalProjectedApi public final class ProjectedContext {

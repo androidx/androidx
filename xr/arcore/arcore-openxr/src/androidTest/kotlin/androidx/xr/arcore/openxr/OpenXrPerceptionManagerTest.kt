@@ -25,7 +25,10 @@ import androidx.xr.arcore.runtime.AnchorInvalidUuidException
 import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException
 import androidx.xr.arcore.runtime.HandJointType
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.DepthEstimationMode
+import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.FieldOfView
+import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
@@ -133,7 +136,7 @@ class OpenXrPerceptionManagerTest {
         // TODO: b/345314278 -- Add more meaningful tests once trackables are implemented properly
         // and
         // a fake perception library can be used mock trackables.
-        openXrManager.configure(Config(planeTracking = Config.PlaneTrackingMode.DISABLED))
+        openXrManager.configure(Config(planeTracking = PlaneTrackingMode.DISABLED))
 
         underTest.updatePlanes(XR_TIME)
 
@@ -274,7 +277,7 @@ class OpenXrPerceptionManagerTest {
         check(underTest.rightDepthMap!!.smoothDepthMap == null)
         check(underTest.rightDepthMap!!.smoothConfidenceMap == null)
 
-        openXrManager.configure(Config(depthEstimation = Config.DepthEstimationMode.RAW_ONLY))
+        openXrManager.configure(Config(depthEstimation = DepthEstimationMode.RAW_ONLY))
         underTest.update(XR_TIME)
 
         assertThat(underTest.leftDepthMap!!.width).isEqualTo(80)
@@ -312,7 +315,7 @@ class OpenXrPerceptionManagerTest {
         check(underTest.rightDepthMap!!.smoothDepthMap == null)
         check(underTest.rightDepthMap!!.smoothConfidenceMap == null)
 
-        openXrManager.configure(Config(depthEstimation = Config.DepthEstimationMode.SMOOTH_ONLY))
+        openXrManager.configure(Config(depthEstimation = DepthEstimationMode.SMOOTH_ONLY))
         underTest.update(XR_TIME)
 
         assertThat(underTest.leftDepthMap!!.width).isEqualTo(80)
@@ -362,7 +365,7 @@ class OpenXrPerceptionManagerTest {
 
     @Test
     fun hitTest_planeTrackingDisabled_throwsIllegalStateException() = initOpenXrManagerAndRunTest {
-        openXrManager.configure(Config(planeTracking = Config.PlaneTrackingMode.DISABLED))
+        openXrManager.configure(Config(planeTracking = PlaneTrackingMode.DISABLED))
         underTest.updatePlanes(XR_TIME)
         underTest.update(XR_TIME)
 
@@ -441,8 +444,8 @@ class OpenXrPerceptionManagerTest {
             openXrManager.resume()
             openXrManager.configure(
                 Config(
-                    deviceTracking = Config.DeviceTrackingMode.LAST_KNOWN,
-                    planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
+                    deviceTracking = DeviceTrackingMode.LAST_KNOWN,
+                    planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
                     //                    handTracking = Config.HandTrackingMode.BOTH,
                 )
             )

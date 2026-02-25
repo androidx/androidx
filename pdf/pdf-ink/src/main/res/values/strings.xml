@@ -26,4 +26,67 @@
     <string name="annotation_undo_button_content_desc">Undo</string>
     <string name="annotation_redo_button_content_desc">Redo</string>
     <string name="annotation_toggle_annotation_button_content_desc">Toggle Annotation</string>
+
+    <!-- Content Description for Palette Colors - Pen - Begin -->
+    <string name="pdf_pen_color_palette_item_black">Black</string>
+    <string name="pdf_pen_color_palette_item_dark_blue">Dark blue</string>
+    <string name="pdf_pen_color_palette_item_red">Red</string>
+    <string name="pdf_pen_color_palette_item_green">Green</string>
+    <string name="pdf_pen_color_palette_item_gold">Gold</string>
+    <string name="pdf_pen_color_palette_item_olive_green">Olive green</string>
+    <string name="pdf_pen_color_palette_item_brown">Brown</string>
+
+    <string name="pdf_pen_color_palette_item_gray">Gray</string>
+    <string name="pdf_pen_color_palette_item_blue">Blue</string>
+    <string name="pdf_pen_color_palette_item_coral_red">Coral red</string>
+    <string name="pdf_pen_color_palette_item_lime_green">Lime green</string>
+    <string name="pdf_pen_color_palette_item_yellow">Yellow</string>
+    <string name="pdf_pen_color_palette_item_pale_lime">Pale lime</string>
+    <string name="pdf_pen_color_palette_item_tan">Tan</string>
+
+    <string name="pdf_pen_color_palette_item_light_gray">Light gray</string>
+    <string name="pdf_pen_color_palette_item_purple">Purple</string>
+    <string name="pdf_pen_color_palette_item_pink">Pink</string>
+    <string name="pdf_pen_color_palette_item_mint_green">Mint green</string>
+    <string name="pdf_pen_color_palette_item_orange">Orange</string>
+    <string name="pdf_pen_color_palette_item_steel_blue">Steel blue</string>
+    <string name="pdf_pen_color_palette_item_deep_red">Deep red</string>
+
+    <string name="pdf_pen_color_palette_item_white">White</string>
+    <string name="pdf_pen_color_palette_item_lavender">Lavender</string>
+    <string name="pdf_pen_color_palette_item_pale_pink">Pale pink</string>
+    <string name="pdf_pen_color_palette_item_pale_green">Pale green</string>
+    <string name="pdf_pen_color_palette_item_peach">Peach</string>
+    <string name="pdf_pen_color_palette_item_light_blue">Light blue</string>
+    <string name="pdf_pen_color_palette_item_salmon">Salmon</string>
+    <!-- Content Description for Palette Colors - Pen - End -->
+
+    <!-- Content Description for Palette Colors - Highlighter - Begin -->
+    <string name="pdf_highlighter_color_palette_item_dark_gray">Dark gray</string>
+    <string name="pdf_highlighter_color_palette_item_white">White</string>
+    <string name="pdf_highlighter_color_palette_item_coral_red">Coral red</string>
+    <string name="pdf_highlighter_color_palette_item_lime_green">Lime green</string>
+    <string name="pdf_highlighter_color_palette_item_periwinkle_blue">Periwinkle blue</string>
+    <string name="pdf_highlighter_color_palette_item_orange">Orange</string>
+    <string name="pdf_highlighter_color_palette_item_yellow">Yellow</string>
+
+    <string name="pdf_highlighter_color_palette_item_pale_pink">Pale pink</string>
+    <string name="pdf_highlighter_color_palette_item_light_blue">Light blue</string>
+    <string name="pdf_highlighter_color_palette_item_pale_green">Pale green</string>
+    <string name="pdf_highlighter_color_palette_item_bright_yellow">Bright yellow</string>
+    <string name="pdf_highlighter_color_palette_item_peach">Peach</string>
+    <string name="pdf_highlighter_color_palette_item_dusty_rose">Dusty rose</string>
+    <string name="pdf_highlighter_color_palette_item_olive_green">Olive green</string>
+
+    <string name="pdf_highlighter_color_palette_item_medium_purple">Medium purple</string>
+    <string name="pdf_highlighter_color_palette_item_medium_green">Medium green</string>
+    <string name="pdf_highlighter_color_palette_item_rose_pink">Rose pink</string>
+    <string name="pdf_highlighter_color_palette_item_steel_blue">Steel blue</string>
+    <string name="pdf_highlighter_color_palette_item_lilac">Lilac</string>
+    <string name="pdf_highlighter_color_palette_item_sage_green">Sage green</string>
+    <string name="pdf_highlighter_color_palette_item_beige">Beige</string>
+    <!-- Content Description for Palette Colors - Highlighter - End -->
+
+    <string name="pdf_brush_slider_content_description">Line weight</string>
+
 </resources>

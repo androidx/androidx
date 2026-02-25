@@ -94,7 +94,6 @@ fun Project.registerGenerateInspectionPlatformVersionTask(
 ): TaskProvider<GenerateInspectionPlatformVersionTask> {
     val name = variant.taskName("generateInspectionPlatformVersion")
     return tasks.register(name, GenerateInspectionPlatformVersionTask::class.java) { task ->
-        @Suppress("UnstableApiUsage")
         task.compileClasspath =
             variant.compileConfiguration.incoming
                 .artifactView { artifact ->
@@ -107,8 +106,5 @@ fun Project.registerGenerateInspectionPlatformVersionTask(
                 }
                 .artifacts
         task.outputDir.set(taskWorkingDir(variant, "inspectionVersion"))
-        task.inspectionProjectVersion.set(
-            project.provider { project.project(":inspection:inspection").version.toString() }
-        )
     }
 }

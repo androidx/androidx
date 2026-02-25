@@ -24,7 +24,6 @@ import android.graphics.RectF
 import android.os.Build
 import android.os.Bundle
 import android.util.SparseArray
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -34,7 +33,9 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import androidx.annotation.RequiresExtension
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.ink.authoring.InProgressStrokeId
 import androidx.ink.authoring.InProgressStrokesView
@@ -59,12 +60,16 @@ import androidx.pdf.featureflag.PdfFeatureFlags
 import androidx.pdf.ink.model.ApplyEditsState
 import androidx.pdf.ink.model.ApplyInProgressException
 import androidx.pdf.ink.state.AnnotationDrawingMode
+import androidx.pdf.ink.state.PdfEditMode
+import androidx.pdf.ink.state.PdfEditMode.Companion.EDITING_JOURNEY_ANNOTATIONS
+import androidx.pdf.ink.state.PdfEditMode.Companion.EDITING_JOURNEY_FORM_FILLING
 import androidx.pdf.ink.util.PageTransformCalculator
 import androidx.pdf.ink.util.toHighlighterConfig
 import androidx.pdf.ink.util.toInkBrush
 import androidx.pdf.ink.view.AnnotationToolbar
 import androidx.pdf.ink.view.draganddrop.ToolbarCoordinator
 import androidx.pdf.ink.view.tool.AnnotationToolInfo
+import androidx.pdf.models.FormEditInfo
 import androidx.pdf.view.PdfContentLayout
 import androidx.pdf.view.PdfView
 import androidx.pdf.viewer.fragment.PdfStylingOptions
@@ -109,10 +114,12 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
      * complete.
      */
     public var isEditModeEnabled: Boolean
-        get() = documentViewModel.isEditModeEnabled
+        get() {
+            return documentViewModel.pdfEditMode is PdfEditMode.Enabled
+        }
         set(value) {
-            documentViewModel.isEditModeEnabled = value
-            if (value) onEnterEditMode() else onExitEditMode()
+            documentViewModel.pdfEditMode =
+                if (value) PdfEditMode.Enabled() else PdfEditMode.Disabled
         }
 
     /**
@@ -200,18 +207,20 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
     private lateinit var onViewportChangedListener: PdfView.OnViewportChangedListener
     private lateinit var gestureStateChangedListener: PdfView.OnGestureStateChangedListener
     private lateinit var wetStrokesOnFinishedListener: WetStrokesOnFinishedListener
+    private lateinit var onFormWidgetInfoUpdatedListener: PdfView.OnFormWidgetInfoUpdatedListener
     private lateinit var annotationsTouchEventDispatcher: AnnotationsTouchEventDispatcher
 
     private lateinit var wetStrokesViewTouchHandler: WetStrokesViewTouchHandler
     private lateinit var pdfContentLayoutTouchListener: PdfContentLayoutTouchListener
-    private lateinit var annotationToolbar: AnnotationToolbar
+
+    @VisibleForTesting internal lateinit var annotationToolbar: AnnotationToolbar
 
     private lateinit var toolbarCoordinator: ToolbarCoordinator
     private lateinit var pdfLoaderHandle: PdfSandboxHandle
 
     private val toolbarLayoutChangeListener =
         View.OnLayoutChangeListener {
-            v,
+            _,
             left,
             top,
             right,
@@ -379,8 +388,15 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
 
     private fun setupUiStateCollectors() {
         collectFlowOnLifecycleScope {
-            documentViewModel.isEditModeEnabledFlow.collect { isEnabled ->
-                updateUiForEditMode(isEnabled)
+            documentViewModel.shouldShowAnnotationToolbar.collect {
+                updateAnnotationToolbarVisibility(it)
+            }
+        }
+
+        collectFlowOnLifecycleScope {
+            documentViewModel.pdfEditModeFlow.collect { editMode ->
+                if (editMode is PdfEditMode.Enabled) onEnterEditMode() else onExitEditMode()
+                updateUiForEditMode(editMode)
             }
         }
 
@@ -412,7 +428,9 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
         super.onDestroyView()
         pdfView.removeOnViewportChangedListener(onViewportChangedListener)
         pdfView.removeOnGestureStateChangedListener(gestureStateChangedListener)
+        pdfView.setOnBitmapUpdatedListener(null)
         annotationView.removeInProgressTextHighlightsListener(inProgressTextHighlightsListener)
+        pdfView.removeOnFormWidgetInfoUpdatedListener(onFormWidgetInfoUpdatedListener)
         wetStrokesView.removeFinishedStrokesListener(wetStrokesOnFinishedListener)
         annotationToolbar.setAnnotationToolbarListener(null)
         pdfContainer.setOnTouchListener(null)
@@ -421,13 +439,40 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
         }
     }
 
-    private fun updateUiForEditMode(isEnabled: Boolean) {
+    private fun updateUiForEditMode(editMode: PdfEditMode) {
+        toolboxView.visibility = if (editMode is PdfEditMode.Enabled) GONE else VISIBLE
+
+        when (editMode) {
+            is PdfEditMode.Enabled -> {
+                if (editMode.journey == EDITING_JOURNEY_ANNOTATIONS) {
+                    documentViewModel.initialFormFillingEnabledState = pdfView.isFormFillingEnabled
+                    // Disable form filling when in annotations mode
+                    pdfView.isFormFillingEnabled = false
+                    updateUiForAnnotationsEditMode(true)
+                }
+            }
+            is PdfEditMode.Disabled -> {
+                // Restore form filling state when exiting edit mode
+                documentViewModel.initialFormFillingEnabledState?.let {
+                    pdfView.isFormFillingEnabled = it
+                    documentViewModel.initialFormFillingEnabledState = null
+                }
+                updateUiForAnnotationsEditMode(false)
+            }
+        }
+    }
+
+    private fun updateAnnotationToolbarVisibility(isAnnotationToolbarVisible: Boolean) {
+        toolbarCoordinator.isVisible = isAnnotationToolbarVisible
+        annotationToolbar.isVisible = isAnnotationToolbarVisible
+    }
+
+    private fun updateUiForAnnotationsEditMode(isEnabled: Boolean) {
         PdfFeatureFlags.isMultiTouchScrollEnabled = isEnabled
 
-        toolboxView.visibility = if (isEnabled) GONE else VISIBLE
-        annotationToolbar.visibility = if (isEnabled) VISIBLE else GONE
-
         if (isEnabled) {
+            pdfView.clearCurrentSelection()
+
             // Wait for the toolbar to be laid out, as we need to utilize its width and height
             annotationToolbar.post { wetStrokesView.maskPath = createToolbarMaskPath() }
         } else {
@@ -448,19 +493,12 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
                 strokeIdToPageNumMap = strokeIdToPageNumMap,
                 annotationsViewModel = documentViewModel,
             )
-        val touchTolerancePx =
-            TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                TOUCH_TOLERANCE_IN_DP,
-                resources.displayMetrics,
-            )
         wetStrokesView.apply {
             addFinishedStrokesListener(wetStrokesOnFinishedListener)
             wetStrokesViewTouchHandler =
-                WetStrokesViewTouchHandler(
-                    pageInfoProvider::getPageInfoFromViewCoordinates,
-                    touchTolerancePx,
-                ) { strokeId, pageNum ->
+                WetStrokesViewTouchHandler(pageInfoProvider::getPageInfoFromViewCoordinates) {
+                    strokeId,
+                    pageNum ->
                     strokeIdToPageNumMap[strokeId] = pageNum
                 }
             setOnTouchListener(wetStrokesViewTouchHandler)
@@ -546,8 +584,32 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
                     pageInfoProvider.pageLocations = pageLocations
                 }
             }
+
+        onFormWidgetInfoUpdatedListener =
+            object : PdfView.OnFormWidgetInfoUpdatedListener {
+                override fun onFormWidgetInfoUpdated(formEditInfo: FormEditInfo) {
+                    if (!isEditModeEnabled) {
+                        documentViewModel.pdfEditMode =
+                            PdfEditMode.Enabled(EDITING_JOURNEY_FORM_FILLING)
+                    }
+                }
+            }
+
         pdfView.addOnGestureStateChangedListener(gestureStateChangedListener)
         pdfView.addOnViewportChangedListener(onViewportChangedListener)
+        pdfView.addOnFormWidgetInfoUpdatedListener(onFormWidgetInfoUpdatedListener)
+
+        pdfView.setOnBitmapUpdatedListener(
+            object : PdfView.OnBitmapUpdatedListener {
+                override fun onBitmapFetched(pageNum: Int) {
+                    documentViewModel.onBitmapFetched(pageNum)
+                }
+
+                override fun onBitmapCleared(pageNum: Int) {
+                    documentViewModel.onBitmapCleared(pageNum)
+                }
+            }
+        )
     }
 
     private fun updateAnnotationDisplayState(
@@ -701,7 +763,7 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
 
     internal inner class AnnotationsViewTouchEventDispatcher : TouchEventDispatcher {
         override fun dispatchTouchEvent(event: MotionEvent): Boolean {
-            return annotationView.onTouchEvent(event)
+            return annotationView.dispatchTouchEvent(event)
         }
     }
 
@@ -713,25 +775,9 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
 
     internal inner class PdfViewTouchEventDispatcher : TouchEventDispatcher {
         override fun dispatchTouchEvent(event: MotionEvent): Boolean {
-            return pdfView.onTouchEvent(event)
+            return pdfView.dispatchTouchEvent(event)
         }
     }
-
-    /**
-     * A data holder for capturing the current viewport state of the PDF view.
-     *
-     * @property firstVisiblePage The index of the first page currently visible in the viewport.
-     * @property visiblePagesCount The total number of pages currently partially or fully visible.
-     * @property pageLocations A mapping of page indexes to their screen-relative bounds (in
-     *   pixels).
-     * @property zoomLevel The current zoom factor of the document.
-     */
-    private data class ViewportUpdate(
-        val firstVisiblePage: Int,
-        val visiblePagesCount: Int,
-        val pageLocations: SparseArray<RectF>,
-        val zoomLevel: Float,
-    )
 
     private companion object {
         private const val TOUCH_TOLERANCE_IN_DP = 2f

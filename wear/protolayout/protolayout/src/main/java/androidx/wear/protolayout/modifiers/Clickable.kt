@@ -42,8 +42,10 @@ import androidx.wear.protolayout.types.dp
  * @param id is the associated identifier for this clickable. This will be passed to the action
  *   handler.
  */
-fun LayoutModifier.clickable(action: Action = loadAction(), id: String? = null): LayoutModifier =
-    this then BaseClickableElement(action = action, id = id)
+public fun LayoutModifier.clickable(
+    action: Action = loadAction(),
+    id: String? = null,
+): LayoutModifier = this then BaseClickableElement(action = action, id = id)
 
 /**
  * Creates a [Clickable] that allows the modified element to have actions associated with it, which
@@ -63,7 +65,7 @@ fun LayoutModifier.clickable(action: Action = loadAction(), id: String? = null):
  */
 @SuppressLint("ProtoLayoutMinSchema")
 @JvmOverloads
-fun clickable(
+public fun clickable(
     action: Action = loadAction(),
     id: String? = null,
     @RequiresSchemaVersion(major = 1, minor = 300)
@@ -107,7 +109,7 @@ fun clickable(
  */
 @SuppressLint("ProtoLayoutMinSchema")
 @JvmOverloads
-fun ProtoLayoutScope.clickable(
+public fun ProtoLayoutScope.clickable(
     pendingIntent: PendingIntent,
     id: String,
     fallbackAction: Action? = null,
@@ -140,7 +142,7 @@ fun ProtoLayoutScope.clickable(
  * Adds the clickable property of the modified element. It allows the modified element to have
  * actions associated with it, which will be executed when the element is tapped.
  */
-fun LayoutModifier.clickable(clickable: Clickable): LayoutModifier =
+public fun LayoutModifier.clickable(clickable: Clickable): LayoutModifier =
     this then
         BaseClickableElement(
             action =
@@ -158,8 +160,8 @@ fun LayoutModifier.clickable(clickable: Clickable): LayoutModifier =
  * @param requestedStateMap is the state associated with this action. This state will be passed to
  *   the action handler.
  */
-@SuppressLint("ProtoLayoutMinSchema")
-fun loadAction(
+@SuppressLint("ProtoLayoutMinSchema", "MissingJvmstatic")
+public fun loadAction(
     @RequiresSchemaVersion(major = 1, minor = 200) requestedStateMap: DynamicDataMap? = null
 ): LoadAction =
     LoadAction.Builder()
@@ -175,7 +177,7 @@ fun loadAction(
  * within its parent bounds.
  */
 @RequiresSchemaVersion(major = 1, minor = 300)
-fun LayoutModifier.minimumTouchTargetSize(
+public fun LayoutModifier.minimumTouchTargetSize(
     @Dimension(DP) minWidth: Float,
     @Dimension(DP) minHeight: Float,
 ): LayoutModifier =

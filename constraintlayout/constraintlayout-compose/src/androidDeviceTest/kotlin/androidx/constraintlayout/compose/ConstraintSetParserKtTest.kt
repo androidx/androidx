@@ -37,7 +37,7 @@ internal class ConstraintSetParserKtTest {
                 }
               }
             }
-        """
+            """
                 .trimIndent()
         ConstraintSetParser.parseJSON(content, coreTransition, 0) // Should finish successfully
     }

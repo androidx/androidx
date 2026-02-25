@@ -37,6 +37,7 @@ package androidx.ink.strokes {
     method public void start(androidx.ink.brush.Brush brush);
     method @SuppressCompatibility @androidx.ink.brush.ExperimentalInkCustomBrushApi public void start(androidx.ink.brush.Brush brush, int noiseSeed);
     method public androidx.ink.strokes.Stroke toImmutable();
+    method public void updateShape();
     method public void updateShape(optional long currentElapsedTimeMillis);
     method @BytecodeOnly public static void updateShape$default(androidx.ink.strokes.InProgressStroke!, long, int, Object!);
     property public androidx.ink.brush.Brush? brush;

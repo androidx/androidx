@@ -15,13 +15,14 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
+import com.android.build.api.variant.HasAndroidTest
+import com.android.build.api.variant.HasUnitTest
 
 plugins {
     id("AndroidXPlugin")
@@ -83,6 +84,14 @@ android {
     defaultConfig.consumerProguardFiles("proguard-rules.pro")
     namespace = "androidx.biometric"
     compileSdk { version = release(36) { minorApiLevel = 1 }}
+}
+
+androidComponents {
+    def sharedTestDir = "src/test-common/java"
+    onVariants(selector().all()) { variant ->
+        (variant as HasUnitTest).unitTest.sources.java.addStaticSourceDirectory(sharedTestDir)
+        (variant as HasAndroidTest).androidTest.sources.java.addStaticSourceDirectory(sharedTestDir)
+    }
 }
 
 androidx {

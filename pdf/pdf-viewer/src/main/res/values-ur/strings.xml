@@ -81,6 +81,7 @@
     <string name="form_click_toggle_instruction" msgid="7171111300244445911">"کلک کرنے سے قدر ٹوگل ہوگی۔"</string>
     <string name="form_click_opens_choices_menu_instruction" msgid="5648228168212004143">"کلک کرنے سے انتخاب کے سلیکشن کا مینیو کھل جائے گا۔"</string>
     <string name="form_click_enters_text_edit_mode_instruction" msgid="2305283577544618880">"کلک کرنے سے ٹیکسٹ میں ترمیم سے متعلق موڈ آن ہو جائے گا۔"</string>
+    <string name="combobox_custom_option" msgid="8730230629127076731">"حسب ضرورت"</string>
     <string name="form_unknown" msgid="6371515914365431330">"نامعلوم"</string>
     <string name="form_widget_type_push_button" msgid="3595388398616291441">"پُش بٹن"</string>
     <string name="form_widget_type_checkbox" msgid="5165655383070460151">"چیک باکس"</string>

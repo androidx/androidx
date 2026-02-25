@@ -499,7 +499,7 @@ private fun getParallax(
     // which keeps the effect looking uniform even when item's differ greatly in their main
     // axis size.
     val offscreenThreshold = mainAxisSize
-    val offset = itemState.offset.toFloat()
+    val offset = itemState.offset
 
     // Mask intensity is based on the item's aspect ratio
     val maskIntensity = getMaskIntensity(mainAxisSize, crossAxisSize)

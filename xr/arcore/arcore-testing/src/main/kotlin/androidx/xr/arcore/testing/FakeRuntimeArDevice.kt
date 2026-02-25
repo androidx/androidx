@@ -20,6 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.ArDevice as RuntimeArDevice
 import androidx.xr.runtime.math.Pose
 
+/** Fake implementation of [ArDevice][RuntimeArDevice] for testing purposes. */
 // TODO: b/326481788 - Add more functionality to FakeRuntimeArDevice
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class FakeRuntimeArDevice(override var devicePose: Pose = Pose()) : RuntimeArDevice {

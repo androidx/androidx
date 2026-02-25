@@ -67,5 +67,7 @@ class FakeAnnotationEditsDraftState : AnnotationEditsDraftState {
         TODO("Not yet implemented")
     }
 
-    override fun clear() {}
+    override fun clear() {
+        drafts.clear()
+    }
 }

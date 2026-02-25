@@ -34,7 +34,7 @@ internal class FrameBufferImpl(
     private val frameGraphBuffers: FrameGraphBuffers,
     override val streams: Set<StreamId>,
     override val parameters: Map<Any, Any?>,
-    override val capacity: Int,
+    capacity: Int,
 ) : FrameBuffer, FrameDistributor.FrameStartedListener {
     // This sealed class is used to model the two possible outcomes of a frame acquisition attempt.
     // If a frame was successfully acquired, we should close it at an appropriate time.
@@ -47,7 +47,7 @@ internal class FrameBufferImpl(
 
     private val lock = Any()
 
-    @GuardedBy("lock") private val frameQueue: ArrayDeque<BufferEntry> = ArrayDeque(capacity)
+    @GuardedBy("lock") private var frameQueue: ArrayDeque<BufferEntry> = ArrayDeque(capacity)
 
     @GuardedBy("lock") private var closed = false
 
@@ -65,6 +65,39 @@ internal class FrameBufferImpl(
 
     private val _size = MutableStateFlow(0)
     override val size: StateFlow<Int> = _size.asStateFlow()
+
+    override var capacity: Int = capacity
+        set(newCapacity) {
+            require(newCapacity >= 0) { "Capacity cannot be negative" }
+
+            val framesToClose: MutableList<Frame> = mutableListOf()
+            synchronized(lock) {
+                if (closed) {
+                    return
+                }
+
+                val previousCapacity = field
+
+                if (newCapacity == previousCapacity) return
+
+                field = newCapacity
+
+                val currentSize = frameQueue.size
+                if (newCapacity < currentSize) {
+                    val numToTrim = currentSize - newCapacity
+                    repeat(numToTrim) {
+                        val evictedItem = frameQueue.removeFirst()
+                        (evictedItem as? BufferEntry.WithFrame)?.let { framesToClose.add(it.frame) }
+                    }
+                    // Trim the memory of the ArrayDeque to fit the new smaller capacity
+                    val newFrameQueue: ArrayDeque<BufferEntry> = ArrayDeque(frameQueue)
+                    frameQueue = newFrameQueue
+                }
+                _size.value = frameQueue.size
+            }
+
+            framesToClose.forEach { it.close() }
+        }
 
     override fun onFrameStarted(frameReference: FrameReference) {
         // If capacity is 0, emit the reference and exit early.
@@ -136,6 +169,34 @@ internal class FrameBufferImpl(
             references
         }
 
+    override fun removeFirstFrameReferenceAndAcquire(
+        predicate: (FrameReference) -> Boolean
+    ): Frame? = removeAndAcquire(frameQueue.iterator(), predicate)
+
+    override fun removeLastFrameReferenceAndAcquire(
+        predicate: (FrameReference) -> Boolean
+    ): Frame? = removeAndAcquire(frameQueue.asReversed().iterator(), predicate)
+
+    override fun removeAllFrameReferencesAndAcquire(
+        predicate: (FrameReference) -> Boolean
+    ): List<Frame> =
+        synchronized(lock) {
+            if (closed) return emptyList()
+
+            val iterator = frameQueue.iterator()
+
+            val removedFrames = mutableListOf<Frame>()
+            while (iterator.hasNext()) {
+                val bufferEntry = iterator.next()
+                if (predicate(bufferEntry.frameReference)) {
+                    iterator.remove()
+                    (bufferEntry as? BufferEntry.WithFrame)?.let { removedFrames.add(it.frame) }
+                }
+            }
+            _size.value = frameQueue.size
+            return removedFrames
+        }
+
     override fun peekFirstReference(): FrameReference? =
         synchronized(lock) {
             if (closed) return null
@@ -171,6 +232,22 @@ internal class FrameBufferImpl(
             frame.close()
         }
         frameGraphBuffers.detach(this)
+    }
+
+    @GuardedBy("lock")
+    private fun removeAndAcquire(
+        iterator: MutableIterator<BufferEntry>,
+        predicate: (FrameReference) -> Boolean,
+    ): Frame? {
+        while (iterator.hasNext()) {
+            val bufferEntry = iterator.next()
+            if (predicate(bufferEntry.frameReference)) {
+                iterator.remove()
+                _size.value = frameQueue.size
+                return (bufferEntry as? BufferEntry.WithFrame)?.let { it.frame }
+            }
+        }
+        return null
     }
 
     private companion object {

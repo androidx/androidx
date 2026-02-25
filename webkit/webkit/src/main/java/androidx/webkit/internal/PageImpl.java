@@ -52,4 +52,14 @@ public class PageImpl implements Page {
     private PageImpl(@NonNull WebViewPageBoundaryInterface impl) {
         mPageBoundaryInterface = impl;
     }
+
+    @Override
+    public @NonNull String getUrl() {
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.PAGE_GET_URL;
+        if (feature.isSupportedByWebView()) {
+            return mPageBoundaryInterface.getUrl();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
 }

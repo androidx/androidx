@@ -18,11 +18,17 @@ package androidx.xr.arcore.samples
 
 import android.hardware.HardwareBuffer
 import androidx.annotation.Sampled
+import androidx.xr.arcore.playservices.ArCorePerceptionManager
 import androidx.xr.arcore.playservices.ArCoreRuntime
+import androidx.xr.arcore.playservices.CameraState
 import androidx.xr.arcore.playservices.UnsupportedArCoreCompatApi
 import androidx.xr.arcore.playservices.cameraState
 import androidx.xr.runtime.Session
 
+/**
+ * @param session the [Session] to get the ARCore session from
+ * @return the underlying [com.google.ar.core.Session] obtained by the [ArCoreRuntime]
+ */
 @Sampled
 @OptIn(UnsupportedArCoreCompatApi::class)
 fun getARCoreSession(session: Session): com.google.ar.core.Session? {
@@ -31,6 +37,10 @@ fun getARCoreSession(session: Session): com.google.ar.core.Session? {
     return runtime?.lifecycleManager?.session()
 }
 
+/**
+ * @param session the [Session] to get the ARCore frame from
+ * @return the current [com.google.ar.core.Frame] obtained by the [ArCorePerceptionManager]
+ */
 @Sampled
 @OptIn(UnsupportedArCoreCompatApi::class)
 fun getARCoreFrame(session: Session): com.google.ar.core.Frame? {
@@ -39,6 +49,10 @@ fun getARCoreFrame(session: Session): com.google.ar.core.Frame? {
     return runtime?.perceptionManager?.lastFrame()
 }
 
+/**
+ * @param session the [Session] to get the hardware buffer from
+ * @return the [HardwareBuffer] obtained by the [CameraState]
+ */
 @Sampled
 fun getARCoreHardwareBuffer(session: Session): HardwareBuffer? {
     val coreState = session.state.value

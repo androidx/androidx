@@ -18,10 +18,7 @@
 
 package androidx.compose.material3.adaptive.navigation3
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.layout.AdaptStrategy
@@ -33,8 +30,8 @@ import androidx.compose.material3.adaptive.navigation.BackNavigationBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -219,6 +216,22 @@ class SupportingPaneSceneStrategyTest {
     }
 
     @Test
+    fun reflowedPane_backstackWithMainAndSupporting_triesToRespectPreferredHeight() {
+        val preferredHeight = 150.dp
+        val backStack = mutableStateListOf(HomeKey, MainKey, SupportingKey)
+        composeRule.setContent {
+            NavScreen(
+                backStack = backStack,
+                directive = MockDualVerticalPaneScaffoldDirective,
+                additionalSupportingMetadata =
+                    SupportingPaneSceneStrategy.preferredPaneSize(height = preferredHeight),
+            )
+        }
+
+        composeRule.onNodeWithTag(SupportingScreenTestTag).assertHeightIsEqualTo(preferredHeight)
+    }
+
+    @Test
     fun dualVerticalPane_noReflowAdaptStrategy_backstackWithMainAndSupporting_showsSupporting() {
         val backStack = mutableStateListOf(HomeKey, MainKey, SupportingKey)
         composeRule.setContent {
@@ -275,6 +288,9 @@ class SupportingPaneSceneStrategyTest {
             calculatePaneScaffoldDirective(currentWindowAdaptiveInfo()),
         adaptStrategies: ThreePaneScaffoldAdaptStrategies =
             SupportingPaneScaffoldDefaults.adaptStrategies(),
+        additionalMainMetadata: Map<String, Any> = emptyMap(),
+        additionalSupportingMetadata: Map<String, Any> = emptyMap(),
+        additionalExtraMetadata: Map<String, Any> = emptyMap(),
     ) {
         val supportingSceneStrategy =
             rememberSupportingPaneSceneStrategy<TestKey>(
@@ -285,33 +301,31 @@ class SupportingPaneSceneStrategyTest {
         NavDisplay(
             backStack = backStack,
             modifier = Modifier.fillMaxSize(),
-            sceneStrategy = supportingSceneStrategy,
+            sceneStrategies = listOf(supportingSceneStrategy),
             entryProvider =
                 entryProvider {
-                    entry<HomeKey> {
-                        Box(Modifier.testTag(HomeScreenTestTag).size(100.dp).background(Color.Red))
-                    }
+                    entry<HomeKey> { RedBox("Home", Modifier.testTag(HomeScreenTestTag)) }
 
-                    entry<MainKey>(metadata = SupportingPaneSceneStrategy.mainPane(MainKey)) {
-                        Box(
-                            Modifier.testTag(MainScreenTestTag).size(100.dp).background(Color.Green)
-                        )
+                    entry<MainKey>(
+                        metadata =
+                            SupportingPaneSceneStrategy.mainPane(MainKey) + additionalMainMetadata
+                    ) {
+                        GreenBox("Main", Modifier.testTag(MainScreenTestTag))
                     }
 
                     entry<SupportingKey>(
-                        metadata = SupportingPaneSceneStrategy.supportingPane(MainKey)
+                        metadata =
+                            SupportingPaneSceneStrategy.supportingPane(MainKey) +
+                                additionalSupportingMetadata
                     ) {
-                        Box(
-                            Modifier.testTag(SupportingScreenTestTag)
-                                .size(100.dp)
-                                .background(Color.Blue)
-                        )
+                        BlueBox("Supporting", Modifier.testTag(SupportingScreenTestTag))
                     }
 
-                    entry<ExtraKey>(metadata = SupportingPaneSceneStrategy.extraPane(MainKey)) {
-                        Box(
-                            Modifier.testTag(ExtraScreenTestTag).size(100.dp).background(Color.Gray)
-                        )
+                    entry<ExtraKey>(
+                        metadata =
+                            SupportingPaneSceneStrategy.extraPane(MainKey) + additionalExtraMetadata
+                    ) {
+                        OrangeBox("Extra", Modifier.testTag(ExtraScreenTestTag))
                     }
                 },
         )

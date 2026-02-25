@@ -119,7 +119,11 @@ public class ComponentMeasure {
      * @return true if the passed ComponentMeasure is identical to ourself
      */
     public boolean same(@NonNull ComponentMeasure m) {
-        return mX == m.mX && mY == m.mY && mW == m.mW && mH == m.mH && mVisibility == m.mVisibility;
+        return mX == m.mX
+                && mY == m.mY
+                && mW == m.mW
+                && mH == m.mH
+                && mVisibility == m.mVisibility;
     }
 
     /**

@@ -24,6 +24,7 @@ import androidx.xr.arcore.testing.FakePerceptionManager
 import androidx.xr.arcore.testing.FakePerceptionRuntimeFactory
 import androidx.xr.arcore.testing.FakeRuntimeRenderViewpoint
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.FieldOfView
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
@@ -88,7 +89,7 @@ class RenderViewpointTest {
         activityController.create()
 
         session = (Session.create(activity, testDispatcher) as SessionCreateSuccess).session
-        session.configure(Config(deviceTracking = Config.DeviceTrackingMode.LAST_KNOWN))
+        session.configure(Config(deviceTracking = DeviceTrackingMode.LAST_KNOWN))
         xrResourcesManager.lifecycleManager = session.perceptionRuntime.lifecycleManager
     }
 

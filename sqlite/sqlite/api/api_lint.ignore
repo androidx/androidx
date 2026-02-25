@@ -64,4 +64,4 @@ StaticFinalBuilder: androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Bui
 
 
 TopLevelBuilder: androidx.sqlite.db.SupportSQLiteQueryBuilder:
-    Builder should be defined as inner class: androidx.sqlite.db.SupportSQLiteQueryBuilder
+    Builder should be defined as nested class: androidx.sqlite.db.SupportSQLiteQueryBuilder

@@ -87,29 +87,29 @@ class XProcessingStepTest {
             JavaFileObjects.forSourceString(
                 "foo.bar.Main",
                 """
-            package foo.bar;
-            import androidx.room3.compiler.processing.testcode.*;
-            @MainAnnotation(
-                typeList = {},
-                singleType = Object.class,
-                intMethod = 3,
-                singleOtherAnnotation = @OtherAnnotation("y")
-            )
-            class Main {
-            }
-            """
+                package foo.bar;
+                import androidx.room3.compiler.processing.testcode.*;
+                @MainAnnotation(
+                    typeList = {},
+                    singleType = Object.class,
+                    intMethod = 3,
+                    singleOtherAnnotation = @OtherAnnotation("y")
+                )
+                class Main {
+                }
+                """
                     .trimIndent(),
             )
         val other =
             JavaFileObjects.forSourceString(
                 "foo.bar.Other",
                 """
-            package foo.bar;
-            import androidx.room3.compiler.processing.testcode.*;
-            @OtherAnnotation("x")
-            class Other {
-            }
-            """
+                package foo.bar;
+                import androidx.room3.compiler.processing.testcode.*;
+                @OtherAnnotation("x")
+                class Other {
+                }
+                """
                     .trimIndent(),
             )
         assertAbout(JavaSourcesSubjectFactory.javaSources())
@@ -174,17 +174,17 @@ class XProcessingStepTest {
             JavaFileObjects.forSourceString(
                 "foo.bar.Main",
                 """
-            package foo.bar;
-            import androidx.room3.compiler.processing.testcode.*;
-            @MainAnnotation(
-                typeList = {},
-                singleType = Object.class,
-                intMethod = 3,
-                singleOtherAnnotation = @OtherAnnotation("y")
-            )
-            class Main {
-            }
-            """
+                package foo.bar;
+                import androidx.room3.compiler.processing.testcode.*;
+                @MainAnnotation(
+                    typeList = {},
+                    singleType = Object.class,
+                    intMethod = 3,
+                    singleOtherAnnotation = @OtherAnnotation("y")
+                )
+                class Main {
+                }
+                """
                     .trimIndent(),
             )
         assertAbout(JavaSourcesSubjectFactory.javaSources())
@@ -250,17 +250,17 @@ class XProcessingStepTest {
             JavaFileObjects.forSourceString(
                 "foo.bar.Main",
                 """
-            package foo.bar;
-            import androidx.room3.compiler.processing.testcode.*;
-            @MainAnnotation(
-                typeList = {},
-                singleType = Object.class,
-                intMethod = 3,
-                singleOtherAnnotation = @OtherAnnotation("y")
-            )
-            class Main {
-            }
-            """
+                package foo.bar;
+                import androidx.room3.compiler.processing.testcode.*;
+                @MainAnnotation(
+                    typeList = {},
+                    singleType = Object.class,
+                    intMethod = 3,
+                    singleOtherAnnotation = @OtherAnnotation("y")
+                )
+                class Main {
+                }
+                """
                     .trimIndent(),
             )
         assertAbout(JavaSourcesSubjectFactory.javaSources())
@@ -292,17 +292,17 @@ class XProcessingStepTest {
             JavaFileObjects.forSourceString(
                 "foo.bar.Main",
                 """
-            package foo.bar;
-            import androidx.room3.compiler.processing.testcode.*;
-            @MainAnnotation(
-                typeList = {},
-                singleType = Object.class,
-                intMethod = 3,
-                singleOtherAnnotation = @OtherAnnotation("y")
-            )
-            class Main {
-            }
-            """
+                package foo.bar;
+                import androidx.room3.compiler.processing.testcode.*;
+                @MainAnnotation(
+                    typeList = {},
+                    singleType = Object.class,
+                    intMethod = 3,
+                    singleOtherAnnotation = @OtherAnnotation("y")
+                )
+                class Main {
+                }
+                """
                     .trimIndent(),
             )
 
@@ -377,17 +377,17 @@ class XProcessingStepTest {
             Source.java(
                 "foo.bar.Main",
                 """
-            package foo.bar;
-            import androidx.room3.compiler.processing.testcode.*;
-            @MainAnnotation(
-                typeList = {},
-                singleType = Object.class,
-                intMethod = 3,
-                singleOtherAnnotation = @OtherAnnotation("y")
-            )
-            class Main {
-            }
-            """
+                package foo.bar;
+                import androidx.room3.compiler.processing.testcode.*;
+                @MainAnnotation(
+                    typeList = {},
+                    singleType = Object.class,
+                    intMethod = 3,
+                    singleOtherAnnotation = @OtherAnnotation("y")
+                )
+                class Main {
+                }
+                """
                     .trimIndent(),
             )
 
@@ -471,28 +471,28 @@ class XProcessingStepTest {
             JavaFileObjects.forSourceString(
                 "foo.bar.Main",
                 """
-            package foo.bar;
-            import androidx.room3.compiler.processing.testcode.*;
-            @MainAnnotation(
-                typeList = {},
-                singleType = Object.class,
-                intMethod = 3,
-                singleOtherAnnotation = @OtherAnnotation("y")
-            )
-            class Main {}
-            """
+                package foo.bar;
+                import androidx.room3.compiler.processing.testcode.*;
+                @MainAnnotation(
+                    typeList = {},
+                    singleType = Object.class,
+                    intMethod = 3,
+                    singleOtherAnnotation = @OtherAnnotation("y")
+                )
+                class Main {}
+                """
                     .trimIndent(),
             )
         val other =
             JavaFileObjects.forSourceString(
                 "foo.bar.Other",
                 """
-            package foo.bar;
-            import androidx.room3.compiler.processing.testcode.*;
-            @OtherAnnotation("x")
-            class Other {
-            }
-            """
+                package foo.bar;
+                import androidx.room3.compiler.processing.testcode.*;
+                @OtherAnnotation("x")
+                class Other {
+                }
+                """
                     .trimIndent(),
             )
         val elementsByStep = mutableMapOf<XProcessingStep, XTypeElement>()
@@ -567,12 +567,12 @@ class XProcessingStepTest {
             Source.java(
                 "foo.bar.Other",
                 """
-            package foo.bar;
-            import androidx.room3.compiler.processing.testcode.*;
-            @OtherAnnotation("y")
-            class Other {
-            }
-            """
+                package foo.bar;
+                import androidx.room3.compiler.processing.testcode.*;
+                @OtherAnnotation("y")
+                class Other {
+                }
+                """
                     .trimIndent(),
             )
         assertAbout(JavaSourcesSubjectFactory.javaSources())
@@ -623,12 +623,12 @@ class XProcessingStepTest {
             Source.kotlin(
                 "Other.kt",
                 """
-            package foo.bar
-            import androidx.room3.compiler.processing.testcode.*
-            @OtherAnnotation("y")
-            class Other {
-            }
-            """
+                package foo.bar
+                import androidx.room3.compiler.processing.testcode.*
+                @OtherAnnotation("y")
+                class Other {
+                }
+                """
                     .trimIndent(),
             )
 
@@ -665,29 +665,29 @@ class XProcessingStepTest {
             JavaFileObjects.forSourceString(
                 "foo.bar.Main",
                 """
-            package foo.bar;
-            import androidx.room3.compiler.processing.testcode.*;
-            @MainAnnotation(
-                typeList = {},
-                singleType = Object.class,
-                intMethod = 3,
-                singleOtherAnnotation = @OtherAnnotation("y")
-            )
-            class Main {
-            }
-            """
+                package foo.bar;
+                import androidx.room3.compiler.processing.testcode.*;
+                @MainAnnotation(
+                    typeList = {},
+                    singleType = Object.class,
+                    intMethod = 3,
+                    singleOtherAnnotation = @OtherAnnotation("y")
+                )
+                class Main {
+                }
+                """
                     .trimIndent(),
             )
         val other =
             JavaFileObjects.forSourceString(
                 "foo.bar.Other",
                 """
-            package foo.bar;
-            import androidx.room3.compiler.processing.testcode.*;
-            @OtherAnnotation("x")
-            class Other {
-            }
-            """
+                package foo.bar;
+                import androidx.room3.compiler.processing.testcode.*;
+                @OtherAnnotation("x")
+                class Other {
+                }
+                """
                     .trimIndent(),
             )
         val elementsByStep = mutableMapOf<XProcessingStep, Collection<String>>()
@@ -748,16 +748,16 @@ class XProcessingStepTest {
             JavaFileObjects.forSourceString(
                 "foo.bar.Main",
                 """
-            package foo.bar;
-            import androidx.room3.compiler.processing.testcode.*;
-            @MainAnnotation(
-                typeList = {},
-                singleType = Object.class,
-                intMethod = 3,
-                singleOtherAnnotation = @OtherAnnotation("y")
-            )
-            class Main {}
-            """
+                package foo.bar;
+                import androidx.room3.compiler.processing.testcode.*;
+                @MainAnnotation(
+                    typeList = {},
+                    singleType = Object.class,
+                    intMethod = 3,
+                    singleOtherAnnotation = @OtherAnnotation("y")
+                )
+                class Main {}
+                """
                     .trimIndent(),
             )
         val invokedLifecycles = mutableListOf<String>()
@@ -861,27 +861,27 @@ class XProcessingStepTest {
             JavaFileObjects.forSourceString(
                 "foo.bar.Main",
                 """
-            package foo.bar;
-            import androidx.room3.compiler.processing.testcode.*;
-            @MainAnnotation(
-                typeList = {},
-                singleType = AnotherSource.class,
-                intMethod = 3,
-                singleOtherAnnotation = @OtherAnnotation("y")
-            )
-            class Main {}
-            """
+                package foo.bar;
+                import androidx.room3.compiler.processing.testcode.*;
+                @MainAnnotation(
+                    typeList = {},
+                    singleType = AnotherSource.class,
+                    intMethod = 3,
+                    singleOtherAnnotation = @OtherAnnotation("y")
+                )
+                class Main {}
+                """
                     .trimIndent(),
             )
         val anotherSource =
             JavaFileObjects.forSourceString(
                 "foo.bar.AnotherSource",
                 """
-            package foo.bar;
-            import androidx.room3.compiler.processing.testcode.*;
-            @SingleTypeValueAnnotation(GeneratedType.class)
-            class AnotherSource { }
-            """
+                package foo.bar;
+                import androidx.room3.compiler.processing.testcode.*;
+                @SingleTypeValueAnnotation(GeneratedType.class)
+                class AnotherSource { }
+                """
                     .trimIndent(),
             )
         var round = 0
@@ -949,17 +949,17 @@ class XProcessingStepTest {
             JavaFileObjects.forSourceString(
                 "foo.bar.Main",
                 """
-            package foo.bar;
-            import androidx.room3.compiler.processing.testcode.*;
-            @MainAnnotation(
-                typeList = {},
-                singleType = Object.class,
-                intMethod = 3,
-                singleOtherAnnotation = @OtherAnnotation("y")
-            )
-            class Main {
-            }
-            """
+                package foo.bar;
+                import androidx.room3.compiler.processing.testcode.*;
+                @MainAnnotation(
+                    typeList = {},
+                    singleType = Object.class,
+                    intMethod = 3,
+                    singleOtherAnnotation = @OtherAnnotation("y")
+                )
+                class Main {
+                }
+                """
                     .trimIndent(),
             )
         val stepsProcessed = mutableListOf<XProcessingStep>()
@@ -1012,20 +1012,20 @@ class XProcessingStepTest {
             Source.kotlin(
                 "Classes.kt",
                 """
-            package foo.bar
-            import androidx.room3.compiler.processing.testcode.*
-            @MainAnnotation(
-                typeList = [],
-                singleType = Any::class,
-                intMethod = 3,
-                singleOtherAnnotation = OtherAnnotation("y")
-            )
-            class Main {
-            }
-            @OtherAnnotation("y")
-            class Other {
-            }
-            """
+                package foo.bar
+                import androidx.room3.compiler.processing.testcode.*
+                @MainAnnotation(
+                    typeList = [],
+                    singleType = Any::class,
+                    intMethod = 3,
+                    singleOtherAnnotation = OtherAnnotation("y")
+                )
+                class Main {
+                }
+                @OtherAnnotation("y")
+                class Other {
+                }
+                """
                     .trimIndent(),
             )
 
@@ -1075,20 +1075,20 @@ class XProcessingStepTest {
             Source.kotlin(
                 "Classes.kt",
                 """
-            package foo.bar
-            import androidx.room3.compiler.processing.testcode.*
-            @MainAnnotation(
-                typeList = [],
-                singleType = Any::class,
-                intMethod = 3,
-                singleOtherAnnotation = OtherAnnotation("y")
-            )
-            class Main {
-            }
-            @OtherAnnotation("y")
-            class Other {
-            }
-            """
+                package foo.bar
+                import androidx.room3.compiler.processing.testcode.*
+                @MainAnnotation(
+                    typeList = [],
+                    singleType = Any::class,
+                    intMethod = 3,
+                    singleOtherAnnotation = OtherAnnotation("y")
+                )
+                class Main {
+                }
+                @OtherAnnotation("y")
+                class Other {
+                }
+                """
                     .trimIndent(),
             )
         val elementsByStep = mutableMapOf<XProcessingStep, Collection<String>>()
@@ -1157,16 +1157,16 @@ class XProcessingStepTest {
             Source.kotlin(
                 "Classes.kt",
                 """
-            package foo.bar
-            import androidx.room3.compiler.processing.testcode.*
-            @MainAnnotation(
-                typeList = [],
-                singleType = Any::class,
-                intMethod = 3,
-                singleOtherAnnotation = OtherAnnotation("y")
-            )
-            class Main {}
-            """
+                package foo.bar
+                import androidx.room3.compiler.processing.testcode.*
+                @MainAnnotation(
+                    typeList = [],
+                    singleType = Any::class,
+                    intMethod = 3,
+                    singleOtherAnnotation = OtherAnnotation("y")
+                )
+                class Main {}
+                """
                     .trimIndent(),
             )
         val invokedLifecycles = mutableListOf<String>()
@@ -1277,17 +1277,17 @@ class XProcessingStepTest {
             Source.kotlin(
                 "Classes.kt",
                 """
-            package foo.bar
-            import androidx.room3.compiler.processing.testcode.*
-            @MainAnnotation(
-                typeList = [],
-                singleType = Any::class,
-                intMethod = 3,
-                singleOtherAnnotation = OtherAnnotation("y")
-            )
-            class Main {
-            }
-            """
+                package foo.bar
+                import androidx.room3.compiler.processing.testcode.*
+                @MainAnnotation(
+                    typeList = [],
+                    singleType = Any::class,
+                    intMethod = 3,
+                    singleOtherAnnotation = OtherAnnotation("y")
+                )
+                class Main {
+                }
+                """
                     .trimIndent(),
             )
         val stepsProcessed = mutableListOf<XProcessingStep>()
@@ -1348,27 +1348,27 @@ class XProcessingStepTest {
             Source.kotlin(
                 "Main.kt",
                 """
-            package foo.bar
-            import androidx.room3.compiler.processing.testcode.*
-            class Main {
-                @AnywhereAnnotation fun mainMethod() {}
-                class InnerMain {
-                    @AnywhereAnnotation fun innerMethod() {}
+                package foo.bar
+                import androidx.room3.compiler.processing.testcode.*
+                class Main {
+                    @AnywhereAnnotation fun mainMethod() {}
+                    class InnerMain {
+                        @AnywhereAnnotation fun innerMethod() {}
+                    }
                 }
-            }
-            """
+                """
                     .trimIndent(),
             )
         val extra =
             Source.kotlin(
                 "Extra.kt",
                 """
-            package foo.bar
-            import androidx.room3.compiler.processing.testcode.*
-            class Extra {
-                fun mainMethod(@AnywhereAnnotation param: String) {}
-            }
-            """
+                package foo.bar
+                import androidx.room3.compiler.processing.testcode.*
+                class Extra {
+                    fun mainMethod(@AnywhereAnnotation param: String) {}
+                }
+                """
                     .trimIndent(),
             )
         val assertRound: (Int, List<XElement>) -> Unit = { roundIndex, roundReceivedElements ->
@@ -1475,12 +1475,12 @@ class XProcessingStepTest {
             Source.java(
                 "foo.bar.Other",
                 """
-            package foo.bar;
-            import androidx.room3.compiler.processing.testcode.*;
-            @OtherAnnotation("y")
-            class Other extends ToBeGenerated {
-            }
-            """
+                package foo.bar;
+                import androidx.room3.compiler.processing.testcode.*;
+                @OtherAnnotation("y")
+                class Other extends ToBeGenerated {
+                }
+                """
                     .trimIndent(),
             )
         assertAbout(JavaSourcesSubjectFactory.javaSources())
@@ -1540,12 +1540,12 @@ class XProcessingStepTest {
             Source.kotlin(
                 "Other.kt",
                 """
-            package foo.bar
-            import androidx.room3.compiler.processing.testcode.*
-            @OtherAnnotation("y")
-            internal class Other : ToBeGenerated() {
-            }
-            """
+                package foo.bar
+                import androidx.room3.compiler.processing.testcode.*
+                @OtherAnnotation("y")
+                internal class Other : ToBeGenerated() {
+                }
+                """
                     .trimIndent(),
             )
 
@@ -1570,15 +1570,15 @@ class XProcessingStepTest {
             Source.java(
                     "foo.bar.Main",
                     """
-            package foo.bar;
-            import androidx.room3.compiler.processing.testcode.*;
-            public class Main {
-                @AnywhereAnnotation void mainMethod() {}
-                static class InnerMain {
-                    @AnywhereAnnotation void innerMethod() {}
-                }
-            }
-            """
+                    package foo.bar;
+                    import androidx.room3.compiler.processing.testcode.*;
+                    public class Main {
+                        @AnywhereAnnotation void mainMethod() {}
+                        static class InnerMain {
+                            @AnywhereAnnotation void innerMethod() {}
+                        }
+                    }
+                    """
                         .trimIndent(),
                 )
                 .toJFO()
@@ -1586,12 +1586,12 @@ class XProcessingStepTest {
             Source.java(
                     "foo.bar.Extra",
                     """
-            package foo.bar;
-            import androidx.room3.compiler.processing.testcode.*;
-            public class Extra {
-                void mainMethod(@AnywhereAnnotation String param) {}
-            }
-            """
+                    package foo.bar;
+                    import androidx.room3.compiler.processing.testcode.*;
+                    public class Extra {
+                        void mainMethod(@AnywhereAnnotation String param) {}
+                    }
+                    """
                         .trimIndent(),
                 )
                 .toJFO()
@@ -1668,9 +1668,9 @@ class XProcessingStepTest {
             Source.kotlin(
                 "Foo.kt",
                 """
-            package foo
-            class Foo { }
-            """
+                package foo
+                class Foo { }
+                """
                     .trimIndent(),
             )
         val invocations = mutableMapOf<XProcessingEnv.Backend, Int>()
@@ -1726,31 +1726,31 @@ class XProcessingStepTest {
             JavaFileObjects.forSourceString(
                 "foo.bar.SomeAnnotation",
                 """
-            package foo.bar;
+                package foo.bar;
 
-            import java.lang.annotation.ElementType;
-            import java.lang.annotation.Retention;
-            import java.lang.annotation.RetentionPolicy;
-            import java.lang.annotation.Target;
+                import java.lang.annotation.ElementType;
+                import java.lang.annotation.Retention;
+                import java.lang.annotation.RetentionPolicy;
+                import java.lang.annotation.Target;
 
-            @Target(ElementType.METHOD)
-            @Retention(RetentionPolicy.RUNTIME)
-            public @interface SomeAnnotation {}
-            """
+                @Target(ElementType.METHOD)
+                @Retention(RetentionPolicy.RUNTIME)
+                public @interface SomeAnnotation {}
+                """
                     .trimIndent(),
             )
         val main =
             JavaFileObjects.forSourceString(
                 "foo.bar.Main",
                 """
-            package foo.bar;
-            class Main {
-              @SomeAnnotation
-              SomeType invalidMethod() { return null; }
-              @SomeAnnotation
-              void validMethod() {}
-            }
-            """
+                package foo.bar;
+                class Main {
+                  @SomeAnnotation
+                  SomeType invalidMethod() { return null; }
+                  @SomeAnnotation
+                  void validMethod() {}
+                }
+                """
                     .trimIndent(),
             )
 

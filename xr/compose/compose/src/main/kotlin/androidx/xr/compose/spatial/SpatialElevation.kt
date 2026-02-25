@@ -27,6 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
@@ -134,6 +135,9 @@ private fun LayoutSpatialElevation(elevation: Dp, content: @Composable () -> Uni
                 panelEntity.poseInMeters =
                     calculatePose(it, parentViewSize, contentSize, this@Layout, elevation)
             }
+
+            // If the 2D content is not visible then hide the 3D panel.
+            panelEntity.alpha = if (coordinates?.boundsInWindow()?.isEmpty == false) 1f else 0f
             panelEntity.parent = parentEntity
             panelEntity.size =
                 IntVolumeSize(width = contentSize.width, height = contentSize.height, depth = 0)

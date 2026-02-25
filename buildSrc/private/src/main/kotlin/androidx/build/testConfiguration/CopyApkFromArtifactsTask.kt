@@ -74,7 +74,7 @@ abstract class CopyApkFromArtifactsTask @Inject constructor(private val objects:
                 throw IllegalStateException(
                     """
                     App apk not specified or both appFileCollection and appFolder specified.
-                """
+                    """
                         .trimIndent()
                 )
             }

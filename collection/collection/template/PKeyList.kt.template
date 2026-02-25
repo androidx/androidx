@@ -739,6 +739,7 @@ public class MutablePKeyList(
      * internal storage is reduced to the maximum of [size] and [minCapacity].
      * @see ensureCapacity
      */
+    @JvmOverloads
     public fun trim(minCapacity: Int = _size) {
         val minSize = maxOf(minCapacity, _size)
         if (capacity > minSize) {

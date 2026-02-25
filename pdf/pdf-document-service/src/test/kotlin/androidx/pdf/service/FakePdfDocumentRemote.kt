@@ -113,7 +113,7 @@ class FakePdfDocumentRemote : PdfDocumentRemote.Stub() {
         TODO("Not yet implemented")
     }
 
-    override fun isPdfLinearized(): Boolean {
+    override fun getLinearizationStatus(): Int {
         TODO("Not yet implemented")
     }
 
@@ -170,4 +170,6 @@ class FakePdfDocumentRemote : PdfDocumentRemote.Stub() {
     ): PdfObject? {
         TODO("Not yet implemented")
     }
+
+    override fun getInterfaceVersion(): Int = VERSION
 }

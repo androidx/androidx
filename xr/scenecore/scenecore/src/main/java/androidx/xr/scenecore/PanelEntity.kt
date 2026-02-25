@@ -16,6 +16,7 @@
 
 package androidx.xr.scenecore
 
+import android.app.Activity
 import android.content.Context
 import android.view.View
 import androidx.annotation.RestrictTo
@@ -26,6 +27,7 @@ import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector2
+import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.PanelEntity as RtPanelEntity
 import androidx.xr.scenecore.runtime.SceneRuntime
 
@@ -125,7 +127,7 @@ internal constructor(
     }
 
     /**
-     * Gets the 3D pose of a 2D pixel coordinate within the Entity's local space.
+     * Gets the 3D position of a 2D pixel coordinate within the entity's local space.
      *
      * This method's inputs use a 2D pixel coordinate system where:
      * - The origin (0, 0) is at the **top-left** corner of the panel.
@@ -133,49 +135,44 @@ internal constructor(
      * - The +Y axis points towards the **bottom** edge of the panel content.
      *
      * Input values are floats to allow for sub-pixel accuracy. Values outside the panel's pixel
-     * dimensions (e.g., `x < 0` or `y > panelHeight`) are permitted and will result in a pose
-     * positioned outside the panel's surface.
+     * dimensions (e.g., `x < 0` or `y > panelHeight`) are permitted and will result in a position
+     * outside the panel's surface.
      *
      * Note that calling this method on [MainPanelEntity] during [android.app.Activity.onCreate] can
      * result in incorrect values.
      *
      * @param coordinates The pixel coordinate, relative to the top-left origin.
-     * @return The 3D pose corresponding to the 2D pixel coordinate. The position will be coplanar
-     *   to the panel's surface (z=0 in the panel's local space), and the orientation will be the
-     *   identity rotation such that the Z axis points outwards from the panel.
-     * @see ScenePose.transformPoseTo to transform the pose to a different coordinate space.
+     * @return The 3D position in the Entity's local space corresponding to the 2D pixel coordinate.
+     * @see ScenePose.transformPositionTo to transform the position to a different coordinate space.
      */
-    @ExperimentalPanelCoordinateApi
-    public fun transformPixelCoordinatesToPose(coordinates: Vector2): Pose {
+    public fun transformPixelCoordinatesToLocalPosition(coordinates: Vector2): Vector3 {
         checkNotDisposed()
-        return rtEntity!!.transformPixelCoordinatesToPose(coordinates)
+        return rtEntity!!.transformPixelCoordinatesToLocalPosition(coordinates)
     }
 
     /**
-     * Gets the 3D pose of a 2D normalized extent coordinate within the Entity's local space.
+     * Gets the 3D position of a 2D normalized extent coordinate within the entity's local space.
      *
      * This method's inputs use a 2D normalized coordinate system where:
      * - The origin (0.0, 0.0) is at the **center** of the panel.
      * - The +X axis points towards the **right** edge (mapped to 1.0) of the panel content.
      * - The +Y axis points towards the **top** edge (mapped to 1.0) of the panel content.
      *
-     * Values outside the [-1.0, 1.0] range are permitted and will result in a pose positioned
-     * outside the panel's surface.
+     * Values outside the [-1.0, 1.0] range are permitted and will result in a position outside the
+     * panel's surface.
      *
      * Note that calling this method on [MainPanelEntity] during [android.app.Activity.onCreate] can
      * result in incorrect values.
      *
      * @param coordinates The normalized coordinates, relative to the origin at the center of the
      *   panel.
-     * @return The 3D pose corresponding to the 2D normalized coordinate. The position will be
-     *   coplanar to the panel's surface (z=0 in the panel's local space), and the orientation will
-     *   be the identity rotation such that the Z axis points outwards from the panel.
-     * @see ScenePose.transformPoseTo to transform the pose to a different coordinate space.
+     * @return The 3D position in the Entity's local space corresponding to the 2D normalized
+     *   coordinate.
+     * @see ScenePose.transformPositionTo to transform the position to a different coordinate space.
      */
-    @ExperimentalPanelCoordinateApi
-    public fun transformNormalizedCoordinatesToPose(coordinates: Vector2): Pose {
+    public fun transformNormalizedCoordinatesToLocalPosition(coordinates: Vector2): Vector3 {
         checkNotDisposed()
-        return rtEntity!!.transformNormalizedCoordinatesToPose(coordinates)
+        return rtEntity!!.transformNormalizedCoordinatesToLocalPosition(coordinates)
     }
 
     public companion object {
@@ -264,7 +261,7 @@ internal constructor(
             pose: Pose = Pose.Identity,
         ): PanelEntity =
             PanelEntity.create(
-                session.activity,
+                session.context as Activity,
                 session.sceneRuntime,
                 session.scene.perceptionSpace,
                 session.scene.entityManager,
@@ -295,7 +292,7 @@ internal constructor(
             pose: Pose = Pose.Identity,
         ): PanelEntity =
             PanelEntity.create(
-                session.activity,
+                session.context as Activity,
                 session.sceneRuntime,
                 session.scene.perceptionSpace,
                 session.scene.entityManager,
@@ -332,7 +329,7 @@ internal constructor(
             parent: Entity? = session.scene.activitySpace,
         ): PanelEntity =
             PanelEntity.create(
-                session.activity,
+                session.context as Activity,
                 session.sceneRuntime,
                 session.scene.perceptionSpace,
                 session.scene.entityManager,
@@ -370,7 +367,7 @@ internal constructor(
             parent: Entity? = session.scene.activitySpace,
         ): PanelEntity =
             PanelEntity.create(
-                session.activity,
+                session.context as Activity,
                 session.sceneRuntime,
                 session.scene.perceptionSpace,
                 session.scene.entityManager,

@@ -200,7 +200,7 @@ internal sealed class KspTypeElement(
         } else {
             (_enclosedElements + (companionObject?._enclosedElements ?: emptyList()))
                 .filterIsInstance<KspFieldElement>()
-                .filter { it.declaration.hasBackingField }
+                .filter { it.declaration.hasBackingField && it.name != "_hashCode" }
         }
     }
 

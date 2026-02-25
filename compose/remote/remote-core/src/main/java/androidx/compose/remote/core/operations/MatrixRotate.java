@@ -77,8 +77,9 @@ public class MatrixRotate extends DrawBase3 {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
-                .description("apply rotation to matrix")
+        doc.operation("Matrix Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("matrix_rotate")
+                .description("Apply rotation to matrix")
                 .field(DocumentedOperation.FLOAT, "rotate", "Angle to rotate")
                 .field(DocumentedOperation.FLOAT, "pivotX", "X Pivot point")
                 .field(DocumentedOperation.FLOAT, "pivotY", "Y Pivot point");

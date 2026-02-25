@@ -36,7 +36,7 @@ abstract class BaseDaoKotlinCodeGenTest {
         jvmDefaultMode: String = "disable",
         handler: (XTestInvocation) -> Unit = {},
     ) {
-        val kotlincArguments = listOf("-jvm-target=11", "-Xjvm-default=${jvmDefaultMode}")
+        val kotlincArguments = listOf("-jvm-target=11", "-jvm-default=${jvmDefaultMode}")
         val invocationHandler: (XTestInvocation) -> Unit = {
             val databaseFqn = "androidx.room3.Database"
             DatabaseProcessingStep()

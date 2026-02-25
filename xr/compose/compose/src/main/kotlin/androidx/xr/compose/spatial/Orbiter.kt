@@ -16,10 +16,10 @@
 
 package androidx.xr.compose.spatial
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.Color
 import android.view.View
-import android.view.ViewParent
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -46,7 +46,6 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -57,13 +56,6 @@ import androidx.compose.ui.util.fastFold
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.core.graphics.drawable.toDrawable
-import androidx.core.viewtree.setViewTreeDisjointParent
-import androidx.lifecycle.findViewTreeLifecycleOwner
-import androidx.lifecycle.findViewTreeViewModelStoreOwner
-import androidx.lifecycle.setViewTreeLifecycleOwner
-import androidx.lifecycle.setViewTreeViewModelStoreOwner
-import androidx.savedstate.findViewTreeSavedStateRegistryOwner
-import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import androidx.xr.compose.R
 import androidx.xr.compose.platform.LocalCoreMainPanelEntity
 import androidx.xr.compose.platform.LocalDialogManager
@@ -75,6 +67,7 @@ import androidx.xr.compose.subspace.layout.CorePanelEntity
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
 import androidx.xr.compose.subspace.layout.SpatialShape
 import androidx.xr.compose.subspace.node.SubspaceNodeApplier
+import androidx.xr.compose.subspace.spatialComposeView
 import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.IntSize2d
@@ -279,7 +272,7 @@ private fun PanelScrim() {
 }
 
 private fun getWindowBoundsInPixels(session: Session): IntSize2d =
-    session.activity.window.decorView.run { IntSize2d(width, height) }
+    (session.context as Activity).window.decorView.run { IntSize2d(width, height) }
 
 /**
  * Provides the dimensions of the Android main window.
@@ -300,7 +293,7 @@ private fun getMainWindowSize(session: Session): IntVolumeSize {
             )
         }
 
-    val mainView = session.activity.window.decorView
+    val mainView = (session.context as Activity).window.decorView
 
     DisposableEffect(Unit) {
         val listener =
@@ -359,50 +352,23 @@ private class SpatialOrbiter(
         }
 
     override fun onRemembered() {
-        view =
-            ComposeView(context).apply {
-                id = View.generateViewId()
-
-                setViewTreeLifecycleOwner(parentView.findViewTreeLifecycleOwner())
-                setViewTreeViewModelStoreOwner(parentView.findViewTreeViewModelStoreOwner())
-                setViewTreeSavedStateRegistryOwner(parentView.findViewTreeSavedStateRegistryOwner())
-                setViewTreeDisjointParent(parentView as? ViewParent ?: parentView.parent)
-
-                // Set the strategy to automatically dispose the composition
-                // when the ComposeView is detached from the window.
-                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
-
-                // Dispose of the Composition when the view's LifecycleOwner is destroyed
-                setParentCompositionContext(compositionContext)
-
-                // Set unique id for AbstractComposeView. This allows state restoration
-                // for the state defined inside the SpatialElevation via rememberSaveable().
-                setTag(
-                    androidx.compose.ui.R.id.compose_view_saveable_id_tag,
-                    "ComposeView:$localId",
-                )
-
-                // Enable children to draw their shadow by not clipping them
-                clipChildren = false
-            }
+        val view = spatialComposeView(parentView, context, compositionContext, localId)
+        this.view = view
         panelEntity =
-            view
-                ?.let {
-                    CorePanelEntity(
-                        PanelEntity.create(
-                            session = session,
-                            view = it,
-                            pixelDimensions = IntSize2d(0, 0),
-                            name = "Orbiter:${view?.id}",
-                        )
+            CorePanelEntity(
+                    PanelEntity.create(
+                        session = session,
+                        view = view,
+                        pixelDimensions = IntSize2d(0, 0),
+                        name = "Orbiter:${view.id}",
                     )
-                }
+                )
                 .apply {
-                    this?.enabled = false
-                    view?.setTag(R.id.compose_xr_local_view_entity, this)
+                    this.enabled = false
+                    view.setTag(R.id.compose_xr_local_view_entity, this)
                 }
 
-        view?.setContent {
+        view.setContent {
             val panelSize: IntVolumeSize =
                 if (parentEntity == LocalCoreMainPanelEntity.current) {
                     getMainWindowSize(session)

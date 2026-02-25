@@ -1,8 +1,8 @@
 import androidx.room3.RoomDatabase
 import androidx.room3.util.getColumnIndexOrThrow
-import androidx.room3.util.performBlocking
 import androidx.room3.util.performSuspending
 import androidx.sqlite.SQLiteStatement
+import androidx.sqlite.step
 import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.String
@@ -73,7 +73,7 @@ internal class MyDao_Impl(
   public override fun getBlockingFooList(): Foo<List<MyEntity>> {
     val _sql: String = "SELECT * FROM MyEntity"
     return __fooReturnTypeConverter.convertBlocking(__db, arrayOf("MyEntity")) {
-      performBlocking(__db, true, false) { _connection ->
+      performSuspending(__db, true, false) { _connection ->
         val _stmt: SQLiteStatement = _connection.prepare(_sql)
         try {
           val _columnIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")

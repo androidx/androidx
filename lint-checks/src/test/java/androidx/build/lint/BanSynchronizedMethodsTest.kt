@@ -40,17 +40,17 @@ class BanSynchronizedMethodsTest :
                     public synchronized void someMethod() {
                     }
                 }
-            """
+                """
                     .trimIndent(),
             )
 
         val expected =
             """
-src/androidx/SynchronizedMethodJava.java:3: Error: Use of synchronized methods is not recommended [BanSynchronizedMethods]
-    public synchronized void someMethod() {
-    ^
-1 errors, 0 warnings
-        """
+            src/androidx/SynchronizedMethodJava.java:3: Error: Use of synchronized methods is not recommended [BanSynchronizedMethods]
+                public synchronized void someMethod() {
+                ^
+            1 errors, 0 warnings
+            """
                 .trimIndent()
 
         check(input).expect(expected)
@@ -67,17 +67,17 @@ src/androidx/SynchronizedMethodJava.java:3: Error: Use of synchronized methods i
                     @Synchronized
                     fun someMethod() {}
                 }
-            """
+                """
                     .trimIndent(),
             )
 
         val expected =
             """
-src/androidx/SynchronizedMethodKotlin.kt:3: Error: Use of synchronized methods is not recommended [BanSynchronizedMethods]
-    @Synchronized
-    ^
-1 errors, 0 warnings
-        """
+            src/androidx/SynchronizedMethodKotlin.kt:3: Error: Use of synchronized methods is not recommended [BanSynchronizedMethods]
+                @Synchronized
+                ^
+            1 errors, 0 warnings
+            """
                 .trimIndent()
 
         check(input).expect(expected)

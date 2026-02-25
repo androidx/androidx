@@ -330,6 +330,14 @@ internal class BitmapFetcher(
                         throwable = e,
                     )
                 errorFlow.emit(exception)
+            } catch (e: IllegalStateException) {
+                /*
+                  This exception is thrown when attempting to render a page that has already
+                  been closed. This can happen in a race condition where the document is
+                  closed while a background render task is in progress. We can safely ignore
+                  this exception because if the document is being closed, the rendered bitmap
+                  is no longer needed.
+                */
             }
         }
     }
@@ -372,6 +380,14 @@ internal class BitmapFetcher(
                         )
                     errorFlow.emit(exception)
                     return@launch
+                } catch (e: IllegalStateException) {
+                    /*
+                      This exception is thrown when attempting to render a page that has already
+                      been closed. This can happen in a race condition where the document is
+                      closed while a background render task is in progress. We can safely ignore
+                      this exception because if the document is being closed, the rendered bitmap
+                      is no longer needed.
+                    */
                 }
             }
         return job

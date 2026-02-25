@@ -20,6 +20,7 @@ import android.os.Build
 import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.FloatSize2d
@@ -65,7 +66,7 @@ class EntityManagerTest {
         assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
 
         session = (result as SessionCreateSuccess).session
-        session.configure(Config(planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
+        session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
         sceneRuntime = session.sceneRuntime
         renderingRuntime = session.renderingRuntime
         entityManager = session.scene.entityManager

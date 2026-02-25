@@ -35,24 +35,21 @@ import org.junit.runners.Parameterized
 @LargeTest
 class ImageAnalysisUnlockedOrientationTest(
     private val lensFacing: Int,
-    private val cameraXConfig: String,
     private val rotation: RotationUnlocked,
     private val testName: String,
-) : ImageAnalysisBaseTest<UnlockedOrientationActivity>(cameraXConfig) {
+) : ImageAnalysisBaseTest<UnlockedOrientationActivity>() {
 
     companion object {
         @JvmStatic
-        @Parameterized.Parameters(name = "cameraXConfig={1}, {3}")
+        @Parameterized.Parameters(name = "{2}")
         fun data() =
             mutableListOf<Array<Any?>>().apply {
-                cameraXConfigList.forEach { config ->
-                    add(arrayOf(LENS_FACING_BACK, config, Natural, "Back lens - Natural"))
-                    add(arrayOf(LENS_FACING_BACK, config, Left, "Back lens - Left"))
-                    add(arrayOf(LENS_FACING_BACK, config, Right, "Back lens - Right"))
-                    add(arrayOf(LENS_FACING_FRONT, config, Natural, "Front lens - Natural"))
-                    add(arrayOf(LENS_FACING_FRONT, config, Left, "Front lens - Left"))
-                    add(arrayOf(LENS_FACING_FRONT, config, Right, "Front lens - Right"))
-                }
+                add(arrayOf(LENS_FACING_BACK, Natural, "Back lens - Natural"))
+                add(arrayOf(LENS_FACING_BACK, Left, "Back lens - Left"))
+                add(arrayOf(LENS_FACING_BACK, Right, "Back lens - Right"))
+                add(arrayOf(LENS_FACING_FRONT, Natural, "Front lens - Natural"))
+                add(arrayOf(LENS_FACING_FRONT, Left, "Front lens - Left"))
+                add(arrayOf(LENS_FACING_FRONT, Right, "Front lens - Right"))
             }
     }
 
@@ -69,7 +66,7 @@ class ImageAnalysisUnlockedOrientationTest(
     @Test
     @SdkSuppress(maxSdkVersion = 33) // b/360867144: Module crashes on API34
     fun verifyRotation() {
-        verifyRotation<UnlockedOrientationActivity>(lensFacing, cameraXConfig) {
+        verifyRotation<UnlockedOrientationActivity>(lensFacing) {
             if (rotation.shouldRotate) {
                 rotateDeviceAndWait()
             }

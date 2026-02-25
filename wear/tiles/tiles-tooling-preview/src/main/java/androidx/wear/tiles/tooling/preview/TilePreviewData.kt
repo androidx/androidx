@@ -45,12 +45,12 @@ private val defaultResources = Resources.Builder().setVersion(PERMANENT_RESOURCE
  *   called before rendering the preview.
  * @see [TilePreviewHelper.singleTimelineEntryTileBuilder]
  */
-class TilePreviewData
+public class TilePreviewData
 @JvmOverloads
 constructor(
-    val onTileResourceRequest: (ResourcesRequest) -> Resources = { defaultResources },
-    val platformDataValues: PlatformDataValues? = null,
-    val onTileRequest: (TileRequest) -> TileBuilders.Tile,
+    public val onTileResourceRequest: (ResourcesRequest) -> Resources = { defaultResources },
+    public val platformDataValues: PlatformDataValues? = null,
+    public val onTileRequest: (TileRequest) -> TileBuilders.Tile,
 ) {
     override fun toString(): String {
         return "TilePreviewData(onTileResourceRequest=$onTileResourceRequest, " +
@@ -70,5 +70,6 @@ constructor(
         return true
     }
 
-    override fun hashCode() = Objects.hash(onTileResourceRequest, platformDataValues, onTileRequest)
+    override fun hashCode(): Int =
+        Objects.hash(onTileResourceRequest, platformDataValues, onTileRequest)
 }

@@ -20,6 +20,7 @@ import android.media.MediaCodecInfo
 import android.media.MediaCodecList
 import android.util.LruCache
 import androidx.annotation.GuardedBy
+import androidx.annotation.VisibleForTesting
 import androidx.camera.video.internal.encoder.EncoderConfig
 import androidx.camera.video.internal.encoder.InvalidConfigException
 import java.io.IOException
@@ -36,21 +37,39 @@ public object CodecUtil {
     private val codecInfoCache: LruCache<String, MediaCodecInfo> =
         LruCache(MAX_CODEC_INFO_CACHE_COUNT)
 
-    private val allEncoderInfos: List<MediaCodecInfo> by lazy {
-        MediaCodecList(MediaCodecList.REGULAR_CODECS).codecInfos.filter { it.isEncoder }
-    }
+    private var allEncoderInfosCache: List<MediaCodecInfo>? = null
+    private val allEncoderInfos: List<MediaCodecInfo>
+        get() =
+            allEncoderInfosCache
+                ?: MediaCodecList(MediaCodecList.REGULAR_CODECS)
+                    .codecInfos
+                    .filter { it.isEncoder }
+                    .also { allEncoderInfosCache = it }
 
-    private val allEncoderMimeTypes: List<String> by lazy {
-        allEncoderInfos.flatMap { it.supportedTypes?.toList() ?: emptyList() }.distinct()
-    }
+    private var allEncoderMimeTypesCache: List<String>? = null
+    private val allEncoderMimeTypes: List<String>
+        get() =
+            allEncoderMimeTypesCache
+                ?: allEncoderInfos
+                    .flatMap { it.supportedTypes?.toList() ?: emptyList() }
+                    .distinct()
+                    .also { allEncoderMimeTypesCache = it }
 
-    private val allVideoEncoderMimeTypes: List<String> by lazy {
-        allEncoderMimeTypes.filter { it.startsWith("video/") }
-    }
+    private var allVideoEncoderMimeTypesCache: List<String>? = null
+    private val allVideoEncoderMimeTypes: List<String>
+        get() =
+            allVideoEncoderMimeTypesCache
+                ?: allEncoderMimeTypes
+                    .filter { it.startsWith("video/") }
+                    .also { allVideoEncoderMimeTypesCache = it }
 
-    private val allAudioEncoderMimeTypes: List<String> by lazy {
-        allEncoderMimeTypes.filter { it.startsWith("audio/") }
-    }
+    private var allAudioEncoderMimeTypesCache: List<String>? = null
+    private val allAudioEncoderMimeTypes: List<String>
+        get() =
+            allAudioEncoderMimeTypesCache
+                ?: allEncoderMimeTypes
+                    .filter { it.startsWith("audio/") }
+                    .also { allAudioEncoderMimeTypesCache = it }
 
     /**
      * Creates a codec instance suitable for the encoder config.
@@ -94,6 +113,16 @@ public object CodecUtil {
     @JvmStatic public fun getVideoEncoderMimeTypes(): List<String> = allVideoEncoderMimeTypes
 
     @JvmStatic public fun getAudioEncoderMimeTypes(): List<String> = allAudioEncoderMimeTypes
+
+    /** Resets the cached codec information. */
+    @VisibleForTesting
+    public fun reset() {
+        allEncoderInfosCache = null
+        allEncoderMimeTypesCache = null
+        allVideoEncoderMimeTypesCache = null
+        allAudioEncoderMimeTypesCache = null
+        synchronized(codecInfoCache) { codecInfoCache.evictAll() }
+    }
 
     @Throws(InvalidConfigException::class)
     private fun createCodec(mimeType: String): MediaCodec {

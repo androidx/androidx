@@ -43,7 +43,6 @@ import androidx.room3.processor.ProcessorErrors.cannotFindQueryResultAdapter
 import androidx.room3.processor.ProcessorErrors.mayNeedMapColumn
 import androidx.room3.solver.query.result.DataClassRowAdapter
 import androidx.room3.solver.query.result.ListQueryResultAdapter
-import androidx.room3.solver.query.result.LiveDataQueryResultBinder
 import androidx.room3.solver.query.result.SingleColumnRowAdapter
 import androidx.room3.solver.query.result.SingleItemQueryResultAdapter
 import androidx.room3.testing.context
@@ -53,6 +52,7 @@ import androidx.room3.vo.ReadQueryFunction
 import androidx.room3.vo.Warning
 import androidx.room3.vo.WriteQueryFunction
 import createVerifierFromEntitiesAndViews
+import kotlin.collections.listOf
 import mockElementAndType
 import org.junit.AssumptionViolatedException
 import org.junit.Test
@@ -70,6 +70,12 @@ class QueryFunctionProcessorTest(private val enableVerification: Boolean) {
                 import androidx.room3.*;
                 import java.util.*;
                 import com.google.common.collect.*;
+                import androidx.room3.livedata.LiveDataDaoReturnTypeConverter;
+                import androidx.room3.rxjava3.Rx3DaoReturnTypeConverters;
+                @DaoReturnTypeConverters(
+                    { LiveDataDaoReturnTypeConverter.class,
+                    Rx3DaoReturnTypeConverters.class }
+                )
                 @Dao
                 abstract class MyClass {
                 """
@@ -77,6 +83,8 @@ class QueryFunctionProcessorTest(private val enableVerification: Boolean) {
             """
                 package foo.bar
                 import androidx.room3.*
+                import androidx.room3.livedata.LiveDataDaoReturnTypeConverter
+                import androidx.room3.rxjava3.Rx3DaoReturnTypeConverters
                 import java.util.*
                 import io.reactivex.*         
                 import io.reactivex.rxjava3.core.*
@@ -84,7 +92,10 @@ class QueryFunctionProcessorTest(private val enableVerification: Boolean) {
                 import com.google.common.util.concurrent.*
                 import org.reactivestreams.*
                 import kotlinx.coroutines.flow.*
-            
+                @DaoReturnTypeConverters(
+                    LiveDataDaoReturnTypeConverter::class,
+                    Rx3DaoReturnTypeConverters::class,
+                )
                 @Dao
                 abstract class MyClass {
                 """
@@ -349,36 +360,6 @@ class QueryFunctionProcessorTest(private val enableVerification: Boolean) {
     }
 
     @Test
-    fun testLiveDataWithNothingToObserve() {
-        singleQueryMethod<ReadQueryFunction>(
-            """
-                @Query("SELECT 1")
-                abstract public ${LifecyclesTypeNames.LIVE_DATA.canonicalName}<Integer> getOne();
-                """
-        ) { _, invocation ->
-            invocation.assertCompilationResult {
-                hasErrorContaining(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
-            }
-        }
-    }
-
-    @Test
-    fun testLiveDataWithWithClauseAndNothingToObserve() {
-        singleQueryMethod<ReadQueryFunction>(
-            """
-                @Query("WITH RECURSIVE tempTable(n, fact) AS (SELECT 0, 1 UNION ALL SELECT n+1,"
-                + " (n+1)*fact FROM tempTable WHERE n < 9) SELECT fact FROM tempTable")
-                abstract public ${LifecyclesTypeNames.LIVE_DATA.canonicalName}<${LIST.canonicalName}<Integer>>
-                getFactorialLiveData();
-                """
-        ) { _, invocation ->
-            invocation.assertCompilationResult {
-                hasErrorContaining(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
-            }
-        }
-    }
-
-    @Test
     fun testBoundGeneric() {
         singleQueryMethod<ReadQueryFunction>(
             """
@@ -526,24 +507,6 @@ class QueryFunctionProcessorTest(private val enableVerification: Boolean) {
                     )
                 )
             }
-        }
-    }
-
-    @Test
-    fun testLiveDataQuery() {
-        singleQueryMethod<ReadQueryFunction>(
-            """
-                @Query("select name from user where uid = :id")
-                abstract ${LifecyclesTypeNames.LIVE_DATA.canonicalName}<String> nameLiveData(String id);
-                """
-        ) { parsedQuery, _ ->
-            assertThat(parsedQuery.returnType.asTypeName())
-                .isEqualTo(
-                    LifecyclesTypeNames.LIVE_DATA.parametrizedBy(STRING.copy(nullable = true))
-                        .copy(nullable = true)
-                )
-
-            assertThat(parsedQuery.queryResultBinder).isInstanceOf<LiveDataQueryResultBinder>()
         }
     }
 
@@ -853,15 +816,15 @@ class QueryFunctionProcessorTest(private val enableVerification: Boolean) {
             Source.java(
                 "foo.bar.Relation",
                 """
-            package foo.bar;
-            import androidx.room3.*;
-            @Entity
-            public class Relation {
-              @PrimaryKey
-              long relationId;
-              long userId;
-            }
-            """
+                package foo.bar;
+                import androidx.room3.*;
+                @Entity
+                public class Relation {
+                  @PrimaryKey
+                  long relationId;
+                  long userId;
+                }
+                """
                     .trimIndent(),
             )
         singleQueryMethod<ReadQueryFunction>(
@@ -1159,6 +1122,12 @@ class QueryFunctionProcessorTest(private val enableVerification: Boolean) {
                 COMMON.IMAGE,
                 COMMON.IMAGE_FORMAT,
                 COMMON.CONVERTER,
+                COMMON.RX3_COMPLETABLE,
+                COMMON.RX3_MAYBE,
+                COMMON.RX3_SINGLE,
+                COMMON.RX3_FLOWABLE,
+                COMMON.PUBLISHER,
+                COMMON.RX3_OBSERVABLE,
             )
         runKspTest(sources = additionalSources + commonSources + inputSource, options = options) {
             invocation ->
@@ -1183,9 +1152,10 @@ class QueryFunctionProcessorTest(private val enableVerification: Boolean) {
                 } else {
                     null
                 }
+            val forkedContext = invocation.context.fork(owner)
             val parser =
                 QueryFunctionProcessor(
-                    baseContext = invocation.context,
+                    baseContext = forkedContext,
                     containing = owner.type,
                     executableElement = methods.first(),
                     dbVerifier = verifier,
@@ -1245,9 +1215,10 @@ class QueryFunctionProcessorTest(private val enableVerification: Boolean) {
                 } else {
                     null
                 }
+            val forkedContext = invocation.context.fork(owner)
             val parser =
                 QueryFunctionProcessor(
-                    baseContext = invocation.context,
+                    baseContext = forkedContext,
                     containing = owner.type,
                     executableElement = methods.first(),
                     dbVerifier = verifier,
@@ -1648,7 +1619,7 @@ class QueryFunctionProcessorTest(private val enableVerification: Boolean) {
                         return 0;
                     }
                 }
-            """
+                """
                     .trimIndent(),
             )
         singleQueryMethod<ReadQueryFunction>(

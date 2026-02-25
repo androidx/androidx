@@ -498,11 +498,14 @@ public class RemoteComposeWriter {
     /**
      * Measure bitmap font text dimensions.
      *
+     * @param textId       The id of the text to measure
+     * @param bmFontId     The id of the bitmap font to measure the text with
+     * @param glyphSpacing Horizontal spacing adjustment between glyphs in pixels
      * @return float id of the property
      */
-    public float bitmapTextMeasure(int textId, int bmFontId, int measureWidth) {
+    public float bitmapTextMeasure(int textId, int bmFontId, int measureWidth, float glyphSpacing) {
         int id = mState.createNextAvailableId();
-        mBuffer.bitmapTextMeasure(id, textId, bmFontId, measureWidth);
+        mBuffer.bitmapTextMeasure(id, textId, bmFontId, measureWidth, glyphSpacing);
         return Utils.asNan(id);
     }
 
@@ -1264,10 +1267,12 @@ public class RemoteComposeWriter {
      * @param end          (end - 1) is the index of the last character in text to draw
      * @param x            The x-coordinate of the origin of the text being drawn
      * @param y            The y-coordinate of the baseline of the text being drawn
+     * @param glyphSpacing Horizontal spacing adjustment between glyphs in pixels
      */
     public void drawBitmapFontTextRun(
-            int textId, int bitmapFontId, int start, int end, float x, float y) {
-        mBuffer.addDrawBitmapFontTextRun(textId, bitmapFontId, start, end, x, y);
+            int textId, int bitmapFontId, int start, int end, float x, float y,
+            float glyphSpacing) {
+        mBuffer.addDrawBitmapFontTextRun(textId, bitmapFontId, start, end, x, y, glyphSpacing);
     }
 
     /**
@@ -1279,14 +1284,17 @@ public class RemoteComposeWriter {
      * @param start        The index of the first character in text to draw
      * @param end          (end - 1) is the index of the last character in text to draw
      * @param yAdj         Adjustment away from the path along the normal at that point
+     * @param glyphSpacing Horizontal spacing adjustment between glyphs in pixels
      */
     public void drawBitmapFontTextRunOnPath(
-            int textId, int bitmapFontId, @NonNull Object path, int start, int end, float yAdj) {
+            int textId, int bitmapFontId, @NonNull Object path, int start, int end, float yAdj,
+            float glyphSpacing) {
         int pathId = mState.dataGetId(path);
         if (pathId == -1) { // never been seen before
             pathId = addPathData(path);
         }
-        mBuffer.addDrawBitmapFontTextRunOnPath(textId, bitmapFontId, pathId, start, end, yAdj);
+        mBuffer.addDrawBitmapFontTextRunOnPath(
+                textId, bitmapFontId, pathId, start, end, yAdj, glyphSpacing);
     }
 
     /**
@@ -1378,6 +1386,7 @@ public class RemoteComposeWriter {
      * @param end          (end - 1) is the index of the last character in text to draw
      * @param panX         justifies text -1.0=right, 0.0=center, 1.0=left
      * @param panY         position text -1.0=above, 0.0=center, 1.0=below, Nan=baseline
+     * @param glyphSpacing horizontal spacing adjustment between glyphs in pixels
      */
     public void drawBitmapTextAnchored(
             @NonNull String text,
@@ -1387,9 +1396,11 @@ public class RemoteComposeWriter {
             float x,
             float y,
             float panX,
-            float panY) {
+            float panY,
+            float glyphSpacing) {
         int textId = addText(text);
-        mBuffer.drawBitmapTextAnchored(textId, bitmapFontId, start, end, x, y, panX, panY);
+        mBuffer.drawBitmapTextAnchored(
+                textId, bitmapFontId, start, end, x, y, panX, panY, glyphSpacing);
     }
 
     /**
@@ -1413,6 +1424,7 @@ public class RemoteComposeWriter {
      * @param end          (end - 1) is the index of the last character in text to draw
      * @param panX         justifies text -1.0=right, 0.0=center, 1.0=left
      * @param panY         position text -1.0=above, 0.0=center, 1.0=below, Nan=baseline
+     * @param glyphSpacing horizontal spacing adjustment between glyphs in pixels
      */
     public void drawBitmapTextAnchored(
             int textId,
@@ -1422,8 +1434,10 @@ public class RemoteComposeWriter {
             float x,
             float y,
             float panX,
-            float panY) {
-        mBuffer.drawBitmapTextAnchored(textId, bitmapFontId, start, end, x, y, panX, panY);
+            float panY,
+            float glyphSpacing) {
+        mBuffer.drawBitmapTextAnchored(
+                textId, bitmapFontId, start, end, x, y, panX, panY, glyphSpacing);
     }
 
     /**
@@ -1874,6 +1888,16 @@ public class RemoteComposeWriter {
         FloatConstant.apply(mBuffer.getBuffer(), id, initialValue);
         mState.updateFloat(id, initialValue);
         return Utils.asNan(id);
+    }
+
+    /**
+     * Set the name of the float associated with the id
+     *
+     * @param id   of the float
+     * @param name name of the float
+     */
+    public void setFloatName(int id, @NonNull String name) {
+        mBuffer.setNamedVariable(id, name, NamedVariable.FLOAT_TYPE);
     }
 
     /**
@@ -2989,6 +3013,43 @@ public class RemoteComposeWriter {
     }
 
     /**
+     * Add a flow layout
+     *
+     * @param modifier   list of modifiers for the layout
+     * @param horizontal horizontal positioning
+     * @param vertical   vertical positioning
+     * @param content    content of the layout
+     */
+    public void flow(
+            @NonNull RecordingModifier modifier,
+            int horizontal,
+            int vertical,
+            @NonNull RemoteComposeWriterInterface content) {
+        startFlow(modifier, horizontal, vertical);
+        content.run();
+        endFlow();
+    }
+
+    /**
+     * Start a flow layout
+     */
+    public void startFlow(@NonNull RecordingModifier modifier, int horizontal, int vertical) {
+        int componentId = modifier.getComponentId();
+        float spacedBy = modifier.getSpacedBy();
+        mBuffer.addFlowStart(componentId, -1, horizontal, vertical, spacedBy);
+        for (RecordingModifier.Element m : modifier.getList()) {
+            m.write(this);
+        }
+        addContentStart();
+    }
+
+    /** End a flow layout */
+    public void endFlow() {
+        mBuffer.addContainerEnd();
+        mBuffer.addContainerEnd();
+    }
+
+    /**
      * Add a Canvas
      *
      * @param modifier list of modifiers for the layout
@@ -3090,6 +3151,24 @@ public class RemoteComposeWriter {
     public void endBox() {
         mBuffer.addContainerEnd();
         mBuffer.addContainerEnd();
+    }
+
+    /**
+     * Add a fitBox layout
+     *
+     * @param modifier   list of modifiers for the layout
+     * @param horizontal horizontal positioning
+     * @param vertical   vertical positioning
+     * @param content    content of the layout
+     */
+    public void fitBox(
+            @NonNull RecordingModifier modifier,
+            int horizontal,
+            int vertical,
+            @NonNull RemoteComposeWriterInterface content) {
+        startFitBox(modifier, horizontal, vertical);
+        content.run();
+        endFitBox();
     }
 
     /**
@@ -4371,7 +4450,7 @@ public class RemoteComposeWriter {
 
     /**
      * begin a section of global commands.
-     * Theses commands will be moved to before the root
+     * These commands will be moved to before the root
      */
     public void beginGlobal() {
         if (mStartGlobalSection != -1) {
@@ -4394,6 +4473,36 @@ public class RemoteComposeWriter {
             mInsertPoint += bytes;
         }
         mStartGlobalSection = -1;
+    }
+
+
+    /**
+     * Add a message to the log
+     * This is for debugging purposes only it is used by debugging software
+     *
+     * @param message
+     */
+    public void rem(@NonNull String message) {
+        mBuffer.rem(message);
+    }
+
+    /**
+     * This allows you to conditionally skip a segment
+     *
+     * @return number to use in the call to endSkip
+     */
+    public int beginSkip(short type, int value) {
+        return mBuffer.beginSkip(type, value);
+    }
+
+    /**
+     * This defines the section to end skipping
+     * Warning using this with startGlobal endGlobal can be tricky
+     *
+     * @param offset the value returned by the end skip
+     */
+    public void endSkip(int offset) {
+        mBuffer.endSkip(offset);
     }
 
     /**

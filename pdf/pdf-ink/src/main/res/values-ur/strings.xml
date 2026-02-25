@@ -28,4 +28,54 @@
     <string name="annotation_undo_button_content_desc" msgid="479267370046825819">"کالعدم کریں"</string>
     <string name="annotation_redo_button_content_desc" msgid="3758120724922767367">"دوبارہ کریں"</string>
     <string name="annotation_toggle_annotation_button_content_desc" msgid="7425032497404166935">"تشریح ٹوگل کریں"</string>
+    <string name="pdf_pen_color_palette_item_black" msgid="1193850318058674733">"سیاہ"</string>
+    <string name="pdf_pen_color_palette_item_dark_blue" msgid="3709903694487096403">"گہرا نیلا"</string>
+    <string name="pdf_pen_color_palette_item_red" msgid="7822500272989225395">"سرخ"</string>
+    <string name="pdf_pen_color_palette_item_green" msgid="5819181960831423028">"سبز"</string>
+    <string name="pdf_pen_color_palette_item_gold" msgid="3115612006626679755">"گولڈ"</string>
+    <string name="pdf_pen_color_palette_item_olive_green" msgid="8682186726127294387">"زیتونی سبز"</string>
+    <string name="pdf_pen_color_palette_item_brown" msgid="6232950817278059536">"بھورا"</string>
+    <string name="pdf_pen_color_palette_item_gray" msgid="6163892444815389053">"سلیٹی"</string>
+    <string name="pdf_pen_color_palette_item_blue" msgid="7457564074074521904">"نیلا"</string>
+    <string name="pdf_pen_color_palette_item_coral_red" msgid="7031815032565562240">"کورل ریڈ"</string>
+    <string name="pdf_pen_color_palette_item_lime_green" msgid="3841967923966525202">"لیموں جیسا سبز"</string>
+    <string name="pdf_pen_color_palette_item_yellow" msgid="4727631332525029494">"پیلا"</string>
+    <string name="pdf_pen_color_palette_item_pale_lime" msgid="788428039617260017">"ہلکا لائم"</string>
+    <string name="pdf_pen_color_palette_item_tan" msgid="8683991930359923110">"سانولا"</string>
+    <string name="pdf_pen_color_palette_item_light_gray" msgid="1826258279260761568">"ہلکا خاکستری"</string>
+    <string name="pdf_pen_color_palette_item_purple" msgid="4874203867122898447">"جامنی"</string>
+    <string name="pdf_pen_color_palette_item_pink" msgid="910303583995020849">"گلابی"</string>
+    <string name="pdf_pen_color_palette_item_mint_green" msgid="3466695895495074727">"مِنٹ سبز"</string>
+    <string name="pdf_pen_color_palette_item_orange" msgid="8386255929980628111">"نارنجی"</string>
+    <string name="pdf_pen_color_palette_item_steel_blue" msgid="3154206559377052556">"اسٹیل نیلا"</string>
+    <string name="pdf_pen_color_palette_item_deep_red" msgid="4239541789778061549">"گہرا سرخ"</string>
+    <string name="pdf_pen_color_palette_item_white" msgid="8144463165091121076">"سفید"</string>
+    <string name="pdf_pen_color_palette_item_lavender" msgid="1775986939316611290">"لیوینڈر"</string>
+    <string name="pdf_pen_color_palette_item_pale_pink" msgid="1141881885074993872">"ہلکا گلابی"</string>
+    <string name="pdf_pen_color_palette_item_pale_green" msgid="792103596873317647">"ہلکا سبز"</string>
+    <string name="pdf_pen_color_palette_item_peach" msgid="708830522451831539">"ہلکا نارنجی"</string>
+    <string name="pdf_pen_color_palette_item_light_blue" msgid="2417180972880324689">"ہلکا نیلا"</string>
+    <string name="pdf_pen_color_palette_item_salmon" msgid="6163374875760492193">"سرخی مائل نارنجی"</string>
+    <string name="pdf_highlighter_color_palette_item_dark_gray" msgid="1838666264159845710">"گہرا خاکستری"</string>
+    <string name="pdf_highlighter_color_palette_item_white" msgid="8644005777632868460">"سفید"</string>
+    <string name="pdf_highlighter_color_palette_item_coral_red" msgid="1813490531181208077">"کورل ریڈ"</string>
+    <string name="pdf_highlighter_color_palette_item_lime_green" msgid="6425999517080100086">"لیموں جیسا سبز"</string>
+    <string name="pdf_highlighter_color_palette_item_periwinkle_blue" msgid="5699667219502054262">"پیری ونکل نیلا"</string>
+    <string name="pdf_highlighter_color_palette_item_orange" msgid="5231185833927668570">"نارنجی"</string>
+    <string name="pdf_highlighter_color_palette_item_yellow" msgid="416381392408268015">"پیلا"</string>
+    <string name="pdf_highlighter_color_palette_item_pale_pink" msgid="2619944780773837664">"ہلکا گلابی"</string>
+    <string name="pdf_highlighter_color_palette_item_light_blue" msgid="3792266639825110183">"ہلکا نیلا"</string>
+    <string name="pdf_highlighter_color_palette_item_pale_green" msgid="6277595714452533675">"ہلکا سبز"</string>
+    <string name="pdf_highlighter_color_palette_item_bright_yellow" msgid="7631420996977636184">"چمکدار پیلا"</string>
+    <string name="pdf_highlighter_color_palette_item_peach" msgid="3074189144452054229">"ہلکا نارنجی"</string>
+    <string name="pdf_highlighter_color_palette_item_dusty_rose" msgid="5604104736640334540">"گرد آلود گلاب"</string>
+    <string name="pdf_highlighter_color_palette_item_olive_green" msgid="515781557822485029">"زیتونی سبز"</string>
+    <string name="pdf_highlighter_color_palette_item_medium_purple" msgid="2072323998502107059">"درمیانی جامنی"</string>
+    <string name="pdf_highlighter_color_palette_item_medium_green" msgid="7887546086583310004">"درمیانی سبز"</string>
+    <string name="pdf_highlighter_color_palette_item_rose_pink" msgid="3327080834957606964">"گلابی گلاب"</string>
+    <string name="pdf_highlighter_color_palette_item_steel_blue" msgid="1879951396340830723">"اسٹیل نیلا"</string>
+    <string name="pdf_highlighter_color_palette_item_lilac" msgid="2273341586636082345">"لائیلاک"</string>
+    <string name="pdf_highlighter_color_palette_item_sage_green" msgid="1036901682730984808">"خاکستری سبز"</string>
+    <string name="pdf_highlighter_color_palette_item_beige" msgid="1804950940020440334">"زردی مائل بھورا"</string>
+    <string name="pdf_brush_slider_content_description" msgid="3435156728997667269">"سطرکی چوڑائي"</string>
 </resources>

@@ -29,6 +29,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.xr.runtime.math.BoundingBox;
 import androidx.xr.runtime.math.Vector3;
 import androidx.xr.scenecore.runtime.Entity;
+import androidx.xr.scenecore.runtime.GltfEntity;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +45,7 @@ import java.util.function.Consumer;
 public class BoundsComponentImplTest {
 
     private BoundsComponentImpl mBoundsComponent;
-    private GltfEntityImpl mGltfEntity;
+    private GltfEntity mGltfEntity;
     private Entity mEntity;
     private Executor mExecutor;
     private Consumer<BoundingBox> mListener;
@@ -52,7 +53,7 @@ public class BoundsComponentImplTest {
     @Before
     public void setUp() {
         mBoundsComponent = new BoundsComponentImpl();
-        mGltfEntity = mock(GltfEntityImpl.class);
+        mGltfEntity = mock(GltfEntity.class);
         mEntity = mock(Entity.class);
         mExecutor = Runnable::run;
         mListener = mock(TestConsumer.class);

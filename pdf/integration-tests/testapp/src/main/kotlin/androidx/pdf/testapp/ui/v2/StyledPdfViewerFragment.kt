@@ -33,7 +33,6 @@ import androidx.pdf.viewer.fragment.PdfStylingOptions
 import androidx.pdf.viewer.fragment.PdfViewerFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
-@Suppress("RestrictedApiAndroidX")
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
 class StyledPdfViewerFragment : PdfViewerFragment {
 

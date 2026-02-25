@@ -33,43 +33,46 @@ internal fun ListLayoutProperties.applyMeasureResult(
     density: Density,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult,
 ): MeasureResult {
-    return if (state.canScrollForward || state.canScrollBackward) {
-        applyScrollableMeasureResult(
-            state = state,
-            itemsCount = itemsCount,
-            measuredItemProvider = measuredItemProvider,
-            firstVisibleItemIndex = firstVisibleItemIndex,
-            firstVisibleItemScrollOffset = firstVisibleItemScrollOffset,
-            pinnedIndices = pinnedIndices,
-            reverseLayout = reverseLayout,
-            density = density,
-            layout = layout,
-        )
-    } else {
-        // Non-scrollable
-        val measureResult =
-            measureGlimmerList(
+    val measureResult =
+        if (state.autoFocusState.isAutoFocusEnabled) {
+            applyMeasureResultWithAutoFocus(
+                state = state,
                 itemsCount = itemsCount,
                 measuredItemProvider = measuredItemProvider,
                 firstVisibleItemIndex = firstVisibleItemIndex,
                 firstVisibleItemScrollOffset = firstVisibleItemScrollOffset,
-                scrollToBeConsumed = state.scrollToBeConsumed,
                 pinnedIndices = pinnedIndices,
                 reverseLayout = reverseLayout,
                 density = density,
                 layout = layout,
             )
-        state.autoFocusState.applyAutoFocusProperties(null)
-        state.applyMeasureResult(
-            result = measureResult,
-            consumedScroll = 0f,
-            accumulatedScroll = 0f,
-        )
-        measureResult
-    }
+        } else {
+            applyMeasureResultWithoutAutoFocus(
+                state = state,
+                itemsCount = itemsCount,
+                measuredItemProvider = measuredItemProvider,
+                firstVisibleItemIndex = firstVisibleItemIndex,
+                firstVisibleItemScrollOffset = firstVisibleItemScrollOffset,
+                pinnedIndices = pinnedIndices,
+                reverseLayout = reverseLayout,
+                density = density,
+                layout = layout,
+            )
+        }
+
+    // Calculates new autofocus properties based on the latest list measure result.
+    val autoFocusProperties =
+        calculateAutoFocusProperties(layoutProperties = this, measureResult = measureResult)
+
+    // Keep the autofocus state updated, even if it is disabled. If the user switches back to
+    // non-direct input, they will have the correct numbers for calculating the focus position.
+    state.autoFocusState.applyAutoFocusProperties(autoFocusProperties)
+
+    return measureResult
 }
 
-private fun ListLayoutProperties.applyScrollableMeasureResult(
+/** Applies user scroll as-is without any autofocus adjustments (ΔSu == ΔSc). */
+private fun ListLayoutProperties.applyMeasureResultWithoutAutoFocus(
     state: ListState,
     itemsCount: Int,
     measuredItemProvider: GlimmerListMeasuredItemProvider,
@@ -79,19 +82,76 @@ private fun ListLayoutProperties.applyScrollableMeasureResult(
     reverseLayout: Boolean,
     density: Density,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult,
-): MeasureResult {
-    val expectedContentScrollDelta =
-        if (state.autoFocusState.isAutoFocusEnabled) {
-            // The user-dispatched scroll (ΔSu) is shared between the scroll of the content (ΔSc)
-            // and the moving focus line (ΔSf). The proportion is not constant and depends on the
-            // state of the list. This method calculates a proper share of `ΔSu = ΔSc + ΔSf`.
-            convertUserScrollDeltaToContentScrollDelta(
-                properties = state.autoFocusState.properties,
-                userScrollToBeConsumed = state.scrollToBeConsumed,
-            )
-        } else {
-            state.scrollToBeConsumed
+): GlimmerListMeasureResult {
+    val incomingScroll = state.incomingScroll
+    val scrollToBeConsumed = incomingScroll + state.carryOverScroll
+
+    val measureResult =
+        measureGlimmerList(
+            itemsCount = itemsCount,
+            measuredItemProvider = measuredItemProvider,
+            firstVisibleItemIndex = firstVisibleItemIndex,
+            firstVisibleItemScrollOffset = firstVisibleItemScrollOffset,
+            scrollToBeConsumed = scrollToBeConsumed,
+            pinnedIndices = pinnedIndices,
+            reverseLayout = reverseLayout,
+            density = density,
+            layout = layout,
+        )
+
+    val unconsumedScroll = scrollToBeConsumed - measureResult.consumedScroll
+    val consumedScroll =
+        when {
+            // Reports that we consume all because we carry it over to the next pass.
+            abs(scrollToBeConsumed) <= 0.5f -> incomingScroll
+            // Reports that we consumed all, since we actually did — except for rounding errors.
+            abs(unconsumedScroll) <= 0.5f -> incomingScroll
+            // Content didn't consume all, so return a real consumed part.
+            else -> measureResult.consumedScroll
         }
+
+    val scrollToCarryOver =
+        when {
+            // We pretend that we consume all, but we will actually use it in the next pass.
+            abs(scrollToBeConsumed) <= 0.5f -> scrollToBeConsumed
+            // We consume all, but let's save errors after roundings for successor passes.
+            abs(unconsumedScroll) <= 0.5f -> unconsumedScroll
+            // There was more scroll than we could even consume, so no need to carry over.
+            else -> 0f
+        }
+
+    state.applyMeasureResult(
+        result = measureResult,
+        consumedScroll = consumedScroll,
+        scrollToCarryOver = scrollToCarryOver,
+    )
+
+    return measureResult
+}
+
+/** Splits user-dispatched scroll between focus and content scroll (ΔSu = ΔSc + ΔSf). */
+private fun ListLayoutProperties.applyMeasureResultWithAutoFocus(
+    state: ListState,
+    itemsCount: Int,
+    measuredItemProvider: GlimmerListMeasuredItemProvider,
+    firstVisibleItemIndex: Int,
+    firstVisibleItemScrollOffset: Int,
+    pinnedIndices: IntList,
+    reverseLayout: Boolean,
+    density: Density,
+    layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult,
+): GlimmerListMeasureResult {
+    val incomingScroll = state.incomingScroll
+    val scrollToBeConsumed = incomingScroll + state.carryOverScroll
+
+    // The user-dispatched scroll (ΔSu) is shared between the scroll of the content (ΔSc)
+    // and the moving focus line (ΔSf). The proportion is not constant and depends on the
+    // state of the list. This method calculates a proper share of `ΔSu = ΔSc + ΔSf`.
+    val expectedContentScrollDelta =
+        convertUserScrollDeltaToContentScrollDelta(
+            properties = state.autoFocusState.properties,
+            userScrollToBeConsumed = scrollToBeConsumed,
+        )
 
     // Here's the original logic, with a modified input - the content scroll (ΔSc) is passed instead
     // of the user-dispatched scroll (ΔSu).
@@ -108,40 +168,40 @@ private fun ListLayoutProperties.applyScrollableMeasureResult(
             layout = layout,
         )
 
-    val consumedContentScrollDelta = measureResult.consumedScroll
-    val unconsumedContentDelta = expectedContentScrollDelta - consumedContentScrollDelta
+    val prevAutoFocusProperties = state.autoFocusState.properties
+    val expectedFocusScrollDelta = scrollToBeConsumed - expectedContentScrollDelta
 
-    val consumedScroll =
+    val consumedContentScrollDelta = measureResult.consumedScroll
+    val consumedFocusScrollDelta =
+        calculateConsumedFocusDelta(consumedContentScrollDelta, prevAutoFocusProperties)
+
+    val unconsumedContentDelta = expectedContentScrollDelta - consumedContentScrollDelta
+    val unconsumedFocusDelta = expectedFocusScrollDelta - consumedFocusScrollDelta
+
+    val consumedScroll: Float =
         when {
-            // Reports that we consume all because we accumulated it for the next pass.
-            abs(expectedContentScrollDelta) <= 0.5f -> state.scrollToBeConsumed
+            // Reports that we consume all because we carry it over to the next pass.
+            abs(expectedContentScrollDelta) <= 0.5f -> incomingScroll
             // Reports that we consumed all, since we actually did — except for rounding errors.
-            abs(unconsumedContentDelta) <= 0.5f -> state.scrollToBeConsumed
-            // Content didn't consume all, so return a real consumpted part.
-            else -> measureResult.consumedScroll
+            abs(unconsumedContentDelta) <= 0.5f -> incomingScroll
+            // Content didn't consume all, so return a real consumed part.
+            else -> consumedContentScrollDelta + consumedFocusScrollDelta
         }
 
-    val accumulatedScroll =
+    val scrollToCarryOver: Float =
         when {
             // We pretend that we consume all, but we will actually use it in the next pass.
-            abs(expectedContentScrollDelta) <= 0.5f -> state.scrollToBeConsumed
-            // We consume all, but let's accumulate errors after roundings.
-            abs(unconsumedContentDelta) <= 0.5f -> unconsumedContentDelta
-            // There was more scroll than we could even consume, so no accumulation remained.
+            abs(expectedContentScrollDelta) <= 0.5f -> scrollToBeConsumed
+            // We consume all, but let's save errors after roundings for successor passes.
+            abs(unconsumedContentDelta) <= 0.5f -> unconsumedContentDelta + unconsumedFocusDelta
+            // There was more scroll than we could even consume, so no need to carry over.
             else -> 0f
         }
-
-    // Calculates new auto focus properties based on the latest list measure result.
-    val autoFocusProperties =
-        calculateAutoFocusProperties(layoutProperties = this, measureResult = measureResult)
-
-    // Save auto focus measure result for the next pass.
-    state.autoFocusState.applyAutoFocusProperties(autoFocusProperties)
 
     state.applyMeasureResult(
         result = measureResult,
         consumedScroll = consumedScroll,
-        accumulatedScroll = accumulatedScroll,
+        scrollToCarryOver = scrollToCarryOver,
     )
 
     return measureResult
@@ -170,7 +230,32 @@ private fun convertUserScrollDeltaToContentScrollDelta(
     val dSc = nextSc - prevSc
 
     // Restore the original sign.
-    return -dSc
+    return -dSc.toFloat()
+}
+
+/** Uses the previous measure results to correctly calculate how much focus scroll was consumed. */
+private fun calculateConsumedFocusDelta(
+    consumedContentDelta: Float,
+    prevAutoFocusProperties: GlimmerListAutoFocusProperties?,
+): Float {
+    // If there is no previous measurements, assume that focus consumed everything.
+    if (prevAutoFocusProperties == null) {
+        return consumedContentDelta
+    }
+    // Forward scroll is negative, backward scroll is positive, so we need to invert it.
+    val dSc = -consumedContentDelta
+    val nextSc = prevAutoFocusProperties.contentScroll + dSc
+    val nextSu =
+        AutoFocusScrollConverter.convertContentScrollToUserScroll(
+            // Uses the new real position of the content that contains rounding errors.
+            contentScroll = nextSc,
+            // Uses the previous measurement results that contains the _old_ estimation error.
+            properties = prevAutoFocusProperties,
+        )
+    val nextSf = nextSu - nextSc
+    val dSf = nextSf - prevAutoFocusProperties.focusScroll
+    // Restore the original sign.
+    return -dSf.toFloat()
 }
 
 // TODO: b/431258694 - Support reverse scrolling.
@@ -182,13 +267,13 @@ private fun calculateAutoFocusProperties(
         return null
     }
 
-    val viewportSize = layoutProperties.mainAxisAvailableSize.toFloat()
+    val viewportSize = layoutProperties.mainAxisAvailableSize.toDouble()
     val scrollThreshold = viewportSize * ProportionalThresholdFactor
     val contentLength =
         measureResult.visibleItemsAverageSize() * measureResult.totalItemsCount -
-            measureResult.mainAxisItemSpacing.toFloat()
+            measureResult.mainAxisItemSpacing.toDouble()
 
-    val contentScroll = getTotalContentScrollDistance(measureResult).toFloat()
+    val contentScroll = getTotalContentScrollDistance(measureResult).toDouble()
 
     val userScroll =
         AutoFocusScrollConverter.convertContentScrollToUserScroll(

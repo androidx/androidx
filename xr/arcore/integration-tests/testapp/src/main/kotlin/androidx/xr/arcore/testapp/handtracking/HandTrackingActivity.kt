@@ -48,6 +48,7 @@ import androidx.xr.arcore.testapp.common.BackToMainActivityButton
 import androidx.xr.arcore.testapp.common.SessionLifecycleHelper
 import androidx.xr.arcore.testapp.ui.theme.GoogleYellow
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.HandTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
@@ -150,7 +151,7 @@ class HandTrackingActivity : ComponentActivity() {
         sessionHelper =
             SessionLifecycleHelper(
                 this,
-                Config(handTracking = Config.HandTrackingMode.BOTH),
+                Config(handTracking = HandTrackingMode.BOTH),
                 onSessionAvailable = { session ->
                     this.session = session
 

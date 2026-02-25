@@ -57,7 +57,8 @@ class SandboxedPdfLoaderTest {
         assertThat(isServiceConnected).isTrue()
         assertThat(document.uri == uri).isTrue()
         assertThat(document.pageCount == expectedPageCount).isTrue()
-        assertThat(!document.isLinearized).isTrue()
+        assertThat(document.linearizationStatus)
+            .isEqualTo(PdfDocument.LINEARIZATION_STATUS_NOT_LINEARIZED)
         document.close()
     }
 
@@ -80,7 +81,8 @@ class SandboxedPdfLoaderTest {
         assertThat(isServiceConnected).isTrue()
         assertThat(document.uri == FAKE_URI_1).isTrue()
         assertThat(document.pageCount == expectedPageCount).isTrue()
-        assertThat(!document.isLinearized).isTrue()
+        assertThat(document.linearizationStatus)
+            .isEqualTo(PdfDocument.LINEARIZATION_STATUS_NOT_LINEARIZED)
         document.close()
     }
 

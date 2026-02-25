@@ -48,7 +48,8 @@ class BatchPdfAnnotationsProcessorTest {
         val draft = createDraftWithOperations(count = 3)
         fakeRemoteDocument.setBehavior(DraftEditResult.Success(listOf("id0", "id1", "id2")))
 
-        val result = processor.process(draft)
+        val result = mutableListOf<String>()
+        processor.process(draft) { result.addAll(it.map { appliedEdit -> appliedEdit.editId }) }
 
         assertThat(result).containsExactly("id0", "id1", "id2").inOrder()
     }
@@ -64,11 +65,12 @@ class BatchPdfAnnotationsProcessorTest {
 
         // We need to configure the fake to handle sequential calls
         fakeRemoteDocument.setSequentialBehaviors(
-            DraftEditResult.Success(listOf("id0", "id1", "id2")),
-            DraftEditResult.Success(listOf("id3", "id4")),
+            DraftEditResult.Success(listOf("id0", "id1", "id2", "id3")),
+            DraftEditResult.Success(listOf("id4")),
         )
 
-        val result = processor.process(draft)
+        val result = mutableListOf<String>()
+        processor.process(draft) { result.addAll(it.map { appliedEdit -> appliedEdit.editId }) }
 
         assertThat(result).containsExactly("id0", "id1", "id2", "id3", "id4").inOrder()
     }
@@ -84,7 +86,8 @@ class BatchPdfAnnotationsProcessorTest {
             )
         )
 
-        val exception = assertThrows(PdfEditApplyException::class.java) { processor.process(draft) }
+        val exception =
+            assertThrows(PdfEditApplyException::class.java) { processor.process(draft) {} }
 
         assertThat(exception.failureIndex).isEqualTo(0)
         assertThat(exception.appliedEditIds).isEmpty()
@@ -102,7 +105,8 @@ class BatchPdfAnnotationsProcessorTest {
             )
         )
 
-        val exception = assertThrows(PdfEditApplyException::class.java) { processor.process(draft) }
+        val exception =
+            assertThrows(PdfEditApplyException::class.java) { processor.process(draft) {} }
 
         assertThat(exception.failureIndex).isEqualTo(1)
         assertThat(exception.appliedEditIds).containsExactly("id0")
@@ -131,7 +135,8 @@ class BatchPdfAnnotationsProcessorTest {
             ),
         )
 
-        val exception = assertThrows(PdfEditApplyException::class.java) { processor.process(draft) }
+        val exception =
+            assertThrows(PdfEditApplyException::class.java) { processor.process(draft) {} }
 
         assertThat(exception.failureIndex).isEqualTo(5)
         assertThat(exception.appliedEditIds).isEqualTo(expectedIds)
@@ -140,7 +145,7 @@ class BatchPdfAnnotationsProcessorTest {
     @Test
     fun process_emptyList_returnsEmptyList() {
         val emptyDraft = MutableEditsDraft().toEditsDraft()
-        val result = processor.process(emptyDraft)
+        val result = processor.process(emptyDraft) {}
         assertThat(result).isEmpty()
     }
 

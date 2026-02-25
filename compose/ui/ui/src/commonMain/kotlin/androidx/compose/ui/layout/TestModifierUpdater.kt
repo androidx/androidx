@@ -55,7 +55,7 @@ fun TestModifierUpdaterLayout(onAttached: (TestModifierUpdater) -> Unit) {
         factory = LayoutNode.Constructor,
         update = {
             set(measurePolicy, SetMeasurePolicy)
-            init(compositeKeyHash, SetCompositeKeyHash)
+            set(compositeKeyHash, SetCompositeKeyHash)
             init { onAttached(TestModifierUpdater(this)) }
         },
     )

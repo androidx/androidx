@@ -32,6 +32,12 @@ class DaoReturnTypeConverterWrapper(
 ) : DaoReturnTypeConverter(to = customDaoReturnTypeConverter.to) {
     override val isSuspend = customDaoReturnTypeConverter.function.isSuspendFunction()
     override val rowAdapterTypeArgPosition = customDaoReturnTypeConverter.rowAdapterTypeArgPosition
+    override val requiredFunctionParamTypes =
+        customDaoReturnTypeConverter.requiredFunctionParamTypes
+
+    override val hasNullableLambdaReturnType =
+        customDaoReturnTypeConverter.hasNullableLambdaReturnType
+
     private val converterClassName = customDaoReturnTypeConverter.className
 
     override fun buildStatement(returnTypeArgName: XTypeName, scope: CodeGenScope): XCodeBlock {

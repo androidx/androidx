@@ -203,11 +203,33 @@ public class Request(
          * @param frameNumber the android frame number for this exposure
          * @param stream the internal stream that will not receive a buffer for this frame.
          * @see android.hardware.camera2.CameraCaptureSession.CaptureCallback.onCaptureBufferLost
+         *
+         * TODO: b/474658963 - Remove this method once deprecated usages are removed.
          */
+        @Deprecated("Use the onBufferLost with OutputId.")
         public fun onBufferLost(
             requestMetadata: RequestMetadata,
             frameNumber: FrameNumber,
             stream: StreamId,
+        ) {}
+
+        /**
+         * onBufferLost occurs when a CaptureRequest failed to create an image for a given output
+         * stream. This method may be invoked multiple times per frame if multiple buffers were
+         * lost. This method may not be invoked when an image is lost in some situations.
+         *
+         * @param requestMetadata the data about the camera2 request that was sent to the camera.
+         * @param frameNumber the android frame number for this exposure
+         * @param streamId the internal stream that will not receive a buffer for this frame.
+         * @param outputId the specific internal output stream of the [streamId] that will not
+         *   receive a buffer for this frame.
+         * @see android.hardware.camera2.CameraCaptureSession.CaptureCallback.onCaptureBufferLost
+         */
+        public fun onBufferLost(
+            requestMetadata: RequestMetadata,
+            frameNumber: FrameNumber,
+            streamId: StreamId,
+            outputId: OutputId,
         ) {}
 
         /**

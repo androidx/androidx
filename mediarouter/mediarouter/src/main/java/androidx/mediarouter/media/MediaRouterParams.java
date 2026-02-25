@@ -74,6 +74,7 @@ public class MediaRouterParams {
 
     @DialogType final int mDialogType;
     final boolean mMediaTransferReceiverEnabled;
+    final boolean mMediaTransferReceiverEnabledExplicitlySet;
     final boolean mOutputSwitcherEnabled;
     final boolean mTransferToLocalEnabled;
     final boolean mMediaTransferRestrictedToSelfProviders;
@@ -82,6 +83,8 @@ public class MediaRouterParams {
     MediaRouterParams(@NonNull Builder builder) {
         mDialogType = builder.mDialogType;
         mMediaTransferReceiverEnabled = builder.mMediaTransferEnabled;
+        mMediaTransferReceiverEnabledExplicitlySet =
+                builder.mMediaTransferReceiverEnabledExplicitlySet;
         mOutputSwitcherEnabled = builder.mOutputSwitcherEnabled;
         mTransferToLocalEnabled = builder.mTransferToLocalEnabled;
         mMediaTransferRestrictedToSelfProviders = builder.mMediaTransferRestrictedToSelfProviders;
@@ -106,6 +109,15 @@ public class MediaRouterParams {
      */
     public boolean isMediaTransferReceiverEnabled() {
         return mMediaTransferReceiverEnabled;
+    }
+
+    /**
+     * Gets whether the {@link #isMediaTransferReceiverEnabled} value was explicitly set using
+     * {@link Builder#setMediaTransferReceiverEnabled}.
+     */
+    @RestrictTo(LIBRARY)
+    public boolean isMediaTransferReceiverEnabledExplicitlySet() {
+        return mMediaTransferReceiverEnabledExplicitlySet;
     }
 
     /**
@@ -154,6 +166,7 @@ public class MediaRouterParams {
     public static final class Builder {
         @DialogType int mDialogType = DIALOG_TYPE_DEFAULT;
         boolean mMediaTransferEnabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R;
+        boolean mMediaTransferReceiverEnabledExplicitlySet;
         boolean mOutputSwitcherEnabled;
         boolean mTransferToLocalEnabled;
         boolean mMediaTransferRestrictedToSelfProviders;
@@ -179,6 +192,8 @@ public class MediaRouterParams {
             mOutputSwitcherEnabled = params.mOutputSwitcherEnabled;
             mTransferToLocalEnabled = params.mTransferToLocalEnabled;
             mMediaTransferEnabled = params.mMediaTransferReceiverEnabled;
+            mMediaTransferReceiverEnabledExplicitlySet =
+                    params.mMediaTransferReceiverEnabledExplicitlySet;
             mMediaTransferRestrictedToSelfProviders =
                     params.mMediaTransferRestrictedToSelfProviders;
             mExtras = params.mExtras == null ? null : new Bundle(params.mExtras);
@@ -221,6 +236,7 @@ public class MediaRouterParams {
         public Builder setMediaTransferReceiverEnabled(boolean enabled) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 mMediaTransferEnabled = enabled;
+                mMediaTransferReceiverEnabledExplicitlySet = true;
             }
             return this;
         }

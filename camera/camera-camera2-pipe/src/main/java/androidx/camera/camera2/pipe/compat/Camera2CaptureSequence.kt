@@ -247,6 +247,7 @@ internal class Camera2CaptureSequence(
         Debug.traceStop() // onCaptureFailed
     }
 
+    @Suppress("deprecation")
     override fun onCaptureBufferLost(
         captureSession: CameraCaptureSession,
         captureRequest: CaptureRequest,
@@ -256,13 +257,16 @@ internal class Camera2CaptureSequence(
         Debug.traceStart { "onCaptureBufferLost" }
         val frameNumber = FrameNumber(frameId)
         val streamId = getStreamId(surface)
-        checkNotNull(streamId) { "Unable to find the streamId for $surface on frame $frameNumber" }
+        val outputId = surfaceToOutputMap[surface]
+        checkNotNull(streamId) { "Unable to find the streamId for $surface on $frameNumber" }
+        checkNotNull(outputId) { "Unable to find the outputId for $surface on $frameNumber" }
 
         // Load the request and throw if we are not able to find an associated request. Under
         // normal circumstances this should never happen.
         val request = readRequestMetadata(captureRequest)
 
         invokeOnRequest(request) { it.onBufferLost(request, frameNumber, streamId) }
+        invokeOnRequest(request) { it.onBufferLost(request, frameNumber, streamId, outputId) }
         Debug.traceStop() // onCaptureBufferLost
     }
 

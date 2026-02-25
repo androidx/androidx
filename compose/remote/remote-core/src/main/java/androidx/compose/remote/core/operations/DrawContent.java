@@ -105,7 +105,7 @@ public class DrawContent extends PaintOperation implements Serializable {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", OP_CODE, CLASS_NAME)
+        doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
                 .description("Draw the component content");
     }
 

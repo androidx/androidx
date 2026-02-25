@@ -286,7 +286,59 @@ class InProgressHighlightViewTest {
         }
     }
 
-    private fun setupActivity() {
+    @Test
+    fun touchEvents_upOutsidePage_usesLastValidPdfPointToFinalize() {
+        val pageBounds = RectF(0f, 0f, 150f, 150f)
+        setupActivity(pageInfoProvider = FakePageInfoProvider(pageBounds))
+
+        ActivityScenario.launch(PdfViewTestActivity::class.java).use { scenario ->
+            val startViewPoint = PointF(50f, 50f)
+            val moveViewPoint = PointF(70f, 70f)
+            val endViewPoint = PointF(200f, 200f)
+
+            highlightIdlingResource.increment()
+            scenario.onActivity {
+                val downEvent =
+                    obtainMotionEvent(startViewPoint.x, startViewPoint.y, MotionEvent.ACTION_DOWN)
+                highlightView.onTouchEvent(downEvent)
+                downEvent.recycle()
+            }
+            Espresso.onIdle()
+            assertThat(testHighlightListener.isStarted).isTrue()
+
+            scenario.onActivity {
+                val moveEvent =
+                    obtainMotionEvent(moveViewPoint.x, moveViewPoint.y, MotionEvent.ACTION_MOVE)
+                highlightView.onTouchEvent(moveEvent)
+                moveEvent.recycle()
+            }
+
+            highlightIdlingResource.increment()
+            scenario.onActivity {
+                val upEvent =
+                    obtainMotionEvent(endViewPoint.x, endViewPoint.y, MotionEvent.ACTION_UP)
+                highlightView.onTouchEvent(upEvent)
+                upEvent.recycle()
+            }
+            Espresso.onIdle()
+
+            // Verify the highlight was finished using the last valid point
+            val createdAnnotation =
+                testHighlightListener.finishedAnnotations[testHighlightListener.startedId]
+            assertThat(createdAnnotation).isNotNull()
+            assertThat(createdAnnotation).isInstanceOf(StampAnnotation::class.java)
+
+            with(createdAnnotation as StampAnnotation) {
+                assertThat(pageNum).isEqualTo(0)
+                assertThat(bounds)
+                    .isEqualTo(
+                        RectF(startViewPoint.x, startViewPoint.y, moveViewPoint.x, moveViewPoint.y)
+                    )
+            }
+        }
+    }
+
+    private fun setupActivity(pageInfoProvider: PageInfoProvider = FakePageInfoProvider()) {
         val pageText =
             PdfPageTextContent(bounds = listOf(RectF(10f, 10f, 100f, 100f)), text = "Sample Text")
         val fakePdfDocument =
@@ -302,7 +354,7 @@ class InProgressHighlightViewTest {
                         )
                     pdfDocument = fakePdfDocument
                     addInProgressTextHighlightsListener(testHighlightListener)
-                    pageInfoProvider = FakePageInfoProvider()
+                    this.pageInfoProvider = pageInfoProvider
                 }
             activity.container.addView(highlightView)
         }

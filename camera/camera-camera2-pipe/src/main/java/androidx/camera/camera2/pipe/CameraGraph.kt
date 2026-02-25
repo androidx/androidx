@@ -354,6 +354,14 @@ public interface CameraGraph : CameraGraphBase<Session>, CameraControls3A {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface Session : CameraControls3A, AutoCloseable {
         /**
+         * The currently configured repeating request. If there's no active repeating request, the
+         * method would return null.
+         *
+         * Setting this value to null will attempt to call stopRepeating on the Camera.
+         */
+        public var repeatingRequest: Request?
+
+        /**
          * Causes the CameraGraph to start or update the current repeating request with the provided
          * [Request] object. The [Request] object may be cached, and may be used for other
          * interactions with the camera (such as updating 3A, or issuing 3A triggers).

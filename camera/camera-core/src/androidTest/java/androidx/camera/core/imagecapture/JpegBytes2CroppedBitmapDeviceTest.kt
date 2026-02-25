@@ -38,7 +38,7 @@ import org.junit.runner.RunWith
 /** Unit tests for [JpegBytes2CroppedBitmap]. */
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class JpegBytes2CroppedBitmapTest {
+class JpegBytes2CroppedBitmapDeviceTest {
 
     private val operation = JpegBytes2CroppedBitmap()
 

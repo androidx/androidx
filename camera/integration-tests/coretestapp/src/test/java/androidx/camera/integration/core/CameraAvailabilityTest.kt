@@ -28,7 +28,6 @@ import android.os.HandlerThread
 import android.os.Looper
 import android.util.Size
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraIdentifier
 import androidx.camera.core.CameraPresenceListener
@@ -98,7 +97,7 @@ class CameraAvailabilityTest(private val testConfig: CameraTestConfig) {
 
         @JvmStatic
         @ParameterizedRobolectricTestRunner.Parameters(name = "{0}")
-        fun data() = listOf(CameraTestConfig("Camera2"), CameraTestConfig("CameraPipe"))
+        fun data() = listOf(CameraTestConfig("Camera2"))
     }
 
     @Before
@@ -107,7 +106,6 @@ class CameraAvailabilityTest(private val testConfig: CameraTestConfig) {
         val configBuilder =
             when (testConfig.implName) {
                 "Camera2" -> CameraXConfig.Builder.fromConfig(Camera2Config.defaultConfig())
-                "CameraPipe" -> CameraXConfig.Builder.fromConfig(CameraPipeConfig.defaultConfig())
                 else -> throw IllegalArgumentException("Unknown impl name: ${testConfig.implName}")
             }
 

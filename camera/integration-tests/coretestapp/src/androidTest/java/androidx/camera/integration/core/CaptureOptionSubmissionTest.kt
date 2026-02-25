@@ -38,9 +38,8 @@ import android.hardware.camera2.CaptureRequest.FLASH_MODE
 import android.hardware.camera2.TotalCaptureResult
 import android.util.Range
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.adapter.awaitUntil
 import androidx.camera.camera2.interop.Camera2Interop
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
-import androidx.camera.camera2.pipe.integration.adapter.awaitUntil
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageAnalysis
@@ -54,7 +53,6 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.compat.quirk.AeFpsRangeQuirk
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.Camera2CaptureCallbackImpl
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
@@ -100,10 +98,6 @@ class CaptureOptionSubmissionTest(
     private val implName: String,
     private val cameraConfig: CameraXConfig,
 ) {
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
-
     @get:Rule
     val cameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
@@ -696,14 +690,6 @@ class CaptureOptionSubmissionTest(
                                 selector,
                                 Camera2Config::class.simpleName,
                                 Camera2Config.defaultConfig(),
-                            )
-                        )
-                        add(
-                            arrayOf(
-                                "config=${CameraPipeConfig::class.simpleName} lensFacing={$lens}",
-                                selector,
-                                CameraPipeConfig::class.simpleName,
-                                CameraPipeConfig.defaultConfig(),
                             )
                         )
                     }

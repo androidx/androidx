@@ -41,7 +41,7 @@
     <string name="wear_m3c_picker_click_to_adjust_hint" msgid="167976024035966099">"Կարգավորեք արժեքը"</string>
     <string name="wear_m3c_picker_click_to_select_hint" msgid="7994498880084699884">"Ընտրեք արժեքը"</string>
     <string name="wear_m3c_picker_confirm_button_content_description" msgid="8440144719909288057">"Հաստատել"</string>
-    <string name="wear_m3c_picker_next_button_content_description" msgid="3346011303652897029">"Հաջորդը"</string>
+    <string name="wear_m3c_picker_next_button_content_description" msgid="3346011303652897029">"Հաջորդ"</string>
     <string name="wear_m3c_slider_decrease_content_description" msgid="8242572466064289486">"Նվազեցնել"</string>
     <string name="wear_m3c_slider_increase_content_description" msgid="3329631766954416834">"Ավելացնել"</string>
     <string name="wear_m3c_alert_dialog_content_description_confirm_button" msgid="7776845597891182382">"Հաստատել"</string>

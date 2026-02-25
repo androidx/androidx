@@ -27,6 +27,6 @@ internal actual inline fun rememberClipboardEventsHandler(
     crossinline onCopy: () -> AnnotatedString?,
     crossinline onCut: () -> AnnotatedString?,
     isEnabled: Boolean,
-) {
+): Boolean {
     implementedInJetBrainsFork()
 }

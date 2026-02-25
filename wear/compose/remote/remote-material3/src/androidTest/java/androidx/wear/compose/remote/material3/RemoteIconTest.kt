@@ -23,11 +23,8 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.player.compose.test.utils.screenshot.TargetPlayer
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
@@ -44,10 +41,7 @@ import org.junit.runners.JUnit4
 class RemoteIconTest {
     @get:Rule
     val remoteComposeTestRule =
-        RemoteComposeScreenshotTestRule(
-            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
-            targetPlayer = TargetPlayer.View,
-        )
+        RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     @Test
@@ -94,11 +88,9 @@ class RemoteIconTest {
                     context.resources.displayMetrics.densityDpi,
                 ),
             backgroundColor = Color.Black,
+            layoutDirection = LayoutDirection.Rtl,
         ) {
-            val layoutDirection = LayoutDirection.Rtl
-            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-                RemoteIcon(imageVector = TestImageVectors.VolumeUp, contentDescription = null)
-            }
+            RemoteIcon(imageVector = TestImageVectors.VolumeUp, contentDescription = null)
         }
     }
 

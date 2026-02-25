@@ -23,6 +23,7 @@
     <dimen name="margin_16dp">16dp</dimen>
     <dimen name="corner_radius_8dp">8dp</dimen>
     <dimen name="color_palette_max_width">176dp</dimen>
+    <dimen name="color_palette_max_height">212dp</dimen>
 
     <!-- Annotation Toolbar dimens - BEGIN -->
     <dimen name="annotation_tool_width">48dp</dimen>

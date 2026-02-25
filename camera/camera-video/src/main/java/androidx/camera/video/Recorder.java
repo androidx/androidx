@@ -73,6 +73,7 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.MutableStateObservable;
 import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.StateObservable;
@@ -105,6 +106,8 @@ import androidx.camera.video.internal.encoder.InvalidConfigException;
 import androidx.camera.video.internal.encoder.OutputConfig;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
 import androidx.camera.video.internal.encoder.VideoEncoderInfo;
+import androidx.camera.video.internal.encoder.VideoEncoderInfoImpl;
+import androidx.camera.video.internal.muxer.Media3MuxerImpl;
 import androidx.camera.video.internal.muxer.MediaMuxerImpl;
 import androidx.camera.video.internal.muxer.Muxer;
 import androidx.camera.video.internal.muxer.MuxerException;
@@ -368,7 +371,21 @@ public final class Recorder implements VideoOutput {
     private static final long RETRY_SETUP_VIDEO_DELAY_MS = 1000L;
     @VisibleForTesting
     static final EncoderFactory DEFAULT_ENCODER_FACTORY = EncoderImpl::new;
-    private static final MuxerFactory DEFAULT_MUXER_FACTORY = MediaMuxerImpl::new;
+    private static final VideoEncoderInfo.Finder DEFAULT_VIDEO_ENCODER_INFO_FINDER =
+            VideoEncoderInfoImpl.FINDER;
+    private static final MuxerFactory DEFAULT_MUXER_FACTORY = outputFormat -> {
+        switch (outputFormat) {
+            case Muxer.MUXER_FORMAT_MPEG_4:
+            case Muxer.MUXER_FORMAT_3GPP:
+                // Media3 muxer doesn't support WebM.
+                Logger.d(TAG, "Create Media3MuxerImpl");
+                return new Media3MuxerImpl();
+            case Muxer.MUXER_FORMAT_WEBM:
+            default:
+                Logger.d(TAG, "Create MediaMuxerImpl");
+                return new MediaMuxerImpl();
+        }
+    };
     private static final OutputStorage.Factory OUTPUT_STORAGE_FACTORY_DEFAULT =
             OutputStorageImpl::new;
     private static final Executor AUDIO_EXECUTOR =
@@ -607,7 +624,10 @@ public final class Recorder implements VideoOutput {
             int sessionType) {
         int videoCaptureType = sessionType == SESSION_TYPE_HIGH_SPEED
                 ? VIDEO_RECORDING_TYPE_HIGH_SPEED : VIDEO_RECORDING_TYPE_REGULAR;
-        return getVideoCapabilitiesInternal(videoCaptureType, cameraInfo, mVideoCapabilitiesSource);
+        String videoMimeType = getObservableData(mMediaSpec).getVideoSpec().getMimeType();
+
+        return getVideoCapabilitiesInternal(videoCaptureType, cameraInfo, mVideoCapabilitiesSource,
+                videoMimeType);
     }
 
     /**
@@ -1264,21 +1284,11 @@ public final class Recorder implements VideoOutput {
         Size surfaceSize = surfaceRequest.getResolution();
         // Fetch and cache nearest encoder profiles, if one exists.
         DynamicRange dynamicRange = surfaceRequest.getDynamicRange();
-        VideoCapabilities capabilities = getMediaCapabilities(
+        EncoderProfilesResolver profilesResolver = getEncoderProfilesResolver(
                 surfaceRequest.getCamera().getCameraInfo(),
                 surfaceRequest.getSessionType());
-        Quality highestSupportedQuality = capabilities.findNearestHigherSupportedQualityFor(
+        mResolvedEncoderProfiles = profilesResolver.findNearestHigherSupportedEncoderProfilesFor(
                 surfaceSize, dynamicRange);
-        Logger.d(TAG, "Using supported quality of " + highestSupportedQuality
-                + " for surface size " + surfaceSize);
-        if (highestSupportedQuality != Quality.NONE) {
-            mResolvedEncoderProfiles = capabilities.getProfiles(highestSupportedQuality,
-                    dynamicRange);
-            if (mResolvedEncoderProfiles == null) {
-                throw new AssertionError("Camera advertised available quality but did not "
-                        + "produce EncoderProfiles  for advertised quality.");
-            }
-        }
         Logger.d(TAG, "mResolvedEncoderProfiles = " + mResolvedEncoderProfiles);
 
         if (mSetupVideoTask != null) {
@@ -2151,6 +2161,14 @@ public final class Recorder implements VideoOutput {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void writeVideoData(@NonNull EncodedData encodedData,
             @NonNull RecordingRecord recording) {
+        // If the video encoder has been released, we should stop writing data to the muxer.
+        // This prevents MuxerExceptions and prevents triggering stopInternal() which would
+        // incorrectly stop a persistent recording. See b/480772922.
+        if (mVideoEncoder == null) {
+            Logger.d(TAG, "Ignore the video data since the video encoder has been released.");
+            return;
+        }
+
         if (mVideoTrackIndex == null) {
             // Throw an exception if the data comes before the track is added.
             throw new AssertionError("Video data comes before the track is added to Muxer.");
@@ -2202,6 +2220,7 @@ public final class Recorder implements VideoOutput {
             mMuxer.writeSampleData(mVideoTrackIndex, encodedData.getByteBuffer(),
                     encodedData.getBufferInfo());
         } catch (MuxerException e) {
+            Logger.w(TAG, "writeVideoData failed", e);
             int error = hasInsufficientStorageOrException(e) ? ERROR_INSUFFICIENT_STORAGE
                     : ERROR_UNKNOWN;
             onInProgressRecordingInternalError(recording, error, e);
@@ -2232,6 +2251,14 @@ public final class Recorder implements VideoOutput {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void writeAudioData(@NonNull EncodedData encodedData,
             @NonNull RecordingRecord recording) {
+        // If the audio encoder has been released, we should stop writing data to the muxer.
+        // This prevents MuxerExceptions and prevents triggering stopInternal() which would
+        // incorrectly stop a persistent recording. See b/480772922.
+        if (mAudioEncoder == null) {
+            Logger.d(TAG, "Ignore the audio data since the audio encoder has been released.");
+            return;
+        }
+
         // Ensure audio starts after the first video frame. This aligns with the logic in
         // #getAudioDataToWriteAndClearCache() and prevents negative duration values when writing
         // to the muxer.
@@ -2286,6 +2313,7 @@ public final class Recorder implements VideoOutput {
                     encodedData.getByteBuffer(),
                     encodedData.getBufferInfo());
         } catch (MuxerException e) {
+            Logger.w(TAG, "writeAudioData failed", e);
             int error = hasInsufficientStorageOrException(e) ? ERROR_INSUFFICIENT_STORAGE
                     : ERROR_UNKNOWN;
             onInProgressRecordingInternalError(recording, error, e);
@@ -3090,7 +3118,18 @@ public final class Recorder implements VideoOutput {
      */
     public static @NonNull VideoCapabilities getVideoCapabilities(@NonNull CameraInfo cameraInfo) {
         return getVideoCapabilitiesInternal(VIDEO_RECORDING_TYPE_REGULAR, cameraInfo,
-                VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE);
+                VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE, VideoSpec.MIME_TYPE_UNSPECIFIED);
+    }
+
+    /**
+     * Returns the {@link VideoCapabilities} of Recorder with respect to input camera information
+     * and video mime type.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static @NonNull VideoCapabilities getVideoCapabilities(@NonNull CameraInfo cameraInfo,
+            @NonNull String mimeType) {
+        return getVideoCapabilitiesInternal(VIDEO_RECORDING_TYPE_REGULAR, cameraInfo,
+                VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE, mimeType);
     }
 
     /**
@@ -3113,7 +3152,7 @@ public final class Recorder implements VideoOutput {
     public static @NonNull VideoCapabilities getVideoCapabilities(@NonNull CameraInfo cameraInfo,
             @VideoCapabilitiesSource int videoCapabilitiesSource) {
         return getVideoCapabilitiesInternal(VIDEO_RECORDING_TYPE_REGULAR, cameraInfo,
-                videoCapabilitiesSource);
+                videoCapabilitiesSource, VideoSpec.MIME_TYPE_UNSPECIFIED);
     }
 
     /**
@@ -3158,16 +3197,45 @@ public final class Recorder implements VideoOutput {
             @NonNull CameraInfo cameraInfo,
             @VideoCapabilitiesSource int videoCapabilitiesSource) {
         VideoCapabilities videoCapabilities = getVideoCapabilitiesInternal(
-                VIDEO_RECORDING_TYPE_HIGH_SPEED, cameraInfo, videoCapabilitiesSource);
+                VIDEO_RECORDING_TYPE_HIGH_SPEED, cameraInfo, videoCapabilitiesSource,
+                VideoSpec.MIME_TYPE_UNSPECIFIED);
         return videoCapabilities.getSupportedDynamicRanges().isEmpty() ? null : videoCapabilities;
     }
 
     private static @NonNull VideoCapabilities getVideoCapabilitiesInternal(
             @VideoRecordingType int videoRecordingType,
             @NonNull CameraInfo cameraInfo,
+            @VideoCapabilitiesSource int videoCapabilitiesSource,
+            @NonNull String mimeType) {
+        CameraInfoInternal cameraInfoInternal = (CameraInfoInternal) cameraInfo;
+        if (VideoSpec.MIME_TYPE_UNSPECIFIED.equals(mimeType)) {
+            EncoderProfilesResolver profilesResolver = getEncoderProfilesResolverInternal(
+                    videoRecordingType, cameraInfo, videoCapabilitiesSource);
+            return new RecorderVideoCapabilities(profilesResolver, cameraInfoInternal);
+        } else {
+            return new MimeMatchedVideoCapabilities(mimeType, cameraInfoInternal,
+                    DEFAULT_VIDEO_ENCODER_INFO_FINDER);
+        }
+    }
+
+    /** Gets the {@link EncoderProfilesResolver} for the given camera info. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Override
+    public @NonNull EncoderProfilesResolver getEncoderProfilesResolver(
+            @NonNull CameraInfo cameraInfo, int sessionType) {
+        int videoCaptureType = sessionType == SESSION_TYPE_HIGH_SPEED
+                ? VIDEO_RECORDING_TYPE_HIGH_SPEED : VIDEO_RECORDING_TYPE_REGULAR;
+
+        return getEncoderProfilesResolverInternal(videoCaptureType, cameraInfo,
+                mVideoCapabilitiesSource);
+    }
+
+    private static @NonNull EncoderProfilesResolver getEncoderProfilesResolverInternal(
+            @VideoRecordingType int videoRecordingType,
+            @NonNull CameraInfo cameraInfo,
             @VideoCapabilitiesSource int videoCapabilitiesSource) {
-        return RecorderVideoCapabilitiesFactory.getCapabilities(cameraInfo, videoRecordingType,
-                videoCapabilitiesSource);
+        return EncoderProfilesResolverFactory.getResolver(cameraInfo, videoRecordingType,
+                videoCapabilitiesSource, DEFAULT_VIDEO_ENCODER_INFO_FINDER);
     }
 
     @AutoValue
@@ -3248,7 +3316,7 @@ public final class Recorder implements VideoOutput {
 
             MuxerSupplier muxerSupplier =
                     (muxerOutputFormat, outputUriCreatedCallback) -> {
-                        Muxer muxer = muxerFactory.create();
+                        Muxer muxer = muxerFactory.create(muxerOutputFormat);
                         Uri outputUri = Uri.EMPTY;
                         if (outputOptions instanceof FileOutputOptions) {
                             FileOutputOptions fileOutputOptions = (FileOutputOptions) outputOptions;
@@ -3681,6 +3749,13 @@ public final class Recorder implements VideoOutput {
             return this;
         }
 
+        /** Sets the {@link MuxerFactory} of this Recorder. */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        public @NonNull Builder setMuxerFactory(@NonNull MuxerFactory muxerFactory) {
+            mMuxerFactory = muxerFactory;
+            return this;
+        }
+
         /**
          * Sets the video capabilities source.
          *
@@ -3815,11 +3890,6 @@ public final class Recorder implements VideoOutput {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @NonNull Builder setAudioEncoderFactory(@NonNull EncoderFactory audioEncoderFactory) {
             mAudioEncoderFactory = audioEncoderFactory;
-            return this;
-        }
-
-        @NonNull Builder setMuxerFactory(@NonNull MuxerFactory muxerFactory) {
-            mMuxerFactory = muxerFactory;
             return this;
         }
 

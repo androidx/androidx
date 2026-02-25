@@ -91,6 +91,7 @@ class OpenDelegateWriter(val database: Database) {
                                 VisibilityModifier.PRIVATE
                             },
                         isOverride = isPrimaryMethod,
+                        isSuspend = true,
                     )
                     .apply {
                         returns(RoomTypeNames.ROOM_OPEN_DELEGATE_VALIDATION_RESULT)
@@ -177,6 +178,7 @@ class OpenDelegateWriter(val database: Database) {
                 name = "onCreate",
                 visibility = VisibilityModifier.PUBLIC,
                 isOverride = true,
+                isSuspend = true,
             )
             .apply { addParameter(connectionParamName, SQLiteDriverTypeNames.CONNECTION) }
             .build()
@@ -187,6 +189,7 @@ class OpenDelegateWriter(val database: Database) {
                 name = "onOpen",
                 visibility = VisibilityModifier.PUBLIC,
                 isOverride = true,
+                isSuspend = true,
             )
             .apply {
                 addParameter(connectionParamName, SQLiteDriverTypeNames.CONNECTION)
@@ -210,6 +213,7 @@ class OpenDelegateWriter(val database: Database) {
                 name = "createAllTables",
                 visibility = VisibilityModifier.PUBLIC,
                 isOverride = true,
+                isSuspend = true,
             )
             .apply {
                 addParameter(connectionParamName, SQLiteDriverTypeNames.CONNECTION)
@@ -232,6 +236,7 @@ class OpenDelegateWriter(val database: Database) {
                 name = "dropAllTables",
                 visibility = VisibilityModifier.PUBLIC,
                 isOverride = true,
+                isSuspend = true,
             )
             .apply {
                 addParameter(connectionParamName, SQLiteDriverTypeNames.CONNECTION)
@@ -264,6 +269,7 @@ class OpenDelegateWriter(val database: Database) {
                 name = "onPreMigrate",
                 visibility = VisibilityModifier.PUBLIC,
                 isOverride = true,
+                isSuspend = true,
             )
             .apply {
                 addParameter(connectionParamName, SQLiteDriverTypeNames.CONNECTION)
@@ -281,11 +287,12 @@ class OpenDelegateWriter(val database: Database) {
                 name = "onPostMigrate",
                 visibility = VisibilityModifier.PUBLIC,
                 isOverride = true,
+                isSuspend = true,
             )
             .apply {
                 addParameter(connectionParamName, SQLiteDriverTypeNames.CONNECTION)
                 database.entities
-                    .filterIsInstance(FtsEntity::class.java)
+                    .filterIsInstance<FtsEntity>()
                     .filter { it.ftsOptions.contentEntity != null }
                     .flatMap { it.contentSyncTriggerCreateQueries }
                     .forEach { syncTriggerQuery ->

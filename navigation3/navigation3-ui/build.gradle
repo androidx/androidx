@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -44,7 +43,7 @@ androidXMultiplatform {
     sourceSets {
         commonMain.dependencies {
             api(project(":navigation3:navigation3-runtime"))
-            api("androidx.navigationevent:navigationevent-compose:1.0.0")
+            api("androidx.navigationevent:navigationevent-compose:1.0.2")
             api("androidx.compose.animation:animation:1.10.0")
             api("androidx.compose.runtime:runtime:1.10.0")
             api("androidx.compose.runtime:runtime-saveable:1.10.0")
@@ -61,7 +60,7 @@ androidXMultiplatform {
             implementation(libs.kotlinTest)
             implementation(project(":kruth:kruth"))
             implementation(project(":compose:runtime:runtime-test-utils"))
-            implementation("androidx.navigationevent:navigationevent-testing:1.0.0")
+            implementation("androidx.navigationevent:navigationevent-testing:1.0.2")
         }
 
         androidMain.dependencies {
@@ -82,7 +81,7 @@ androidXMultiplatform {
             implementation(libs.kotlinSerializationCore)
         }
 
-        nonAndroidMain.dependsOn(commonMain)
+        create("nonAndroidMain").dependsOn(commonMain)
         jvmStubsMain.dependsOn(nonAndroidMain)
         linuxx64StubsMain.dependsOn(nonAndroidMain)
     }

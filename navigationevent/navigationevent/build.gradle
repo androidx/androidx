@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -58,6 +57,7 @@ androidXMultiplatform {
             implementation(libs.kotlinCoroutinesCore)
             api("androidx.annotation:annotation:1.9.1")
             api("androidx.compose.runtime:runtime-annotation:1.9.0")
+            implementation("androidx.collection:collection:1.5.0")
         }
 
         commonTest.dependencies {

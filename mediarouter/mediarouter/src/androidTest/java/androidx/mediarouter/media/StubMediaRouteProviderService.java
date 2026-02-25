@@ -145,6 +145,11 @@ public class StubMediaRouteProviderService extends MediaRouteProviderService {
             }
 
             @Override
+            public void onRelease() {
+                mControllers.remove(mRouteId);
+            }
+
+            @Override
             public void onSetVolume(int volume) {
                 mLastSetVolume = volume;
             }

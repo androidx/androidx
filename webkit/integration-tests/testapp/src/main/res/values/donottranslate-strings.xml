@@ -99,6 +99,7 @@
     <string name="mute_audio_not_supported">Mute Audio feature is not supported.</string>
     <string name="mute_audio_audio_is_muted">Audio is muted.</string>
     <string name="mute_audio_audio_is_unmuted">Audio is unmuted.</string>
+    <string name="webview_loaded">WebView Loaded!</string>
 
     <!-- PaymentRequest -->
     <string name="payment_request_activity_title">PaymentRequest</string>

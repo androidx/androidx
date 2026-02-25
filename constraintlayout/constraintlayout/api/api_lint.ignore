@@ -20,9 +20,9 @@ AllUpper: androidx.constraintlayout.motion.widget.MotionLayout#IS_IN_EDIT_MODE:
 
 
 ArrayReturn: androidx.constraintlayout.motion.widget.MotionHelper#views:
-    Field should be Collection<View> (or subclass) instead of raw array; was `android.view.View[]`
+    Field should be Collection<android.view.View> (or subclass) instead of raw array; was `android.view.View[]`
 ArrayReturn: androidx.constraintlayout.widget.ConstraintHelper#getViews(androidx.constraintlayout.widget.ConstraintLayout):
-    Method should return Collection<View> (or subclass) instead of raw array; was `android.view.View[]`
+    Method should return Collection<android.view.View> (or subclass) instead of raw array; was `android.view.View[]`
 
 
 AutoBoxing: androidx.constraintlayout.motion.widget.DesignTool#getPositionKeyframe(Object, Object, float, float, String[], float[]):
@@ -2056,4 +2056,4 @@ StaticFinalBuilder: androidx.constraintlayout.motion.widget.TransitionBuilder:
 
 
 TopLevelBuilder: androidx.constraintlayout.motion.widget.TransitionBuilder:
-    Builder should be defined as inner class: androidx.constraintlayout.motion.widget.TransitionBuilder
+    Builder should be defined as nested class: androidx.constraintlayout.motion.widget.TransitionBuilder

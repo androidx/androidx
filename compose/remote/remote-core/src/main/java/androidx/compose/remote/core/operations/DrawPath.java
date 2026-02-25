@@ -101,9 +101,9 @@ public class DrawPath extends PaintOperation implements Serializable {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Draw Operations", OP_CODE, CLASS_NAME)
-                .description("Draw a bitmap using integer coordinates")
-                .field(DocumentedOperation.INT, "id", "id of path high short is flags");
+        doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+                .description("Draw a path")
+                .field(DocumentedOperation.INT, "id", "The ID of the path to draw");
     }
 
     @Override

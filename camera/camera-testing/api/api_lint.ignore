@@ -17,15 +17,5 @@ AsyncSuffixFuture: androidx.camera.testing.fakes.FakeCameraControl#submitStillCa
     Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
 
 
-HiddenSuperclass: androidx.camera.testing.fakes.FakeCamera:
-    Public class androidx.camera.testing.fakes.FakeCamera stripped of unavailable superclass androidx.camera.core.impl.CameraInternal
-HiddenSuperclass: androidx.camera.testing.fakes.FakeCameraCaptureResult:
-    Public class androidx.camera.testing.fakes.FakeCameraCaptureResult stripped of unavailable superclass androidx.camera.core.impl.CameraCaptureResult
-HiddenSuperclass: androidx.camera.testing.fakes.FakeCameraControl:
-    Public class androidx.camera.testing.fakes.FakeCameraControl stripped of unavailable superclass androidx.camera.core.impl.CameraControlInternal
-HiddenSuperclass: androidx.camera.testing.fakes.FakeCameraInfoInternal:
-    Public class androidx.camera.testing.fakes.FakeCameraInfoInternal stripped of unavailable superclass androidx.camera.core.impl.CameraInfoInternal
-
-
 NotCloseable: androidx.camera.testing.fakes.FakeCamera:
     Classes that release resources (close(), release()) should implement AutoCloseable and CloseGuard: class androidx.camera.testing.fakes.FakeCamera

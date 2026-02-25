@@ -18,7 +18,6 @@ package androidx.camera.integration.featurecombo
 
 import android.util.Log
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraEffect
 import androidx.camera.core.CameraSelector
@@ -198,17 +197,6 @@ class FeatureCombinationDeviceTest(
                                 selector,
                                 Camera2Config::class.simpleName,
                                 Camera2Config.defaultConfig(),
-                                useCases,
-                            )
-                        )
-
-                        add(
-                            arrayOf(
-                                "config=${CameraPipeConfig::class.simpleName} lensFacing={$lens}" +
-                                    " useCases = {$useCases}",
-                                selector,
-                                CameraPipeConfig::class.simpleName,
-                                CameraPipeConfig.defaultConfig(),
                                 useCases,
                             )
                         )

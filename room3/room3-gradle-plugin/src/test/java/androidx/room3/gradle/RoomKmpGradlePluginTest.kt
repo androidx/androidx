@@ -147,7 +147,7 @@ class RoomKmpGradlePluginTest {
                 """
                 @Query("SELECT * FROM NativeEntity")
                 fun blockingQuery(): NativeEntity
-            """
+                """
                     .trimIndent(),
         )
 
@@ -171,7 +171,7 @@ class RoomKmpGradlePluginTest {
                 """
                 @Insert
                 fun blockingInsert(entity: NativeEntity)
-            """
+                """
                     .trimIndent(),
         )
 
@@ -195,7 +195,7 @@ class RoomKmpGradlePluginTest {
                 """
                 @Transaction
                 fun blockingTransaction() { }
-            """
+                """
                     .trimIndent(),
         )
 

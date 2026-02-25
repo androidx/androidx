@@ -387,10 +387,10 @@ internal constructor(
             val innerJoins =
                 if (packageName != null) {
                     """
-                INNER JOIN thread_track ON slice.track_id = thread_track.id
-                INNER JOIN thread USING(utid)
-                INNER JOIN process USING(upid)
-                """
+                    |                INNER JOIN thread_track ON slice.track_id = thread_track.id
+                    |                INNER JOIN thread USING(utid)
+                    |                INNER JOIN process USING(upid)
+                    """
                         .trimMargin()
                 } else {
                     ""
@@ -400,7 +400,7 @@ internal constructor(
                 """
                 INNER JOIN process_track ON slice.track_id = process_track.id
                 INNER JOIN process USING(upid)
-            """
+                """
                     .trimIndent()
 
             return query(

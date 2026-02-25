@@ -195,8 +195,11 @@ public fun OpenOnPhoneDialogContent(
             animatedDelay(DurationShort3.toLong(), reduceMotionEnabled)
             alphaAnimatable.animateTo(1f, alphaAnimationSpec)
         }
+
         launch {
-            if (!reduceMotionEnabled) {
+            if (reduceMotionEnabled) {
+                delay(progressDuration)
+            } else {
                 progressAnimatable.animateTo(
                     targetValue = 1f,
                     animationSpec =
@@ -204,8 +207,9 @@ public fun OpenOnPhoneDialogContent(
                 ) {
                     progress = value
                 }
-                finalAnimation = true
             }
+
+            finalAnimation = true
         }
     }
 
@@ -308,6 +312,7 @@ public object OpenOnPhoneDialogDefaults {
 
         LaunchedEffect(Unit) {
             animatedDelay(IconDelay, reduceMotionEnabled)
+
             atEnd = true
         }
         Icon(
@@ -459,12 +464,14 @@ private fun iconAndProgressContainer(
             .align(Alignment.Center)
     )
 
-    IconContainerProgressIndicator(
-        progress = progress,
-        progressAlpha = progressAlphaAnimationFraction.value,
-        strokeWidth = strokeWidth,
-        colors = progressIndicatorColors,
-    )
+    if (!LocalReduceMotion.current) {
+        IconContainerProgressIndicator(
+            progress = progress,
+            progressAlpha = progressAlphaAnimationFraction.value,
+            strokeWidth = strokeWidth,
+            colors = progressIndicatorColors,
+        )
+    }
 }
 
 @Composable

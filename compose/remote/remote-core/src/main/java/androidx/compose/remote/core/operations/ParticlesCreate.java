@@ -92,8 +92,8 @@ public class ParticlesCreate extends PaintOperation implements VariableSupport {
                 float v = mEquations[i][j];
                 mOutEquations[i][j] =
                         (Float.isNaN(v)
-                                        && !AnimatedFloatExpression.isMathOperator(v)
-                                        && !NanMap.isDataVariable(v))
+                                && !AnimatedFloatExpression.isMathOperator(v)
+                                && !NanMap.isDataVariable(v))
                                 ? context.getFloat(Utils.idFromNan(v))
                                 : v;
             }
@@ -141,12 +141,6 @@ public class ParticlesCreate extends PaintOperation implements VariableSupport {
 
     /**
      * Write the operation on the buffer
-     *
-     * @param buffer
-     * @param id
-     * @param varId
-     * @param equations
-     * @param particleCount
      */
     public static void apply(
             @NonNull WireBuffer buffer,
@@ -170,7 +164,7 @@ public class ParticlesCreate extends PaintOperation implements VariableSupport {
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer the buffer to read
+     * @param buffer     the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -204,14 +198,16 @@ public class ParticlesCreate extends PaintOperation implements VariableSupport {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Data Operations", OP_CODE, CLASS_NAME)
-                .description("Creates a particle system")
-                .field(DocumentedOperation.INT, "id", "The reference of the particle system")
-                .field(INT, "particleCount", "number of particles to create")
-                .field(INT, "varLen", "number of variables asociate with the particles")
-                .field(FLOAT_ARRAY, "id", "varLen", "id followed by equations")
-                .field(INT, "equLen", "length of the equation")
-                .field(FLOAT_ARRAY, "equation", "varLen * equLen", "float array equations");
+        doc.operation("Animation & Particles Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("particles_create")
+                .description("Create a particle system")
+                .field(DocumentedOperation.INT, "id", "The ID of the particle system")
+                .field(INT, "particleCount", "Number of particles to create")
+                .field(INT, "varCount", "Number of variables associated with each particle")
+                .field(INT, "varId[0..n]", "The ID of each associated variable")
+                .field(INT, "equLen[0..n]",
+                        "The length of the initialization equation for each variable")
+                .field(FLOAT_ARRAY, "equations[0..n]", "The initialization equations (RPN)");
     }
 
     @NonNull
@@ -252,5 +248,6 @@ public class ParticlesCreate extends PaintOperation implements VariableSupport {
     }
 
     @Override
-    public void serialize(@NonNull MapSerializer serializer) {}
+    public void serialize(@NonNull MapSerializer serializer) {
+    }
 }

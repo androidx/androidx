@@ -39,8 +39,8 @@ class OneOfAppFunctionSerializableFactoryCodeBuilder(
     fun generateFromAppFunctionDataMethodBody() = buildCodeBlock {
         beginControlFlow(
             """
-                return when(%L.%L)
-                """
+            return when(%L.%L)
+            """
                 .trimIndent(),
             APP_FUNCTION_DATA_PARAM_NAME,
             APP_FUNCTION_DATA_QUALIFIED_NAME_PROPERTY,
@@ -85,8 +85,8 @@ class OneOfAppFunctionSerializableFactoryCodeBuilder(
     fun generateToAppFunctionDataMethodBody() = buildCodeBlock {
         beginControlFlow(
             """
-                return when(%L)
-                """
+            return when(%L)
+            """
                 .trimIndent(),
             APP_FUNCTION_SERIALIZABLE_PARAM_NAME,
         )

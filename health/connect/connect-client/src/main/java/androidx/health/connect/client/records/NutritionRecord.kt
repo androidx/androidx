@@ -135,10 +135,10 @@ public class NutritionRecord(
      * See b/400965398 for more context.
      */
     init {
-        require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             this.toPlatformRecord()
         } else {
+            require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
             biotin?.requireInRange(MIN_MASS, MAX_MASS_100, "biotin")
             caffeine?.requireInRange(MIN_MASS, MAX_MASS_100, "caffeine")
             calcium?.requireInRange(MIN_MASS, MAX_MASS_100, "calcium")

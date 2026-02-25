@@ -24,7 +24,7 @@ import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocum
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.Composable
-import androidx.glance.wear.WearWidgetRawContent
+import androidx.glance.wear.core.WearWidgetRawContent
 
 internal object WearWidgetCapture {
     const val PENDING_INTENT_KEY = "pending_intents"
@@ -39,10 +39,10 @@ internal object WearWidgetCapture {
     ): WearWidgetRawContent {
         val remoteDocument =
             captureSingleRemoteDocument(
-                context,
-                creationDisplayInfo,
-                RcPlatformProfiles.WEAR_WIDGETS,
-                content,
+                context = context,
+                creationDisplayInfo = creationDisplayInfo,
+                profile = RcPlatformProfiles.WEAR_WIDGETS,
+                content = content,
             )
         return WearWidgetRawContent(
             rcDocument = remoteDocument.bytes,

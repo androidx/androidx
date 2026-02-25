@@ -84,12 +84,14 @@ class SessionAnnotationOperationsTrackerTest {
     }
 
     @Test
-    fun addEntry_addThenRemove_shouldSquashToNothing() {
+    fun addEntry_addThenRemove_shouldSquashToSingleRemoveEntry() {
         tracker.addEntry(OperationType.ADD, keyA, annotationA)
         tracker.addEntry(OperationType.REMOVE, keyA, annotationA)
 
         val snapshot = tracker.getSnapshot()
-        assertThat(snapshot).isEmpty()
+        assertThat(snapshot).isNotEmpty()
+        assertThat(snapshot.size).isEqualTo(1)
+        assertThat(snapshot[0].operationType).isEqualTo(OperationType.REMOVE)
     }
 
     @Test
@@ -274,10 +276,10 @@ class SessionAnnotationOperationsTrackerTest {
     }
 
     @Test
-    fun isDeleted_afterAddThenRemove_returnsFalse() {
+    fun isDeleted_afterAddThenRemove_returnsTrue() {
         tracker.addEntry(OperationType.ADD, keyA, annotationA)
         tracker.addEntry(OperationType.REMOVE, keyA, annotationA)
-        assertThat(tracker.isDeleted(keyA)).isFalse()
+        assertThat(tracker.isDeleted(keyA)).isTrue()
     }
 
     @Test

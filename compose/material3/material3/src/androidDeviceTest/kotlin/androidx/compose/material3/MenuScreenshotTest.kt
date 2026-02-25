@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.material.icons.Icons
@@ -259,8 +260,20 @@ class MenuScreenshotTest {
                         onCheckedChange = {},
                         enabled = enabledItems,
                         text = { Text("Edit") },
-                        leadingIcon = { Icon(Icons.Outlined.Edit, contentDescription = null) },
-                        checkedLeadingIcon = { Icon(Icons.Filled.Edit, contentDescription = null) },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Outlined.Edit,
+                                modifier = Modifier.size(MenuDefaults.LeadingIconSize),
+                                contentDescription = null,
+                            )
+                        },
+                        checkedLeadingIcon = {
+                            Icon(
+                                Icons.Filled.Edit,
+                                modifier = Modifier.size(MenuDefaults.LeadingIconSize),
+                                contentDescription = null,
+                            )
+                        },
                         shapes = MenuDefaults.itemShapes(MenuDefaults.leadingItemShape),
                     )
                     DropdownMenuItem(
@@ -268,9 +281,19 @@ class MenuScreenshotTest {
                         onCheckedChange = {},
                         enabled = enabledItems,
                         text = { Text("Settings") },
-                        leadingIcon = { Icon(Icons.Outlined.Settings, contentDescription = null) },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Outlined.Settings,
+                                modifier = Modifier.size(MenuDefaults.LeadingIconSize),
+                                contentDescription = null,
+                            )
+                        },
                         checkedLeadingIcon = {
-                            Icon(Icons.Filled.Settings, contentDescription = null)
+                            Icon(
+                                Icons.Filled.Settings,
+                                modifier = Modifier.size(MenuDefaults.LeadingIconSize),
+                                contentDescription = null,
+                            )
                         },
                         shapes = MenuDefaults.itemShapes(MenuDefaults.trailingItemShape),
                     )
@@ -281,8 +304,7 @@ class MenuScreenshotTest {
                 ) {
                     MenuDefaults.Label { Text("Group Label") }
                     HorizontalDivider(
-                        modifier =
-                            Modifier.padding(horizontal = MenuDefaults.HorizontalDividerPadding)
+                        modifier = Modifier.padding(MenuDefaults.HorizontalDividerPadding)
                     )
                     DropdownMenuItem(
                         shapes = MenuDefaults.itemShapes(shape = MenuDefaults.leadingItemShape),
@@ -291,13 +313,25 @@ class MenuScreenshotTest {
                         enabled = enabledItems,
                         onCheckedChange = {},
                         checkedLeadingIcon = {
-                            Icon(Icons.Filled.Check, contentDescription = null)
+                            Icon(
+                                Icons.Filled.Check,
+                                modifier = Modifier.size(MenuDefaults.LeadingIconSize),
+                                contentDescription = null,
+                            )
                         },
                         trailingIcon = {
                             if (homeChecked) {
-                                Icon(Icons.Filled.Home, contentDescription = null)
+                                Icon(
+                                    Icons.Filled.Home,
+                                    modifier = Modifier.size(MenuDefaults.TrailingIconSize),
+                                    contentDescription = null,
+                                )
                             } else {
-                                Icon(Icons.Outlined.Home, contentDescription = null)
+                                Icon(
+                                    Icons.Outlined.Home,
+                                    modifier = Modifier.size(MenuDefaults.TrailingIconSize),
+                                    contentDescription = null,
+                                )
                             }
                         },
                     )
@@ -306,9 +340,27 @@ class MenuScreenshotTest {
                         checked = moreOptionChecked,
                         enabled = enabledItems,
                         onCheckedChange = {},
-                        leadingIcon = { Icon(Icons.Outlined.Info, contentDescription = null) },
-                        checkedLeadingIcon = { Icon(Icons.Filled.Info, contentDescription = null) },
-                        trailingIcon = { Icon(Icons.Filled.MoreVert, contentDescription = null) },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Outlined.Info,
+                                modifier = Modifier.size(MenuDefaults.LeadingIconSize),
+                                contentDescription = null,
+                            )
+                        },
+                        checkedLeadingIcon = {
+                            Icon(
+                                Icons.Filled.Info,
+                                modifier = Modifier.size(MenuDefaults.LeadingIconSize),
+                                contentDescription = null,
+                            )
+                        },
+                        trailingIcon = {
+                            Icon(
+                                Icons.Filled.MoreVert,
+                                modifier = Modifier.size(MenuDefaults.TrailingIconSize),
+                                contentDescription = null,
+                            )
+                        },
                         shapes = MenuDefaults.itemShapes(MenuDefaults.trailingItemShape),
                     )
                 }

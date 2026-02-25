@@ -82,6 +82,11 @@ public class ConstraintManagerTest {
                     public boolean isAppDrivenRefreshEnabled() throws RemoteException {
                         return mMockConstraintHost.isAppDrivenRefreshEnabled();
                     }
+
+                    @Override
+                    public int getInterfaceVersion() {
+                        return super.VERSION;
+                    }
                 };
         when(mMockCarHost.getHost(any())).thenReturn(hostStub.asBinder());
         mHostDispatcher.setCarHost(mMockCarHost);

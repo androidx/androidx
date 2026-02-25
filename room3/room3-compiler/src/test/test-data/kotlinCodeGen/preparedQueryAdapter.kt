@@ -4,6 +4,8 @@ import androidx.room3.util.getLastInsertedRowId
 import androidx.room3.util.getTotalChangedRows
 import androidx.room3.util.performBlocking
 import androidx.sqlite.SQLiteStatement
+import androidx.sqlite.prepare
+import androidx.sqlite.step
 import java.lang.Void
 import javax.`annotation`.processing.Generated
 import kotlin.Int

@@ -39,15 +39,15 @@ class XRoundEnvTest {
             Source.kotlin(
                 "Baz.kt",
                 """
-            import androidx.room3.compiler.processing.testcode.OtherAnnotation
-            @OtherAnnotation(value="xx")
-            class Baz {
+                import androidx.room3.compiler.processing.testcode.OtherAnnotation
                 @OtherAnnotation(value="xx")
-                var myProperty: Int = 0
-                @OtherAnnotation(value="xx")
-                fun myFunction() { }
-            }
-            """
+                class Baz {
+                    @OtherAnnotation(value="xx")
+                    var myProperty: Int = 0
+                    @OtherAnnotation(value="xx")
+                    fun myFunction() { }
+                }
+                """
                     .trimIndent(),
             )
 
@@ -81,23 +81,23 @@ class XRoundEnvTest {
             Source.kotlin(
                 "Baz.kt",
                 """
-            import androidx.room3.compiler.processing.testcode.OtherAnnotation
-            class Baz {
-                @get:OtherAnnotation(value="xx")
-                var myProperty1: Int = 0
-                @set:OtherAnnotation(value="xx")
-                var myProperty2: Int = 0
-                @field:OtherAnnotation(value="xx")
-                var myProperty3: Int = 0
-                companion object {
+                import androidx.room3.compiler.processing.testcode.OtherAnnotation
+                class Baz {
                     @get:OtherAnnotation(value="xx")
-                    @JvmStatic
-                    val myProperty4: String = ""
-                    @get:OtherAnnotation(value="xx")
-                    const val myProperty5: String = ""
+                    var myProperty1: Int = 0
+                    @set:OtherAnnotation(value="xx")
+                    var myProperty2: Int = 0
+                    @field:OtherAnnotation(value="xx")
+                    var myProperty3: Int = 0
+                    companion object {
+                        @get:OtherAnnotation(value="xx")
+                        @JvmStatic
+                        val myProperty4: String = ""
+                        @get:OtherAnnotation(value="xx")
+                        const val myProperty5: String = ""
+                    }
                 }
-            }
-            """
+                """
                     .trimIndent(),
             )
 
@@ -130,10 +130,10 @@ class XRoundEnvTest {
                 // Packages can be annotated in `package-info.java` files.
                 "foo.bar.foobar.package-info",
                 """
-            @OtherAnnotation(value = "xx")
-            package foo.bar.foobar;
-            import androidx.room3.compiler.processing.testcode.OtherAnnotation;
-            """
+                @OtherAnnotation(value = "xx")
+                package foo.bar.foobar;
+                import androidx.room3.compiler.processing.testcode.OtherAnnotation;
+                """
                     .trimIndent(),
             )
 
@@ -167,16 +167,16 @@ class XRoundEnvTest {
             Source.java(
                 "FooBar",
                 """
-            class FooBar {}
-            """
+                class FooBar {}
+                """
                     .trimIndent(),
             )
         val kotlinSource =
             Source.kotlin(
                 "FooBarKt.kt",
                 """
-            class FooBarKt
-            """
+                class FooBarKt
+                """
                     .trimIndent(),
             )
         runProcessorTest(listOf(javaSource, kotlinSource)) { testInvocation ->
@@ -195,12 +195,12 @@ class XRoundEnvTest {
             Source.kotlin(
                 "Baz.kt",
                 """
-            import androidx.room3.compiler.processing.XRoundEnvTest.PropertyAnnotation
-            class Baz {
-                @PropertyAnnotation
-                fun myFun(): Int = 0
-            }
-            """
+                import androidx.room3.compiler.processing.XRoundEnvTest.PropertyAnnotation
+                class Baz {
+                    @PropertyAnnotation
+                    fun myFun(): Int = 0
+                }
+                """
                     .trimIndent(),
             )
 
@@ -215,10 +215,10 @@ class XRoundEnvTest {
             Source.kotlin(
                 "Baz.kt",
                 """
-            import androidx.room3.compiler.processing.XRoundEnvTest.TopLevelAnnotation
-            @TopLevelAnnotation
-            fun myFun(): Int = 0
-            """
+                import androidx.room3.compiler.processing.XRoundEnvTest.TopLevelAnnotation
+                @TopLevelAnnotation
+                fun myFun(): Int = 0
+                """
                     .trimIndent(),
             )
 
@@ -240,16 +240,16 @@ class XRoundEnvTest {
             Source.kotlin(
                 "Baz.kt",
                 """
-            @file:JvmName("MyCustomClass")
-            package foo.bar
-            import androidx.room3.compiler.processing.XRoundEnvTest.TopLevelAnnotation
-            @get:TopLevelAnnotation
-            var myPropertyGetter: Int = 0
-            @set:TopLevelAnnotation
-            var myPropertySetter: Int = 0
-            @field:TopLevelAnnotation
-            var myProperty: Int = 0
-            """
+                @file:JvmName("MyCustomClass")
+                package foo.bar
+                import androidx.room3.compiler.processing.XRoundEnvTest.TopLevelAnnotation
+                @get:TopLevelAnnotation
+                var myPropertyGetter: Int = 0
+                @set:TopLevelAnnotation
+                var myPropertySetter: Int = 0
+                @field:TopLevelAnnotation
+                var myProperty: Int = 0
+                """
                     .trimIndent(),
             )
 
@@ -296,9 +296,9 @@ class XRoundEnvTest {
             Source.kotlin(
                 "foo/Baz.kt",
                 """
-            package foo
-            class Baz 
-            """
+                package foo
+                class Baz 
+                """
                     .trimIndent(),
             )
 
@@ -344,10 +344,10 @@ class XRoundEnvTest {
             Source.kotlin(
                 "Foo.kt",
                 """
-            package foo.bar
-            val p: Int = TODO()
-            fun f(): String = TODO()
-            """
+                package foo.bar
+                val p: Int = TODO()
+                fun f(): String = TODO()
+                """
                     .trimIndent(),
             )
         runProcessorTest(listOf(source)) { invocation ->
@@ -366,10 +366,10 @@ class XRoundEnvTest {
             Source.kotlin(
                 "Foo.kt",
                 """
-            package foo.bar
-            val p: Int = TODO()
-            fun f(): String = TODO()
-            """
+                package foo.bar
+                val p: Int = TODO()
+                fun f(): String = TODO()
+                """
                     .trimIndent(),
             )
         runProcessorTest(classpath = compileFiles(listOf(source))) { invocation ->
@@ -504,8 +504,8 @@ class XRoundEnvTest {
                     Source.kotlin(
                         "Foo.kt",
                         """
-                    @PublishedApi internal class Foo {}
-                    """
+                        @PublishedApi internal class Foo {}
+                        """
                             .trimIndent(),
                     )
                 ),

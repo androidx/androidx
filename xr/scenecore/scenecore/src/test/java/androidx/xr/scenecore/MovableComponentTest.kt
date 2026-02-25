@@ -25,6 +25,7 @@ import androidx.xr.arcore.testing.FakePerceptionManager
 import androidx.xr.arcore.testing.FakePerceptionRuntime
 import androidx.xr.arcore.testing.FakeRuntimePlane
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.TrackingState
@@ -45,6 +46,7 @@ import androidx.xr.scenecore.testing.FakeScenePose
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.MoreExecutors.directExecutor
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNotNull
 import kotlin.time.TestTimeSource
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.asExecutor
@@ -53,6 +55,7 @@ import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.After
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -174,7 +177,7 @@ class MovableComponentTest {
         val result = Session.create(activity, testDispatcher)
         assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
         session = (result as SessionCreateSuccess).session
-        session.configure(Config(planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
+        session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
         mFakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
         mFakeLifecycleManager = mFakeRuntime.lifecycleManager
         mFakePerceptionManager = mFakeRuntime.perceptionManager
@@ -193,7 +196,7 @@ class MovableComponentTest {
         session = (result as SessionCreateSuccess).session
         sceneRuntime = session.sceneRuntime
         fakeActivitySpace = sceneRuntime.activitySpace
-        session.configure(Config(planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
+        session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
         mFakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
         mFakeLifecycleManager = mFakeRuntime.lifecycleManager
         mFakePerceptionManager = mFakeRuntime.perceptionManager
@@ -2005,6 +2008,68 @@ class MovableComponentTest {
             // Verify that runtime movable component has had plane pose set with null pose
             assertThat(rtMovableComponent.setPlanePoseForMoveUpdatePoseCallCount).isEqualTo(1)
             assertThat(rtMovableComponent.lastPlanePose).isNull()
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun createAnchorable_unsupportedEntityType_throwsIllegalArgumentException() {
+        createSession()
+        runTest(testDispatcher) {
+            activityController.create().start().resume()
+
+            val activitySpacePose = Pose(Vector3(-1f, -1f, 0f), Quaternion.Identity)
+            assertNotNull(session.scene.activitySpace.rtEntity).setPose(activitySpacePose)
+            (session.scene.perceptionSpace.rtScenePose as FakeScenePose).activitySpacePose =
+                activitySpacePose.inverse
+
+            val planeCenterPose = Pose(Vector3(0f, 2f, 0f), Quaternion.Identity)
+            val plane =
+                FakeRuntimePlane(
+                    trackingState = TrackingState.TRACKING,
+                    type = Plane.Type.HORIZONTAL_UPWARD_FACING,
+                    label = Plane.Label.FLOOR,
+                    extents = FloatSize2d(5.0f, 5.0f),
+                    centerPose = planeCenterPose,
+                )
+            mFakePerceptionManager.addTrackable(plane)
+            advanceUntilIdle()
+
+            val movableComponent = MovableComponent.createAnchorable(session)
+
+            // Create a mock Entity that is not PanelEntity or GltfModelEntity
+            val mockEntity = GroupEntity.create(session, "test")
+            assertTrue(mockEntity.addComponent(movableComponent))
+
+            val proposedPose = Pose(Vector3(1f, 1f, 1f), Quaternion.Identity)
+            val entityScale = Vector3.One * mockEntity.getScale()
+
+            val rtMoveEndEvent =
+                RtMoveEvent(
+                    MoveEvent.MOVE_STATE_END,
+                    Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f)),
+                    Ray(Vector3(1f, 1f, 1f), Vector3(2f, 2f, 2f)),
+                    proposedPose,
+                    proposedPose,
+                    entityScale,
+                    entityScale,
+                    checkNotNull(session.scene.activitySpace.rtEntity),
+                    updatedParent = null,
+                    disposedEntity = null,
+                )
+
+            val rtMovableComponent = movableComponent.rtMovableComponent as FakeMovableComponent
+
+            // Expect an IllegalArgumentException because mockEntity is not a supported type.
+            val exception =
+                assertFailsWith<IllegalArgumentException> {
+                    rtMovableComponent.onMoveEvent(rtMoveEndEvent)
+                }
+
+            assertThat(exception.message)
+                .isEqualTo(
+                    "Movable component can be applied to either a PanelEntity or GltfModelEntity"
+                )
         }
     }
 }

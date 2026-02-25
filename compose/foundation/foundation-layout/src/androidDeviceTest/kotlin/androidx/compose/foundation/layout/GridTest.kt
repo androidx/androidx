@@ -38,7 +38,9 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -921,47 +923,259 @@ class GridTest : LayoutTest() {
 
     @Test
     fun testGrid_contentBasedSizing() {
-        val childSize = Ref<IntSize>()
-        val latch = CountDownLatch(1)
-        val dummyPosition = Ref<Offset>()
+        // Col 1: MinContent (Fixed at Min)
+        // Col 2: MaxContent (Fixed at Max)
+        // Col 3: Auto (Behaves like MinMax)
+
+        // Setup for Col 3 (Auto):
+        // Container has extra space. Auto should grow to Max.
+
+        val itemMin = 50
+        val itemMax = 100
+        val latch = CountDownLatch(3)
+        val sizes = Array(3) { Ref<IntSize>() }
 
         show {
             Grid(
                 config = {
-                    // Col 1: MinContent (should match min intrinsic width)
                     column(GridTrackSize.MinContent)
-                    // Col 2: MaxContent (should match max intrinsic width)
                     column(GridTrackSize.MaxContent)
-                    row(GridTrackSize.Fixed(50.dp))
-                }
+                    column(GridTrackSize.Auto)
+                },
+                // Large container to allow Auto to grow
+                modifier = Modifier.width(500.dp),
             ) {
-                // Item 1: Min=50, Max=100
+                // Item 1 (MinContent)
                 IntrinsicItem(
-                    minWidth = 50,
-                    minIntrinsicWidth = 50,
-                    maxIntrinsicWidth = 100,
-                    modifier = Modifier.gridItem(1, 1).fillMaxSize(),
-                )
-
-                // Item 2: Min=50, Max=100
-                IntrinsicItem(
-                    minWidth = 50,
-                    minIntrinsicWidth = 50,
-                    maxIntrinsicWidth = 100,
+                    minWidth = itemMin,
+                    minIntrinsicWidth = itemMin,
+                    maxIntrinsicWidth = itemMax,
                     modifier =
-                        Modifier.gridItem(1, 2)
-                            .fillMaxSize()
-                            .saveLayoutInfo(childSize, dummyPosition, latch),
+                        Modifier.gridItem(1, 1).fillMaxSize().saveLayoutInfo(sizes[0], Ref(), latch),
+                )
+                // Item 2 (MaxContent)
+                IntrinsicItem(
+                    minWidth = itemMin,
+                    minIntrinsicWidth = itemMin,
+                    maxIntrinsicWidth = itemMax,
+                    modifier =
+                        Modifier.gridItem(1, 2).fillMaxSize().saveLayoutInfo(sizes[1], Ref(), latch),
+                )
+                // Item 3 (Auto)
+                IntrinsicItem(
+                    minWidth = itemMin,
+                    minIntrinsicWidth = itemMin,
+                    maxIntrinsicWidth = itemMax,
+                    modifier =
+                        Modifier.gridItem(1, 3).fillMaxSize().saveLayoutInfo(sizes[2], Ref(), latch),
                 )
             }
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS))
 
-        // Col 1 should be 50 (min)
-        // Col 2 should be 100 (max)
-        // Item 2 in Col 2 should have width 100
-        assertEquals(100, childSize.value?.width)
+        assertEquals("MinContent Track", itemMin, sizes[0].value?.width)
+        assertEquals("MaxContent Track", itemMax, sizes[1].value?.width)
+        assertEquals("Auto Track (Loose constraints)", itemMax, sizes[2].value?.width)
     }
+
+    @Test
+    fun testGrid_autoTrack_resolvesToMinMax() =
+        with(density) {
+            // Scenario:
+            // Item has MinWidth = 50, MaxWidth = 100.
+            // Track is Auto.
+
+            // Case 1: Infinite Space (Scrollable) -> Should be Max (100)
+            // Case 2: Tight Constraint (60) -> Should be 60 (Min 50 + 10 remaining)
+            // Case 3: Large Constraint (200) -> Should be Max (100) (Capped at max content)
+
+            val itemMin = 50
+            val itemMax = 100
+            val latch = CountDownLatch(3)
+            val sizes = Array(3) { Ref<IntSize>() }
+
+            show {
+                Column {
+                    // Case 1: Infinite Width
+                    Row(Modifier.horizontalScroll(rememberScrollState())) {
+                        Grid(config = { column(GridTrackSize.Auto) }) {
+                            IntrinsicItem(
+                                minWidth = itemMin,
+                                minIntrinsicWidth = itemMin,
+                                maxIntrinsicWidth = itemMax,
+                                modifier =
+                                    Modifier.gridItem(1, 1)
+                                        .fillMaxHeight()
+                                        .saveLayoutInfo(sizes[0], Ref(), latch),
+                            )
+                        }
+                    }
+
+                    // Case 2: Tight Constraint (60dp)
+                    // Available = 60. Base (Min) = 50. Remaining = 10.
+                    // Growth Potential = 50.
+                    // Distributed = 10. Final = 50 + 10 = 60.
+                    Box(Modifier.width(60.toDp())) {
+                        Grid(config = { column(GridTrackSize.Auto) }) {
+                            IntrinsicItem(
+                                minWidth = itemMin,
+                                minIntrinsicWidth = itemMin,
+                                maxIntrinsicWidth = itemMax,
+                                modifier =
+                                    Modifier.gridItem(1, 1)
+                                        .fillMaxHeight()
+                                        .saveLayoutInfo(sizes[1], Ref(), latch),
+                            )
+                        }
+                    }
+
+                    // Case 3: Large Constraint (200dp)
+                    // Available = 200. Base (Min) = 50. Remaining = 150.
+                    // Growth Potential = 50.
+                    // Distributed = 50 (Capped at potential). Final = 50 + 50 = 100.
+                    Box(Modifier.width(200.toDp())) {
+                        Grid(config = { column(GridTrackSize.Auto) }) {
+                            IntrinsicItem(
+                                minWidth = itemMin,
+                                minIntrinsicWidth = itemMin,
+                                maxIntrinsicWidth = itemMax,
+                                modifier =
+                                    Modifier.gridItem(1, 1)
+                                        .fillMaxHeight()
+                                        .saveLayoutInfo(sizes[2], Ref(), latch),
+                            )
+                        }
+                    }
+                }
+            }
+
+            assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+            assertEquals(
+                "Infinite container: Auto should be MaxContent",
+                itemMax,
+                sizes[0].value?.width,
+            )
+            assertEquals(
+                "Tight container: Auto should grow from Min to fit available",
+                60,
+                sizes[1].value?.width,
+            )
+            assertEquals(
+                "Large container: Auto should cap at MaxContent",
+                itemMax,
+                sizes[2].value?.width,
+            )
+        }
+
+    @Test
+    fun testGrid_autoTracks_distributeSpaceProportionally() =
+        with(density) {
+            // Scenario:
+            // Container Width = 100px.
+            // Two Auto Columns.
+            // Item 1: Min 20, Max 40. (Growth Potential = 20)
+            // Item 2: Min 20, Max 100. (Growth Potential = 80)
+
+            // Logic:
+            // 1. Base Sizes (MinContent): Col 1 = 20, Col 2 = 20. Total Used = 40.
+            // 2. Remaining Space: 100 - 40 = 60.
+            // 3. Total Potential: 20 + 80 = 100.
+            // 4. Distribution:
+            //    Col 1 Share: (20 / 100) * 60 = 12. Final Size: 20 + 12 = 32.
+            //    Col 2 Share: (80 / 100) * 60 = 48. Final Size: 20 + 48 = 68.
+
+            val containerWidth = 100
+            val latch = CountDownLatch(2)
+            val sizes = Array(2) { Ref<IntSize>() }
+
+            show {
+                Grid(
+                    config = {
+                        column(GridTrackSize.Auto)
+                        column(GridTrackSize.Auto)
+                    },
+                    modifier = Modifier.width(containerWidth.toDp()),
+                ) {
+                    // Item 1
+                    IntrinsicItem(
+                        minWidth = 20,
+                        minIntrinsicWidth = 20,
+                        maxIntrinsicWidth = 40,
+                        modifier = Modifier.gridItem(1, 1).saveLayoutInfo(sizes[0], Ref(), latch),
+                    )
+                    // Item 2
+                    IntrinsicItem(
+                        minWidth = 20,
+                        minIntrinsicWidth = 20,
+                        maxIntrinsicWidth = 100,
+                        modifier = Modifier.gridItem(1, 2).saveLayoutInfo(sizes[1], Ref(), latch),
+                    )
+                }
+            }
+
+            assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+            assertEquals("Col 1 (Small Potential)", 32, sizes[0].value?.width)
+            assertEquals("Col 2 (Large Potential)", 68, sizes[1].value?.width)
+        }
+
+    @Test
+    fun testGrid_auto_vs_flex_prioritization() =
+        with(density) {
+            // Scenario: Auto vs Flex.
+            // Auto tracks are resolved (Pass 1.8) BEFORE Flex tracks (Pass 2).
+            // Container = 200px.
+            // Col 1: Auto (Item Min 50, Max 100).
+            // Col 2: 1.fr
+
+            // Logic:
+            // 1. Base Auto = 50 (Min).
+            // 2. Expand Auto:
+            //    Remaining = 200 - 50 = 150.
+            //    Auto wants to grow by 50 (to reach 100).
+            //    It takes 50. Final Auto = 100.
+            // 3. Flex Distribution:
+            //    Remaining = 200 - 100 (Auto) = 100.
+            //    Flex takes 100.
+
+            val containerWidth = 200
+            val itemMin = 50
+            val itemMax = 100
+            val latch = CountDownLatch(2)
+            val sizes = Array(2) { Ref<IntSize>() }
+
+            show {
+                Grid(
+                    config = {
+                        column(GridTrackSize.Auto)
+                        column(GridTrackSize.Flex(1.fr))
+                    },
+                    modifier = Modifier.width(containerWidth.toDp()),
+                ) {
+                    // Item in Auto Track
+                    IntrinsicItem(
+                        minWidth = itemMin,
+                        minIntrinsicWidth = itemMin,
+                        maxIntrinsicWidth = itemMax,
+                        modifier = Modifier.gridItem(1, 1).saveLayoutInfo(sizes[0], Ref(), latch),
+                    )
+                    // Item in Flex Track
+                    Box(
+                        Modifier.gridItem(1, 2).fillMaxSize().saveLayoutInfo(sizes[1], Ref(), latch)
+                    )
+                }
+            }
+
+            assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+            assertEquals(
+                "Auto track should reach MaxContent before Flex runs",
+                100,
+                sizes[0].value?.width,
+            )
+            assertEquals("Flex track should take remaining space", 100, sizes[1].value?.width)
+        }
 
     @Test
     fun testGrid_implicitTracks_shrinkToFitContent() =
@@ -1998,8 +2212,8 @@ class GridTest : LayoutTest() {
             val gridSize = Ref<IntSize>()
 
             show {
-                // Wrap in a Row to provide infinite width constraint
-                Row {
+                // Wrap in a scrolling Row to provide infinite width constraint
+                Row(Modifier.horizontalScroll(rememberScrollState())) {
                     Grid(
                         config = {
                             // 50% of Infinity cannot be calculated.
@@ -2268,6 +2482,126 @@ class GridTest : LayoutTest() {
         }
     }
 
+    @Test
+    fun testGrid_config_accessConstraints() =
+        with(density) {
+            val size = 100
+            val sizeDp = size.toDp()
+            val latch = CountDownLatch(1)
+
+            // Capture values from inside the config lambda
+            val capturedMaxWidth = Ref<Dp>()
+            val capturedMaxHeight = Ref<Dp>()
+            val capturedConstraints = Ref<Constraints>()
+
+            show {
+                Box(Modifier.size(sizeDp)) {
+                    Grid(
+                        config = {
+                            val maxWidthDp = constraints.maxWidth.toDp()
+                            val maxHeightDp = constraints.maxHeight.toDp()
+                            capturedMaxWidth.value = maxWidthDp
+                            capturedMaxHeight.value = maxHeightDp
+                            capturedConstraints.value = constraints
+
+                            // Define minimal tracks so layout pass completes
+                            column(GridTrackSize.Fixed(10.dp))
+                            row(GridTrackSize.Fixed(10.dp))
+                        }
+                    ) {
+                        // Place a dummy item to ensure measurement happens
+                        Box(
+                            Modifier.gridItem(1, 1).size(10.dp).onGloballyPositioned {
+                                latch.countDown()
+                            }
+                        )
+                    }
+                }
+            }
+
+            assertTrue("Timed out waiting for layout", latch.await(1, TimeUnit.SECONDS))
+
+            // Verify explicit Constraints (Exact pixels)
+            // We use the pixel size directly since we created the Box with sizeDp derived from it
+            assertEquals(size, capturedConstraints.value?.maxWidth)
+            assertEquals(size, capturedConstraints.value?.maxHeight)
+
+            // Verify Dp properties.
+            // Note: We compare pixel values because Dp floating point precision might
+            // result in 100.dp vs 100.0001.dp depending on density math.
+            assertEquals(size, capturedMaxWidth.value?.roundToPx())
+            assertEquals(size, capturedMaxHeight.value?.roundToPx())
+        }
+
+    @Test
+    fun testGrid_responsive_columnsChangeWithWidth() =
+        with(density) {
+            // Scenario: Responsive Breakpoint
+            // < 200dp width -> 1 Column
+            // >= 200dp width -> 2 Columns
+
+            val widthCompact = 100.dp
+            val widthExpanded = 300.dp
+            var parentWidth by mutableStateOf(widthCompact)
+
+            val initialLatch = CountDownLatch(1)
+            val updateLatch = CountDownLatch(1)
+            val itemSize = Ref<IntSize>()
+
+            show {
+                Box(Modifier.width(parentWidth)) {
+                    Grid(
+                        config = {
+                            val maxWidthDp = constraints.maxWidth.toDp()
+                            val cols = if (maxWidthDp < 200.dp) 1 else 2
+
+                            repeat(cols) { column(GridTrackSize.Flex(1.fr)) }
+                            row(GridTrackSize.Auto)
+                        }
+                    ) {
+                        // Place item in Column 1.
+                        // We measure this item to verify the column width.
+                        Box(
+                            Modifier.gridItem(1, 1)
+                                .fillMaxWidth()
+                                .height(50.dp)
+                                .onGloballyPositioned { coordinates ->
+                                    itemSize.value = coordinates.size
+                                    if (initialLatch.count > 0) {
+                                        initialLatch.countDown()
+                                    } else {
+                                        updateLatch.countDown()
+                                    }
+                                }
+                        )
+                    }
+                }
+            }
+
+            // 1. Verify Initial State (Compact: 100dp -> 1 Column)
+            assertTrue(
+                "Timed out waiting for initial layout",
+                initialLatch.await(1, TimeUnit.SECONDS),
+            )
+
+            // 1 Column = Full Width
+            assertEquals(widthCompact.roundToPx(), itemSize.value?.width)
+
+            // 2. Resize Parent (Expanded: 300dp)
+            parentWidth = widthExpanded
+
+            // 3. Verify Updated State (Expanded: 300dp -> 2 Columns)
+            assertTrue(
+                "Timed out waiting for layout update",
+                updateLatch.await(1, TimeUnit.SECONDS),
+            )
+
+            val totalPx = widthExpanded.roundToPx()
+            val expectedColWidth = (totalPx * 0.5f).roundToInt()
+
+            assertEquals(expectedColWidth, itemSize.value?.width)
+        }
+
     @Composable
     private fun IntrinsicItem(
         minWidth: Int,
@@ -2283,10 +2617,10 @@ class GridTest : LayoutTest() {
                         measurables: List<Measurable>,
                         constraints: Constraints,
                     ): MeasureResult {
-                        return layout(
-                            constraints.minWidth.coerceAtLeast(minWidth),
-                            constraints.minHeight,
-                        ) {}
+                        // Try to reach maxIntrinsicWidth, but respect parent constraints.
+                        val width =
+                            constraints.constrainWidth(maxIntrinsicWidth).coerceAtLeast(minWidth)
+                        return layout(width, constraints.minHeight) {}
                     }
 
                     override fun IntrinsicMeasureScope.minIntrinsicWidth(

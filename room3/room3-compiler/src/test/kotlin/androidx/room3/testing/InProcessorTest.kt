@@ -33,12 +33,12 @@ class InProcessorTest(private val kotlinCode: Boolean) {
                     filePath = "MyClass.kt",
                     code =
                         """
-                package foo.bar
-                abstract class MyClass {
-                @androidx.room3.Query("foo")
-                abstract fun setFoo(foo: String):Unit
-                }
-                """
+                        package foo.bar
+                        abstract class MyClass {
+                        @androidx.room3.Query("foo")
+                        abstract fun setFoo(foo: String):Unit
+                        }
+                        """
                             .trimIndent(),
                 )
             } else {
@@ -46,12 +46,12 @@ class InProcessorTest(private val kotlinCode: Boolean) {
                     qName = "foo.bar.MyClass",
                     code =
                         """
-                package foo.bar;
-                abstract public class MyClass {
-                @androidx.room3.Query("foo")
-                abstract public void setFoo(String foo);
-                }
-                """
+                        package foo.bar;
+                        abstract public class MyClass {
+                        @androidx.room3.Query("foo")
+                        abstract public void setFoo(String foo);
+                        }
+                        """
                             .trimIndent(),
                 )
             }

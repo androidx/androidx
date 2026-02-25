@@ -46,6 +46,11 @@ public class PostMessageService extends Service {
                 @NonNull String message, @Nullable Bundle extras) throws RemoteException {
             callback.onPostMessage(message, extras);
         }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
     };
 
     @Override

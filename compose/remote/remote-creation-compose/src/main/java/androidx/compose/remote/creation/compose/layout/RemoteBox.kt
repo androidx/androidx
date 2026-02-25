@@ -31,8 +31,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 
 /** Utility modifier to record the layout information */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteComposeBoxModifier(
+internal class RemoteComposeBoxModifier(
     private val modifier: RemoteModifier,
     private val horizontalAlignment: RemoteAlignment.Horizontal = RemoteAlignment.Start,
     private val verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Top,
@@ -51,9 +50,15 @@ public class RemoteComposeBoxModifier(
 }
 
 /**
- * RemoteBox implements a Box layout, delegating to the foundation Box layout as needed. This allows
- * RemoteBox to both work as a normal Box when called within a normal Compose tree, and capture the
- * layout information when called within a capture pass for RemoteCompose.
+ * A layout composable that positions its children relative to its own edges.
+ *
+ * `RemoteBox` allows you to wrap multiple children and position them using [horizontalAlignment]
+ * and [verticalArrangement]. In Remote Compose, this layout is recorded as a Box command.
+ *
+ * @param modifier The modifier to be applied to this box.
+ * @param horizontalAlignment The horizontal alignment of the children.
+ * @param verticalArrangement The vertical arrangement of the children.
+ * @param content The content of the box.
  */
 @RemoteComposable
 @Composable
@@ -112,7 +117,11 @@ private class CombinedAlignment(
     }
 }
 
-/** Utility function to support RemoteBox with no provided content */
+/**
+ * A version of [RemoteBox] with no content, often used as a spacer or a background placeholder.
+ *
+ * @param modifier The modifier to be applied to this box.
+ */
 @RemoteComposable
 @Composable
 public fun RemoteBox(modifier: RemoteModifier = RemoteModifier) {

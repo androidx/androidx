@@ -22,6 +22,7 @@ import android.graphics.RectF
 import android.os.DeadObjectException
 import androidx.pdf.PdfDocument
 import androidx.pdf.annotation.models.PathPdfObject
+import androidx.pdf.annotation.models.PathPdfObject.PathInput
 import androidx.pdf.content.PdfPageTextContent
 import androidx.pdf.exceptions.RequestFailedException
 import androidx.pdf.exceptions.RequestMetadata
@@ -53,11 +54,11 @@ internal fun List<RectF>.toPathPdfObjects(color: Int): List<PathPdfObject> {
             brushWidth = 0f,
             inputs =
                 listOf(
-                    PathPdfObject.PathInput(rect.left, rect.top),
-                    PathPdfObject.PathInput(rect.right, rect.top),
-                    PathPdfObject.PathInput(rect.right, rect.bottom),
-                    PathPdfObject.PathInput(rect.left, rect.bottom),
-                    PathPdfObject.PathInput(rect.left, rect.top),
+                    PathInput(rect.left, rect.top, PathInput.MOVE_TO),
+                    PathInput(rect.right, rect.top, PathInput.LINE_TO),
+                    PathInput(rect.right, rect.bottom, PathInput.LINE_TO),
+                    PathInput(rect.left, rect.bottom, PathInput.LINE_TO),
+                    PathInput(rect.left, rect.top, PathInput.LINE_TO),
                 ),
         )
     }

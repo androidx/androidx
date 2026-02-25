@@ -16,13 +16,11 @@
 
 package androidx.glance
 
+import android.os.Build
+import android.os.Bundle
 import androidx.annotation.RestrictTo
 
-/**
- * Represents what backend is in use during composition/translation.
- *
- * TODO: unrestrict in followup cl
- */
+/** Represents what backend is in use during composition/translation. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public enum class Backend {
     RemoteView,
@@ -30,16 +28,44 @@ public enum class Backend {
 }
 
 /**
- * Represents what backend a developer's AppWidget would like to use
+ * Debug flags to force Glance to use either the RemoteView or RemoteCompose backends. Pass in the
+ * appWidgetOptions bundle to force glance to use either remote views or remote compose. This is
+ * intended for debugging, eg, to see if a widget displays the same using both options.
  *
- * TODO: revisit the concept of BackendPreference and Backend. b/461555982
+ * Set to true to force remote views.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // TODO: unrestrict in next CL
-@JvmInline
-public value class GlanceBackendPreference(public val value: Int) {
-    public companion object {
-        public val RemoteViews: GlanceBackendPreference = GlanceBackendPreference(0)
-        public val RemoteCompose: GlanceBackendPreference = GlanceBackendPreference(1)
-        public val Default: GlanceBackendPreference = GlanceBackendPreference(2)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public const val GLANCE_OPTION_APPWIDGET_FORCE_BACKEND: String =
+    "androidx.glance.appwidget.forceBackend"
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public const val BACKEND_REMOTE_VIEW: Int = 0
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public const val BACKEND_REMOTE_COMPOSE: Int = 1
+
+/**
+ * @return True if >= api 36 && the host is not forcing remote views.
+ *
+ *     @return the backend override, if set, otherwise null.
+ *
+ * TODO: b/462177167 Right now we call this twice. Can we call this once and have it be a constant
+ *   throughout the session?
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun getBackendOverride(hostOptions: Bundle?): Backend? {
+    val isApiSufficientForRemoteCompose = Build.VERSION.SDK_INT >= 36
+
+    val noSelection = -1
+    val hostOverrideOrdinal: Int =
+        hostOptions?.getInt(GLANCE_OPTION_APPWIDGET_FORCE_BACKEND, -1) ?: noSelection
+    val backendOverride: Backend? =
+        when (hostOverrideOrdinal) {
+            BACKEND_REMOTE_VIEW -> Backend.RemoteView
+            BACKEND_REMOTE_COMPOSE -> Backend.RemoteCompose
+            else -> null
+        }
+
+    return when {
+        backendOverride == Backend.RemoteCompose && isApiSufficientForRemoteCompose ->
+            Backend.RemoteCompose
+        backendOverride == Backend.RemoteView -> Backend.RemoteView
+        else -> null
     }
 }

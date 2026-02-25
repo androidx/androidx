@@ -79,7 +79,8 @@ internal class GlimmerListAutoFocusState {
 
 private fun getFocusLinePosition(state: GlimmerListAutoFocusProperties): Float {
     // The FocusScroll doesn't include paddings, but the RectList API requires us to respect them.
-    val focusLinePosition = state.layoutProperties.beforeContentPadding + state.focusScroll
+    val focusLinePosition =
+        state.layoutProperties.beforeContentPadding + state.focusScroll.toFloat()
     // Specifies the boundaries where the focus line can be.
     val start = state.layoutProperties.beforeContentPadding.toFloat()
     val end = start + state.layoutProperties.mainAxisAvailableSize

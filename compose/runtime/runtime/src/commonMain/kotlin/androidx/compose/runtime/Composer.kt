@@ -21,6 +21,7 @@ package androidx.compose.runtime
 
 import androidx.compose.runtime.Composer.Companion.Empty
 import androidx.compose.runtime.collection.ScopeMap
+import androidx.compose.runtime.composer.RememberManager
 import androidx.compose.runtime.composer.gapbuffer.SlotReader
 import androidx.compose.runtime.composer.gapbuffer.SlotTable
 import androidx.compose.runtime.composer.gapbuffer.SlotWriter
@@ -35,40 +36,6 @@ import kotlin.contracts.contract
 import kotlin.coroutines.CoroutineContext
 import kotlin.jvm.JvmInline
 import kotlin.jvm.JvmName
-
-/**
- * An interface used during [ControlledComposition.applyChanges] and [Composition.dispose] to track
- * when [RememberObserver] instances and leave the composition an also allows recording [SideEffect]
- * calls.
- */
-internal interface RememberManager {
-    /** The [RememberObserver] is being remembered by a slot in the slot table. */
-    fun remembering(instance: RememberObserverHolder)
-
-    /** The [RememberObserver] is being forgotten by a slot in the slot table. */
-    fun forgetting(instance: RememberObserverHolder)
-
-    /**
-     * The [effect] should be called when changes are being applied but after the remember/forget
-     * notifications are sent.
-     */
-    fun sideEffect(effect: () -> Unit)
-
-    /** The [ComposeNodeLifecycleCallback] is being deactivated. */
-    fun deactivating(instance: ComposeNodeLifecycleCallback)
-
-    /** The [ComposeNodeLifecycleCallback] is being released. */
-    fun releasing(instance: ComposeNodeLifecycleCallback)
-
-    /** The restart scope is pausing */
-    fun rememberPausingScope(scope: RecomposeScopeImpl)
-
-    /** The restart scope is resuming */
-    fun startResumingScope(scope: RecomposeScopeImpl)
-
-    /** The restart scope is finished resuming */
-    fun endResumingScope(scope: RecomposeScopeImpl)
-}
 
 /**
  * Internal compose compiler plugin API that is used to update the function the composer will call
@@ -1063,6 +1030,8 @@ internal abstract class InternalComposer : Composer {
     internal abstract fun updateComposerInvalidations(
         invalidationsRequested: ScopeMap<RecomposeScopeImpl, Any>
     )
+
+    @TestOnly internal abstract fun parentKey(): Int
 }
 
 /**
@@ -1376,14 +1345,15 @@ internal val SlotWriter.isAfterFirstChild
 internal val SlotReader.isAfterFirstChild
     get() = currentGroup > parent + 1
 
-/*
- * Remember observer which is not removed during reuse/deactivate of the group.
- * It is used to preserve composition locals between group deactivation.
+/**
+ * Remember observer which is not removed during reuse/deactivate of the group. It is used to
+ * preserve composition locals between group deactivation.
  */
-internal class ReusableRememberObserverHolder(wrapped: RememberObserver, afterGroupIndex: Int) :
-    RememberObserverHolder(wrapped, afterGroupIndex)
+internal interface ReusableRememberObserverHolder : RememberObserverHolder
 
-internal open class RememberObserverHolder(var wrapped: RememberObserver, var afterGroupIndex: Int)
+internal interface RememberObserverHolder {
+    var wrapped: RememberObserver
+}
 
 // An arbitrary key value that marks the default parameter group
 internal const val defaultsKey = -127

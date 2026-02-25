@@ -146,13 +146,6 @@ interface PdfDocumentRemote {
     List<PdfPageImageContent> getPageImageContent(int pageNum);
 
     /**
-     * Checks if the PDF is linearized (optimized for fast web viewing).
-     *
-     * @return True if the PDF is linearized, false otherwise.
-     */
-    boolean isPdfLinearized();
-
-    /**
      * Gets the type of form present in the document.
      *
      * @return The form type.
@@ -242,4 +235,10 @@ interface PdfDocumentRemote {
      */
     PdfObject getTopPageObjectAtPosition( int pageNum, in PointF point, in int[] types);
 
+    /**
+     * Gets the linearization status of the document.
+     *
+     * @return An int representing the document's linearization status.
+     */
+     int getLinearizationStatus();
 }

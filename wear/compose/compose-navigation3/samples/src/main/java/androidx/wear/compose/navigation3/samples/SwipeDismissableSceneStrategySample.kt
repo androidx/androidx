@@ -17,14 +17,22 @@
 package androidx.wear.compose.navigation3.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -32,6 +40,7 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.Card
 import androidx.wear.compose.material3.EdgeButton
 import androidx.wear.compose.material3.ListHeader
@@ -47,6 +56,10 @@ import kotlinx.serialization.Serializable
 @Serializable object NotificationList : NavKey
 
 @Serializable data class NotificationDetail(val id: Int) : NavKey
+
+@Serializable object First : NavKey
+
+@Serializable object Second : NavKey
 
 data class NotificationItem(val id: Int, val title: String, val body: String)
 
@@ -91,7 +104,7 @@ fun ListDetailNavDisplaySample(onExit: () -> Unit = {}) {
 
     NavDisplay(
         backStack = backStack,
-        sceneStrategy = rememberSwipeDismissableSceneStrategy(),
+        sceneStrategies = listOf(rememberSwipeDismissableSceneStrategy()),
         entryProvider =
             entryProvider {
                 entry<NotificationList> {
@@ -139,6 +152,50 @@ fun ListDetailNavDisplaySample(onExit: () -> Unit = {}) {
                         ) {
                             TitleCard(title = { Text(item.title) }, content = { Text(item.body) })
                         }
+                    }
+                }
+            },
+    )
+}
+
+@Sampled
+@Composable
+fun NavDisplayWithOnBackBehaviorSample() {
+    // Example of using a NavDisplay with SwipeDismissableSceneStrategy and on back behavior.
+
+    // Strongly-typed, serializable navigation destinations are defined at global scope as follows:
+    // @Serializable object First: NavKey
+    // @Serializable object Second: NavKey
+    val backStack = rememberNavBackStack(First)
+
+    var swipedBackCount by remember { mutableIntStateOf(0) }
+
+    NavDisplay(
+        backStack = backStack,
+        onBack = {
+            swipedBackCount++
+            backStack.removeLastOrNull()
+        },
+        sceneStrategies = listOf(rememberSwipeDismissableSceneStrategy()),
+        entryProvider =
+            entryProvider {
+                entry<First> {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Text("First")
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(onClick = { backStack.add(Second) }) { Text("Second") }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text("Swiped back $swipedBackCount times")
+                    }
+                }
+                entry<Second> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("Second")
                     }
                 }
             },

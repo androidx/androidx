@@ -37,7 +37,6 @@ public interface AnchorEntity : SystemSpaceEntity {
     @IntDef(State.UNANCHORED, State.ANCHORED, State.TIMED_OUT, State.ERROR)
     @Target(AnnotationTarget.TYPE)
     @Retention(AnnotationRetention.SOURCE)
-    @Suppress("PublicTypedef")
     public annotation class State {
         public companion object {
             /**

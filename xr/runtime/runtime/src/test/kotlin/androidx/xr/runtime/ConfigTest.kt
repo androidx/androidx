@@ -28,8 +28,8 @@ class ConfigTest {
     fun equals_sameInstance_returnsTrue() {
         val config =
             Config(
-                planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                handTracking = Config.HandTrackingMode.BOTH,
+                planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
+                handTracking = HandTrackingMode.BOTH,
             )
 
         assertThat(config).isEqualTo(config)
@@ -39,13 +39,13 @@ class ConfigTest {
     fun equals_sameConfig_returnsTrue() {
         val config1 =
             Config(
-                planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                handTracking = Config.HandTrackingMode.BOTH,
+                planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
+                handTracking = HandTrackingMode.BOTH,
             )
         val config2 =
             Config(
-                planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                handTracking = Config.HandTrackingMode.BOTH,
+                planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
+                handTracking = HandTrackingMode.BOTH,
             )
 
         assertThat(config1).isEqualTo(config2)
@@ -53,41 +53,41 @@ class ConfigTest {
 
     @Test
     fun equals_differentPlaneTracking_returnsFalse() {
-        val config1 = Config(planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
-        val config2 = Config(planeTracking = Config.PlaneTrackingMode.DISABLED)
+        val config1 = Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
+        val config2 = Config(planeTracking = PlaneTrackingMode.DISABLED)
 
         assertThat(config1).isNotEqualTo(config2)
     }
 
     @Test
     fun equals_differentHandTracking_returnsFalse() {
-        val config1 = Config(handTracking = Config.HandTrackingMode.BOTH)
-        val config2 = Config(handTracking = Config.HandTrackingMode.DISABLED)
+        val config1 = Config(handTracking = HandTrackingMode.BOTH)
+        val config2 = Config(handTracking = HandTrackingMode.DISABLED)
 
         assertThat(config1).isNotEqualTo(config2)
     }
 
     @Test
     fun equals_differentFaceTracking_returnsFalse() {
-        val config1 = Config(faceTracking = Config.FaceTrackingMode.BLEND_SHAPES)
-        val config2 = Config(faceTracking = Config.FaceTrackingMode.DISABLED)
+        val config1 = Config(faceTracking = FaceTrackingMode.BLEND_SHAPES)
+        val config2 = Config(faceTracking = FaceTrackingMode.DISABLED)
 
         assertThat(config1).isNotEqualTo(config2)
     }
 
     @Test
     fun equals_differentDepthEstimation_returnsFalse() {
-        val config1 = Config(depthEstimation = Config.DepthEstimationMode.SMOOTH_AND_RAW)
-        val config2 = Config(depthEstimation = Config.DepthEstimationMode.DISABLED)
+        val config1 = Config(depthEstimation = DepthEstimationMode.SMOOTH_AND_RAW)
+        val config2 = Config(depthEstimation = DepthEstimationMode.DISABLED)
 
         assertThat(config1).isNotEqualTo(config2)
     }
 
     @Test
     fun equals_differentAnchorPersistence_returnsFalse() {
-        val config1 = Config(anchorPersistence = Config.AnchorPersistenceMode.LOCAL)
+        val config1 = Config(anchorPersistence = AnchorPersistenceMode.LOCAL)
 
-        val config2 = Config(anchorPersistence = Config.AnchorPersistenceMode.DISABLED)
+        val config2 = Config(anchorPersistence = AnchorPersistenceMode.DISABLED)
 
         assertThat(config1).isNotEqualTo(config2)
     }
@@ -96,13 +96,13 @@ class ConfigTest {
     fun hashCode_sameConfig_returnsSameHashCode() {
         val config1 =
             Config(
-                planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                handTracking = Config.HandTrackingMode.BOTH,
+                planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
+                handTracking = HandTrackingMode.BOTH,
             )
         val config2 =
             Config(
-                planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                handTracking = Config.HandTrackingMode.BOTH,
+                planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
+                handTracking = HandTrackingMode.BOTH,
             )
 
         assertThat(config1.hashCode()).isEqualTo(config2.hashCode())
@@ -112,14 +112,11 @@ class ConfigTest {
     fun hashCode_differentConfig_returnsDifferentHashCode() {
         val config1 =
             Config(
-                planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                handTracking = Config.HandTrackingMode.BOTH,
+                planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
+                handTracking = HandTrackingMode.BOTH,
             )
         val config2 =
-            Config(
-                planeTracking = Config.PlaneTrackingMode.DISABLED,
-                handTracking = Config.HandTrackingMode.BOTH,
-            )
+            Config(planeTracking = PlaneTrackingMode.DISABLED, handTracking = HandTrackingMode.BOTH)
 
         assertThat(config1.hashCode()).isNotEqualTo(config2.hashCode())
     }
@@ -128,8 +125,8 @@ class ConfigTest {
     fun copy_createsNewInstanceWithSameValues() {
         val config =
             Config(
-                planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                handTracking = Config.HandTrackingMode.BOTH,
+                planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
+                handTracking = HandTrackingMode.BOTH,
             )
 
         val copy = config.copy()
@@ -142,13 +139,13 @@ class ConfigTest {
     fun copy_withDifferentValues_createsNewInstanceWithSameValues() {
         val config =
             Config(
-                planeTracking = Config.PlaneTrackingMode.DISABLED,
-                handTracking = Config.HandTrackingMode.DISABLED,
+                planeTracking = PlaneTrackingMode.DISABLED,
+                handTracking = HandTrackingMode.DISABLED,
             )
         val copy =
             config.copy(
-                planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                handTracking = Config.HandTrackingMode.BOTH,
+                planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
+                handTracking = HandTrackingMode.BOTH,
             )
 
         assertThat(copy).isNotEqualTo(config)

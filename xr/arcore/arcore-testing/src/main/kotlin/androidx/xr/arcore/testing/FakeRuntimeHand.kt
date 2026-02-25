@@ -21,7 +21,7 @@ import androidx.xr.runtime.TrackingState
 import java.nio.ByteBuffer
 import java.nio.FloatBuffer
 
-/** Test-only implementation of [androidx.xr.arcore.runtime.Hand]. */
+/** Fake implementation of [Hand][RuntimeHand] for testing purposes. */
 public class FakeRuntimeHand(
     override var trackingState: TrackingState = TrackingState.PAUSED,
     override var handJointsBuffer: FloatBuffer = ByteBuffer.allocate(0).asFloatBuffer(),

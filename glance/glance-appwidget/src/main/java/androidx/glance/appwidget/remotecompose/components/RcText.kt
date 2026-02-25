@@ -27,7 +27,7 @@ import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.TextUnit
-import androidx.glance.appwidget.remotecompose.RemoteComposeConstants.DefaultFontSize
+import androidx.glance.appwidget.remotecompose.RemoteComposeConstants.Text.DefaultFontSize
 import androidx.glance.appwidget.remotecompose.TAG
 import androidx.glance.appwidget.remotecompose.TranslationContext
 import androidx.glance.appwidget.remotecompose.convertGlanceModifierToRemoteComposeModifier

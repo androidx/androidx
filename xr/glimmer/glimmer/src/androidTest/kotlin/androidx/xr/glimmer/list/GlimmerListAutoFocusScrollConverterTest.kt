@@ -50,23 +50,23 @@ internal class GlimmerListAutoFocusScrollConverterTest(
     }
 
     /** Some points on the graph must be true no matter what the list parameters are. */
-    private fun ScrollConverterTestCase.pivotPoints(): List<Pair<Float, Float>> {
+    private fun ScrollConverterTestCase.pivotPoints(): List<Pair<Double, Double>> {
         return when {
             contentLength <= viewportSize ->
                 listOf(
-                    0f to 0f,
+                    0.0 to 0.0,
                     (contentLength / 2) to (contentLength / 2),
                     contentLength to contentLength,
                 )
             contentLength <= scrollThreshold + viewportSize + scrollThreshold ->
                 listOf(
-                    0f to 0f,
+                    0.0 to 0.0,
                     (contentLength / 2) to (contentLength / 2 - viewportSize / 2),
                     contentLength to (contentLength - viewportSize),
                 )
             else ->
                 listOf(
-                    0f to 0f,
+                    0.0 to 0.0,
                     (scrollThreshold + viewportSize / 2) to scrollThreshold,
                     (contentLength - scrollThreshold - viewportSize / 2) to
                         (contentLength - viewportSize - scrollThreshold),
@@ -76,8 +76,8 @@ internal class GlimmerListAutoFocusScrollConverterTest(
     }
 
     private fun ScrollConverterTestCase.assertPoints(
-        points: List<Pair<Float, Float>>,
-        tolerance: Float = 0.1f,
+        points: List<Pair<Double, Double>>,
+        tolerance: Double = 0.1,
     ) {
         for ((x, y) in points) {
             val actualY =
@@ -108,10 +108,10 @@ internal class GlimmerListAutoFocusScrollConverterTest(
     }
 
     internal data class ScrollConverterTestCase(
-        val scrollThreshold: Float, // d
-        val viewportSize: Float, // h
-        val contentLength: Float, // L
-        val xy: List<Pair<Float, Float>>, // Su->Sc
+        val scrollThreshold: Double, // d
+        val viewportSize: Double, // h
+        val contentLength: Double, // L
+        val xy: List<Pair<Double, Double>>, // Su->Sc
     ) {
         override fun toString(): String = "(d=$scrollThreshold, h=$viewportSize, L=$contentLength)"
     }
@@ -121,65 +121,87 @@ internal class GlimmerListAutoFocusScrollConverterTest(
         @Parameterized.Parameters(name = "{index}-{0}")
         internal fun parameters(): Array<ScrollConverterTestCase> =
             arrayOf(
-                // Large list, L > 2d + h
+                // Extra large list, L > 2d + h
                 ScrollConverterTestCase(
-                    scrollThreshold = 100f,
-                    viewportSize = 100f,
-                    contentLength = 500f,
+                    scrollThreshold = 300.0,
+                    viewportSize = 500.0,
+                    contentLength = 500_000_000.0,
                     xy =
                         listOf(
-                            50f to 22.2f,
-                            120f to 72f,
-                            200f to 150f,
-                            300f to 250f,
-                            395f to 340.5f,
-                            450f to 377.8f,
+                            1.0 to 0.09,
+                            2.0 to 0.18,
+                            5.0 to 0.47,
+                            10.0 to 0.99,
+                            50.0 to 6.62,
+                            350.0 to 133.06,
+                            499_999_650.0 to 499_999_366.94,
+                            499_999_950.0 to 499_999_493.38,
+                            499_999_990.0 to 499_999_499.01,
+                            499_999_995.0 to 499_999_499.52,
+                            499_999_998.0 to 499_999_499.81,
+                            499_999_999.0 to 499_999_499.91,
                         ),
                 ),
                 // Large list, L > 2d + h
                 ScrollConverterTestCase(
-                    scrollThreshold = 200f,
-                    viewportSize = 300f,
-                    contentLength = 1000f,
+                    scrollThreshold = 100.0,
+                    viewportSize = 100.0,
+                    contentLength = 500.0,
                     xy =
                         listOf(
-                            100f to 26.53f,
-                            200f to 77.55f,
-                            300f to 153.06f,
-                            400f to 250.00f,
-                            500f to 350.00f,
-                            700f to 546.94f,
-                            800f to 622.45f,
-                            900f to 673.47f,
+                            50.0 to 22.2,
+                            120.0 to 72.0,
+                            150.0 to 100.0,
+                            200.0 to 150.0,
+                            300.0 to 250.0,
+                            395.0 to 340.5,
+                            450.0 to 377.8,
+                        ),
+                ),
+                // Large list, L > 2d + h
+                ScrollConverterTestCase(
+                    scrollThreshold = 200.0,
+                    viewportSize = 300.0,
+                    contentLength = 1000.0,
+                    xy =
+                        listOf(
+                            100.0 to 26.53,
+                            200.0 to 77.55,
+                            300.0 to 153.06,
+                            400.0 to 250.00,
+                            500.0 to 350.00,
+                            700.0 to 546.94,
+                            800.0 to 622.45,
+                            900.0 to 673.47,
                         ),
                 ),
                 // Short list, L == 2d + h
                 ScrollConverterTestCase(
-                    scrollThreshold = 100f,
-                    viewportSize = 200f,
-                    contentLength = 400f,
-                    xy = listOf(50f to 25f, 150f to 75f, 250f to 125f, 350f to 175f),
+                    scrollThreshold = 100.0,
+                    viewportSize = 200.0,
+                    contentLength = 400.0,
+                    xy = listOf(50.0 to 25.0, 150.0 to 75.0, 250.0 to 125.0, 350.0 to 175.0),
                 ),
                 // Short list, L < 2d + h
                 ScrollConverterTestCase(
-                    scrollThreshold = 150f,
-                    viewportSize = 300f,
-                    contentLength = 500f,
-                    xy = listOf(50f to 20f, 100f to 40f, 250f to 100f, 400f to 160f),
+                    scrollThreshold = 150.0,
+                    viewportSize = 300.0,
+                    contentLength = 500.0,
+                    xy = listOf(50.0 to 20.0, 100.0 to 40.0, 250.0 to 100.0, 400.0 to 160.0),
                 ),
                 // Non-scrollable list, L < h
                 ScrollConverterTestCase(
-                    scrollThreshold = 150f,
-                    viewportSize = 300f,
-                    contentLength = 200f,
-                    xy = listOf(10f to 10f, 42f to 42f, 125f to 125f, 175f to 175f),
+                    scrollThreshold = 150.0,
+                    viewportSize = 300.0,
+                    contentLength = 200.0,
+                    xy = listOf(10.0 to 10.0, 42.0 to 42.0, 125.0 to 125.0, 175.0 to 175.0),
                 ),
                 // Edge case - empty list, L = 0
                 ScrollConverterTestCase(
-                    scrollThreshold = 150f,
-                    viewportSize = 300f,
-                    contentLength = 0f,
-                    xy = listOf(0f to 0f),
+                    scrollThreshold = 150.0,
+                    viewportSize = 300.0,
+                    contentLength = 0.0,
+                    xy = listOf(0.0 to 0.0),
                 ),
             )
     }

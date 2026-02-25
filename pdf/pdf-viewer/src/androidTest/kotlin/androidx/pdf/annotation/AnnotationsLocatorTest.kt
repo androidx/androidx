@@ -25,6 +25,7 @@ import android.util.SparseArray
 import android.view.MotionEvent
 import androidx.pdf.annotation.AnnotationsView.PageAnnotationsData
 import androidx.pdf.annotation.models.PathPdfObject
+import androidx.pdf.annotation.models.PathPdfObject.PathInput
 import androidx.pdf.annotation.models.PdfAnnotation
 import androidx.pdf.annotation.models.StampAnnotation
 import androidx.test.core.app.ApplicationProvider
@@ -127,6 +128,26 @@ class AnnotationsLocatorTest {
         assertThat(results).isEmpty()
     }
 
+    @Test
+    fun findAnnotations_samePointDownAndMove_returnsEmptyForMove() {
+        val annotationBounds = RectF(100f, 100f, 200f, 200f)
+        val annotation = createStampAnnotation(annotationBounds)
+        val annotationsData = createAnnotationsData(listOf(annotation))
+
+        // 1. Initial touch down at (150, 150) should return the annotation
+        val downEvent = obtainMotionEvent(MotionEvent.ACTION_DOWN, 150f, 150f)
+        val downResults = annotationsLocator.findAnnotations(annotationsData, downEvent)
+        assertThat(downResults).hasSize(1)
+        assertThat(downResults[0].annotation).isEqualTo(annotation)
+
+        // 2. A move event at the EXACT same point (150, 150)
+        val moveEvent = obtainMotionEvent(MotionEvent.ACTION_MOVE, 150f, 150f)
+        val moveResults = annotationsLocator.findAnnotations(annotationsData, moveEvent)
+
+        // Distance is 0, which is <= touchSlop, so it must return an empty list
+        assertThat(moveResults).isEmpty()
+    }
+
     // --- Helpers ---
 
     private fun createAnnotationsData(
@@ -149,11 +170,11 @@ class AnnotationsLocatorTest {
         // Mock a simple rectangular path slightly inset from bounds
         val pathInputs =
             listOf(
-                PathPdfObject.PathInput(bounds.left + width / 4, bounds.top + height / 4),
-                PathPdfObject.PathInput(bounds.right - width / 4, bounds.top + height / 4),
-                PathPdfObject.PathInput(bounds.right - width / 4, bounds.bottom - height / 4),
-                PathPdfObject.PathInput(bounds.left + width / 4, bounds.bottom - height / 4),
-                PathPdfObject.PathInput(bounds.left + width / 4, bounds.top + height / 4),
+                PathInput(bounds.left + width / 4, bounds.top + height / 4, PathInput.MOVE_TO),
+                PathInput(bounds.right - width / 4, bounds.top + height / 4, PathInput.LINE_TO),
+                PathInput(bounds.right - width / 4, bounds.bottom - height / 4, PathInput.LINE_TO),
+                PathInput(bounds.left + width / 4, bounds.bottom - height / 4, PathInput.LINE_TO),
+                PathInput(bounds.left + width / 4, bounds.top + height / 4, PathInput.LINE_TO),
             )
 
         val pathObject = PathPdfObject(Color.RED, 10f, pathInputs)

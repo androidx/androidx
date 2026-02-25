@@ -45,7 +45,7 @@ class TopLevelMembersTest {
                 }
                 val topLevelVal: String = ""
                 var topLevelVar: String = ""
-            """
+                """
                     .trimIndent(),
             )
         val classpath = compileFiles(listOf(libSrc))
@@ -58,7 +58,7 @@ class TopLevelMembersTest {
                 }
                 val topLevelVal: String = ""
                 var topLevelVar: String = ""
-            """
+                """
                     .trimIndent(),
             )
         runKspTest(sources = listOf(appSrc), classpath = classpath) { invocation ->

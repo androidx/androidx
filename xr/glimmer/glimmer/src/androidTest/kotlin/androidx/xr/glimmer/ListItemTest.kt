@@ -608,7 +608,7 @@ class ListItemTest {
         // Label should be top aligned when the height of the primary and supporting labels is
         // greater than minimum list item height
         (primaryLabelBounds.top - listItemBounds.top).assertIsEqualTo(
-            20.dp,
+            23.5.dp,
             "Padding between top of list item and top of primary label.",
         )
 
@@ -628,7 +628,7 @@ class ListItemTest {
         )
 
         (listItemBounds.bottom - supportingLabelBounds.bottom).assertIsEqualTo(
-            20.dp,
+            23.5.dp,
             "Padding between bottom of list item and bottom of supporting label.",
         )
 

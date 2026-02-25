@@ -221,6 +221,24 @@ class E2EExtensionTests(private val parameters: TestParameters) : BaseTelecomTes
                 result,
             )
         }
+
+        suspend fun assertLocalCallSilenceStateNotUpdated(unexpected: Boolean) {
+            val result =
+                withTimeoutOrNull(ICS_EXTENSION_UPDATE_TIMEOUT_MS) {
+                    Log.d(
+                        "assertLocalCallSilenceStateNotUpdated",
+                        ": WAITING TO ENSURE NOT [$unexpected]",
+                    )
+                    isLocallySilenced.first {
+                        Log.d("assertLocalCallSilenceStateNotUpdated", ": COLLECTED[$it]")
+                        it == unexpected
+                    }
+                }
+            assertNull(
+                "Received unexpected local call silence state update for [$unexpected]",
+                result,
+            )
+        }
     }
 
     internal class CachedCallIcon(scope: CallExtensionScope) {
@@ -686,6 +704,92 @@ class E2EExtensionTests(private val parameters: TestParameters) : BaseTelecomTes
     }
 
     /**
+     * Verifies that the Extension logic (auto-unmute) does NOT run if the extension has not been
+     * explicitly negotiated.
+     */
+    @LargeTest
+    @Test(timeout = 10000)
+    fun testExtensionDoesNotUnmuteWithoutNegotiation(): Unit = runBlocking {
+        usingIcs { ics ->
+            val globalMuteStateReceiver = TestMuteStateReceiver()
+            val am = mContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+            // Register receiver to track global mute changes
+            mContext.registerReceiver(
+                globalMuteStateReceiver,
+                IntentFilter(AudioManager.ACTION_MICROPHONE_MUTE_CHANGED),
+            )
+
+            try {
+                val voipAppControl = bindToVoipAppWithExtensions()
+                val callback = TestCallCallbackListener(this)
+                voipAppControl.setCallback(callback)
+
+                // 1. Start the call with the Capability available
+                createAndVerifyVoipCall(
+                    voipAppControl,
+                    callback,
+                    listOf(getLocalSilenceCapability(setOf())),
+                    parameters.direction,
+                    initIsLocallySilenced = false, // Start un-silenced
+                )
+
+                val call = TestUtils.waitOnInCallServiceToReachXCalls(ics, 1)!!
+                var hasConnected = false
+
+                with(ics) {
+                    // 2. Connect only the basics, purposely OMITTING the LocalSilence negotiation
+                    connectExtensions(call) {
+                        onConnected {
+                            hasConnected = true
+
+                            // 3. ACTION: Manually Mute the Global Microphone
+                            if (!am.isMicrophoneMute) {
+                                am.isMicrophoneMute = true
+                                // Wait for the system to process the mute
+                                waitForGlobalMuteState(
+                                    true,
+                                    "Manually_Muted",
+                                    callback,
+                                    globalMuteStateReceiver,
+                                )
+                            }
+
+                            // 4. ASSERTION: Ensure it STAYS muted.
+                            // If the bug is present, the extension will fight us and unmute it
+                            // immediately.
+                            // We wait a brief period to give the buggy background coroutine time to
+                            // fail.
+                            delay(1000)
+
+                            assertTrue(
+                                "Bug detected: The extension unmuted the microphone even though" +
+                                    " it was never negotiated!",
+                                am.isMicrophoneMute,
+                            )
+
+                            // Verify no "flapping" occurred (receiver should not have seen an
+                            // unmute event)
+                            // Note: Implementation of this check depends on TestMuteStateReceiver
+                            // details,
+                            // but checking the current state after a delay is usually sufficient.
+
+                            call.disconnect()
+                        }
+                    }
+                }
+                assertTrue("onConnected never received", hasConnected)
+            } finally {
+                mContext.unregisterReceiver(globalMuteStateReceiver)
+                // Cleanup: Restore mic state
+                if (am.isMicrophoneMute) {
+                    am.isMicrophoneMute = false
+                }
+            }
+        }
+    }
+
+    /**
      * Verifies the end-to-end flow where the user starts with the ability to toggle silence
      * (default state), and the VoIP app subsequently revokes and then restores this permission.
      * * This simulates a scenario where a user joins a meeting normally, is silenced by a moderator
@@ -833,6 +937,72 @@ class E2EExtensionTests(private val parameters: TestParameters) : BaseTelecomTes
             cb.waitForGlobalMuteState(expectedValue, tag)
         } else if (VERSION.SDK_INT >= VERSION_CODES.P) {
             receiver.waitForGlobalMuteState(expectedValue, tag)
+        }
+    }
+
+    /**
+     * Verifies that when the InCallService requests a local silence update, the state is not
+     * automatically updated (echoed back) by the Extension library. The state should only change
+     * once the VoIP app explicitly acknowledges and updates it.
+     */
+    @LargeTest
+    @Test(timeout = 10000)
+    fun testRequestLocalCallSilenceUpdateWaitsForVoipApp(): Unit = runBlocking {
+        usingIcs { ics ->
+            val voipAppControl = bindToVoipAppWithExtensions()
+            val callback = TestCallCallbackListener(this)
+            voipAppControl.setCallback(callback)
+
+            // 1. Create the call with Local Silence capabilities (start un-silenced)
+            val voipCallId =
+                createAndVerifyVoipCall(
+                    voipAppControl,
+                    callback,
+                    listOf(getLocalSilenceCapability(setOf())),
+                    parameters.direction,
+                    initIsLocallySilenced = false,
+                    initCanUserUpdateSilence = true,
+                )
+
+            val call = TestUtils.waitOnInCallServiceToReachXCalls(ics, 1)!!
+            var hasConnected = false
+
+            with(ics) {
+                connectExtensions(call) {
+                    val localSilenceExtension = CachedLocalSilence(this)
+                    onConnected {
+                        hasConnected = true
+                        // Ensure initial state is false (un-silenced)
+                        localSilenceExtension.waitForLocalCallSilenceState(false)
+
+                        // 2. ICS requests to silence the call (request = true)
+                        val result =
+                            localSilenceExtension.extension.requestLocalCallSilenceUpdate(true)
+                        assertEquals(CallControlResult.Success(), result)
+
+                        // 3. Verify VoIP app received the request via the callback
+                        // This corresponds to "onLocalSilenceUpdate is given to the voip app"
+                        callback.waitForIsLocalSilenced(voipCallId, true)
+
+                        // 4. CRITICAL ASSERTION:
+                        // Assert that the ICS has NOT received the state update yet.
+                        // This proves the extension impl did not optimistically update the state
+                        // internally.
+                        localSilenceExtension.assertLocalCallSilenceStateNotUpdated(
+                            unexpected = true
+                        )
+
+                        // 5. Now, have the VoIP app explicitly update the state
+                        voipAppControl.updateIsLocallySilenced(true)
+
+                        // 6. Verify ICS now receives the update
+                        localSilenceExtension.waitForLocalCallSilenceState(true)
+
+                        call.disconnect()
+                    }
+                }
+            }
+            assertTrue("onConnected never received", hasConnected)
         }
     }
 

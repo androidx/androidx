@@ -35,6 +35,7 @@ import androidx.sqlite.driver.AndroidSQLiteDriver
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.cancellation.CancellationException
@@ -527,6 +528,7 @@ class FlowQueryTest(driver: UseDriver) : TestDatabaseTest(driver) {
      * are not missed. b/432365736 and b/439232923
      */
     @Test
+    @SdkSuppress(minSdkVersion = 28) // Older versions doesn't clean up connection properly.
     fun flow_cancellations_flatMapLatest_combine() =
         repeat(1000) {
             val context = ApplicationProvider.getApplicationContext() as Context

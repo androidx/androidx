@@ -156,56 +156,56 @@ class XAnnotationValueTest(
                 Source.java(
                     "test.MyClass",
                     """
-                package test;
-                import java.lang.annotation.ElementType;
-                import java.lang.annotation.Target;
-                @Target({ElementType.TYPE, ElementType.TYPE_USE})
-                @interface MyAnnotation {
-                    boolean booleanParam();
-                    boolean[] booleanArrayParam();
-                    boolean[] booleanVarArgsParam(); // There's no varargs in java so use array
-                }
-                interface MyInterface {}
-                @MyAnnotation(
-                    booleanParam = true,
-                    booleanArrayParam = {true, false, true},
-                    booleanVarArgsParam = {false, true, false}
-                )
-                class MyClass implements
-                @MyAnnotation(
-                    booleanParam = true,
-                    booleanArrayParam = {true, false, true},
-                    booleanVarArgsParam = {false, true, false}
-                )
-                MyInterface {}
-                """
+                    package test;
+                    import java.lang.annotation.ElementType;
+                    import java.lang.annotation.Target;
+                    @Target({ElementType.TYPE, ElementType.TYPE_USE})
+                    @interface MyAnnotation {
+                        boolean booleanParam();
+                        boolean[] booleanArrayParam();
+                        boolean[] booleanVarArgsParam(); // There's no varargs in java so use array
+                    }
+                    interface MyInterface {}
+                    @MyAnnotation(
+                        booleanParam = true,
+                        booleanArrayParam = {true, false, true},
+                        booleanVarArgsParam = {false, true, false}
+                    )
+                    class MyClass implements
+                    @MyAnnotation(
+                        booleanParam = true,
+                        booleanArrayParam = {true, false, true},
+                        booleanVarArgsParam = {false, true, false}
+                    )
+                    MyInterface {}
+                    """
                         .trimIndent(),
                 ) as Source.JavaSource,
             kotlinSource =
                 Source.kotlin(
                     "test.MyClass.kt",
                     """
-                package test
-                @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
-                annotation class MyAnnotation(
-                    val booleanParam: Boolean,
-                    val booleanArrayParam: BooleanArray,
-                    vararg val booleanVarArgsParam: Boolean,
-                )
-                interface MyInterface
-                @MyAnnotation(
-                    booleanParam = true,
-                    booleanArrayParam = [true, false, true],
-                    booleanVarArgsParam = [false, true, false],
-                )
-                class MyClass :
-                @MyAnnotation(
-                    booleanParam = true,
-                    booleanArrayParam = [true, false, true],
-                    booleanVarArgsParam = [false, true, false],
-                )
-                MyInterface
-                """
+                    package test
+                    @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
+                    annotation class MyAnnotation(
+                        val booleanParam: Boolean,
+                        val booleanArrayParam: BooleanArray,
+                        vararg val booleanVarArgsParam: Boolean,
+                    )
+                    interface MyInterface
+                    @MyAnnotation(
+                        booleanParam = true,
+                        booleanArrayParam = [true, false, true],
+                        booleanVarArgsParam = [false, true, false],
+                    )
+                    class MyClass :
+                    @MyAnnotation(
+                        booleanParam = true,
+                        booleanArrayParam = [true, false, true],
+                        booleanVarArgsParam = [false, true, false],
+                    )
+                    MyInterface
+                    """
                         .trimIndent(),
                 ) as Source.KotlinSource,
         ) { invocation ->
@@ -267,56 +267,56 @@ class XAnnotationValueTest(
                 Source.java(
                     "test.MyClass",
                     """
-                package test;
-                import java.lang.annotation.ElementType;
-                import java.lang.annotation.Target;
-                @Target({ElementType.TYPE, ElementType.TYPE_USE})
-                @interface MyAnnotation {
-                    int intParam();
-                    int[] intArrayParam();
-                    int[] intVarArgsParam(); // There's no varargs in java so use array
-                }
-                interface MyInterface {}
-                @MyAnnotation(
-                    intParam = (short) 1,
-                    intArrayParam = {(byte) 3, (short) 5, 7},
-                    intVarArgsParam = {(byte) 9, (short) 11, 13}
-                )
-                class MyClass implements
-                @MyAnnotation(
-                    intParam = (short) 1,
-                    intArrayParam = {(byte) 3, (short) 5, 7},
-                    intVarArgsParam = {(byte) 9, (short) 11, 13}
-                )
-                MyInterface {}
-                """
+                    package test;
+                    import java.lang.annotation.ElementType;
+                    import java.lang.annotation.Target;
+                    @Target({ElementType.TYPE, ElementType.TYPE_USE})
+                    @interface MyAnnotation {
+                        int intParam();
+                        int[] intArrayParam();
+                        int[] intVarArgsParam(); // There's no varargs in java so use array
+                    }
+                    interface MyInterface {}
+                    @MyAnnotation(
+                        intParam = (short) 1,
+                        intArrayParam = {(byte) 3, (short) 5, 7},
+                        intVarArgsParam = {(byte) 9, (short) 11, 13}
+                    )
+                    class MyClass implements
+                    @MyAnnotation(
+                        intParam = (short) 1,
+                        intArrayParam = {(byte) 3, (short) 5, 7},
+                        intVarArgsParam = {(byte) 9, (short) 11, 13}
+                    )
+                    MyInterface {}
+                    """
                         .trimIndent(),
                 ) as Source.JavaSource,
             kotlinSource =
                 Source.kotlin(
                     "test.MyClass.kt",
                     """
-                package test
-                @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
-                annotation class MyAnnotation(
-                    val intParam: Int,
-                    val intArrayParam: IntArray,
-                    vararg val intVarArgsParam: Int,
-                )
-                interface MyInterface
-                @MyAnnotation(
-                    intParam = 1,
-                    intArrayParam = [3, 5, 7],
-                    intVarArgsParam = [9, 11, 13],
-                )
-                class MyClass :
-                @MyAnnotation(
-                    intParam = 1,
-                    intArrayParam = [3, 5, 7],
-                    intVarArgsParam = [9, 11, 13],
-                )
-                MyInterface
-                """
+                    package test
+                    @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
+                    annotation class MyAnnotation(
+                        val intParam: Int,
+                        val intArrayParam: IntArray,
+                        vararg val intVarArgsParam: Int,
+                    )
+                    interface MyInterface
+                    @MyAnnotation(
+                        intParam = 1,
+                        intArrayParam = [3, 5, 7],
+                        intVarArgsParam = [9, 11, 13],
+                    )
+                    class MyClass :
+                    @MyAnnotation(
+                        intParam = 1,
+                        intArrayParam = [3, 5, 7],
+                        intVarArgsParam = [9, 11, 13],
+                    )
+                    MyInterface
+                    """
                         .trimIndent(),
                 ) as Source.KotlinSource,
         ) { invocation ->
@@ -378,56 +378,56 @@ class XAnnotationValueTest(
                 Source.java(
                     "test.MyClass",
                     """
-                package test;
-                import java.lang.annotation.ElementType;
-                import java.lang.annotation.Target;
-                @Target({ElementType.TYPE, ElementType.TYPE_USE})
-                @interface MyAnnotation {
-                    short shortParam();
-                    short[] shortArrayParam();
-                    short[] shortVarArgsParam(); // There's no varargs in java so use array
-                }
-                interface MyInterface {}
-                @MyAnnotation(
-                    shortParam = (byte) 1,
-                    shortArrayParam = {(byte) 3, (short) 5, 7},
-                    shortVarArgsParam = {(byte) 9, (short) 11, 13}
-                )
-                class MyClass implements
-                @MyAnnotation(
-                    shortParam = (byte) 1,
-                    shortArrayParam = {(byte) 3, (short) 5, 7},
-                    shortVarArgsParam = {(byte) 9, (short) 11, 13}
-                )
-                MyInterface {}
-                """
+                    package test;
+                    import java.lang.annotation.ElementType;
+                    import java.lang.annotation.Target;
+                    @Target({ElementType.TYPE, ElementType.TYPE_USE})
+                    @interface MyAnnotation {
+                        short shortParam();
+                        short[] shortArrayParam();
+                        short[] shortVarArgsParam(); // There's no varargs in java so use array
+                    }
+                    interface MyInterface {}
+                    @MyAnnotation(
+                        shortParam = (byte) 1,
+                        shortArrayParam = {(byte) 3, (short) 5, 7},
+                        shortVarArgsParam = {(byte) 9, (short) 11, 13}
+                    )
+                    class MyClass implements
+                    @MyAnnotation(
+                        shortParam = (byte) 1,
+                        shortArrayParam = {(byte) 3, (short) 5, 7},
+                        shortVarArgsParam = {(byte) 9, (short) 11, 13}
+                    )
+                    MyInterface {}
+                    """
                         .trimIndent(),
                 ) as Source.JavaSource,
             kotlinSource =
                 Source.kotlin(
                     "test.MyClass.kt",
                     """
-                package test
-                @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
-                annotation class MyAnnotation(
-                    val shortParam: Short,
-                    val shortArrayParam: ShortArray,
-                    vararg val shortVarArgsParam: Short,
-                )
-                interface MyInterface
-                @MyAnnotation(
-                    shortParam = 1,
-                    shortArrayParam = [3, 5, 7],
-                    shortVarArgsParam = [9, 11, 13],
-                )
-                class MyClass :
-                @MyAnnotation(
-                    shortParam = 1,
-                    shortArrayParam = [3, 5, 7],
-                    shortVarArgsParam = [9, 11, 13],
-                )
-                MyInterface
-                """
+                    package test
+                    @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
+                    annotation class MyAnnotation(
+                        val shortParam: Short,
+                        val shortArrayParam: ShortArray,
+                        vararg val shortVarArgsParam: Short,
+                    )
+                    interface MyInterface
+                    @MyAnnotation(
+                        shortParam = 1,
+                        shortArrayParam = [3, 5, 7],
+                        shortVarArgsParam = [9, 11, 13],
+                    )
+                    class MyClass :
+                    @MyAnnotation(
+                        shortParam = 1,
+                        shortArrayParam = [3, 5, 7],
+                        shortVarArgsParam = [9, 11, 13],
+                    )
+                    MyInterface
+                    """
                         .trimIndent(),
                 ) as Source.KotlinSource,
         ) { invocation ->
@@ -489,56 +489,56 @@ class XAnnotationValueTest(
                 Source.java(
                     "test.MyClass",
                     """
-                package test;
-                import java.lang.annotation.ElementType;
-                import java.lang.annotation.Target;
-                @Target({ElementType.TYPE, ElementType.TYPE_USE})
-                @interface MyAnnotation {
-                    long longParam();
-                    long[] longArrayParam();
-                    long[] longVarArgsParam(); // There's no varargs in java so use array
-                }
-                interface MyInterface {}
-                @MyAnnotation(
-                    longParam = (byte) 1,
-                    longArrayParam = {(short) 3, (int) 5, 7L},
-                    longVarArgsParam = {(short) 9, (int) 11, 13L}
-                )
-                class MyClass implements
-                @MyAnnotation(
-                    longParam = (byte) 1,
-                    longArrayParam = {(short) 3, (int) 5, 7L},
-                    longVarArgsParam = {(short) 9, (int) 11, 13L}
-                )
-                MyInterface {}
-                """
+                    package test;
+                    import java.lang.annotation.ElementType;
+                    import java.lang.annotation.Target;
+                    @Target({ElementType.TYPE, ElementType.TYPE_USE})
+                    @interface MyAnnotation {
+                        long longParam();
+                        long[] longArrayParam();
+                        long[] longVarArgsParam(); // There's no varargs in java so use array
+                    }
+                    interface MyInterface {}
+                    @MyAnnotation(
+                        longParam = (byte) 1,
+                        longArrayParam = {(short) 3, (int) 5, 7L},
+                        longVarArgsParam = {(short) 9, (int) 11, 13L}
+                    )
+                    class MyClass implements
+                    @MyAnnotation(
+                        longParam = (byte) 1,
+                        longArrayParam = {(short) 3, (int) 5, 7L},
+                        longVarArgsParam = {(short) 9, (int) 11, 13L}
+                    )
+                    MyInterface {}
+                    """
                         .trimIndent(),
                 ) as Source.JavaSource,
             kotlinSource =
                 Source.kotlin(
                     "test.MyClass.kt",
                     """
-                package test
-                @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
-                annotation class MyAnnotation(
-                    val longParam: Long,
-                    val longArrayParam: LongArray,
-                    vararg val longVarArgsParam: Long,
-                )
-                interface MyInterface
-                @MyAnnotation(
-                    longParam = 1L,
-                    longArrayParam = [3L, 5L, 7L],
-                    longVarArgsParam = [9L, 11L, 13L],
-                )
-                class MyClass :
-                @MyAnnotation(
-                    longParam = 1L,
-                    longArrayParam = [3L, 5L, 7L],
-                    longVarArgsParam = [9L, 11L, 13L],
-                )
-                MyInterface
-                """
+                    package test
+                    @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
+                    annotation class MyAnnotation(
+                        val longParam: Long,
+                        val longArrayParam: LongArray,
+                        vararg val longVarArgsParam: Long,
+                    )
+                    interface MyInterface
+                    @MyAnnotation(
+                        longParam = 1L,
+                        longArrayParam = [3L, 5L, 7L],
+                        longVarArgsParam = [9L, 11L, 13L],
+                    )
+                    class MyClass :
+                    @MyAnnotation(
+                        longParam = 1L,
+                        longArrayParam = [3L, 5L, 7L],
+                        longVarArgsParam = [9L, 11L, 13L],
+                    )
+                    MyInterface
+                    """
                         .trimIndent(),
                 ) as Source.KotlinSource,
         ) { invocation ->
@@ -600,56 +600,56 @@ class XAnnotationValueTest(
                 Source.java(
                     "test.MyClass",
                     """
-                package test;
-                import java.lang.annotation.ElementType;
-                import java.lang.annotation.Target;
-                @Target({ElementType.TYPE, ElementType.TYPE_USE})
-                @interface MyAnnotation {
-                    float floatParam();
-                    float[] floatArrayParam();
-                    float[] floatVarArgsParam(); // There's no varargs in java so use array
-                }
-                interface MyInterface {}
-                @MyAnnotation(
-                    floatParam = (byte) 1,
-                    floatArrayParam = {(short) 3, 5.1F, 7.1F},
-                    floatVarArgsParam = {9, 11.1F, 13.1F}
-                )
-                class MyClass implements
-                @MyAnnotation(
-                    floatParam = (byte) 1,
-                    floatArrayParam = {(short) 3, 5.1F, 7.1F},
-                    floatVarArgsParam = {9, 11.1F, 13.1F}
-                )
-                MyInterface {}
-                """
+                    package test;
+                    import java.lang.annotation.ElementType;
+                    import java.lang.annotation.Target;
+                    @Target({ElementType.TYPE, ElementType.TYPE_USE})
+                    @interface MyAnnotation {
+                        float floatParam();
+                        float[] floatArrayParam();
+                        float[] floatVarArgsParam(); // There's no varargs in java so use array
+                    }
+                    interface MyInterface {}
+                    @MyAnnotation(
+                        floatParam = (byte) 1,
+                        floatArrayParam = {(short) 3, 5.1F, 7.1F},
+                        floatVarArgsParam = {9, 11.1F, 13.1F}
+                    )
+                    class MyClass implements
+                    @MyAnnotation(
+                        floatParam = (byte) 1,
+                        floatArrayParam = {(short) 3, 5.1F, 7.1F},
+                        floatVarArgsParam = {9, 11.1F, 13.1F}
+                    )
+                    MyInterface {}
+                    """
                         .trimIndent(),
                 ) as Source.JavaSource,
             kotlinSource =
                 Source.kotlin(
                     "test.MyClass.kt",
                     """
-                package test
-                @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
-                annotation class MyAnnotation(
-                    val floatParam: Float,
-                    val floatArrayParam: FloatArray,
-                    vararg val floatVarArgsParam: Float,
-                )
-                interface MyInterface
-                @MyAnnotation(
-                    floatParam = 1F,
-                    floatArrayParam = [3F, 5.1F, 7.1F],
-                    floatVarArgsParam = [9F, 11.1F, 13.1F],
-                )
-                class MyClass :
-                @MyAnnotation(
-                    floatParam = 1F,
-                    floatArrayParam = [3F, 5.1F, 7.1F],
-                    floatVarArgsParam = [9F, 11.1F, 13.1F],
-                )
-                MyInterface
-                """
+                    package test
+                    @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
+                    annotation class MyAnnotation(
+                        val floatParam: Float,
+                        val floatArrayParam: FloatArray,
+                        vararg val floatVarArgsParam: Float,
+                    )
+                    interface MyInterface
+                    @MyAnnotation(
+                        floatParam = 1F,
+                        floatArrayParam = [3F, 5.1F, 7.1F],
+                        floatVarArgsParam = [9F, 11.1F, 13.1F],
+                    )
+                    class MyClass :
+                    @MyAnnotation(
+                        floatParam = 1F,
+                        floatArrayParam = [3F, 5.1F, 7.1F],
+                        floatVarArgsParam = [9F, 11.1F, 13.1F],
+                    )
+                    MyInterface
+                    """
                         .trimIndent(),
                 ) as Source.KotlinSource,
         ) { invocation ->
@@ -711,56 +711,56 @@ class XAnnotationValueTest(
                 Source.java(
                     "test.MyClass",
                     """
-                package test;
-                import java.lang.annotation.ElementType;
-                import java.lang.annotation.Target;
-                @Target({ElementType.TYPE, ElementType.TYPE_USE})
-                @interface MyAnnotation {
-                    double doubleParam();
-                    double[] doubleArrayParam();
-                    double[] doubleVarArgsParam(); // There's no varargs in java so use array
-                }
-                interface MyInterface {}
-                @MyAnnotation(
-                    doubleParam = (byte) 1,
-                    doubleArrayParam = {(short) 3, 5.1F, 7.1},
-                    doubleVarArgsParam = {9, 11.1F, 13.1}
-                )
-                class MyClass implements
-                @MyAnnotation(
-                    doubleParam = (byte) 1,
-                    doubleArrayParam = {(short) 3, 5.1F, 7.1},
-                    doubleVarArgsParam = {9, 11.1F, 13.1}
-                )
-                MyInterface {}
-                """
+                    package test;
+                    import java.lang.annotation.ElementType;
+                    import java.lang.annotation.Target;
+                    @Target({ElementType.TYPE, ElementType.TYPE_USE})
+                    @interface MyAnnotation {
+                        double doubleParam();
+                        double[] doubleArrayParam();
+                        double[] doubleVarArgsParam(); // There's no varargs in java so use array
+                    }
+                    interface MyInterface {}
+                    @MyAnnotation(
+                        doubleParam = (byte) 1,
+                        doubleArrayParam = {(short) 3, 5.1F, 7.1},
+                        doubleVarArgsParam = {9, 11.1F, 13.1}
+                    )
+                    class MyClass implements
+                    @MyAnnotation(
+                        doubleParam = (byte) 1,
+                        doubleArrayParam = {(short) 3, 5.1F, 7.1},
+                        doubleVarArgsParam = {9, 11.1F, 13.1}
+                    )
+                    MyInterface {}
+                    """
                         .trimIndent(),
                 ) as Source.JavaSource,
             kotlinSource =
                 Source.kotlin(
                     "test.MyClass.kt",
                     """
-                package test
-                @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
-                annotation class MyAnnotation(
-                    val doubleParam: Double,
-                    val doubleArrayParam: DoubleArray,
-                    vararg val doubleVarArgsParam: Double,
-                )
-                interface MyInterface
-                @MyAnnotation(
-                    doubleParam = 1.0,
-                    doubleArrayParam = [3.0, 5.1, 7.1],
-                    doubleVarArgsParam = [9.0, 11.1, 13.1],
-                )
-                class MyClass :
-                @MyAnnotation(
-                    doubleParam = 1.0,
-                    doubleArrayParam = [3.0, 5.1, 7.1],
-                    doubleVarArgsParam = [9.0, 11.1, 13.1],
-                )
-                MyInterface
-                """
+                    package test
+                    @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
+                    annotation class MyAnnotation(
+                        val doubleParam: Double,
+                        val doubleArrayParam: DoubleArray,
+                        vararg val doubleVarArgsParam: Double,
+                    )
+                    interface MyInterface
+                    @MyAnnotation(
+                        doubleParam = 1.0,
+                        doubleArrayParam = [3.0, 5.1, 7.1],
+                        doubleVarArgsParam = [9.0, 11.1, 13.1],
+                    )
+                    class MyClass :
+                    @MyAnnotation(
+                        doubleParam = 1.0,
+                        doubleArrayParam = [3.0, 5.1, 7.1],
+                        doubleVarArgsParam = [9.0, 11.1, 13.1],
+                    )
+                    MyInterface
+                    """
                         .trimIndent(),
                 ) as Source.KotlinSource,
         ) { invocation ->
@@ -855,56 +855,56 @@ class XAnnotationValueTest(
                 Source.java(
                     "test.MyClass",
                     """
-                package test;
-                import java.lang.annotation.ElementType;
-                import java.lang.annotation.Target;
-                @Target({ElementType.TYPE, ElementType.TYPE_USE})
-                @interface MyAnnotation {
-                    byte byteParam();
-                    byte[] byteArrayParam();
-                    byte[] byteVarArgsParam(); // There's no varargs in java so use array
-                }
-                interface MyInterface {}
-                @MyAnnotation(
-                    byteParam = (byte) 1,
-                    byteArrayParam = {(byte) 3, (byte) 5, (byte) 7},
-                    byteVarArgsParam = {(byte) 9, (byte) 11, (byte) 13}
-                )
-                class MyClass implements
-                @MyAnnotation(
-                    byteParam = (byte) 1,
-                    byteArrayParam = {(byte) 3, (byte) 5, (byte) 7},
-                    byteVarArgsParam = {(byte) 9, (byte) 11, (byte) 13}
-                )
-                MyInterface {}
-                """
+                    package test;
+                    import java.lang.annotation.ElementType;
+                    import java.lang.annotation.Target;
+                    @Target({ElementType.TYPE, ElementType.TYPE_USE})
+                    @interface MyAnnotation {
+                        byte byteParam();
+                        byte[] byteArrayParam();
+                        byte[] byteVarArgsParam(); // There's no varargs in java so use array
+                    }
+                    interface MyInterface {}
+                    @MyAnnotation(
+                        byteParam = (byte) 1,
+                        byteArrayParam = {(byte) 3, (byte) 5, (byte) 7},
+                        byteVarArgsParam = {(byte) 9, (byte) 11, (byte) 13}
+                    )
+                    class MyClass implements
+                    @MyAnnotation(
+                        byteParam = (byte) 1,
+                        byteArrayParam = {(byte) 3, (byte) 5, (byte) 7},
+                        byteVarArgsParam = {(byte) 9, (byte) 11, (byte) 13}
+                    )
+                    MyInterface {}
+                    """
                         .trimIndent(),
                 ) as Source.JavaSource,
             kotlinSource =
                 Source.kotlin(
                     "test.MyClass.kt",
                     """
-                package test
-                @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
-                annotation class MyAnnotation(
-                    val byteParam: Byte,
-                    val byteArrayParam: ByteArray,
-                    vararg val byteVarArgsParam: Byte,
-                )
-                interface MyInterface
-                @MyAnnotation(
-                    byteParam = 1,
-                    byteArrayParam = [3, 5, 7],
-                    byteVarArgsParam = [9, 11, 13],
-                )
-                class MyClass :
-                @MyAnnotation(
-                    byteParam = 1,
-                    byteArrayParam = [3, 5, 7],
-                    byteVarArgsParam = [9, 11, 13],
-                )
-                MyInterface
-                """
+                    package test
+                    @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
+                    annotation class MyAnnotation(
+                        val byteParam: Byte,
+                        val byteArrayParam: ByteArray,
+                        vararg val byteVarArgsParam: Byte,
+                    )
+                    interface MyInterface
+                    @MyAnnotation(
+                        byteParam = 1,
+                        byteArrayParam = [3, 5, 7],
+                        byteVarArgsParam = [9, 11, 13],
+                    )
+                    class MyClass :
+                    @MyAnnotation(
+                        byteParam = 1,
+                        byteArrayParam = [3, 5, 7],
+                        byteVarArgsParam = [9, 11, 13],
+                    )
+                    MyInterface
+                    """
                         .trimIndent(),
                 ) as Source.KotlinSource,
         ) { invocation ->
@@ -966,56 +966,56 @@ class XAnnotationValueTest(
                 Source.java(
                     "test.MyClass",
                     """
-                package test;
-                import java.lang.annotation.ElementType;
-                import java.lang.annotation.Target;
-                @Target({ElementType.TYPE, ElementType.TYPE_USE})
-                @interface MyAnnotation {
-                    char charParam();
-                    char[] charArrayParam();
-                    char[] charVarArgsParam(); // There's no varargs in java so use array
-                }
-                interface MyInterface {}
-                @MyAnnotation(
-                    charParam = '1',
-                    charArrayParam = {'2', '3', '4'},
-                    charVarArgsParam = {'5', '6', '7'}
-                )
-                class MyClass implements
-                @MyAnnotation(
-                    charParam = '1',
-                    charArrayParam = {'2', '3', '4'},
-                    charVarArgsParam = {'5', '6', '7'}
-                )
-                MyInterface {}
-                """
+                    package test;
+                    import java.lang.annotation.ElementType;
+                    import java.lang.annotation.Target;
+                    @Target({ElementType.TYPE, ElementType.TYPE_USE})
+                    @interface MyAnnotation {
+                        char charParam();
+                        char[] charArrayParam();
+                        char[] charVarArgsParam(); // There's no varargs in java so use array
+                    }
+                    interface MyInterface {}
+                    @MyAnnotation(
+                        charParam = '1',
+                        charArrayParam = {'2', '3', '4'},
+                        charVarArgsParam = {'5', '6', '7'}
+                    )
+                    class MyClass implements
+                    @MyAnnotation(
+                        charParam = '1',
+                        charArrayParam = {'2', '3', '4'},
+                        charVarArgsParam = {'5', '6', '7'}
+                    )
+                    MyInterface {}
+                    """
                         .trimIndent(),
                 ) as Source.JavaSource,
             kotlinSource =
                 Source.kotlin(
                     "test.MyClass.kt",
                     """
-                package test
-                @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
-                annotation class MyAnnotation(
-                    val charParam: Char,
-                    val charArrayParam: CharArray,
-                    vararg val charVarArgsParam: Char,
-                )
-                interface MyInterface
-                @MyAnnotation(
-                    charParam = '1',
-                    charArrayParam = ['2', '3', '4'],
-                    charVarArgsParam = ['5', '6', '7'],
-                )
-                class MyClass :
-                @MyAnnotation(
-                    charParam = '1',
-                    charArrayParam = ['2', '3', '4'],
-                    charVarArgsParam = ['5', '6', '7'],
-                )
-                MyInterface
-                """
+                    package test
+                    @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
+                    annotation class MyAnnotation(
+                        val charParam: Char,
+                        val charArrayParam: CharArray,
+                        vararg val charVarArgsParam: Char,
+                    )
+                    interface MyInterface
+                    @MyAnnotation(
+                        charParam = '1',
+                        charArrayParam = ['2', '3', '4'],
+                        charVarArgsParam = ['5', '6', '7'],
+                    )
+                    class MyClass :
+                    @MyAnnotation(
+                        charParam = '1',
+                        charArrayParam = ['2', '3', '4'],
+                        charVarArgsParam = ['5', '6', '7'],
+                    )
+                    MyInterface
+                    """
                         .trimIndent(),
                 ) as Source.KotlinSource,
         ) { invocation ->
@@ -1077,58 +1077,58 @@ class XAnnotationValueTest(
                 Source.java(
                     "test.MyClass",
                     """
-                package test;
-                import java.lang.annotation.ElementType;
-                import java.lang.annotation.Target;
-                @Target({ElementType.TYPE, ElementType.TYPE_USE})
-                @interface MyAnnotation {
-                    String stringParam();
-                    String stringParam2() default "2";
-                    String[] stringArrayParam();
-                    String[] stringVarArgsParam(); // There's no varargs in java so use array
-                }
-                interface MyInterface {}
-                @MyAnnotation(
-                    stringParam = "1",
-                    stringArrayParam = {"3", "5", "7"},
-                    stringVarArgsParam = {"9", "11", "13"}
-                )
-                class MyClass implements
-                @MyAnnotation(
-                    stringParam = "1",
-                    stringArrayParam = {"3", "5", "7"},
-                    stringVarArgsParam = {"9", "11", "13"}
-                )
-                MyInterface {}
-                """
+                    package test;
+                    import java.lang.annotation.ElementType;
+                    import java.lang.annotation.Target;
+                    @Target({ElementType.TYPE, ElementType.TYPE_USE})
+                    @interface MyAnnotation {
+                        String stringParam();
+                        String stringParam2() default "2";
+                        String[] stringArrayParam();
+                        String[] stringVarArgsParam(); // There's no varargs in java so use array
+                    }
+                    interface MyInterface {}
+                    @MyAnnotation(
+                        stringParam = "1",
+                        stringArrayParam = {"3", "5", "7"},
+                        stringVarArgsParam = {"9", "11", "13"}
+                    )
+                    class MyClass implements
+                    @MyAnnotation(
+                        stringParam = "1",
+                        stringArrayParam = {"3", "5", "7"},
+                        stringVarArgsParam = {"9", "11", "13"}
+                    )
+                    MyInterface {}
+                    """
                         .trimIndent(),
                 ) as Source.JavaSource,
             kotlinSource =
                 Source.kotlin(
                     "test.MyClass.kt",
                     """
-                package test
-                @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
-                annotation class MyAnnotation(
-                    val stringParam: String,
-                    val stringParam2: String = "2",
-                    val stringArrayParam: Array<String>,
-                    vararg val stringVarArgsParam: String,
-                )
-                interface MyInterface
-                @MyAnnotation(
-                    stringParam = "1",
-                    stringArrayParam = ["3", "5", "7"],
-                    stringVarArgsParam = ["9", "11", "13"],
-                )
-                class MyClass :
-                @MyAnnotation(
-                    stringParam = "1",
-                    stringArrayParam = ["3", "5", "7"],
-                    stringVarArgsParam = ["9", "11", "13"],
-                )
-                MyInterface
-                """
+                    package test
+                    @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
+                    annotation class MyAnnotation(
+                        val stringParam: String,
+                        val stringParam2: String = "2",
+                        val stringArrayParam: Array<String>,
+                        vararg val stringVarArgsParam: String,
+                    )
+                    interface MyInterface
+                    @MyAnnotation(
+                        stringParam = "1",
+                        stringArrayParam = ["3", "5", "7"],
+                        stringVarArgsParam = ["9", "11", "13"],
+                    )
+                    class MyClass :
+                    @MyAnnotation(
+                        stringParam = "1",
+                        stringArrayParam = ["3", "5", "7"],
+                        stringVarArgsParam = ["9", "11", "13"],
+                    )
+                    MyInterface
+                    """
                         .trimIndent(),
                 ) as Source.KotlinSource,
         ) { invocation ->
@@ -1208,58 +1208,58 @@ class XAnnotationValueTest(
                 Source.java(
                     "test.MyClass",
                     """
-                package test;
-                import java.lang.annotation.ElementType;
-                import java.lang.annotation.Target;
-                enum MyEnum {V1, V2, V3}
-                @Target({ElementType.TYPE, ElementType.TYPE_USE})
-                @interface MyAnnotation {
-                    MyEnum enumParam();
-                    MyEnum[] enumArrayParam();
-                    MyEnum[] enumVarArgsParam(); // There's no varargs in java so use array
-                }
-                interface MyInterface {}
-                @MyAnnotation(
-                    enumParam = MyEnum.V1,
-                    enumArrayParam = {MyEnum.V1, MyEnum.V2, MyEnum.V3},
-                    enumVarArgsParam = {MyEnum.V3, MyEnum.V2, MyEnum.V1}
-                )
-                class MyClass implements
-                @MyAnnotation(
-                    enumParam = MyEnum.V1,
-                    enumArrayParam = {MyEnum.V1, MyEnum.V2, MyEnum.V3},
-                    enumVarArgsParam = {MyEnum.V3, MyEnum.V2, MyEnum.V1}
-                )
-                MyInterface {}
-                """
+                    package test;
+                    import java.lang.annotation.ElementType;
+                    import java.lang.annotation.Target;
+                    enum MyEnum {V1, V2, V3}
+                    @Target({ElementType.TYPE, ElementType.TYPE_USE})
+                    @interface MyAnnotation {
+                        MyEnum enumParam();
+                        MyEnum[] enumArrayParam();
+                        MyEnum[] enumVarArgsParam(); // There's no varargs in java so use array
+                    }
+                    interface MyInterface {}
+                    @MyAnnotation(
+                        enumParam = MyEnum.V1,
+                        enumArrayParam = {MyEnum.V1, MyEnum.V2, MyEnum.V3},
+                        enumVarArgsParam = {MyEnum.V3, MyEnum.V2, MyEnum.V1}
+                    )
+                    class MyClass implements
+                    @MyAnnotation(
+                        enumParam = MyEnum.V1,
+                        enumArrayParam = {MyEnum.V1, MyEnum.V2, MyEnum.V3},
+                        enumVarArgsParam = {MyEnum.V3, MyEnum.V2, MyEnum.V1}
+                    )
+                    MyInterface {}
+                    """
                         .trimIndent(),
                 ) as Source.JavaSource,
             kotlinSource =
                 Source.kotlin(
                     "test.MyClass.kt",
                     """
-                package test
-                enum class MyEnum {V1, V2, V3}
-                @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
-                annotation class MyAnnotation(
-                    val enumParam: MyEnum,
-                    val enumArrayParam: Array<MyEnum>,
-                    vararg val enumVarArgsParam: MyEnum,
-                )
-                interface MyInterface
-                @MyAnnotation(
-                    enumParam = MyEnum.V1,
-                    enumArrayParam = [MyEnum.V1, MyEnum.V2, MyEnum.V3],
-                    enumVarArgsParam = [MyEnum.V3, MyEnum.V2, MyEnum.V1],
-                )
-                class MyClass :
-                @MyAnnotation(
-                    enumParam = MyEnum.V1,
-                    enumArrayParam = [MyEnum.V1, MyEnum.V2, MyEnum.V3],
-                    enumVarArgsParam = [MyEnum.V3, MyEnum.V2, MyEnum.V1],
-                )
-                MyInterface
-                """
+                    package test
+                    enum class MyEnum {V1, V2, V3}
+                    @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
+                    annotation class MyAnnotation(
+                        val enumParam: MyEnum,
+                        val enumArrayParam: Array<MyEnum>,
+                        vararg val enumVarArgsParam: MyEnum,
+                    )
+                    interface MyInterface
+                    @MyAnnotation(
+                        enumParam = MyEnum.V1,
+                        enumArrayParam = [MyEnum.V1, MyEnum.V2, MyEnum.V3],
+                        enumVarArgsParam = [MyEnum.V3, MyEnum.V2, MyEnum.V1],
+                    )
+                    class MyClass :
+                    @MyAnnotation(
+                        enumParam = MyEnum.V1,
+                        enumArrayParam = [MyEnum.V1, MyEnum.V2, MyEnum.V3],
+                        enumVarArgsParam = [MyEnum.V3, MyEnum.V2, MyEnum.V1],
+                    )
+                    MyInterface
+                    """
                         .trimIndent(),
                 ) as Source.KotlinSource,
         ) { invocation ->
@@ -1335,62 +1335,62 @@ class XAnnotationValueTest(
                 Source.java(
                     "test.MyClass",
                     """
-                package test;
-                import java.lang.annotation.ElementType;
-                import java.lang.annotation.Target;
-                class C1 {}
-                class C2 {}
-                class C3 {}
-                @Target({ElementType.TYPE, ElementType.TYPE_USE})
-                @interface MyAnnotation {
-                    Class<?> typeParam();
-                    Class<?>[] typeArrayParam();
-                    Class<?>[] typeVarArgsParam(); // There's no varargs in java so use array
-                }
-                interface MyInterface {}
-                @MyAnnotation(
-                    typeParam = C1.class,
-                    typeArrayParam = {C1.class, C2.class, C3.class},
-                    typeVarArgsParam = {C3.class, C2.class, C1.class}
-                )
-                class MyClass implements
-                @MyAnnotation(
-                    typeParam = C1.class,
-                    typeArrayParam = {C1.class, C2.class, C3.class},
-                    typeVarArgsParam = {C3.class, C2.class, C1.class}
-                )
-                MyInterface {}
-                """
+                    package test;
+                    import java.lang.annotation.ElementType;
+                    import java.lang.annotation.Target;
+                    class C1 {}
+                    class C2 {}
+                    class C3 {}
+                    @Target({ElementType.TYPE, ElementType.TYPE_USE})
+                    @interface MyAnnotation {
+                        Class<?> typeParam();
+                        Class<?>[] typeArrayParam();
+                        Class<?>[] typeVarArgsParam(); // There's no varargs in java so use array
+                    }
+                    interface MyInterface {}
+                    @MyAnnotation(
+                        typeParam = C1.class,
+                        typeArrayParam = {C1.class, C2.class, C3.class},
+                        typeVarArgsParam = {C3.class, C2.class, C1.class}
+                    )
+                    class MyClass implements
+                    @MyAnnotation(
+                        typeParam = C1.class,
+                        typeArrayParam = {C1.class, C2.class, C3.class},
+                        typeVarArgsParam = {C3.class, C2.class, C1.class}
+                    )
+                    MyInterface {}
+                    """
                         .trimIndent(),
                 ) as Source.JavaSource,
             kotlinSource =
                 Source.kotlin(
                     "test.MyClass.kt",
                     """
-                package test
-                class C1
-                class C2
-                class C3
-                @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
-                annotation class MyAnnotation(
-                    val typeParam: kotlin.reflect.KClass<*>,
-                    val typeArrayParam: Array<kotlin.reflect.KClass<*>>,
-                    vararg val typeVarArgsParam: kotlin.reflect.KClass<*>,
-                )
-                interface MyInterface
-                @MyAnnotation(
-                    typeParam = C1::class,
-                    typeArrayParam = [C1::class, C2::class, C3::class],
-                    typeVarArgsParam = [C3::class, C2::class, C1::class],
-                )
-                class MyClass :
-                @MyAnnotation(
-                    typeParam = C1::class,
-                    typeArrayParam = [C1::class, C2::class, C3::class],
-                    typeVarArgsParam = [C3::class, C2::class, C1::class],
-                )
-                MyInterface
-                """
+                    package test
+                    class C1
+                    class C2
+                    class C3
+                    @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
+                    annotation class MyAnnotation(
+                        val typeParam: kotlin.reflect.KClass<*>,
+                        val typeArrayParam: Array<kotlin.reflect.KClass<*>>,
+                        vararg val typeVarArgsParam: kotlin.reflect.KClass<*>,
+                    )
+                    interface MyInterface
+                    @MyAnnotation(
+                        typeParam = C1::class,
+                        typeArrayParam = [C1::class, C2::class, C3::class],
+                        typeVarArgsParam = [C3::class, C2::class, C1::class],
+                    )
+                    class MyClass :
+                    @MyAnnotation(
+                        typeParam = C1::class,
+                        typeArrayParam = [C1::class, C2::class, C3::class],
+                        typeVarArgsParam = [C3::class, C2::class, C1::class],
+                    )
+                    MyInterface
+                    """
                         .trimIndent(),
                 ) as Source.KotlinSource,
         ) { invocation ->
@@ -1483,36 +1483,36 @@ class XAnnotationValueTest(
                 Source.java(
                     "test.MyClass",
                     """
-                package test;
-                import java.lang.annotation.ElementType;
-                import java.lang.annotation.Target;
-                @Target({ElementType.TYPE, ElementType.TYPE_USE})
-                @interface MyAnnotation {
-                    String stringParam() default "1";
-                    String stringParam2() default "1";
-                    String[] stringArrayParam() default {"3", "5", "7"};
-                }
-                interface MyInterface {}
-                @MyAnnotation(stringParam = "2") class MyClass implements
-                        @MyAnnotation(stringParam = "2") MyInterface {}
-                """
+                    package test;
+                    import java.lang.annotation.ElementType;
+                    import java.lang.annotation.Target;
+                    @Target({ElementType.TYPE, ElementType.TYPE_USE})
+                    @interface MyAnnotation {
+                        String stringParam() default "1";
+                        String stringParam2() default "1";
+                        String[] stringArrayParam() default {"3", "5", "7"};
+                    }
+                    interface MyInterface {}
+                    @MyAnnotation(stringParam = "2") class MyClass implements
+                            @MyAnnotation(stringParam = "2") MyInterface {}
+                    """
                         .trimIndent(),
                 ) as Source.JavaSource,
             kotlinSource =
                 Source.kotlin(
                     "test.MyClass.kt",
                     """
-                package test
-                @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
-                annotation class MyAnnotation(
-                    val stringParam: String = "1",
-                    val stringParam2: String = "1",
-                    val stringArrayParam: Array<String> = ["3", "5", "7"]
-                )
-                interface MyInterface
-                @MyAnnotation(stringParam = "2") class MyClass :
-                        @MyAnnotation(stringParam = "2") MyInterface
-                """
+                    package test
+                    @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
+                    annotation class MyAnnotation(
+                        val stringParam: String = "1",
+                        val stringParam2: String = "1",
+                        val stringArrayParam: Array<String> = ["3", "5", "7"]
+                    )
+                    interface MyInterface
+                    @MyAnnotation(stringParam = "2") class MyClass :
+                            @MyAnnotation(stringParam = "2") MyInterface
+                    """
                         .trimIndent(),
                 ) as Source.KotlinSource,
         ) { invocation ->
@@ -1562,60 +1562,60 @@ class XAnnotationValueTest(
                 Source.java(
                     "test.MyClass",
                     """
-                package test;
-                import java.lang.annotation.ElementType;
-                import java.lang.annotation.Target;
-                @interface A {
-                    String value();
-                }
-                @Target({ElementType.TYPE, ElementType.TYPE_USE})
-                @interface MyAnnotation {
-                    A annotationParam();
-                    A[] annotationArrayParam();
-                    A[] annotationVarArgsParam(); // There's no varargs in java so use array
-                }
-                interface MyInterface {}
-                @MyAnnotation(
-                    annotationParam = @A("1"),
-                    annotationArrayParam = {@A("3"), @A("5"), @A("7")},
-                    annotationVarArgsParam = {@A("9"), @A("11"), @A("13")}
-                )
-                class MyClass implements
-                @MyAnnotation(
-                    annotationParam = @A("1"),
-                    annotationArrayParam = {@A("3"), @A("5"), @A("7")},
-                    annotationVarArgsParam = {@A("9"), @A("11"), @A("13")}
-                )
-                MyInterface {}
-                """
+                    package test;
+                    import java.lang.annotation.ElementType;
+                    import java.lang.annotation.Target;
+                    @interface A {
+                        String value();
+                    }
+                    @Target({ElementType.TYPE, ElementType.TYPE_USE})
+                    @interface MyAnnotation {
+                        A annotationParam();
+                        A[] annotationArrayParam();
+                        A[] annotationVarArgsParam(); // There's no varargs in java so use array
+                    }
+                    interface MyInterface {}
+                    @MyAnnotation(
+                        annotationParam = @A("1"),
+                        annotationArrayParam = {@A("3"), @A("5"), @A("7")},
+                        annotationVarArgsParam = {@A("9"), @A("11"), @A("13")}
+                    )
+                    class MyClass implements
+                    @MyAnnotation(
+                        annotationParam = @A("1"),
+                        annotationArrayParam = {@A("3"), @A("5"), @A("7")},
+                        annotationVarArgsParam = {@A("9"), @A("11"), @A("13")}
+                    )
+                    MyInterface {}
+                    """
                         .trimIndent(),
                 ) as Source.JavaSource,
             kotlinSource =
                 Source.kotlin(
                     "test.MyClass.kt",
                     """
-                package test
-                annotation class A(val value: String)
-                @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
-                annotation class MyAnnotation(
-                    val annotationParam: A,
-                    val annotationArrayParam: Array<A>,
-                    vararg val annotationVarArgsParam: A,
-                )
-                interface MyInterface
-                @MyAnnotation(
-                    annotationParam = A("1"),
-                    annotationArrayParam = [A("3"), A("5"), A("7")],
-                    annotationVarArgsParam = [A("9"), A("11"), A("13")],
-                )
-                class MyClass :
-                @MyAnnotation(
-                    annotationParam = A("1"),
-                    annotationArrayParam = [A("3"), A("5"), A("7")],
-                    annotationVarArgsParam = [A("9"), A("11"), A("13")],
-                )
-                MyInterface
-                """
+                    package test
+                    annotation class A(val value: String)
+                    @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
+                    annotation class MyAnnotation(
+                        val annotationParam: A,
+                        val annotationArrayParam: Array<A>,
+                        vararg val annotationVarArgsParam: A,
+                    )
+                    interface MyInterface
+                    @MyAnnotation(
+                        annotationParam = A("1"),
+                        annotationArrayParam = [A("3"), A("5"), A("7")],
+                        annotationVarArgsParam = [A("9"), A("11"), A("13")],
+                    )
+                    class MyClass :
+                    @MyAnnotation(
+                        annotationParam = A("1"),
+                        annotationArrayParam = [A("3"), A("5"), A("7")],
+                        annotationVarArgsParam = [A("9"), A("11"), A("13")],
+                    )
+                    MyInterface
+                    """
                         .trimIndent(),
                 ) as Source.KotlinSource,
         ) { invocation ->

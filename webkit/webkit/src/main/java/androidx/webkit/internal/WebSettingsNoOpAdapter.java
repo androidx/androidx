@@ -19,7 +19,6 @@ package androidx.webkit.internal;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
-import androidx.webkit.BackForwardCacheSettings;
 import androidx.webkit.UserAgentMetadata;
 import androidx.webkit.WebSettingsCompat;
 import androidx.webkit.WebViewMediaIntegrityApiStatusConfig;
@@ -311,24 +310,28 @@ public class WebSettingsNoOpAdapter extends WebSettingsAdapter {
      * {@link androidx.webkit.WebSettingsCompat#setHyperlinkContextMenuItems(WebSettings, int)}
      */
     @Override
-    public void setHyperlinkContextMenuItems(int hyperlinkMenuItems) {}
-
-    /**
-     * {@link androidx.webkit.WebSettingsCompat#getBackForwardCacheSettings(WebSettings)}
-     */
-    @WebSettingsCompat.ExperimentalBackForwardCacheSettings
-    @Override
-    public @NonNull BackForwardCacheSettings getBackForwardCacheSettings() {
-        return new BackForwardCacheSettings.Builder().build();
+    public void setHyperlinkContextMenuItems(int hyperlinkMenuItems) {
     }
 
-    /**
-     * Adapter method for
-     * {@link androidx.webkit.WebSettingsCompat#setBackForwardCacheSettings(WebSettings, BackForwardCacheSettings)}
-     */
     @WebSettingsCompat.ExperimentalBackForwardCacheSettings
     @Override
-    public void setBackForwardCacheSettings(@NonNull BackForwardCacheSettings settings) {
+    public void setBackForwardCacheTimeoutSeconds(long timeout) {
     }
 
+    @WebSettingsCompat.ExperimentalBackForwardCacheSettings
+    @Override
+    public void setBackForwardCacheMaxPagesInCache(int maxPages) {
+    }
+
+    @WebSettingsCompat.ExperimentalBackForwardCacheSettings
+    @Override
+    public long getBackForwardCacheTimeoutSeconds() {
+        return 0;
+    }
+
+    @WebSettingsCompat.ExperimentalBackForwardCacheSettings
+    @Override
+    public int getBackForwardCacheMaxPagesInCache() {
+        return 0;
+    }
 }

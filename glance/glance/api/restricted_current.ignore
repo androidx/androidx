@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.glance.text.TextStyle#TextStyle():
+    Binary breaking change: Removed constructor androidx.glance.text.TextStyle()

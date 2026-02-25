@@ -17,7 +17,7 @@
 package androidx.xr.arcore.projected
 
 import android.app.Activity
-import androidx.xr.runtime.internal.Feature
+import androidx.xr.runtime.interfaces.Feature
 import com.google.common.truth.Truth.assertThat
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.test.runTest

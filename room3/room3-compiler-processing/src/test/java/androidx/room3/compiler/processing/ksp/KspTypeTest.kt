@@ -57,12 +57,12 @@ class KspTypeTest {
             Source.kotlin(
                 "foo.kt",
                 """
-            package foo.bar
-            class Baz : AbstractClass(), MyInterface {
-            }
-            abstract class AbstractClass {}
-            interface MyInterface {}
-            """
+                package foo.bar
+                class Baz : AbstractClass(), MyInterface {
+                }
+                abstract class AbstractClass {}
+                interface MyInterface {}
+                """
                     .trimIndent(),
             )
         runProcessorTest(listOf(src)) {
@@ -85,12 +85,12 @@ class KspTypeTest {
             Source.java(
                 "Subject",
                 """
-            public class Subject {
-                public Integer method() {
-                    return 0;
+                public class Subject {
+                    public Integer method() {
+                        return 0;
+                    }
                 }
-            }
-            """
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) {
@@ -141,11 +141,11 @@ class KspTypeTest {
             Source.kotlin(
                 "foo.kt",
                 """
-            class Subject {
-                val errorType : IDontExist = TODO()
-                val listOfErrorType : List<IDontExist> = TODO()
-            }
-            """
+                class Subject {
+                    val errorType : IDontExist = TODO()
+                    val listOfErrorType : List<IDontExist> = TODO()
+                }
+                """
                     .trimIndent(),
             )
         runProcessorTest(
@@ -180,11 +180,11 @@ class KspTypeTest {
             Source.kotlin(
                 "foo.kt",
                 """
-            class Subject {
-                val listOfNullableStrings : List<String?> = TODO()
-                val listOfInts : List<Int> = TODO()
-            }
-            """
+                class Subject {
+                    val listOfNullableStrings : List<String?> = TODO()
+                    val listOfInts : List<Int> = TODO()
+                }
+                """
                     .trimIndent(),
             )
         runProcessorTest(listOf(src)) { invocation ->
@@ -228,15 +228,15 @@ class KspTypeTest {
             Source.kotlin(
                 "foo.kt",
                 """
-            class Subject {
-                val listOfNullableStrings : List<String?> = TODO()
-                val listOfNullableStrings_2 : List<String?> = TODO()
-                val listOfNonNullStrings : List<String> = TODO()
-                val listOfNonNullStrings_2 : List<String> = TODO()
-                val nullableString : String? = TODO()
-                val nonNullString : String = TODO()
-            }
-            """
+                class Subject {
+                    val listOfNullableStrings : List<String?> = TODO()
+                    val listOfNullableStrings_2 : List<String?> = TODO()
+                    val listOfNonNullStrings : List<String> = TODO()
+                    val listOfNonNullStrings_2 : List<String> = TODO()
+                    val nullableString : String? = TODO()
+                    val nonNullString : String = TODO()
+                }
+                """
                     .trimIndent(),
             )
         // run with javac when JavacType implements equality via isSameType instead of object
@@ -269,13 +269,13 @@ class KspTypeTest {
             Source.kotlin(
                 "foo.kt",
                 """
-            class Subject {
-                val simple : Int = 0
-                val list : List<String> = TODO()
-                val map : Map<String, String> = TODO()
-                val listOfMaps : List<Map<String, String>> = TODO()
-            }
-            """
+                class Subject {
+                    val simple : Int = 0
+                    val list : List<String> = TODO()
+                    val map : Map<String, String> = TODO()
+                    val listOfMaps : List<Map<String, String>> = TODO()
+                }
+                """
                     .trimIndent(),
             )
         runProcessorTest(listOf(src)) { invocation ->
@@ -306,12 +306,12 @@ class KspTypeTest {
             Source.java(
                 "foo.bar.Baz",
                 """
-            package foo.bar;
-            public class Baz {
-                void voidMethod() {
+                package foo.bar;
+                public class Baz {
+                    void voidMethod() {
+                    }
                 }
-            }
-            """
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
@@ -334,17 +334,17 @@ class KspTypeTest {
             Source.kotlin(
                 "foo.kt",
                 """
-            class Subject {
-                val intProp : Int = 0
-                val nullableIntProp : Int? = null
-                val longProp : Long = 0
-                val nullableLongProp : Long? = null
-                val byteProp : Byte = 0
-                val nullableByteProp :Byte? = null
-                val errorProp : IDontExist = TODO()
-                val nullableErrorProp : IDontExist? = TODO()
-            }
-            """
+                class Subject {
+                    val intProp : Int = 0
+                    val nullableIntProp : Int? = null
+                    val longProp : Long = 0
+                    val nullableLongProp : Long? = null
+                    val byteProp : Byte = 0
+                    val nullableByteProp :Byte? = null
+                    val errorProp : IDontExist = TODO()
+                    val nullableErrorProp : IDontExist? = TODO()
+                }
+                """
                     .trimIndent(),
             )
         runProcessorTest(listOf(src)) { invocation ->
@@ -379,19 +379,19 @@ class KspTypeTest {
             Source.kotlin(
                 "foo.kt",
                 """
-            class Subject {
-                val intProp : Int = 3 // kotlin default value is unrelated, will be ignored
-                val nullableIntProp : Int? = null
-                val longProp : Long = 3
-                val nullableLongProp : Long? = null
-                val floatProp = 3f
-                val byteProp : Byte = 0
-                val nullableByteProp :Byte? = null
-                val errorProp : IDontExist = TODO()
-                val nullableErrorProp : IDontExist? = TODO()
-                val stringProp : String = "abc"
-            }
-            """
+                class Subject {
+                    val intProp : Int = 3 // kotlin default value is unrelated, will be ignored
+                    val nullableIntProp : Int? = null
+                    val longProp : Long = 3
+                    val nullableLongProp : Long? = null
+                    val floatProp = 3f
+                    val byteProp : Byte = 0
+                    val nullableByteProp :Byte? = null
+                    val errorProp : IDontExist = TODO()
+                    val nullableErrorProp : IDontExist? = TODO()
+                    val stringProp : String = "abc"
+                }
+                """
                     .trimIndent(),
             )
         runProcessorTest(listOf(src)) { invocation ->
@@ -420,13 +420,13 @@ class KspTypeTest {
             Source.kotlin(
                 "foo.kt",
                 """
-            class Subject {
-                val intProp : Int = 3
-                val longProp : Long = 3
-                val stringProp : String = "abc"
-                val listProp : List<String> = TODO()
-            }
-            """
+                class Subject {
+                    val intProp : Int = 3
+                    val longProp : Long = 3
+                    val stringProp : String = "abc"
+                    val listProp : List<String> = TODO()
+                }
+                """
                     .trimIndent(),
             )
         runProcessorTest(listOf(src)) { invocation ->
@@ -446,17 +446,17 @@ class KspTypeTest {
             Source.kotlin(
                 "foo.kt",
                 """
-            class Subject {
-                val intProp : Int = 3
-                val intProp2 : Int = 4
-                val longProp : Long = 0L
-                val nullableLong : Long? = null
-                val listOfStrings1 : List<String> = TODO()
-                val listOfStrings2 : List<String> = TODO()
-                val listOfInts : List<Int> = TODO()
-                val listOfNullableStrings : List<String?> = TODO()
-            }
-            """
+                class Subject {
+                    val intProp : Int = 3
+                    val intProp2 : Int = 4
+                    val longProp : Long = 0L
+                    val nullableLong : Long? = null
+                    val listOfStrings1 : List<String> = TODO()
+                    val listOfStrings2 : List<String> = TODO()
+                    val listOfInts : List<Int> = TODO()
+                    val listOfNullableStrings : List<String?> = TODO()
+                }
+                """
                     .trimIndent(),
             )
         runProcessorTest(listOf(src)) { invocation ->
@@ -577,13 +577,13 @@ class KspTypeTest {
             Source.java(
                 "foo.bar.Baz",
                 """
-            package foo.bar;
-            import java.util.List;
-            public class Baz {
-                private void wildcardMethod(List<? extends Number> list) {
+                package foo.bar;
+                import java.util.List;
+                public class Baz {
+                    private void wildcardMethod(List<? extends Number> list) {
+                    }
                 }
-            }
-            """
+                """
                     .trimIndent(),
             )
         runProcessorTest(listOf(src)) { invocation ->
@@ -616,11 +616,11 @@ class KspTypeTest {
             Source.java(
                 "foo.bar.Baz",
                 """
-            package foo.bar;
-            class A {}
-            interface B {}
-            class Baz extends A implements B, C {}
-            """
+                package foo.bar;
+                class A {}
+                interface B {}
+                class Baz extends A implements B, C {}
+                """
                     .trimIndent(),
             )
         runKspTest(

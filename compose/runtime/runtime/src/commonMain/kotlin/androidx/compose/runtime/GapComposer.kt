@@ -29,6 +29,7 @@ import androidx.compose.runtime.collection.MultiValueMap
 import androidx.compose.runtime.collection.ScopeMap
 import androidx.compose.runtime.composer.GroupInfo
 import androidx.compose.runtime.composer.GroupKind
+import androidx.compose.runtime.composer.RememberManager
 import androidx.compose.runtime.composer.gapbuffer.GapAnchor
 import androidx.compose.runtime.composer.gapbuffer.KeyInfo
 import androidx.compose.runtime.composer.gapbuffer.SlotReader
@@ -39,6 +40,7 @@ import androidx.compose.runtime.composer.gapbuffer.asGapBufferSlotTable
 import androidx.compose.runtime.composer.gapbuffer.changelist.ChangeList
 import androidx.compose.runtime.composer.gapbuffer.changelist.ComposerChangeListWriter
 import androidx.compose.runtime.composer.gapbuffer.changelist.FixupList
+import androidx.compose.runtime.composer.gapbuffer.changelist.asGapBufferChangeList
 import androidx.compose.runtime.composer.gapbuffer.compositionGroupOf
 import androidx.compose.runtime.internal.IntRef
 import androidx.compose.runtime.internal.invokeComposable
@@ -214,8 +216,8 @@ internal class GapComposer(
     /** The slot table to use to store composition data */
     private val slotTable: SlotTable,
     private val abandonSet: MutableSet<RememberObserver>,
-    private var changes: ChangeList,
-    private var lateChanges: ChangeList,
+    private var changes: Changes,
+    private var lateChanges: Changes,
     private val observerHolder: CompositionObserverHolder,
 
     /** The composition that owns this composer */
@@ -284,7 +286,7 @@ internal class GapComposer(
     private var providerCache: PersistentCompositionLocalMap? = null
     override var deferredChanges: ChangeList? = null
 
-    private val changeListWriter = ComposerChangeListWriter(this, changes)
+    private val changeListWriter = ComposerChangeListWriter(this, changes.asGapBufferChangeList())
     private var insertAnchor: GapAnchor = insertTable.read { it.anchor(0) }
     private var insertFixups = FixupList()
 
@@ -1019,7 +1021,7 @@ internal class GapComposer(
     internal fun updateCachedValue(value: Any?) {
         val toStore =
             if (value is RememberObserver) {
-                val holder = RememberObserverHolder(value, rememberObserverGroupIndex())
+                val holder = GapRememberObserverHolder(value, rememberObserverGroupIndex())
                 if (inserting) {
                     changeListWriter.remember(holder)
                 }
@@ -1240,7 +1242,7 @@ internal class GapComposer(
         var observerHolder = nextSlot() as? RememberObserverHolder
         if (observerHolder == null) {
             observerHolder =
-                ReusableRememberObserverHolder(
+                ReusableGapRememberObserverHolder(
                     CompositionContextHolder(
                         CompositionContextImpl(
                             this@GapComposer.compositeKeyHashCode,
@@ -1259,16 +1261,6 @@ internal class GapComposer(
 
         return holder.ref
     }
-
-    /**
-     * The number of changes that have been scheduled to be applied during
-     * [ControlledComposition.applyChanges].
-     *
-     * Slot table movement (skipping groups and nodes) will be coalesced so this number is possibly
-     * less than the total changes detected.
-     */
-    internal val changeCount
-        get() = changes.size
 
     override val currentRecomposeScope: RecomposeScopeImpl?
         get() =
@@ -1993,7 +1985,7 @@ internal class GapComposer(
     }
 
     @TestOnly
-    internal fun parentKey(): Int {
+    override fun parentKey(): Int {
         return if (inserting) {
             writer.groupKey(writer.parent)
         } else {
@@ -2302,7 +2294,7 @@ internal class GapComposer(
     private fun insertMovableContentGuarded(
         references: List<Pair<MovableContentStateReference, MovableContentStateReference?>>
     ) {
-        changeListWriter.withChangeList(lateChanges) {
+        changeListWriter.withChangeList(lateChanges.asGapBufferChangeList()) {
             changeListWriter.resetSlots()
             references.fastForEach { (to, from) ->
                 val anchor = to.anchor.asGapAnchor()
@@ -3145,6 +3137,20 @@ internal class GapComposer(
         (scope as? RecomposeScopeImpl)?.used = true
     }
 }
+
+internal open class GapRememberObserverHolder(
+    override var wrapped: RememberObserver,
+    var afterGroupIndex: Int,
+) : RememberObserverHolder
+
+internal class ReusableGapRememberObserverHolder(wrapped: RememberObserver, afterGroupIndex: Int) :
+    GapRememberObserverHolder(wrapped, afterGroupIndex), ReusableRememberObserverHolder
+
+internal fun RememberObserverHolder.asGapRememberObserverHolder() =
+    this as? GapRememberObserverHolder ?: composeRuntimeError("Inconsistent composition")
+
+internal fun ReusableGapRememberObserverHolder.asGapRememberObserverHolder() =
+    this as? ReusableGapRememberObserverHolder ?: composeRuntimeError("Inconsistent composition")
 
 internal class GapCompositionDataImpl(val composition: Composition) :
     CompositionData, CompositionInstance {

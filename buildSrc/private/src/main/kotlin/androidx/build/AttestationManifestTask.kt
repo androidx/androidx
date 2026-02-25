@@ -17,15 +17,12 @@
 package androidx.build
 
 import org.gradle.api.DefaultTask
-import org.gradle.api.Project
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.MapProperty
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import org.gradle.kotlin.dsl.named
 
 @CacheableTask
 abstract class AttestationManifestTask : DefaultTask() {
@@ -50,21 +47,6 @@ abstract class AttestationManifestTask : DefaultTask() {
   }"""
             }
         manifestFile.get().asFile.writeText(output)
-    }
-}
-
-internal fun Project.addSbomToAttestation(relativeSbomPath: Provider<String>) {
-    rootProject.tasks.named<AttestationManifestTask>(ATTESTATION_TASK_NAME).configure { manifestTask
-        ->
-        manifestTask.sbomMap.put(path, relativeSbomPath)
-    }
-}
-
-internal fun Project.addZipToAttestation(relativeZipPath: Provider<String>) {
-    if (ProjectLayoutType.isPlayground(this)) return
-    rootProject.tasks.named<AttestationManifestTask>(ATTESTATION_TASK_NAME).configure { manifestTask
-        ->
-        manifestTask.zipMap.put(path, relativeZipPath)
     }
 }
 

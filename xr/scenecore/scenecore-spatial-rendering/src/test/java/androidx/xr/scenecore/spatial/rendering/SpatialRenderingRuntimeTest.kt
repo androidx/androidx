@@ -94,7 +94,7 @@ class SpatialRenderingRuntimeTest {
         activity.setContentView(FrameLayout(activity))
         ShadowXrExtensions.extract(xrExtensions)
             .setOpenXrWorldSpaceType(OPEN_XR_REFERENCE_SPACE_TYPE)
-        val fakeSceneRuntime = FakeSceneRuntime(false, fakeExecutor)
+        val fakeSceneRuntime = FakeSceneRuntime(fakeExecutor)
         sceneRuntime = fakeSceneRuntime
 
         assertThat(fakeSceneRuntime).isNotNull()
@@ -311,6 +311,7 @@ class SpatialRenderingRuntimeTest {
         val surfaceEntityQuad =
             renderingRuntime.createSurfaceEntity(
                 SurfaceEntity.StereoMode.SIDE_BY_SIDE,
+                SurfaceEntity.MediaBlendingMode.TRANSPARENT,
                 Pose(),
                 SurfaceEntity.Shape.Quad(FloatSize2d(kTestWidth, kTestHeight)),
                 SurfaceEntity.SurfaceProtection.NONE,
@@ -323,6 +324,7 @@ class SpatialRenderingRuntimeTest {
         val surfaceEntitySphere =
             renderingRuntime.createSurfaceEntity(
                 SurfaceEntity.StereoMode.TOP_BOTTOM,
+                SurfaceEntity.MediaBlendingMode.TRANSPARENT,
                 Pose(),
                 SurfaceEntity.Shape.Sphere(kTestSphereRadius),
                 SurfaceEntity.SurfaceProtection.NONE,
@@ -335,6 +337,7 @@ class SpatialRenderingRuntimeTest {
         val surfaceEntityHemisphere =
             renderingRuntime.createSurfaceEntity(
                 SurfaceEntity.StereoMode.MONO,
+                SurfaceEntity.MediaBlendingMode.TRANSPARENT,
                 Pose(),
                 SurfaceEntity.Shape.Hemisphere(kTestHemisphereRadius),
                 SurfaceEntity.SurfaceProtection.NONE,
@@ -382,15 +385,20 @@ class SpatialRenderingRuntimeTest {
     fun setMaterialOverrideGltfEntity_materialOverridesNode() {
         val gltfEntity = createGltfEntity()
         val material = createWaterMaterial()
-        val nodeName = "fake_node_name"
         val primitiveIndex = 0
+        val modelToken = fakeImpressApi.getGltfModels().keys.first()
+        val instanceId = fakeImpressApi.getGltfModels()[modelToken]!!.last()
+        val rootNode = ImpressNode(instanceId)
+        val childNode = fakeImpressApi.createImpressNode()
+        fakeImpressApi.setImpressNodeParent(childNode, rootNode)
 
-        gltfEntity.setMaterialOverride(material, nodeName, primitiveIndex)
+        gltfEntity.nodes.first().setMaterialOverride(material, primitiveIndex)
 
         val overriddenNodes =
             fakeImpressApi.getImpressNodes().keys.filter { node ->
-                node.materialOverride != null &&
-                    node.materialOverride?.type == FakeImpressApiImpl.MaterialData.Type.WATER
+                node.nodeMaterialOverrides.containsKey(primitiveIndex) &&
+                    node.nodeMaterialOverrides[primitiveIndex]?.type ==
+                        FakeImpressApiImpl.MaterialData.Type.WATER
             }
         assertThat(overriddenNodes).hasSize(1)
     }
@@ -399,14 +407,21 @@ class SpatialRenderingRuntimeTest {
     fun clearMaterialOverrideGltfEntity_clearsMaterialOverride() {
         val gltfEntity = createGltfEntity()
         val material = createWaterMaterial()
-        val nodeName = "fake_node_name"
         val primitiveIndex = 0
+        val modelToken = fakeImpressApi.getGltfModels().keys.first()
+        val instanceId = fakeImpressApi.getGltfModels()[modelToken]!!.last()
+        val rootNode = ImpressNode(instanceId)
+        val childNode = fakeImpressApi.createImpressNode()
+        fakeImpressApi.setImpressNodeParent(childNode, rootNode)
 
-        gltfEntity.setMaterialOverride(material, nodeName, primitiveIndex)
-        gltfEntity.clearMaterialOverride(nodeName, primitiveIndex)
+        val nodeFeature = gltfEntity.nodes.first()
+        nodeFeature.setMaterialOverride(material, primitiveIndex)
+        nodeFeature.clearMaterialOverride(primitiveIndex)
 
         val overriddenNodes =
-            fakeImpressApi.getImpressNodes().keys.filter { it.materialOverride != null }
+            fakeImpressApi.getImpressNodes().keys.filter {
+                it.nodeMaterialOverrides.containsKey(primitiveIndex)
+            }
         assertThat(overriddenNodes).isEmpty()
     }
 

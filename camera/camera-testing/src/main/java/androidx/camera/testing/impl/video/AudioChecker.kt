@@ -17,14 +17,9 @@
 package androidx.camera.testing.impl.video
 
 import android.annotation.SuppressLint
-import androidx.camera.core.DynamicRange
 import androidx.camera.core.Logger
 import androidx.camera.video.AudioSpec
-import androidx.camera.video.Quality
-import androidx.camera.video.QualitySelector
-import androidx.camera.video.VideoCapabilities
 import androidx.camera.video.internal.audio.AudioStreamImpl
-import androidx.camera.video.internal.config.AudioSettingsAudioProfileResolver
 import androidx.camera.video.internal.config.AudioSettingsDefaultResolver
 import kotlinx.coroutines.runBlocking
 
@@ -33,12 +28,9 @@ public class AudioChecker {
     public companion object {
         private const val TAG = "AudioChecker"
 
-        public fun canAudioStreamBeStarted(
-            videoCapabilities: VideoCapabilities,
-            qualitySelector: QualitySelector,
-        ): Boolean {
+        public fun canAudioStreamBeStarted(): Boolean {
             return try {
-                checkAudioStreamCanBeStarted(videoCapabilities, qualitySelector)
+                checkAudioStreamCanBeStarted()
                 Logger.i(TAG, "Audio stream can be started.")
                 true
             } catch (t: Throwable) {
@@ -48,28 +40,10 @@ public class AudioChecker {
         }
 
         @SuppressLint("MissingPermission")
-        private fun checkAudioStreamCanBeStarted(
-            videoCapabilities: VideoCapabilities,
-            qualitySelector: QualitySelector,
-        ) = runBlocking {
-            // Only standard dynamic range is checked, since video and audio should be independent.
-            val sdr = DynamicRange.SDR
+        private fun checkAudioStreamCanBeStarted() = runBlocking {
             val audioSpec = AudioSpec.builder().build()
-            val priorityQuality = getPriorityQuality(videoCapabilities, qualitySelector)
             // Get a config using the default audio spec.
-            val audioSettings =
-                if (priorityQuality != null) {
-                    AudioSettingsAudioProfileResolver(
-                            audioSpec,
-                            videoCapabilities
-                                .getProfiles(priorityQuality, sdr)!!
-                                .defaultAudioProfile!!,
-                            null,
-                        )
-                        .get()
-                } else {
-                    AudioSettingsDefaultResolver(audioSpec, null).get()
-                }
+            val audioSettings = AudioSettingsDefaultResolver(audioSpec, null).get()
             with(AudioStreamImpl(audioSettings, null)) {
                 try {
                     start()
@@ -77,17 +51,6 @@ public class AudioChecker {
                     release()
                 }
             }
-        }
-
-        @SuppressLint("VisibleForTests")
-        private fun getPriorityQuality(
-            videoCapabilities: VideoCapabilities,
-            qualitySelector: QualitySelector,
-        ): Quality? {
-            // Only standard dynamic range is checked, since video and audio should be independent.
-            val sdr = DynamicRange.SDR
-            val supportedQualities = videoCapabilities.getSupportedQualities(sdr)
-            return qualitySelector.getPrioritizedQualities(supportedQualities).firstOrNull()
         }
     }
 }

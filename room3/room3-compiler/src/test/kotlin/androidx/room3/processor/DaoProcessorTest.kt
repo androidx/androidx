@@ -252,15 +252,15 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
             Source.kotlin(
                 "MyDao.kt",
                 """
-            package foo.bar
-            import androidx.room3.*
-            @Dao
-            @Suppress(RoomWarnings.QUERY_MISMATCH)
-            interface MyDao {
-                @Query("SELECT uid from user")
-                fun userId(): Int
-            }
-            """
+                package foo.bar
+                import androidx.room3.*
+                @Dao
+                @Suppress(RoomWarnings.QUERY_MISMATCH)
+                interface MyDao {
+                    @Query("SELECT uid from user")
+                    fun userId(): Int
+                }
+                """
                     .trimIndent(),
             )
         runKspTest(sources = listOf(daoSrc) + COMMON.USER) { invocation ->
@@ -441,15 +441,15 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
             Source.kotlin(
                 "MyDao.kt",
                 """
-            import androidx.room3.*;
-            @Dao
-            interface MyDao {
-                @Suppress("INAPPLICABLE_JVM_NAME")
-                @JvmName("jvmMethodName")
-                @Query("SELECT 1")
-                fun method(): Int
-            }
-        """
+                import androidx.room3.*;
+                @Dao
+                interface MyDao {
+                    @Suppress("INAPPLICABLE_JVM_NAME")
+                    @JvmName("jvmMethodName")
+                    @Query("SELECT 1")
+                    fun method(): Int
+                }
+                """
                     .trimIndent(),
             )
         runKspTest(sources = listOf(source)) { invocation ->
@@ -474,20 +474,20 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
             Source.kotlin(
                 "MyDatabase.kt",
                 """
-            import androidx.room3.*
+                import androidx.room3.*
 
-            @Dao
-            interface MyDao {
-              @get:Query("SELECT * FROM MyEntity")
-              val allEntities: List<MyEntity>
-            }
+                @Dao
+                interface MyDao {
+                  @get:Query("SELECT * FROM MyEntity")
+                  val allEntities: List<MyEntity>
+                }
 
-            @Entity
-            data class MyEntity(
-                @PrimaryKey
-                var pk: Int
-            )
-            """
+                @Entity
+                data class MyEntity(
+                    @PrimaryKey
+                    var pk: Int
+                )
+                """
                     .trimIndent(),
             )
         runKspTest(sources = listOf(src)) { invocation ->
@@ -510,19 +510,19 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
             Source.kotlin(
                 "MyDatabase.kt",
                 """
-            import androidx.room3.*
+                import androidx.room3.*
 
-            @Dao
-            interface MyDao {
-              val allEntities: List<MyEntity>
-            }
+                @Dao
+                interface MyDao {
+                  val allEntities: List<MyEntity>
+                }
 
-            @Entity
-            data class MyEntity(
-                @PrimaryKey
-                var pk: Int
-            )
-            """
+                @Entity
+                data class MyEntity(
+                    @PrimaryKey
+                    var pk: Int
+                )
+                """
                     .trimIndent(),
             )
         runKspTest(sources = listOf(src)) { invocation ->
@@ -547,20 +547,20 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
             Source.kotlin(
                 "MyDatabase.kt",
                 """
-            import androidx.room3.*
+                import androidx.room3.*
 
-            @Dao
-            interface MyDao {
-              @Query("SELECT * FROM MyEntity")
-              val allEntities: List<MyEntity>
-            }
+                @Dao
+                interface MyDao {
+                  @Query("SELECT * FROM MyEntity")
+                  val allEntities: List<MyEntity>
+                }
 
-            @Entity
-            data class MyEntity(
-                @PrimaryKey
-                var pk: Int
-            )
-            """
+                @Entity
+                data class MyEntity(
+                    @PrimaryKey
+                    var pk: Int
+                )
+                """
                     .trimIndent(),
             )
         runKspTest(sources = listOf(src)) { invocation ->
@@ -585,51 +585,51 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
             Source.kotlin(
                 "MyDatabase.kt",
                 """
-            import androidx.room3.*
-            import com.google.common.collect.ImmutableList
+                import androidx.room3.*
+                import com.google.common.collect.ImmutableList
 
-            @Dao
-            interface MyDao {
-              @Query("SELECT * FROM MyEntity")
-              fun nullableList(): List<MyEntity>?
+                @Dao
+                interface MyDao {
+                  @Query("SELECT * FROM MyEntity")
+                  fun nullableList(): List<MyEntity>?
 
-              @Query("SELECT * FROM MyEntity")
-              fun nullableImmutableList(): ImmutableList<MyEntity>?
+                  @Query("SELECT * FROM MyEntity")
+                  fun nullableImmutableList(): ImmutableList<MyEntity>?
 
-              @Query("SELECT * FROM MyEntity")
-              fun nullableArray(): Array<MyEntity>?
+                  @Query("SELECT * FROM MyEntity")
+                  fun nullableArray(): Array<MyEntity>?
 
-              @Query("SELECT * FROM MyEntity")
-              fun nullableOptional(): java.util.Optional<MyEntity>?
+                  @Query("SELECT * FROM MyEntity")
+                  fun nullableOptional(): java.util.Optional<MyEntity>?
 
-              @Query("SELECT * FROM MyEntity")
-              fun nullableOptionalGuava(): com.google.common.base.Optional<MyEntity>?
+                  @Query("SELECT * FROM MyEntity")
+                  fun nullableOptionalGuava(): com.google.common.base.Optional<MyEntity>?
 
-              @Query("SELECT * FROM MyEntity JOIN MyOtherEntity ON MyEntity.pk = MyOtherEntity.otherPk")
-              fun nullableMap(): Map<MyEntity, MyOtherEntity>?
+                  @Query("SELECT * FROM MyEntity JOIN MyOtherEntity ON MyEntity.pk = MyOtherEntity.otherPk")
+                  fun nullableMap(): Map<MyEntity, MyOtherEntity>?
 
-              @Query("SELECT * FROM MyEntity JOIN MyOtherEntity ON MyEntity.pk = MyOtherEntity.otherPk")
-              fun nullableImmutableMap(): com.google.common.collect.ImmutableMap<MyEntity, MyOtherEntity>?
+                  @Query("SELECT * FROM MyEntity JOIN MyOtherEntity ON MyEntity.pk = MyOtherEntity.otherPk")
+                  fun nullableImmutableMap(): com.google.common.collect.ImmutableMap<MyEntity, MyOtherEntity>?
 
-              @Query("SELECT * FROM MyEntity JOIN MyOtherEntity ON MyEntity.pk = MyOtherEntity.otherPk")
-              fun nullableImmutableSetMultimap(): com.google.common.collect.ImmutableSetMultimap<MyEntity, MyOtherEntity>?
+                  @Query("SELECT * FROM MyEntity JOIN MyOtherEntity ON MyEntity.pk = MyOtherEntity.otherPk")
+                  fun nullableImmutableSetMultimap(): com.google.common.collect.ImmutableSetMultimap<MyEntity, MyOtherEntity>?
 
-              @Query("SELECT * FROM MyEntity JOIN MyOtherEntity ON MyEntity.pk = MyOtherEntity.otherPk")
-              fun nullableImmutableListMultimap(): com.google.common.collect.ImmutableListMultimap<MyEntity, MyOtherEntity>?
-            }
+                  @Query("SELECT * FROM MyEntity JOIN MyOtherEntity ON MyEntity.pk = MyOtherEntity.otherPk")
+                  fun nullableImmutableListMultimap(): com.google.common.collect.ImmutableListMultimap<MyEntity, MyOtherEntity>?
+                }
 
-            @Entity
-            data class MyEntity(
-                @PrimaryKey
-                var pk: Int
-            )
+                @Entity
+                data class MyEntity(
+                    @PrimaryKey
+                    var pk: Int
+                )
 
-            @Entity
-            data class MyOtherEntity(
-                @PrimaryKey
-                var otherPk: Int
-            )
-            """
+                @Entity
+                data class MyOtherEntity(
+                    @PrimaryKey
+                    var otherPk: Int
+                )
+                """
                     .trimIndent(),
             )
         runKspTest(sources = listOf(src)) { invocation ->
@@ -708,51 +708,51 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
             Source.kotlin(
                 "MyDatabase.kt",
                 """
-            import androidx.room3.*
-            import com.google.common.collect.ImmutableList
+                import androidx.room3.*
+                import com.google.common.collect.ImmutableList
 
-            @Dao
-            interface MyDao {
-              @Query("SELECT * FROM MyEntity")
-              fun nullableList(): List<MyEntity?>
+                @Dao
+                interface MyDao {
+                  @Query("SELECT * FROM MyEntity")
+                  fun nullableList(): List<MyEntity?>
 
-              @Query("SELECT * FROM MyEntity")
-              fun nullableImmutableList(): ImmutableList<MyEntity?>
+                  @Query("SELECT * FROM MyEntity")
+                  fun nullableImmutableList(): ImmutableList<MyEntity?>
 
-              @Query("SELECT * FROM MyEntity")
-              fun nullableArray(): Array<MyEntity?>
+                  @Query("SELECT * FROM MyEntity")
+                  fun nullableArray(): Array<MyEntity?>
 
-              @Query("SELECT * FROM MyEntity")
-              fun nullableOptional(): java.util.Optional<MyEntity?>
+                  @Query("SELECT * FROM MyEntity")
+                  fun nullableOptional(): java.util.Optional<MyEntity?>
 
-              @Query("SELECT * FROM MyEntity")
-              fun nullableOptionalGuava(): com.google.common.base.Optional<MyEntity?>
+                  @Query("SELECT * FROM MyEntity")
+                  fun nullableOptionalGuava(): com.google.common.base.Optional<MyEntity?>
 
-              @Query("SELECT * FROM MyEntity JOIN MyOtherEntity ON MyEntity.pk = MyOtherEntity.otherPk")
-              fun nullableMap(): Map<MyEntity?, MyOtherEntity>
+                  @Query("SELECT * FROM MyEntity JOIN MyOtherEntity ON MyEntity.pk = MyOtherEntity.otherPk")
+                  fun nullableMap(): Map<MyEntity?, MyOtherEntity>
 
-              @Query("SELECT * FROM MyEntity JOIN MyOtherEntity ON MyEntity.pk = MyOtherEntity.otherPk")
-              fun nullableImmutableMap(): com.google.common.collect.ImmutableMap<MyEntity?, MyOtherEntity>
+                  @Query("SELECT * FROM MyEntity JOIN MyOtherEntity ON MyEntity.pk = MyOtherEntity.otherPk")
+                  fun nullableImmutableMap(): com.google.common.collect.ImmutableMap<MyEntity?, MyOtherEntity>
 
-              @Query("SELECT * FROM MyEntity JOIN MyOtherEntity ON MyEntity.pk = MyOtherEntity.otherPk")
-              fun nullableImmutableSetMultimap(): com.google.common.collect.ImmutableSetMultimap<MyEntity?, MyOtherEntity>
+                  @Query("SELECT * FROM MyEntity JOIN MyOtherEntity ON MyEntity.pk = MyOtherEntity.otherPk")
+                  fun nullableImmutableSetMultimap(): com.google.common.collect.ImmutableSetMultimap<MyEntity?, MyOtherEntity>
 
-              @Query("SELECT * FROM MyEntity JOIN MyOtherEntity ON MyEntity.pk = MyOtherEntity.otherPk")
-              fun nullableImmutableListMultimap(): com.google.common.collect.ImmutableListMultimap<MyEntity?, MyOtherEntity>
-            }
+                  @Query("SELECT * FROM MyEntity JOIN MyOtherEntity ON MyEntity.pk = MyOtherEntity.otherPk")
+                  fun nullableImmutableListMultimap(): com.google.common.collect.ImmutableListMultimap<MyEntity?, MyOtherEntity>
+                }
 
-            @Entity
-            data class MyEntity(
-                @PrimaryKey
-                var pk: Int
-            )
+                @Entity
+                data class MyEntity(
+                    @PrimaryKey
+                    var pk: Int
+                )
 
-            @Entity
-            data class MyOtherEntity(
-                @PrimaryKey
-                var otherPk: Int
-            )
-            """
+                @Entity
+                data class MyOtherEntity(
+                    @PrimaryKey
+                    var otherPk: Int
+                )
+                """
                     .trimIndent(),
             )
         runKspTest(sources = listOf(src)) { invocation ->
@@ -824,18 +824,18 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
             Source.java(
                 "MyDao",
                 """
-            import androidx.room3.*;
-            import java.util.List;
+                import androidx.room3.*;
+                import java.util.List;
 
-            @Dao
-            public interface MyDao {
-              @Query("SELECT * FROM MyEntity")
-              List<MyEntity> nullableList();
+                @Dao
+                public interface MyDao {
+                  @Query("SELECT * FROM MyEntity")
+                  List<MyEntity> nullableList();
 
-              @Query("SELECT * FROM MyEntity")
-              MyEntity[] nullableArray();
-            }
-            """
+                  @Query("SELECT * FROM MyEntity")
+                  MyEntity[] nullableArray();
+                }
+                """
                     .trimIndent(),
             )
         val entity =
@@ -849,7 +849,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
                     @PrimaryKey
                     public int pk;
                 }
-            """
+                """
                     .trimIndent(),
             )
         runKspTest(sources = listOf(dao, entity)) { invocation ->
@@ -872,17 +872,17 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
             Source.kotlin(
                 "MyDao.kt",
                 """
-            import androidx.room3.*
+                import androidx.room3.*
 
-            @Dao
-            abstract class MyDao(private val db: RoomDatabase?) {
-              @Query("SELECT * FROM MyEntity")
-              abstract fun getEntities(): List<MyEntity>
-            }
+                @Dao
+                abstract class MyDao(private val db: RoomDatabase?) {
+                  @Query("SELECT * FROM MyEntity")
+                  abstract fun getEntities(): List<MyEntity>
+                }
 
-            @Entity
-            data class MyEntity(@PrimaryKey val pk: Int)
-            """
+                @Entity
+                data class MyEntity(@PrimaryKey val pk: Int)
+                """
                     .trimIndent(),
             )
         runKspTest(sources = listOf(src)) { invocation ->

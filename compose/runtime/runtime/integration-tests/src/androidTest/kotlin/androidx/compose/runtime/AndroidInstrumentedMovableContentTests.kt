@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.window.Dialog
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -68,6 +69,49 @@ class AndroidInstrumentedMovableContentTests {
         rule.runOnIdle { InvalidationLocation.togglePage() }
 
         rule.runOnIdle { InvalidationLocation.togglePage() }
+    }
+
+    @Test
+    fun moveToDialog_elidedRememberObserver() {
+        var moveToDialog by mutableStateOf(true)
+        rule.setContent {
+            ElidedDialog.ModalContent(moveToDialog) {
+                ElidedDialog.RememberObserverAfterReplaceGroupInElidedGroup(true)
+            }
+        }
+
+        moveToDialog = false
+        rule.waitForIdle()
+    }
+}
+
+private object ElidedDialog {
+    @Composable
+    fun RememberObserverAfterReplaceGroupInElidedGroup(cond: Boolean) {
+        if (cond) remember { Any() } else Unit
+
+        remember {
+            object : RememberObserver {
+                override fun onRemembered() {}
+
+                override fun onForgotten() {}
+
+                override fun onAbandoned() {}
+
+                override fun toString() = "Monitored RememberObserver"
+            }
+        }
+    }
+
+    @Composable
+    fun ModalContent(moveToDialog: Boolean, content: @Composable () -> Unit) {
+        val movableContent = remember(content) { movableContentOf(content) }
+
+        if (!moveToDialog) {
+            movableContent()
+        } else {
+            Dialog(onDismissRequest = {}) { movableContent() }
+        }
     }
 }
 

@@ -15,6 +15,7 @@
  */
 package androidx.health.connect.client.records
 
+import android.os.Build
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.HealthConnectFeatures
@@ -23,6 +24,7 @@ import androidx.health.connect.client.aggregate.AggregateMetric.AggregationType.
 import androidx.health.connect.client.aggregate.AggregateMetric.AggregationType.MAXIMUM
 import androidx.health.connect.client.aggregate.AggregateMetric.AggregationType.MINIMUM
 import androidx.health.connect.client.aggregate.AggregateMetric.Companion.doubleMetric
+import androidx.health.connect.client.impl.platform.records.toPlatformRecord
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Temperature
 import androidx.health.connect.client.units.TemperatureDelta
@@ -73,19 +75,26 @@ class SkinTemperatureRecord(
 ) : IntervalRecord {
 
     init {
-        require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
-        if (baseline != null) {
-            baseline.requireNotLess(other = MIN_TEMPERATURE, "temperature")
-            baseline.requireNotMore(other = MAX_TEMPERATURE, "temperature")
-        }
-
-        if (deltas.isNotEmpty()) {
-            // check all deltas are within parent record duration
-            require(!deltas.minBy { it.time }.time.isBefore(startTime)) {
-                "deltas can not be out of parent time range."
+        if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+                isAtLeastSdkExtension13()
+        ) {
+            this.toPlatformRecord()
+        } else {
+            require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
+            if (baseline != null) {
+                baseline.requireNotLess(other = MIN_TEMPERATURE, "temperature")
+                baseline.requireNotMore(other = MAX_TEMPERATURE, "temperature")
             }
-            require(deltas.maxBy { it.time }.time.isBefore(endTime)) {
-                "deltas can not be out of parent time range."
+
+            if (deltas.isNotEmpty()) {
+                // check all deltas are within parent record duration
+                require(!deltas.minBy { it.time }.time.isBefore(startTime)) {
+                    "deltas can not be out of parent time range."
+                }
+                require(deltas.maxBy { it.time }.time.isBefore(endTime)) {
+                    "deltas can not be out of parent time range."
+                }
             }
         }
     }

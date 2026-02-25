@@ -288,7 +288,9 @@ object RoomMemberNames {
 }
 
 object SQLiteDriverMemberNames {
-    val CONNECTION_EXEC_SQL = SQLiteDriverTypeNames.SQLITE.packageMember("execSQL")
+    val CONNECTION_EXEC_SQL = SQLiteDriverTypeNames.SQLITE.packageMember("executeSQL")
+    val CONNECTION_PREPARE = SQLiteDriverTypeNames.SQLITE.packageMember("prepare")
+    val STATEMENT_STEP = SQLiteDriverTypeNames.SQLITE.packageMember("step")
 }
 
 val DEFERRED_TYPES =

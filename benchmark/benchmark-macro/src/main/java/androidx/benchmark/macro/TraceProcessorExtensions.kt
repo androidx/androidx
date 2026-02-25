@@ -88,13 +88,13 @@ internal class ShellServerLifecycleManager : ServerLifecycleManager {
             ) {
                 throw IOException(
                     """
-                Macrobenchmark requires cleartext HTTP traffic to the on-device localhost to enable
-                querying data from perfetto traces, such as timestamps that are used to calculate
-                metrics. This should be enabled by default via manifest merging when building with
-                Gradle.  Please refer to
-                https://d.android.com/training/articles/security-config#CleartextTrafficPermitted
-                and enable cleartext http requests towards localhost in your test android manifest.
-            """
+                    Macrobenchmark requires cleartext HTTP traffic to the on-device localhost to enable
+                    querying data from perfetto traces, such as timestamps that are used to calculate
+                    metrics. This should be enabled by default via manifest merging when building with
+                    Gradle.  Please refer to
+                    https://d.android.com/training/articles/security-config#CleartextTrafficPermitted
+                    and enable cleartext http requests towards localhost in your test android manifest.
+                    """
                         .trimIndent()
                 )
             }

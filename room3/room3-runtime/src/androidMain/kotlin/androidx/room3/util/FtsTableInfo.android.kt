@@ -55,7 +55,10 @@ public actual class FtsTableInfo(
          * @return A FtsTableInfo containing the columns and options for the provided table name.
          */
         @JvmStatic
-        public actual fun read(connection: SQLiteConnection, tableName: String): FtsTableInfo {
+        public actual suspend fun read(
+            connection: SQLiteConnection,
+            tableName: String,
+        ): FtsTableInfo {
             val columns = readFtsColumns(connection, tableName)
             val options = readFtsOptions(connection, tableName)
             return FtsTableInfo(tableName, columns, options)

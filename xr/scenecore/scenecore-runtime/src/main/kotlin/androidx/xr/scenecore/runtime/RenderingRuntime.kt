@@ -604,6 +604,8 @@ public interface RenderingRuntime : JxrRuntime {
      * Factory method for SurfaceEntity.
      *
      * @param stereoMode Stereo mode for the surface.
+     * @param mediaBlendingMode The [SurfaceEntity.MediaBlendingMode] which describes the media
+     *   blending mode of the surface.
      * @param pose Pose of this entity relative to its parent, default value is Identity.
      * @param shape The [SurfaceEntity.Shape] which describes the 3D geometry of the entity.
      * @param surfaceProtection The [SurfaceEntity.SurfaceProtection] which describes whether DRM is
@@ -615,6 +617,7 @@ public interface RenderingRuntime : JxrRuntime {
      */
     public fun createSurfaceEntity(
         stereoMode: Int,
+        @SurfaceEntity.MediaBlendingMode mediaBlendingMode: Int,
         pose: Pose,
         shape: SurfaceEntity.Shape,
         @SurfaceEntity.SurfaceProtection surfaceProtection: Int,

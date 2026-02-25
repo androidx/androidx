@@ -20,7 +20,6 @@ import android.graphics.Canvas
 import android.graphics.Matrix
 import android.os.Build
 import android.util.Log
-import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.ink.brush.Brush
 import androidx.ink.brush.ExperimentalInkCustomBrushApi
@@ -62,7 +61,6 @@ internal class CanvasStrokeUnifiedRenderer(
     }
 
     @ExperimentalInkCustomBrushApi
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     override fun draw(
         canvas: Canvas,
         stroke: Stroke,
@@ -74,7 +72,6 @@ internal class CanvasStrokeUnifiedRenderer(
     }
 
     @ExperimentalInkCustomBrushApi
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     override fun draw(
         canvas: Canvas,
         stroke: Stroke,
@@ -125,7 +122,6 @@ internal class CanvasStrokeUnifiedRenderer(
     }
 
     @ExperimentalInkCustomBrushApi
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     override fun draw(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
@@ -137,7 +133,6 @@ internal class CanvasStrokeUnifiedRenderer(
     }
 
     @ExperimentalInkCustomBrushApi
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     override fun draw(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,

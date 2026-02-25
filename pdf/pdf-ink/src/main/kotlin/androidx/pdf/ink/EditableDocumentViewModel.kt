@@ -20,6 +20,7 @@ import android.graphics.Matrix
 import android.net.Uri
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -40,6 +41,8 @@ import androidx.pdf.annotation.models.PdfEdits
 import androidx.pdf.annotation.models.VisiblePdfAnnotations
 import androidx.pdf.ink.model.ApplyEditsState
 import androidx.pdf.ink.state.AnnotationDrawingMode
+import androidx.pdf.ink.state.PdfEditMode
+import androidx.pdf.ink.state.PdfEditMode.Companion.EDITING_JOURNEY_ANNOTATIONS
 import androidx.pdf.ink.util.InkDefaults
 import androidx.pdf.ink.view.tool.AnnotationToolInfo
 import androidx.pdf.ink.view.tool.Eraser
@@ -47,6 +50,7 @@ import androidx.pdf.ink.view.tool.Highlighter
 import androidx.pdf.ink.view.tool.Pen
 import androidx.pdf.viewer.fragment.PdfDocumentViewModel
 import androidx.pdf.viewer.fragment.model.PdfFragmentUiState
+import java.util.BitSet
 import java.util.concurrent.Executors
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -66,6 +70,7 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
     private var annotationsEditor: PdfAnnotationsEditor? = null
     private var annotationsManager: PdfAnnotationsManager? = null
     private var historyCollectionJob: Job? = null
+    private val bitmapAvailabilityMap = BitSet()
 
     private val _annotationDisplayStateFlow = MutableStateFlow(AnnotationsDisplayState.EMPTY)
 
@@ -78,16 +83,18 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
     private val _canRedo = MutableStateFlow(false)
     internal val canRedo: StateFlow<Boolean> = _canRedo.asStateFlow()
 
-    internal val isEditModeEnabledFlow: StateFlow<Boolean> =
-        state.getStateFlow(EDIT_MODE_ENABLED_KEY, false)
+    internal val pdfEditModeFlow: StateFlow<PdfEditMode> =
+        state.getStateFlow(EDIT_MODE_ENABLED_KEY, PdfEditMode.Disabled)
 
-    internal var isEditModeEnabled: Boolean
-        get() = state[EDIT_MODE_ENABLED_KEY] ?: false
+    internal var pdfEditMode: PdfEditMode
+        get() = state[EDIT_MODE_ENABLED_KEY] ?: PdfEditMode.Disabled
         set(value) {
-            if (isEditModeEnabled == value) return
+            if (pdfEditMode == value) return
+            // Cannot switch journeys in the same session
+            if (pdfEditMode is PdfEditMode.Enabled && value is PdfEditMode.Enabled) return
 
             state[EDIT_MODE_ENABLED_KEY] = value
-            if (!value) {
+            if (value !is PdfEditMode.Enabled) {
                 // Discard any draft changes when exiting edit mode
                 discardUnsavedChanges()
                 forceLoadDocument()
@@ -128,15 +135,29 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
 
     internal var visiblePageRange: IntRange = 0..0
 
+    internal val shouldShowAnnotationToolbar: StateFlow<Boolean> =
+        combine(pdfEditModeFlow, isTextSearchActiveFlow) { pdfEditMode, isTextSearchActive ->
+                pdfEditMode is PdfEditMode.Enabled &&
+                    pdfEditMode.journey == EDITING_JOURNEY_ANNOTATIONS &&
+                    !isTextSearchActive
+            }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
     /** Reactive state that combines multiple flows to determine if interaction is enabled. */
     internal val isAnnotationInteractionEnabled: StateFlow<Boolean> =
         combine(
-                isEditModeEnabledFlow,
+                pdfEditModeFlow,
                 areAnnotationsVisibleFlow,
                 _applyEditsStatus,
                 _isPdfViewGestureActive,
-            ) { isEditMode, isVisible, status, isGestureActive ->
-                isEditMode && isVisible && status != ApplyEditsState.InProgress && !isGestureActive
+                isTextSearchActiveFlow,
+            ) { pdfEditMode, isVisible, status, isGestureActive, isTextSearchActive ->
+                (pdfEditMode is PdfEditMode.Enabled &&
+                    pdfEditMode.journey == EDITING_JOURNEY_ANNOTATIONS) &&
+                    isVisible &&
+                    status != ApplyEditsState.InProgress &&
+                    !isGestureActive &&
+                    !isTextSearchActive
             }
             .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
@@ -153,7 +174,7 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
     }
 
     public override fun forceLoadDocument() {
-        if (didApplyEdits) {
+        if (didApplyEdits || formEditInfos.isNotEmpty()) {
             resetState()
             super.forceLoadDocument()
         }
@@ -162,10 +183,11 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
     @VisibleForTesting
     public override fun resetState() {
         super.resetState()
-        isEditModeEnabled = false
+        pdfEditMode = PdfEditMode.Disabled
         editablePdfDocument = null
         _annotationDisplayStateFlow.value = AnnotationsDisplayState.EMPTY
         didApplyEdits = false
+        bitmapAvailabilityMap.clear()
     }
 
     internal fun maybeInitialiseForDocument(document: PdfDocument) {
@@ -249,6 +271,7 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
                 val handle = document.createWriteHandle()
 
                 recordsHistoryManager?.clear()
+                annotationsManager?.discardChanges()
                 _applyEditsStatus.value = ApplyEditsState.Success(handle)
             } catch (e: Exception) {
                 _applyEditsStatus.value = ApplyEditsState.Failure(e)
@@ -267,7 +290,8 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
      *   no changes.
      */
     internal fun hasUnsavedChanges(): Boolean =
-        editablePdfDocument != null && (recordsHistoryManager?.canUndo?.value ?: false)
+        editablePdfDocument != null &&
+            ((recordsHistoryManager?.canUndo?.value ?: false) || formEditInfos.isNotEmpty())
 
     /** Discards all uncommitted edits, reverting the document to its last saved state. */
     private fun discardUnsavedChanges() {
@@ -284,10 +308,23 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
     private suspend fun refreshVisibleAnnotations(range: IntRange) {
         val manager = annotationsManager ?: return
 
+        // Defensive check to avoid stale obsolete get invocations
+        if (visiblePageRange != range) return
+
         val pageAnnotations =
             range
-                .associateWith { pageNum -> manager.getAnnotations(pageNum) }
+                .associateWith { pageNum ->
+                    // Display Annotation only for pages whose bitmap is available
+                    if (bitmapAvailabilityMap.get(pageNum)) {
+                        manager.getAnnotations(pageNum)
+                    } else {
+                        listOf()
+                    }
+                }
                 .filterValues { it.isNotEmpty() }
+
+        // This check ensures that the flow is not updated with stale data
+        if (visiblePageRange != range) return
 
         _annotationDisplayStateFlow.update {
             it.copy(visiblePageAnnotations = VisiblePdfAnnotations(pageAnnotations))
@@ -352,10 +389,13 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
                     AnnotationDrawingMode.PenMode(toolInfo.brushSize, toolInfo.color)
             is Highlighter -> {
                 if (toolInfo.color != null && pdfDocument != null) {
+                    val colorWithHighlighterAlpha =
+                        ColorUtils.setAlphaComponent(toolInfo.color, InkDefaults.HIGHLIGHTER_ALPHA)
+
                     _drawingMode.value =
                         AnnotationDrawingMode.HighlighterMode(
                             toolInfo.brushSize,
-                            toolInfo.color,
+                            colorWithHighlighterAlpha,
                             pdfDocument,
                         )
                 } else {
@@ -365,6 +405,12 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
             is Eraser -> _drawingMode.value = AnnotationDrawingMode.EraserMode
         }
     }
+
+    internal var initialFormFillingEnabledState: Boolean?
+        get() = state[INITIAL_FORM_FILLING_STATE_KEY]
+        set(value) {
+            state[INITIAL_FORM_FILLING_STATE_KEY] = value
+        }
 
     private fun withEditor(block: suspend (PdfAnnotationsEditor) -> Unit) {
         viewModelScope.launch {
@@ -378,12 +424,28 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
         }
     }
 
+    internal fun onBitmapFetched(pageNum: Int) {
+        bitmapAvailabilityMap.set(pageNum)
+        if (pageNum in visiblePageRange) {
+            viewModelScope.launch { refreshVisibleAnnotations(visiblePageRange) }
+        }
+    }
+
+    internal fun onBitmapCleared(pageNum: Int) {
+        bitmapAvailabilityMap.clear(pageNum)
+        if (pageNum in visiblePageRange) {
+            viewModelScope.launch { refreshVisibleAnnotations(visiblePageRange) }
+        }
+    }
+
     @Suppress("UNCHECKED_CAST")
     internal companion object {
         const val LOADED_DOCUMENT_URI_KEY = "loadedDocumentUri"
         private const val EDIT_MODE_ENABLED_KEY = "isEditModeEnabled"
 
         private const val ANNOTATION_VISIBLE_KEY = "isAnnotationVisible"
+        private const val INITIAL_FORM_FILLING_STATE_KEY = "initialFormFillingState"
+
         val Factory: ViewModelProvider.Factory =
             object : ViewModelProvider.Factory {
                 override fun <T : ViewModel> create(

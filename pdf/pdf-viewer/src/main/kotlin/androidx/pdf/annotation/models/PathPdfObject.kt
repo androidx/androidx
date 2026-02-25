@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +19,7 @@ package androidx.pdf.annotation.models
 import android.annotation.SuppressLint
 import android.os.Parcel
 import android.os.Parcelable
+import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -85,34 +86,51 @@ public class PathPdfObject(
      *
      * @param x is property the x-coordinate of the point.
      * @param y is property the y-coordinate of the point.
+     * @param command The type of path operation (e.g., [MOVE_TO] or [LINE_TO]).
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @SuppressLint("BanParcelableUsage")
-    public class PathInput(public val x: Float, public val y: Float) : Parcelable {
+    public class PathInput(
+        public val x: Float,
+        public val y: Float,
+        @PathOp public val command: Int,
+    ) : Parcelable {
         override fun equals(other: Any?): Boolean {
-            return (other is PathInput) && other.x == x && other.y == y
+            return (other is PathInput) && other.x == x && other.y == y && other.command == command
         }
 
         override fun hashCode(): Int {
             var result = x.hashCode()
             result = 31 * result + y.hashCode()
+            result = 31 * result + command
             return result
         }
 
         public override fun writeToParcel(parcel: Parcel, flags: Int) {
             parcel.writeFloat(x)
             parcel.writeFloat(y)
+            parcel.writeInt(command)
         }
 
         public override fun describeContents(): Int = 0
 
-        /** Parcelable creator for [PathInput]. */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @Retention(AnnotationRetention.SOURCE)
+        @IntDef(MOVE_TO, LINE_TO)
+        public annotation class PathOp
+
         public companion object {
+            /** Starts a new sub-path from the given coordinate. */
+            public const val MOVE_TO: Int = 0
+
+            /** Draws a line from the previous point to the given coordinate. */
+            public const val LINE_TO: Int = 1
+
             @JvmField
             public val CREATOR: Parcelable.Creator<PathInput> =
                 object : Parcelable.Creator<PathInput> {
                     override fun createFromParcel(parcel: Parcel): PathInput {
-                        return PathInput(parcel.readFloat(), parcel.readFloat())
+                        return PathInput(parcel.readFloat(), parcel.readFloat(), parcel.readInt())
                     }
 
                     override fun newArray(size: Int): Array<PathInput?> = arrayOfNulls(size)

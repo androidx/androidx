@@ -315,19 +315,29 @@ public class DrawBitmapScaled extends PaintOperation
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Draw Operations", OP_CODE, CLASS_NAME)
-                .description("Draw a bitmap using integer coordinates")
-                .field(DocumentedOperation.INT, "id", "id of bitmap")
-                .field(DocumentedOperation.FLOAT, "srcLeft", "The left side of the image")
-                .field(DocumentedOperation.FLOAT, "srcTop", "The top of the image")
-                .field(DocumentedOperation.FLOAT, "srcRight", "The right side of the image")
-                .field(DocumentedOperation.FLOAT, "srcBottom", "The bottom of the output")
-                .field(DocumentedOperation.FLOAT, "dstLeft", "The left side of the output")
-                .field(DocumentedOperation.FLOAT, "dstTop", "The top of the output")
-                .field(DocumentedOperation.FLOAT, "dstRight", "The right side of the output")
-                .field(DocumentedOperation.INT, "type", "type of auto scaling")
-                .field(DocumentedOperation.INT, "scaleFactor", "for allowed")
-                .field(DocumentedOperation.INT, "cdId", "id of string");
+        doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("draw_bitmap_scaled")
+                .description("Draw a bitmap with scaling and alignment options")
+                .field(DocumentedOperation.INT, "imageId", "The ID of the bitmap")
+                .field(DocumentedOperation.FLOAT, "srcLeft", "The left side of the source image")
+                .field(DocumentedOperation.FLOAT, "srcTop", "The top of the source image")
+                .field(DocumentedOperation.FLOAT, "srcRight", "The right side of the source image")
+                .field(DocumentedOperation.FLOAT, "srcBottom", "The bottom of the source image")
+                .field(DocumentedOperation.FLOAT, "dstLeft", "The left side of the destination")
+                .field(DocumentedOperation.FLOAT, "dstTop", "The top of the destination")
+                .field(DocumentedOperation.FLOAT, "dstRight", "The right side of the destination")
+                .field(DocumentedOperation.FLOAT, "dstBottom", "The bottom of the destination")
+                .field(DocumentedOperation.INT, "scaleType", "Type of scaling to apply")
+                .possibleValues("SCALE_NONE", SCALE_NONE)
+                .possibleValues("SCALE_INSIDE", SCALE_INSIDE)
+                .possibleValues("SCALE_FILL_WIDTH", SCALE_FILL_WIDTH)
+                .possibleValues("SCALE_FILL_HEIGHT", SCALE_FILL_HEIGHT)
+                .possibleValues("SCALE_FIT", SCALE_FIT)
+                .possibleValues("SCALE_CROP", SCALE_CROP)
+                .possibleValues("SCALE_FILL_BOUNDS", SCALE_FILL_BOUNDS)
+                .possibleValues("SCALE_FIXED_SCALE", SCALE_FIXED_SCALE)
+                .field(DocumentedOperation.FLOAT, "scaleFactor", "Factor for fixed scale")
+                .field(DocumentedOperation.INT, "cdId", "The ID of the content description string");
     }
 
     //    private String typeToString(int type) {

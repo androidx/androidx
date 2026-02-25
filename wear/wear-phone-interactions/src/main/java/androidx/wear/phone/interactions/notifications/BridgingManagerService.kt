@@ -67,4 +67,6 @@ internal class BridgingManagerServiceImpl(
         }
         bridgingConfigurationHandler.applyBridgingConfiguration(bridgingConfig)
     }
+
+    override fun getInterfaceVersion(): Int = VERSION
 }

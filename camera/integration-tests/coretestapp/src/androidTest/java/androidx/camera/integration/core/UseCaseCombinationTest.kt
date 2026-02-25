@@ -21,8 +21,7 @@ import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
 import android.util.Rational
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
-import androidx.camera.camera2.pipe.integration.internal.StreamUseCaseUtil.STREAM_USE_CASE_STREAM_SPEC_OPTION
+import androidx.camera.camera2.internal.StreamUseCaseUtil.STREAM_USE_CASE_STREAM_SPEC_OPTION
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.AspectRatio.Ratio
 import androidx.camera.core.Camera
@@ -43,7 +42,6 @@ import androidx.camera.core.resolutionselector.AspectRatioStrategy
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.IgnoreVideoRecordingProblematicDeviceRule.Companion.skipVideoRecordingTestIfNotSupportedByEmulator
 import androidx.camera.testing.impl.SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider
@@ -94,10 +92,6 @@ class UseCaseCombinationTest(
 ) {
 
     @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName.contains(CameraPipeConfig::class.simpleName!!))
-
-    @get:Rule
     val cameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             CameraUtil.PreTestCameraIdList(cameraConfig)
@@ -129,14 +123,6 @@ class UseCaseCombinationTest(
                             Camera2Config.defaultConfig(),
                         )
                     )
-                    add(
-                        arrayOf(
-                            "config=${CameraPipeConfig::class.simpleName} lensFacing={$lens}",
-                            selector,
-                            CameraPipeConfig::class.simpleName,
-                            CameraPipeConfig.defaultConfig(),
-                        )
-                    )
                 }
             }
     }
@@ -156,9 +142,7 @@ class UseCaseCombinationTest(
     private lateinit var cameraInfo: CameraInfo
     private lateinit var videoCapabilities: VideoCapabilities
 
-    private val audioStreamAvailable by lazy {
-        AudioChecker.canAudioStreamBeStarted(videoCapabilities, Recorder.DEFAULT_QUALITY_SELECTOR)
-    }
+    private val audioStreamAvailable by lazy { AudioChecker.canAudioStreamBeStarted() }
 
     @Before
     fun initializeCameraX() {

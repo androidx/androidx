@@ -17,7 +17,7 @@
 package androidx.xr.scenecore.spatial.rendering
 
 import android.app.Activity
-import androidx.xr.runtime.internal.Feature
+import androidx.xr.runtime.interfaces.Feature
 import androidx.xr.runtime.internal.JxrRuntime
 import androidx.xr.runtime.internal.RenderingRuntimeFactory
 import androidx.xr.scenecore.runtime.RenderingRuntime

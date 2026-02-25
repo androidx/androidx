@@ -63,7 +63,7 @@ public class BiometricManager {
     /**
      * The user can successfully authenticate.
      */
-    public static final int BIOMETRIC_SUCCESS = 0;
+    public static final int BIOMETRIC_SUCCESS = BiometricConstants.BIOMETRIC_SUCCESS;
 
     /**
      * Unable to determine whether the user can authenticate.
@@ -99,25 +99,26 @@ public class BiometricManager {
      * rather than by calling {@link BiometricManager#canAuthenticate(int)}.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static final int BIOMETRIC_ERROR_LOCKOUT = 7;
+    public static final int BIOMETRIC_ERROR_LOCKOUT = BiometricConstants.ERROR_LOCKOUT;
 
     /**
      * The user can't authenticate because no biometric or device credential is enrolled.
      */
-    public static final int BIOMETRIC_ERROR_NONE_ENROLLED = 11;
+    public static final int BIOMETRIC_ERROR_NONE_ENROLLED = BiometricConstants.ERROR_NO_BIOMETRICS;
 
     /**
      * The user can't authenticate because there is no suitable hardware (e.g. no biometric sensor
      * or no keyguard).
      */
-    public static final int BIOMETRIC_ERROR_NO_HARDWARE = 12;
+    public static final int BIOMETRIC_ERROR_NO_HARDWARE = BiometricConstants.ERROR_HW_NOT_PRESENT;
 
     /**
      * The user can't authenticate because a security vulnerability has been discovered with one or
      * more hardware sensors. The affected sensor(s) are unavailable until a security update has
      * addressed the issue.
      */
-    public static final int BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED = 15;
+    public static final int BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED =
+            BiometricConstants.ERROR_SECURITY_UPDATE_REQUIRED;
 
     /**
      * Identity Check is currently not active.
@@ -125,7 +126,8 @@ public class BiometricManager {
      * This device either doesn't have this feature enabled, or it's not considered in a
      * high-risk environment that requires extra security measures for accessing sensitive data.
      */
-    public static final int BIOMETRIC_ERROR_IDENTITY_CHECK_NOT_ACTIVE = 20;
+    public static final int BIOMETRIC_ERROR_IDENTITY_CHECK_NOT_ACTIVE =
+            BiometricConstants.ERROR_IDENTITY_CHECK_NOT_ACTIVE;
 
     /**
      * Biometrics is not allowed to verify the user in apps. It's for internal use only. This
@@ -134,7 +136,8 @@ public class BiometricManager {
      * converted to BIOMETRIC_ERROR_HW_UNAVAILABLE.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static final int BIOMETRIC_ERROR_NOT_ENABLED_FOR_APPS = 21;
+    public static final int BIOMETRIC_ERROR_NOT_ENABLED_FOR_APPS =
+            BiometricConstants.ERROR_NOT_ENABLED_FOR_APPS;
 
     /**
      * A status code that may be returned when checking for biometric authentication.

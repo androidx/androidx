@@ -25,7 +25,6 @@ import androidx.annotation.RestrictTo
  * supported. It loads all available [SpatialApiVersionProvider] implementations and reports the
  * highest version number found.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public object SpatialApiVersionHelper {
     /**
      * A list of well-known [SpatialApiVersionProvider] implementations.

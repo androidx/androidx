@@ -18,7 +18,6 @@ package androidx.webkit.internal;
 
 import android.webkit.ServiceWorkerController;
 
-import androidx.annotation.RequiresApi;
 import androidx.webkit.ServiceWorkerClientCompat;
 import androidx.webkit.ServiceWorkerControllerCompat;
 import androidx.webkit.ServiceWorkerWebSettingsCompat;
@@ -56,7 +55,6 @@ public class ServiceWorkerControllerImpl extends ServiceWorkerControllerCompat {
         }
     }
 
-    @RequiresApi(24)
     private ServiceWorkerController getFrameworksImpl() {
         if (mFrameworksImpl == null) {
             mFrameworksImpl = ApiHelperForN.getServiceWorkerControllerInstance();

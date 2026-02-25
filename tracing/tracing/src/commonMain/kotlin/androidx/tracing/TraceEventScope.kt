@@ -62,6 +62,16 @@ internal class TraceEventScope() : EventMetadata() {
         frame.lineNumber = lineNumber
     }
 
+    override fun addCorrelationId(id: Long) {
+        val event = event!!
+        event.correlationId = id
+    }
+
+    override fun addCorrelationId(id: String) {
+        val event = event!!
+        event.correlationIdString = id
+    }
+
     override fun addCategory(name: String) {
         val event = event!!
         event.lastCategoryIndex += 1

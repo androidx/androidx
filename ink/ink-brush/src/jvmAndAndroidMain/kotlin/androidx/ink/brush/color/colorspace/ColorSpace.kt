@@ -352,14 +352,14 @@ public abstract class ColorSpace(
          *
          * @see id
          */
-        internal const val MIN_ID = -1 // Do not change
+        internal const val MIN_ID: Int = -1 // Do not change
 
         /**
          * The maximum ID value a color space can have.
          *
          * @see id
          */
-        internal const val MAX_ID = 63 // Do not change, used to encode in longs
+        internal const val MAX_ID: Int = 63 // Do not change, used to encode in longs
     }
 }
 

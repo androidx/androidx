@@ -34,13 +34,13 @@ data class AppFunctionPropertyDeclaration(
     /** Creates an [AppFunctionPropertyDeclaration] from [KSPropertyDeclaration]. */
     constructor(
         property: KSPropertyDeclaration,
-        isDescribedByKdoc: Boolean,
+        isDescribedByKDoc: Boolean,
         isRequired: Boolean,
         sharedDataTypeDescriptionMap: Map<String, String>,
     ) : this(
         checkNotNull(property.simpleName).asString(),
         property.type,
-        if (isDescribedByKdoc) {
+        if (isDescribedByKDoc) {
             property.docString?.ifEmpty {
                 sharedDataTypeDescriptionMap[property.getQualifiedName()]
             } ?: ""

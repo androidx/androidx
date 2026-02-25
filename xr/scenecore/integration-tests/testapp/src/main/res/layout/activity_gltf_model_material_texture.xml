@@ -20,14 +20,27 @@
       app:title="GLTF Model Test"
       app:titleCentered="true" />
 
-  <com.google.android.material.card.MaterialCardView
-      android:id="@+id/gltf_model_cardRow0"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_marginTop="16dp"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@id/gltf_model_topAppBar">
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/gltf_model_topAppBar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="88dp">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/gltf_model_cardRow0"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
     <Button
         android:id="@+id/gltf_model_toggle_hsm_fsm"
@@ -292,13 +305,40 @@
   </com.google.android.material.card.MaterialCardView>
 
   <com.google.android.material.card.MaterialCardView
-      android:id="@+id/gltf_model_cardRow5"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_marginTop="16dp"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@+id/gltf_model_cardRow4">
+    android:id="@+id/gltf_model_cardRow_dropdown"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="16dp"
+    android:visibility="gone"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/gltf_model_cardRow4">
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp">
+
+            <AutoCompleteTextView
+                android:id="@+id/node_dropdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:inputType="none"
+                android:text="Choose Model Node" />
+        </com.google.android.material.textfield.TextInputLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/gltf_model_cardRow5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/gltf_model_cardRow_dropdown">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -339,18 +379,98 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
   </com.google.android.material.card.MaterialCardView>
 
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/gltf_model_cardRow_sliders"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/gltf_model_cardRow5">
 
-  <com.google.android.material.floatingactionbutton.FloatingActionButton
-      android:id="@+id/bottomCenterFab"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_margin="16dp"
-      android:backgroundTint="@color/google_blue"
-      android:scaleX="1.25"
-      android:scaleY="1.25"
-      android:src="@drawable/recreate"
-      app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView android:text="Model Node Location" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+                <TextView android:text="X: -10" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <com.google.android.material.slider.Slider android:id="@+id/slider_loc_x" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:valueFrom="-10.0" android:valueTo="10.0" android:stepSize="0.01"/>
+                <TextView android:text="+10" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+                <TextView android:text="Y: -10" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <com.google.android.material.slider.Slider android:id="@+id/slider_loc_y" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:valueFrom="-10.0" android:valueTo="10.0" android:stepSize="0.01"/>
+                <TextView android:text="+10" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+                <TextView android:text="Z: -10" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <com.google.android.material.slider.Slider android:id="@+id/slider_loc_z" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:valueFrom="-10.0" android:valueTo="10.0" android:stepSize="0.01"/>
+                <TextView android:text="+10" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            </LinearLayout>
+
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#CCC" android:layout_marginVertical="8dp"/>
+
+            <TextView android:text="Model Node Rotation" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+                <TextView android:text="X: -1" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <com.google.android.material.slider.Slider android:id="@+id/slider_rot_x" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:valueFrom="-1.0" android:valueTo="1.0" android:stepSize="0.01"/>
+                <TextView android:text="+1" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+                <TextView android:text="Y: -1" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <com.google.android.material.slider.Slider android:id="@+id/slider_rot_y" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:valueFrom="-1.0" android:valueTo="1.0" android:stepSize="0.01"/>
+                <TextView android:text="+1" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+                <TextView android:text="Z: -1" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <com.google.android.material.slider.Slider android:id="@+id/slider_rot_z" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:valueFrom="-1.0" android:valueTo="1.0" android:stepSize="0.01"/>
+                <TextView android:text="+1" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+                <TextView android:text="W: -1" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <com.google.android.material.slider.Slider android:id="@+id/slider_rot_w" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:valueFrom="-1.0" android:valueTo="1.0" android:stepSize="0.01"/>
+                <TextView android:text="+1" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            </LinearLayout>
+
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#CCC" android:layout_marginVertical="8dp"/>
+
+            <TextView android:text="Model Node scale" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+                <TextView android:text="X: 0" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <com.google.android.material.slider.Slider android:id="@+id/slider_scale_x" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:valueFrom="0.0" android:valueTo="10.0" android:stepSize="0.01"/>
+                <TextView android:text="+10" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+                <TextView android:text="Y: 0" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <com.google.android.material.slider.Slider android:id="@+id/slider_scale_y" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:valueFrom="0.0" android:valueTo="10.0" android:stepSize="0.01"/>
+                <TextView android:text="+10" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+                <TextView android:text="Z: 0" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <com.google.android.material.slider.Slider android:id="@+id/slider_scale_z" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:valueFrom="0.0" android:valueTo="10.0" android:stepSize="0.01"/>
+                <TextView android:text="+10" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/bottomCenterFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:backgroundTint="@color/google_blue"
+        android:scaleX="1.25"
+        android:scaleY="1.25"
+        android:src="@drawable/recreate"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

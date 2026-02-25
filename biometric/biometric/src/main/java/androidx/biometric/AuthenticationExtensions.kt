@@ -18,6 +18,7 @@
 package androidx.biometric
 
 import androidx.activity.ComponentActivity
+import androidx.biometric.internal.AuthenticationResultRegistry
 import androidx.biometric.internal.ui.getConfirmCredentialActivityLauncher
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity

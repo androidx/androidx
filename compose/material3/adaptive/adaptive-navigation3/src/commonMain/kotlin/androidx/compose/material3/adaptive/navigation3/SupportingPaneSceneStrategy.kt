@@ -17,18 +17,27 @@
 package androidx.compose.material3.adaptive.navigation3
 
 import androidx.collection.mutableIntListOf
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.layout.PaneAdaptedValue
+import androidx.compose.material3.adaptive.layout.PaneExpansionState
+import androidx.compose.material3.adaptive.layout.PaneMotionDefaults
 import androidx.compose.material3.adaptive.layout.PaneScaffoldDirective
 import androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldDefaults
 import androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldRole
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldAdaptStrategies
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
+import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope
 import androidx.compose.material3.adaptive.layout.calculatePaneScaffoldDirective
 import androidx.compose.material3.adaptive.navigation.BackNavigationBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntRect
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.scene.Scene
 import androidx.navigation3.scene.SceneStrategy
@@ -50,6 +59,10 @@ import kotlin.jvm.JvmName
  *   adapted if they can't fit on screen in the [PaneAdaptedValue.Expanded] state. It is recommended
  *   to use [SupportingPaneScaffoldDefaults.adaptStrategies] as a default, but custom
  *   [ThreePaneScaffoldAdaptStrategies] are supported as well.
+ * @param paneExpansionDragHandle when two panes are displayed side-by-side, a non-null drag handle
+ *   allows users to resize the panes and change the pane expansion state.
+ * @param paneExpansionState the state object of pane expansion. If this is null but a
+ *   [paneExpansionDragHandle] is provided, a default implementation will be created.
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
@@ -60,6 +73,9 @@ public fun <T : Any> rememberSupportingPaneSceneStrategy(
     directive: PaneScaffoldDirective = calculatePaneScaffoldDirective(currentWindowAdaptiveInfo()),
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
         SupportingPaneScaffoldDefaults.adaptStrategies(),
+    paneExpansionDragHandle: (@Composable ThreePaneScaffoldScope.(PaneExpansionState) -> Unit)? =
+        null,
+    paneExpansionState: PaneExpansionState? = null,
 ): SupportingPaneSceneStrategy<T> {
     return remember(
         shouldHandleSinglePaneLayout,
@@ -72,6 +88,8 @@ public fun <T : Any> rememberSupportingPaneSceneStrategy(
             backNavigationBehavior = backNavigationBehavior,
             directive = directive,
             adaptStrategies = adaptStrategies,
+            paneExpansionDragHandle = paneExpansionDragHandle,
+            paneExpansionState = paneExpansionState,
         )
     }
 }
@@ -94,6 +112,10 @@ public fun <T : Any> rememberSupportingPaneSceneStrategy(
  *   adapted if they can't fit on screen in the [PaneAdaptedValue.Expanded] state. It is recommended
  *   to use [SupportingPaneScaffoldDefaults.adaptStrategies] as a default, but custom
  *   [ThreePaneScaffoldAdaptStrategies] are supported as well.
+ * @param paneExpansionDragHandle when two panes are displayed side-by-side, a non-null drag handle
+ *   allows users to resize the panes and change the pane expansion state.
+ * @param paneExpansionState the state object of pane expansion. If this is null but a
+ *   [paneExpansionDragHandle] is provided, a default implementation will be created.
  */
 @ExperimentalMaterial3AdaptiveApi
 public class SupportingPaneSceneStrategy<T : Any>(
@@ -101,6 +123,10 @@ public class SupportingPaneSceneStrategy<T : Any>(
     public val backNavigationBehavior: BackNavigationBehavior,
     public val directive: PaneScaffoldDirective,
     public val adaptStrategies: ThreePaneScaffoldAdaptStrategies,
+    public val paneExpansionDragHandle:
+        (@Composable
+        ThreePaneScaffoldScope.(PaneExpansionState) -> Unit)?,
+    public val paneExpansionState: PaneExpansionState?,
 ) : SceneStrategy<T> {
 
     override fun SceneStrategyScope<T>.calculateScene(entries: List<NavEntry<T>>): Scene<T>? {
@@ -145,6 +171,8 @@ public class SupportingPaneSceneStrategy<T : Any>(
                 entriesAsNavItems = entriesAsNavItems,
                 getPaneRole = { getPaneMetadata(it)?.role },
                 scaffoldType = ThreePaneScaffoldType.SupportingPane,
+                paneExpansionDragHandle = paneExpansionDragHandle,
+                paneExpansionState = paneExpansionState,
             )
 
         return when {
@@ -208,6 +236,99 @@ public class SupportingPaneSceneStrategy<T : Any>(
          */
         public fun extraPane(sceneKey: Any = Unit): Map<String, Any> =
             mapOf(SupportingPaneRoleKey to ExtraMetadata(sceneKey))
+
+        /**
+         * Constructs metadata to set the preferred size of a pane within a supporting-pane
+         * scaffold, defined in [Dp]s.
+         *
+         * If the value is unset or set to [Dp.Unspecified],
+         * [defaultPanePreferredWidth][PaneScaffoldDirective.defaultPanePreferredWidth] and
+         * [defaultPanePreferredHeight][PaneScaffoldDirective.defaultPanePreferredHeight] from
+         * [directive] will be used instead.
+         *
+         * @param width the preferred width of the pane, defined in Dp. The implementation will try
+         *   to respect this value when the pane is rendered as a fixed pane. Note that the
+         *   preferred width may be ignored when this pane has higher priority than the other panes
+         *   so it is forced to fill the available width, or if the pane needs to shrink or expand
+         *   to avoid intersecting with the hinge areas.
+         * @param height the preferred height of the pane, defined in Dp. The implementation will
+         *   try to respect this value when the pane is rendered in a [PaneAdaptedValue.Reflowed] or
+         *   [PaneAdaptedValue.Levitated] state. Note that the preferred height may be ignored when
+         *   the pane is expanded to stretch the available height, or if the pane needs to shrink or
+         *   expand to avoid intersecting with the hinge areas.
+         */
+        public fun preferredPaneSize(
+            width: Dp = Dp.Unspecified,
+            height: Dp = Dp.Unspecified,
+        ): Map<String, Any> = buildMap {
+            if (width != Dp.Unspecified) {
+                put(MetadataPreferredWidthKey, width)
+            }
+            if (height != Dp.Unspecified) {
+                put(MetadataPreferredHeightKey, height)
+            }
+        }
+
+        /**
+         * Constructs metadata to set the preferred size of a pane within a supporting-pane
+         * scaffold, defined as a fraction of the total scaffold size.
+         *
+         * If the value is unset or set to [Dp.Unspecified],
+         * [defaultPanePreferredWidth][PaneScaffoldDirective.defaultPanePreferredWidth] and
+         * [defaultPanePreferredHeight][PaneScaffoldDirective.defaultPanePreferredHeight] from
+         * [directive] will be used instead.
+         *
+         * @param width the preferred width of the pane, defined as a fraction from 0.0 to 1.0 of
+         *   the total scaffold width. The implementation will try to respect this value when the
+         *   pane is rendered as a fixed pane. Note that the preferred width may be ignored when
+         *   this pane has higher priority than the other panes so it is forced to fill the
+         *   available width, or if the pane needs to shrink or expand to avoid intersecting with
+         *   the hinge areas.
+         * @param height the preferred height of the pane, defined as a fraction from 0.0 to 1.0 of
+         *   the total scaffold height. The implementation will try to respect this value when the
+         *   pane is rendered in a [PaneAdaptedValue.Reflowed] or [PaneAdaptedValue.Levitated]
+         *   state. Note that the preferred height may be ignored when the pane is expanded to
+         *   stretch the available height, or if the pane needs to shrink or expand to avoid
+         *   intersecting with the hinge areas.
+         */
+        public fun preferredPaneSize(
+            width: Float = Float.NaN,
+            height: Float = Float.NaN,
+        ): Map<String, Any> = buildMap {
+            if (!width.isNaN()) {
+                put(MetadataPreferredWidthKey, width)
+            }
+            if (!height.isNaN()) {
+                put(MetadataPreferredHeightKey, height)
+            }
+        }
+
+        /**
+         * Constructs metadata to customize the animation of panes within a list-detail scaffold.
+         *
+         * If the value is null or unset, the default motions defined by [PaneMotionDefaults] will
+         * be used instead.
+         *
+         * @param enterTransition The [EnterTransition] used to animate the pane in.
+         * @param exitTransition The [ExitTransition] used to animate the pane out.
+         * @param boundsAnimationSpec The [FiniteAnimationSpec] used to animate the bounds of the
+         *   pane when it remains showing but changes its size and/or position.
+         */
+        public fun paneAnimation(
+            enterTransition: EnterTransition? = null,
+            exitTransition: ExitTransition? = null,
+            boundsAnimationSpec: FiniteAnimationSpec<IntRect>? = null,
+        ): Map<String, Any> = buildMap {
+            if (enterTransition != null) {
+                put(MetadataEnterTransitionKey, enterTransition)
+            }
+            if (exitTransition != null) {
+                put(MetadataExitTransitionKey, exitTransition)
+            }
+            if (boundsAnimationSpec != null) {
+                put(MetadataBoundsAnimationSpecKey, boundsAnimationSpec)
+            }
+        }
 
         private fun <T : Any> getPaneMetadata(entry: NavEntry<T>): PaneMetadata? =
             entry.metadata[SupportingPaneRoleKey] as? PaneMetadata

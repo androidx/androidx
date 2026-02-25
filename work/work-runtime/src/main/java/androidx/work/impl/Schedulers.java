@@ -26,6 +26,7 @@ import android.os.Build;
 import androidx.annotation.RestrictTo;
 import androidx.work.Clock;
 import androidx.work.Configuration;
+import androidx.work.Constraints;
 import androidx.work.Logger;
 import androidx.work.impl.background.systemjob.SystemJobScheduler;
 import androidx.work.impl.background.systemjob.SystemJobService;
@@ -35,7 +36,11 @@ import androidx.work.impl.model.WorkSpecDao;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 /**
@@ -85,12 +90,13 @@ public class Schedulers {
             @NonNull Configuration configuration,
             @NonNull WorkDatabase workDatabase,
             @Nullable List<Scheduler> schedulers) {
-        if (schedulers == null || schedulers.size() == 0) {
+        if (schedulers == null || schedulers.isEmpty()) {
             return;
         }
 
         WorkSpecDao workSpecDao = workDatabase.workSpecDao();
         List<WorkSpec> eligibleWorkSpecsForLimitedSlots;
+        List<WorkSpec> ineligibleWorkSpecsForLimitedSlots = new ArrayList<>();
         List<WorkSpec> allEligibleWorkSpecs;
 
         workDatabase.beginTransaction();
@@ -101,47 +107,142 @@ public class Schedulers {
                 markScheduled(workSpecDao, configuration.getClock(), contentUriWorkSpecs);
             }
 
-            // Enqueued workSpecs when scheduling limits are applicable.
-            eligibleWorkSpecsForLimitedSlots = workSpecDao.getEligibleWorkForScheduling(
-                    configuration.getMaxSchedulerLimit());
+            // Enqueued workSpecs when scheduling limits are NOT applicable.
+            allEligibleWorkSpecs = workSpecDao.getAllEligibleWorkSpecsForScheduling(
+                    MAX_GREEDY_SCHEDULER_LIMIT);
+
+            if (!configuration.isRepresentativeJobsEnabled()) {
+                // Enqueued workSpecs when scheduling limits are applicable.
+                eligibleWorkSpecsForLimitedSlots = workSpecDao.getEligibleWorkForScheduling(
+                        configuration.getMaxSchedulerLimit());
+            } else {
+
+                Set<WorkSpec> uniqueConstraintsPrioritySet =
+                        getRepresentativeJobsPrioritizedWorkToSchedule(
+                                workSpecDao.getAllUnblockedWork(),
+                                configuration.getMaxSchedulerLimit());
+                for (WorkSpec workSpec : workSpecDao.getScheduledWork()) {
+                    // Remove workSpecs that are already scheduled from the priority set.
+                    // Collect those that are no longer in the priority set since they should be
+                    // unscheduled.
+                    if (uniqueConstraintsPrioritySet.contains(workSpec)) {
+                        uniqueConstraintsPrioritySet.remove(workSpec);
+                    } else {
+                        ineligibleWorkSpecsForLimitedSlots.add(workSpec);
+                        workSpecDao.markWorkSpecScheduled(
+                                workSpec.id, WorkSpec.SCHEDULE_NOT_REQUESTED_YET);
+                    }
+                }
+                eligibleWorkSpecsForLimitedSlots = new ArrayList<>(uniqueConstraintsPrioritySet);
+            }
+
             markScheduled(workSpecDao, configuration.getClock(), eligibleWorkSpecsForLimitedSlots);
             if (contentUriWorkSpecs != null) {
                 eligibleWorkSpecsForLimitedSlots.addAll(contentUriWorkSpecs);
             }
 
-            // Enqueued workSpecs when scheduling limits are NOT applicable.
-            allEligibleWorkSpecs = workSpecDao.getAllEligibleWorkSpecsForScheduling(
-                    MAX_GREEDY_SCHEDULER_LIMIT);
             workDatabase.setTransactionSuccessful();
         } finally {
             workDatabase.endTransaction();
         }
 
-        if (eligibleWorkSpecsForLimitedSlots.size() > 0) {
+        if (configuration.isRepresentativeJobsEnabled()) {
+            // Cancel now-ineligible workers before scheduling the new set.
+            // TODO(b/481357599): Add logging to detect how often this occurs.
+            cancelWorkSpecsForLimitedSlots(ineligibleWorkSpecsForLimitedSlots, schedulers);
+        }
 
-            WorkSpec[] eligibleWorkSpecsArray =
-                    new WorkSpec[eligibleWorkSpecsForLimitedSlots.size()];
-            eligibleWorkSpecsArray =
-                    eligibleWorkSpecsForLimitedSlots.toArray(eligibleWorkSpecsArray);
+        scheduleWorkSpecs(
+                eligibleWorkSpecsForLimitedSlots, schedulers, /* forLimitedSlots= */ true);
+        scheduleWorkSpecs(allEligibleWorkSpecs, schedulers, /* forLimitedSlots= */ false);
+    }
 
-            // Delegate to the underlying schedulers.
-            for (Scheduler scheduler : schedulers) {
-                if (scheduler.hasLimitedSchedulingSlots()) {
-                    scheduler.schedule(eligibleWorkSpecsArray);
-                }
+    private static void scheduleWorkSpecs(
+            @NonNull List<WorkSpec> workSpecs,
+            @NonNull List<Scheduler> schedulers,
+            boolean forLimitedSlots) {
+        if (workSpecs.isEmpty()) {
+            return;
+        }
+
+        WorkSpec[] workSpecsArray = new WorkSpec[workSpecs.size()];
+        workSpecsArray = workSpecs.toArray(workSpecsArray);
+
+        // Delegate to the underlying schedulers.
+        for (Scheduler scheduler : schedulers) {
+            if (scheduler.hasLimitedSchedulingSlots() == forLimitedSlots) {
+                scheduler.schedule(workSpecsArray);
+            }
+        }
+    }
+
+    private static void cancelWorkSpecsForLimitedSlots(
+            @NonNull List<WorkSpec> workSpecs, @NonNull List<Scheduler> schedulers) {
+        for (Scheduler scheduler : schedulers) {
+            if (!scheduler.hasLimitedSchedulingSlots()) {
+                continue;
+            }
+            for (WorkSpec workSpec : workSpecs) {
+                scheduler.cancel(workSpec.id);
+            }
+        }
+    }
+
+    /**
+     * Generates a priority set of {@link WorkSpec}s, ensuring that a diverse set of constraints
+     * are represented within the given {@code maxSlots}.
+     *
+     * The method prioritizes {@link WorkSpec}s in the following order:
+     * <ol>
+     *     <li>WorkSpecs with unique {@link Constraints}, sorted by their calculated next run time.
+     *     This ensures that WorkSpecs with shorter delays are prioritized.</li>
+     *     <li>If there are still available slots after including all unique constraint WorkSpecs,
+     *     the remaining slots are filled with the earliest-to-run WorkSpecs that share constraints
+     *     with those already selected.</li>
+     * </ol>
+     *
+     * @param allEligibleWorkSpecs A list of all eligible {@link WorkSpec}s.
+     * @param maxSlots The maximum number of WorkSpecs to include in the priority set.
+     * @return A {@link Set} of {@link WorkSpec}s representing the prioritized selection.
+     */
+    private static @NonNull Set<WorkSpec> getRepresentativeJobsPrioritizedWorkToSchedule(
+            @NonNull List<WorkSpec> allEligibleWorkSpecs, int maxSlots) {
+        if (allEligibleWorkSpecs.size() <= maxSlots) {
+            return new HashSet<>(allEligibleWorkSpecs);
+        }
+
+        Set<WorkSpec> representativeWork = new HashSet<>(maxSlots);
+        List<WorkSpec> remainingList = new ArrayList<>(maxSlots);
+
+        // Sort WorkSpec by minimum delay to ensure that workers with short delays are not starved
+        // by workers with long delays.
+        Collections.sort(
+                allEligibleWorkSpecs,
+                (a, b) -> Long.compare(a.calculateNextRunTime(), b.calculateNextRunTime()));
+
+        Set<Constraints> seenConstraints = new HashSet<>(maxSlots);
+        for (WorkSpec workSpec : allEligibleWorkSpecs) {
+            // Only constraints are considered, initialDelay should be ignored when considering
+            // uniqueness.
+            if (!seenConstraints.contains(workSpec.constraints)) {
+                representativeWork.add(workSpec);
+                seenConstraints.add(workSpec.constraints);
+            } else {
+                remainingList.add(workSpec);
+            }
+
+            if (representativeWork.size() == maxSlots) {
+                return representativeWork;
             }
         }
 
-        if (allEligibleWorkSpecs.size() > 0) {
-            WorkSpec[] enqueuedWorkSpecsArray = new WorkSpec[allEligibleWorkSpecs.size()];
-            enqueuedWorkSpecsArray = allEligibleWorkSpecs.toArray(enqueuedWorkSpecsArray);
-            // Delegate to the underlying schedulers.
-            for (Scheduler scheduler : schedulers) {
-                if (!scheduler.hasLimitedSchedulingSlots()) {
-                    scheduler.schedule(enqueuedWorkSpecsArray);
-                }
-            }
+        if (remainingList.isEmpty()) {
+            return representativeWork;
         }
+
+        int remainingSlots = maxSlots - representativeWork.size();
+        representativeWork.addAll(remainingList.subList(0, remainingSlots));
+        return representativeWork;
     }
 
     static @NonNull Scheduler createBestAvailableBackgroundScheduler(@NonNull Context context,

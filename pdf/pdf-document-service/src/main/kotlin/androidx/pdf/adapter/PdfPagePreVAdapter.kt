@@ -55,7 +55,12 @@ internal class PdfPagePreVAdapter(private val page: PdfRendererPreV.Page) : PdfP
     override val height = page.height
     override val width = page.width
 
+    override var isClosed = false
+
     override fun renderPage(bitmap: Bitmap, renderParams: RenderParams) {
+        if (isClosed) {
+            throw IllegalStateException("Page is closed")
+        }
         page.render(bitmap, null, null, renderParams.toAndroidClass())
     }
 
@@ -76,6 +81,9 @@ internal class PdfPagePreVAdapter(private val page: PdfRendererPreV.Page) : PdfP
                 width,
                 height,
             )
+        if (isClosed) {
+            throw IllegalStateException("Page is closed")
+        }
         page.render(bitmap, null, transformationMatrix, renderParams.toAndroidClass())
     }
 
@@ -126,6 +134,7 @@ internal class PdfPagePreVAdapter(private val page: PdfRendererPreV.Page) : PdfP
     }
 
     override fun close() {
+        isClosed = true
         page.close()
     }
 

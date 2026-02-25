@@ -149,13 +149,13 @@ class KSTypeExtTest {
             Source.kotlin(
                 "Foo.kt",
                 """
-            import kotlin.collections.*
-            class Foo {
-                val errorField : DoesNotExist = TODO()
-                val listOfError : List<DoesNotExist> = TODO()
-                val mutableMapOfDontExist : MutableMap<String, DoesNotExist> = TODO()
-            }
-            """
+                import kotlin.collections.*
+                class Foo {
+                    val errorField : DoesNotExist = TODO()
+                    val listOfError : List<DoesNotExist> = TODO()
+                    val mutableMapOfDontExist : MutableMap<String, DoesNotExist> = TODO()
+                }
+                """
                     .trimIndent(),
             )
         runKspTest(

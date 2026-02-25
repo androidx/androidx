@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.action
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.modifiers.HostNamedActionOperation
-import androidx.compose.remote.creation.actions.HostAction
+import androidx.compose.remote.creation.actions.Action as CreationAction
+import androidx.compose.remote.creation.actions.HostAction as CreationHostAction
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteState
@@ -31,6 +31,7 @@ import androidx.compose.remote.creation.compose.state.RemoteString
 public class HostAction(
     public val name: RemoteString,
     public val type: Type = Type.INT,
+    public val id: Int = 0,
     public val value: RemoteState<*>? = null,
 ) : Action {
 
@@ -44,20 +45,29 @@ public class HostAction(
     }
 
     // TODO: Add a RemoteFloatArray type and use it here!
-    public constructor(name: RemoteString, value: RemoteFloat) : this(name, Type.FLOAT, value)
+    public constructor(name: RemoteString, value: RemoteFloat) : this(name, Type.FLOAT, 0, value)
 
-    public constructor(name: RemoteString, value: RemoteInt) : this(name, Type.INT, value)
+    public constructor(name: RemoteString, value: RemoteInt) : this(name, Type.INT, 0, value)
 
-    public constructor(name: RemoteString, value: RemoteString) : this(name, Type.STRING, value)
+    public constructor(name: RemoteString, value: RemoteString) : this(name, Type.STRING, 0, value)
 
-    override fun RemoteStateScope.toRemoteAction():
-        androidx.compose.remote.creation.actions.Action {
+    public constructor(
+        id: Int,
+        name: RemoteString,
+        value: RemoteString,
+    ) : this(name, Type.STRING, id, value)
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun RemoteStateScope.toRemoteAction(): CreationAction {
         val valueId = value?.id ?: -1
         val constantValue = name.constantValueOrNull
+        if (id != 0) {
+            return CreationHostAction(id, valueId)
+        }
         return if (constantValue != null) {
-            HostAction(constantValue, type.ordinal, valueId)
+            CreationHostAction(constantValue, type.ordinal, valueId)
         } else {
-            HostAction(name.id, valueId)
+            CreationHostAction(name.id, valueId)
         }
     }
 }

@@ -356,6 +356,7 @@ public abstract class AbstractEmbeddedPhotoPickerState(
             /* width =           */ surfaceSize.width,
             /* height =          */ surfaceSize.height,
             /* featureInfo =     */ featureInfoWithLocalState,
+            @OptIn(ExperimentalStdlibApi::class)
             /* clientExecutor =  */ coroutineContext[CoroutineDispatcher]?.asExecutor()
                 // Fallback to Main.immediate if the dispatcher in this context is null.
                 // (i.e) for Instrumented tests.

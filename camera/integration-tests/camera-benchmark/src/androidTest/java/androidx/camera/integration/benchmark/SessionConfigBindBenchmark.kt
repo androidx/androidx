@@ -19,14 +19,12 @@ package androidx.camera.integration.benchmark
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeatedOnMainThread
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.SessionConfig
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.video.Recorder
@@ -58,18 +56,8 @@ class SessionConfigBindBenchmark(
     @get:Rule
     val useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-            CameraUtil.PreTestCameraIdList(
-                if (implName == Camera2Config::class.simpleName) {
-                    Camera2Config.defaultConfig()
-                } else {
-                    CameraPipeConfig.defaultConfig()
-                }
-            )
+            CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
         )
-
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
 
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var fakeLifecycleOwner: FakeLifecycleOwner
@@ -125,14 +113,6 @@ class SessionConfigBindBenchmark(
                             selector,
                             Camera2Config::class.simpleName,
                             Camera2Config.defaultConfig(),
-                        )
-                    )
-                    add(
-                        arrayOf(
-                            "config=${CameraPipeConfig::class.simpleName} lensFacing={$lens}",
-                            selector,
-                            CameraPipeConfig::class.simpleName,
-                            CameraPipeConfig.defaultConfig(),
                         )
                     )
                 }

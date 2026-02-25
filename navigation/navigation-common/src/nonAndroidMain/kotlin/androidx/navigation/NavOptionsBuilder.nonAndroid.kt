@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,62 +16,125 @@
 
 package androidx.navigation
 
+import androidx.annotation.RestrictTo
 import kotlin.reflect.KClass
 
 @NavOptionsDsl
-public actual class NavOptionsBuilder {
-    public actual var launchSingleTop: Boolean
-        get() = implementedInJetBrainsFork()
-        set(_) {
-            implementedInJetBrainsFork()
+public actual class NavOptionsBuilder actual constructor() {
+    private val builder = NavOptions.Builder()
+
+    public actual var launchSingleTop: Boolean = false
+
+    @get:Suppress("GetterOnBuilder", "GetterSetterNames")
+    @set:Suppress("SetterReturnsThis", "GetterSetterNames")
+    public actual var restoreState: Boolean = false
+
+    /** Returns the current destination that the builder will pop up to. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public var popUpToId: Int = -1
+        internal set(value) {
+            field = value
+            inclusive = false
         }
 
-    public actual var restoreState: Boolean
-        get() = implementedInJetBrainsFork()
-        set(_) {
-            implementedInJetBrainsFork()
+    public actual var popUpToRoute: String? = null
+        private set(value) {
+            if (value != null) {
+                require(value.isNotBlank()) { "Cannot pop up to an empty route" }
+                field = value
+                inclusive = false
+            }
         }
 
-    public actual var popUpToRoute: String?
-        get() = implementedInJetBrainsFork()
-        set(_) {
-            implementedInJetBrainsFork()
+    private var inclusive = false
+    private var saveState = false
+
+    @get:Suppress("GetterOnBuilder")
+    public actual var popUpToRouteClass: KClass<*>? = null
+        private set(value) {
+            if (value != null) {
+                field = value
+                inclusive = false
+            }
         }
 
-    public actual var popUpToRouteClass: KClass<*>?
-        get() = implementedInJetBrainsFork()
-        set(_) {
-            implementedInJetBrainsFork()
+    @get:Suppress("GetterOnBuilder")
+    public actual var popUpToRouteObject: Any? = null
+        private set(value) {
+            if (value != null) {
+                field = value
+                inclusive = false
+            }
         }
 
-    public actual var popUpToRouteObject: Any?
-        get() = implementedInJetBrainsFork()
-        set(_) {
-            implementedInJetBrainsFork()
-        }
-
-    public actual fun popUpTo(route: String, popUpToBuilder: PopUpToBuilder.() -> Unit) {
-        implementedInJetBrainsFork()
+    /**
+     * Pop up to a given destination before navigating. This pops all non-matching destinations from
+     * the back stack until this destination is found.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Suppress("KmpHideShowAnnotationMismatch")
+    public fun popUpTo(id: Int, popUpToBuilder: PopUpToBuilder.() -> Unit = {}) {
+        popUpToId = id
+        popUpToRoute = null
+        val builder = PopUpToBuilder().apply(popUpToBuilder)
+        inclusive = builder.inclusive
+        saveState = builder.saveState
     }
 
+    public actual fun popUpTo(route: String, popUpToBuilder: PopUpToBuilder.() -> Unit) {
+        popUpToRoute = route
+        popUpToId = -1
+        val builder = PopUpToBuilder().apply(popUpToBuilder)
+        inclusive = builder.inclusive
+        saveState = builder.saveState
+    }
+
+    // align with other popUpTo overloads where this is suppressed in baseline lint ignore
     @Suppress("BuilderSetStyle")
     public actual inline fun <reified T : Any> popUpTo(
         noinline popUpToBuilder: PopUpToBuilder.() -> Unit
-    ) {}
+    ) {
+        popUpTo(T::class, popUpToBuilder)
+    }
 
+    @Suppress("BuilderSetStyle")
     public actual fun <T : Any> popUpTo(
         route: KClass<T>,
         popUpToBuilder: PopUpToBuilder.() -> Unit,
     ) {
-        implementedInJetBrainsFork()
+        popUpToRouteClass = route
+        popUpToId = -1
+        popUpToRoute = null
+        val builder = PopUpToBuilder().apply(popUpToBuilder)
+        inclusive = builder.inclusive
+        saveState = builder.saveState
     }
 
+    // align with other popUpTo overloads where this is suppressed in baseline lint ignore
     @Suppress("BuilderSetStyle", "MissingJvmstatic")
     public actual fun <T : Any> popUpTo(route: T, popUpToBuilder: PopUpToBuilder.() -> Unit) {
-        implementedInJetBrainsFork()
+        popUpToRouteObject = route
+        popUpToId = -1
+        popUpToRoute = null
+        val builder = PopUpToBuilder().apply(popUpToBuilder)
+        inclusive = builder.inclusive
+        saveState = builder.saveState
     }
 
-    internal actual fun build(): NavOptions {
-        implementedInJetBrainsFork()
-    }
+    internal actual fun build() =
+        builder
+            .apply {
+                setLaunchSingleTop(launchSingleTop)
+                setRestoreState(restoreState)
+                if (popUpToRoute != null) {
+                    setPopUpTo(popUpToRoute, inclusive, saveState)
+                } else if (popUpToRouteClass != null) {
+                    setPopUpTo(popUpToRouteClass!!, inclusive, saveState)
+                } else if (popUpToRouteObject != null) {
+                    setPopUpTo(popUpToRouteObject!!, inclusive, saveState)
+                } else {
+                    setPopUpTo(popUpToId, inclusive, saveState)
+                }
+            }
+            .build()
 }

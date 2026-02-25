@@ -75,9 +75,10 @@ class DocstringUtilsTest {
         assertThat(sanitizeKDoc(CUSTOM_TAG_DOCSTRING))
             .isEqualTo(
                 """
-                    Fake docstring to test param descriptions.
-                    
-                    @customTag Custom tag content."""
+                Fake docstring to test param descriptions.
+
+                @customTag Custom tag content.
+                """
                     .trimIndent()
             )
     }

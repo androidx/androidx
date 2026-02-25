@@ -176,6 +176,7 @@ class RoundedPolygon internal constructor(val features: List<Feature>, internal 
      * @return The axis-aligned max bounding box for this object, where the rectangles left, top,
      *   right, and bottom values will be stored in entries 0, 1, 2, and 3, in that order.
      */
+    @Suppress("MissingJvmstatic")
     fun calculateMaxBounds(bounds: FloatArray = FloatArray(4)): FloatArray {
         require(bounds.size >= 4) { "Required bounds size of 4" }
         var maxDistSquared = 0f

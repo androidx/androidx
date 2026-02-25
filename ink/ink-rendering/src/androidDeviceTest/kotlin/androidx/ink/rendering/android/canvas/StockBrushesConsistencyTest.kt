@@ -49,7 +49,6 @@ class StockBrushesConsistencyTest() {
                 StockBrushes.pressurePen(StockBrushes.PressurePenVersion.V1),
                 StockBrushes.highlighter(version = StockBrushes.HighlighterVersion.V1),
                 StockBrushes.dashedLine(StockBrushes.DashedLineVersion.V1),
-                StockBrushes.pencilUnstable,
             )
 
         // Collections of test values to check consistency across.

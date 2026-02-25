@@ -124,6 +124,8 @@ class ImageCaptureTest {
                 captureError = exception
             }
         }
+    private val onImageSavedCallback = mock(ImageCapture.OnImageSavedCallback::class.java)
+
     private val testImplementationOption: androidx.camera.core.impl.Config.Option<Int> =
         androidx.camera.core.impl.Config.Option.create(
             "test.testOption",
@@ -258,7 +260,6 @@ class ImageCaptureTest {
         // Arrange.
         val imageCapture = createImageCapture()
         val options = ImageCapture.OutputFileOptions.Builder(File("fake_path")).build()
-        val onImageSavedCallback = mock(ImageCapture.OnImageSavedCallback::class.java)
 
         // Act.
         imageCapture.takePicture(options, executor, onImageSavedCallback)
@@ -1129,6 +1130,79 @@ class ImageCaptureTest {
 
         // Assert.
         assertThat(imageCapture.targetRotation).isEqualTo(Surface.ROTATION_180)
+    }
+
+    @Test
+    fun takePictureInMemoryWithRawJpeg_doesNotThrowException() {
+        // Arrange.
+        val imageCapture = bindImageCaptureWithRawJpegSupport()
+
+        // Act & Assert.
+        // Should not throw IllegalArgumentException for in-memory RAW_JPEG capture
+        imageCapture.takePicture(executor, onImageCapturedCallback)
+    }
+
+    @Test
+    fun takePictureToFileWithRawJpegButOnlyOneOption_throwException() {
+        // Arrange.
+        val imageCapture = bindImageCaptureWithRawJpegSupport()
+        val options = ImageCapture.OutputFileOptions.Builder(File("fake_path")).build()
+
+        // Act & Assert.
+        assertThrows(IllegalArgumentException::class.java) {
+            imageCapture.takePicture(options, executor, onImageSavedCallback)
+        }
+    }
+
+    @Test
+    fun takePictureToFileWithJpegButTwoOptions_throwException() {
+        // Arrange.
+        // Default format is JPEG
+        val imageCapture = bindImageCapture()
+        val options1 = ImageCapture.OutputFileOptions.Builder(File("fake_path1")).build()
+        val options2 = ImageCapture.OutputFileOptions.Builder(File("fake_path2")).build()
+
+        // Act & Assert.
+        assertThrows(IllegalArgumentException::class.java) {
+            imageCapture.takePicture(options1, options2, executor, onImageSavedCallback)
+        }
+    }
+
+    private fun bindImageCaptureWithRawJpegSupport(): ImageCapture {
+        val imageCapture = ImageCapture.Builder().setOutputFormat(OUTPUT_FORMAT_RAW_JPEG).build()
+
+        val fakeManager = FakeCameraDeviceSurfaceManager()
+        fakeManager.setValidSurfaceCombos(
+            setOf(
+                listOf(
+                    INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+                    ImageFormat.JPEG,
+                    ImageFormat.RAW_SENSOR,
+                )
+            )
+        )
+        val fakeCameraInfo =
+            FakeCameraInfoInternal(
+                    StreamSpecsCalculatorImpl(FakeUseCaseConfigFactory(), fakeManager)
+                )
+                .apply {
+                    setSupportedResolutions(ImageFormat.PRIVATE, listOf())
+                    setSupportedResolutions(ImageFormat.JPEG, listOf())
+                    setSupportedResolutions(ImageFormat.RAW_SENSOR, listOf())
+                    setAvailableCapabilities(
+                        setOf(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW)
+                    )
+                }
+        val useCaseConfigFactory = FakeUseCaseConfigFactory()
+        cameraUseCaseAdapter =
+            CameraUseCaseAdapter(
+                FakeCamera(FakeCameraControl(), fakeCameraInfo),
+                FakeCameraCoordinator(),
+                StreamSpecsCalculatorImpl(useCaseConfigFactory, fakeManager),
+                useCaseConfigFactory,
+            )
+        cameraUseCaseAdapter.addUseCases(listOf(imageCapture))
+        return imageCapture
     }
 
     private fun bindImageCapture(

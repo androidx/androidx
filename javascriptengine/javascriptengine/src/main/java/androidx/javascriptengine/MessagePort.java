@@ -17,6 +17,7 @@
 package androidx.javascriptengine;
 
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.javascriptengine.common.MessagePortInternal;
 
 import org.jspecify.annotations.NonNull;
@@ -62,6 +63,11 @@ public final class MessagePort implements AutoCloseable {
      */
     MessagePort() {
         mMessagePortInternal = new MessagePortInternal();
+    }
+
+    @VisibleForTesting
+    MessagePortInternal getMessagePortInternalForTest() {
+        return mMessagePortInternal;
     }
 
     /**

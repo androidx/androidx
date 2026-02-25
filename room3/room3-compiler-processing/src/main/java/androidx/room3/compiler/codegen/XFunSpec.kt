@@ -90,21 +90,33 @@ interface XFunSpec {
 
     companion object {
         @JvmStatic
+        @JvmOverloads
         fun builder(
             name: String,
             visibility: VisibilityModifier,
             isOpen: Boolean = false,
             isOverride: Boolean = false,
             addJavaNullabilityAnnotation: Boolean = true,
-        ) = builder(XName.of(name), visibility, isOpen, isOverride, addJavaNullabilityAnnotation)
+            isSuspend: Boolean = false,
+        ) =
+            builder(
+                XName.of(name),
+                visibility,
+                isOpen,
+                isOverride,
+                addJavaNullabilityAnnotation,
+                isSuspend,
+            )
 
         @JvmStatic
+        @JvmOverloads
         fun builder(
             name: XName,
             visibility: VisibilityModifier,
             isOpen: Boolean = false,
             isOverride: Boolean = false,
             addJavaNullabilityAnnotation: Boolean = true,
+            isSuspend: Boolean = false,
         ): Builder =
             XFunSpecImpl.Builder(
                 JavaFunSpec.Builder(
@@ -128,6 +140,9 @@ interface XFunSpec {
                         }
                         if (isOverride) {
                             addModifiers(KModifier.OVERRIDE)
+                        }
+                        if (isSuspend) {
+                            addModifiers(KModifier.SUSPEND)
                         }
                     }
                 ),

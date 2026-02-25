@@ -1,0 +1,1235 @@
+- description: Initial State
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - {type: NamedVariable, varId: 42, varName: h_click, varType: FLOAT_TYPE}
+      - {type: FloatConstant, id: 42, value: -1.0}
+      - {type: NamedVariable, varId: 43, varName: v_click, varType: FLOAT_TYPE}
+      - {type: FloatConstant, id: 43, value: -1.0}
+      - type: COLUMN
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1000.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: ClipRectModifierOperation, width: 1000.0, height: 1000.0}
+          - {type: ScrollModifierOperation, direction: 0, max: !!float 'NaN', notchMax: !!float 'NaN',
+            scrollValue: -0.0, maxScrollValue: 400.0, contentDimension: 1400.0, hostDimension: 1000.0}
+        - type: BOX
+          id: -5
+          x: 0.0
+          y: 0.0
+          width: 600.0
+          height: 600.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 600.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 600.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 600.0, height: 600.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        - type: ROW
+          id: -6
+          x: 0.0
+          y: 600.0
+          width: 600.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 600.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: ClipRectModifierOperation, width: 600.0, height: 200.0}
+            - {type: ScrollModifierOperation, direction: 1, max: !!float 'NaN', notchMax: !!float 'NaN',
+              scrollValue: -0.0, maxScrollValue: 1400.0, contentDimension: 2000.0,
+              hostDimension: 600.0}
+          - type: BOX
+            id: -8
+            x: 0.0
+            y: 0.0
+            width: 200.0
+            height: 200.0
+            visibility: VISIBLE
+            list:
+            - {type: TextData, textId: 50, text: H-Box 0}
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0,
+                height: 200.0, color: '0xff00ff00', shapeType: RECTANGLE}
+              - {type: ClickModifierOperation}
+            - type: CORE_TEXT
+              id: -10
+              x: 0.0
+              y: 0.0
+              width: 100.0
+              height: 10.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers: []
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              textId: 50
+              flags: 0
+              color: '0xff000000'
+              fontSize: {type: Value, value: 36.0}
+              fontStyle: 0
+              fontWeight: 400.0
+              fontFamilyId: -1
+              textAlign: 1
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: START
+          - type: BOX
+            id: -12
+            x: 200.0
+            y: 0.0
+            width: 200.0
+            height: 200.0
+            visibility: VISIBLE
+            list:
+            - {type: TextData, textId: 51, text: H-Box 1}
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0,
+                height: 200.0, color: '0xff00ffff', shapeType: RECTANGLE}
+              - {type: ClickModifierOperation}
+            - type: CORE_TEXT
+              id: -14
+              x: 0.0
+              y: 0.0
+              width: 100.0
+              height: 10.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers: []
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              textId: 51
+              flags: 0
+              color: '0xff000000'
+              fontSize: {type: Value, value: 36.0}
+              fontStyle: 0
+              fontWeight: 400.0
+              fontFamilyId: -1
+              textAlign: 1
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: START
+          - type: BOX
+            id: -16
+            x: 400.0
+            y: 0.0
+            width: 200.0
+            height: 200.0
+            visibility: VISIBLE
+            list:
+            - {type: TextData, textId: 52, text: H-Box 2}
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0,
+                height: 200.0, color: '0xff00ff00', shapeType: RECTANGLE}
+              - {type: ClickModifierOperation}
+            - type: CORE_TEXT
+              id: -18
+              x: 0.0
+              y: 0.0
+              width: 100.0
+              height: 10.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers: []
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              textId: 52
+              flags: 0
+              color: '0xff000000'
+              fontSize: {type: Value, value: 36.0}
+              fontStyle: 0
+              fontWeight: 400.0
+              fontFamilyId: -1
+              textAlign: 1
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: START
+          - type: BOX
+            id: -20
+            x: 600.0
+            y: 0.0
+            width: 200.0
+            height: 200.0
+            visibility: VISIBLE
+            list:
+            - {type: TextData, textId: 53, text: H-Box 3}
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0,
+                height: 200.0, color: '0xff00ffff', shapeType: RECTANGLE}
+              - {type: ClickModifierOperation}
+            - type: CORE_TEXT
+              id: -22
+              x: 0.0
+              y: 0.0
+              width: 100.0
+              height: 10.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers: []
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              textId: 53
+              flags: 0
+              color: '0xff000000'
+              fontSize: {type: Value, value: 36.0}
+              fontStyle: 0
+              fontWeight: 400.0
+              fontFamilyId: -1
+              textAlign: 1
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: START
+          - type: BOX
+            id: -24
+            x: 800.0
+            y: 0.0
+            width: 200.0
+            height: 200.0
+            visibility: VISIBLE
+            list:
+            - {type: TextData, textId: 54, text: H-Box 4}
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0,
+                height: 200.0, color: '0xff00ff00', shapeType: RECTANGLE}
+              - {type: ClickModifierOperation}
+            - type: CORE_TEXT
+              id: -26
+              x: 0.0
+              y: 0.0
+              width: 100.0
+              height: 10.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers: []
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              textId: 54
+              flags: 0
+              color: '0xff000000'
+              fontSize: {type: Value, value: 36.0}
+              fontStyle: 0
+              fontWeight: 400.0
+              fontFamilyId: -1
+              textAlign: 1
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: START
+          - type: BOX
+            id: -28
+            x: 1000.0
+            y: 0.0
+            width: 200.0
+            height: 200.0
+            visibility: VISIBLE
+            list:
+            - {type: TextData, textId: 55, text: H-Box 5}
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0,
+                height: 200.0, color: '0xff00ffff', shapeType: RECTANGLE}
+              - {type: ClickModifierOperation}
+            - type: CORE_TEXT
+              id: -30
+              x: 0.0
+              y: 0.0
+              width: 100.0
+              height: 10.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers: []
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              textId: 55
+              flags: 0
+              color: '0xff000000'
+              fontSize: {type: Value, value: 36.0}
+              fontStyle: 0
+              fontWeight: 400.0
+              fontFamilyId: -1
+              textAlign: 1
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: START
+          - type: BOX
+            id: -32
+            x: 1200.0
+            y: 0.0
+            width: 200.0
+            height: 200.0
+            visibility: VISIBLE
+            list:
+            - {type: TextData, textId: 56, text: H-Box 6}
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0,
+                height: 200.0, color: '0xff00ff00', shapeType: RECTANGLE}
+              - {type: ClickModifierOperation}
+            - type: CORE_TEXT
+              id: -34
+              x: 0.0
+              y: 0.0
+              width: 100.0
+              height: 10.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers: []
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              textId: 56
+              flags: 0
+              color: '0xff000000'
+              fontSize: {type: Value, value: 36.0}
+              fontStyle: 0
+              fontWeight: 400.0
+              fontFamilyId: -1
+              textAlign: 1
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: START
+          - type: BOX
+            id: -36
+            x: 1400.0
+            y: 0.0
+            width: 200.0
+            height: 200.0
+            visibility: VISIBLE
+            list:
+            - {type: TextData, textId: 57, text: H-Box 7}
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0,
+                height: 200.0, color: '0xff00ffff', shapeType: RECTANGLE}
+              - {type: ClickModifierOperation}
+            - type: CORE_TEXT
+              id: -38
+              x: 0.0
+              y: 0.0
+              width: 100.0
+              height: 10.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers: []
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              textId: 57
+              flags: 0
+              color: '0xff000000'
+              fontSize: {type: Value, value: 36.0}
+              fontStyle: 0
+              fontWeight: 400.0
+              fontFamilyId: -1
+              textAlign: 1
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: START
+          - type: BOX
+            id: -40
+            x: 1600.0
+            y: 0.0
+            width: 200.0
+            height: 200.0
+            visibility: VISIBLE
+            list:
+            - {type: TextData, textId: 58, text: H-Box 8}
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0,
+                height: 200.0, color: '0xff00ff00', shapeType: RECTANGLE}
+              - {type: ClickModifierOperation}
+            - type: CORE_TEXT
+              id: -42
+              x: 0.0
+              y: 0.0
+              width: 100.0
+              height: 10.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers: []
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              textId: 58
+              flags: 0
+              color: '0xff000000'
+              fontSize: {type: Value, value: 36.0}
+              fontStyle: 0
+              fontWeight: 400.0
+              fontFamilyId: -1
+              textAlign: 1
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: START
+          - type: BOX
+            id: -44
+            x: 1800.0
+            y: 0.0
+            width: 200.0
+            height: 200.0
+            visibility: VISIBLE
+            list:
+            - {type: TextData, textId: 59, text: H-Box 9}
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0,
+                height: 200.0, color: '0xff00ffff', shapeType: RECTANGLE}
+              - {type: ClickModifierOperation}
+            - type: CORE_TEXT
+              id: -46
+              x: 0.0
+              y: 0.0
+              width: 100.0
+              height: 10.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers: []
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              textId: 59
+              flags: 0
+              color: '0xff000000'
+              fontSize: {type: Value, value: 36.0}
+              fontStyle: 0
+              fontWeight: 400.0
+              fontFamilyId: -1
+              textAlign: 1
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: START
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+          spacedBy: 0.0
+        - type: BOX
+          id: -48
+          x: 0.0
+          y: 800.0
+          width: 600.0
+          height: 600.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 600.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 600.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 600.0, height: 600.0,
+              color: '0xffff0000', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0
+- description: Component Tree
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - {type: NamedVariable, varId: 42, varName: h_click, varType: FLOAT_TYPE}
+      - {type: FloatConstant, id: 42, value: -1.0}
+      - {type: NamedVariable, varId: 43, varName: v_click, varType: FLOAT_TYPE}
+      - {type: FloatConstant, id: 43, value: -1.0}
+      - type: COLUMN
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1000.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: ClipRectModifierOperation, width: 1000.0, height: 1000.0}
+          - {type: ScrollModifierOperation, direction: 0, max: !!float 'NaN', notchMax: !!float 'NaN',
+            scrollValue: -0.0, maxScrollValue: 400.0, contentDimension: 1400.0, hostDimension: 1000.0}
+        - type: BOX
+          id: -5
+          x: 0.0
+          y: 0.0
+          width: 600.0
+          height: 600.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 600.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 600.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 600.0, height: 600.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        - type: ROW
+          id: -6
+          x: 0.0
+          y: 600.0
+          width: 600.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 600.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: ClipRectModifierOperation, width: 600.0, height: 200.0}
+            - {type: ScrollModifierOperation, direction: 1, max: !!float 'NaN', notchMax: !!float 'NaN',
+              scrollValue: -0.0, maxScrollValue: 1400.0, contentDimension: 2000.0,
+              hostDimension: 600.0}
+          - type: BOX
+            id: -8
+            x: 0.0
+            y: 0.0
+            width: 200.0
+            height: 200.0
+            visibility: VISIBLE
+            list:
+            - {type: TextData, textId: 50, text: H-Box 0}
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0,
+                height: 200.0, color: '0xff00ff00', shapeType: RECTANGLE}
+              - {type: ClickModifierOperation}
+            - type: CORE_TEXT
+              id: -10
+              x: 0.0
+              y: 0.0
+              width: 100.0
+              height: 10.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers: []
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              textId: 50
+              flags: 0
+              color: '0xff000000'
+              fontSize: {type: Value, value: 36.0}
+              fontStyle: 0
+              fontWeight: 400.0
+              fontFamilyId: -1
+              textAlign: 1
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: START
+          - type: BOX
+            id: -12
+            x: 200.0
+            y: 0.0
+            width: 200.0
+            height: 200.0
+            visibility: VISIBLE
+            list:
+            - {type: TextData, textId: 51, text: H-Box 1}
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0,
+                height: 200.0, color: '0xff00ffff', shapeType: RECTANGLE}
+              - {type: ClickModifierOperation}
+            - type: CORE_TEXT
+              id: -14
+              x: 0.0
+              y: 0.0
+              width: 100.0
+              height: 10.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers: []
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              textId: 51
+              flags: 0
+              color: '0xff000000'
+              fontSize: {type: Value, value: 36.0}
+              fontStyle: 0
+              fontWeight: 400.0
+              fontFamilyId: -1
+              textAlign: 1
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: START
+          - type: BOX
+            id: -16
+            x: 400.0
+            y: 0.0
+            width: 200.0
+            height: 200.0
+            visibility: VISIBLE
+            list:
+            - {type: TextData, textId: 52, text: H-Box 2}
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0,
+                height: 200.0, color: '0xff00ff00', shapeType: RECTANGLE}
+              - {type: ClickModifierOperation}
+            - type: CORE_TEXT
+              id: -18
+              x: 0.0
+              y: 0.0
+              width: 100.0
+              height: 10.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers: []
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              textId: 52
+              flags: 0
+              color: '0xff000000'
+              fontSize: {type: Value, value: 36.0}
+              fontStyle: 0
+              fontWeight: 400.0
+              fontFamilyId: -1
+              textAlign: 1
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: START
+          - type: BOX
+            id: -20
+            x: 600.0
+            y: 0.0
+            width: 200.0
+            height: 200.0
+            visibility: VISIBLE
+            list:
+            - {type: TextData, textId: 53, text: H-Box 3}
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0,
+                height: 200.0, color: '0xff00ffff', shapeType: RECTANGLE}
+              - {type: ClickModifierOperation}
+            - type: CORE_TEXT
+              id: -22
+              x: 0.0
+              y: 0.0
+              width: 100.0
+              height: 10.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers: []
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              textId: 53
+              flags: 0
+              color: '0xff000000'
+              fontSize: {type: Value, value: 36.0}
+              fontStyle: 0
+              fontWeight: 400.0
+              fontFamilyId: -1
+              textAlign: 1
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: START
+          - type: BOX
+            id: -24
+            x: 800.0
+            y: 0.0
+            width: 200.0
+            height: 200.0
+            visibility: VISIBLE
+            list:
+            - {type: TextData, textId: 54, text: H-Box 4}
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0,
+                height: 200.0, color: '0xff00ff00', shapeType: RECTANGLE}
+              - {type: ClickModifierOperation}
+            - type: CORE_TEXT
+              id: -26
+              x: 0.0
+              y: 0.0
+              width: 100.0
+              height: 10.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers: []
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              textId: 54
+              flags: 0
+              color: '0xff000000'
+              fontSize: {type: Value, value: 36.0}
+              fontStyle: 0
+              fontWeight: 400.0
+              fontFamilyId: -1
+              textAlign: 1
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: START
+          - type: BOX
+            id: -28
+            x: 1000.0
+            y: 0.0
+            width: 200.0
+            height: 200.0
+            visibility: VISIBLE
+            list:
+            - {type: TextData, textId: 55, text: H-Box 5}
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0,
+                height: 200.0, color: '0xff00ffff', shapeType: RECTANGLE}
+              - {type: ClickModifierOperation}
+            - type: CORE_TEXT
+              id: -30
+              x: 0.0
+              y: 0.0
+              width: 100.0
+              height: 10.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers: []
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              textId: 55
+              flags: 0
+              color: '0xff000000'
+              fontSize: {type: Value, value: 36.0}
+              fontStyle: 0
+              fontWeight: 400.0
+              fontFamilyId: -1
+              textAlign: 1
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: START
+          - type: BOX
+            id: -32
+            x: 1200.0
+            y: 0.0
+            width: 200.0
+            height: 200.0
+            visibility: VISIBLE
+            list:
+            - {type: TextData, textId: 56, text: H-Box 6}
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0,
+                height: 200.0, color: '0xff00ff00', shapeType: RECTANGLE}
+              - {type: ClickModifierOperation}
+            - type: CORE_TEXT
+              id: -34
+              x: 0.0
+              y: 0.0
+              width: 100.0
+              height: 10.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers: []
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              textId: 56
+              flags: 0
+              color: '0xff000000'
+              fontSize: {type: Value, value: 36.0}
+              fontStyle: 0
+              fontWeight: 400.0
+              fontFamilyId: -1
+              textAlign: 1
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: START
+          - type: BOX
+            id: -36
+            x: 1400.0
+            y: 0.0
+            width: 200.0
+            height: 200.0
+            visibility: VISIBLE
+            list:
+            - {type: TextData, textId: 57, text: H-Box 7}
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0,
+                height: 200.0, color: '0xff00ffff', shapeType: RECTANGLE}
+              - {type: ClickModifierOperation}
+            - type: CORE_TEXT
+              id: -38
+              x: 0.0
+              y: 0.0
+              width: 100.0
+              height: 10.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers: []
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              textId: 57
+              flags: 0
+              color: '0xff000000'
+              fontSize: {type: Value, value: 36.0}
+              fontStyle: 0
+              fontWeight: 400.0
+              fontFamilyId: -1
+              textAlign: 1
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: START
+          - type: BOX
+            id: -40
+            x: 1600.0
+            y: 0.0
+            width: 200.0
+            height: 200.0
+            visibility: VISIBLE
+            list:
+            - {type: TextData, textId: 58, text: H-Box 8}
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0,
+                height: 200.0, color: '0xff00ff00', shapeType: RECTANGLE}
+              - {type: ClickModifierOperation}
+            - type: CORE_TEXT
+              id: -42
+              x: 0.0
+              y: 0.0
+              width: 100.0
+              height: 10.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers: []
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              textId: 58
+              flags: 0
+              color: '0xff000000'
+              fontSize: {type: Value, value: 36.0}
+              fontStyle: 0
+              fontWeight: 400.0
+              fontFamilyId: -1
+              textAlign: 1
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: START
+          - type: BOX
+            id: -44
+            x: 1800.0
+            y: 0.0
+            width: 200.0
+            height: 200.0
+            visibility: VISIBLE
+            list:
+            - {type: TextData, textId: 59, text: H-Box 9}
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0,
+                height: 200.0, color: '0xff00ffff', shapeType: RECTANGLE}
+              - {type: ClickModifierOperation}
+            - type: CORE_TEXT
+              id: -46
+              x: 0.0
+              y: 0.0
+              width: 100.0
+              height: 10.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers: []
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              textId: 59
+              flags: 0
+              color: '0xff000000'
+              fontSize: {type: Value, value: 36.0}
+              fontStyle: 0
+              fontWeight: 400.0
+              fontFamilyId: -1
+              textAlign: 1
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: START
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+          spacedBy: 0.0
+        - type: BOX
+          id: -48
+          x: 0.0
+          y: 800.0
+          width: 600.0
+          height: 600.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 600.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 600.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 600.0, height: 600.0,
+              color: '0xffff0000', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0
+- description: Apply TouchDown
+  command: {x: 300.0, y: 500.0}
+  result: {}
+- description: Apply TouchDrag
+  command: {x: 300.0, y: 100.0, timeMillis: 50}
+  result: {}
+- description: Apply TouchUp
+  command: {x: 300.0, y: 100.0, dx: 0.0, dy: 0.0, timeMillis: 100}
+  result: {}
+- description: Apply Click
+  command: {x: 300.0, y: 500.0}
+  result: {}
+- description: Validate Named Float
+  command: {name: v_click, expected: 1.0}
+  result: {actual: 1.0}
+- description: Apply TouchDown
+  command: {x: 500.0, y: 300.0}
+  result: {}
+- description: Apply TouchDrag
+  command: {x: 300.0, y: 300.0, timeMillis: 50}
+  result: {}
+- description: Apply TouchDrag
+  command: {x: 100.0, y: 300.0, timeMillis: 100}
+  result: {}
+- description: Apply TouchUp
+  command: {x: 100.0, y: 300.0, dx: 0.0, dy: 0.0, timeMillis: 150}
+  result: {}
+- description: Apply Click
+  command: {x: 100.0, y: 300.0}
+  result: {}
+- description: Validate Named Float
+  command: {name: h_click, expected: 2.0}
+  result: {actual: 2.0}

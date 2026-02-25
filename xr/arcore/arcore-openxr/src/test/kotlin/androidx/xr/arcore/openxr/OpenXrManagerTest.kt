@@ -19,6 +19,7 @@ package androidx.xr.arcore.openxr
 import androidx.activity.ComponentActivity
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.HandTrackingMode
 import androidx.xr.runtime.manifest.HAND_TRACKING
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
@@ -51,20 +52,20 @@ public class OpenXrManagerTest {
 
     @Test
     fun configure_handTrackingEnabledWithoutPermission_throwsSecurityException() {
-        check(underTest.config.handTracking == Config.HandTrackingMode.DISABLED)
+        check(underTest.config.handTracking == HandTrackingMode.DISABLED)
 
         assertFailsWith<SecurityException> {
-            underTest.configure(Config(handTracking = Config.HandTrackingMode.BOTH))
+            underTest.configure(Config(handTracking = HandTrackingMode.BOTH))
         }
     }
 
     @Test
     fun configure_handTrackingEnabled_addsHandToUpdatables() {
         shadowOf(activity).grantPermissions(HAND_TRACKING)
-        check(underTest.config.handTracking == Config.HandTrackingMode.DISABLED)
+        check(underTest.config.handTracking == HandTrackingMode.DISABLED)
         check(perceptionManager.xrResources.updatables.isEmpty())
 
-        underTest.configure(Config(handTracking = Config.HandTrackingMode.BOTH))
+        underTest.configure(Config(handTracking = HandTrackingMode.BOTH))
 
         assertThat(perceptionManager.xrResources.updatables)
             .containsExactly(
@@ -76,7 +77,7 @@ public class OpenXrManagerTest {
     @Test
     fun configure_handTrackingDisabled_removesHandsFromUpdatables() {
         shadowOf(activity).grantPermissions(HAND_TRACKING)
-        underTest.configure(Config(handTracking = Config.HandTrackingMode.BOTH))
+        underTest.configure(Config(handTracking = HandTrackingMode.BOTH))
         check(
             perceptionManager.xrResources.updatables.containsAll(
                 listOf(
@@ -86,7 +87,7 @@ public class OpenXrManagerTest {
             )
         )
 
-        underTest.configure(Config(handTracking = Config.HandTrackingMode.DISABLED))
+        underTest.configure(Config(handTracking = HandTrackingMode.DISABLED))
 
         assertThat(perceptionManager.xrResources.updatables)
             .doesNotContain(perceptionManager.xrResources.leftHand)

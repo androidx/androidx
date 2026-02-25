@@ -30,6 +30,7 @@ import androidx.tracing.benchmark.CATEGORY
 import androidx.tracing.wire.TraceSink
 import kotlin.coroutines.CoroutineContext
 import kotlin.test.assertEquals
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -70,7 +71,7 @@ class TracingBenchmark {
     // Not calling close() here is okay, given we drain all trace packets before the next
     // measurement loop.
     private val traceDriver = buildTraceDriver(sink, true)
-    private val tracer = traceDriver.createTracer(name = "TracingDriverBenchmark") as PerfettoTracer
+    private val tracer = traceDriver.tracer as PerfettoTracer
 
     /**
      * This benchmark runs a subset of basic32 in order to measure just the cost of dispatching an
@@ -111,6 +112,7 @@ class TracingBenchmark {
     fun referenceForBeginEndCoroutine() = runTest {
         benchmarkRule.measureRepeated {
             runBlocking {
+                val coroutineContext = currentCoroutineContext()
                 withContext(coroutineContext + TestThreadContextElement()) {
                     repeat(32) { BlackHole.consume(it) }
                 }
@@ -129,7 +131,7 @@ class TracingBenchmark {
 
     /**
      * This benchmark runs the measurement 32 times to ensure emitting the packet is captured once
-     * per measurement. Additionally it measures the cost of serialization.
+     * per measurement. Additionally, it measures the cost of serialization.
      */
     @Test
     fun beginEnd_basic32_withSerialization() {

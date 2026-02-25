@@ -260,5 +260,7 @@ class ServiceBackedMeasureClientTest {
         override fun getCapabilities(request: CapabilitiesRequest): MeasureCapabilitiesResponse {
             return MeasureCapabilitiesResponse(MeasureCapabilities(supportedDataTypes))
         }
+
+        override fun getInterfaceVersion(): Int = VERSION
     }
 }

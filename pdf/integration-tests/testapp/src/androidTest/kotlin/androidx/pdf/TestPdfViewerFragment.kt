@@ -186,12 +186,9 @@ internal class TestPdfViewerFragment : PdfViewerFragment {
         }
     }
 
-    override fun onLoadDocumentSuccess() {
+    override fun onLoadDocumentSuccess(document: PdfDocument) {
         documentLoaded = true
         pdfLoadingIdlingResource.decrement()
-    }
-
-    override fun onLoadDocumentSuccess(document: PdfDocument) {
         pdfDocument = document
     }
 

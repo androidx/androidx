@@ -27,7 +27,7 @@ import com.google.devtools.ksp.symbol.Modifier
 class AnnotatedOneOfAppFunctionSerializable(override val classDeclaration: KSClassDeclaration) :
     AppFunctionSerializableType {
 
-    override val isDescribedByKdoc: Boolean by lazy {
+    override val isDescribedByKDoc: Boolean by lazy {
         val annotation =
             classDeclaration.annotations.findAnnotation(
                 IntrospectionHelper.AppFunctionSerializableAnnotation.CLASS_NAME

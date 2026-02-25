@@ -48,7 +48,9 @@ public abstract class SuspendingComplicationDataSourceService : ComplicationData
      * @see ComplicationDataSourceService.ComplicationRequestListener.onComplicationData
      */
     @UiThread
-    abstract suspend fun onComplicationRequest(request: ComplicationRequest): ComplicationData?
+    public abstract suspend fun onComplicationRequest(
+        request: ComplicationRequest
+    ): ComplicationData?
 
     @CallSuper
     open override fun onDestroy() {
@@ -84,7 +86,7 @@ public abstract class SuspendingTimelineComplicationDataSourceService :
      * @see ComplicationDataSourceService.ComplicationRequestListener.onComplicationData
      */
     @UiThread
-    abstract suspend fun onComplicationRequest(
+    public abstract suspend fun onComplicationRequest(
         request: ComplicationRequest
     ): ComplicationDataTimeline?
 

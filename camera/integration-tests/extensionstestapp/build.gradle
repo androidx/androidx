@@ -16,10 +16,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.ApkCopyHelperKt
@@ -51,7 +50,6 @@ dependencies {
     api(libs.jspecify)
     // Internal library
     implementation(project(":camera:camera-camera2"))
-    implementation(project(":camera:camera-camera2-pipe-integration"))
     implementation(project(":camera:camera-extensions"))
     implementation(project(":camera:camera-lifecycle"))
     implementation(project(":camera:camera-view"))

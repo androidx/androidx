@@ -58,7 +58,8 @@ internal fun getSuppressed(throwable: Throwable): Array<Throwable> {
         throw newLinkageError(e)
     } catch (e: InvocationTargetException) {
         // Intentionally run into NPE if e.cause is null as this is Truth's behavior.
-        @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS") throwIfUnchecked(e.cause)
+        if (e.cause == null) throw NullPointerException()
+        throwIfUnchecked(e.cause!!)
         // getSuppressed has no `throws` clause.
         throw newLinkageError(e)
     }

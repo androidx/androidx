@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.webgpu
 
 import android.graphics.BitmapFactory
@@ -34,7 +33,6 @@ import org.junit.runner.RunWith
 class ImageTest {
     private val appContext = InstrumentationRegistry.getInstrumentation().targetContext
     private val storage = StorageFactory.createStore(appContext)
-
     @get:Rule val apiSkipRule = ApiLevelSkipRule()
 
     @Test

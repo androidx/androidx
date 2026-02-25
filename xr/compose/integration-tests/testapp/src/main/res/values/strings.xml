@@ -32,6 +32,7 @@
     <string name="resizable_panel_test_case">Resizable Panel Test Case</string>
     <string name="spatial_alignment_usage_test_case">Spatial Alignment Usage Test Case</string>
     <string name="spatial_arrangement_usage_test_case">Spatial Arrangement Usage Test Case</string>
+    <string name="subspace_modifiers_rtl_awareness_test_case">Subspace Modifiers RTL Awareness Test Case</string>
     <string name="hsm_focus_change_test">HSM Focus Change Test Case</string>
     <string name="fsm_focus_change_test">FSM Focus Change Test Case</string>
     <string name="space_mode_change_test">Space Mode Change Test Case</string>
@@ -41,7 +42,7 @@
     <string name="lifecycle_runtime_session_test">Runtime Session Test Case</string>
     <string name="pose_test">Pose Test Case</string>
     <string name="gravity_aligned_test_case">Gravity Aligned Test Case</string>
-    <string name="lookatuser_test_case">LookAtUser Test Case</string>
+    <string name="rotatetolookatuser_test_case">RotateToLookAtUser Test Case</string>
     <string name="hello_android_xr">Hello Android XR.</string>
     <string name="switch_to_home_space_mode">Switch to Home Space Mode</string>
     <string name="switch_to_full_space_mode">Switch to Full Space Mode</string>

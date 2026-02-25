@@ -311,4 +311,9 @@ public class RemoteWorkManagerImpl extends IWorkManagerImpl.Stub {
             reportFailure(callback, throwable);
         }
     }
+
+    @Override
+    public int getInterfaceVersion() {
+        return super.VERSION;
+    }
 }

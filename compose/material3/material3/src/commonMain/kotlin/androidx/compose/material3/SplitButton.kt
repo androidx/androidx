@@ -1338,6 +1338,8 @@ private fun shapeByInteraction(
 
     if (shapes.hasRoundedCornerShapes) {
         return rememberAnimatedShape(shape as RoundedCornerShape, animationSpec)
+    } else if (shapes.hasCornerBasedShapes) {
+        return rememberAnimatedShape(shape as CornerBasedShape, animationSpec)
     }
     return shape
 }
@@ -1383,6 +1385,15 @@ private val SplitButtonShapes.hasRoundedCornerShapes: Boolean
         if (pressedShape != null && pressedShape !is RoundedCornerShape) return false
         if (checkedShape != null && checkedShape !is RoundedCornerShape) return false
         return shape is RoundedCornerShape
+    }
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+private val SplitButtonShapes.hasCornerBasedShapes: Boolean
+    get() {
+        // Ignore null shapes and only check default shape for RoundedCorner
+        if (pressedShape != null && pressedShape !is CornerBasedShape) return false
+        if (checkedShape != null && checkedShape !is CornerBasedShape) return false
+        return shape is CornerBasedShape
     }
 
 private const val LeadingButtonLayoutId = "LeadingButton"

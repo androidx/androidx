@@ -81,6 +81,8 @@
     <string name="form_click_toggle_instruction" msgid="7171111300244445911">"Tıklandığında değer değişir."</string>
     <string name="form_click_opens_choices_menu_instruction" msgid="5648228168212004143">"Tıklandığında seçim menüsü açılır."</string>
     <string name="form_click_enters_text_edit_mode_instruction" msgid="2305283577544618880">"Tıklandığında metin düzenleme moduna girilir."</string>
+    <!-- no translation found for combobox_custom_option (8730230629127076731) -->
+    <skip />
     <string name="form_unknown" msgid="6371515914365431330">"Bilinmiyor"</string>
     <string name="form_widget_type_push_button" msgid="3595388398616291441">"Düğme"</string>
     <string name="form_widget_type_checkbox" msgid="5165655383070460151">"Onay kutusu"</string>

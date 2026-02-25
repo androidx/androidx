@@ -16,6 +16,7 @@
 
 package androidx.compose.runtime
 
+import androidx.compose.runtime.mock.ComposerToUse
 import androidx.compose.runtime.mock.InlineLinear
 import androidx.compose.runtime.mock.Linear
 import androidx.compose.runtime.mock.MockViewValidator
@@ -1601,62 +1602,6 @@ class MovableContentTests {
         revalidate()
     }
 
-    @Test // 362539770
-    @OptIn(ExperimentalComposeApi::class)
-    fun movableContent_nestedMovableContent_disabled() = compositionTest {
-        var data = 0
-
-        var condition by mutableStateOf(true)
-
-        val common = movableContentOf {
-            val state = remember { data++ }
-            Text("Generated state: $state")
-        }
-
-        val wrapper = movableContentOf {
-            Text("Wrapper start")
-            common()
-            Text("Wrapper end")
-        }
-
-        compose {
-            Text("Outer")
-            if (condition) {
-                wrapper()
-            } else {
-                common()
-            }
-        }
-
-        var expectedState = 0
-        validate {
-            Text("Outer")
-            if (condition) {
-                Text("Wrapper start")
-            }
-            Text("Generated state: $expectedState")
-            if (condition) {
-                Text("Wrapper end")
-            }
-        }
-
-        ComposeRuntimeFlags.isMovingNestedMovableContentEnabled = false
-        try {
-            // With moving nested content disabled the call to common() will generate new
-            // state when it moves out of the containing movable content.
-            expectedState = 1
-            condition = false
-            expectChanges()
-            revalidate()
-
-            condition = true
-            expectChanges()
-            revalidate()
-        } finally {
-            ComposeRuntimeFlags.isMovingNestedMovableContentEnabled = true
-        }
-    }
-
     @Test
     fun movableContent_nestedMovableContent_simpleMove() = compositionTest {
         var data = 0
@@ -1885,10 +1830,56 @@ class MovableContentTests {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun movableContentInvalidatedWhileDeleted() {
+    fun movableContentInvalidatedWhileDeleted_linkComposer() {
         val clock = ManualClock()
 
-        compositionTest(clock) {
+        compositionTest(clock = clock, composerToUse = ComposerToUse.Link) {
+            var value by mutableStateOf(true)
+            var targetScope: RecomposeScope? = null
+            val movableContent = movableContentOf { key: Int ->
+                Linear {
+                    targetScope = currentRecomposeScope
+                    Text(key.toString())
+                }
+            }
+
+            val content: @Composable () -> Unit = {
+                if (value) {
+                    movableContent(20)
+                } else {
+                    Linear { repeat(5) { Text("$it") } }
+                }
+
+                targetScope?.invalidate()
+            }
+
+            compose(content)
+            validate { Linear { Text("20") } }
+
+            value = false
+            Snapshot.sendApplyNotifications()
+
+            while (clock.awaiters.isEmpty()) {
+                testCoroutineScheduler.advanceTimeBy(5.milliseconds)
+            }
+            clock.runFrame(testCoroutineScheduler.currentTime.milliseconds.inWholeNanoseconds)
+
+            // This is before previous content is disposed (e.g. during measure)
+            composition!!.setContent(content)
+            verifyConsistent()
+
+            testCoroutineScheduler.runCurrent()
+
+            validate { Linear { repeat(5) { Text("$it") } } }
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun movableContentInvalidatedWhileDeleted_gapComposer() {
+        val clock = ManualClock()
+
+        compositionTest(clock = clock, composerToUse = ComposerToUse.Gap) {
             var value by mutableStateOf(true)
             var targetScope: RecomposeScope? = null
             val movableContent = movableContentOf { key: Int ->

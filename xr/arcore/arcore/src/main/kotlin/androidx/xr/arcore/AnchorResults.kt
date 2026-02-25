@@ -22,36 +22,55 @@ public sealed class AnchorCreateResult
 /**
  * Result of a successful [Anchor.create] or [Anchor.load] call.
  *
- * @property anchor the [Anchor] that was created.
+ * @property anchor the [Anchor] that was created
  */
 public class AnchorCreateSuccess(public val anchor: Anchor) : AnchorCreateResult()
 
 /**
- * Result of an unsuccessful [Anchor.create] or [Anchor.load] call. The resources allocated for
- * anchors has been exhausted.
+ * Result of an unsuccessful [Anchor.create] or [Anchor.load] call.
+ *
+ * The resources allocated for anchors has been exhausted.
  */
-public class AnchorCreateResourcesExhausted() : AnchorCreateResult()
-
-/** Result of an unsuccessful [Anchor.create] call. Required tracking is not available. */
-public class AnchorCreateTrackingUnavailable() : AnchorCreateResult()
-
-/** Result of an unsuccessful [Anchor.load] call. The anchor was loaded from an invalid UUID. */
-public class AnchorLoadInvalidUuid() : AnchorCreateResult()
+public class AnchorCreateResourcesExhausted : AnchorCreateResult()
 
 /**
- * Result of an unsuccessful [Anchor.create] call. The anchor create call was made when the session
- * state was invalid.
+ * Result of an unsuccessful [Anchor.create] call.
+ *
+ * Required tracking is not available.
  */
-public class AnchorCreateIllegalState() : AnchorCreateResult()
+public class AnchorCreateTrackingUnavailable : AnchorCreateResult()
 
 /**
- * Result of an unsuccessful [Anchor.create] call. The anchor was not created due to an
- * authorization error.
+ * Result of an unsuccessful [Anchor.load] call.
+ *
+ * The anchor was loaded from an invalid UUID.
  */
-public class AnchorCreateNotAuthorized() : AnchorCreateResult()
+public class AnchorLoadInvalidUuid : AnchorCreateResult()
 
 /**
- * Result of an unsuccessful [Anchor.create] call. The anchor was not created due to an unsupported
- * location.
+ * Result of an unsuccessful [Anchor.create] call.
+ *
+ * The anchor create call was made when the session state was invalid.
  */
-public class AnchorCreateUnsupportedLocation() : AnchorCreateResult()
+public class AnchorCreateIllegalState : AnchorCreateResult()
+
+/**
+ * Result of an unsuccessful [Anchor.create] call.
+ *
+ * The anchor was not created due to an authorization error.
+ */
+public class AnchorCreateNotAuthorized : AnchorCreateResult()
+
+/**
+ * Result of an unsuccessful [Anchor.create] call.
+ *
+ * The anchor was not created due to an unsupported location.
+ */
+public class AnchorCreateUnsupportedLocation : AnchorCreateResult()
+
+/**
+ * Result of an unsuccessful [Anchor.create] call.
+ *
+ * The anchor was not created because the associated object does not support anchor creation.
+ */
+public class AnchorCreateUnsupportedObject() : AnchorCreateResult()

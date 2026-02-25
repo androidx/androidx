@@ -43,12 +43,55 @@ object ComposeMaterial3Flags {
      * [Material Design 2 Checkboxes Specs](https://m2.material.io/components/checkboxes#specs) and
      * the [Material Design 3 Checkboxes Specs](https://m3.material.io/components/checkbox/specs).
      */
+    // TODO: b/450332377
     @field:Suppress("MutableBareField") @JvmField var isCheckboxStylingFixEnabled: Boolean = false
+
+    /**
+     * When this flag is `true`, the [Snackbar] component will use an updated layout implementation
+     * that correctly handles vertical alignment for multi-line text.
+     */
+    // TODO: b/485970632
+    @field:Suppress("MutableBareField") @JvmField var isSnackbarStylingFixEnabled: Boolean = false
 
     /**
      * When this flag is true and a precision pointer is present, components are resized accordingly
      */
+    // TODO: b/485970768
     @field:Suppress("MutableBareField")
     @JvmField
     var isPrecisionPointerComponentSizingEnabled: Boolean = false
+
+    /**
+     * This flag affects Material3 components that use
+     * [androidx.compose.ui.Modifier.anchoredDraggable]. Those are: [BottomSheetScaffold],
+     * [ModalBottomSheet], [SwipeToDismissBox] and [WideNavigationRail].
+     *
+     * When this flag is set to true, these components will require their internal offset to be
+     * initialized during measurement before they are placed, throwing an exception if the offset
+     * was not initialized in placement. When this flag is set to false, the component will not
+     * throw an exception and won't place the content while their internal offset is not
+     * initialized. The content will be placed as soon as the offset is initialized.
+     *
+     * This flag can be helpful if you are encountering a crash with an uninitialized offset (such
+     * as https://issuetracker.google.com/issues/477038695) and will be removed when the associated
+     * bugs are fixed.
+     */
+    // TODO: b/485967826
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isAnchoredDraggableComponentsStrictOffsetCheckEnabled: Boolean = true
+
+    /**
+     * This flag affects Material3 components that use
+     * [androidx.compose.ui.Modifier.anchoredDraggable]. Those are: [BottomSheetScaffold],
+     * [ModalBottomSheet], [SwipeToDismissBox] and [WideNavigationRail].
+     *
+     * When this flag is set to true, these components will recalculate their anchor points when the
+     * instance of their respective state changes and remeasure. When this flag is set to false, no
+     * additional remeasure is performed when the state instance changes.
+     */
+    // TODO: b/485969385
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isAnchoredDraggableComponentsInvalidationFixEnabled: Boolean = true
 }

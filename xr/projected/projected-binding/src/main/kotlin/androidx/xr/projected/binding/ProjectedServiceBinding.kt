@@ -31,7 +31,7 @@ import androidx.annotation.RestrictTo
  * 1. Service must be a system service,
  * 2. Service must include a provided action in its [android.content.IntentFilter].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal object ProjectedServiceBinding {
 
     /**

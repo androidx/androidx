@@ -17,13 +17,13 @@
 <resources>
     <!--
       The integer value representing the 'large' container type for Glance Wear widgets.
-      For more info see androidx.glance.wear.ContainerInfo.ContainerType.CONTAINER_TYPE_LARGE.
+      For more info see androidx.glance.wear.core.ContainerInfo.ContainerType.CONTAINER_TYPE_LARGE.
     -->
     <integer name="glance_wear_container_type_large">1</integer>
 
     <!--
       The integer value representing the 'small' container type for Glance Wear widgets.
-      For more info see androidx.glance.wear.ContainerInfo.ContainerType.CONTAINER_TYPE_SMALL.
+      For more info see androidx.glance.wear.core.ContainerInfo.ContainerType.CONTAINER_TYPE_SMALL.
     -->
     <integer name="glance_wear_container_type_small">2</integer>
 </resources>

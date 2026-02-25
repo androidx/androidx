@@ -274,6 +274,26 @@ constructor(
         signalToComplete?.complete(Unit)
     }
 
+    public fun close() {
+        synchronized(lock) {
+            if (updating) {
+                updating = false
+                updateSignal?.completeExceptionally(
+                    CancellationException("UseCaseCameraState closed")
+                )
+                updateSignal = null
+            }
+
+            while (updateSignals.isNotEmpty()) {
+                updateSignals
+                    .removeFirst()
+                    .signal
+                    .completeExceptionally(CancellationException("UseCaseCameraState closed"))
+                pendingSignalCount.decrementAndGet()
+            }
+        }
+    }
+
     private fun CameraGraph.Session.update3A(parameters: Map<CaptureRequest.Key<*>, Any>?) {
         val aeMode =
             parameters.getIntOrNull(CaptureRequest.CONTROL_AE_MODE)?.let {

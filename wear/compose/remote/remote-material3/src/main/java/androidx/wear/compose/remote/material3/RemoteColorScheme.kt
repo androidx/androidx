@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 @file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@file:Suppress("RestrictedApiAndroidX")
 
 package androidx.wear.compose.remote.material3
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.RemoteColor
-import androidx.compose.remote.creation.compose.state.rememberRemoteColor
+import androidx.compose.remote.creation.compose.state.rememberNamedRemoteColor
 import androidx.compose.runtime.Composable
 import androidx.wear.compose.material3.ColorScheme
 
@@ -73,139 +72,143 @@ public open class RemoteColorScheme(internal val colorScheme: ColorScheme = Colo
     }
 
     public open val primary: RemoteColor
-        @RemoteComposable @Composable get() = rememberRemoteColor(PRIMARY) { colorScheme.primary }
+        @RemoteComposable @Composable get() = rememberNamedRemoteColor(PRIMARY, colorScheme.primary)
 
     public open val primaryDim: RemoteColor
         @RemoteComposable
         @Composable
-        get() = rememberRemoteColor(PRIMARY_DIM) { colorScheme.primaryDim }
+        get() = rememberNamedRemoteColor(PRIMARY_DIM, colorScheme.primaryDim)
 
     public open val primaryContainer: RemoteColor
         @RemoteComposable
         @Composable
-        get() = rememberRemoteColor(PRIMARY_CONTAINER) { colorScheme.primaryContainer }
+        get() = rememberNamedRemoteColor(PRIMARY_CONTAINER, colorScheme.primaryContainer)
 
     public open val onPrimary: RemoteColor
         @RemoteComposable
         @Composable
-        get() = rememberRemoteColor(ON_PRIMARY) { colorScheme.onPrimary }
+        get() = rememberNamedRemoteColor(ON_PRIMARY, colorScheme.onPrimary)
 
     public open val onPrimaryContainer: RemoteColor
         @RemoteComposable
         @Composable
-        get() = rememberRemoteColor(ON_PRIMARY_CONTAINER) { colorScheme.onPrimaryContainer }
+        get() = rememberNamedRemoteColor(ON_PRIMARY_CONTAINER, colorScheme.onPrimaryContainer)
 
     public open val secondary: RemoteColor
         @RemoteComposable
         @Composable
-        get() = rememberRemoteColor(SECONDARY) { colorScheme.secondary }
+        get() = rememberNamedRemoteColor(SECONDARY, colorScheme.secondary)
 
     public open val secondaryDim: RemoteColor
         @RemoteComposable
         @Composable
-        get() = rememberRemoteColor(SECONDARY_DIM) { colorScheme.secondaryDim }
+        get() = rememberNamedRemoteColor(SECONDARY_DIM, colorScheme.secondaryDim)
 
     public open val secondaryContainer: RemoteColor
         @RemoteComposable
         @Composable
-        get() = rememberRemoteColor(SECONDARY_CONTAINER) { colorScheme.secondaryContainer }
+        get() = rememberNamedRemoteColor(SECONDARY_CONTAINER, colorScheme.secondaryContainer)
 
     public open val onSecondary: RemoteColor
         @RemoteComposable
         @Composable
-        get() = rememberRemoteColor(ON_SECONDARY) { colorScheme.onSecondary }
+        get() = rememberNamedRemoteColor(ON_SECONDARY, colorScheme.onSecondary)
 
     public open val onSecondaryContainer: RemoteColor
         @RemoteComposable
         @Composable
-        get() = rememberRemoteColor(ON_SECONDARY_CONTAINER) { colorScheme.onSecondaryContainer }
+        get() = rememberNamedRemoteColor(ON_SECONDARY_CONTAINER, colorScheme.onSecondaryContainer)
 
     public open val tertiary: RemoteColor
-        @RemoteComposable @Composable get() = rememberRemoteColor(TERTIARY) { colorScheme.tertiary }
+        @RemoteComposable
+        @Composable
+        get() = rememberNamedRemoteColor(TERTIARY, colorScheme.tertiary)
 
     public open val tertiaryDim: RemoteColor
         @RemoteComposable
         @Composable
-        get() = rememberRemoteColor(TERTIARY_DIM) { colorScheme.tertiaryDim }
+        get() = rememberNamedRemoteColor(TERTIARY_DIM, colorScheme.tertiaryDim)
 
     public open val tertiaryContainer: RemoteColor
         @RemoteComposable
         @Composable
-        get() = rememberRemoteColor(TERTIARY_CONTAINER) { colorScheme.tertiaryContainer }
+        get() = rememberNamedRemoteColor(TERTIARY_CONTAINER, colorScheme.tertiaryContainer)
 
     public open val onTertiary: RemoteColor
         @RemoteComposable
         @Composable
-        get() = rememberRemoteColor(ON_TERTIARY) { colorScheme.onTertiary }
+        get() = rememberNamedRemoteColor(ON_TERTIARY, colorScheme.onTertiary)
 
     public open val onTertiaryContainer: RemoteColor
         @RemoteComposable
         @Composable
-        get() = rememberRemoteColor(ON_TERTIARY_CONTAINER) { colorScheme.onTertiaryContainer }
+        get() = rememberNamedRemoteColor(ON_TERTIARY_CONTAINER, colorScheme.onTertiaryContainer)
 
     public open val surfaceContainerLow: RemoteColor
         @RemoteComposable
         @Composable
-        get() = rememberRemoteColor(SURFACE_CONTAINER_LOW) { colorScheme.surfaceContainerLow }
+        get() = rememberNamedRemoteColor(SURFACE_CONTAINER_LOW, colorScheme.surfaceContainerLow)
 
     public open val surfaceContainer: RemoteColor
         @RemoteComposable
         @Composable
-        get() = rememberRemoteColor(SURFACE_CONTAINER) { colorScheme.surfaceContainer }
+        get() = rememberNamedRemoteColor(SURFACE_CONTAINER, colorScheme.surfaceContainer)
 
     public open val surfaceContainerHigh: RemoteColor
         @RemoteComposable
         @Composable
-        get() = rememberRemoteColor(SURFACE_CONTAINER_HIGH) { colorScheme.surfaceContainerHigh }
+        get() = rememberNamedRemoteColor(SURFACE_CONTAINER_HIGH, colorScheme.surfaceContainerHigh)
 
     public open val onSurface: RemoteColor
         @RemoteComposable
         @Composable
-        get() = rememberRemoteColor(ON_SURFACE) { colorScheme.onSurface }
+        get() = rememberNamedRemoteColor(ON_SURFACE, colorScheme.onSurface)
 
     public open val onSurfaceVariant: RemoteColor
         @RemoteComposable
         @Composable
-        get() = rememberRemoteColor(ON_SURFACE_VARIANT) { colorScheme.onSurfaceVariant }
+        get() = rememberNamedRemoteColor(ON_SURFACE_VARIANT, colorScheme.onSurfaceVariant)
 
     public open val outline: RemoteColor
-        @RemoteComposable @Composable get() = rememberRemoteColor(OUTLINE) { colorScheme.outline }
+        @RemoteComposable @Composable get() = rememberNamedRemoteColor(OUTLINE, colorScheme.outline)
 
     public open val outlineVariant: RemoteColor
         @RemoteComposable
         @Composable
-        get() = rememberRemoteColor(OUTLINE_VARIANT) { colorScheme.outlineVariant }
+        get() = rememberNamedRemoteColor(OUTLINE_VARIANT, colorScheme.outlineVariant)
 
     public open val background: RemoteColor
         @RemoteComposable
         @Composable
-        get() = rememberRemoteColor(BACKGROUND) { colorScheme.background }
+        get() = rememberNamedRemoteColor(BACKGROUND, colorScheme.background)
 
     public open val onBackground: RemoteColor
         @RemoteComposable
         @Composable
-        get() = rememberRemoteColor(ON_BACKGROUND) { colorScheme.onBackground }
+        get() = rememberNamedRemoteColor(ON_BACKGROUND, colorScheme.onBackground)
 
     public open val error: RemoteColor
-        @RemoteComposable @Composable get() = rememberRemoteColor(ERROR) { colorScheme.error }
+        @RemoteComposable @Composable get() = rememberNamedRemoteColor(ERROR, colorScheme.error)
 
     public open val errorDim: RemoteColor
         @RemoteComposable
         @Composable
-        get() = rememberRemoteColor(ERROR_DIM) { colorScheme.errorDim }
+        get() = rememberNamedRemoteColor(ERROR_DIM, colorScheme.errorDim)
 
     public open val errorContainer: RemoteColor
         @RemoteComposable
         @Composable
-        get() = rememberRemoteColor(ERROR_CONTAINER) { colorScheme.errorContainer }
+        get() = rememberNamedRemoteColor(ERROR_CONTAINER, colorScheme.errorContainer)
 
     public open val onError: RemoteColor
-        @RemoteComposable @Composable get() = rememberRemoteColor(ON_ERROR) { colorScheme.onError }
+        @RemoteComposable
+        @Composable
+        get() = rememberNamedRemoteColor(ON_ERROR, colorScheme.onError)
 
     public open val onErrorContainer: RemoteColor
         @RemoteComposable
         @Composable
-        get() = rememberRemoteColor(ON_ERROR_CONTAINER) { colorScheme.onErrorContainer }
+        get() = rememberNamedRemoteColor(ON_ERROR_CONTAINER, colorScheme.onErrorContainer)
 }
 
 internal const val DisabledContentAlpha = 0.38f

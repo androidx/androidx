@@ -19,7 +19,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="back_caps_action_title" msgid="6392829425035919422">"برگشتن"</string>
     <string name="home_caps_action_title" msgid="4853167242566949502">"خانه"</string>
-    <string name="exit_action_title" msgid="9086586388884500731">"خروج"</string>
+    <string name="exit_action_title" msgid="9086586388884500731">"خارج شدن"</string>
     <string name="refresh_action_title" msgid="3674260822403151377">"بازآوری"</string>
     <string name="close_action_title" msgid="2661907510124308560">"بستن"</string>
     <string name="grant_access_action_title" msgid="4033140828804350723">"اعطای دسترسی"</string>
@@ -242,6 +242,8 @@
     <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"فهرست ۲"</string>
     <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"نوشتار فرعی زیر هر فهرست"</string>
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"پایان دادن به نسخه نمایشی تصویر و کنش‌ها"</string>
+    <!-- no translation found for filter_chip_demo_title (92190365856639582) -->
+    <skip />
     <string name="pane_template_demo_title" msgid="7804292600060341608">"الگوی قاب نمونه"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"نمونه الگوی فهرست مکان"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"مرور مکان‌ها"</string>

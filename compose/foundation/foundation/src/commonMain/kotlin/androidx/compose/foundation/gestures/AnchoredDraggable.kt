@@ -871,23 +871,37 @@ class AnchoredDraggableState<T>(initialValue: T) {
     val targetValue: T by derivedStateOf { dragTarget ?: calculateTargetValue(offset) }
 
     @OptIn(ExperimentalFoundationApi::class)
-    private fun calculateTargetValue(currentOffset: Float): T {
-        return if (isAnchoredDraggableTargetValueCalculationFixEnabled) {
-            if (!currentOffset.isNaN()) {
-                // DraggableAnchors allows multiple anchors with the same offsets. If the offset is
-                // already equal to the currentValue's offset, this anchor gets priority.
-                val currentValueOffset = anchors.positionOf(currentValue)
-                if (!currentOffset.isNaN() && currentOffset == currentValueOffset) {
-                    currentValue
-                } else {
-                    anchors.closestAnchor(currentOffset) ?: currentValue
-                }
-            } else currentValue
+    private fun calculateTargetValue(currentOffset: Float): T =
+        if (isAnchoredDraggableTargetValueCalculationFixEnabled) {
+            calculateTargetValueWithFix(currentOffset)
         } else {
             if (!currentOffset.isNaN()) {
                 anchors.closestAnchor(currentOffset) ?: currentValue
             } else currentValue
         }
+
+    private fun calculateTargetValueWithFix(currentOffset: Float): T {
+        return if (!currentOffset.isNaN()) {
+            // DraggableAnchors allows multiple anchors with the same offsets. If the offset is
+            // already equal to the currentValue's offset, this anchor gets priority.
+            val currentValueOffset = anchors.positionOf(currentValue)
+            // But... there is a very disgusting special case. anchoredDrag allows mutation to
+            // non-existent anchors to allow mutation ahead of anticipated anchor updates.
+            // Consider this sequence:
+            // 1. anchors = { A at 0f; C at 100f }
+            // 2. anchoredDrag(targetValue = B) { ... } -> currentValue, settledValue = B
+            // 3. updateAnchors({ A at 0f; B at 50f; C at 100f }). newTarget = f(oldTarget)
+            // In this scenario, it is very important that currentValue, settledValue and
+            // targetValue allow being moved to a non-existent state as they are often used to
+            // derive the new target based on the new anchors.
+            // currentValueOffset would be NaN here as it doesn't exist in the anchors. If that's
+            // the case, we disgustingly allow the offset to be NaN and fall back to currentValue.
+            if (currentValueOffset.isNaN() || currentOffset == currentValueOffset) {
+                currentValue
+            } else {
+                anchors.closestAnchor(currentOffset) ?: currentValue
+            }
+        } else currentValue
     }
 
     /**

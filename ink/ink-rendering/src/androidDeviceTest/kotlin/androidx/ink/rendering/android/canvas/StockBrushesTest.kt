@@ -26,6 +26,7 @@ import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.brush.StockBrushes
 import androidx.ink.strokes.ImmutableStrokeInputBatch
+import androidx.ink.strokes.InProgressStroke
 import androidx.ink.strokes.MutableStrokeInputBatch
 import androidx.ink.strokes.Stroke
 import androidx.ink.strokes.StrokeInput
@@ -71,7 +72,6 @@ class StockBrushesTest(val brushName: String) {
                     .copy(clientBrushFamilyId = "highlighter_1"),
                 StockBrushes.dashedLine(StockBrushes.DashedLineVersion.V1)
                     .copy(clientBrushFamilyId = "dashed-line_1"),
-                StockBrushes.pencilUnstable.copy(clientBrushFamilyId = "pencil_1"),
                 StockBrushes.emojiHighlighter(
                         clientTextureId = "emoji_heart",
                         showMiniEmojiTrail = true,
@@ -322,6 +322,30 @@ class StockBrushesTest(val brushName: String) {
                 )
             ),
             "${brushName}_documentAppears",
+        )
+    }
+
+    @Test
+    fun emojiHighlighterHasCorrectMiniEmojiTrailBehavior() {
+        if (
+            !(family.clientBrushFamilyId in
+                listOf("heart_emoji_highlighter_1", "heart_emoji_highlighter_no_trail_1"))
+        ) {
+            return
+        }
+        val stroke =
+            InProgressStroke().apply {
+                start(makeBrush(family = family, size = 10f))
+                enqueueInputs(helper.octogonStylusInputs, ImmutableStrokeInputBatch.EMPTY)
+                updateShape(
+                    helper.octogonStylusInputs
+                        .get(helper.octogonStylusInputs.size - 1)
+                        .elapsedTimeMillis
+                )
+            }
+        assertStrokesMatchGolden(
+            listOf(listOf(listOf(stroke.toImmutable()))),
+            "emojiHighlighterHasCorrectMiniEmojiTrailBehavior_" + family.clientBrushFamilyId,
         )
     }
 

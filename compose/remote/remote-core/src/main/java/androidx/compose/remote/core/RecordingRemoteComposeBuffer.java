@@ -95,6 +95,7 @@ import androidx.compose.remote.core.operations.TextLookupInt;
 import androidx.compose.remote.core.operations.TextMeasure;
 import androidx.compose.remote.core.operations.TextMerge;
 import androidx.compose.remote.core.operations.TextSubtext;
+import androidx.compose.remote.core.operations.TextTransform;
 import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.core.operations.TimeAttribute;
 import androidx.compose.remote.core.operations.TouchExpression;
@@ -568,14 +569,18 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
 
     @Override
     public void addDrawBitmapFontTextRun(
-            int textId, int bitmapFontId, int start, int end, float x, float y) {
-        addOperation(new DrawBitmapFontText(textId, bitmapFontId, start, end, x, y));
+            int textId, int bitmapFontId, int start, int end, float x, float y,
+            float glyphSpacing) {
+        addOperation(new DrawBitmapFontText(textId, bitmapFontId, start, end, x, y, glyphSpacing));
     }
 
     @Override
     public void addDrawBitmapFontTextRunOnPath(
-            int textId, int bitmapFontId, int pathId, int start, int end, float yAdj) {
-        addOperation(new DrawBitmapFontTextOnPath(textId, bitmapFontId, pathId, start, end, yAdj));
+            int textId, int bitmapFontId, int pathId, int start, int end, float yAdj,
+            float glyphSpacing) {
+        addOperation(
+                new DrawBitmapFontTextOnPath(
+                        textId, bitmapFontId, pathId, start, end, yAdj, glyphSpacing));
     }
 
     @Override
@@ -587,9 +592,11 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
             float x,
             float y,
             float panX,
-            float panY) {
+            float panY,
+            float glyphSpacing) {
         addOperation(
-                new DrawBitmapTextAnchored(textId, bitmapFontId, start, end, x, y, panX, panY));
+                new DrawBitmapTextAnchored(
+                        textId, bitmapFontId, start, end, x, y, panX, panY, glyphSpacing));
     }
 
     @Override
@@ -1370,8 +1377,13 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
     }
 
     @Override
-    public void bitmapTextMeasure(int id, int textId, int bmFontId, int type) {
-        addOperation(new BitmapTextMeasure(id, textId, bmFontId, type), id);
+    public void textTransform(int id, int txtId, float start, float len, int operation) {
+        addOperation(new TextTransform(id, txtId, start, len, operation), id);
+    }
+
+    @Override
+    public void bitmapTextMeasure(int id, int textId, int bmFontId, int type, float glyphSpacing) {
+        addOperation(new BitmapTextMeasure(id, textId, bmFontId, type, glyphSpacing), id);
     }
 
     @Override

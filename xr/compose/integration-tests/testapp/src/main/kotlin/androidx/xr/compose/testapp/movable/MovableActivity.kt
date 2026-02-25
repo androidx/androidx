@@ -104,7 +104,7 @@ class MovableActivity : ComponentActivity() {
         SpatialColumn(SubspaceModifier.testTag("PanelGridSpatialColumn")) {
             SpatialRow(
                 modifier = SubspaceModifier.fillMaxWidth(),
-                alignment = SpatialAlignment.BottomCenter,
+                verticalAlignment = SpatialAlignment.Bottom,
             ) {
                 SpatialColumn(
                     modifier =

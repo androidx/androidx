@@ -36,7 +36,7 @@ class FakeActivitySpaceTest {
 
     @Before
     fun setUp() {
-        underTest = FakeActivitySpace(false)
+        underTest = FakeActivitySpace()
     }
 
     @Test

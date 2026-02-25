@@ -84,7 +84,6 @@ internal class ExtensionInitializationScopeImpl(
         val localSilenceExtension =
             LocalCallSilenceExtensionImpl(
                 context,
-                coroutineContext,
                 callStateFlow,
                 initialCallSilenceState,
                 initialCanUserUpdateSilenceState,

@@ -1731,6 +1731,66 @@ internal class InProgressStrokesManagerTest {
     }
 
     @Test
+    fun cancelStroke_whenFinishedStrokesButNoneStillInProgress_shouldCallStrokesFinishedListener() {
+        val latencyDataRecorder = LatencyDataRecorder()
+        val clock = FakeClock()
+        val (manager, renderHelper, runUiThreadToEndOfFrame) =
+            makeAsyncManager(latencyDataRecorder, clock)
+        val finishedStrokeIds = mutableListOf<InProgressStrokeId>()
+        manager.addListener(
+            object : InProgressStrokesManager.Listener<ImmutableStrokeInputBatch> {
+                override fun onAllStrokesFinished(
+                    strokes: Map<InProgressStrokeId, FinishedStroke<ImmutableStrokeInputBatch>>
+                ) {
+                    finishedStrokeIds.addAll(strokes.keys)
+                }
+            }
+        )
+
+        // Start two strokes.
+        val downInput =
+            StrokeInput.create(
+                x = 10f,
+                y = 20f,
+                toolType = InputToolType.TOUCH,
+                elapsedTimeMillis = 0,
+            )
+        val firstStrokeId = manager.startStroke(downInput, FakeShapeSpec(), Matrix())
+        renderHelper.runRenderThreadToIdle()
+        runUiThreadToEndOfFrame()
+        clock.advanceByMillis(1000)
+        val secondStrokeId = manager.startStroke(downInput, FakeShapeSpec(), Matrix())
+        renderHelper.runRenderThreadToIdle()
+        runUiThreadToEndOfFrame()
+        clock.advanceByMillis(1000)
+
+        // Finish the first stroke before canceling the second.
+        val upInput =
+            StrokeInput.create(
+                x = 50f,
+                y = 60f,
+                toolType = InputToolType.TOUCH,
+                elapsedTimeMillis = 2000,
+            )
+        manager.finishStroke(upInput, firstStrokeId)
+        renderHelper.runRenderThreadToIdle()
+        runUiThreadToEndOfFrame()
+        clock.advanceByMillis(1000)
+
+        // Before the second stroke is canceled, there is still a stroke in progress, so the
+        // finished
+        // first stroke shouldn't be handed off yet.
+        assertThat(finishedStrokeIds).isEmpty()
+        manager.cancelStroke(secondStrokeId, event = null)
+        renderHelper.runRenderThreadToIdle()
+        runUiThreadToEndOfFrame()
+
+        // Only the first stroke finished successfully, but once the second stroke was canceled the
+        // handoff callback should have been made.
+        assertThat(finishedStrokeIds).containsExactly(firstStrokeId).inOrder()
+    }
+
+    @Test
     fun flush_whenNoStrokesInProgress_returnsWithoutCallingStrokesFinishedListener() {
         val latencyDataRecorder = LatencyDataRecorder()
         val clock = FakeClock(334_000_000)

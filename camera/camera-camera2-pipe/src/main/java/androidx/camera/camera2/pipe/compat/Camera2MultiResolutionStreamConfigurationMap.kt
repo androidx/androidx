@@ -53,6 +53,10 @@ internal class Camera2MultiResolutionStreamConfigurationMap(
         return multiResolutionStreamConfigurationMap.getInputInfo(format.value).toList()
     }
 
+    override fun isConcurrentReadersSupported(format: StreamFormat): Boolean {
+        TODO("Not yet implemented")
+    }
+
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> unwrapAs(type: KClass<T>): T? {
         return when (type) {

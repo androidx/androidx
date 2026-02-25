@@ -24,6 +24,7 @@ import androidx.pdf.InsertDraftEditOperation
 import androidx.pdf.RemoveDraftEditOperation
 import androidx.pdf.UpdateDraftEditOperation
 import androidx.pdf.adapter.PdfDocumentRenderer
+import androidx.pdf.adapter.PdfPage
 import androidx.pdf.annotation.converters.PdfAnnotationConvertersFactory
 import androidx.pdf.annotation.models.PdfAnnotation
 
@@ -48,9 +49,32 @@ internal class PdfRendererAnnotationsProcessor(private val renderer: PdfDocument
         var appliedOperationIndex = 0
         val appliedAnnotationIds = mutableListOf<String>()
 
+        var lastOpenedPage: PdfPage? = null
+        var lastOpenedPageNum = -1
+
         try {
             operations.forEach { draftEditOperation ->
-                val aospAnnotationId = applyOperation(draftEditOperation)
+                val currentPageNum =
+                    when (draftEditOperation) {
+                        is InsertDraftEditOperation -> draftEditOperation.annotation.pageNum
+                        is UpdateDraftEditOperation -> draftEditOperation.annotation.pageNum
+                        is RemoveDraftEditOperation -> draftEditOperation.pageNum
+                        else -> -1
+                    }
+
+                if (currentPageNum == -1) throw Exception("Invalid page index")
+
+                if (lastOpenedPage == null || lastOpenedPageNum != currentPageNum) {
+                    lastOpenedPage?.let { page -> renderer.releasePage(page, lastOpenedPageNum) }
+
+                    lastOpenedPage = renderer.openPage(currentPageNum, useCache = true)
+                    lastOpenedPageNum = currentPageNum
+
+                    // Defensive invocation to prepopulate the page caches
+                    lastOpenedPage.getPageAnnotations()
+                }
+
+                val aospAnnotationId = applyOperation(lastOpenedPage, draftEditOperation)
                 appliedAnnotationIds.add(aospAnnotationId)
                 appliedOperationIndex += 1
             }
@@ -61,14 +85,21 @@ internal class PdfRendererAnnotationsProcessor(private val renderer: PdfDocument
                 appliedIds = appliedAnnotationIds,
                 errorMessage = e.message ?: "Unknown error",
             )
+        } finally {
+            if (lastOpenedPage != null) {
+                renderer.releasePage(lastOpenedPage, lastOpenedPageNum)
+            }
         }
     }
 
-    private fun applyOperation(operation: DraftEditOperation): String {
+    private fun applyOperation(page: PdfPage, operation: DraftEditOperation): String {
         return when (operation) {
-            is InsertDraftEditOperation -> insertPdfAnnotation(operation.annotation)
-            is UpdateDraftEditOperation -> updatePdfAnnotation(operation.id, operation.annotation)
-            is RemoveDraftEditOperation -> removePdfAnnotation(operation.id, operation.pageNum)
+            is InsertDraftEditOperation -> insertPdfAnnotation(page, operation.annotation)
+            is UpdateDraftEditOperation ->
+                updatePdfAnnotation(page, operation.id, operation.annotation)
+
+            is RemoveDraftEditOperation ->
+                removePdfAnnotation(page, operation.id, operation.pageNum)
             else ->
                 throw UnsupportedOperationException(
                     "Unsupported operation: ${operation.javaClass.simpleName}"
@@ -76,43 +107,34 @@ internal class PdfRendererAnnotationsProcessor(private val renderer: PdfDocument
         }
     }
 
-    private fun insertPdfAnnotation(annotation: PdfAnnotation): String {
+    private fun insertPdfAnnotation(page: PdfPage, annotation: PdfAnnotation): String {
         val converter = PdfAnnotationConvertersFactory.create<PdfAnnotation>(annotation)
         val convertedAnnotation = converter.convert(annotation)
 
-        val aospAnnotationId =
-            renderer.withPage(pageNum = annotation.pageNum) { page ->
-                return@withPage page.addPageAnnotation(convertedAnnotation).toString()
-            }
-
-        if (aospAnnotationId == null) {
-            throw IllegalStateException("Failed to add annotation: PdfRenderer returned null ID.")
-        }
+        val aospAnnotationId = page.addPageAnnotation(convertedAnnotation).toString()
 
         return aospAnnotationId
     }
 
-    private fun updatePdfAnnotation(annotationId: String, newAnnotation: PdfAnnotation): String {
+    private fun updatePdfAnnotation(
+        page: PdfPage,
+        annotationId: String,
+        newAnnotation: PdfAnnotation,
+    ): String {
         val converter = PdfAnnotationConvertersFactory.create<PdfAnnotation>(newAnnotation)
         val convertedAnnotation = converter.convert(newAnnotation)
 
-        val isUpdated =
-            renderer.withPage(pageNum = newAnnotation.pageNum) { page ->
-                return@withPage page.updatePageAnnotation(annotationId.toInt(), convertedAnnotation)
-            }
+        val isUpdated = page.updatePageAnnotation(annotationId.toInt(), convertedAnnotation)
 
-        if (isUpdated == null || !isUpdated) {
+        if (!isUpdated) {
             throw IllegalStateException("Failed to update annotation")
         }
 
         return annotationId
     }
 
-    private fun removePdfAnnotation(annotationId: String, pageNum: Int): String {
-        renderer.withPage(pageNum = pageNum) { page ->
-            return@withPage page.removePageAnnotation(annotationId.toInt())
-        }
-
+    private fun removePdfAnnotation(page: PdfPage, annotationId: String, pageNum: Int): String {
+        page.removePageAnnotation(annotationId.toInt())
         return annotationId
     }
 }

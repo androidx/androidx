@@ -21,6 +21,7 @@ import androidx.xr.arcore.runtime.RenderViewpoint
 import androidx.xr.runtime.FieldOfView
 import androidx.xr.runtime.math.Pose
 
+/** Fake implementation of [RenderViewpoint] for testing purposes */
 // TODO: b/326481788 - Add more functionality to FakeRuntimeArDevice
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class FakeRuntimeRenderViewpoint(

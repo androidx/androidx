@@ -18,7 +18,6 @@ package androidx.camera.integration.core.camera2
 import android.content.Context
 import android.util.Rational
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageAnalysis
@@ -145,10 +144,6 @@ class SurfaceOrientedMeteringPointFactoryTest(
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() =
-            listOf(
-                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig()),
-            )
+        fun data() = listOf(arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()))
     }
 }

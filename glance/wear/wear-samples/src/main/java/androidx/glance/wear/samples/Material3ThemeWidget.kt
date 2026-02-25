@@ -35,7 +35,7 @@ import androidx.glance.wear.GlanceWearWidget
 import androidx.glance.wear.GlanceWearWidgetService
 import androidx.glance.wear.WearWidgetData
 import androidx.glance.wear.WearWidgetDocument
-import androidx.glance.wear.WearWidgetParams
+import androidx.glance.wear.core.WearWidgetParams
 import androidx.wear.compose.remote.material3.RemoteMaterialTheme
 
 private class Material3ThemeWidget : GlanceWearWidget() {

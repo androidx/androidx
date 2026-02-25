@@ -48,7 +48,11 @@ public interface PdfDocument : Closeable {
     public val pageCount: Int
 
     /** Indicates whether the document is linearized (optimized for fast web viewing). */
+    @Deprecated("Deprecated in Java, Use getLinearizationStatus() instead")
     public val isLinearized: Boolean
+
+    /** Indicates the linearization status of the document. */
+    @get:LinearizationStatus public val linearizationStatus: Int
 
     /**
      * The render params used to determine the contents that will be rendered on the bitmap.
@@ -354,6 +358,15 @@ public interface PdfDocument : Closeable {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public annotation class FormWidgetTypeFlags
 
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(
+        LINEARIZATION_STATUS_NOT_LINEARIZED,
+        LINEARIZATION_STATUS_LINEARIZED,
+        LINEARIZATION_STATUS_UNKNOWN,
+    )
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public annotation class LinearizationStatus
+
     public companion object {
         /** Represents a PDF with no form fields */
         public const val PDF_FORM_TYPE_NONE: Int = 0
@@ -393,5 +406,12 @@ public interface PdfDocument : Closeable {
         public const val FORM_WIDGET_INCLUDE_TEXTFIELD_TYPE: Long = 1 shl 6
         /** Flag to include [FormWidgetInfo.WIDGET_TYPE_SIGNATURE] in [getFormWidgetInfos] */
         public const val FORM_WIDGET_INCLUDE_SIGNATURE_TYPE: Long = 1 shl 7
+
+        /** Indicates that the document is not linearized */
+        public const val LINEARIZATION_STATUS_NOT_LINEARIZED: Int = 0
+        /** Indicates that the document is linearized (optimized for fast web viewing) */
+        public const val LINEARIZATION_STATUS_LINEARIZED: Int = 1
+        /** Indicates that the linearization status of the document could not be determined */
+        public const val LINEARIZATION_STATUS_UNKNOWN: Int = 2
     }
 }

@@ -67,6 +67,9 @@ public final class Message {
 
     /**
      * Creates a new message with a {@code byte[]} payload.
+     * <p>
+     * This method does not create a copy of the byte array; the message object will only hold a
+     * reference to the original byte array. Data is only copied during message posting.
      *
      * @param bytes the byte array payload.
      * @return a new Message instance with the byte array payload.
@@ -133,6 +136,9 @@ public final class Message {
      * Does not perform any implicit conversions.
      * If the internal representation of the message is not a byte array, a
      * {@link MessageTypeMismatchException} will be thrown.
+     * <p>
+     * This method only obtains a reference to the backing array and does not create a copy.
+     * Modifications to the returned byte array will modify the content of this message instance.
      *
      * @return the message's data as a byte array.
      * @throws MessageTypeMismatchException if the message type is not an array buffer.

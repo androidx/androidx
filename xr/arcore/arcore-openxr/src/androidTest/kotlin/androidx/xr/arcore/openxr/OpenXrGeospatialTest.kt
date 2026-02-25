@@ -23,7 +23,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException
+import androidx.xr.arcore.runtime.Geospatial
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.math.GeospatialPose
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
@@ -31,6 +33,7 @@ import androidx.xr.runtime.math.Vector3
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertThrows
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -108,7 +111,7 @@ class OpenXrGeospatialTest {
     }
 
     @Test
-    fun createAnchor_returnsAnchor() = initOpenXrManagerAndRunTest {
+    fun createGeospatialAnchor_returnsAnchor() = initOpenXrManagerAndRunTest {
         runTest {
             ensureGeospatialRunning()
 
@@ -118,7 +121,24 @@ class OpenXrGeospatialTest {
     }
 
     @Test
-    fun createAnchor_anchorLimitReached_throwsException() = initOpenXrManagerAndRunTest {
+    fun createSurfaceAnchor_returnsAnchor() = initOpenXrManagerAndRunTest {
+        runTest {
+            ensureGeospatialRunning()
+
+            val anchor =
+                underTest.createAnchorOnSurface(
+                    0.0,
+                    0.0,
+                    0.0,
+                    Quaternion(),
+                    Geospatial.Surface.TERRAIN,
+                )
+            assertThat(anchor).isInstanceOf(OpenXrAnchor::class.java)
+        }
+    }
+
+    @Test
+    fun createGeospatialAnchor_anchorLimitReached_throwsException() = initOpenXrManagerAndRunTest {
         runTest {
             ensureGeospatialRunning()
 
@@ -128,6 +148,42 @@ class OpenXrGeospatialTest {
 
             assertThrows(AnchorResourcesExhaustedException::class.java) {
                 underTest.createAnchor(0.0, 0.0, 0.0, Quaternion())
+            }
+        }
+    }
+
+    @Test
+    fun createAnchors_sharedAnchorLimitReached_throwsException() = initOpenXrManagerAndRunTest {
+        runTest {
+            ensureGeospatialRunning()
+
+            // Number of calls comes from 'kAnchorResourcesLimit' defined in
+            // //third_party/jetpack_xr_natives/openxr/openxr_stub.cc.
+            repeat(2) { underTest.createAnchor(0.0, 0.0, 0.0, Quaternion()) }
+            repeat(3) {
+                underTest.createAnchorOnSurface(
+                    0.0,
+                    0.0,
+                    0.0,
+                    Quaternion(),
+                    Geospatial.Surface.TERRAIN,
+                )
+            }
+
+            assertThrows(AnchorResourcesExhaustedException::class.java) {
+                underTest.createAnchor(0.0, 0.0, 0.0, Quaternion())
+            }
+            try {
+                underTest.createAnchorOnSurface(
+                    0.0,
+                    0.0,
+                    0.0,
+                    Quaternion(),
+                    Geospatial.Surface.TERRAIN,
+                )
+                fail("Expected AnchorResourcesExhaustedException was not thrown.")
+            } catch (e: AnchorResourcesExhaustedException) {
+                // This is expected.
             }
         }
     }
@@ -145,7 +201,7 @@ class OpenXrGeospatialTest {
             openXrManager = OpenXrManager(it, perceptionManager, timeSource)
             openXrManager.create()
             openXrManager.resume()
-            openXrManager.configure(Config(geospatial = Config.GeospatialMode.VPS_AND_GPS))
+            openXrManager.configure(Config(geospatial = GeospatialMode.VPS_AND_GPS))
 
             testBody()
 

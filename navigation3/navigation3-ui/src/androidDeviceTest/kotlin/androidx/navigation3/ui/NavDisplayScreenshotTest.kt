@@ -24,10 +24,12 @@ import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -45,15 +47,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.ForcedSize
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.kruth.assertThat
 import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.metadata
+import androidx.navigation3.scene.usecases.ListDetailScene
+import androidx.navigation3.scene.usecases.rememberListDetailSceneStrategy
 import androidx.navigation3.ui.CardStackSceneStrategy.Companion.CARD_KEY
 import androidx.navigationevent.NavigationEvent
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -212,19 +221,26 @@ class NavDisplayScreenshotTest {
                 transitionSpec = {
                     slideInHorizontally { it / 2 } togetherWith slideOutHorizontally { -it / 2 }
                 },
-                predictivePopTransitionSpec = { swipeEdge ->
-                    if (swipeEdge == NavigationEvent.EDGE_LEFT) {
-                        EnterTransition.None togetherWith slideOutHorizontally { it / 2 }
-                    } else {
-                        EnterTransition.None togetherWith slideOutHorizontally { -it / 2 }
-                    }
-                },
                 modifier = Modifier.testTag(navHostTag),
             ) {
                 when (it) {
                     first -> NavEntry(first) { Text(first) }
                     second ->
-                        NavEntry(second) {
+                        NavEntry(
+                            second,
+                            metadata =
+                                metadata {
+                                    put(NavDisplay.PredictivePopTransitionKey) { swipeEdge: Int ->
+                                        if (swipeEdge == NavigationEvent.EDGE_LEFT) {
+                                            EnterTransition.None togetherWith
+                                                slideOutHorizontally { it / 2 }
+                                        } else {
+                                            EnterTransition.None togetherWith
+                                                slideOutHorizontally { -it / 2 }
+                                        }
+                                    }
+                                },
+                        ) {
                             Box(Modifier.fillMaxSize().background(Color.Blue)) {
                                 Text(second, Modifier.size(50.dp))
                             }
@@ -274,7 +290,7 @@ class NavDisplayScreenshotTest {
                 LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
             NavDisplay(
                 backStack = backStack,
-                sceneStrategy = CardStackSceneStrategy(),
+                sceneStrategies = listOf(CardStackSceneStrategy()),
                 modifier = Modifier.testTag(navHostTag),
             ) {
                 when (it) {
@@ -316,7 +332,7 @@ class NavDisplayScreenshotTest {
                 LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
             NavDisplay(
                 backStack = backStack,
-                sceneStrategy = CardStackSceneStrategy(duration),
+                sceneStrategies = listOf(CardStackSceneStrategy(duration)),
                 modifier = Modifier.testTag(navHostTag),
             ) {
                 when (it) {
@@ -362,7 +378,7 @@ class NavDisplayScreenshotTest {
                 LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
             NavDisplay(
                 backStack = backStack,
-                sceneStrategy = CardStackSceneStrategy(),
+                sceneStrategies = listOf(CardStackSceneStrategy()),
                 modifier = Modifier.testTag(navHostTag),
             ) {
                 when (it) {
@@ -586,9 +602,11 @@ class NavDisplayScreenshotTest {
                             second,
                             // both screens slide right to left, exiting screen should be on top
                             metadata =
-                                NavDisplay.popTransitionSpec {
-                                    slideInHorizontally(tween(duration)) { it / 2 } togetherWith
-                                        slideOutHorizontally(tween(duration)) { -it / 2 }
+                                metadata {
+                                    put(NavDisplay.PopTransitionKey) {
+                                        slideInHorizontally(tween(duration)) { it / 2 } togetherWith
+                                            slideOutHorizontally(tween(duration)) { -it / 2 }
+                                    }
                                 },
                         ) {
                             RedBox(second)
@@ -623,10 +641,11 @@ class NavDisplayScreenshotTest {
             NavDisplay(
                 backStack,
                 popTransitionSpec = {
-                    slideInHorizontally(tween(duration)) { it / 2 } togetherWith
-                        slideOutHorizontally(tween(duration)) { -it / 2 }
+                    // both slides down
+                    slideInVertically(tween(duration)) { -it / 2 } togetherWith
+                        slideOutVertically(tween(duration)) { it / 2 }
                 },
-                sceneStrategy = TestTwoPaneSceneStrategy(),
+                sceneStrategies = listOf(TestTwoPaneSceneStrategy()),
                 modifier = Modifier.testTag(navHostTag),
             ) { key ->
                 when (key) {
@@ -649,6 +668,7 @@ class NavDisplayScreenshotTest {
 
         composeTestRule.waitForIdle()
 
+        // outgoing scene should be on top of incoming scene
         composeTestRule
             .onNodeWithTag(navHostTag)
             .captureToImage()
@@ -799,7 +819,7 @@ class NavDisplayScreenshotTest {
                 LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
             NavDisplay(
                 backStack = backStack,
-                sceneStrategy = CardStackSceneStrategy(duration),
+                sceneStrategies = listOf(CardStackSceneStrategy(duration)),
                 modifier = Modifier.testTag(navHostTag),
             ) {
                 when (it) {
@@ -836,7 +856,7 @@ class NavDisplayScreenshotTest {
                 LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
             NavDisplay(
                 backStack = backStack,
-                sceneStrategy = CardStackSceneStrategy(),
+                sceneStrategies = listOf(CardStackSceneStrategy()),
                 modifier = Modifier.testTag(navHostTag),
             ) {
                 when (it) {
@@ -941,9 +961,11 @@ class NavDisplayScreenshotTest {
                             second,
                             // both screens slide right to left, exiting screen should be on top
                             metadata =
-                                NavDisplay.popTransitionSpec {
-                                    slideInHorizontally(tween(duration)) { it / 2 } togetherWith
-                                        slideOutHorizontally(tween(duration)) { -it / 2 }
+                                metadata {
+                                    put(NavDisplay.PopTransitionKey) {
+                                        slideInHorizontally(tween(duration)) { it / 2 } togetherWith
+                                            slideOutHorizontally(tween(duration)) { -it / 2 }
+                                    }
                                 },
                         ) {
                             RedBox(second)
@@ -995,7 +1017,7 @@ class NavDisplayScreenshotTest {
             backStack = remember { mutableStateListOf(first, second) }
             NavDisplay(
                 backStack,
-                sceneStrategy = TestAnimatedTwoPaneSceneStrategy(duration),
+                sceneStrategies = listOf(TestAnimatedTwoPaneSceneStrategy(duration)),
                 modifier = Modifier.testTag(navHostTag),
             ) {
                 when (it) {
@@ -1046,8 +1068,10 @@ class NavDisplayScreenshotTest {
             backStack = remember { mutableStateListOf(first, second) }
             NavDisplay(
                 backStack,
-                sceneStrategy =
-                    TestAnimatedTwoPaneSceneStrategy(duration, overrideEntryAnimations = true),
+                sceneStrategies =
+                    listOf(
+                        TestAnimatedTwoPaneSceneStrategy(duration, overrideEntryAnimations = true)
+                    ),
                 modifier = Modifier.testTag(navHostTag),
             ) {
                 when (it) {
@@ -1057,9 +1081,12 @@ class NavDisplayScreenshotTest {
                         NavEntry(
                             third,
                             metadata =
-                                NavDisplay.transitionSpec {
-                                    slideInVertically(animationSpec = tween(duration)) togetherWith
-                                        ExitTransition.KeepUntilTransitionsFinished
+                                metadata {
+                                    put(NavDisplay.TransitionKey) {
+                                        slideInVertically(
+                                            animationSpec = tween(duration)
+                                        ) togetherWith ExitTransition.KeepUntilTransitionsFinished
+                                    }
                                 },
                         ) {
                             GreenBox(third)
@@ -1100,8 +1127,10 @@ class NavDisplayScreenshotTest {
             backStack = remember { mutableStateListOf(first, second) }
             NavDisplay(
                 backStack,
-                sceneStrategy =
-                    TestAnimatedTwoPaneSceneStrategy(duration, overrideEntryAnimations = false),
+                sceneStrategies =
+                    listOf(
+                        TestAnimatedTwoPaneSceneStrategy(duration, overrideEntryAnimations = false)
+                    ),
                 modifier = Modifier.testTag(navHostTag),
             ) {
                 when (it) {
@@ -1111,9 +1140,12 @@ class NavDisplayScreenshotTest {
                         NavEntry(
                             third,
                             metadata =
-                                NavDisplay.transitionSpec {
-                                    slideInVertically(animationSpec = tween(duration)) togetherWith
-                                        ExitTransition.KeepUntilTransitionsFinished
+                                metadata {
+                                    put(NavDisplay.TransitionKey) {
+                                        slideInVertically(
+                                            animationSpec = tween(duration)
+                                        ) togetherWith ExitTransition.KeepUntilTransitionsFinished
+                                    }
                                 },
                         ) {
                             GreenBox(third)
@@ -1162,9 +1194,13 @@ class NavDisplayScreenshotTest {
                         NavEntry(
                             key = second,
                             metadata =
-                                NavDisplay.transitionSpec {
-                                    slideInHorizontally(tween(testDuration)) { it / 2 } togetherWith
-                                        slideOutHorizontally(tween(testDuration)) { -it / 2 }
+                                metadata {
+                                    put(NavDisplay.TransitionKey) {
+                                        slideInHorizontally(tween(testDuration)) {
+                                            it / 2
+                                        } togetherWith
+                                            slideOutHorizontally(tween(testDuration)) { -it / 2 }
+                                    }
                                 },
                         ) {
                             BlueBox(second)
@@ -1186,6 +1222,58 @@ class NavDisplayScreenshotTest {
             .onNodeWithTag(navHostTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "testSwapStack")
+    }
+
+    @Test
+    fun testSharedElementCorrectlyDisplayedOnPredictiveBack() {
+        lateinit var backPressedDispatcher: OnBackPressedDispatcher
+        lateinit var backStack: MutableList<Any>
+        composeTestRule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(1280.dp, 800.dp))
+            ) {
+                backPressedDispatcher =
+                    LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
+                backStack = remember { mutableStateListOf(first, second) }
+                SharedTransitionLayout {
+                    NavDisplay(
+                        backStack = backStack,
+                        onBack = { backStack.removeAt(backStack.lastIndex) },
+                        sharedTransitionScope = this,
+                        sceneStrategies = listOf(rememberListDetailSceneStrategy()),
+                        entryProvider =
+                            entryProvider {
+                                entry(first, metadata = ListDetailScene.listPane()) {
+                                    RedBox("first")
+                                }
+                                entry(second, metadata = ListDetailScene.detailPane()) {
+                                    BlueBox("second")
+                                }
+                            },
+                        modifier = Modifier.testTag(navHostTag),
+                    )
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            backPressedDispatcher.dispatchOnBackStarted(
+                BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT)
+            )
+            backPressedDispatcher.dispatchOnBackProgressed(
+                BackEventCompat(0.1F, 0.1F, 0.2F, BackEvent.EDGE_LEFT)
+            )
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule
+            .onNodeWithTag(navHostTag)
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "testNavDisplayPredictiveBackSharedElementListDetail",
+            )
     }
 }
 

@@ -8,6 +8,11 @@ package androidx.lifecycle.viewmodel.compose {
     field public static final androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner INSTANCE;
   }
 
+  public final class LocalViewModelStoreOwner_androidKt {
+    method @InaccessibleFromKotlin public static androidx.compose.runtime.HostDefaultKey<androidx.lifecycle.ViewModelStoreOwner?> getViewModelStoreOwnerHostDefaultKey();
+    property public static androidx.compose.runtime.HostDefaultKey<androidx.lifecycle.ViewModelStoreOwner?> ViewModelStoreOwnerHostDefaultKey;
+  }
+
   @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface SavedStateHandleSaveableApi {
   }
 
@@ -27,9 +32,9 @@ package androidx.lifecycle.viewmodel.compose {
     method @KotlinOnly @androidx.compose.runtime.Composable public static inline <reified VM extends androidx.lifecycle.ViewModel> VM viewModel(optional androidx.lifecycle.ViewModelStoreOwner viewModelStoreOwner, optional String? key, kotlin.jvm.functions.Function1<androidx.lifecycle.viewmodel.CreationExtras,VM> initializer);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.lifecycle.ViewModel! viewModel(Class!, androidx.lifecycle.ViewModelStoreOwner!, String!, androidx.lifecycle.ViewModelProvider.Factory!, androidx.compose.runtime.Composer!, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public static <VM extends androidx.lifecycle.ViewModel> VM viewModel(Class<VM> modelClass, optional androidx.lifecycle.ViewModelStoreOwner viewModelStoreOwner, optional String? key, optional androidx.lifecycle.ViewModelProvider.Factory? factory, optional androidx.lifecycle.viewmodel.CreationExtras extras);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static <VM extends androidx.lifecycle.ViewModel> VM viewModel(Class<VM!>, androidx.lifecycle.ViewModelStoreOwner?, String?, androidx.lifecycle.ViewModelProvider.Factory?, androidx.lifecycle.viewmodel.CreationExtras?, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <VM extends androidx.lifecycle.ViewModel> VM viewModel(Class<VM>, androidx.lifecycle.ViewModelStoreOwner?, String?, androidx.lifecycle.ViewModelProvider.Factory?, androidx.lifecycle.viewmodel.CreationExtras?, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public static <VM extends androidx.lifecycle.ViewModel> VM viewModel(kotlin.reflect.KClass<VM> modelClass, optional androidx.lifecycle.ViewModelStoreOwner viewModelStoreOwner, optional String? key, optional androidx.lifecycle.ViewModelProvider.Factory? factory, optional androidx.lifecycle.viewmodel.CreationExtras extras);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static <VM extends androidx.lifecycle.ViewModel> VM viewModel(kotlin.reflect.KClass<VM!>, androidx.lifecycle.ViewModelStoreOwner?, String?, androidx.lifecycle.ViewModelProvider.Factory?, androidx.lifecycle.viewmodel.CreationExtras?, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <VM extends androidx.lifecycle.ViewModel> VM viewModel(kotlin.reflect.KClass<VM>, androidx.lifecycle.ViewModelStoreOwner?, String?, androidx.lifecycle.ViewModelProvider.Factory?, androidx.lifecycle.viewmodel.CreationExtras?, androidx.compose.runtime.Composer?, int, int);
   }
 
 }

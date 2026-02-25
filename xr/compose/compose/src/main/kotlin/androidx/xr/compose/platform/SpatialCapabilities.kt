@@ -40,7 +40,7 @@ public val LocalSpatialCapabilities: ProvidableCompositionLocal<SpatialCapabilit
 /**
  * Provides information and functionality related to the spatial capabilities of the application.
  */
-public interface SpatialCapabilities {
+public sealed interface SpatialCapabilities {
     /**
      * Indicates whether the application may create spatial UI elements (e.g. SpatialPanel).
      *
@@ -78,15 +78,23 @@ public interface SpatialCapabilities {
 
     public companion object {
         public val NoCapabilities: SpatialCapabilities =
-            object : SpatialCapabilities {
-                override val isSpatialUiEnabled: Boolean = false
-                override val isContent3dEnabled: Boolean = false
-                override val isAppEnvironmentEnabled: Boolean = false
-                override val isPassthroughControlEnabled: Boolean = false
-                override val isSpatialAudioEnabled: Boolean = false
-            }
+            StaticSpatialCapabilities(
+                isSpatialUiEnabled = false,
+                isContent3dEnabled = false,
+                isAppEnvironmentEnabled = false,
+                isPassthroughControlEnabled = false,
+                isSpatialAudioEnabled = false,
+            )
     }
 }
+
+private class StaticSpatialCapabilities(
+    override val isSpatialUiEnabled: Boolean,
+    override val isContent3dEnabled: Boolean,
+    override val isAppEnvironmentEnabled: Boolean,
+    override val isPassthroughControlEnabled: Boolean,
+    override val isSpatialAudioEnabled: Boolean,
+) : SpatialCapabilities
 
 internal class SessionSpatialCapabilities(session: Session) : SpatialCapabilities {
     private var capabilities by

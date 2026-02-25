@@ -81,6 +81,7 @@
     <string name="form_click_toggle_instruction" msgid="7171111300244445911">"କ୍ଲିକ କଲେ ମୂଲ୍ୟକୁ ଟୋଗଲ କରାଯିବ।"</string>
     <string name="form_click_opens_choices_menu_instruction" msgid="5648228168212004143">"କ୍ଲିକ କଲେ ପସନ୍ଦ ଚୟନ କରିବାର ମେନୁ ଖୋଲିବ।"</string>
     <string name="form_click_enters_text_edit_mode_instruction" msgid="2305283577544618880">"କ୍ଲିକ କଲେ ଟେକ୍ସଟ ଏଡିଟ ମୋଡକୁ ଚାଲିଯିବ।"</string>
+    <string name="combobox_custom_option" msgid="8730230629127076731">"କଷ୍ଟମ"</string>
     <string name="form_unknown" msgid="6371515914365431330">"ଅଜଣା"</string>
     <string name="form_widget_type_push_button" msgid="3595388398616291441">"ପୁସ ବଟନ"</string>
     <string name="form_widget_type_checkbox" msgid="5165655383070460151">"ଚେକବକ୍ସ"</string>

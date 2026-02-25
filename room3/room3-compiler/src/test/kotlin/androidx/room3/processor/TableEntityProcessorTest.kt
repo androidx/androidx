@@ -2084,12 +2084,13 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
         val annotation =
             mapOf(
                 "foreignKeys" to
-                    """{@ForeignKey(
-                    entity = dsa.class,
-                    parentColumns = "lastName",
-                    childColumns = "name"
-                )}
-            """
+                    """
+                    {@ForeignKey(
+                                        entity = dsa.class,
+                                        parentColumns = "lastName",
+                                        childColumns = "name"
+                                    )}
+                    """
                         .trimIndent()
             )
         singleEntity(
@@ -2631,12 +2632,12 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             Source.kotlin(
                 "Entity.kt",
                 """
-            import androidx.room3.*;
+                import androidx.room3.*;
 
-            typealias MyLong = Long
-            @Entity(tableName = "par_table")
-            data class Subject(@PrimaryKey @ColumnInfo(name = "my_long") val myLong: MyLong)
-            """
+                typealias MyLong = Long
+                @Entity(tableName = "par_table")
+                data class Subject(@PrimaryKey @ColumnInfo(name = "my_long") val myLong: MyLong)
+                """
                     .trimIndent(),
             )
         runKspTest(sources = listOf(src)) { invocation ->

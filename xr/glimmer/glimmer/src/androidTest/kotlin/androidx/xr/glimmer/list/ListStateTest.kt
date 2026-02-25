@@ -21,12 +21,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
@@ -40,13 +38,14 @@ import androidx.test.filters.MediumTest
 import androidx.xr.glimmer.AutoTestFrameClock
 import androidx.xr.glimmer.Text
 import androidx.xr.glimmer.setGlimmerThemeContent
+import androidx.xr.glimmer.testutils.NoFlingBehavior
+import androidx.xr.glimmer.testutils.setContentWithDensity
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -140,7 +139,7 @@ class ListStateTest(orientation: Orientation) : BaseListTestWithOrientation(orie
     }
 
     @Test
-    fun accumulatedPart_isApplied() {
+    fun carriedOverPart_isApplied() {
         val state = ListState()
         rule.setContent {
             TestList(
@@ -149,16 +148,16 @@ class ListStateTest(orientation: Orientation) : BaseListTestWithOrientation(orie
                 itemContent = { index -> FocusableItem(index, Modifier.size(20.dp)) },
             )
         }
-        // Set up the accumulated value. We expect it will be used in the next measure pass.
+        // Set up the value to carry over. We expect it will be used in the next measure pass.
         // The values inside the list state have an opposite sign, so it's negative.
-        val accumulatedValue = with(rule.density) { -60.dp.toPx() }
+        val scrollToCarryOver = with(rule.density) { -60.dp.toPx() }
         state.applyMeasureResult(
             result = state.layoutInfo as GlimmerListMeasureResult,
             consumedScroll = 0f,
-            accumulatedScroll = accumulatedValue,
+            scrollToCarryOver = scrollToCarryOver,
         )
 
-        // Scroll by a single pixel - we expect that accumulated value will be added up.
+        // Scroll by a single pixel - we expect that the carried-over value will be added up.
         state.scrollByAndWaitForIdle(1.dp)
 
         // Check that 4th item is focused.
@@ -194,37 +193,33 @@ class ListStateTest(orientation: Orientation) : BaseListTestWithOrientation(orie
     fun initialState_withNonZeroParameters_isAppliedCorrectly() {
         // Set up list with non-trivial state.
         val state = ListState(firstVisibleItemIndex = 50, firstVisibleItemScrollOffset = 42)
-        rule.setContent {
-            CompositionLocalProvider(LocalDensity provides Density(1f)) {
-                TestList(
-                    state = state,
-                    itemsCount = 100,
-                    modifier = Modifier.size(400.dp),
-                    itemContent = { FocusableItem(it, Modifier.size(100.dp)) },
-                )
-            }
+        rule.setContentWithDensity(Density(1f)) {
+            TestList(
+                state = state,
+                itemsCount = 100,
+                modifier = Modifier.size(400.dp),
+                itemContent = { FocusableItem(it, Modifier.size(100.dp)) },
+            )
         }
 
         // Check the auto focus parameters were calculated correctly.
-        Truth.assertThat(state.autoFocusState.properties?.focusScroll).isEqualTo(200f)
+        Truth.assertThat(state.autoFocusState.properties?.focusScroll).isEqualTo(200.0)
         // TODO(b/462040962): Investigate how viewport adjustments reverses contentScroll by
         //  firstVisibleItemScrollOffset when TestList is focused.
         Truth.assertThat(state.autoFocusState.properties?.contentScroll)
-            .isEqualTo(if (orientation == Orientation.Vertical) 5042f else 5000f)
+            .isEqualTo(if (orientation == Orientation.Vertical) 5042.0 else 5000.0)
     }
 
     @Test
     fun scrollBy_reportsCorrectConsumedValue() {
         val state = ListState()
-        rule.setContent {
-            CompositionLocalProvider(LocalDensity provides Density(1f)) {
-                TestList(
-                    state = state,
-                    itemsCount = 100,
-                    modifier = Modifier.size(400.dp),
-                    itemContent = { FocusableItem(it, Modifier.size(100.dp)) },
-                )
-            }
+        rule.setContentWithDensity(Density(1f)) {
+            TestList(
+                state = state,
+                itemsCount = 100,
+                modifier = Modifier.size(400.dp),
+                itemContent = { FocusableItem(it, Modifier.size(100.dp)) },
+            )
         }
 
         state.scrollByAndCheckConsumedValue(0.2f)
@@ -240,53 +235,59 @@ class ListStateTest(orientation: Orientation) : BaseListTestWithOrientation(orie
     }
 
     @Test
-    @Ignore("b/444190961")
-    fun scrollBy_scrollOnTheEdge_doesNotConsumeAllTheDelta() {
+    fun scrollBy_onTheEdge_doesNotConsumeAllTheDelta() {
         val state = ListState()
-        rule.setContent {
-            CompositionLocalProvider(LocalDensity provides Density(1f)) {
-                TestList(
-                    state = state,
-                    itemsCount = 100,
-                    modifier = Modifier.size(400.dp),
-                    itemContent = { FocusableItem(it, Modifier.size(25.dp)) },
-                )
-            }
+        rule.setContentWithDensity(Density(1f)) {
+            TestList(
+                state = state,
+                itemsCount = 100,
+                modifier = Modifier.size(400.dp),
+                itemContent = { FocusableItem(it, Modifier.size(25.dp)) },
+            )
         }
 
-        // Scroll down 50dp
+        // Scroll down by 50dp.
         state.scrollByAndCheckConsumedValue(delta = 50f, consumed = 50f)
-        // Scroll up 100dp (even though only 50dp is available)
+        // Scroll up by 100dp when only 50dp is available. List should consume only 50dp of it.
         state.scrollByAndCheckConsumedValue(delta = -100f, consumed = -50f)
     }
 
     @Test
-    @Ignore("b/444190961")
-    fun scrollBy_tinyValues_areAccumulated() {
+    fun tinyValues_thatNotConsumed_areCarriedOverForSuccessiveScrolls_ifFocusRemainsWithinTheSameItem() {
         val state = ListState()
-        rule.setContent {
-            CompositionLocalProvider(LocalDensity provides Density(1f)) {
-                TestList(
-                    state = state,
-                    itemsCount = 100,
-                    modifier = Modifier.size(500.dp),
-                    itemContent = { FocusableItem(it, Modifier.size(40.dp)) },
-                )
-            }
+        rule.setContentWithDensity(Density(1f)) {
+            TestList(
+                state = state,
+                itemsCount = 100,
+                modifier = Modifier.size(500.dp),
+                flingBehavior = NoFlingBehavior,
+                itemContent = { FocusableItem(it, Modifier.size(40.dp)) },
+            )
         }
 
-        // These numbers are specifically chosen for the given parameters
-        // so that the rounding error is maximized (around 4dp for each scroll).
-        state.scrollByAndWaitForIdle(delta = 14f)
-        state.scrollByAndWaitForIdle(delta = 12f)
-        state.scrollByAndWaitForIdle(delta = 10f)
-        state.scrollByAndWaitForIdle(delta = 9f)
+        // Total scroll is 0.5dp * 70 = 35dp. The size of item is 40dp.
+        repeat(70) { state.scrollByAndWaitForIdle(delta = 0.5f) }
 
-        // This test checks that errors are correctly calculated and carried over to the next
-        // measure pass in order to be balanced. Otherwise, due to losing rounding errors, the
-        // line will not be at the right place. The total scroll was 45dp, it means that the
-        // seconds item must be focused now.
-        rule.onNodeWithTag("item-1").assertIsFocused()
+        assertThat(state.totalScroll).isEqualTo(35)
+    }
+
+    @Test
+    fun tinyValues_thatNotConsumed_areCarriedOverForSuccessiveScrolls_ifFocusMovesToTheNextItem() {
+        val state = ListState()
+        rule.setContentWithDensity(Density(1f)) {
+            TestList(
+                state = state,
+                itemsCount = 100,
+                modifier = Modifier.size(500.dp),
+                flingBehavior = NoFlingBehavior,
+                itemContent = { FocusableItem(it, Modifier.size(40.dp)) },
+            )
+        }
+
+        // Total scroll is 0.5dp * 100 = 50dp. The size of item is 50dp.
+        repeat(100) { state.scrollByAndWaitForIdle(delta = 0.5f) }
+
+        assertThat(state.totalScroll).isEqualTo(50)
     }
 
     @Test
@@ -306,6 +307,11 @@ class ListStateTest(orientation: Orientation) : BaseListTestWithOrientation(orie
         Truth.assertThat(actualConsumed).isWithin(1f).of(consumed)
         rule.waitForIdle()
     }
+
+    /** Calculates the total consumed scroll of the list, including the carried-over part. */
+    private val ListState.totalScroll: Float
+        // Autofocus properties and scroll have opposite signs for the same direction.
+        get() = requireNotNull(autoFocusState.properties).userScroll.toFloat() - carryOverScroll
 
     companion object {
         @JvmStatic

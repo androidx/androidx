@@ -16,6 +16,7 @@
 
 package androidx.build.checkapi
 
+import androidx.build.AndroidXExtension
 import androidx.build.getAndroidJar
 import androidx.build.multiplatformExtension
 import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
@@ -27,6 +28,7 @@ import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileCollection
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.SourceSet
+import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.listProperty
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
@@ -283,9 +285,15 @@ internal class MultiplatformCompilationInputs(
                 allCompilations.add(mainCompilation)
             }
 
+            val isIsolatedProjectsEnabled =
+                project.extensions.getByType<AndroidXExtension>().isIsolatedProjectsEnabled()
             // Only include main source sets, not test.
             val allKotlinSourceSets = project.objects.listProperty<KotlinSourceSet>()
             kmpExtension.sourceSets.configureEach {
+                if (
+                    isIsolatedProjectsEnabled && it.name in setOf("jsMain", "wasmJsMain", "webMain")
+                ) // https://youtrack.jetbrains.com/issue/KT-80311
+                 return@configureEach
                 if (it.name.lowercase().contains("test")) return@configureEach
                 allKotlinSourceSets.add(it)
             }
@@ -296,7 +304,6 @@ internal class MultiplatformCompilationInputs(
                         // Find the compilations that this source set is part of.
                         val allAssociatedCompilations =
                             allCompilations.filter { it.allKotlinSourceSets.contains(sourceSet) }
-                        allAssociatedCompilations.map { it.compileDependencyFiles }
                         // Include dependencies from all compilations which this source set is
                         // associated with.
                         val sourceSetDependencies =

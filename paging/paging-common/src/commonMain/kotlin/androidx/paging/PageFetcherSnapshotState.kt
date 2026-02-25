@@ -42,8 +42,19 @@ import kotlinx.coroutines.sync.withLock
  */
 internal class PageFetcherSnapshotState<Key : Any, Value : Any>
 private constructor(private val config: PagingConfig) {
+    /** Raw loaded data (pre-transform) */
     private val _pages = mutableListOf<Page<Key, Value>>()
     internal val pages: List<Page<Key, Value>> = _pages
+
+    /**
+     * Index of refresh page relative to the current first page.
+     *
+     * Prepended pages example:
+     * - [prependPage1, prependPage2, refreshPage] --> initialPageIndex = 2
+     *
+     * Dropped pages example with first two pages dropped:
+     * - refreshPage, appendedPage1, [appendedPage2, appendedPage3] --> initialPageIndex = -2
+     */
     internal var initialPageIndex = 0
         private set
 

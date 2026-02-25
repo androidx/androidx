@@ -41,23 +41,3 @@ internal class RemoteComposeApplierV2(root: RemoteComposeNodeV2) :
         root.children.clear()
     }
 }
-
-// Helper extension to mimic MutableList.remove(index, count) if needed,
-// though standard list might need manual implementation for multi-remove.
-private fun <T> MutableList<T>.remove(index: Int, count: Int) {
-    repeat(count) { removeAt(index) }
-}
-
-private fun <T> MutableList<T>.move(from: Int, to: Int, count: Int) {
-    if (from < to) {
-        for (i in 0 until count) {
-            val item = removeAt(from)
-            add(to - 1, item)
-        }
-    } else {
-        for (i in 0 until count) {
-            val item = removeAt(from + i)
-            add(to + i, item)
-        }
-    }
-}

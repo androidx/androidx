@@ -19,9 +19,10 @@ package androidx.xr.scenecore.testing
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.runtime.GltfAnimationFeature
 import androidx.xr.scenecore.runtime.GltfEntity
 import androidx.xr.scenecore.runtime.GltfFeature
-import androidx.xr.scenecore.runtime.MaterialResource
+import androidx.xr.scenecore.runtime.GltfModelNodeFeature
 import java.util.concurrent.Executor
 import java.util.function.Consumer
 
@@ -31,13 +32,8 @@ public open class FakeGltfEntity(
     private val feature: GltfFeature? = null,
     private val executor: Executor? = null,
 ) : FakeEntity(), GltfEntity {
-    public class Node {
-        public val nodeName: String = "glTF node"
-        public val materialArray: Array<FakeResource> =
-            arrayOf(FakeResource(1), FakeResource(2), FakeResource(3))
-    }
-
-    public val node: Node = Node()
+    override val nodes: List<GltfModelNodeFeature>
+        get() = feature?.nodes ?: emptyList()
 
     private val _animationStateListeners = mutableMapOf<Consumer<Int>, Executor?>()
 
@@ -64,6 +60,36 @@ public open class FakeGltfEntity(
     override val gltfModelBoundingBox: BoundingBox =
         BoundingBox.fromMinMax(Vector3.Zero, Vector3.One)
 
+    private val _animations = mutableListOf<GltfAnimationFeature>()
+
+    override val animations: List<GltfAnimationFeature>
+        get() = (feature?.getAnimations(executor!!) ?: emptyList()) + _animations
+
+    override fun setColliderEnabled(enabled: Boolean) {
+        feature?.setColliderEnabled(enabled)
+    }
+
+    override fun addOnBoundsUpdateListener(listener: Consumer<BoundingBox>) {
+        feature?.addOnBoundsUpdateListener(listener)
+    }
+
+    override fun removeOnBoundsUpdateListener(listener: Consumer<BoundingBox>) {
+        feature?.removeOnBoundsUpdateListener(listener)
+    }
+
+    override fun setReformAffordanceEnabled(enabled: Boolean, systemMovable: Boolean) {
+        feature?.setReformAffordanceEnabled(this, enabled, executor!!, systemMovable)
+    }
+
+    /**
+     * Adds an animation to the list of animations.
+     *
+     * @param animation The animation to add.
+     */
+    public fun addAnimation(animation: GltfAnimationFeature) {
+        _animations.add(animation)
+    }
+
     /**
      * Indicates whether the animation is currently looping. In tests, you can
      * - call [startAnimation] with loop set to true to simulate looping the animation and verify
@@ -72,24 +98,6 @@ public open class FakeGltfEntity(
      *   correctly to the animation stopping.
      */
     public var isLooping: Boolean = false
-
-    override fun setMaterialOverride(
-        material: MaterialResource,
-        nodeName: String,
-        primitiveIndex: Int,
-    ) {
-        feature?.setMaterialOverride(material, nodeName, primitiveIndex)
-        if (nodeName == node.nodeName && primitiveIndex < node.materialArray.size) {
-            node.materialArray[primitiveIndex] = material as FakeResource
-        }
-    }
-
-    override fun clearMaterialOverride(nodeName: String, primitiveIndex: Int) {
-        feature?.clearMaterialOverride(nodeName, primitiveIndex)
-        if (nodeName == node.nodeName && primitiveIndex < node.materialArray.size) {
-            node.materialArray[primitiveIndex] = FakeResource(primitiveIndex.toLong())
-        }
-    }
 
     /**
      * The name of the animation that is currently playing. In tests, you can

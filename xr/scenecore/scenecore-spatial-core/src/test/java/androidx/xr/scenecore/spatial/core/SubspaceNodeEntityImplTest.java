@@ -54,7 +54,6 @@ public final class SubspaceNodeEntityImplTest {
                         mXrExtensions,
                         entityManager,
                         () -> mXrExtensions.getSpatialState(mActivity),
-                        /* unscaledGravityAlignedActivitySpace= */ false,
                         executor);
 
         Dimensions size = new Dimensions(1.0f, 2.0f, 3.0f);

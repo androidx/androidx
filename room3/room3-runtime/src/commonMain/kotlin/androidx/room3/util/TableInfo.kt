@@ -71,7 +71,8 @@ public expect class TableInfo(
          * @param tableName The table name.
          * @return A TableInfo containing the schema information for the provided table name.
          */
-        @JvmStatic public fun read(connection: SQLiteConnection, tableName: String): TableInfo
+        @JvmStatic
+        public suspend fun read(connection: SQLiteConnection, tableName: String): TableInfo
     }
 
     /** Holds the information about a database column. */

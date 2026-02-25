@@ -65,7 +65,7 @@ fun Project.getBuildInfoDirectory(): Provider<Directory> =
  * cause all the tests to be run, except in cases where buildSrc changes.
  */
 fun Project.getTestConfigDirectory(): Provider<Directory> =
-    rootProject.layout.buildDirectory.dir("test-xml-configs")
+    objects.directoryProperty().fileValue(File(getOutDirectory(), "test-xml-configs"))
 
 /** Directory for App APKs (from ApkOutputProviders) used in device tests. */
 fun Project.getAppApksFilesDirectory(): Provider<Directory> =

@@ -160,6 +160,10 @@ private class InputCaptureView private constructor(context: Context) : View(cont
                 updateLayoutParams<WindowManager.LayoutParams> {
                     // Get the Window token from the parent view
                     token = value.applicationWindowToken
+                    // This view should have zero size as its only purpose is to capture global
+                    // touch events.
+                    width = 0
+                    height = 0
                 }
                 if (isAttachedToWindow) {
                     windowManager.updateViewLayout(this, layoutParams)

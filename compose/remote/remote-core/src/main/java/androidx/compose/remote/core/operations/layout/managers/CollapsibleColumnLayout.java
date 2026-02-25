@@ -15,12 +15,17 @@
  */
 package androidx.compose.remote.core.operations.layout.managers;
 
+import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
+import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
+
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.WireBuffer;
+import androidx.compose.remote.core.documentation.DocumentationBuilder;
+import androidx.compose.remote.core.operations.Header;
 import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.operations.layout.LayoutComponent;
 import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
@@ -75,6 +80,22 @@ public class CollapsibleColumnLayout extends ColumnLayout {
                 horizontalPositioning,
                 verticalPositioning,
                 spacedBy);
+    }
+
+    /**
+     * Populate the documentation with a description of this operation
+     *
+     * @param doc to append the description to.
+     */
+    public static void documentation(@NonNull DocumentationBuilder doc) {
+        doc.operation("Layout Managers", id(), "CollapsibleColumn")
+                .additionalDocumentation("collapsible_column")
+                .description("A column layout that can hide children if space is insufficient")
+                .field(INT, "componentId", "Unique ID for this component")
+                .field(INT, "animationId", "ID for animation purposes")
+                .field(INT, "horizontalPositioning", "Horizontal positioning value")
+                .field(INT, "verticalPositioning", "Vertical positioning value")
+                .field(FLOAT, "spacedBy", "Vertical spacing between components");
     }
 
     @NonNull
@@ -141,18 +162,36 @@ public class CollapsibleColumnLayout extends ColumnLayout {
 
     @Override
     public float minIntrinsicHeight(@NonNull RemoteContext context) {
-        float height = computeModifierDefinedHeight(context);
+        float height = computeModifierDefinedHeight(context, true);
         if (!mChildrenComponents.isEmpty()) {
-            height += mChildrenComponents.get(0).minIntrinsicHeight(context);
+            Component c;
+            if (context.useFeature(Header.FEATURE_PRIORITY_FIX)) {
+                c = CollapsiblePriority.findLastStanding(
+                                mChildrenComponents, CollapsiblePriority.VERTICAL);
+            } else {
+                c = mChildrenComponents.get(0);
+            }
+            if (c != null) {
+                height += c.minIntrinsicHeight(context);
+            }
         }
         return height;
     }
 
     @Override
     public float minIntrinsicWidth(@NonNull RemoteContext context) {
-        float width = computeModifierDefinedWidth(context);
+        float width = computeModifierDefinedWidth(context, true);
         if (!mChildrenComponents.isEmpty()) {
-            width += mChildrenComponents.get(0).minIntrinsicWidth(context);
+            Component c;
+            if (context.useFeature(Header.FEATURE_PRIORITY_FIX)) {
+                c = CollapsiblePriority.findLastStanding(
+                                mChildrenComponents, CollapsiblePriority.VERTICAL);
+            } else {
+                c = mChildrenComponents.get(0);
+            }
+            if (c != null) {
+                width += c.minIntrinsicWidth(context);
+            }
         }
         return width;
     }

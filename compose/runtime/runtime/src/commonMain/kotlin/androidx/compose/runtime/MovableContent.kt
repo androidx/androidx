@@ -290,7 +290,15 @@ internal constructor(
     internal var invalidations: List<Pair<RecomposeScopeImpl, Any?>>,
     internal val locals: PersistentCompositionLocalMap,
     internal val nestedReferences: List<MovableContentStateReference>?,
-)
+) {
+    /** Transfer any invalidations that may have accumulated since this reference was created. */
+    internal fun transferPendingInvalidations() {
+        if (anchor.valid) {
+            invalidations =
+                invalidations + (composition as CompositionImpl).extractInvalidationsOf(anchor)
+        }
+    }
+}
 
 /**
  * A Compose compiler plugin API. DO NOT call directly.

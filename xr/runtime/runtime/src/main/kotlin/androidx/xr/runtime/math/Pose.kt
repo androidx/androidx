@@ -16,6 +16,11 @@
 
 package androidx.xr.runtime.math
 
+import androidx.xr.runtime.math.Quaternion.Companion.fromAxisAngle
+import androidx.xr.runtime.math.Quaternion.Companion.fromLookTowards
+import kotlin.math.abs
+import kotlin.math.asin
+
 /**
  * Represents an immutable rigid transformation from one coordinate space to another.
  *
@@ -95,6 +100,62 @@ constructor(
     public infix fun transformVector(vector: Vector3): Vector3 = rotation * vector
 
     /**
+     * Calculates a rotation to align this pose's local Z-axis [forward] with the given pose's [up]
+     * direction.
+     *
+     * @param other The given pose.
+     * @return A Quaternion representing the rotation to apply to the pose.
+     */
+    public fun getForwardVectorToUpRotation(other: Pose): Quaternion {
+        val otherPoseUp = other.up.toNormalized()
+        val poseVectorX = this.right.toNormalized()
+        // Y vector(poseUp) = Z vector (planeNormal) x X vector (entityRight)
+        var poseUp = otherPoseUp.cross(poseVectorX)
+        if (poseUp.lengthSquared < EPSILON) {
+            // Fallback: Use the existing pose's up vector to derive a new basis
+            // This prevents the NaN crash while maintaining the best possible orientation
+            poseUp = this.up
+        }
+        return fromLookTowards(otherPoseUp, poseUp)
+    }
+
+    /**
+     * Calculates a rotation to align this pose's local Y-axis [up] with the given pose's up
+     * direction.
+     *
+     * @param other The given pose.
+     * @return A Quaternion representing the rotation to apply to the pose.
+     */
+    public fun getUpVectorToUpRotation(other: Pose): Quaternion {
+        val otherPoseUp: Vector3 = other.up.toNormalized()
+        val poseUp: Vector3 = this.up.toNormalized()
+        val otherPoseRight: Vector3 = other.right.toNormalized()
+        var newPose: Pose = this
+        // Handle the case where the pose's up vector is orthogonal to the plane normal.
+        // Rotate 90 degrees around the plane's right vector to tip the pose's up vector
+        // out of the plane.
+        if (abs(otherPoseUp.dot(poseUp)) < EPSILON) {
+            val angle = Math.toDegrees(asin(poseUp.cross(otherPoseUp).length.toDouble())).toFloat()
+            newPose = this.rotate(fromAxisAngle(otherPoseRight, angle))
+        }
+
+        // Get the x-vector of the pose so that we can use it to create the z-vector that is
+        // in the direction of the pose.
+        val poseRight = newPose.right.toNormalized()
+        // The forward direction (z-vector) is the cross product of the pose x-vector and the
+        // y-vector.
+        var forwardDirection = poseRight.cross(otherPoseUp)
+
+        // Handle the edge case where poseRight is parallel to planeNormal.
+        // In this case, the cross product is zero, so fall back to the
+        // pose's current forward vector.
+        if (forwardDirection.lengthSquared < EPSILON) {
+            forwardDirection = newPose.forward
+        }
+        return Quaternion.fromLookTowards(forwardDirection, otherPoseUp)
+    }
+
+    /**
      * Returns a copy of the pose.
      *
      * @param translation the new translation for the copied pose
@@ -121,6 +182,7 @@ constructor(
     public companion object {
         /** Returns a new pose using the identity rotation. */
         @JvmField public val Identity: Pose = Pose()
+        private const val EPSILON = 1e-6f
 
         /**
          * Returns a new pose oriented to look at [target] from [eye] position with [up] as the up

@@ -20,7 +20,6 @@ import android.content.Context
 import android.graphics.SurfaceTexture
 import android.util.Size
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
@@ -34,7 +33,6 @@ import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.core.streamsharing.StreamSharing
 import androidx.camera.lifecycle.LifecycleCamera
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.IgnoreVideoRecordingProblematicDeviceRule
@@ -68,10 +66,6 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class StreamSharingTest(private val implName: String, private val cameraConfig: CameraXConfig) {
     @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
-
-    @get:Rule
     val cameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraConfig))
 
@@ -87,11 +81,7 @@ class StreamSharingTest(private val implName: String, private val cameraConfig: 
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() =
-            listOf(
-                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig()),
-            )
+        fun data() = listOf(arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()))
     }
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()

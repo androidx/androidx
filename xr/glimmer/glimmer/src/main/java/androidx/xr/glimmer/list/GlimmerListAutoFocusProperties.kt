@@ -58,7 +58,7 @@ internal class GlimmerListAutoFocusProperties(
      * and depends on the previous value. The maximum value of [userScroll] is always equal to the
      * [contentLength].
      */
-    val userScroll: Float,
+    val userScroll: Double,
     /**
      * The position of the focus line relative to the start of the viewport and it doesn't include
      * the paddings.
@@ -66,7 +66,7 @@ internal class GlimmerListAutoFocusProperties(
      * E.g., if the list size is 100dp and the paddings are 20dp, then the minimum value of
      * [focusScroll] would be 0dp and the maximum value would be 60dp.
      */
-    val focusScroll: Float,
+    val focusScroll: Double,
     /**
      * This is an estimate of the content beyond the top of viewport, measured as the distance
      * between the top of the content and the top of the viewport.
@@ -74,19 +74,19 @@ internal class GlimmerListAutoFocusProperties(
      * E.g., if the list size is 100dp, the paddings are 20dp and the [contentLength] is 150dp, then
      * the minimum value of [contentScroll] would be 0dp and the maximum value would be 90dp.
      */
-    val contentScroll: Float,
+    val contentScroll: Double,
     /**
      * The full length of the content. Lazy lists never measure the content beyond the visible area,
      * so for long lists we never know a precise value, though we can estimate it based on the
      * average size of visible items.
      */
-    val contentLength: Float,
+    val contentLength: Double,
     /**
      * A virtual constant distance that defines how much content must be scrolled for the focus line
      * to reach the center of the list viewport. This effectively controls the speed at which the
      * focus line centers.
      */
-    val scrollThreshold: Float,
+    val scrollThreshold: Double,
     /** Extra information on the layout properties (e.g. paddings). */
     val layoutProperties: ListLayoutProperties,
 ) {
@@ -97,6 +97,6 @@ internal class GlimmerListAutoFocusProperties(
      * E.g., if the list size is 100dp and the paddings are 20dp, then the value of [viewportSize]
      * would be 60dp.
      */
-    val viewportSize: Float
-        get() = layoutProperties.mainAxisAvailableSize.toFloat()
+    val viewportSize: Int
+        get() = layoutProperties.mainAxisAvailableSize
 }

@@ -1161,6 +1161,8 @@ class ExerciseClientTest {
         fun setException() {
             throwException = true
         }
+
+        override fun getInterfaceVersion(): Int = VERSION
     }
 
     enum class TestExerciseStates {

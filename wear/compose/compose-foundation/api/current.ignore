@@ -299,6 +299,8 @@ RemovedMethod: androidx.wear.compose.foundation.CurvedSizeKt#size(androidx.wear.
     Binary breaking change: Removed method androidx.wear.compose.foundation.CurvedSizeKt.size(androidx.wear.compose.foundation.CurvedModifier,float,float)
 RemovedMethod: androidx.wear.compose.foundation.CurvedSizeKt#sizeIn(androidx.wear.compose.foundation.CurvedModifier, float, float, float, float):
     Binary breaking change: Removed method androidx.wear.compose.foundation.CurvedSizeKt.sizeIn(androidx.wear.compose.foundation.CurvedModifier,float,float,float,float)
+RemovedMethod: androidx.wear.compose.foundation.CurvedTextStyle#CurvedTextStyle():
+    Binary breaking change: Removed constructor androidx.wear.compose.foundation.CurvedTextStyle()
 RemovedMethod: androidx.wear.compose.foundation.CurvedTextStyle#copy(long, long, long, androidx.compose.ui.text.font.FontFamily, androidx.compose.ui.text.font.FontWeight, androidx.compose.ui.text.font.FontStyle, androidx.compose.ui.text.font.FontSynthesis, long, long, long):
     Binary breaking change: Removed method androidx.wear.compose.foundation.CurvedTextStyle.copy(long,long,long,androidx.compose.ui.text.font.FontFamily,androidx.compose.ui.text.font.FontWeight,androidx.compose.ui.text.font.FontStyle,androidx.compose.ui.text.font.FontSynthesis,long,long,long)
 RemovedMethod: androidx.wear.compose.foundation.GestureInclusion#ignoreGestureStart(long, androidx.compose.ui.layout.LayoutCoordinates):

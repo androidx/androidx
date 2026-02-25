@@ -18,7 +18,6 @@ package androidx.webkit.internal;
 
 import android.webkit.ServiceWorkerWebSettings;
 
-import androidx.annotation.RequiresApi;
 import androidx.webkit.ServiceWorkerWebSettingsCompat;
 
 import org.chromium.support_lib_boundary.ServiceWorkerWebSettingsBoundaryInterface;
@@ -60,7 +59,6 @@ public class ServiceWorkerWebSettingsImpl extends ServiceWorkerWebSettingsCompat
                 ServiceWorkerWebSettingsBoundaryInterface.class, invocationHandler);
     }
 
-    @RequiresApi(24)
     private ServiceWorkerWebSettings getFrameworksImpl() {
         if (mFrameworksImpl == null) {
             mFrameworksImpl =

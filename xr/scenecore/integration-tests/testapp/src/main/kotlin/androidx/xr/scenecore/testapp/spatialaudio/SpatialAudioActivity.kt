@@ -56,11 +56,7 @@ import java.io.FileInputStream
 
 class SpatialAudioActivity : AppCompatActivity() {
 
-    @Suppress("DEPRECATION")
-    private val session by lazy {
-        (Session.create(this, unscaledGravityAlignedActivitySpace = true) as SessionCreateSuccess)
-            .session
-    }
+    private val session by lazy { (Session.create(this) as SessionCreateSuccess).session }
 
     private val mediaplayer = MediaPlayer()
 

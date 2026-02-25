@@ -25,7 +25,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
-import androidx.compose.remote.creation.compose.state.rememberRemoteIntValue
+import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.tooling.preview.RemotePreview
@@ -39,7 +39,7 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 @Sampled
 @Composable
 fun RemoteTextButtonSimpleSample(modifier: RemoteModifier = RemoteModifier) {
-    val tapCount = rememberRemoteIntValue { 0 }
+    val tapCount = rememberMutableRemoteInt(0)
     val text = "+".rs + tapCount.toRemoteString(3, TextFromFloat.PAD_PRE_NONE)
 
     RemoteTextButton(

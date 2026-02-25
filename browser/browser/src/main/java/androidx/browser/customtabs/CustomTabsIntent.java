@@ -163,39 +163,33 @@ public final class CustomTabsIntent {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({OPEN_IN_BROWSER_STATE_DEFAULT, OPEN_IN_BROWSER_STATE_ON, OPEN_IN_BROWSER_STATE_OFF})
     @Retention(RetentionPolicy.SOURCE)
-    @ExperimentalOpenInBrowser
     public @interface OpenInBrowserState {
     }
 
     /**
      * Applies the default Open in Browser button state in the toolbar depending on the browser.
      */
-    @ExperimentalOpenInBrowser
     public static final int OPEN_IN_BROWSER_STATE_DEFAULT = 0;
 
     /**
      * Shows the Open in Browser button in the toolbar.
      */
-    @ExperimentalOpenInBrowser
     public static final int OPEN_IN_BROWSER_STATE_ON = 1;
 
     /**
      * Explicitly does not show the Open in Browser button in the toolbar.
      */
-    @ExperimentalOpenInBrowser
     public static final int OPEN_IN_BROWSER_STATE_OFF = 2;
 
     /**
      * Maximum value for the OPEN_IN_BROWSER_STATE_* configuration options. For validation purposes
      * only.
      */
-    @ExperimentalOpenInBrowser
     private static final int OPEN_IN_BROWSER_STATE_MAX = 2;
 
     /**
      * Extra to set the state for the Open in Browser button in the toolbar.
      */
-    @ExperimentalOpenInBrowser
     public static final String EXTRA_OPEN_IN_BROWSER_STATE =
             "androidx.browser.customtabs.extra.OPEN_IN_BROWSER_STATE";
 
@@ -1525,7 +1519,6 @@ public final class CustomTabsIntent {
          * @see CustomTabsIntent#OPEN_IN_BROWSER_STATE_OFF
          * @throws IllegalArgumentException when an invalid option is provided.
          */
-        @ExperimentalOpenInBrowser
         public @NonNull Builder setOpenInBrowserButtonState(
                 @OpenInBrowserState int openInBrowserState) {
             if (openInBrowserState < 0 || openInBrowserState > OPEN_IN_BROWSER_STATE_MAX) {
@@ -2025,7 +2018,6 @@ public final class CustomTabsIntent {
      * @see CustomTabsIntent#OPEN_IN_BROWSER_STATE_ON
      * @see CustomTabsIntent#OPEN_IN_BROWSER_STATE_OFF
      */
-    @ExperimentalOpenInBrowser
     @OpenInBrowserState
     public static int getOpenInBrowserButtonState(@NonNull Intent intent) {
         return intent.getIntExtra(EXTRA_OPEN_IN_BROWSER_STATE, OPEN_IN_BROWSER_STATE_DEFAULT);

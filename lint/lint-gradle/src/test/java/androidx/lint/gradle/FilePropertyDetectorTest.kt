@@ -32,13 +32,13 @@ class FilePropertyDetectorTest :
         val input =
             kotlin(
                 """
-            import org.gradle.api.provider.Property
-            import java.io.File
+                import org.gradle.api.provider.Property
+                import java.io.File
 
-            class Example {
-                val fileProperty: Property<File>? = null
-            }
-            """
+                class Example {
+                    val fileProperty: Property<File>? = null
+                }
+                """
                     .trimIndent()
             )
 
@@ -48,7 +48,7 @@ class FilePropertyDetectorTest :
                 val fileProperty: Property<File>? = null
                     ~~~~~~~~~~~~
             1 errors, 0 warnings
-        """
+            """
                 .trimIndent()
 
         check(input).expect(expected)
@@ -59,15 +59,15 @@ class FilePropertyDetectorTest :
         val input =
             kotlin(
                 """
-            import org.gradle.api.provider.Property
-            import java.io.File
+                import org.gradle.api.provider.Property
+                import java.io.File
 
-            class Example {
-                fun provideFileProperty(): Property<File>? {
-                    return null
+                class Example {
+                    fun provideFileProperty(): Property<File>? {
+                        return null
+                    }
                 }
-            }
-            """
+                """
                     .trimIndent()
             )
 
@@ -77,7 +77,7 @@ class FilePropertyDetectorTest :
                 fun provideFileProperty(): Property<File>? {
                     ~~~~~~~~~~~~~~~~~~~
             1 errors, 0 warnings
-        """
+            """
                 .trimIndent()
 
         check(input).expect(expected)
@@ -88,13 +88,13 @@ class FilePropertyDetectorTest :
         val input =
             kotlin(
                 """
-            import org.gradle.api.provider.Property
-            import java.io.File
+                import org.gradle.api.provider.Property
+                import java.io.File
 
-            class Example {
-                val nullableFileProperty: Property<File?>? = null
-            }
-            """
+                class Example {
+                    val nullableFileProperty: Property<File?>? = null
+                }
+                """
                     .trimIndent()
             )
 
@@ -104,7 +104,7 @@ class FilePropertyDetectorTest :
                 val nullableFileProperty: Property<File?>? = null
                     ~~~~~~~~~~~~~~~~~~~~
             1 errors, 0 warnings
-        """
+            """
                 .trimIndent()
 
         check(input).expect(expected)
@@ -115,10 +115,10 @@ class FilePropertyDetectorTest :
         val input =
             kotlin(
                 """
-            class Example {
-                val fileProperty: org.gradle.api.provider.Property<java.io.File>? = null
-            }
-            """
+                class Example {
+                    val fileProperty: org.gradle.api.provider.Property<java.io.File>? = null
+                }
+                """
                     .trimIndent()
             )
 
@@ -128,7 +128,7 @@ class FilePropertyDetectorTest :
                 val fileProperty: org.gradle.api.provider.Property<java.io.File>? = null
                     ~~~~~~~~~~~~
             1 errors, 0 warnings
-        """
+            """
                 .trimIndent()
 
         check(input).expect(expected)
@@ -139,13 +139,13 @@ class FilePropertyDetectorTest :
         val input =
             kotlin(
                 """
-            import org.gradle.api.provider.Property
-            import java.io.File
+                import org.gradle.api.provider.Property
+                import java.io.File
 
-            class Example {
-                fun setFileProperty(fileProperty: Property<File>) {}
-            }
-            """
+                class Example {
+                    fun setFileProperty(fileProperty: Property<File>) {}
+                }
+                """
                     .trimIndent()
             )
 
@@ -155,7 +155,7 @@ class FilePropertyDetectorTest :
                 fun setFileProperty(fileProperty: Property<File>) {}
                                     ~~~~~~~~~~~~
             1 errors, 0 warnings
-        """
+            """
                 .trimIndent()
 
         check(input).expect(expected)
@@ -166,12 +166,12 @@ class FilePropertyDetectorTest :
         val input =
             kotlin(
                 """
-            import org.gradle.api.provider.Property
+                import org.gradle.api.provider.Property
 
-            class Example {
-                val stringProperty: Property<String>? = null
-            }
-            """
+                class Example {
+                    val stringProperty: Property<String>? = null
+                }
+                """
                     .trimIndent()
             )
 
@@ -183,15 +183,15 @@ class FilePropertyDetectorTest :
         val input =
             kotlin(
                 """
-            import org.gradle.api.provider.Property
-            import java.io.File
+                import org.gradle.api.provider.Property
+                import java.io.File
 
-            interface CustomFileProperty : Property<File>
+                interface CustomFileProperty : Property<File>
 
-            class Example {
-                val customFileProperty: CustomFileProperty? = null
-            }
-            """
+                class Example {
+                    val customFileProperty: CustomFileProperty? = null
+                }
+                """
                     .trimIndent()
             )
 
@@ -201,7 +201,7 @@ class FilePropertyDetectorTest :
                 val customFileProperty: CustomFileProperty? = null
                     ~~~~~~~~~~~~~~~~~~
             1 errors, 0 warnings
-        """
+            """
                 .trimIndent()
 
         check(input).expect(expected)
@@ -212,14 +212,14 @@ class FilePropertyDetectorTest :
         val input =
             kotlin(
                 """
-        import org.gradle.api.provider.Property
-        import java.io.File
+                import org.gradle.api.provider.Property
+                import java.io.File
 
-        class Example {
+                class Example {
 
-            val nestedProperty: Property<Property<File>>? = null
-        }
-        """
+                    val nestedProperty: Property<Property<File>>? = null
+                }
+                """
                     .trimIndent()
             )
 
@@ -229,7 +229,7 @@ class FilePropertyDetectorTest :
                 val nestedProperty: Property<Property<File>>? = null
                     ~~~~~~~~~~~~~~
             1 errors, 0 warnings
-        """
+            """
                 .trimIndent()
 
         check(input).expect(expected)
@@ -240,14 +240,14 @@ class FilePropertyDetectorTest :
         val input =
             kotlin(
                 """
-            import org.gradle.api.provider.Property
-            import java.io.File
+                import org.gradle.api.provider.Property
+                import java.io.File
 
-            class Example {
-                fun <T : Property<File>> processFile(fileProperty: T) {
+                class Example {
+                    fun <T : Property<File>> processFile(fileProperty: T) {
+                    }
                 }
-            }
-            """
+                """
                     .trimIndent()
             )
 
@@ -257,7 +257,7 @@ class FilePropertyDetectorTest :
                 fun <T : Property<File>> processFile(fileProperty: T) {
                                                      ~~~~~~~~~~~~
             1 errors, 0 warnings
-        """
+            """
                 .trimIndent()
 
         check(input).expect(expected)

@@ -21,9 +21,9 @@ import android.graphics.Bitmap
 import android.graphics.ImageFormat
 import android.util.Log
 import android.view.Surface
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
@@ -31,9 +31,7 @@ import androidx.camera.core.Preview
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.compat.workaround.ExifRotationAvailability
 import androidx.camera.extensions.util.ExtensionsTestUtil
-import androidx.camera.extensions.util.ExtensionsTestUtil.CAMERA_PIPE_IMPLEMENTATION_OPTION
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.ExifUtil
@@ -68,19 +66,15 @@ import org.mockito.Mockito
 @LargeTest
 @RunWith(Parameterized::class)
 class ImageCaptureTest(
-    private val implName: String,
-    private val cameraXConfig: CameraXConfig,
     @field:ExtensionMode.Mode @param:ExtensionMode.Mode private val extensionMode: Int,
     @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int,
 ) {
 
     @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CAMERA_PIPE_IMPLEMENTATION_OPTION)
-
-    @get:Rule
     val useCamera =
-        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraXConfig))
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            PreTestCameraIdList(Camera2Config.defaultConfig())
+        )
 
     // Launch activity when testing in Vivo devices to prevent testing process from being killed.
     @get:Rule
@@ -105,7 +99,6 @@ class ImageCaptureTest(
         )
         assumePcsSupportedForImageCapture(context)
 
-        ProcessCameraProvider.configureInstance(cameraXConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
         extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
@@ -138,9 +131,9 @@ class ImageCaptureTest(
         val context: Context = ApplicationProvider.getApplicationContext()
 
         @JvmStatic
-        @Parameterized.Parameters(name = "cameraXConfig = {0}, mode = {2}, facing = {3}")
+        @Parameterized.Parameters(name = "mode = {0}, facing = {1}")
         fun data(): Collection<Array<Any>> {
-            return ExtensionsTestUtil.getAllImplExtensionsLensFacingCombinations(context, true)
+            return ExtensionsTestUtil.getAllExtensionsLensFacingCombinations(context, true)
         }
     }
 

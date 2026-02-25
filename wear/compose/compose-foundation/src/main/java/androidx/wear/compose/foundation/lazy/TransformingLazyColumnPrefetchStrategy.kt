@@ -92,16 +92,14 @@ internal class TransformingLazyColumnPrefetchStrategy() {
                     val spacing = measureResult.itemSpacing
                     val distanceToPrefetchItem =
                         lastItem.offset + lastItem.measuredHeight + spacing -
-                            measureResult.viewportSize.height -
-                            measureResult.afterContentPadding
+                            measureResult.viewportSize.height
                     // if in the next frame we will get the same delta will we reach the item?
                     if (distanceToPrefetchItem < -delta) {
                         currentPrefetchHandle?.markAsUrgent()
                     }
                 } else {
                     val firstItem = measureResult.visibleItems.first()
-                    val distanceToPrefetchItem =
-                        measureResult.beforeContentPadding - firstItem.offset
+                    val distanceToPrefetchItem = -firstItem.offset
                     // if in the next frame we will get the same delta will we reach the item?
                     if (distanceToPrefetchItem < delta) {
                         currentPrefetchHandle?.markAsUrgent()

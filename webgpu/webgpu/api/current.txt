@@ -148,11 +148,6 @@ package androidx.webgpu {
   }
 
   public final class GPUBindGroupEntry {
-    ctor public GPUBindGroupEntry(int binding);
-    ctor public GPUBindGroupEntry(int binding, optional androidx.webgpu.GPUBuffer? buffer);
-    ctor public GPUBindGroupEntry(int binding, optional androidx.webgpu.GPUBuffer? buffer, optional long offset);
-    ctor public GPUBindGroupEntry(int binding, optional androidx.webgpu.GPUBuffer? buffer, optional long offset, optional long size);
-    ctor public GPUBindGroupEntry(int binding, optional androidx.webgpu.GPUBuffer? buffer, optional long offset, optional long size, optional androidx.webgpu.GPUSampler? sampler);
     ctor public GPUBindGroupEntry(int binding, optional androidx.webgpu.GPUBuffer? buffer, optional long offset, optional long size, optional androidx.webgpu.GPUSampler? sampler, optional androidx.webgpu.GPUTextureView? textureView);
     ctor @BytecodeOnly public GPUBindGroupEntry(int, androidx.webgpu.GPUBuffer!, long, long, androidx.webgpu.GPUSampler!, androidx.webgpu.GPUTextureView!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getBinding();
@@ -173,6 +168,16 @@ package androidx.webgpu {
     property public androidx.webgpu.GPUSampler? sampler;
     property public long size;
     property public androidx.webgpu.GPUTextureView? textureView;
+  }
+
+  public static final class GPUBindGroupEntry.Builder {
+    ctor public GPUBindGroupEntry.Builder(int binding);
+    method public androidx.webgpu.GPUBindGroupEntry build();
+    method public androidx.webgpu.GPUBindGroupEntry.Builder setBuffer(androidx.webgpu.GPUBuffer? buffer);
+    method public androidx.webgpu.GPUBindGroupEntry.Builder setOffset(long offset);
+    method public androidx.webgpu.GPUBindGroupEntry.Builder setSampler(androidx.webgpu.GPUSampler? sampler);
+    method public androidx.webgpu.GPUBindGroupEntry.Builder setSize(long size);
+    method public androidx.webgpu.GPUBindGroupEntry.Builder setTextureView(androidx.webgpu.GPUTextureView? textureView);
   }
 
   public final class GPUBindGroupLayout implements java.lang.AutoCloseable {
@@ -196,11 +201,6 @@ package androidx.webgpu {
   }
 
   public final class GPUBindGroupLayoutEntry {
-    ctor public GPUBindGroupLayoutEntry(int binding, int visibility);
-    ctor public GPUBindGroupLayoutEntry(int binding, int visibility, optional int bindingArraySize);
-    ctor public GPUBindGroupLayoutEntry(int binding, int visibility, optional int bindingArraySize, optional androidx.webgpu.GPUBufferBindingLayout buffer);
-    ctor public GPUBindGroupLayoutEntry(int binding, int visibility, optional int bindingArraySize, optional androidx.webgpu.GPUBufferBindingLayout buffer, optional androidx.webgpu.GPUSamplerBindingLayout sampler);
-    ctor public GPUBindGroupLayoutEntry(int binding, int visibility, optional int bindingArraySize, optional androidx.webgpu.GPUBufferBindingLayout buffer, optional androidx.webgpu.GPUSamplerBindingLayout sampler, optional androidx.webgpu.GPUTextureBindingLayout texture);
     ctor public GPUBindGroupLayoutEntry(int binding, int visibility, optional int bindingArraySize, optional androidx.webgpu.GPUBufferBindingLayout buffer, optional androidx.webgpu.GPUSamplerBindingLayout sampler, optional androidx.webgpu.GPUTextureBindingLayout texture, optional androidx.webgpu.GPUStorageTextureBindingLayout storageTexture);
     ctor @BytecodeOnly public GPUBindGroupLayoutEntry(int, int, int, androidx.webgpu.GPUBufferBindingLayout!, androidx.webgpu.GPUSamplerBindingLayout!, androidx.webgpu.GPUTextureBindingLayout!, androidx.webgpu.GPUStorageTextureBindingLayout!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getBinding();
@@ -224,6 +224,16 @@ package androidx.webgpu {
     property public androidx.webgpu.GPUStorageTextureBindingLayout storageTexture;
     property public androidx.webgpu.GPUTextureBindingLayout texture;
     property public int visibility;
+  }
+
+  public static final class GPUBindGroupLayoutEntry.Builder {
+    ctor public GPUBindGroupLayoutEntry.Builder(int binding, int visibility);
+    method public androidx.webgpu.GPUBindGroupLayoutEntry build();
+    method public androidx.webgpu.GPUBindGroupLayoutEntry.Builder setBindingArraySize(int bindingArraySize);
+    method public androidx.webgpu.GPUBindGroupLayoutEntry.Builder setBuffer(androidx.webgpu.GPUBufferBindingLayout buffer);
+    method public androidx.webgpu.GPUBindGroupLayoutEntry.Builder setSampler(androidx.webgpu.GPUSamplerBindingLayout sampler);
+    method public androidx.webgpu.GPUBindGroupLayoutEntry.Builder setStorageTexture(androidx.webgpu.GPUStorageTextureBindingLayout storageTexture);
+    method public androidx.webgpu.GPUBindGroupLayoutEntry.Builder setTexture(androidx.webgpu.GPUTextureBindingLayout texture);
   }
 
   public final class GPUBlendComponent {
@@ -292,9 +302,9 @@ package androidx.webgpu {
     ctor public GPUBufferBindingLayout(optional int type, optional boolean hasDynamicOffset);
     ctor public GPUBufferBindingLayout(optional int type, optional boolean hasDynamicOffset, optional long minBindingSize);
     ctor @BytecodeOnly public GPUBufferBindingLayout(int, boolean, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    method @InaccessibleFromKotlin public boolean getHasDynamicOffset();
     method @InaccessibleFromKotlin public long getMinBindingSize();
     method @InaccessibleFromKotlin public int getType();
+    method @InaccessibleFromKotlin public boolean isHasDynamicOffset();
     method @InaccessibleFromKotlin public void setHasDynamicOffset(boolean);
     method @InaccessibleFromKotlin public void setMinBindingSize(long);
     method @InaccessibleFromKotlin public void setType(int);
@@ -309,9 +319,9 @@ package androidx.webgpu {
     ctor public GPUBufferDescriptor(int usage, long size, optional String? label, optional boolean mappedAtCreation);
     ctor @BytecodeOnly public GPUBufferDescriptor(int, long, String!, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public String? getLabel();
-    method @InaccessibleFromKotlin public boolean getMappedAtCreation();
     method @InaccessibleFromKotlin public long getSize();
     method @InaccessibleFromKotlin public int getUsage();
+    method @InaccessibleFromKotlin public boolean isMappedAtCreation();
     method @InaccessibleFromKotlin public void setLabel(String?);
     method @InaccessibleFromKotlin public void setMappedAtCreation(boolean);
     method @InaccessibleFromKotlin public void setSize(long);
@@ -524,15 +534,6 @@ package androidx.webgpu {
 
   public final class GPUDepthStencilState {
     ctor public GPUDepthStencilState();
-    ctor public GPUDepthStencilState(optional int format);
-    ctor public GPUDepthStencilState(optional int format, optional int depthWriteEnabled);
-    ctor public GPUDepthStencilState(optional int format, optional int depthWriteEnabled, optional int depthCompare);
-    ctor public GPUDepthStencilState(optional int format, optional int depthWriteEnabled, optional int depthCompare, optional androidx.webgpu.GPUStencilFaceState stencilFront);
-    ctor public GPUDepthStencilState(optional int format, optional int depthWriteEnabled, optional int depthCompare, optional androidx.webgpu.GPUStencilFaceState stencilFront, optional androidx.webgpu.GPUStencilFaceState stencilBack);
-    ctor public GPUDepthStencilState(optional int format, optional int depthWriteEnabled, optional int depthCompare, optional androidx.webgpu.GPUStencilFaceState stencilFront, optional androidx.webgpu.GPUStencilFaceState stencilBack, optional int stencilReadMask);
-    ctor public GPUDepthStencilState(optional int format, optional int depthWriteEnabled, optional int depthCompare, optional androidx.webgpu.GPUStencilFaceState stencilFront, optional androidx.webgpu.GPUStencilFaceState stencilBack, optional int stencilReadMask, optional int stencilWriteMask);
-    ctor public GPUDepthStencilState(optional int format, optional int depthWriteEnabled, optional int depthCompare, optional androidx.webgpu.GPUStencilFaceState stencilFront, optional androidx.webgpu.GPUStencilFaceState stencilBack, optional int stencilReadMask, optional int stencilWriteMask, optional int depthBias);
-    ctor public GPUDepthStencilState(optional int format, optional int depthWriteEnabled, optional int depthCompare, optional androidx.webgpu.GPUStencilFaceState stencilFront, optional androidx.webgpu.GPUStencilFaceState stencilBack, optional int stencilReadMask, optional int stencilWriteMask, optional int depthBias, optional float depthBiasSlopeScale);
     ctor public GPUDepthStencilState(optional int format, optional int depthWriteEnabled, optional int depthCompare, optional androidx.webgpu.GPUStencilFaceState stencilFront, optional androidx.webgpu.GPUStencilFaceState stencilBack, optional int stencilReadMask, optional int stencilWriteMask, optional int depthBias, optional float depthBiasSlopeScale, optional float depthBiasClamp);
     ctor @BytecodeOnly public GPUDepthStencilState(int, int, int, androidx.webgpu.GPUStencilFaceState!, androidx.webgpu.GPUStencilFaceState!, int, int, int, float, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getDepthBias();
@@ -565,6 +566,21 @@ package androidx.webgpu {
     property public androidx.webgpu.GPUStencilFaceState stencilFront;
     property public int stencilReadMask;
     property public int stencilWriteMask;
+  }
+
+  public static final class GPUDepthStencilState.Builder {
+    ctor public GPUDepthStencilState.Builder();
+    method public androidx.webgpu.GPUDepthStencilState build();
+    method public androidx.webgpu.GPUDepthStencilState.Builder setDepthBias(int depthBias);
+    method public androidx.webgpu.GPUDepthStencilState.Builder setDepthBiasClamp(float depthBiasClamp);
+    method public androidx.webgpu.GPUDepthStencilState.Builder setDepthBiasSlopeScale(float depthBiasSlopeScale);
+    method public androidx.webgpu.GPUDepthStencilState.Builder setDepthCompare(int depthCompare);
+    method public androidx.webgpu.GPUDepthStencilState.Builder setDepthWriteEnabled(int depthWriteEnabled);
+    method public androidx.webgpu.GPUDepthStencilState.Builder setFormat(int format);
+    method public androidx.webgpu.GPUDepthStencilState.Builder setStencilBack(androidx.webgpu.GPUStencilFaceState stencilBack);
+    method public androidx.webgpu.GPUDepthStencilState.Builder setStencilFront(androidx.webgpu.GPUStencilFaceState stencilFront);
+    method public androidx.webgpu.GPUDepthStencilState.Builder setStencilReadMask(int stencilReadMask);
+    method public androidx.webgpu.GPUDepthStencilState.Builder setStencilWriteMask(int stencilWriteMask);
   }
 
   public final class GPUDevice implements java.lang.AutoCloseable {
@@ -610,10 +626,6 @@ package androidx.webgpu {
   }
 
   public final class GPUDeviceDescriptor {
-    ctor public GPUDeviceDescriptor(java.util.concurrent.Executor deviceLostCallbackExecutor, java.util.concurrent.Executor uncapturedErrorCallbackExecutor, androidx.webgpu.DeviceLostCallback? deviceLostCallback, androidx.webgpu.UncapturedErrorCallback? uncapturedErrorCallback);
-    ctor public GPUDeviceDescriptor(java.util.concurrent.Executor deviceLostCallbackExecutor, java.util.concurrent.Executor uncapturedErrorCallbackExecutor, optional String? label, androidx.webgpu.DeviceLostCallback? deviceLostCallback, androidx.webgpu.UncapturedErrorCallback? uncapturedErrorCallback);
-    ctor public GPUDeviceDescriptor(java.util.concurrent.Executor deviceLostCallbackExecutor, java.util.concurrent.Executor uncapturedErrorCallbackExecutor, optional String? label, optional int[] requiredFeatures, androidx.webgpu.DeviceLostCallback? deviceLostCallback, androidx.webgpu.UncapturedErrorCallback? uncapturedErrorCallback);
-    ctor public GPUDeviceDescriptor(java.util.concurrent.Executor deviceLostCallbackExecutor, java.util.concurrent.Executor uncapturedErrorCallbackExecutor, optional String? label, optional int[] requiredFeatures, optional androidx.webgpu.GPULimits? requiredLimits, androidx.webgpu.DeviceLostCallback? deviceLostCallback, androidx.webgpu.UncapturedErrorCallback? uncapturedErrorCallback);
     ctor public GPUDeviceDescriptor(java.util.concurrent.Executor deviceLostCallbackExecutor, java.util.concurrent.Executor uncapturedErrorCallbackExecutor, optional String? label, optional int[] requiredFeatures, optional androidx.webgpu.GPULimits? requiredLimits, optional androidx.webgpu.GPUQueueDescriptor defaultQueue, androidx.webgpu.DeviceLostCallback? deviceLostCallback, androidx.webgpu.UncapturedErrorCallback? uncapturedErrorCallback);
     ctor @BytecodeOnly public GPUDeviceDescriptor(java.util.concurrent.Executor!, java.util.concurrent.Executor!, String!, int[]!, androidx.webgpu.GPULimits!, androidx.webgpu.GPUQueueDescriptor!, androidx.webgpu.DeviceLostCallback!, androidx.webgpu.UncapturedErrorCallback!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.webgpu.GPUQueueDescriptor getDefaultQueue();
@@ -642,6 +654,15 @@ package androidx.webgpu {
     property public androidx.webgpu.GPULimits? requiredLimits;
     property public androidx.webgpu.UncapturedErrorCallback? uncapturedErrorCallback;
     property public java.util.concurrent.Executor uncapturedErrorCallbackExecutor;
+  }
+
+  public static final class GPUDeviceDescriptor.Builder {
+    ctor public GPUDeviceDescriptor.Builder(java.util.concurrent.Executor deviceLostCallbackExecutor, java.util.concurrent.Executor uncapturedErrorCallbackExecutor, androidx.webgpu.DeviceLostCallback? deviceLostCallback, androidx.webgpu.UncapturedErrorCallback? uncapturedErrorCallback);
+    method public androidx.webgpu.GPUDeviceDescriptor build();
+    method public androidx.webgpu.GPUDeviceDescriptor.Builder setDefaultQueue(androidx.webgpu.GPUQueueDescriptor defaultQueue);
+    method public androidx.webgpu.GPUDeviceDescriptor.Builder setLabel(String? label);
+    method public androidx.webgpu.GPUDeviceDescriptor.Builder setRequiredFeatures(int[] requiredFeatures);
+    method public androidx.webgpu.GPUDeviceDescriptor.Builder setRequiredLimits(androidx.webgpu.GPULimits? requiredLimits);
   }
 
   public final class GPUExtent3D {
@@ -721,37 +742,6 @@ package androidx.webgpu {
 
   public final class GPULimits {
     ctor public GPULimits();
-    ctor public GPULimits(optional int maxTextureDimension1D);
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D);
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D);
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers);
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers, optional int maxBindGroups);
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers, optional int maxBindGroups, optional int maxBindGroupsPlusVertexBuffers);
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers, optional int maxBindGroups, optional int maxBindGroupsPlusVertexBuffers, optional int maxBindingsPerBindGroup);
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers, optional int maxBindGroups, optional int maxBindGroupsPlusVertexBuffers, optional int maxBindingsPerBindGroup, optional int maxDynamicUniformBuffersPerPipelineLayout);
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers, optional int maxBindGroups, optional int maxBindGroupsPlusVertexBuffers, optional int maxBindingsPerBindGroup, optional int maxDynamicUniformBuffersPerPipelineLayout, optional int maxDynamicStorageBuffersPerPipelineLayout);
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers, optional int maxBindGroups, optional int maxBindGroupsPlusVertexBuffers, optional int maxBindingsPerBindGroup, optional int maxDynamicUniformBuffersPerPipelineLayout, optional int maxDynamicStorageBuffersPerPipelineLayout, optional int maxSampledTexturesPerShaderStage);
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers, optional int maxBindGroups, optional int maxBindGroupsPlusVertexBuffers, optional int maxBindingsPerBindGroup, optional int maxDynamicUniformBuffersPerPipelineLayout, optional int maxDynamicStorageBuffersPerPipelineLayout, optional int maxSampledTexturesPerShaderStage, optional int maxSamplersPerShaderStage);
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers, optional int maxBindGroups, optional int maxBindGroupsPlusVertexBuffers, optional int maxBindingsPerBindGroup, optional int maxDynamicUniformBuffersPerPipelineLayout, optional int maxDynamicStorageBuffersPerPipelineLayout, optional int maxSampledTexturesPerShaderStage, optional int maxSamplersPerShaderStage, optional int maxStorageBuffersPerShaderStage);
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers, optional int maxBindGroups, optional int maxBindGroupsPlusVertexBuffers, optional int maxBindingsPerBindGroup, optional int maxDynamicUniformBuffersPerPipelineLayout, optional int maxDynamicStorageBuffersPerPipelineLayout, optional int maxSampledTexturesPerShaderStage, optional int maxSamplersPerShaderStage, optional int maxStorageBuffersPerShaderStage, optional int maxStorageTexturesPerShaderStage);
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers, optional int maxBindGroups, optional int maxBindGroupsPlusVertexBuffers, optional int maxBindingsPerBindGroup, optional int maxDynamicUniformBuffersPerPipelineLayout, optional int maxDynamicStorageBuffersPerPipelineLayout, optional int maxSampledTexturesPerShaderStage, optional int maxSamplersPerShaderStage, optional int maxStorageBuffersPerShaderStage, optional int maxStorageTexturesPerShaderStage, optional int maxUniformBuffersPerShaderStage);
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers, optional int maxBindGroups, optional int maxBindGroupsPlusVertexBuffers, optional int maxBindingsPerBindGroup, optional int maxDynamicUniformBuffersPerPipelineLayout, optional int maxDynamicStorageBuffersPerPipelineLayout, optional int maxSampledTexturesPerShaderStage, optional int maxSamplersPerShaderStage, optional int maxStorageBuffersPerShaderStage, optional int maxStorageTexturesPerShaderStage, optional int maxUniformBuffersPerShaderStage, optional long maxUniformBufferBindingSize);
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers, optional int maxBindGroups, optional int maxBindGroupsPlusVertexBuffers, optional int maxBindingsPerBindGroup, optional int maxDynamicUniformBuffersPerPipelineLayout, optional int maxDynamicStorageBuffersPerPipelineLayout, optional int maxSampledTexturesPerShaderStage, optional int maxSamplersPerShaderStage, optional int maxStorageBuffersPerShaderStage, optional int maxStorageTexturesPerShaderStage, optional int maxUniformBuffersPerShaderStage, optional long maxUniformBufferBindingSize, optional long maxStorageBufferBindingSize);
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers, optional int maxBindGroups, optional int maxBindGroupsPlusVertexBuffers, optional int maxBindingsPerBindGroup, optional int maxDynamicUniformBuffersPerPipelineLayout, optional int maxDynamicStorageBuffersPerPipelineLayout, optional int maxSampledTexturesPerShaderStage, optional int maxSamplersPerShaderStage, optional int maxStorageBuffersPerShaderStage, optional int maxStorageTexturesPerShaderStage, optional int maxUniformBuffersPerShaderStage, optional long maxUniformBufferBindingSize, optional long maxStorageBufferBindingSize, optional int minUniformBufferOffsetAlignment);
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers, optional int maxBindGroups, optional int maxBindGroupsPlusVertexBuffers, optional int maxBindingsPerBindGroup, optional int maxDynamicUniformBuffersPerPipelineLayout, optional int maxDynamicStorageBuffersPerPipelineLayout, optional int maxSampledTexturesPerShaderStage, optional int maxSamplersPerShaderStage, optional int maxStorageBuffersPerShaderStage, optional int maxStorageTexturesPerShaderStage, optional int maxUniformBuffersPerShaderStage, optional long maxUniformBufferBindingSize, optional long maxStorageBufferBindingSize, optional int minUniformBufferOffsetAlignment, optional int minStorageBufferOffsetAlignment);
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers, optional int maxBindGroups, optional int maxBindGroupsPlusVertexBuffers, optional int maxBindingsPerBindGroup, optional int maxDynamicUniformBuffersPerPipelineLayout, optional int maxDynamicStorageBuffersPerPipelineLayout, optional int maxSampledTexturesPerShaderStage, optional int maxSamplersPerShaderStage, optional int maxStorageBuffersPerShaderStage, optional int maxStorageTexturesPerShaderStage, optional int maxUniformBuffersPerShaderStage, optional long maxUniformBufferBindingSize, optional long maxStorageBufferBindingSize, optional int minUniformBufferOffsetAlignment, optional int minStorageBufferOffsetAlignment, optional int maxVertexBuffers);
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers, optional int maxBindGroups, optional int maxBindGroupsPlusVertexBuffers, optional int maxBindingsPerBindGroup, optional int maxDynamicUniformBuffersPerPipelineLayout, optional int maxDynamicStorageBuffersPerPipelineLayout, optional int maxSampledTexturesPerShaderStage, optional int maxSamplersPerShaderStage, optional int maxStorageBuffersPerShaderStage, optional int maxStorageTexturesPerShaderStage, optional int maxUniformBuffersPerShaderStage, optional long maxUniformBufferBindingSize, optional long maxStorageBufferBindingSize, optional int minUniformBufferOffsetAlignment, optional int minStorageBufferOffsetAlignment, optional int maxVertexBuffers, optional long maxBufferSize);
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers, optional int maxBindGroups, optional int maxBindGroupsPlusVertexBuffers, optional int maxBindingsPerBindGroup, optional int maxDynamicUniformBuffersPerPipelineLayout, optional int maxDynamicStorageBuffersPerPipelineLayout, optional int maxSampledTexturesPerShaderStage, optional int maxSamplersPerShaderStage, optional int maxStorageBuffersPerShaderStage, optional int maxStorageTexturesPerShaderStage, optional int maxUniformBuffersPerShaderStage, optional long maxUniformBufferBindingSize, optional long maxStorageBufferBindingSize, optional int minUniformBufferOffsetAlignment, optional int minStorageBufferOffsetAlignment, optional int maxVertexBuffers, optional long maxBufferSize, optional int maxVertexAttributes);
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers, optional int maxBindGroups, optional int maxBindGroupsPlusVertexBuffers, optional int maxBindingsPerBindGroup, optional int maxDynamicUniformBuffersPerPipelineLayout, optional int maxDynamicStorageBuffersPerPipelineLayout, optional int maxSampledTexturesPerShaderStage, optional int maxSamplersPerShaderStage, optional int maxStorageBuffersPerShaderStage, optional int maxStorageTexturesPerShaderStage, optional int maxUniformBuffersPerShaderStage, optional long maxUniformBufferBindingSize, optional long maxStorageBufferBindingSize, optional int minUniformBufferOffsetAlignment, optional int minStorageBufferOffsetAlignment, optional int maxVertexBuffers, optional long maxBufferSize, optional int maxVertexAttributes, optional int maxVertexBufferArrayStride);
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers, optional int maxBindGroups, optional int maxBindGroupsPlusVertexBuffers, optional int maxBindingsPerBindGroup, optional int maxDynamicUniformBuffersPerPipelineLayout, optional int maxDynamicStorageBuffersPerPipelineLayout, optional int maxSampledTexturesPerShaderStage, optional int maxSamplersPerShaderStage, optional int maxStorageBuffersPerShaderStage, optional int maxStorageTexturesPerShaderStage, optional int maxUniformBuffersPerShaderStage, optional long maxUniformBufferBindingSize, optional long maxStorageBufferBindingSize, optional int minUniformBufferOffsetAlignment, optional int minStorageBufferOffsetAlignment, optional int maxVertexBuffers, optional long maxBufferSize, optional int maxVertexAttributes, optional int maxVertexBufferArrayStride, optional int maxInterStageShaderVariables);
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers, optional int maxBindGroups, optional int maxBindGroupsPlusVertexBuffers, optional int maxBindingsPerBindGroup, optional int maxDynamicUniformBuffersPerPipelineLayout, optional int maxDynamicStorageBuffersPerPipelineLayout, optional int maxSampledTexturesPerShaderStage, optional int maxSamplersPerShaderStage, optional int maxStorageBuffersPerShaderStage, optional int maxStorageTexturesPerShaderStage, optional int maxUniformBuffersPerShaderStage, optional long maxUniformBufferBindingSize, optional long maxStorageBufferBindingSize, optional int minUniformBufferOffsetAlignment, optional int minStorageBufferOffsetAlignment, optional int maxVertexBuffers, optional long maxBufferSize, optional int maxVertexAttributes, optional int maxVertexBufferArrayStride, optional int maxInterStageShaderVariables, optional int maxColorAttachments);
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers, optional int maxBindGroups, optional int maxBindGroupsPlusVertexBuffers, optional int maxBindingsPerBindGroup, optional int maxDynamicUniformBuffersPerPipelineLayout, optional int maxDynamicStorageBuffersPerPipelineLayout, optional int maxSampledTexturesPerShaderStage, optional int maxSamplersPerShaderStage, optional int maxStorageBuffersPerShaderStage, optional int maxStorageTexturesPerShaderStage, optional int maxUniformBuffersPerShaderStage, optional long maxUniformBufferBindingSize, optional long maxStorageBufferBindingSize, optional int minUniformBufferOffsetAlignment, optional int minStorageBufferOffsetAlignment, optional int maxVertexBuffers, optional long maxBufferSize, optional int maxVertexAttributes, optional int maxVertexBufferArrayStride, optional int maxInterStageShaderVariables, optional int maxColorAttachments, optional int maxColorAttachmentBytesPerSample);
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers, optional int maxBindGroups, optional int maxBindGroupsPlusVertexBuffers, optional int maxBindingsPerBindGroup, optional int maxDynamicUniformBuffersPerPipelineLayout, optional int maxDynamicStorageBuffersPerPipelineLayout, optional int maxSampledTexturesPerShaderStage, optional int maxSamplersPerShaderStage, optional int maxStorageBuffersPerShaderStage, optional int maxStorageTexturesPerShaderStage, optional int maxUniformBuffersPerShaderStage, optional long maxUniformBufferBindingSize, optional long maxStorageBufferBindingSize, optional int minUniformBufferOffsetAlignment, optional int minStorageBufferOffsetAlignment, optional int maxVertexBuffers, optional long maxBufferSize, optional int maxVertexAttributes, optional int maxVertexBufferArrayStride, optional int maxInterStageShaderVariables, optional int maxColorAttachments, optional int maxColorAttachmentBytesPerSample, optional int maxComputeWorkgroupStorageSize);
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers, optional int maxBindGroups, optional int maxBindGroupsPlusVertexBuffers, optional int maxBindingsPerBindGroup, optional int maxDynamicUniformBuffersPerPipelineLayout, optional int maxDynamicStorageBuffersPerPipelineLayout, optional int maxSampledTexturesPerShaderStage, optional int maxSamplersPerShaderStage, optional int maxStorageBuffersPerShaderStage, optional int maxStorageTexturesPerShaderStage, optional int maxUniformBuffersPerShaderStage, optional long maxUniformBufferBindingSize, optional long maxStorageBufferBindingSize, optional int minUniformBufferOffsetAlignment, optional int minStorageBufferOffsetAlignment, optional int maxVertexBuffers, optional long maxBufferSize, optional int maxVertexAttributes, optional int maxVertexBufferArrayStride, optional int maxInterStageShaderVariables, optional int maxColorAttachments, optional int maxColorAttachmentBytesPerSample, optional int maxComputeWorkgroupStorageSize, optional int maxComputeInvocationsPerWorkgroup);
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers, optional int maxBindGroups, optional int maxBindGroupsPlusVertexBuffers, optional int maxBindingsPerBindGroup, optional int maxDynamicUniformBuffersPerPipelineLayout, optional int maxDynamicStorageBuffersPerPipelineLayout, optional int maxSampledTexturesPerShaderStage, optional int maxSamplersPerShaderStage, optional int maxStorageBuffersPerShaderStage, optional int maxStorageTexturesPerShaderStage, optional int maxUniformBuffersPerShaderStage, optional long maxUniformBufferBindingSize, optional long maxStorageBufferBindingSize, optional int minUniformBufferOffsetAlignment, optional int minStorageBufferOffsetAlignment, optional int maxVertexBuffers, optional long maxBufferSize, optional int maxVertexAttributes, optional int maxVertexBufferArrayStride, optional int maxInterStageShaderVariables, optional int maxColorAttachments, optional int maxColorAttachmentBytesPerSample, optional int maxComputeWorkgroupStorageSize, optional int maxComputeInvocationsPerWorkgroup, optional int maxComputeWorkgroupSizeX);
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers, optional int maxBindGroups, optional int maxBindGroupsPlusVertexBuffers, optional int maxBindingsPerBindGroup, optional int maxDynamicUniformBuffersPerPipelineLayout, optional int maxDynamicStorageBuffersPerPipelineLayout, optional int maxSampledTexturesPerShaderStage, optional int maxSamplersPerShaderStage, optional int maxStorageBuffersPerShaderStage, optional int maxStorageTexturesPerShaderStage, optional int maxUniformBuffersPerShaderStage, optional long maxUniformBufferBindingSize, optional long maxStorageBufferBindingSize, optional int minUniformBufferOffsetAlignment, optional int minStorageBufferOffsetAlignment, optional int maxVertexBuffers, optional long maxBufferSize, optional int maxVertexAttributes, optional int maxVertexBufferArrayStride, optional int maxInterStageShaderVariables, optional int maxColorAttachments, optional int maxColorAttachmentBytesPerSample, optional int maxComputeWorkgroupStorageSize, optional int maxComputeInvocationsPerWorkgroup, optional int maxComputeWorkgroupSizeX, optional int maxComputeWorkgroupSizeY);
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers, optional int maxBindGroups, optional int maxBindGroupsPlusVertexBuffers, optional int maxBindingsPerBindGroup, optional int maxDynamicUniformBuffersPerPipelineLayout, optional int maxDynamicStorageBuffersPerPipelineLayout, optional int maxSampledTexturesPerShaderStage, optional int maxSamplersPerShaderStage, optional int maxStorageBuffersPerShaderStage, optional int maxStorageTexturesPerShaderStage, optional int maxUniformBuffersPerShaderStage, optional long maxUniformBufferBindingSize, optional long maxStorageBufferBindingSize, optional int minUniformBufferOffsetAlignment, optional int minStorageBufferOffsetAlignment, optional int maxVertexBuffers, optional long maxBufferSize, optional int maxVertexAttributes, optional int maxVertexBufferArrayStride, optional int maxInterStageShaderVariables, optional int maxColorAttachments, optional int maxColorAttachmentBytesPerSample, optional int maxComputeWorkgroupStorageSize, optional int maxComputeInvocationsPerWorkgroup, optional int maxComputeWorkgroupSizeX, optional int maxComputeWorkgroupSizeY, optional int maxComputeWorkgroupSizeZ);
-    ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers, optional int maxBindGroups, optional int maxBindGroupsPlusVertexBuffers, optional int maxBindingsPerBindGroup, optional int maxDynamicUniformBuffersPerPipelineLayout, optional int maxDynamicStorageBuffersPerPipelineLayout, optional int maxSampledTexturesPerShaderStage, optional int maxSamplersPerShaderStage, optional int maxStorageBuffersPerShaderStage, optional int maxStorageTexturesPerShaderStage, optional int maxUniformBuffersPerShaderStage, optional long maxUniformBufferBindingSize, optional long maxStorageBufferBindingSize, optional int minUniformBufferOffsetAlignment, optional int minStorageBufferOffsetAlignment, optional int maxVertexBuffers, optional long maxBufferSize, optional int maxVertexAttributes, optional int maxVertexBufferArrayStride, optional int maxInterStageShaderVariables, optional int maxColorAttachments, optional int maxColorAttachmentBytesPerSample, optional int maxComputeWorkgroupStorageSize, optional int maxComputeInvocationsPerWorkgroup, optional int maxComputeWorkgroupSizeX, optional int maxComputeWorkgroupSizeY, optional int maxComputeWorkgroupSizeZ, optional int maxComputeWorkgroupsPerDimension);
     ctor public GPULimits(optional int maxTextureDimension1D, optional int maxTextureDimension2D, optional int maxTextureDimension3D, optional int maxTextureArrayLayers, optional int maxBindGroups, optional int maxBindGroupsPlusVertexBuffers, optional int maxBindingsPerBindGroup, optional int maxDynamicUniformBuffersPerPipelineLayout, optional int maxDynamicStorageBuffersPerPipelineLayout, optional int maxSampledTexturesPerShaderStage, optional int maxSamplersPerShaderStage, optional int maxStorageBuffersPerShaderStage, optional int maxStorageTexturesPerShaderStage, optional int maxUniformBuffersPerShaderStage, optional long maxUniformBufferBindingSize, optional long maxStorageBufferBindingSize, optional int minUniformBufferOffsetAlignment, optional int minStorageBufferOffsetAlignment, optional int maxVertexBuffers, optional long maxBufferSize, optional int maxVertexAttributes, optional int maxVertexBufferArrayStride, optional int maxInterStageShaderVariables, optional int maxColorAttachments, optional int maxColorAttachmentBytesPerSample, optional int maxComputeWorkgroupStorageSize, optional int maxComputeInvocationsPerWorkgroup, optional int maxComputeWorkgroupSizeX, optional int maxComputeWorkgroupSizeY, optional int maxComputeWorkgroupSizeZ, optional int maxComputeWorkgroupsPerDimension, optional int maxImmediateSize);
     ctor @BytecodeOnly public GPULimits(int, int, int, int, int, int, int, int, int, int, int, int, int, int, long, long, int, int, int, long, int, int, int, int, int, int, int, int, int, int, int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getMaxBindGroups();
@@ -852,15 +842,52 @@ package androidx.webgpu {
     property public int minUniformBufferOffsetAlignment;
   }
 
+  public static final class GPULimits.Builder {
+    ctor public GPULimits.Builder();
+    method public androidx.webgpu.GPULimits build();
+    method public androidx.webgpu.GPULimits.Builder setMaxBindGroups(int maxBindGroups);
+    method public androidx.webgpu.GPULimits.Builder setMaxBindGroupsPlusVertexBuffers(int maxBindGroupsPlusVertexBuffers);
+    method public androidx.webgpu.GPULimits.Builder setMaxBindingsPerBindGroup(int maxBindingsPerBindGroup);
+    method public androidx.webgpu.GPULimits.Builder setMaxBufferSize(long maxBufferSize);
+    method public androidx.webgpu.GPULimits.Builder setMaxColorAttachmentBytesPerSample(int maxColorAttachmentBytesPerSample);
+    method public androidx.webgpu.GPULimits.Builder setMaxColorAttachments(int maxColorAttachments);
+    method public androidx.webgpu.GPULimits.Builder setMaxComputeInvocationsPerWorkgroup(int maxComputeInvocationsPerWorkgroup);
+    method public androidx.webgpu.GPULimits.Builder setMaxComputeWorkgroupSizeX(int maxComputeWorkgroupSizeX);
+    method public androidx.webgpu.GPULimits.Builder setMaxComputeWorkgroupSizeY(int maxComputeWorkgroupSizeY);
+    method public androidx.webgpu.GPULimits.Builder setMaxComputeWorkgroupSizeZ(int maxComputeWorkgroupSizeZ);
+    method public androidx.webgpu.GPULimits.Builder setMaxComputeWorkgroupStorageSize(int maxComputeWorkgroupStorageSize);
+    method public androidx.webgpu.GPULimits.Builder setMaxComputeWorkgroupsPerDimension(int maxComputeWorkgroupsPerDimension);
+    method public androidx.webgpu.GPULimits.Builder setMaxDynamicStorageBuffersPerPipelineLayout(int maxDynamicStorageBuffersPerPipelineLayout);
+    method public androidx.webgpu.GPULimits.Builder setMaxDynamicUniformBuffersPerPipelineLayout(int maxDynamicUniformBuffersPerPipelineLayout);
+    method public androidx.webgpu.GPULimits.Builder setMaxImmediateSize(int maxImmediateSize);
+    method public androidx.webgpu.GPULimits.Builder setMaxInterStageShaderVariables(int maxInterStageShaderVariables);
+    method public androidx.webgpu.GPULimits.Builder setMaxSampledTexturesPerShaderStage(int maxSampledTexturesPerShaderStage);
+    method public androidx.webgpu.GPULimits.Builder setMaxSamplersPerShaderStage(int maxSamplersPerShaderStage);
+    method public androidx.webgpu.GPULimits.Builder setMaxStorageBufferBindingSize(long maxStorageBufferBindingSize);
+    method public androidx.webgpu.GPULimits.Builder setMaxStorageBuffersPerShaderStage(int maxStorageBuffersPerShaderStage);
+    method public androidx.webgpu.GPULimits.Builder setMaxStorageTexturesPerShaderStage(int maxStorageTexturesPerShaderStage);
+    method public androidx.webgpu.GPULimits.Builder setMaxTextureArrayLayers(int maxTextureArrayLayers);
+    method public androidx.webgpu.GPULimits.Builder setMaxTextureDimension1D(int maxTextureDimension1D);
+    method public androidx.webgpu.GPULimits.Builder setMaxTextureDimension2D(int maxTextureDimension2D);
+    method public androidx.webgpu.GPULimits.Builder setMaxTextureDimension3D(int maxTextureDimension3D);
+    method public androidx.webgpu.GPULimits.Builder setMaxUniformBufferBindingSize(long maxUniformBufferBindingSize);
+    method public androidx.webgpu.GPULimits.Builder setMaxUniformBuffersPerShaderStage(int maxUniformBuffersPerShaderStage);
+    method public androidx.webgpu.GPULimits.Builder setMaxVertexAttributes(int maxVertexAttributes);
+    method public androidx.webgpu.GPULimits.Builder setMaxVertexBufferArrayStride(int maxVertexBufferArrayStride);
+    method public androidx.webgpu.GPULimits.Builder setMaxVertexBuffers(int maxVertexBuffers);
+    method public androidx.webgpu.GPULimits.Builder setMinStorageBufferOffsetAlignment(int minStorageBufferOffsetAlignment);
+    method public androidx.webgpu.GPULimits.Builder setMinUniformBufferOffsetAlignment(int minUniformBufferOffsetAlignment);
+  }
+
   public final class GPUMultisampleState {
     ctor public GPUMultisampleState();
     ctor public GPUMultisampleState(optional int count);
     ctor public GPUMultisampleState(optional int count, optional int mask);
     ctor public GPUMultisampleState(optional int count, optional int mask, optional boolean alphaToCoverageEnabled);
     ctor @BytecodeOnly public GPUMultisampleState(int, int, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    method @InaccessibleFromKotlin public boolean getAlphaToCoverageEnabled();
     method @InaccessibleFromKotlin public int getCount();
     method @InaccessibleFromKotlin public int getMask();
+    method @InaccessibleFromKotlin public boolean isAlphaToCoverageEnabled();
     method @InaccessibleFromKotlin public void setAlphaToCoverageEnabled(boolean);
     method @InaccessibleFromKotlin public void setCount(int);
     method @InaccessibleFromKotlin public void setMask(int);
@@ -928,17 +955,13 @@ package androidx.webgpu {
 
   public final class GPUPrimitiveState {
     ctor public GPUPrimitiveState();
-    ctor public GPUPrimitiveState(optional int topology);
-    ctor public GPUPrimitiveState(optional int topology, optional int stripIndexFormat);
-    ctor public GPUPrimitiveState(optional int topology, optional int stripIndexFormat, optional int frontFace);
-    ctor public GPUPrimitiveState(optional int topology, optional int stripIndexFormat, optional int frontFace, optional int cullMode);
     ctor public GPUPrimitiveState(optional int topology, optional int stripIndexFormat, optional int frontFace, optional int cullMode, optional boolean unclippedDepth);
     ctor @BytecodeOnly public GPUPrimitiveState(int, int, int, int, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getCullMode();
     method @InaccessibleFromKotlin public int getFrontFace();
     method @InaccessibleFromKotlin public int getStripIndexFormat();
     method @InaccessibleFromKotlin public int getTopology();
-    method @InaccessibleFromKotlin public boolean getUnclippedDepth();
+    method @InaccessibleFromKotlin public boolean isUnclippedDepth();
     method @InaccessibleFromKotlin public void setCullMode(int);
     method @InaccessibleFromKotlin public void setFrontFace(int);
     method @InaccessibleFromKotlin public void setStripIndexFormat(int);
@@ -949,6 +972,16 @@ package androidx.webgpu {
     property public int stripIndexFormat;
     property public int topology;
     property public boolean unclippedDepth;
+  }
+
+  public static final class GPUPrimitiveState.Builder {
+    ctor public GPUPrimitiveState.Builder();
+    method public androidx.webgpu.GPUPrimitiveState build();
+    method public androidx.webgpu.GPUPrimitiveState.Builder setCullMode(int cullMode);
+    method public androidx.webgpu.GPUPrimitiveState.Builder setFrontFace(int frontFace);
+    method public androidx.webgpu.GPUPrimitiveState.Builder setStripIndexFormat(int stripIndexFormat);
+    method public androidx.webgpu.GPUPrimitiveState.Builder setTopology(int topology);
+    method public androidx.webgpu.GPUPrimitiveState.Builder setUnclippedDepth(boolean unclippedDepth);
   }
 
   public final class GPUQuerySet implements java.lang.AutoCloseable {
@@ -1064,19 +1097,14 @@ package androidx.webgpu {
 
   public final class GPURenderBundleEncoderDescriptor {
     ctor public GPURenderBundleEncoderDescriptor();
-    ctor public GPURenderBundleEncoderDescriptor(optional String? label);
-    ctor public GPURenderBundleEncoderDescriptor(optional String? label, optional int[] colorFormats);
-    ctor public GPURenderBundleEncoderDescriptor(optional String? label, optional int[] colorFormats, optional int depthStencilFormat);
-    ctor public GPURenderBundleEncoderDescriptor(optional String? label, optional int[] colorFormats, optional int depthStencilFormat, optional int sampleCount);
-    ctor public GPURenderBundleEncoderDescriptor(optional String? label, optional int[] colorFormats, optional int depthStencilFormat, optional int sampleCount, optional boolean depthReadOnly);
     ctor public GPURenderBundleEncoderDescriptor(optional String? label, optional int[] colorFormats, optional int depthStencilFormat, optional int sampleCount, optional boolean depthReadOnly, optional boolean stencilReadOnly);
     ctor @BytecodeOnly public GPURenderBundleEncoderDescriptor(String!, int[]!, int, int, boolean, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int[] getColorFormats();
-    method @InaccessibleFromKotlin public boolean getDepthReadOnly();
     method @InaccessibleFromKotlin public int getDepthStencilFormat();
     method @InaccessibleFromKotlin public String? getLabel();
     method @InaccessibleFromKotlin public int getSampleCount();
-    method @InaccessibleFromKotlin public boolean getStencilReadOnly();
+    method @InaccessibleFromKotlin public boolean isDepthReadOnly();
+    method @InaccessibleFromKotlin public boolean isStencilReadOnly();
     method @InaccessibleFromKotlin public void setColorFormats(int[]);
     method @InaccessibleFromKotlin public void setDepthReadOnly(boolean);
     method @InaccessibleFromKotlin public void setDepthStencilFormat(int);
@@ -1091,12 +1119,18 @@ package androidx.webgpu {
     property public boolean stencilReadOnly;
   }
 
+  public static final class GPURenderBundleEncoderDescriptor.Builder {
+    ctor public GPURenderBundleEncoderDescriptor.Builder();
+    method public androidx.webgpu.GPURenderBundleEncoderDescriptor build();
+    method public androidx.webgpu.GPURenderBundleEncoderDescriptor.Builder setColorFormats(int[] colorFormats);
+    method public androidx.webgpu.GPURenderBundleEncoderDescriptor.Builder setDepthReadOnly(boolean depthReadOnly);
+    method public androidx.webgpu.GPURenderBundleEncoderDescriptor.Builder setDepthStencilFormat(int depthStencilFormat);
+    method public androidx.webgpu.GPURenderBundleEncoderDescriptor.Builder setLabel(String? label);
+    method public androidx.webgpu.GPURenderBundleEncoderDescriptor.Builder setSampleCount(int sampleCount);
+    method public androidx.webgpu.GPURenderBundleEncoderDescriptor.Builder setStencilReadOnly(boolean stencilReadOnly);
+  }
+
   public final class GPURenderPassColorAttachment {
-    ctor public GPURenderPassColorAttachment(androidx.webgpu.GPUColor clearValue);
-    ctor public GPURenderPassColorAttachment(androidx.webgpu.GPUColor clearValue, optional androidx.webgpu.GPUTextureView? view);
-    ctor public GPURenderPassColorAttachment(androidx.webgpu.GPUColor clearValue, optional androidx.webgpu.GPUTextureView? view, optional int depthSlice);
-    ctor public GPURenderPassColorAttachment(androidx.webgpu.GPUColor clearValue, optional androidx.webgpu.GPUTextureView? view, optional int depthSlice, optional androidx.webgpu.GPUTextureView? resolveTarget);
-    ctor public GPURenderPassColorAttachment(androidx.webgpu.GPUColor clearValue, optional androidx.webgpu.GPUTextureView? view, optional int depthSlice, optional androidx.webgpu.GPUTextureView? resolveTarget, optional int loadOp);
     ctor public GPURenderPassColorAttachment(androidx.webgpu.GPUColor clearValue, optional androidx.webgpu.GPUTextureView? view, optional int depthSlice, optional androidx.webgpu.GPUTextureView? resolveTarget, optional int loadOp, optional int storeOp);
     ctor @BytecodeOnly public GPURenderPassColorAttachment(androidx.webgpu.GPUColor!, androidx.webgpu.GPUTextureView!, int, androidx.webgpu.GPUTextureView!, int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.webgpu.GPUColor getClearValue();
@@ -1119,26 +1153,28 @@ package androidx.webgpu {
     property public androidx.webgpu.GPUTextureView? view;
   }
 
+  public static final class GPURenderPassColorAttachment.Builder {
+    ctor public GPURenderPassColorAttachment.Builder(androidx.webgpu.GPUColor clearValue);
+    method public androidx.webgpu.GPURenderPassColorAttachment build();
+    method public androidx.webgpu.GPURenderPassColorAttachment.Builder setDepthSlice(int depthSlice);
+    method public androidx.webgpu.GPURenderPassColorAttachment.Builder setLoadOp(int loadOp);
+    method public androidx.webgpu.GPURenderPassColorAttachment.Builder setResolveTarget(androidx.webgpu.GPUTextureView? resolveTarget);
+    method public androidx.webgpu.GPURenderPassColorAttachment.Builder setStoreOp(int storeOp);
+    method public androidx.webgpu.GPURenderPassColorAttachment.Builder setView(androidx.webgpu.GPUTextureView? view);
+  }
+
   public final class GPURenderPassDepthStencilAttachment {
-    ctor public GPURenderPassDepthStencilAttachment(androidx.webgpu.GPUTextureView view);
-    ctor public GPURenderPassDepthStencilAttachment(androidx.webgpu.GPUTextureView view, optional int depthLoadOp);
-    ctor public GPURenderPassDepthStencilAttachment(androidx.webgpu.GPUTextureView view, optional int depthLoadOp, optional int depthStoreOp);
-    ctor public GPURenderPassDepthStencilAttachment(androidx.webgpu.GPUTextureView view, optional int depthLoadOp, optional int depthStoreOp, optional float depthClearValue);
-    ctor public GPURenderPassDepthStencilAttachment(androidx.webgpu.GPUTextureView view, optional int depthLoadOp, optional int depthStoreOp, optional float depthClearValue, optional boolean depthReadOnly);
-    ctor public GPURenderPassDepthStencilAttachment(androidx.webgpu.GPUTextureView view, optional int depthLoadOp, optional int depthStoreOp, optional float depthClearValue, optional boolean depthReadOnly, optional int stencilLoadOp);
-    ctor public GPURenderPassDepthStencilAttachment(androidx.webgpu.GPUTextureView view, optional int depthLoadOp, optional int depthStoreOp, optional float depthClearValue, optional boolean depthReadOnly, optional int stencilLoadOp, optional int stencilStoreOp);
-    ctor public GPURenderPassDepthStencilAttachment(androidx.webgpu.GPUTextureView view, optional int depthLoadOp, optional int depthStoreOp, optional float depthClearValue, optional boolean depthReadOnly, optional int stencilLoadOp, optional int stencilStoreOp, optional int stencilClearValue);
     ctor public GPURenderPassDepthStencilAttachment(androidx.webgpu.GPUTextureView view, optional int depthLoadOp, optional int depthStoreOp, optional float depthClearValue, optional boolean depthReadOnly, optional int stencilLoadOp, optional int stencilStoreOp, optional int stencilClearValue, optional boolean stencilReadOnly);
     ctor @BytecodeOnly public GPURenderPassDepthStencilAttachment(androidx.webgpu.GPUTextureView!, int, int, float, boolean, int, int, int, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public float getDepthClearValue();
     method @InaccessibleFromKotlin public int getDepthLoadOp();
-    method @InaccessibleFromKotlin public boolean getDepthReadOnly();
     method @InaccessibleFromKotlin public int getDepthStoreOp();
     method @InaccessibleFromKotlin public int getStencilClearValue();
     method @InaccessibleFromKotlin public int getStencilLoadOp();
-    method @InaccessibleFromKotlin public boolean getStencilReadOnly();
     method @InaccessibleFromKotlin public int getStencilStoreOp();
     method @InaccessibleFromKotlin public androidx.webgpu.GPUTextureView getView();
+    method @InaccessibleFromKotlin public boolean isDepthReadOnly();
+    method @InaccessibleFromKotlin public boolean isStencilReadOnly();
     method @InaccessibleFromKotlin public void setDepthClearValue(float);
     method @InaccessibleFromKotlin public void setDepthLoadOp(int);
     method @InaccessibleFromKotlin public void setDepthReadOnly(boolean);
@@ -1159,13 +1195,21 @@ package androidx.webgpu {
     property public androidx.webgpu.GPUTextureView view;
   }
 
+  public static final class GPURenderPassDepthStencilAttachment.Builder {
+    ctor public GPURenderPassDepthStencilAttachment.Builder(androidx.webgpu.GPUTextureView view);
+    method public androidx.webgpu.GPURenderPassDepthStencilAttachment build();
+    method public androidx.webgpu.GPURenderPassDepthStencilAttachment.Builder setDepthClearValue(float depthClearValue);
+    method public androidx.webgpu.GPURenderPassDepthStencilAttachment.Builder setDepthLoadOp(int depthLoadOp);
+    method public androidx.webgpu.GPURenderPassDepthStencilAttachment.Builder setDepthReadOnly(boolean depthReadOnly);
+    method public androidx.webgpu.GPURenderPassDepthStencilAttachment.Builder setDepthStoreOp(int depthStoreOp);
+    method public androidx.webgpu.GPURenderPassDepthStencilAttachment.Builder setStencilClearValue(int stencilClearValue);
+    method public androidx.webgpu.GPURenderPassDepthStencilAttachment.Builder setStencilLoadOp(int stencilLoadOp);
+    method public androidx.webgpu.GPURenderPassDepthStencilAttachment.Builder setStencilReadOnly(boolean stencilReadOnly);
+    method public androidx.webgpu.GPURenderPassDepthStencilAttachment.Builder setStencilStoreOp(int stencilStoreOp);
+  }
+
   public final class GPURenderPassDescriptor {
     ctor public GPURenderPassDescriptor();
-    ctor public GPURenderPassDescriptor(optional String? label);
-    ctor public GPURenderPassDescriptor(optional String? label, optional androidx.webgpu.GPURenderPassColorAttachment[] colorAttachments);
-    ctor public GPURenderPassDescriptor(optional String? label, optional androidx.webgpu.GPURenderPassColorAttachment[] colorAttachments, optional androidx.webgpu.GPURenderPassDepthStencilAttachment? depthStencilAttachment);
-    ctor public GPURenderPassDescriptor(optional String? label, optional androidx.webgpu.GPURenderPassColorAttachment[] colorAttachments, optional androidx.webgpu.GPURenderPassDepthStencilAttachment? depthStencilAttachment, optional androidx.webgpu.GPUQuerySet? occlusionQuerySet);
-    ctor public GPURenderPassDescriptor(optional String? label, optional androidx.webgpu.GPURenderPassColorAttachment[] colorAttachments, optional androidx.webgpu.GPURenderPassDepthStencilAttachment? depthStencilAttachment, optional androidx.webgpu.GPUQuerySet? occlusionQuerySet, optional androidx.webgpu.GPUPassTimestampWrites? timestampWrites);
     ctor public GPURenderPassDescriptor(optional String? label, optional androidx.webgpu.GPURenderPassColorAttachment[] colorAttachments, optional androidx.webgpu.GPURenderPassDepthStencilAttachment? depthStencilAttachment, optional androidx.webgpu.GPUQuerySet? occlusionQuerySet, optional androidx.webgpu.GPUPassTimestampWrites? timestampWrites, optional androidx.webgpu.GPURenderPassMaxDrawCount? renderPassMaxDrawCount);
     ctor @BytecodeOnly public GPURenderPassDescriptor(String!, androidx.webgpu.GPURenderPassColorAttachment![]!, androidx.webgpu.GPURenderPassDepthStencilAttachment!, androidx.webgpu.GPUQuerySet!, androidx.webgpu.GPUPassTimestampWrites!, androidx.webgpu.GPURenderPassMaxDrawCount!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.webgpu.GPURenderPassColorAttachment[] getColorAttachments();
@@ -1186,6 +1230,17 @@ package androidx.webgpu {
     property public androidx.webgpu.GPUQuerySet? occlusionQuerySet;
     property public androidx.webgpu.GPURenderPassMaxDrawCount? renderPassMaxDrawCount;
     property public androidx.webgpu.GPUPassTimestampWrites? timestampWrites;
+  }
+
+  public static final class GPURenderPassDescriptor.Builder {
+    ctor public GPURenderPassDescriptor.Builder();
+    method public androidx.webgpu.GPURenderPassDescriptor build();
+    method public androidx.webgpu.GPURenderPassDescriptor.Builder setColorAttachments(androidx.webgpu.GPURenderPassColorAttachment[] colorAttachments);
+    method public androidx.webgpu.GPURenderPassDescriptor.Builder setDepthStencilAttachment(androidx.webgpu.GPURenderPassDepthStencilAttachment? depthStencilAttachment);
+    method public androidx.webgpu.GPURenderPassDescriptor.Builder setLabel(String? label);
+    method public androidx.webgpu.GPURenderPassDescriptor.Builder setOcclusionQuerySet(androidx.webgpu.GPUQuerySet? occlusionQuerySet);
+    method public androidx.webgpu.GPURenderPassDescriptor.Builder setRenderPassMaxDrawCount(androidx.webgpu.GPURenderPassMaxDrawCount? renderPassMaxDrawCount);
+    method public androidx.webgpu.GPURenderPassDescriptor.Builder setTimestampWrites(androidx.webgpu.GPUPassTimestampWrites? timestampWrites);
   }
 
   public final class GPURenderPassEncoder implements java.lang.AutoCloseable {
@@ -1254,12 +1309,6 @@ package androidx.webgpu {
   }
 
   public final class GPURenderPipelineDescriptor {
-    ctor public GPURenderPipelineDescriptor(androidx.webgpu.GPUVertexState vertex);
-    ctor public GPURenderPipelineDescriptor(androidx.webgpu.GPUVertexState vertex, optional String? label);
-    ctor public GPURenderPipelineDescriptor(androidx.webgpu.GPUVertexState vertex, optional String? label, optional androidx.webgpu.GPUPipelineLayout? layout);
-    ctor public GPURenderPipelineDescriptor(androidx.webgpu.GPUVertexState vertex, optional String? label, optional androidx.webgpu.GPUPipelineLayout? layout, optional androidx.webgpu.GPUPrimitiveState primitive);
-    ctor public GPURenderPipelineDescriptor(androidx.webgpu.GPUVertexState vertex, optional String? label, optional androidx.webgpu.GPUPipelineLayout? layout, optional androidx.webgpu.GPUPrimitiveState primitive, optional androidx.webgpu.GPUDepthStencilState? depthStencil);
-    ctor public GPURenderPipelineDescriptor(androidx.webgpu.GPUVertexState vertex, optional String? label, optional androidx.webgpu.GPUPipelineLayout? layout, optional androidx.webgpu.GPUPrimitiveState primitive, optional androidx.webgpu.GPUDepthStencilState? depthStencil, optional androidx.webgpu.GPUMultisampleState multisample);
     ctor public GPURenderPipelineDescriptor(androidx.webgpu.GPUVertexState vertex, optional String? label, optional androidx.webgpu.GPUPipelineLayout? layout, optional androidx.webgpu.GPUPrimitiveState primitive, optional androidx.webgpu.GPUDepthStencilState? depthStencil, optional androidx.webgpu.GPUMultisampleState multisample, optional androidx.webgpu.GPUFragmentState? fragment);
     ctor @BytecodeOnly public GPURenderPipelineDescriptor(androidx.webgpu.GPUVertexState!, String!, androidx.webgpu.GPUPipelineLayout!, androidx.webgpu.GPUPrimitiveState!, androidx.webgpu.GPUDepthStencilState!, androidx.webgpu.GPUMultisampleState!, androidx.webgpu.GPUFragmentState!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.webgpu.GPUDepthStencilState? getDepthStencil();
@@ -1285,21 +1334,27 @@ package androidx.webgpu {
     property public androidx.webgpu.GPUVertexState vertex;
   }
 
+  public static final class GPURenderPipelineDescriptor.Builder {
+    ctor public GPURenderPipelineDescriptor.Builder(androidx.webgpu.GPUVertexState vertex);
+    method public androidx.webgpu.GPURenderPipelineDescriptor build();
+    method public androidx.webgpu.GPURenderPipelineDescriptor.Builder setDepthStencil(androidx.webgpu.GPUDepthStencilState? depthStencil);
+    method public androidx.webgpu.GPURenderPipelineDescriptor.Builder setFragment(androidx.webgpu.GPUFragmentState? fragment);
+    method public androidx.webgpu.GPURenderPipelineDescriptor.Builder setLabel(String? label);
+    method public androidx.webgpu.GPURenderPipelineDescriptor.Builder setLayout(androidx.webgpu.GPUPipelineLayout? layout);
+    method public androidx.webgpu.GPURenderPipelineDescriptor.Builder setMultisample(androidx.webgpu.GPUMultisampleState multisample);
+    method public androidx.webgpu.GPURenderPipelineDescriptor.Builder setPrimitive(androidx.webgpu.GPUPrimitiveState primitive);
+  }
+
   public final class GPURequestAdapterOptions {
     ctor public GPURequestAdapterOptions();
-    ctor public GPURequestAdapterOptions(optional int featureLevel);
-    ctor public GPURequestAdapterOptions(optional int featureLevel, optional int powerPreference);
-    ctor public GPURequestAdapterOptions(optional int featureLevel, optional int powerPreference, optional boolean forceFallbackAdapter);
-    ctor public GPURequestAdapterOptions(optional int featureLevel, optional int powerPreference, optional boolean forceFallbackAdapter, optional int backendType);
-    ctor public GPURequestAdapterOptions(optional int featureLevel, optional int powerPreference, optional boolean forceFallbackAdapter, optional int backendType, optional androidx.webgpu.GPUSurface? compatibleSurface);
     ctor public GPURequestAdapterOptions(optional int featureLevel, optional int powerPreference, optional boolean forceFallbackAdapter, optional int backendType, optional androidx.webgpu.GPUSurface? compatibleSurface, optional androidx.webgpu.GPURequestAdapterWebXROptions? requestAdapterWebXROptions);
     ctor @BytecodeOnly public GPURequestAdapterOptions(int, int, boolean, int, androidx.webgpu.GPUSurface!, androidx.webgpu.GPURequestAdapterWebXROptions!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getBackendType();
     method @InaccessibleFromKotlin public androidx.webgpu.GPUSurface? getCompatibleSurface();
     method @InaccessibleFromKotlin public int getFeatureLevel();
-    method @InaccessibleFromKotlin public boolean getForceFallbackAdapter();
     method @InaccessibleFromKotlin public int getPowerPreference();
     method @InaccessibleFromKotlin public androidx.webgpu.GPURequestAdapterWebXROptions? getRequestAdapterWebXROptions();
+    method @InaccessibleFromKotlin public boolean isForceFallbackAdapter();
     method @InaccessibleFromKotlin public void setBackendType(int);
     method @InaccessibleFromKotlin public void setCompatibleSurface(androidx.webgpu.GPUSurface?);
     method @InaccessibleFromKotlin public void setFeatureLevel(int);
@@ -1314,9 +1369,20 @@ package androidx.webgpu {
     property public androidx.webgpu.GPURequestAdapterWebXROptions? requestAdapterWebXROptions;
   }
 
+  public static final class GPURequestAdapterOptions.Builder {
+    ctor public GPURequestAdapterOptions.Builder();
+    method public androidx.webgpu.GPURequestAdapterOptions build();
+    method public androidx.webgpu.GPURequestAdapterOptions.Builder setBackendType(int backendType);
+    method public androidx.webgpu.GPURequestAdapterOptions.Builder setCompatibleSurface(androidx.webgpu.GPUSurface? compatibleSurface);
+    method public androidx.webgpu.GPURequestAdapterOptions.Builder setFeatureLevel(int featureLevel);
+    method public androidx.webgpu.GPURequestAdapterOptions.Builder setForceFallbackAdapter(boolean forceFallbackAdapter);
+    method public androidx.webgpu.GPURequestAdapterOptions.Builder setPowerPreference(int powerPreference);
+    method public androidx.webgpu.GPURequestAdapterOptions.Builder setRequestAdapterWebXROptions(androidx.webgpu.GPURequestAdapterWebXROptions? requestAdapterWebXROptions);
+  }
+
   public final class GPURequestAdapterWebXROptions {
     ctor public GPURequestAdapterWebXROptions(boolean xrCompatible);
-    method @InaccessibleFromKotlin public boolean getXrCompatible();
+    method @InaccessibleFromKotlin public boolean isXrCompatible();
     method @InaccessibleFromKotlin public void setXrCompatible(boolean);
     property public boolean xrCompatible;
   }
@@ -1348,16 +1414,6 @@ package androidx.webgpu {
 
   public final class GPUSamplerDescriptor {
     ctor public GPUSamplerDescriptor();
-    ctor public GPUSamplerDescriptor(optional String? label);
-    ctor public GPUSamplerDescriptor(optional String? label, optional int addressModeU);
-    ctor public GPUSamplerDescriptor(optional String? label, optional int addressModeU, optional int addressModeV);
-    ctor public GPUSamplerDescriptor(optional String? label, optional int addressModeU, optional int addressModeV, optional int addressModeW);
-    ctor public GPUSamplerDescriptor(optional String? label, optional int addressModeU, optional int addressModeV, optional int addressModeW, optional int magFilter);
-    ctor public GPUSamplerDescriptor(optional String? label, optional int addressModeU, optional int addressModeV, optional int addressModeW, optional int magFilter, optional int minFilter);
-    ctor public GPUSamplerDescriptor(optional String? label, optional int addressModeU, optional int addressModeV, optional int addressModeW, optional int magFilter, optional int minFilter, optional int mipmapFilter);
-    ctor public GPUSamplerDescriptor(optional String? label, optional int addressModeU, optional int addressModeV, optional int addressModeW, optional int magFilter, optional int minFilter, optional int mipmapFilter, optional float lodMinClamp);
-    ctor public GPUSamplerDescriptor(optional String? label, optional int addressModeU, optional int addressModeV, optional int addressModeW, optional int magFilter, optional int minFilter, optional int mipmapFilter, optional float lodMinClamp, optional float lodMaxClamp);
-    ctor public GPUSamplerDescriptor(optional String? label, optional int addressModeU, optional int addressModeV, optional int addressModeW, optional int magFilter, optional int minFilter, optional int mipmapFilter, optional float lodMinClamp, optional float lodMaxClamp, optional int compare);
     ctor public GPUSamplerDescriptor(optional String? label, optional int addressModeU, optional int addressModeV, optional int addressModeW, optional int magFilter, optional int minFilter, optional int mipmapFilter, optional float lodMinClamp, optional float lodMaxClamp, optional int compare, optional short maxAnisotropy);
     ctor @BytecodeOnly public GPUSamplerDescriptor(String!, int, int, int, int, int, int, float, float, int, short, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getAddressModeU();
@@ -1393,6 +1449,22 @@ package androidx.webgpu {
     property public short maxAnisotropy;
     property public int minFilter;
     property public int mipmapFilter;
+  }
+
+  public static final class GPUSamplerDescriptor.Builder {
+    ctor public GPUSamplerDescriptor.Builder();
+    method public androidx.webgpu.GPUSamplerDescriptor build();
+    method public androidx.webgpu.GPUSamplerDescriptor.Builder setAddressModeU(int addressModeU);
+    method public androidx.webgpu.GPUSamplerDescriptor.Builder setAddressModeV(int addressModeV);
+    method public androidx.webgpu.GPUSamplerDescriptor.Builder setAddressModeW(int addressModeW);
+    method public androidx.webgpu.GPUSamplerDescriptor.Builder setCompare(int compare);
+    method public androidx.webgpu.GPUSamplerDescriptor.Builder setLabel(String? label);
+    method public androidx.webgpu.GPUSamplerDescriptor.Builder setLodMaxClamp(float lodMaxClamp);
+    method public androidx.webgpu.GPUSamplerDescriptor.Builder setLodMinClamp(float lodMinClamp);
+    method public androidx.webgpu.GPUSamplerDescriptor.Builder setMagFilter(int magFilter);
+    method public androidx.webgpu.GPUSamplerDescriptor.Builder setMaxAnisotropy(short maxAnisotropy);
+    method public androidx.webgpu.GPUSamplerDescriptor.Builder setMinFilter(int minFilter);
+    method public androidx.webgpu.GPUSamplerDescriptor.Builder setMipmapFilter(int mipmapFilter);
   }
 
   public final class GPUShaderModule implements java.lang.AutoCloseable {
@@ -1439,9 +1511,6 @@ package androidx.webgpu {
 
   public final class GPUStencilFaceState {
     ctor public GPUStencilFaceState();
-    ctor public GPUStencilFaceState(optional int compare);
-    ctor public GPUStencilFaceState(optional int compare, optional int failOp);
-    ctor public GPUStencilFaceState(optional int compare, optional int failOp, optional int depthFailOp);
     ctor public GPUStencilFaceState(optional int compare, optional int failOp, optional int depthFailOp, optional int passOp);
     ctor @BytecodeOnly public GPUStencilFaceState(int, int, int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getCompare();
@@ -1456,6 +1525,15 @@ package androidx.webgpu {
     property public int depthFailOp;
     property public int failOp;
     property public int passOp;
+  }
+
+  public static final class GPUStencilFaceState.Builder {
+    ctor public GPUStencilFaceState.Builder();
+    method public androidx.webgpu.GPUStencilFaceState build();
+    method public androidx.webgpu.GPUStencilFaceState.Builder setCompare(int compare);
+    method public androidx.webgpu.GPUStencilFaceState.Builder setDepthFailOp(int depthFailOp);
+    method public androidx.webgpu.GPUStencilFaceState.Builder setFailOp(int failOp);
+    method public androidx.webgpu.GPUStencilFaceState.Builder setPassOp(int passOp);
   }
 
   public final class GPUStorageTextureBindingLayout {
@@ -1545,11 +1623,6 @@ package androidx.webgpu {
   }
 
   public final class GPUSurfaceConfiguration {
-    ctor public GPUSurfaceConfiguration(androidx.webgpu.GPUDevice device, int width, int height);
-    ctor public GPUSurfaceConfiguration(androidx.webgpu.GPUDevice device, int width, int height, optional int format);
-    ctor public GPUSurfaceConfiguration(androidx.webgpu.GPUDevice device, int width, int height, optional int format, optional int usage);
-    ctor public GPUSurfaceConfiguration(androidx.webgpu.GPUDevice device, int width, int height, optional int format, optional int usage, optional int[] viewFormats);
-    ctor public GPUSurfaceConfiguration(androidx.webgpu.GPUDevice device, int width, int height, optional int format, optional int usage, optional int[] viewFormats, optional int alphaMode);
     ctor public GPUSurfaceConfiguration(androidx.webgpu.GPUDevice device, int width, int height, optional int format, optional int usage, optional int[] viewFormats, optional int alphaMode, optional int presentMode);
     ctor @BytecodeOnly public GPUSurfaceConfiguration(androidx.webgpu.GPUDevice!, int, int, int, int, int[]!, int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getAlphaMode();
@@ -1576,6 +1649,16 @@ package androidx.webgpu {
     property public int usage;
     property public int[] viewFormats;
     property public int width;
+  }
+
+  public static final class GPUSurfaceConfiguration.Builder {
+    ctor public GPUSurfaceConfiguration.Builder(androidx.webgpu.GPUDevice device, int width, int height);
+    method public androidx.webgpu.GPUSurfaceConfiguration build();
+    method public androidx.webgpu.GPUSurfaceConfiguration.Builder setAlphaMode(int alphaMode);
+    method public androidx.webgpu.GPUSurfaceConfiguration.Builder setFormat(int format);
+    method public androidx.webgpu.GPUSurfaceConfiguration.Builder setPresentMode(int presentMode);
+    method public androidx.webgpu.GPUSurfaceConfiguration.Builder setUsage(int usage);
+    method public androidx.webgpu.GPUSurfaceConfiguration.Builder setViewFormats(int[] viewFormats);
   }
 
   public final class GPUSurfaceDescriptor {
@@ -1677,12 +1760,14 @@ package androidx.webgpu {
     method public int getHeight();
     method public int getMipLevelCount();
     method public int getSampleCount();
+    method public int getTextureBindingViewDimension();
     method public int getUsage();
     method public int getWidth();
     method @InaccessibleFromKotlin public int height();
     method @InaccessibleFromKotlin public int mipLevelCount();
     method @InaccessibleFromKotlin public int sampleCount();
     method public void setLabel(String label);
+    method @InaccessibleFromKotlin public int textureBindingViewDimension();
     method @InaccessibleFromKotlin public int usage();
     method @InaccessibleFromKotlin public int width();
     property public int depthOrArrayLayers;
@@ -1692,6 +1777,7 @@ package androidx.webgpu {
     property public int height;
     property public int mipLevelCount;
     property public int sampleCount;
+    property public int textureBindingViewDimension;
     property public int usage;
     property public int width;
   }
@@ -1702,9 +1788,9 @@ package androidx.webgpu {
     ctor public GPUTextureBindingLayout(optional int sampleType, optional int viewDimension);
     ctor public GPUTextureBindingLayout(optional int sampleType, optional int viewDimension, optional boolean multisampled);
     ctor @BytecodeOnly public GPUTextureBindingLayout(int, int, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    method @InaccessibleFromKotlin public boolean getMultisampled();
     method @InaccessibleFromKotlin public int getSampleType();
     method @InaccessibleFromKotlin public int getViewDimension();
+    method @InaccessibleFromKotlin public boolean isMultisampled();
     method @InaccessibleFromKotlin public void setMultisampled(boolean);
     method @InaccessibleFromKotlin public void setSampleType(int);
     method @InaccessibleFromKotlin public void setViewDimension(int);
@@ -1715,9 +1801,6 @@ package androidx.webgpu {
 
   public final class GPUTextureComponentSwizzle {
     ctor public GPUTextureComponentSwizzle();
-    ctor public GPUTextureComponentSwizzle(optional int r);
-    ctor public GPUTextureComponentSwizzle(optional int r, optional int g);
-    ctor public GPUTextureComponentSwizzle(optional int r, optional int g, optional int b);
     ctor public GPUTextureComponentSwizzle(optional int r, optional int g, optional int b, optional int a);
     ctor @BytecodeOnly public GPUTextureComponentSwizzle(int, int, int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getA();
@@ -1734,6 +1817,15 @@ package androidx.webgpu {
     property public int r;
   }
 
+  public static final class GPUTextureComponentSwizzle.Builder {
+    ctor public GPUTextureComponentSwizzle.Builder();
+    method public androidx.webgpu.GPUTextureComponentSwizzle build();
+    method public androidx.webgpu.GPUTextureComponentSwizzle.Builder setA(int a);
+    method public androidx.webgpu.GPUTextureComponentSwizzle.Builder setB(int b);
+    method public androidx.webgpu.GPUTextureComponentSwizzle.Builder setG(int g);
+    method public androidx.webgpu.GPUTextureComponentSwizzle.Builder setR(int r);
+  }
+
   public final class GPUTextureComponentSwizzleDescriptor {
     ctor public GPUTextureComponentSwizzleDescriptor();
     ctor public GPUTextureComponentSwizzleDescriptor(optional androidx.webgpu.GPUTextureComponentSwizzle swizzle);
@@ -1744,12 +1836,6 @@ package androidx.webgpu {
   }
 
   public final class GPUTextureDescriptor {
-    ctor public GPUTextureDescriptor(int usage, androidx.webgpu.GPUExtent3D size);
-    ctor public GPUTextureDescriptor(int usage, androidx.webgpu.GPUExtent3D size, optional String? label);
-    ctor public GPUTextureDescriptor(int usage, androidx.webgpu.GPUExtent3D size, optional String? label, optional int dimension);
-    ctor public GPUTextureDescriptor(int usage, androidx.webgpu.GPUExtent3D size, optional String? label, optional int dimension, optional int format);
-    ctor public GPUTextureDescriptor(int usage, androidx.webgpu.GPUExtent3D size, optional String? label, optional int dimension, optional int format, optional int mipLevelCount);
-    ctor public GPUTextureDescriptor(int usage, androidx.webgpu.GPUExtent3D size, optional String? label, optional int dimension, optional int format, optional int mipLevelCount, optional int sampleCount);
     ctor public GPUTextureDescriptor(int usage, androidx.webgpu.GPUExtent3D size, optional String? label, optional int dimension, optional int format, optional int mipLevelCount, optional int sampleCount, optional int[] viewFormats);
     ctor @BytecodeOnly public GPUTextureDescriptor(int, androidx.webgpu.GPUExtent3D!, String!, int, int, int, int, int[]!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getDimension();
@@ -1778,6 +1864,17 @@ package androidx.webgpu {
     property public int[] viewFormats;
   }
 
+  public static final class GPUTextureDescriptor.Builder {
+    ctor public GPUTextureDescriptor.Builder(int usage, androidx.webgpu.GPUExtent3D size);
+    method public androidx.webgpu.GPUTextureDescriptor build();
+    method public androidx.webgpu.GPUTextureDescriptor.Builder setDimension(int dimension);
+    method public androidx.webgpu.GPUTextureDescriptor.Builder setFormat(int format);
+    method public androidx.webgpu.GPUTextureDescriptor.Builder setLabel(String? label);
+    method public androidx.webgpu.GPUTextureDescriptor.Builder setMipLevelCount(int mipLevelCount);
+    method public androidx.webgpu.GPUTextureDescriptor.Builder setSampleCount(int sampleCount);
+    method public androidx.webgpu.GPUTextureDescriptor.Builder setViewFormats(int[] viewFormats);
+  }
+
   public final class GPUTextureView implements java.lang.AutoCloseable {
     method public void close();
     method @InaccessibleFromKotlin public long getHandle();
@@ -1786,15 +1883,6 @@ package androidx.webgpu {
   }
 
   public final class GPUTextureViewDescriptor {
-    ctor public GPUTextureViewDescriptor(int usage);
-    ctor public GPUTextureViewDescriptor(int usage, optional String? label);
-    ctor public GPUTextureViewDescriptor(int usage, optional String? label, optional int format);
-    ctor public GPUTextureViewDescriptor(int usage, optional String? label, optional int format, optional int dimension);
-    ctor public GPUTextureViewDescriptor(int usage, optional String? label, optional int format, optional int dimension, optional int baseMipLevel);
-    ctor public GPUTextureViewDescriptor(int usage, optional String? label, optional int format, optional int dimension, optional int baseMipLevel, optional int mipLevelCount);
-    ctor public GPUTextureViewDescriptor(int usage, optional String? label, optional int format, optional int dimension, optional int baseMipLevel, optional int mipLevelCount, optional int baseArrayLayer);
-    ctor public GPUTextureViewDescriptor(int usage, optional String? label, optional int format, optional int dimension, optional int baseMipLevel, optional int mipLevelCount, optional int baseArrayLayer, optional int arrayLayerCount);
-    ctor public GPUTextureViewDescriptor(int usage, optional String? label, optional int format, optional int dimension, optional int baseMipLevel, optional int mipLevelCount, optional int baseArrayLayer, optional int arrayLayerCount, optional int aspect);
     ctor public GPUTextureViewDescriptor(int usage, optional String? label, optional int format, optional int dimension, optional int baseMipLevel, optional int mipLevelCount, optional int baseArrayLayer, optional int arrayLayerCount, optional int aspect, optional androidx.webgpu.GPUTextureComponentSwizzleDescriptor? textureComponentSwizzleDescriptor);
     ctor @BytecodeOnly public GPUTextureViewDescriptor(int, String!, int, int, int, int, int, int, int, androidx.webgpu.GPUTextureComponentSwizzleDescriptor!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int getArrayLayerCount();
@@ -1827,6 +1915,20 @@ package androidx.webgpu {
     property public int mipLevelCount;
     property public androidx.webgpu.GPUTextureComponentSwizzleDescriptor? textureComponentSwizzleDescriptor;
     property public int usage;
+  }
+
+  public static final class GPUTextureViewDescriptor.Builder {
+    ctor public GPUTextureViewDescriptor.Builder(int usage);
+    method public androidx.webgpu.GPUTextureViewDescriptor build();
+    method public androidx.webgpu.GPUTextureViewDescriptor.Builder setArrayLayerCount(int arrayLayerCount);
+    method public androidx.webgpu.GPUTextureViewDescriptor.Builder setAspect(int aspect);
+    method public androidx.webgpu.GPUTextureViewDescriptor.Builder setBaseArrayLayer(int baseArrayLayer);
+    method public androidx.webgpu.GPUTextureViewDescriptor.Builder setBaseMipLevel(int baseMipLevel);
+    method public androidx.webgpu.GPUTextureViewDescriptor.Builder setDimension(int dimension);
+    method public androidx.webgpu.GPUTextureViewDescriptor.Builder setFormat(int format);
+    method public androidx.webgpu.GPUTextureViewDescriptor.Builder setLabel(String? label);
+    method public androidx.webgpu.GPUTextureViewDescriptor.Builder setMipLevelCount(int mipLevelCount);
+    method public androidx.webgpu.GPUTextureViewDescriptor.Builder setTextureComponentSwizzleDescriptor(androidx.webgpu.GPUTextureComponentSwizzleDescriptor? textureComponentSwizzleDescriptor);
   }
 
   public final class GPUVertexAttribute {
@@ -1904,10 +2006,6 @@ package androidx.webgpu {
     method @InaccessibleFromKotlin public int getStatus();
     property public String reason;
     property public int status;
-  }
-
-  public fun interface Proc {
-    method public void on();
   }
 
   public final class QueueWorkDoneException extends java.lang.Exception {

@@ -330,7 +330,7 @@ data class AnnotatedAppFunctions(
         appFunctionAnnotationProperties:
             AppFunctionMetadataCreatorHelper.AppFunctionAnnotationProperties
     ): String {
-        return if (appFunctionAnnotationProperties.isDescribedByKdoc == true) {
+        return if (appFunctionAnnotationProperties.isDescribedByKDoc == true) {
             appFunctionNameToDocstringMap[ensureQualifiedName()] ?: ""
         } else {
             ""
@@ -341,10 +341,10 @@ data class AnnotatedAppFunctions(
      * Returns true if the developer opted for the given function's docString to be used as its
      * description.
      */
-    fun isDescribedByKdoc(functionDeclaration: KSFunctionDeclaration): Boolean {
+    fun isDescribedByKDoc(functionDeclaration: KSFunctionDeclaration): Boolean {
         return AppFunctionMetadataCreatorHelper()
             .computeAppFunctionAnnotationProperties(functionDeclaration)
-            .isDescribedByKdoc ?: false
+            .isDescribedByKDoc ?: false
     }
 
     private fun KSDeclaration.getDeprecationMetadata(): AppFunctionDeprecationMetadata? {

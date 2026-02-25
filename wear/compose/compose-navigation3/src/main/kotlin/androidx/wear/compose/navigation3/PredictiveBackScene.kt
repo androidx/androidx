@@ -61,14 +61,12 @@ import androidx.wear.compose.foundation.hierarchicalFocusGroup
  * During a swipe-to-dismiss gesture, the previous screen (if any) is shown in the background behind
  * a scrim given by [LocalSwipeToDismissBackgroundScrimColor].
  *
- * @param [modifier] The modifier to be applied to the layout
  * @param [currentEntry] The current [NavEntry] displayed on the screen
  * @param [previousEntries] The [NavEntry]s on the backStack before the [currentEntry]
  * @param [backEnabled] Whether predictive back is enabled
  */
 @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
 internal class PredictiveBackScene<T : Any>(
-    modifier: Modifier,
     val currentEntry: NavEntry<T>,
     override val previousEntries: List<NavEntry<T>>,
     backEnabled: Boolean,
@@ -109,8 +107,7 @@ internal class PredictiveBackScene<T : Any>(
         CompositionLocalProvider(LocalScreenIsActive provides (shouldFocus && parentScreenActive)) {
             Box(
                 modifier =
-                    modifier
-                        .clip(if (isRoundDevice) CircleShape else RectangleShape)
+                    Modifier.clip(if (isRoundDevice) CircleShape else RectangleShape)
                         .background(scrimColor)
                         .fillMaxSize()
                         .hierarchicalFocusGroup(shouldFocus)

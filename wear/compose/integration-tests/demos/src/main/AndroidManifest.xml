@@ -69,6 +69,12 @@
             android:label="ListDetailNavDisplaySampleActivity">
         </activity>
 
+        <activity
+            android:name=".NavDisplayWithOnBackBehaviorSampleActivity"
+            android:theme="@android:style/Theme.DeviceDefault"
+            android:label="NavDisplayWithOnBackBehaviorSampleActivity">
+        </activity>
+
     </application>
 
     <uses-feature android:name="android.hardware.type.watch"/>

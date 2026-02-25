@@ -18,6 +18,7 @@ package androidx.compose.remote.core
 
 import androidx.compose.remote.core.operations.ConditionalOperations
 import androidx.compose.remote.core.operations.Header
+import androidx.compose.remote.core.operations.TextTransform
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.RemoteComposeWriter
@@ -204,6 +205,37 @@ class RecordingRemoteComposeBufferTest {
 
         expectedWriter.conditionalOperations(ConditionalOperations.TYPE_EQ, 0f, 0f)
         expectedWriter.addContainerEnd()
+
+        val trimmedExpected =
+            expectedWriter.buffer.buffer.buffer.copyOfRange(0, expectedWriter.buffer.buffer.index)
+        val trimmedActual =
+            actualWriter.buffer.buffer.buffer.copyOfRange(0, actualWriter.buffer.buffer.index)
+        Assert.assertArrayEquals(trimmedExpected, trimmedActual)
+    }
+
+    @Test
+    fun testTextTransformOverload() {
+        val actualWriter =
+            profileWithRecordingRemoteComposeBuffer.create(creationDisplayInfo, "test")
+        actualWriter.conditionalOperations(ConditionalOperations.TYPE_EQ, 0f, 0f)
+        val txtId = actualWriter.textCreateId("hello world")
+        val id = actualWriter.textTransform(txtId, 1f, 5f, TextTransform.TEXT_TO_UPPERCASE)
+        actualWriter.drawTextRun(id, 0, -1, 0, 0, 0f, 0f, false)
+        actualWriter.endConditionalOperations()
+        actualWriter.conditionalOperations(ConditionalOperations.TYPE_NEQ, 0f, 0f)
+        actualWriter.drawTextRun(id, 0, -1, 0, 0, 0f, 0f, false)
+        actualWriter.endConditionalOperations()
+        recordingRemoteComposeBuffer.writeToBuffer()
+
+        val expectedWriter = profileWithRemoteComposeBuffer.create(creationDisplayInfo, "test")
+        val expectedTxtId = expectedWriter.textCreateId("hello world")
+        expectedWriter.textTransform(expectedTxtId, 1f, 5f, TextTransform.TEXT_TO_UPPERCASE)
+        expectedWriter.conditionalOperations(ConditionalOperations.TYPE_EQ, 0f, 0f)
+        expectedWriter.drawTextRun(id, 0, -1, 0, 0, 0f, 0f, false)
+        expectedWriter.endConditionalOperations()
+        expectedWriter.conditionalOperations(ConditionalOperations.TYPE_NEQ, 0f, 0f)
+        expectedWriter.drawTextRun(id, 0, -1, 0, 0, 0f, 0f, false)
+        expectedWriter.endConditionalOperations()
 
         val trimmedExpected =
             expectedWriter.buffer.buffer.buffer.copyOfRange(0, expectedWriter.buffer.buffer.index)

@@ -80,6 +80,8 @@ abstract interface androidx.compose.foundation.layout/FlowColumnScope : androidx
 abstract interface androidx.compose.foundation.layout/FlowRowScope : androidx.compose.foundation.layout/RowScope // androidx.compose.foundation.layout/FlowRowScope|null[0]
 
 abstract interface androidx.compose.foundation.layout/GridConfigurationScope : androidx.compose.ui.unit/Density { // androidx.compose.foundation.layout/GridConfigurationScope|null[0]
+    abstract val constraints // androidx.compose.foundation.layout/GridConfigurationScope.constraints|{}constraints[0]
+        abstract fun <get-constraints>(): androidx.compose.ui.unit/Constraints // androidx.compose.foundation.layout/GridConfigurationScope.constraints.<get-constraints>|<get-constraints>(){}[0]
     open val fr // androidx.compose.foundation.layout/GridConfigurationScope.fr|@kotlin.Double{}fr[0]
         open fun (kotlin/Double).<get-fr>(): androidx.compose.foundation.layout/Fr // androidx.compose.foundation.layout/GridConfigurationScope.fr.<get-fr>|<get-fr>@kotlin.Double(){}[0]
     open val fr // androidx.compose.foundation.layout/GridConfigurationScope.fr|@kotlin.Float{}fr[0]

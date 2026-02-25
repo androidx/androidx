@@ -43,7 +43,7 @@
             - type: LayoutComputeOperation
               list:
               - {type: DataDynamicListFloat, id: 2097194, values: '[0.0, 0.0, 150.0,
-                  50.0, 0.0, 0.0]'}
+                  50.0, 1000.0, 1000.0]'}
               - arrayId: 2097194
                 index: {type: Value, value: 2.0}
                 value: {type: Value, value: 150.0}
@@ -109,7 +109,7 @@
             - type: LayoutComputeOperation
               list:
               - {type: DataDynamicListFloat, id: 2097194, values: '[0.0, 0.0, 150.0,
-                  50.0, 0.0, 0.0]'}
+                  50.0, 1000.0, 1000.0]'}
               - arrayId: 2097194
                 index: {type: Value, value: 2.0}
                 value: {type: Value, value: 150.0}

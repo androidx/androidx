@@ -1,6 +1,12 @@
 // Baseline format: 1.0
 ChangedType: androidx.navigation3.scene.SceneStateKt#rememberSceneState(java.util.List, androidx.navigation3.scene.SceneStrategy, kotlin.jvm.functions.Function0, androidx.compose.runtime.Composer, int):
     Binary breaking change: Method androidx.navigation3.scene.SceneStateKt.rememberSceneState has changed return type from androidx.navigation3.scene.SceneState<T> to androidx.navigation3.scene.SceneState
+ChangedType: androidx.navigation3.scene.SceneStrategy#then(androidx.navigation3.scene.SceneStrategy):
+    Binary breaking change: Method androidx.navigation3.scene.SceneStrategy.then has changed return type from androidx.navigation3.scene.SceneStrategy<T> to androidx.navigation3.scene.SceneStrategy
+
+
+RemovedFromKotlin: androidx.navigation3.scene.SceneStrategy#then(androidx.navigation3.scene.SceneStrategy<T>):
+    Source breaking change: method androidx.navigation3.scene.SceneStrategy.then(androidx.navigation3.scene.SceneStrategy) can no longer be resolved from Kotlin source
 
 
 RemovedMethod: androidx.navigation3.scene.SceneStateKt#rememberSceneState(java.util.List<androidx.navigation3.runtime.NavEntry<T>>, androidx.navigation3.scene.SceneStrategy<T>, kotlin.jvm.functions.Function0<kotlin.Unit>):

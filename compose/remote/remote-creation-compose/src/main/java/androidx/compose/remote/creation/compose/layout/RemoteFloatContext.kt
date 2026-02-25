@@ -19,14 +19,11 @@ package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
-import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloatExpression
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
-import androidx.compose.remote.creation.compose.state.remoteFloat
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteFloatContext(public val state: RemoteStateScope) {
+public class RemoteFloatContext internal constructor(internal val state: RemoteStateScope) {
     public fun componentWidth(): RemoteFloat {
         val doc = state.document
         val value = doc.addComponentWidthValue()
@@ -52,20 +49,4 @@ public class RemoteFloatContext(public val state: RemoteStateScope) {
         val value = doc.floatExpression(componentHeightValue, 2f, AnimatedFloatExpression.DIV)
         return RemoteFloatExpression(null, { _ -> floatArrayOf(value) })
     }
-}
-
-public fun remoteComponentWidth(state: RemoteComposeCreationState): RemoteFloat {
-    return remoteFloat(state) { componentWidth() }
-}
-
-public fun remoteComponentHeight(state: RemoteComposeCreationState): RemoteFloat {
-    return remoteFloat(state) { componentHeight() }
-}
-
-public fun remoteComponentCenterX(state: RemoteComposeCreationState): RemoteFloat {
-    return remoteFloat(state) { componentCenterX() }
-}
-
-public fun remoteComponentCenterY(state: RemoteComposeCreationState): RemoteFloat {
-    return remoteFloat(state) { componentCenterY() }
 }

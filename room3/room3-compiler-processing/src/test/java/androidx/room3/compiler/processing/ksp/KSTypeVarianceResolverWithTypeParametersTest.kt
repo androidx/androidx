@@ -88,11 +88,11 @@ class KSTypeVarianceResolverWithTypeParametersTest(
                     Source.kotlin(
                         "SharedInterfaces.kt",
                         """
-                interface Foo<T>
-                interface FooIn<in T>
-                interface FooOut<out T>
-                interface Bar
-                """
+                        interface Foo<T>
+                        interface FooIn<in T>
+                        interface FooOut<out T>
+                        interface Bar
+                        """
                             .trimIndent(),
                     )
             val kaptSignaturesMap =

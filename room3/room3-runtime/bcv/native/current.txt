@@ -20,11 +20,11 @@ abstract interface <#A: kotlin/Any?> androidx.room3/TransactionScope : androidx.
 }
 
 abstract interface androidx.room3.migration/AutoMigrationSpec { // androidx.room3.migration/AutoMigrationSpec|null[0]
-    open fun onPostMigrate(androidx.sqlite/SQLiteConnection) // androidx.room3.migration/AutoMigrationSpec.onPostMigrate|onPostMigrate(androidx.sqlite.SQLiteConnection){}[0]
+    open suspend fun onPostMigrate(androidx.sqlite/SQLiteConnection) // androidx.room3.migration/AutoMigrationSpec.onPostMigrate|onPostMigrate(androidx.sqlite.SQLiteConnection){}[0]
 }
 
 abstract interface androidx.room3/PooledConnection { // androidx.room3/PooledConnection|null[0]
-    abstract suspend fun <#A1: kotlin/Any?> usePrepared(kotlin/String, kotlin/Function1<androidx.sqlite/SQLiteStatement, #A1>): #A1 // androidx.room3/PooledConnection.usePrepared|usePrepared(kotlin.String;kotlin.Function1<androidx.sqlite.SQLiteStatement,0:0>){0§<kotlin.Any?>}[0]
+    abstract suspend fun <#A1: kotlin/Any?> usePrepared(kotlin/String, kotlin.coroutines/SuspendFunction1<androidx.sqlite/SQLiteStatement, #A1>): #A1 // androidx.room3/PooledConnection.usePrepared|usePrepared(kotlin.String;kotlin.coroutines.SuspendFunction1<androidx.sqlite.SQLiteStatement,0:0>){0§<kotlin.Any?>}[0]
 }
 
 abstract interface androidx.room3/RoomOpenDelegateMarker // androidx.room3/RoomOpenDelegateMarker|null[0]
@@ -51,9 +51,9 @@ abstract class <#A: kotlin/Any?> androidx.room3/EntityDeleteOrUpdateAdapter { //
 
     abstract fun bind(androidx.sqlite/SQLiteStatement, #A) // androidx.room3/EntityDeleteOrUpdateAdapter.bind|bind(androidx.sqlite.SQLiteStatement;1:0){}[0]
     abstract fun createQuery(): kotlin/String // androidx.room3/EntityDeleteOrUpdateAdapter.createQuery|createQuery(){}[0]
-    final fun handle(androidx.sqlite/SQLiteConnection, #A?): kotlin/Int // androidx.room3/EntityDeleteOrUpdateAdapter.handle|handle(androidx.sqlite.SQLiteConnection;1:0?){}[0]
-    final fun handleMultiple(androidx.sqlite/SQLiteConnection, kotlin.collections/Iterable<#A?>?): kotlin/Int // androidx.room3/EntityDeleteOrUpdateAdapter.handleMultiple|handleMultiple(androidx.sqlite.SQLiteConnection;kotlin.collections.Iterable<1:0?>?){}[0]
-    final fun handleMultiple(androidx.sqlite/SQLiteConnection, kotlin/Array<out #A?>?): kotlin/Int // androidx.room3/EntityDeleteOrUpdateAdapter.handleMultiple|handleMultiple(androidx.sqlite.SQLiteConnection;kotlin.Array<out|1:0?>?){}[0]
+    final suspend fun handle(androidx.sqlite/SQLiteConnection, #A?): kotlin/Int // androidx.room3/EntityDeleteOrUpdateAdapter.handle|handle(androidx.sqlite.SQLiteConnection;1:0?){}[0]
+    final suspend fun handleMultiple(androidx.sqlite/SQLiteConnection, kotlin.collections/Iterable<#A?>?): kotlin/Int // androidx.room3/EntityDeleteOrUpdateAdapter.handleMultiple|handleMultiple(androidx.sqlite.SQLiteConnection;kotlin.collections.Iterable<1:0?>?){}[0]
+    final suspend fun handleMultiple(androidx.sqlite/SQLiteConnection, kotlin/Array<out #A?>?): kotlin/Int // androidx.room3/EntityDeleteOrUpdateAdapter.handleMultiple|handleMultiple(androidx.sqlite.SQLiteConnection;kotlin.Array<out|1:0?>?){}[0]
 }
 
 abstract class <#A: kotlin/Any?> androidx.room3/EntityInsertAdapter { // androidx.room3/EntityInsertAdapter|null[0]
@@ -61,16 +61,16 @@ abstract class <#A: kotlin/Any?> androidx.room3/EntityInsertAdapter { // android
 
     abstract fun bind(androidx.sqlite/SQLiteStatement, #A) // androidx.room3/EntityInsertAdapter.bind|bind(androidx.sqlite.SQLiteStatement;1:0){}[0]
     abstract fun createQuery(): kotlin/String // androidx.room3/EntityInsertAdapter.createQuery|createQuery(){}[0]
-    final fun insert(androidx.sqlite/SQLiteConnection, #A?) // androidx.room3/EntityInsertAdapter.insert|insert(androidx.sqlite.SQLiteConnection;1:0?){}[0]
-    final fun insert(androidx.sqlite/SQLiteConnection, kotlin.collections/Iterable<#A?>?) // androidx.room3/EntityInsertAdapter.insert|insert(androidx.sqlite.SQLiteConnection;kotlin.collections.Iterable<1:0?>?){}[0]
-    final fun insert(androidx.sqlite/SQLiteConnection, kotlin/Array<out #A?>?) // androidx.room3/EntityInsertAdapter.insert|insert(androidx.sqlite.SQLiteConnection;kotlin.Array<out|1:0?>?){}[0]
-    final fun insertAndReturnId(androidx.sqlite/SQLiteConnection, #A?): kotlin/Long // androidx.room3/EntityInsertAdapter.insertAndReturnId|insertAndReturnId(androidx.sqlite.SQLiteConnection;1:0?){}[0]
-    final fun insertAndReturnIdsArray(androidx.sqlite/SQLiteConnection, kotlin.collections/Collection<#A?>?): kotlin/LongArray // androidx.room3/EntityInsertAdapter.insertAndReturnIdsArray|insertAndReturnIdsArray(androidx.sqlite.SQLiteConnection;kotlin.collections.Collection<1:0?>?){}[0]
-    final fun insertAndReturnIdsArray(androidx.sqlite/SQLiteConnection, kotlin/Array<out #A?>?): kotlin/LongArray // androidx.room3/EntityInsertAdapter.insertAndReturnIdsArray|insertAndReturnIdsArray(androidx.sqlite.SQLiteConnection;kotlin.Array<out|1:0?>?){}[0]
-    final fun insertAndReturnIdsArrayBox(androidx.sqlite/SQLiteConnection, kotlin.collections/Collection<#A?>?): kotlin/Array<out kotlin/Long> // androidx.room3/EntityInsertAdapter.insertAndReturnIdsArrayBox|insertAndReturnIdsArrayBox(androidx.sqlite.SQLiteConnection;kotlin.collections.Collection<1:0?>?){}[0]
-    final fun insertAndReturnIdsArrayBox(androidx.sqlite/SQLiteConnection, kotlin/Array<out #A?>?): kotlin/Array<out kotlin/Long> // androidx.room3/EntityInsertAdapter.insertAndReturnIdsArrayBox|insertAndReturnIdsArrayBox(androidx.sqlite.SQLiteConnection;kotlin.Array<out|1:0?>?){}[0]
-    final fun insertAndReturnIdsList(androidx.sqlite/SQLiteConnection, kotlin.collections/Collection<#A?>?): kotlin.collections/List<kotlin/Long> // androidx.room3/EntityInsertAdapter.insertAndReturnIdsList|insertAndReturnIdsList(androidx.sqlite.SQLiteConnection;kotlin.collections.Collection<1:0?>?){}[0]
-    final fun insertAndReturnIdsList(androidx.sqlite/SQLiteConnection, kotlin/Array<out #A?>?): kotlin.collections/List<kotlin/Long> // androidx.room3/EntityInsertAdapter.insertAndReturnIdsList|insertAndReturnIdsList(androidx.sqlite.SQLiteConnection;kotlin.Array<out|1:0?>?){}[0]
+    final suspend fun insert(androidx.sqlite/SQLiteConnection, #A?) // androidx.room3/EntityInsertAdapter.insert|insert(androidx.sqlite.SQLiteConnection;1:0?){}[0]
+    final suspend fun insert(androidx.sqlite/SQLiteConnection, kotlin.collections/Iterable<#A?>?) // androidx.room3/EntityInsertAdapter.insert|insert(androidx.sqlite.SQLiteConnection;kotlin.collections.Iterable<1:0?>?){}[0]
+    final suspend fun insert(androidx.sqlite/SQLiteConnection, kotlin/Array<out #A?>?) // androidx.room3/EntityInsertAdapter.insert|insert(androidx.sqlite.SQLiteConnection;kotlin.Array<out|1:0?>?){}[0]
+    final suspend fun insertAndReturnId(androidx.sqlite/SQLiteConnection, #A?): kotlin/Long // androidx.room3/EntityInsertAdapter.insertAndReturnId|insertAndReturnId(androidx.sqlite.SQLiteConnection;1:0?){}[0]
+    final suspend fun insertAndReturnIdsArray(androidx.sqlite/SQLiteConnection, kotlin.collections/Collection<#A?>?): kotlin/LongArray // androidx.room3/EntityInsertAdapter.insertAndReturnIdsArray|insertAndReturnIdsArray(androidx.sqlite.SQLiteConnection;kotlin.collections.Collection<1:0?>?){}[0]
+    final suspend fun insertAndReturnIdsArray(androidx.sqlite/SQLiteConnection, kotlin/Array<out #A?>?): kotlin/LongArray // androidx.room3/EntityInsertAdapter.insertAndReturnIdsArray|insertAndReturnIdsArray(androidx.sqlite.SQLiteConnection;kotlin.Array<out|1:0?>?){}[0]
+    final suspend fun insertAndReturnIdsArrayBox(androidx.sqlite/SQLiteConnection, kotlin.collections/Collection<#A?>?): kotlin/Array<out kotlin/Long> // androidx.room3/EntityInsertAdapter.insertAndReturnIdsArrayBox|insertAndReturnIdsArrayBox(androidx.sqlite.SQLiteConnection;kotlin.collections.Collection<1:0?>?){}[0]
+    final suspend fun insertAndReturnIdsArrayBox(androidx.sqlite/SQLiteConnection, kotlin/Array<out #A?>?): kotlin/Array<out kotlin/Long> // androidx.room3/EntityInsertAdapter.insertAndReturnIdsArrayBox|insertAndReturnIdsArrayBox(androidx.sqlite.SQLiteConnection;kotlin.Array<out|1:0?>?){}[0]
+    final suspend fun insertAndReturnIdsList(androidx.sqlite/SQLiteConnection, kotlin.collections/Collection<#A?>?): kotlin.collections/List<kotlin/Long> // androidx.room3/EntityInsertAdapter.insertAndReturnIdsList|insertAndReturnIdsList(androidx.sqlite.SQLiteConnection;kotlin.collections.Collection<1:0?>?){}[0]
+    final suspend fun insertAndReturnIdsList(androidx.sqlite/SQLiteConnection, kotlin/Array<out #A?>?): kotlin.collections/List<kotlin/Long> // androidx.room3/EntityInsertAdapter.insertAndReturnIdsList|insertAndReturnIdsList(androidx.sqlite.SQLiteConnection;kotlin.Array<out|1:0?>?){}[0]
 }
 
 abstract class androidx.room3.migration/Migration { // androidx.room3.migration/Migration|null[0]
@@ -81,7 +81,7 @@ abstract class androidx.room3.migration/Migration { // androidx.room3.migration/
     final val startVersion // androidx.room3.migration/Migration.startVersion|{}startVersion[0]
         final fun <get-startVersion>(): kotlin/Int // androidx.room3.migration/Migration.startVersion.<get-startVersion>|<get-startVersion>(){}[0]
 
-    abstract fun migrate(androidx.sqlite/SQLiteConnection) // androidx.room3.migration/Migration.migrate|migrate(androidx.sqlite.SQLiteConnection){}[0]
+    abstract suspend fun migrate(androidx.sqlite/SQLiteConnection) // androidx.room3.migration/Migration.migrate|migrate(androidx.sqlite.SQLiteConnection){}[0]
 }
 
 abstract class androidx.room3/BaseRoomConnectionManager { // androidx.room3/BaseRoomConnectionManager|null[0]
@@ -97,19 +97,11 @@ abstract class androidx.room3/BaseRoomConnectionManager { // androidx.room3/Base
     abstract suspend fun <#A1: kotlin/Any?> useConnection(kotlin/Boolean, kotlin.coroutines/SuspendFunction1<androidx.room3/Transactor, #A1>): #A1 // androidx.room3/BaseRoomConnectionManager.useConnection|useConnection(kotlin.Boolean;kotlin.coroutines.SuspendFunction1<androidx.room3.Transactor,0:0>){0§<kotlin.Any?>}[0]
     final fun (androidx.room3/RoomDatabase.JournalMode).getMaxNumberOfReaders(): kotlin/Int // androidx.room3/BaseRoomConnectionManager.getMaxNumberOfReaders|getMaxNumberOfReaders@androidx.room3.RoomDatabase.JournalMode(){}[0]
     final fun (androidx.room3/RoomDatabase.JournalMode).getMaxNumberOfWriters(): kotlin/Int // androidx.room3/BaseRoomConnectionManager.getMaxNumberOfWriters|getMaxNumberOfWriters@androidx.room3.RoomDatabase.JournalMode(){}[0]
-    final fun configurationConnection(androidx.sqlite/SQLiteConnection) // androidx.room3/BaseRoomConnectionManager.configurationConnection|configurationConnection(androidx.sqlite.SQLiteConnection){}[0]
-    final fun onCreate(androidx.sqlite/SQLiteConnection) // androidx.room3/BaseRoomConnectionManager.onCreate|onCreate(androidx.sqlite.SQLiteConnection){}[0]
-    final fun onOpen(androidx.sqlite/SQLiteConnection) // androidx.room3/BaseRoomConnectionManager.onOpen|onOpen(androidx.sqlite.SQLiteConnection){}[0]
-    open fun onMigrate(androidx.sqlite/SQLiteConnection, kotlin/Int, kotlin/Int) // androidx.room3/BaseRoomConnectionManager.onMigrate|onMigrate(androidx.sqlite.SQLiteConnection;kotlin.Int;kotlin.Int){}[0]
-
-    final inner class DriverWrapper : androidx.sqlite/SQLiteDriver { // androidx.room3/BaseRoomConnectionManager.DriverWrapper|null[0]
-        constructor <init>(androidx.sqlite/SQLiteDriver) // androidx.room3/BaseRoomConnectionManager.DriverWrapper.<init>|<init>(androidx.sqlite.SQLiteDriver){}[0]
-
-        final val hasConnectionPool // androidx.room3/BaseRoomConnectionManager.DriverWrapper.hasConnectionPool|{}hasConnectionPool[0]
-            final fun <get-hasConnectionPool>(): kotlin/Boolean // androidx.room3/BaseRoomConnectionManager.DriverWrapper.hasConnectionPool.<get-hasConnectionPool>|<get-hasConnectionPool>(){}[0]
-
-        final fun open(kotlin/String): androidx.sqlite/SQLiteConnection // androidx.room3/BaseRoomConnectionManager.DriverWrapper.open|open(kotlin.String){}[0]
-    }
+    final fun createConnectionFactory(androidx.sqlite/SQLiteDriver, kotlin/String): kotlin.coroutines/SuspendFunction0<androidx.sqlite/SQLiteConnection> // androidx.room3/BaseRoomConnectionManager.createConnectionFactory|createConnectionFactory(androidx.sqlite.SQLiteDriver;kotlin.String){}[0]
+    final suspend fun configurationConnection(androidx.sqlite/SQLiteConnection) // androidx.room3/BaseRoomConnectionManager.configurationConnection|configurationConnection(androidx.sqlite.SQLiteConnection){}[0]
+    final suspend fun onCreate(androidx.sqlite/SQLiteConnection) // androidx.room3/BaseRoomConnectionManager.onCreate|onCreate(androidx.sqlite.SQLiteConnection){}[0]
+    final suspend fun onOpen(androidx.sqlite/SQLiteConnection) // androidx.room3/BaseRoomConnectionManager.onOpen|onOpen(androidx.sqlite.SQLiteConnection){}[0]
+    open suspend fun onMigrate(androidx.sqlite/SQLiteConnection, kotlin/Int, kotlin/Int) // androidx.room3/BaseRoomConnectionManager.onMigrate|onMigrate(androidx.sqlite.SQLiteConnection;kotlin.Int;kotlin.Int){}[0]
 
     final object Companion { // androidx.room3/BaseRoomConnectionManager.Companion|null[0]
         final const val BUSY_TIMEOUT_MS // androidx.room3/BaseRoomConnectionManager.Companion.BUSY_TIMEOUT_MS|{}BUSY_TIMEOUT_MS[0]
@@ -131,8 +123,8 @@ abstract class androidx.room3/RoomDatabase { // androidx.room3/RoomDatabase|null
     final fun <#A1: kotlin/Any> getTypeConverter(kotlin.reflect/KClass<#A1>): #A1 // androidx.room3/RoomDatabase.getTypeConverter|getTypeConverter(kotlin.reflect.KClass<0:0>){0§<kotlin.Any>}[0]
     final fun close() // androidx.room3/RoomDatabase.close|close(){}[0]
     final fun getCoroutineScope(): kotlinx.coroutines/CoroutineScope // androidx.room3/RoomDatabase.getCoroutineScope|getCoroutineScope(){}[0]
-    final fun internalInitInvalidationTracker(androidx.sqlite/SQLiteConnection) // androidx.room3/RoomDatabase.internalInitInvalidationTracker|internalInitInvalidationTracker(androidx.sqlite.SQLiteConnection){}[0]
     final suspend fun <#A1: kotlin/Any?> useConnection(kotlin/Boolean, kotlin.coroutines/SuspendFunction1<androidx.room3/Transactor, #A1>): #A1 // androidx.room3/RoomDatabase.useConnection|useConnection(kotlin.Boolean;kotlin.coroutines.SuspendFunction1<androidx.room3.Transactor,0:0>){0§<kotlin.Any?>}[0]
+    final suspend fun internalInitInvalidationTracker(androidx.sqlite/SQLiteConnection) // androidx.room3/RoomDatabase.internalInitInvalidationTracker|internalInitInvalidationTracker(androidx.sqlite.SQLiteConnection){}[0]
 
     final enum class JournalMode : kotlin/Enum<androidx.room3/RoomDatabase.JournalMode> { // androidx.room3/RoomDatabase.JournalMode|null[0]
         enum entry TRUNCATE // androidx.room3/RoomDatabase.JournalMode.TRUNCATE|null[0]
@@ -148,9 +140,9 @@ abstract class androidx.room3/RoomDatabase { // androidx.room3/RoomDatabase|null
     abstract class Callback { // androidx.room3/RoomDatabase.Callback|null[0]
         constructor <init>() // androidx.room3/RoomDatabase.Callback.<init>|<init>(){}[0]
 
-        open fun onCreate(androidx.sqlite/SQLiteConnection) // androidx.room3/RoomDatabase.Callback.onCreate|onCreate(androidx.sqlite.SQLiteConnection){}[0]
-        open fun onDestructiveMigration(androidx.sqlite/SQLiteConnection) // androidx.room3/RoomDatabase.Callback.onDestructiveMigration|onDestructiveMigration(androidx.sqlite.SQLiteConnection){}[0]
-        open fun onOpen(androidx.sqlite/SQLiteConnection) // androidx.room3/RoomDatabase.Callback.onOpen|onOpen(androidx.sqlite.SQLiteConnection){}[0]
+        open suspend fun onCreate(androidx.sqlite/SQLiteConnection) // androidx.room3/RoomDatabase.Callback.onCreate|onCreate(androidx.sqlite.SQLiteConnection){}[0]
+        open suspend fun onDestructiveMigration(androidx.sqlite/SQLiteConnection) // androidx.room3/RoomDatabase.Callback.onDestructiveMigration|onDestructiveMigration(androidx.sqlite.SQLiteConnection){}[0]
+        open suspend fun onOpen(androidx.sqlite/SQLiteConnection) // androidx.room3/RoomDatabase.Callback.onOpen|onOpen(androidx.sqlite.SQLiteConnection){}[0]
     }
 
     final class <#A1: androidx.room3/RoomDatabase> Builder { // androidx.room3/RoomDatabase.Builder|null[0]
@@ -189,13 +181,13 @@ abstract class androidx.room3/RoomOpenDelegate : androidx.room3/RoomOpenDelegate
     final val version // androidx.room3/RoomOpenDelegate.version|{}version[0]
         final fun <get-version>(): kotlin/Int // androidx.room3/RoomOpenDelegate.version.<get-version>|<get-version>(){}[0]
 
-    abstract fun createAllTables(androidx.sqlite/SQLiteConnection) // androidx.room3/RoomOpenDelegate.createAllTables|createAllTables(androidx.sqlite.SQLiteConnection){}[0]
-    abstract fun dropAllTables(androidx.sqlite/SQLiteConnection) // androidx.room3/RoomOpenDelegate.dropAllTables|dropAllTables(androidx.sqlite.SQLiteConnection){}[0]
-    abstract fun onCreate(androidx.sqlite/SQLiteConnection) // androidx.room3/RoomOpenDelegate.onCreate|onCreate(androidx.sqlite.SQLiteConnection){}[0]
-    abstract fun onOpen(androidx.sqlite/SQLiteConnection) // androidx.room3/RoomOpenDelegate.onOpen|onOpen(androidx.sqlite.SQLiteConnection){}[0]
-    abstract fun onPostMigrate(androidx.sqlite/SQLiteConnection) // androidx.room3/RoomOpenDelegate.onPostMigrate|onPostMigrate(androidx.sqlite.SQLiteConnection){}[0]
-    abstract fun onPreMigrate(androidx.sqlite/SQLiteConnection) // androidx.room3/RoomOpenDelegate.onPreMigrate|onPreMigrate(androidx.sqlite.SQLiteConnection){}[0]
-    abstract fun onValidateSchema(androidx.sqlite/SQLiteConnection): androidx.room3/RoomOpenDelegate.ValidationResult // androidx.room3/RoomOpenDelegate.onValidateSchema|onValidateSchema(androidx.sqlite.SQLiteConnection){}[0]
+    abstract suspend fun createAllTables(androidx.sqlite/SQLiteConnection) // androidx.room3/RoomOpenDelegate.createAllTables|createAllTables(androidx.sqlite.SQLiteConnection){}[0]
+    abstract suspend fun dropAllTables(androidx.sqlite/SQLiteConnection) // androidx.room3/RoomOpenDelegate.dropAllTables|dropAllTables(androidx.sqlite.SQLiteConnection){}[0]
+    abstract suspend fun onCreate(androidx.sqlite/SQLiteConnection) // androidx.room3/RoomOpenDelegate.onCreate|onCreate(androidx.sqlite.SQLiteConnection){}[0]
+    abstract suspend fun onOpen(androidx.sqlite/SQLiteConnection) // androidx.room3/RoomOpenDelegate.onOpen|onOpen(androidx.sqlite.SQLiteConnection){}[0]
+    abstract suspend fun onPostMigrate(androidx.sqlite/SQLiteConnection) // androidx.room3/RoomOpenDelegate.onPostMigrate|onPostMigrate(androidx.sqlite.SQLiteConnection){}[0]
+    abstract suspend fun onPreMigrate(androidx.sqlite/SQLiteConnection) // androidx.room3/RoomOpenDelegate.onPreMigrate|onPreMigrate(androidx.sqlite.SQLiteConnection){}[0]
+    abstract suspend fun onValidateSchema(androidx.sqlite/SQLiteConnection): androidx.room3/RoomOpenDelegate.ValidationResult // androidx.room3/RoomOpenDelegate.onValidateSchema|onValidateSchema(androidx.sqlite.SQLiteConnection){}[0]
 
     final class ValidationResult { // androidx.room3/RoomOpenDelegate.ValidationResult|null[0]
         constructor <init>(kotlin/Boolean, kotlin/String?) // androidx.room3/RoomOpenDelegate.ValidationResult.<init>|<init>(kotlin.Boolean;kotlin.String?){}[0]
@@ -217,16 +209,16 @@ final class <#A: kotlin/Any?> androidx.room3.concurrent/ThreadLocal { // android
 final class <#A: kotlin/Any?> androidx.room3/EntityUpsertAdapter { // androidx.room3/EntityUpsertAdapter|null[0]
     constructor <init>(androidx.room3/EntityInsertAdapter<#A>, androidx.room3/EntityDeleteOrUpdateAdapter<#A>) // androidx.room3/EntityUpsertAdapter.<init>|<init>(androidx.room3.EntityInsertAdapter<1:0>;androidx.room3.EntityDeleteOrUpdateAdapter<1:0>){}[0]
 
-    final fun upsert(androidx.sqlite/SQLiteConnection, #A?) // androidx.room3/EntityUpsertAdapter.upsert|upsert(androidx.sqlite.SQLiteConnection;1:0?){}[0]
-    final fun upsert(androidx.sqlite/SQLiteConnection, kotlin.collections/Iterable<#A?>?) // androidx.room3/EntityUpsertAdapter.upsert|upsert(androidx.sqlite.SQLiteConnection;kotlin.collections.Iterable<1:0?>?){}[0]
-    final fun upsert(androidx.sqlite/SQLiteConnection, kotlin/Array<out #A?>?) // androidx.room3/EntityUpsertAdapter.upsert|upsert(androidx.sqlite.SQLiteConnection;kotlin.Array<out|1:0?>?){}[0]
-    final fun upsertAndReturnId(androidx.sqlite/SQLiteConnection, #A?): kotlin/Long // androidx.room3/EntityUpsertAdapter.upsertAndReturnId|upsertAndReturnId(androidx.sqlite.SQLiteConnection;1:0?){}[0]
-    final fun upsertAndReturnIdsArray(androidx.sqlite/SQLiteConnection, kotlin.collections/Collection<#A?>?): kotlin/LongArray // androidx.room3/EntityUpsertAdapter.upsertAndReturnIdsArray|upsertAndReturnIdsArray(androidx.sqlite.SQLiteConnection;kotlin.collections.Collection<1:0?>?){}[0]
-    final fun upsertAndReturnIdsArray(androidx.sqlite/SQLiteConnection, kotlin/Array<out #A?>?): kotlin/LongArray // androidx.room3/EntityUpsertAdapter.upsertAndReturnIdsArray|upsertAndReturnIdsArray(androidx.sqlite.SQLiteConnection;kotlin.Array<out|1:0?>?){}[0]
-    final fun upsertAndReturnIdsArrayBox(androidx.sqlite/SQLiteConnection, kotlin.collections/Collection<#A?>?): kotlin/Array<out kotlin/Long> // androidx.room3/EntityUpsertAdapter.upsertAndReturnIdsArrayBox|upsertAndReturnIdsArrayBox(androidx.sqlite.SQLiteConnection;kotlin.collections.Collection<1:0?>?){}[0]
-    final fun upsertAndReturnIdsArrayBox(androidx.sqlite/SQLiteConnection, kotlin/Array<out #A?>?): kotlin/Array<out kotlin/Long> // androidx.room3/EntityUpsertAdapter.upsertAndReturnIdsArrayBox|upsertAndReturnIdsArrayBox(androidx.sqlite.SQLiteConnection;kotlin.Array<out|1:0?>?){}[0]
-    final fun upsertAndReturnIdsList(androidx.sqlite/SQLiteConnection, kotlin.collections/Collection<#A?>?): kotlin.collections/List<kotlin/Long> // androidx.room3/EntityUpsertAdapter.upsertAndReturnIdsList|upsertAndReturnIdsList(androidx.sqlite.SQLiteConnection;kotlin.collections.Collection<1:0?>?){}[0]
-    final fun upsertAndReturnIdsList(androidx.sqlite/SQLiteConnection, kotlin/Array<out #A?>?): kotlin.collections/List<kotlin/Long> // androidx.room3/EntityUpsertAdapter.upsertAndReturnIdsList|upsertAndReturnIdsList(androidx.sqlite.SQLiteConnection;kotlin.Array<out|1:0?>?){}[0]
+    final suspend fun upsert(androidx.sqlite/SQLiteConnection, #A?) // androidx.room3/EntityUpsertAdapter.upsert|upsert(androidx.sqlite.SQLiteConnection;1:0?){}[0]
+    final suspend fun upsert(androidx.sqlite/SQLiteConnection, kotlin.collections/Iterable<#A?>?) // androidx.room3/EntityUpsertAdapter.upsert|upsert(androidx.sqlite.SQLiteConnection;kotlin.collections.Iterable<1:0?>?){}[0]
+    final suspend fun upsert(androidx.sqlite/SQLiteConnection, kotlin/Array<out #A?>?) // androidx.room3/EntityUpsertAdapter.upsert|upsert(androidx.sqlite.SQLiteConnection;kotlin.Array<out|1:0?>?){}[0]
+    final suspend fun upsertAndReturnId(androidx.sqlite/SQLiteConnection, #A?): kotlin/Long // androidx.room3/EntityUpsertAdapter.upsertAndReturnId|upsertAndReturnId(androidx.sqlite.SQLiteConnection;1:0?){}[0]
+    final suspend fun upsertAndReturnIdsArray(androidx.sqlite/SQLiteConnection, kotlin.collections/Collection<#A?>?): kotlin/LongArray // androidx.room3/EntityUpsertAdapter.upsertAndReturnIdsArray|upsertAndReturnIdsArray(androidx.sqlite.SQLiteConnection;kotlin.collections.Collection<1:0?>?){}[0]
+    final suspend fun upsertAndReturnIdsArray(androidx.sqlite/SQLiteConnection, kotlin/Array<out #A?>?): kotlin/LongArray // androidx.room3/EntityUpsertAdapter.upsertAndReturnIdsArray|upsertAndReturnIdsArray(androidx.sqlite.SQLiteConnection;kotlin.Array<out|1:0?>?){}[0]
+    final suspend fun upsertAndReturnIdsArrayBox(androidx.sqlite/SQLiteConnection, kotlin.collections/Collection<#A?>?): kotlin/Array<out kotlin/Long> // androidx.room3/EntityUpsertAdapter.upsertAndReturnIdsArrayBox|upsertAndReturnIdsArrayBox(androidx.sqlite.SQLiteConnection;kotlin.collections.Collection<1:0?>?){}[0]
+    final suspend fun upsertAndReturnIdsArrayBox(androidx.sqlite/SQLiteConnection, kotlin/Array<out #A?>?): kotlin/Array<out kotlin/Long> // androidx.room3/EntityUpsertAdapter.upsertAndReturnIdsArrayBox|upsertAndReturnIdsArrayBox(androidx.sqlite.SQLiteConnection;kotlin.Array<out|1:0?>?){}[0]
+    final suspend fun upsertAndReturnIdsList(androidx.sqlite/SQLiteConnection, kotlin.collections/Collection<#A?>?): kotlin.collections/List<kotlin/Long> // androidx.room3/EntityUpsertAdapter.upsertAndReturnIdsList|upsertAndReturnIdsList(androidx.sqlite.SQLiteConnection;kotlin.collections.Collection<1:0?>?){}[0]
+    final suspend fun upsertAndReturnIdsList(androidx.sqlite/SQLiteConnection, kotlin/Array<out #A?>?): kotlin.collections/List<kotlin/Long> // androidx.room3/EntityUpsertAdapter.upsertAndReturnIdsList|upsertAndReturnIdsList(androidx.sqlite.SQLiteConnection;kotlin.Array<out|1:0?>?){}[0]
 
     final object Companion // androidx.room3/EntityUpsertAdapter.Companion|null[0]
 }
@@ -275,7 +267,7 @@ final class androidx.room3.util/FtsTableInfo { // androidx.room3.util/FtsTableIn
     final fun toString(): kotlin/String // androidx.room3.util/FtsTableInfo.toString|toString(){}[0]
 
     final object Companion { // androidx.room3.util/FtsTableInfo.Companion|null[0]
-        final fun read(androidx.sqlite/SQLiteConnection, kotlin/String): androidx.room3.util/FtsTableInfo // androidx.room3.util/FtsTableInfo.Companion.read|read(androidx.sqlite.SQLiteConnection;kotlin.String){}[0]
+        final suspend fun read(androidx.sqlite/SQLiteConnection, kotlin/String): androidx.room3.util/FtsTableInfo // androidx.room3.util/FtsTableInfo.Companion.read|read(androidx.sqlite.SQLiteConnection;kotlin.String){}[0]
     }
 }
 
@@ -371,7 +363,7 @@ final class androidx.room3.util/TableInfo { // androidx.room3.util/TableInfo|nul
         final const val CREATED_FROM_UNKNOWN // androidx.room3.util/TableInfo.Companion.CREATED_FROM_UNKNOWN|{}CREATED_FROM_UNKNOWN[0]
             final fun <get-CREATED_FROM_UNKNOWN>(): kotlin/Int // androidx.room3.util/TableInfo.Companion.CREATED_FROM_UNKNOWN.<get-CREATED_FROM_UNKNOWN>|<get-CREATED_FROM_UNKNOWN>(){}[0]
 
-        final fun read(androidx.sqlite/SQLiteConnection, kotlin/String): androidx.room3.util/TableInfo // androidx.room3.util/TableInfo.Companion.read|read(androidx.sqlite.SQLiteConnection;kotlin.String){}[0]
+        final suspend fun read(androidx.sqlite/SQLiteConnection, kotlin/String): androidx.room3.util/TableInfo // androidx.room3.util/TableInfo.Companion.read|read(androidx.sqlite.SQLiteConnection;kotlin.String){}[0]
     }
 }
 
@@ -388,7 +380,7 @@ final class androidx.room3.util/ViewInfo { // androidx.room3.util/ViewInfo|null[
     final fun toString(): kotlin/String // androidx.room3.util/ViewInfo.toString|toString(){}[0]
 
     final object Companion { // androidx.room3.util/ViewInfo.Companion|null[0]
-        final fun read(androidx.sqlite/SQLiteConnection, kotlin/String): androidx.room3.util/ViewInfo // androidx.room3.util/ViewInfo.Companion.read|read(androidx.sqlite.SQLiteConnection;kotlin.String){}[0]
+        final suspend fun read(androidx.sqlite/SQLiteConnection, kotlin/String): androidx.room3.util/ViewInfo // androidx.room3.util/ViewInfo.Companion.read|read(androidx.sqlite.SQLiteConnection;kotlin.String){}[0]
     }
 }
 
@@ -444,26 +436,27 @@ final object androidx.room3/Room { // androidx.room3/Room|null[0]
     final inline fun <#A1: reified androidx.room3/RoomDatabase> inMemoryDatabaseBuilder(noinline kotlin/Function0<#A1> = ...): androidx.room3/RoomDatabase.Builder<#A1> // androidx.room3/Room.inMemoryDatabaseBuilder|inMemoryDatabaseBuilder(kotlin.Function0<0:0>){0§<androidx.room3.RoomDatabase>}[0]
 }
 
+final fun (kotlin.reflect/KClass<*>).androidx.room3.util/getQualifiedName(): kotlin/String? // androidx.room3.util/getQualifiedName|getQualifiedName@kotlin.reflect.KClass<*>(){}[0]
 final fun <#A: androidx.room3/RoomDatabase> androidx.room3.util/findDatabaseConstructorAndInitDatabaseImpl(kotlin.reflect/KClass<*>): #A // androidx.room3.util/findDatabaseConstructorAndInitDatabaseImpl|findDatabaseConstructorAndInitDatabaseImpl(kotlin.reflect.KClass<*>){0§<androidx.room3.RoomDatabase>}[0]
-final fun <#A: kotlin/Any, #B: kotlin/Any?> androidx.room3.util/recursiveFetchMap(kotlin.collections/MutableMap<#A, #B>, kotlin/Boolean, kotlin/Function1<kotlin.collections/MutableMap<#A, #B>, kotlin/Unit>) // androidx.room3.util/recursiveFetchMap|recursiveFetchMap(kotlin.collections.MutableMap<0:0,0:1>;kotlin.Boolean;kotlin.Function1<kotlin.collections.MutableMap<0:0,0:1>,kotlin.Unit>){0§<kotlin.Any>;1§<kotlin.Any?>}[0]
-final fun <#A: kotlin/Any?> androidx.room3.coroutines/createFlow(androidx.room3/RoomDatabase, kotlin/Boolean, kotlin/Array<kotlin/String>, kotlin/Function1<androidx.sqlite/SQLiteConnection, #A>): kotlinx.coroutines.flow/Flow<#A> // androidx.room3.coroutines/createFlow|createFlow(androidx.room3.RoomDatabase;kotlin.Boolean;kotlin.Array<kotlin.String>;kotlin.Function1<androidx.sqlite.SQLiteConnection,0:0>){0§<kotlin.Any?>}[0]
-final fun <#A: kotlin/Any?> androidx.room3.util/recursiveFetchLongSparseArray(androidx.collection/LongSparseArray<#A>, kotlin/Boolean, kotlin/Function1<androidx.collection/LongSparseArray<#A>, kotlin/Unit>) // androidx.room3.util/recursiveFetchLongSparseArray|recursiveFetchLongSparseArray(androidx.collection.LongSparseArray<0:0>;kotlin.Boolean;kotlin.Function1<androidx.collection.LongSparseArray<0:0>,kotlin.Unit>){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> androidx.room3.coroutines/createFlow(androidx.room3/RoomDatabase, kotlin/Boolean, kotlin/Array<kotlin/String>, kotlin.coroutines/SuspendFunction1<androidx.sqlite/SQLiteConnection, #A>): kotlinx.coroutines.flow/Flow<#A> // androidx.room3.coroutines/createFlow|createFlow(androidx.room3.RoomDatabase;kotlin.Boolean;kotlin.Array<kotlin.String>;kotlin.coroutines.SuspendFunction1<androidx.sqlite.SQLiteConnection,0:0>){0§<kotlin.Any?>}[0]
 final fun androidx.room3.util/appendPlaceholders(kotlin.text/StringBuilder, kotlin/Int) // androidx.room3.util/appendPlaceholders|appendPlaceholders(kotlin.text.StringBuilder;kotlin.Int){}[0]
-final fun androidx.room3.util/dropFtsSyncTriggers(androidx.sqlite/SQLiteConnection) // androidx.room3.util/dropFtsSyncTriggers|dropFtsSyncTriggers(androidx.sqlite.SQLiteConnection){}[0]
-final fun androidx.room3.util/foreignKeyCheck(androidx.sqlite/SQLiteConnection, kotlin/String) // androidx.room3.util/foreignKeyCheck|foreignKeyCheck(androidx.sqlite.SQLiteConnection;kotlin.String){}[0]
 final fun androidx.room3.util/getColumnIndex(androidx.sqlite/SQLiteStatement, kotlin/String): kotlin/Int // androidx.room3.util/getColumnIndex|getColumnIndex(androidx.sqlite.SQLiteStatement;kotlin.String){}[0]
 final fun androidx.room3.util/getColumnIndexOrThrow(androidx.sqlite/SQLiteStatement, kotlin/String): kotlin/Int // androidx.room3.util/getColumnIndexOrThrow|getColumnIndexOrThrow(androidx.sqlite.SQLiteStatement;kotlin.String){}[0]
-final fun androidx.room3.util/getLastInsertedRowId(androidx.sqlite/SQLiteConnection): kotlin/Long // androidx.room3.util/getLastInsertedRowId|getLastInsertedRowId(androidx.sqlite.SQLiteConnection){}[0]
-final fun androidx.room3.util/getTotalChangedRows(androidx.sqlite/SQLiteConnection): kotlin/Int // androidx.room3.util/getTotalChangedRows|getTotalChangedRows(androidx.sqlite.SQLiteConnection){}[0]
 final fun androidx.room3.util/joinIntoString(kotlin.collections/List<kotlin/Int>?): kotlin/String? // androidx.room3.util/joinIntoString|joinIntoString(kotlin.collections.List<kotlin.Int>?){}[0]
 final fun androidx.room3.util/splitToIntList(kotlin/String?): kotlin.collections/List<kotlin/Int>? // androidx.room3.util/splitToIntList|splitToIntList(kotlin.String?){}[0]
 final fun androidx.room3.util/stringError(): kotlin/String // androidx.room3.util/stringError|stringError(){}[0]
 final fun androidx.room3.util/wrapMappedColumns(androidx.sqlite/SQLiteStatement, kotlin/Array<kotlin/String>, kotlin/IntArray): androidx.sqlite/SQLiteStatement // androidx.room3.util/wrapMappedColumns|wrapMappedColumns(androidx.sqlite.SQLiteStatement;kotlin.Array<kotlin.String>;kotlin.IntArray){}[0]
-final suspend fun (androidx.room3/PooledConnection).androidx.room3/execSQL(kotlin/String) // androidx.room3/execSQL|execSQL@androidx.room3.PooledConnection(kotlin.String){}[0]
+final suspend fun (androidx.room3/PooledConnection).androidx.room3/executeSQL(kotlin/String) // androidx.room3/executeSQL|executeSQL@androidx.room3.PooledConnection(kotlin.String){}[0]
+final suspend fun <#A: kotlin/Any, #B: kotlin/Any?> androidx.room3.util/recursiveFetchMap(kotlin.collections/MutableMap<#A, #B>, kotlin/Boolean, kotlin.coroutines/SuspendFunction1<kotlin.collections/MutableMap<#A, #B>, kotlin/Unit>) // androidx.room3.util/recursiveFetchMap|recursiveFetchMap(kotlin.collections.MutableMap<0:0,0:1>;kotlin.Boolean;kotlin.coroutines.SuspendFunction1<kotlin.collections.MutableMap<0:0,0:1>,kotlin.Unit>){0§<kotlin.Any>;1§<kotlin.Any?>}[0]
 final suspend fun <#A: kotlin/Any?> (androidx.room3/RoomDatabase).androidx.room3/useReaderConnection(kotlin.coroutines/SuspendFunction1<androidx.room3/Transactor, #A>): #A // androidx.room3/useReaderConnection|useReaderConnection@androidx.room3.RoomDatabase(kotlin.coroutines.SuspendFunction1<androidx.room3.Transactor,0:0>){0§<kotlin.Any?>}[0]
 final suspend fun <#A: kotlin/Any?> (androidx.room3/RoomDatabase).androidx.room3/useWriterConnection(kotlin.coroutines/SuspendFunction1<androidx.room3/Transactor, #A>): #A // androidx.room3/useWriterConnection|useWriterConnection@androidx.room3.RoomDatabase(kotlin.coroutines.SuspendFunction1<androidx.room3.Transactor,0:0>){0§<kotlin.Any?>}[0]
 final suspend fun <#A: kotlin/Any?> (androidx.room3/Transactor).androidx.room3/deferredTransaction(kotlin.coroutines/SuspendFunction1<androidx.room3/TransactionScope<#A>, #A>): #A // androidx.room3/deferredTransaction|deferredTransaction@androidx.room3.Transactor(kotlin.coroutines.SuspendFunction1<androidx.room3.TransactionScope<0:0>,0:0>){0§<kotlin.Any?>}[0]
 final suspend fun <#A: kotlin/Any?> (androidx.room3/Transactor).androidx.room3/exclusiveTransaction(kotlin.coroutines/SuspendFunction1<androidx.room3/TransactionScope<#A>, #A>): #A // androidx.room3/exclusiveTransaction|exclusiveTransaction@androidx.room3.Transactor(kotlin.coroutines.SuspendFunction1<androidx.room3.TransactionScope<0:0>,0:0>){0§<kotlin.Any?>}[0]
 final suspend fun <#A: kotlin/Any?> (androidx.room3/Transactor).androidx.room3/immediateTransaction(kotlin.coroutines/SuspendFunction1<androidx.room3/TransactionScope<#A>, #A>): #A // androidx.room3/immediateTransaction|immediateTransaction@androidx.room3.Transactor(kotlin.coroutines.SuspendFunction1<androidx.room3.TransactionScope<0:0>,0:0>){0§<kotlin.Any?>}[0]
 final suspend fun <#A: kotlin/Any?> androidx.room3.util/performInTransactionSuspending(androidx.room3/RoomDatabase, kotlin.coroutines/SuspendFunction0<#A>): #A // androidx.room3.util/performInTransactionSuspending|performInTransactionSuspending(androidx.room3.RoomDatabase;kotlin.coroutines.SuspendFunction0<0:0>){0§<kotlin.Any?>}[0]
-final suspend fun <#A: kotlin/Any?> androidx.room3.util/performSuspending(androidx.room3/RoomDatabase, kotlin/Boolean, kotlin/Boolean, kotlin/Function1<androidx.sqlite/SQLiteConnection, #A>): #A // androidx.room3.util/performSuspending|performSuspending(androidx.room3.RoomDatabase;kotlin.Boolean;kotlin.Boolean;kotlin.Function1<androidx.sqlite.SQLiteConnection,0:0>){0§<kotlin.Any?>}[0]
+final suspend fun <#A: kotlin/Any?> androidx.room3.util/performSuspending(androidx.room3/RoomDatabase, kotlin/Boolean, kotlin/Boolean, kotlin.coroutines/SuspendFunction1<androidx.sqlite/SQLiteConnection, #A>): #A // androidx.room3.util/performSuspending|performSuspending(androidx.room3.RoomDatabase;kotlin.Boolean;kotlin.Boolean;kotlin.coroutines.SuspendFunction1<androidx.sqlite.SQLiteConnection,0:0>){0§<kotlin.Any?>}[0]
+final suspend fun <#A: kotlin/Any?> androidx.room3.util/recursiveFetchLongSparseArray(androidx.collection/LongSparseArray<#A>, kotlin/Boolean, kotlin.coroutines/SuspendFunction1<androidx.collection/LongSparseArray<#A>, kotlin/Unit>) // androidx.room3.util/recursiveFetchLongSparseArray|recursiveFetchLongSparseArray(androidx.collection.LongSparseArray<0:0>;kotlin.Boolean;kotlin.coroutines.SuspendFunction1<androidx.collection.LongSparseArray<0:0>,kotlin.Unit>){0§<kotlin.Any?>}[0]
+final suspend fun androidx.room3.util/dropFtsSyncTriggers(androidx.sqlite/SQLiteConnection) // androidx.room3.util/dropFtsSyncTriggers|dropFtsSyncTriggers(androidx.sqlite.SQLiteConnection){}[0]
+final suspend fun androidx.room3.util/foreignKeyCheck(androidx.sqlite/SQLiteConnection, kotlin/String) // androidx.room3.util/foreignKeyCheck|foreignKeyCheck(androidx.sqlite.SQLiteConnection;kotlin.String){}[0]
+final suspend fun androidx.room3.util/getLastInsertedRowId(androidx.sqlite/SQLiteConnection): kotlin/Long // androidx.room3.util/getLastInsertedRowId|getLastInsertedRowId(androidx.sqlite.SQLiteConnection){}[0]
+final suspend fun androidx.room3.util/getTotalChangedRows(androidx.sqlite/SQLiteConnection): kotlin/Int // androidx.room3.util/getTotalChangedRows|getTotalChangedRows(androidx.sqlite.SQLiteConnection){}[0]

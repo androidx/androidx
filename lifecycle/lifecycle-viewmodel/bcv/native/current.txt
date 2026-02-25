@@ -11,10 +11,10 @@ open annotation class androidx.lifecycle.viewmodel/ViewModelFactoryDsl : kotlin/
 }
 
 abstract interface androidx.lifecycle/HasDefaultViewModelProviderFactory { // androidx.lifecycle/HasDefaultViewModelProviderFactory|null[0]
-    abstract val defaultViewModelProviderFactory // androidx.lifecycle/HasDefaultViewModelProviderFactory.defaultViewModelProviderFactory|{}defaultViewModelProviderFactory[0]
-        abstract fun <get-defaultViewModelProviderFactory>(): androidx.lifecycle/ViewModelProvider.Factory // androidx.lifecycle/HasDefaultViewModelProviderFactory.defaultViewModelProviderFactory.<get-defaultViewModelProviderFactory>|<get-defaultViewModelProviderFactory>(){}[0]
     open val defaultViewModelCreationExtras // androidx.lifecycle/HasDefaultViewModelProviderFactory.defaultViewModelCreationExtras|{}defaultViewModelCreationExtras[0]
         open fun <get-defaultViewModelCreationExtras>(): androidx.lifecycle.viewmodel/CreationExtras // androidx.lifecycle/HasDefaultViewModelProviderFactory.defaultViewModelCreationExtras.<get-defaultViewModelCreationExtras>|<get-defaultViewModelCreationExtras>(){}[0]
+    open val defaultViewModelProviderFactory // androidx.lifecycle/HasDefaultViewModelProviderFactory.defaultViewModelProviderFactory|{}defaultViewModelProviderFactory[0]
+        open fun <get-defaultViewModelProviderFactory>(): androidx.lifecycle/ViewModelProvider.Factory // androidx.lifecycle/HasDefaultViewModelProviderFactory.defaultViewModelProviderFactory.<get-defaultViewModelProviderFactory>|<get-defaultViewModelProviderFactory>(){}[0]
 }
 
 abstract interface androidx.lifecycle/ViewModelStoreOwner { // androidx.lifecycle/ViewModelStoreOwner|null[0]

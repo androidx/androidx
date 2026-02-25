@@ -27,7 +27,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import org.junit.Rule
 
-class MigrationTest : BaseMigrationTest() {
+class MigrationTest : BaseNonWebMigrationTest() {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val file = instrumentation.targetContext.getDatabasePath("test.db")
     private val driver: SQLiteDriver = BundledSQLiteDriver()

@@ -161,13 +161,13 @@ public class DrawTweenPath extends PaintOperation implements VariableSupport {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Draw Operations", OP_CODE, CLASS_NAME)
-                .description("Draw text along path object")
-                .field(DocumentedOperation.INT, "pathId1", "id of path 1 high short is flags")
-                .field(DocumentedOperation.INT, "pathId2", "id of path 2 high short is flags")
-                .field(DocumentedOperation.FLOAT, "tween", "interpolate between the two paths")
-                .field(DocumentedOperation.FLOAT, "start", "trim the start of the path")
-                .field(DocumentedOperation.FLOAT, "yOffset", "trim the end of the path");
+        doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+                .description("Draw an interpolated path between two paths")
+                .field(DocumentedOperation.INT, "path1Id", "The ID of the first path")
+                .field(DocumentedOperation.INT, "path2Id", "The ID of the second path")
+                .field(DocumentedOperation.FLOAT, "tween", "Interpolation value [0..1]")
+                .field(DocumentedOperation.FLOAT, "start", "Trim the start of the path [0..1]")
+                .field(DocumentedOperation.FLOAT, "stop", "Trim the end of the path [0..1]");
     }
 
     @Override

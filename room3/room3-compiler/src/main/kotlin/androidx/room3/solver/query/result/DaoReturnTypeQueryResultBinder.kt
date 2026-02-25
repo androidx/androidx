@@ -22,12 +22,14 @@ import androidx.room3.compiler.codegen.XCodeBlock.Builder.Companion.applyTo
 import androidx.room3.compiler.codegen.XPropertySpec
 import androidx.room3.compiler.codegen.XTypeName
 import androidx.room3.compiler.processing.XType
+import androidx.room3.compiler.processing.isArray
+import androidx.room3.compiler.processing.isBoolean
 import androidx.room3.ext.ArrayLiteral
 import androidx.room3.ext.CommonTypeNames
 import androidx.room3.ext.InvokeWithLambdaParameter
 import androidx.room3.ext.LambdaSpec
-import androidx.room3.ext.RoomMemberNames.DB_UTIL_PERFORM_BLOCKING
 import androidx.room3.ext.RoomMemberNames.DB_UTIL_PERFORM_SUSPENDING
+import androidx.room3.ext.RoomTypeNames.ROOM_DB
 import androidx.room3.ext.SQLiteDriverTypeNames
 import androidx.room3.solver.CodeGenScope
 import androidx.room3.solver.types.DaoReturnTypeConverter
@@ -51,13 +53,29 @@ class DaoReturnTypeQueryResultBinder(
         val arrayOfTableNamesLiteral =
             ArrayLiteral(CommonTypeNames.STRING, *tableNames.toTypedArray())
         val connectionVar = scope.getTmpVar("_connection")
+        val args = buildList {
+            // We always have a RoomDatabase param and the lambda parameter in DAO return type
+            // converters. All other params are optional, but are limited to a Boolean representing
+            // `inTransaction`, an Array<String> representing `tableNames` and a RoomRawQuery
+            // representing `rawQuery`. We need to have a way to check if [1] any/which of these
+            // parameters have been defined in the convert function we have, [2] the order in
+            // which they have been supplied.
+            converter.requiredFunctionParamTypes.forEach { paramType ->
+                val typeName = paramType.asTypeName()
+                when {
+                    typeName == ROOM_DB -> add(dbProperty.name)
+                    paramType.isArray() -> add(arrayOfTableNamesLiteral)
+                    paramType.isBoolean() -> add(inTransaction)
+                }
+            }
+        }
 
         val convertBlock =
             InvokeWithLambdaParameter(
                 scope = scope,
                 functionCall = converter.buildStatement(typeArg.asTypeName(), scope),
-                argFormat = listOf("%L", "%L"),
-                args = listOf(dbProperty.name, arrayOfTableNamesLiteral),
+                argFormat = List(args.size) { "%L" },
+                args = args,
                 lambdaSpec =
                     object :
                         LambdaSpec(
@@ -70,9 +88,7 @@ class DaoReturnTypeQueryResultBinder(
                             val performBlock =
                                 InvokeWithLambdaParameter(
                                     scope = scope,
-                                    functionName =
-                                        if (converter.isSuspend) DB_UTIL_PERFORM_SUSPENDING
-                                        else DB_UTIL_PERFORM_BLOCKING,
+                                    functionName = DB_UTIL_PERFORM_SUSPENDING,
                                     argFormat = listOf("%N", "%L", "%L"),
                                     args =
                                         listOf(dbProperty, /* isReadOnly= */ true, inTransaction),

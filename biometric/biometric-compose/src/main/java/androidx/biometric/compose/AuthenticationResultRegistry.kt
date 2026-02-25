@@ -20,7 +20,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.biometric.AuthenticationResultCallback
 import androidx.biometric.AuthenticationResultLauncher
-import androidx.biometric.AuthenticationResultRegistry
+import androidx.biometric.internal.AuthenticationResultRegistry
 import androidx.biometric.internal.ui.handleConfirmCredentialResult
 import androidx.biometric.internal.ui.launchConfirmCredentialActivity
 import androidx.compose.runtime.Composable

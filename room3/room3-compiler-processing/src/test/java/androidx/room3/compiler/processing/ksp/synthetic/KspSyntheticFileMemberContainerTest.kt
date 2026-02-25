@@ -40,8 +40,8 @@ class KspSyntheticFileMemberContainerTest {
             Source.kotlin(
                 "MyAnnotation.kt",
                 """
-            annotation class MyAnnotation
-            """
+                annotation class MyAnnotation
+                """
                     .trimIndent(),
             )
         val appSrc =
@@ -50,7 +50,7 @@ class KspSyntheticFileMemberContainerTest {
                 """
                 @MyAnnotation
                 val appMember = 1
-            """
+                """
                     .trimIndent(),
             )
         runKspTest(sources = listOf(annotation, appSrc)) { invocation ->

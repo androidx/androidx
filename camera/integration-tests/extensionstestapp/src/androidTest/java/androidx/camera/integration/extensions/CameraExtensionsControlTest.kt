@@ -18,6 +18,8 @@ package androidx.camera.integration.extensions
 
 import android.Manifest
 import android.content.Context
+import android.graphics.SurfaceTexture
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
@@ -25,12 +27,9 @@ import androidx.camera.core.Preview
 import androidx.camera.extensions.CameraExtensionsControl
 import androidx.camera.extensions.CameraExtensionsInfo
 import androidx.camera.extensions.ExtensionsManager
-import androidx.camera.integration.extensions.CameraExtensionsActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
-import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.CameraXExtensionTestParams
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.SurfaceTextureProvider
@@ -51,16 +50,12 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 @RunWith(Parameterized::class)
-class CameraExtensionsControlTest(private val config: CameraXExtensionTestParams) {
-
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = config.implName == CAMERA_PIPE_IMPLEMENTATION_OPTION)
+class CameraExtensionsControlTest(private val cameraId: String, private val extensionMode: Int) {
 
     @get:Rule
     val useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-            PreTestCameraIdList(config.cameraXConfig)
+            PreTestCameraIdList(Camera2Config.defaultConfig())
         )
 
     @get:Rule
@@ -71,7 +66,7 @@ class CameraExtensionsControlTest(private val config: CameraXExtensionTestParams
         )
 
     companion object {
-        @Parameterized.Parameters(name = "config = {0}")
+        @Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
         @JvmStatic
         fun parameters() = CameraXExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
     }
@@ -88,29 +83,31 @@ class CameraExtensionsControlTest(private val config: CameraXExtensionTestParams
     private lateinit var camera: Camera
     private lateinit var preview: Preview
     private lateinit var imageCapture: ImageCapture
+    private val frameAvailableCountDownLatch = CountDownLatch(1)
 
     @Before
     fun setup() {
         assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
 
-        ProcessCameraProvider.configureInstance(config.cameraXConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
 
         extensionsManager = runBlocking { ExtensionsManager.getInstance(context, cameraProvider) }
 
-        baseCameraSelector = CameraSelectorUtil.createCameraSelectorById(config.cameraId)
-        assumeTrue(extensionsManager.isExtensionAvailable(baseCameraSelector, config.extensionMode))
+        baseCameraSelector = CameraSelectorUtil.createCameraSelectorById(cameraId)
+        assumeTrue(extensionsManager.isExtensionAvailable(baseCameraSelector, extensionMode))
 
         extensionCameraSelector =
-            extensionsManager.getExtensionEnabledCameraSelector(
-                baseCameraSelector,
-                config.extensionMode,
-            )
+            extensionsManager.getExtensionEnabledCameraSelector(baseCameraSelector, extensionMode)
 
         instrumentation.runOnMainSync {
             fakeLifecycleOwner = FakeLifecycleOwner().apply { startAndResume() }
             preview = Preview.Builder().build()
-            preview.surfaceProvider = SurfaceTextureProvider.createSurfaceTextureProvider()
+            preview.surfaceProvider =
+                SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider {
+                    SurfaceTexture.OnFrameAvailableListener {
+                        frameAvailableCountDownLatch.countDown()
+                    }
+                }
             imageCapture = ImageCapture.Builder().build()
             camera =
                 cameraProvider.bindToLifecycle(
@@ -140,9 +137,11 @@ class CameraExtensionsControlTest(private val config: CameraXExtensionTestParams
     @Test
     fun canSetExtensionStrength() {
         assumeTrue(cameraExtensionsInfo.isExtensionStrengthAvailable)
+        // Wait for the frame be available before setting the extension strength.
+        frameAvailableCountDownLatch.await(3, TimeUnit.SECONDS)
+
         val oldStrength = cameraExtensionsInfo.extensionStrength!!.value!!
         val newStrength = (oldStrength + 50) % 100
-        cameraExtensionsControl.setExtensionStrength(newStrength)
         val countDownLatch = CountDownLatch(1)
 
         instrumentation.runOnMainSync {
@@ -153,6 +152,8 @@ class CameraExtensionsControlTest(private val config: CameraXExtensionTestParams
             }
         }
 
-        assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue()
+        cameraExtensionsControl.setExtensionStrength(newStrength)
+        // It might take some time to reach the new strength value.
+        assertThat(countDownLatch.await(5, TimeUnit.SECONDS)).isTrue()
     }
 }

@@ -130,9 +130,9 @@
             android:label="PanelEmbeddedSubspace"
             android:theme="@style/Theme.IntegrationTestsApp" />
         <activity
-            android:name=".followingsubspace.UserSubspaceActivity"
+            android:name=".followingsubspace.FollowingSubspaceActivity"
             android:exported="true"
-            android:label="UserSubspace"
+            android:label="FollowingSubspace"
             android:theme="@style/Theme.IntegrationTestsApp" />
         <activity
             android:name=".panelvolume.PanelVolume"
@@ -208,6 +208,14 @@
             android:label="SpatialArrangementUsage"
             android:theme="@style/Theme.IntegrationTestsApp" />
         <activity
+            android:name=".rtlawareness.RtlAwareSubspaceModifierActivity"
+            android:exported="true"
+            android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
+            android:enableOnBackInvokedCallback="true"
+            android:label="SubspaceModifierRtlAwareness"
+            android:theme="@style/Theme.IntegrationTestsApp" />
+
+        <activity
             android:name=".pose.Pose"
             android:exported="true"
             android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
@@ -222,11 +230,11 @@
             android:label="@string/gravity_aligned_test_case"
             android:theme="@style/Theme.IntegrationTestsApp" />
         <activity
-            android:name=".lookatuser.LookAtUserActivity"
+            android:name=".rotatetolookatuser.RotateToLookAtUserActivity"
             android:exported="true"
             android:configChanges="screenSize|smallestScreenSize|orientation|screenLayout"
             android:enableOnBackInvokedCallback="true"
-            android:label="@string/lookatuser_test_case"
+            android:label="@string/rotatetolookatuser_test_case"
             android:theme="@style/Theme.IntegrationTestsApp" />
 
         <activity android:name=".performance.LayoutPerformance"

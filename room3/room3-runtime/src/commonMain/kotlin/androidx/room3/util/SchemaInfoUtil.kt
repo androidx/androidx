@@ -19,6 +19,8 @@ package androidx.room3.util
 import androidx.room3.ColumnInfo
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteStatement
+import androidx.sqlite.prepare
+import androidx.sqlite.step
 import kotlin.collections.removeLast as removeLastKt
 
 /**
@@ -58,14 +60,14 @@ internal fun findAffinity(type: String?): Int {
     return ColumnInfo.UNDEFINED
 }
 
-internal fun readTableInfo(connection: SQLiteConnection, tableName: String): TableInfo {
+internal suspend fun readTableInfo(connection: SQLiteConnection, tableName: String): TableInfo {
     val columns = readColumns(connection, tableName)
     val foreignKeys = readForeignKeys(connection, tableName)
     val indices = readIndices(connection, tableName)
     return TableInfo(tableName, columns, foreignKeys, indices)
 }
 
-private fun readForeignKeys(
+private suspend fun readForeignKeys(
     connection: SQLiteConnection,
     tableName: String,
 ): Set<TableInfo.ForeignKey> {
@@ -131,7 +133,9 @@ private class ForeignKeyWithSequence(
     }
 }
 
-private fun readForeignKeyFieldMappings(stmt: SQLiteStatement): List<ForeignKeyWithSequence> {
+private suspend fun readForeignKeyFieldMappings(
+    stmt: SQLiteStatement
+): List<ForeignKeyWithSequence> {
     val idColumnIndex = stmt.columnIndexOf("id")
     val seqColumnIndex = stmt.columnIndexOf("seq")
     val fromColumnIndex = stmt.columnIndexOf("from")
@@ -152,7 +156,7 @@ private fun readForeignKeyFieldMappings(stmt: SQLiteStatement): List<ForeignKeyW
         .sorted()
 }
 
-private fun readColumns(
+private suspend fun readColumns(
     connection: SQLiteConnection,
     tableName: String,
 ): Map<String, TableInfo.Column> {
@@ -193,7 +197,10 @@ private fun readColumns(
 }
 
 /** @return null if we cannot read the indices due to older sqlite implementations. */
-private fun readIndices(connection: SQLiteConnection, tableName: String): Set<TableInfo.Index>? {
+private suspend fun readIndices(
+    connection: SQLiteConnection,
+    tableName: String,
+): Set<TableInfo.Index>? {
     connection.prepare("PRAGMA index_list(`$tableName`)").use { stmt ->
         val nameColumnIndex = stmt.columnIndexOf("name")
         val originColumnIndex = stmt.columnIndexOf("origin")
@@ -220,7 +227,7 @@ private fun readIndices(connection: SQLiteConnection, tableName: String): Set<Ta
 }
 
 /** @return null if we cannot read the index due to older sqlite implementations. */
-private fun readIndex(
+private suspend fun readIndex(
     connection: SQLiteConnection,
     name: String,
     unique: Boolean,
@@ -259,7 +266,7 @@ private fun readIndex(
     }
 }
 
-internal fun readFtsColumns(connection: SQLiteConnection, tableName: String): Set<String> {
+internal suspend fun readFtsColumns(connection: SQLiteConnection, tableName: String): Set<String> {
     return buildSet {
         connection.prepare("PRAGMA table_info(`$tableName`)").use { stmt ->
             if (!stmt.step()) return@use
@@ -271,7 +278,7 @@ internal fun readFtsColumns(connection: SQLiteConnection, tableName: String): Se
     }
 }
 
-internal fun readFtsOptions(connection: SQLiteConnection, tableName: String): Set<String> {
+internal suspend fun readFtsOptions(connection: SQLiteConnection, tableName: String): Set<String> {
     val sql =
         connection.prepare("SELECT * FROM sqlite_master WHERE `name` = '$tableName'").use { stmt ->
             if (stmt.step()) {
@@ -362,11 +369,9 @@ internal fun parseFtsOptions(createStatement: String): Set<String> {
     return options
 }
 
-internal fun readViewInfo(connection: SQLiteConnection, viewName: String): ViewInfo {
+internal suspend fun readViewInfo(connection: SQLiteConnection, viewName: String): ViewInfo {
     return connection
-        .prepare(
-            "SELECT name, sql FROM sqlite_master " + "WHERE type = 'view' AND name = '$viewName'"
-        )
+        .prepare("SELECT name, sql FROM sqlite_master WHERE type = 'view' AND name = '$viewName'")
         .use { stmt ->
             if (stmt.step()) {
                 ViewInfo(stmt.getText(0), stmt.getText(1))

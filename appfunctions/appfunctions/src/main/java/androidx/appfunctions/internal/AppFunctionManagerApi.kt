@@ -20,6 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
+import androidx.appfunctions.metadata.AppFunctionMetadata
 
 /** Provides the backend to the [android.app.appfunctions.AppFunctionManager] API. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -31,7 +32,8 @@ public interface AppFunctionManagerApi {
      * @return the result of the attempt to execute the function.
      */
     public suspend fun executeAppFunction(
-        request: ExecuteAppFunctionRequest
+        request: ExecuteAppFunctionRequest,
+        functionMetadata: AppFunctionMetadata,
     ): ExecuteAppFunctionResponse
 
     /**

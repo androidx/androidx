@@ -40,4 +40,6 @@ internal open class StatusCallback(private val resultFuture: SettableFuture<Void
         if (msg.startsWith("Missing permissions")) resultFuture.setException(SecurityException(msg))
         else resultFuture.setException(HealthServicesException(msg))
     }
+
+    override fun getInterfaceVersion(): Int = VERSION
 }

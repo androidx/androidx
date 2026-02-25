@@ -21,8 +21,8 @@ package androidx.compose.runtime.composer.gapbuffer.changelist
 import androidx.compose.runtime.Applier
 import androidx.compose.runtime.EnableDebugRuntimeChecks
 import androidx.compose.runtime.InternalComposeApi
-import androidx.compose.runtime.RememberManager
 import androidx.compose.runtime.collection.fastCopyInto
+import androidx.compose.runtime.composer.RememberManager
 import androidx.compose.runtime.composer.gapbuffer.SlotWriter
 import androidx.compose.runtime.composer.gapbuffer.changelist.Operation.ObjectParameter
 import androidx.compose.runtime.debugRuntimeCheck

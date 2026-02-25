@@ -16,17 +16,20 @@
 
 package androidx.health.connect.client.records
 
+import android.annotation.SuppressLint
 import androidx.health.connect.client.records.ExerciseSegment.Companion.EXERCISE_SEGMENTS
 import androidx.health.connect.client.records.ExerciseSegment.Companion.SWIMMING_SEGMENTS
 import androidx.health.connect.client.records.ExerciseSegment.Companion.UNIVERSAL_SEGMENTS
 import androidx.health.connect.client.records.ExerciseSegment.Companion.UNIVERSAL_SESSION_TYPES
 import androidx.health.connect.client.records.ExerciseSegment.Companion.isSegmentTypeCompatibleWithSessionType
+import androidx.health.connect.client.units.Mass
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
 import kotlin.reflect.typeOf
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -167,6 +170,82 @@ class ExerciseSegmentTest {
                 endTime = Instant.ofEpochMilli(5678),
                 segmentType = ExerciseSegment.EXERCISE_SEGMENT_TYPE_PLANK,
                 repetitions = -1,
+            )
+        }
+    }
+
+    @Test
+    fun validImprovedExerciseSegment_equals() {
+        assertThat(
+                ExerciseSegment(
+                    startTime = Instant.ofEpochMilli(1234L),
+                    endTime = Instant.ofEpochMilli(5678L),
+                    segmentType = ExerciseSegment.EXERCISE_SEGMENT_TYPE_PLANK,
+                    repetitions = 10,
+                    weight = Mass.kilograms(40.0),
+                    setIndex = 1,
+                    rateOfPerceivedExertion = 8.0f,
+                )
+            )
+            .isEqualTo(
+                ExerciseSegment(
+                    startTime = Instant.ofEpochMilli(1234L),
+                    endTime = Instant.ofEpochMilli(5678L),
+                    segmentType = ExerciseSegment.EXERCISE_SEGMENT_TYPE_PLANK,
+                    repetitions = 10,
+                    weight = Mass.kilograms(40.0),
+                    setIndex = 1,
+                    rateOfPerceivedExertion = 8.0f,
+                )
+            )
+    }
+
+    @SuppressLint("NewApi") // Guarded by sdk extension check
+    @Test
+    fun invalidWeight_throws() {
+        assumeTrue(isAtLeastSdkExtension21())
+        assertFailsWith<IllegalArgumentException> {
+            ExerciseSegment(
+                startTime = Instant.ofEpochMilli(1234L),
+                endTime = Instant.ofEpochMilli(5678),
+                segmentType = ExerciseSegment.EXERCISE_SEGMENT_TYPE_PLANK,
+                weight = Mass.kilograms(-50.0),
+            )
+        }
+    }
+
+    @SuppressLint("NewApi") // Guarded by sdk extension check
+    @Test
+    fun invalidSetIndex_throws() {
+        assumeTrue(isAtLeastSdkExtension21())
+        assertFailsWith<IllegalArgumentException> {
+            ExerciseSegment(
+                startTime = Instant.ofEpochMilli(1234L),
+                endTime = Instant.ofEpochMilli(5678),
+                segmentType = ExerciseSegment.EXERCISE_SEGMENT_TYPE_PLANK,
+                setIndex = -1,
+            )
+        }
+    }
+
+    @SuppressLint("NewApi") // Guarded by sdk extension check
+    @Test
+    fun invalidRpe_throws() {
+        assumeTrue(isAtLeastSdkExtension21())
+        assertFailsWith<IllegalArgumentException> {
+            ExerciseSegment(
+                startTime = Instant.ofEpochMilli(1234L),
+                endTime = Instant.ofEpochMilli(5678),
+                segmentType = ExerciseSegment.EXERCISE_SEGMENT_TYPE_PLANK,
+                rateOfPerceivedExertion = 11.0f,
+            )
+        }
+        assertFailsWith<IllegalArgumentException> {
+            ExerciseSegment(
+                startTime = Instant.ofEpochMilli(1234L),
+                endTime = Instant.ofEpochMilli(5678),
+                segmentType = ExerciseSegment.EXERCISE_SEGMENT_TYPE_PLANK,
+                rateOfPerceivedExertion = -1.0f,
             )
         }
     }

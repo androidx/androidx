@@ -454,7 +454,7 @@ class PageLayoutManagerTest {
                 pdfDocumentWithForm,
                 testScope,
                 errorFlow = errorFlow,
-                isFormFillingEnabled = true,
+                isFormFillingEnabled = { true },
             )
         pageLayoutManagerWithForm.increaseReach(20)
         backgroundScope.launch(UnconfinedTestDispatcher(testScope.testScheduler)) {
@@ -478,7 +478,7 @@ class PageLayoutManagerTest {
                 pdfDocumentWithForm,
                 testScope,
                 errorFlow = errorFlow,
-                isFormFillingEnabled = false,
+                isFormFillingEnabled = { false },
             )
         pageLayoutManagerLocal.increaseReach(20)
         backgroundScope.launch(UnconfinedTestDispatcher(testScope.testScheduler)) {
@@ -500,7 +500,7 @@ class PageLayoutManagerTest {
                 pdfDocument,
                 testScope,
                 errorFlow = errorFlow,
-                isFormFillingEnabled = true,
+                isFormFillingEnabled = { true },
             )
         pageLayoutManagerLocal.increaseReach(20)
         backgroundScope.launch(UnconfinedTestDispatcher(testScope.testScheduler)) {

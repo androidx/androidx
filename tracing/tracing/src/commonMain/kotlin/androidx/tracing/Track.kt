@@ -63,6 +63,7 @@ public abstract class Track(
 
     // this would be private, but internal prevents getters from being created
     @JvmField // avoid getter generation
+    @Volatile
     internal var currentPacketArray: PooledTracePacketArray? = pool.obtainTracePacketArray()
 
     internal fun flush() {

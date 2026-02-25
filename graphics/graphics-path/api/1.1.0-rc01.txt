@@ -1,0 +1,61 @@
+// Signature format: 4.0
+package androidx.graphics.path {
+
+  public final class PathIterator implements java.util.Iterator<androidx.graphics.path.PathSegment> kotlin.jvm.internal.markers.KMappedMarker {
+    ctor public PathIterator(android.graphics.Path path, optional androidx.graphics.path.PathIterator.ConicEvaluation conicEvaluation, optional float tolerance);
+    ctor @BytecodeOnly public PathIterator(android.graphics.Path!, androidx.graphics.path.PathIterator.ConicEvaluation!, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public int calculateSize(optional boolean includeConvertedConics);
+    method @BytecodeOnly public static int calculateSize$default(androidx.graphics.path.PathIterator!, boolean, int, Object!);
+    method @InaccessibleFromKotlin public androidx.graphics.path.PathIterator.ConicEvaluation getConicEvaluation();
+    method @InaccessibleFromKotlin public android.graphics.Path getPath();
+    method @InaccessibleFromKotlin public float getTolerance();
+    method public boolean hasNext();
+    method public androidx.graphics.path.PathSegment next();
+    method public androidx.graphics.path.PathSegment.Type next(float[] points);
+    method public androidx.graphics.path.PathSegment.Type next(float[] points, optional int offset);
+    method @BytecodeOnly public static androidx.graphics.path.PathSegment.Type! next$default(androidx.graphics.path.PathIterator!, float[]!, int, int, Object!);
+    method public androidx.graphics.path.PathSegment.Type peek();
+    property public androidx.graphics.path.PathIterator.ConicEvaluation conicEvaluation;
+    property public android.graphics.Path path;
+    property public float tolerance;
+  }
+
+  public enum PathIterator.ConicEvaluation {
+    enum_constant public static final androidx.graphics.path.PathIterator.ConicEvaluation AsConic;
+    enum_constant public static final androidx.graphics.path.PathIterator.ConicEvaluation AsQuadratics;
+  }
+
+  public final class PathSegment {
+    method @InaccessibleFromKotlin public android.graphics.PointF[] getPoints();
+    method @InaccessibleFromKotlin public androidx.graphics.path.PathSegment.Type getType();
+    method @InaccessibleFromKotlin public float getWeight();
+    property public android.graphics.PointF[] points;
+    property public androidx.graphics.path.PathSegment.Type type;
+    property public float weight;
+  }
+
+  public enum PathSegment.Type {
+    enum_constant public static final androidx.graphics.path.PathSegment.Type Close;
+    enum_constant public static final androidx.graphics.path.PathSegment.Type Conic;
+    enum_constant public static final androidx.graphics.path.PathSegment.Type Cubic;
+    enum_constant public static final androidx.graphics.path.PathSegment.Type Done;
+    enum_constant public static final androidx.graphics.path.PathSegment.Type Line;
+    enum_constant public static final androidx.graphics.path.PathSegment.Type Move;
+    enum_constant public static final androidx.graphics.path.PathSegment.Type Quadratic;
+  }
+
+  public final class PathSegmentUtilities {
+    method @InaccessibleFromKotlin public static androidx.graphics.path.PathSegment getCloseSegment();
+    method @InaccessibleFromKotlin public static androidx.graphics.path.PathSegment getDoneSegment();
+    property public static androidx.graphics.path.PathSegment CloseSegment;
+    property public static androidx.graphics.path.PathSegment DoneSegment;
+  }
+
+  public final class PathUtilities {
+    method public static operator androidx.graphics.path.PathIterator iterator(android.graphics.Path);
+    method public static androidx.graphics.path.PathIterator iterator(android.graphics.Path, androidx.graphics.path.PathIterator.ConicEvaluation conicEvaluation, optional float tolerance);
+    method @BytecodeOnly public static androidx.graphics.path.PathIterator! iterator$default(android.graphics.Path!, androidx.graphics.path.PathIterator.ConicEvaluation!, float, int, Object!);
+  }
+
+}
+

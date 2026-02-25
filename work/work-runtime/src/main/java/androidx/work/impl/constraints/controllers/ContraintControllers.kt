@@ -20,7 +20,6 @@ import android.os.Build
 import androidx.work.Constraints
 import androidx.work.Logger
 import androidx.work.NetworkType
-import androidx.work.NetworkType.TEMPORARILY_UNMETERED
 import androidx.work.NetworkType.UNMETERED
 import androidx.work.StopReason
 import androidx.work.WorkInfo
@@ -91,14 +90,13 @@ public class BatteryNotLowController(tracker: BatteryNotLowTracker) :
 }
 
 /** A [ConstraintController] for monitoring that the network connection is unmetered. */
-public class NetworkUnmeteredController(tracker: ConstraintTracker<NetworkState>) :
+public class NetworkUnmeteredControllerPre28(tracker: ConstraintTracker<NetworkState>) :
     BaseConstraintController<NetworkState>(tracker) {
     override val reason: Int = WorkInfo.STOP_REASON_CONSTRAINT_CONNECTIVITY
 
     override fun hasConstraint(workSpec: WorkSpec): Boolean {
         val requiredNetworkType = workSpec.constraints.requiredNetworkType
-        return requiredNetworkType == UNMETERED ||
-            (Build.VERSION.SDK_INT >= 30 && requiredNetworkType == TEMPORARILY_UNMETERED)
+        return requiredNetworkType == UNMETERED
     }
 
     override fun isConstrained(value: NetworkState): Boolean =
@@ -117,7 +115,7 @@ public class StorageNotLowController(tracker: ConstraintTracker<Boolean>) :
 }
 
 /** A [ConstraintController] for monitoring that the network connection is not roaming. */
-public class NetworkNotRoamingController(tracker: ConstraintTracker<NetworkState>) :
+public class NetworkNotRoamingControllerPre28(tracker: ConstraintTracker<NetworkState>) :
     BaseConstraintController<NetworkState>(tracker) {
     override val reason: Int = WorkInfo.STOP_REASON_CONSTRAINT_CONNECTIVITY
 
@@ -149,12 +147,12 @@ public class NetworkNotRoamingController(tracker: ConstraintTracker<NetworkState
 /**
  * A [ConstraintController] for monitoring that any usable network connection is available.
  *
- * For API 26 and above, usable means that the [NetworkState] is validated, i.e. it has a working
+ * For API 26 and 27, usable means that the [NetworkState] is validated, i.e. it has a working
  * internet connection.
  *
  * For API 25 and below, usable simply means that [NetworkState] is connected.
  */
-public class NetworkConnectedController(tracker: ConstraintTracker<NetworkState>) :
+public class NetworkConnectedControllerPre28(tracker: ConstraintTracker<NetworkState>) :
     BaseConstraintController<NetworkState>(tracker) {
     override val reason: Int = WorkInfo.STOP_REASON_CONSTRAINT_CONNECTIVITY
 
@@ -166,7 +164,7 @@ public class NetworkConnectedController(tracker: ConstraintTracker<NetworkState>
 }
 
 /** A [ConstraintController] for monitoring that the network connection is metered. */
-public class NetworkMeteredController(tracker: ConstraintTracker<NetworkState>) :
+public class NetworkMeteredControllerPre28(tracker: ConstraintTracker<NetworkState>) :
     BaseConstraintController<NetworkState>(tracker) {
     override val reason: Int = WorkInfo.STOP_REASON_CONSTRAINT_CONNECTIVITY
 

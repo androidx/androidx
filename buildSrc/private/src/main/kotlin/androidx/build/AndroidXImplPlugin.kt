@@ -216,7 +216,7 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
         project.validateAllArchiveInputsRecognized()
         project.afterEvaluate {
             if (androidXExtension.shouldPublishSbom().get()) {
-                project.configureSbomPublishing(androidXExtension.isIsolatedProjectsEnabled())
+                project.configureSbomPublishing()
             }
             if (androidXExtension.shouldPublish.get()) {
                 project.validatePublishedMultiplatformHasDefault()
@@ -655,9 +655,12 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
     private fun AarMetadata.configureMinAgpVersion() {
         @Suppress("UnstableApiUsage") // usage of minAgpVersion
         minAgpVersion.set(
+            @Suppress(
+                "Deprecation"
+            ) // TODO: use `minCompileSdkVersion` once http://ag/38072823 merged
             minCompileSdk.map { value ->
                 // Taken from
-                // https://developer.android.com/build/releases/gradle-plugin#api-level-support
+                // https://developer.android.com/build/releases/about-agp#api-level-support
                 when (value) {
                     1 -> "7.2.0"
                     33 -> "7.2.0"
@@ -715,6 +718,7 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
             )
             project.configurePublicResourcesStub(variant)
             project.configureMultiplatformSourcesForAndroid(androidXExtension.samplesProjects)
+            project.configureVerifyELFRegionAlignment(variant)
             variant.aarMetadata.configureMinAgpVersion()
         }
 
@@ -856,7 +860,6 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
 
         project.configureVersionFileWriter(libraryAndroidComponentsExtension, androidXExtension)
 
-        val prebuiltLibraries = listOf("libtracing_perfetto.so", "libc++_shared.so")
         libraryAndroidComponentsExtension.onVariants { variant ->
             if (variant.buildType == DEFAULT_PUBLISH_CONFIG) {
                 // Standard docs, resource API, and Metalava configuration for AndroidX projects.
@@ -876,22 +879,7 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
                     taskProvider.configure { task -> task.dependsOn("compileReleaseJavaWithJavac") }
                 }
             }
-            val verifyELFRegionAlignmentTaskProvider =
-                project.tasks.register(
-                    variant.name + "VerifyELFRegionAlignment",
-                    VerifyELFRegionAlignmentTask::class.java,
-                ) { task ->
-                    task.files.from(
-                        variant.artifacts.get(SingleArtifact.MERGED_NATIVE_LIBS).map { dir ->
-                            dir.asFileTree.files
-                                .filter { it.extension == "so" }
-                                .filter { it.path.contains("arm64-v8a") }
-                                .filterNot { prebuiltLibraries.contains(it.name) }
-                        }
-                    )
-                    task.cacheEvenIfNoOutputs()
-                }
-            project.addToBuildOnServer(verifyELFRegionAlignmentTaskProvider)
+            project.configureVerifyELFRegionAlignment(variant)
             variant.aarMetadata.configureMinAgpVersion()
         }
         project.buildOnServerDependsOnAssembleRelease()
@@ -1196,18 +1184,13 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
                     .trimIndent()
             }
 
-        kmpExtension.targets.configureEach { kotlinTarget ->
-            kotlinTarget.compilations.configureEach { compilation ->
-                // Configure all KMP targets to allow expect/actual classes that are not stable.
-                // (see https://youtrack.jetbrains.com/issue/KT-61573)
-                compilation.compileTaskProvider.configure { task ->
-                    task.compilerOptions.freeCompilerArgs.add("-Xexpect-actual-classes")
-                    androidXConfiguration.kotlinApiVersion.let {
-                        task.compilerOptions.apiVersion.set(it)
-                        task.compilerOptions.languageVersion.set(it)
-                    }
-                }
-            }
+        kmpExtension.compilerOptions {
+            // Configure all KMP targets to allow expect/actual classes that are not stable.
+            // (see https://youtrack.jetbrains.com/issue/KT-61573)
+            freeCompilerArgs.add("-Xexpect-actual-classes")
+
+            apiVersion.set(androidXConfiguration.kotlinApiVersion)
+            languageVersion.set(androidXConfiguration.kotlinApiVersion)
         }
     }
 
@@ -1362,6 +1345,18 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
                 }
             }
         }
+    }
+
+    private fun Project.configureVerifyELFRegionAlignment(variant: LibraryVariant) {
+        val verifyELFRegionAlignmentTaskProvider =
+            project.tasks.register(
+                variant.name + "VerifyELFRegionAlignment",
+                VerifyELFRegionAlignmentTask::class.java,
+            ) { task ->
+                task.mergedNativeLibs.set(variant.artifacts.get(SingleArtifact.MERGED_NATIVE_LIBS))
+                task.cacheEvenIfNoOutputs()
+            }
+        project.addToBuildOnServer(verifyELFRegionAlignmentTaskProvider)
     }
 
     /**

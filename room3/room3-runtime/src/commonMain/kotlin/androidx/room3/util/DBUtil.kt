@@ -26,7 +26,9 @@ import androidx.room3.Transactor
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteException
 import androidx.sqlite.SQLiteStatement
-import androidx.sqlite.execSQL
+import androidx.sqlite.executeSQL
+import androidx.sqlite.prepare
+import androidx.sqlite.step
 import kotlin.coroutines.CoroutineContext
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
@@ -37,7 +39,7 @@ public expect suspend fun <R> performSuspending(
     db: RoomDatabase,
     isReadOnly: Boolean,
     inTransaction: Boolean,
-    block: (SQLiteConnection) -> R,
+    block: suspend (SQLiteConnection) -> R,
 ): R
 
 internal suspend inline fun <R> RoomDatabase.internalPerform(
@@ -97,7 +99,7 @@ public expect suspend fun <R> performInTransactionSuspending(
  * @param connection The database connection.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
-public fun dropFtsSyncTriggers(connection: SQLiteConnection) {
+public suspend fun dropFtsSyncTriggers(connection: SQLiteConnection) {
     val existingTriggers = buildList {
         connection.prepare("SELECT name FROM sqlite_master WHERE type = 'trigger'").use {
             while (it.step()) {
@@ -108,14 +110,14 @@ public fun dropFtsSyncTriggers(connection: SQLiteConnection) {
 
     existingTriggers.forEach { triggerName ->
         if (triggerName.startsWith("room_fts_content_sync_")) {
-            connection.execSQL("DROP TRIGGER IF EXISTS $triggerName")
+            connection.executeSQL("DROP TRIGGER IF EXISTS $triggerName")
         }
     }
 }
 
 /** Checks for foreign key violations by executing a PRAGMA foreign_key_check. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
-public fun foreignKeyCheck(db: SQLiteConnection, tableName: String) {
+public suspend fun foreignKeyCheck(db: SQLiteConnection, tableName: String) {
     db.prepare("PRAGMA foreign_key_check(`$tableName`)").use { stmt ->
         if (stmt.step()) {
             val errorMsg = processForeignKeyCheckFailure(stmt)
@@ -138,7 +140,7 @@ public fun foreignKeyCheck(db: SQLiteConnection, tableName: String) {
  * @param stmt SQLiteStatement containing information regarding the FK violation
  * @return Error message generated containing debugging information
  */
-private fun processForeignKeyCheckFailure(stmt: SQLiteStatement): String {
+private suspend fun processForeignKeyCheckFailure(stmt: SQLiteStatement): String {
     return buildString {
         var rowCount = 0
         val fkParentTables = mutableMapOf<String, String>()

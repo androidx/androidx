@@ -367,16 +367,16 @@ class DatabaseProcessorTest {
             Source.java(
                 "test.library.MissingEntityAnnotationDataClass",
                 """
-            package test.library;
-            import androidx.room3.*;
-            public class MissingEntityAnnotationDataClass {
-                @PrimaryKey
-                private long id;
+                package test.library;
+                import androidx.room3.*;
+                public class MissingEntityAnnotationDataClass {
+                    @PrimaryKey
+                    private long id;
 
-                public void setId(int id) {this.id = id;}
-                public long getId() {return this.id;}
-            }
-            """
+                    public void setId(int id) {this.id = id;}
+                    public long getId() {return this.id;}
+                }
+                """
                     .trimIndent(),
             )
         val libraryClasspath = compileFiles(sources = listOf(librarySource))
@@ -404,12 +404,12 @@ class DatabaseProcessorTest {
             Source.java(
                 "test.library.MissingAnnotationsBaseDao",
                 """
-            package test.library;
-            import androidx.room3.*;
-            public interface MissingAnnotationsBaseDao {
-                int getFoo();
-            }
-            """
+                package test.library;
+                import androidx.room3.*;
+                public interface MissingAnnotationsBaseDao {
+                    int getFoo();
+                }
+                """
                     .trimIndent(),
             )
         val libraryClasspath = compileFiles(sources = listOf(librarySource))
@@ -1497,11 +1497,11 @@ class DatabaseProcessorTest {
             Source.java(
                 "foo.bar.MyDb",
                 """
-            package foo.bar;
-            import androidx.room3.*;
-            @Database(entities = {User.class}, version = 1, exportSchema = true)
-            public abstract class MyDb extends RoomDatabase {}
-            """
+                package foo.bar;
+                import androidx.room3.*;
+                @Database(entities = {User.class}, version = 1, exportSchema = true)
+                public abstract class MyDb extends RoomDatabase {}
+                """
                     .trimIndent(),
             )
         runKspTest(
@@ -1606,25 +1606,25 @@ class DatabaseProcessorTest {
             Source.kotlin(
                 "MyDatabase.kt",
                 """
-            import androidx.room3.*
+                import androidx.room3.*
 
-            @Database(entities = [MyEntity::class], version = 1, exportSchema = false)
-            abstract class MyDatabase : RoomDatabase() {
-              abstract val dao: MyDao
-            }
+                @Database(entities = [MyEntity::class], version = 1, exportSchema = false)
+                abstract class MyDatabase : RoomDatabase() {
+                  abstract val dao: MyDao
+                }
 
-            @Dao
-            interface MyDao {
-              @Query("SELECT * FROM MyEntity")
-              fun getEntity(): MyEntity
-            }
+                @Dao
+                interface MyDao {
+                  @Query("SELECT * FROM MyEntity")
+                  fun getEntity(): MyEntity
+                }
 
-            @Entity
-            data class MyEntity(
-                @PrimaryKey
-                var pk: Int
-            )
-            """
+                @Entity
+                data class MyEntity(
+                    @PrimaryKey
+                    var pk: Int
+                )
+                """
                     .trimIndent(),
             )
         runKspTest(sources = listOf(src)) { invocation ->

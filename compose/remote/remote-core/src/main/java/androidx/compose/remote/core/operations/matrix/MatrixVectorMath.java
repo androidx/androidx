@@ -15,8 +15,6 @@
  */
 package androidx.compose.remote.core.operations.matrix;
 
-import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
-
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.MatrixAccess;
 import androidx.compose.remote.core.Operation;
@@ -122,11 +120,11 @@ public class MatrixVectorMath extends Operation implements VariableSupport, Seri
     /**
      * Writes out the operation to the buffer
      *
-     * @param buffer write command to this buffer
-     * @param type the type of the operation
-     * @param outputs the ids to write the output vector
+     * @param buffer   write command to this buffer
+     * @param type     the type of the operation
+     * @param outputs  the ids to write the output vector
      * @param matrixId the id
-     * @param inputs input vector
+     * @param inputs   input vector
      */
     public static void apply(
             @NonNull WireBuffer buffer,
@@ -151,7 +149,7 @@ public class MatrixVectorMath extends Operation implements VariableSupport, Seri
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer the buffer to read
+     * @param buffer     the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -184,14 +182,16 @@ public class MatrixVectorMath extends Operation implements VariableSupport, Seri
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Expressions Operations", OP_CODE, CLASS_NAME)
-                .description("A float and its associated id")
-                .field(DocumentedOperation.INT, "matrixId", "id of Matrix")
-                .field(DocumentedOperation.SHORT, "opType", "The type of op 0=multiply")
+        doc.operation("Matrix Operations", OP_CODE, CLASS_NAME)
+                .addedVersion(7)
+                .description("Evaluates a matrix * vector and outputs a vector")
+                .field(DocumentedOperation.INT, "matrixId", "The ID of the matrix")
+                .field(DocumentedOperation.SHORT, "opType", "The type of operation (0=multiply)")
                 .field(DocumentedOperation.INT, "outLength", "The length of the output vector")
-                .field(FLOAT, "value", "outLength", "32-bit float value")
+                .field(DocumentedOperation.INT_ARRAY, "outputs",
+                        "The IDs to write the output vector")
                 .field(DocumentedOperation.INT, "inLength", "The length of the input vector")
-                .field(FLOAT, "value", "inLength", "32-bit float value");
+                .field(DocumentedOperation.FLOAT_ARRAY, "inputs", "The input vector values");
     }
 
     @Override

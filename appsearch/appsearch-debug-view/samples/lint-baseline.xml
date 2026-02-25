@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.1.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (9.1.0-alpha02)" variant="all" version="9.1.0-alpha02">
+
+    <issue
+        id="CheckResult"
+        message="The result of `call` is not used"
+        errorLine1="        Futures.whenAllSucceed(mNotesAppSearchManagerFuture).call(() -> {"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/appsearch/debugview/samples/NotesActivity.java"/>
+    </issue>
+
+    <issue
+        id="CheckResult"
+        message="The result of `call` is not used"
+        errorLine1="        Futures.whenAllSucceed(mAppSearchSessionFuture).call(() -> {"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/appsearch/debugview/samples/NotesAppSearchManager.java"/>
+    </issue>
+
+</issues>

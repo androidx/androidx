@@ -16,14 +16,12 @@
 
 package androidx.webkit.internal;
 
-import android.os.Build;
 import android.os.CancellationSignal;
 import android.webkit.CookieManager;
 import android.webkit.GeolocationPermissions;
 import android.webkit.ServiceWorkerController;
 import android.webkit.WebStorage;
 
-import androidx.annotation.RequiresApi;
 import androidx.webkit.CustomHeader;
 import androidx.webkit.OutcomeReceiverCompat;
 import androidx.webkit.PrefetchException;
@@ -228,7 +226,6 @@ public class ProfileImpl implements Profile {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void addCustomHeader(@NonNull CustomHeader header) {
         ApiFeature.NoFramework feature = WebViewFeatureInternal.CUSTOM_REQUEST_HEADERS;
@@ -251,7 +248,6 @@ public class ProfileImpl implements Profile {
     }
 
     @Override
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public @NonNull Set<CustomHeader> getCustomHeaders() {
         ApiFeature.NoFramework feature = WebViewFeatureInternal.CUSTOM_REQUEST_HEADERS;
         if (feature.isSupportedByWebView()) {
@@ -262,7 +258,6 @@ public class ProfileImpl implements Profile {
     }
 
     @Override
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public @NonNull Set<CustomHeader> getCustomHeaders(@NonNull String name) {
         ApiFeature.NoFramework feature = WebViewFeatureInternal.CUSTOM_REQUEST_HEADERS;
         if (feature.isSupportedByWebView()) {
@@ -273,7 +268,6 @@ public class ProfileImpl implements Profile {
     }
 
     @Override
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public @NonNull Set<CustomHeader> getCustomHeaders(@NonNull String name,
             @NonNull String value) {
         ApiFeature.NoFramework feature = WebViewFeatureInternal.CUSTOM_REQUEST_HEADERS;
@@ -284,7 +278,6 @@ public class ProfileImpl implements Profile {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     private @NonNull Set<CustomHeader> getCustomHeadersInternal(@Nullable String name,
             @Nullable String value) {
         HashSet<CustomHeader> headers = new HashSet<>();

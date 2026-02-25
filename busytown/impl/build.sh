@@ -128,7 +128,9 @@ else
 fi
 
 # check that no unexpected modifications were made to the source repository, such as new cache directories
-DIST_DIR=$DIST_DIR $SCRIPT_DIR/verify_no_caches_in_source_repo.sh $BUILD_START_MARKER
+if ! DIST_DIR=$DIST_DIR $SCRIPT_DIR/verify_no_caches_in_source_repo.sh $BUILD_START_MARKER; then
+  BUILD_STATUS=1 # failure
+fi
 
 # copy problem report to DIST_DIR so we can see them
 PROBLEM_REPORTS_EXPORTED=$DIST_DIR/problem-reports

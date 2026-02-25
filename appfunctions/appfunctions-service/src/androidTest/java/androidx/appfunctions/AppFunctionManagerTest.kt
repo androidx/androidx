@@ -244,42 +244,46 @@ class AppFunctionManagerTest {
     }
 
     @Test
-    fun testExecuteAppFunction_functionSucceed() {
-        val request =
-            ExecuteAppFunctionRequest(
-                targetPackageName = context.packageName,
-                functionIdentifier =
-                    AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_EXECUTION_SUCCEED,
-                functionParameters = AppFunctionData.EMPTY,
-            )
+    fun testExecuteAppFunction_functionSucceed() =
+        runBlocking<Unit> {
+            assumeTrue(metadataTestHelper.isDynamicIndexerAvailable())
+            val request =
+                ExecuteAppFunctionRequest(
+                    targetPackageName = context.packageName,
+                    functionIdentifier =
+                        AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_EXECUTION_SUCCEED,
+                    functionParameters = AppFunctionData.EMPTY,
+                )
 
-        val response = runBlocking { mAppFunctionManager.executeAppFunction(request) }
+            val response = mAppFunctionManager.executeAppFunction(request)
 
-        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
-        assertThat(
-                (response as ExecuteAppFunctionResponse.Success)
-                    .returnValue
-                    .getString(ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE)
-            )
-            .isEqualTo("result")
-    }
+            assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+            assertThat(
+                    (response as ExecuteAppFunctionResponse.Success)
+                        .returnValue
+                        .getString(ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE)
+                )
+                .isEqualTo("result")
+        }
 
     @Test
-    fun testExecuteAppFunction_functionFail() {
-        val request =
-            ExecuteAppFunctionRequest(
-                targetPackageName = context.packageName,
-                functionIdentifier =
-                    AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_EXECUTION_FAIL,
-                functionParameters = AppFunctionData.EMPTY,
-            )
+    fun testExecuteAppFunction_functionFail() =
+        runBlocking<Unit> {
+            assumeTrue(metadataTestHelper.isDynamicIndexerAvailable())
+            val request =
+                ExecuteAppFunctionRequest(
+                    targetPackageName = context.packageName,
+                    functionIdentifier =
+                        AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_EXECUTION_FAIL,
+                    functionParameters = AppFunctionData.EMPTY,
+                )
 
-        val response = runBlocking { mAppFunctionManager.executeAppFunction(request) }
+            val response = mAppFunctionManager.executeAppFunction(request)
 
-        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Error::class.java)
-        assertThat((response as ExecuteAppFunctionResponse.Error).error)
-            .isInstanceOf(AppFunctionInvalidArgumentException::class.java)
-    }
+            assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Error::class.java)
+            assertThat((response as ExecuteAppFunctionResponse.Error).error)
+                .isInstanceOf(AppFunctionInvalidArgumentException::class.java)
+        }
 
     @Test
     fun observeAppFunctions_emptyPackagesListInSearchSpec_noResults() =

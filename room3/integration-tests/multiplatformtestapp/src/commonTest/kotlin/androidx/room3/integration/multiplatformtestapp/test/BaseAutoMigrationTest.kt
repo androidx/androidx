@@ -33,8 +33,11 @@ import androidx.room3.RoomDatabaseConstructor
 import androidx.room3.integration.multiplatformtestapp.test.BaseAutoMigrationTest.AutoMigrationDatabase
 import androidx.room3.migration.AutoMigrationSpec
 import androidx.room3.testing.MigrationTestHelper
+import androidx.room3.util.getQualifiedName
 import androidx.sqlite.SQLiteConnection
-import androidx.sqlite.execSQL
+import androidx.sqlite.executeSQL
+import androidx.sqlite.prepare
+import androidx.sqlite.step
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 
@@ -100,8 +103,9 @@ abstract class BaseAutoMigrationTest {
         assertThrows<IllegalArgumentException> { getDatabaseBuilder().build() }
             .hasMessageThat()
             .contains(
-                "A required auto migration spec (${ProvidedSpecFrom2To3::class.qualifiedName}) is " +
-                    "missing in the database configuration."
+                "A required auto migration spec (" +
+                    ProvidedSpecFrom2To3::class.getQualifiedName() +
+                    ") is missing in the database configuration."
             )
     }
 
@@ -167,8 +171,8 @@ abstract class BaseAutoMigrationTest {
 
     @ProvidedAutoMigrationSpec
     open class ProvidedSpecFrom2To3 : AutoMigrationSpec {
-        override fun onPostMigrate(connection: SQLiteConnection) {
-            connection.execSQL("UPDATE AutoMigrationEntity SET moreData = '5'")
+        override suspend fun onPostMigrate(connection: SQLiteConnection) {
+            connection.executeSQL("UPDATE AutoMigrationEntity SET moreData = '5'")
         }
     }
 

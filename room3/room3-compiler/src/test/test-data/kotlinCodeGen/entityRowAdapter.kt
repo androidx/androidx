@@ -3,6 +3,8 @@ import androidx.room3.RoomDatabase
 import androidx.room3.util.getColumnIndex
 import androidx.room3.util.performBlocking
 import androidx.sqlite.SQLiteStatement
+import androidx.sqlite.prepare
+import androidx.sqlite.step
 import javax.`annotation`.processing.Generated
 import kotlin.Boolean
 import kotlin.Byte
@@ -204,7 +206,7 @@ internal class MyDao_Impl(
     if (_columnIndexOfValueChar == -1) {
       _tmpValueChar = ' '
     } else {
-      _tmpValueChar = statement.getLong(_columnIndexOfValueChar).toChar()
+      _tmpValueChar = statement.getLong(_columnIndexOfValueChar).toInt().toChar()
     }
     _entity = MyEntity(_tmpValuePrimitiveLong,_tmpValuePrimitiveInt,_tmpValuePrimitiveByte,_tmpValuePrimitiveShort,_tmpValueFloat,_tmpValueDouble,_tmpValueBoolean,_tmpValueNullableBoolean,_tmpValueString,_tmpValueNullableString,_tmpValueChar)
     if (_columnIndexOfVariablePrimitiveLong != -1) {
@@ -250,7 +252,7 @@ internal class MyDao_Impl(
       }
     }
     if (_columnIndexOfVariableChar != -1) {
-      _entity.variableChar = statement.getLong(_columnIndexOfVariableChar).toChar()
+      _entity.variableChar = statement.getLong(_columnIndexOfVariableChar).toInt().toChar()
     }
     return _entity
   }

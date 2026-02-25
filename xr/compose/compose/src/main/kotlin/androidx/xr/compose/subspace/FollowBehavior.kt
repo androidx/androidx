@@ -17,11 +17,10 @@
 package androidx.xr.compose.subspace
 
 import androidx.annotation.IntRange
+import androidx.annotation.VisibleForTesting
 import androidx.xr.arcore.ArDevice
 import androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi
 import androidx.xr.compose.subspace.layout.CoreGroupEntity
-import androidx.xr.compose.unit.Meter
-import androidx.xr.compose.unit.Meter.Companion.meters
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
@@ -30,6 +29,8 @@ import androidx.xr.scenecore.AnchorEntity
 import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.scene
 import java.lang.Runnable
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
@@ -41,6 +42,8 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.jetbrains.annotations.TestOnly
 
 /**
  * A FollowBehavior controls the motion of content as it is following another target, such as a
@@ -89,6 +92,10 @@ public sealed class FollowBehavior protected constructor() {
             @IntRange(from = MIN_SOFT_DURATION_MS.toLong())
             durationMs: Int = DEFAULT_SOFT_DURATION_MS
         ): FollowBehavior = SoftFollowBehavior(durationMs)
+
+        @TestOnly
+        @VisibleForTesting
+        internal var dispatcherOverride: CoroutineDispatcher = Dispatchers.Default
     }
 }
 
@@ -125,18 +132,20 @@ internal class SoftFollowBehavior(private val durationMs: Int = DEFAULT_SOFT_DUR
         val initialPose = trailingEntity.poseInMeters
 
         if (target is FollowTargetFlow) {
-            target.poseUpdates.collect { pose ->
-                // Determine the target pose using the source pose but ignoring the
-                // dimensions we are not tracking.
-                targetCurrentPose = applyTrackedDimensions(pose, dimensions, initialPose)
+            withContext(dispatcherOverride) {
+                target.poseUpdates.collect { pose ->
+                    // Determine the target pose using the source pose but ignoring the
+                    // dimensions we are not tracking.
+                    targetCurrentPose = applyTrackedDimensions(pose, dimensions, initialPose)
 
-                // If the target has moved significantly enough, start the animation over.
-                if (shouldStartAnimation()) {
-                    currentAnimationJob?.cancel()
-                    startPose = trailingEntity?.poseInMeters ?: Pose.Identity
-                    endPose = targetCurrentPose
-                    currentFrame = 1
-                    currentAnimationJob = this.launch { animate() }
+                    // If the target has moved significantly enough, start the animation over.
+                    if (shouldStartAnimation()) {
+                        currentAnimationJob?.cancel()
+                        startPose = trailingEntity?.poseInMeters ?: Pose.Identity
+                        endPose = targetCurrentPose
+                        currentFrame = 1
+                        currentAnimationJob = this.launch { animate() }
+                    }
                 }
             }
         }
@@ -281,11 +290,13 @@ internal object StaticFollowBehavior : FollowBehavior() {
         dimensions: TrackedDimensions,
     ) {
         if (target is FollowTargetFlow) {
-            target.poseUpdates.collect { targetCurrentPose ->
-                // Update the trailingEntity just once.
-                if (trailingEntity.poseInMeters == Pose.Identity) {
-                    trailingEntity.poseInMeters = targetCurrentPose
-                    currentCoroutineContext().cancel()
+            withContext(dispatcherOverride) {
+                target.poseUpdates.collect { targetCurrentPose ->
+                    // Update the trailingEntity just once.
+                    if (trailingEntity.poseInMeters == Pose.Identity) {
+                        trailingEntity.poseInMeters = targetCurrentPose
+                        currentCoroutineContext().cancel()
+                    }
                 }
             }
         }
@@ -305,7 +316,9 @@ internal object TightFollowBehavior : FollowBehavior() {
         dimensions: TrackedDimensions,
     ) {
         if (target is FollowTargetFlow) {
-            target.poseUpdates.collect { pose -> trailingEntity.poseInMeters = pose }
+            withContext(dispatcherOverride) {
+                target.poseUpdates.collect { pose -> trailingEntity.poseInMeters = pose }
+            }
         }
     }
 }
@@ -423,15 +436,14 @@ public sealed interface FollowTarget {
 }
 
 internal interface FollowTargetFlow : FollowTarget {
-    // Distance to stay away from the target when following it.
-    val offset: Meter
-
     val poseUpdates: Flow<Pose>
 }
 
 /** A concrete [FollowTarget] that wraps the head pose updates from [ArDevice]. */
 internal class ArDeviceTarget(private val session: Session) : FollowTargetFlow {
-    override val offset: Meter = DEFAULT_OFFSET.meters
+    // Distance to stay away from the target when following it.
+    val offset: Pose = DEFAULT_OFFSET
+
     override val poseUpdates: Flow<Pose> =
         ArDevice.getInstance(session)
             .state
@@ -454,9 +466,10 @@ internal class ArDeviceTarget(private val session: Session) : FollowTargetFlow {
         return session.hashCode()
     }
 
-    private companion object {
-        private const val INITIAL_POSE_DELAY_MS: Long = 1000
-        private const val DEFAULT_OFFSET: Float = -0.5f
+    internal companion object {
+        const val INITIAL_POSE_DELAY_MS: Long = 1000
+        // Distance to stay away from the target in meters.
+        val DEFAULT_OFFSET: Pose = Pose(translation = Vector3(0f, 0f, -.5f))
     }
 }
 
@@ -468,7 +481,6 @@ internal class ArDeviceTarget(private val session: Session) : FollowTargetFlow {
  * instance provided by the developer.
  */
 internal class AnchorTarget(val anchorEntity: AnchorEntity) : FollowTargetFlow {
-    override val offset: Meter = DEFAULT_OFFSET.meters
     private val pose: Pose
         get() = anchorEntity.getPose(Space.ACTIVITY)
 
@@ -481,11 +493,10 @@ internal class AnchorTarget(val anchorEntity: AnchorEntity) : FollowTargetFlow {
         trySend(pose)
 
         val updateListener = Runnable { trySend(pose) }
-
-        anchorEntity.setOnSpaceUpdatedListener(updateListener)
+        anchorEntity.setOnOriginChangedListener(updateListener)
 
         // Unregister the listener when the collector cancels or finishes.
-        awaitClose { anchorEntity.setOnSpaceUpdatedListener(null) }
+        awaitClose { anchorEntity.setOnOriginChangedListener(null) }
     }
 
     override fun equals(other: Any?): Boolean {
@@ -496,9 +507,5 @@ internal class AnchorTarget(val anchorEntity: AnchorEntity) : FollowTargetFlow {
 
     override fun hashCode(): Int {
         return anchorEntity.hashCode()
-    }
-
-    private companion object {
-        private const val DEFAULT_OFFSET: Float = 0f
     }
 }

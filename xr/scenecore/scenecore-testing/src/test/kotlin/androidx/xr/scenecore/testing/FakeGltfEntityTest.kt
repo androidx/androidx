@@ -107,33 +107,7 @@ class FakeGltfEntityTest {
     }
 
     @Test
-    fun setMaterialOverride_setMaterialCorrectly() {
-        val material = FakeResource(123)
-        val nodeName = "glTF node"
-        val primitiveIndex = 0
-
-        check(underTest.node.materialArray[primitiveIndex] == FakeResource(1))
-
-        underTest.setMaterialOverride(material, nodeName, primitiveIndex)
-
-        assertThat(underTest.node.materialArray[primitiveIndex]).isEqualTo(material)
-    }
-
-    @Test
-    fun clearMaterialOverride_setAndClearOverrideMaterial_getMaterialAfterClearCorrectly() {
-        val material = FakeResource(123)
-        val nodeName = "glTF node"
-        val primitiveIndex = 0
-
-        check(underTest.node.materialArray[primitiveIndex] == FakeResource(1))
-
-        underTest.setMaterialOverride(material, nodeName, primitiveIndex)
-
-        assertThat(underTest.node.materialArray[primitiveIndex]).isEqualTo(material)
-
-        underTest.clearMaterialOverride(nodeName, primitiveIndex)
-
-        assertThat(underTest.node.materialArray[primitiveIndex])
-            .isEqualTo(FakeResource(primitiveIndex.toLong()))
+    fun getAnimations_returnsEmptyList() {
+        assertThat(underTest.animations).isEmpty()
     }
 }

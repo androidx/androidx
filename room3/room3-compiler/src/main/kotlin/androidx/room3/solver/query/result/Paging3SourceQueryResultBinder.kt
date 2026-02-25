@@ -26,6 +26,7 @@ import androidx.room3.ext.InvokeWithLambdaParameter
 import androidx.room3.ext.LambdaSpec
 import androidx.room3.ext.RoomMemberNames.DB_UTIL_PERFORM_SUSPENDING
 import androidx.room3.ext.RoomTypeNames.RAW_QUERY
+import androidx.room3.ext.SQLiteDriverMemberNames
 import androidx.room3.ext.SQLiteDriverTypeNames
 import androidx.room3.solver.CodeGenScope
 import androidx.room3.solver.binderprovider.ConvertRowsOverrideInfo
@@ -154,8 +155,9 @@ class MultiTypePagingSourceQueryResultBinder(
                                     addLocalVal(
                                         stmtVarName,
                                         SQLiteDriverTypeNames.STATEMENT,
-                                        "%L.prepare(%L.sql)",
+                                        "%L.%M(%L.sql)",
                                         connectionVar,
+                                        SQLiteDriverMemberNames.CONNECTION_PREPARE,
                                         limitRawQueryParamName,
                                     )
                                     addStatement(

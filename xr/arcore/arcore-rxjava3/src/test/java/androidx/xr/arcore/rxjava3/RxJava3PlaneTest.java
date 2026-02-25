@@ -33,6 +33,7 @@ import androidx.xr.arcore.SessionExtKt;
 import androidx.xr.arcore.XrResourcesManager;
 import androidx.xr.arcore.testing.FakeRuntimePlane;
 import androidx.xr.runtime.Config;
+import androidx.xr.runtime.PlaneTrackingMode;
 import androidx.xr.runtime.Session;
 import androidx.xr.runtime.SessionCreateSuccess;
 import androidx.xr.runtime.math.Pose;
@@ -77,7 +78,7 @@ public class RxJava3PlaneTest {
     public void subscribeAsFlowable_planeTrackingDisabled_throwsIllegalStateException() {
         createTestSessionAndRunTest(
                 () -> {
-                    Config config = new Config(Config.PlaneTrackingMode.DISABLED);
+                    Config config = new Config(PlaneTrackingMode.DISABLED);
                     mSession.configure(config);
                     IllegalStateException thrown =
                             assertThrows(
@@ -117,8 +118,7 @@ public class RxJava3PlaneTest {
                                         .getSession();
                         mXrResourcesManager.setLifecycleManager$arcore(
                                 SessionExtKt.getPerceptionRuntime(mSession).getLifecycleManager());
-                        mSession.configure(
-                                new Config(Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL));
+                        mSession.configure(new Config(PlaneTrackingMode.HORIZONTAL_AND_VERTICAL));
                         try {
                             testBody.run();
                         } catch (Exception e) {

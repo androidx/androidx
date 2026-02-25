@@ -162,6 +162,8 @@ class PointerInputEventProcessorTest {
                         down = true,
                         pressure = 1.0f,
                         type = pointerType,
+                        scaleGestureFactor = 0f,
+                        panGestureOffset = Offset.Zero,
                     )
                 val data = previousEvents.map { it.copy(uptime = index.toLong()) }
                 PointerInputEvent(index.toLong(), data)
@@ -2650,6 +2652,8 @@ class PointerInputEventProcessorTest {
                     type = PointerType.Mouse,
                     pressure = 0f,
                     scrollDelta = Offset(0f, 100f),
+                    scaleGestureFactor = 0f,
+                    panGestureOffset = Offset.Zero,
                 )
                 .let { PointerInputEvent(uptime = 11, pointers = listOf(it)) }
 

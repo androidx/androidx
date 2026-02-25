@@ -76,6 +76,8 @@ internal class MultiInstanceInvalidationClient(
                     invalidatedTables.emit(invalidatedTablesSet)
                 }
             }
+
+            override fun getInterfaceVersion(): Int = VERSION
         }
 
     private val serviceConnection: ServiceConnection =

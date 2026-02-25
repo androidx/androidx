@@ -708,9 +708,9 @@ abstract class DeleteOrUpdateShortcutFunctionProcessorTest<out T : DeleteOrUpdat
             Source.java(
                 "foo.bar.EmptyClass",
                 """
-            package foo.bar;
-            public class EmptyClass {}
-            """
+                package foo.bar;
+                public class EmptyClass {}
+                """
                     .trimIndent(),
             )
 

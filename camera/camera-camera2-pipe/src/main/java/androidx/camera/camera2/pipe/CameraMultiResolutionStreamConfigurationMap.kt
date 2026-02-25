@@ -40,4 +40,7 @@ public interface CameraMultiResolutionStreamConfigurationMap : UnsafeWrapper {
 
     /** @see android.hardware.camera2.params.MultiResolutionStreamConfigurationMap.getInputInfo */
     public fun getInputInfo(format: StreamFormat): List<MultiResolutionStreamInfo>
+
+    /** Returns true if concurrent image reader output is supported */
+    public fun isConcurrentReadersSupported(format: StreamFormat): Boolean
 }

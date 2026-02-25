@@ -19,30 +19,28 @@ package androidx.xr.arcore.runtime
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.math.Pose
 
-/** Describes a face. */
+/**
+ * Describes a face.
+ *
+ * @property isValid a flag indicating if the Face is valid
+ * @property blendShapeValues the values measuring the blend shapes of the face
+ * @property confidenceValues the confidence values of the face tracker at different regions
+ * @property centerPose the [Pose] at the geometric center of the [mesh] if it exists
+ * @property mesh a [Mesh] representation of the Face
+ * @property noseTipPose the [Pose] located at the tip of the nose on the [mesh] if it exists
+ * @property foreheadLeftPose the [Pose] located at the left side of the forehead on the [mesh] if
+ *   it exists
+ * @property foreheadRightPose the [Pose] located at the right side of the forehead on the [mesh] if
+ *   it exists
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public interface Face : Trackable {
-    /** Flag indicating if the [Face] is valid */
+public interface Face : Anchorable {
     public val isValid: Boolean
-
-    /** The values measuring the blend shapes of the face. Range: `[0.0f, 1.0f]` */
     public val blendShapeValues: FloatArray?
-
-    /** The confidence values of the face tracker at different regions. Range: `[0.0f, 1.0f]` */
     public val confidenceValues: FloatArray?
-
-    /** The [Pose] at the geometric center of the [mesh]. */
     public val centerPose: Pose?
-
-    /** The [Mesh] data. */
     public val mesh: Mesh?
-
-    /** The [Pose] located at the tip of the nose. */
     public val noseTipPose: Pose?
-
-    /** The [Pose] located at the left side of the detected face's forehead. */
     public val foreheadLeftPose: Pose?
-
-    /** The [Pose] located at the right side of the detected face's forehead. */
     public val foreheadRightPose: Pose?
 }

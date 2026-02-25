@@ -35,7 +35,7 @@ class BaselineProfilesTest {
             Landroidx/Foo/Bar;
             [Landroidx/Foo/Bar;
             HSPLjava/io/DataOutputStream;->writeByte(I)V+]Ljava/io/OutputStream;missing_types
-        """
+            """
                 .trimIndent()
 
         val filtered = filterProfileRulesToTargetP(profile, sortRules = false) { true }

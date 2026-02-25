@@ -18,6 +18,7 @@
 package androidx.compose.remote.creation.compose.shapes
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.unit.LayoutDirection
@@ -33,5 +34,9 @@ public interface RemoteShape {
      * @return [Outline] of this shape for the given [size].
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun createOutline(size: RemoteSize, layoutDirection: LayoutDirection): RemoteOutline
+    public fun createOutline(
+        size: RemoteSize,
+        density: RemoteDensity,
+        layoutDirection: LayoutDirection,
+    ): RemoteOutline
 }

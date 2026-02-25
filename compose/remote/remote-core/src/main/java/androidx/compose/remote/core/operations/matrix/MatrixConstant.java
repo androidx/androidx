@@ -15,8 +15,6 @@
  */
 package androidx.compose.remote.core.operations.matrix;
 
-import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
-
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.MatrixAccess;
 import androidx.compose.remote.core.Operation;
@@ -90,10 +88,10 @@ public class MatrixConstant extends Operation implements Serializable, MatrixAcc
     /**
      * Writes out the operation to the buffer
      *
-     * @param buffer write command to this buffer
+     * @param buffer   write command to this buffer
      * @param matrixId the id
-     * @param type the type of matrix it is
-     * @param values the value of the float
+     * @param type     the type of matrix it is
+     * @param values   the value of the float
      */
     public static void apply(
             @NonNull WireBuffer buffer, int matrixId, int type, float @NonNull [] values) {
@@ -109,7 +107,7 @@ public class MatrixConstant extends Operation implements Serializable, MatrixAcc
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer the buffer to read
+     * @param buffer     the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -132,10 +130,13 @@ public class MatrixConstant extends Operation implements Serializable, MatrixAcc
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Expressions Operations", OP_CODE, CLASS_NAME)
-                .description("A float and its associated id")
-                .field(DocumentedOperation.INT, "id", "id of float")
-                .field(FLOAT, "value", "32-bit float value");
+        doc.operation("Matrix Operations", OP_CODE, CLASS_NAME)
+                .addedVersion(7)
+                .additionalDocumentation("matrix_constant")
+                .description("A constant matrix and its associated ID")
+                .field(DocumentedOperation.INT, "matrixId", "The ID of the matrix")
+                .field(DocumentedOperation.INT, "type", "The type of matrix")
+                .field(DocumentedOperation.FLOAT_ARRAY, "values", "The matrix values");
     }
 
     @Override

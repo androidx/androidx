@@ -100,7 +100,8 @@ internal object VaccinesMedicalResourceFactory {
                   }
                 }
               ]
-            }"""
+            }
+            """
                 .trimIndent()
         )
 

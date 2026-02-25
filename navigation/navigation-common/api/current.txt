@@ -120,7 +120,6 @@ package androidx.navigation {
 
   public final class NavBackStackEntry implements androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
     method @InaccessibleFromKotlin public android.os.Bundle? getArguments();
-    method @InaccessibleFromKotlin public androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
     method @InaccessibleFromKotlin public androidx.navigation.NavDestination getDestination();
     method @InaccessibleFromKotlin public String getId();
     method @InaccessibleFromKotlin public androidx.lifecycle.Lifecycle getLifecycle();

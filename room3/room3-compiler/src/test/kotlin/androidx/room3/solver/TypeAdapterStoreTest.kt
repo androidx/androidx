@@ -29,14 +29,11 @@ import androidx.room3.compiler.processing.XRawType
 import androidx.room3.compiler.processing.isTypeElement
 import androidx.room3.compiler.processing.util.Source
 import androidx.room3.compiler.processing.util.XTestInvocation
-import androidx.room3.compiler.processing.util.compileFiles
 import androidx.room3.compiler.processing.util.runKspTest
 import androidx.room3.compiler.processing.util.runProcessorTest
 import androidx.room3.ext.CommonTypeNames
 import androidx.room3.ext.GuavaUtilConcurrentTypeNames
-import androidx.room3.ext.LifecyclesTypeNames
 import androidx.room3.ext.PagingTypeNames
-import androidx.room3.ext.ReactiveStreamsTypeNames
 import androidx.room3.ext.RoomTypeNames.ROOM_DB
 import androidx.room3.ext.RoomTypeNames.STRING_UTIL
 import androidx.room3.ext.RxJava3TypeNames
@@ -48,10 +45,8 @@ import androidx.room3.processor.DaoProcessor
 import androidx.room3.processor.DaoProcessorTest
 import androidx.room3.processor.ProcessorErrors
 import androidx.room3.solver.binderprovider.ListenableFuturePagingSourceQueryResultBinderProvider
-import androidx.room3.solver.binderprovider.LiveDataQueryResultBinderProvider
 import androidx.room3.solver.binderprovider.PagingSourceQueryResultBinderProvider
 import androidx.room3.solver.binderprovider.RxJava3PagingSourceQueryResultBinderProvider
-import androidx.room3.solver.binderprovider.RxQueryResultBinderProvider
 import androidx.room3.solver.query.parameter.CollectionQueryParameterAdapter
 import androidx.room3.solver.query.result.MultiTypePagingSourceQueryResultBinder
 import androidx.room3.solver.shortcut.binderprovider.GuavaListenableFutureDeleteOrUpdateFunctionBinderProvider
@@ -95,44 +90,44 @@ class TypeAdapterStoreTest {
             Source.java(
                 "foo.bar.EmptyClass",
                 """
-            package foo.bar;
-            import androidx.room3.*;
-            public class EmptyClass {
-                public enum Color {
-                    RED,
-                    GREEN
-                }
-                public class ColorTypeConverter {
-                    @TypeConverter
-                    public Color fromIntToColorEnum(int colorInt) {
-                        if (colorInt == 1) {
-                            return Color.RED;
-                        } else {
-                            return Color.GREEN;
+                package foo.bar;
+                import androidx.room3.*;
+                public class EmptyClass {
+                    public enum Color {
+                        RED,
+                        GREEN
+                    }
+                    public class ColorTypeConverter {
+                        @TypeConverter
+                        public Color fromIntToColorEnum(int colorInt) {
+                            if (colorInt == 1) {
+                                return Color.RED;
+                            } else {
+                                return Color.GREEN;
+                            }
                         }
                     }
                 }
-            }
-            """
+                """
                     .trimIndent(),
             )
         val entity =
             Source.java(
                 "foo.bar.EntityWithOneWayEnum",
                 """
-            package foo.bar;
-            import androidx.room3.*;
-            @Entity
-            @TypeConverters(EmptyClass.ColorTypeConverter.class)
-            public class EntityWithOneWayEnum {
-                public enum Color {
-                    RED,
-                    GREEN
+                package foo.bar;
+                import androidx.room3.*;
+                @Entity
+                @TypeConverters(EmptyClass.ColorTypeConverter.class)
+                public class EntityWithOneWayEnum {
+                    public enum Color {
+                        RED,
+                        GREEN
+                    }
+                    @PrimaryKey public Long id;
+                    public Color color;
                 }
-                @PrimaryKey public Long id;
-                public Color color;
-            }
-            """
+                """
                     .trimIndent(),
             )
         runKspTest(sources = listOf(entity, converter)) { invocation ->
@@ -190,11 +185,12 @@ class TypeAdapterStoreTest {
         val enumSrc =
             Source.java(
                 "foo.bar.Fruit",
-                """ package foo.bar;
-                enum Fruit {
-                    APPLE,
-                    BANANA,
-                    STRAWBERRY}
+                """
+                | package foo.bar;
+                |                enum Fruit {
+                |                    APPLE,
+                |                    BANANA,
+                |                    STRAWBERRY}
                 """
                     .trimMargin(),
             )
@@ -217,15 +213,15 @@ class TypeAdapterStoreTest {
             Source.kotlin(
                 "Foo.kt",
                 """
-            @JvmInline
-            value class IntValueClass(val data: Int)
-            @JvmInline
-            value class StringValueClass(val data: String)
-            class EntityWithValueClass {
-                val intData = IntValueClass(123)
-                val stringData = StringValueClass("bla")
-            }
-            """
+                @JvmInline
+                value class IntValueClass(val data: Int)
+                @JvmInline
+                value class StringValueClass(val data: String)
+                class EntityWithValueClass {
+                    val intData = IntValueClass(123)
+                    val stringData = StringValueClass("bla")
+                }
+                """
                     .trimIndent(),
             )
         var results: Map<String, String?> = mutableMapOf()
@@ -276,12 +272,12 @@ class TypeAdapterStoreTest {
             Source.kotlin(
                 "Foo.kt",
                 """
-            @JvmInline
-            value class Foo(val value : Int) {
-                val double
-                    get() = value * 2
-            }
-            """
+                @JvmInline
+                value class Foo(val value : Int) {
+                    val double
+                        get() = value * 2
+                }
+                """
                     .trimIndent(),
             )
 
@@ -308,9 +304,9 @@ class TypeAdapterStoreTest {
             Source.kotlin(
                 "Foo.kt",
                 """
-            @JvmInline
-            value class Foo(private val value : Int)
-            """
+                @JvmInline
+                value class Foo(private val value : Int)
+                """
                     .trimIndent(),
             )
 
@@ -337,9 +333,9 @@ class TypeAdapterStoreTest {
             Source.kotlin(
                 "Foo.kt",
                 """
-            @JvmInline
-            value class Foo private constructor(val value : Int)
-            """
+                @JvmInline
+                value class Foo private constructor(val value : Int)
+                """
                     .trimIndent(),
             )
 
@@ -530,13 +526,13 @@ class TypeAdapterStoreTest {
                 bindScope.generate().toString(CodeLanguage.JAVA).trim(),
                 `is`(
                     """
-                final java.lang.Long _tmp;
-                if (curs.isNull(0)) {
-                  _tmp = null;
-                } else {
-                  _tmp = curs.getLong(0);
-                }
-                outDate = new java.util.Date(_tmp);
+                    final java.lang.Long _tmp;
+                    if (curs.isNull(0)) {
+                      _tmp = null;
+                    } else {
+                      _tmp = curs.getLong(0);
+                    }
+                    outDate = new java.util.Date(_tmp);
                     """
                         .trimIndent()
                 ),
@@ -625,24 +621,6 @@ class TypeAdapterStoreTest {
     }
 
     @Test
-    fun testMissingRx3Room() {
-        runKspTest(sources = listOf(COMMON.PUBLISHER, COMMON.RX3_FLOWABLE)) { invocation ->
-            val publisherElement =
-                invocation.processingEnv.requireTypeElement(ReactiveStreamsTypeNames.PUBLISHER)
-            assertThat(publisherElement, notNullValue())
-            assertThat(
-                RxQueryResultBinderProvider.getAll(invocation.context).any {
-                    it.matches(publisherElement.type)
-                },
-                `is`(true),
-            )
-            invocation.assertCompilationResult {
-                hasError(ProcessorErrors.MISSING_ROOM_RXJAVA3_ARTIFACT)
-            }
-        }
-    }
-
-    @Test
     fun testMissingRoomPaging() {
         runProcessorTest { invocation ->
             val pagingSourceElement =
@@ -709,93 +687,6 @@ class TypeAdapterStoreTest {
                 hasError(ProcessorErrors.MISSING_ROOM_PAGING_RXJAVA3_ARTIFACT)
             }
         }
-    }
-
-    @Test
-    fun testFindPublisher() {
-        listOf(COMMON.RX3_FLOWABLE to COMMON.RX3_ROOM).forEach { (rxTypeSrc, rxRoomSrc) ->
-            runKspTest(
-                sources = listOf(rxTypeSrc, rxRoomSrc),
-                classpath =
-                    compileFiles(
-                        listOf(
-                            COMMON.RX3_SINGLE,
-                            COMMON.RX3_MAYBE,
-                            COMMON.RX3_COMPLETABLE,
-                            COMMON.RX3_OBSERVABLE,
-                            COMMON.PUBLISHER,
-                        )
-                    ),
-            ) { invocation ->
-                val publisher =
-                    invocation.processingEnv.requireTypeElement(ReactiveStreamsTypeNames.PUBLISHER)
-                assertThat(publisher, notNullValue())
-                assertThat(
-                    RxQueryResultBinderProvider.getAll(invocation.context).any {
-                        it.matches(publisher.type)
-                    },
-                    `is`(true),
-                )
-            }
-        }
-    }
-
-    @Test
-    fun testFindFlowable() {
-        listOf(Triple(COMMON.RX3_FLOWABLE, COMMON.RX3_ROOM, RxJava3TypeNames.FLOWABLE)).forEach {
-            (rxTypeSrc, rxRoomSrc, rxTypeClassName) ->
-            runKspTest(
-                sources = listOf(rxTypeSrc, rxRoomSrc),
-                classpath =
-                    compileFiles(
-                        listOf(
-                            COMMON.RX3_SINGLE,
-                            COMMON.RX3_MAYBE,
-                            COMMON.RX3_COMPLETABLE,
-                            COMMON.RX3_OBSERVABLE,
-                            COMMON.PUBLISHER,
-                        )
-                    ),
-            ) { invocation ->
-                val flowable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
-                assertThat(
-                    RxQueryResultBinderProvider.getAll(invocation.context).any {
-                        it.matches(flowable.type)
-                    },
-                    `is`(true),
-                )
-            }
-        }
-    }
-
-    @Test
-    fun testFindObservable() {
-        listOf(Triple(COMMON.RX3_OBSERVABLE, COMMON.RX3_ROOM, RxJava3TypeNames.OBSERVABLE))
-            .forEach { (rxTypeSrc, rxRoomSrc, rxTypeClassName) ->
-                runKspTest(
-                    sources = listOf(rxTypeSrc, rxRoomSrc),
-                    classpath =
-                        compileFiles(
-                            listOf(
-                                COMMON.RX3_SINGLE,
-                                COMMON.RX3_MAYBE,
-                                COMMON.RX3_COMPLETABLE,
-                                COMMON.RX3_OBSERVABLE,
-                                COMMON.RX3_FLOWABLE,
-                                COMMON.PUBLISHER,
-                            )
-                        ),
-                ) { invocation ->
-                    val observable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
-                    assertThat(observable, notNullValue())
-                    assertThat(
-                        RxQueryResultBinderProvider.getAll(invocation.context).any {
-                            it.matches(observable.type)
-                        },
-                        `is`(true),
-                    )
-                }
-            }
     }
 
     @Test
@@ -980,19 +871,6 @@ class TypeAdapterStoreTest {
                         .matches(future.type)
                 )
                 .isTrue()
-        }
-    }
-
-    @Test
-    fun testFindLiveData() {
-        runKspTest(sources = listOf(COMMON.COMPUTABLE_LIVE_DATA, COMMON.LIVE_DATA)) { invocation ->
-            val liveData =
-                invocation.processingEnv.requireTypeElement(LifecyclesTypeNames.LIVE_DATA)
-            assertThat(liveData, notNullValue())
-            assertThat(
-                LiveDataQueryResultBinderProvider(invocation.context).matches(liveData.type),
-                `is`(true),
-            )
         }
     }
 
@@ -1461,32 +1339,32 @@ class TypeAdapterStoreTest {
             Source.kotlin(
                 "Foo.kt",
                 """
-            import androidx.room3.*
-            typealias MyLongAlias = Long
-            typealias MyNullableLongAlias = Long?
+                import androidx.room3.*
+                typealias MyLongAlias = Long
+                typealias MyNullableLongAlias = Long?
 
-            data class MyClass(val foo:String)
-            typealias MyClassAlias = MyClass
-            typealias MyClassNullableAlias = MyClass?
+                data class MyClass(val foo:String)
+                typealias MyClassAlias = MyClass
+                typealias MyClassNullableAlias = MyClass?
 
-            object MyConverters {
-                @TypeConverter
-                fun myClassToString(myClass : MyClass): String = TODO()
-                @TypeConverter
-                fun nullableMyClassToString(myClass : MyClass?): String? = TODO()
-            }
-            class Subject {
-                val myLongAlias : MyLongAlias = TODO()
-                val myLongAlias_nullable : MyLongAlias? = TODO()
-                val myNullableLongAlias : MyNullableLongAlias = TODO()
-                val myNullableLongAlias_nullable : MyNullableLongAlias? = TODO()
-                val myClass : MyClass = TODO()
-                val myClassAlias : MyClassAlias = TODO()
-                val myClassAlias_nullable : MyClassAlias? = TODO()
-                val myClassNullableAlias : MyClassNullableAlias = TODO()
-                val myClassNullableAlias_nullable : MyClassNullableAlias = TODO()
-            }
-            """
+                object MyConverters {
+                    @TypeConverter
+                    fun myClassToString(myClass : MyClass): String = TODO()
+                    @TypeConverter
+                    fun nullableMyClassToString(myClass : MyClass?): String? = TODO()
+                }
+                class Subject {
+                    val myLongAlias : MyLongAlias = TODO()
+                    val myLongAlias_nullable : MyLongAlias? = TODO()
+                    val myNullableLongAlias : MyNullableLongAlias = TODO()
+                    val myNullableLongAlias_nullable : MyNullableLongAlias? = TODO()
+                    val myClass : MyClass = TODO()
+                    val myClassAlias : MyClassAlias = TODO()
+                    val myClassAlias_nullable : MyClassAlias? = TODO()
+                    val myClassNullableAlias : MyClassNullableAlias = TODO()
+                    val myClassNullableAlias_nullable : MyClassNullableAlias = TODO()
+                }
+                """
                     .trimIndent(),
             )
         runKspTest(sources = listOf(source)) { invocation ->
@@ -1558,71 +1436,71 @@ class TypeAdapterStoreTest {
             Source.java(
                 "foo.bar.Human",
                 """
-            package foo.bar;
-            public class Human extends Username {
-                public String relationId;
-            }
-            """
+                package foo.bar;
+                public class Human extends Username {
+                    public String relationId;
+                }
+                """
                     .trimIndent(),
             )
         val classWithFncs =
             Source.java(
                 "foo.bar.Username",
                 """
-            package foo.bar;
-            public class Username extends Person {
-                public String name;
-                @Override
-                public boolean equals(Object o) {
-                    return false;
+                package foo.bar;
+                public class Username extends Person {
+                    public String name;
+                    @Override
+                    public boolean equals(Object o) {
+                        return false;
+                    }
+                    @Override
+                    public int hashCode() {
+                        return 0;
+                    }
                 }
-                @Override
-                public int hashCode() {
-                    return 0;
-                }
-            }
-            """
+                """
                     .trimIndent(),
             )
         val classWithoutFncs =
             Source.java(
                 "foo.bar.Person",
                 """
-            package foo.bar;
-            public class Person {
-                public String userId;
-            }
-            """
+                package foo.bar;
+                public class Person {
+                    public String userId;
+                }
+                """
                     .trimIndent(),
             )
         val enumClass =
             Source.java(
                 "foo.bar.Names",
                 """
-            package foo.bar;
-            public enum Names {
-                ELLA,
-                BOB,
-                JAMES
-            }
-            """
+                package foo.bar;
+                public enum Names {
+                    ELLA,
+                    BOB,
+                    JAMES
+                }
+                """
                     .trimIndent(),
             )
         val classWithWrongFncs =
             Source.java(
                 "foo.bar.UsernameWithWrongFncs",
                 """
-            package foo.bar;
-            public class UsernameWithWrongFncs {
-                public String name;
-                public boolean equals() {
-                    return true;
+                package foo.bar;
+                public class UsernameWithWrongFncs {
+                    public String name;
+                    public boolean equals() {
+                        return true;
+                    }
+                    public int hashCode(int num) {
+                        return num;
+                    }
                 }
-                public int hashCode(int num) {
-                    return num;
-                }
-            }
-            """
+                """
                     .trimIndent(),
             )
         runKspTest(
@@ -1654,18 +1532,18 @@ class TypeAdapterStoreTest {
             Source.java(
                 "foo.bar.Subject",
                 """
-            package foo.bar;
-            public class Subject {
-                public int primitiveInt = 0;
-                public Integer boxedInt = 1;
-                public boolean primitiveBool = true;
-                public Boolean boxedBool = false;
-                public double primitiveDouble = 2.2;
-                public Double boxedDouble = 3.3;
-                public long primitiveLong = 4L;
-                public Long boxedLong = 5L;
-            }
-            """
+                package foo.bar;
+                public class Subject {
+                    public int primitiveInt = 0;
+                    public Integer boxedInt = 1;
+                    public boolean primitiveBool = true;
+                    public Boolean boxedBool = false;
+                    public double primitiveDouble = 2.2;
+                    public Double boxedDouble = 3.3;
+                    public long primitiveLong = 4L;
+                    public Long boxedLong = 5L;
+                }
+                """
                     .trimIndent(),
             )
         runKspTest(
@@ -1690,14 +1568,14 @@ class TypeAdapterStoreTest {
             Source.kotlin(
                 "Foo.kt",
                 """
-            import androidx.room3.*
-            class Subject {
-               val anInteger = 0
-               val aBoolean = true
-               val aDouble = 2.2
-               val aLong = 5L
-            }
-            """
+                import androidx.room3.*
+                class Subject {
+                   val anInteger = 0
+                   val aBoolean = true
+                   val aDouble = 2.2
+                   val aLong = 5L
+                }
+                """
                     .trimIndent(),
             )
         runKspTest(sources = listOf(source)) { invocation ->

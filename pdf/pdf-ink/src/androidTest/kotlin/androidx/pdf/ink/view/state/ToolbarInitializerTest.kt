@@ -47,9 +47,9 @@ class ToolbarInitializerTest {
         assertThat(initialState.isAnnotationVisible).isTrue()
         assertThat(initialState.canUndo).isFalse()
         assertThat(initialState.canRedo).isFalse()
-        assertThat(initialState.isBrushSizeSliderVisible).isFalse()
+        assertThat(initialState.showBrushSizeSlider).isFalse()
         assertThat(initialState.isColorPaletteEnabled).isTrue()
-        assertThat(initialState.isColorPaletteVisible).isFalse()
+        assertThat(initialState.showColorPalette).isFalse()
 
         // Verify default pen attributes
         val penPaletteItems = getPenPaletteItems(context)

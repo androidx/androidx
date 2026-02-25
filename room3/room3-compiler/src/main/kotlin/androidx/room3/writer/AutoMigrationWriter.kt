@@ -98,6 +98,7 @@ class AutoMigrationWriter(
                     name = "migrate",
                     visibility = VisibilityModifier.PUBLIC,
                     isOverride = true,
+                    isSuspend = true,
                 )
                 .apply {
                     addParameter(typeName = CONNECTION, name = "connection")

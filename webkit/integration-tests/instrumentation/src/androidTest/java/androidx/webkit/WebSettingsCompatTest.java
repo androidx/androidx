@@ -311,20 +311,19 @@ public class WebSettingsCompatTest {
         Assert.assertTrue(WebSettingsCompat.getBackForwardCacheEnabled(settings));
     }
 
+    @SuppressWarnings({"deprecation", "removal"})
     @Test
     public void testBFCacheSettings() {
-        WebkitUtils.checkFeature(WebViewFeature.BACK_FORWARD_CACHE_SETTINGS);
+        WebkitUtils.checkFeature(WebViewFeature.BACK_FORWARD_CACHE_SETTINGS_EXPERIMENTAL_V3);
         WebSettings settings = mWebViewOnUiThread.getSettings();
         final int pageLimit = 5;
         final int timeout = 96000;
 
         BackForwardCacheSettings backForwardCacheSettings =
-                new BackForwardCacheSettings.Builder()
-                        .setTimeoutSeconds(timeout)
-                        .setMaxPagesInCache(pageLimit)
-                        .build();
+                WebSettingsCompat.getBackForwardCacheSettings(settings);
+        backForwardCacheSettings.setMaxPagesInCache(pageLimit);
+        backForwardCacheSettings.setTimeoutSeconds(timeout);
 
-        WebSettingsCompat.setBackForwardCacheSettings(settings, backForwardCacheSettings);
         BackForwardCacheSettings newBackForwardCacheSettings =
                 WebSettingsCompat.getBackForwardCacheSettings(settings);
         Assert.assertEquals(backForwardCacheSettings.getMaxPagesInCache(),

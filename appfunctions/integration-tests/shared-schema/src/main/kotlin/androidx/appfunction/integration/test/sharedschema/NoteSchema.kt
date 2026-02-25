@@ -42,7 +42,7 @@ public interface CreateNoteAppFunction {
     ): Response
 
     /** The parameters for creating a note. */
-    @AppFunctionSerializable(isDescribedByKdoc = true)
+    @AppFunctionSerializable(isDescribedByKDoc = true)
     public data class Parameters(
         /** The title of the note. */
         val title: String,
@@ -79,7 +79,7 @@ public interface CreateNoteAppFunction {
     )
 
     /** The response including the created note. */
-    @AppFunctionSerializable(isDescribedByKdoc = true)
+    @AppFunctionSerializable(isDescribedByKDoc = true)
     public data class Response(
         /** The created note. */
         public val createdNote: AppFunctionNote,
@@ -89,7 +89,7 @@ public interface CreateNoteAppFunction {
 }
 
 /** A note entity. */
-@AppFunctionSerializable(isDescribedByKdoc = true)
+@AppFunctionSerializable(isDescribedByKDoc = true)
 public data class AppFunctionNote(
     /** The ID of the note. */
     val id: String,
@@ -104,7 +104,7 @@ public data class AppFunctionNote(
     val attachments: List<Attachment> = emptyList(),
 ) {
     /** An attached file. */
-    @AppFunctionSerializable(isDescribedByKdoc = true)
+    @AppFunctionSerializable(isDescribedByKDoc = true)
     data class Attachment(
         /**
          * The URI of the attached file.

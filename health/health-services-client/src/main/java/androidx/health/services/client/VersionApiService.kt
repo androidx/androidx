@@ -45,6 +45,8 @@ public class VersionApiService : Service() {
             VersionApiService.VERSION_API_SERVICE_VERSION
 
         override fun getSdkVersion(): Int = VersionApiService.CANONICAL_SDK_VERSION
+
+        override fun getInterfaceVersion(): Int = VERSION
     }
 
     private companion object {

@@ -32,15 +32,15 @@ import kotlin.time.ComparableTimeMark
  *
  * Can be obtained from [CoreState.cameraState].
  *
- * @property timeMark the time at which the state was computed.
- * @property trackingState the tracking state of the camera.
- * @property cameraPose the pose of the physical camera in the world space.
- * @property displayOrientedPose the pose of the virtual camera in the world space (for OpenGL)
- * @property projectionMatrix the projection matrix of the camera.
- * @property viewMatrix the view matrix of the camera.
- * @property hardwareBuffer the hardware buffer of the frame captured by the session.
+ * @property timeMark the time at which the state was computed
+ * @property trackingState the tracking state of the camera
+ * @property cameraPose the [Pose] of the physical camera in the world space
+ * @property displayOrientedPose the [Pose] of the virtual camera in the world space
+ * @property projectionMatrix the projection [Matrix4] of the camera
+ * @property viewMatrix the view [Matrix4] of the camera
+ * @property hardwareBuffer the [HardwareBuffer] of the frame captured by the session
  * @property transformCoordinates2D a function that transforms coordinates from normalized OpenGL
- *   device coordinates (display-rotated) to normalized texture coordinates.
+ *   device coordinates to normalized texture coordinates
  * @sample androidx.xr.arcore.samples.getHardwareBuffer
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)

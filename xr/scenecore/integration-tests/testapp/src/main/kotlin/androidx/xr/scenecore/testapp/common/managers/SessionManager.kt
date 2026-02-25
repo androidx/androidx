@@ -47,14 +47,10 @@ class SessionManager(private val activity: AppCompatActivity) {
             }
         }
 
-    @Suppress("DEPRECATION")
     fun createSession(): Session? {
         var session: Session? = null
         try {
-            when (
-                val sessionCreateResult =
-                    Session.create(activity, unscaledGravityAlignedActivitySpace = true)
-            ) {
+            when (val sessionCreateResult = Session.create(activity)) {
                 is SessionCreateSuccess -> {
                     session = sessionCreateResult.session
                     obtainUserPermissions(activity)
@@ -69,6 +65,12 @@ class SessionManager(private val activity: AppCompatActivity) {
                 is SessionCreateUnsupportedDevice -> {
                     Toast.makeText(activity, "Unsupported device.", Toast.LENGTH_LONG).show()
                     activity.finish()
+                }
+
+                else -> {
+                    androidx.xr.runtime.Log.error {
+                        "Unexpected ${sessionCreateResult::class.simpleName}"
+                    }
                 }
             }
         } catch (e: SecurityException) {

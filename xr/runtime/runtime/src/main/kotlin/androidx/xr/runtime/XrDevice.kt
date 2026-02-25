@@ -16,12 +16,45 @@
 
 package androidx.xr.runtime
 
+import android.content.Context
+import androidx.lifecycle.Lifecycle
+import androidx.xr.runtime.XrDevice.Companion.getCurrentDevice
+import androidx.xr.runtime.interfaces.XrDeviceCapabilityProvider
+import androidx.xr.runtime.interfaces.XrDeviceCapabilityProviderFactory
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
+
 /** Provides hardware capabilities of the device. */
-public class XrDevice private constructor(private val session: Session) {
+public class XrDevice
+private constructor(
+    private val session: Session?,
+    private val xrDeviceCapabilityProvider: XrDeviceCapabilityProvider?,
+) {
+
+    /**
+     * Returns this XrDevice's [Lifecycle].
+     *
+     * The value will be the Projected device's lifecycle if its [Context] was used when calling
+     * [getCurrentDevice]. Otherwise, the [Session's][Session] lifecycle will be returned.
+     *
+     * @throws IllegalStateException if there is no lifecycle associated with this XrDevice.
+     */
+    @ExperimentalXrDeviceLifecycleApi
+    public fun getLifecycle(): Lifecycle =
+        // TODO(b/461561664) : Use XrDeviceCapabilityProvider.getLifecycle() once session
+        // constructor is removed.
+        xrDeviceCapabilityProvider?.lifecycle
+            ?: session?.lifecycleOwner?.lifecycle
+            ?: throw IllegalStateException("No lifecycle associated with this XrDevice.")
 
     /** A device capability that determines how virtual content is added to the real world. */
+    @Deprecated(
+        "Use androidx.xr.runtime.DisplayBlendMode instead.",
+        replaceWith = ReplaceWith("androidx.xr.runtime.DisplayBlendMode"),
+    )
     public class DisplayBlendMode private constructor(private val value: Int) {
 
+        @Suppress("DEPRECATION")
         public companion object {
             /** Blending is not supported. */
             @JvmField public val NO_DISPLAY: DisplayBlendMode = DisplayBlendMode(0)
@@ -37,24 +70,56 @@ public class XrDevice private constructor(private val session: Session) {
              */
             @JvmField public val ALPHA_BLEND: DisplayBlendMode = DisplayBlendMode(2)
         }
-
-        public override fun toString(): String =
-            when (this) {
-                NO_DISPLAY -> "NOT_APPLICABLE"
-                ADDITIVE -> "ADDITIVE"
-                ALPHA_BLEND -> "ALPHA_BLEND"
-                else -> "UNKNOWN"
-            }
     }
 
     public companion object {
 
+        private val CAPABILITY_FACTORY_PROVIDERS =
+            listOf(
+                "androidx.xr.openxr.OpenXrDeviceCapabilityProviderFactory",
+                "androidx.xr.projected.ProjectedDeviceCapabilityProviderFactory",
+            )
+
+        // TODO(b/461561664): Remove this API once session is no longer needed for XrDevice.
         /**
          * Get the current [XrDevice] for the provided [Session].
          *
          * @param session the [Session] connected to the device.
          */
-        @JvmStatic public fun getCurrentDevice(session: Session): XrDevice = XrDevice(session)
+        @JvmStatic
+        @Deprecated("Use getCurrentDevice(Context) instead.")
+        public fun getCurrentDevice(session: Session): XrDevice =
+            XrDevice(session, xrDeviceCapabilityProvider = null)
+
+        /**
+         * Get the current [XrDevice] for the provided [Context].
+         *
+         * @param context the [Context] associated with the device
+         * @param coroutineContext the [CoroutineContext] to use for the XrDevice operations
+         * @throws IllegalArgumentException if the provided [Context] is not supported
+         */
+        @JvmStatic
+        @JvmOverloads
+        @ExperimentalXrDeviceLifecycleApi
+        public fun getCurrentDevice(
+            context: Context,
+            coroutineContext: CoroutineContext = EmptyCoroutineContext,
+        ): XrDevice {
+            val features = getDeviceContextFeatures(context)
+            val xrDeviceCapabilityProviderFactory: XrDeviceCapabilityProviderFactory? =
+                selectProvider(
+                    loadProviders(
+                        XrDeviceCapabilityProviderFactory::class.java,
+                        CAPABILITY_FACTORY_PROVIDERS,
+                    ),
+                    features,
+                )
+
+            return XrDevice(
+                session = null,
+                xrDeviceCapabilityProviderFactory?.create(context, coroutineContext),
+            )
+        }
     }
 
     /**
@@ -63,13 +128,16 @@ public class XrDevice private constructor(private val session: Session) {
      * @return The [DisplayBlendMode] that is preferred by the [Session] for rendering.
      *   [DisplayBlendMode.NO_DISPLAY] will be returned if there are no supported blend modes
      *   available.
-     * @throws IllegalStateException if the [Session] has been destroyed.
      */
-    public fun getPreferredDisplayBlendMode(): DisplayBlendMode {
-        return if (session.runtimes.isEmpty()) {
-            DisplayBlendMode.NO_DISPLAY
-        } else {
-            session.runtimes.firstNotNullOf { it.getPreferredDisplayBlendMode() }
-        }
+    public fun getPreferredDisplayBlendMode(): androidx.xr.runtime.DisplayBlendMode {
+        // TODO(b/461561664) : Use XrDeviceCapabilityProvider.getPreferredDisplayBlendMode() once it
+        // is implemented.
+        if (session != null) {
+            return if (session.runtimes.isEmpty()) {
+                androidx.xr.runtime.DisplayBlendMode.NO_DISPLAY
+            } else {
+                session.runtimes.firstNotNullOf { it.getPreferredDisplayBlendMode() }
+            }
+        } else throw NotImplementedError("XrDevice was not instantiated with a session.")
     }
 }

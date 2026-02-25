@@ -16,26 +16,28 @@
 
 package androidx.xr.arcore.testing
 
-import android.app.Activity
+import android.content.Context
 import androidx.annotation.RestrictTo
-import androidx.xr.runtime.internal.Feature
+import androidx.xr.runtime.interfaces.Feature
 import androidx.xr.runtime.internal.PerceptionRuntimeFactory
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
-/** Factory for creating test-only instances of [Runtime]. */
+/** Factory for creating a [FakePerceptionRuntime] for testing purposes. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class FakePerceptionRuntimeFactory() : PerceptionRuntimeFactory {
     public companion object {
-        /** Will be passed to the [FakeLifecycleManager] constructor during testing */
+        /** Will be passed to the [FakeLifecycleManager] constructor during testing. */
         @JvmStatic
         @get:JvmName("hasCreatePermission")
         public var hasCreatePermission: Boolean = true
 
         /**
-         * Exception that will be thrown when [FakeLifecycleManager.create] is called. Setting this
-         * value will cause the next call to [FakeLifecycleManager.create] to throw this exception.
-         * Setting this value to null will clear the exception and allow the next call to succeed.
+         * Exception that will be thrown when [FakeLifecycleManager.create] is called.
+         *
+         * Setting this value will cause the next call to [FakeLifecycleManager.create] to throw
+         * this exception. Setting this value to null will clear the exception and allow the next
+         * call to succeed.
          */
         public var lifecycleCreateException: Exception? = null
     }
@@ -43,11 +45,17 @@ public class FakePerceptionRuntimeFactory() : PerceptionRuntimeFactory {
     override val requirements: Set<Feature> = emptySet()
 
     // TODO b/438853896 - migrate all tests to use the coroutine context
-    public fun createRuntime(activity: Activity): FakePerceptionRuntime =
-        createRuntime(activity, EmptyCoroutineContext)
+    public fun createRuntime(context: Context): FakePerceptionRuntime =
+        createRuntime(context, EmptyCoroutineContext)
 
+    /**
+     * Creates a [FakePerceptionRuntime] instance for testing purposes.
+     *
+     * @param activity The host [Activity].
+     * @param coroutineContext The [CoroutineContext] for the runtime to use during testing.
+     */
     override fun createRuntime(
-        activity: Activity,
+        context: Context,
         coroutineContext: CoroutineContext,
     ): FakePerceptionRuntime =
         FakePerceptionRuntime(FakeLifecycleManager(hasCreatePermission), FakePerceptionManager())

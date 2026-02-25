@@ -36,7 +36,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.R
-import androidx.biometric.internal.CanceledFrom
+import androidx.biometric.internal.data.CanceledFrom
 import androidx.biometric.internal.isManagingDeviceCredentialButton
 import androidx.biometric.internal.viewmodel.AuthenticationViewModel
 import androidx.biometric.internal.viewmodel.AuthenticationViewModelFactory
@@ -110,8 +110,8 @@ public class FingerprintDialogActivity : ComponentActivity() {
             }
         normalTextColor = getThemedColorFor(android.R.attr.textColorSecondary)
 
-        connectObservers()
         showAlertDialog()
+        connectObservers()
 
         if (savedInstanceState == null) {
             showAuthentication()
@@ -138,7 +138,6 @@ public class FingerprintDialogActivity : ComponentActivity() {
      *
      * @return The created dialog, or `null` if the dialog should be hidden on the current device.
      */
-    // TODO(b/442913777): Fix rotation fingerprint icon gone bug
     private fun showAlertDialog(): AlertDialog? {
         if (DeviceUtils.shouldHideFingerprintDialog(this, Build.MODEL)) {
             return null

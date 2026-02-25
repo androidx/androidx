@@ -22,5 +22,8 @@ import androidx.wear.compose.integration.demos.common.DemoCategory
 val WearNav3Demos =
     DemoCategory(
         "Navigation3",
-        listOf(ActivityDemo("List - Detail Navigation", ListDetailNavDisplaySampleActivity::class)),
+        listOf(
+            ActivityDemo("List - Detail Navigation", ListDetailNavDisplaySampleActivity::class),
+            ActivityDemo("On Back", NavDisplayWithOnBackBehaviorSampleActivity::class),
+        ),
     )

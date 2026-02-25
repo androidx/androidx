@@ -32,7 +32,7 @@ import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat
 import androidx.wear.protolayout.expression.RequiresSchemaVersion
 
 @get:RestrictTo(Scope.LIBRARY_GROUP)
-val Float.sp: SpProp
+public val Float.sp: SpProp
     get() = SpProp.Builder().setValue(this).build()
 
 internal val Float.em: EmProp
@@ -42,42 +42,42 @@ internal val Boolean.prop: BoolProp
     get() = BoolProp.Builder(this).build()
 
 @get:RestrictTo(Scope.LIBRARY_GROUP)
-val Float.dp: DpProp
+public val Float.dp: DpProp
     get() = DpProp.Builder(this).build()
 
 @get:RestrictTo(Scope.LIBRARY_GROUP)
-val Float.prop: FloatProp
+public val Float.prop: FloatProp
     get() = FloatProp.Builder(this).build()
 
 @get:RestrictTo(Scope.LIBRARY_GROUP)
-val Float.degrees: DegreesProp
+public val Float.degrees: DegreesProp
     get() = DegreesProp.Builder(this).build()
 
 @get:RestrictTo(Scope.LIBRARY_GROUP)
 @get:SuppressLint("ProtoLayoutMinSchema")
-val Float.boundingBoxRatio: BoundingBoxRatio
+public val Float.boundingBoxRatio: BoundingBoxRatio
     get() = BoundingBoxRatio.Builder(this.prop).build()
 
 @SuppressLint("ProtoLayoutMinSchema")
 @RestrictTo(Scope.LIBRARY_GROUP)
-fun DynamicFloat.asDpProp(staticValue: Float): DpProp =
+public fun DynamicFloat.asDpProp(staticValue: Float): DpProp =
     DpProp.Builder(staticValue).setDynamicValue(this).build()
 
 @SuppressLint("ProtoLayoutMinSchema")
 @RestrictTo(Scope.LIBRARY_GROUP)
-fun DynamicFloat.asFloatProp(staticValue: Float): FloatProp =
+public fun DynamicFloat.asFloatProp(staticValue: Float): FloatProp =
     FloatProp.Builder(staticValue).setDynamicValue(this).build()
 
 @SuppressLint("ProtoLayoutMinSchema")
 @RestrictTo(Scope.LIBRARY_GROUP)
-fun DynamicFloat.asDegreesProp(staticValue: Float): DegreesProp =
+public fun DynamicFloat.asDegreesProp(staticValue: Float): DegreesProp =
     DegreesProp.Builder(staticValue).setDynamicValue(this).build()
 
 @SuppressLint("ProtoLayoutMinSchema")
 @RestrictTo(Scope.LIBRARY_GROUP)
-fun DynamicFloat.asBoundingBoxRatio(staticValue: Float): BoundingBoxRatio =
+public fun DynamicFloat.asBoundingBoxRatio(staticValue: Float): BoundingBoxRatio =
     BoundingBoxRatio.Builder(this.asFloatProp(staticValue)).build()
 
 @RequiresSchemaVersion(major = 1, minor = 400)
-internal fun cornerRadius(x: Float, y: Float) =
+internal fun cornerRadius(x: Float, y: Float): ModifiersBuilders.CornerRadius =
     ModifiersBuilders.CornerRadius.Builder(x.dp, y.dp).build()

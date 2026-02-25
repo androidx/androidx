@@ -34,8 +34,8 @@ class KotlinMetadataTest {
             Source.kotlin(
                 "Dummy.kt",
                 """
-            class Dummy
-            """
+                class Dummy
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(source)) {

@@ -16,7 +16,6 @@
 
 package androidx.pdf.testapp.ui
 
-import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresExtension
 import androidx.core.os.OperationCanceledException
@@ -24,7 +23,6 @@ import androidx.pdf.testapp.R
 import androidx.pdf.viewer.fragment.PdfStylingOptions
 import androidx.pdf.viewer.fragment.PdfViewerFragmentV1
 
-@SuppressLint("RestrictedApiAndroidX")
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
 class StyledPdfViewerFragmentV1 : PdfViewerFragmentV1 {
 

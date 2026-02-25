@@ -20,9 +20,6 @@ import androidx.kruth.assertThat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.runtime.AugmentedObjectCategory
 import androidx.xr.runtime.TrackingState
-import androidx.xr.runtime.math.Pose
-import androidx.xr.runtime.math.Quaternion
-import androidx.xr.runtime.math.Vector3
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -41,26 +38,5 @@ class FakeRuntimeAugmentedObjectTest {
         val underTest = FakeRuntimeAugmentedObject()
 
         assertThat(underTest.category).isEqualTo(AugmentedObjectCategory.KEYBOARD)
-    }
-
-    @Test
-    fun createAnchor_addsToAnchorList() {
-        val underTest = FakeRuntimeAugmentedObject()
-        val testPose = Pose(Vector3(1f, 2f, 3f), Quaternion.Identity)
-
-        val testAnchor = underTest.createAnchor(testPose)
-
-        assertThat(underTest.anchors).containsExactly(testAnchor)
-    }
-
-    @Test
-    fun detachAnchor_removesAddedAnchor() {
-        val underTest = FakeRuntimeAugmentedObject()
-        val testPose = Pose(Vector3(1f, 2f, 3f), Quaternion.Identity)
-
-        val testAnchor = underTest.createAnchor(testPose)
-        underTest.detachAnchor(testAnchor)
-
-        assertThat(underTest.anchors).isEmpty()
     }
 }

@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -88,6 +87,9 @@ dependencies {
     testImplementation(libs.antlr4)
     testImplementation(SdkHelperKt.getSdkDependency(project))
     testImplementationAarAsJar(project(":room3:room3-runtime"))
+    testImplementationAarAsJar(project(":room3:room3-rxjava3"))
+    testImplementationAarAsJar(project(":room3:room3-livedata"))
+    testImplementationAarAsJar(project(":room3:room3-guava"))
     testImplementationAarAsJar(project(":sqlite:sqlite"))
     testImplementation(project(":internal-testutils-common"))
 }
@@ -239,5 +241,5 @@ androidx {
     type = SoftwareType.ANNOTATION_PROCESSOR
     inceptionYear = "2017"
     description = "Android Room annotation processor"
-    kotlinTarget = KotlinTarget.KOTLIN_2_2
+    kotlinTarget = KotlinTarget.KOTLIN_2_3
 }

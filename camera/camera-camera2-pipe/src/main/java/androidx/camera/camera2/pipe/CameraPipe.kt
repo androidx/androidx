@@ -169,6 +169,7 @@ public interface CameraPipe {
         val cameraDeviceStateCallback: CameraDevice.StateCallback? = null,
         val cameraCaptureSessionListener: CameraInterop.CaptureSessionListener? = null,
         val cameraOpenRetryMaxTimeoutNs: DurationNs? = null,
+        val cameraSystemCallbacks: CameraInterop.CameraSystemCallbacks? = null,
     )
 
     /**

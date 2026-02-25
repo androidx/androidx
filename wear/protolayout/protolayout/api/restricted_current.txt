@@ -1289,7 +1289,6 @@ package androidx.wear.protolayout {
     ctor public ProtoLayoutScope();
     ctor public ProtoLayoutScope(optional androidx.wear.protolayout.expression.VersionBuilders.VersionInfo rendererVersionInfo);
     ctor @BytecodeOnly public ProtoLayoutScope(androidx.wear.protolayout.expression.VersionBuilders.VersionInfo!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    method public void clearAll();
     method public android.os.Bundle collectPendingIntents();
     method public androidx.wear.protolayout.ResourceBuilders.Resources collectResources();
     method public boolean hasCapability(androidx.wear.protolayout.ProtoLayoutScope.RendererCapability capability);
@@ -1425,7 +1424,7 @@ package androidx.wear.protolayout {
 
   public static final class StateBuilders.State.Builder {
     ctor public StateBuilders.State.Builder();
-    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public <T extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType> androidx.wear.protolayout.StateBuilders.State.Builder addKeyToValueMapping(androidx.wear.protolayout.expression.AppDataKey<T!>, androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<T!>);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public <T extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType> androidx.wear.protolayout.StateBuilders.State.Builder addKeyToValueMapping(androidx.wear.protolayout.expression.AppDataKey<T>, androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<T>);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.StateBuilders.State.Builder addToStateMap(androidx.wear.protolayout.expression.DynamicDataPair<? extends java.lang.Object!>...);
     method public androidx.wear.protolayout.StateBuilders.State build();
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.StateBuilders.State.Builder setStateMap(androidx.wear.protolayout.expression.DynamicDataMap);
@@ -1563,6 +1562,17 @@ package androidx.wear.protolayout {
 }
 
 package androidx.wear.protolayout.layout {
+
+  public final class ContainersKt {
+    method public static androidx.wear.protolayout.LayoutElementBuilders.Box box(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement[] contents, optional androidx.wear.protolayout.DimensionBuilders.ContainerDimension? width, optional androidx.wear.protolayout.DimensionBuilders.ContainerDimension? height, optional androidx.wear.protolayout.modifiers.LayoutModifier? modifier, optional int horizontalAlignment, optional int verticalAlignment);
+    method @BytecodeOnly public static androidx.wear.protolayout.LayoutElementBuilders.Box! box$default(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement![]!, androidx.wear.protolayout.DimensionBuilders.ContainerDimension!, androidx.wear.protolayout.DimensionBuilders.ContainerDimension!, androidx.wear.protolayout.modifiers.LayoutModifier!, int, int, int, Object!);
+    method public static androidx.wear.protolayout.LayoutElementBuilders.Column column(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement[] contents, optional androidx.wear.protolayout.DimensionBuilders.ContainerDimension? width, optional androidx.wear.protolayout.DimensionBuilders.ContainerDimension? height, optional androidx.wear.protolayout.modifiers.LayoutModifier? modifier, optional int horizontalAlignment);
+    method @BytecodeOnly public static androidx.wear.protolayout.LayoutElementBuilders.Column! column$default(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement![]!, androidx.wear.protolayout.DimensionBuilders.ContainerDimension!, androidx.wear.protolayout.DimensionBuilders.ContainerDimension!, androidx.wear.protolayout.modifiers.LayoutModifier!, int, int, Object!);
+    method public static androidx.wear.protolayout.LayoutElementBuilders.Row row(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement[] contents, optional androidx.wear.protolayout.DimensionBuilders.ContainerDimension? width, optional androidx.wear.protolayout.DimensionBuilders.ContainerDimension? height, optional androidx.wear.protolayout.modifiers.LayoutModifier? modifier, optional int verticalAlignment);
+    method @BytecodeOnly public static androidx.wear.protolayout.LayoutElementBuilders.Row! row$default(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement![]!, androidx.wear.protolayout.DimensionBuilders.ContainerDimension!, androidx.wear.protolayout.DimensionBuilders.ContainerDimension!, androidx.wear.protolayout.modifiers.LayoutModifier!, int, int, Object!);
+    method public static androidx.wear.protolayout.LayoutElementBuilders.Spacer spacer(optional androidx.wear.protolayout.DimensionBuilders.SpacerDimension? width, optional androidx.wear.protolayout.DimensionBuilders.SpacerDimension? height, optional androidx.wear.protolayout.modifiers.LayoutModifier? modifier, optional @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) androidx.wear.protolayout.DimensionBuilders.HorizontalLayoutConstraint? horizontalLayoutConstraint, optional @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) androidx.wear.protolayout.DimensionBuilders.VerticalLayoutConstraint? verticalLayoutConstraint);
+    method @BytecodeOnly public static androidx.wear.protolayout.LayoutElementBuilders.Spacer! spacer$default(androidx.wear.protolayout.DimensionBuilders.SpacerDimension!, androidx.wear.protolayout.DimensionBuilders.SpacerDimension!, androidx.wear.protolayout.modifiers.LayoutModifier!, androidx.wear.protolayout.DimensionBuilders.HorizontalLayoutConstraint!, androidx.wear.protolayout.DimensionBuilders.VerticalLayoutConstraint!, int, Object!);
+  }
 
   public final class ImageKt {
     method public static androidx.wear.protolayout.ResourceBuilders.AndroidImageResourceByResId androidImageResource(@DrawableRes int resourceId);

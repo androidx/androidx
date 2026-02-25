@@ -35,7 +35,7 @@ import kotlinx.coroutines.Job
  * scope passed into the factory function for the chosen concrete subclass, or call
  * `job().cancelAndJoin()`.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @ExperimentalLatencyDataApi
 public interface LatencyAggregator {
     /**

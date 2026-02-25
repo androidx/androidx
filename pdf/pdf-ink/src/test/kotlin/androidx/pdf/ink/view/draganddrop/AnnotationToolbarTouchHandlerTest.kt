@@ -127,6 +127,64 @@ class AnnotationToolbarTouchHandlerTest {
         assertFalse(shadowParent.disallowInterceptTouchEvent)
     }
 
+    @Test
+    fun test_onInterceptTouchEvent_actionUp_endsDrag() {
+        val handler = AnnotationToolbarTouchHandler(dummyToolbar) { false }
+        handler.setOnDragListener(dragListener)
+        val downEvent = obtainEvent(MotionEvent.ACTION_DOWN, 0f, 0f)
+        val upEvent = obtainEvent(MotionEvent.ACTION_UP, 0f, 0f)
+
+        handler.onInterceptTouchEvent(downEvent)
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks() // Trigger Drag
+        handler.onInterceptTouchEvent(upEvent)
+
+        verify(dragListener).onDragEnd()
+
+        val shadowParent = shadowOf(parentContainer)
+        // Assert parent's disallowInterceptTouchEvent state
+        assertFalse(shadowParent.disallowInterceptTouchEvent)
+    }
+
+    @Test
+    fun test_onInterceptTouchEvent_actionCancel_endsDrag() {
+        val handler = AnnotationToolbarTouchHandler(dummyToolbar) { false }
+        handler.setOnDragListener(dragListener)
+        val downEvent = obtainEvent(MotionEvent.ACTION_DOWN, 0f, 0f)
+        val cancelEvent = obtainEvent(MotionEvent.ACTION_CANCEL, 0f, 0f)
+
+        handler.onInterceptTouchEvent(downEvent)
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks() // Trigger Drag
+        handler.onInterceptTouchEvent(cancelEvent)
+
+        verify(dragListener).onDragEnd()
+
+        val shadowParent = shadowOf(parentContainer)
+        // Assert parent's disallowInterceptTouchEvent state
+        assertFalse(shadowParent.disallowInterceptTouchEvent)
+    }
+
+    @Test
+    fun test_onInterceptTouchEvent_actionUp_WhileNotDragging() {
+        val handler = AnnotationToolbarTouchHandler(dummyToolbar) { false }
+        handler.setOnDragListener(dragListener)
+        val upEvent = obtainEvent(MotionEvent.ACTION_UP, 0f, 0f)
+        // pass up event when not dragging
+        handler.onInterceptTouchEvent(upEvent)
+        // verify no interactions with onDrag event API
+        verify(dragListener, never()).onDragEnd()
+    }
+
+    @Test
+    fun test_onTouchEvent_actionUp_WhileNotDragging() {
+        val handler = AnnotationToolbarTouchHandler(dummyToolbar) { false }
+        handler.setOnDragListener(dragListener)
+        val upEvent = obtainEvent(MotionEvent.ACTION_UP, 0f, 0f)
+        // pass up event when not dragging
+        handler.onTouchEvent(upEvent)
+        // verify no interactions with onDrag event API
+        verify(dragListener, never()).onDragEnd()
+    }
+
     private fun obtainEvent(action: Int, x: Float, y: Float): MotionEvent {
         return MotionEvent.obtain(
             SystemClock.uptimeMillis(),

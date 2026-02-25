@@ -321,6 +321,65 @@ class PdfViewAccessibilityManagerTest {
         assertThat(visibleViews).contains(PdfViewAccessibilityManager.FAST_SCROLLER_OFFSET + 1)
         assertThat(visibleViews).contains(PdfViewAccessibilityManager.FAST_SCROLLER_OFFSET + 2)
     }
+
+    @Test
+    fun onPerformActionForVirtualView_clickGotoLink_triggersScroll() = runTest {
+        val pdfViewAccessibilityManager =
+            requireNotNull(pdfView.pdfViewAccessibilityManager) {
+                "PdfViewAccessibilityManager must not be null."
+            }
+
+        pdfDocument.waitForLayout(untilPage = 4)
+
+        // (50f, 40f) corresponds to a GoTo link in the FakePdfDocument setup
+        val adjustedX = PdfView.toViewCoord(50f, pdfView.zoom, pdfView.scrollX)
+        val adjustedY = PdfView.toViewCoord(40f, pdfView.zoom, pdfView.scrollY)
+
+        val virtualViewId = pdfViewAccessibilityManager.getVirtualViewAt(adjustedX, adjustedY)
+        assertThat(virtualViewId).isEqualTo(10)
+
+        // Use onActivity to perform the action on the Main Thread
+        activityScenario.onActivity {
+            val result =
+                pdfViewAccessibilityManager.onPerformActionForVirtualView(
+                    virtualViewId,
+                    AccessibilityNodeInfoCompat.ACTION_CLICK,
+                    null,
+                )
+            assertThat(result).isTrue()
+            assert(pdfView.firstVisiblePage <= 4)
+            assert(pdfView.firstVisiblePage + pdfView.visiblePagesCount >= 4)
+        }
+    }
+
+    @Test
+    fun onPerformActionForVirtualView_clickUrlLink_triggersOpenLink() = runTest {
+        val pdfViewAccessibilityManager =
+            requireNotNull(pdfView.pdfViewAccessibilityManager) {
+                "PdfViewAccessibilityManager must not be null."
+            }
+
+        // Wait for layout to ensure links are populated
+        pdfDocument.waitForLayout(untilPage = 4)
+
+        // (50f, 70f) corresponds to an external URL link in the FakePdfDocument setup
+        val adjustedX = PdfView.toViewCoord(50f, pdfView.zoom, pdfView.scrollX)
+        val adjustedY = PdfView.toViewCoord(70f, pdfView.zoom, pdfView.scrollY)
+
+        val virtualViewId = pdfViewAccessibilityManager.getVirtualViewAt(adjustedX, adjustedY)
+        assertThat(virtualViewId).isEqualTo(11)
+
+        // Use onActivity to perform the click action on the Main Thread
+        activityScenario.onActivity {
+            val result =
+                pdfViewAccessibilityManager.onPerformActionForVirtualView(
+                    virtualViewId,
+                    AccessibilityNodeInfoCompat.ACTION_CLICK,
+                    null,
+                )
+            assertThat(result).isTrue()
+        }
+    }
 }
 
 /** Arbitrary fixed ID for PdfView */

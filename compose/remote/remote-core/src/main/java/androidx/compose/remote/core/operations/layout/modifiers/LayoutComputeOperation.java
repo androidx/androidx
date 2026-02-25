@@ -15,6 +15,9 @@
  */
 package androidx.compose.remote.core.operations.layout.modifiers;
 
+import static androidx.compose.remote.core.documentation.DocumentedOperation.BOOLEAN;
+import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
+
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.LayoutCompute;
 import androidx.compose.remote.core.Operation;
@@ -183,8 +186,14 @@ public class LayoutComputeOperation extends Operation
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Operations", OP_CODE, "LayoutCompute")
-                .description("This operation runs child actions");
+        doc.operation("Modifier Operations", OP_CODE, "LayoutCompute")
+                .addedVersion(7)
+                .experimental(true)
+                .description("Compute component position and measure via dynamic expressions")
+                .field(INT, "type", "Type of computation (0=MEASURE, 1=POSITION)")
+                .field(INT, "boundsId", "The ID of the float list variable to store the bounds")
+                .field(BOOLEAN,
+                        "animateChanges", "Whether to animate layout changes");
     }
 
     @Override
@@ -206,10 +215,6 @@ public class LayoutComputeOperation extends Operation
 
     /**
      * Aoply the modifier to the component measure
-     * @param context
-     * @param m
-     * @param parent
-     * @return
      */
     public boolean applyToMeasure(@NonNull PaintContext context, @NonNull ComponentMeasure m,
             @NonNull ComponentMeasure parent) {

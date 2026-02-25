@@ -39,7 +39,7 @@ class NavigationActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         pictureInPictureImpl = BasicPictureInPicture(this)
-        pictureInPictureImpl.addOnPictureInPictureEventListener(this)
+        pictureInPictureImpl.addOnPictureInPictureEventListener(getMainExecutor(), this)
     }
 
     override fun onPictureInPictureEvent(
@@ -89,7 +89,7 @@ class VideoPlaybackActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         pictureInPictureImpl = VideoPlaybackPictureInPicture(this)
-        pictureInPictureImpl.addOnPictureInPictureEventListener(this)
+        pictureInPictureImpl.addOnPictureInPictureEventListener(getMainExecutor(), this)
     }
 
     override fun onDestroy() {

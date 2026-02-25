@@ -31,26 +31,26 @@ import java.util.Objects
  *
  * This can be used on layout string fields with data binding support.
  */
-class LayoutString
+public class LayoutString
 private constructor(
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val prop: StringProp,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val prop: StringProp,
     /**
      * When [dynamicValue] is used, [layoutConstraint] ensures that the text element has a known
      * fixed size during the layout pass, independently of the actual [dynamicValue] String. If not
      * set, the text element will size itself to the content of the [dynamicValue].
      */
-    val layoutConstraint: StringLayoutConstraint? = null,
+    public val layoutConstraint: StringLayoutConstraint? = null,
 ) {
     /**
      * The static value. If [dynamicValue] is not null this will be used as the default value for
      * when [dynamicValue] can't be resolved.
      */
-    val staticValue: String = prop.value
+    public val staticValue: String = prop.value
     /** The dynamic value. If this can't be resolved [staticValue] will be used during rendering. */
-    val dynamicValue: DynamicString? = prop.dynamicValue
+    public val dynamicValue: DynamicString? = prop.dynamicValue
 
     /** Creates an instance for a static String value. */
-    constructor(staticValue: String) : this(StringProp.Builder(staticValue).build())
+    public constructor(staticValue: String) : this(StringProp.Builder(staticValue).build())
 
     /**
      * Creates an instance for a [DynamicString] value with a static value fallback and a set of
@@ -65,7 +65,7 @@ private constructor(
      *   `dynamicValue` String.
      */
     @RequiresSchemaVersion(major = 1, minor = 200)
-    constructor(
+    public constructor(
         staticValue: String,
         dynamicValue: DynamicString,
         layoutConstraint: StringLayoutConstraint,
@@ -85,24 +85,24 @@ private constructor(
      *   be used.
      */
     @RequiresSchemaVersion(major = 1, minor = 600)
-    constructor(
+    public constructor(
         staticValue: String,
         dynamicValue: DynamicString,
     ) : this(StringProp.Builder(staticValue).setDynamicValue(dynamicValue).build())
 
-    override fun equals(other: Any?) =
+    override fun equals(other: Any?): Boolean =
         this === other ||
             (other is LayoutString &&
                 prop == other.prop &&
                 layoutConstraint == other.layoutConstraint)
 
-    override fun hashCode() = Objects.hash(prop, layoutConstraint)
+    override fun hashCode(): Int = Objects.hash(prop, layoutConstraint)
 
-    override fun toString() = "LayoutString(prop=$prop, layoutConstraint=$layoutConstraint)"
+    override fun toString(): String = "LayoutString(prop=$prop, layoutConstraint=$layoutConstraint)"
 }
 
 /** Extension for creating a [LayoutString] from a String. */
-val String.layoutString: LayoutString
+public val String.layoutString: LayoutString
     @JvmName("createLayoutString") get() = LayoutString(this)
 
 /**
@@ -115,8 +115,10 @@ val String.layoutString: LayoutString
  */
 @JvmName("createLayoutString")
 @RequiresSchemaVersion(major = 1, minor = 200)
-fun DynamicString.asLayoutString(staticValue: String, layoutConstraint: StringLayoutConstraint) =
-    LayoutString(staticValue, this, layoutConstraint)
+public fun DynamicString.asLayoutString(
+    staticValue: String,
+    layoutConstraint: StringLayoutConstraint,
+): LayoutString = LayoutString(staticValue, this, layoutConstraint)
 
 /**
  * Extension for creating a [LayoutString] from a [DynamicString]
@@ -125,7 +127,8 @@ fun DynamicString.asLayoutString(staticValue: String, layoutConstraint: StringLa
  */
 @JvmName("createLayoutString")
 @RequiresSchemaVersion(major = 1, minor = 600)
-fun DynamicString.asLayoutString(staticValue: String) = LayoutString(staticValue, this)
+public fun DynamicString.asLayoutString(staticValue: String): LayoutString =
+    LayoutString(staticValue, this)
 
 /**
  * Specifies layout constraints for to use for layout measurement in presence of dynamic values.
@@ -136,10 +139,11 @@ fun DynamicString.asLayoutString(staticValue: String) = LayoutString(staticValue
  */
 @JvmOverloads
 @RequiresSchemaVersion(major = 1, minor = 200)
-fun stringLayoutConstraint(
+public fun stringLayoutConstraint(
     longestPattern: String,
     @TextAlignment alignment: Int = TEXT_ALIGN_CENTER,
-) = StringLayoutConstraint.Builder(longestPattern).setAlignment(alignment).build()
+): StringLayoutConstraint =
+    StringLayoutConstraint.Builder(longestPattern).setAlignment(alignment).build()
 
 /**
  * Extension for creating a [StringLayoutConstraint] from a String. `this` will be used as
@@ -148,5 +152,6 @@ fun stringLayoutConstraint(
  * @param alignment the alignment of the actual text within the space reserved by `longestPattern`
  */
 @RequiresSchemaVersion(major = 1, minor = 200)
-fun String.asLayoutConstraint(@TextAlignment alignment: Int = TEXT_ALIGN_CENTER) =
-    stringLayoutConstraint(this, alignment)
+public fun String.asLayoutConstraint(
+    @TextAlignment alignment: Int = TEXT_ALIGN_CENTER
+): StringLayoutConstraint = stringLayoutConstraint(this, alignment)

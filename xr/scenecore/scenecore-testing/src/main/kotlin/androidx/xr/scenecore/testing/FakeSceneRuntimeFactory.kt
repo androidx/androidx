@@ -18,7 +18,7 @@ package androidx.xr.scenecore.testing
 
 import android.app.Activity
 import androidx.annotation.RestrictTo
-import androidx.xr.runtime.internal.Feature
+import androidx.xr.runtime.interfaces.Feature
 import androidx.xr.runtime.internal.SceneRuntimeFactory
 
 /** Factory for creating test-only instances of [androidx.xr.scenecore.runtime.SceneRuntime]. */
@@ -26,9 +26,6 @@ import androidx.xr.runtime.internal.SceneRuntimeFactory
 public class FakeSceneRuntimeFactory() : SceneRuntimeFactory {
     override val requirements: Set<Feature> = emptySet()
 
-    override fun create(
-        activity: Activity,
-        unscaledGravityAlignedActivitySpace: Boolean,
-    ): FakeSceneRuntime =
-        FakeSceneRuntime(unscaledGravityAlignedActivitySpace, FakeScheduledExecutorService())
+    override fun create(activity: Activity): FakeSceneRuntime =
+        FakeSceneRuntime(FakeScheduledExecutorService())
 }

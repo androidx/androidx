@@ -3,6 +3,10 @@ package androidx.sqlite {
 
   public final class SQLite {
     method public static void execSQL(androidx.sqlite.SQLiteConnection, String sql);
+    method public static suspend Object? executeSQL(androidx.sqlite.SQLiteConnection, String sql, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public static suspend Object? open(androidx.sqlite.SQLiteDriver, String fileName, kotlin.coroutines.Continuation<? super androidx.sqlite.SQLiteConnection>);
+    method public static suspend Object? prepare(androidx.sqlite.SQLiteConnection, String sql, kotlin.coroutines.Continuation<? super androidx.sqlite.SQLiteStatement>);
+    method public static suspend Object? step(androidx.sqlite.SQLiteStatement, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
     method public static Void throwSQLiteException(int errorCode, String? errorMsg);
     property public static int SQLITE_DATA_BLOB;
     property public static int SQLITE_DATA_FLOAT;
@@ -20,11 +24,13 @@ package androidx.sqlite {
     method public void close();
     method public default boolean inTransaction();
     method public androidx.sqlite.SQLiteStatement prepare(String sql);
+    method @BytecodeOnly @Deprecated public default Object! prepareAsync(String!, kotlin.coroutines.Continuation!);
   }
 
   public interface SQLiteDriver {
     method @InaccessibleFromKotlin public default boolean hasConnectionPool();
     method public androidx.sqlite.SQLiteConnection open(String fileName);
+    method @BytecodeOnly @Deprecated public default Object! openAsync(String!, kotlin.coroutines.Continuation!);
     property public default boolean hasConnectionPool;
   }
 
@@ -53,6 +59,7 @@ package androidx.sqlite {
     method public boolean isNull(@IntRange(from=0L) int index);
     method public void reset();
     method public boolean step();
+    method @BytecodeOnly @Deprecated public default Object! stepAsync(kotlin.coroutines.Continuation!);
   }
 
   public typealias SQLiteException = android.database.SQLException;

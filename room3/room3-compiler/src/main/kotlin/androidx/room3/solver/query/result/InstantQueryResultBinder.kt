@@ -22,6 +22,7 @@ import androidx.room3.compiler.codegen.box
 import androidx.room3.ext.InvokeWithLambdaParameter
 import androidx.room3.ext.LambdaSpec
 import androidx.room3.ext.RoomMemberNames.DB_UTIL_PERFORM_BLOCKING
+import androidx.room3.ext.SQLiteDriverMemberNames
 import androidx.room3.ext.SQLiteDriverTypeNames
 import androidx.room3.solver.CodeGenScope
 
@@ -56,8 +57,9 @@ class InstantQueryResultBinder(adapter: QueryResultAdapter?) : QueryResultBinder
                             addLocalVal(
                                 statementVar,
                                 SQLiteDriverTypeNames.STATEMENT,
-                                "%L.prepare(%L)",
+                                "%L.%M(%L)",
                                 connectionVar,
+                                SQLiteDriverMemberNames.CONNECTION_PREPARE,
                                 sqlQueryVar,
                             )
                             beginControlFlow("try")

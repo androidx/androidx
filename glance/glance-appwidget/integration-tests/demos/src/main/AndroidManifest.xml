@@ -377,6 +377,113 @@
                 android:resource="@xml/default_app_widget_info" />
         </receiver>
 
+        <receiver
+            android:name=".ClTextWithImageAppWidgetReceiver"
+            android:label="Canonical Text w Image"
+
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name=".ClSearchToolBarAppWidgetReceiver"
+            android:label="Canonical Searchbar"
+
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name=".ClToolBarAppWidgetReceiver"
+            android:label="Canonical Toolbar"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name=".ClQuickActionAppWidgetReceiver"
+            android:label="Canonical Quick Action"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name=".ClActionListAppWidgetReceiver"
+            android:label="Canonical Action List"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name=".ClCheckListAppWidgetReceiver"
+            android:label="Canonical Check List"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name=".ClExpressiveToolbarAppWidgetReceiver"
+            android:label="Canonical Expressive Toolbar"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name=".ClHeroStyleImageGridAppWidgetReceiver"
+            android:label="Canonical Hero Style Image Grid"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <!--end rc layouts -->
         <service
             android:name=".ActionDemoService"
             android:exported="true" />

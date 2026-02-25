@@ -184,26 +184,26 @@ private fun Parameter.Builder.setValue(stringTable: StringTable, value: Any?) {
     when (type) {
         Parameter.Type.ITERABLE,
         Parameter.Type.STRING -> {
-            int32Value = stringTable.put(value as String)
+            int32Value = stringTable.put(value as? String ?: "")
         }
         Parameter.Type.BOOLEAN -> {
-            int32Value = if (value as Boolean) 1 else 0
+            int32Value = if (value as? Boolean == true) 1 else 0
         }
         Parameter.Type.DOUBLE -> {
-            doubleValue = value as Double
+            doubleValue = value as? Double ?: 0.0
         }
         Parameter.Type.FLOAT,
         Parameter.Type.DIMENSION_DP,
         Parameter.Type.DIMENSION_SP,
         Parameter.Type.DIMENSION_EM -> {
-            floatValue = value as Float
+            floatValue = value as? Float ?: 0.0f
         }
         Parameter.Type.INT32,
         Parameter.Type.COLOR -> {
-            int32Value = value as Int
+            int32Value = value as? Int ?: 0
         }
         Parameter.Type.INT64 -> {
-            int64Value = value as Long
+            int64Value = value as? Long ?: 0
         }
         Parameter.Type.RESOURCE -> setResourceType(value, stringTable)
         Parameter.Type.LAMBDA -> setFunctionType(value, stringTable)

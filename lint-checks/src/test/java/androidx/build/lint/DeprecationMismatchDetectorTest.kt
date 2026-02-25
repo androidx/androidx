@@ -57,7 +57,7 @@ class DeprecationMismatchDetectorTest :
                         @Deprecated
                         public interface InnerFoo {}
                     }
-                """
+                    """
                         .trimIndent()
                 )
             )
@@ -92,7 +92,7 @@ class DeprecationMismatchDetectorTest :
                          */
                         public interface InnerFoo {}
                     }
-                """
+                    """
                         .trimIndent()
                 )
             )
@@ -112,7 +112,7 @@ class DeprecationMismatchDetectorTest :
                 public interface InnerFoo {}
                                  ~~~~~~~~
             4 errors, 0 warnings
-        """
+            """
                 .trimIndent()
 
         val expectedFixDiffs =
@@ -129,7 +129,7 @@ class DeprecationMismatchDetectorTest :
             Autofix for src/java/androidx/Foo.java line 20: Annotate with @Deprecated:
             @@ -20 +20
             +     @Deprecated
-        """
+            """
                 .trimIndent()
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
@@ -154,7 +154,7 @@ class DeprecationMismatchDetectorTest :
                         @Deprecated
                         public interface InnerFoo {}
                     }
-                """
+                    """
                         .trimIndent()
                 )
             )
@@ -174,7 +174,7 @@ class DeprecationMismatchDetectorTest :
                 public interface InnerFoo {}
                                  ~~~~~~~~
             4 errors, 0 warnings
-        """
+            """
                 .trimIndent()
 
         check(*input).expect(expected)
@@ -199,7 +199,7 @@ class DeprecationMismatchDetectorTest :
                         @Deprecated
                         private interface InnerFoo {}
                     }
-                """
+                    """
                         .trimIndent()
                 )
             )
@@ -226,7 +226,7 @@ class DeprecationMismatchDetectorTest :
                         @Deprecated
                         public interface InnerFoo {}
                     }
-                """
+                    """
                         .trimIndent()
                 )
             )
@@ -252,7 +252,7 @@ class DeprecationMismatchDetectorTest :
                         @Deprecated
                         public void foo();
                     }
-                """
+                    """
                         .trimIndent()
                 ),
                 java(
@@ -267,7 +267,7 @@ class DeprecationMismatchDetectorTest :
                             }.foo();
                         }
                     }
-                """
+                    """
                         .trimIndent()
                 ),
             )
@@ -297,7 +297,7 @@ class DeprecationMismatchDetectorTest :
                         @Deprecated
                         private interface InnerFoo {}
                     }
-                """
+                    """
                         .trimIndent()
                 ),
                 Stubs.RestrictTo,

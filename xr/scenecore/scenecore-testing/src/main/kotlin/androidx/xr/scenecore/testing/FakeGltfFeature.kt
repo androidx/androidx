@@ -21,8 +21,10 @@ import androidx.xr.runtime.NodeHolder
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.runtime.GltfAnimationFeature
+import androidx.xr.scenecore.runtime.GltfEntity
 import androidx.xr.scenecore.runtime.GltfFeature
-import androidx.xr.scenecore.runtime.MaterialResource
+import androidx.xr.scenecore.runtime.GltfModelNodeFeature
 import java.util.concurrent.Executor
 import java.util.function.Consumer
 
@@ -32,7 +34,14 @@ public class FakeGltfFeature(nodeHolder: NodeHolder<*>) :
     FakeBaseRenderingFeature(nodeHolder), GltfFeature {
     private var mockGltfFeature: GltfFeature? = null
 
+    override val nodes: List<GltfModelNodeFeature>
+        get() = mockGltfFeature?.nodes ?: emptyList()
+
     override val size: FloatSize3d = mockGltfFeature?.size ?: FloatSize3d(1f, 1f, 1f)
+
+    override fun getAnimations(executor: Executor): List<GltfAnimationFeature> {
+        return mockGltfFeature?.getAnimations(executor) ?: emptyList()
+    }
 
     override val animationState: Int = mockGltfFeature?.animationState ?: 0
 
@@ -57,18 +66,6 @@ public class FakeGltfFeature(nodeHolder: NodeHolder<*>) :
         mockGltfFeature?.resumeAnimation()
     }
 
-    override fun setMaterialOverride(
-        material: MaterialResource,
-        nodeName: String,
-        primitiveIndex: Int,
-    ) {
-        mockGltfFeature?.setMaterialOverride(material, nodeName, primitiveIndex)
-    }
-
-    override fun clearMaterialOverride(nodeName: String, primitiveIndex: Int) {
-        mockGltfFeature?.clearMaterialOverride(nodeName, primitiveIndex)
-    }
-
     override fun setColliderEnabled(enableCollider: Boolean) {
         mockGltfFeature?.setColliderEnabled(enableCollider)
     }
@@ -87,6 +84,15 @@ public class FakeGltfFeature(nodeHolder: NodeHolder<*>) :
 
     override fun removeOnBoundsUpdateListener(listener: Consumer<BoundingBox>) {
         mockGltfFeature?.removeOnBoundsUpdateListener(listener)
+    }
+
+    override fun setReformAffordanceEnabled(
+        entity: GltfEntity,
+        enabled: Boolean,
+        executor: Executor,
+        systemMovable: Boolean,
+    ) {
+        mockGltfFeature?.setReformAffordanceEnabled(entity, enabled, executor, systemMovable)
     }
 
     override fun dispose() {

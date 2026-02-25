@@ -63,6 +63,11 @@ public abstract class UnusedAppRestrictionsBackportService extends Service {
             UnusedAppRestrictionsBackportService.this.isPermissionRevocationEnabled(
                     backportCallback);
         }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
     };
 
     @Override

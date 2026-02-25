@@ -40,14 +40,13 @@ import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.player.compose.SCREENSHOT_GOLDEN_DIRECTORY
-import androidx.compose.remote.player.compose.test.utils.screenshot.TargetPlayer
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -69,10 +68,7 @@ class BlendModeTest {
 
     @get:Rule
     val remoteComposeTestRule =
-        RemoteComposeScreenshotTestRule(
-            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
-            targetPlayer = TargetPlayer.View,
-        )
+        RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     private val saveDocument = false
@@ -154,7 +150,7 @@ class BlendModeTest {
                     size = RemoteSize(w * 2f / 3f, h * 2f / 3f),
                 )
             }
-            RemoteText(name, fontSize = 12f.sp)
+            RemoteText(name, fontSize = 12.rsp)
         }
     }
 }

@@ -944,6 +944,74 @@ class RowColumnTest : LayoutTest() {
         }
     }
 
+    @Test
+    fun testRow_withColumnAlignModifier_usesCorrectCrossAxisSize() {
+        with(density) {
+            val childWidth = 20.toDp()
+            val childHeight = 50.toDp()
+            val rowHeight = 100.toDp()
+
+            val drawLatch = CountDownLatch(1)
+            var childPosition = Offset.Zero
+
+            show {
+                Column {
+                    val columnModifier = Modifier.align(Alignment.End) // Horizontal.End
+
+                    // Row under test (Cross axis is Vertical)
+                    Row(Modifier.height(rowHeight)) {
+                        Box(
+                            modifier =
+                                columnModifier.size(childWidth, childHeight).onGloballyPositioned {
+                                    childPosition = it.positionInRoot()
+                                    drawLatch.countDown()
+                                }
+                        )
+                    }
+                }
+            }
+
+            assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+            val expectedY = (rowHeight.toPx() - childHeight.toPx()).roundToInt().toFloat()
+            assertEquals(Offset(0f, expectedY), childPosition)
+        }
+    }
+
+    @Test
+    fun testColumn_withRowAlignModifier_usesCorrectCrossAxisSize() {
+        with(density) {
+            val childWidth = 50.toDp()
+            val childHeight = 20.toDp()
+            val colWidth = 100.toDp()
+
+            val drawLatch = CountDownLatch(1)
+            var childPosition = Offset.Zero
+
+            show {
+                Row {
+                    val rowModifier = Modifier.align(Alignment.Bottom) // Vertical.Bottom
+
+                    // Column under test (Cross axis is Horizontal)
+                    Column(Modifier.width(colWidth)) {
+                        Box(
+                            modifier =
+                                rowModifier.size(childWidth, childHeight).onGloballyPositioned {
+                                    childPosition = it.positionInRoot()
+                                    drawLatch.countDown()
+                                }
+                        )
+                    }
+                }
+            }
+
+            assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+            val expectedX = (colWidth.toPx() - childWidth.toPx()).roundToInt().toFloat()
+            assertEquals(Offset(expectedX, 0f), childPosition)
+        }
+    }
+
     // endregion
 
     // region Cross axis alignment tests in Row

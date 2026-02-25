@@ -25,9 +25,11 @@ import androidx.xr.arcore.AnchorCreateIllegalState
 import androidx.xr.arcore.AnchorCreateResourcesExhausted
 import androidx.xr.arcore.AnchorCreateResult
 import androidx.xr.arcore.Geospatial
+import androidx.xr.arcore.Geospatial.State
 import androidx.xr.arcore.Geospatial.Surface
-import androidx.xr.runtime.Config
 import androidx.xr.runtime.Session
+import androidx.xr.runtime.TrackingState
+import androidx.xr.runtime.VpsAvailabilityNotAuthorized
 import androidx.xr.runtime.VpsAvailabilityResult
 import androidx.xr.runtime.math.Quaternion
 import com.google.common.util.concurrent.ListenableFuture
@@ -56,7 +58,7 @@ import com.google.common.util.concurrent.ListenableFuture
  *
  * A Terrain anchor's tracking state will be [TrackingState.PAUSED] if Geospatial is not actively
  * tracking. Its tracking state will permanently become [TrackingState.STOPPED] if
- * [Config.GeospatialMode] is disabled, or if another full-space app uses Geospatial.
+ * [androidx.xr.runtime.GeospatialMode] is disabled, or if another full-space app uses Geospatial.
  *
  * Latitude and longitude are defined by the
  * [WGS84 specification](https://en.wikipedia.org/wiki/World_Geodetic_System), and the altitude
@@ -66,13 +68,14 @@ import com.google.common.util.concurrent.ListenableFuture
  * identity rotation will have the anchor oriented such that X+ points to the east, Y+ points up
  * away from the center of the earth, and Z+ points to the south.
  *
- * @param session the current [Session].
- * @param latitude the latitude of the anchor.
- * @param longitude the longitude of the anchor.
- * @param altitudeAboveSurface The altitude of the anchor above the given surface.
- * @param eastUpSouthQuaternion the rotation [Quaternion] of the anchor.
- * @param surface the [Surface] the anchor is attached to.
- * @throws IllegalArgumentException if the latitude is outside the allowable range.
+ * @param session the current [Session]
+ * @param latitude the latitude of the anchor
+ * @param longitude the longitude of the anchor
+ * @param altitudeAboveSurface the altitude of the anchor above the given surface
+ * @param eastUpSouthQuaternion the rotation [Quaternion] of the anchor
+ * @param surface the [Surface] the anchor is attached to
+ * @return a [ListenableFuture] that will complete with the [AnchorCreateResult]
+ * @throws IllegalArgumentException if the latitude is outside the allowable range
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun Geospatial.createAnchorOnSurfaceAsync(
@@ -98,6 +101,7 @@ public fun Geospatial.createAnchorOnSurfaceAsync(
 
 /**
  * Gets the availability of the Visual Positioning System (VPS) at a specified horizontal position.
+ *
  * The availability of VPS in a given location helps to improve the quality of Geospatial
  * localization and tracking accuracy.
  *
@@ -107,10 +111,10 @@ public fun Geospatial.createAnchorOnSurfaceAsync(
  * Your app must be properly set up to communicate with the Google Cloud ARCore API in order to
  * obtain a result from this call, otherwise the result will be [VpsAvailabilityNotAuthorized].
  *
- * @param latitude The latitude in degrees.
- * @param longitude The longitude in degrees.
- * @param session The current [Session].
- * @return the result of the VPS availability check.
+ * @param session the current [Session]
+ * @param latitude the latitude in degrees
+ * @param longitude the longitude in degrees
+ * @return a [ListenableFuture] that will complete with the [VpsAvailabilityResult]
  */
 public fun Geospatial.checkVpsAvailabilityAsync(
     session: Session,

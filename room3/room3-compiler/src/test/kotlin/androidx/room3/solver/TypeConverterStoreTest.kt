@@ -38,31 +38,31 @@ class TypeConverterStoreTest {
             Source.kotlin(
                 "Foo.kt",
                 """
-            import androidx.room3.*
-            interface Type1_Super
-            interface Type1 : Type1_Super
-            interface Type1_Sub : Type1
-            interface Type2_Super
-            interface Type2 : Type2_Super
-            interface Type2_Sub : Type2
-            interface JumpType_1
-            interface JumpType_2
-            interface JumpType_3
-            class MyConverters {
-                @TypeConverter
-                fun t1_jump1(inp : Type1): JumpType_1 = TODO()
-                @TypeConverter
-                fun jump1_t2_Sub(inp : JumpType_1): Type2_Sub = TODO()
-                @TypeConverter
-                fun jump1_t2(inp : JumpType_1): Type2 = TODO()
-                @TypeConverter
-                fun t1_super_jump2(inp : Type1_Super): JumpType_2 = TODO()
-                @TypeConverter
-                fun jump2_jump3(inp : JumpType_2): JumpType_3 = TODO()
-                @TypeConverter
-                fun jump2_Type2_Sub(inp : JumpType_3): Type2_Sub = TODO()
-            }
-            """
+                import androidx.room3.*
+                interface Type1_Super
+                interface Type1 : Type1_Super
+                interface Type1_Sub : Type1
+                interface Type2_Super
+                interface Type2 : Type2_Super
+                interface Type2_Sub : Type2
+                interface JumpType_1
+                interface JumpType_2
+                interface JumpType_3
+                class MyConverters {
+                    @TypeConverter
+                    fun t1_jump1(inp : Type1): JumpType_1 = TODO()
+                    @TypeConverter
+                    fun jump1_t2_Sub(inp : JumpType_1): Type2_Sub = TODO()
+                    @TypeConverter
+                    fun jump1_t2(inp : JumpType_1): Type2 = TODO()
+                    @TypeConverter
+                    fun t1_super_jump2(inp : Type1_Super): JumpType_2 = TODO()
+                    @TypeConverter
+                    fun jump2_jump3(inp : JumpType_2): JumpType_3 = TODO()
+                    @TypeConverter
+                    fun jump2_Type2_Sub(inp : JumpType_3): Type2_Sub = TODO()
+                }
+                """
                     .trimIndent(),
             )
         runKspTest(sources = listOf(source)) { invocation ->

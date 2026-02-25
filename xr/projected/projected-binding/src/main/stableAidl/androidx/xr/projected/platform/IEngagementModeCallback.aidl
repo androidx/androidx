@@ -19,7 +19,7 @@ package androidx.xr.projected.platform;
 /**
  * Callback interface for receiving updates on engagement mode changes.
  */
-@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX)")
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)")
 oneway interface IEngagementModeCallback {
     /**
      * Called when the engagement mode flags change.

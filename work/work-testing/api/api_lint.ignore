@@ -22,4 +22,4 @@ StaticFinalBuilder: androidx.work.testing.TestListenableWorkerBuilder:
 
 
 TopLevelBuilder: androidx.work.testing.TestListenableWorkerBuilder:
-    Builder should be defined as inner class: androidx.work.testing.TestListenableWorkerBuilder
+    Builder should be defined as nested class: androidx.work.testing.TestListenableWorkerBuilder

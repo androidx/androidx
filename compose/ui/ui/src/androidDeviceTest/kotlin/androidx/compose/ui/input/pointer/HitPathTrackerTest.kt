@@ -3298,7 +3298,14 @@ class HitPathTrackerTest {
                 down(
                     id = 5,
                     historicalData =
-                        listOf(HistoricalChange(uptimeMillis = 1L, position = Offset.Unspecified)),
+                        listOf(
+                            HistoricalChange(
+                                uptimeMillis = 1L,
+                                position = Offset.Unspecified,
+                                scaleFactor = 0f,
+                                panOffset = Offset.Zero,
+                            )
+                        ),
                 )
             )
 

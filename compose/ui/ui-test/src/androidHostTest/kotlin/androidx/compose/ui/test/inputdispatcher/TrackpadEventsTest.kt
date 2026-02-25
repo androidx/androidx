@@ -470,25 +470,33 @@ class TrackpadEventsTest : InputDispatcherTest() {
     }
 
     @Test
-    fun scroll() {
+    fun pan() {
         // Scenario:
         // move trackpad
-        // scroll vertically by 10f
+        // pan vertically by 10f
         // press primary button
-        // scroll horizontally by 10f
+        // pan horizontally by 10f
 
         var expectedEvents = 0
         subject.verifyTrackpadPosition(Offset.Zero)
         subject.enqueueTrackpadMove(position1)
         expectedEvents += 2 // enter + hover
         subject.advanceEventTime()
-        subject.enqueueTrackpadScroll(Offset(0f, 10f))
+        subject.enqueueTrackpadPanStart()
+        subject.advanceEventTime()
+        subject.enqueueTrackpadPanMove(Offset(0f, 10f))
+        subject.advanceEventTime()
+        subject.enqueueTrackpadPanEnd()
         expectedEvents += 5 // exit + down + move + up + enter
         subject.advanceEventTime()
         subject.enqueueTrackpadPress(MouseButton.Primary.buttonId)
         expectedEvents += 3 // exit + down + press
         subject.advanceEventTime()
-        subject.enqueueTrackpadScroll(Offset(10f, 0f))
+        subject.enqueueTrackpadPanStart()
+        subject.advanceEventTime()
+        subject.enqueueTrackpadPanMove(Offset(10f, 0f))
+        subject.advanceEventTime()
+        subject.enqueueTrackpadPanEnd()
         expectedEvents += 8 // release + up + enter + exit + down + move + up + enter
         subject.flush()
 
@@ -643,10 +651,18 @@ class TrackpadEventsTest : InputDispatcherTest() {
         subject.enqueueTrackpadMove(position1)
         expectedEvents += 2 // enter + hover
         subject.advanceEventTime()
-        subject.enqueueTrackpadPinch(0.9f)
+        subject.enqueueTrackpadScaleStart()
+        subject.advanceEventTime()
+        subject.enqueueTrackpadScaleChange(0.9f)
+        subject.advanceEventTime()
+        subject.enqueueTrackpadScaleEnd()
         expectedEvents += 7 // exit + down + pointerDown + move + pointerUp + up + enter
         subject.advanceEventTime()
-        subject.enqueueTrackpadPinch(1.1f)
+        subject.enqueueTrackpadScaleStart()
+        subject.advanceEventTime()
+        subject.enqueueTrackpadScaleChange(1.1f)
+        subject.advanceEventTime()
+        subject.enqueueTrackpadScaleEnd()
         expectedEvents += 7 // exit + down + pointerDown + move + pointerUp + up + enter
         subject.flush()
 

@@ -312,6 +312,9 @@
     <!--EndImageAndActionsDemo -->
     <string name="end_image_and_action_demo_title">End Image and Actions Demo</string>
 
+    <!-- FilterChipDemo -->
+    <string name="filter_chip_demo_title">Filter Chip Demo</string>
+
   <!-- PaneTemplateDemoScreen -->
   <string name="pane_template_demo_title">Pane Template Demo</string>
 

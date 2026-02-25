@@ -31,7 +31,6 @@ public annotation class SpatialApiVersion
 
 /** All the Spatial API versions supported by Android XR. */
 // To add a new API version, add a new constant here and update the @IntDef above.
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public object SpatialApiVersions {
     /**
      * Unknown API version.
@@ -45,6 +44,10 @@ public object SpatialApiVersions {
     public const val SPATIAL_API_V2: Int = 2
     /** API version 3. */
     public const val SPATIAL_API_V3: Int = 3
+
+    /** The latest stable Spatial API version. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public const val LATEST_STABLE_API_LEVEL: Int = SPATIAL_API_V2
 }
 
 /**
@@ -75,7 +78,6 @@ public object SpatialApiVersions {
  * }
  * </code></pre>
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY, AnnotationTarget.CLASS)
 public annotation class RequiresSpatialApi(
@@ -113,7 +115,7 @@ public annotation class RequiresSpatialApi(
  * fun callPreviewApi() {
  *     try {
  *         newPreviewApi()
- *     } catch (e: RuntimeException) {
+ *     } catch (e: NoSuchMethodError) {
  *         // Handle the case where the preview API is not available.
  *     }
  * }
@@ -126,6 +128,5 @@ public annotation class RequiresSpatialApi(
             "image work properly. Do not use this API in release builds as it will likely to " +
             "lead to crashes.",
 )
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @Retention(AnnotationRetention.BINARY)
 public annotation class PreviewSpatialApi3

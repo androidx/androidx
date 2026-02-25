@@ -59,7 +59,7 @@ import java.util.concurrent.Executor
  * @param callbacks An instance of [AmbientLifecycleObserver.AmbientLifecycleCallback], used to
  *   notify the observer about changes to the ambient state.
  */
-fun AmbientLifecycleObserver(
+public fun AmbientLifecycleObserver(
     activity: Activity,
     callbackExecutor: Executor,
     callbacks: AmbientLifecycleObserver.AmbientLifecycleCallback,
@@ -96,7 +96,7 @@ fun AmbientLifecycleObserver(
  * @param callbacks An instance of [AmbientLifecycleObserver.AmbientLifecycleCallback], used to
  *   notify the observer about changes to the ambient state.
  */
-fun AmbientLifecycleObserver(
+public fun AmbientLifecycleObserver(
     activity: Activity,
     callbacks: AmbientLifecycleObserver.AmbientLifecycleCallback,
 ): AmbientLifecycleObserver = AmbientLifecycleObserverImpl(activity, callbacks)
@@ -109,7 +109,7 @@ fun AmbientLifecycleObserver(
  * ambient support.
  */
 @Suppress("CallbackName")
-interface AmbientLifecycleObserver : DefaultLifecycleObserver {
+public interface AmbientLifecycleObserver : DefaultLifecycleObserver {
     /**
      * Details about ambient mode support on the current device, passed to
      * [AmbientLifecycleCallback.onEnterAmbient].
@@ -124,9 +124,9 @@ interface AmbientLifecycleObserver : DefaultLifecycleObserver {
      *   property is set to true, the screen supports fewer bits for each color in ambient mode. In
      *   this case, activities should disable anti-aliasing in ambient mode.
      */
-    class AmbientDetails(
-        val burnInProtectionRequired: Boolean,
-        val deviceHasLowBitAmbient: Boolean,
+    public class AmbientDetails(
+        public val burnInProtectionRequired: Boolean,
+        public val deviceHasLowBitAmbient: Boolean,
     ) {
         override fun toString(): String =
             "AmbientDetails - burnInProtectionRequired: $burnInProtectionRequired, " +
@@ -134,7 +134,7 @@ interface AmbientLifecycleObserver : DefaultLifecycleObserver {
     }
 
     /** Callback to receive ambient mode state changes. */
-    interface AmbientLifecycleCallback {
+    public interface AmbientLifecycleCallback {
         /**
          * Called when an activity is entering ambient mode. This event is sent while an activity is
          * running (after onResume, before onPause). All drawing should complete by the conclusion
@@ -144,21 +144,21 @@ interface AmbientLifecycleObserver : DefaultLifecycleObserver {
          * @param ambientDetails instance of [AmbientDetails] containing information about the
          *   display being used.
          */
-        fun onEnterAmbient(ambientDetails: AmbientDetails) {}
+        public fun onEnterAmbient(ambientDetails: AmbientDetails) {}
 
         /**
          * Called when the system is updating the display for ambient mode. Activities may use this
          * opportunity to update or invalidate views.
          */
-        fun onUpdateAmbient() {}
+        public fun onUpdateAmbient() {}
 
         /**
          * Called when an activity should exit ambient mode. This event is sent while an activity is
          * running (after onResume, before onPause).
          */
-        fun onExitAmbient() {}
+        public fun onExitAmbient() {}
     }
 
     /** @return {@code true} if the activity is currently in ambient. */
-    val isAmbient: Boolean
+    public val isAmbient: Boolean
 }

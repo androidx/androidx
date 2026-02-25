@@ -6,6 +6,8 @@ import androidx.room3.util.getLastInsertedRowId
 import androidx.room3.util.getTotalChangedRows
 import androidx.room3.util.performSuspending
 import androidx.sqlite.SQLiteStatement
+import androidx.sqlite.prepare
+import androidx.sqlite.step
 import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.Long

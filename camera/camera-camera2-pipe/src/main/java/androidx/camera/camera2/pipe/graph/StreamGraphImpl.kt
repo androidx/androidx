@@ -251,17 +251,17 @@ constructor(
         override fun toString(): String = id.toString()
     }
 
-    private class OutputStreamImpl(
+    internal class OutputStreamImpl(
         override val id: OutputId,
         override val size: Size,
         override val format: StreamFormat,
         override val camera: CameraId,
-        override val mirrorMode: OutputStream.MirrorMode?,
-        override val timestampBase: OutputStream.TimestampBase?,
-        override val dynamicRangeProfile: OutputStream.DynamicRangeProfile?,
-        override val streamUseCase: OutputStream.StreamUseCase?,
-        override val outputType: OutputStream.OutputType?,
-        override val streamUseHint: OutputStream.StreamUseHint?,
+        override val mirrorMode: OutputStream.MirrorMode? = null,
+        override val timestampBase: OutputStream.TimestampBase? = null,
+        override val dynamicRangeProfile: OutputStream.DynamicRangeProfile? = null,
+        override val streamUseCase: OutputStream.StreamUseCase? = null,
+        override val outputType: OutputStream.OutputType? = null,
+        override val streamUseHint: OutputStream.StreamUseHint? = null,
     ) : OutputStream {
         override lateinit var stream: CameraStream
 

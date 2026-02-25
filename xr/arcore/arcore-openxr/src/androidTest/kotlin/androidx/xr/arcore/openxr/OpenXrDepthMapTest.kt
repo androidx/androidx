@@ -22,6 +22,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.DepthEstimationMode
 import com.google.common.truth.Truth.assertThat
 import java.nio.ByteBuffer
 import java.nio.FloatBuffer
@@ -66,7 +67,7 @@ class OpenXrDepthMapTest {
         check(leftUnderTest.width == 0)
         check(rightUnderTest.width == 0)
 
-        openXrManager.configure(Config(depthEstimation = Config.DepthEstimationMode.RAW_ONLY))
+        openXrManager.configure(Config(depthEstimation = DepthEstimationMode.RAW_ONLY))
 
         // The value below comes from XR_DEPTH_CAMERA_RESOLUTION_80x80_ANDROID (width = 80, height =
         // 80) defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc.
@@ -79,7 +80,7 @@ class OpenXrDepthMapTest {
         assertThat(leftUnderTest.height).isEqualTo(0)
         assertThat(rightUnderTest.height).isEqualTo(0)
 
-        openXrManager.configure(Config(depthEstimation = Config.DepthEstimationMode.RAW_ONLY))
+        openXrManager.configure(Config(depthEstimation = DepthEstimationMode.RAW_ONLY))
 
         // The value below comes from XR_DEPTH_CAMERA_RESOLUTION_80x80_ANDROID (width = 80, height =
         // 80) defined in //third_party/jetpack_xr_natives/openxr/openxr_stub.cc.
@@ -90,7 +91,7 @@ class OpenXrDepthMapTest {
     @Test
     fun configureRawOnly_thenUpdate_doesNotUpdateSmoothBuffers() = initOpenXrManagerAndRunTest {
         val xrTime = 50L * 1_000_000 // 50 milliseconds in nanoseconds.
-        openXrManager.configure(Config(depthEstimation = Config.DepthEstimationMode.RAW_ONLY))
+        openXrManager.configure(Config(depthEstimation = DepthEstimationMode.RAW_ONLY))
 
         perceptionManager.update(xrTime)
 
@@ -103,7 +104,7 @@ class OpenXrDepthMapTest {
     @Test
     fun configureRawOnly_thenUpdate_updatesRawBuffers() = initOpenXrManagerAndRunTest {
         val xrTime = 50L * 1_000_000 // 50 milliseconds in nanoseconds.
-        openXrManager.configure(Config(depthEstimation = Config.DepthEstimationMode.RAW_ONLY))
+        openXrManager.configure(Config(depthEstimation = DepthEstimationMode.RAW_ONLY))
 
         perceptionManager.update(xrTime)
 
@@ -125,7 +126,7 @@ class OpenXrDepthMapTest {
     @Test
     fun configureSmoothOnly_thenUpdate_doesNotUpdateRawBuffers() = initOpenXrManagerAndRunTest {
         val xrTime = 50L * 1_000_000 // 50 milliseconds in nanoseconds.
-        openXrManager.configure(Config(depthEstimation = Config.DepthEstimationMode.SMOOTH_ONLY))
+        openXrManager.configure(Config(depthEstimation = DepthEstimationMode.SMOOTH_ONLY))
 
         perceptionManager.update(xrTime)
 
@@ -138,7 +139,7 @@ class OpenXrDepthMapTest {
     @Test
     fun configureSmoothOnly_thenUpdate_updatesSmoothBuffers() = initOpenXrManagerAndRunTest {
         val xrTime = 50L * 1_000_000 // 50 milliseconds in nanoseconds.
-        openXrManager.configure(Config(depthEstimation = Config.DepthEstimationMode.SMOOTH_ONLY))
+        openXrManager.configure(Config(depthEstimation = DepthEstimationMode.SMOOTH_ONLY))
 
         perceptionManager.update(xrTime)
 
@@ -161,9 +162,7 @@ class OpenXrDepthMapTest {
     @Test
     fun configureSmoothAndRaw_throwsUnsupportedOperationException() = initOpenXrManagerAndRunTest {
         assertThrows(UnsupportedOperationException::class.java) {
-            openXrManager.configure(
-                Config(depthEstimation = Config.DepthEstimationMode.SMOOTH_AND_RAW)
-            )
+            openXrManager.configure(Config(depthEstimation = DepthEstimationMode.SMOOTH_AND_RAW))
         }
     }
 

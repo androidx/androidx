@@ -42,6 +42,8 @@ import androidx.xr.arcore.ArDevice
 import androidx.xr.arcore.Hand
 import androidx.xr.arcore.HandJointType
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.DeviceTrackingMode
+import androidx.xr.runtime.HandTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.TrackingState
@@ -54,13 +56,11 @@ import androidx.xr.scenecore.GroupEntity
 import androidx.xr.scenecore.InteractableComponent
 import androidx.xr.scenecore.MovableComponent
 import androidx.xr.scenecore.Scene
-import androidx.xr.scenecore.SpatialEnvironment
 import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.scene
 import androidx.xr.scenecore.testapp.R
 import androidx.xr.scenecore.testapp.common.isMvHevcSupported
 import java.io.File
-import java.util.function.Consumer
 
 internal const val TAG = "JXR-SurfaceEntityInteractionActivity"
 
@@ -97,9 +97,6 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
     private lateinit var switchDoubleClickEnabled: Switch
     private lateinit var switchDragEnabled: Switch
     private lateinit var textViewPointerLogs: TextView
-    private var spatialEnvironmentPreference: SpatialEnvironment.SpatialEnvironmentPreference? =
-        null
-    private var consentGranted: Boolean = false
     private lateinit var mvHevcNotSupportedText: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -112,17 +109,13 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
             insets
         }
 
-        @Suppress("DEPRECATION")
-        session =
-            (Session.create(this, unscaledGravityAlignedActivitySpace = true)
-                    as SessionCreateSuccess)
-                .session
+        session = (Session.create(this) as SessionCreateSuccess).session
         scene = session.scene
         scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
         session.configure(
             Config(
-                deviceTracking = Config.DeviceTrackingMode.LAST_KNOWN,
-                handTracking = Config.HandTrackingMode.BOTH,
+                deviceTracking = DeviceTrackingMode.LAST_KNOWN,
+                handTracking = HandTrackingMode.BOTH,
             )
         )
         session.scene.keyEntity = session.scene.mainPanelEntity
@@ -201,17 +194,7 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
 
         view = window.decorView
         view.postOnAnimation(this::onAnimation)
-
-        consentGranted = session.scene.isBoundaryConsentGranted
-        session.scene.addOnBoundaryConsentChangedListener(boundaryConsentListener)
     }
-
-    private val boundaryConsentListener =
-        Consumer<Boolean> { isGranted ->
-            consentGranted = isGranted
-            Log.i("[boundary] in app", isGranted.toString())
-            // App UX Flow for handling consent state changes.
-        }
 
     private fun onAnimation() {
         if (surfaceParent == null) return
@@ -276,7 +259,6 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
         super.onDestroy()
         exoPlayer?.stop()
         exoPlayer?.release()
-        session.scene.removeOnBoundaryConsentChangedListener(boundaryConsentListener)
     }
 
     // Request the external storage permission so that we can read large files from the SDCard
@@ -348,18 +330,7 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
                 .show()
             return
         }
-        // Check boundary consent status. If not granted, stop the immersive video and revert to the
-        // original state.
-        if (!consentGranted) {
-            // Allow the app to re-trigger the boundary setup flow on the second button click.
-            session.scene.spatialEnvironment.preferredSpatialEnvironment = null
-            // Set dummy environment to trigger boundary consent dialog
-            spatialEnvironmentPreference =
-                SpatialEnvironment.SpatialEnvironmentPreference(null, null)
-            session!!.scene.spatialEnvironment.preferredSpatialEnvironment =
-                spatialEnvironmentPreference
-            return
-        }
+
         surfaceEntity =
             createSurfaceEntity(
                 session = session,

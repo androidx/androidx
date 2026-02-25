@@ -69,3 +69,6 @@ do
   echo "generating ${primitive}ListTest.kt"
   sed -e "s/PKey/${primitive}/g" -e"s/pKey/${lower}/g" -e "s/KeySuffix/${suffix}/g" ${scriptDir}/PKeyListTest.kt.template > ${scriptDir}/../src/commonTest/kotlin/androidx/collection/${primitive}ListTest.kt
 done
+
+echo "formatting files"
+$scriptDir/../../../gradlew :collection:collection:ktFormat

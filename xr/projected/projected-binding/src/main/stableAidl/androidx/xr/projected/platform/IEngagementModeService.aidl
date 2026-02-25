@@ -21,7 +21,7 @@ import androidx.xr.projected.platform.IEngagementModeCallback;
 /**
  * Service interface for providing engagement mode information.
  */
-@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX)")
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP)")
 oneway interface IEngagementModeService {
     const int ENGAGEMENT_STATE_FLAG_VISUALS_ON = 1;
     const int ENGAGEMENT_STATE_FLAG_AUDIO_ON = 1 << 1;

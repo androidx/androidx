@@ -18,7 +18,9 @@ package androidx.pdf
 
 import android.os.ParcelFileDescriptor
 import androidx.annotation.RestrictTo
+import androidx.pdf.PdfDocument.OnPdfContentInvalidatedListener
 import androidx.pdf.models.FormEditInfo
+import java.util.concurrent.Executor
 
 /** Represents a PDF document that allows for editing. */
 public abstract class EditablePdfDocument : PdfDocument {
@@ -40,7 +42,8 @@ public abstract class EditablePdfDocument : PdfDocument {
     public abstract suspend fun applyEdit(record: FormEditInfo)
 
     /**
-     * Applies a list of edits to the document sequentially.
+     * Applies a list of edits to the document sequentially. The edits are sorted by page number
+     * before applying using [EditsDraft.getOperationsSortedByPage].
      *
      * @param editsDraft: edits to be applied on pdf document.
      * @return List of annotationId for each operation in sequence of the order they were enqueued.
@@ -55,4 +58,44 @@ public abstract class EditablePdfDocument : PdfDocument {
      * [ParcelFileDescriptor].
      */
     public abstract fun createWriteHandle(): PdfWriteHandle
+
+    /**
+     * Adds a listener to be notified when an edit is applied on the document. Remove the listener
+     * using [removeOnEditsAppliedListener].
+     *
+     * @param executor The executor on which the listener's methods will be called.
+     * @param listener the listener to add.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Suppress("HiddenAbstractMethod")
+    public abstract fun addOnEditsAppliedListener(
+        executor: Executor,
+        listener: OnEditsAppliedListener,
+    )
+
+    /**
+     * Remove a listener for applied edits.
+     *
+     * @param listener the listener for notification of applied edit.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Suppress("HiddenAbstractMethod")
+    public abstract fun removeOnEditsAppliedListener(listener: OnEditsAppliedListener)
+
+    /**
+     * Interface definition for a callback that notifies when an edit is applied using the
+     * [applyEdits] method.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public interface OnEditsAppliedListener {
+        /**
+         * Called when an edit is applied on the document. The order of the callback is preserved
+         * according to the order of the sorted list returned by
+         * [EditsDraft.getOperationsSortedByPage].
+         *
+         * @param pageNum page number where the annotation is applied.
+         * @param editId id of the annotation that was applied.
+         */
+        public fun onEditApplied(pageNum: Int, editId: String)
+    }
 }

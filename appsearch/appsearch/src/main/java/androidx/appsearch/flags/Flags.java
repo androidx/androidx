@@ -239,9 +239,6 @@ public final class Flags {
     public static final String FLAG_ENABLE_COMPRESSION_MEM_LEVEL_ONE =
             FLAG_PREFIX + "enable_compression_mem_level_one";
 
-    /** Enables gzip decompression buffer size memory optimization. */
-    public static final String FLAG_ENABLE_SMALLER_DECOMPRESSION_BUFFER_SIZE =
-            FLAG_PREFIX + "enable_smaller_decompression_buffer_size";
 
     /** Enables {@link androidx.appsearch.app.AppSearchResult#RESULT_ABORTED}. */
     public static final String FLAG_ENABLE_RESULT_ABORTED =
@@ -284,10 +281,6 @@ public final class Flags {
     public static final String FLAG_ENABLE_PASSING_FILTER_TO_CHILDREN =
             FLAG_PREFIX + "enable_passing_filter_to_children";
 
-    /** Whether to enable using removeByQuery to implement removeById. */
-    public static final String FLAG_ENABLE_REMOVE_BY_ID_USES_QUERY =
-            FLAG_PREFIX + "enable_remove_by_id_uses_query";
-
     /**
      * Whether to enable the new header format (refactor legacy format and introduce unsynced tail
      * checksum) related changes in PortableFileBackedProtoLog.
@@ -300,19 +293,6 @@ public final class Flags {
      */
     public static final String FLAG_ENABLE_EARLY_SET_SCHEMA_EXIT =
             FLAG_PREFIX + "enable_early_set_schema_exit";
-
-    /**
-     * Whether to enable the new embedding iterator which has improved access order.
-     */
-    public static final String FLAG_ENABLE_EMBEDDING_ITERATOR_V2 =
-            FLAG_PREFIX + "enable_embedding_iterator_v2";
-
-    /**
-     * Whether to enable reusing a single buffer of memory to avoid reallocating a new buffer for
-     * every single document read..
-     */
-    public static final String FLAG_ENABLE_REUSABLE_DECOMPRESSION_BUFFER =
-            FLAG_PREFIX + "enable_reusable_decompression_buffer";
 
     /**
      * Whether to enable sharded storage for embedding index.
@@ -366,6 +346,10 @@ public final class Flags {
     public static final String FLAG_ENABLE_NON_EXISTENT_QUALIFIED_ID_JOIN =
             FLAG_PREFIX + "enable_non_existent_qualified_id_join";
 
+    /** Enables visibility access for Private Compute Core UIDs. */
+    public static final String FLAG_ENABLE_PRIVATE_COMPUTE_CORE_UID_ACCESS =
+            FLAG_PREFIX + "enable_private_compute_core_uid_access";
+
     /**
      * Whether to enable skipping the unnecessary schema type equality check.
      */
@@ -377,6 +361,10 @@ public final class Flags {
      */
     public static final String FLAG_ENABLE_EMBED_QUERY_OPTIMIZATION =
             FLAG_PREFIX + "enable_embed_query_optimization";
+
+    /** Enables set SearchFeatures and RankingFeatures APIs. */
+    public static final String FLAG_ENABLE_SET_SEARCH_AND_RANKING_FEATURE =
+            FLAG_PREFIX + "enable_set_search_and_ranking_feature";
 
     // Whether the features should be enabled.
     //
@@ -666,13 +654,6 @@ public final class Flags {
         return true;
     }
 
-    /**
-     * Whether to enable gzip decompression buffer memory optimization that uses a smaller buffer
-     * size.
-     */
-    public static boolean enableSmallerDecompressionBufferSize() {
-        return true;
-    }
 
     /** Whether to enable the Eigen library for embedding scoring */
     public static boolean enableEigenEmbeddingScoring() {
@@ -705,14 +686,6 @@ public final class Flags {
     }
 
     /**
-     * Whether to enable using removeByQuery to implement removeById.
-     */
-    public static boolean enableRemoveByIdUsesQuery() {
-        // TODO(b/401245772): Enable this once the feature is rolled out to Nextfood in platform.
-        return false;
-    }
-
-    /**
      * Whether to enable the new header format (refactor legacy format and introduce unsynced tail
      * checksum) related changes in PortableFileBackedProtoLog.
      */
@@ -726,23 +699,6 @@ public final class Flags {
      */
     public static boolean enableEarlySetSchemaExit() {
         // TODO(b/436813583): Enable this once the feature is rolled out to Nextfood in platform.
-        return false;
-    }
-
-    /**
-     * Whether to enable the new embedding iterator which has improved access order.
-     */
-    public static boolean enableEmbeddingIteratorV2() {
-        // TODO(b/435005853): Enable this once the feature is rolled out to Nextfood in platform.
-        return false;
-    }
-
-    /**
-     * Whether to enable reusing a single buffer of memory to avoid reallocating a new buffer for
-     * every single document read..
-     */
-    public static boolean enableReusableDecompressionBuffer() {
-        // TODO(b/435754056): Enable this once the feature is rolled out to Nextfood in platform.
         return false;
     }
 
@@ -816,6 +772,13 @@ public final class Flags {
     }
 
     /**
+     * Whether visibility access for Private Compute Core UIDs should be enabled.
+     */
+    public static boolean enablePrivateComputeCoreUidAccess() {
+        return true;
+    }
+
+    /*
      * Whether to enable skipping the unnecessary schema type equality check.
      */
     public static boolean enableSkipSetSchemaTypeEqualityCheck() {
@@ -826,6 +789,14 @@ public final class Flags {
      * Whether to enable the query optimization to rewrite AND'd embedding queries.
      */
     public static boolean enableEmbedQueryOptimization() {
+        return true;
+    }
+
+    /**
+     * Whether {@link androidx.appsearch.app.SearchFeatures} and
+     * {@link androidx.appsearch.app.RankingFeatures} related APIs should be enabled.
+     */
+    public static boolean enableSetSearchAndRankingFeature() {
         return true;
     }
 }

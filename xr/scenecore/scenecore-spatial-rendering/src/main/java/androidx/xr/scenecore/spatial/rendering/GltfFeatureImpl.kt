@@ -24,10 +24,11 @@ import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.scenecore.impl.impress.GltfModel
 import androidx.xr.scenecore.impl.impress.ImpressApi
 import androidx.xr.scenecore.impl.impress.ImpressNode
-import androidx.xr.scenecore.impl.impress.Material
+import androidx.xr.scenecore.runtime.GltfAnimationFeature
 import androidx.xr.scenecore.runtime.GltfEntity
 import androidx.xr.scenecore.runtime.GltfFeature
-import androidx.xr.scenecore.runtime.MaterialResource
+import androidx.xr.scenecore.runtime.GltfModelNodeFeature
+import androidx.xr.scenecore.spatial.core.AndroidXrEntity
 import com.android.extensions.xr.XrExtensions
 import com.google.androidxr.splitengine.SplitEngineSubspaceManager
 import com.google.ar.imp.view.splitengine.ImpSplitEngineRenderer
@@ -60,7 +61,29 @@ internal class GltfFeatureImpl(
     private val modelImpressNode: ImpressNode = impressApi.instanceGltfModel(gltfModel.nativeHandle)
     private var currentAnimationJob: Job? = null
 
-    private val meshOverrides = mutableMapOf<String, Int>()
+    private var animationFeatureList: List<GltfAnimationFeature>? = null
+
+    @MainThread
+    override fun getAnimations(executor: Executor): List<GltfAnimationFeature> {
+        if (animationFeatureList == null) {
+            val list = mutableListOf<GltfAnimationFeature>()
+            for (i in 0 until impressApi.getGltfModelAnimationCount(modelImpressNode)) {
+                list.add(
+                    GltfAnimationFeatureImpl(
+                        impressApi = impressApi,
+                        modelImpressNode = modelImpressNode,
+                        index = i,
+                        name = impressApi.getGltfModelAnimationName(modelImpressNode, i),
+                        duration =
+                            impressApi.getGltfModelAnimationDurationSeconds(modelImpressNode, i),
+                        executor = executor,
+                    )
+                )
+            }
+            animationFeatureList = Collections.unmodifiableList(list)
+        }
+        return animationFeatureList!!
+    }
 
     private val animationStateListeners: MutableMap<Consumer<Int>, Executor> =
         Collections.synchronizedMap(mutableMapOf())
@@ -70,6 +93,17 @@ internal class GltfFeatureImpl(
 
     init {
         bindImpressNodeToSubspace("gltf_entity_subspace_", modelImpressNode)
+    }
+
+    override val nodes: List<GltfModelNodeFeature> by lazy {
+        val count = impressApi.getImpressNodeChildCount(modelImpressNode)
+        val nodeList = ArrayList<GltfModelNodeFeature>(count)
+        for (i in 0 until count) {
+            val childNode = impressApi.getImpressNodeChildAt(modelImpressNode, i)
+            val name = impressApi.getImpressNodeName(childNode)
+            nodeList.add(GltfModelNodeFeatureImpl(impressApi, childNode, modelImpressNode, name))
+        }
+        nodeList.toList()
     }
 
     override val size: FloatSize3d = getGltfModelBoundingBox().halfExtents.times(2f)
@@ -153,38 +187,13 @@ internal class GltfFeatureImpl(
     }
 
     @MainThread
-    override fun setMaterialOverride(
-        material: MaterialResource,
-        nodeName: String,
-        primitiveIndex: Int,
-    ) {
-        require(material is Material) { "MaterialResource is not a Material" }
-        impressApi.setMaterialOverride(
-            modelImpressNode,
-            material.nativeHandle,
-            nodeName,
-            primitiveIndex,
-        )
-        meshOverrides[nodeName] = primitiveIndex
-    }
-
-    @MainThread
-    override fun clearMaterialOverride(nodeName: String, primitiveIndex: Int) {
-        impressApi.clearMaterialOverride(modelImpressNode, nodeName, primitiveIndex)
-        meshOverrides.remove(nodeName, primitiveIndex)
-    }
-
-    @MainThread
     override fun setColliderEnabled(enableCollider: Boolean) {
         impressApi.setGltfModelColliderEnabled(modelImpressNode, enableCollider)
     }
 
     @SuppressWarnings("ObjectToString")
     override fun dispose() {
-        for ((key, value) in HashMap(meshOverrides)) {
-            impressApi.clearMaterialOverride(modelImpressNode, key, value)
-        }
-        meshOverrides.clear()
+        nodes.forEach { it.clearMaterialOverrides() }
         renderer.frameListener = null
         boundsUpdateListeners.clear()
         super.dispose()
@@ -227,6 +236,29 @@ internal class GltfFeatureImpl(
 
         if (boundsUpdateListeners.isEmpty()) {
             renderer.frameListener = null
+        }
+    }
+
+    @MainThread
+    override fun setReformAffordanceEnabled(
+        entity: GltfEntity,
+        enabled: Boolean,
+        executor: Executor,
+        systemMovable: Boolean,
+    ) {
+        impressApi.setGltfReformAffordanceEnabled(modelImpressNode, enabled, systemMovable)
+        if (enabled) {
+            subspace?.let { splitEngineSubspace ->
+                splitEngineSubspace.subspaceNode?.listenForInput(executor) { inputEvent ->
+                    splitEngineSubspaceManager.forwardInputEvent(
+                        inputEvent,
+                        splitEngineSubspace.subspaceId,
+                    )
+                    (entity as AndroidXrEntity).handleInputEvent(inputEvent)
+                }
+            }
+        } else {
+            subspace?.subspaceNode?.stopListeningForInput()
         }
     }
 }

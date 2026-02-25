@@ -16,11 +16,13 @@
 
 package androidx.camera.camera2.pipe.internal
 
+import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.Frame
 import androidx.camera.camera2.pipe.FrameId
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameNumber
+import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.OutputStatus
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.StreamId
@@ -35,6 +37,7 @@ import androidx.camera.camera2.pipe.internal.OutputResult.Companion.outputStatus
 import androidx.camera.camera2.pipe.media.OutputImage
 import androidx.camera.camera2.pipe.media.SharedOutputImage
 import java.util.concurrent.CopyOnWriteArrayList
+import kotlinx.atomicfu.AtomicInt
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.updateAndGet
 import kotlinx.coroutines.CompletableDeferred
@@ -48,16 +51,22 @@ internal class FrameState(
     val requestMetadata: RequestMetadata,
     val frameNumber: FrameNumber,
     val frameTimestamp: CameraTimestamp,
-    imageStreams: Set<StreamId>,
+    imageStreams: Set<CameraStream>,
+    val concurrentImageStreams: Set<StreamId>?,
 ) {
     val frameId = nextFrameId()
     val frameInfoOutput: FrameInfoOutput = FrameInfoOutput()
     val imageOutputs: List<ImageOutput> = buildList {
         for (streamId in requestMetadata.streams.keys) {
             // Only create StreamResult's for streams that this OutputFrameDistributor supports.
-            if (imageStreams.contains(streamId)) {
-                val imageOutput = ImageOutput(streamId)
-                add(imageOutput)
+            val imageStream = imageStreams.find { it.id == streamId }
+            if (imageStream != null) {
+                val outputs = imageStream.outputs
+                val remainingOutputResults = atomic(outputs.size)
+                for (i in outputs.indices) {
+                    val imageOutput = ImageOutput(streamId, outputs[i].id, remainingOutputResults)
+                    add(imageOutput)
+                }
             }
         }
     }
@@ -77,7 +86,8 @@ internal class FrameState(
     }
 
     private val state = atomic(STARTED)
-    private val streamResultCount = atomic(0)
+    private val remainingStreamCount = atomic(imageOutputs.map { it.streamId }.distinct().size)
+
     // A list of ListenerState, one for each listener.
     private val listenerStates = CopyOnWriteArrayList<ListenerState>()
 
@@ -122,13 +132,8 @@ internal class FrameState(
     }
 
     fun onStreamResultComplete(streamId: StreamId) {
-        val hasResultsRemaining = streamResultCount.incrementAndGet() != imageOutputs.size
-
-        for (listenerState in listenerStates) {
-            listenerState.invokeOnImageAvailable(streamId)
-        }
-
-        if (hasResultsRemaining) return
+        val hasStreamsRemaining = remainingStreamCount.decrementAndGet() != 0
+        if (hasStreamsRemaining) return
 
         val state =
             state.updateAndGet { current ->
@@ -235,8 +240,11 @@ internal class FrameState(
         }
     }
 
-    inner class ImageOutput(val streamId: StreamId) :
-        FrameOutput<SharedOutputImage>(), OutputDistributor.OutputListener<OutputImage> {
+    inner class ImageOutput(
+        val streamId: StreamId,
+        val outputId: OutputId,
+        private val remainingOutputResults: AtomicInt, // Number of remaining outputs in this stream
+    ) : FrameOutput<SharedOutputImage>(), OutputDistributor.OutputListener<OutputImage> {
         override fun onOutputComplete(
             cameraFrameNumber: FrameNumber,
             cameraTimestamp: CameraTimestamp,
@@ -254,7 +262,13 @@ internal class FrameState(
                 internalResult.completeWithFailure(outputResult.status)
             }
 
-            onStreamResultComplete(streamId)
+            if (remainingOutputResults.decrementAndGet() == 0) {
+                for (listenerState in listenerStates) {
+                    listenerState.invokeOnImageAvailable(streamId)
+                }
+
+                onStreamResultComplete(streamId)
+            }
         }
 
         override fun outputOrNull(): SharedOutputImage? = result.outputOrNull()?.acquireOrNull()

@@ -31,6 +31,7 @@ import androidx.xr.arcore.testing.FakePerceptionManager
 import androidx.xr.arcore.testing.FakePerceptionRuntime
 import androidx.xr.arcore.testing.FakeRuntimePlane
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.FloatSize2d
@@ -233,23 +234,23 @@ class AnchorEntityTest {
     }
 
     @Test
-    fun setOnSpaceUpdatedListener_withNullParams_callsRuntimeSetOnSpaceUpdatedListener() {
+    fun setOnOriginChangedListener_withNullParams_callsRuntimeSetOnOriginChangedListener() {
         val anchorEntity = AnchorEntity.create(fakeAnchorEntity, entityManager)
-        anchorEntity.setOnSpaceUpdatedListener(null)
-        assertThat(fakeAnchorEntity.onSpaceUpdatedListener).isNull()
+        anchorEntity.setOnOriginChangedListener(null)
+        assertThat(fakeAnchorEntity.onOriginChangedListener).isNull()
     }
 
     @Test
-    fun setOnSpaceUpdatedListener_receivesRuntimeSetOnSpaceUpdatedListenerCallbacks() {
+    fun setOnOriginChangedListener_receivesRuntimeSetOnOriginChangedListenerCallbacks() {
         var listenerCalled = false
         val anchorEntity = AnchorEntity.create(fakeAnchorEntity, entityManager)
-        anchorEntity.setOnSpaceUpdatedListener(directExecutor()) { listenerCalled = true }
+        anchorEntity.setOnOriginChangedListener(directExecutor()) { listenerCalled = true }
 
-        assertThat(fakeAnchorEntity.onSpaceUpdatedListener).isNotNull()
+        assertThat(fakeAnchorEntity.onOriginChangedListener).isNotNull()
         assertThat(listenerCalled).isFalse()
 
         // Simulates a runtime callback.
-        fakeAnchorEntity.onSpaceUpdated()
+        fakeAnchorEntity.onOriginChanged()
 
         assertThat(listenerCalled).isTrue()
     }
@@ -347,15 +348,15 @@ class AnchorEntityTest {
         val anchorEntity = AnchorEntity.create(fakeAnchorEntity, entityManager)
 
         anchorEntity.setOnStateChangedListener(directExecutor(), {})
-        anchorEntity.setOnSpaceUpdatedListener(directExecutor(), {})
+        anchorEntity.setOnOriginChangedListener(directExecutor(), {})
 
-        assertThat(fakeAnchorEntity.onSpaceUpdatedListener).isNotNull()
+        assertThat(fakeAnchorEntity.onOriginChangedListener).isNotNull()
         assertThat(anchorEntity.onStateChangedListener).isNotNull()
 
         anchorEntity.dispose()
         shadowOf(Looper.getMainLooper()).idle()
 
-        assertThat(fakeAnchorEntity.onSpaceUpdatedListener).isNull()
+        assertThat(fakeAnchorEntity.onOriginChangedListener).isNull()
         assertThat(anchorEntity.onStateChangedListener).isNull()
     }
 
@@ -370,7 +371,7 @@ class AnchorEntityTest {
         val result = Session.create(activity, coroutineDispatcher)
         assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
         session = (result as SessionCreateSuccess).session
-        session.configure(Config(planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
+        session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
         val anchorPose = Pose(Vector3(1.0f, 2.0f, 3.0f), Quaternion.Identity)
         anchor = (Anchor.create(session, anchorPose) as AnchorCreateSuccess).anchor
         entityManager = session.scene.entityManager

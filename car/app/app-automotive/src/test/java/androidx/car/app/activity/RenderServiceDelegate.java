@@ -68,6 +68,11 @@ public class RenderServiceDelegate extends IRendererService.Stub {
         }
     }
 
+    @Override
+    public int getInterfaceVersion() {
+        return super.VERSION;
+    }
+
     /** Returns the {@link ICarAppActivity} received in {@link #initialize}. */
     public ICarAppActivity getCarAppActivity() {
         return mCarAppActivity;

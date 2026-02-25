@@ -30,8 +30,11 @@ import androidx.room3.migration.bundle.FtsEntityBundle
 import androidx.room3.util.FtsTableInfo
 import androidx.room3.util.TableInfo
 import androidx.room3.util.ViewInfo
+import androidx.room3.util.getQualifiedName
 import androidx.sqlite.SQLiteConnection
-import androidx.sqlite.execSQL
+import androidx.sqlite.executeSQL
+import androidx.sqlite.prepare
+import androidx.sqlite.step
 import kotlin.reflect.KClass
 import kotlin.reflect.safeCast
 
@@ -84,7 +87,7 @@ public expect class MigrationTestHelper {
      * @return A database connection of the newly created database.
      * @throws IllegalStateException If a new database was not created.
      */
-    public fun createDatabase(version: Int): SQLiteConnection
+    public suspend fun createDatabase(version: Int): SQLiteConnection
 
     /**
      * Runs the given set of migrations on the existing database once created via [createDatabase].
@@ -103,7 +106,7 @@ public expect class MigrationTestHelper {
      * @return A database connection of the migrated database.
      * @throws IllegalStateException If the schema validation fails.
      */
-    public fun runMigrationsAndValidate(
+    public suspend fun runMigrationsAndValidate(
         version: Int,
         migrations: List<Migration> = emptyList(),
     ): SQLiteConnection
@@ -115,7 +118,7 @@ internal typealias ConnectionManagerFactory =
 internal typealias ConfigurationFactory = (RoomDatabase.MigrationContainer) -> DatabaseConfiguration
 
 /** Common logic for [MigrationTestHelper.createDatabase] */
-internal fun createDatabaseCommon(
+internal suspend fun createDatabaseCommon(
     schema: DatabaseBundle,
     configurationFactory: ConfigurationFactory,
     connectionManagerFactory: ConnectionManagerFactory = { config, openDelegate ->
@@ -130,7 +133,7 @@ internal fun createDatabaseCommon(
 }
 
 /** Common logic for [MigrationTestHelper.runMigrationsAndValidate] */
-internal fun runMigrationsAndValidateCommon(
+internal suspend fun runMigrationsAndValidateCommon(
     databaseInstance: RoomDatabase,
     schema: DatabaseBundle,
     migrations: List<Migration>,
@@ -183,7 +186,7 @@ private fun createAutoMigrationSpecMap(
         requiredAutoMigrationSpecs.forEach { spec ->
             val match = providedSpecs.firstOrNull { provided -> spec.safeCast(provided) != null }
             requireNotNull(match) {
-                "A required auto migration spec (${spec.qualifiedName}) has not been provided."
+                "A required auto migration spec (${spec.getQualifiedName()}) has not been provided."
             }
             put(spec, match)
         }
@@ -200,7 +203,7 @@ internal abstract class TestConnectionManager : BaseRoomConnectionManager() {
         error("Function should never be invoked during tests.")
     }
 
-    abstract fun openConnection(): SQLiteConnection
+    abstract suspend fun openConnection(): SQLiteConnection
 }
 
 private class DefaultTestConnectionManager(
@@ -208,9 +211,13 @@ private class DefaultTestConnectionManager(
     override val openDelegate: TestOpenDelegate,
 ) : TestConnectionManager() {
 
-    private val driverWrapper = DriverWrapper(requireNotNull(configuration.sqliteDriver))
+    private val connectionFactory =
+        createConnectionFactory(
+            driver = requireNotNull(configuration.sqliteDriver),
+            fileName = configuration.name ?: ":memory:",
+        )
 
-    override fun onMigrate(connection: SQLiteConnection, oldVersion: Int, newVersion: Int) {
+    override suspend fun onMigrate(connection: SQLiteConnection, oldVersion: Int, newVersion: Int) {
         if (openDelegate is CreateOpenDelegate) {
             error(
                 "A migration should never occur while creating a new database. A database at " +
@@ -220,7 +227,7 @@ private class DefaultTestConnectionManager(
         super.onMigrate(connection, oldVersion, newVersion)
     }
 
-    override fun openConnection() = driverWrapper.open(configuration.name ?: ":memory:")
+    override suspend fun openConnection() = connectionFactory.invoke()
 }
 
 internal sealed class TestOpenDelegate(databaseBundle: DatabaseBundle) :
@@ -229,15 +236,15 @@ internal sealed class TestOpenDelegate(databaseBundle: DatabaseBundle) :
         identityHash = databaseBundle.identityHash,
         legacyIdentityHash = databaseBundle.identityHash,
     ) {
-    override fun onCreate(connection: SQLiteConnection) {}
+    override suspend fun onCreate(connection: SQLiteConnection) {}
 
-    override fun onPreMigrate(connection: SQLiteConnection) {}
+    override suspend fun onPreMigrate(connection: SQLiteConnection) {}
 
-    override fun onPostMigrate(connection: SQLiteConnection) {}
+    override suspend fun onPostMigrate(connection: SQLiteConnection) {}
 
-    override fun onOpen(connection: SQLiteConnection) {}
+    override suspend fun onOpen(connection: SQLiteConnection) {}
 
-    override fun dropAllTables(connection: SQLiteConnection) {
+    override suspend fun dropAllTables(connection: SQLiteConnection) {
         error("Can't drop all tables during a test.")
     }
 }
@@ -246,26 +253,28 @@ private class CreateOpenDelegate(val databaseBundle: DatabaseBundle) :
     TestOpenDelegate(databaseBundle) {
     private var createAllTables = false
 
-    override fun onOpen(connection: SQLiteConnection) {
+    override suspend fun onOpen(connection: SQLiteConnection) {
         check(createAllTables) {
             "Creation of tables didn't occur while creating a new database. A database at the " +
                 "driver configured path likely already exists. Did you forget to delete it?"
         }
     }
 
-    override fun onPreMigrate(connection: SQLiteConnection) {
+    override suspend fun onPreMigrate(connection: SQLiteConnection) {
         error(
             "A migration should never occur while creating a new database. A database at the " +
                 "driver configured path likely already exists. Did you forget to delete it?"
         )
     }
 
-    override fun onValidateSchema(connection: SQLiteConnection): ValidationResult {
+    override suspend fun onValidateSchema(connection: SQLiteConnection): ValidationResult {
         error("Validation of schemas should never occur while creating a new database.")
     }
 
-    override fun createAllTables(connection: SQLiteConnection) {
-        databaseBundle.buildCreateQueries().forEach { createSql -> connection.execSQL(createSql) }
+    override suspend fun createAllTables(connection: SQLiteConnection) {
+        databaseBundle.buildCreateQueries().forEach { createSql ->
+            connection.executeSQL(createSql)
+        }
         createAllTables = true
     }
 }
@@ -274,7 +283,7 @@ private class MigrateOpenDelegate(
     val databaseBundle: DatabaseBundle,
     val validateUnknownTables: Boolean,
 ) : TestOpenDelegate(databaseBundle) {
-    override fun onValidateSchema(connection: SQLiteConnection): ValidationResult {
+    override suspend fun onValidateSchema(connection: SQLiteConnection): ValidationResult {
         val tables = databaseBundle.entitiesByTableName
         tables.values.forEach { entity ->
             when (entity) {
@@ -351,9 +360,9 @@ private class MigrateOpenDelegate(
             connection
                 .prepare(
                     """
-                SELECT name FROM sqlite_master
-                WHERE type = 'table' AND name NOT IN (?, ?, ?)
-                """
+                    SELECT name FROM sqlite_master
+                    WHERE type = 'table' AND name NOT IN (?, ?, ?)
+                    """
                         .trimIndent()
                 )
                 .use { statement ->
@@ -374,7 +383,7 @@ private class MigrateOpenDelegate(
         return ValidationResult(true, null)
     }
 
-    override fun createAllTables(connection: SQLiteConnection) {
+    override suspend fun createAllTables(connection: SQLiteConnection) {
         error(
             "Creation of tables should never occur while validating migrations. Did you forget " +
                 "to first create the database?"

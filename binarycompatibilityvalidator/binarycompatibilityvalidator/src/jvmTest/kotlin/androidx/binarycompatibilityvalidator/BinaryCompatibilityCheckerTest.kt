@@ -159,13 +159,13 @@ class BinaryCompatibilityCheckerTest {
     fun removeValueParametersWithSameType() {
         val beforeText =
             """
-        final fun my.lib/foo(kotlin/Int, kotlin/Int): kotlin/Int // my.lib/foo|foo(kotlin.Int;kotlin.Int){}[0]
-        """
+            final fun my.lib/foo(kotlin/Int, kotlin/Int): kotlin/Int // my.lib/foo|foo(kotlin.Int;kotlin.Int){}[0]
+            """
                 .trimIndent()
         val afterText =
             """
-        final fun my.lib/foo(kotlin/Int): kotlin/Int // my.lib/foo|foo(kotlin.Int){}[0]
-        """
+            final fun my.lib/foo(kotlin/Int): kotlin/Int // my.lib/foo|foo(kotlin.Int){}[0]
+            """
                 .trimIndent()
         val expectedErrorMessages =
             listOf("Removed declaration my.lib/foo(kotlin/Int, kotlin/Int) from androidx:library")
@@ -176,13 +176,13 @@ class BinaryCompatibilityCheckerTest {
     fun removedDefaultFromTwoParametersWithSameType() {
         val beforeText =
             """
-        final fun my.lib/foo(kotlin/Int =..., kotlin/Int =...): kotlin/Int // my.lib/foo|foo(kotlin.Int;kotlin.Int){}[0]
-        """
+            final fun my.lib/foo(kotlin/Int =..., kotlin/Int =...): kotlin/Int // my.lib/foo|foo(kotlin.Int;kotlin.Int){}[0]
+            """
                 .trimIndent()
         val afterText =
             """
-        final fun my.lib/foo(kotlin/Int, kotlin/Int): kotlin/Int // my.lib/foo|foo(kotlin.Int;kotlin.Int){}[0]
-        """
+            final fun my.lib/foo(kotlin/Int, kotlin/Int): kotlin/Int // my.lib/foo|foo(kotlin.Int;kotlin.Int){}[0]
+            """
                 .trimIndent()
         val expectedErrorMessages =
             listOf(
@@ -1487,13 +1487,13 @@ class BinaryCompatibilityCheckerTest {
     fun typeParamTagChange() {
         val beforeText =
             """
-        final fun <#A: kotlin/Int, #B: kotlin/String> my.lib/foo(): kotlin/Int // my.lib/foo|foo(){0§<kotlin.Int>;1§<kotlin.String>}[0]    
-        """
+            final fun <#A: kotlin/Int, #B: kotlin/String> my.lib/foo(): kotlin/Int // my.lib/foo|foo(){0§<kotlin.Int>;1§<kotlin.String>}[0]    
+            """
                 .trimIndent()
         val afterText =
             """
-        final fun <#A: kotlin/String, #B: kotlin/Int> my.lib/foo(): kotlin/Int // my.lib/foo|foo(){0§<kotlin.String>;1§<kotlin.Int>}[0]    
-        """
+            final fun <#A: kotlin/String, #B: kotlin/Int> my.lib/foo(): kotlin/Int // my.lib/foo|foo(){0§<kotlin.String>;1§<kotlin.Int>}[0]    
+            """
                 .trimIndent()
         val expectedErrors =
             listOf("Removed declaration <A : kotlin/Int, B : kotlin/String>my.lib/foo()")

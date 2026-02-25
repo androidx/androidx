@@ -29,10 +29,6 @@
                     android:checked="true"
                     android:title="Camera2"
                     app:showAsAction="never" />
-                <item
-                    android:id="@+id/camera_config_camera_pipe"
-                    android:title="Camera Pipe"
-                    app:showAsAction="never" />
             </group>
         </menu>
     </item>

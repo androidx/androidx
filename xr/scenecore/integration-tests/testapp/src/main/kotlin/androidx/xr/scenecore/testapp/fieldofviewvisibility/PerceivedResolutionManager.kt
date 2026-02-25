@@ -192,7 +192,7 @@ class PerceivedResolutionManager(
     }
 
     private fun createPanelEntity() {
-        mTextView = DebugTextLinearView(context = session.activity)
+        mTextView = DebugTextLinearView(context = session.context)
         mTextView?.setName("Perceived Resolution")
         // Create PanelEntity and Components if they don't exist.
         if (mPanelEntity == null) {
@@ -221,8 +221,8 @@ class PerceivedResolutionManager(
         val distance =
             if (cameraPose != null && pose != null)
                 Vector3.distance(
-                        cameraPose.activitySpacePose.translation,
-                        pose.activitySpacePose.translation,
+                        cameraPose.poseInActivitySpace.translation,
+                        pose.poseInActivitySpace.translation,
                     )
                     .toString()
             else "Can't retrieve distance to Camera"

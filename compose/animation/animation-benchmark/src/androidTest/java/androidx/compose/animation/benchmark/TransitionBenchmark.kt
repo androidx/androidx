@@ -16,11 +16,22 @@
 
 package androidx.compose.animation.benchmark
 
+import androidx.compose.animation.core.animateDp
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.testutils.LayeredComposeTestCase
+import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.benchmarkFirstCompose
+import androidx.compose.testutils.benchmark.toggleStateBenchmarkRecompose
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.junit.Rule
@@ -33,15 +44,50 @@ class TransitionBenchmark {
 
     @get:Rule val rule = ComposeBenchmarkRule()
 
+    /**
+     * Measures the cost of creating a new [androidx.compose.animation.core.Transition] instance.
+     */
     @Test
     fun createTransitionThroughUpdateTransition() {
-        rule.benchmarkFirstCompose(::TransitionBenchmarkCaseFactory)
+        rule.benchmarkFirstCompose(::TransitionInstantiationTestCase)
+    }
+
+    /** Measures the cost of running a [androidx.compose.animation.core.Transition]. */
+    @Test
+    fun recomposeTransition() {
+        rule.toggleStateBenchmarkRecompose(::TransitionTestCase, assertOneRecomposition = false)
     }
 }
 
-private class TransitionBenchmarkCaseFactory : LayeredComposeTestCase() {
+private class TransitionInstantiationTestCase : LayeredComposeTestCase() {
     @Composable
     override fun MeasuredContent() {
         updateTransition(targetState = Unit, label = null)
+    }
+}
+
+private class TransitionTestCase : LayeredComposeTestCase(), ToggleableTestCase {
+    private var state by mutableStateOf(false)
+
+    @Composable
+    override fun MeasuredContent() {
+        val transition = updateTransition(state, label = "Benchmark")
+
+        val alpha by transition.animateFloat(label = "Alpha") { if (it) 1f else 0f }
+        val size by transition.animateDp(label = "Size") { if (it) 100.dp else 50.dp }
+
+        Box(
+            Modifier.layout { measurable, constraints ->
+                val currentSize = size.roundToPx()
+                val currentAlpha = alpha // Just reading to simulate usage
+
+                val placeable = measurable.measure(constraints)
+                layout(currentSize, currentSize) { placeable.place(0, 0) }
+            }
+        )
+    }
+
+    override fun toggleState() {
+        state = !state
     }
 }

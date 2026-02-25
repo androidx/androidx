@@ -23,6 +23,10 @@ import androidx.tracing.TRACE_PACKET_POOL_ARRAY_POOL_SIZE
 import androidx.tracing.TraceDriver
 import androidx.tracing.TraceSink
 import androidx.tracing.Tracer
+import androidx.tracing.wire.protos.MutableCallstack
+import androidx.tracing.wire.protos.MutableTracePacket
+import androidx.tracing.wire.protos.MutableTrackDescriptor
+import androidx.tracing.wire.protos.MutableTrackEvent
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertContains
@@ -38,10 +42,6 @@ import kotlinx.coroutines.test.runTest
 import okio.blackholeSink
 import okio.buffer
 import org.junit.Before
-import perfetto.protos.MutableCallstack
-import perfetto.protos.MutableTracePacket
-import perfetto.protos.MutableTrackDescriptor
-import perfetto.protos.MutableTrackEvent
 
 class TestSink : TraceSink() {
     internal val packets = mutableListOf<MutableTracePacket>()
@@ -102,7 +102,7 @@ class TracingTest {
     internal fun setUp() {
         sink.packets.clear()
         driver = TraceDriver(sink = sink, isEnabled = true)
-        tracer = driver.createTracer("TracingTest")
+        tracer = driver.tracer
     }
 
     @Test
@@ -135,6 +135,39 @@ class TracingTest {
                 expected = listOf("category", "category 1"),
                 actual = start.track_event!!.categories,
             )
+        }
+    }
+
+    @Test
+    internal fun testTrackEventsWithCorrelationIds() {
+        val correlationId = 10L
+        val correlationIdString = "correlationId"
+        driver.use {
+            tracer.trace(
+                category = "category",
+                name = "section",
+                metadataBlock = { addCorrelationId(correlationId) },
+            ) {}
+            tracer.trace(
+                category = "category",
+                name = "section2",
+                metadataBlock = { addCorrelationId(correlationIdString) },
+            ) {}
+        }
+        // 2 packets for track descriptors (process + thread)
+        // 2 * 2 packets for begin and end section.
+        assertEquals(6, sink.packets.size)
+        assertNotNull(sink.packets.find { it.track_descriptor?.process?.process_name != null })
+        assertNotNull(sink.packets.find { it.track_descriptor?.thread?.thread_name != null })
+        sink.firstStartStopWithName("section") { start, _ ->
+            assertEquals(correlationId, start.track_event!!.correlation_id)
+            // There should be only one category
+            assertEquals(1, start.track_event!!.categories.size)
+        }
+        sink.firstStartStopWithName("section2") { start, _ ->
+            assertEquals(correlationIdString, start.track_event!!.correlation_id_str)
+            // There should be only one category
+            assertEquals(1, start.track_event!!.categories.size)
         }
     }
 
@@ -260,7 +293,7 @@ class TracingTest {
             )
         val driver = TraceDriver(sink = sink, isEnabled = true)
         // Create the Tracer
-        val tracer = driver.createTracer("tracer")
+        val tracer = driver.tracer
         // Warm up tracks
         tracer.trace(category = "category", name = "name") {}
         // Discount the preamble packets

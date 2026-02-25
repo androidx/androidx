@@ -45,7 +45,6 @@ interface PdfDocumentRemote {
   List<android.graphics.pdf.content.PdfPageLinkContent> getPageExternalLinks(int pageNum);
   List<android.graphics.pdf.content.PdfPageGotoLinkContent> getPageGotoLinks(int pageNum);
   List<android.graphics.pdf.content.PdfPageImageContent> getPageImageContent(int pageNum);
-  boolean isPdfLinearized();
   int getFormType();
   void releasePage(int pageNum);
   void closePdfDocument();
@@ -57,4 +56,5 @@ interface PdfDocumentRemote {
   androidx.pdf.annotation.models.PaginatedAnnotations getBatchedPageAnnotations(int pageNum, in int batchIndex);
   androidx.pdf.DraftEditResult applyDraftEdits(in List<androidx.pdf.DraftEditOperation> operations);
   androidx.pdf.annotation.models.PdfObject getTopPageObjectAtPosition(int pageNum, in android.graphics.PointF point, in int[] types);
+  int getLinearizationStatus();
 }

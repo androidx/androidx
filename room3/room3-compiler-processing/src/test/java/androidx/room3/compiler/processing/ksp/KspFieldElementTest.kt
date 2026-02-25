@@ -46,33 +46,33 @@ class KspFieldElementTest {
                     Source.kotlin(
                         "Foo.kt",
                         """
-                    open class Foo {
-                        val intField: Int = 0
-                        open val openField: Int = 0
-                        var intVar: Int = 0
-                        open var openVar: Int = 0
-                        lateinit var lateinitField: String
-                        private lateinit var privateLateinitField: String
-                        protected lateinit var protectedLateinitField: String
-                        internal lateinit var internalLateinitField: String
-                        lateinit var lateinitFieldWithPrivateSetter: String
-                            private set
-                        lateinit var lateinitFieldWithProtectedSetter: String
-                            protected set
-                        lateinit var lateinitFieldWithInternalSetter: String
-                            internal set
-                        protected lateinit var protectedLateinitFieldWithPrivateSetter: String
-                            private set
-                        @JvmField
-                        val jvmField: Int = 0
-                        protected val protectedField: Int = 0
-                        @JvmField
-                        protected val protectedJvmField: Int = 0
-                        // Cannot add @JvmField to private property, compiler does not allow it.
-                        // @JvmField
-                        // private val privateJvmField: Int = 0
-                    }
-                    """
+                        open class Foo {
+                            val intField: Int = 0
+                            open val openField: Int = 0
+                            var intVar: Int = 0
+                            open var openVar: Int = 0
+                            lateinit var lateinitField: String
+                            private lateinit var privateLateinitField: String
+                            protected lateinit var protectedLateinitField: String
+                            internal lateinit var internalLateinitField: String
+                            lateinit var lateinitFieldWithPrivateSetter: String
+                                private set
+                            lateinit var lateinitFieldWithProtectedSetter: String
+                                protected set
+                            lateinit var lateinitFieldWithInternalSetter: String
+                                internal set
+                            protected lateinit var protectedLateinitFieldWithPrivateSetter: String
+                                private set
+                            @JvmField
+                            val jvmField: Int = 0
+                            protected val protectedField: Int = 0
+                            @JvmField
+                            protected val protectedJvmField: Int = 0
+                            // Cannot add @JvmField to private property, compiler does not allow it.
+                            // @JvmField
+                            // private val privateJvmField: Int = 0
+                        }
+                        """
                             .trimIndent(),
                     ),
                 expected =
@@ -106,15 +106,15 @@ class KspFieldElementTest {
                     Source.java(
                         "JavaClassWithFields",
                         """
-                    public class JavaClassWithFields {
-                        public Long javaPublic;
-                        protected Long javaProtected;
-                        Long javaPackage;
-                        private Long javaPrivate;
-                        public final long javaFinalPublic = 0;
-                        public static final long javaStaticFinalPublic = 0;
-                    }
-                    """
+                        public class JavaClassWithFields {
+                            public Long javaPublic;
+                            protected Long javaProtected;
+                            Long javaPackage;
+                            private Long javaPrivate;
+                            public final long javaFinalPublic = 0;
+                            public static final long javaStaticFinalPublic = 0;
+                        }
+                        """
                             .trimIndent(),
                     ),
                 expected =
@@ -139,34 +139,34 @@ class KspFieldElementTest {
                     Source.java(
                         "JavaClassWithAccessors",
                         """
-                    public class JavaClassWithAccessors {
-                        public int javaPublic;
-                        protected int javaProtected;
-                        int javaPackage;
-                        private int javaPrivate;
+                        public class JavaClassWithAccessors {
+                            public int javaPublic;
+                            protected int javaProtected;
+                            int javaPackage;
+                            private int javaPrivate;
 
-                        public Long getJavaPublic() {
-                            return 1L;
+                            public Long getJavaPublic() {
+                                return 1L;
+                            }
+                            public void setJavaPublic(int value) {
+                            }
+                            public Long getJavaProtected() {
+                                return 1L;
+                            }
+                            public void setJavaProtected(int value) {
+                            }
+                            public Long getJavaPackage() {
+                                return 1L;
+                            }
+                            public void setJavaPackage(int value) {
+                            }
+                            public Long getJavaPrivate() {
+                                return 1L;
+                            }
+                            public void setJavaPrivate(int value) {
+                            }
                         }
-                        public void setJavaPublic(int value) {
-                        }
-                        public Long getJavaProtected() {
-                            return 1L;
-                        }
-                        public void setJavaProtected(int value) {
-                        }
-                        public Long getJavaPackage() {
-                            return 1L;
-                        }
-                        public void setJavaPackage(int value) {
-                        }
-                        public Long getJavaPrivate() {
-                            return 1L;
-                        }
-                        public void setJavaPrivate(int value) {
-                        }
-                    }
-                    """
+                        """
                             .trimIndent(),
                     ),
                 expected =
@@ -186,12 +186,12 @@ class KspFieldElementTest {
             Source.kotlin(
                 "Foo.kt",
                 """
-            open class Base<T, R> {
-                val t : T = TODO()
-                val listOfR : List<R> = TODO()
-            }
-            class Sub1 : Base<Int, String>()
-            """
+                open class Base<T, R> {
+                    val t : T = TODO()
+                    val listOfR : List<R> = TODO()
+                }
+                class Sub1 : Base<Int, String>()
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->

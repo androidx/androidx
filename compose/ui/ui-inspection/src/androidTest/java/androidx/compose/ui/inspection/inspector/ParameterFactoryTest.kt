@@ -48,7 +48,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.DefaultCameraDistance
 import androidx.compose.ui.graphics.DefaultShadowColor
-import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.SolidColor
@@ -81,7 +80,6 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.util.packFloats
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -131,6 +129,12 @@ class ParameterFactoryTest {
             .isEqualTo(ParameterType.String to "BottomRight")
         assertThat(lookup(AbsoluteAlignment.Left)).isEqualTo(ParameterType.String to "Left")
         assertThat(lookup(AbsoluteAlignment.Right)).isEqualTo(ParameterType.String to "Right")
+    }
+
+    @Test
+    fun testSize() {
+        assertThat(lookup(Size.Zero)).isEqualTo(ParameterType.String to "Zero")
+        assertThat(lookup(Size.Unspecified)).isEqualTo(ParameterType.String to "Unspecified")
     }
 
     @Test
@@ -197,8 +201,8 @@ class ParameterFactoryTest {
     fun testBorder() {
         validate(create("borderstroke", BorderStroke(2.0.dp, Color.Magenta))) {
             parameter("borderstroke", ParameterType.String, "BorderStroke") {
-                parameter("brush", ParameterType.Color, Color.Magenta.toArgb())
                 parameter("width", ParameterType.DimensionDp, 2.0f)
+                parameter("brush", ParameterType.Color, Color.Magenta.toArgb())
             }
         }
     }
@@ -211,9 +215,9 @@ class ParameterFactoryTest {
             create(
                 "brush",
                 Brush.linearGradient(
-                    colors = listOf(Color.Red, Color.Blue),
                     start = Offset(0.0f, 0.5f),
                     end = Offset(5.0f, 10.0f),
+                    colors = listOf(Color.Red, Color.Blue),
                 ),
             )
         ) {
@@ -222,31 +226,20 @@ class ParameterFactoryTest {
                     parameter("[0]", ParameterType.Color, Color.Red.toArgb())
                     parameter("[1]", ParameterType.Color, Color.Blue.toArgb())
                 }
+                parameter("start", ParameterType.String, Offset::class.java.simpleName, index = 2) {
+                    parameter("x", ParameterType.DimensionDp, 0.0f)
+                    parameter("y", ParameterType.DimensionDp, 0.25f)
+                }
                 parameter("end", ParameterType.String, Offset::class.java.simpleName) {
                     parameter("x", ParameterType.DimensionDp, 2.5f)
                     parameter("y", ParameterType.DimensionDp, 5.0f)
                 }
+                parameter("tileMode", ParameterType.String, "Clamp")
                 parameter("intrinsicSize", ParameterType.String, Size::class.java.simpleName) {
-                    val width = 5.0f
-                    val height = 9.5f
-                    parameter("height", ParameterType.Float, height)
-                    parameter("maxDimension", ParameterType.Float, height)
-                    parameter("minDimension", ParameterType.Float, width)
-                    parameter("packedValue", ParameterType.Int64, packFloats(width, height))
-                    parameter("width", ParameterType.Float, width)
+                    parameter("width", ParameterType.DimensionDp, 2.5f)
+                    parameter("height", ParameterType.DimensionDp, 4.75f)
                 }
-                parameter("start", ParameterType.String, Offset::class.java.simpleName) {
-                    parameter("x", ParameterType.DimensionDp, 0.0f)
-                    parameter("y", ParameterType.DimensionDp, 0.25f)
-                }
-                parameter("tileMode", ParameterType.String, "Clamp", index = 5)
-                parameter("createdSize", ParameterType.String, "Unspecified", index = 6)
-                parameter(
-                    "transform",
-                    ParameterType.String,
-                    Matrix::class.java.simpleName,
-                    index = 8,
-                )
+                parameter("createdSize", ParameterType.String, "Unspecified", index = 7)
             }
         }
         // TODO: add tests for RadialGradient & ShaderBrush
@@ -277,26 +270,44 @@ class ParameterFactoryTest {
     fun testCornerBasedShape() {
         validate(create("corner", RoundedCornerShape(2.0.dp, 0.5.dp, 2.5.dp, 0.7.dp))) {
             parameter("corner", ParameterType.String, RoundedCornerShape::class.java.simpleName) {
+                parameter("topStart", ParameterType.DimensionDp, 2.0f)
+                parameter("topEnd", ParameterType.DimensionDp, 0.5f)
                 parameter("bottomEnd", ParameterType.DimensionDp, 2.5f)
                 parameter("bottomStart", ParameterType.DimensionDp, 0.7f)
-                parameter("topEnd", ParameterType.DimensionDp, 0.5f)
-                parameter("topStart", ParameterType.DimensionDp, 2.0f)
             }
         }
         validate(create("corner", CutCornerShape(2))) {
             parameter("corner", ParameterType.String, CutCornerShape::class.java.simpleName) {
+                parameter("topStart", ParameterType.String, "2.0%")
+                parameter("topEnd", ParameterType.String, "2.0%")
                 parameter("bottomEnd", ParameterType.String, "2.0%")
                 parameter("bottomStart", ParameterType.String, "2.0%")
-                parameter("topEnd", ParameterType.String, "2.0%")
-                parameter("topStart", ParameterType.String, "2.0%")
             }
         }
         validate(create("corner", RoundedCornerShape(1.0f, 10.0f, 2.0f, 3.5f))) {
             parameter("corner", ParameterType.String, RoundedCornerShape::class.java.simpleName) {
+                parameter("topStart", ParameterType.String, "1.0px")
+                parameter("topEnd", ParameterType.String, "10.0px")
                 parameter("bottomEnd", ParameterType.String, "2.0px")
                 parameter("bottomStart", ParameterType.String, "3.5px")
-                parameter("topEnd", ParameterType.String, "10.0px")
-                parameter("topStart", ParameterType.String, "1.0px")
+            }
+        }
+    }
+
+    @Test
+    fun testCornerBasedShapeWithRecursionLimit() {
+        // This test will fail if the any of the 4 dimensions has a reference for expansion.
+        // An expansion reference can be used to dive deeper into an object structure.
+        // In this case there isn't anything that is not reported i.e. there should not be any
+        // references.
+        validate(
+            create("corner", RoundedCornerShape(2.0.dp, 0.5.dp, 2.5.dp, 0.7.dp), maxRecursions = 1)
+        ) {
+            parameter("corner", ParameterType.String, RoundedCornerShape::class.java.simpleName) {
+                parameter("topStart", ParameterType.DimensionDp, 2.0f)
+                parameter("topEnd", ParameterType.DimensionDp, 0.5f)
+                parameter("bottomEnd", ParameterType.DimensionDp, 2.5f)
+                parameter("bottomStart", ParameterType.DimensionDp, 0.7f)
             }
         }
     }
@@ -398,10 +409,10 @@ class ParameterFactoryTest {
     fun testPaddingValues() {
         validate(create("padding", PaddingValues(2.0.dp, 0.5.dp, 2.5.dp, 0.7.dp))) {
             parameter("padding", ParameterType.String, "PaddingValuesImpl") {
-                parameter("bottom", ParameterType.DimensionDp, 0.7f)
-                parameter("end", ParameterType.DimensionDp, 2.5f)
                 parameter("start", ParameterType.DimensionDp, 2.0f)
                 parameter("top", ParameterType.DimensionDp, 0.5f)
+                parameter("end", ParameterType.DimensionDp, 2.5f)
+                parameter("bottom", ParameterType.DimensionDp, 0.7f)
             }
         }
     }
@@ -641,20 +652,17 @@ class ParameterFactoryTest {
                 parameter("width", ParameterType.DimensionDp, 30.0f)
                 parameter("paint", ParameterType.String, "") {
                     parameter("painter", ParameterType.String, "TestPainter") {
-                        parameter("color", ParameterType.Color, Color.Red.toArgb())
-                        parameter("height", ParameterType.Float, 20.0f)
-                        parameter("intrinsicSize", ParameterType.String, "Size") {
-                            parameter("height", ParameterType.Float, 20.0f)
-                            parameter("maxDimension", ParameterType.Float, 20.0f)
-                            parameter("minDimension", ParameterType.Float, 10.0f)
-                            parameter("packedValue", ParameterType.Int64, 4692750812821061632L)
-                            parameter("width", ParameterType.Float, 10.0f)
-                        }
                         parameter("width", ParameterType.Float, 10.0f)
-                        parameter("alpha", ParameterType.Float, 1.0f)
-                        parameter("drawLambda", ParameterType.Lambda, null, index = 6)
-                        parameter("layoutDirection", ParameterType.String, "Ltr", index = 8)
-                        parameter("useLayer", ParameterType.Boolean, false, index = 9)
+                        parameter("height", ParameterType.Float, 20.0f)
+                        parameter("color", ParameterType.Color, Color.Red.toArgb())
+                        parameter("intrinsicSize", ParameterType.String, "Size") {
+                            parameter("width", ParameterType.DimensionDp, 5.0f)
+                            parameter("height", ParameterType.DimensionDp, 10.0f)
+                        }
+                        parameter("useLayer", ParameterType.Boolean, false, index = 5)
+                        parameter("alpha", ParameterType.Float, 1.0f, index = 7)
+                        parameter("layoutDirection", ParameterType.String, "Ltr")
+                        parameter("drawLambda", ParameterType.Lambda, null)
                     }
                     parameter("sizeToIntrinsics", ParameterType.Boolean, true)
                     parameter("alignment", ParameterType.String, "Center")
@@ -855,19 +863,19 @@ class ParameterFactoryTest {
         assertThat(lookup(Shadow.None)).isEqualTo(ParameterType.String to "None")
         validate(create("shadow", Shadow(Color.Cyan, Offset.Zero, 2.5f))) {
             parameter("shadow", ParameterType.String, Shadow::class.java.simpleName) {
-                parameter("blurRadius", ParameterType.DimensionDp, 1.25f)
                 parameter("color", ParameterType.Color, Color.Cyan.toArgb())
                 parameter("offset", ParameterType.String, "Zero")
+                parameter("blurRadius", ParameterType.DimensionDp, 1.25f)
             }
         }
         validate(create("shadow", Shadow(Color.Blue, Offset(1.0f, 4.0f), 1.5f))) {
             parameter("shadow", ParameterType.String, Shadow::class.java.simpleName) {
-                parameter("blurRadius", ParameterType.DimensionDp, 0.75f)
                 parameter("color", ParameterType.Color, Color.Blue.toArgb())
                 parameter("offset", ParameterType.String, Offset::class.java.simpleName) {
                     parameter("x", ParameterType.DimensionDp, 0.5f)
                     parameter("y", ParameterType.DimensionDp, 2.0f)
                 }
+                parameter("blurRadius", ParameterType.DimensionDp, 0.75f)
             }
         }
     }
@@ -1101,6 +1109,8 @@ class ParameterValidationReceiver(
     private val trace: String = "",
     private val startIndex: Int = 0,
 ) {
+    private var skips = 0
+
     fun parameter(
         name: String,
         type: ParameterType,
@@ -1110,8 +1120,9 @@ class ParameterValidationReceiver(
         childStartIndex: Int = 0,
         block: ParameterValidationReceiver.() -> Unit = {},
     ) {
-        val listIndex = startIndex + parameterIterator.nextIndex()
+        val listIndex = startIndex + parameterIterator.nextIndex() + skips
         val expectedIndex = if (index < 0) listIndex else index
+        skips += maxOf(0, expectedIndex - listIndex)
         assertWithMessage("No such element found: $name").that(parameterIterator.hasNext()).isTrue()
         val parameter = parameterIterator.next()
         assertThat(parameter.name).isEqualTo(name)

@@ -105,6 +105,11 @@ public class CarAppPermissionActivityTest {
                                 Arrays.asList(approvedPermissions),
                                 Arrays.asList(rejectedPermissions));
                     }
+
+                    @Override
+                    public int getInterfaceVersion() {
+                        return super.VERSION;
+                    }
                 }.asBinder());
 
         return new Intent(action).setComponent(

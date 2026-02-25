@@ -110,6 +110,17 @@ final class SurfaceEntityImpl extends BaseRenderingEntity implements SurfaceEnti
         mSurfaceFeature.setStereoMode(mode);
     }
 
+    @Override
+    @MediaBlendingMode
+    public int getMediaBlendingMode() {
+        return mSurfaceFeature.getMediaBlendingMode();
+    }
+
+    @Override
+    public void setMediaBlendingMode(@MediaBlendingMode int mode) {
+        mSurfaceFeature.setMediaBlendingMode(mode);
+    }
+
     public void setColliderEnabled(boolean enableCollider) {
         mSurfaceFeature.setColliderEnabled(enableCollider);
     }

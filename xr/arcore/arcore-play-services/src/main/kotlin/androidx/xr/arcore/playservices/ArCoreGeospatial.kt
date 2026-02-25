@@ -49,14 +49,18 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
 
-/** Wraps the native [ARCore1xEarth] with the [androidx.xr.arcore.runtime.Geospatial] interface. */
+/**
+ * Wraps an ARCore [Earth][ARCore1xEarth] with the [Geospatial] interface.
+ *
+ * @property arCoreEarth the ARCore [Earth][ARCore1xEarth] object
+ * @property state the current [Geospatial.State]
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class ArCoreEarth internal constructor(private val resources: XrResources) : Geospatial {
 
     /** Reference to the ARCore Java Session object for checkVpsAvailability. */
     internal lateinit var arCoreSession: Session
 
-    /** Reference to the ARCore Java Earth object. */
     public var arCoreEarth: ARCore1xEarth? = null
         internal set
 

@@ -23,16 +23,17 @@ import android.graphics.Path
 import androidx.annotation.VisibleForTesting
 import androidx.core.graphics.withMatrix
 import androidx.pdf.annotation.models.PathPdfObject
+import androidx.pdf.annotation.models.PathPdfObject.PathInput
 
 /** Creates a [Path] from this object's input points. */
 @VisibleForTesting
 internal fun PathPdfObject.createPath(): Path {
     return Path().apply {
-        inputs.forEachIndexed { index, point ->
-            if (index == 0) {
-                moveTo(point.x, point.y)
-            } else {
-                lineTo(point.x, point.y)
+        inputs.forEach { pathInput ->
+            if (pathInput.command == PathInput.MOVE_TO) {
+                moveTo(pathInput.x, pathInput.y)
+            } else if (pathInput.command == PathInput.LINE_TO) {
+                lineTo(pathInput.x, pathInput.y)
             }
         }
     }

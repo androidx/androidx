@@ -663,6 +663,20 @@ class GlanceAppWidgetReceiverScreenshotTest {
         mScreenshotRule.checkScreenshot(mHostRule.mHostView, "buttonTests_buttonDefaultColors")
     }
 
+    @Test
+    fun buttonTests_filledButtonNoText_iconIsCentered() {
+        // TODO: until b/479573471 is fixed, icons will be off center. When bug is fixed, goldens
+        //  will need to be regenerated
+        TestGlanceAppWidget.uiDefinition = {
+            ButtonComponentsScreenshotTests.FilledButtonNoTextTest()
+        }
+        mHostRule.startHost()
+        mScreenshotRule.checkScreenshot(
+            mHostRule.mHostView,
+            "buttonTests_filledButtonNoText_iconIsCentered",
+        )
+    }
+
     /**
      * Button should ignore [androidx.glance.BackgroundModifier]. It does not support background
      * images, and background color should be set via [androidx.glance.ButtonColors].
@@ -1308,6 +1322,31 @@ private object ButtonComponentsScreenshotTests {
                 Space()
                 CircleIconButton(imageProvider = icon, contentDescription = null, onClick = onClick)
             }
+        }
+    }
+
+    @Composable
+    fun FilledButtonNoTextTest() {
+        Row(
+            GlanceModifier.fillMaxWidth()
+                .padding(8.dp)
+                .background(GlanceTheme.colors.surfaceVariant)
+        ) {
+            OutlineButton(
+                text = "",
+                icon = ImageProvider(R.drawable.filled_oval),
+                contentColor = GlanceTheme.colors.onSurface,
+                onClick = {},
+                modifier = GlanceModifier.defaultWeight().height(48.dp),
+            )
+            Spacer(GlanceModifier.width(8.dp))
+            OutlineButton(
+                text = "",
+                icon = ImageProvider(R.drawable.filled_oval),
+                contentColor = GlanceTheme.colors.onSurface,
+                onClick = {},
+                modifier = GlanceModifier.defaultWeight().height(48.dp),
+            )
         }
     }
 }

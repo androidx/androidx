@@ -22,10 +22,13 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.FloatSize3d
+import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.KhronosPbrMaterialSpec
 import androidx.xr.scenecore.runtime.TextureSampler
 import com.google.ar.imp.view.View
+import java.nio.FloatBuffer
+import java.nio.IntBuffer
 
 /** Interface for the JNI API for communicating with the Impress Split Engine instance. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -58,6 +61,21 @@ public interface ImpressApi {
             public const val MULTIVIEW_LEFT_PRIMARY: Int = 4
             // Multiview video, [primary, auxiliary] views will map to [right, left] eyes
             public const val MULTIVIEW_RIGHT_PRIMARY: Int = 5
+        }
+    }
+
+    /**
+     * Specifies the draw mode of the surface.
+     *
+     * Values here match values from imp::PrimitiveType
+     */
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(DrawMode.TRIANGLES, DrawMode.TRIANGLE_STRIP, DrawMode.TRIANGLE_FAN)
+    public annotation class DrawMode {
+        public companion object {
+            public const val TRIANGLES: Int = 0
+            public const val TRIANGLE_STRIP: Int = 1
+            public const val TRIANGLE_FAN: Int = 2
         }
     }
 
@@ -96,8 +114,8 @@ public interface ImpressApi {
     /**
      * Specifies the color standard of the content.
      *
-     * Values here match values from androidx.media3.common.C.ColorSpace For the enum values, please
-     * see:
+     * Values here match values from androidx.media3.common.C.ColorSpace. For the enum values,
+     * please see:
      * https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/media/java/android/media/MediaFormat.java
      */
     @Retention(AnnotationRetention.SOURCE)
@@ -128,7 +146,7 @@ public interface ImpressApi {
     /**
      * Specifies the transfer function of the content.
      *
-     * Values here match values from androidx.media3.common.C.ColorTransfer For the enum values
+     * Values here match values from androidx.media3.common.C.ColorTransfer. For the enum values
      * (except sRGB and Gamma 2.2), please see:
      * https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/media/java/android/media/MediaFormat.java
      */
@@ -155,8 +173,8 @@ public interface ImpressApi {
     /**
      * Specifies the color range of the content.
      *
-     * Values here match values from androidx.media3.common.C.ColorRange For the enum values, please
-     * see:
+     * Values here match values from androidx.media3.common.C.ColorRange. For the enum values,
+     * please see:
      * https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/media/java/android/media/MediaFormat.java
      */
     @Retention(AnnotationRetention.SOURCE)
@@ -250,13 +268,42 @@ public interface ImpressApi {
      *
      * @param impressNode The object of Impress node for the instance of the glTF model.
      * @param enabled If the reform affordance should be added or removed.
+     * @param systemMovable If the system should handle move input events.
      */
-    public fun setGltfReformAffordanceEnabled(impressNode: ImpressNode, enabled: Boolean)
+    public fun setGltfReformAffordanceEnabled(
+        impressNode: ImpressNode,
+        enabled: Boolean,
+        systemMovable: Boolean,
+    )
 
     /**
-     * Starts an animation on an instanced GLTFModel.
+     * Starts an animation on an instanced glTF model on a specific channel.
      *
-     * @param impressNode The object of the Impress node for the instance of the GLTF
+     * @param impressNode The object of the Impress node for the instance of the glTF model.
+     * @param animationName A nullable String which contains a requested animation to play. If null
+     *   is provided, this will attempt to play the first animation it finds
+     * @param looping True if the animation should loop. Note that if the animation is looped, the
+     *   returned Coroutine will never fire successfully.
+     * @param speed The speed of the animation where 1.0 is the normal speed and negative values
+     *   will play the animation in reverse.
+     * @param startTime The start time of the animation in seconds.
+     * @param channel The channel of the animation.
+     * @return a Coroutine which fires when the animation stops. It will return an exception if the
+     *   animation can't play.
+     */
+    public suspend fun animateGltfModelNew(
+        impressNode: ImpressNode,
+        animationName: String?,
+        looping: Boolean,
+        speed: Float,
+        startTime: Float,
+        channel: Int,
+    ): Void?
+
+    /**
+     * Starts an animation on an instanced glTF model.
+     *
+     * @param impressNode The object of the Impress node for the instance of the glTF model.
      * @param animationName A nullable String which contains a requested animation to play. If null
      *   is provided, this will attempt to play the first animation it finds
      * @param looping True if the animation should loop. Note that if the animation is looped, the
@@ -264,7 +311,8 @@ public interface ImpressApi {
      * @return a Coroutine which fires when the animation stops. It will return an exception if the
      *   animation can't play.
      */
-    // TODO: b/362829319 - Remove CompletableFuture from SE integration.
+    // TODO: b/465818627 - Remove old animation APIs once all clients are migrated
+    // to new animation system.
     public suspend fun animateGltfModel(
         impressNode: ImpressNode,
         animationName: String?,
@@ -272,19 +320,89 @@ public interface ImpressApi {
     ): Void?
 
     /**
-     * Stops an animation on an instanced GLTFModel.
+     * Stops an animation on an instanced glTF model on a specific channel.
+     *
+     * @param impressNode The object of the Impress node for the instance of the glTF model.
+     * @param channel The channel of the animation.
+     */
+    public fun stopGltfModelAnimationNew(impressNode: ImpressNode, channel: Int)
+
+    /**
+     * Stops an animation on an instanced glTF model.
+     *
+     * @param impressNode The object of the Impress node for the instance of the glTF model.
+     */
+    // TODO: b/465818627 - Remove old animation APIs once all clients are migrated
+    // to new animation system.
+    public fun stopGltfModelAnimation(impressNode: ImpressNode)
+
+    /**
+     * Toggles the playback of a glTF model's animation to pause or resume on a specific channel.
      *
      * @param impressNode The object of the Impress node for the instance of the GLTF
+     * @param playing `true` to resume the animation, `false` to pause it.
+     * @param channel The channel of the animation.
      */
-    public fun stopGltfModelAnimation(impressNode: ImpressNode)
+    public fun toggleGltfModelAnimationNew(impressNode: ImpressNode, playing: Boolean, channel: Int)
 
     /**
      * Toggles the playback of a glTF model's animation to pause or resume.
      *
-     * @param impressNode The object of the Impress node for the instance of the GLTF
+     * @param impressNode The object of the Impress node for the instance of the glTF model.
      * @param playing `true` to resume the animation, `false` to pause it.
      */
+    // TODO: b/465818627 - Remove old animation APIs once all clients are migrated
+    // to new animation system.
     public fun toggleGltfModelAnimation(impressNode: ImpressNode, playing: Boolean)
+
+    /**
+     * Sets the playback time of a glTF model's animation on a specific channel.
+     *
+     * @param impressNode The object of the Impress node for the instance of the glTF model.
+     * @param playbackTime The playback time of the animation in seconds.
+     * @param channel The channel of the animation.
+     */
+    public fun setGltfModelAnimationPlaybackTime(
+        impressNode: ImpressNode,
+        playbackTime: Float,
+        channel: Int,
+    )
+
+    /**
+     * Sets the speed of a glTF model's animation on a specific channel.
+     *
+     * @param impressNode The object of the Impress node for the instance of the glTF model.
+     * @param speed The speed of the animation where 1.0 is the normal speed and negative values
+     *   will play the animation in reverse.
+     * @param channel The channel of the animation.
+     */
+    public fun setGltfModelAnimationSpeed(impressNode: ImpressNode, speed: Float, channel: Int)
+
+    /**
+     * Returns the number of animations on an instanced glTF model.
+     *
+     * @param impressNode The object of the Impress node for the instance of the glTF model.
+     * @return The number of animations on the model.
+     */
+    public fun getGltfModelAnimationCount(impressNode: ImpressNode): Int
+
+    /**
+     * Returns the name of the animation on an instanced glTF model if it exists.
+     *
+     * @param impressNode The object of the Impress node for the instance of the glTF model.
+     * @param index The index of the animation as defined in the glTF file.
+     * @return The name of the animation.
+     */
+    public fun getGltfModelAnimationName(impressNode: ImpressNode, index: Int): String?
+
+    /**
+     * Returns the duration of the animation on an instanced glTF model.
+     *
+     * @param impressNode The object of the Impress node for the instance of the glTF model.
+     * @param index The index of the animation as defined in the glTF file.
+     * @return The duration of the animation in seconds.
+     */
+    public fun getGltfModelAnimationDurationSeconds(impressNode: ImpressNode, index: Int): Float
 
     /** This method creates an Impress node and returns its impress node object. */
     public fun createImpressNode(): ImpressNode
@@ -297,7 +415,7 @@ public interface ImpressApi {
      * centered at the origin. The concrete implementation should query the underlying rendering
      * engine for the actual bounds.
      *
-     * @param impressNode The integer ID of the Impress node for the instance of the glTF.
+     * @param impressNode The integer ID of the Impress node for the instance of the glTF model.
      * @return A [BoundingBox] object representing the model's bounding box. The
      *   [BoundingBox.center] defines the geometric center of the box, and the
      *   [BoundingBox.halfExtents] defines the distance from the center to each face. The total size
@@ -316,8 +434,83 @@ public interface ImpressApi {
     public fun setImpressNodeParent(impressNodeChild: ImpressNode, impressNodeParent: ImpressNode)
 
     /**
+     * Returns the parent node of the given Impress node.
+     *
+     * @param impressNode The node for which we want to get the parent.
+     * @return An ImpressNode representing the parent of the given node.
+     */
+    public fun getImpressNodeParent(impressNode: ImpressNode): ImpressNode
+
+    /**
+     * This method returns the number of child node of a given Impress node.
+     *
+     * @param impressNode The node for which we want to query the number of child nodes.
+     * @return An Int for the amount of child nodes for the given Impress node.
+     */
+    public fun getImpressNodeChildCount(impressNode: ImpressNode): Int
+
+    /**
+     * This method returns the child node of an Impress node at a specific index.
+     *
+     * @param impressNode The parent Impress node.
+     * @param childIndex The index (unique ID) of the child Impress node to get.
+     * @return An ImpressNode for the child Impress node at that index.
+     */
+    public fun getImpressNodeChildAt(impressNode: ImpressNode, childIndex: Int): ImpressNode
+
+    /**
+     * This method returns the name of the Impress node. An empty string will be returned if the
+     * node does not have a name.
+     *
+     * @param impressNode The node for which we want to get the name.
+     * @return A String for the name of the node.
+     */
+    public fun getImpressNodeName(impressNode: ImpressNode): String
+
+    /**
+     * Sets the local transform (TRS) of an Impress node relative to its direct parent.
+     *
+     * @param impressNode The node for which we want to set the local transform.
+     * @param transform The [Matrix4] representing the new local transform.
+     */
+    public fun setImpressNodeLocalTransform(impressNode: ImpressNode, transform: Matrix4)
+
+    /**
+     * Retrieves the local transform (TRS) of an Impress node relative to its direct parent.
+     *
+     * @param impressNode The node for which we want to get the local transform.
+     * @return A [Matrix4] representing the local transform.
+     */
+    public fun getImpressNodeLocalTransform(impressNode: ImpressNode): Matrix4
+
+    /**
+     * Sets the transform (TRS) of an Impress node relative to another Impress node.
+     *
+     * @param impressNode The node for which we want to set the transform.
+     * @param relativeNode The relative node to act as the coordinate space origin.
+     * @param transform The [Matrix4] representing the new relative transform.
+     */
+    public fun setImpressNodeRelativeTransform(
+        impressNode: ImpressNode,
+        relativeNode: ImpressNode,
+        transform: Matrix4,
+    )
+
+    /**
+     * Retrieves the transform (TRS) of an Impress node relative to another Impress node.
+     *
+     * @param impressNode The node for which we want to get the relative transform.
+     * @param relativeNode The relative node to act as the coordinate space origin.
+     * @return A [Matrix4] representing the relative transform.
+     */
+    public fun getImpressNodeRelativeTransform(
+        impressNode: ImpressNode,
+        relativeNode: ImpressNode,
+    ): Matrix4
+
+    /**
      * This method creates an Impress node with a stereo panel and returns the node object. Note
-     * that the StereoSurfaceEntity will not be render anything until the canvas shape is set.
+     * that the StereoSurfaceEntity will not render anything until the canvas shape is set.
      * Furthermore, the surface cannot be used to render secure content.
      *
      * @param stereoMode The [Int] stereoMode to apply. Must be a member of StereoMode.
@@ -329,7 +522,7 @@ public interface ImpressApi {
 
     /**
      * This method creates an Impress node with a stereo panel and returns the node object. Note
-     * that the StereoSurfaceEntity will not be render anything until the canvas shape is set.
+     * that the StereoSurfaceEntity will not render anything until the canvas shape is set.
      *
      * @param stereoMode The [Int] stereoMode to apply. Must be a member of StereoMode.
      * @param contentSecurityLevel The [Int] contentSecurityLevel to apply. Must be a member of
@@ -344,7 +537,7 @@ public interface ImpressApi {
 
     /**
      * This method creates an Impress node with a stereo panel and returns the node object. Note
-     * that the StereoSurfaceEntity will not be render anything until the canvas shape is set.
+     * that the StereoSurfaceEntity will not render anything until the canvas shape is set.
      *
      * @param stereoMode The [Int] stereoMode to apply. Must be a member of StereoMode.
      * @param contentSecurityLevel The [Int] contentSecurityLevel to apply. Must be a member of
@@ -362,7 +555,7 @@ public interface ImpressApi {
 
     /**
      * This method creates an Impress node with a stereo panel and returns the node object. Note
-     * that the StereoSurfaceEntity will not be render anything until the canvas shape is set.
+     * that the StereoSurfaceEntity will not render anything until the canvas shape is set.
      *
      * @param stereoMode The [Int] stereoMode to apply. Must be a member of StereoMode.
      * @param mediaBlendingMode The [Int] mediaBlendingMode to apply. Must be a member of
@@ -383,7 +576,7 @@ public interface ImpressApi {
     ): ImpressNode
 
     /**
-     * This method sets the Surface pixel dimenesions for a StereoSurfaceEntity.
+     * This method sets the Surface pixel dimensions for a StereoSurfaceEntity.
      *
      * @param impressNode The Impress node which hosts the StereoSurfaceEntity to be updated.
      * @param width The width in pixels to set the buffer size for the Surface.
@@ -424,6 +617,33 @@ public interface ImpressApi {
     public fun setStereoSurfaceEntityCanvasShapeHemisphere(impressNode: ImpressNode, radius: Float)
 
     /**
+     * This method sets the canvas shape of a StereoSurfaceEntity using its Impress node object.
+     *
+     * @param impressNode The Impress node which hosts the StereoSurfaceEntity to be updated.
+     * @param leftPositions The positions of the left eye mesh.
+     * @param leftTexCoords The texture coordinates of the left eye mesh.
+     * @param leftIndices The indices of the left eye mesh.
+     * @param rightPositions The positions of the right eye mesh.
+     * @param rightTexCoords The texture coordinates of the right eye mesh.
+     * @param rightIndices The indices of the right eye mesh.
+     * @param drawMode The draw mode of the mesh.
+     * @throws IllegalArgumentException if the number of positions and texcoords do not correspond
+     *   to the same number of vertices for either eye (i.e. `positions.capacity() / 3 !=
+     *   texCoords.capacity() / 2`), or if values in the indices are out of bounds (greater than or
+     *   equal to the number of vertices).
+     */
+    public fun setStereoSurfaceEntityCanvasShapeCustomMesh(
+        impressNode: ImpressNode,
+        leftPositions: FloatBuffer,
+        leftTexCoords: FloatBuffer,
+        leftIndices: IntBuffer?,
+        rightPositions: FloatBuffer?,
+        rightTexCoords: FloatBuffer?,
+        rightIndices: IntBuffer?,
+        @DrawMode drawMode: Int,
+    )
+
+    /**
      * Dynamically enables or disables the collider for the StereoSurfaceEntity.
      *
      * The shape of the collider is determined by the canvas shape:
@@ -453,6 +673,18 @@ public interface ImpressApi {
     public fun setStereoModeForStereoSurface(
         panelImpressNode: ImpressNode,
         @StereoMode stereoMode: Int,
+    )
+
+    /**
+     * Updates the blending mode for an impress node hosting a StereoSurface.
+     *
+     * @param panelImpressNode The Impress node which hosts the panel to be updated.
+     * @param blendingMode The [Int] blending mode to apply. Must be a member of MediaBlendingMode.
+     * @throws IllegalArgumentException if blendingMode is invalid.
+     */
+    public fun setBlendingModeForStereoSurfaceEntity(
+        panelImpressNode: ImpressNode,
+        @MediaBlendingMode blendingMode: Int,
     )
 
     /**
@@ -1075,32 +1307,33 @@ public interface ImpressApi {
     public fun destroyNativeObject(nativeHandle: Long)
 
     /**
-     * Sets the material override for a specific mesh of a node.
+     * Schedules reskinning of a glTF model. This should be called after modifying node transforms
+     * that affect skinned meshes.
      *
-     * @param impressNode The object of the Impress node for the instance of the glTF model.
+     * @param impressNode The root node of the glTF model or the specific node to reskin.
+     */
+    public fun scheduleGltfReskinning(impressNode: ImpressNode)
+
+    /**
+     * Sets a material override for a specific primitive of a specific glTF model node.
+     *
+     * @param impressNode The specific Impress node (retrieved via introspection) to override.
      * @param nativeMaterial The native handle of the material to be used as the override.
-     * @param nodeName The name of the node containing the mesh to be overridden.
      * @param primitiveIndex The zero-based index of the primitive to override within the mesh.
      */
-    public fun setMaterialOverride(
+    public fun setGltfModelNodeMaterialOverride(
         impressNode: ImpressNode,
         nativeMaterial: Long,
-        nodeName: String,
         primitiveIndex: Int,
     )
 
     /**
-     * Clears a material override for a specific mesh of a node.
+     * Clears a material override for a specific primitive of a specific glTF model node.
      *
-     * @param impressNode The object of the Impress node for the instance of the glTF model.
-     * @param nodeName The name of the node containing the mesh for which to clear the override.
+     * @param impressNode The specific Impress node (retrieved via introspection) to clear.
      * @param primitiveIndex The zero-based index of the primitive to clear within the mesh.
      */
-    public fun clearMaterialOverride(
-        impressNode: ImpressNode,
-        nodeName: String,
-        primitiveIndex: Int,
-    )
+    public fun clearGltfModelNodeMaterialOverride(impressNode: ImpressNode, primitiveIndex: Int)
 
     /**
      * This method sets the IBL asset preference of the client to be set by the system.

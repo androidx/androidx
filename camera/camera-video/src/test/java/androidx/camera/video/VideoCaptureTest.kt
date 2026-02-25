@@ -128,14 +128,12 @@ import androidx.camera.video.Quality.FHD
 import androidx.camera.video.Quality.HD
 import androidx.camera.video.Quality.HIGHEST
 import androidx.camera.video.Quality.LOWEST
-import androidx.camera.video.Quality.NONE
 import androidx.camera.video.Quality.QUALITY_SOURCE_HIGH_SPEED
 import androidx.camera.video.Quality.QUALITY_SOURCE_REGULAR
 import androidx.camera.video.Quality.SD
 import androidx.camera.video.Quality.UHD
 import androidx.camera.video.StreamInfo.StreamState
 import androidx.camera.video.impl.VideoCaptureConfig
-import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy
 import androidx.camera.video.internal.encoder.VideoEncoderInfo
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -527,6 +525,7 @@ class VideoCaptureTest {
                             )
                     ),
                 videoCapabilities = FULL_QUALITY_VIDEO_CAPABILITIES,
+                profilesResolver = FULL_QUALITY_PROFILES_RESOLVER,
             )
         val videoCapture = createVideoCapture(videoOutput)
 
@@ -558,6 +557,7 @@ class VideoCaptureTest {
                         aspectRatio = RATIO_4_3,
                     ),
                 videoCapabilities = FULL_QUALITY_VIDEO_CAPABILITIES,
+                profilesResolver = FULL_QUALITY_PROFILES_RESOLVER,
             )
         val videoCapture = createVideoCapture(videoOutput)
 
@@ -594,6 +594,7 @@ class VideoCaptureTest {
                         aspectRatio = RATIO_16_9,
                     ),
                 videoCapabilities = FULL_QUALITY_VIDEO_CAPABILITIES,
+                profilesResolver = FULL_QUALITY_PROFILES_RESOLVER,
             )
         val videoCapture = createVideoCapture(videoOutput)
 
@@ -630,6 +631,7 @@ class VideoCaptureTest {
                         aspectRatio = RATIO_4_3,
                     ),
                 videoCapabilities = HIGH_SPEED_FULL_QUALITY_VIDEO_CAPABILITIES,
+                profilesResolver = HIGH_SPEED_FULL_QUALITY_PROFILES_RESOLVER,
             )
         val videoCapture = createVideoCapture(videoOutput, sessionType = SESSION_TYPE_HIGH_SPEED)
 
@@ -666,6 +668,7 @@ class VideoCaptureTest {
                         aspectRatio = RATIO_16_9,
                     ),
                 videoCapabilities = HIGH_SPEED_FULL_QUALITY_VIDEO_CAPABILITIES,
+                profilesResolver = HIGH_SPEED_FULL_QUALITY_PROFILES_RESOLVER,
             )
         val videoCapture = createVideoCapture(videoOutput, sessionType = SESSION_TYPE_HIGH_SPEED)
 
@@ -716,6 +719,8 @@ class VideoCaptureTest {
 
         // Arrange: set 4:3 aspect ratio.
         // 1360x1020, 1280x960, 960x720 should be candidates of custom resolutions.
+        val profilesResolver = createFakeEncoderProfilesResolver(profileMap = profileMap)
+        val videoCapabilities = createFakeVideoCapabilities(profilesResolver = profilesResolver)
         val videoOutput =
             createVideoOutput(
                 mediaSpec =
@@ -723,8 +728,8 @@ class VideoCaptureTest {
                         qualitySelector = QualitySelector.from(HD),
                         aspectRatio = RATIO_4_3,
                     ),
-                videoCapabilities =
-                    createFakeVideoCapabilities(mapOf(DynamicRange.SDR to profileMap)),
+                videoCapabilities = videoCapabilities,
+                profilesResolver = profilesResolver,
             )
         // Arrange: encoder max supported size is 1280x720.
         val videoCapture =
@@ -807,6 +812,13 @@ class VideoCaptureTest {
 
         // Arrange: set 4:3 aspect ratio.
         // 1360x1020, 1280x960, 960x720 should be candidates of custom resolutions.
+        val profilesResolver =
+            createFakeEncoderProfilesResolver(
+                profileMap = profileMap,
+                supportedDynamicRanges =
+                    setOf(DynamicRange.SDR, DynamicRange.HLG_10_BIT, DynamicRange.HDR10_10_BIT),
+            )
+        val videoCapabilities = createFakeVideoCapabilities(profilesResolver)
         val videoOutput =
             createVideoOutput(
                 mediaSpec =
@@ -814,21 +826,8 @@ class VideoCaptureTest {
                         qualitySelector = QualitySelector.from(HD),
                         aspectRatio = RATIO_4_3,
                     ),
-                videoCapabilities =
-                    createFakeVideoCapabilities(
-                        mapOf(
-                            DynamicRange.HDR_UNSPECIFIED_10_BIT to
-                                mapOf(
-                                    QUALITY_720P to
-                                        EncoderProfilesProxy.ImmutableEncoderProfilesProxy.create(
-                                            durationSeconds,
-                                            outputFormat,
-                                            listOf(audioProfile),
-                                            listOf(videoProfileHdHlg10, videoProfileHdHdr10),
-                                        )
-                                )
-                        )
-                    ),
+                videoCapabilities = videoCapabilities,
+                profilesResolver = profilesResolver,
             )
         // Arrange: set HDR_UNSPECIFIED_10_BIT and HDR encoder max supported size 1280x960
         val videoCapture =
@@ -2038,14 +2037,19 @@ class VideoCaptureTest {
                 QUALITY_HIGH_SPEED_720P to profile720p,
                 QUALITY_HIGH_SPEED_LOW to profile720p,
             )
-        val videoCapabilities =
-            createFakeVideoCapabilities(
-                profilesMap = mapOf(DynamicRange.SDR to profiles),
+        val profilesResolver =
+            createFakeEncoderProfilesResolver(
+                profileMap = profiles,
                 qualitySource = QUALITY_SOURCE_HIGH_SPEED,
             )
+        val videoCapabilities = createFakeVideoCapabilities(profilesResolver)
         setupCamera(profiles = profiles)
         createCameraUseCaseAdapter()
-        val videoOutput = createVideoOutput(videoCapabilities = videoCapabilities)
+        val videoOutput =
+            createVideoOutput(
+                videoCapabilities = videoCapabilities,
+                profilesResolver = profilesResolver,
+            )
         val videoCapture = createVideoCapture(videoOutput, sessionType = SESSION_TYPE_HIGH_SPEED)
 
         // Act.
@@ -2085,6 +2089,7 @@ class VideoCaptureTest {
         qualitySelector: QualitySelector,
         profiles: Map<Int, EncoderProfilesProxy> = FULL_QUALITY_PROFILES_MAP,
         videoCapabilities: VideoCapabilities = FULL_QUALITY_VIDEO_CAPABILITIES,
+        profilesResolver: EncoderProfilesResolver = FULL_QUALITY_PROFILES_RESOLVER,
         expectedQuality: Quality?,
     ) {
         // Arrange.
@@ -2097,6 +2102,7 @@ class VideoCaptureTest {
         val videoOutput =
             createVideoOutput(
                 videoCapabilities = videoCapabilities,
+                profilesResolver = profilesResolver,
                 mediaSpec = createMediaSpec(qualitySelector = qualitySelector),
             )
         val videoCapture = createVideoCapture(videoOutput = videoOutput)
@@ -2260,11 +2266,14 @@ class VideoCaptureTest {
         streamInfo: StreamInfo = createStreamInfo(),
         mediaSpec: MediaSpec? = createMediaSpec(),
         videoCapabilities: VideoCapabilities = CAMERA_0_VIDEO_CAPABILITIES,
+        profilesResolver: EncoderProfilesResolver = CAMERA_0_PROFILES_RESOLVER,
         surfaceRequestListener: (SurfaceRequest, Timebase) -> Unit = { surfaceRequest, _ ->
             surfaceRequest.willNotProvideSurface()
         },
     ): TestVideoOutput =
-        TestVideoOutput(streamInfo, mediaSpec, videoCapabilities) { surfaceRequest, timebase ->
+        TestVideoOutput(streamInfo, mediaSpec, videoCapabilities, profilesResolver) {
+            surfaceRequest,
+            timebase ->
             surfaceRequestsToRelease.add(surfaceRequest)
             surfaceRequestListener.invoke(surfaceRequest, timebase)
         }
@@ -2285,6 +2294,7 @@ class VideoCaptureTest {
         streamInfo: StreamInfo,
         mediaSpec: MediaSpec?,
         val videoCapabilities: VideoCapabilities = CAMERA_0_VIDEO_CAPABILITIES,
+        val profilesResolver: EncoderProfilesResolver,
         val surfaceRequestCallback: (SurfaceRequest, Timebase) -> Unit,
     ) : VideoOutput {
         private val streamInfoObservable: MutableStateObservable<StreamInfo> =
@@ -2315,6 +2325,11 @@ class VideoCaptureTest {
         ): VideoCapabilities {
             return videoCapabilities
         }
+
+        override fun getEncoderProfilesResolver(
+            cameraInfo: CameraInfo,
+            sessionType: Int,
+        ): EncoderProfilesResolver = profilesResolver
 
         fun updateStreamInfo(streamInfo: StreamInfo) {
             streamInfoObservable.setState(streamInfo)
@@ -2577,17 +2592,26 @@ class VideoCaptureTest {
                 QUALITY_LOW to PROFILES_720P,
             )
 
-        private val FULL_QUALITY_VIDEO_CAPABILITIES =
-            createFakeVideoCapabilities(mapOf(DynamicRange.SDR to FULL_QUALITY_PROFILES_MAP))
+        private val FULL_QUALITY_PROFILES_RESOLVER =
+            createFakeEncoderProfilesResolver(FULL_QUALITY_PROFILES_MAP)
 
-        private val HIGH_SPEED_FULL_QUALITY_VIDEO_CAPABILITIES =
-            createFakeVideoCapabilities(
-                mapOf(DynamicRange.SDR to HIGH_SPEED_FULL_QUALITY_PROFILES_MAP),
-                qualitySource = QUALITY_SOURCE_HIGH_SPEED,
+        private val HIGH_SPEED_FULL_QUALITY_PROFILES_RESOLVER =
+            createFakeEncoderProfilesResolver(
+                HIGH_SPEED_FULL_QUALITY_PROFILES_MAP,
+                QUALITY_SOURCE_HIGH_SPEED,
             )
 
+        private val CAMERA_0_PROFILES_RESOLVER =
+            createFakeEncoderProfilesResolver(CAMERA_0_PROFILES)
+
+        private val FULL_QUALITY_VIDEO_CAPABILITIES =
+            createFakeVideoCapabilities(FULL_QUALITY_PROFILES_RESOLVER)
+
+        private val HIGH_SPEED_FULL_QUALITY_VIDEO_CAPABILITIES =
+            createFakeVideoCapabilities(HIGH_SPEED_FULL_QUALITY_PROFILES_RESOLVER)
+
         private val CAMERA_0_VIDEO_CAPABILITIES =
-            createFakeVideoCapabilities(mapOf(DynamicRange.SDR to CAMERA_0_PROFILES))
+            createFakeVideoCapabilities(CAMERA_0_PROFILES_RESOLVER)
 
         private val DEFAULT_QUALITY_SELECTOR =
             QualitySelector.fromOrderedList(
@@ -2597,69 +2621,46 @@ class VideoCaptureTest {
 
         /** Create a fake VideoCapabilities. */
         private fun createFakeVideoCapabilities(
-            profilesMap: Map<DynamicRange, Map<Int, EncoderProfilesProxy>>,
-            qualitySource: Int = QUALITY_SOURCE_REGULAR,
+            profilesResolver: EncoderProfilesResolver = FULL_QUALITY_PROFILES_RESOLVER,
+            isStabilizationSupported: Boolean = false,
         ): VideoCapabilities {
-            val videoCapabilitiesMap =
-                profilesMap.mapValues {
-                    val provider = FakeEncoderProfilesProvider.Builder().addAll(it.value).build()
-                    CapabilitiesByQuality(provider, qualitySource)
-                }
-
             return object : VideoCapabilities {
 
-                override fun getSupportedDynamicRanges(): MutableSet<DynamicRange> {
-                    return videoCapabilitiesMap.keys.toMutableSet()
+                override fun getSupportedDynamicRanges(): Set<DynamicRange> {
+                    return profilesResolver.supportedDynamicRanges
                 }
 
-                override fun getSupportedQualities(
-                    dynamicRange: DynamicRange
-                ): MutableList<Quality> {
-                    return videoCapabilitiesMap[dynamicRange]?.supportedQualities ?: mutableListOf()
+                override fun getSupportedQualities(dynamicRange: DynamicRange): List<Quality> {
+                    return profilesResolver.getSupportedQualities(dynamicRange)
                 }
 
                 override fun isQualitySupported(
                     quality: Quality,
                     dynamicRange: DynamicRange,
                 ): Boolean {
-                    return videoCapabilitiesMap[dynamicRange]?.isQualitySupported(quality) == true
+                    return profilesResolver.isQualitySupported(quality, dynamicRange)
                 }
 
                 override fun isStabilizationSupported(): Boolean {
-                    return false
+                    return isStabilizationSupported
                 }
 
                 override fun getResolution(quality: Quality, dynamicRange: DynamicRange): Size? {
-                    return videoCapabilitiesMap[dynamicRange]
-                        ?.getProfiles(quality)
-                        ?.defaultVideoProfile
-                        ?.resolution
-                }
-
-                override fun getProfiles(
-                    quality: Quality,
-                    dynamicRange: DynamicRange,
-                ): VideoValidatedEncoderProfilesProxy? {
-                    return videoCapabilitiesMap[dynamicRange]?.getProfiles(quality)
-                }
-
-                override fun findNearestHigherSupportedEncoderProfilesFor(
-                    size: Size,
-                    dynamicRange: DynamicRange,
-                ): VideoValidatedEncoderProfilesProxy? {
-                    return videoCapabilitiesMap[dynamicRange]
-                        ?.findNearestHigherSupportedEncoderProfilesFor(size)
-                }
-
-                override fun findNearestHigherSupportedQualityFor(
-                    size: Size,
-                    dynamicRange: DynamicRange,
-                ): Quality {
-                    return videoCapabilitiesMap[dynamicRange]?.findNearestHigherSupportedQualityFor(
-                        size
-                    ) ?: NONE
+                    return profilesResolver.getResolution(quality, dynamicRange)
                 }
             }
+        }
+
+        private fun createFakeEncoderProfilesResolver(
+            profileMap: Map<Int, EncoderProfilesProxy>,
+            qualitySource: Int = QUALITY_SOURCE_REGULAR,
+            supportedDynamicRanges: Set<DynamicRange> = setOf(DynamicRange.SDR),
+        ): EncoderProfilesResolver {
+            return EncoderProfilesResolver(
+                FakeEncoderProfilesProvider.Builder().addAll(profileMap).build(),
+                qualitySource,
+                supportedDynamicRanges,
+            )
         }
     }
 }

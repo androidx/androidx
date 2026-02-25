@@ -23,7 +23,7 @@ import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.TwoWayConverter
 import androidx.compose.animation.core.updateTransition
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -118,7 +118,7 @@ object Utils {
         clock: PreviewAnimationClock,
         content: @Composable () -> Unit,
     ) {
-        val search = AnimationSearch({ clock }) {}
+        val search = AnimationSearch({ clock })
         val slotTableRecord = CompositionDataRecord.create()
         this.setContent { Inspectable(slotTableRecord) { content() } }
         this.runOnUiThread {

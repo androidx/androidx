@@ -3,7 +3,7 @@ package foo.bar
 import androidx.room3.migration.AutoMigrationSpec
 import androidx.room3.migration.Migration
 import androidx.sqlite.SQLiteConnection
-import androidx.sqlite.execSQL
+import androidx.sqlite.executeSQL
 import javax.`annotation`.processing.Generated
 import kotlin.Suppress
 
@@ -14,8 +14,8 @@ internal class MyDatabase_AutoMigration_1_2_Impl : Migration {
 
     public constructor() : super(1, 2)
 
-    public override fun migrate(connection: SQLiteConnection) {
-        connection.execSQL("ALTER TABLE `Song` ADD COLUMN `artistId` INTEGER DEFAULT NULL")
+    public override suspend fun migrate(connection: SQLiteConnection) {
+        connection.executeSQL("ALTER TABLE `Song` ADD COLUMN `artistId` INTEGER DEFAULT NULL")
         callback.onPostMigrate(connection)
     }
 }

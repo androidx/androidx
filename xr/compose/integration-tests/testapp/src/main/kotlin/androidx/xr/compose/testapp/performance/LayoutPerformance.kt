@@ -151,7 +151,7 @@ class LayoutPerformance : ComponentActivity() {
 
         SpatialRow(
             modifier = SubspaceModifier.width(6000.dp).height(6000.dp),
-            alignment = SpatialAlignment.Center,
+            verticalAlignment = SpatialAlignment.CenterVertically,
             horizontalArrangement = SpatialArrangement.SpaceAround,
         ) {
             SpatialPanel(modifier = SubspaceModifier.width(controlWidth).height(controlHeight)) {

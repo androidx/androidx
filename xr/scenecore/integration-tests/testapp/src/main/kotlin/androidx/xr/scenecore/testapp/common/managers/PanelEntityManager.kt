@@ -75,7 +75,7 @@ class PanelEntityManager(
         if (panelEntities.size < maxEntities) {
             val panelNumber = panelEntities.size + 1
             val mTextView =
-                TextView(session.activity).apply {
+                TextView(session.context).apply {
                     text = "Hello, XR World! Panel $panelNumber"
                     textSize = 24f
                     setTextColor(Color.BLACK)

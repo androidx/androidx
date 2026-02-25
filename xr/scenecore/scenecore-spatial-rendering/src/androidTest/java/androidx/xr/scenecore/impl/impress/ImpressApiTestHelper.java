@@ -46,8 +46,18 @@ final class ImpressApiTestHelper {
             int nodeId, boolean enableCollider);
 
     static native void nativeSetExpectedSetGltfReformAffordanceEnabled(
-            int impressNodeId, boolean enabled);
+            int impressNodeId, boolean enabled, boolean systemMovable);
 
+    static native void nativeSetExpectedAnimateGltfModelNew(
+            int nodeId,
+            String animationName,
+            boolean loop,
+            float speed,
+            float startTime,
+            int channelId);
+
+    // TODO: b/465818627 - Remove old animation APIs once all clients are
+    // migrated to new animation system.
     static native void nativeSetExpectedAnimateGltfModel(
             int nodeId, String animationName, boolean loop);
 
@@ -55,19 +65,40 @@ final class ImpressApiTestHelper {
 
     static native void nativeSetAnimateGltfModelFailure(String message);
 
+    static native void nativeSetExpectedStopGltfModelAnimationNew(int nodeId, int channelId);
+
+    // TODO: b/465818627 - Remove old animation APIs once all clients are
+    // migrated to new animation system.
     static native void nativeSetExpectedStopGltfModelAnimation(int nodeId);
 
+    static native void nativeSetExpectedToggleGltfModelAnimationNew(
+            int nodeId, boolean toggle, int channelId);
+
+    // TODO: b/465818627 - Remove old animation APIs once all clients are
+    // migrated to new animation system.
     static native void nativeSetExpectedToggleGltfModelAnimation(int nodeId, boolean toggle);
+
+    static native void nativeSetExpectedGetGltfModelAnimationDurationSeconds(int nodeId, int index);
+
+    static native void nativeSetGetGltfModelAnimationDurationSecondsSuccess(float duration);
+
+    static native void nativeSetExpectedSetGltfModelAnimationSpeed(
+            int nodeId, float speed, int channelId);
+
+    static native void nativeSetExpectedSetGltfModelAnimationPlaybackTime(
+            int nodeId, float playbackTime, int channelId);
+
+    static native void nativeSetExpectedGetGltfModelAnimationCount(int nodeId);
+
+    static native void nativeSetGetGltfModelAnimationCountSuccess(int count);
+
+    static native void nativeSetExpectedGetGltfModelAnimationName(int nodeId, int index);
+
+    static native void nativeSetGetGltfModelAnimationNameSuccess(String name);
 
     static native void nativeSetExpectedGetGltfModelLocalBounds(int nodeId);
 
     static native void nativeSetGetGltfModelLocalBoundsSuccess(float[] center, float[] halfExtents);
-
-    static native void nativeSetExpectedSetMaterialOverride(
-            int nodeId, long materialHandle, String nodeName, int primitiveIndex);
-
-    static native void nativeSetExpectedClearMaterialOverride(
-            int nodeId, String nodeName, int primitiveIndex);
 
     // Hooks for the skybox operations.
     static native void nativeSetExpectedLoadIblPath(String path);

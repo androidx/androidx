@@ -19,6 +19,7 @@ package androidx.credentials.providerevents.transfer
 import android.graphics.Bitmap
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import androidx.test.platform.app.InstrumentationRegistry
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import org.json.JSONObject
@@ -30,6 +31,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class RegisterExportRequestTest {
+    private val context = InstrumentationRegistry.getInstrumentation().context
 
     @Test
     fun credentialBytes_serialization_isCorrect() {
@@ -60,7 +62,7 @@ class RegisterExportRequestTest {
 
         // 2. Execution
         // Instantiate RegisterExportRequest to trigger the credentialBytes serialization.
-        val request = RegisterExportRequest(entries, exportMatcher = ByteArray(0))
+        val request = RegisterExportRequest.create(context, entries)
         val credentialBytes = request.credentialBytes
 
         // 3. Deserialization and Verification

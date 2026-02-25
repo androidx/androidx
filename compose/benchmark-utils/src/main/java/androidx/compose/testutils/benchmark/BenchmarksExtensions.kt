@@ -274,9 +274,8 @@ fun <T> ComposeBenchmarkRule.toggleStateBenchmarkDraw(
 }
 
 /** Measures measure time of the hierarchy after changing a state. */
-fun <T> AndroidBenchmarkRule.toggleStateBenchmarkMeasure(caseFactory: () -> T) where
-T : AndroidTestCase,
-T : ToggleableTestCase {
+fun <T> AndroidBenchmarkRule.toggleStateBenchmarkMeasure(caseFactory: () -> T)
+    where T : AndroidTestCase, T : ToggleableTestCase {
     runBenchmarkFor(caseFactory) {
         runOnUiThread { doFrame() }
 
@@ -288,9 +287,8 @@ T : ToggleableTestCase {
 }
 
 /** Measures layout time of the hierarchy after changing a state. */
-fun <T> AndroidBenchmarkRule.toggleStateBenchmarkLayout(caseFactory: () -> T) where
-T : AndroidTestCase,
-T : ToggleableTestCase {
+fun <T> AndroidBenchmarkRule.toggleStateBenchmarkLayout(caseFactory: () -> T)
+    where T : AndroidTestCase, T : ToggleableTestCase {
     runBenchmarkFor(caseFactory) {
         runOnUiThread { doFrame() }
 
@@ -305,9 +303,8 @@ T : ToggleableTestCase {
 }
 
 /** Measures draw time of the hierarchy after changing a state. */
-fun <T> AndroidBenchmarkRule.toggleStateBenchmarkDraw(caseFactory: () -> T) where
-T : AndroidTestCase,
-T : ToggleableTestCase {
+fun <T> AndroidBenchmarkRule.toggleStateBenchmarkDraw(caseFactory: () -> T)
+    where T : AndroidTestCase, T : ToggleableTestCase {
     runBenchmarkFor(caseFactory) {
         runOnUiThread { doFrame() }
 

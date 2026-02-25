@@ -40,7 +40,7 @@ internal class ExclusiveLock(filename: String, useFileLock: Boolean) {
      * [onLocked] will be invoked. If an error occurs during locking, then [onLockError] will be
      * invoked to give a chance for the caller make sense of the error.
      */
-    fun <T> withLock(onLocked: () -> T, onLockError: (Throwable) -> Nothing): T {
+    inline fun <T> withLock(onLocked: () -> T, onLockError: (Throwable) -> Nothing): T {
         var locked = false
         threadLock.lock()
         try {

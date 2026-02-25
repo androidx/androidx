@@ -20,10 +20,15 @@ import java.io.File
 import java.io.FileInputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
+import javax.inject.Inject
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.ArchiveOperations
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.tasks.CacheableTask
-import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
@@ -31,17 +36,37 @@ import org.gradle.api.tasks.TaskAction
 /** Task for verifying license and version files in Androidx artifacts */
 @CacheableTask
 abstract class VerifyLicenseAndVersionFilesTask : DefaultTask() {
-    @get:[InputDirectory PathSensitive(PathSensitivity.RELATIVE)]
-    abstract val repositoryDirectory: DirectoryProperty
+    @get:Inject abstract val fileSystemOperations: FileSystemOperations
+
+    @get:Inject abstract val archiveOperations: ArchiveOperations
+
+    @get:[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
+    abstract val repositoryZips: ConfigurableFileCollection
+
+    @get:OutputDirectory abstract val tmpDir: DirectoryProperty
 
     @TaskAction
     fun verifyFiles() {
-        verifyVersionFilesPresent()
-        verifyLicenseFilesPresent()
+        val zips = repositoryZips.files
+        if (zips.isNotEmpty()) {
+            val tempDir = tmpDir.get().asFile
+            try {
+                zips.forEach { zipFile ->
+                    fileSystemOperations.copy {
+                        it.from(archiveOperations.zipTree(zipFile))
+                        it.into(tempDir)
+                    }
+                }
+                verifyVersionFilesPresent(tempDir)
+                verifyLicenseFilesPresent(tempDir)
+            } finally {
+                tempDir.deleteRecursively()
+            }
+        }
     }
 
-    private fun verifyVersionFilesPresent() {
-        repositoryDirectory.asFile.get().walk().forEach { file ->
+    private fun verifyVersionFilesPresent(repositoryRoot: File) {
+        repositoryRoot.walk().forEach { file ->
             var expectedPrefix = "androidx"
             if (file.path.contains("/libyuv/"))
                 expectedPrefix = "libyuv_libyuv" // external library that we don't publish
@@ -78,8 +103,8 @@ abstract class VerifyLicenseAndVersionFilesTask : DefaultTask() {
         }
     }
 
-    private fun verifyLicenseFilesPresent() {
-        repositoryDirectory.asFile.get().walk().forEach { file ->
+    private fun verifyLicenseFilesPresent(repositoryRoot: File) {
+        repositoryRoot.walk().forEach { file ->
             if (file.extension in listOf("aar", "jar", "klib")) {
                 if (!zipContainsLicense(file)) {
                     throw Exception(

@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -55,8 +54,8 @@ androidXMultiplatform {
             implementation(libs.kotlinTest)
             implementation(libs.kotlinCoroutinesTest)
             implementation(libs.okio)
-            api(project(":datastore:datastore-core"))
-            api(project(":datastore:datastore-core-okio"))
+            implementation(project(":datastore:datastore-core"))
+            implementation(project(":datastore:datastore-core-okio"))
             implementation(project(":kruth:kruth"))
             implementation(project(":internal-testutils-datastore"))
         }

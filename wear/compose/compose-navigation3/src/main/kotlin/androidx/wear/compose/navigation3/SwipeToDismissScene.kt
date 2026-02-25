@@ -40,20 +40,17 @@ import androidx.compose.ui.util.lerp
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.scene.Scene
 import androidx.wear.compose.foundation.LocalReduceMotion
-import androidx.wear.compose.foundation.SwipeToDismissBoxState
 import androidx.wear.compose.foundation.SwipeToDismissKeys
 import androidx.wear.compose.material3.SwipeToDismissBox
 
 /** A scene to display content for API <= 35 */
 internal class SwipeToDismissScene<T : Any>(
     onBack: () -> Unit,
-    modifier: Modifier = Modifier,
     val currentEntry: NavEntry<T>,
     background: NavEntry<T>?,
     // a list of entries that users can back into
     override val previousEntries: List<NavEntry<T>>,
     currentBackStack: List<NavEntry<T>>,
-    swipeToDismissBoxState: SwipeToDismissBoxState,
     backEnabled: Boolean,
 ) : Scene<T> {
     // A Unit scene key disables animations in NavDisplay, so that this scene
@@ -97,7 +94,6 @@ internal class SwipeToDismissScene<T : Any>(
                 onBack()
             },
             modifier = Modifier,
-            state = swipeToDismissBoxState,
             backgroundKey = background?.contentKey ?: SwipeToDismissKeys.Background,
             userSwipeEnabled = backEnabled,
             contentKey = currentEntry.contentKey,
@@ -106,10 +102,10 @@ internal class SwipeToDismissScene<T : Any>(
                 if (isBackground || onDismissedCalled) background else currentEntry,
                 modifier =
                     if (isBackground) {
-                        modifier
+                        Modifier
                     } else {
                         // define transition for both popEnter and enter
-                        modifier.graphicsLayer {
+                        Modifier.graphicsLayer {
                             val scaleProgression =
                                 NAV_HOST_ENTER_TRANSITION_EASING_STANDARD.transform(
                                     (animationProgress.value / 0.75f)

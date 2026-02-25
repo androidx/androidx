@@ -27,6 +27,9 @@ import java.util.function.Consumer
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface GltfFeature : RenderingFeature {
 
+    /** The flattened list of all nodes contained within this glTF model. */
+    @get:MainThread public val nodes: List<GltfModelNodeFeature>
+
     /**
      * The unscaled size of the glTF model's axis-aligned bounding box in the entity's local space,
      * in meters.
@@ -35,6 +38,9 @@ public interface GltfFeature : RenderingFeature {
      *   (z-axis).
      */
     @get:MainThread public val size: FloatSize3d
+
+    /** Returns the animations of the glTF model. */
+    @MainThread public fun getAnimations(executor: Executor): List<GltfAnimationFeature>
 
     /** Returns the current animation state of the glTF entity. */
     public val animationState: Int
@@ -70,28 +76,6 @@ public interface GltfFeature : RenderingFeature {
 
     /* Resume the animation of the glTF entity. */
     @MainThread public fun resumeAnimation()
-
-    /**
-     * Sets a material override for a specific mesh of a node.
-     *
-     * @param material The material to use for the mesh primitive.
-     * @param nodeName The name of the node containing the mesh to override.
-     * @param primitiveIndex The zero-based index of the mesh in the node.
-     */
-    @MainThread
-    public fun setMaterialOverride(
-        material: MaterialResource,
-        nodeName: String,
-        primitiveIndex: Int,
-    )
-
-    /**
-     * Clears a material override for a specific mesh of a node.
-     *
-     * @param nodeName The name of the node containing the mesh for which to clear the override.
-     * @param primitiveIndex The zero-based index of the mesh in the node.
-     */
-    @MainThread public fun clearMaterialOverride(nodeName: String, primitiveIndex: Int)
 
     /**
      * Sets whether the collider is enabled.
@@ -135,4 +119,20 @@ public interface GltfFeature : RenderingFeature {
      * @param listener The listener to remove.
      */
     @MainThread public fun removeOnBoundsUpdateListener(listener: Consumer<BoundingBox>)
+
+    /**
+     * Adds reform affordance to the passed GltfEntity.
+     *
+     * @param entity The GltfEntity to attach the reform affordance to.
+     * @param enabled Whether the affordance is enabled.
+     * @param executor The executor to run the listener on.
+     * @param systemMovable Whether the system should handle move events.
+     */
+    @MainThread
+    public fun setReformAffordanceEnabled(
+        entity: GltfEntity,
+        enabled: Boolean,
+        executor: Executor,
+        systemMovable: Boolean,
+    )
 }

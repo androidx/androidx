@@ -43,7 +43,7 @@ package androidx.wear.ambient {
 
   @Deprecated public final class AmbientMode extends android.app.Fragment {
     ctor @Deprecated public AmbientMode();
-    method @Deprecated public static <T extends android.app.Activity> androidx.wear.ambient.AmbientMode.AmbientController! attachAmbientSupport(T!);
+    method @Deprecated public static <T extends android.app.Activity> androidx.wear.ambient.AmbientMode.AmbientController! attachAmbientSupport(T);
     method @Deprecated public void dump(String!, java.io.FileDescriptor!, java.io.PrintWriter!, String![]!);
     method @Deprecated @CallSuper public void onAttach(android.content.Context!);
     method @Deprecated @CallSuper public void onCreate(android.os.Bundle!);
@@ -76,7 +76,7 @@ package androidx.wear.ambient {
 
   @Deprecated public final class AmbientModeSupport extends androidx.fragment.app.Fragment {
     ctor @Deprecated public AmbientModeSupport();
-    method @Deprecated public static <T extends androidx.fragment.app.FragmentActivity> androidx.wear.ambient.AmbientModeSupport.AmbientController! attach(T!);
+    method @Deprecated public static <T extends androidx.fragment.app.FragmentActivity> androidx.wear.ambient.AmbientModeSupport.AmbientController! attach(T);
     field @Deprecated public static final String EXTRA_BURN_IN_PROTECTION = "com.google.android.wearable.compat.extra.BURN_IN_PROTECTION";
     field @Deprecated public static final String EXTRA_LOWBIT_AMBIENT = "com.google.android.wearable.compat.extra.LOWBIT_AMBIENT";
     field @Deprecated public static final String FRAGMENT_TAG = "android.support.wearable.ambient.AmbientMode";

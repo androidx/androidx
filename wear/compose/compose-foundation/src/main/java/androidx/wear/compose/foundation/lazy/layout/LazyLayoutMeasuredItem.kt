@@ -19,6 +19,7 @@ package androidx.wear.compose.foundation.lazy.layout
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.wear.compose.foundation.lazy.MeasurementDirection
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnParentData
 
 internal interface LazyLayoutMeasuredItem {
     val index: Int
@@ -41,4 +42,4 @@ internal fun LazyLayoutMeasuredItem.getOffset(): IntOffset =
 internal fun LazyLayoutMeasuredItem.hasAnimations(): Boolean = parentData.specs != null
 
 internal val Any?.specs
-    get() = this as? LazyLayoutAnimationSpecsNode
+    get() = (this as? TransformingLazyColumnParentData)?.animationSpecs

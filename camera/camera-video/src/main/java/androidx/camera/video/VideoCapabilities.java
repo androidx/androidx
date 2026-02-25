@@ -21,7 +21,6 @@ import android.util.Size;
 
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.DynamicRange;
-import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -147,63 +146,6 @@ public interface VideoCapabilities {
     default @Nullable Size getResolution(@NonNull Quality quality,
             @NonNull DynamicRange dynamicRange) {
         return null;
-    }
-
-    /**
-     * Gets the corresponding {@link VideoValidatedEncoderProfilesProxy} of the input quality and
-     * dynamic range.
-     *
-     * @param quality one of the quality constants. Possible values include
-     *                {@link Quality#LOWEST}, {@link Quality#HIGHEST}, {@link Quality#SD},
-     *                {@link Quality#HD}, {@link Quality#FHD}, or {@link Quality#UHD}.
-     * @param dynamicRange target dynamicRange.
-     * @return the corresponding VideoValidatedEncoderProfilesProxy, or {@code null} if the
-     * quality is not supported on the device.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    default @Nullable VideoValidatedEncoderProfilesProxy getProfiles(@NonNull Quality quality,
-            @NonNull DynamicRange dynamicRange) {
-        return null;
-    }
-
-    /**
-     * Finds the supported EncoderProfilesProxy with the resolution nearest to the given
-     * {@link Size}.
-     *
-     * <p>The supported EncoderProfilesProxy means the corresponding {@link Quality} is also
-     * supported. If the size aligns exactly with the pixel count of an EncoderProfilesProxy,
-     * that EncoderProfilesProxy will be selected. If the size falls between two
-     * EncoderProfilesProxy, the higher resolution will always be selected. Otherwise, the
-     * nearest EncoderProfilesProxy will be selected, whether that EncoderProfilesProxy's
-     * resolution is above or below the given size.
-     *
-     * @see #findNearestHigherSupportedQualityFor(Size, DynamicRange)
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    default @Nullable VideoValidatedEncoderProfilesProxy
-            findNearestHigherSupportedEncoderProfilesFor(
-                    @NonNull Size size, @NonNull DynamicRange dynamicRange) {
-        return null;
-    }
-
-    /**
-     * Finds the nearest quality by number of pixels to the given {@link Size}.
-     *
-     * <p>If the size aligns exactly with the pixel count of a supported quality, that quality
-     * will be selected. If the size falls between two qualities, the higher quality will always
-     * be selected. Otherwise, the nearest single quality will be selected, whether that
-     * quality's size is above or below the given size.
-     *
-     * @param size the size representing the number of pixels for comparison. Pixels are assumed
-     *             to be square.
-     * @param dynamicRange target dynamicRange.
-     * @return the quality constant defined in {@link Quality}. If no qualities are supported,
-     * then {@link Quality#NONE} is returned.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    default @NonNull Quality findNearestHigherSupportedQualityFor(@NonNull Size size,
-            @NonNull DynamicRange dynamicRange) {
-        return Quality.NONE;
     }
 
     /** An empty implementation. */

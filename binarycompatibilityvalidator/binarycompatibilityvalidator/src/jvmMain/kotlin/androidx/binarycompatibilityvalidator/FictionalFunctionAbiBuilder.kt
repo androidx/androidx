@@ -74,6 +74,6 @@ object FictionalFunctionAbiBuilder {
         // - Show manifest properties: true
         // - Show declarations: true
         // Library unique name: <stub:stub>
-    """
+        """
             .trimIndent()
 }

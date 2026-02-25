@@ -8,4 +8,4 @@ TypeParameterName: androidx.paging.testing.StaticListPagingSourceFactoryKt#asPag
 TypeParameterName: androidx.paging.testing.StaticListPagingSourceFactoryKt#asPagingSourceFactory(kotlinx.coroutines.flow.Flow<java.util.List<Value>>, kotlinx.coroutines.CoroutineScope):
     Invalid type parameter name "Value". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
 TypeParameterName: androidx.paging.testing.TestPager:
-    Invalid type parameter name "Key". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+    Invalid type parameter names "Key", "Value". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names

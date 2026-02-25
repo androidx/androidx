@@ -102,41 +102,41 @@ AllUpper: androidx.constraintlayout.core.widgets.analyzer.BasicMeasure.Measure#U
 
 
 ArrayReturn: androidx.constraintlayout.core.dsl.KeyAttributes#getVisibility():
-    Method should return Collection<Visibility> (or subclass) instead of raw array; was `androidx.constraintlayout.core.dsl.KeyAttributes.Visibility[]`
+    Method should return Collection<androidx.constraintlayout.core.dsl.KeyAttributes.Visibility> (or subclass) instead of raw array; was `androidx.constraintlayout.core.dsl.KeyAttributes.Visibility[]`
 ArrayReturn: androidx.constraintlayout.core.motion.utils.ArcCurveFit#ArcCurveFit(int[], double[], double[][]) parameter #2:
-    Method parameter should be Collection<> (or subclass) instead of raw array; was `double[][]`
+    Method parameter should be Collection<double[]> (or subclass) instead of raw array; was `double[][]`
 ArrayReturn: androidx.constraintlayout.core.motion.utils.CurveFit#get(int, double[], double[][]) parameter #2:
-    Method parameter should be Collection<> (or subclass) instead of raw array; was `double[][]`
+    Method parameter should be Collection<double[]> (or subclass) instead of raw array; was `double[][]`
 ArrayReturn: androidx.constraintlayout.core.motion.utils.CurveFit#getArc(int[], double[], double[][]) parameter #2:
-    Method parameter should be Collection<> (or subclass) instead of raw array; was `double[][]`
+    Method parameter should be Collection<double[]> (or subclass) instead of raw array; was `double[][]`
 ArrayReturn: androidx.constraintlayout.core.motion.utils.HyperSpline#HyperSpline(double[][]) parameter #0:
-    Method parameter should be Collection<> (or subclass) instead of raw array; was `double[][]`
+    Method parameter should be Collection<double[]> (or subclass) instead of raw array; was `double[][]`
 ArrayReturn: androidx.constraintlayout.core.motion.utils.HyperSpline#approxLength(androidx.constraintlayout.core.motion.utils.HyperSpline.Cubic[]) parameter #0:
-    Method parameter should be Collection<Cubic> (or subclass) instead of raw array; was `androidx.constraintlayout.core.motion.utils.HyperSpline.Cubic[]`
+    Method parameter should be Collection<androidx.constraintlayout.core.motion.utils.HyperSpline.Cubic> (or subclass) instead of raw array; was `androidx.constraintlayout.core.motion.utils.HyperSpline.Cubic[]`
 ArrayReturn: androidx.constraintlayout.core.motion.utils.HyperSpline#setup(double[][]) parameter #0:
-    Method parameter should be Collection<> (or subclass) instead of raw array; was `double[][]`
+    Method parameter should be Collection<double[]> (or subclass) instead of raw array; was `double[][]`
 ArrayReturn: androidx.constraintlayout.core.motion.utils.LinearCurveFit#LinearCurveFit(double[], double[][]) parameter #1:
-    Method parameter should be Collection<> (or subclass) instead of raw array; was `double[][]`
+    Method parameter should be Collection<double[]> (or subclass) instead of raw array; was `double[][]`
 ArrayReturn: androidx.constraintlayout.core.motion.utils.MonotonicCurveFit#MonotonicCurveFit(double[], double[][]) parameter #1:
-    Method parameter should be Collection<> (or subclass) instead of raw array; was `double[][]`
+    Method parameter should be Collection<double[]> (or subclass) instead of raw array; was `double[][]`
 ArrayReturn: androidx.constraintlayout.core.motion.utils.TimeCycleSplineSet#mValues:
-    Field should be Collection<> (or subclass) instead of raw array; was `float[][]`
+    Field should be Collection<float[]> (or subclass) instead of raw array; was `float[][]`
 ArrayReturn: androidx.constraintlayout.core.state.Transition#addKeyAttribute(String, androidx.constraintlayout.core.motion.utils.TypedBundle, androidx.constraintlayout.core.motion.CustomVariable[]) parameter #2:
-    Method parameter should be Collection<CustomVariable> (or subclass) instead of raw array; was `androidx.constraintlayout.core.motion.CustomVariable[]`
+    Method parameter should be Collection<androidx.constraintlayout.core.motion.CustomVariable> (or subclass) instead of raw array; was `androidx.constraintlayout.core.motion.CustomVariable[]`
 ArrayReturn: androidx.constraintlayout.core.state.Transition.WidgetState#setKeyAttribute(androidx.constraintlayout.core.motion.utils.TypedBundle, androidx.constraintlayout.core.motion.CustomVariable[]) parameter #1:
-    Method parameter should be Collection<CustomVariable> (or subclass) instead of raw array; was `androidx.constraintlayout.core.motion.CustomVariable[]`
+    Method parameter should be Collection<androidx.constraintlayout.core.motion.CustomVariable> (or subclass) instead of raw array; was `androidx.constraintlayout.core.motion.CustomVariable[]`
 ArrayReturn: androidx.constraintlayout.core.widgets.ConstraintWidget#mListAnchors:
-    Field should be Collection<ConstraintAnchor> (or subclass) instead of raw array; was `androidx.constraintlayout.core.widgets.ConstraintAnchor[]`
+    Field should be Collection<androidx.constraintlayout.core.widgets.ConstraintAnchor> (or subclass) instead of raw array; was `androidx.constraintlayout.core.widgets.ConstraintAnchor[]`
 ArrayReturn: androidx.constraintlayout.core.widgets.ConstraintWidget#mListDimensionBehaviors:
-    Field should be Collection<DimensionBehaviour> (or subclass) instead of raw array; was `androidx.constraintlayout.core.widgets.ConstraintWidget.DimensionBehaviour[]`
+    Field should be Collection<androidx.constraintlayout.core.widgets.ConstraintWidget.DimensionBehaviour> (or subclass) instead of raw array; was `androidx.constraintlayout.core.widgets.ConstraintWidget.DimensionBehaviour[]`
 ArrayReturn: androidx.constraintlayout.core.widgets.ConstraintWidget#mListNextMatchConstraintsWidget:
-    Field should be Collection<ConstraintWidget> (or subclass) instead of raw array; was `androidx.constraintlayout.core.widgets.ConstraintWidget[]`
+    Field should be Collection<androidx.constraintlayout.core.widgets.ConstraintWidget> (or subclass) instead of raw array; was `androidx.constraintlayout.core.widgets.ConstraintWidget[]`
 ArrayReturn: androidx.constraintlayout.core.widgets.ConstraintWidget#mNextChainWidget:
-    Field should be Collection<ConstraintWidget> (or subclass) instead of raw array; was `androidx.constraintlayout.core.widgets.ConstraintWidget[]`
+    Field should be Collection<androidx.constraintlayout.core.widgets.ConstraintWidget> (or subclass) instead of raw array; was `androidx.constraintlayout.core.widgets.ConstraintWidget[]`
 ArrayReturn: androidx.constraintlayout.core.widgets.ConstraintWidget#run:
-    Field should be Collection<WidgetRun> (or subclass) instead of raw array; was `androidx.constraintlayout.core.widgets.analyzer.WidgetRun[]`
+    Field should be Collection<androidx.constraintlayout.core.widgets.analyzer.WidgetRun> (or subclass) instead of raw array; was `androidx.constraintlayout.core.widgets.analyzer.WidgetRun[]`
 ArrayReturn: androidx.constraintlayout.core.widgets.HelperWidget#mWidgets:
-    Field should be Collection<ConstraintWidget> (or subclass) instead of raw array; was `androidx.constraintlayout.core.widgets.ConstraintWidget[]`
+    Field should be Collection<androidx.constraintlayout.core.widgets.ConstraintWidget> (or subclass) instead of raw array; was `androidx.constraintlayout.core.widgets.ConstraintWidget[]`
 
 
 AutoBoxing: androidx.constraintlayout.core.state.State#PARENT:

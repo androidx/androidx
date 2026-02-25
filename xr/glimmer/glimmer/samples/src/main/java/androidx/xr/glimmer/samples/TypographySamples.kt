@@ -41,6 +41,7 @@ fun TypographySample() {
         item { TypeItem("bodyLarge", style = typography.bodyLarge) }
         item { TypeItem("bodyMedium", style = typography.bodyMedium) }
         item { TypeItem("bodySmall", style = typography.bodySmall) }
+        item { TypeItem("caption", style = typography.caption) }
     }
 }
 

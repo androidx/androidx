@@ -15,6 +15,7 @@ package androidx.pdf {
     method @InaccessibleFromKotlin public int getFormType();
     method public suspend Object? getFormWidgetInfos(int pageNum, optional long types, kotlin.coroutines.Continuation<? super java.util.List<androidx.pdf.models.FormWidgetInfo>>);
     method @BytecodeOnly public static Object! getFormWidgetInfos$default(androidx.pdf.PdfDocument!, int, long, kotlin.coroutines.Continuation!, int, Object!);
+    method @InaccessibleFromKotlin public int getLinearizationStatus();
     method public androidx.pdf.PdfDocument.BitmapSource getPageBitmapSource(int pageNumber);
     method public suspend Object? getPageContent(int pageNumber, kotlin.coroutines.Continuation<? super androidx.pdf.PdfDocument.PdfPageContent?>);
     method @InaccessibleFromKotlin public int getPageCount();
@@ -28,11 +29,12 @@ package androidx.pdf {
     method @InaccessibleFromKotlin public androidx.pdf.RenderParams getRenderParams();
     method public suspend Object? getSelectionBounds(int pageNumber, android.graphics.PointF start, android.graphics.PointF stop, kotlin.coroutines.Continuation<? super androidx.pdf.content.PageSelection?>);
     method @InaccessibleFromKotlin public android.net.Uri getUri();
-    method @InaccessibleFromKotlin public boolean isLinearized();
+    method @InaccessibleFromKotlin @Deprecated public boolean isLinearized();
     method public void removeOnPdfContentInvalidatedListener(androidx.pdf.PdfDocument.OnPdfContentInvalidatedListener listener);
     method public suspend Object? searchDocument(String query, kotlin.ranges.IntRange pageRange, kotlin.coroutines.Continuation<? super android.util.SparseArray<java.util.List<androidx.pdf.content.PageMatchBounds>>>);
     property public abstract int formType;
-    property public abstract boolean isLinearized;
+    property @Deprecated public abstract boolean isLinearized;
+    property public abstract int linearizationStatus;
     property public abstract int pageCount;
     property public abstract androidx.pdf.RenderParams renderParams;
     property public abstract android.net.Uri uri;
@@ -46,6 +48,9 @@ package androidx.pdf {
     field public static final long FORM_WIDGET_INCLUDE_SIGNATURE_TYPE = 128L; // 0x80L
     field public static final long FORM_WIDGET_INCLUDE_TEXTFIELD_TYPE = 64L; // 0x40L
     field public static final long FORM_WIDGET_INCLUDE_UNKNOWN_TYPE = 1L; // 0x1L
+    field public static final int LINEARIZATION_STATUS_LINEARIZED = 1; // 0x1
+    field public static final int LINEARIZATION_STATUS_NOT_LINEARIZED = 0; // 0x0
+    field public static final int LINEARIZATION_STATUS_UNKNOWN = 2; // 0x2
     field public static final long PAGE_INFO_EXCLUDE_FORM_WIDGETS = 0L; // 0x0L
     field public static final long PAGE_INFO_INCLUDE_FORM_WIDGET = 1L; // 0x1L
     field public static final int PDF_FORM_TYPE_ACRO_FORM = 1; // 0x1
@@ -71,6 +76,9 @@ package androidx.pdf {
     property public static long FORM_WIDGET_INCLUDE_SIGNATURE_TYPE;
     property public static long FORM_WIDGET_INCLUDE_TEXTFIELD_TYPE;
     property public static long FORM_WIDGET_INCLUDE_UNKNOWN_TYPE;
+    property public static int LINEARIZATION_STATUS_LINEARIZED;
+    property public static int LINEARIZATION_STATUS_NOT_LINEARIZED;
+    property public static int LINEARIZATION_STATUS_UNKNOWN;
     property public static long PAGE_INFO_EXCLUDE_FORM_WIDGETS;
     property public static long PAGE_INFO_INCLUDE_FORM_WIDGET;
     property public static int PDF_FORM_TYPE_ACRO_FORM;
@@ -86,6 +94,9 @@ package androidx.pdf {
     field public static final long FORM_WIDGET_INCLUDE_SIGNATURE_TYPE = 128L; // 0x80L
     field public static final long FORM_WIDGET_INCLUDE_TEXTFIELD_TYPE = 64L; // 0x40L
     field public static final long FORM_WIDGET_INCLUDE_UNKNOWN_TYPE = 1L; // 0x1L
+    field public static final int LINEARIZATION_STATUS_LINEARIZED = 1; // 0x1
+    field public static final int LINEARIZATION_STATUS_NOT_LINEARIZED = 0; // 0x0
+    field public static final int LINEARIZATION_STATUS_UNKNOWN = 2; // 0x2
     field public static final long PAGE_INFO_EXCLUDE_FORM_WIDGETS = 0L; // 0x0L
     field public static final long PAGE_INFO_INCLUDE_FORM_WIDGET = 1L; // 0x1L
     field public static final int PDF_FORM_TYPE_ACRO_FORM = 1; // 0x1
@@ -492,6 +503,14 @@ package androidx.pdf.selection.model {
     property public CharSequence linkText;
   }
 
+  public final class ImageSelection implements java.lang.AutoCloseable androidx.pdf.selection.Selection {
+    method public void close();
+    method @InaccessibleFromKotlin public android.graphics.Bitmap getBitmap();
+    method @InaccessibleFromKotlin public java.util.List<androidx.pdf.PdfRect> getBounds();
+    property public android.graphics.Bitmap bitmap;
+    property public java.util.List<androidx.pdf.PdfRect> bounds;
+  }
+
   public final class TextSelection implements androidx.pdf.selection.Selection {
     ctor public TextSelection(CharSequence text, java.util.List<androidx.pdf.PdfRect> bounds);
     method @InaccessibleFromKotlin public java.util.List<androidx.pdf.PdfRect> getBounds();
@@ -541,6 +560,7 @@ package androidx.pdf.view {
     method @InaccessibleFromKotlin public final int getVisiblePagesCount();
     method @InaccessibleFromKotlin public final float getZoom();
     method @InaccessibleFromKotlin public final boolean isFormFillingEnabled();
+    method @InaccessibleFromKotlin @RequiresExtension(extension=android.os.Build.VERSION_CODES.S, version=19) public final boolean isImageSelectionEnabled();
     method public final android.graphics.PointF? pdfToViewPoint(androidx.pdf.PdfPoint pdfPoint);
     method public final void removeOnFirstContentLoadListener(androidx.pdf.view.PdfView.OnFirstContentLoadListener listener);
     method public final void removeOnFormWidgetInfoUpdatedListener(androidx.pdf.view.PdfView.OnFormWidgetInfoUpdatedListener listener);
@@ -557,6 +577,7 @@ package androidx.pdf.view {
     method @InaccessibleFromKotlin public final void setFormFillingEnabled(boolean);
     method public final void setHighlights(java.util.List<androidx.pdf.view.Highlight> highlights);
     method @InaccessibleFromKotlin public final void setHorizontalPageSpacing(int);
+    method @InaccessibleFromKotlin @RequiresExtension(extension=android.os.Build.VERSION_CODES.S, version=19) public final void setImageSelectionEnabled(boolean);
     method public final void setLinkClickListener(androidx.pdf.view.PdfView.LinkClickListener? listener);
     method @InaccessibleFromKotlin public final void setMaxZoom(@FloatRange(from=0.5, to=25.0) float);
     method @InaccessibleFromKotlin public final void setMinZoom(@FloatRange(from=0.5, to=25.0) float);
@@ -576,6 +597,7 @@ package androidx.pdf.view {
     property public final int gestureState;
     property public final int horizontalPageSpacing;
     property public final boolean isFormFillingEnabled;
+    property @RequiresExtension(extension=android.os.Build.VERSION_CODES.S, version=19) public final boolean isImageSelectionEnabled;
     property @FloatRange(from=0.5, to=25.0) public final float maxZoom;
     property @FloatRange(from=0.5, to=25.0) public final float minZoom;
     property public final int pagesPerRow;

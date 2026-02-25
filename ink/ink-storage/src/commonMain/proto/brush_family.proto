@@ -87,6 +87,12 @@ message BrushFamily {
   // A mapping of texture IDs (as used in `BrushPaint.TextureLayer`) to bitmaps
   // in PNG format.
   map<string, bytes> texture_id_to_bitmap = 6;
+
+  // A multi-line, human-readable string with a description of the brush and how
+  // it works, with the intended audience being designers/developers who are
+  // editing the brush definition. This string is not generally intended to be
+  // displayed to end users.
+  optional string developer_comment = 7;
 }
 
 // A `BrushCoat` represents one coat of ink applied by a brush. It includes a
@@ -923,12 +929,12 @@ message BrushBehavior {
 
 
   // Dimensions/units for measuring the `damping_gap` field of a `DampingNode`.
-  enum DampingSource {
-    DAMPING_SOURCE_UNSPECIFIED = 0;
+  enum ProgressDomain {
+    PROGRESS_DOMAIN_UNSPECIFIED = 0;
 
     // Value damping occurs over time, and the `damping_gap` is measured in
     // seconds.
-    DAMPING_SOURCE_TIME_IN_SECONDS = 1;
+    PROGRESS_DOMAIN_TIME_IN_SECONDS = 1;
 
     // Value damping occurs over distance traveled by the input pointer, and the
     // `damping_gap` is measured in centimeters. If the input data does not
@@ -936,11 +942,11 @@ message BrushBehavior {
     // (e.g. as may be the case for programmatically-generated inputs), then no
     // damping will be performed (i.e. the `damping_gap` will be treated as
     // zero).
-    DAMPING_SOURCE_DISTANCE_IN_CENTIMETERS = 2;
+    PROGRESS_DOMAIN_DISTANCE_IN_CENTIMETERS = 2;
 
     // Value damping occurs over distance traveled by the input pointer, and the
     // `damping_gap` is measured in multiples of the brush size.
-    DAMPING_SOURCE_DISTANCE_IN_MULTIPLES_OF_BRUSH_SIZE = 3;
+    PROGRESS_DOMAIN_DISTANCE_IN_MULTIPLES_OF_BRUSH_SIZE = 3;
   }
 
 
@@ -976,6 +982,7 @@ message BrushBehavior {
       InterpolationNode interpolation_node = 9;
       NoiseNode noise_node = 10;
       PolarTargetNode polar_target_node = 11;
+      IntegralNode integral_node = 12;
     }
   }
 
@@ -1028,13 +1035,13 @@ message BrushBehavior {
   // Output: The current random value.
   //
   // To be valid:
-  //   * `vary_over` must be a valid `DampingSource` enumerator.
+  //   * `vary_over` must be a valid `ProgressDomain` enumerator.
   //   * `base_period` must be finite and strictly positive.
   message NoiseNode {
     optional fixed32 seed = 1;
 
     // The domain units over which random noise is generated.
-    optional DampingSource vary_over = 2;
+    optional ProgressDomain vary_over = 2;
 
     // The period (in `vary_over` units) over which the output value smoothly
     // varies from one random value to another uncorrelated random value. (In
@@ -1085,11 +1092,11 @@ message BrushBehavior {
   // null, the output value is null until the first non-null input.
   //
   // To be valid:
-  //   * `damping_source` must be a valid `DampingSource` enumerator.
+  //   * `damping_source` must be a valid `ProgressDomain` enumerator.
   //   * `damping_gap` must be finite and non-negative.
   message DampingNode {
     // The domain units over which damping is applied.
-    optional DampingSource damping_source = 1;
+    optional ProgressDomain damping_source = 1;
 
     // A scaling factor, in `damping_source` units, for the damping. Smaller
     // gaps result in less damping, so the output follows the input more
@@ -1138,6 +1145,39 @@ message BrushBehavior {
   // To be valid: `interpolation` must be a valid `Interpolation` enumerator.
   message InterpolationNode {
     optional Interpolation interpolation = 1;
+  }
+
+  // Value node for integrating an input value over time or distance.
+  //
+  // Inputs: 1
+  //
+  // Output: The integral of the input value since the start of the stroke,
+  // after inverse-lerping from the specified value range and applying the
+  // specified out-of-range behavior. If the input value ever becomes null, this
+  // node acts as though the input value were still equal to its most recent
+  // non-null value. If the input value starts out null, it is treated as zero
+  // until the first non-null input.
+  //
+  // To be valid:
+  //   * `integrate_over` must be a valid `ProgressDomain` enumerator.
+  //   * The endpoints of `integral_value_range` must be finite and distinct.
+  //   * `integral_out_of_range_behavior` must be a valid `OutOfRange`
+  //     enumerator.
+  message IntegralNode {
+    // The variable and units (e.g. time or distance) over which the input value
+    // is integrated.
+    optional ProgressDomain integrate_over = 1;
+
+    // The integral value that maps to 0.0 in the output. Below this value,
+    // `out_of_range_behavior` determines the output value.
+    optional float integral_value_range_start = 2;
+
+    // The integral value that maps to 1.0 in the output. Above this value,
+    // `out_of_range_behavior` determines the output value.
+    optional float integral_value_range_end = 3;
+
+    // What to do with integral values outside the integral value range.
+    optional OutOfRange integral_out_of_range_behavior = 4;
   }
 
   // Terminal node that consumes a single input value to modify a scalar brush
@@ -1201,6 +1241,12 @@ message BrushBehavior {
 
   // Were fields controlling brush behavior, use `nodes` instead.
   reserved 1 to 14;
+
+  // A multi-line, human-readable string with a description of this brush
+  // behavior and its purpose within the brush, with the intended audience being
+  // designers/developers who are editing the brush definition. This string is
+  // not generally intended to be displayed to end users.
+  optional string developer_comment = 16;
 }
 
 // Transforms the brush color to be used as an alternative base color for any

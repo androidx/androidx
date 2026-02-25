@@ -151,8 +151,8 @@ class PerfettoHelper(
                 Log.w(
                     LOG_TAG,
                     """
-                        Some perfetto data sources may not be ready.
-                        Look at the `perfetto` log tag for additional information.
+                    Some perfetto data sources may not be ready.
+                    Look at the `perfetto` log tag for additional information.
                     """
                         .trimIndent(),
                 )

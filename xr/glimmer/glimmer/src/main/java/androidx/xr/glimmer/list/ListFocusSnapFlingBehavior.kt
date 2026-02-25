@@ -53,13 +53,14 @@ public fun SnapLayoutInfoProvider(state: ListState): SnapLayoutInfoProvider =
                 return 0f
             }
             val autoFocusMeasureResult = state.autoFocusState.properties ?: return 0f
+            val focusScroll = autoFocusMeasureResult.focusScroll.toFloat()
 
             var lowerBoundOffset = Float.NEGATIVE_INFINITY
             var upperBoundOffset = Float.POSITIVE_INFINITY
 
             state.layoutInfo.visibleItemsInfo.fastForEach { item ->
                 // Measure the distance between the center of the item and the focus line.
-                val offset = item.offset + item.size / 2 - autoFocusMeasureResult.focusScroll
+                val offset = item.offset + item.size / 2 - focusScroll
 
                 // Find the closest item before the focus line
                 if (offset <= 0 && offset > lowerBoundOffset) {

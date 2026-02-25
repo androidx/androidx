@@ -28,8 +28,6 @@ import androidx.annotation.OptIn
 import androidx.camera.camera2.interop.Camera2CameraInfo as C2CameraInfo
 import androidx.camera.camera2.interop.Camera2Interop as C2Interop
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
-import androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo as CPCameraInfo
-import androidx.camera.camera2.pipe.integration.interop.Camera2Interop as CPInterop
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -48,7 +46,7 @@ import androidx.lifecycle.LifecycleOwner
 
 private const val TAG = "CameraHelper"
 
-class CameraHelper(private val cameraImplementation: CameraImplementation) {
+class CameraHelper {
 
     private val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
     private var videoCapture: VideoCapture<Recorder>? = null
@@ -104,64 +102,32 @@ class CameraHelper(private val cameraImplementation: CameraImplementation) {
     private fun createVideoCapture(cameraInfo: CameraInfo): VideoCapture<Recorder> {
         val recorder = Recorder.Builder().build()
         val videoCaptureBuilder = VideoCapture.Builder<Recorder>(recorder)
-        if (isLegacyDevice(cameraInfo, cameraImplementation)) {
+        if (isLegacyDevice(cameraInfo)) {
             // Set target FPS to 30 on legacy devices. Legacy devices use lower FPS to
             // workaround exposure issues, but this makes the video timestamp info become
             // fewer and causes A/V sync test to false alarm. See AeFpsRangeLegacyQuirk.
-            videoCaptureBuilder.setTargetFpsRange(FPS_30, cameraImplementation)
+            videoCaptureBuilder.setTargetFpsRange(FPS_30)
         }
 
         return videoCaptureBuilder.build()
     }
 
     companion object {
-        enum class CameraImplementation {
-            CAMERA2,
-            CAMERA_PIPE,
-        }
-
         private val FPS_30 = Range(30, 30)
 
         @OptIn(ExperimentalCamera2Interop::class)
-        @kotlin.OptIn(
-            androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop::class
-        )
         private fun VideoCapture.Builder<Recorder>.setTargetFpsRange(
-            range: Range<Int>,
-            cameraImplementation: CameraImplementation,
+            range: Range<Int>
         ): VideoCapture.Builder<Recorder> {
             Log.d(TAG, "Set target fps to $range")
-            when (cameraImplementation) {
-                CameraImplementation.CAMERA2 -> {
-                    C2Interop.Extender(this)
-                        .setCaptureRequestOption(CONTROL_AE_TARGET_FPS_RANGE, range)
-                }
-                CameraImplementation.CAMERA_PIPE -> {
-                    CPInterop.Extender(this)
-                        .setCaptureRequestOption(CONTROL_AE_TARGET_FPS_RANGE, range)
-                }
-            }
-
+            C2Interop.Extender(this).setCaptureRequestOption(CONTROL_AE_TARGET_FPS_RANGE, range)
             return this
         }
 
         @OptIn(ExperimentalCamera2Interop::class)
-        @kotlin.OptIn(
-            androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop::class
-        )
-        private fun isLegacyDevice(
-            cameraInfo: CameraInfo,
-            cameraImplementation: CameraImplementation,
-        ): Boolean {
+        private fun isLegacyDevice(cameraInfo: CameraInfo): Boolean {
             val hardwareLevel =
-                when (cameraImplementation) {
-                    CameraImplementation.CAMERA2 ->
-                        C2CameraInfo.from(cameraInfo)
-                            .getCameraCharacteristic(INFO_SUPPORTED_HARDWARE_LEVEL)
-                    CameraImplementation.CAMERA_PIPE ->
-                        CPCameraInfo.from(cameraInfo)
-                            .getCameraCharacteristic(INFO_SUPPORTED_HARDWARE_LEVEL)
-                }
+                C2CameraInfo.from(cameraInfo).getCameraCharacteristic(INFO_SUPPORTED_HARDWARE_LEVEL)
 
             return hardwareLevel == INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
         }

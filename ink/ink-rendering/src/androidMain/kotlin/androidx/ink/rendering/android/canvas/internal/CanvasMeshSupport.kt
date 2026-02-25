@@ -74,19 +74,19 @@ internal class CanvasMeshSupport {
                 // `position` is included in varyings by default
                 arrayOf<MeshSpecification.Varying>(),
                 """
-        Varyings main(const Attributes attributes) {
-             Varyings varyings;
-             varyings.position = attributes.position;
-             return varyings;
-        }
-        """
+                Varyings main(const Attributes attributes) {
+                     Varyings varyings;
+                     varyings.position = attributes.position;
+                     return varyings;
+                }
+                """
                     .trimIndent(),
                 """
-        float2 main(const Varyings varyings, out float4 color) {
-               color = vec4(0.0, 0.0, 0.0, 0.0);
-               return varyings.position;
-        }
-        """
+                float2 main(const Varyings varyings, out float4 color) {
+                       color = vec4(0.0, 0.0, 0.0, 0.0);
+                       return varyings.position;
+                }
+                """
                     .trimIndent(),
             )
         }

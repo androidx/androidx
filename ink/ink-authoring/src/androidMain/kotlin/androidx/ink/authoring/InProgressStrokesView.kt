@@ -122,8 +122,8 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * the first call to [startStroke] or [eagerInit]. If this is set to a non-default value, the
      * value of [textureBitmapStore] is ignored.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @Deprecated(
         "For a non-self-overlapping highlighter, pass SelfOverlap.DISCARD to the selfOverlap " +
             "parameter of StockBrushes.highlighter."
@@ -190,7 +190,7 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * should minimize the amount of computation in this callback, and should also avoid allocations
      * (since allocation may trigger the garbage collector).
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalLatencyDataApi
     public fun getLatencyDataCallback(): LatencyDataCallback? =
         inProgressShapesView.getLatencyDataCallback()
@@ -201,7 +201,7 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      *
      * See [getLatencyDataCallback]
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalLatencyDataApi
     public fun setLatencyDataCallback(value: LatencyDataCallback?): Unit =
         inProgressShapesView.setLatencyDataCallback(value)
@@ -499,7 +499,7 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * This API is experimental for now, as one approach to address start-of-stroke latency for fast
      * subsequent strokes.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public fun requestHandoff(): Unit = inProgressShapesView.requestHandoff()
 
     /**
@@ -526,7 +526,8 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      *   configurations support flushing, and flushing is best effort, so this is not guaranteed to
      *   return `true`.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+    @JvmOverloads
     public fun flush(
         timeout: Long,
         timeoutUnit: TimeUnit,
@@ -543,7 +544,7 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * In some ways this is similar to [flush], which is intended for production use in certain
      * circumstances.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @VisibleForTesting
     public fun sync(timeout: Long, timeoutUnit: TimeUnit): Unit =
         inProgressShapesView.sync(timeout, timeoutUnit)

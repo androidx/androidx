@@ -375,5 +375,7 @@ class PassiveMonitoringClientTest {
                 supportedUserActivityStates = setOf(UserActivityState.USER_ACTIVITY_PASSIVE),
             )
         }
+
+        override fun getInterfaceVersion(): Int = VERSION
     }
 }

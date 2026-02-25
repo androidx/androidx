@@ -23,16 +23,11 @@ import static androidx.camera.extensions.ExtensionMode.HDR;
 import static androidx.camera.extensions.ExtensionMode.NIGHT;
 
 import android.content.Context;
-import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.os.Build;
 
-import androidx.camera.camera2.Camera2Config;
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraXConfig;
-import androidx.camera.core.impl.Config;
 import androidx.camera.extensions.ExtensionMode;
 import androidx.camera.extensions.ExtensionsManager;
 import androidx.camera.extensions.internal.Camera2ExtensionsInfo;
@@ -53,22 +48,8 @@ import java.util.concurrent.TimeUnit;
  * Extension test util functions.
  */
 public class ExtensionsTestUtil {
-    public static final Config.Option<CameraCaptureSession.CaptureCallback>
-            SESSION_CAPTURE_CALLBACK_OPTION =
-            Config.Option.create("camera2.cameraCaptureSession.captureCallback",
-                    CameraCaptureSession.CaptureCallback.class);
-    public static final String CAMERA2_IMPLEMENTATION_OPTION = "camera2";
-    public static final String CAMERA_PIPE_IMPLEMENTATION_OPTION = "camera_pipe";
     private static final int BASE_COMBINATION_ARRAY_POS_MODE = 0;
     private static final int BASE_COMBINATION_ARRAY_POS_LENS_FACING = 1;
-    private static boolean hasNoSuchMethod(Runnable runnable) {
-        try {
-            runnable.run();
-        } catch (NoSuchMethodError e) {
-            return true;
-        }
-        return false;
-    }
 
     /**
      * Returns if extension is supported with the given mode and lens facing. Please note that
@@ -94,10 +75,9 @@ public class ExtensionsTestUtil {
     }
 
     /**
-     * Returns the parameters which contains the combination of CameraXConfig
-     * name, CameraXConfig, implementationType, extensions mode and lens facing.
+     * Returns the parameters which contains the combination of extensions mode and lens facing.
      */
-    public static @NonNull Collection<Object[]> getAllImplExtensionsLensFacingCombinations(
+    public static @NonNull Collection<Object[]> getAllExtensionsLensFacingCombinations(
             @NonNull Context context,
             boolean excludeUnavailableModes
     ) {
@@ -116,9 +96,8 @@ public class ExtensionsTestUtil {
                 {AUTO, CameraSelector.LENS_FACING_BACK}
         });
 
-        return getConfigPrependedCombinations(
-                excludeUnavailableModes ? filterOutUnavailableMode(context, allPossibleCombinations)
-                        : allPossibleCombinations);
+        return excludeUnavailableModes ? filterOutUnavailableMode(context, allPossibleCombinations)
+                : allPossibleCombinations;
     }
 
     private static List<Object[]> filterOutUnavailableMode(Context context,
@@ -152,24 +131,6 @@ public class ExtensionsTestUtil {
             } catch (Exception e) {
             }
         }
-    }
-
-    private static List<Object[]> getConfigPrependedCombinations(List<Object[]> combinations) {
-        CameraXConfig camera2Config = Camera2Config.defaultConfig();
-        CameraXConfig cameraPipeConfig = CameraPipeConfig.defaultConfig();
-        List<Object[]> combinationsWithConfig = new ArrayList<Object[]>();
-        for (Object[] combination: combinations) {
-            List<Object> combinationCamera2 = new ArrayList<Object>(
-                    Arrays.asList(CAMERA2_IMPLEMENTATION_OPTION, camera2Config));
-            combinationCamera2.addAll(Arrays.asList(combination));
-            combinationsWithConfig.add(combinationCamera2.toArray());
-
-            List<Object> combinationCameraPipe = new ArrayList<Object>(
-                    Arrays.asList(CAMERA_PIPE_IMPLEMENTATION_OPTION, cameraPipeConfig));
-            combinationCameraPipe.addAll(Arrays.asList(combination));
-            combinationsWithConfig.add(combinationCameraPipe.toArray());
-        }
-        return combinationsWithConfig;
     }
 
     /**

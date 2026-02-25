@@ -134,13 +134,14 @@ public class CanvasLayout extends BoxLayout {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", id(), name())
-                .description("Canvas implementation. Encapsulate draw operations.\n\n")
-                .field(INT, "COMPONENT_ID", "unique id for this component")
+        doc.operation("Layout Managers", id(), name())
+                .additionalDocumentation("canvas_layout")
+                .description("Canvas implementation. Encapsulates drawing operations.")
+                .field(INT, "componentId", "Unique ID for this component")
                 .field(
                         INT,
-                        "ANIMATION_ID",
-                        "id used to match components," + " for animation purposes");
+                        "animationId",
+                        "ID used to match components for animation purposes");
     }
 
     /**

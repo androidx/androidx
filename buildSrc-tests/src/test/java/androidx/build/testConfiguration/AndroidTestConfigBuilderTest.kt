@@ -115,9 +115,10 @@ class AndroidTestConfigBuilderTest {
                       "value": "androidx.test.filters.FlakyTest"
                     }
                   ],
-                  "additionalApkKeys": []
+                  "additionalApkKeys": [],
+                  "useOrchestrator": false
                 }
-            """
+                """
                     .trimIndent()
             ),
         )
@@ -146,9 +147,10 @@ class AndroidTestConfigBuilderTest {
                   ],
                   "additionalApkKeys": [
                     "customKey"
-                  ]
+                  ],
+                  "useOrchestrator": false
                 }
-            """
+                """
                     .trimIndent()
             ),
         )
@@ -179,9 +181,10 @@ class AndroidTestConfigBuilderTest {
                       "value": "true"
                     }
                   ],
-                  "additionalApkKeys": []
+                  "additionalApkKeys": [],
+                  "useOrchestrator": false
                 }
-            """
+                """
                     .trimIndent()
             ),
         )
@@ -212,9 +215,10 @@ class AndroidTestConfigBuilderTest {
                       "value": "androidx.test.filters.FlakyTest"
                     }
                   ],
-                  "additionalApkKeys": []
+                  "additionalApkKeys": [],
+                  "useOrchestrator": false
                 }
-            """
+                """
                     .trimIndent()
             ),
         )
@@ -305,7 +309,7 @@ private val goldenDefaultConfig =
     <option name="package" value="com.androidx.placeholder.Placeholder" />
     </test>
     </configuration>
-"""
+    """
         .trimIndent()
 
 private val goldenDefaultConfigBenchmark =
@@ -348,7 +352,7 @@ private val goldenDefaultConfigBenchmark =
     <option name="device-listeners" value="androidx.benchmark.junit4.SideEffectRunListener" />
     </test>
     </configuration>
-"""
+    """
         .trimIndent()
 
 private val goldenDefaultConfigMacroBenchmark =
@@ -391,5 +395,5 @@ private val goldenDefaultConfigMacroBenchmark =
     <option name="device-listeners" value="androidx.benchmark.macro.junit4.SideEffectRunListener" />
     </test>
     </configuration>
-"""
+    """
         .trimIndent()

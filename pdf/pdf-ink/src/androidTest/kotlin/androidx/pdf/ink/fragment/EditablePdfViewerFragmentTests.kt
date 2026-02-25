@@ -17,13 +17,19 @@
 package androidx.pdf.ink.fragment
 
 import android.content.pm.ActivityInfo
+import android.graphics.PointF
 import android.os.Build
 import android.os.ext.SdkExtensions
+import android.view.InputDevice
+import android.view.MotionEvent
+import android.view.View
+import android.widget.EditText
 import android.widget.LinearLayout
 import androidx.annotation.RequiresExtension
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
+import androidx.pdf.PdfPoint
 import androidx.pdf.R as PdfR
 import androidx.pdf.ink.R
 import androidx.pdf.ink.view.AnnotationToolbar
@@ -35,17 +41,29 @@ import androidx.pdf.util.ToolbarMatchers.matchesToolbarMask
 import androidx.pdf.util.ToolbarMatchers.withDockState
 import androidx.pdf.util.ToolbarViewActions
 import androidx.pdf.util.ToolbarViewActions.performDragAndDrop
+import androidx.pdf.view.PdfView
+import androidx.pdf.viewer.fragment.R as PdfFragmentR
 import androidx.test.espresso.Espresso.onIdle
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
+import androidx.test.espresso.action.GeneralClickAction
+import androidx.test.espresso.action.GeneralLocation
+import androidx.test.espresso.action.Press
+import androidx.test.espresso.action.Tap
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.swipeUp
+import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import org.hamcrest.CoreMatchers.not
 import org.junit.After
@@ -84,10 +102,10 @@ class EditablePdfViewerFragmentTests {
         scenario.close()
     }
 
-    private fun loadDocumentAndSetupFragment() {
+    private fun loadDocumentAndSetupFragment(file: String = TEST_DOCUMENT_FILE) {
         scenarioLoadDocument(
             scenario = scenario,
-            filename = TEST_DOCUMENT_FILE,
+            filename = file,
             nextState = Lifecycle.State.RESUMED,
             orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT,
         )
@@ -121,9 +139,6 @@ class EditablePdfViewerFragmentTests {
 
         // Initiate drag event
         onView(withId(R.id.annotationToolbar)).perform(ViewActions.longClick())
-        onIdle()
-        // Verify toolbar collapses on long press
-        onView(withId(R.id.collapsed_tool)).check(matches(isDisplayed()))
 
         // Drag to the left side of the screen
         performDragAndDrop(
@@ -240,8 +255,162 @@ class EditablePdfViewerFragmentTests {
         }
     }
 
+    @Test
+    fun test_editablePdfFragment_clearsSelection_onEnterEditMode() {
+        if (!isRequiredSdkExtensionAvailable()) return
+
+        loadDocumentAndSetupFragment()
+
+        onView(withId(PdfR.id.pdfView)).check(matches(isDisplayed()))
+        onView(withId(PdfR.id.edit_fab)).check(matches(isDisplayed()))
+        onIdle()
+
+        var pdfView: PdfView? = null
+        scenario.onFragment { fragment -> pdfView = fragment.view?.findViewById(PdfR.id.pdfView) }
+
+        longClickAtCenter()
+        assertThat(pdfView?.currentSelection).isNotNull()
+
+        enterEditMode()
+
+        assertThat(pdfView?.currentSelection).isNull()
+        onView(withId(PdfR.id.edit_fab)).check(matches(not(isDisplayed())))
+        onView(withId(R.id.annotationToolbar)).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun testEditTextDoesNotDisappearWhenTyping() {
+        if (!isRequiredSdkExtensionAvailable()) return
+
+        var pdfView: PdfView? = null
+
+        loadDocumentAndSetupFragment(file = FORM_PDF)
+
+        scenario.onFragment { fragment -> pdfView = fragment.getPdfViewInstance() }
+
+        val textValue = "Hello"
+        val textToAppend = "world"
+        val finalText = textValue + textToAppend
+        onView(withId(PdfFragmentR.id.pdfContentLayout))
+            .perform(clickOnPdfPoint(PdfPoint(0, PointF(145f, 180f))))
+        val editTextMatcher: (View) -> Boolean = { view ->
+            view is EditText && view.text.toString() == textValue && view.isShown
+        }
+        val childAddedIdlingResource = ChildViewAddedIdlingResource(pdfView!!, editTextMatcher)
+        try {
+            IdlingRegistry.getInstance().register(childAddedIdlingResource)
+            onView(withText(textValue)).perform(typeText(textToAppend))
+            // Assert that the final text is visible.
+            onView(withText(finalText)).check(matches(isDisplayed()))
+        } finally {
+            IdlingRegistry.getInstance().unregister(childAddedIdlingResource)
+        }
+        scenario.onFragment { fragment ->
+            assertThat(fragment.formEditInfoUpdates).isNotEmpty()
+            assertThat(fragment.formEditInfoUpdates).hasSize(textToAppend.length)
+            for (i in 0..<fragment.formEditInfoUpdates.size) {
+                assertThat(fragment.formEditInfoUpdates[i].text)
+                    .isEqualTo(textValue + textToAppend.substring(0, i + 1))
+            }
+        }
+    }
+
+    @Test
+    fun test_annotationToolbarHidden_onSearchActive() {
+        if (!isRequiredSdkExtensionAvailable()) return
+
+        loadDocumentAndSetupFragment()
+        enterEditMode()
+
+        // assert annotation toolbar is visible in edit mode
+        onView(withId(R.id.annotationToolbar)).check(matches(isDisplayed()))
+        performDragAndDrop(
+            toolbarId = R.id.annotationToolbar,
+            to = ToolbarViewActions.DragTarget.LEFT,
+        )
+        onIdle()
+
+        // Enable search on fragment
+        scenario.onFragment { fragment -> fragment.isTextSearchActive = true }
+
+        // assert annotation toolbar is hidden when search is initiated
+        onView(withId(R.id.annotationToolbar)).check(matches(not(isDisplayed())))
+
+        // disable search on fragment
+        scenario.onFragment { fragment -> fragment.isTextSearchActive = false }
+
+        // assert toolbar is shown again at the previous position
+        onView(withId(R.id.annotationToolbar)).check(matches(isDisplayed()))
+        scenario.onFragment { fragment ->
+            assertEquals(DOCK_STATE_START, fragment.annotationToolbar.dockState)
+        }
+    }
+
+    @Test
+    fun test_annotationInteractionDisabled_onSearchActive() {
+        if (!isRequiredSdkExtensionAvailable()) return
+
+        loadDocumentAndSetupFragment()
+        enterEditMode()
+
+        var firstVisiblePage: Int
+        var pdfView: PdfView? = null
+
+        // Enable search on fragment
+        scenario.onFragment { fragment ->
+            fragment.isTextSearchActive = true
+            pdfView = fragment.getPdfViewInstance()
+        }
+        requireNotNull(pdfView)
+        // extract first visible page initially
+        firstVisiblePage = pdfView.firstVisiblePage
+
+        // Swipe up to verify the PDF scrolls; ink interaction should be disabled during search
+        onView(isRoot()).perform(swipeUp())
+        // extract first visible page after swipe
+        val firstVisiblePageAfterSwipe = pdfView.firstVisiblePage
+
+        assertNotEquals(firstVisiblePage, firstVisiblePageAfterSwipe)
+    }
+
+    @Test
+    fun test_annotationToolbar_isHidden_forFormFilling() {
+        if (!isRequiredSdkExtensionAvailable()) return
+
+        loadDocumentAndSetupFragment(file = FORM_WITH_CHECKBOX_PDF)
+
+        // Click on a form widget to start form filling journey
+        onView(withId(PdfFragmentR.id.pdfContentLayout))
+            .perform(clickOnPdfPoint(PdfPoint(0, PointF(145f, 80f))))
+
+        scenario.onFragment { fragment -> fragment.pdfFormFillingIdlingResource.increment() }
+        onIdle()
+
+        // assert annotation toolbar is hidden
+        onView(withId(R.id.annotationToolbar)).check(matches(not(isDisplayed())))
+    }
+
+    private fun longClickAtCenter() {
+        onView(isRoot())
+            .perform(
+                GeneralClickAction(
+                    Tap.LONG,
+                    { view ->
+                        GeneralLocation.CENTER.calculateCoordinates(view)
+                            .map { it + 20f }
+                            .toFloatArray()
+                    },
+                    Press.THUMB,
+                    InputDevice.SOURCE_UNKNOWN,
+                    MotionEvent.BUTTON_PRIMARY,
+                )
+            )
+    }
+
     companion object {
         private const val TEST_DOCUMENT_FILE = "sample.pdf"
+        private const val FORM_PDF = "text_form.pdf"
+        private const val FORM_WITH_CHECKBOX_PDF = "sample_form.pdf"
         private const val REQUIRED_EXTENSION_VERSION = 18
 
         fun isRequiredSdkExtensionAvailable(): Boolean {

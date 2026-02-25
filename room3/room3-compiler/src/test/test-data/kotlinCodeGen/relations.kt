@@ -6,6 +6,8 @@ import androidx.room3.util.performBlocking
 import androidx.room3.util.recursiveFetchMap
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteStatement
+import androidx.sqlite.prepare
+import androidx.sqlite.step
 import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.Long
@@ -145,7 +147,7 @@ internal class MyDao_Impl(
     }
   }
 
-  private fun __fetchRelationshipArtistAsArtist(_connection: SQLiteConnection, _map: MutableMap<Long, Artist?>) {
+  private suspend fun __fetchRelationshipArtistAsArtist(_connection: SQLiteConnection, _map: MutableMap<Long, Artist?>) {
     val __mapKeySet: Set<Long> = _map.keys
     if (__mapKeySet.isEmpty()) {
       return
@@ -190,7 +192,7 @@ internal class MyDao_Impl(
     }
   }
 
-  private fun __fetchRelationshipSongAsSong(_connection: SQLiteConnection, _map: MutableMap<Long, MutableList<Song>>) {
+  private suspend fun __fetchRelationshipSongAsSong(_connection: SQLiteConnection, _map: MutableMap<Long, MutableList<Song>>) {
     val __mapKeySet: Set<Long> = _map.keys
     if (__mapKeySet.isEmpty()) {
       return
@@ -239,7 +241,7 @@ internal class MyDao_Impl(
     }
   }
 
-  private fun __fetchRelationshipSongAsSong_1(_connection: SQLiteConnection, _map: MutableMap<Long, MutableList<Song>>) {
+  private suspend fun __fetchRelationshipSongAsSong_1(_connection: SQLiteConnection, _map: MutableMap<Long, MutableList<Song>>) {
     val __mapKeySet: Set<Long> = _map.keys
     if (__mapKeySet.isEmpty()) {
       return

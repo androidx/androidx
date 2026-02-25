@@ -25,7 +25,6 @@ import androidx.core.telecom.internal.CapabilityExchangeRepository
 import androidx.core.telecom.internal.LocalCallSilenceCallbackRepository
 import androidx.core.telecom.internal.LocalCallSilenceStateListenerRemote
 import androidx.core.telecom.util.ExperimentalAppActions
-import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,7 +35,6 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalAppActions::class)
 internal class LocalCallSilenceExtensionImpl(
     context: Context,
-    coroutineContext: CoroutineContext,
     private val callStateFlow: MutableSharedFlow<CallStateEvent>,
     private val initialSilenceState: Boolean,
     private val initialCanUserUpdateSilenceState: Boolean,
@@ -46,28 +44,6 @@ internal class LocalCallSilenceExtensionImpl(
     private var mIsGloballyMuted: Boolean = false
     private var mCallState: CallStateEvent = CallStateEvent.NEW
     private val TAG = LocalCallSilenceExtensionImpl::class.java.simpleName
-
-    init {
-        var shouldRemute = false
-        CoroutineScope(coroutineContext).launch {
-            callStateFlow.collect {
-                maybeUpdateCallControlState(state = it)
-                maybeUpdateGlobalMuteState(state = it)
-                if (isFocus() && isGloballyMuted()) {
-                    Log.i(TAG, "UNMUTING the mic globally in favor of a local call silence")
-                    mAudioManager.setMicrophoneMute(false)
-                    shouldRemute = true
-                } else if (isInactive() && shouldRemute) {
-                    Log.i(
-                        TAG,
-                        "MUTING the mic globally to put the device back in its original state",
-                    )
-                    mAudioManager.setMicrophoneMute(true)
-                    shouldRemute = false
-                }
-            }
-        }
-    }
 
     private fun isFocus(): Boolean {
         return mCallState.isFocusState()
@@ -133,6 +109,7 @@ internal class LocalCallSilenceExtensionImpl(
         binder: LocalCallSilenceStateListenerRemote,
     ) {
         Log.d(TAG, "onCreateLocalSilenceExtension: version=[$version], actions=$remoteActions")
+        startGlobalMuteMonitoring(coroutineScope)
         // Setup listeners for changes to state
         isLocallySilenced
             .onEach {
@@ -170,6 +147,32 @@ internal class LocalCallSilenceExtensionImpl(
     }
 
     /**
+     * Helper function containing the logic previously found in the init block. Triggered only when
+     * the capability exchange happens.
+     */
+    private fun startGlobalMuteMonitoring(coroutineScope: CoroutineScope) {
+        var shouldRemute = false
+        coroutineScope.launch {
+            callStateFlow.collect {
+                maybeUpdateCallControlState(state = it)
+                maybeUpdateGlobalMuteState(state = it)
+                if (isFocus() && isGloballyMuted()) {
+                    Log.i(TAG, "UNMUTING the mic globally in favor of a local call silence")
+                    mAudioManager.isMicrophoneMute = false
+                    shouldRemute = true
+                } else if (isInactive() && shouldRemute) {
+                    Log.i(
+                        TAG,
+                        "MUTING the mic globally to put the device back in its original state",
+                    )
+                    mAudioManager.isMicrophoneMute = true
+                    shouldRemute = false
+                }
+            }
+        }
+    }
+
+    /**
      * This method is the entry point when the remote surface wants to update this impl. This
      * updates the block in the VoIP app where the extension was added.
      */
@@ -177,8 +180,5 @@ internal class LocalCallSilenceExtensionImpl(
         Log.i(TAG, "localCallSilenceStateChanged: isSilenced=[$isSilenced]")
         // notify the voip application of the remote InCallService update
         onLocalSilenceUpdate(isSilenced)
-        // update all remote surfaces to be in sync with the new state
-        // and the isLocallySilenced state
-        updateIsLocallySilenced(isSilenced)
     }
 }

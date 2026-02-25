@@ -21,11 +21,14 @@ import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationVector
 import androidx.compose.animation.tooling.ComposeAnimation
 import androidx.compose.animation.tooling.ComposeAnimationType
+import androidx.compose.ui.tooling.animation.search.AnimateXAsStateSearchInfo
 import org.jetbrains.annotations.TestOnly
 
 /** [ComposeAnimation] of type [ComposeAnimationType.ANIMATE_X_AS_STATE]. */
 internal class AnimateXAsStateComposeAnimation<T, V : AnimationVector>
 private constructor(
+    val initialState: Any?,
+    val targetState: Any?,
     val toolingState: ToolingState<T>,
     val animationSpec: AnimationSpec<T>,
     override val animationObject: Animatable<T, V>,
@@ -54,12 +57,18 @@ private constructor(
             enumValues<ComposeAnimationType>().any { it.name == "ANIMATE_X_AS_STATE" }
             private set
 
-        internal fun <T, V : AnimationVector> AnimationSearch.AnimateXAsStateSearchInfo<T, V>
-            .parse(): AnimateXAsStateComposeAnimation<*, *>? {
+        internal fun <T, V : AnimationVector> AnimateXAsStateSearchInfo<T, V>.parse():
+            AnimateXAsStateComposeAnimation<T, V>? {
             if (!apiAvailable) return null
             // Tooling can't control nullable Animatable with value set to null.
             if (animatable.value == null) return null
-            return AnimateXAsStateComposeAnimation(toolingState, animationSpec, animatable)
+            return AnimateXAsStateComposeAnimation(
+                initialState = initialState,
+                targetState = targetState,
+                toolingState = toolingOverride.state,
+                animationSpec = animationSpec,
+                animationObject = animatable,
+            )
         }
 
         /** This method is for testing only. */

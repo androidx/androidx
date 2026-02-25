@@ -34,7 +34,7 @@ class JavaPluginTest : BasePluginTest() {
                     id('com.android.application')
                     id('androidx.navigation.safeargs')
                 }
-            """
+                """
                     .trimIndent(),
             suffix =
                 """

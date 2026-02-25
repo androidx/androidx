@@ -28,4 +28,54 @@
     <string name="annotation_undo_button_content_desc" msgid="479267370046825819">"Visszavonás"</string>
     <string name="annotation_redo_button_content_desc" msgid="3758120724922767367">"Újra"</string>
     <string name="annotation_toggle_annotation_button_content_desc" msgid="7425032497404166935">"Jelölés be- vagy kikapcsolása"</string>
+    <string name="pdf_pen_color_palette_item_black" msgid="1193850318058674733">"Fekete"</string>
+    <string name="pdf_pen_color_palette_item_dark_blue" msgid="3709903694487096403">"Sötétkék"</string>
+    <string name="pdf_pen_color_palette_item_red" msgid="7822500272989225395">"Piros"</string>
+    <string name="pdf_pen_color_palette_item_green" msgid="5819181960831423028">"Zöld"</string>
+    <string name="pdf_pen_color_palette_item_gold" msgid="3115612006626679755">"Arany"</string>
+    <string name="pdf_pen_color_palette_item_olive_green" msgid="8682186726127294387">"Olivazöld"</string>
+    <string name="pdf_pen_color_palette_item_brown" msgid="6232950817278059536">"Barna"</string>
+    <string name="pdf_pen_color_palette_item_gray" msgid="6163892444815389053">"Szürke"</string>
+    <string name="pdf_pen_color_palette_item_blue" msgid="7457564074074521904">"Kék"</string>
+    <string name="pdf_pen_color_palette_item_coral_red" msgid="7031815032565562240">"Korallpiros"</string>
+    <string name="pdf_pen_color_palette_item_lime_green" msgid="3841967923966525202">"Lime-zöld"</string>
+    <string name="pdf_pen_color_palette_item_yellow" msgid="4727631332525029494">"Sárga"</string>
+    <string name="pdf_pen_color_palette_item_pale_lime" msgid="788428039617260017">"Halvány lime"</string>
+    <string name="pdf_pen_color_palette_item_tan" msgid="8683991930359923110">"Cserszín"</string>
+    <string name="pdf_pen_color_palette_item_light_gray" msgid="1826258279260761568">"Világosszürke"</string>
+    <string name="pdf_pen_color_palette_item_purple" msgid="4874203867122898447">"Lila"</string>
+    <string name="pdf_pen_color_palette_item_pink" msgid="910303583995020849">"Rózsaszín"</string>
+    <string name="pdf_pen_color_palette_item_mint_green" msgid="3466695895495074727">"Mentazöld"</string>
+    <string name="pdf_pen_color_palette_item_orange" msgid="8386255929980628111">"Narancssárga"</string>
+    <string name="pdf_pen_color_palette_item_steel_blue" msgid="3154206559377052556">"Acélkék"</string>
+    <string name="pdf_pen_color_palette_item_deep_red" msgid="4239541789778061549">"Mélypiros"</string>
+    <string name="pdf_pen_color_palette_item_white" msgid="8144463165091121076">"Fehér"</string>
+    <string name="pdf_pen_color_palette_item_lavender" msgid="1775986939316611290">"Levendula"</string>
+    <string name="pdf_pen_color_palette_item_pale_pink" msgid="1141881885074993872">"Halvány rózsaszín"</string>
+    <string name="pdf_pen_color_palette_item_pale_green" msgid="792103596873317647">"Halványzöld"</string>
+    <string name="pdf_pen_color_palette_item_peach" msgid="708830522451831539">"Barackszín"</string>
+    <string name="pdf_pen_color_palette_item_light_blue" msgid="2417180972880324689">"Világoskék"</string>
+    <string name="pdf_pen_color_palette_item_salmon" msgid="6163374875760492193">"Lazac"</string>
+    <string name="pdf_highlighter_color_palette_item_dark_gray" msgid="1838666264159845710">"Sötétszürke"</string>
+    <string name="pdf_highlighter_color_palette_item_white" msgid="8644005777632868460">"Fehér"</string>
+    <string name="pdf_highlighter_color_palette_item_coral_red" msgid="1813490531181208077">"Korallpiros"</string>
+    <string name="pdf_highlighter_color_palette_item_lime_green" msgid="6425999517080100086">"Lime-zöld"</string>
+    <string name="pdf_highlighter_color_palette_item_periwinkle_blue" msgid="5699667219502054262">"Meténgkék"</string>
+    <string name="pdf_highlighter_color_palette_item_orange" msgid="5231185833927668570">"Narancssárga"</string>
+    <string name="pdf_highlighter_color_palette_item_yellow" msgid="416381392408268015">"Sárga"</string>
+    <string name="pdf_highlighter_color_palette_item_pale_pink" msgid="2619944780773837664">"Halvány rózsaszín"</string>
+    <string name="pdf_highlighter_color_palette_item_light_blue" msgid="3792266639825110183">"Világoskék"</string>
+    <string name="pdf_highlighter_color_palette_item_pale_green" msgid="6277595714452533675">"Halványzöld"</string>
+    <string name="pdf_highlighter_color_palette_item_bright_yellow" msgid="7631420996977636184">"Élénksárga"</string>
+    <string name="pdf_highlighter_color_palette_item_peach" msgid="3074189144452054229">"Barackszín"</string>
+    <string name="pdf_highlighter_color_palette_item_dusty_rose" msgid="5604104736640334540">"Mély rózsaszín"</string>
+    <string name="pdf_highlighter_color_palette_item_olive_green" msgid="515781557822485029">"Olivazöld"</string>
+    <string name="pdf_highlighter_color_palette_item_medium_purple" msgid="2072323998502107059">"Középlila"</string>
+    <string name="pdf_highlighter_color_palette_item_medium_green" msgid="7887546086583310004">"Középzöld"</string>
+    <string name="pdf_highlighter_color_palette_item_rose_pink" msgid="3327080834957606964">"Lilás-pirosas rózsaszín"</string>
+    <string name="pdf_highlighter_color_palette_item_steel_blue" msgid="1879951396340830723">"Acélkék"</string>
+    <string name="pdf_highlighter_color_palette_item_lilac" msgid="2273341586636082345">"Halványlila"</string>
+    <string name="pdf_highlighter_color_palette_item_sage_green" msgid="1036901682730984808">"Zsályazöld"</string>
+    <string name="pdf_highlighter_color_palette_item_beige" msgid="1804950940020440334">"Bézs"</string>
+    <string name="pdf_brush_slider_content_description" msgid="3435156728997667269">"Vonalvastagság"</string>
 </resources>

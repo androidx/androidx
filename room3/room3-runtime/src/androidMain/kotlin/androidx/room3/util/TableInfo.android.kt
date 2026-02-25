@@ -74,7 +74,7 @@ actual constructor(
          * @return A TableInfo containing the schema information for the provided table name.
          */
         @JvmStatic
-        public actual fun read(connection: SQLiteConnection, tableName: String): TableInfo {
+        public actual suspend fun read(connection: SQLiteConnection, tableName: String): TableInfo {
             return readTableInfo(connection, tableName)
         }
     }

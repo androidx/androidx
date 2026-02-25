@@ -75,7 +75,8 @@ public class MatrixTranslate extends DrawBase2 {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Canvas Operations", OP_CODE, "MatrixTranslate")
+        doc.operation("Matrix Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("matrix_translate")
                 .description("Preconcat the current matrix with the specified translation")
                 .field(DocumentedOperation.FLOAT, "dx", "The distance to translate in X")
                 .field(DocumentedOperation.FLOAT, "dy", "The distance to translate in Y");

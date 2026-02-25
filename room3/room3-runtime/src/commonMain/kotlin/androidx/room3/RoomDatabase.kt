@@ -23,6 +23,7 @@ import androidx.room3.concurrent.CloseBarrier
 import androidx.room3.migration.AutoMigrationSpec
 import androidx.room3.migration.Migration
 import androidx.room3.util.getCoroutineContext
+import androidx.room3.util.getQualifiedName
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.SQLiteException
@@ -177,7 +178,7 @@ constructor() {
      * @param connection The database connection.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
-    protected fun internalInitInvalidationTracker(connection: SQLiteConnection)
+    protected suspend fun internalInitInvalidationTracker(connection: SQLiteConnection)
 
     /**
      * Closes the database.
@@ -428,21 +429,21 @@ constructor() {
          *
          * @param connection The database connection.
          */
-        public open fun onCreate(connection: SQLiteConnection)
+        public open suspend fun onCreate(connection: SQLiteConnection)
 
         /**
          * Called after the database was destructively migrated.
          *
          * @param connection The database connection.
          */
-        public open fun onDestructiveMigration(connection: SQLiteConnection)
+        public open suspend fun onDestructiveMigration(connection: SQLiteConnection)
 
         /**
          * Called when the database has been opened.
          *
          * @param connection The database connection.
          */
-        public open fun onOpen(connection: SQLiteConnection)
+        public open suspend fun onOpen(connection: SQLiteConnection)
     }
 }
 
@@ -581,7 +582,7 @@ internal fun RoomDatabase.validateAutoMigrations(configuration: DatabaseConfigur
             }
         }
         require(foundIndex >= 0) {
-            "A required auto migration spec (${spec.qualifiedName}) is missing in the " +
+            "A required auto migration spec (${spec.getQualifiedName()}) is missing in the " +
                 "database configuration."
         }
         autoMigrationSpecs[spec] = configuration.autoMigrationSpecs[foundIndex]
@@ -626,8 +627,8 @@ internal fun RoomDatabase.validateTypeConverters(configuration: DatabaseConfigur
                 }
             }
             require(foundIndex >= 0) {
-                "A required type converter (${converter.qualifiedName}) for" +
-                    " ${daoName.qualifiedName} is missing in the database configuration."
+                "A required type converter (${converter.getQualifiedName()}) for" +
+                    " ${daoName.getQualifiedName()} is missing in the database configuration."
             }
             addTypeConverter(converter, configuration.typeConverters[foundIndex])
         }

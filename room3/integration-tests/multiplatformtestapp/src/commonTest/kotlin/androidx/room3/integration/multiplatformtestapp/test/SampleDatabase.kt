@@ -84,19 +84,13 @@ data class SampleEntity2Byte(@PrimaryKey val pk2: ByteArray) {
 }
 
 @Entity
-data class SampleEntity2(
-    @PrimaryKey val pk2: Long,
-    @ColumnInfo(defaultValue = "0") val data2: Long,
-)
+data class SampleEntity2(@PrimaryKey val pk2: Long, @ColumnInfo(defaultValue = "0") val data2: Long)
 
 @Entity(
     foreignKeys =
         [ForeignKey(entity = SampleEntity2::class, parentColumns = ["pk2"], childColumns = ["pk3"])]
 )
-data class SampleEntity3(
-    @PrimaryKey val pk3: Long,
-    @ColumnInfo(defaultValue = "0") val data3: Long,
-)
+data class SampleEntity3(@PrimaryKey val pk3: Long, @ColumnInfo(defaultValue = "0") val data3: Long)
 
 @Entity
 data class SampleEntityCopy(

@@ -19,17 +19,24 @@ package androidx.xr.arcore.projected
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.xr.arcore.runtime.PerceptionRuntime
+import androidx.xr.runtime.AnchorPersistenceMode
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.Config.ConfigMode
-import androidx.xr.runtime.XrDevice
+import androidx.xr.runtime.DepthEstimationMode
+import androidx.xr.runtime.DeviceTrackingMode
+import androidx.xr.runtime.DisplayBlendMode
+import androidx.xr.runtime.EyeTrackingMode
+import androidx.xr.runtime.FaceTrackingMode
+import androidx.xr.runtime.GeospatialMode
+import androidx.xr.runtime.HandTrackingMode
+import androidx.xr.runtime.PlaneTrackingMode
 import kotlin.time.ComparableTimeMark
 
 /**
- * Implementation of the [androidx.xr.arcore.runtime.PerceptionRuntime] interface using Projected.
+ * Implementation of the [PerceptionRuntime] interface using Projected.
  *
- * @property lifecycleManager that manages the lifecycle of the Projected session.
- * @property perceptionManager that manages the perception capabilities of a runtime using
- *   Projected.
+ * @property lifecycleManager that manages the lifecycle of the Projected session
+ * @property perceptionManager that manages the perception capabilities of a runtime using Projected
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class ProjectedRuntime
@@ -61,7 +68,7 @@ internal constructor(
         return SUPPORTED_CONFIG_MODES.contains(configMode)
     }
 
-    override fun getPreferredDisplayBlendMode(): XrDevice.DisplayBlendMode {
+    override fun getPreferredDisplayBlendMode(): DisplayBlendMode {
         // TODO(b/448458070) : Implement this function for projected once we have access to the
         // relevant services.
         throw NotImplementedError(
@@ -77,15 +84,15 @@ internal constructor(
         @VisibleForTesting
         internal val SUPPORTED_CONFIG_MODES: Set<ConfigMode> =
             setOf(
-                Config.PlaneTrackingMode.DISABLED,
-                Config.HandTrackingMode.DISABLED,
-                Config.DeviceTrackingMode.DISABLED,
-                Config.DepthEstimationMode.DISABLED,
-                Config.AnchorPersistenceMode.DISABLED,
-                Config.FaceTrackingMode.DISABLED,
-                Config.GeospatialMode.DISABLED,
-                Config.GeospatialMode.VPS_AND_GPS,
-                Config.EyeTrackingMode.DISABLED,
+                PlaneTrackingMode.DISABLED,
+                HandTrackingMode.DISABLED,
+                DeviceTrackingMode.DISABLED,
+                DepthEstimationMode.DISABLED,
+                AnchorPersistenceMode.DISABLED,
+                FaceTrackingMode.DISABLED,
+                GeospatialMode.DISABLED,
+                GeospatialMode.VPS_AND_GPS,
+                EyeTrackingMode.DISABLED,
             )
     }
 }

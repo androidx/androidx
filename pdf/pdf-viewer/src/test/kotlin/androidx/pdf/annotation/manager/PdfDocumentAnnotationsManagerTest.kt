@@ -205,4 +205,177 @@ class PdfDocumentAnnotationsManagerTest {
             runBlocking { manager.updateAnnotation(invalidId, annotA) }
         }
     }
+
+    @Test
+    fun addAnnotation_pdfAnnotation_addsToDraftAndTracker() = runTest {
+        val draftId = manager.addAnnotation(annotA)
+
+        // Verify it was added to draft state
+        val draftAnnotations = draftState.getDraftAnnotations(pageNum)
+        assertThat(draftAnnotations).hasSize(1)
+        assertThat(draftAnnotations[0].key).isEqualTo(draftId)
+        assertThat(draftAnnotations[0].annotation).isEqualTo(annotA)
+
+        // Verify ADD operation was logged in tracker
+        val snapshot = operationsTracker.getSnapshot()
+        assertThat(snapshot).hasSize(1)
+        assertThat(snapshot[0].operationType).isEqualTo(KeyedAnnotationOperation.OperationType.ADD)
+        assertThat(snapshot[0].keyedAnnotation.key).isEqualTo(draftId)
+        assertThat(snapshot[0].keyedAnnotation.annotation).isEqualTo(annotA)
+    }
+
+    @Test
+    fun addAnnotation_keyedPdfAnnotation_newKey_addsToDraftAndTracker() = runTest {
+        // A KeyedAnnotation with a key that is NOT in the registry (effectively a new draft)
+        val newKey = "new_draft_id"
+        val keyedAnnot = KeyedPdfAnnotation(newKey, annotA)
+
+        val returnedId = manager.addAnnotation(keyedAnnot)
+
+        // Verify it delegates to draft state to ensure ID uniqueness/registration
+        // (The manager implementation handles checking registry and falling back to draft)
+        val draftAnnotations = draftState.getDraftAnnotations(pageNum)
+        assertThat(draftAnnotations).hasSize(1)
+        assertThat(draftAnnotations[0].annotation).isEqualTo(annotA)
+        // The returned ID might differ if the draft state regenerates it,
+        // but typically it respects the input or returns the valid handle.
+        assertThat(returnedId).isEqualTo(draftAnnotations[0].key)
+
+        // Verify ADD operation logged
+        val snapshot = operationsTracker.getSnapshot()
+        assertThat(snapshot).hasSize(1)
+        assertThat(snapshot[0].operationType).isEqualTo(KeyedAnnotationOperation.OperationType.ADD)
+        assertThat(snapshot[0].keyedAnnotation.annotation).isEqualTo(annotA)
+    }
+
+    @Test
+    fun addAnnotation_keyedPdfAnnotation_existingKey_addsToTrackerOnly() = runTest {
+        // Simulate a scenario where we are re-adding a persisted annotation (e.g. Undo delete)
+        val sourceId = "source_1"
+        // Pre-register this ID so the manager knows it's an existing handle
+        val handleId = handleRegistry.getHandleId(pageNum, sourceId)
+
+        val keyedAnnot = KeyedPdfAnnotation(handleId, annotA)
+
+        val returnedId = manager.addAnnotation(keyedAnnot)
+
+        // It should NOT add to draft state because the registry recognized the ID
+        val draftAnnotations = draftState.getDraftAnnotations(pageNum)
+        assertThat(draftAnnotations).isEmpty()
+
+        // It MUST add to tracker (e.g. to reverse a previous delete)
+        val snapshot = operationsTracker.getSnapshot()
+        assertThat(snapshot).hasSize(1)
+        assertThat(snapshot[0].operationType).isEqualTo(KeyedAnnotationOperation.OperationType.ADD)
+        assertThat(snapshot[0].keyedAnnotation.key).isEqualTo(handleId)
+        assertThat(returnedId).isEqualTo(handleId)
+    }
+
+    @Test
+    fun discardChanges_singleExistingAnnotation_clearsRegistryAndRepository() = runTest {
+        val sourceId = "source_1"
+        val keyedAnnotA = KeyedPdfAnnotation(sourceId, annotA)
+
+        repository.seedAnnotations(pageNum, listOf(keyedAnnotA))
+        val handleId = handleRegistry.getHandleId(pageNum, sourceId)
+
+        // Validate that the annotation is added to the repository
+        val pageAnnotations = manager.getAnnotations(pageNum)
+        val maskedKeyedAnnotA = KeyedPdfAnnotation(handleId, annotA)
+        assertThat(pageAnnotations.size).isEqualTo(1)
+        assertThat(pageAnnotations[0]).isEqualTo(maskedKeyedAnnotA)
+
+        // Act
+        manager.discardChanges()
+
+        // Validate that the annotation is removed from the repository
+        assertThat(repository.getAnnotationsForPage(pageNum)).isEmpty()
+        assertThat(handleRegistry.getSourceId(handleId)).isNull()
+    }
+
+    @Test
+    fun discardChanges_singleExistingAnnotationIsUpdated_clearsTracker() = runTest {
+        val sourceId = "source_1"
+        val keyedAnnotA = KeyedPdfAnnotation(sourceId, annotA)
+
+        repository.seedAnnotations(pageNum, listOf(keyedAnnotA))
+        val handleId = handleRegistry.getHandleId(pageNum, sourceId)
+
+        // Validate that the annotation is added to the repository
+        val pageAnnotations = manager.getAnnotations(pageNum)
+        val maskedKeyedAnnotA = KeyedPdfAnnotation(handleId, annotA)
+        assertThat(pageAnnotations.size).isEqualTo(1)
+        assertThat(pageAnnotations[0]).isEqualTo(maskedKeyedAnnotA)
+
+        // Update the annotation
+        manager.updateAnnotation(handleId, updatedAnnotA)
+
+        // Validate operations tracker
+        assertThat(operationsTracker.getUpdatedAnnotation(handleId)).isEqualTo(updatedAnnotA)
+
+        // Act
+        manager.discardChanges()
+
+        // Validate that the annotation is removed from the repository
+        assertThat(repository.getAnnotationsForPage(pageNum)).isEmpty()
+        assertThat(handleRegistry.getSourceId(handleId)).isNull()
+        assertThat(operationsTracker.getUpdatedAnnotation(handleId)).isNull()
+    }
+
+    @Test
+    fun discardChanges_singleDraftAnnotation_clearsDraftState() = runTest {
+        val newKey = "new_draft_id"
+        val keyedAnnot = KeyedPdfAnnotation(newKey, annotA)
+
+        val returnedId = manager.addAnnotation(keyedAnnot)
+
+        val draftAnnotations = draftState.getDraftAnnotations(pageNum)
+        assertThat(draftAnnotations).hasSize(1)
+        assertThat(draftAnnotations[0]).isEqualTo(keyedAnnot)
+        assertThat(returnedId).isEqualTo(draftAnnotations[0].key)
+
+        // Act
+        manager.discardChanges()
+
+        assertThat(draftState.getDraftAnnotations(pageNum)).isEmpty()
+    }
+
+    @Test
+    fun discardChanges_singleNewAnnot_singleExistingAnnotationIsUpdated_clearsAll() = runTest {
+        // New annotation
+        val newKey = "new_draft_id"
+        val keyedAnnot = KeyedPdfAnnotation(newKey, annotA)
+
+        val returnedId = manager.addAnnotation(keyedAnnot)
+
+        val draftAnnotations = draftState.getDraftAnnotations(pageNum)
+        assertThat(draftAnnotations).hasSize(1)
+        assertThat(draftAnnotations[0]).isEqualTo(keyedAnnot)
+        assertThat(returnedId).isEqualTo(draftAnnotations[0].key)
+
+        // Existing annotation key
+        val sourceId = "source_1"
+        val keyedAnnotB = KeyedPdfAnnotation(sourceId, annotB)
+
+        repository.seedAnnotations(pageNum, listOf(keyedAnnotB))
+        val handleId = handleRegistry.getHandleId(pageNum, sourceId)
+
+        // Validate that the annotation is added to the repository
+        val pageAnnotations = manager.getAnnotations(pageNum)
+        val maskedKeyedAnnotB = KeyedPdfAnnotation(handleId, annotB)
+        assertThat(pageAnnotations.size).isEqualTo(2)
+        assertThat(pageAnnotations[0]).isEqualTo(maskedKeyedAnnotB)
+
+        // Update the annotation
+        manager.updateAnnotation(handleId, updatedAnnotA)
+
+        // Act
+        manager.discardChanges()
+
+        // Assert
+        assertThat(repository.getAnnotationsForPage(pageNum)).isEmpty()
+        assertThat(handleRegistry.getSourceId(handleId)).isNull()
+        assertThat(operationsTracker.getUpdatedAnnotation(handleId)).isNull()
+        assertThat(draftState.getDraftAnnotations(pageNum)).isEmpty()
+    }
 }

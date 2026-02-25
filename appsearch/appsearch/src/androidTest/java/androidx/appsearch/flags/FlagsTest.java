@@ -269,12 +269,6 @@ public class FlagsTest {
     }
 
     @Test
-    public void testFlagValue_enableSmallerDecompressionBufferSize() {
-        assertThat(Flags.FLAG_ENABLE_SMALLER_DECOMPRESSION_BUFFER_SIZE)
-                .isEqualTo("com.android.appsearch.flags.enable_smaller_decompression_buffer_size");
-    }
-
-    @Test
     public void testFlagValue_enableEigenEmbeddingScoring() {
         assertThat(Flags.FLAG_ENABLE_EIGEN_EMBEDDING_SCORING)
                 .isEqualTo("com.android.appsearch.flags.enable_eigen_embedding_scoring");
@@ -294,12 +288,6 @@ public class FlagsTest {
     }
 
     @Test
-    public void testFlagValue_enableRemoveByIdUsesQuery() {
-        assertThat(Flags.FLAG_ENABLE_REMOVE_BY_ID_USES_QUERY)
-                .isEqualTo("com.android.appsearch.flags.enable_remove_by_id_uses_query");
-    }
-
-    @Test
     public void testFlagValue_enableProtoLogNewHeaderFormat() {
         assertThat(Flags.FLAG_ENABLE_PROTO_LOG_NEW_HEADER_FORMAT)
                 .isEqualTo("com.android.appsearch.flags.enable_proto_log_new_header_format");
@@ -309,18 +297,6 @@ public class FlagsTest {
     public void testFlagValue_enableEarlySetSchemaExit() {
         assertThat(Flags.FLAG_ENABLE_EARLY_SET_SCHEMA_EXIT)
                 .isEqualTo("com.android.appsearch.flags.enable_early_set_schema_exit");
-    }
-
-    @Test
-    public void testFlagValue_enableEmbeddingIteratorV2() {
-        assertThat(Flags.FLAG_ENABLE_EMBEDDING_ITERATOR_V2)
-                .isEqualTo("com.android.appsearch.flags.enable_embedding_iterator_v2");
-    }
-
-    @Test
-    public void testFlagValue_enableReusableDecompressionBuffer() {
-        assertThat(Flags.FLAG_ENABLE_REUSABLE_DECOMPRESSION_BUFFER)
-                .isEqualTo("com.android.appsearch.flags.enable_reusable_decompression_buffer");
     }
 
     @Test

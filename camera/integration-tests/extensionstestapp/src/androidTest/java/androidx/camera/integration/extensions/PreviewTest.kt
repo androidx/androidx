@@ -18,17 +18,15 @@ package androidx.camera.integration.extensions
 
 import android.Manifest
 import android.content.Context
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.extensions.ExtensionsManager
-import androidx.camera.integration.extensions.CameraExtensionsActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
-import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.CameraXExtensionTestParams
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.assumeExtensionModeSupported
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.launchCameraExtensionsActivity
 import androidx.camera.integration.extensions.util.HOME_TIMEOUT_MS
 import androidx.camera.integration.extensions.util.waitForPreviewViewStreaming
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.CoreAppTestUtil
@@ -51,17 +49,13 @@ import org.junit.runners.Parameterized
 /** The tests to verify that Preview can work well when extension modes are enabled. */
 @LargeTest
 @RunWith(Parameterized::class)
-class PreviewTest(private val config: CameraXExtensionTestParams) {
+class PreviewTest(private val cameraId: String, private val extensionMode: Int) {
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = config.implName == CAMERA_PIPE_IMPLEMENTATION_OPTION)
 
     @get:Rule
     val useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-            PreTestCameraIdList(config.cameraXConfig)
+            PreTestCameraIdList(Camera2Config.defaultConfig())
         )
 
     @get:Rule
@@ -76,7 +70,7 @@ class PreviewTest(private val config: CameraXExtensionTestParams) {
     companion object {
         val context = ApplicationProvider.getApplicationContext<Context>()
 
-        @Parameterized.Parameters(name = "config = {0}")
+        @Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
         @JvmStatic
         fun parameters() = CameraXExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
     }
@@ -93,14 +87,12 @@ class PreviewTest(private val config: CameraXExtensionTestParams) {
         // mDevice.unfreezeRotation() in the tearDown() method. Any simulated rotations will be
         // explicitly initiated from within the test.
         device.setOrientationNatural()
-
-        ProcessCameraProvider.configureInstance(config.cameraXConfig)
         val cameraProvider =
             ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
 
         extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
 
-        assumeExtensionModeSupported(extensionsManager, config.cameraId, config.extensionMode)
+        assumeExtensionModeSupported(extensionsManager, cameraId, extensionMode)
     }
 
     @After
@@ -125,7 +117,7 @@ class PreviewTest(private val config: CameraXExtensionTestParams) {
      */
     @Test
     fun previewWithExtensionModeCanEnterStreamingState() {
-        val activityScenario = launchCameraExtensionsActivity(config.cameraId, config.extensionMode)
+        val activityScenario = launchCameraExtensionsActivity(cameraId, extensionMode)
 
         with(activityScenario) { use { waitForPreviewViewStreaming() } }
     }
@@ -136,7 +128,7 @@ class PreviewTest(private val config: CameraXExtensionTestParams) {
                 ApplicationProvider.getApplicationContext(),
                 extensionsManager,
                 cameraId,
-                config.extensionMode,
+                extensionMode,
             )
         assumeTrue(
             "Cannot find next camera id that supports extensions mode($extensionsMode)",
@@ -150,8 +142,8 @@ class PreviewTest(private val config: CameraXExtensionTestParams) {
      */
     @Test
     fun previewCanEnterStreamingStateAfterSwitchingCamera() {
-        assumeNextCameraIdExtensionModeSupported(config.cameraId, config.extensionMode)
-        val activityScenario = launchCameraExtensionsActivity(config.cameraId, config.extensionMode)
+        assumeNextCameraIdExtensionModeSupported(cameraId, extensionMode)
+        val activityScenario = launchCameraExtensionsActivity(cameraId, extensionMode)
 
         with(activityScenario) {
             use {

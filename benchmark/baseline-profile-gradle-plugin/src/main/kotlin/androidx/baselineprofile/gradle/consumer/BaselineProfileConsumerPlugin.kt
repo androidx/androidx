@@ -534,10 +534,10 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
                     if (!isGradleSyncRunning()) {
                         throw GradleException(
                             """
-                The current configuration of flags `saveInSrc` and `automaticGenerationDuringBuild`
-                is not supported. At least one of these should be set to `true`. Please review your
-                baseline profile plugin configuration in your build.gradle.
-                    """
+                            The current configuration of flags `saveInSrc` and `automaticGenerationDuringBuild`
+                            is not supported. At least one of these should be set to `true`. Please review your
+                            baseline profile plugin configuration in your build.gradle.
+                            """
                                 .trimIndent()
                         )
                     }

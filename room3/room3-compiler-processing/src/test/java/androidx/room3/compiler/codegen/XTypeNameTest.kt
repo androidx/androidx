@@ -165,34 +165,34 @@ class XTypeNameTest {
             Source.kotlin(
                 "Foo.kt",
                 """
-            class Foo {
-                var accessorField: Unit = Unit
-                    get() = Unit
-                    set(value) {
-                        field = value
-                    }
-                fun f1(): Unit = TODO()
-                fun f2(): (Unit) -> Unit = TODO()
-                fun f3(): List<Unit> = TODO()
-                fun f4(u: Unit) {}
-                fun f5(l: (Unit) -> Unit) {}
-                fun f6(l: List<Unit>) {}
-                fun f7(): Unit? = TODO()
-            }
-            open class Parent<T> {
-                val field: T = TODO()
-                val listField: List<T> = TODO()
-                val lambdaField: (T) -> T = TODO()
-                var accessorField: T = TODO()
-                    get() = TODO()
-                    set(value) {
-                        field = value
-                    }
-                fun f(t: T): T = t
-                fun <T> fWithTypeVar(): T = TODO()
-            }
-            class Child: Parent<Unit>()
-            """
+                class Foo {
+                    var accessorField: Unit = Unit
+                        get() = Unit
+                        set(value) {
+                            field = value
+                        }
+                    fun f1(): Unit = TODO()
+                    fun f2(): (Unit) -> Unit = TODO()
+                    fun f3(): List<Unit> = TODO()
+                    fun f4(u: Unit) {}
+                    fun f5(l: (Unit) -> Unit) {}
+                    fun f6(l: List<Unit>) {}
+                    fun f7(): Unit? = TODO()
+                }
+                open class Parent<T> {
+                    val field: T = TODO()
+                    val listField: List<T> = TODO()
+                    val lambdaField: (T) -> T = TODO()
+                    var accessorField: T = TODO()
+                        get() = TODO()
+                        set(value) {
+                            field = value
+                        }
+                    fun f(t: T): T = t
+                    fun <T> fWithTypeVar(): T = TODO()
+                }
+                class Child: Parent<Unit>()
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
@@ -282,14 +282,14 @@ class XTypeNameTest {
             Source.java(
                 "Foo",
                 """
-            import kotlin.Unit;
-            class Foo {
-                Unit f() {
-                    return Unit.INSTANCE;
+                import kotlin.Unit;
+                class Foo {
+                    Unit f() {
+                        return Unit.INSTANCE;
+                    }
+                    void g() {}
                 }
-                void g() {}
-            }
-        """
+                """
                     .trimIndent(),
             )
         runProcessorTest(listOf(javaSrc)) { invocation ->

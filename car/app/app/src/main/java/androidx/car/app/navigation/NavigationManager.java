@@ -340,6 +340,11 @@ public class NavigationManager implements Manager {
                                     return null;
                                 });
                     }
+
+                    @Override
+                    public int getInterfaceVersion() {
+                        return super.VERSION;
+                    }
                 };
         LifecycleObserver observer = new DefaultLifecycleObserver() {
             @Override

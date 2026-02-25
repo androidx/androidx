@@ -307,11 +307,11 @@ public class DefaultComplicationDataSourcePolicy {
         return result
     }
 
-    companion object {
+    public companion object {
         internal const val NO_DEFAULT_PROVIDER = SystemDataSources.NO_DATA_SOURCE
 
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        fun inflate(
+        public fun inflate(
             resources: Resources,
             parser: XmlResourceParser,
             nodeName: String,

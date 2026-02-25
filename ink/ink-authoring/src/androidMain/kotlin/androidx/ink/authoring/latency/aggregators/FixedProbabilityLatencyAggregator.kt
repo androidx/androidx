@@ -82,7 +82,7 @@ import kotlinx.coroutines.plus
  * so the result is valid only for values of `t` that are multiples of `1/r` seconds. In particular,
  * the result is negative if `t < 1/r`, but the actual probability is 0.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @ExperimentalLatencyDataApi
 public class FixedProbabilityLatencyAggregator
 private constructor(

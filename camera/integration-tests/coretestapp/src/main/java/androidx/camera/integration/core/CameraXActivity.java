@@ -35,7 +35,6 @@ import static androidx.camera.core.ImageCapture.OUTPUT_FORMAT_RAW;
 import static androidx.camera.core.ImageCapture.OUTPUT_FORMAT_RAW_JPEG;
 import static androidx.camera.core.ImageCapture.getImageCaptureCapabilities;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY;
-import static androidx.camera.integration.core.CameraXViewModel.getConfiguredCameraXCameraImplementation;
 import static androidx.camera.testing.impl.FileUtil.canDeviceWriteToMediaStore;
 import static androidx.camera.testing.impl.FileUtil.createFolder;
 import static androidx.camera.testing.impl.FileUtil.createParentFolder;
@@ -108,11 +107,11 @@ import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.camera2.compat.quirk.CrashWhenTakingPhotoWithAutoFlashAEModeQuirk;
+import androidx.camera.camera2.compat.quirk.DeviceQuirks;
 import androidx.camera.camera2.compat.quirk.ImageCaptureFailWithAutoFlashQuirk;
 import androidx.camera.camera2.compat.quirk.ImageCaptureFlashNotFireQuirk;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
-import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
@@ -277,9 +276,6 @@ public class CameraXActivity extends AppCompatActivity {
         ID_TO_ASPECT_RATIO_MAP.put(R.id.aspect_ratio_16_9, AspectRatio.RATIO_16_9);
     }
 
-    //Use this activity title when Camera Pipe configuration is used by core test app
-    private static final String APP_TITLE_FOR_CAMERA_PIPE = "CameraPipe Core Test App";
-
     // Possible values for this intent key: "backward" or "forward".
     private static final String INTENT_EXTRA_CAMERA_DIRECTION = "camera_direction";
     // Possible values for this intent key: "switch_test_case", "preview_test_case" or
@@ -291,9 +287,6 @@ public class CameraXActivity extends AppCompatActivity {
     private static final String INTENT_EXTRA_LOG_VIEWFINDER_POSITION = "log_view_finder_position";
     // Launch the activity with the specified video mirror mode.
     private static final String INTENT_EXTRA_VIDEO_MIRROR_MODE = "video_mirror_mode";
-    public static final String INTENT_EXTRA_CAMERA_IMPLEMENTATION = "camera_implementation";
-    public static final String INTENT_EXTRA_CAMERA_IMPLEMENTATION_NO_HISTORY =
-            "camera_implementation_no_history";
 
     // Launch the activity with the specified target aspect ratio.
     public static final String INTENT_EXTRA_TARGET_ASPECT_RATIO = "target_aspect_ratio";
@@ -650,23 +643,12 @@ public class CameraXActivity extends AppCompatActivity {
                 CameraInfo cameraInfo = getCameraInfo();
                 if (cameraInfo instanceof CameraInfoInternal) {
 
-                    Quirks deviceQuirks = CameraXViewModel.CAMERA_PIPE_IMPLEMENTATION_OPTION.equals(
-                            getConfiguredCameraXCameraImplementation()) ? DeviceQuirks.all
-                            : androidx.camera.camera2.compat.quirk.DeviceQuirks.getAll();
+                    Quirks deviceQuirks = DeviceQuirks.getAll();
                     Quirks cameraQuirks = ((CameraInfoInternal) cameraInfo).getCameraQuirks();
 
                     if (deviceQuirks.contains(CrashWhenTakingPhotoWithAutoFlashAEModeQuirk.class)
                             || cameraQuirks.contains(ImageCaptureFailWithAutoFlashQuirk.class)
-                            || cameraQuirks.contains(ImageCaptureFlashNotFireQuirk.class)
-                            || deviceQuirks.contains(
-                            androidx.camera.camera2.pipe.integration.compat.quirk
-                                    .CrashWhenTakingPhotoWithAutoFlashAEModeQuirk.class)
-                            || cameraQuirks.contains(
-                            androidx.camera.camera2.pipe.integration.compat.quirk
-                                    .ImageCaptureFailWithAutoFlashQuirk.class)
-                            || cameraQuirks.contains(
-                            androidx.camera.camera2.pipe.integration.compat.quirk
-                                    .ImageCaptureFlashNotFireQuirk.class)) {
+                            || cameraQuirks.contains(ImageCaptureFlashNotFireQuirk.class)) {
 
                         Toast.makeText(this, DESCRIPTION_FLASH_MODE_NOT_SUPPORTED,
                                 Toast.LENGTH_SHORT).show();
@@ -1577,10 +1559,6 @@ public class CameraXActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //if different Camera Provider (CameraPipe vs Camera2 was initialized in previous session,
-        //then close this application.
-        closeAppIfCameraProviderMismatch(this.getIntent());
-
         setContentView(R.layout.activity_camera_xmain);
 
         EdgeToEdgeUtil.enableEdgeToEdge(this, R.id.constraintLayout,
@@ -1720,25 +1698,6 @@ public class CameraXActivity extends AppCompatActivity {
             } else {
                 String newCameraDirection = bundle.getString(INTENT_EXTRA_CAMERA_DIRECTION, null);
                 mCameraSwitcher.onLaunchDirectionUpdated(newCameraDirection);
-            }
-
-            String cameraImplementation = bundle.getString(INTENT_EXTRA_CAMERA_IMPLEMENTATION);
-            boolean cameraImplementationNoHistory =
-                    bundle.getBoolean(INTENT_EXTRA_CAMERA_IMPLEMENTATION_NO_HISTORY, false);
-            if (cameraImplementationNoHistory) {
-                Intent newIntent = new Intent(getIntent());
-                newIntent.removeExtra(INTENT_EXTRA_CAMERA_IMPLEMENTATION);
-                newIntent.removeExtra(INTENT_EXTRA_CAMERA_IMPLEMENTATION_NO_HISTORY);
-                setIntent(newIntent);
-            }
-
-            if (cameraImplementation != null) {
-                if (cameraImplementation.equalsIgnoreCase(
-                        CameraXViewModel.CAMERA_PIPE_IMPLEMENTATION_OPTION)) {
-                    setTitle(APP_TITLE_FOR_CAMERA_PIPE);
-                }
-                CameraXViewModel.configureCameraProvider(
-                        cameraImplementation, cameraImplementationNoHistory);
             }
 
             // Update the app UI according to the e2e test case.
@@ -1923,34 +1882,6 @@ public class CameraXActivity extends AppCompatActivity {
             writeTextToExternalFile(text, filename, extension);
         });
     }
-
-    /**
-     * Close current app if CameraProvider from intent of current activity doesn't match with
-     * CameraProvider stored in the CameraXViewModel, because CameraProvider can't be changed
-     * between Camera2 and Camera Pipe while app is running.
-     */
-    private void closeAppIfCameraProviderMismatch(Intent mIntent) {
-        String cameraImplementation = null;
-        boolean cameraImplementationNoHistory = false;
-        Bundle bundle = mIntent.getExtras();
-        if (bundle != null) {
-            cameraImplementation = bundle.getString(INTENT_EXTRA_CAMERA_IMPLEMENTATION);
-            cameraImplementationNoHistory =
-                    bundle.getBoolean(INTENT_EXTRA_CAMERA_IMPLEMENTATION_NO_HISTORY, false);
-        }
-
-        if (!cameraImplementationNoHistory) {
-            if (!CameraXViewModel.isCameraProviderUnInitializedOrSameAsParameter(
-                    cameraImplementation)) {
-                Toast.makeText(CameraXActivity.this, "Please relaunch "
-                                + "the app to apply new CameraX configuration.",
-                        Toast.LENGTH_LONG).show();
-                finish();
-                System.exit(0);
-            }
-        }
-    }
-
 
     @Override
     public void onDestroy() {
@@ -3081,10 +3012,6 @@ public class CameraXActivity extends AppCompatActivity {
     }
 
     private static boolean isLegacyDevice(@NonNull CameraInfo cameraInfo) {
-        if (CameraXViewModel.CAMERA_PIPE_IMPLEMENTATION_OPTION.equals(
-                getConfiguredCameraXCameraImplementation())) {
-            return isCameraPipeLegacyDevice(cameraInfo);
-        }
         return isCamera2LegacyDevice(cameraInfo);
     }
 
@@ -3095,33 +3022,13 @@ public class CameraXActivity extends AppCompatActivity {
         ) == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
     }
 
-    @OptIn(markerClass =
-            androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop.class)
-    private static boolean isCameraPipeLegacyDevice(@NonNull CameraInfo cameraInfo) {
-        return androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo.from(cameraInfo)
-                .getCameraCharacteristic(
-                        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
-                ) == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
-    }
-
     private static @NonNull String getCameraId(@NonNull CameraInfo cameraInfo) {
-        try {
-            return getCamera2CameraId(cameraInfo);
-        } catch (IllegalArgumentException e) {
-            return getCameraPipeCameraId(cameraInfo);
-        }
+        return getCamera2CameraId(cameraInfo);
     }
 
     @OptIn(markerClass = ExperimentalCamera2Interop.class)
     private static @NonNull String getCamera2CameraId(@NonNull CameraInfo cameraInfo) {
         return Camera2CameraInfo.from(cameraInfo).getCameraId();
-    }
-
-    @OptIn(markerClass =
-            androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop.class)
-    private static @NonNull String getCameraPipeCameraId(@NonNull CameraInfo cameraInfo) {
-        return androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo.from(
-                cameraInfo).getCameraId();
     }
 
     private static final class DynamicRangeUiData {

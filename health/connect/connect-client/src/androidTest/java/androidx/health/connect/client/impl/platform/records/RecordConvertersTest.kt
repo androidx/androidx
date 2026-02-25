@@ -79,6 +79,7 @@ import androidx.health.connect.client.records.WheelchairPushesRecord
 import androidx.health.connect.client.records.isAtLeastSdkExtension13
 import androidx.health.connect.client.records.isAtLeastSdkExtension15
 import androidx.health.connect.client.records.isAtLeastSdkExtension16
+import androidx.health.connect.client.records.isAtLeastSdkExtension21
 import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.records.metadata.Device
 import androidx.health.connect.client.records.metadata.Metadata
@@ -1907,6 +1908,73 @@ class RecordConvertersTest {
         val roundTripConvertedRecord =
             sdkRecord.toPlatformRecord().toSdkRecord() as ExerciseSessionRecord
         assertThat(roundTripConvertedRecord.plannedExerciseSessionId).isEqualTo("some-id")
+    }
+
+    @SuppressLint("NewApi") // Guarded by sdk extension check
+    @Test
+    fun exerciseSessionRecord_rateOfPerceivedExertion() {
+        assumeTrue(isAtLeastSdkExtension21())
+        val sdkRecord =
+            ExerciseSessionRecord(
+                startTime = START_TIME,
+                startZoneOffset = START_ZONE_OFFSET,
+                endTime = END_TIME,
+                endZoneOffset = END_ZONE_OFFSET,
+                metadata = METADATA,
+                exerciseType = ExerciseSessionRecord.EXERCISE_TYPE_HIGH_INTENSITY_INTERVAL_TRAINING,
+                title = "HIIT training",
+                notes = "workout",
+                laps = emptyList(),
+                segments = emptyList(),
+                exerciseRoute = null,
+                rateOfPerceivedExertion = 4.0f,
+            )
+
+        val roundTripConvertedRecord =
+            sdkRecord.toPlatformRecord().toSdkRecord() as ExerciseSessionRecord
+
+        assertThat(roundTripConvertedRecord.rateOfPerceivedExertion).isEqualTo(4.0f)
+    }
+
+    @SuppressLint("NewApi") // Guarded by sdk extension check
+    @Test
+    fun exerciseSessionRecord_segments_newFields() {
+        assumeTrue(isAtLeastSdkExtension21())
+        val sdkRecord =
+            ExerciseSessionRecord(
+                startTime = START_TIME,
+                startZoneOffset = START_ZONE_OFFSET,
+                endTime = END_TIME,
+                endZoneOffset = END_ZONE_OFFSET,
+                metadata = METADATA,
+                exerciseType = ExerciseSessionRecord.EXERCISE_TYPE_HIGH_INTENSITY_INTERVAL_TRAINING,
+                title = "HIIT training",
+                notes = "workout",
+                laps = emptyList(),
+                segments =
+                    listOf(
+                        ExerciseSegment(
+                            startTime = START_TIME.plusMillis(1),
+                            endTime = START_TIME.plusMillis(10),
+                            segmentType =
+                                ExerciseSegment.EXERCISE_SEGMENT_TYPE_BARBELL_SHOULDER_PRESS,
+                            repetitions = 10,
+                            weight = Mass.kilograms(50.0),
+                            setIndex = 1,
+                            rateOfPerceivedExertion = 7.0f,
+                        )
+                    ),
+                exerciseRoute = null,
+            )
+
+        val roundTripConvertedRecord =
+            sdkRecord.toPlatformRecord().toSdkRecord() as ExerciseSessionRecord
+
+        assertThat(roundTripConvertedRecord.segments).hasSize(1)
+        val segment = roundTripConvertedRecord.segments[0]
+        assertThat(segment.weight).isEqualTo(Mass.kilograms(50.0))
+        assertThat(segment.setIndex).isEqualTo(1)
+        assertThat(segment.rateOfPerceivedExertion).isEqualTo(7.0f)
     }
 
     @Test

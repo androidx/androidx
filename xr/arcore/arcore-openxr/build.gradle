@@ -15,14 +15,14 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.AndroidXConfig
 import androidx.build.SoftwareType
+import com.android.build.api.variant.HasAndroidTest
 
 plugins {
     id("AndroidXPlugin")
@@ -57,12 +57,17 @@ dependencies {
 
 android {
     namespace = "androidx.xr.arcore.openxr"
-    sourceSets.main {
-        jniLibs.srcDirs += new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/native/android")
-    }
     defaultConfig.consumerProguardFiles("proguard-rules.pro")
-    sourceSets.androidTest {
-        jniLibs.srcDirs += new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/native/androidTest")
+}
+
+androidComponents {
+    def prebuiltsRoot = AndroidXConfig.getPrebuiltsRoot(project)
+    def mainNativePath = new File(prebuiltsRoot, "androidx/xr/native/android").absolutePath
+    def testNativePath = new File(prebuiltsRoot, "androidx/xr/native/androidTest").absolutePath
+
+    onVariants(selector().all()) { variant ->
+        variant.sources.jniLibs.addStaticSourceDirectory(mainNativePath)
+        (variant as HasAndroidTest).androidTest.sources.jniLibs.addStaticSourceDirectory(testNativePath)
     }
 }
 

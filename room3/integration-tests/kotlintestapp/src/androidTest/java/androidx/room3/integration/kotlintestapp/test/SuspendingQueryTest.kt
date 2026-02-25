@@ -596,7 +596,7 @@ class SuspendingQueryTest(driver: UseDriver) : TestDatabaseTest(driver) {
                 )
                 .addCallback(
                     object : RoomDatabase.Callback() {
-                        override fun onOpen(connection: SQLiteConnection) {
+                        override suspend fun onOpen(connection: SQLiteConnection) {
                             // this causes all transaction functions to throw, this can happen IRL
                             throw RuntimeException("Error opening Database.")
                         }

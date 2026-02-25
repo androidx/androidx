@@ -60,6 +60,8 @@ internal class ProjectedDeviceLifecycle(
                     }
                 }
             }
+
+            override fun getInterfaceVersion(): Int = VERSION
         }
 
     /**

@@ -147,61 +147,61 @@ class UseRequireInsteadOfGetTest {
             .run()
             .expect(
                 """
-              src/foo/Test.java:10: Error: Use fragment.requireArguments() instead of checkNotNull(fragment.getArguments()) [UseRequireInsteadOfGet]
-                  checkNotNull(fragment.getArguments());
-                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-              src/foo/Test.java:11: Error: Use fragment.requireFragmentManager() instead of checkNotNull(fragment.getFragmentManager()) [UseRequireInsteadOfGet]
-                  checkNotNull(fragment.getFragmentManager());
-                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-              src/foo/Test.java:12: Error: Use fragment.requireContext() instead of checkNotNull(fragment.getContext()) [UseRequireInsteadOfGet]
-                  checkNotNull(fragment.getContext());
-                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-              src/foo/Test.java:13: Error: Use fragment.requireActivity() instead of checkNotNull(fragment.getActivity()) [UseRequireInsteadOfGet]
-                  checkNotNull(fragment.getActivity());
-                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-              src/foo/Test.java:14: Error: Use fragment.requireHost() instead of checkNotNull(fragment.getHost()) [UseRequireInsteadOfGet]
-                  checkNotNull(fragment.getHost());
-                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-              src/foo/Test.java:15: Error: Use fragment.requireParentFragment() instead of checkNotNull(fragment.getParentFragment()) [UseRequireInsteadOfGet]
-                  checkNotNull(fragment.getParentFragment());
-                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-              src/foo/Test.java:16: Error: Use fragment.requireView() instead of checkNotNull(fragment.getView()) [UseRequireInsteadOfGet]
-                  checkNotNull(fragment.getView());
-                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-              7 errors, 0 warnings
+                src/foo/Test.java:10: Error: Use fragment.requireArguments() instead of checkNotNull(fragment.getArguments()) [UseRequireInsteadOfGet]
+                    checkNotNull(fragment.getArguments());
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.java:11: Error: Use fragment.requireFragmentManager() instead of checkNotNull(fragment.getFragmentManager()) [UseRequireInsteadOfGet]
+                    checkNotNull(fragment.getFragmentManager());
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.java:12: Error: Use fragment.requireContext() instead of checkNotNull(fragment.getContext()) [UseRequireInsteadOfGet]
+                    checkNotNull(fragment.getContext());
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.java:13: Error: Use fragment.requireActivity() instead of checkNotNull(fragment.getActivity()) [UseRequireInsteadOfGet]
+                    checkNotNull(fragment.getActivity());
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.java:14: Error: Use fragment.requireHost() instead of checkNotNull(fragment.getHost()) [UseRequireInsteadOfGet]
+                    checkNotNull(fragment.getHost());
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.java:15: Error: Use fragment.requireParentFragment() instead of checkNotNull(fragment.getParentFragment()) [UseRequireInsteadOfGet]
+                    checkNotNull(fragment.getParentFragment());
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.java:16: Error: Use fragment.requireView() instead of checkNotNull(fragment.getView()) [UseRequireInsteadOfGet]
+                    checkNotNull(fragment.getView());
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                7 errors, 0 warnings
                 """
                     .trimIndent()
             )
             .expectFixDiffs(
                 """
-              Fix for src/foo/Test.java line 10: Replace with fragment.requireArguments():
-              @@ -10 +10
-              -     checkNotNull(fragment.getArguments());
-              +     fragment.requireArguments();
-              Fix for src/foo/Test.java line 11: Replace with fragment.requireFragmentManager():
-              @@ -11 +11
-              -     checkNotNull(fragment.getFragmentManager());
-              +     fragment.requireFragmentManager();
-              Fix for src/foo/Test.java line 12: Replace with fragment.requireContext():
-              @@ -12 +12
-              -     checkNotNull(fragment.getContext());
-              +     fragment.requireContext();
-              Fix for src/foo/Test.java line 13: Replace with fragment.requireActivity():
-              @@ -13 +13
-              -     checkNotNull(fragment.getActivity());
-              +     fragment.requireActivity();
-              Fix for src/foo/Test.java line 14: Replace with fragment.requireHost():
-              @@ -14 +14
-              -     checkNotNull(fragment.getHost());
-              +     fragment.requireHost();
-              Fix for src/foo/Test.java line 15: Replace with fragment.requireParentFragment():
-              @@ -15 +15
-              -     checkNotNull(fragment.getParentFragment());
-              +     fragment.requireParentFragment();
-              Fix for src/foo/Test.java line 16: Replace with fragment.requireView():
-              @@ -16 +16
-              -     checkNotNull(fragment.getView());
-              +     fragment.requireView();
+                Fix for src/foo/Test.java line 10: Replace with fragment.requireArguments():
+                @@ -10 +10
+                -     checkNotNull(fragment.getArguments());
+                +     fragment.requireArguments();
+                Fix for src/foo/Test.java line 11: Replace with fragment.requireFragmentManager():
+                @@ -11 +11
+                -     checkNotNull(fragment.getFragmentManager());
+                +     fragment.requireFragmentManager();
+                Fix for src/foo/Test.java line 12: Replace with fragment.requireContext():
+                @@ -12 +12
+                -     checkNotNull(fragment.getContext());
+                +     fragment.requireContext();
+                Fix for src/foo/Test.java line 13: Replace with fragment.requireActivity():
+                @@ -13 +13
+                -     checkNotNull(fragment.getActivity());
+                +     fragment.requireActivity();
+                Fix for src/foo/Test.java line 14: Replace with fragment.requireHost():
+                @@ -14 +14
+                -     checkNotNull(fragment.getHost());
+                +     fragment.requireHost();
+                Fix for src/foo/Test.java line 15: Replace with fragment.requireParentFragment():
+                @@ -15 +15
+                -     checkNotNull(fragment.getParentFragment());
+                +     fragment.requireParentFragment();
+                Fix for src/foo/Test.java line 16: Replace with fragment.requireView():
+                @@ -16 +16
+                -     checkNotNull(fragment.getView());
+                +     fragment.requireView();
                 """
                     .trimIndent()
             )
@@ -267,61 +267,61 @@ class UseRequireInsteadOfGetTest {
             .run()
             .expect(
                 """
-              src/foo/TestFragment.java:8: Error: Use requireArguments() instead of checkNotNull(getArguments()) [UseRequireInsteadOfGet]
-                  checkNotNull(getArguments());
-                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-              src/foo/TestFragment.java:9: Error: Use requireFragmentManager() instead of checkNotNull(getFragmentManager()) [UseRequireInsteadOfGet]
-                  checkNotNull(getFragmentManager());
-                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-              src/foo/TestFragment.java:10: Error: Use requireContext() instead of checkNotNull(getContext()) [UseRequireInsteadOfGet]
-                  checkNotNull(getContext());
-                  ~~~~~~~~~~~~~~~~~~~~~~~~~~
-              src/foo/TestFragment.java:11: Error: Use requireActivity() instead of checkNotNull(getActivity()) [UseRequireInsteadOfGet]
-                  checkNotNull(getActivity());
-                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-              src/foo/TestFragment.java:12: Error: Use requireHost() instead of checkNotNull(getHost()) [UseRequireInsteadOfGet]
-                  checkNotNull(getHost());
-                  ~~~~~~~~~~~~~~~~~~~~~~~
-              src/foo/TestFragment.java:13: Error: Use requireParentFragment() instead of checkNotNull(getParentFragment()) [UseRequireInsteadOfGet]
-                  checkNotNull(getParentFragment());
-                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-              src/foo/TestFragment.java:14: Error: Use requireView() instead of checkNotNull(getView()) [UseRequireInsteadOfGet]
-                  checkNotNull(getView());
-                  ~~~~~~~~~~~~~~~~~~~~~~~
-              7 errors, 0 warnings
+                src/foo/TestFragment.java:8: Error: Use requireArguments() instead of checkNotNull(getArguments()) [UseRequireInsteadOfGet]
+                    checkNotNull(getArguments());
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/TestFragment.java:9: Error: Use requireFragmentManager() instead of checkNotNull(getFragmentManager()) [UseRequireInsteadOfGet]
+                    checkNotNull(getFragmentManager());
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/TestFragment.java:10: Error: Use requireContext() instead of checkNotNull(getContext()) [UseRequireInsteadOfGet]
+                    checkNotNull(getContext());
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/TestFragment.java:11: Error: Use requireActivity() instead of checkNotNull(getActivity()) [UseRequireInsteadOfGet]
+                    checkNotNull(getActivity());
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/TestFragment.java:12: Error: Use requireHost() instead of checkNotNull(getHost()) [UseRequireInsteadOfGet]
+                    checkNotNull(getHost());
+                    ~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/TestFragment.java:13: Error: Use requireParentFragment() instead of checkNotNull(getParentFragment()) [UseRequireInsteadOfGet]
+                    checkNotNull(getParentFragment());
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/TestFragment.java:14: Error: Use requireView() instead of checkNotNull(getView()) [UseRequireInsteadOfGet]
+                    checkNotNull(getView());
+                    ~~~~~~~~~~~~~~~~~~~~~~~
+                7 errors, 0 warnings
                 """
                     .trimIndent()
             )
             .expectFixDiffs(
                 """
-              Fix for src/foo/TestFragment.java line 8: Replace with requireArguments():
-              @@ -8 +8
-              -     checkNotNull(getArguments());
-              +     requireArguments();
-              Fix for src/foo/TestFragment.java line 9: Replace with requireFragmentManager():
-              @@ -9 +9
-              -     checkNotNull(getFragmentManager());
-              +     requireFragmentManager();
-              Fix for src/foo/TestFragment.java line 10: Replace with requireContext():
-              @@ -10 +10
-              -     checkNotNull(getContext());
-              +     requireContext();
-              Fix for src/foo/TestFragment.java line 11: Replace with requireActivity():
-              @@ -11 +11
-              -     checkNotNull(getActivity());
-              +     requireActivity();
-              Fix for src/foo/TestFragment.java line 12: Replace with requireHost():
-              @@ -12 +12
-              -     checkNotNull(getHost());
-              +     requireHost();
-              Fix for src/foo/TestFragment.java line 13: Replace with requireParentFragment():
-              @@ -13 +13
-              -     checkNotNull(getParentFragment());
-              +     requireParentFragment();
-              Fix for src/foo/TestFragment.java line 14: Replace with requireView():
-              @@ -14 +14
-              -     checkNotNull(getView());
-              +     requireView();
+                Fix for src/foo/TestFragment.java line 8: Replace with requireArguments():
+                @@ -8 +8
+                -     checkNotNull(getArguments());
+                +     requireArguments();
+                Fix for src/foo/TestFragment.java line 9: Replace with requireFragmentManager():
+                @@ -9 +9
+                -     checkNotNull(getFragmentManager());
+                +     requireFragmentManager();
+                Fix for src/foo/TestFragment.java line 10: Replace with requireContext():
+                @@ -10 +10
+                -     checkNotNull(getContext());
+                +     requireContext();
+                Fix for src/foo/TestFragment.java line 11: Replace with requireActivity():
+                @@ -11 +11
+                -     checkNotNull(getActivity());
+                +     requireActivity();
+                Fix for src/foo/TestFragment.java line 12: Replace with requireHost():
+                @@ -12 +12
+                -     checkNotNull(getHost());
+                +     requireHost();
+                Fix for src/foo/TestFragment.java line 13: Replace with requireParentFragment():
+                @@ -13 +13
+                -     checkNotNull(getParentFragment());
+                +     requireParentFragment();
+                Fix for src/foo/TestFragment.java line 14: Replace with requireView():
+                @@ -14 +14
+                -     checkNotNull(getView());
+                +     requireView();
                 """
                     .trimIndent()
             )
@@ -354,19 +354,19 @@ class UseRequireInsteadOfGetTest {
             .run()
             .expect(
                 """
-              src/foo/TestFragment.java:8: Error: Use requireArguments() instead of Preconditions.checkNotNull(getArguments()) [UseRequireInsteadOfGet]
-                  Preconditions.checkNotNull(getArguments());
-                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-              1 errors, 0 warnings
+                src/foo/TestFragment.java:8: Error: Use requireArguments() instead of Preconditions.checkNotNull(getArguments()) [UseRequireInsteadOfGet]
+                    Preconditions.checkNotNull(getArguments());
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                1 errors, 0 warnings
                 """
                     .trimIndent()
             )
             .expectFixDiffs(
                 """
-              Fix for src/foo/TestFragment.java line 8: Replace with requireArguments():
-              @@ -8 +8
-              -     Preconditions.checkNotNull(getArguments());
-              +     requireArguments();
+                Fix for src/foo/TestFragment.java line 8: Replace with requireArguments():
+                @@ -8 +8
+                -     Preconditions.checkNotNull(getArguments());
+                +     requireArguments();
                 """
                     .trimIndent()
             )
@@ -469,208 +469,208 @@ class UseRequireInsteadOfGetTest {
             .run()
             .expect(
                 """
-          src/foo/Test.kt:9: Error: Use fragment.requireArguments() instead of checkNotNull(fragment.getArguments()) [UseRequireInsteadOfGet]
-              checkNotNull(fragment.getArguments())
-              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:10: Error: Use fragment.requireFragmentManager() instead of checkNotNull(fragment.getFragmentManager()) [UseRequireInsteadOfGet]
-              checkNotNull(fragment.getFragmentManager())
-              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:11: Error: Use fragment.requireContext() instead of checkNotNull(fragment.getContext()) [UseRequireInsteadOfGet]
-              checkNotNull(fragment.getContext())
-              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:12: Error: Use fragment.requireActivity() instead of checkNotNull(fragment.getActivity()) [UseRequireInsteadOfGet]
-              checkNotNull(fragment.getActivity())
-              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:13: Error: Use fragment.requireHost() instead of checkNotNull(fragment.getHost()) [UseRequireInsteadOfGet]
-              checkNotNull(fragment.getHost())
-              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:14: Error: Use fragment.requireParentFragment() instead of checkNotNull(fragment.getParentFragment()) [UseRequireInsteadOfGet]
-              checkNotNull(fragment.getParentFragment())
-              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:15: Error: Use fragment.requireView() instead of checkNotNull(fragment.getView()) [UseRequireInsteadOfGet]
-              checkNotNull(fragment.getView())
-              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:17: Error: Use fragment.requireArguments() instead of checkNotNull(fragment.arguments) [UseRequireInsteadOfGet]
-              checkNotNull(fragment.arguments)
-              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:18: Error: Use fragment.requireFragmentManager() instead of checkNotNull(fragment.fragmentManager) [UseRequireInsteadOfGet]
-              checkNotNull(fragment.fragmentManager)
-              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:19: Error: Use fragment.requireContext() instead of checkNotNull(fragment.context) [UseRequireInsteadOfGet]
-              checkNotNull(fragment.context)
-              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:20: Error: Use fragment.requireActivity() instead of checkNotNull(fragment.activity) [UseRequireInsteadOfGet]
-              checkNotNull(fragment.activity)
-              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:21: Error: Use fragment.requireHost() instead of checkNotNull(fragment.host) [UseRequireInsteadOfGet]
-              checkNotNull(fragment.host)
-              ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:22: Error: Use fragment.requireParentFragment() instead of checkNotNull(fragment.parentFragment) [UseRequireInsteadOfGet]
-              checkNotNull(fragment.parentFragment)
-              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:23: Error: Use fragment.requireView() instead of checkNotNull(fragment.view) [UseRequireInsteadOfGet]
-              checkNotNull(fragment.view)
-              ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:26: Error: Use fragment.requireArguments() instead of fragment.getArguments()!! [UseRequireInsteadOfGet]
-              fragment.getArguments()!!
-              ~~~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:27: Error: Use fragment.requireFragmentManager() instead of fragment.getFragmentManager()!! [UseRequireInsteadOfGet]
-              fragment.getFragmentManager()!!
-              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:28: Error: Use fragment.requireContext() instead of fragment.getContext()!! [UseRequireInsteadOfGet]
-              fragment.getContext()!!
-              ~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:29: Error: Use fragment.requireActivity() instead of fragment.getActivity()!! [UseRequireInsteadOfGet]
-              fragment.getActivity()!!
-              ~~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:30: Error: Use fragment.requireHost() instead of fragment.getHost()!! [UseRequireInsteadOfGet]
-              fragment.getHost()!!
-              ~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:31: Error: Use fragment.requireParentFragment() instead of fragment.getParentFragment()!! [UseRequireInsteadOfGet]
-              fragment.getParentFragment()!!
-              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:32: Error: Use fragment.requireView() instead of fragment.getView()!! [UseRequireInsteadOfGet]
-              fragment.getView()!!
-              ~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:33: Error: Use fragment.requireArguments() instead of fragment.arguments!! [UseRequireInsteadOfGet]
-              fragment.arguments!!
-              ~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:34: Error: Use fragment.requireFragmentManager() instead of fragment.fragmentManager!! [UseRequireInsteadOfGet]
-              fragment.fragmentManager!!
-              ~~~~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:35: Error: Use fragment.requireContext() instead of fragment.context!! [UseRequireInsteadOfGet]
-              fragment.context!!
-              ~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:36: Error: Use fragment.requireActivity() instead of fragment.activity!! [UseRequireInsteadOfGet]
-              fragment.activity!!
-              ~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:37: Error: Use fragment.requireHost() instead of fragment.host!! [UseRequireInsteadOfGet]
-              fragment.host!!
-              ~~~~~~~~~~~~~~~
-          src/foo/Test.kt:38: Error: Use fragment.requireParentFragment() instead of fragment.parentFragment!! [UseRequireInsteadOfGet]
-              fragment.parentFragment!!
-              ~~~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:39: Error: Use fragment.requireView() instead of fragment.view!! [UseRequireInsteadOfGet]
-              fragment.view!!
-              ~~~~~~~~~~~~~~~
-          28 errors, 0 warnings
+                src/foo/Test.kt:9: Error: Use fragment.requireArguments() instead of checkNotNull(fragment.getArguments()) [UseRequireInsteadOfGet]
+                    checkNotNull(fragment.getArguments())
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:10: Error: Use fragment.requireFragmentManager() instead of checkNotNull(fragment.getFragmentManager()) [UseRequireInsteadOfGet]
+                    checkNotNull(fragment.getFragmentManager())
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:11: Error: Use fragment.requireContext() instead of checkNotNull(fragment.getContext()) [UseRequireInsteadOfGet]
+                    checkNotNull(fragment.getContext())
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:12: Error: Use fragment.requireActivity() instead of checkNotNull(fragment.getActivity()) [UseRequireInsteadOfGet]
+                    checkNotNull(fragment.getActivity())
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:13: Error: Use fragment.requireHost() instead of checkNotNull(fragment.getHost()) [UseRequireInsteadOfGet]
+                    checkNotNull(fragment.getHost())
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:14: Error: Use fragment.requireParentFragment() instead of checkNotNull(fragment.getParentFragment()) [UseRequireInsteadOfGet]
+                    checkNotNull(fragment.getParentFragment())
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:15: Error: Use fragment.requireView() instead of checkNotNull(fragment.getView()) [UseRequireInsteadOfGet]
+                    checkNotNull(fragment.getView())
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:17: Error: Use fragment.requireArguments() instead of checkNotNull(fragment.arguments) [UseRequireInsteadOfGet]
+                    checkNotNull(fragment.arguments)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:18: Error: Use fragment.requireFragmentManager() instead of checkNotNull(fragment.fragmentManager) [UseRequireInsteadOfGet]
+                    checkNotNull(fragment.fragmentManager)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:19: Error: Use fragment.requireContext() instead of checkNotNull(fragment.context) [UseRequireInsteadOfGet]
+                    checkNotNull(fragment.context)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:20: Error: Use fragment.requireActivity() instead of checkNotNull(fragment.activity) [UseRequireInsteadOfGet]
+                    checkNotNull(fragment.activity)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:21: Error: Use fragment.requireHost() instead of checkNotNull(fragment.host) [UseRequireInsteadOfGet]
+                    checkNotNull(fragment.host)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:22: Error: Use fragment.requireParentFragment() instead of checkNotNull(fragment.parentFragment) [UseRequireInsteadOfGet]
+                    checkNotNull(fragment.parentFragment)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:23: Error: Use fragment.requireView() instead of checkNotNull(fragment.view) [UseRequireInsteadOfGet]
+                    checkNotNull(fragment.view)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:26: Error: Use fragment.requireArguments() instead of fragment.getArguments()!! [UseRequireInsteadOfGet]
+                    fragment.getArguments()!!
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:27: Error: Use fragment.requireFragmentManager() instead of fragment.getFragmentManager()!! [UseRequireInsteadOfGet]
+                    fragment.getFragmentManager()!!
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:28: Error: Use fragment.requireContext() instead of fragment.getContext()!! [UseRequireInsteadOfGet]
+                    fragment.getContext()!!
+                    ~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:29: Error: Use fragment.requireActivity() instead of fragment.getActivity()!! [UseRequireInsteadOfGet]
+                    fragment.getActivity()!!
+                    ~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:30: Error: Use fragment.requireHost() instead of fragment.getHost()!! [UseRequireInsteadOfGet]
+                    fragment.getHost()!!
+                    ~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:31: Error: Use fragment.requireParentFragment() instead of fragment.getParentFragment()!! [UseRequireInsteadOfGet]
+                    fragment.getParentFragment()!!
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:32: Error: Use fragment.requireView() instead of fragment.getView()!! [UseRequireInsteadOfGet]
+                    fragment.getView()!!
+                    ~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:33: Error: Use fragment.requireArguments() instead of fragment.arguments!! [UseRequireInsteadOfGet]
+                    fragment.arguments!!
+                    ~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:34: Error: Use fragment.requireFragmentManager() instead of fragment.fragmentManager!! [UseRequireInsteadOfGet]
+                    fragment.fragmentManager!!
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:35: Error: Use fragment.requireContext() instead of fragment.context!! [UseRequireInsteadOfGet]
+                    fragment.context!!
+                    ~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:36: Error: Use fragment.requireActivity() instead of fragment.activity!! [UseRequireInsteadOfGet]
+                    fragment.activity!!
+                    ~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:37: Error: Use fragment.requireHost() instead of fragment.host!! [UseRequireInsteadOfGet]
+                    fragment.host!!
+                    ~~~~~~~~~~~~~~~
+                src/foo/Test.kt:38: Error: Use fragment.requireParentFragment() instead of fragment.parentFragment!! [UseRequireInsteadOfGet]
+                    fragment.parentFragment!!
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:39: Error: Use fragment.requireView() instead of fragment.view!! [UseRequireInsteadOfGet]
+                    fragment.view!!
+                    ~~~~~~~~~~~~~~~
+                28 errors, 0 warnings
                 """
                     .trimIndent()
             )
             .expectFixDiffs(
                 """
-          Fix for src/foo/Test.kt line 9: Replace with fragment.requireArguments():
-          @@ -9 +9
-          -     checkNotNull(fragment.getArguments())
-          +     fragment.requireArguments()
-          Fix for src/foo/Test.kt line 10: Replace with fragment.requireFragmentManager():
-          @@ -10 +10
-          -     checkNotNull(fragment.getFragmentManager())
-          +     fragment.requireFragmentManager()
-          Fix for src/foo/Test.kt line 11: Replace with fragment.requireContext():
-          @@ -11 +11
-          -     checkNotNull(fragment.getContext())
-          +     fragment.requireContext()
-          Fix for src/foo/Test.kt line 12: Replace with fragment.requireActivity():
-          @@ -12 +12
-          -     checkNotNull(fragment.getActivity())
-          +     fragment.requireActivity()
-          Fix for src/foo/Test.kt line 13: Replace with fragment.requireHost():
-          @@ -13 +13
-          -     checkNotNull(fragment.getHost())
-          +     fragment.requireHost()
-          Fix for src/foo/Test.kt line 14: Replace with fragment.requireParentFragment():
-          @@ -14 +14
-          -     checkNotNull(fragment.getParentFragment())
-          +     fragment.requireParentFragment()
-          Fix for src/foo/Test.kt line 15: Replace with fragment.requireView():
-          @@ -15 +15
-          -     checkNotNull(fragment.getView())
-          +     fragment.requireView()
-          Fix for src/foo/Test.kt line 17: Replace with fragment.requireArguments():
-          @@ -17 +17
-          -     checkNotNull(fragment.arguments)
-          +     fragment.requireArguments()
-          Fix for src/foo/Test.kt line 18: Replace with fragment.requireFragmentManager():
-          @@ -18 +18
-          -     checkNotNull(fragment.fragmentManager)
-          +     fragment.requireFragmentManager()
-          Fix for src/foo/Test.kt line 19: Replace with fragment.requireContext():
-          @@ -19 +19
-          -     checkNotNull(fragment.context)
-          +     fragment.requireContext()
-          Fix for src/foo/Test.kt line 20: Replace with fragment.requireActivity():
-          @@ -20 +20
-          -     checkNotNull(fragment.activity)
-          +     fragment.requireActivity()
-          Fix for src/foo/Test.kt line 21: Replace with fragment.requireHost():
-          @@ -21 +21
-          -     checkNotNull(fragment.host)
-          +     fragment.requireHost()
-          Fix for src/foo/Test.kt line 22: Replace with fragment.requireParentFragment():
-          @@ -22 +22
-          -     checkNotNull(fragment.parentFragment)
-          +     fragment.requireParentFragment()
-          Fix for src/foo/Test.kt line 23: Replace with fragment.requireView():
-          @@ -23 +23
-          -     checkNotNull(fragment.view)
-          +     fragment.requireView()
-          Fix for src/foo/Test.kt line 26: Replace with fragment.requireArguments():
-          @@ -26 +26
-          -     fragment.getArguments()!!
-          +     fragment.requireArguments()
-          Fix for src/foo/Test.kt line 27: Replace with fragment.requireFragmentManager():
-          @@ -27 +27
-          -     fragment.getFragmentManager()!!
-          +     fragment.requireFragmentManager()
-          Fix for src/foo/Test.kt line 28: Replace with fragment.requireContext():
-          @@ -28 +28
-          -     fragment.getContext()!!
-          +     fragment.requireContext()
-          Fix for src/foo/Test.kt line 29: Replace with fragment.requireActivity():
-          @@ -29 +29
-          -     fragment.getActivity()!!
-          +     fragment.requireActivity()
-          Fix for src/foo/Test.kt line 30: Replace with fragment.requireHost():
-          @@ -30 +30
-          -     fragment.getHost()!!
-          +     fragment.requireHost()
-          Fix for src/foo/Test.kt line 31: Replace with fragment.requireParentFragment():
-          @@ -31 +31
-          -     fragment.getParentFragment()!!
-          +     fragment.requireParentFragment()
-          Fix for src/foo/Test.kt line 32: Replace with fragment.requireView():
-          @@ -32 +32
-          -     fragment.getView()!!
-          +     fragment.requireView()
-          Fix for src/foo/Test.kt line 33: Replace with fragment.requireArguments():
-          @@ -33 +33
-          -     fragment.arguments!!
-          +     fragment.requireArguments()
-          Fix for src/foo/Test.kt line 34: Replace with fragment.requireFragmentManager():
-          @@ -34 +34
-          -     fragment.fragmentManager!!
-          +     fragment.requireFragmentManager()
-          Fix for src/foo/Test.kt line 35: Replace with fragment.requireContext():
-          @@ -35 +35
-          -     fragment.context!!
-          +     fragment.requireContext()
-          Fix for src/foo/Test.kt line 36: Replace with fragment.requireActivity():
-          @@ -36 +36
-          -     fragment.activity!!
-          +     fragment.requireActivity()
-          Fix for src/foo/Test.kt line 37: Replace with fragment.requireHost():
-          @@ -37 +37
-          -     fragment.host!!
-          +     fragment.requireHost()
-          Fix for src/foo/Test.kt line 38: Replace with fragment.requireParentFragment():
-          @@ -38 +38
-          -     fragment.parentFragment!!
-          +     fragment.requireParentFragment()
-          Fix for src/foo/Test.kt line 39: Replace with fragment.requireView():
-          @@ -39 +39
-          -     fragment.view!!
-          +     fragment.requireView()
+                Fix for src/foo/Test.kt line 9: Replace with fragment.requireArguments():
+                @@ -9 +9
+                -     checkNotNull(fragment.getArguments())
+                +     fragment.requireArguments()
+                Fix for src/foo/Test.kt line 10: Replace with fragment.requireFragmentManager():
+                @@ -10 +10
+                -     checkNotNull(fragment.getFragmentManager())
+                +     fragment.requireFragmentManager()
+                Fix for src/foo/Test.kt line 11: Replace with fragment.requireContext():
+                @@ -11 +11
+                -     checkNotNull(fragment.getContext())
+                +     fragment.requireContext()
+                Fix for src/foo/Test.kt line 12: Replace with fragment.requireActivity():
+                @@ -12 +12
+                -     checkNotNull(fragment.getActivity())
+                +     fragment.requireActivity()
+                Fix for src/foo/Test.kt line 13: Replace with fragment.requireHost():
+                @@ -13 +13
+                -     checkNotNull(fragment.getHost())
+                +     fragment.requireHost()
+                Fix for src/foo/Test.kt line 14: Replace with fragment.requireParentFragment():
+                @@ -14 +14
+                -     checkNotNull(fragment.getParentFragment())
+                +     fragment.requireParentFragment()
+                Fix for src/foo/Test.kt line 15: Replace with fragment.requireView():
+                @@ -15 +15
+                -     checkNotNull(fragment.getView())
+                +     fragment.requireView()
+                Fix for src/foo/Test.kt line 17: Replace with fragment.requireArguments():
+                @@ -17 +17
+                -     checkNotNull(fragment.arguments)
+                +     fragment.requireArguments()
+                Fix for src/foo/Test.kt line 18: Replace with fragment.requireFragmentManager():
+                @@ -18 +18
+                -     checkNotNull(fragment.fragmentManager)
+                +     fragment.requireFragmentManager()
+                Fix for src/foo/Test.kt line 19: Replace with fragment.requireContext():
+                @@ -19 +19
+                -     checkNotNull(fragment.context)
+                +     fragment.requireContext()
+                Fix for src/foo/Test.kt line 20: Replace with fragment.requireActivity():
+                @@ -20 +20
+                -     checkNotNull(fragment.activity)
+                +     fragment.requireActivity()
+                Fix for src/foo/Test.kt line 21: Replace with fragment.requireHost():
+                @@ -21 +21
+                -     checkNotNull(fragment.host)
+                +     fragment.requireHost()
+                Fix for src/foo/Test.kt line 22: Replace with fragment.requireParentFragment():
+                @@ -22 +22
+                -     checkNotNull(fragment.parentFragment)
+                +     fragment.requireParentFragment()
+                Fix for src/foo/Test.kt line 23: Replace with fragment.requireView():
+                @@ -23 +23
+                -     checkNotNull(fragment.view)
+                +     fragment.requireView()
+                Fix for src/foo/Test.kt line 26: Replace with fragment.requireArguments():
+                @@ -26 +26
+                -     fragment.getArguments()!!
+                +     fragment.requireArguments()
+                Fix for src/foo/Test.kt line 27: Replace with fragment.requireFragmentManager():
+                @@ -27 +27
+                -     fragment.getFragmentManager()!!
+                +     fragment.requireFragmentManager()
+                Fix for src/foo/Test.kt line 28: Replace with fragment.requireContext():
+                @@ -28 +28
+                -     fragment.getContext()!!
+                +     fragment.requireContext()
+                Fix for src/foo/Test.kt line 29: Replace with fragment.requireActivity():
+                @@ -29 +29
+                -     fragment.getActivity()!!
+                +     fragment.requireActivity()
+                Fix for src/foo/Test.kt line 30: Replace with fragment.requireHost():
+                @@ -30 +30
+                -     fragment.getHost()!!
+                +     fragment.requireHost()
+                Fix for src/foo/Test.kt line 31: Replace with fragment.requireParentFragment():
+                @@ -31 +31
+                -     fragment.getParentFragment()!!
+                +     fragment.requireParentFragment()
+                Fix for src/foo/Test.kt line 32: Replace with fragment.requireView():
+                @@ -32 +32
+                -     fragment.getView()!!
+                +     fragment.requireView()
+                Fix for src/foo/Test.kt line 33: Replace with fragment.requireArguments():
+                @@ -33 +33
+                -     fragment.arguments!!
+                +     fragment.requireArguments()
+                Fix for src/foo/Test.kt line 34: Replace with fragment.requireFragmentManager():
+                @@ -34 +34
+                -     fragment.fragmentManager!!
+                +     fragment.requireFragmentManager()
+                Fix for src/foo/Test.kt line 35: Replace with fragment.requireContext():
+                @@ -35 +35
+                -     fragment.context!!
+                +     fragment.requireContext()
+                Fix for src/foo/Test.kt line 36: Replace with fragment.requireActivity():
+                @@ -36 +36
+                -     fragment.activity!!
+                +     fragment.requireActivity()
+                Fix for src/foo/Test.kt line 37: Replace with fragment.requireHost():
+                @@ -37 +37
+                -     fragment.host!!
+                +     fragment.requireHost()
+                Fix for src/foo/Test.kt line 38: Replace with fragment.requireParentFragment():
+                @@ -38 +38
+                -     fragment.parentFragment!!
+                +     fragment.requireParentFragment()
+                Fix for src/foo/Test.kt line 39: Replace with fragment.requireView():
+                @@ -39 +39
+                -     fragment.view!!
+                +     fragment.requireView()
                 """
                     .trimIndent()
             )
@@ -702,19 +702,19 @@ class UseRequireInsteadOfGetTest {
             .run()
             .expect(
                 """
-          src/foo/Test.kt:7: Error: Use parentFragment!!.requireView() instead of parentFragment?.requireView()!! [UseRequireInsteadOfGet]
-              parentFragment?.requireView()!!
-              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          1 errors, 0 warnings
+                src/foo/Test.kt:7: Error: Use parentFragment!!.requireView() instead of parentFragment?.requireView()!! [UseRequireInsteadOfGet]
+                    parentFragment?.requireView()!!
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                1 errors, 0 warnings
                 """
                     .trimIndent()
             )
             .expectFixDiffs(
                 """
-          Fix for src/foo/Test.kt line 7: Replace with parentFragment!!.requireView():
-          @@ -7 +7
-          -     parentFragment?.requireView()!!
-          +     parentFragment!!.requireView()
+                Fix for src/foo/Test.kt line 7: Replace with parentFragment!!.requireView():
+                @@ -7 +7
+                -     parentFragment?.requireView()!!
+                +     parentFragment!!.requireView()
                 """
                     .trimIndent()
             )
@@ -746,19 +746,19 @@ class UseRequireInsteadOfGetTest {
             .run()
             .expect(
                 """
-          src/foo/Test.kt:7: Error: Use requireParentFragment() instead of parentFragment!! [UseRequireInsteadOfGet]
-              parentFragment!!.requireView()
-              ~~~~~~~~~~~~~~~~
-          1 errors, 0 warnings
+                src/foo/Test.kt:7: Error: Use requireParentFragment() instead of parentFragment!! [UseRequireInsteadOfGet]
+                    parentFragment!!.requireView()
+                    ~~~~~~~~~~~~~~~~
+                1 errors, 0 warnings
                 """
                     .trimIndent()
             )
             .expectFixDiffs(
                 """
-          Fix for src/foo/Test.kt line 7: Replace with requireParentFragment():
-          @@ -7 +7
-          -     parentFragment!!.requireView()
-          +     requireParentFragment().requireView()
+                Fix for src/foo/Test.kt line 7: Replace with requireParentFragment():
+                @@ -7 +7
+                -     parentFragment!!.requireView()
+                +     requireParentFragment().requireView()
                 """
                     .trimIndent()
             )
@@ -859,208 +859,208 @@ class UseRequireInsteadOfGetTest {
             .run()
             .expect(
                 """
-          src/foo/Test.kt:7: Error: Use requireArguments() instead of checkNotNull(getArguments()) [UseRequireInsteadOfGet]
-              checkNotNull(getArguments())
-              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:8: Error: Use requireFragmentManager() instead of checkNotNull(getFragmentManager()) [UseRequireInsteadOfGet]
-              checkNotNull(getFragmentManager())
-              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:9: Error: Use requireContext() instead of checkNotNull(getContext()) [UseRequireInsteadOfGet]
-              checkNotNull(getContext())
-              ~~~~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:10: Error: Use requireActivity() instead of checkNotNull(getActivity()) [UseRequireInsteadOfGet]
-              checkNotNull(getActivity())
-              ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:11: Error: Use requireHost() instead of checkNotNull(getHost()) [UseRequireInsteadOfGet]
-              checkNotNull(getHost())
-              ~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:12: Error: Use requireParentFragment() instead of checkNotNull(getParentFragment()) [UseRequireInsteadOfGet]
-              checkNotNull(getParentFragment())
-              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:13: Error: Use requireView() instead of checkNotNull(getView()) [UseRequireInsteadOfGet]
-              checkNotNull(getView())
-              ~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:15: Error: Use requireArguments() instead of checkNotNull(arguments) [UseRequireInsteadOfGet]
-              checkNotNull(arguments)
-              ~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:16: Error: Use requireFragmentManager() instead of checkNotNull(fragmentManager) [UseRequireInsteadOfGet]
-              checkNotNull(fragmentManager)
-              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:17: Error: Use requireContext() instead of checkNotNull(context) [UseRequireInsteadOfGet]
-              checkNotNull(context)
-              ~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:18: Error: Use requireActivity() instead of checkNotNull(activity) [UseRequireInsteadOfGet]
-              checkNotNull(activity)
-              ~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:19: Error: Use requireHost() instead of checkNotNull(host) [UseRequireInsteadOfGet]
-              checkNotNull(host)
-              ~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:20: Error: Use requireParentFragment() instead of checkNotNull(parentFragment) [UseRequireInsteadOfGet]
-              checkNotNull(parentFragment)
-              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:21: Error: Use requireView() instead of checkNotNull(view) [UseRequireInsteadOfGet]
-              checkNotNull(view)
-              ~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:24: Error: Use requireArguments() instead of getArguments()!! [UseRequireInsteadOfGet]
-              getArguments()!!
-              ~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:25: Error: Use requireFragmentManager() instead of getFragmentManager()!! [UseRequireInsteadOfGet]
-              getFragmentManager()!!
-              ~~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:26: Error: Use requireContext() instead of getContext()!! [UseRequireInsteadOfGet]
-              getContext()!!
-              ~~~~~~~~~~~~~~
-          src/foo/Test.kt:27: Error: Use requireActivity() instead of getActivity()!! [UseRequireInsteadOfGet]
-              getActivity()!!
-              ~~~~~~~~~~~~~~~
-          src/foo/Test.kt:28: Error: Use requireHost() instead of getHost()!! [UseRequireInsteadOfGet]
-              getHost()!!
-              ~~~~~~~~~~~
-          src/foo/Test.kt:29: Error: Use requireParentFragment() instead of getParentFragment()!! [UseRequireInsteadOfGet]
-              getParentFragment()!!
-              ~~~~~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:30: Error: Use requireView() instead of getView()!! [UseRequireInsteadOfGet]
-              getView()!!
-              ~~~~~~~~~~~
-          src/foo/Test.kt:31: Error: Use requireArguments() instead of arguments!! [UseRequireInsteadOfGet]
-              arguments!!
-              ~~~~~~~~~~~
-          src/foo/Test.kt:32: Error: Use requireFragmentManager() instead of fragmentManager!! [UseRequireInsteadOfGet]
-              fragmentManager!!
-              ~~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:33: Error: Use requireContext() instead of context!! [UseRequireInsteadOfGet]
-              context!!
-              ~~~~~~~~~
-          src/foo/Test.kt:34: Error: Use requireActivity() instead of activity!! [UseRequireInsteadOfGet]
-              activity!!
-              ~~~~~~~~~~
-          src/foo/Test.kt:35: Error: Use requireHost() instead of host!! [UseRequireInsteadOfGet]
-              host!!
-              ~~~~~~
-          src/foo/Test.kt:36: Error: Use requireParentFragment() instead of parentFragment!! [UseRequireInsteadOfGet]
-              parentFragment!!
-              ~~~~~~~~~~~~~~~~
-          src/foo/Test.kt:37: Error: Use requireView() instead of view!! [UseRequireInsteadOfGet]
-              view!!
-              ~~~~~~
-          28 errors, 0 warnings
+                src/foo/Test.kt:7: Error: Use requireArguments() instead of checkNotNull(getArguments()) [UseRequireInsteadOfGet]
+                    checkNotNull(getArguments())
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:8: Error: Use requireFragmentManager() instead of checkNotNull(getFragmentManager()) [UseRequireInsteadOfGet]
+                    checkNotNull(getFragmentManager())
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:9: Error: Use requireContext() instead of checkNotNull(getContext()) [UseRequireInsteadOfGet]
+                    checkNotNull(getContext())
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:10: Error: Use requireActivity() instead of checkNotNull(getActivity()) [UseRequireInsteadOfGet]
+                    checkNotNull(getActivity())
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:11: Error: Use requireHost() instead of checkNotNull(getHost()) [UseRequireInsteadOfGet]
+                    checkNotNull(getHost())
+                    ~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:12: Error: Use requireParentFragment() instead of checkNotNull(getParentFragment()) [UseRequireInsteadOfGet]
+                    checkNotNull(getParentFragment())
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:13: Error: Use requireView() instead of checkNotNull(getView()) [UseRequireInsteadOfGet]
+                    checkNotNull(getView())
+                    ~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:15: Error: Use requireArguments() instead of checkNotNull(arguments) [UseRequireInsteadOfGet]
+                    checkNotNull(arguments)
+                    ~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:16: Error: Use requireFragmentManager() instead of checkNotNull(fragmentManager) [UseRequireInsteadOfGet]
+                    checkNotNull(fragmentManager)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:17: Error: Use requireContext() instead of checkNotNull(context) [UseRequireInsteadOfGet]
+                    checkNotNull(context)
+                    ~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:18: Error: Use requireActivity() instead of checkNotNull(activity) [UseRequireInsteadOfGet]
+                    checkNotNull(activity)
+                    ~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:19: Error: Use requireHost() instead of checkNotNull(host) [UseRequireInsteadOfGet]
+                    checkNotNull(host)
+                    ~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:20: Error: Use requireParentFragment() instead of checkNotNull(parentFragment) [UseRequireInsteadOfGet]
+                    checkNotNull(parentFragment)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:21: Error: Use requireView() instead of checkNotNull(view) [UseRequireInsteadOfGet]
+                    checkNotNull(view)
+                    ~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:24: Error: Use requireArguments() instead of getArguments()!! [UseRequireInsteadOfGet]
+                    getArguments()!!
+                    ~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:25: Error: Use requireFragmentManager() instead of getFragmentManager()!! [UseRequireInsteadOfGet]
+                    getFragmentManager()!!
+                    ~~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:26: Error: Use requireContext() instead of getContext()!! [UseRequireInsteadOfGet]
+                    getContext()!!
+                    ~~~~~~~~~~~~~~
+                src/foo/Test.kt:27: Error: Use requireActivity() instead of getActivity()!! [UseRequireInsteadOfGet]
+                    getActivity()!!
+                    ~~~~~~~~~~~~~~~
+                src/foo/Test.kt:28: Error: Use requireHost() instead of getHost()!! [UseRequireInsteadOfGet]
+                    getHost()!!
+                    ~~~~~~~~~~~
+                src/foo/Test.kt:29: Error: Use requireParentFragment() instead of getParentFragment()!! [UseRequireInsteadOfGet]
+                    getParentFragment()!!
+                    ~~~~~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:30: Error: Use requireView() instead of getView()!! [UseRequireInsteadOfGet]
+                    getView()!!
+                    ~~~~~~~~~~~
+                src/foo/Test.kt:31: Error: Use requireArguments() instead of arguments!! [UseRequireInsteadOfGet]
+                    arguments!!
+                    ~~~~~~~~~~~
+                src/foo/Test.kt:32: Error: Use requireFragmentManager() instead of fragmentManager!! [UseRequireInsteadOfGet]
+                    fragmentManager!!
+                    ~~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:33: Error: Use requireContext() instead of context!! [UseRequireInsteadOfGet]
+                    context!!
+                    ~~~~~~~~~
+                src/foo/Test.kt:34: Error: Use requireActivity() instead of activity!! [UseRequireInsteadOfGet]
+                    activity!!
+                    ~~~~~~~~~~
+                src/foo/Test.kt:35: Error: Use requireHost() instead of host!! [UseRequireInsteadOfGet]
+                    host!!
+                    ~~~~~~
+                src/foo/Test.kt:36: Error: Use requireParentFragment() instead of parentFragment!! [UseRequireInsteadOfGet]
+                    parentFragment!!
+                    ~~~~~~~~~~~~~~~~
+                src/foo/Test.kt:37: Error: Use requireView() instead of view!! [UseRequireInsteadOfGet]
+                    view!!
+                    ~~~~~~
+                28 errors, 0 warnings
                 """
                     .trimIndent()
             )
             .expectFixDiffs(
                 """
-          Fix for src/foo/Test.kt line 7: Replace with requireArguments():
-          @@ -7 +7
-          -     checkNotNull(getArguments())
-          +     requireArguments()
-          Fix for src/foo/Test.kt line 8: Replace with requireFragmentManager():
-          @@ -8 +8
-          -     checkNotNull(getFragmentManager())
-          +     requireFragmentManager()
-          Fix for src/foo/Test.kt line 9: Replace with requireContext():
-          @@ -9 +9
-          -     checkNotNull(getContext())
-          +     requireContext()
-          Fix for src/foo/Test.kt line 10: Replace with requireActivity():
-          @@ -10 +10
-          -     checkNotNull(getActivity())
-          +     requireActivity()
-          Fix for src/foo/Test.kt line 11: Replace with requireHost():
-          @@ -11 +11
-          -     checkNotNull(getHost())
-          +     requireHost()
-          Fix for src/foo/Test.kt line 12: Replace with requireParentFragment():
-          @@ -12 +12
-          -     checkNotNull(getParentFragment())
-          +     requireParentFragment()
-          Fix for src/foo/Test.kt line 13: Replace with requireView():
-          @@ -13 +13
-          -     checkNotNull(getView())
-          +     requireView()
-          Fix for src/foo/Test.kt line 15: Replace with requireArguments():
-          @@ -15 +15
-          -     checkNotNull(arguments)
-          +     requireArguments()
-          Fix for src/foo/Test.kt line 16: Replace with requireFragmentManager():
-          @@ -16 +16
-          -     checkNotNull(fragmentManager)
-          +     requireFragmentManager()
-          Fix for src/foo/Test.kt line 17: Replace with requireContext():
-          @@ -17 +17
-          -     checkNotNull(context)
-          +     requireContext()
-          Fix for src/foo/Test.kt line 18: Replace with requireActivity():
-          @@ -18 +18
-          -     checkNotNull(activity)
-          +     requireActivity()
-          Fix for src/foo/Test.kt line 19: Replace with requireHost():
-          @@ -19 +19
-          -     checkNotNull(host)
-          +     requireHost()
-          Fix for src/foo/Test.kt line 20: Replace with requireParentFragment():
-          @@ -20 +20
-          -     checkNotNull(parentFragment)
-          +     requireParentFragment()
-          Fix for src/foo/Test.kt line 21: Replace with requireView():
-          @@ -21 +21
-          -     checkNotNull(view)
-          +     requireView()
-          Fix for src/foo/Test.kt line 24: Replace with requireArguments():
-          @@ -24 +24
-          -     getArguments()!!
-          +     requireArguments()
-          Fix for src/foo/Test.kt line 25: Replace with requireFragmentManager():
-          @@ -25 +25
-          -     getFragmentManager()!!
-          +     requireFragmentManager()
-          Fix for src/foo/Test.kt line 26: Replace with requireContext():
-          @@ -26 +26
-          -     getContext()!!
-          +     requireContext()
-          Fix for src/foo/Test.kt line 27: Replace with requireActivity():
-          @@ -27 +27
-          -     getActivity()!!
-          +     requireActivity()
-          Fix for src/foo/Test.kt line 28: Replace with requireHost():
-          @@ -28 +28
-          -     getHost()!!
-          +     requireHost()
-          Fix for src/foo/Test.kt line 29: Replace with requireParentFragment():
-          @@ -29 +29
-          -     getParentFragment()!!
-          +     requireParentFragment()
-          Fix for src/foo/Test.kt line 30: Replace with requireView():
-          @@ -30 +30
-          -     getView()!!
-          +     requireView()
-          Fix for src/foo/Test.kt line 31: Replace with requireArguments():
-          @@ -31 +31
-          -     arguments!!
-          +     requireArguments()
-          Fix for src/foo/Test.kt line 32: Replace with requireFragmentManager():
-          @@ -32 +32
-          -     fragmentManager!!
-          +     requireFragmentManager()
-          Fix for src/foo/Test.kt line 33: Replace with requireContext():
-          @@ -33 +33
-          -     context!!
-          +     requireContext()
-          Fix for src/foo/Test.kt line 34: Replace with requireActivity():
-          @@ -34 +34
-          -     activity!!
-          +     requireActivity()
-          Fix for src/foo/Test.kt line 35: Replace with requireHost():
-          @@ -35 +35
-          -     host!!
-          +     requireHost()
-          Fix for src/foo/Test.kt line 36: Replace with requireParentFragment():
-          @@ -36 +36
-          -     parentFragment!!
-          +     requireParentFragment()
-          Fix for src/foo/Test.kt line 37: Replace with requireView():
-          @@ -37 +37
-          -     view!!
-          +     requireView()
+                Fix for src/foo/Test.kt line 7: Replace with requireArguments():
+                @@ -7 +7
+                -     checkNotNull(getArguments())
+                +     requireArguments()
+                Fix for src/foo/Test.kt line 8: Replace with requireFragmentManager():
+                @@ -8 +8
+                -     checkNotNull(getFragmentManager())
+                +     requireFragmentManager()
+                Fix for src/foo/Test.kt line 9: Replace with requireContext():
+                @@ -9 +9
+                -     checkNotNull(getContext())
+                +     requireContext()
+                Fix for src/foo/Test.kt line 10: Replace with requireActivity():
+                @@ -10 +10
+                -     checkNotNull(getActivity())
+                +     requireActivity()
+                Fix for src/foo/Test.kt line 11: Replace with requireHost():
+                @@ -11 +11
+                -     checkNotNull(getHost())
+                +     requireHost()
+                Fix for src/foo/Test.kt line 12: Replace with requireParentFragment():
+                @@ -12 +12
+                -     checkNotNull(getParentFragment())
+                +     requireParentFragment()
+                Fix for src/foo/Test.kt line 13: Replace with requireView():
+                @@ -13 +13
+                -     checkNotNull(getView())
+                +     requireView()
+                Fix for src/foo/Test.kt line 15: Replace with requireArguments():
+                @@ -15 +15
+                -     checkNotNull(arguments)
+                +     requireArguments()
+                Fix for src/foo/Test.kt line 16: Replace with requireFragmentManager():
+                @@ -16 +16
+                -     checkNotNull(fragmentManager)
+                +     requireFragmentManager()
+                Fix for src/foo/Test.kt line 17: Replace with requireContext():
+                @@ -17 +17
+                -     checkNotNull(context)
+                +     requireContext()
+                Fix for src/foo/Test.kt line 18: Replace with requireActivity():
+                @@ -18 +18
+                -     checkNotNull(activity)
+                +     requireActivity()
+                Fix for src/foo/Test.kt line 19: Replace with requireHost():
+                @@ -19 +19
+                -     checkNotNull(host)
+                +     requireHost()
+                Fix for src/foo/Test.kt line 20: Replace with requireParentFragment():
+                @@ -20 +20
+                -     checkNotNull(parentFragment)
+                +     requireParentFragment()
+                Fix for src/foo/Test.kt line 21: Replace with requireView():
+                @@ -21 +21
+                -     checkNotNull(view)
+                +     requireView()
+                Fix for src/foo/Test.kt line 24: Replace with requireArguments():
+                @@ -24 +24
+                -     getArguments()!!
+                +     requireArguments()
+                Fix for src/foo/Test.kt line 25: Replace with requireFragmentManager():
+                @@ -25 +25
+                -     getFragmentManager()!!
+                +     requireFragmentManager()
+                Fix for src/foo/Test.kt line 26: Replace with requireContext():
+                @@ -26 +26
+                -     getContext()!!
+                +     requireContext()
+                Fix for src/foo/Test.kt line 27: Replace with requireActivity():
+                @@ -27 +27
+                -     getActivity()!!
+                +     requireActivity()
+                Fix for src/foo/Test.kt line 28: Replace with requireHost():
+                @@ -28 +28
+                -     getHost()!!
+                +     requireHost()
+                Fix for src/foo/Test.kt line 29: Replace with requireParentFragment():
+                @@ -29 +29
+                -     getParentFragment()!!
+                +     requireParentFragment()
+                Fix for src/foo/Test.kt line 30: Replace with requireView():
+                @@ -30 +30
+                -     getView()!!
+                +     requireView()
+                Fix for src/foo/Test.kt line 31: Replace with requireArguments():
+                @@ -31 +31
+                -     arguments!!
+                +     requireArguments()
+                Fix for src/foo/Test.kt line 32: Replace with requireFragmentManager():
+                @@ -32 +32
+                -     fragmentManager!!
+                +     requireFragmentManager()
+                Fix for src/foo/Test.kt line 33: Replace with requireContext():
+                @@ -33 +33
+                -     context!!
+                +     requireContext()
+                Fix for src/foo/Test.kt line 34: Replace with requireActivity():
+                @@ -34 +34
+                -     activity!!
+                +     requireActivity()
+                Fix for src/foo/Test.kt line 35: Replace with requireHost():
+                @@ -35 +35
+                -     host!!
+                +     requireHost()
+                Fix for src/foo/Test.kt line 36: Replace with requireParentFragment():
+                @@ -36 +36
+                -     parentFragment!!
+                +     requireParentFragment()
+                Fix for src/foo/Test.kt line 37: Replace with requireView():
+                @@ -37 +37
+                -     view!!
+                +     requireView()
                 """
                     .trimIndent()
             )

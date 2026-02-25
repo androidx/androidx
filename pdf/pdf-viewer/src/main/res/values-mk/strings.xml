@@ -81,6 +81,8 @@
     <string name="form_click_toggle_instruction" msgid="7171111300244445911">"Ако кликнете, ќе се вклучи/исклучи вредноста."</string>
     <string name="form_click_opens_choices_menu_instruction" msgid="5648228168212004143">"Ако кликнете, ќе се отвори менито за избор."</string>
     <string name="form_click_enters_text_edit_mode_instruction" msgid="2305283577544618880">"Ако кликнете, ќе влезете во режим на уредување текст."</string>
+    <!-- no translation found for combobox_custom_option (8730230629127076731) -->
+    <skip />
     <string name="form_unknown" msgid="6371515914365431330">"Непознато"</string>
     <string name="form_widget_type_push_button" msgid="3595388398616291441">"Копче за проследување"</string>
     <string name="form_widget_type_checkbox" msgid="5165655383070460151">"Поле за избор"</string>

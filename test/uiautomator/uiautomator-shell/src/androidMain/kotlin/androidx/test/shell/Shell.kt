@@ -48,35 +48,35 @@ public object Shell {
     }
 
     /**
-     * Commands for wifi.
+     * Commands for controlling Wi-Fi.
      *
      * @return an instance of [WifiCommands].
      */
-    public fun wifi(): WifiCommands = WifiCommands(shell = this)
+    public val wifi: WifiCommands by lazy { WifiCommands(shell = this) }
 
     /** Commands for screen. */
-    public fun screen(): ScreenCommands = ScreenCommands(shell = this)
+    public val screen: ScreenCommands by lazy { ScreenCommands(shell = this) }
 
     /**
      * Commands for application.
      *
      * @return an instance of [ApplicationCommands].
      */
-    public fun application(): ApplicationCommands = ApplicationCommands(shell = this)
+    public val application: ApplicationCommands by lazy { ApplicationCommands(shell = this) }
 
     /**
      * Commands for screen recorder.
      *
      * @return an instance of [RecorderCommands].
      */
-    public fun recorder(): RecorderCommands = RecorderCommands(shell = this)
+    public val recorder: RecorderCommands by lazy { RecorderCommands(shell = this) }
 
     /**
      * Commands for processes.
      *
      * @return an instance of [ProcessCommands].
      */
-    public fun process(): ProcessCommands = ProcessCommands(shell = this)
+    public val process: ProcessCommands by lazy { ProcessCommands(shell = this) }
 
     /**
      * Commands for permissions.

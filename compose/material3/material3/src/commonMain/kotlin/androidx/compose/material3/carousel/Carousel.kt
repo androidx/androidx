@@ -216,15 +216,16 @@ fun HorizontalUncontainedCarousel(
 /**
  * [Material Design Carousel](https://m3.material.io/components/carousel/overview)
  *
- * A horizontal carousel that centers one large item between two small items.
+ * A horizontal carousel that centers at least one large item between two small items.
  *
  * @sample androidx.compose.material3.samples.HorizontalCenteredHeroCarouselSample
  * @param state The state object to be used to control the carousel's state
  * @param modifier A modifier instance to be applied to this carousel container
- * @param maxItemWidth The max width a large item is allowed to be in dp. The default value of
+ * @param maxItemWidth The max width a large item should be in dp. The default value of
  *   [Dp.Unspecified] allows one large item to grow to fill the entire viewport minus space for two
  *   surrounding small items. Values other than unspecified will add additional large items as space
- *   allows.
+ *   allows. To allow items to grow up to a certain aspect ratio, use the carousel's cross axis
+ *   size * a multiplier (e.g. `220.dp * 2` for a max aspect ratio of 2:1).
  * @param itemSpacing The amount of space used to separate items in the carousel
  * @param flingBehavior The [TargetedFlingBehavior] to be used for post scroll gestures
  * @param userScrollEnabled whether the scrolling via the user gestures or accessibility actions is

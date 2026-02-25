@@ -34,7 +34,6 @@ import androidx.camera.camera2.compat.quirk.CrashWhenTakingPhotoWithAutoFlashAEM
 import androidx.camera.camera2.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.compat.quirk.ImageCaptureFailWithAutoFlashQuirk
 import androidx.camera.camera2.compat.quirk.ImageCaptureFlashNotFireQuirk
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraEffect.IMAGE_CAPTURE
 import androidx.camera.core.CameraInfo
@@ -47,7 +46,6 @@ import androidx.camera.core.Preview
 import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.LabTestRule
@@ -86,10 +84,6 @@ private const val CAPTURE_TIMEOUT = 15_000.toLong() //  15 seconds
 class FlashTest(private val implName: String, private val cameraXConfig: CameraXConfig) {
 
     @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
-
-    @get:Rule
     val cameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraXConfig))
 
@@ -98,11 +92,7 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() =
-            listOf(
-                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig()),
-            )
+        fun data() = listOf(arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()))
     }
 
     private val context = ApplicationProvider.getApplicationContext<Context>()

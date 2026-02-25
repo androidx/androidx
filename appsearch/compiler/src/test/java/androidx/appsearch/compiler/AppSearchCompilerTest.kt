@@ -41,11 +41,11 @@ class AppSearchCompilerTest : CompilerTestBase() {
         val compilation =
             compile(
                 """
-          @Document
-          public class Gift {
-            @Document.Namespace String namespace;
-          }
-        """
+                @Document
+                public class Gift {
+                  @Document.Namespace String namespace;
+                }
+                """
                     .trimIndent()
             )
         CompilationSubject.assertThat(compilation)
@@ -554,27 +554,27 @@ class AppSearchCompilerTest : CompilerTestBase() {
     fun testClassSpecialValues() {
         compile(
             """
-                @Document
-                public class Gift {
-                    @Document.Namespace
-                    String mNamespace;
-                    @Document.Id
-                    String mId;
-                    @Document.CreationTimestampMillis
-                    Long mCreationTimestampMillis;
-                    @Document.Score
-                    Integer mScore;
-                    @Document.TtlMillis
-                    private Long mTtlMillis;
-                    public Long getTtlMillis() {
-                        return mTtlMillis;
-                    }
-                    public void setTtlMillis(Long ttlMillis) {
-                        mTtlMillis = ttlMillis;
-                    }
-                    @Document.StringProperty
-                    String mString;
+            @Document
+            public class Gift {
+                @Document.Namespace
+                String mNamespace;
+                @Document.Id
+                String mId;
+                @Document.CreationTimestampMillis
+                Long mCreationTimestampMillis;
+                @Document.Score
+                Integer mScore;
+                @Document.TtlMillis
+                private Long mTtlMillis;
+                public Long getTtlMillis() {
+                    return mTtlMillis;
                 }
+                public void setTtlMillis(Long ttlMillis) {
+                    mTtlMillis = ttlMillis;
+                }
+                @Document.StringProperty
+                String mString;
+            }
             """
                 .trimIndent()
         )

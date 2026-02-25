@@ -29,6 +29,7 @@ import android.util.SparseArray
 import androidx.annotation.OpenForTesting
 import androidx.annotation.RequiresExtension
 import androidx.pdf.PdfDocument
+import androidx.pdf.PdfDocument.Companion.LINEARIZATION_STATUS_UNKNOWN
 import androidx.pdf.RenderParams
 import androidx.pdf.annotation.KeyedPdfAnnotation
 import androidx.pdf.annotation.models.PdfObject
@@ -68,14 +69,16 @@ import kotlinx.coroutines.withTimeout
  * @param formType one of [PDF_FORM_TYPE_ACRO_FORM], [PDF_FORM_TYPE_XFA_FULL],
  *   [PDF_FORM_TYPE_XFA_FOREGROUND], or [PDF_FORM_TYPE_NONE] depending on the type of PDF form this
  *   fake PDF should represent
- * @param isLinearized true if this fake PDF is linearized
+ * @param linearizationStatus One of [LINEARIZATION_STATUS_LINEARIZED],
+ *   [LINEARIZATION_STATUS_NOT_LINEARIZED], or [LINEARIZATION_STATUS_UNKNOWN], indicating the
+ *   linearization state of the fake PDF.
  */
 @OpenForTesting
 internal open class FakePdfDocument(
     /** A list of (x, y) page dimensions in content coordinates */
     internal val pages: List<Point?> = listOf(),
     override val formType: Int = PDF_FORM_TYPE_NONE,
-    override val isLinearized: Boolean = false,
+    override val linearizationStatus: Int = LINEARIZATION_STATUS_UNKNOWN,
     override val renderParams: RenderParams = RenderParams(RenderParams.RENDER_MODE_FOR_DISPLAY),
     private val searchResults: SparseArray<List<PageMatchBounds>> = SparseArray(),
     override val uri: Uri = Uri.parse("content://test.app/document.pdf"),
@@ -84,6 +87,8 @@ internal open class FakePdfDocument(
     private val pageFormWidgetInfos: Map<Int, List<FormWidgetInfo>> = mapOf(),
     private val annotationsPerPage: Map<Int, List<KeyedPdfAnnotation>> = mapOf(),
     private val exceptionToThrow: Exception? = null,
+    @Deprecated("Deprecated in Java, Use getLinearizationStatus() instead")
+    override val isLinearized: Boolean = false,
 ) : PdfDocument {
     override val pageCount: Int = pages.size
 

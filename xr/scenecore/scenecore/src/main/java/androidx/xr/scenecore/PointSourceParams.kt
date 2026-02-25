@@ -34,10 +34,10 @@ public class PointSourceParams(internal val entity: Entity) {
         (entity as BaseEntity<*>).checkNotDisposed()
     }
 
-    internal val rtPointSourceParams: RtPointSourceParams
+    internal val rtPointSourceParams = RtPointSourceParams((entity as BaseEntity<*>).rtEntity!!)
         get() {
             (entity as BaseEntity<*>).checkNotDisposed()
-            return RtPointSourceParams(entity.rtEntity!!)
+            return field
         }
 }
 

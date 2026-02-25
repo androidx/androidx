@@ -139,6 +139,11 @@ package androidx.navigationevent {
     method @EmptySuper @MainThread protected void onRemoved();
   }
 
+  public final class NavigationEventKt {
+    method @RequiresApi(34) public static android.window.BackEvent toBackEvent(androidx.navigationevent.NavigationEvent);
+    method @RequiresApi(34) public static androidx.navigationevent.NavigationEvent toNavigationEvent(android.window.BackEvent);
+  }
+
   @androidx.compose.runtime.Immutable public abstract sealed exhaustive class NavigationEventTransitionState {
     field public static final androidx.navigationevent.NavigationEventTransitionState.Companion Companion;
     field public static final int TRANSITIONING_BACK = -1; // 0xffffffff

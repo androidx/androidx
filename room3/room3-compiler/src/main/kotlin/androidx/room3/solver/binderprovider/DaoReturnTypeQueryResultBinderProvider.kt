@@ -16,15 +16,20 @@
 
 package androidx.room3.solver.binderprovider
 
+import androidx.room3.compiler.processing.XNullability
 import androidx.room3.compiler.processing.XType
+import androidx.room3.compiler.processing.isVoidObject
+import androidx.room3.ext.isCollection
 import androidx.room3.parser.ParsedQuery
 import androidx.room3.processor.Context
+import androidx.room3.processor.ProcessorErrors
 import androidx.room3.processor.ProcessorErrors.DAO_RETURN_TYPE_CONVERTER_FUNCTIONS_WITH_A_TYPE_PARAM_SHOULD_HAVE_RETURN_TYPE_WITH_ONLY_ONE_GENERIC_ARG
 import androidx.room3.solver.QueryResultBinderProvider
 import androidx.room3.solver.TypeAdapterExtras
 import androidx.room3.solver.query.result.DaoReturnTypeQueryResultBinder
 import androidx.room3.solver.query.result.QueryResultBinder
 import androidx.room3.solver.types.DaoReturnTypeConverter
+import com.google.common.base.Optional
 import kotlin.collections.plus
 import kotlin.collections.toSet
 
@@ -68,15 +73,34 @@ class DaoReturnTypeQueryResultBinderProvider(
         query: ParsedQuery,
         extras: TypeAdapterExtras,
     ): QueryResultBinder {
+        fun isCollectionOrOptional(type: XType): Boolean {
+            return type.isCollection() ||
+                type.isTypeOf(Optional::class) ||
+                type.isTypeOf(Map::class)
+        }
+
         val typeArg =
             if (declared.typeArguments.isEmpty()) {
-                declared
-            } else {
-                declared.typeArguments[returnTypeConverter.rowAdapterTypeArgPosition]
-            }
+                    declared
+                } else {
+                    declared.typeArguments[returnTypeConverter.rowAdapterTypeArgPosition]
+                }
+                .let {
+                    if (
+                        returnTypeConverter.hasNullableLambdaReturnType &&
+                            !isCollectionOrOptional(it)
+                    )
+                        it.makeNullable()
+                    else it
+                }
+        if (typeArg.isVoidObject() && typeArg.nullability == XNullability.NONNULL) {
+            context.logger.e(ProcessorErrors.NONNULL_VOID)
+        }
+
         val adapter = context.typeAdapterStore.findQueryResultAdapter(typeArg, query, extras)
         val tableNames =
             ((adapter?.accessedTableNames() ?: emptyList()) + query.tables.map { it.name }).toSet()
+
         return DaoReturnTypeQueryResultBinder(
             typeArg = typeArg,
             tableNames = tableNames,

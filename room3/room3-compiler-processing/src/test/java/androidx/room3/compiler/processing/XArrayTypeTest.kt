@@ -43,11 +43,11 @@ class XArrayTypeTest {
             Source.java(
                 "foo.bar.Baz",
                 """
-            package foo.bar;
-            class Baz {
-                String[] param;
-            }
-            """
+                package foo.bar;
+                class Baz {
+                    String[] param;
+                }
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(source)) { invocation ->
@@ -110,12 +110,12 @@ class XArrayTypeTest {
             Source.kotlin(
                 "Foo.kt",
                 """
-            package foo.bar
-            class Baz {
-                val nonNull:Array<String> = TODO()
-                val nullable:Array<String?> = TODO()
-            }
-            """
+                package foo.bar
+                class Baz {
+                    val nonNull:Array<String> = TODO()
+                    val nullable:Array<String?> = TODO()
+                }
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(source)) { invocation ->
@@ -171,25 +171,25 @@ class XArrayTypeTest {
             Source.kotlin(
                 "Foo.kt",
                 """
-            class Subject {
-                val primitiveBooleanArray : BooleanArray = TODO()
-                val primitiveByteArray : ByteArray = TODO()
-                val primitiveShortArray : ShortArray = TODO()
-                val primitiveIntArray : IntArray = TODO()
-                val primitiveLongArray : LongArray = TODO()
-                val primitiveCharArray : CharArray = TODO()
-                val primitiveFloatArray : FloatArray = TODO()
-                val primitiveDoubleArray : DoubleArray = TODO()
-                val boxedBooleanArray : Array<Boolean> = TODO()
-                val boxedByteArray : Array<Byte> = TODO()
-                val boxedShortArray : Array<Short> = TODO()
-                val boxedIntArray : Array<Int> = TODO()
-                val boxedLongArray : Array<Long> = TODO()
-                val boxedCharArray : Array<Char> = TODO()
-                val boxedFloatArray : Array<Float> = TODO()
-                val boxedDoubleArray : Array<Double> = TODO()
-            }
-            """
+                class Subject {
+                    val primitiveBooleanArray : BooleanArray = TODO()
+                    val primitiveByteArray : ByteArray = TODO()
+                    val primitiveShortArray : ShortArray = TODO()
+                    val primitiveIntArray : IntArray = TODO()
+                    val primitiveLongArray : LongArray = TODO()
+                    val primitiveCharArray : CharArray = TODO()
+                    val primitiveFloatArray : FloatArray = TODO()
+                    val primitiveDoubleArray : DoubleArray = TODO()
+                    val boxedBooleanArray : Array<Boolean> = TODO()
+                    val boxedByteArray : Array<Byte> = TODO()
+                    val boxedShortArray : Array<Short> = TODO()
+                    val boxedIntArray : Array<Int> = TODO()
+                    val boxedLongArray : Array<Long> = TODO()
+                    val boxedCharArray : Array<Char> = TODO()
+                    val boxedFloatArray : Array<Float> = TODO()
+                    val boxedDoubleArray : Array<Double> = TODO()
+                }
+                """
                     .trimIndent(),
             )
         runProcessorTest(listOf(src)) { invocation ->

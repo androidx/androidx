@@ -500,5 +500,7 @@ class ServiceBackedPassiveMonitoringClientTest {
             unregisterCallbackPackageNames += packageName
             statusCallbackAction.invoke(statusCallback)
         }
+
+        override fun getInterfaceVersion(): Int = VERSION
     }
 }

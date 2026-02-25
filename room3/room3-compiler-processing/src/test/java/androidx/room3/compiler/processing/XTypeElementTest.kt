@@ -87,17 +87,17 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
             Source.kotlin(
                 "Foo.kt",
                 """
-            class TopLevel
-            """
+                class TopLevel
+                """
                     .trimIndent(),
             )
         val src2 =
             Source.kotlin(
                 "Bar.kt",
                 """
-            package foo.bar
-            class InFooBar
-            """
+                package foo.bar
+                class InFooBar
+                """
                     .trimIndent(),
             )
         val src3 =
@@ -169,12 +169,12 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
             Source.kotlin(
                 "foo.kt",
                 """
-            package foo.bar
-            class Baz : MyInterface, AbstractClass()
-            abstract class AbstractClass
-            interface MyInterface
-            interface AnotherInterface : MyInterface
-            """
+                package foo.bar
+                class Baz : MyInterface, AbstractClass()
+                abstract class AbstractClass
+                interface MyInterface
+                interface AnotherInterface : MyInterface
+                """
                     .trimIndent(),
             )
         runTest(sources = listOf(src)) { invocation ->
@@ -248,21 +248,21 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
                     Source.kotlin(
                         "foo.bar.KotlinClass.kt",
                         """
-                    package foo.bar
-                    class KotlinClass
-                    class KotlinClassWithInterface : KotlinInterface
-                    interface KotlinInterface
-                    """
+                        package foo.bar
+                        class KotlinClass
+                        class KotlinClassWithInterface : KotlinInterface
+                        interface KotlinInterface
+                        """
                             .trimIndent(),
                     ),
                     Source.java(
                         "foo.bar.JavaClass",
                         """
-                    package foo.bar;
-                    class JavaClass {}
-                    class JavaClassWithInterface implements JavaInterface {}
-                    interface JavaInterface {}
-                    """
+                        package foo.bar;
+                        class JavaClass {}
+                        class JavaClassWithInterface implements JavaInterface {}
+                        interface JavaInterface {}
+                        """
                             .trimIndent(),
                     ),
                 )
@@ -290,13 +290,13 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
                     Source.kotlin(
                         "foo.bar.KotlinClass.kt",
                         """
-                    package foo.bar
-                    class MyClass : MyAliasClass(), MyAliasInterface
-                    typealias MyAliasClass = MyBaseClass
-                    typealias MyAliasInterface = MyBaseInterface
-                    abstract class MyBaseClass
-                    interface MyBaseInterface
-                    """
+                        package foo.bar
+                        class MyClass : MyAliasClass(), MyAliasInterface
+                        typealias MyAliasClass = MyBaseClass
+                        typealias MyAliasInterface = MyBaseInterface
+                        abstract class MyBaseClass
+                        interface MyBaseInterface
+                        """
                             .trimIndent(),
                     )
                 )
@@ -332,11 +332,11 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
             Source.kotlin(
                 "foo.kt",
                 """
-            package foo.bar
-            class Baz : MyInterface<String>, AbstractClass()
-            abstract class AbstractClass
-            interface MyInterface<E>
-            """
+                package foo.bar
+                class Baz : MyInterface<String>, AbstractClass()
+                abstract class AbstractClass
+                interface MyInterface<E>
+                """
                     .trimIndent(),
             )
         runTest(sources = listOf(src)) { invocation ->
@@ -366,11 +366,11 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
             Source.kotlin(
                 "Foo.kt",
                 """
-            package foo.bar
-            class Outer {
-                class Inner
-            }
-            """
+                package foo.bar
+                class Outer {
+                    class Inner
+                }
+                """
                     .trimIndent(),
             )
         runTest(sources = listOf(src)) { invocation ->
@@ -396,43 +396,43 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
             Source.kotlin(
                 "Foo.kt",
                 """
-            open class OpenClass
-            abstract class AbstractClass
-            object MyObject
-            interface MyInterface
-            class Final
-            private class PrivateClass
-            class OuterKotlinClass {
-                inner class InnerKotlinClass
-                class NestedKotlinClass
-            }
-            annotation class KotlinAnnotation
-            data class DataClass(val foo: Int)
-            inline class InlineClass(val foo: Int)
-            fun interface FunInterface {
-               fun foo()
-            }
-            """
+                open class OpenClass
+                abstract class AbstractClass
+                object MyObject
+                interface MyInterface
+                class Final
+                private class PrivateClass
+                class OuterKotlinClass {
+                    inner class InnerKotlinClass
+                    class NestedKotlinClass
+                }
+                annotation class KotlinAnnotation
+                data class DataClass(val foo: Int)
+                inline class InlineClass(val foo: Int)
+                fun interface FunInterface {
+                   fun foo()
+                }
+                """
                     .trimIndent(),
             )
         val javaSrc =
             Source.java(
                 "OuterJavaClass",
                 """
-            public class OuterJavaClass {
-                public class InnerJavaClass {}
-                public static class NestedJavaClass {}
-            }
-            """
+                public class OuterJavaClass {
+                    public class InnerJavaClass {}
+                    public static class NestedJavaClass {}
+                }
+                """
                     .trimIndent(),
             )
         val javaAnnotationSrc =
             Source.java(
                 "JavaAnnotation",
                 """
-            public @interface JavaAnnotation {
-            }
-            """
+                public @interface JavaAnnotation {
+                }
+                """
                     .trimIndent(),
             )
         runTest(sources = listOf(kotlinSrc, javaSrc, javaAnnotationSrc)) { invocation ->
@@ -508,20 +508,20 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
             Source.kotlin(
                 "Foo.kt",
                 """
-            class KotlinClass
-            interface KotlinInterface
-            annotation class KotlinAnnotation
-            """
+                class KotlinClass
+                interface KotlinInterface
+                annotation class KotlinAnnotation
+                """
                     .trimIndent(),
             )
         val javaSrc =
             Source.java(
                 "Bar",
                 """
-            class JavaClass {}
-            interface JavaInterface {}
-            @interface JavaAnnotation {}
-            """
+                class JavaClass {}
+                interface JavaInterface {}
+                @interface JavaAnnotation {}
+                """
                     .trimIndent(),
             )
         runTest(sources = listOf(kotlinSrc, javaSrc)) { invocation ->
@@ -563,13 +563,13 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
             Source.kotlin(
                 "Foo.kt",
                 """
-            open class BaseClass<T>(val genericProp : T) {
-                fun baseMethod(input: T) {}
-            }
-            class SubClass(x : Int) : BaseClass<Int>(x) {
-                val subClassProp : String = "abc"
-            }
-            """
+                open class BaseClass<T>(val genericProp : T) {
+                    fun baseMethod(input: T) {}
+                }
+                class SubClass(x : Int) : BaseClass<Int>(x) {
+                    val subClassProp : String = "abc"
+                }
+                """
                     .trimIndent(),
             )
         runTest(sources = listOf(src)) { invocation ->
@@ -604,13 +604,13 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
             Source.kotlin(
                 "Foo.kt",
                 """
-            open class BaseClass(
-                open val value : List<Int>
-            )
-            class SubClass(
-                override val value : MutableList<Int>
-            ) : BaseClass(value)
-            """
+                open class BaseClass(
+                    open val value : List<Int>
+                )
+                class SubClass(
+                    override val value : MutableList<Int>
+                ) : BaseClass(value)
+                """
                     .trimIndent(),
             )
         @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // intentionally using java.* types
@@ -642,30 +642,30 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
                     Source.kotlin(
                         "Foo.kt",
                         """
-            package test
-            class Subject {
-                val realField: String = ""
-                    get() = field
-                val noBackingVal: String
-                    get() = ""
-                var noBackingVar: String
-                    get() = ""
-                    set(value) {}
+                        package test
+                        class Subject {
+                            val realField: String = ""
+                                get() = field
+                            val noBackingVal: String
+                                get() = ""
+                            var noBackingVar: String
+                                get() = ""
+                                set(value) {}
 
-                companion object {
-                    @JvmStatic
-                    val staticRealField: String = ""
-                    get() = field
-                    @JvmStatic
-                    val staticNoBackingVal: String
-                        get() = ""
-                    @JvmStatic
-                    var staticNoBackingVar: String
-                        get() = ""
-                        set(value) {}
-                }
-            }
-            """
+                            companion object {
+                                @JvmStatic
+                                val staticRealField: String = ""
+                                get() = field
+                                @JvmStatic
+                                val staticNoBackingVal: String
+                                    get() = ""
+                                @JvmStatic
+                                var staticNoBackingVar: String
+                                    get() = ""
+                                    set(value) {}
+                            }
+                        }
+                        """
                             .trimIndent(),
                     )
                 )
@@ -702,17 +702,17 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
                     Source.kotlin(
                         "Foo.kt",
                         """
-            package test
-            abstract class Subject {
-                val value: String = ""
-                abstract val abstractValue: String
-                companion object {
-                    var realCompanion: String = ""
-                    @JvmStatic
-                    var jvmStatic: String = ""
-                }
-            }
-            """
+                        package test
+                        abstract class Subject {
+                            val value: String = ""
+                            abstract val abstractValue: String
+                            companion object {
+                                var realCompanion: String = ""
+                                @JvmStatic
+                                var jvmStatic: String = ""
+                            }
+                        }
+                        """
                             .trimIndent(),
                     )
                 )
@@ -734,12 +734,12 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
                     Source.kotlin(
                         "Foo.kt",
                         """
-            package test
-            class Subject {
-                lateinit var x:String
-                var y:String = "abc"
-            }
-            """
+                        package test
+                        class Subject {
+                            lateinit var x:String
+                            var y:String = "abc"
+                        }
+                        """
                             .trimIndent(),
                     )
                 )
@@ -764,13 +764,13 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
             Source.kotlin(
                 "Foo.kt",
                 """
-            annotation class MyAnnotation
-            interface MyInterface {
-                var x: Int
-                var y: Int
-                  @MyAnnotation get
-            }
-            """
+                annotation class MyAnnotation
+                interface MyInterface {
+                    var x: Int
+                    var y: Int
+                      @MyAnnotation get
+                }
+                """
                     .trimIndent(),
             )
         runTest(sources = listOf(src)) { invocation ->
@@ -795,13 +795,13 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
             Source.kotlin(
                 "Foo.kt",
                 """
-            abstract class MyAbstractClass {
-                @JvmField
-                var jvmVar: Int = 0
-                abstract var abstractVar: Int
-                var nonAbstractVar: Int = 0
-            }
-            """
+                abstract class MyAbstractClass {
+                    @JvmField
+                    var jvmVar: Int = 0
+                    abstract var abstractVar: Int
+                    var nonAbstractVar: Int = 0
+                }
+                """
                     .trimIndent(),
             )
         runTest(sources = listOf(src)) { invocation ->
@@ -919,10 +919,10 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
             Source.kotlin(
                 "Subject.kt",
                 """
-            class Subject {
-              val myLazy by lazy { "wow" }
-            }
-            """
+                class Subject {
+                  val myLazy by lazy { "wow" }
+                }
+                """
                     .trimIndent(),
             )
         runTest(sources = listOf(src)) {
@@ -943,33 +943,33 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
             Source.kotlin(
                 "Foo.kt",
                 """
-            open class Base(x:Int) {
-                open fun baseFun(): Int = TODO()
-                suspend fun suspendFun(): Int = TODO()
-                companion object {
-                    @JvmStatic
-                    fun staticBaseFun(): Int = TODO()
-                    fun companionMethod(): Int = TODO()
-                    @JvmStatic val name: String get() = "hello"
-                    @JvmStatic suspend fun suspendFun2():Int = TODO()
-                    @JvmStatic fun String.extFun(): Int = TODO()
+                open class Base(x:Int) {
+                    open fun baseFun(): Int = TODO()
+                    suspend fun suspendFun(): Int = TODO()
+                    companion object {
+                        @JvmStatic
+                        fun staticBaseFun(): Int = TODO()
+                        fun companionMethod(): Int = TODO()
+                        @JvmStatic val name: String get() = "hello"
+                        @JvmStatic suspend fun suspendFun2():Int = TODO()
+                        @JvmStatic fun String.extFun(): Int = TODO()
+                    }
+                    private fun privateBaseFun(): Int = TODO()
                 }
-                private fun privateBaseFun(): Int = TODO()
-            }
-            open class SubClass : Base {
-                constructor(y:Int): super(y) {
+                open class SubClass : Base {
+                    constructor(y:Int): super(y) {
+                    }
+                    constructor(x:Int, y:Int): super(y) {
+                    }
+                    override fun baseFun(): Int = TODO()
+                    fun subFun(): Int = TODO()
+                    private fun privateSubFun(): Int = TODO()
+                    companion object {
+                        @JvmStatic
+                        fun staticFun(): Int = TODO()
+                    }
                 }
-                constructor(x:Int, y:Int): super(y) {
-                }
-                override fun baseFun(): Int = TODO()
-                fun subFun(): Int = TODO()
-                private fun privateSubFun(): Int = TODO()
-                companion object {
-                    @JvmStatic
-                    fun staticFun(): Int = TODO()
-                }
-            }
-            """
+                """
                     .trimIndent(),
             )
         runTest(sources = listOf(src)) { invocation ->
@@ -1020,25 +1020,25 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
                     Source.kotlin(
                         "Foo.kt",
                         """
-            package test
-            interface Parent<T> {
-                fun parent(t: T)
-            }
+                        package test
+                        interface Parent<T> {
+                            fun parent(t: T)
+                        }
 
-            interface Child1<T> : Parent<T> {
-                fun child1(t: T)
-            }
+                        interface Child1<T> : Parent<T> {
+                            fun child1(t: T)
+                        }
 
-            interface Child2<T> : Parent<T> {
-                fun child2(t: T)
-            }
+                        interface Child2<T> : Parent<T> {
+                            fun child2(t: T)
+                        }
 
-            abstract class Subject1 : Child1<String>, Child2<String>, Parent<String>
-            abstract class Subject2 : Child1<String>, Parent<String>
-            abstract class Subject3 : Child1<String>, Parent<String> {
-                abstract override fun parent(t: String)
-            }
-            """
+                        abstract class Subject1 : Child1<String>, Child2<String>, Parent<String>
+                        abstract class Subject2 : Child1<String>, Parent<String>
+                        abstract class Subject3 : Child1<String>, Parent<String> {
+                            abstract override fun parent(t: String)
+                        }
+                        """
                             .trimIndent(),
                     )
                 )
@@ -1077,26 +1077,26 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
             Source.kotlin(
                 "Foo.kt",
                 """
-            interface Base<T> {
-                suspend fun get(): T
-                suspend fun getAll(): List<T>
-                @JvmSuppressWildcards
-                suspend fun getAllSuppressWildcards(): List<T>
-                suspend fun putAll(input: List<T>)
-                suspend fun getAllWithDefault(): List<T>
-            }
-
-            interface DerivedInterface : Base<String> {
-                override suspend fun get(): String
-                override suspend fun getAll(): List<String>
-                @JvmSuppressWildcards
-                override suspend fun getAllSuppressWildcards(): List<String>
-                override suspend fun putAll(input: List<String>)
-                override suspend fun getAllWithDefault(): List<String> {
-                    return emptyList()
+                interface Base<T> {
+                    suspend fun get(): T
+                    suspend fun getAll(): List<T>
+                    @JvmSuppressWildcards
+                    suspend fun getAllSuppressWildcards(): List<T>
+                    suspend fun putAll(input: List<T>)
+                    suspend fun getAllWithDefault(): List<T>
                 }
-            }
-            """
+
+                interface DerivedInterface : Base<String> {
+                    override suspend fun get(): String
+                    override suspend fun getAll(): List<String>
+                    @JvmSuppressWildcards
+                    override suspend fun getAllSuppressWildcards(): List<String>
+                    override suspend fun putAll(input: List<String>)
+                    override suspend fun getAllWithDefault(): List<String> {
+                        return emptyList()
+                    }
+                }
+                """
                     .trimIndent(),
             )
         runTest(sources = listOf(src)) { invocation ->
@@ -1119,19 +1119,19 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
             Source.kotlin(
                 "Foo.kt",
                 """
-            abstract class Base<T> {
-                abstract suspend fun get(): T
-                abstract suspend fun getAll(): List<T>
-                abstract suspend fun putAll(input: List<T>)
-            }
-
-            abstract class DerivedClass : Base<Int>() {
-                abstract override suspend fun get(): Int
-                abstract override suspend fun getAll(): List<Int>
-                override suspend fun putAll(input: List<Int>) {
+                abstract class Base<T> {
+                    abstract suspend fun get(): T
+                    abstract suspend fun getAll(): List<T>
+                    abstract suspend fun putAll(input: List<T>)
                 }
-            }
-            """
+
+                abstract class DerivedClass : Base<Int>() {
+                    abstract override suspend fun get(): Int
+                    abstract override suspend fun getAll(): List<Int>
+                    override suspend fun putAll(input: List<Int>) {
+                    }
+                }
+                """
                     .trimIndent(),
             )
         runTest(sources = listOf(src)) { invocation ->
@@ -1151,16 +1151,16 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
             Source.kotlin(
                 "Foo.kt",
                 """
-            data class Foo(val txt: String)
+                data class Foo(val txt: String)
 
-            interface Base {
-                suspend fun getAll(): List<Foo>
-            }
+                interface Base {
+                    suspend fun getAll(): List<Foo>
+                }
 
-            abstract class DerivedClass : Base {
-                abstract suspend fun getAll(param: String): List<Foo>
-            }
-            """
+                abstract class DerivedClass : Base {
+                    abstract suspend fun getAll(param: String): List<Foo>
+                }
+                """
                     .trimIndent(),
             )
         runTest(sources = listOf(src)) { invocation ->
@@ -1177,20 +1177,20 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
             Source.kotlin(
                 "ParentWithExplicitOverride.kt",
                 """
-            interface ParentWithExplicitOverride: ChildInterface, Child {
-                override fun child(): Child
-            }
+                interface ParentWithExplicitOverride: ChildInterface, Child {
+                    override fun child(): Child
+                }
 
-            interface ParentWithoutExplicitOverride: ChildInterface, Child
+                interface ParentWithoutExplicitOverride: ChildInterface, Child
 
-            interface Child: ChildInterface {
-                override fun child(): Child
-            }
+                interface Child: ChildInterface {
+                    override fun child(): Child
+                }
 
-            interface ChildInterface {
-                fun child(): ChildInterface
-            }
-            """
+                interface ChildInterface {
+                    fun child(): ChildInterface
+                }
+                """
                     .trimIndent(),
             )
 
@@ -1218,37 +1218,37 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
                 Source.java(
                     "foo.Foo",
                     """
-                package foo;
-                public interface Foo {
-                    void foo_Public();
-                }
-                """
+                    package foo;
+                    public interface Foo {
+                        void foo_Public();
+                    }
+                    """
                         .trimIndent(),
                 ),
                 Source.java(
                     "foo.parent.FooParent",
                     """
-                package foo.parent;
-                public abstract class FooParent implements foo.Foo {
-                    public void fooParent_Public() {}
-                    protected void fooParent_Protected() {}
-                    private void fooParent_Private() {}
-                    void fooParent_PackagePrivate() {}
-                }
-                """
+                    package foo.parent;
+                    public abstract class FooParent implements foo.Foo {
+                        public void fooParent_Public() {}
+                        protected void fooParent_Protected() {}
+                        private void fooParent_Private() {}
+                        void fooParent_PackagePrivate() {}
+                    }
+                    """
                         .trimIndent(),
                 ),
                 Source.java(
                     "foo.child.FooChild",
                     """
-                package foo.child;
-                public abstract class FooChild extends foo.parent.FooParent {
-                    public void fooChild_Public() {}
-                    protected void fooChild_Protected() {}
-                    private void fooChild_Private() {}
-                    void fooChild_PackagePrivate() {}
-                }
-                """
+                    package foo.child;
+                    public abstract class FooChild extends foo.parent.FooParent {
+                        public void fooChild_Public() {}
+                        protected void fooChild_Protected() {}
+                        private void fooChild_Private() {}
+                        void fooChild_PackagePrivate() {}
+                    }
+                    """
                         .trimIndent(),
                 ),
             )
@@ -1275,38 +1275,38 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
             Source.kotlin(
                 "Foo.kt",
                 """
-            open class Base(x:Int) {
-                constructor(x:Int, y:Int): this(x) {
+                open class Base(x:Int) {
+                    constructor(x:Int, y:Int): this(x) {
+                    }
+                    fun baseMethod(): Int = TODO()
+                    open fun overriddenMethod(): Int = TODO()
+                    private fun privateBaseMethod(): Int = TODO()
+                    companion object {
+                        @JvmStatic
+                        private fun privateBaseCompanionMethod(): Int = TODO()
+                        @JvmStatic
+                        fun baseCompanionMethod(): Int = TODO()
+                    }
                 }
-                fun baseMethod(): Int = TODO()
-                open fun overriddenMethod(): Int = TODO()
-                private fun privateBaseMethod(): Int = TODO()
-                companion object {
-                    @JvmStatic
-                    private fun privateBaseCompanionMethod(): Int = TODO()
-                    @JvmStatic
-                    fun baseCompanionMethod(): Int = TODO()
+                interface MyInterface {
+                    fun interfaceMethod(): Int = TODO()
                 }
-            }
-            interface MyInterface {
-                fun interfaceMethod(): Int = TODO()
-            }
-            class SubClass : Base, MyInterface {
-                constructor(x:Int): super(x) {
+                class SubClass : Base, MyInterface {
+                    constructor(x:Int): super(x) {
+                    }
+                    constructor(x:Int, y:Int): super(y) {
+                    }
+                    fun subMethod(): Int = TODO()
+                    fun privateSubMethod(): Int = TODO()
+                    override fun overriddenMethod(): Int = TODO()
+                    override fun interfaceMethod(): Int = TODO()
+                    companion object {
+                        fun dontSeeThisOne(): Int = TODO()
+                        @JvmStatic
+                        fun subCompanionMethod(): Int = TODO()
+                    }
                 }
-                constructor(x:Int, y:Int): super(y) {
-                }
-                fun subMethod(): Int = TODO()
-                fun privateSubMethod(): Int = TODO()
-                override fun overriddenMethod(): Int = TODO()
-                override fun interfaceMethod(): Int = TODO()
-                companion object {
-                    fun dontSeeThisOne(): Int = TODO()
-                    @JvmStatic
-                    fun subCompanionMethod(): Int = TODO()
-                }
-            }
-            """
+                """
                     .trimIndent(),
             )
         runTest(sources = listOf(src)) { invocation ->
@@ -1346,20 +1346,20 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
                     Source.kotlin(
                         "Foo.kt",
                         """
-                package test
-                interface Interface {
-                    fun f1()
-                    @JvmName("notF2")
-                    @Suppress("INAPPLICABLE_JVM_NAME")
-                    fun f2()
-                }
-                abstract class Subject : Interface {
-                    @JvmName("notF1")
-                    @Suppress("INAPPLICABLE_JVM_NAME")
-                    override fun f1() {
-                    }
-                }
-            """
+                        package test
+                        interface Interface {
+                            fun f1()
+                            @JvmName("notF2")
+                            @Suppress("INAPPLICABLE_JVM_NAME")
+                            fun f2()
+                        }
+                        abstract class Subject : Interface {
+                            @JvmName("notF1")
+                            @Suppress("INAPPLICABLE_JVM_NAME")
+                            override fun f1() {
+                            }
+                        }
+                        """
                             .trimIndent(),
                     )
                 )
@@ -1385,15 +1385,15 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
             Source.kotlin(
                 "Foo.kt",
                 """
-            open class JustGetter(val x:Int) {
-                private val invisible:Int = TODO()
-                private var invisibleMutable:Int = TODO()
-            }
-            class GetterSetter(var y:Int) : JustGetter(y) {
-                private val subInvisible:Int = TODO()
-                private var subInvisibleMutable:Int = TODO()
-            }
-            """
+                open class JustGetter(val x:Int) {
+                    private val invisible:Int = TODO()
+                    private var invisibleMutable:Int = TODO()
+                }
+                class GetterSetter(var y:Int) : JustGetter(y) {
+                    private val subInvisible:Int = TODO()
+                    private var subInvisibleMutable:Int = TODO()
+                }
+                """
                     .trimIndent(),
             )
         runTest(sources = listOf(src)) { invocation ->
@@ -1699,27 +1699,27 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
             Source.kotlin(
                 "Foo.kt",
                 """
-            open class CompanionSubject {
-                companion object {
-                    @JvmStatic
-                    var mutableStatic: String = "a"
-                    @JvmStatic
-                    val immutableStatic: String = "bar"
-                    val companionProp: Int = 3
-                    @get:JvmStatic
-                    var companionProp_getterJvmStatic:Int =3
-                    @set:JvmStatic
-                    var companionProp_setterJvmStatic:Int =3
+                open class CompanionSubject {
+                    companion object {
+                        @JvmStatic
+                        var mutableStatic: String = "a"
+                        @JvmStatic
+                        val immutableStatic: String = "bar"
+                        val companionProp: Int = 3
+                        @get:JvmStatic
+                        var companionProp_getterJvmStatic:Int =3
+                        @set:JvmStatic
+                        var companionProp_setterJvmStatic:Int =3
 
-                    fun companionMethod() {
+                        fun companionMethod() {
+                        }
+
+                        @JvmStatic
+                        fun companionMethodWithJvmStatic() {}
                     }
-
-                    @JvmStatic
-                    fun companionMethodWithJvmStatic() {}
                 }
-            }
-            class SubClass : CompanionSubject()
-            """
+                class SubClass : CompanionSubject()
+                """
                     .trimIndent(),
             )
         runTest(sources = listOf(src)) { invocation ->
@@ -1832,13 +1832,13 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
             Source.kotlin(
                 "Foo.kt",
                 """
-            interface JustGetter {
-                val x:Int
-            }
-            interface GetterSetter : JustGetter {
-                var y:Int
-            }
-            """
+                interface JustGetter {
+                    val x:Int
+                }
+                interface GetterSetter : JustGetter {
+                    var y:Int
+                }
+                """
                     .trimIndent(),
             )
         runTest(sources = listOf(src)) { invocation ->
@@ -1863,24 +1863,24 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
             Source.kotlin(
                 "Foo.kt",
                 """
-            interface MyInterface
-            class NoExplicitConstructor
-            open class Base(x:Int)
-            open class ExplicitConstructor {
-                constructor(x:Int)
-            }
-            open class BaseWithSecondary(x:Int) {
-                constructor(y:String):this(3)
-            }
-            class Sub(x:Int) : Base(x)
-            class SubWith3Constructors() : BaseWithSecondary("abc") {
-                constructor(list:List<String>): this()
-                constructor(list:List<String>, x:Int): this()
-            }
-            abstract class AbstractNoExplicit
-            abstract class AbstractExplicit(x:Int)
-            annotation class AnnotationClass
-            """
+                interface MyInterface
+                class NoExplicitConstructor
+                open class Base(x:Int)
+                open class ExplicitConstructor {
+                    constructor(x:Int)
+                }
+                open class BaseWithSecondary(x:Int) {
+                    constructor(y:String):this(3)
+                }
+                class Sub(x:Int) : Base(x)
+                class SubWith3Constructors() : BaseWithSecondary("abc") {
+                    constructor(list:List<String>): this()
+                    constructor(list:List<String>, x:Int): this()
+                }
+                abstract class AbstractNoExplicit
+                abstract class AbstractExplicit(x:Int)
+                annotation class AnnotationClass
+                """
                     .trimIndent(),
             )
         runTest(sources = listOf(src)) { invocation ->
@@ -1946,10 +1946,10 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
             Source.kotlin(
                 "Subject.kt",
                 """
-            class DefaultArgs @JvmOverloads constructor(x:Int = 1, y: Double, z: Long = 1) {}
-            class NoDefaultArgs @JvmOverloads constructor(x:Int, y: Double, z: Long) {}
-            class AllDefaultArgs @JvmOverloads constructor(x:Int = 1, y: Double = 0.0, z: Long = 1) {}
-            """
+                class DefaultArgs @JvmOverloads constructor(x:Int = 1, y: Double, z: Long = 1) {}
+                class NoDefaultArgs @JvmOverloads constructor(x:Int, y: Double, z: Long) {}
+                class AllDefaultArgs @JvmOverloads constructor(x:Int = 1, y: Double = 0.0, z: Long = 1) {}
+                """
                     .trimIndent(),
             )
         runTest(sources = listOf(src)) { invocation ->
@@ -2054,25 +2054,25 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
             Source.kotlin(
                 "Subject.kt",
                 """
-            // These should have a no-arg constructor
-            class DefaultCtor
-            class DefaultArgsPrimary(val x: String = "")
-            class AlreadyHasPrimaryNoArgsCtor() {
-                constructor(y: Int = 1) : this()
-            }
-            class AlreadyHasSecondaryNoArgsCtor(val x: String) {
-                constructor() : this("")
-            }
+                // These should have a no-arg constructor
+                class DefaultCtor
+                class DefaultArgsPrimary(val x: String = "")
+                class AlreadyHasPrimaryNoArgsCtor() {
+                    constructor(y: Int = 1) : this()
+                }
+                class AlreadyHasSecondaryNoArgsCtor(val x: String) {
+                    constructor() : this("")
+                }
 
-            // These can't have no arg constructor
-            class DefaultArgsSecondary(val x: String) {
-                constructor(y: Int = 1) : this("")
-            }
-            class CantHaveNoArgsCtor(val x: String = "", val y: Int)
+                // These can't have no arg constructor
+                class DefaultArgsSecondary(val x: String) {
+                    constructor(y: Int = 1) : this("")
+                }
+                class CantHaveNoArgsCtor(val x: String = "", val y: Int)
 
-            // Shouldn't synthesize no-arg for annotation classes
-            annotation class AnnotationClass(val x: String = "")
-            """
+                // Shouldn't synthesize no-arg for annotation classes
+                annotation class AnnotationClass(val x: String = "")
+                """
                     .trimIndent(),
             )
         runTest(sources = listOf(src)) { invocation ->
@@ -2131,12 +2131,12 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
             Source.kotlin(
                 "Foo.kt",
                 """
-            interface MyInterface {
-                fun notJvmDefault()
-                @JvmDefault
-                fun jvmDefault() {}
-            }
-            """
+                interface MyInterface {
+                    fun notJvmDefault()
+                    @JvmDefault
+                    fun jvmDefault() {}
+                }
+                """
                     .trimIndent(),
             )
         runTest(sources = listOf(src)) { invocation ->
@@ -2152,40 +2152,40 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
             Source.java(
                 "Source",
                 """
-            import java.util.List;
-            interface MyInterface {}
-            class NoExplicitConstructor{}
-            class Base {
-                Base(int x){}
-            }
-            class ExplicitConstructor {
-                ExplicitConstructor(int x){}
-            }
-            class BaseWithSecondary {
-                BaseWithSecondary(int x){}
-                BaseWithSecondary(String y){}
-            }
-            class Sub extends Base {
-                Sub(int x) {
-                    super(x);
+                import java.util.List;
+                interface MyInterface {}
+                class NoExplicitConstructor{}
+                class Base {
+                    Base(int x){}
                 }
-            }
-            class SubWith3Constructors extends BaseWithSecondary {
-                SubWith3Constructors() {
-                    super(3);
+                class ExplicitConstructor {
+                    ExplicitConstructor(int x){}
                 }
-                SubWith3Constructors(List<String> list) {
-                    super(3);
+                class BaseWithSecondary {
+                    BaseWithSecondary(int x){}
+                    BaseWithSecondary(String y){}
                 }
-                SubWith3Constructors(List<String> list, int x) {
-                    super(3);
+                class Sub extends Base {
+                    Sub(int x) {
+                        super(x);
+                    }
                 }
-            }
-            abstract class AbstractNoExplicit {}
-            abstract class AbstractExplicit {
-                AbstractExplicit(int x) {}
-            }
-            """
+                class SubWith3Constructors extends BaseWithSecondary {
+                    SubWith3Constructors() {
+                        super(3);
+                    }
+                    SubWith3Constructors(List<String> list) {
+                        super(3);
+                    }
+                    SubWith3Constructors(List<String> list, int x) {
+                        super(3);
+                    }
+                }
+                abstract class AbstractNoExplicit {}
+                abstract class AbstractExplicit {
+                    AbstractExplicit(int x) {}
+                }
+                """
                     .trimIndent(),
             )
         runTest(sources = listOf(src)) { invocation ->
@@ -2234,32 +2234,32 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
                     Source.kotlin(
                         "test/KotlinEnum.kt",
                         """
-                    package test
-                    enum class KotlinEnum(private val x:Int) {
-                        VAL1(1),
-                        VAL2(2);
+                        package test
+                        enum class KotlinEnum(private val x:Int) {
+                            VAL1(1),
+                            VAL2(2);
 
-                        fun enumMethod(): Unit {}
-                    }
-                    """
+                            fun enumMethod(): Unit {}
+                        }
+                        """
                             .trimIndent(),
                     ),
                     Source.java(
                         "test.JavaEnum",
                         """
-                    package test;
-                    public enum JavaEnum {
-                        VAL1(1),
-                        VAL2(2);
+                        package test;
+                        public enum JavaEnum {
+                            VAL1(1),
+                            VAL2(2);
 
-                        private int x;
+                            private int x;
 
-                        JavaEnum(int x) {
-                            this.x = x;
+                            JavaEnum(int x) {
+                                this.x = x;
+                            }
+                            void enumMethod() {}
                         }
-                        void enumMethod() {}
-                    }
-                    """
+                        """
                             .trimIndent(),
                     ),
                 )
@@ -2319,18 +2319,18 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
             Source.kotlin(
                 "Foo.kt",
                 """
-            class TopLevelClass {
-                class NestedClass
-                object NestedObject
-                interface NestedInterface
-                enum class NestedEnum {
-                    A, B
+                class TopLevelClass {
+                    class NestedClass
+                    object NestedObject
+                    interface NestedInterface
+                    enum class NestedEnum {
+                        A, B
+                    }
+                    companion object {
+                        val foo = 1
+                    }
                 }
-                companion object {
-                    val foo = 1
-                }
-            }
-            """
+                """
                     .trimIndent(),
             )
         runTest(sources = listOf(src)) { invocation ->
@@ -2354,15 +2354,15 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
             Source.java(
                 "Source",
                 """
-            class TopLevelClass {
-                class InnerClass { }
-                static class NestedClass { }
-                interface NestedInterface { }
-                enum NestedEnum {
-                    A, B
+                class TopLevelClass {
+                    class InnerClass { }
+                    static class NestedClass { }
+                    interface NestedInterface { }
+                    enum NestedEnum {
+                        A, B
+                    }
                 }
-            }
-            """
+                """
                     .trimIndent(),
             )
         runTest(sources = listOf(src)) { invocation ->
@@ -2385,12 +2385,12 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
             Source.kotlin(
                 "Test.kt",
                 """
-            package foo.bar
-            class KotlinClass {
-                companion object
-                object NestedObject
-            }
-            """
+                package foo.bar
+                class KotlinClass {
+                    companion object
+                    object NestedObject
+                }
+                """
                     .trimIndent(),
             )
         runTest(listOf(kotlinSrc)) { invocation ->
@@ -2411,16 +2411,16 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
                     Source.kotlin(
                         "test.ConcreteClass.kt",
                         """
-                    package test
-                    class ConcreteClass: AbstractClass<Foo, Bar>() {}
-                    abstract class AbstractClass<T1, T2> {
-                        fun method(t1: T1, t2: T2): T2 {
-                          return t2
+                        package test
+                        class ConcreteClass: AbstractClass<Foo, Bar>() {}
+                        abstract class AbstractClass<T1, T2> {
+                            fun method(t1: T1, t2: T2): T2 {
+                              return t2
+                            }
                         }
-                    }
-                    class Foo
-                    class Bar
-                    """
+                        class Foo
+                        class Bar
+                        """
                             .trimIndent(),
                     )
                 )
@@ -2483,18 +2483,18 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
                     Source.kotlin(
                         "test.ConcreteClass.kt",
                         """
-                    package test
-                    class ConcreteClass: AbstractClass<Foo, Bar>() {
-                        override fun method(t1: Foo, t2: Bar): Bar {
-                          return t2
+                        package test
+                        class ConcreteClass: AbstractClass<Foo, Bar>() {
+                            override fun method(t1: Foo, t2: Bar): Bar {
+                              return t2
+                            }
                         }
-                    }
-                    abstract class AbstractClass<T1, T2> {
-                        abstract fun method(t1: T1, t2: T2): T2
-                    }
-                    class Foo
-                    class Bar
-                    """
+                        abstract class AbstractClass<T1, T2> {
+                            abstract fun method(t1: T1, t2: T2): T2
+                        }
+                        class Foo
+                        class Bar
+                        """
                             .trimIndent(),
                     )
                 )
@@ -2600,11 +2600,11 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
                     Source.kotlin(
                         "test.ConcreteClass.kt",
                         """
-                    package test
-                    class ConcreteClass(foo: Foo): AbstractClass<Foo>(foo) {}
-                    abstract class AbstractClass<T>(t: T)
-                    class Foo
-                    """
+                        package test
+                        class ConcreteClass(foo: Foo): AbstractClass<Foo>(foo) {}
+                        abstract class AbstractClass<T>(t: T)
+                        class Foo
+                        """
                             .trimIndent(),
                     )
                 )
@@ -2643,13 +2643,13 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
                     Source.kotlin(
                         "test.ConcreteClass.kt",
                         """
-                    package test
-                    class ConcreteClass: AbstractClass<Foo>()
-                    abstract class AbstractClass<T> {
-                        val field: T = TODO()
-                    }
-                    class Foo
-                    """
+                        package test
+                        class ConcreteClass: AbstractClass<Foo>()
+                        abstract class AbstractClass<T> {
+                            val field: T = TODO()
+                        }
+                        class Foo
+                        """
                             .trimIndent(),
                     )
                 )
@@ -2690,20 +2690,20 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
                     Source.kotlin(
                         "test.Foo.kt",
                         """
-                    package test
-                    internal class InternalClass internal constructor() {
-                      internal val valField: String = TODO()
-                      internal var varField: String = TODO()
-                      internal fun method(): String = TODO()
-                      internal lateinit var lateinitVarField: String
-                    }
-                    class PublicClass constructor() {
-                      val valField: String = TODO()
-                      var varField: String = TODO()
-                      fun method(): String = TODO()
-                      lateinit var lateinitVarField: String
-                    }
-                    """
+                        package test
+                        internal class InternalClass internal constructor() {
+                          internal val valField: String = TODO()
+                          internal var varField: String = TODO()
+                          internal fun method(): String = TODO()
+                          internal lateinit var lateinitVarField: String
+                        }
+                        class PublicClass constructor() {
+                          val valField: String = TODO()
+                          var varField: String = TODO()
+                          fun method(): String = TODO()
+                          lateinit var lateinitVarField: String
+                        }
+                        """
                             .trimIndent(),
                     )
                 )
@@ -2749,19 +2749,19 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
                     Source.kotlin(
                         "test.Foo.kt",
                         """
-                    package test
-                    class Foo<T1: Bar, T2: Baz> {
-                        fun method(): String = TODO()
-                        fun method(param: String): String = TODO()
-                        fun method(param: Any): String = TODO()
-                        fun method(param: T1): T2 = TODO()
-                        fun method(param: T2): T1 = TODO()
-                        fun <U1: Baz, U2> method(param1: U1, param2: U2) {}
-                        fun <U1: Baz, U2: U1> method(param1: U1, param2: U2): T1 = TODO()
-                    }
-                    interface Bar
-                    interface Baz
-                    """
+                        package test
+                        class Foo<T1: Bar, T2: Baz> {
+                            fun method(): String = TODO()
+                            fun method(param: String): String = TODO()
+                            fun method(param: Any): String = TODO()
+                            fun method(param: T1): T2 = TODO()
+                            fun method(param: T2): T1 = TODO()
+                            fun <U1: Baz, U2> method(param1: U1, param2: U2) {}
+                            fun <U1: Baz, U2: U1> method(param1: U1, param2: U2): T1 = TODO()
+                        }
+                        interface Bar
+                        interface Baz
+                        """
                             .trimIndent(),
                     )
                 )
@@ -2789,19 +2789,19 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
                     Source.kotlin(
                         "test.Foo.kt",
                         """
-                    package test
-                    class Foo<T1: Bar, T2: Baz> {
-                        val field1: String = TODO()
-                        var field2: String? = TODO()
-                        val field3: T1 = TODO()
-                        fun method(): String = TODO()
-                        fun method(param: String): String = TODO()
-                        fun method(param: Any): String = TODO()
-                        fun method(param: T1): T2 = TODO()
-                    }
-                    interface Bar
-                    interface Baz
-                    """
+                        package test
+                        class Foo<T1: Bar, T2: Baz> {
+                            val field1: String = TODO()
+                            var field2: String? = TODO()
+                            val field3: T1 = TODO()
+                            fun method(): String = TODO()
+                            fun method(param: String): String = TODO()
+                            fun method(param: Any): String = TODO()
+                            fun method(param: T1): T2 = TODO()
+                        }
+                        interface Bar
+                        interface Baz
+                        """
                             .trimIndent(),
                     )
                 )
@@ -2844,9 +2844,9 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
                     Source.java(
                         "test.MyClass\$Foo",
                         """
-                    package test;
-                    class MyClass${'$'}Foo {}
-                    """
+                        package test;
+                        class MyClass${'$'}Foo {}
+                        """
                             .trimIndent(),
                     )
                 )
@@ -2864,23 +2864,23 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
                     Source.kotlin(
                         "Subject.kt",
                         """
-                    class Subject {
-                        val val1: String = TODO()
-                        @get:JvmName("getVal2JvmName")
-                        val val2: String = TODO()
-                        var var1: String = TODO()
-                        @get:JvmName("getVar2JvmName")
-                        var var2: String = TODO()
-                        @set:JvmName("setVar3JvmName")
-                        var var3: String = TODO()
-                        @get:JvmName("getVar4JvmName")
-                        @set:JvmName("setVar4JvmName")
-                        var var4: String = TODO()
-                        @set:JvmName("setVar5JvmName")
-                        @get:JvmName("getVar5JvmName")
-                        var var5: String = TODO()
-                    }
-                    """
+                        class Subject {
+                            val val1: String = TODO()
+                            @get:JvmName("getVal2JvmName")
+                            val val2: String = TODO()
+                            var var1: String = TODO()
+                            @get:JvmName("getVar2JvmName")
+                            var var2: String = TODO()
+                            @set:JvmName("setVar3JvmName")
+                            var var3: String = TODO()
+                            @get:JvmName("getVar4JvmName")
+                            @set:JvmName("setVar4JvmName")
+                            var var4: String = TODO()
+                            @set:JvmName("setVar5JvmName")
+                            @get:JvmName("getVar5JvmName")
+                            var var5: String = TODO()
+                        }
+                        """
                             .trimIndent(),
                     )
                 )
@@ -2929,17 +2929,17 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
             Source.java(
                 "JavaRecord",
                 """
-            public record JavaRecord(String name) { }
-            """
+                public record JavaRecord(String name) { }
+                """
                     .trimIndent(),
             )
         val kotlinSrc =
             Source.kotlin(
                 "KotlinRecord.kt",
                 """
-            @JvmRecord
-            data class KotlinRecord(val name: String)
-            """
+                @JvmRecord
+                data class KotlinRecord(val name: String)
+                """
                     .trimIndent(),
             )
         val handler: (XTestInvocation) -> Unit = {

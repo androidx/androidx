@@ -29,6 +29,7 @@ import androidx.biometric.PromptContentItemBulletedText;
 import androidx.fragment.app.FragmentActivity;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,7 +68,7 @@ public class AuthenticationSampleActivity extends FragmentActivity {
             );
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         String title = "Title";
         String subtitle = "Subtitle";

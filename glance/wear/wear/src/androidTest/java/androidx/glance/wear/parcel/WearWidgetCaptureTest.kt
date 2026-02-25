@@ -28,9 +28,6 @@ import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.ExperimentalRemoteCreationApi
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.action.pendingIntentAction
-import androidx.compose.remote.creation.compose.capture.DisplayPool
-import androidx.compose.remote.creation.compose.capture.RemoteComposeCapture
-import androidx.compose.remote.creation.compose.capture.WriterEvents
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteText
@@ -39,14 +36,13 @@ import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.v2.captureSingleRemoteDocumentV2
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.contentDescription
@@ -56,10 +52,11 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.core.os.BundleCompat
-import androidx.glance.wear.WearWidgetRawContent
+import androidx.glance.wear.core.WearWidgetRawContent
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 
@@ -87,28 +84,6 @@ class WearWidgetCaptureTest {
                     modifier = RemoteModifier.clickable(pendingIntentAction(testPendingIntent1)),
                 )
             }
-        }
-
-        @Composable
-        internal fun CollectPendingIntent(
-            widgetPendingIntents: WriterEvents,
-            content: @Composable () -> Unit,
-        ) {
-            val creationDisplayInfo =
-                CreationDisplayInfo(400, 400, LocalConfiguration.current.densityDpi)
-            val virtualDisplay = DisplayPool.allocate(LocalContext.current, creationDisplayInfo)
-            RemoteComposeCapture(
-                context = LocalContext.current,
-                virtualDisplay = virtualDisplay,
-                creationDisplayInfo = creationDisplayInfo,
-                immediateCapture = true,
-                onPaint = { _, _ -> true },
-                onCaptureReady = @Composable {},
-                profile = RcPlatformProfiles.WEAR_WIDGETS,
-                writerEvents = widgetPendingIntents,
-                content = @Composable { content() },
-            )
-            DisposableEffect(Unit) { onDispose { DisplayPool.release(virtualDisplay) } }
         }
 
         @Composable
@@ -182,10 +157,20 @@ class WearWidgetCaptureTest {
     }
 
     @Test
-    fun pendingIntentCollection() {
-        val writerEvents = WriterEvents()
-        composeTestRule.setContent { CollectPendingIntent(writerEvents) { TestLayout() } }
-        val pendingIntents = writerEvents.pendingIntents
+    fun pendingIntentCollection() = runTest {
+        val creationDisplayInfo =
+            CreationDisplayInfo(400, 400, context.resources.configuration.densityDpi)
+        val profile = RcPlatformProfiles.WEAR_WIDGETS
+        val result =
+            captureSingleRemoteDocumentV2(
+                creationDisplayInfo = creationDisplayInfo,
+                context = context,
+                profile = profile,
+            ) {
+                TestLayout()
+            }
+
+        val pendingIntents = result.pendingIntents
 
         assertThat(pendingIntents.size).isEqualTo(2)
         assertThat(pendingIntents[0]).isEqualTo(testPendingIntent0)
@@ -196,24 +181,24 @@ class WearWidgetCaptureTest {
     fun pendingIntentCollection_addToBundle() {
         val result =
             """
-DATA_TEXT<43> = "text-0"
-DATA_TEXT<45> = "text-1"
 ROOT [-2:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE
   COLUMN [-3:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE
+    DATA_TEXT<42> = "text-0"
+    DATA_TEXT<45> = "text-1"
     MODIFIERS
     BOX [-5:-1] = [0.0, 0.0, 100.0, 100.0] VISIBLE
       MODIFIERS
         WIDTH = 100.0 dp
         HEIGHT = 100.0 dp
-    TEXT_LAYOUT [-7:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE (43:"null")
+    TEXT_LAYOUT [-7:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE (42:"null")
       MODIFIERS
         CLICK_MODIFIER
-          HOST_NAMED_ACTION = 46 : 42
+          HOST_NAMED_ACTION = 44 : 43
         SEMANTICS = SEMANTICS BUTTON
     TEXT_LAYOUT [-9:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE (45:"null")
       MODIFIERS
         CLICK_MODIFIER
-          HOST_NAMED_ACTION = 46 : 44
+          HOST_NAMED_ACTION = 44 : 46
         SEMANTICS = SEMANTICS BUTTON
 """
 

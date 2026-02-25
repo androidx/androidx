@@ -17,12 +17,15 @@ package androidx.camera.video.internal.config
 
 import android.media.MediaCodecInfo
 import android.media.MediaFormat.MIMETYPE_AUDIO_AAC
+import android.media.MediaFormat.MIMETYPE_AUDIO_VORBIS
 import android.util.Rational
 import androidx.camera.core.Logger
 import androidx.camera.core.impl.EncoderProfilesProxy.AudioProfileProxy
 import androidx.camera.core.impl.Timebase
 import androidx.camera.video.AudioSpec
 import androidx.camera.video.MediaSpec
+import androidx.camera.video.MediaSpec.Companion.OUTPUT_FORMAT_WEBM
+import androidx.camera.video.MediaSpec.OutputFormat
 import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy
 import androidx.camera.video.internal.audio.AudioSettings
 import androidx.camera.video.internal.audio.AudioSource
@@ -49,6 +52,10 @@ public object AudioConfigUtil {
 
     private const val AAC_DEFAULT_PROFILE = MediaCodecInfo.CodecProfileLevel.AACObjectLC
 
+    private const val AUDIO_ENCODER_MIME_MPEG4_DEFAULT = MIMETYPE_AUDIO_AAC
+
+    private const val AUDIO_ENCODER_MIME_WEBM_DEFAULT = MIMETYPE_AUDIO_VORBIS
+
     /**
      * Resolves a compatible [AudioProfileProxy] from a list based on the provided MIME type.
      *
@@ -68,6 +75,19 @@ public object AudioConfigUtil {
         return audioProfiles.firstOrNull {
             audioMime == AudioSpec.MIME_TYPE_UNSPECIFIED ||
                 (it.mediaType == audioMime && it.profile == audioCodecProfile)
+        }
+    }
+
+    /**
+     * Maps a given [OutputFormat] to its default audio MIME type.
+     *
+     * @param outputFormat The video recording output format.
+     * @return The default audio MIME type string associated with the output format.
+     */
+    public fun outputFormatToAudioMime(@OutputFormat outputFormat: Int): String {
+        return when (outputFormat) {
+            OUTPUT_FORMAT_WEBM -> AUDIO_ENCODER_MIME_WEBM_DEFAULT
+            else -> AUDIO_ENCODER_MIME_MPEG4_DEFAULT
         }
     }
 

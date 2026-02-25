@@ -41,6 +41,8 @@ android {
     }
 }
 
+androidComponents { beforeVariants(selector().all()) { enabled = buildType == 'release' } }
+
 dependencies {
     implementation(libs.androidx.activity.compose)
     implementation("androidx.appcompat:appcompat:1.4.1")

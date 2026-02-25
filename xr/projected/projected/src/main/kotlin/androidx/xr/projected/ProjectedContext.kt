@@ -154,6 +154,7 @@ public object ProjectedContext {
         coroutineContext: CoroutineContext,
     ): Flow<Boolean> =
         callbackFlow {
+                @OptIn(ExperimentalStdlibApi::class)
                 val coroutineDispatcher =
                     coroutineContext[CoroutineDispatcher]
                         ?: throw IllegalArgumentException(

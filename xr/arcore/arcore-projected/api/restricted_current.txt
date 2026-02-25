@@ -77,9 +77,9 @@ package androidx.xr.arcore.projected {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class ProjectedRuntimeFactory implements androidx.xr.runtime.internal.PerceptionRuntimeFactory {
     ctor public ProjectedRuntimeFactory();
-    method public androidx.xr.arcore.runtime.PerceptionRuntime createRuntime(android.app.Activity activity, kotlin.coroutines.CoroutineContext coroutineContext);
-    method @InaccessibleFromKotlin public java.util.Set<androidx.xr.runtime.internal.Feature> getRequirements();
-    property public java.util.Set<androidx.xr.runtime.internal.Feature> requirements;
+    method public androidx.xr.arcore.runtime.PerceptionRuntime createRuntime(android.content.Context context, kotlin.coroutines.CoroutineContext coroutineContext);
+    method @InaccessibleFromKotlin public java.util.Set<androidx.xr.runtime.interfaces.Feature> getRequirements();
+    property public java.util.Set<androidx.xr.runtime.interfaces.Feature> requirements;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class ProjectedRuntimeRenderViewpoint implements androidx.xr.arcore.runtime.RenderViewpoint {

@@ -30,6 +30,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.FloatSize3d
@@ -39,6 +40,8 @@ import androidx.xr.runtime.math.Ray
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.EntityMoveListener
+import androidx.xr.scenecore.GltfModel
+import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.InputEvent
 import androidx.xr.scenecore.InteractableComponent
 import androidx.xr.scenecore.MovableComponent
@@ -51,8 +54,10 @@ import androidx.xr.scenecore.testapp.common.format
 import androidx.xr.scenecore.testapp.common.managers.SessionManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.materialswitch.MaterialSwitch
+import java.nio.file.Paths
 import java.util.concurrent.Executors
 import java.util.function.Consumer
+import kotlinx.coroutines.launch
 
 @SuppressLint("SetTextI18n", "RestrictedApi")
 class InputMoveResizeTestActivity : AppCompatActivity() {
@@ -135,6 +140,60 @@ class InputMoveResizeTestActivity : AppCompatActivity() {
         panelEntity.setPose(Pose(Vector3(0f, -0.5f, 0.5f)))
         panelEntity.parent = session!!.scene.activitySpace
         return panelEntity
+    }
+
+    private fun createMovableGltfEntity() {
+        var moveEventCount = 0
+        var inputEventCount = 0
+        val text = " glTF Events:\n MoveEvents = %d\n InputEvents = %d"
+        val gltfPanelView = layoutInflater.inflate(R.layout.standalone_panel, null)
+        val textView = gltfPanelView.findViewById<TextView>(R.id.textView)
+        textView.textSize = 40f
+
+        val updateText = { textView.text = text.format(moveEventCount, inputEventCount) }
+
+        PanelEntity.create(
+            session!!,
+            gltfPanelView,
+            IntSize2d(1000, 480),
+            "panel",
+            Pose(Vector3(0.0f, -1f, -0.1f)),
+        )
+        updateText()
+
+        lifecycleScope.launch {
+            val gltfModel = GltfModel.create(session!!, Paths.get("models", "Dragon_Evolved.gltf"))
+            val gltfModelEntity =
+                GltfModelEntity.create(session!!, gltfModel, Pose(Vector3(0f, 1.5f, -2f))).also {
+                    it.setScale(0.75f)
+                }
+            val movableComponent = MovableComponent.createSystemMovable(session!!, false)
+            val moveEventListener =
+                object : EntityMoveListener {
+                    override fun onMoveUpdate(
+                        entity: Entity,
+                        currentInputRay: Ray,
+                        currentPose: Pose,
+                        currentScale: Float,
+                    ) {
+                        Log.i(TAG, "$entity $currentInputRay $currentPose $currentScale")
+                        moveEventCount++
+                        updateText()
+                    }
+                }
+            movableComponent.addMoveListener(moveEventListener)
+
+            val interactableComponent =
+                InteractableComponent.create(session!!) {
+                    if (it.action == InputEvent.Action.UP) {
+                        inputEventCount++
+                        updateText()
+                    }
+                }
+
+            gltfModelEntity.addComponent(movableComponent)
+            gltfModelEntity.addComponent(interactableComponent)
+        }
     }
 
     private fun changeTextAndBGColor(textView: TextView) {
@@ -386,6 +445,7 @@ class InputMoveResizeTestActivity : AppCompatActivity() {
         // Create a spatial panel with all components.
         val everythingPanelView = layoutInflater.inflate(R.layout.input_move_resize_panel, null)
         val everythingPanelEntity = createPanelEntityWithText("Everything", everythingPanelView)
+        createMovableGltfEntity()
         everythingPanelEntity.parent = movablePanelEntity
         everythingPanelEntity.setPose(Pose(Vector3(0.0f, -0.5f, 0.0f)))
         // Set the everything panel corner radius to 0.

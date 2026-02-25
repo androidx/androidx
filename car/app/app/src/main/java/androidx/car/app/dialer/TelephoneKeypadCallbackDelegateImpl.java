@@ -146,5 +146,10 @@ public class TelephoneKeypadCallbackDelegateImpl implements TelephoneKeypadCallb
                         return null;
                     });
         }
+
+        @Override
+        public int getInterfaceVersion() {
+            return super.VERSION;
+        }
     }
 }

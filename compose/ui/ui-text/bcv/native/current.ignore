@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+[linuxX64]: Removed declaration androidx.compose.ui.text.intl/PlatformLocale from androidx.compose.ui:ui-text
+[linuxX64]: Removed declaration androidx.compose.ui.text.intl/androidx_compose_ui_text_intl_PlatformLocale$stableprop from androidx.compose.ui:ui-text
+[linuxX64]: Removed declaration androidx.compose.ui.text.intl/androidx_compose_ui_text_intl_PlatformLocale$stableprop_getter() from androidx.compose.ui:ui-text
+[linuxX64]: Removed declaration platformLocale from androidx.compose.ui.text.intl/Locale

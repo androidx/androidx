@@ -37,6 +37,7 @@ import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -308,7 +309,7 @@ class DatePickerTest {
     fun yearRange_minYearAfterCurrentYear() {
         var currentYear = 0
         rule.setMaterialContent(lightColorScheme()) {
-            currentYear = createCalendarModel(Locale.getDefault()).today.year
+            currentYear = createCalendarModel(LocalLocale.current.platformLocale).today.year
             DatePicker(
                 state =
                     rememberDatePickerState(yearRange = IntRange(currentYear + 1, currentYear + 10))

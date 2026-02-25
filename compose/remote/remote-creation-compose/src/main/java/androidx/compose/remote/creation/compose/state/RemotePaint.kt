@@ -19,7 +19,6 @@ package androidx.compose.remote.creation.compose.state
 
 import android.graphics.BlendMode
 import android.graphics.BlendModeColorFilter
-import android.graphics.Color
 import android.graphics.ColorFilter
 import android.graphics.Paint
 import android.graphics.Typeface
@@ -29,6 +28,8 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.shaders.RemoteSolidColor
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 
 /** Base type for [ColorFilter]s that are parameterized by expressions. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public interface RemoteColorFilter
@@ -137,7 +138,7 @@ public open class RemotePaint : Paint {
                 } else {
                     // If the remote color isn't a constant value then we don't have a way of
                     // accuratly its via setColor, so set it to a known value.
-                    super.setColor(Color.TRANSPARENT)
+                    super.setColor(android.graphics.Color.TRANSPARENT)
                 }
             }
         }
@@ -148,9 +149,14 @@ public open class RemotePaint : Paint {
         super.setColor(color)
     }
 
-    public fun RemoteStateScope.applyRemoteBrush(remoteBrush: RemoteBrush, size: RemoteSize) {
+    public fun RemoteStateScope.applyRemoteBrush(
+        remoteBrush: RemoteBrush,
+        size: RemoteSize,
+        matrix3x3: RemoteMatrix3x3? = null,
+    ) {
         if (remoteBrush.hasShader) {
-            shader = with(remoteBrush) { createShader(size) }
+            shader =
+                with(remoteBrush) { createShader(size).apply { this.remoteMatrix3x3 = matrix3x3 } }
             remoteColor = null
         } else if (remoteBrush is RemoteSolidColor) {
             remoteColor = remoteBrush.color

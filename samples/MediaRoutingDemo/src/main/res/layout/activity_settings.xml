@@ -36,6 +36,12 @@
             android:layout_height="wrap_content"
             android:text="Route listing preference"/>
 
+        <Button
+            android:id="@+id/go_to_device_suggestions_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Device Suggestions"/>
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"

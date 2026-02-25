@@ -26,7 +26,7 @@ import org.xmlpull.v1.XmlPullParser
 
 /** Exception to be thrown if an incorrect node is reached during parsing. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class IllegalNodeException(parser: XmlResourceParser) :
+public class IllegalNodeException(parser: XmlResourceParser) :
     IllegalArgumentException("Unexpected node ${parser.name} at line ${parser.lineNumber}")
 
 /**
@@ -34,7 +34,7 @@ class IllegalNodeException(parser: XmlResourceParser) :
  *
  * @param block called on each node.
  */
-fun XmlResourceParser.iterate(block: () -> Unit) {
+public fun XmlResourceParser.iterate(block: () -> Unit) {
     val outerDepth = this.depth
     var type = this.next()
 
@@ -51,7 +51,7 @@ fun XmlResourceParser.iterate(block: () -> Unit) {
  *
  * @param expectedNode called on each node.
  */
-fun XmlPullParser.moveToStart(expectedNode: String) {
+public fun XmlPullParser.moveToStart(expectedNode: String) {
     var type: Int
     do {
         type = next()
@@ -68,7 +68,11 @@ fun XmlPullParser.moveToStart(expectedNode: String) {
  * @param parser The [XmlResourceParser] instance.
  * @param name the name of the attribute.
  */
-fun getStringRefAttribute(resources: Resources, parser: XmlResourceParser, name: String): String? {
+public fun getStringRefAttribute(
+    resources: Resources,
+    parser: XmlResourceParser,
+    name: String,
+): String? {
     return if (parser.hasValue(name)) {
         val resId = parser.getAttributeResourceValue(NAMESPACE_APP, name, 0)
         if (resId == 0) {
@@ -87,7 +91,7 @@ fun getStringRefAttribute(resources: Resources, parser: XmlResourceParser, name:
  * @param parser The [XmlResourceParser] instance.
  * @param name the name of the attribute.
  */
-fun getIntRefAttribute(resources: Resources, parser: XmlResourceParser, name: String): Int? {
+public fun getIntRefAttribute(resources: Resources, parser: XmlResourceParser, name: String): Int? {
     return if (parser.hasValue(name)) {
         val resId = parser.getAttributeResourceValue(NAMESPACE_APP, name, 0)
         if (resId == 0) {

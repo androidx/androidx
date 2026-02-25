@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RecordingCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
-import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteDrawWithContentScope
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
-import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -36,28 +36,28 @@ import androidx.compose.ui.graphics.nativeCanvas
  * @param onDraw The drawing block that provides access to [RemoteDrawWithContentScope].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RemoteComposable
-@Composable
 public fun RemoteModifier.drawWithContent(
     onDraw: RemoteDrawWithContentScope.() -> Unit
 ): RemoteModifier = then(DrawWithContentModifier(onDraw))
 
-private class DrawWithContentModifier(val onDraw: RemoteDrawWithContentScope.() -> Unit) :
+internal class DrawWithContentModifier(val onDraw: RemoteDrawWithContentScope.() -> Unit) :
     RemoteModifier.Element {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.DrawWithContentModifier()
     }
 
     @Composable
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun Modifier.toComposeUi(): Modifier {
         val captureMode = LocalRemoteComposeCreationState.current
         return this.drawBehind {
             val drawScope =
                 RemoteDrawWithContentScope(
                     remoteCanvas =
-                        RemoteCanvas(this.drawContext.canvas.nativeCanvas as RecordingCanvas),
-                    fontScale = this.fontScale.rf,
-                    layoutDirection = this.layoutDirection,
+                        RemoteCanvas(
+                            internalCanvas = drawContext.canvas.nativeCanvas as RecordingCanvas
+                        )
                 )
             captureMode.document.startCanvasOperations()
             drawScope.onDraw()

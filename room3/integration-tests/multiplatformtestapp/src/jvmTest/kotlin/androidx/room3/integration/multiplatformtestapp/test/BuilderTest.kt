@@ -21,7 +21,7 @@ import androidx.room3.RoomDatabase
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlin.io.path.createTempFile
 
-class BuilderTest : BaseBuilderTest() {
+class BuilderTest : BaseNonWebBuilderTest() {
     override fun getRoomDatabaseBuilder(): RoomDatabase.Builder<SampleDatabase> {
         val tempFile = createTempFile("test.db").also { it.toFile().deleteOnExit() }
         return Room.databaseBuilder<SampleDatabase>(

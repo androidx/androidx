@@ -154,13 +154,18 @@ class RetryingCameraStateOpenerTest {
 
     private val cameraAvailabilityMonitor =
         object : CameraAvailabilityMonitor {
-            override suspend fun awaitAvailableCamera(
-                cameraId: CameraId,
-                timeoutMillis: Long,
-            ): Boolean {
-                delay(timeoutMillis)
-                fakeTimeSource.currentTimestamp += DurationNs.fromMs(timeoutMillis)
-                return true
+            override suspend fun startMonitoring(
+                cameraId: CameraId
+            ): CameraAvailabilityMonitor.Session {
+                return object : CameraAvailabilityMonitor.Session {
+                    override suspend fun awaitAvailableCamera(timeoutMillis: Long): Boolean {
+                        delay(timeoutMillis)
+                        fakeTimeSource.currentTimestamp += DurationNs.fromMs(timeoutMillis)
+                        return true
+                    }
+
+                    override fun close() {}
+                }
             }
         }
 

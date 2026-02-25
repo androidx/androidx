@@ -249,6 +249,8 @@ public class ActivityResultContracts private constructor() {
         @CallSuper
         override fun createIntent(context: Context, input: Void?): Intent {
             return Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
         }
 
         final override fun getSynchronousResult(
@@ -274,7 +276,10 @@ public class ActivityResultContracts private constructor() {
     public open class TakePicture : ActivityResultContract<Uri, Boolean>() {
         @CallSuper
         override fun createIntent(context: Context, input: Uri): Intent {
-            return Intent(MediaStore.ACTION_IMAGE_CAPTURE).putExtra(MediaStore.EXTRA_OUTPUT, input)
+            return Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                .putExtra(MediaStore.EXTRA_OUTPUT, input)
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
         }
 
         final override fun getSynchronousResult(
@@ -304,7 +309,10 @@ public class ActivityResultContracts private constructor() {
     public open class TakeVideo : ActivityResultContract<Uri, Bitmap?>() {
         @CallSuper
         override fun createIntent(context: Context, input: Uri): Intent {
-            return Intent(MediaStore.ACTION_VIDEO_CAPTURE).putExtra(MediaStore.EXTRA_OUTPUT, input)
+            return Intent(MediaStore.ACTION_VIDEO_CAPTURE)
+                .putExtra(MediaStore.EXTRA_OUTPUT, input)
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
         }
 
         final override fun getSynchronousResult(
@@ -330,7 +338,10 @@ public class ActivityResultContracts private constructor() {
     public open class CaptureVideo : ActivityResultContract<Uri, Boolean>() {
         @CallSuper
         override fun createIntent(context: Context, input: Uri): Intent {
-            return Intent(MediaStore.ACTION_VIDEO_CAPTURE).putExtra(MediaStore.EXTRA_OUTPUT, input)
+            return Intent(MediaStore.ACTION_VIDEO_CAPTURE)
+                .putExtra(MediaStore.EXTRA_OUTPUT, input)
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
         }
 
         final override fun getSynchronousResult(

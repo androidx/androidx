@@ -20,6 +20,7 @@ package androidx.compose.material3.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
@@ -94,7 +95,13 @@ fun ExposedDropdownMenuSample() {
                         textFieldState.setTextAndPlaceCursorAtEnd(option)
                         checkedIndex = index
                     },
-                    checkedLeadingIcon = { Icon(Icons.Filled.Check, contentDescription = null) },
+                    selectedLeadingIcon = {
+                        Icon(
+                            Icons.Filled.Check,
+                            modifier = Modifier.size(MenuDefaults.LeadingIconSize),
+                            contentDescription = null,
+                        )
+                    },
                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
                 )
             }

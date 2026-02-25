@@ -20,6 +20,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.runtime.NavMetadataKey
+import androidx.navigation3.runtime.get
+import androidx.navigation3.runtime.metadata
 
 /** An [OverlayScene] that renders an [entry] within a [Dialog]. */
 internal class DialogScene<T : Any>(
@@ -75,7 +78,7 @@ public class DialogSceneStrategy<T : Any>() : SceneStrategy<T> {
         entries: List<NavEntry<T>>
     ): Scene<T>? {
         val lastEntry = entries.lastOrNull()
-        val dialogProperties = lastEntry?.metadata?.get(DIALOG_KEY) as? DialogProperties
+        val dialogProperties = lastEntry?.metadata?.get(DialogKey)
         return dialogProperties?.let { properties ->
             DialogScene(
                 key = lastEntry.contentKey,
@@ -90,6 +93,14 @@ public class DialogSceneStrategy<T : Any>() : SceneStrategy<T> {
 
     public companion object {
         /**
+         * The key for [NavEntry.metadata] or [Scene.metadata] to indicate that an entry should be
+         * displayed within a [Dialog].
+         *
+         * @sample androidx.navigation3.ui.samples.DialogSample
+         */
+        public object DialogKey : NavMetadataKey<DialogProperties>
+
+        /**
          * Function to be called on the [NavEntry.metadata] to mark this entry as something that
          * should be displayed within a [Dialog].
          *
@@ -97,8 +108,6 @@ public class DialogSceneStrategy<T : Any>() : SceneStrategy<T> {
          */
         public fun dialog(
             dialogProperties: DialogProperties = DialogProperties()
-        ): Map<String, Any> = mapOf(DIALOG_KEY to dialogProperties)
-
-        internal const val DIALOG_KEY = "dialog"
+        ): Map<String, Any> = metadata { put(DialogKey, dialogProperties) }
     }
 }

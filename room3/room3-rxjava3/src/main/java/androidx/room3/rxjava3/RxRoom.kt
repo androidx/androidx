@@ -37,8 +37,7 @@ import kotlinx.coroutines.rx3.rxMaybe
 import kotlinx.coroutines.rx3.rxSingle
 
 /** Marker class used by annotation processor to identify dependency is in the classpath. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class Rx3RoomArtifactMarker private constructor()
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public class Rx3RoomArtifactMarker private constructor()
 
 /** Data dispatched by the publisher created by [createFlowable]. */
 @JvmField public val NOTHING: Any = Any()
@@ -49,7 +48,7 @@ public fun <T : Any> createFlowable(
     db: RoomDatabase,
     inTransaction: Boolean,
     tableNames: Array<String>,
-    block: (SQLiteConnection) -> T?,
+    block: suspend (SQLiteConnection) -> T?,
 ): Flowable<T> =
     createObservable(db, inTransaction, tableNames, block).toFlowable(BackpressureStrategy.LATEST)
 
@@ -59,7 +58,7 @@ public fun <T : Any> createObservable(
     db: RoomDatabase,
     inTransaction: Boolean,
     tableNames: Array<String>,
-    block: (SQLiteConnection) -> T?,
+    block: suspend (SQLiteConnection) -> T?,
 ): Observable<T> =
     createFlow(db, inTransaction, tableNames, block)
         .filterNotNull()
@@ -71,7 +70,7 @@ public fun <T : Any> createMaybe(
     db: RoomDatabase,
     isReadOnly: Boolean,
     inTransaction: Boolean,
-    block: (SQLiteConnection) -> T?,
+    block: suspend (SQLiteConnection) -> T?,
 ): Maybe<T> =
     rxMaybe(db.getQueryContext().minusKey(Job)) {
         performSuspending(db, isReadOnly, inTransaction, block)
@@ -83,7 +82,7 @@ public fun createCompletable(
     db: RoomDatabase,
     isReadOnly: Boolean,
     inTransaction: Boolean,
-    block: (SQLiteConnection) -> Unit,
+    block: suspend (SQLiteConnection) -> Unit,
 ): Completable =
     rxCompletable(db.getQueryContext().minusKey(Job)) {
         performSuspending(db, isReadOnly, inTransaction, block)
@@ -95,7 +94,7 @@ public fun <T : Any> createSingle(
     db: RoomDatabase,
     isReadOnly: Boolean,
     inTransaction: Boolean,
-    block: (SQLiteConnection) -> T?,
+    block: suspend (SQLiteConnection) -> T?,
 ): Single<T> =
     rxSingle(db.getQueryContext().minusKey(Job)) {
         performSuspending(db, isReadOnly, inTransaction, block)

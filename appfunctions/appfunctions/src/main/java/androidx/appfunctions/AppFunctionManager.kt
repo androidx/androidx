@@ -109,12 +109,15 @@ public constructor(
     public suspend fun executeAppFunction(
         request: ExecuteAppFunctionRequest
     ): ExecuteAppFunctionResponse {
-        val functionMetadata: AppFunctionMetadata? =
+        val functionMetadata: AppFunctionMetadata =
             try {
                 appFunctionReader.getAppFunctionMetadata(
                     functionId = request.functionIdentifier,
                     packageName = request.targetPackageName,
                 )
+                    ?: throw AppFunctionFunctionNotFoundException(
+                        "App function not found with identifier: ${request.functionIdentifier} under package: ${request.targetPackageName}"
+                    )
             } catch (ex: AppFunctionFunctionNotFoundException) {
                 return ExecuteAppFunctionResponse.Error(ex)
             } catch (ex: Exception) {
@@ -141,7 +144,8 @@ public constructor(
                 request
             }
 
-        val executeAppFunctionResponse = appFunctionManagerApi.executeAppFunction(translatedRequest)
+        val executeAppFunctionResponse =
+            appFunctionManagerApi.executeAppFunction(translatedRequest, functionMetadata)
 
         return processResponse(translator, functionMetadata, executeAppFunctionResponse)
     }

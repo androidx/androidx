@@ -58,7 +58,7 @@ import androidx.wear.protolayout.types.LayoutColor
  * @param tintColor The tint color to apply to the image
  */
 @Suppress("MissingJvmstatic") // Kotlin-friendly version of already available Java Apis
-fun ProtoLayoutScope.basicImage(
+public fun ProtoLayoutScope.basicImage(
     resource: ImageResource,
     width: ImageDimension,
     height: ImageDimension,
@@ -95,7 +95,7 @@ fun ProtoLayoutScope.basicImage(
  */
 @SuppressLint("ProtoLayoutMinSchema")
 @Suppress("MissingJvmstatic") // Kotlin-friendly version of already available Java Apis
-fun imageResource(
+public fun imageResource(
     androidImage: AndroidImageResourceByResId? = null,
     inlineImage: InlineImageResource? = null,
     lottie: AndroidLottieResourceByResId? = null,
@@ -115,7 +115,7 @@ fun imageResource(
  */
 @SuppressLint("ProtoLayoutMinSchema")
 @Suppress("MissingJvmstatic") // Kotlin-friendly version of already available Java Apis
-fun androidImageResource(@DrawableRes resourceId: Int): AndroidImageResourceByResId =
+public fun androidImageResource(@DrawableRes resourceId: Int): AndroidImageResourceByResId =
     AndroidImageResourceByResId.Builder().setResourceId(resourceId).build()
 
 /**
@@ -131,7 +131,7 @@ fun androidImageResource(@DrawableRes resourceId: Int): AndroidImageResourceByRe
  */
 @SuppressLint("ProtoLayoutMinSchema")
 @Suppress("MissingJvmstatic") // Kotlin-friendly version of already available Java Apis
-fun lottieResource(
+public fun lottieResource(
     @RawRes rawResourceId: Int,
     startTrigger: Trigger? = null,
     properties: List<LottieProperty> = emptyList(),
@@ -159,7 +159,7 @@ fun lottieResource(
  */
 @SuppressLint("ProtoLayoutMinSchema")
 @Suppress("MissingJvmstatic") // Kotlin-friendly version of already available Java Apis
-fun lottieResource(
+public fun lottieResource(
     @RawRes rawResourceId: Int,
     progress: DynamicFloat,
     properties: List<LottieProperty> = emptyList(),
@@ -187,7 +187,7 @@ fun lottieResource(
  */
 @SuppressLint("ProtoLayoutMinSchema")
 @Suppress("MissingJvmstatic") // Kotlin-friendly version of already available Java Apis
-fun inlineImageResource(
+public fun inlineImageResource(
     pixelBuffer: ByteArray,
     @ImageFormat format: Int,
     @Dimension(unit = Dimension.PX) widthPx: Int,
@@ -222,7 +222,7 @@ fun inlineImageResource(
  */
 @SuppressLint("ProtoLayoutMinSchema")
 @Suppress("MissingJvmstatic") // Kotlin-friendly version of already available Java Apis
-fun inlineImageResource(
+public fun inlineImageResource(
     compressedBytes: ByteArray,
     @Dimension(unit = Dimension.PX) widthPx: Int,
     @Dimension(unit = Dimension.PX) heightPx: Int,

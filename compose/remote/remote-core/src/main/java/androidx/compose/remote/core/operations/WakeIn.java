@@ -123,9 +123,10 @@ public class WakeIn extends PaintOperation implements VariableSupport, Serializa
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Draw Operations", OP_CODE, CLASS_NAME)
+        doc.operation("Protocol Operations", OP_CODE, CLASS_NAME)
+                .addedVersion(7)
                 .description("Wake up the render loop after a certain amount of time")
-                .field(DocumentedOperation.FLOAT, "wakeSec", "The time in seconds to wake up");
+                .field(DocumentedOperation.FLOAT, "wake", "The time in seconds to wake up");
     }
 
     @Override

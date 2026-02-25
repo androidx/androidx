@@ -156,6 +156,15 @@ public open class RemoteComposeContext {
         mRemoteWriter.row(modifier, horizontal, vertical) { content() }
     }
 
+    public fun flow(
+        modifier: RecordingModifier = Modifier,
+        horizontal: Int = RowLayout.START,
+        vertical: Int = RowLayout.TOP,
+        content: RemoteComposeContext.() -> Unit,
+    ) {
+        mRemoteWriter.flow(modifier, horizontal, vertical) { content() }
+    }
+
     public fun box(
         modifier: RecordingModifier = Modifier,
         horizontal: Int = BoxLayout.START,
@@ -163,6 +172,15 @@ public open class RemoteComposeContext {
         content: RemoteComposeContext.() -> Unit,
     ) {
         mRemoteWriter.box(modifier, horizontal, vertical) { content() }
+    }
+
+    public fun fitBox(
+        modifier: RecordingModifier = Modifier,
+        horizontal: Int = BoxLayout.START,
+        vertical: Int = BoxLayout.TOP,
+        content: RemoteComposeContext.() -> Unit,
+    ) {
+        mRemoteWriter.fitBox(modifier, horizontal, vertical) { content() }
     }
 
     public val Modifier: RecordingModifier
@@ -216,8 +234,13 @@ public open class RemoteComposeContext {
         return mRemoteWriter.textTransform(txtId, start, len, operation)
     }
 
-    public fun bitmapTextMeasure(textId: Int, bmFontId: Int, measureWidth: Int): Float {
-        return mRemoteWriter.bitmapTextMeasure(textId, bmFontId, measureWidth)
+    public fun bitmapTextMeasure(
+        textId: Int,
+        bmFontId: Int,
+        measureWidth: Int,
+        glyphSpacing: Float,
+    ): Float {
+        return mRemoteWriter.bitmapTextMeasure(textId, bmFontId, measureWidth, glyphSpacing)
     }
 
     public fun MatrixMultiply(matrixId: Float, from: FloatArray?, out: FloatArray?) {
@@ -494,8 +517,9 @@ public open class RemoteComposeContext {
         end: Int,
         x: Float,
         y: Float,
+        glyphSpacing: Float,
     ) {
-        mRemoteWriter.drawBitmapFontTextRun(textId, bitmapFontId, start, end, x, y)
+        mRemoteWriter.drawBitmapFontTextRun(textId, bitmapFontId, start, end, x, y, glyphSpacing)
     }
 
     public fun drawTextAnchored(
@@ -533,8 +557,19 @@ public open class RemoteComposeContext {
         y: Float,
         panX: Float,
         panY: Float,
+        glyphSpacing: Float,
     ) {
-        mRemoteWriter.drawBitmapTextAnchored(text, bitmapFontId, start, end, x, y, panX, panY)
+        mRemoteWriter.drawBitmapTextAnchored(
+            text,
+            bitmapFontId,
+            start,
+            end,
+            x,
+            y,
+            panX,
+            panY,
+            glyphSpacing,
+        )
     }
 
     public fun drawBitmapTextAnchored(
@@ -546,8 +581,19 @@ public open class RemoteComposeContext {
         y: Float,
         panX: Float,
         panY: Float,
+        glyphSpacing: Float,
     ) {
-        mRemoteWriter.drawBitmapTextAnchored(textId, bitmapFontId, start, end, x, y, panX, panY)
+        mRemoteWriter.drawBitmapTextAnchored(
+            textId,
+            bitmapFontId,
+            start,
+            end,
+            x,
+            y,
+            panX,
+            panY,
+            glyphSpacing,
+        )
     }
 
     public fun drawTweenPath(path1Id: Int, path2Id: Int, tween: Float, start: Float, stop: Float) {
@@ -733,6 +779,10 @@ public open class RemoteComposeContext {
 
     public fun setStringName(id: Int, name: String) {
         mRemoteWriter.setStringName(id, name)
+    }
+
+    public fun setFloatName(id: Int, name: String) {
+        mRemoteWriter.setFloatName(id, name)
     }
 
     public fun addNamedString(name: String, initialValue: String): Int {
@@ -1042,6 +1092,21 @@ public open class RemoteComposeContext {
         content: RemoteComposeWriterInterface,
     ) {
         mRemoteWriter.loop(indexId, from, step, until, content)
+    }
+
+    public fun ifElse(positive: Number, trueOps: RemoteComposeWriterInterface) {
+        conditionalOperations(Rc.Condition.GT, positive.toFloat(), 0f, trueOps)
+    }
+
+    public fun ifElse(
+        positive: Number,
+        trueOps: RemoteComposeWriterInterface,
+        elseOps: RemoteComposeWriterInterface?,
+    ) {
+        conditionalOperations(Rc.Condition.GT, positive.toFloat(), 0f, trueOps)
+        if (elseOps != null) {
+            conditionalOperations(Rc.Condition.LTE, positive.toFloat(), 0f, elseOps)
+        }
     }
 
     public fun conditionalOperations(

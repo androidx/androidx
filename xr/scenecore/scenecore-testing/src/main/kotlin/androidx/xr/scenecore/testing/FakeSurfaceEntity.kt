@@ -62,6 +62,19 @@ public class FakeSurfaceEntity(private val feature: SurfaceFeature? = null) :
             }
         }
 
+    @SurfaceEntity.MediaBlendingMode
+    private var _mediaBlendingMode = SurfaceEntity.MediaBlendingMode.TRANSPARENT
+
+    /** Specifies the blending mode of the content. */
+    @SurfaceEntity.MediaBlendingMode
+    override var mediaBlendingMode: Int
+        get() {
+            return _mediaBlendingMode
+        }
+        set(value) {
+            _mediaBlendingMode = value
+        }
+
     private var _shape: Shape = Shape.Quad(FloatSize2d(0f, 0f))
 
     /** Specifies the shape of the spatial canvas which the surface is texture mapped to. */

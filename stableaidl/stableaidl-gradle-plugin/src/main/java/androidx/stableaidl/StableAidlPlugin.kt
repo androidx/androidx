@@ -130,6 +130,10 @@ abstract class StableAidlPlugin : Plugin<Project> {
                     }
                 }
 
+            // An ABI version defined on a variant takes precedence over a top-level version.
+            val variantExtension = variant.getExtension(StableAidlVariantExtension::class.java)
+            val version = variantExtension?.version?.orElse(extension.version) ?: extension.version
+
             val compileAidlApiTask =
                 registerCompileAidlApi(
                     project,
@@ -138,6 +142,7 @@ abstract class StableAidlPlugin : Plugin<Project> {
                     aidlFramework,
                     shadowFramework,
                     aidlVersion,
+                    version,
                     sourceDir,
                     packagedDir,
                     importsDir,
@@ -157,6 +162,7 @@ abstract class StableAidlPlugin : Plugin<Project> {
                     aidlFramework,
                     shadowFramework,
                     aidlVersion,
+                    version,
                     sourceDir,
                     importsDir,
                     depImports,

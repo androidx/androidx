@@ -53,6 +53,7 @@ import java.util.Objects;
  */
 @CarProtocol
 @KeepFields
+@OptIn(markerClass = ExperimentalCarApi.class)
 public final class Row implements Item {
     /** A boat that belongs to you. */
     private static final String YOUR_BOAT = "\uD83D\uDEA3"; // 🚣
@@ -137,6 +138,7 @@ public final class Row implements Item {
     @RowImageType
     private final int mRowEndImageType;
     private final boolean mIndexable;
+    private final @Nullable CarProgressBar mProgressBar;
 
     /**
      * Returns the title of the row or {@code null} if not set.
@@ -279,6 +281,17 @@ public final class Row implements Item {
         return mIndexable;
     }
 
+    /**
+     * Returns the progress bar to display in the row, or {@code null} if not set.
+     *
+     * @see Builder#setProgressBar(CarProgressBar)
+     */
+    @RequiresCarApi(8)
+    @ExperimentalCarApi
+    public @Nullable CarProgressBar getProgressBar() {
+        return mProgressBar;
+    }
+
     /** Returns a {@link Row} for rowing {@link #yourBoat()} */
     public @NonNull Row row() {
         return this;
@@ -306,6 +319,8 @@ public final class Row implements Item {
                 + mIsBrowsable
                 + ", isEnabled: "
                 + mIsEnabled
+                + ", progressBar: "
+                + mProgressBar
                 + "]";
     }
 
@@ -323,7 +338,8 @@ public final class Row implements Item {
                 mRowImageType,
                 mRowEndImageType,
                 mIsEnabled,
-                mIndexable);
+                mIndexable,
+                mProgressBar);
     }
 
     @Override
@@ -348,7 +364,8 @@ public final class Row implements Item {
                 && mRowImageType == otherRow.mRowImageType
                 && mRowEndImageType == otherRow.mRowEndImageType
                 && mIsEnabled == otherRow.isEnabled()
-                && mIndexable == otherRow.mIndexable;
+                && mIndexable == otherRow.mIndexable
+                && Objects.equals(mProgressBar, otherRow.mProgressBar);
     }
 
     Row(Builder builder) {
@@ -366,6 +383,7 @@ public final class Row implements Item {
         mRowEndImageType = builder.mRowEndImageType;
         mIsEnabled = builder.mIsEnabled;
         mIndexable = builder.mIndexable;
+        mProgressBar = builder.mProgressBar;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -384,6 +402,7 @@ public final class Row implements Item {
         mRowEndImageType = IMAGE_TYPE_SMALL;
         mIsEnabled = true;
         mIndexable = true;
+        mProgressBar = null;
     }
 
     /** A builder of {@link Row}. */
@@ -404,6 +423,7 @@ public final class Row implements Item {
         @RowImageType
         int mRowEndImageType = IMAGE_TYPE_SMALL;
         boolean mIndexable = true;
+        @Nullable CarProgressBar mProgressBar;
 
         /**
          * Sets the title of the row.
@@ -768,6 +788,18 @@ public final class Row implements Item {
         @ExperimentalCarApi
         public @NonNull Builder setIndexable(boolean indexable) {
             mIndexable = indexable;
+            return this;
+        }
+
+        /**
+         * Sets the progress bar to display in the row.
+         *
+         * @throws NullPointerException if {@code progressBar} is {@code null}
+         */
+        @RequiresCarApi(8)
+        @ExperimentalCarApi
+        public @NonNull Builder setProgressBar(@NonNull CarProgressBar progressBar) {
+            mProgressBar = requireNonNull(progressBar);
             return this;
         }
 

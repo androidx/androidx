@@ -52,11 +52,24 @@ actual value class Key(val keyCode: Long) {
         actual val SoftRight = Key(KeyEvent.KEYCODE_SOFT_RIGHT)
 
         /**
-         * Home key.
+         * System Home key.
          *
          * This key is handled by the framework and is never delivered to applications.
          */
+        @Deprecated(
+            "`Key.Home` is never delivered to applications. For the keyboard \"Home\" key " +
+                "use `Key.MoveHome`. For the system \"Home\" key (unlikely to be needed), use " +
+                "`Key.SystemHome`",
+            level = DeprecationLevel.ERROR,
+        )
         actual val Home = Key(KeyEvent.KEYCODE_HOME)
+
+        /**
+         * System Home key.
+         *
+         * This key is handled by the framework and is never delivered to applications.
+         */
+        actual val SystemHome = Key(KeyEvent.KEYCODE_HOME)
 
         /** Back key. */
         actual val Back = Key(KeyEvent.KEYCODE_BACK)
@@ -1402,6 +1415,40 @@ actual value class Key(val keyCode: Long) {
          * be consumed by system to set account globally.
          */
         actual val ProfileSwitch = Key(KeyEvent.KEYCODE_PROFILE_SWITCH)
+
+        // Keys that don't exist on Android.
+        // The values are just consecutive negative numbers which hopefully don't correspond to any
+        // real keycodes.
+
+        /** Numeric keypad Up Arrow Key. Unsupported on Android. */
+        actual val NumPadDirectionUp = Key(-1000000001)
+
+        /** Numeric keypad Down Arrow Key. Unsupported on Android. */
+        actual val NumPadDirectionDown = Key(-1000000002)
+
+        /** Numeric keypad Left Arrow Key. Unsupported on Android. */
+        actual val NumPadDirectionLeft = Key(-1000000003)
+
+        /** Numeric keypad Right Arrow Key. Unsupported on Android. */
+        actual val NumPadDirectionRight = Key(-1000000004)
+
+        /** Numeric keypad Home Key. Unsupported on Android. */
+        actual val NumPadMoveHome = Key(-1000000005)
+
+        /** Numeric keypad End Key. Unsupported on Android. */
+        actual val NumPadMoveEnd = Key(-1000000006)
+
+        /** Numeric keypad Page Up Key. Unsupported on Android. */
+        actual val NumPadPageUp = Key(-1000000007)
+
+        /** Numeric keypad Page Down Key. Unsupported on Android. */
+        actual val NumPadPageDown = Key(-1000000008)
+
+        /** Numeric keypad Insert Key. Unsupported on Android. */
+        actual val NumPadInsert = Key(-1000000009)
+
+        /** Numeric keypad Delete key. Unsupported on Android. */
+        actual val NumPadDelete = Key(-1000000010)
     }
 
     actual override fun toString(): String = "Key code: $keyCode"

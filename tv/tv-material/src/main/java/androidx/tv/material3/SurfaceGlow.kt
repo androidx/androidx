@@ -19,12 +19,12 @@ package androidx.tv.material3
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.NativePaint
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativePaint
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
@@ -96,7 +96,7 @@ private class SurfaceGlowNode(
     private var color: Color,
 ) : DrawModifierNode, Modifier.Node() {
     private var paint: Paint? = null
-    private var frameworkPaint: NativePaint? = null
+    private var frameworkPaint: android.graphics.Paint? = null
 
     // This value is lazily allocated
     private var shapeOutlineCache: SurfaceShapeOutlineCache? = null
@@ -161,7 +161,7 @@ private class SurfaceGlowNode(
 
     private fun initializePaint() {
         paint = Paint()
-        frameworkPaint = paint!!.asFrameworkPaint()
+        frameworkPaint = paint!!.nativePaint
     }
 
     private fun setShadowLayer() {

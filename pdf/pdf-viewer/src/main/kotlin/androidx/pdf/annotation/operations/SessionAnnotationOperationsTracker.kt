@@ -136,32 +136,19 @@ internal class SessionAnnotationOperationsTracker(
         val newOp = KeyedAnnotationOperation(operationType = newType, keyedAnnotation)
 
         return when (lastType) {
-            null -> newOp // New Entry
-
+            null -> newOp
             KeyedAnnotationOperation.OperationType.ADD ->
                 when (newType) {
-                    // ADD + UPDATE = ADD (with new content)
+                    KeyedAnnotationOperation.OperationType.ADD -> newOp
                     KeyedAnnotationOperation.OperationType.UPDATE ->
                         KeyedAnnotationOperation(
                             KeyedAnnotationOperation.OperationType.ADD,
                             keyedAnnotation,
                         )
-                    // ADD + REMOVE = Nothing (Cancel out)
-                    KeyedAnnotationOperation.OperationType.REMOVE -> null
-                    else -> newOp
-                }
-
-            KeyedAnnotationOperation.OperationType.UPDATE ->
-                when (newType) {
-                    // UPDATE + UPDATE = UPDATE (New content)
-                    KeyedAnnotationOperation.OperationType.UPDATE -> newOp
-                    // UPDATE + REMOVE = REMOVE (Delete the persisted item)
                     KeyedAnnotationOperation.OperationType.REMOVE -> newOp
-                    else -> newOp
                 }
-
+            KeyedAnnotationOperation.OperationType.UPDATE -> newOp
             KeyedAnnotationOperation.OperationType.REMOVE -> {
-                // If un-deleting, restore as NEW operation
                 if (newType == KeyedAnnotationOperation.OperationType.ADD) newOp else this
             }
         }

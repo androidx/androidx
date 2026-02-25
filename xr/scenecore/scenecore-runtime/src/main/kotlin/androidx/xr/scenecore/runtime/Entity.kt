@@ -61,20 +61,6 @@ public interface Entity : ScenePose {
     /** Returns the pose for this entity, relative to its parent. */
     public fun getPose(): Pose = getPose(Space.PARENT)
 
-    /**
-     * Calculates a gravity-aligned version of a given pose.
-     *
-     * This function takes a pose in **PARENT space** and returns a new pose in the **PARENT
-     * space**. The new pose will have the same position as the input, but its rotation will be
-     * aligned with the direction of gravity. This effectively preserves the original yaw (Y-axis
-     * rotation) while setting the pitch (X-axis rotation) and roll (Z-axis rotation) to zero.
-     *
-     * @param pose The input [Pose] relative to the **PARENT space**.
-     * @return A new [Pose] in the **PARENT space**, with its rotation aligned to gravity.
-     * @throws IllegalStateException if the entity does not have a parent.
-     */
-    public fun getGravityAlignedPose(pose: Pose = Pose.Identity): Pose = pose
-
     /** Updates the pose (position and rotation) of the Entity relative to the given space. */
     public fun setPose(pose: Pose, @SpaceValue relativeTo: Int)
 

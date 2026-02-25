@@ -35,22 +35,22 @@ class BanVisibilityDocTagsTest :
     private val fileWithHideInJavadoc =
         java(
             """
-/**
- * @hide
- */
-public class HideClass {
+            /**
+             * @hide
+             */
+            public class HideClass {
 
-    /**
-     * @hide
-     */
-    public static final int HIDE = 0;
+                /**
+                 * @hide
+                 */
+                public static final int HIDE = 0;
 
-    /**
-     * @hide
-     */
-    public static void hide() {}
-}
-        """
+                /**
+                 * @hide
+                 */
+                public static void hide() {}
+            }
+            """
                 .trimIndent()
         )
 
@@ -60,17 +60,17 @@ public class HideClass {
 
         val expected =
             """
-src/HideClass.java:4: Error: @hide is not allowed in documentation [BanHideTag]
-public class HideClass {
-             ~~~~~~~~~
-src/HideClass.java:9: Error: @hide is not allowed in documentation [BanHideTag]
-    public static final int HIDE = 0;
-                            ~~~~
-src/HideClass.java:14: Error: @hide is not allowed in documentation [BanHideTag]
-    public static void hide() {}
-                       ~~~~
-3 errors, 0 warnings
-        """
+            src/HideClass.java:4: Error: @hide is not allowed in documentation [BanHideTag]
+            public class HideClass {
+                         ~~~~~~~~~
+            src/HideClass.java:9: Error: @hide is not allowed in documentation [BanHideTag]
+                public static final int HIDE = 0;
+                                        ~~~~
+            src/HideClass.java:14: Error: @hide is not allowed in documentation [BanHideTag]
+                public static void hide() {}
+                                   ~~~~
+            3 errors, 0 warnings
+            """
                 .trimIndent()
 
         check(*input).expect(expected)
@@ -79,21 +79,21 @@ src/HideClass.java:14: Error: @hide is not allowed in documentation [BanHideTag]
     private val fileWithSuppressInKdoc =
         kotlin(
             """
-/**
- * @suppress
- */
-public class SuppressClass {
+            /**
+             * @suppress
+             */
+            public class SuppressClass {
 
-    /**
-     * @suppress
-     */
-    public fun suppress() {}
-    /**
-    * @suppress
-    */
-    public val suppressedProperty = 1
-}
-        """
+                /**
+                 * @suppress
+                 */
+                public fun suppress() {}
+                /**
+                * @suppress
+                */
+                public val suppressedProperty = 1
+            }
+            """
                 .trimIndent()
         )
 
@@ -103,17 +103,17 @@ public class SuppressClass {
 
         val expected =
             """
-src/SuppressClass.kt:4: Error: @suppress is not allowed in documentation [BanSuppressTag]
-public class SuppressClass {
-             ~~~~~~~~~~~~~
-src/SuppressClass.kt:9: Error: @suppress is not allowed in documentation [BanSuppressTag]
-    public fun suppress() {}
-               ~~~~~~~~
-src/SuppressClass.kt:13: Error: @suppress is not allowed in documentation [BanSuppressTag]
-    public val suppressedProperty = 1
-               ~~~~~~~~~~~~~~~~~~
-3 errors, 0 warnings
-        """
+            src/SuppressClass.kt:4: Error: @suppress is not allowed in documentation [BanSuppressTag]
+            public class SuppressClass {
+                         ~~~~~~~~~~~~~
+            src/SuppressClass.kt:9: Error: @suppress is not allowed in documentation [BanSuppressTag]
+                public fun suppress() {}
+                           ~~~~~~~~
+            src/SuppressClass.kt:13: Error: @suppress is not allowed in documentation [BanSuppressTag]
+                public val suppressedProperty = 1
+                           ~~~~~~~~~~~~~~~~~~
+            3 errors, 0 warnings
+            """
                 .trimIndent()
 
         check(*input).expect(expected)
@@ -132,7 +132,7 @@ src/SuppressClass.kt:13: Error: @suppress is not allowed in documentation [BanSu
                           **/
                         fun foo() = Unit
                     }
-                """
+                    """
                         .trimIndent()
                 ),
                 java(
@@ -145,7 +145,7 @@ src/SuppressClass.kt:13: Error: @suppress is not allowed in documentation [BanSu
                         /** @removed */
                         public void bar() {}
                     }
-                """
+                    """
                         .trimIndent()
                 ),
             )
@@ -162,7 +162,7 @@ src/SuppressClass.kt:13: Error: @suppress is not allowed in documentation [BanSu
                 fun foo() = Unit
                     ~~~
             3 errors, 0 warnings
-        """
+            """
                 .trimIndent()
 
         check(*input).expect(expected)

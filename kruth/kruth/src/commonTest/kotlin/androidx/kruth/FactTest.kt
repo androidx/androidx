@@ -93,8 +93,8 @@ class FactTest {
 
         assertFailsWithMessage(
             """
-                Expected something else
-                but was: 0
+            Expected something else
+            but was: 0
             """
                 .trimIndent()
         ) {
@@ -113,9 +113,9 @@ class FactTest {
 
         assertFailsWithMessage(
             """
-                Expected something else
-                expected: 1
-                but was : 0
+            Expected something else
+            expected: 1
+            but was : 0
             """
                 .trimIndent()
         ) {
@@ -134,7 +134,7 @@ class FactTest {
 
         assertFailsWithMessage(
             """
-                Expected something else
+            Expected something else
             """
                 .trimIndent()
         ) {
@@ -156,8 +156,8 @@ class FactTest {
 
         assertFailsWithMessage(
             """
-                Expected something else
-                Found: 0
+            Expected something else
+            Found: 0
             """
                 .trimIndent()
         ) {

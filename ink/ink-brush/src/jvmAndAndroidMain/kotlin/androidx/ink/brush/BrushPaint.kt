@@ -42,7 +42,7 @@ import kotlin.jvm.JvmSynthetic
  * - The final combined texture (source) is blended with the (possibly adjusted per-vertex) brush
  *   color (destination) according to the blend mode of the last texture layer.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @ExperimentalInkCustomBrushApi
 @Suppress("NotCloseable") // Finalize is only used to free the native peer.
 public class BrushPaint
@@ -86,6 +86,7 @@ private constructor(
     )
 
     /** Uses this paint's color functions (if any) to transform the given brush color. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun applyColorFunctions(color: ComposeColor): ComposeColor {
         var transformedColor = color
         for (colorFunction in colorFunctions) {

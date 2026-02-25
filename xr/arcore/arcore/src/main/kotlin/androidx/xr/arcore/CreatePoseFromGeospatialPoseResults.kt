@@ -24,14 +24,15 @@ public sealed class CreatePoseFromGeospatialPoseResult
 /**
  * Result of a successful [Geospatial.createPoseFromGeospatialPose] call.
  *
- * @property pose the [Pose] that was created.
+ * @property pose the [Pose] that was created
  */
 public class CreatePoseFromGeospatialPoseSuccess(public val pose: Pose) :
     CreatePoseFromGeospatialPoseResult()
 
 /**
- * Result of an unsuccessful [Geospatial.createPoseFromGeospatialPose] call. Geospatial is not yet
- * tracking. Geospatial may need additional time to start tracking, or the device itself may not be
- * tracking.
+ * Result of an unsuccessful [Geospatial.createPoseFromGeospatialPose] call.
+ *
+ * Geospatial is not yet tracking. Geospatial may need additional time to start tracking, or the
+ * device itself may not be tracking.
  */
-public class CreatePoseFromGeospatialPoseNotTracking() : CreatePoseFromGeospatialPoseResult()
+public class CreatePoseFromGeospatialPoseNotTracking : CreatePoseFromGeospatialPoseResult()

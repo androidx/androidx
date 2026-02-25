@@ -71,6 +71,8 @@ import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.RemoteComposeContext
 import androidx.compose.remote.creation.RemoteComposeWriter
+import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
+import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.capture.DisplayPool
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCapture
 import androidx.compose.remote.creation.compose.capture.rememberVirtualDisplay
@@ -82,6 +84,10 @@ import androidx.compose.remote.integration.view.demos.examples.RcCanvasComponent
 import androidx.compose.remote.integration.view.demos.examples.RcCanvasComponents3
 import androidx.compose.remote.integration.view.demos.examples.RcCanvasComponents4
 import androidx.compose.remote.integration.view.demos.examples.RcCanvasComponents5
+import androidx.compose.remote.integration.view.demos.examples.RcCollapsiblePriority
+import androidx.compose.remote.integration.view.demos.examples.RcFitBox
+import androidx.compose.remote.integration.view.demos.examples.RcFlow
+import androidx.compose.remote.integration.view.demos.examples.RcScrollview
 import androidx.compose.remote.integration.view.demos.examples.RcSimpleClock1
 import androidx.compose.remote.integration.view.demos.examples.RcTextDemo
 import androidx.compose.remote.integration.view.demos.examples.RcTextDemo2
@@ -144,6 +150,7 @@ const val DEFAULT_SHOW_COMPOSE = false
 const val DEFAULT_SHOW_COMPOSE_PLAYER = true
 const val DEFAULT_DEBUG_REMOTE_COMPOSE = false
 const val DELAY_IN_MS = 2000L
+var INSTANT_RESIZE = false
 
 @Suppress("RestrictedApiAndroidX")
 fun launcherDoc(): RemoteComposeBuffer {
@@ -311,6 +318,10 @@ class ExperimentActivity : ComponentActivity() {
                 ),
             "Procedural..." to
                 listOf(
+                    getpc("RcScrollViewport") { RcScrollview() },
+                    getpc("RcFlow") { RcFlow() },
+                    getpc("RcCollapsiblePriority") { RcCollapsiblePriority() },
+                    getpc("RcFitBox") { RcFitBox() },
                     getpc("Stock") { RcTicker(applicationContext) },
                     getpc("2 VText") { RcCanvasComponents5() },
                     getpc("Canvas + HText") { RcCanvasComponents4() },
@@ -463,10 +474,12 @@ class ExperimentActivity : ComponentActivity() {
     }
 
     /** Runs the menu if no Bundle containing what to run */
+    @OptIn(ExperimentalRemoteCreationComposeApi::class)
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        RemoteComposeCreationComposeFlags.isRemoteApplierEnabled = false
         val fullList = cmap.toMutableList()
         fullList.addAll(subMenus.values.flatten())
 
@@ -678,7 +691,9 @@ fun DisplayControls(fileReady: Boolean, name: String, func: RemoteComposeFunc, c
         var playbackTheme by remember { mutableIntStateOf(Theme.UNSPECIFIED) }
         var debugMode by remember { mutableIntStateOf(0) }
         var documentWidth = remember { mutableIntStateOf(300) }
-        var documentHeight = remember { mutableIntStateOf(300) }
+        var documentHeight = remember { mutableIntStateOf(600) }
+        var offsetX = remember { mutableIntStateOf(0) }
+        var offsetY = remember { mutableIntStateOf(0) }
         val currentDocument = func.getDoc()
 
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -686,6 +701,8 @@ fun DisplayControls(fileReady: Boolean, name: String, func: RemoteComposeFunc, c
                 DocumentView(
                     documentWidth,
                     documentHeight,
+                    offsetX,
+                    offsetY,
                     currentDocument,
                     playbackTheme,
                     debugMode,
@@ -696,6 +713,8 @@ fun DisplayControls(fileReady: Boolean, name: String, func: RemoteComposeFunc, c
                 DocumentView(
                     documentWidth,
                     documentHeight,
+                    offsetX,
+                    offsetY,
                     currentDocument,
                     playbackTheme,
                     debugMode,
@@ -726,13 +745,44 @@ val shaderControl: (String) -> Boolean = { true }
 private fun DocumentView(
     documentWidth: MutableState<Int>,
     documentHeight: MutableState<Int>,
+    offsetX: MutableState<Int>,
+    offsetY: MutableState<Int>,
     currentDocument: MutableState<CoreDocument?>,
     playbackTheme: Int,
     debugMode: Int,
 ) {
-    Box {
+    // Internal states to track the drag position/size
+    var dragWidth by remember { mutableFloatStateOf(documentWidth.value.toFloat()) }
+    var dragHeight by remember { mutableFloatStateOf(documentHeight.value.toFloat()) }
+    var dragOffsetX by remember { mutableFloatStateOf(offsetX.value.toFloat()) }
+    var dragOffsetY by remember { mutableFloatStateOf(offsetY.value.toFloat()) }
+
+    // Keep internal states in sync if document dimensions are changed elsewhere
+    LaunchedEffect(documentWidth.value, documentHeight.value, offsetX.value, offsetY.value) {
+        dragWidth = documentWidth.value.toFloat()
+        dragHeight = documentHeight.value.toFloat()
+        dragOffsetX = offsetX.value.toFloat()
+        dragOffsetY = offsetY.value.toFloat()
+    }
+
+    Box(Modifier.padding(40.dp)) {
+        // Optional visual indicator if deferred resizing
+        if (!INSTANT_RESIZE) {
+            Box(
+                Modifier.offset {
+                        IntOffset(dragOffsetX.dp.toPx().toInt(), dragOffsetY.dp.toPx().toInt())
+                    }
+                    .size(dragWidth.dp, dragHeight.dp)
+                    .background(Color.Blue.copy(alpha = 0.2f))
+            )
+        }
+
         AndroidView(
-            modifier = Modifier.size(documentWidth.value.dp, documentHeight.value.dp),
+            modifier =
+                Modifier.offset {
+                        IntOffset(offsetX.value.dp.toPx().toInt(), offsetY.value.dp.toPx().toInt())
+                    }
+                    .size(documentWidth.value.dp, documentHeight.value.dp),
             factory = {
                 val player = RemoteComposePlayer(it)
                 if (currentDocument.value != null) {
@@ -744,28 +794,80 @@ private fun DocumentView(
             },
             update = {
                 it.setTheme(playbackTheme)
+                it.setDebug(debugMode)
                 if (currentDocument.value != null) {
                     it.setDocument(RemoteDocument(currentDocument.value!!))
                 }
-                it.setDebug(debugMode)
             },
         )
 
+        // Bottom-right handle
         Box(
             Modifier.offset {
                     IntOffset(
-                        documentWidth.value.dp.toPx().toInt(),
-                        documentHeight.value.dp.toPx().toInt(),
+                        (dragOffsetX + dragWidth).dp.toPx().toInt(),
+                        (dragOffsetY + dragHeight).dp.toPx().toInt(),
                     )
                 }
                 .background(Color.Green)
                 .size(30.dp)
                 .pointerInput(Unit) {
-                    detectDragGestures { change, dragAmount ->
-                        change.consume()
-                        documentWidth.value += dragAmount.x.toDp().value.toInt()
-                        documentHeight.value += dragAmount.y.toDp().value.toInt()
-                    }
+                    detectDragGestures(
+                        onDrag = { change, dragAmount ->
+                            change.consume()
+                            dragWidth += dragAmount.x.toDp().value
+                            dragHeight += dragAmount.y.toDp().value
+                            if (INSTANT_RESIZE) {
+                                documentWidth.value = dragWidth.toInt()
+                                documentHeight.value = dragHeight.toInt()
+                            }
+                        },
+                        onDragEnd = {
+                            if (!INSTANT_RESIZE) {
+                                documentWidth.value = dragWidth.toInt()
+                                documentHeight.value = dragHeight.toInt()
+                            }
+                        },
+                    )
+                }
+        )
+
+        // Top-left handle
+        Box(
+            Modifier.offset {
+                    IntOffset(
+                        (dragOffsetX).dp.toPx().toInt() - 30.dp.toPx().toInt(),
+                        (dragOffsetY).dp.toPx().toInt() - 30.dp.toPx().toInt(),
+                    )
+                }
+                .background(Color.Red)
+                .size(30.dp)
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDrag = { change, dragAmount ->
+                            change.consume()
+                            val dx = dragAmount.x.toDp().value
+                            val dy = dragAmount.y.toDp().value
+                            dragOffsetX += dx
+                            dragOffsetY += dy
+                            dragWidth -= dx
+                            dragHeight -= dy
+                            if (INSTANT_RESIZE) {
+                                offsetX.value = dragOffsetX.toInt()
+                                offsetY.value = dragOffsetY.toInt()
+                                documentWidth.value = dragWidth.toInt()
+                                documentHeight.value = dragHeight.toInt()
+                            }
+                        },
+                        onDragEnd = {
+                            if (!INSTANT_RESIZE) {
+                                offsetX.value = dragOffsetX.toInt()
+                                offsetY.value = dragOffsetY.toInt()
+                                documentWidth.value = dragWidth.toInt()
+                                documentHeight.value = dragHeight.toInt()
+                            }
+                        },
+                    )
                 }
         )
     }
@@ -986,10 +1088,10 @@ fun DisplayMain(
                         },
                         update = {
                             it.setTheme(playbackTheme)
+                            it.setDebug(debugMode)
                             if (currentDocument.value != null) {
                                 it.setDocument(RemoteDocument(currentDocument.value!!))
                             }
-                            it.setDebug(debugMode)
                         },
                     )
                 }

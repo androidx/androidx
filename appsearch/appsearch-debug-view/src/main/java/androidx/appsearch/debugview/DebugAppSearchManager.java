@@ -248,6 +248,7 @@ public class DebugAppSearchManager implements Closeable {
     /**
      * Closes the AppSearch session.
      */
+    @SuppressWarnings("FutureReturnValueIgnored") // b/475314812
     @Override
     public void close() {
         if (mSearchType == AppSearchDebugActivity.SEARCH_TYPE_GLOBAL) {

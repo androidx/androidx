@@ -13,9 +13,9 @@ package androidx.lifecycle {
 
   public interface HasDefaultViewModelProviderFactory {
     method @InaccessibleFromKotlin public default androidx.lifecycle.viewmodel.CreationExtras getDefaultViewModelCreationExtras();
-    method @InaccessibleFromKotlin public androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
+    method @InaccessibleFromKotlin public default androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
     property public default androidx.lifecycle.viewmodel.CreationExtras defaultViewModelCreationExtras;
-    property public abstract androidx.lifecycle.ViewModelProvider.Factory defaultViewModelProviderFactory;
+    property public default androidx.lifecycle.ViewModelProvider.Factory defaultViewModelProviderFactory;
   }
 
   public abstract class ViewModel {

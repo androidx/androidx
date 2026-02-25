@@ -98,6 +98,62 @@ public interface SessionProcessorImpl {
      *
      * @param surfaceConfigs contains output surfaces for preview, image capture, and an
      *                       optional output config for image analysis (YUV_420_888).
+     *
+     * @param sessionParameters Capture request key value map of all client session parameters.
+     *                          OEM can choose to apply those that are appropriate for the
+     *                          specific extension.
+     *
+     * @return a {@link Camera2SessionConfigImpl} consisting of a list of
+     * {@link Camera2OutputConfigImpl} and session parameters which will decide the
+     * {@link android.hardware.camera2.params.SessionConfiguration} for configuring the
+     * CameraCaptureSession. Please note that the OutputConfiguration list may not be part of any
+     * supported or mandatory stream combination BUT OEM must ensure this list will always
+     * produce a valid camera capture session.
+     *
+     * @since 1.6
+     */
+    @NonNull Camera2SessionConfigImpl initSession(
+            @NonNull String cameraId,
+            @NonNull Map<String, CameraCharacteristics> cameraCharacteristicsMap,
+            @NonNull Context context,
+            @NonNull OutputSurfaceConfigurationImpl surfaceConfigs,
+            @NonNull Map<CaptureRequest.Key<?>, Object> sessionParameters);
+
+    /**
+     * Initializes the session for the extension. This is where the OEMs allocate resources for
+     * preparing a CameraCaptureSession. After initSession() is called, the camera ID,
+     * cameraCharacteristics and context will not change until deInitSession() has been called.
+     *
+     * <p>CameraX / Camera2 specifies the output surface configurations for preview using
+     * {@link OutputSurfaceConfigurationImpl#getPreviewOutputSurface}, image capture using
+     * {@link OutputSurfaceConfigurationImpl#getImageCaptureOutputSurface}, and image analysis
+     * [optional] using {@link OutputSurfaceConfigurationImpl#getImageAnalysisOutputSurface}.
+     * And OEM returns a {@link Camera2SessionConfigImpl} which consists of a list of
+     * {@link Camera2OutputConfigImpl} and session parameters. The {@link Camera2SessionConfigImpl}
+     * will be used to configure the CameraCaptureSession.
+     *
+     * <p>OEM is responsible for outputting correct camera images output to these output surfaces.
+     * OEM can have the following options to enable the output:
+     * <pre>
+     * (1) Add these output surfaces in CameraCaptureSession directly using
+     * {@link Camera2OutputConfigImplBuilder#newSurfaceConfig(Surface)} }. Processing is done in
+     * HAL.
+     *
+     * (2) Use surface sharing with other surface by calling
+     * {@link Camera2OutputConfigImplBuilder#addSurfaceSharingOutputConfig(Camera2OutputConfigImpl)}
+     * to add the output surface to the other {@link Camera2OutputConfigImpl}.
+     *
+     * (3) Process output from other surfaces (RAW, YUV..) and write the result to the output
+     * surface. The output surface won't be contained in the returned
+     * {@link Camera2SessionConfigImpl}.
+     * </pre>
+     *
+     * <p>{@link Camera2OutputConfigImplBuilder} and {@link Camera2SessionConfigImplBuilder}
+     * implementations are provided in the stub for OEM to construct the
+     * {@link Camera2OutputConfigImpl} and {@link Camera2SessionConfigImpl} instances.
+     *
+     * @param surfaceConfigs contains output surfaces for preview, image capture, and an
+     *                       optional output config for image analysis (YUV_420_888).
      * @return a {@link Camera2SessionConfigImpl} consisting of a list of
      * {@link Camera2OutputConfigImpl} and session parameters which will decide the
      * {@link android.hardware.camera2.params.SessionConfiguration} for configuring the

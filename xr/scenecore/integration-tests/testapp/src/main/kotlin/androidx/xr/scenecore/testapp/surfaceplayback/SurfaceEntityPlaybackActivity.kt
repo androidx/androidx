@@ -76,7 +76,7 @@ import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import androidx.xr.arcore.ArDevice
 import androidx.xr.runtime.Config
-import androidx.xr.runtime.Config.DeviceTrackingMode
+import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.FloatSize2d
@@ -200,11 +200,7 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        @Suppress("DEPRECATION")
-        val session =
-            (Session.create(this, unscaledGravityAlignedActivitySpace = true)
-                    as SessionCreateSuccess)
-                .session
+        val session = (Session.create(this) as SessionCreateSuccess).session
         session.configure(Config(deviceTracking = DeviceTrackingMode.LAST_KNOWN))
         session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
         session.scene.keyEntity = session.scene.mainPanelEntity

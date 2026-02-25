@@ -20,6 +20,7 @@ package androidx.xr.arcore.guava
 
 import androidx.concurrent.futures.SuspendToFutureAdapter
 import androidx.xr.arcore.Anchor
+import androidx.xr.runtime.Config
 import androidx.xr.runtime.Session
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.UUID
@@ -27,10 +28,11 @@ import java.util.UUID
 /**
  * Stores this anchor in the application's local storage so that it can be shared across sessions.
  *
- * @return a [ListenableFuture] that returns a [UUID] that uniquely identifies this anchor.
+ * @param session the [Session] to use for the coroutine context
+ * @return a [ListenableFuture] that returns a [UUID] that uniquely identifies this anchor
  * @throws [IllegalStateException] if [Session.config] is set to
  *   [Config.AnchorPersistenceMode.DISABLED], or if there was an unexpected error persisting the
- *   anchor (e.g. ran out of memory).
+ *   anchor (e.g. ran out of memory)
  */
 public fun Anchor.persistAsync(session: Session): ListenableFuture<UUID> =
     SuspendToFutureAdapter.launchFuture(

@@ -40,7 +40,6 @@ import androidx.xr.scenecore.testapp.common.managers.SessionManager
 import androidx.xr.scenecore.testapp.environment.EnvironmentActivity
 import androidx.xr.scenecore.testapp.fieldofviewvisibility.FieldOfViewVisibilityActivity
 import androidx.xr.scenecore.testapp.fsmhsmtransition.FsmHsmTransitionActivity
-import androidx.xr.scenecore.testapp.gravityaligned.GravityAlignedPoseTest
 import androidx.xr.scenecore.testapp.headlockedui.HeadLockedUiActivity
 import androidx.xr.scenecore.testapp.hittest.HitTestActivity
 import androidx.xr.scenecore.testapp.inputmoveresize.InputMoveResizeTestActivity
@@ -55,6 +54,7 @@ import androidx.xr.scenecore.testapp.spatialaudio.SpatialAudioActivity
 import androidx.xr.scenecore.testapp.spatialcapabilities.SpatialCapabilitiesActivity
 import androidx.xr.scenecore.testapp.spatialuser.SpatialUserActivity
 import androidx.xr.scenecore.testapp.standalone.StandaloneActivity
+import androidx.xr.scenecore.testapp.surfacecustommesh.SurfaceEntityCustomMeshActivity
 import androidx.xr.scenecore.testapp.surfaceimage.SurfaceEntityImageActivity
 import androidx.xr.scenecore.testapp.surfaceinteraction.SurfaceEntityInteractionActivity
 import androidx.xr.scenecore.testapp.surfaceplayback.SurfaceEntityPlaybackActivity
@@ -173,10 +173,10 @@ class MainActivity : AppCompatActivity() {
                 getString(R.string.dev_memory_leak_test),
                 getString(R.string.cuj_surface_entity_interaction_test),
                 getString(R.string.cuj_surface_entity_playbacktest),
-                getString(R.string.cuj_gravity_aligned_pose_test),
                 getString(R.string.cuj_surface_entity_imagetest),
                 getString(R.string.cuj_panel_coordinates_test),
                 getString(R.string.cuj_gltf_model_animation_test),
+                getString(R.string.cuj_surface_entity_custom_mesh_test),
             )
         val customAdapter = TestCasesRecyclerViewAdapter(dataset)
         val recyclerView: RecyclerView = findViewById(R.id.cuj_buttons_recycler)
@@ -209,9 +209,6 @@ class MainActivity : AppCompatActivity() {
                 val intent = Intent(this@MainActivity, FsmHsmTransitionActivity::class.java)
                 activityLauncher.launch(intent)
             }
-
-            Tests.GRAVITY_ALIGNED_POSE_TEST.test ->
-                startActivity(createIntent<GravityAlignedPoseTest>())
 
             Tests.SPATIAL_USER_TEST.test -> startActivity(createIntent<SpatialUserActivity>())
 
@@ -287,6 +284,9 @@ class MainActivity : AppCompatActivity() {
                 startActivity(createIntent<AccessibilityTestActivity>())
 
             Tests.MEMORY_LEAK_TEST.test -> startActivity(createIntent<MemoryLeakActivity>())
+
+            Tests.SURFACE_CUSTOM_MESH_TEST.test ->
+                startActivity(createIntent<SurfaceEntityCustomMeshActivity>())
 
             Tests.SURFACE_ENTITY_IMAGE_TEST.test ->
                 startActivity(createIntent<SurfaceEntityImageActivity>())
@@ -376,9 +376,9 @@ class MainActivity : AppCompatActivity() {
         MEMORY_LEAK_TEST(23),
         SURFACE_INTERACTION_TEST(24),
         SURFACE_PLAYBACK_TEST(25),
-        GRAVITY_ALIGNED_POSE_TEST(26),
-        SURFACE_ENTITY_IMAGE_TEST(27),
-        PANEL_COORDINATES_TEST(28),
-        GLTF_MODEL_ANIMATION_TEST(29),
+        SURFACE_ENTITY_IMAGE_TEST(26),
+        PANEL_COORDINATES_TEST(27),
+        GLTF_MODEL_ANIMATION_TEST(28),
+        SURFACE_CUSTOM_MESH_TEST(29),
     }
 }

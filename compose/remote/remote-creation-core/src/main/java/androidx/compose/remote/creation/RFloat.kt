@@ -64,7 +64,7 @@ public operator fun Float.rem(v: RFloat): RFloat {
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RFloat : Number {
+open public class RFloat : Number {
     public var array: FloatArray = floatArrayOf()
     public var id: Float = 0f // if 0 it has not been sent
     public var writer: RemoteComposeWriter? = null
@@ -131,8 +131,12 @@ public class RFloat : Number {
         return toInt().toChar()
     }
 
-    public operator fun unaryPlus(): RFloat {
+    public operator fun unaryMinus(): RFloat {
         return RFloat(writer, floatArrayOf(*toArray(this), -1f, Rc.FloatExpression.MUL))
+    }
+
+    public operator fun unaryPlus(): RFloat {
+        return this
     }
 
     public operator fun rem(v: Float): RFloat {
@@ -197,12 +201,18 @@ public class RFloat : Number {
         return RFloat(writer, floatArrayOf(*toArray(this), *toArray(v), Rc.FloatExpression.DIV))
     }
 
-    public operator fun get(v: RFloat): RFloat {
-        return RFloat(writer, floatArrayOf(*toArray(v), *toArray(this), Rc.FloatExpression.A_DEREF))
+    public operator fun get(index: RFloat): RFloat {
+        return RFloat(
+            writer,
+            floatArrayOf(*toArray(this), *toArray(index), Rc.FloatExpression.A_DEREF),
+        )
     }
 
-    public operator fun get(v: Int): RFloat {
-        return RFloat(writer, floatArrayOf(v.toFloat(), *toArray(this), Rc.FloatExpression.A_DEREF))
+    public operator fun get(index: Int): RFloat {
+        return RFloat(
+            writer,
+            floatArrayOf(*toArray(this), index.toFloat(), Rc.FloatExpression.A_DEREF),
+        )
     }
 
     public companion object {
@@ -327,12 +337,28 @@ public fun log(a: RFloat): RFloat {
     return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.LOG))
 }
 
+public fun log2(a: RFloat): RFloat {
+    return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.LOG2))
+}
+
 public fun ln(a: RFloat): RFloat {
     return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.LN))
 }
 
 public fun round(a: RFloat): RFloat {
     return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.ROUND))
+}
+
+public fun inverse(a: RFloat): RFloat {
+    return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.INV))
+}
+
+public fun fraction(a: RFloat): RFloat {
+    return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.FRACT))
+}
+
+public fun square(a: RFloat): RFloat {
+    return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.SQUARE))
 }
 
 /** Math.sin(a) */
@@ -572,6 +598,58 @@ public fun cubic(x1: Number, x2: Number, y1: Number, y2: Number, value: Number):
             Rc.FloatExpression.CUBIC,
         ),
     )
+}
+
+/* ==================== Array operations ================== */
+
+/** maximum value of an array */
+public fun arrayMax(a: RFloat): RFloat {
+    return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.A_MAX))
+}
+
+/** The minimum value of an array */
+public fun arrayMin(a: RFloat): RFloat {
+    return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.A_MIN))
+}
+
+/** the sum of the values of an array */
+public fun arraySum(a: RFloat): RFloat {
+    return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.A_SUM))
+}
+
+/** the sum of the values of an array up to index */
+public fun arraySum(a: RFloat, index: RFloat): RFloat {
+    return RFloat(a.writer, floatArrayOf(*a.array, *index.array, Rc.FloatExpression.A_SUM_UNTIL))
+}
+
+@Suppress("RestrictedApiAndroidX")
+public fun arraySumXY(a: RFloat, b: RFloat): RFloat {
+    return RFloat(a.writer, floatArrayOf(*a.array, *b.array, Rc.FloatExpression.A_SUM_XY))
+}
+
+@Suppress("RestrictedApiAndroidX")
+public fun arraySumSqr(a: RFloat): RFloat {
+    return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.A_SUM_SQR))
+}
+
+/** the avg values of an array */
+public fun arrayAvg(a: RFloat): RFloat {
+    return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.A_AVG))
+}
+
+/** the length of an array */
+public fun arrayLength(a: RFloat): RFloat {
+    return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.A_LEN))
+}
+
+/** treat the array as a spline and get a value 0 = start 1 = end */
+public fun arraySpline(a: RFloat, pos: RFloat): RFloat {
+    return RFloat(a.writer, floatArrayOf(*a.array, *pos.array, Rc.FloatExpression.A_SPLINE))
+}
+
+/** treat the array as a spline that loops and get a value 0 = start 1 = start & end */
+public fun splineLoop(a: RFloat, pos: RFloat): RFloat {
+    return RFloat(a.writer, floatArrayOf(*a.array, *pos.array, Rc.FloatExpression.A_SPLINE_LOOP))
 }
 
 /** hours run from Midnight=0 quantized to Hours 0-23 */

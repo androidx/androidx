@@ -34,50 +34,50 @@ class FakeSystemSpaceEntityTest {
     }
 
     @Test
-    fun setOnSpaceUpdatedListener_callListenersOnActivitySpaceUpdated() {
+    fun setOnOriginChangedListener_callListenersOnActivitySpace() {
         val listener = TestSpaceUpdatedListener()
         val executor = DirectExecutor()
 
-        underTest.setOnSpaceUpdatedListener(listener, executor)
-        underTest.onSpaceUpdated()
+        underTest.setOnOriginChangedListener(listener, executor)
+        underTest.onOriginChanged()
 
         assertThat(listener.wasCalled).isTrue()
     }
 
     @Test
-    fun setOnSpaceUpdatedListener_multipleListeners_callLastListenersOnActivitySpaceUpdated() {
+    fun setOnOriginChangedListener_multipleListeners_callLastListenersOnActivitySpace() {
         val listener1 = TestSpaceUpdatedListener()
         val listener2 = TestSpaceUpdatedListener()
         val executor1 = DirectExecutor()
         val executor2 = DirectExecutor()
 
-        underTest.setOnSpaceUpdatedListener(listener1, executor1)
+        underTest.setOnOriginChangedListener(listener1, executor1)
         // This should override the previous listener.
-        underTest.setOnSpaceUpdatedListener(listener2, executor2)
-        underTest.onSpaceUpdated()
+        underTest.setOnOriginChangedListener(listener2, executor2)
+        underTest.onOriginChanged()
 
         assertThat(listener1.wasCalled).isFalse()
         assertThat(listener2.wasCalled).isTrue()
     }
 
     @Test
-    fun setOnSpaceUpdatedListener_withNullExecutor_usesInternalExecutor() {
+    fun setOnOriginChangedListener_withNullExecutor_usesInternalExecutor() {
         val listener = TestSpaceUpdatedListener()
 
-        underTest.setOnSpaceUpdatedListener(listener, null)
-        underTest.onSpaceUpdated()
+        underTest.setOnOriginChangedListener(listener, null)
+        underTest.onOriginChanged()
 
         assertThat(listener.wasCalled).isTrue()
     }
 
     @Test
-    fun setOnSpaceUpdatedListener_withNullListener_noListenerCallOnActivitySpaceUpdated() {
+    fun setOnOriginChangedListener_withNullListener_noListenerCallOnActivitySpace() {
         val listener = TestSpaceUpdatedListener()
         val executor = DirectExecutor()
-        underTest.setOnSpaceUpdatedListener(listener, executor)
-        underTest.setOnSpaceUpdatedListener(null, executor)
+        underTest.setOnOriginChangedListener(listener, executor)
+        underTest.setOnOriginChangedListener(null, executor)
 
-        underTest.onSpaceUpdated()
+        underTest.onOriginChanged()
 
         assertThat(listener.wasCalled).isFalse()
     }

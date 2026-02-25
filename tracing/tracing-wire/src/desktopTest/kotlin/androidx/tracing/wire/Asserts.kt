@@ -16,8 +16,8 @@
 
 package androidx.tracing.wire
 
-import perfetto.protos.MutableTracePacket
-import perfetto.protos.MutableTrackEvent
+import androidx.tracing.wire.protos.MutableTracePacket
+import androidx.tracing.wire.protos.MutableTrackEvent
 
 internal fun TestSink.firstStartStopWithName(
     name: String

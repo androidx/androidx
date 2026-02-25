@@ -26,13 +26,8 @@ import android.os.StrictMode.VmPolicy
 import android.util.Log
 import android.view.ViewStub
 import android.widget.Toast
-import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
-import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
-import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.Camera
-import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -40,10 +35,6 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.ExtensionsManager
-import androidx.camera.integration.extensions.ExtensionsApplication
-import androidx.camera.integration.extensions.ImplementationOption.CAMERA2_IMPLEMENTATION_OPTION
-import androidx.camera.integration.extensions.ImplementationOption.CAMERA_PIPE_IMPLEMENTATION_OPTION
-import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_CAMERA_IMPLEMENTATION
 import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_CAMERA_ID
 import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_EXTENSION_MODE
 import androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_RESULT_ERROR_MESSAGE
@@ -52,7 +43,6 @@ import androidx.camera.integration.extensions.PERMISSIONS_REQUEST_CODE
 import androidx.camera.integration.extensions.R
 import androidx.camera.integration.extensions.RequestResultErrorCode.RESULT_ERROR_EXTENSION_MOD_NOT_SUPPORTED
 import androidx.camera.integration.extensions.RequestResultErrorCode.RESULT_ERROR_FAILED_TO_RETRIEVE_EXTENSIONS_MANAGER
-import androidx.camera.integration.extensions.RequestResultErrorCode.RESULT_ERROR_INCORRECT_CAMERA_IMPLEMENTATION
 import androidx.camera.integration.extensions.RequestResultErrorCode.RESULT_ERROR_PERMISSION_NOT_SATISFIED
 import androidx.camera.integration.extensions.RequestResultErrorCode.RESULT_ERROR_RUNNING_MODE_INCORRECT
 import androidx.camera.integration.extensions.RequestResultErrorCode.RESULT_ERROR_TAKE_PICTURE_FAILED
@@ -90,10 +80,6 @@ private const val STAGE_WAIT_FOR_STILL_IMAGE_CAPTURE = 1
 class ReleaseTestActivity : AppCompatActivity() {
     private var permissionsGranted: Boolean = false
     private lateinit var permissionCompleter: CallbackToFutureAdapter.Completer<Boolean>
-
-    private var cameraImplementation: String = CAMERA2_IMPLEMENTATION_OPTION
-    // When the retrieved implementation is incorrect, one time retry will be allowed.
-    private var hasRetried = false
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var extensionsManager: ExtensionsManager
 
@@ -118,8 +104,6 @@ class ReleaseTestActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_release_test)
         setTitle(R.string.camerax_extensions)
-
-        intent.getStringExtra(INTENT_EXTRA_CAMERA_IMPLEMENTATION)?.let { cameraImplementation = it }
 
         intent.getStringExtra(INTENT_EXTRA_KEY_CAMERA_ID)?.let {
             currentCameraSelector = createCameraSelectorById(it)
@@ -191,13 +175,6 @@ class ReleaseTestActivity : AppCompatActivity() {
     }
 
     private fun configAndRetrieveCameraProvider() {
-        (application as ExtensionsApplication).cameraXConfig =
-            if (cameraImplementation.equals(CAMERA_PIPE_IMPLEMENTATION_OPTION)) {
-                CameraPipeConfig.defaultConfig()
-            } else {
-                Camera2Config.defaultConfig()
-            }
-
         val cameraProviderFuture = getInstance(this@ReleaseTestActivity)
 
         Futures.addCallback<ProcessCameraProvider>(
@@ -206,30 +183,6 @@ class ReleaseTestActivity : AppCompatActivity() {
                 @SuppressLint("VisibleForTests")
                 override fun onSuccess(result: ProcessCameraProvider) {
                     cameraProvider = result
-
-                    if (!checkCameraImplementation()) {
-                        if (hasRetried) {
-                            setResultAndFinishActivity(
-                                RESULT_ERROR_INCORRECT_CAMERA_IMPLEMENTATION,
-                                "Can not setup implementation correctly.",
-                            )
-                            return
-                        }
-                        cameraProvider
-                            .shutdownAsync()
-                            .addListener(
-                                {
-                                    if (hasRetried) {
-                                        return@addListener
-                                    }
-                                    hasRetried = true
-                                    configAndRetrieveCameraProvider()
-                                },
-                                ContextCompat.getMainExecutor(this@ReleaseTestActivity),
-                            )
-                        return
-                    }
-
                     setupCamera()
                 }
 
@@ -239,43 +192,6 @@ class ReleaseTestActivity : AppCompatActivity() {
             },
             ContextCompat.getMainExecutor(this@ReleaseTestActivity),
         )
-    }
-
-    /** Checks whether the camera implementation mode is correct. */
-    private fun checkCameraImplementation(): Boolean {
-        camera = cameraProvider.bindToLifecycle(this, currentCameraSelector)
-
-        if (cameraImplementation.equals(CAMERA_PIPE_IMPLEMENTATION_OPTION)) {
-            if (!isCameraPipeImplementation(camera.cameraInfo)) {
-                return false
-            }
-        } else {
-            if (!isCamera2Implementation(camera.cameraInfo)) {
-                return false
-            }
-        }
-
-        return true
-    }
-
-    @OptIn(androidx.camera.camera2.interop.ExperimentalCamera2Interop::class)
-    private fun isCamera2Implementation(cameraInfo: CameraInfo): Boolean {
-        try {
-            androidx.camera.camera2.interop.Camera2CameraInfo.from(cameraInfo)
-        } catch (e: IllegalArgumentException) {
-            return false
-        }
-        return true
-    }
-
-    @kotlin.OptIn(ExperimentalCamera2Interop::class)
-    private fun isCameraPipeImplementation(cameraInfo: CameraInfo): Boolean {
-        try {
-            androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo.from(cameraInfo)
-        } catch (e: IllegalArgumentException) {
-            return false
-        }
-        return true
     }
 
     private fun setResultAndFinishActivity(resultErrorCode: Int, errorMessage: String? = null) {

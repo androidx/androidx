@@ -31,7 +31,7 @@ import kotlin.jvm.JvmField
  * values outside [0, 1] are possible.
  */
 @ExperimentalInkCustomBrushApi
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 
 // NotCloseable: Finalize is only used to free the native peer.
 @Suppress("NotCloseable")

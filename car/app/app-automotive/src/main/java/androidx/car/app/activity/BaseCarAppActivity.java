@@ -241,6 +241,11 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
                 public void showAssist(Bundle args) {
                     BaseCarAppActivity.this.showAssist(args);
                 }
+
+                @Override
+                public int getInterfaceVersion() {
+                    return super.VERSION;
+                }
             };
 
     @RequiresApi(Build.VERSION_CODES.R)

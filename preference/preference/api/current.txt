@@ -313,7 +313,7 @@ package androidx.preference {
   @Deprecated public abstract class PreferenceFragment extends android.app.Fragment implements androidx.preference.DialogPreference.TargetFragment androidx.preference.PreferenceManager.OnDisplayPreferenceDialogListener androidx.preference.PreferenceManager.OnNavigateToScreenListener androidx.preference.PreferenceManager.OnPreferenceTreeClickListener {
     ctor @Deprecated public PreferenceFragment();
     method @Deprecated public void addPreferencesFromResource(@XmlRes int);
-    method @Deprecated public <T extends androidx.preference.Preference> T! findPreference(CharSequence);
+    method @Deprecated public <T extends androidx.preference.Preference> T findPreference(CharSequence);
     method @Deprecated public final androidx.recyclerview.widget.RecyclerView! getListView();
     method @Deprecated public androidx.preference.PreferenceManager! getPreferenceManager();
     method @Deprecated public androidx.preference.PreferenceScreen! getPreferenceScreen();

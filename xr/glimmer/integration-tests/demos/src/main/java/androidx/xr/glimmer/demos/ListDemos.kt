@@ -42,12 +42,14 @@ import androidx.xr.glimmer.ListItem
 import androidx.xr.glimmer.Text
 import androidx.xr.glimmer.list.VerticalList
 import androidx.xr.glimmer.list.items
+import androidx.xr.glimmer.samples.VerticalListWithTitleChipSample
 import androidx.xr.glimmer.surface
 
 internal val ListDemos =
     listOf(
         ComposableDemo("List with one-line items") { VerticalListOneLineItems() },
         ComposableDemo("List with two-line items") { VerticalListTwoLineItems() },
+        ComposableDemo("List with a title chip") { VerticalListWithTitleChipSample() },
         ComposableDemo("List with items of different sizes") {
             VerticalListWithItemsOfDifferentSizes()
         },

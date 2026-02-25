@@ -34,17 +34,17 @@ class UseCompatDetectorTest {
 
         val expected =
             """
-src/com/example/android/appcompat/AppCompatLintDemo.java:65: Warning: Use SwitchCompat from AppCompat or MaterialSwitch from Material library [UseSwitchCompatOrMaterialCode]
-        Switch mySwitch = new Switch(this);
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/com/example/android/appcompat/AppCompatLintDemo.java:61: Warning: Use TextViewCompat.setCompoundDrawableTintList() [UseCompatTextViewDrawableApis]
-        noop.setCompoundDrawableTintList(csl);
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/com/example/android/appcompat/AppCompatLintDemo.java:62: Warning: Use TextViewCompat.setCompoundDrawableTintMode() [UseCompatTextViewDrawableApis]
-        noop.setCompoundDrawableTintMode(PorterDuff.Mode.DST);
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 3 warnings
-        """
+            src/com/example/android/appcompat/AppCompatLintDemo.java:65: Warning: Use SwitchCompat from AppCompat or MaterialSwitch from Material library [UseSwitchCompatOrMaterialCode]
+                    Switch mySwitch = new Switch(this);
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            src/com/example/android/appcompat/AppCompatLintDemo.java:61: Warning: Use TextViewCompat.setCompoundDrawableTintList() [UseCompatTextViewDrawableApis]
+                    noop.setCompoundDrawableTintList(csl);
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            src/com/example/android/appcompat/AppCompatLintDemo.java:62: Warning: Use TextViewCompat.setCompoundDrawableTintMode() [UseCompatTextViewDrawableApis]
+                    noop.setCompoundDrawableTintMode(PorterDuff.Mode.DST);
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            0 errors, 3 warnings
+            """
                 .trimIndent()
 
         check(*input).expect(expected)
@@ -56,11 +56,11 @@ src/com/example/android/appcompat/AppCompatLintDemo.java:62: Warning: Use TextVi
 
         val expected =
             """
-src/com/example/android/appcompat/CustomSwitch.java:27: Warning: Use SwitchCompat from AppCompat or MaterialSwitch from Material library [UseSwitchCompatOrMaterialCode]
-public class CustomSwitch extends Switch {
-                                  ~~~~~~
-0 errors, 1 warnings
-        """
+            src/com/example/android/appcompat/CustomSwitch.java:27: Warning: Use SwitchCompat from AppCompat or MaterialSwitch from Material library [UseSwitchCompatOrMaterialCode]
+            public class CustomSwitch extends Switch {
+                                              ~~~~~~
+            0 errors, 1 warnings
+            """
                 .trimIndent()
 
         check(*input).expect(expected)

@@ -80,7 +80,7 @@ class SingleRow extends Grid {
         boolean filledOne = false;
         int minIndex = mProvider.getMinIndex();
         for (int index = getStartIndexForPrepend(); index >= minIndex; index--) {
-            int size = mProvider.createItem(index, false, mTmpItem, false);
+            int size = mProvider.createItem(index, 1, false, mTmpItem, false);
             int edge;
             if (mFirstVisibleIndex < 0 || mLastVisibleIndex < 0) {
                 edge = mReversedFlow ? Integer.MIN_VALUE : Integer.MAX_VALUE;
@@ -113,7 +113,7 @@ class SingleRow extends Grid {
         }
         boolean filledOne = false;
         for (int index = getStartIndexForAppend(); index < mProvider.getCount(); index++) {
-            int size = mProvider.createItem(index, true, mTmpItem, false);
+            int size = mProvider.createItem(index, 1, true, mTmpItem, false);
             int edge;
             if (mFirstVisibleIndex < 0 || mLastVisibleIndex < 0) {
                 edge = mReversedFlow ? Integer.MAX_VALUE : Integer.MIN_VALUE;
@@ -175,7 +175,7 @@ class SingleRow extends Grid {
     }
 
     @Override
-    protected final int findRowMin(boolean findLarge, int indexLimit, int[] indices) {
+    protected final int findRowMin(int indexLimit, int[] indices) {
         if (indices != null) {
             indices[0] = 0;
             indices[1] = indexLimit;
@@ -185,7 +185,7 @@ class SingleRow extends Grid {
     }
 
     @Override
-    protected final int findRowMax(boolean findLarge, int indexLimit, int[] indices) {
+    protected final int findRowMax(int indexLimit, int[] indices) {
         if (indices != null) {
             indices[0] = 0;
             indices[1] = indexLimit;

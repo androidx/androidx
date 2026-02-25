@@ -53,10 +53,10 @@ private constructor(rtActivitySpace: RtActivitySpace, entityManager: EntityManag
         ConcurrentMap<Consumer<FloatSize3d>, RtActivitySpace.OnBoundsChangedListener> =
         ConcurrentHashMap()
 
-    private val spaceUpdatedListeners: ConcurrentMap<Runnable, Executor?> = ConcurrentHashMap()
+    private val originChangedListeners: ConcurrentMap<Runnable, Executor?> = ConcurrentHashMap()
 
-    private val rtSpaceUpdatedListener = {
-        for ((listener, executor) in spaceUpdatedListeners.entries) {
+    private val rtOriginChangedListener = {
+        for ((listener, executor) in originChangedListeners.entries) {
             if (executor == null) {
                 // The rtListener requested the default executor, so we can directly invoke.
                 listener.run()
@@ -140,12 +140,12 @@ private constructor(rtActivitySpace: RtActivitySpace, entityManager: EntityManag
      * @param listener The listener to register.
      * @param executor The [Executor] on which to run the listener.
      */
-    public fun addOnSpaceUpdatedListener(executor: Executor, listener: Runnable) {
+    public fun addOnOriginChangedListener(executor: Executor, listener: Runnable) {
         checkNotDisposed()
-        val addRtListener = spaceUpdatedListeners.isEmpty()
-        spaceUpdatedListeners.put(listener, executor)
+        val addRtListener = originChangedListeners.isEmpty()
+        originChangedListeners[listener] = executor
         if (addRtListener) {
-            rtEntity!!.setOnSpaceUpdatedListener(rtSpaceUpdatedListener, null)
+            rtEntity!!.setOnOriginChangedListener(rtOriginChangedListener, null)
         }
     }
 
@@ -163,8 +163,24 @@ private constructor(rtActivitySpace: RtActivitySpace, entityManager: EntityManag
      *
      * @param listener The listener to register.
      */
-    public fun addOnSpaceUpdatedListener(listener: Runnable): Unit =
-        addOnSpaceUpdatedListener(DirectExecutor, listener)
+    public fun addOnOriginChangedListener(listener: Runnable): Unit =
+        addOnOriginChangedListener(DirectExecutor, listener)
+
+    @Deprecated(
+        "Use addOnOriginChangedListener",
+        replaceWith = ReplaceWith("addOnOriginChangedListener()"),
+    )
+    public fun addOnSpaceUpdatedListener(executor: Executor, listener: Runnable) {
+        addOnOriginChangedListener(executor, listener)
+    }
+
+    @Deprecated(
+        "Use addOnOriginChangedListener",
+        replaceWith = ReplaceWith("addOnOriginChangedListener()"),
+    )
+    public fun addOnSpaceUpdatedListener(listener: Runnable) {
+        addOnOriginChangedListener(listener)
+    }
 
     /**
      * Removes the previously-added listener.
@@ -172,12 +188,20 @@ private constructor(rtActivitySpace: RtActivitySpace, entityManager: EntityManag
      * All listeners are automatically removed when the ActivitySpace is disposed even if this
      * method is not explicitly called.
      */
-    public fun removeOnSpaceUpdatedListener(listener: Runnable) {
+    public fun removeOnOriginChangedListener(listener: Runnable) {
         checkNotDisposed()
-        spaceUpdatedListeners.remove(listener)
-        if (spaceUpdatedListeners.isEmpty()) {
-            rtEntity!!.setOnSpaceUpdatedListener(null, null)
+        originChangedListeners.remove(listener)
+        if (originChangedListeners.isEmpty()) {
+            rtEntity!!.setOnOriginChangedListener(null, null)
         }
+    }
+
+    @Deprecated(
+        "Use removeOnOriginChangedListener",
+        replaceWith = ReplaceWith("removeOnOriginChangedListener()"),
+    )
+    public fun removeOnSpaceUpdatedListener(listener: Runnable) {
+        removeOnOriginChangedListener(listener)
     }
 
     /**
@@ -310,7 +334,7 @@ private constructor(rtActivitySpace: RtActivitySpace, entityManager: EntityManag
 
     override fun dispose() {
         boundsListeners.keys.forEach { removeOnBoundsChangedListener(it) }
-        spaceUpdatedListeners.keys.forEach { removeOnSpaceUpdatedListener(it) }
+        originChangedListeners.keys.forEach { removeOnOriginChangedListener(it) }
         super.dispose()
     }
 }

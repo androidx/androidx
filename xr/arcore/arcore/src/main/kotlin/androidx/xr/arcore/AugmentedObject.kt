@@ -17,8 +17,6 @@
 package androidx.xr.arcore
 
 import androidx.annotation.RestrictTo
-import androidx.xr.arcore.runtime.Anchor
-import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException
 import androidx.xr.arcore.runtime.AugmentedObject as RuntimeObject
 import androidx.xr.runtime.AugmentedObjectCategory as Category
 import androidx.xr.runtime.Config
@@ -45,6 +43,8 @@ import kotlinx.coroutines.flow.transform
  *
  * The label is an instance of [androidx.xr.runtime.AugmentedObjectCategory] that describes what the
  * object is.
+ *
+ * @property state a [StateFlow] that contains the latest [State] of the AugmentedObject
  */
 public class AugmentedObject
 internal constructor(
@@ -53,15 +53,16 @@ internal constructor(
 ) : Trackable<AugmentedObject.State>, Updatable {
     public companion object {
         /**
-         * Subscribes to a flow of [AugmentedObject]s.
+         * Subscribes to a flow of AugmentedObjects.
          *
-         * The flow emits a new collection of [AugmentedObject]s whenever the underlying XR system
+         * The flow emits a new collection of AugmentedObjects whenever the underlying XR system
          * detects new objects or updates the state of existing ones. This typically happens on each
          * frame update of the XR system.
          *
-         * @param session The [Session] to subscribe to.
+         * @param session the [Session] to subscribe to
+         * @return a [StateFlow] that emits a collection of AugmentedObjects
          * @throws IllegalStateException if the given [Session]'s [Config.augmentedObjectCategories]
-         *   is empty.
+         *   is empty
          * @sample androidx.xr.arcore.samples.getAugmentedObjects
          */
         @JvmStatic
@@ -86,26 +87,20 @@ internal constructor(
         }
     }
 
-    /** The representation of the current state of an [AugmentedObject]. */
+    /**
+     * The representation of the current state of an AugmentedObject.
+     *
+     * @property trackingState the [TrackingState] of the object
+     * @property category the [Category] of the augmented object
+     * @property centerPose the [Pose] determined to represent the center of this object
+     * @property extents the dimensions of the object, axis aligned relative to the center pose,
+     *   representing the full length of the specific axis
+     */
     public class State
     internal constructor(
         public override val trackingState: TrackingState,
-        /**
-         * * The category of the augmented object.
-         *
-         * @see Category
-         */
         public val category: Category,
-        /**
-         * The [Pose] determined to represent the center of this object.
-         *
-         * This value may or may not overlap with the object's center of gravity.
-         */
         public val centerPose: Pose,
-        /**
-         * The dimensions of the object, axis aligned relative to the center pose. These values
-         * represent the full length of the specific axis.
-         */
         public val extents: FloatSize3d,
     ) : Trackable.State {}
 
@@ -119,11 +114,6 @@ internal constructor(
             )
         )
 
-    /**
-     * A [StateFlow] that contains the latest [State] of the [AugmentedObject].
-     *
-     * @sample androidx.xr.arcore.samples.getAugmentedObjects
-     */
     public override val state: StateFlow<State> = _state.asStateFlow()
 
     /**
@@ -140,27 +130,5 @@ internal constructor(
                 runtimeObject.extents,
             )
         )
-    }
-
-    /**
-     * Creates an [androidx.xr.arcore.runtime.Anchor] that is attached to this trackable, using the
-     * given initial [pose].
-     *
-     * @throws [IllegalStateException] if [Session.config.augmentedObjectCategories] is empty.
-     */
-    override fun createAnchor(pose: Pose): AnchorCreateResult {
-        check(!xrResourceManager.lifecycleManager.config.augmentedObjectCategories.isEmpty()) {
-            "Config.augmentedObjectCategories is empty."
-        }
-
-        val runtimeAnchor: Anchor
-        try {
-            runtimeAnchor = runtimeObject.createAnchor(pose)
-        } catch (e: AnchorResourcesExhaustedException) {
-            return AnchorCreateResourcesExhausted()
-        }
-        val anchor = Anchor(runtimeAnchor, xrResourceManager)
-        xrResourceManager.addUpdatable(anchor)
-        return AnchorCreateSuccess(anchor)
     }
 }

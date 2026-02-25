@@ -44,8 +44,8 @@ class AnnotationToolbarViewModelTest {
         AnnotationToolbarState(
             selectedTool = null,
             isAnnotationVisible = true,
-            isBrushSizeSliderVisible = false,
-            isColorPaletteVisible = false,
+            showBrushSizeSlider = false,
+            showColorPalette = false,
             isColorPaletteEnabled = true,
             canUndo = true,
             canRedo = false,
@@ -107,10 +107,10 @@ class AnnotationToolbarViewModelTest {
         val viewmodel = createViewModel(initState)
         // Since pen is already selected, clicking it again should show the brush slider
         viewmodel.onAction(ToolbarIntent.PenToolClicked)
-        assertThat(viewmodel.state.value.isBrushSizeSliderVisible).isTrue()
+        assertThat(viewmodel.state.value.showBrushSizeSlider).isTrue()
         // Now clicking it again should hide the brush slider
         viewmodel.onAction(ToolbarIntent.PenToolClicked)
-        assertThat(viewmodel.state.value.isBrushSizeSliderVisible).isFalse()
+        assertThat(viewmodel.state.value.showBrushSizeSlider).isFalse()
     }
 
     @Test
@@ -130,10 +130,10 @@ class AnnotationToolbarViewModelTest {
         // Click on highlighter again
         viewmodel.onAction(ToolbarIntent.HighlighterToolClicked)
 
-        assertThat(viewmodel.state.value.isBrushSizeSliderVisible).isTrue()
+        assertThat(viewmodel.state.value.showBrushSizeSlider).isTrue()
         // Clicking on highlighter again should hide the slider
         viewmodel.onAction(ToolbarIntent.HighlighterToolClicked)
-        assertThat(viewmodel.state.value.isBrushSizeSliderVisible).isFalse()
+        assertThat(viewmodel.state.value.showBrushSizeSlider).isFalse()
     }
 
     @Test
@@ -147,7 +147,7 @@ class AnnotationToolbarViewModelTest {
         val finalState = viewmodel.state.value
         assertThat(finalState.selectedTool).isEqualTo(AnnotationToolsKey.ERASER)
         assertThat(finalState.isColorPaletteEnabled).isFalse()
-        assertThat(finalState.isBrushSizeSliderVisible).isFalse()
+        assertThat(finalState.showBrushSizeSlider).isFalse()
 
         val effect = collectedEffects.first()
         assertThat(effect).isEqualTo(ToolbarEffect.ToolUpdated(Eraser))
@@ -179,10 +179,10 @@ class AnnotationToolbarViewModelTest {
         val initState = createInitialState().copy(selectedTool = PEN)
         val viewmodel = createViewModel(initialState = initState)
         viewmodel.onAction(ToolbarIntent.ToggleColorPalette)
-        assertThat(viewmodel.state.value.isColorPaletteVisible).isTrue()
+        assertThat(viewmodel.state.value.showColorPalette).isTrue()
 
         viewmodel.onAction(ToolbarIntent.ToggleColorPalette)
-        assertThat(viewmodel.state.value.isColorPaletteVisible).isFalse()
+        assertThat(viewmodel.state.value.showColorPalette).isFalse()
     }
 
     @Test
@@ -320,8 +320,8 @@ class AnnotationToolbarViewModelTest {
             AnnotationToolbarState(
                 selectedTool = AnnotationToolsKey.PEN,
                 isAnnotationVisible = false,
-                isBrushSizeSliderVisible = true,
-                isColorPaletteVisible = false,
+                showBrushSizeSlider = true,
+                showColorPalette = false,
                 isColorPaletteEnabled = true,
                 canUndo = true,
                 canRedo = false,
@@ -354,8 +354,8 @@ class AnnotationToolbarViewModelTest {
 
         // Assert brush slider and color palette are dismissed
         // while expanding or collapsing
-        assertThat(viewmodel.state.value.isColorPaletteVisible).isFalse()
-        assertThat(viewmodel.state.value.isBrushSizeSliderVisible).isFalse()
+        assertThat(viewmodel.state.value.showColorPalette).isFalse()
+        assertThat(viewmodel.state.value.showBrushSizeSlider).isFalse()
     }
 
     @Test
@@ -369,8 +369,8 @@ class AnnotationToolbarViewModelTest {
 
         // Assert brush slider and color palette are dismissed
         // while expanding or collapsing
-        assertThat(viewmodel.state.value.isColorPaletteVisible).isFalse()
-        assertThat(viewmodel.state.value.isBrushSizeSliderVisible).isFalse()
+        assertThat(viewmodel.state.value.showColorPalette).isFalse()
+        assertThat(viewmodel.state.value.showBrushSizeSlider).isFalse()
     }
 
     @Test

@@ -24,7 +24,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.unit.dp
-import androidx.concurrent.futures.await
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialGltfModelStatus.Failed
@@ -34,13 +33,13 @@ import androidx.xr.compose.subspace.draw.alpha
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.fillMaxSize
 import androidx.xr.compose.subspace.layout.offset
-import androidx.xr.compose.subspace.layout.onPointSourceParamsAvailable
 import androidx.xr.compose.subspace.layout.size
 import androidx.xr.compose.subspace.layout.sizeIn
 import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.assertDepthIsEqualTo
 import androidx.xr.compose.testing.assertHeightIsEqualTo
+import androidx.xr.compose.testing.assertPositionInRootIsEqualTo
 import androidx.xr.compose.testing.assertPositionIsEqualTo
 import androidx.xr.compose.testing.assertWidthIsEqualTo
 import androidx.xr.compose.testing.configureFakeSession
@@ -52,18 +51,18 @@ import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.GltfModelEntity
-import androidx.xr.scenecore.PointSourceParams
 import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.GltfEntity
 import androidx.xr.scenecore.runtime.GltfModelResource
 import androidx.xr.scenecore.runtime.RenderingRuntime
 import androidx.xr.scenecore.scene
 import androidx.xr.scenecore.testing.FakeGltfEntity
+import androidx.xr.scenecore.testing.FakeGltfModelNodeFeature
 import com.google.common.truth.Truth.assertThat
-import com.google.common.util.concurrent.SettableFuture
 import java.nio.file.Paths
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
+import kotlinx.coroutines.CompletableDeferred
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -474,14 +473,14 @@ class SpatialGltfModelTest {
         // `SpatialModel`'s layout size is initially zero but then matches the intrinsic bounding
         // box of the 3D asset after it loads.
 
-        val settableFuture = SettableFuture.create<GltfModelResource>()
+        val completableDeferred = CompletableDeferred<GltfModelResource>()
 
         composeTestRule.configureFakeSession(
             defaultDpPerMeter = 1000f,
             renderingRuntime = {
                 object : RenderingRuntime by it {
                     override suspend fun loadGltfByAssetName(assetName: String): GltfModelResource =
-                        settableFuture.await()
+                        completableDeferred.await()
 
                     override fun createGltfEntity(
                         pose: Pose,
@@ -517,7 +516,7 @@ class SpatialGltfModelTest {
             .assertHeightIsEqualTo(0.dp)
             .assertDepthIsEqualTo(0.dp)
 
-        settableFuture.set(object : GltfModelResource {})
+        completableDeferred.complete(object : GltfModelResource {})
 
         // The glTF size is 1m x 1m x 1m and 1000 dp per meter the size should be 1000.dp x 1000.dp
         // x 1000.dp
@@ -871,7 +870,7 @@ class SpatialGltfModelTest {
         // Pass a `SpatialModelState` and assert that `isSpatialModelReady.value` is `false`
         // initially and becomes `true` after the model has finished loading.
 
-        val settableFuture = SettableFuture.create<GltfModelResource>()
+        val completableDeferred = CompletableDeferred<GltfModelResource>()
         val state =
             SpatialGltfModelState(source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb")))
 
@@ -879,7 +878,7 @@ class SpatialGltfModelTest {
             renderingRuntime = {
                 object : RenderingRuntime by it {
                     override suspend fun loadGltfByAssetName(assetName: String): GltfModelResource =
-                        settableFuture.await()
+                        completableDeferred.await()
                 }
             }
         )
@@ -893,7 +892,7 @@ class SpatialGltfModelTest {
         composeTestRule.onSubspaceNodeWithTag("model").assertExists()
         assertIs<Loading>(state.status.value)
 
-        settableFuture.set(object : GltfModelResource {}) // simulate loading the glTF
+        completableDeferred.complete(object : GltfModelResource {}) // simulate loading the glTF
 
         composeTestRule.waitForIdle()
         composeTestRule.onSubspaceNodeWithTag("model").assertExists()
@@ -907,8 +906,8 @@ class SpatialGltfModelTest {
 
         val assets =
             mapOf(
-                "first_asset.glb" to SettableFuture.create<GltfModelResource>(),
-                "second_asset.glb" to SettableFuture.create(),
+                "first_asset.glb" to CompletableDeferred<GltfModelResource>(),
+                "second_asset.glb" to CompletableDeferred(),
             )
         var state by
             mutableStateOf(
@@ -935,7 +934,9 @@ class SpatialGltfModelTest {
         composeTestRule.onSubspaceNodeWithTag("model").assertExists()
         assertIs<Loading>(state.status.value)
 
-        assets["first_asset.glb"]?.set(object : GltfModelResource {}) // simulate loading the glTF
+        assets["first_asset.glb"]?.complete(
+            object : GltfModelResource {}
+        ) // simulate loading the glTF
 
         composeTestRule.onSubspaceNodeWithTag("model").assertExists()
         assertIs<Loaded>(state.status.value)
@@ -1245,22 +1246,7 @@ class SpatialGltfModelTest {
     }
 
     @Test
-    fun spatialModel_withOnPointSourceParamsAvailableModifier_providesPointSourceParams() {
-        // Apply `SubspaceModifier.onPointSourceParamsAvailable()` and verify that the
-        // PointSourceParams is not created until the entity is attached.
-
-        val settableFuture = SettableFuture.create<GltfModelResource>()
-        var pointSourceParams: PointSourceParams? = null
-
-        composeTestRule.configureFakeSession(
-            renderingRuntime = {
-                object : RenderingRuntime by it {
-                    override suspend fun loadGltfByAssetName(assetName: String): GltfModelResource =
-                        settableFuture.await()
-                }
-            }
-        )
-
+    fun spatialModel_withContent_composesContent() {
         composeTestRule.setContent {
             Subspace {
                 SpatialGltfModel(
@@ -1268,74 +1254,82 @@ class SpatialGltfModelTest {
                         rememberSpatialGltfModelState(
                             source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
                         ),
-                    modifier =
-                        SubspaceModifier.testTag("model").onPointSourceParamsAvailable {
-                            pointSourceParams = it
-                        },
-                )
+                    modifier = SubspaceModifier.testTag("model"),
+                ) {
+                    SpatialPanel(modifier = SubspaceModifier.testTag("child")) {}
+                }
             }
         }
 
         composeTestRule.onSubspaceNodeWithTag("model").assertExists()
-        assertThat(pointSourceParams).isNull()
-
-        settableFuture.set(object : GltfModelResource {})
-
-        composeTestRule.onSubspaceNodeWithTag("model").assertExists()
-        assertThat(pointSourceParams).isNotNull()
+        composeTestRule.onSubspaceNodeWithTag("child").assertExists()
     }
 
     @Test
-    fun spatialModel_withOnPointSourceParamsAvailableModifier_changesWithEntity() {
-        // Apply `SubspaceModifier.onPointSourceParamsAvailable()` and verify that the
-        // PointSourceParams is updated each time the entity changes.
+    fun state_nodes_arePopulatedAfterLoad() {
+        val completableDeferred = CompletableDeferred<GltfModelResource>()
+        val state =
+            SpatialGltfModelState(source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb")))
 
-        var pointSourceParams: PointSourceParams? = null
-        var state by
-            mutableStateOf(
-                SpatialGltfModelState(
-                    source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
-                )
-            )
+        val fakeRtNode = FakeGltfModelNodeFeature(name = "TestNode")
+
+        composeTestRule.configureFakeSession(
+            renderingRuntime = { runtime ->
+                object : RenderingRuntime by runtime {
+                    override suspend fun loadGltfByAssetName(assetName: String): GltfModelResource =
+                        completableDeferred.await()
+
+                    override fun createGltfEntity(
+                        pose: Pose,
+                        loadedGltf: GltfModelResource,
+                        parentEntity: Entity?,
+                    ): GltfEntity {
+                        return object : FakeGltfEntity() {
+                            override val nodes = listOf(fakeRtNode)
+                        }
+                    }
+                }
+            }
+        )
 
         composeTestRule.setContent {
             Subspace {
-                SpatialGltfModel(
-                    state = state,
-                    modifier =
-                        SubspaceModifier.testTag("model").onPointSourceParamsAvailable {
-                            pointSourceParams = it
-                        },
-                )
+                SpatialGltfModel(state = state, modifier = SubspaceModifier.testTag("model"))
             }
         }
 
-        composeTestRule.onSubspaceNodeWithTag("model").assertExists()
-        assertThat(pointSourceParams).isNotNull()
-        val firstPointSourceParams = pointSourceParams
+        assertThat(state.nodes).isEmpty()
 
-        state =
-            SpatialGltfModelState(
-                source = SpatialGltfModelSource.fromUri(Uri.parse("next_asset.glb"))
-            )
+        completableDeferred.complete(object : GltfModelResource {})
+        composeTestRule.waitForIdle()
 
-        composeTestRule.onSubspaceNodeWithTag("model").assertExists()
-        assertThat(pointSourceParams).isNotNull()
-        assertThat(pointSourceParams).isNotSameInstanceAs(firstPointSourceParams)
-        val secondPointSourceParams = pointSourceParams
+        assertThat(state.nodes).hasSize(1)
+        assertThat(state.nodes.first().name).isEqualTo("TestNode")
+    }
 
-        state =
-            SpatialGltfModelState(
-                source =
-                    SpatialGltfModelSource.fromData(
-                        assetData = ByteArray(0),
-                        assetKey = "last_asset",
-                    )
-            )
+    @Test
+    fun spatialModel_withContent_centersContentByDefault() {
 
-        composeTestRule.onSubspaceNodeWithTag("model").assertExists()
-        assertThat(pointSourceParams).isNotNull()
-        assertThat(pointSourceParams).isNotSameInstanceAs(firstPointSourceParams)
-        assertThat(pointSourceParams).isNotSameInstanceAs(secondPointSourceParams)
+        composeTestRule.setContent {
+            Subspace {
+                // Create a model with a fixed size of 200.dp
+                SpatialGltfModel(
+                    state =
+                        rememberSpatialGltfModelState(
+                            source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
+                        ),
+                    modifier = SubspaceModifier.testTag("model").size(200.dp),
+                ) {
+                    // Place a smaller child (50.dp) inside it
+                    SpatialPanel(modifier = SubspaceModifier.testTag("child").size(50.dp)) {}
+                }
+            }
+        }
+
+        // Since the parent (model) is at the root (0,0,0) and the child is centered
+        // by default, the child's center should also be at (0,0,0).
+        composeTestRule
+            .onSubspaceNodeWithTag("child")
+            .assertPositionInRootIsEqualTo(0.dp, 0.dp, 0.dp)
     }
 }

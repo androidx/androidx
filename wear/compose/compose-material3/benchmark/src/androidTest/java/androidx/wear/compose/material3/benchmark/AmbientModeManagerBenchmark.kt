@@ -15,9 +15,7 @@
  */
 package androidx.wear.compose.material3.benchmark
 
-import android.app.Activity
 import android.content.Context
-import android.content.ContextWrapper
 import android.content.pm.PackageManager
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -30,7 +28,6 @@ import androidx.compose.testutils.benchmark.benchmarkFirstLayout
 import androidx.compose.testutils.benchmark.benchmarkFirstMeasure
 import androidx.compose.testutils.benchmark.benchmarkLayoutPerf
 import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
-import androidx.compose.ui.platform.LocalContext
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -100,22 +97,12 @@ class AmbientModeManagerBenchmark {
 internal class AmbientModeManagerTestCase : LayeredComposeTestCase() {
     @Composable
     override fun MeasuredContent() {
-        val ambientModeManager =
-            rememberAmbientModeManager(LocalContext.current.findActivityOrNull()!!)
+        val ambientModeManager = rememberAmbientModeManager()
         CompositionLocalProvider(LocalAmbientModeManager provides ambientModeManager) {}
     }
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
         MaterialTheme { content() }
-    }
-
-    private fun Context.findActivityOrNull(): Activity? {
-        var context = this
-        while (context is ContextWrapper) {
-            if (context is Activity) return context
-            context = context.baseContext
-        }
-        return null
     }
 }

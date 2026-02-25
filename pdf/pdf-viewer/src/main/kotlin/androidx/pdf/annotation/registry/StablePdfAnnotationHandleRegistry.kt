@@ -27,20 +27,22 @@ internal class StablePdfAnnotationHandleRegistry : AnnotationHandleRegistry {
     private val handleToSourceMap: MutableMap<String, String> =
         Collections.synchronizedMap(HashMap())
 
-    private val sourceToHandleMap: MutableMap<String, String> =
+    private val sourceToHandleMap: MutableMap<AnnotationSourceKey, String> =
         Collections.synchronizedMap(HashMap())
 
     override fun getHandleId(pageNum: Int, sourceId: String): String {
         synchronized(lock) {
-            if (sourceToHandleMap[sourceId] != null) {
-                return sourceToHandleMap.getValue(sourceId)
+            val key = AnnotationSourceKey(pageNum, sourceId)
+
+            sourceToHandleMap[key]?.let {
+                return it
             }
 
             val newHandleId =
                 composeAnnotationId(pageNum, id = AnnotationHandleIdGenerator.generateId())
 
             handleToSourceMap[newHandleId] = sourceId
-            sourceToHandleMap[sourceId] = newHandleId
+            sourceToHandleMap[key] = newHandleId
 
             return newHandleId
         }
@@ -54,4 +56,7 @@ internal class StablePdfAnnotationHandleRegistry : AnnotationHandleRegistry {
         handleToSourceMap.clear()
         sourceToHandleMap.clear()
     }
+
+    /** Represents the key for [sourceToHandleMap]. */
+    private data class AnnotationSourceKey(public val pageNum: Int, public val sourceId: String)
 }

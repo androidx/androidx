@@ -43,14 +43,14 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
             Source.kotlin(
                 "Subject.kt",
                 """
-            class Subject() {
-                constructor(
-                    nullableString: String?,
-                    nonNullBoolean: Boolean,
-                    nonNullInt: Int,
-                    vararg nonNullVarArgs: Int ): this()
-            }
-            """
+                class Subject() {
+                    constructor(
+                        nullableString: String?,
+                        nonNullBoolean: Boolean,
+                        nonNullInt: Int,
+                        vararg nonNullVarArgs: Int ): this()
+                }
+                """
                     .trimIndent(),
             )
         simpleRun(listOf(src)) { env ->
@@ -82,21 +82,21 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
             Source.kotlin(
                 "Subject.kt",
                 """
-            class Subject {
-                fun functionWithParams(
-                    nullableString: String?,
-                    nonNullBoolean: Boolean,
-                    nonNullInt: Int,
-                    vararg nonNullVarArgs: Int ) {
+                class Subject {
+                    fun functionWithParams(
+                        nullableString: String?,
+                        nonNullBoolean: Boolean,
+                        nonNullInt: Int,
+                        vararg nonNullVarArgs: Int ) {
+                    }
+                    suspend fun suspendFunctionWithParams(
+                        nullableString: String?,
+                        nullableBoolean: Boolean?,
+                        nonNullInt: Int,
+                        vararg nullableVarargs : Int?) {
+                    }
                 }
-                suspend fun suspendFunctionWithParams(
-                    nullableString: String?,
-                    nullableBoolean: Boolean?,
-                    nonNullInt: Int,
-                    vararg nullableVarargs : Int?) {
-                }
-            }
-            """
+                """
                     .trimIndent(),
             )
         simpleRun(listOf(src)) { env ->
@@ -136,10 +136,10 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
             Source.kotlin(
                 "Subject.kt",
                 """
-            class Subject(val constructorParam: String) {
-                constructor() : this("anything")
-            }
-            """
+                class Subject(val constructorParam: String) {
+                    constructor() : this("anything")
+                }
+                """
                     .trimIndent(),
             )
         simpleRun(listOf(src)) { env ->
@@ -160,17 +160,17 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
             Source.kotlin(
                 "Subject.kt",
                 """
-            class Subject(val constructorParam: String) {
-                constructor() : this("anything")
-                fun emptyFunction() {}
-                suspend fun suspendFunction() {
+                class Subject(val constructorParam: String) {
+                    constructor() : this("anything")
+                    fun emptyFunction() {}
+                    suspend fun suspendFunction() {
+                    }
+                    fun functionWithParams(param1: String) {
+                    }
+                    fun suspendFunctionWithParams(suspendParam1: String) {
+                    }
                 }
-                fun functionWithParams(param1: String) {
-                }
-                fun suspendFunctionWithParams(suspendParam1: String) {
-                }
-            }
-            """
+                """
                     .trimIndent(),
             )
         simpleRun(listOf(src)) { env ->
@@ -197,10 +197,10 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
             Source.kotlin(
                 "Subject.kt",
                 """
-            class KotlinClass
-            interface KotlinInterface
-            object AnObject
-            """
+                class KotlinClass
+                interface KotlinInterface
+                object AnObject
+                """
                     .trimIndent(),
             )
         simpleRun(listOf(src)) { env ->
@@ -219,11 +219,11 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
             Source.kotlin(
                 "Subject.kt",
                 """
-            interface Subject {
-                fun nonNullList() : List<Any>
-                fun nullableList() : List<Any?>
-            }
-            """
+                interface Subject {
+                    fun nonNullList() : List<Any>
+                    fun nullableList() : List<Any?>
+                }
+                """
                     .trimIndent(),
             )
         simpleRun(listOf(src)) { env ->
@@ -243,14 +243,14 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
             Source.kotlin(
                 "Properties.kt",
                 """
-            class Properties {
-                val nonNull:String = ""
-                val nullable:String? = null
-                val nullableTypeArgument:List<String?> = emptyList()
-                val nonNullTypeArgument:List<Int> = emptyList()
-                val multipleTypeArguments:Map<String, Any?> = emptyMap()
-            }
-            """
+                class Properties {
+                    val nonNull:String = ""
+                    val nullable:String? = null
+                    val nullableTypeArgument:List<String?> = emptyList()
+                    val nonNullTypeArgument:List<Int> = emptyList()
+                    val multipleTypeArguments:Map<String, Any?> = emptyMap()
+                }
+                """
                     .trimIndent(),
             )
         simpleRun(listOf(src)) { env ->
@@ -305,27 +305,27 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
             Source.kotlin(
                 "Kotlin.kt",
                 """
-            @JvmInline
-            value class ValueClass(val value: String)
-            class Subject {
-                val immutableProperty: String = ""
-                var mutableProperty: String = ""
-                var isProperty: String? = ""
-                var customSetter: String=  ""
-                    get(): String = ""
-                    set(myValue) { field = myValue }
-                var privateSetter: String = ""
-                    private set
-                internal var internalProp: String? = ""
-                internal var isInternalProp2: String = ""
-                // these won't show up in KAPT stubs since they don't have a valid JVM name but
-                // we are still testing them for consistency as they'll show up in metadata
-                var valueProp: ValueClass? = null
-                // these won't show up in KAPT stubs since they don't have a valid JVM name but
-                // we are still testing them for consistency as they'll show up in metadata
-                internal var internalValueProp: ValueClass = ValueClass("?")
-            }
-        """
+                @JvmInline
+                value class ValueClass(val value: String)
+                class Subject {
+                    val immutableProperty: String = ""
+                    var mutableProperty: String = ""
+                    var isProperty: String? = ""
+                    var customSetter: String=  ""
+                        get(): String = ""
+                        set(myValue) { field = myValue }
+                    var privateSetter: String = ""
+                        private set
+                    internal var internalProp: String? = ""
+                    internal var isInternalProp2: String = ""
+                    // these won't show up in KAPT stubs since they don't have a valid JVM name but
+                    // we are still testing them for consistency as they'll show up in metadata
+                    var valueProp: ValueClass? = null
+                    // these won't show up in KAPT stubs since they don't have a valid JVM name but
+                    // we are still testing them for consistency as they'll show up in metadata
+                    internal var internalValueProp: ValueClass = ValueClass("?")
+                }
+                """
                     .trimIndent(),
             )
         simpleRun(listOf(src)) { env ->
@@ -496,13 +496,13 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
             Source.kotlin(
                 "Kotlin.kt",
                 """
-            class Subject {
-                internal fun internalFun() {}
-                fun normalFun() {}
-                // there is no test case for functions receiving/returning value classes because
-                // they are not visible through KAPT
-            }
-        """
+                class Subject {
+                    internal fun internalFun() {}
+                    fun normalFun() {}
+                    // there is no test case for functions receiving/returning value classes because
+                    // they are not visible through KAPT
+                }
+                """
                     .trimIndent(),
             )
         simpleRun(listOf(src)) { env ->
@@ -527,20 +527,20 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
             Source.kotlin(
                 "Subject.kt",
                 """
-            class Subject(
-                nonNullGenericWithNonNullParam : List<Int>,
-                nonNullGenericWithNullableParam : List<Int?>,
-                nullableGenericWithNullableParam : List<Int?>?,
-                nullableGenericWithNonNullParam : List<Int>?
-            ){
-                fun foo(
+                class Subject(
                     nonNullGenericWithNonNullParam : List<Int>,
                     nonNullGenericWithNullableParam : List<Int?>,
                     nullableGenericWithNullableParam : List<Int?>?,
                     nullableGenericWithNonNullParam : List<Int>?
-                ) {}
-            }
-            """
+                ){
+                    fun foo(
+                        nonNullGenericWithNonNullParam : List<Int>,
+                        nonNullGenericWithNullableParam : List<Int?>,
+                        nullableGenericWithNullableParam : List<Int?>?,
+                        nullableGenericWithNonNullParam : List<Int>?
+                    ) {}
+                }
+                """
                     .trimIndent(),
             )
         simpleRun(listOf(src)) { env ->
@@ -581,13 +581,13 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
             Source.kotlin(
                 "Subject.kt",
                 """
-            class Subject {
-                val nullableArrayWithNonNullComponent : Array<Int>? = TODO()
-                val nullableArrayWithNullableComponent : Array<Int?>? = TODO()
-                val nonNullArrayWithNonNullComponent : Array<Int> = TODO()
-                val nonNullArrayWithNullableComponent : Array<Int?> = TODO()
-            }
-            """
+                class Subject {
+                    val nullableArrayWithNonNullComponent : Array<Int>? = TODO()
+                    val nullableArrayWithNullableComponent : Array<Int?>? = TODO()
+                    val nonNullArrayWithNonNullComponent : Array<Int> = TODO()
+                    val nonNullArrayWithNullableComponent : Array<Int?> = TODO()
+                }
+                """
                     .trimIndent(),
             )
         simpleRun(listOf(src)) { env ->
@@ -627,18 +627,18 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
             Source.kotlin(
                 "Subject.kt",
                 """
-            class Simple {
-            }
-            class TwoArgGeneric<Arg1, Arg2>{
-            }
-            // KotlinMetadata does not seem to be giving any type information for Arg2:Any?
-            //  probably because it is equal to default. On the other hand though, Arg1 : Any
-            //  return false for isNullable :/.
-            class WithUpperBounds<Arg1 : Any, Arg2 : List<Any>?>{
-            }
+                class Simple {
+                }
+                class TwoArgGeneric<Arg1, Arg2>{
+                }
+                // KotlinMetadata does not seem to be giving any type information for Arg2:Any?
+                //  probably because it is equal to default. On the other hand though, Arg1 : Any
+                //  return false for isNullable :/.
+                class WithUpperBounds<Arg1 : Any, Arg2 : List<Any>?>{
+                }
 
-            abstract class WithSuperType : Map<String, Int?> {}
-            """
+                abstract class WithSuperType : Map<String, Int?> {}
+                """
                     .trimIndent(),
             )
         simpleRun(listOf(src)) { env ->
@@ -671,12 +671,12 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
             Source.kotlin(
                 "Subject.kt",
                 """
-            object Subject {
-                val simple : String = "foo"
-                val nullableGeneric: List<Int>? = TODO()
-                val nonNullGeneric: List<Int> = TODO()
-            }
-            """
+                object Subject {
+                    val simple : String = "foo"
+                    val nullableGeneric: List<Int>? = TODO()
+                    val nonNullGeneric: List<Int> = TODO()
+                }
+                """
                     .trimIndent(),
             )
         simpleRun(listOf(src)) { env ->
@@ -717,15 +717,15 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
             Source.kotlin(
                 "lib.kt",
                 """
-            class KotlinClass {
-                val b: String = TODO()
-                val a: String = TODO()
-                val c: String = TODO()
-                val isB:String = TODO()
-                val isA:String = TODO()
-                val isC:String = TODO()
-            }
-            """
+                class KotlinClass {
+                    val b: String = TODO()
+                    val a: String = TODO()
+                    val c: String = TODO()
+                    val isB:String = TODO()
+                    val isA:String = TODO()
+                    val isC:String = TODO()
+                }
+                """
                     .trimIndent(),
             )
         val classpath = compileFiles(listOf(libSource))
@@ -745,20 +745,20 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
             Source.kotlin(
                 "Subject.kt",
                 """
-            object Subject {
-                private fun localA() = object : A { }
-                private fun localAB() = object : A, B { }
-                private fun localABC() = object : C(), A, B { }
-                private fun localC() = object : C() { }
-                private fun localAC() = object : C(), A { }
-                private fun localAB_declaredA(): A = object : A, B { }
-                private fun localAB_declaredB(): B = object : A, B { }
-                private fun localABC_declaredC(): C = object : C(), A, B { }
-            }
-            interface A
-            interface B
-            abstract class C
-            """
+                object Subject {
+                    private fun localA() = object : A { }
+                    private fun localAB() = object : A, B { }
+                    private fun localABC() = object : C(), A, B { }
+                    private fun localC() = object : C() { }
+                    private fun localAC() = object : C(), A { }
+                    private fun localAB_declaredA(): A = object : A, B { }
+                    private fun localAB_declaredB(): B = object : A, B { }
+                    private fun localABC_declaredC(): C = object : C(), A, B { }
+                }
+                interface A
+                interface B
+                abstract class C
+                """
                     .trimIndent(),
             )
         simpleRun(listOf(src)) { env ->
@@ -785,37 +785,37 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
             Source.kotlin(
                 "Subject.kt",
                 """
-            class Subject {
-                private val lazyA by lazy {
-                    object: A { }
+                class Subject {
+                    private val lazyA by lazy {
+                        object: A { }
+                    }
+                    private val lazyAB by lazy {
+                        object: A, B { }
+                    }
+                    private val lazyABC by lazy {
+                        object: C(), A, B { }
+                    }
+                    private val lazyC by lazy {
+                        object: C() { }
+                    }
+                    private val lazyAC by lazy {
+                        object: C(), A { }
+                    }
+                    private val lazyAB_declaredA: A by lazy {
+                        object: A, B { }
+                    }
+                    private val lazyAB_declaredB: B by lazy {
+                        object: A, B { }
+                    }
+                    private val lazyABC_declaredC: C by lazy {
+                        object: C(), A { }
+                    }
                 }
-                private val lazyAB by lazy {
-                    object: A, B { }
-                }
-                private val lazyABC by lazy {
-                    object: C(), A, B { }
-                }
-                private val lazyC by lazy {
-                    object: C() { }
-                }
-                private val lazyAC by lazy {
-                    object: C(), A { }
-                }
-                private val lazyAB_declaredA: A by lazy {
-                    object: A, B { }
-                }
-                private val lazyAB_declaredB: B by lazy {
-                    object: A, B { }
-                }
-                private val lazyABC_declaredC: C by lazy {
-                    object: C(), A { }
-                }
-            }
 
-            interface A
-            interface B
-            abstract class C
-            """
+                interface A
+                interface B
+                abstract class C
+                """
                     .trimIndent(),
             )
         simpleRun(sources = listOf(src)) { env ->
@@ -837,13 +837,13 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
             Source.kotlin(
                 "Subject.kt",
                 """
-            interface Subject {
-              fun instance(): String = "Hello"
-            }
-            """
+                interface Subject {
+                  fun instance(): String = "Hello"
+                }
+                """
                     .trimIndent(),
             )
-        simpleRun(sources = listOf(src), kotlincArgs = listOf("-Xjvm-default=disable")) { env ->
+        simpleRun(sources = listOf(src), kotlincArgs = listOf("-jvm-default=disable")) { env ->
             val subjectElement = env.requireTypeElement("Subject.DefaultImpls")
             // Call metadata derived API causing it to be read
             assertThat(subjectElement.isKotlinObject()).isFalse()
@@ -857,22 +857,22 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
             Source.kotlin(
                 "Subject.kt",
                 """
-            class Subject {
-              enum class Fruit {
-                APPLE,
-                STRAWBERRY
-              }
-
-              fun printName(fruit: Fruit) {
-                println(
-                  when(fruit) {
-                    Fruit.APPLE -> "manzana"
-                    Fruit.STRAWBERRY -> "fresa"
+                class Subject {
+                  enum class Fruit {
+                    APPLE,
+                    STRAWBERRY
                   }
-                )
-              }
-            }
-            """
+
+                  fun printName(fruit: Fruit) {
+                    println(
+                      when(fruit) {
+                        Fruit.APPLE -> "manzana"
+                        Fruit.STRAWBERRY -> "fresa"
+                      }
+                    )
+                  }
+                }
+                """
                     .trimIndent(),
             )
         simpleRun(sources = listOf(src)) { env ->
@@ -895,22 +895,22 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
             Source.kotlin(
                 "A.kt",
                 """
-            @file:JvmMultifileClass
-            @file:JvmName("Subject")
+                @file:JvmMultifileClass
+                @file:JvmName("Subject")
 
-            fun a() { }
-            """
+                fun a() { }
+                """
                     .trimIndent(),
             )
         val bSrc =
             Source.kotlin(
                 "B.kt",
                 """
-            @file:JvmMultifileClass
-            @file:JvmName("Subject")
+                @file:JvmMultifileClass
+                @file:JvmName("Subject")
 
-            fun b() { }
-            """
+                fun b() { }
+                """
                     .trimIndent(),
             )
         simpleRun(sources = listOf(aSrc, bSrc)) { env ->

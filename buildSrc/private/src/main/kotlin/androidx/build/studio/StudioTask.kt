@@ -87,13 +87,14 @@ abstract class StudioTask : DefaultTask() {
 
     @get:Internal protected open val installParentDir: File = project.rootDir
 
-    private val studioVersion by lazy { project.getVersionByName("androidStudio") }
+    private val studioVersion by lazy { project.getVersionByName("androidStudioIj") }
+    private val studioNameVersion by lazy { project.getVersionByName("androidStudioName") }
 
     /** Directory name (not path) that Studio will be unzipped into. */
     private val studioDirectoryName: String
         get() {
             val osName = StudioPlatformUtilities.osName
-            return "android-studio-$studioVersion-$osName"
+            return "android-studio-$studioNameVersion-$osName"
         }
 
     /** Filename (not path) of the Studio archive */
@@ -130,7 +131,7 @@ abstract class StudioTask : DefaultTask() {
      * https://plugins.jetbrains.com/plugin/14912-ktfmt/versions/stable and you'll see the number in
      * the redirection URL when hovering over the [studioKtfmtPluginVersion] you want downloaded
      */
-    private val studioKtfmtPluginId = "666004"
+    private val studioKtfmtPluginId = "923152"
 
     private val studioKtfmtPluginDownloadUrl =
         "https://downloads.marketplace.jetbrains.com/files/14912/$studioKtfmtPluginId/ktfmt_idea_plugin-$studioKtfmtPluginVersion.zip"
@@ -140,7 +141,7 @@ abstract class StudioTask : DefaultTask() {
 
     /** Download ktfmt plugin zip file and run `shasum -a 256 ./path/to/zip` to get checksum */
     private val studioKtfmtPluginChecksum =
-        "869ceba41f78adc27bd6afed1bf6ba51cbd286f97ac0f6b7b5cf0058417ed242"
+        "3280c1d7b6311f697f768ca80bd1c241ce0570fa76d43cd50055fee0808ac8fe"
 
     /** The idea.properties file that we want to tell Studio to use */
     @get:Internal protected abstract val ideaProperties: File

@@ -31,6 +31,7 @@ class MutableBoxTransformTest {
 
     private val floatTolerance = 0.001F
 
+    @Test
     fun transform_whenIdentity_resultMatchesOriginal() {
         val rect = MutableBox().populateFromTwoPoints(ImmutableVec(1F, 2F), ImmutableVec(3F, 4F))
 

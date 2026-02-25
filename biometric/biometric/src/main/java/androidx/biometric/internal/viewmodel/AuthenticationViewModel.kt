@@ -22,8 +22,8 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.PromptContentView
 import androidx.biometric.internal.AuthenticationManager
-import androidx.biometric.internal.CanceledFrom
 import androidx.biometric.internal.data.AuthenticationStateRepository
+import androidx.biometric.internal.data.CanceledFrom
 import androidx.biometric.internal.data.PromptConfigRepository
 import androidx.biometric.utils.AuthenticationCallbackProvider
 import androidx.biometric.utils.AuthenticatorUtils

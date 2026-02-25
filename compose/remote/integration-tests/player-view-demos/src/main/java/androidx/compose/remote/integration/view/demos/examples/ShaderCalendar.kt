@@ -224,4 +224,4 @@ half4 main(vec2 fragCoord) {
 } 
 """
 
-@Preview @Composable fun ShaderCalendarPreview() = RemoteDocPreview(ShaderCalendar())
+@Preview @Composable private fun ShaderCalendarPreview() = RemoteDocPreview(ShaderCalendar())

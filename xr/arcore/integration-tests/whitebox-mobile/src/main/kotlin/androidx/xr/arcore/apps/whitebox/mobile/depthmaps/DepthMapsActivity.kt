@@ -60,6 +60,7 @@ import androidx.xr.arcore.apps.whitebox.mobile.samplerender.renderers.Background
 import androidx.xr.arcore.playservices.ArCoreRuntime
 import androidx.xr.arcore.playservices.cameraState
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.DepthEstimationMode
 import androidx.xr.runtime.Log
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.TrackingState
@@ -96,8 +97,8 @@ class DepthMapsActivity :
 
     private var selectedDepthMode by mutableStateOf(DepthMode.RAW)
 
-    private val rawConfig = Config(depthEstimation = Config.DepthEstimationMode.RAW_ONLY)
-    private val smoothConfig = Config(depthEstimation = Config.DepthEstimationMode.SMOOTH_ONLY)
+    private val rawConfig = Config(depthEstimation = DepthEstimationMode.RAW_ONLY)
+    private val smoothConfig = Config(depthEstimation = DepthEstimationMode.SMOOTH_ONLY)
     private var configurationMutex = Mutex()
 
     override fun onCreate(savedInstanceState: Bundle?) {

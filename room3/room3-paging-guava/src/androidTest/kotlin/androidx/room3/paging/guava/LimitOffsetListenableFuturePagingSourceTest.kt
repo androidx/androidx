@@ -29,6 +29,7 @@ import androidx.room3.Database
 import androidx.room3.Entity
 import androidx.room3.Insert
 import androidx.room3.PrimaryKey
+import androidx.room3.Query
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import androidx.room3.RoomRawQuery
@@ -796,4 +797,6 @@ interface TestItemDao {
     @Insert fun addAllItems(testItems: List<TestItem>)
 
     @Insert fun addItem(testItem: TestItem)
+
+    @Query("SELECT * FROM TestItem ORDER BY id ASC") fun getAllItems(): List<TestItem>
 }

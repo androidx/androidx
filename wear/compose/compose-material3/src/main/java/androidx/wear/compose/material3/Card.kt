@@ -53,6 +53,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.material3.tokens.CardTokens
 import androidx.wear.compose.material3.tokens.ImageCardTokens
 import androidx.wear.compose.material3.tokens.OutlinedCardTokens
@@ -808,6 +809,18 @@ public object CardDefaults {
             end = CardHorizontalPadding,
             bottom = CardVerticalPadding,
         )
+
+    /**
+     * The minimum vertical content padding for the list when a [Card] is placed at the top or
+     * bottom edge. Recommended for use with [TransformingLazyColumnItemScope]'s
+     * [Modifier.minimumVerticalContentPadding], which allows items to choose a preferred content
+     * padding for the list. [TransformingLazyColumn] takes its contentPadding as the maximum of the
+     * preferred content padding values and its own contentPadding parameter.
+     *
+     * @sample androidx.wear.compose.material3.samples.TransformingLazyColumnMinimumVerticalContentPaddingSample
+     */
+    public val minimumVerticalListContentPadding: Dp
+        @Composable get() = screenHeightFraction(LARGE_VERTICAL_CONTENT_PADDING_FRACTION)
 
     /** Additional bottom padding added for TitleCard with an image background */
     public val ImageBottomPadding: Dp = 12.dp

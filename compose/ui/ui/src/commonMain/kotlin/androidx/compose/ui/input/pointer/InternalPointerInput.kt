@@ -50,6 +50,8 @@ internal data class PointerInputEventData(
     val activeHover: Boolean = false,
     val historical: List<HistoricalChange> = mutableListOf(),
     val scrollDelta: Offset = Offset.Zero,
+    val scaleGestureFactor: Float,
+    val panGestureOffset: Offset,
     val originalEventPosition: Offset = Offset.Zero,
 )
 

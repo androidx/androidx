@@ -132,4 +132,19 @@ class StablePdfAnnotationHandleRegistryTest {
         assertThat(results).hasSize(threadCount)
         assertThat(results.toSet()).hasSize(threadCount)
     }
+
+    @Test
+    fun getHandleId_sameSourceDifferentPages_returnsDifferentHandles() {
+        val sourceId = "common_source_id"
+        val page1 = 0
+        val page2 = 1
+
+        val handle1 = registry.getHandleId(page1, sourceId)
+        val handle2 = registry.getHandleId(page2, sourceId)
+
+        assertThat(handle1).isNotEqualTo(handle2)
+
+        assertThat(registry.getSourceId(handle1)).isEqualTo(sourceId)
+        assertThat(registry.getSourceId(handle2)).isEqualTo(sourceId)
+    }
 }

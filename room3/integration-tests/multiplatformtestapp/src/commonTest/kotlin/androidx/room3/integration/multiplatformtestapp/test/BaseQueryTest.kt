@@ -19,10 +19,11 @@ package androidx.room3.integration.multiplatformtestapp.test
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
 import androidx.room3.RoomRawQuery
-import androidx.room3.execSQL
+import androidx.room3.executeSQL
 import androidx.room3.immediateTransaction
 import androidx.room3.useReaderConnection
 import androidx.room3.useWriterConnection
+import androidx.sqlite.step
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -281,7 +282,7 @@ abstract class BaseQueryTest {
         val db = getRoomDatabase()
         db.useWriterConnection { connection ->
             db.dao().insertItem(1)
-            connection.execSQL("INSERT INTO SampleEntity (pk) VALUES (2)")
+            connection.executeSQL("INSERT INTO SampleEntity (pk) VALUES (2)")
         }
         db.useReaderConnection { connection ->
             val count =
@@ -324,7 +325,7 @@ abstract class BaseQueryTest {
         // Validates that a write using the connection directly will cause invalidation without
         // the need to do a manual refresh.
         db.useWriterConnection { connection ->
-            connection.execSQL("INSERT INTO SampleEntity (pk) VALUES (13)")
+            connection.executeSQL("INSERT INTO SampleEntity (pk) VALUES (13)")
         }
         assertThat(channel.receive()).containsExactly(SampleEntity(13))
 
@@ -435,7 +436,10 @@ abstract class BaseQueryTest {
     @Test
     fun invalidRawQueryOnBindStatement() = runTest {
         val query =
-            RoomRawQuery(sql = "SELECT * FROM SampleEntity", onBindStatement = { it.step() })
+            RoomRawQuery(
+                sql = "SELECT * FROM SampleEntity",
+                onBindStatement = { it.getColumnCount() },
+            )
         assertThrows<IllegalStateException> { db.dao().getSingleItemRaw(query) }
             .hasMessageThat()
             .contains("Only bind*() calls are allowed")

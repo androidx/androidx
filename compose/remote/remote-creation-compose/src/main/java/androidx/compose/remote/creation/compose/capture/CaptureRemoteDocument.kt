@@ -23,6 +23,7 @@ import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.v2.captureSingleRemoteDocumentV2
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
@@ -51,11 +52,23 @@ public suspend fun captureSingleRemoteDocument(
     profile: Profile = RcPlatformProfiles.ANDROIDX,
     content: @Composable @RemoteComposable () -> Unit,
 ): CapturedDocument {
+    val layoutDirection = toLayoutDirection(context.resources.configuration.layoutDirection)
+
     if (RemoteComposeCreationComposeFlags.isRemoteApplierEnabled) {
+        // Make part of the API above when v1 path removed
+        val remoteDensity =
+            RemoteDensity(
+                creationDisplayInfo.density.rf,
+                context.resources.configuration.fontScale.rf,
+            )
+
         return captureSingleRemoteDocumentV2(
             creationDisplayInfo = creationDisplayInfo,
+            remoteDensity = remoteDensity,
+            layoutDirection = layoutDirection,
             profile = profile,
             content = content,
+            context = context,
         )
     }
 
@@ -68,6 +81,7 @@ public suspend fun captureSingleRemoteDocument(
             context = context,
             virtualDisplay = virtualDisplay,
             creationDisplayInfo = creationDisplayInfo,
+            layoutDirection = layoutDirection,
             immediateCapture = true,
             onPaint = { _, writer ->
                 if (continuation.isActive) {

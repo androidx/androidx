@@ -82,6 +82,11 @@ public class SuggestionManagerTest {
             public void updateSuggestions(Bundleable suggestions) throws RemoteException {
                 mSuggestionHost.updateSuggestions(suggestions);
             }
+
+            @Override
+            public int getInterfaceVersion() {
+                return super.VERSION;
+            }
         };
         when(mMockCarHost.getHost(any())).thenReturn(suggestionHostStub.asBinder());
 

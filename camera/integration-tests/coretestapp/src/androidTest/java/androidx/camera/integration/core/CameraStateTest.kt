@@ -18,7 +18,6 @@ package androidx.camera.integration.core
 
 import android.content.Context
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
@@ -27,7 +26,6 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.lifecycle.awaitInstance
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.LabTestRule
@@ -55,7 +53,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.Parameterized // Or your preferred test runner
+import org.junit.runners.Parameterized
 
 /** API Compat test for [CameraState] APIs */
 @LargeTest
@@ -66,10 +64,6 @@ class CameraStateTest(
     private val implName: String,
     private val cameraConfig: CameraXConfig,
 ) {
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
-
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
@@ -83,14 +77,6 @@ class CameraStateTest(
                             lensFacing,
                             Camera2Config::class.simpleName,
                             Camera2Config.defaultConfig(),
-                        )
-                    )
-                    add(
-                        arrayOf(
-                            "config=${CameraPipeConfig::class.simpleName} lensFacing={$lensFacing}",
-                            lensFacing,
-                            CameraPipeConfig::class.simpleName,
-                            CameraPipeConfig.defaultConfig(),
                         )
                     )
                 }

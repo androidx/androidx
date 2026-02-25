@@ -20,11 +20,12 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlin.test.assertTrue
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -46,44 +47,44 @@ class PaddingModifierTest {
 
     /** Tests that negative start padding is not allowed. */
     @Test(expected = IllegalArgumentException::class)
-    fun negativeStartPaddingDp_throws() {
-        composeTestRule.setContent { RemoteModifier.padding(left = (-1f).dp) }
+    fun negativeStartPaddingPx_throws() {
+        composeTestRule.setContent { RemoteModifier.padding(left = (-1f).rf) }
     }
 
     /** Tests that negative top padding is not allowed. */
     @Test(expected = IllegalArgumentException::class)
-    fun negativeTopPaddingDp_throws() {
-        composeTestRule.setContent { RemoteModifier.padding(top = (-1f).dp) }
+    fun negativeTopPaddingPx_throws() {
+        composeTestRule.setContent { RemoteModifier.padding(top = (-1f).rf) }
     }
 
     /** Tests that negative end padding is not allowed. */
     @Test(expected = IllegalArgumentException::class)
-    fun negativeEndPaddingDp_throws() {
-        composeTestRule.setContent { RemoteModifier.padding(right = (-1f).dp) }
+    fun negativeEndPaddingPx_throws() {
+        composeTestRule.setContent { RemoteModifier.padding(right = (-1f).rf) }
     }
 
     /** Tests that negative bottom padding is not allowed. */
     @Test(expected = IllegalArgumentException::class)
-    fun negativeBottomPaddingDp_throws() {
-        composeTestRule.setContent { RemoteModifier.padding(bottom = (-1f).dp) }
+    fun negativeBottomPaddingPx_throws() {
+        composeTestRule.setContent { RemoteModifier.padding(bottom = (-1f).rf) }
     }
 
     /** Tests that negative all padding is not allowed. */
     @Test(expected = IllegalArgumentException::class)
-    fun negativeAllPaddingDp_throws() {
-        composeTestRule.setContent { RemoteModifier.padding(all = (-1f).dp) }
+    fun negativeAllPaddingPx_throws() {
+        composeTestRule.setContent { RemoteModifier.padding(all = (-1f).rf) }
     }
 
     /** Tests that negative horizontal padding is not allowed. */
     @Test(expected = IllegalArgumentException::class)
-    fun negativeHorizontalPaddingDp_throws() {
-        composeTestRule.setContent { RemoteModifier.padding(horizontal = (-1f).dp) }
+    fun negativeHorizontalPaddingPx_throws() {
+        composeTestRule.setContent { RemoteModifier.padding(horizontal = (-1f).rf) }
     }
 
     /** Tests that negative vertical padding is not allowed. */
     @Test(expected = IllegalArgumentException::class)
-    fun negativeVerticalPaddingDp_throws() {
-        composeTestRule.setContent { RemoteModifier.padding(vertical = (-1f).dp) }
+    fun negativeVerticalPaddingPx_throws() {
+        composeTestRule.setContent { RemoteModifier.padding(vertical = (-1f).rf) }
     }
 
     /** Tests that the [padding]-all and [padding] factories return equivalent modifiers. */
@@ -92,8 +93,8 @@ class PaddingModifierTest {
         composeTestRule.setContent {
             assertTrue(
                 haveSameValues(
-                    RemoteModifier.padding(10.dp, 10.dp, 10.dp, 10.dp),
-                    RemoteModifier.padding(10.dp),
+                    RemoteModifier.padding(10.rdp, 10.rdp, 10.rdp, 10.rdp),
+                    RemoteModifier.padding(10.rdp),
                 )
             )
         }
@@ -105,8 +106,8 @@ class PaddingModifierTest {
         composeTestRule.setContent {
             assertTrue(
                 haveSameValues(
-                    RemoteModifier.padding(10.dp, 20.dp, 10.dp, 20.dp),
-                    RemoteModifier.padding(10.dp, 20.dp),
+                    RemoteModifier.padding(10.rdp, 20.rdp, 10.rdp, 20.rdp),
+                    RemoteModifier.padding(10.rdp, 20.rdp),
                 )
             )
         }

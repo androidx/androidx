@@ -16,7 +16,11 @@
 
 package androidx.xr.projected
 
+import android.app.Activity
 import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.xr.projected.ProjectedActivityCompat.Companion.create
 import androidx.xr.projected.binding.ProjectedServiceConnection
 import androidx.xr.projected.binding.ProjectedServiceConnection.ProjectedIntentAction.Companion.ACTION_BIND
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
@@ -54,6 +58,8 @@ private constructor(
                             trySend(ProjectedInputEvent(projectedInputAction))
                         } catch (_: Exception) {}
                     }
+
+                    override fun getInterfaceVersion(): Int = VERSION
                 }
 
             val job = launch {
@@ -85,10 +91,39 @@ private constructor(
          * @return A [ProjectedActivityCompat] instance.
          * @throws IllegalStateException if the projected service is not found or binding is not
          *   permitted
+         * @deprecated Use [ProjectedActivityCompat.create(activity: Activity)] instead
+         *
+         * TODO(b/479214966): Remove this once all clients have been migrated.
          */
         @JvmStatic
+        @Deprecated("Use create(activity: Activity) instead")
         public suspend fun create(context: Context): ProjectedActivityCompat {
             val serviceConnection = ProjectedServiceConnection(context, ACTION_BIND)
+            return ProjectedActivityCompat(
+                serviceConnection,
+                projectedService = serviceConnection.connect(),
+            )
+        }
+
+        /**
+         * Connects to the service providing features for Projected devices and returns the
+         * ProjectedActivityCompat when the connection is established.
+         *
+         * @param activity The [Activity] running on a Projected device
+         * @return A [ProjectedActivityCompat] instance
+         * @throws IllegalStateException if the projected service is not found or binding is not
+         *   permitted
+         * @throws IllegalArgumentException if provided Activity is not running on a Projected
+         *   device
+         */
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        @JvmStatic
+        public suspend fun create(activity: Activity): ProjectedActivityCompat {
+            require(
+                ProjectedContext.isProjectedDeviceContext(activity),
+                { "Provided Activity is not running on a Projected device." },
+            )
+            val serviceConnection = ProjectedServiceConnection(activity, ACTION_BIND)
             return ProjectedActivityCompat(
                 serviceConnection,
                 projectedService = serviceConnection.connect(),

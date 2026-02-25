@@ -5,7 +5,3 @@ GetterSetterNames: androidx.window.embedding.SplitAttributesCalculatorParams#are
     Invalid name for boolean property `areDefaultConstraintsSatisfied`. Should start with one of `has`, `can`, `should`, `is`.
 GetterSetterNames: androidx.window.embedding.SplitPairRule#clearTop:
     Invalid name for boolean property `clearTop`. Should start with one of `has`, `can`, `should`, `is`.
-
-
-NotCloseable: androidx.window.area.WindowAreaSession:
-    Classes that release resources (close()) should implement AutoCloseable and CloseGuard: class androidx.window.area.WindowAreaSession

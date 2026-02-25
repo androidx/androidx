@@ -16,8 +16,11 @@
 
 package androidx.xr.compose.spatial
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -42,6 +45,7 @@ import androidx.xr.compose.testing.session
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.scene
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -153,5 +157,28 @@ class SpatialElevationTest {
         composeTestRule.onAllNodesWithText("Main Content").assertCountEquals(2)
         composeTestRule.onAllNodesWithText("Main Content").onFirst().assertIsNotDisplayed()
         composeTestRule.onAllNodesWithText("Main Content").onLast().assertIsDisplayed()
+    }
+
+    @Test
+    fun spatialElevation_scrolledOffScreen_setsAlphaToZero() {
+        val scrollState = ScrollState(0)
+
+        composeTestRule.setContent {
+            Column(modifier = Modifier.size(100.dp).verticalScroll(scrollState)) {
+                SpatialElevation { Box(Modifier.size(100.dp).testTag("ElevatedContent")) }
+                Box(Modifier.size(1000.dp))
+            }
+        }
+
+        val panel =
+            checkNotNull(composeTestRule.session?.scene?.getEntitiesOfType(PanelEntity::class.java))
+                .single { !it.isMainPanelEntity }
+
+        assertThat(panel.getAlpha()).isEqualTo(1f)
+
+        runBlocking { scrollState.scrollTo(500) }
+        composeTestRule.waitForIdle()
+
+        assertThat(panel.getAlpha()).isEqualTo(0f)
     }
 }

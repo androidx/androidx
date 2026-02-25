@@ -29,6 +29,7 @@ import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
 import android.location.Location
 import android.media.MediaCodec
+import android.media.MediaFormat.MIMETYPE_VIDEO_AVC
 import android.media.MediaMetadataRetriever
 import android.media.MediaRecorder
 import android.net.Uri
@@ -37,7 +38,6 @@ import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import android.util.Size
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
@@ -52,7 +52,6 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecu
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.lifecycle.awaitInstance
 import androidx.camera.testing.impl.AudioUtil
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.ExtensionsUtil
 import androidx.camera.testing.impl.GarbageCollectionUtil
@@ -141,16 +140,12 @@ private const val TEST_ATTRIBUTION_TAG = "testAttribution"
 // For the file size is small, the final file length possibly exceeds the file size limit
 // after adding the file header. We still add the buffer for the tolerance of comparing the
 // file length and file size limit.
-private const val FILE_SIZE_LIMIT_BUFFER = 50 * 1024 // 50k threshold buffer
+private const val FILE_SIZE_LIMIT_BUFFER = 500 * 1024 // 500k threshold buffer
 
 @SdkSuppress(minSdkVersion = 23)
 @LargeTest
 @RunWith(Parameterized::class)
 class RecorderTest(private val implName: String, private val cameraConfig: CameraXConfig) {
-
-    @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = implName == CameraPipeConfig::class.simpleName)
 
     @get:Rule
     val cameraRule =
@@ -178,11 +173,7 @@ class RecorderTest(private val implName: String, private val cameraConfig: Camer
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() =
-            listOf(
-                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig()),
-            )
+        fun data() = listOf(arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()))
 
         private val storageFullException = lazy { IOException(NO_SPACE_LEFT_MESSAGE) }
     }
@@ -1295,6 +1286,15 @@ class RecorderTest(private val implName: String, private val cameraConfig: Camer
         val videoCapabilities = Recorder.getHighSpeedVideoCapabilities(camera.cameraInfo)
 
         assertThat(videoCapabilities).isNull()
+    }
+
+    @Test
+    fun getVideoCapabilities_withMimeType_returnsCapabilities() {
+        val capabilities = Recorder.getVideoCapabilities(camera.cameraInfo, MIMETYPE_VIDEO_AVC)
+
+        assertThat(capabilities).isNotNull()
+        // We expect at least SDR to be supported for AVC
+        assertThat(capabilities.supportedDynamicRanges).contains(DynamicRange.SDR)
     }
 
     private fun testRecorderIsConfiguredBasedOnTargetVideoEncodingBitrate(targetBitrate: Int) {

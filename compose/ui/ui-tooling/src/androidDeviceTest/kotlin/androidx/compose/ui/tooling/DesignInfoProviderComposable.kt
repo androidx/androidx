@@ -16,13 +16,14 @@
 
 package androidx.compose.ui.tooling
 
-import androidx.compose.material.Scaffold
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
-fun DesignInfoProviderA() {
+fun DesignInfoProviderA(padding: PaddingValues) {
     designInfoWithCustomArgument("A", "ObjectA")
 }
 
@@ -34,7 +35,7 @@ fun DesignInfoProviderB() {
 @Preview
 @Composable
 fun ScaffoldDesignInfoProvider() {
-    Scaffold { DesignInfoProviderA() }
+    Scaffold { padding -> DesignInfoProviderA(padding) }
 }
 
 @Composable

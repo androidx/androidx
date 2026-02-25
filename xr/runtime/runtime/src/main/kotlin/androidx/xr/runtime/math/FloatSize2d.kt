@@ -34,6 +34,7 @@ public class FloatSize2d(public val width: Float = 0f, public val height: Float 
      * @param depth the depth of the new 3D size
      * @return a new [FloatSize3d] with the specified dimensions
      */
+    @JvmOverloads
     public fun to3d(depth: Float = 0f): FloatSize3d = FloatSize3d(width, height, depth)
 
     override fun equals(other: Any?): Boolean {

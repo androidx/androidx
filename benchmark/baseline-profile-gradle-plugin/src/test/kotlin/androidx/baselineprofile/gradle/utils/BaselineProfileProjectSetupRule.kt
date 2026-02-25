@@ -371,13 +371,13 @@ class AppTargetModule(
     fun setup(
         buildGradleContent: String =
             """
-                plugins {
-                    id("com.android.application")
-                    id("androidx.baselineprofile.apptarget")
-                }
-                android {
-                    namespace 'com.example.namespace'
-                }
+            plugins {
+                id("com.android.application")
+                id("androidx.baselineprofile.apptarget")
+            }
+            android {
+                namespace 'com.example.namespace'
+            }
             """
                 .trimIndent()
     ) {
@@ -735,10 +735,10 @@ class ConsumerModule(
             flavorsBlock =
                 if (flavors)
                     """
-                flavorDimensions = ["version"]
-                free { dimension "version" }
-                paid { dimension "version" }
-            """
+                    flavorDimensions = ["version"]
+                    free { dimension "version" }
+                    paid { dimension "version" }
+                    """
                         .trimIndent()
                 else "",
             dependencyOnProducerProject = dependencyOnProducerProject,
@@ -746,8 +746,8 @@ class ConsumerModule(
             buildTypesBlock =
                 if (buildTypeAnotherRelease)
                     """
-                anotherRelease { initWith(release) }
-        """
+                    anotherRelease { initWith(release) }
+                    """
                         .trimIndent()
                 else "",
             addAppTargetPlugin = addAppTargetPlugin,

@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -113,7 +112,13 @@ androidXMultiplatform {
             implementation(project(":internal-testutils-datastore"))
         }
 
-        nonWebCommonTest.dependsOn(commonTest)
+        androidMain {
+            dependencies {
+                api(project(":tracing:tracing"))
+            }
+        }
+
+        create("nonWebCommonTest").dependsOn(commonTest)
 
         jvmAndAndroidTest {
             dependsOn(nonWebCommonTest)
@@ -128,7 +133,7 @@ androidXMultiplatform {
         }
         // tests that are run on AndroidUnit and instrumented targets.
         // similar to jvmAndAndroidTest, except, they don't run on JVM outside Robolectric.
-        androidUnitAndInstrumentedTest.dependsOn(jvmAndAndroidTest)
+        androidUnitAndInstrumentedTest {}.dependsOn(jvmAndAndroidTest)
 
         androidHostTest {
             dependsOn(androidUnitAndInstrumentedTest)
@@ -150,6 +155,7 @@ androidXMultiplatform {
                 implementation(libs.testCore)
                 implementation("androidx.lifecycle:lifecycle-service:2.6.1")
                 implementation(libs.testExtJunit)
+                api(project(":tracing:tracing-wire"))
 
                 // Workaround bug in 1.8.0, was supposed be fixed in RC2/final, but apparently not.
                 implementation(libs.kotlinTestJunit)

@@ -145,8 +145,8 @@ public class ImpulseProcess extends PaintOperation
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Operations", OP_CODE, name())
-                .description("Impulse Process that runs a list of operations");
+        doc.operation("Animation & Particles Operations", OP_CODE, CLASS_NAME)
+                .description("A block of operations executed during an active impulse");
     }
 
     /**

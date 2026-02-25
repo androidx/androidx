@@ -21,6 +21,7 @@ import androidx.kruth.assertThat
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.DepthEstimationMode
 import com.google.ar.core.ArCoreApk
 import com.google.ar.core.Config.DepthMode
 import com.google.ar.core.Config.GeospatialMode
@@ -46,56 +47,56 @@ class ArCoreRuntimeTest {
     fun isSupported_depthSmoothOnly_whenTrueIn1x_returnsTrue() = initRuntimeAndRunTest {
         whenever(mockSession.isDepthModeSupported(DepthMode.AUTOMATIC)).thenReturn(true)
 
-        assertThat(underTest.isSupported(Config.DepthEstimationMode.SMOOTH_ONLY)).isTrue()
+        assertThat(underTest.isSupported(DepthEstimationMode.SMOOTH_ONLY)).isTrue()
     }
 
     @Test
     fun isSupported_depthSmoothOnly_whenFalseIn1x_returnsFalse() = initRuntimeAndRunTest {
         whenever(mockSession.isDepthModeSupported(DepthMode.AUTOMATIC)).thenReturn(false)
 
-        assertThat(underTest.isSupported(Config.DepthEstimationMode.SMOOTH_ONLY)).isFalse()
+        assertThat(underTest.isSupported(DepthEstimationMode.SMOOTH_ONLY)).isFalse()
     }
 
     @Test
     fun isSupported_depthSmoothAndRaw_whenTrueIn1x_returnsTrue() = initRuntimeAndRunTest {
         whenever(mockSession.isDepthModeSupported(DepthMode.AUTOMATIC)).thenReturn(true)
 
-        assertThat(underTest.isSupported(Config.DepthEstimationMode.SMOOTH_AND_RAW)).isTrue()
+        assertThat(underTest.isSupported(DepthEstimationMode.SMOOTH_AND_RAW)).isTrue()
     }
 
     @Test
     fun isSupported_depthSmoothAndRaw_whenFalseIn1x_returnsFalse() = initRuntimeAndRunTest {
         whenever(mockSession.isDepthModeSupported(DepthMode.AUTOMATIC)).thenReturn(false)
 
-        assertThat(underTest.isSupported(Config.DepthEstimationMode.SMOOTH_AND_RAW)).isFalse()
+        assertThat(underTest.isSupported(DepthEstimationMode.SMOOTH_AND_RAW)).isFalse()
     }
 
     @Test
     fun isSupported_depthRawOnly_whenTrueIn1x_returnsTrue() = initRuntimeAndRunTest {
         whenever(mockSession.isDepthModeSupported(DepthMode.RAW_DEPTH_ONLY)).thenReturn(true)
 
-        assertThat(underTest.isSupported(Config.DepthEstimationMode.RAW_ONLY)).isTrue()
+        assertThat(underTest.isSupported(DepthEstimationMode.RAW_ONLY)).isTrue()
     }
 
     @Test
     fun isSupported_depthRawOnly_whenFalseIn1x_returnsFalse() = initRuntimeAndRunTest {
         whenever(mockSession.isDepthModeSupported(DepthMode.RAW_DEPTH_ONLY)).thenReturn(false)
 
-        assertThat(underTest.isSupported(Config.DepthEstimationMode.RAW_ONLY)).isFalse()
+        assertThat(underTest.isSupported(DepthEstimationMode.RAW_ONLY)).isFalse()
     }
 
     @Test
     fun isSupported_geospatialVpsAndGps_whenFalseIn1x_returnsFalse() = initRuntimeAndRunTest {
         whenever(mockSession.isGeospatialModeSupported(GeospatialMode.ENABLED)).thenReturn(false)
 
-        assertThat(underTest.isSupported(Config.GeospatialMode.VPS_AND_GPS)).isFalse()
+        assertThat(underTest.isSupported(androidx.xr.runtime.GeospatialMode.VPS_AND_GPS)).isFalse()
     }
 
     @Test
     fun isSupported_geospatialVpsAndGps_whenTrueIn1x_returnsTrue() = initRuntimeAndRunTest {
         whenever(mockSession.isGeospatialModeSupported(GeospatialMode.ENABLED)).thenReturn(true)
 
-        assertThat(underTest.isSupported(Config.GeospatialMode.VPS_AND_GPS)).isTrue()
+        assertThat(underTest.isSupported(androidx.xr.runtime.GeospatialMode.VPS_AND_GPS)).isTrue()
     }
 
     @Test
@@ -123,7 +124,7 @@ class ArCoreRuntimeTest {
         }
     }
 
-    private class FakeConfigMode private constructor() : Config.ConfigMode {
+    private class FakeConfigMode private constructor() : Config.ConfigMode() {
         companion object {
             @JvmField val UNSUPPORTED_BY_ARCORE: FakeConfigMode = FakeConfigMode()
         }

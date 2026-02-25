@@ -17,12 +17,14 @@
 package androidx.pdf.ink.view.draganddrop
 
 import android.content.Context
+import android.os.Parcelable
 import android.util.AttributeSet
-import android.view.Gravity
+import android.util.SparseArray
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.animation.OvershootInterpolator
-import android.widget.FrameLayout
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.pdf.ink.R
 import androidx.pdf.ink.view.AnnotationToolbar
 import androidx.pdf.ink.view.draganddrop.ToolbarDockState.Companion.DOCK_STATE_BOTTOM
@@ -31,7 +33,7 @@ import androidx.pdf.ink.view.draganddrop.ToolbarDockState.Companion.DOCK_STATE_S
 import org.jetbrains.annotations.VisibleForTesting
 
 /**
- * A [FrameLayout] layout that manages the dragging, dropping, and docking of an
+ * A [ConstraintLayout] layout that manages the dragging, dropping, and docking of an
  * [AnnotationToolbar].
  *
  * This coordinator is responsible for providing visible anchor points for docking, listening for
@@ -41,7 +43,7 @@ import org.jetbrains.annotations.VisibleForTesting
  * It also applied the correct layout parameters and orientation for toolbar's final docked state.
  */
 internal class ToolbarCoordinator(context: Context, attrs: AttributeSet? = null) :
-    FrameLayout(context, attrs) {
+    ConstraintLayout(context, attrs) {
 
     // Required to disable any animation while performing ui tests
     @VisibleForTesting internal var areAnimationsEnabled: Boolean = true
@@ -87,11 +89,15 @@ internal class ToolbarCoordinator(context: Context, attrs: AttributeSet? = null)
 
     /** Re-applies the layout constraints for the toolbar's current dock state. */
     fun updateLayout() {
-        toolbar?.post {
-            applyDockLayoutParams(
-                toolbar?.dockState ?: throw IllegalStateException("dock state not initialized")
-            )
-        }
+        val localToolbar = toolbar ?: throw IllegalStateException("toolbar is not attached")
+
+        applyDockLayoutParams(localToolbar.dockState)
+    }
+
+    override fun dispatchRestoreInstanceState(container: SparseArray<Parcelable?>?) {
+        super.dispatchRestoreInstanceState(container)
+        // update layout after toolbar has restored its previous dock state
+        updateLayout()
     }
 
     private fun initializeDragAndDrop() {
@@ -187,31 +193,55 @@ internal class ToolbarCoordinator(context: Context, attrs: AttributeSet? = null)
      */
     private fun applyDockLayoutParams(@ToolbarDockState.DockState state: Int) {
         val localToolbar = toolbar ?: return
-
-        val params = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
+        val toolbarId = localToolbar.id
 
         // Reset toolbar translation; critical as we previously animated view.translateX and
         // view.translateY
         localToolbar.translationX = 0f
         localToolbar.translationY = 0f
 
-        when (state) {
-            DOCK_STATE_START -> {
-                params.gravity = Gravity.CENTER_VERTICAL or Gravity.START
-                params.marginStart = margin16Dp
-            }
-            DOCK_STATE_END -> {
-                params.gravity = Gravity.CENTER_VERTICAL or Gravity.END
-                params.marginEnd = margin16Dp
-            }
-            DOCK_STATE_BOTTOM -> {
-                params.gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
-                params.bottomMargin = margin16Dp
-            }
-        }
+        ConstraintSet().apply {
+            clone(this@ToolbarCoordinator)
+            clear(toolbarId)
 
-        localToolbar.layoutParams = params
+            constrainWidth(toolbarId, ConstraintSet.WRAP_CONTENT)
+            constrainHeight(toolbarId, ConstraintSet.WRAP_CONTENT)
+
+            // Center toolbar by default, then bias it toward the specific dock edge
+            center(toolbarId, ConstraintSet.PARENT_ID)
+
+            when (state) {
+                DOCK_STATE_START -> {
+                    setHorizontalBias(toolbarId, 0f)
+                    setMargin(toolbarId, ConstraintSet.START, margin16Dp)
+                    constrainedWidth(toolbarId, true)
+                }
+                DOCK_STATE_END -> {
+                    setHorizontalBias(toolbarId, 1f)
+                    setMargin(toolbarId, ConstraintSet.END, margin16Dp)
+                    constrainedWidth(toolbarId, true)
+                }
+                DOCK_STATE_BOTTOM -> {
+                    setVerticalBias(toolbarId, 1f)
+                    setMargin(toolbarId, ConstraintSet.BOTTOM, margin16Dp)
+                    constrainedHeight(toolbarId, true)
+                }
+            }
+
+            applyTo(this@ToolbarCoordinator)
+        }
         localToolbar.dockState = state
+    }
+
+    /**
+     * Helper to establish constraints to all four sides of the parent. This makes biasing
+     * (start/end/bottom) much more concise.
+     */
+    private fun ConstraintSet.center(viewId: Int, parentId: Int) {
+        connect(viewId, ConstraintSet.START, parentId, ConstraintSet.START)
+        connect(viewId, ConstraintSet.END, parentId, ConstraintSet.END)
+        connect(viewId, ConstraintSet.TOP, parentId, ConstraintSet.TOP)
+        connect(viewId, ConstraintSet.BOTTOM, parentId, ConstraintSet.BOTTOM)
     }
 
     companion object {

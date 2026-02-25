@@ -466,7 +466,9 @@ constructor(
             lastCameraPrioritiesChangedTs: TimestampNs?,
             currentTs: TimestampNs,
         ): Boolean {
-            val cameraAvailable = cameraAvailability is CameraStatus.CameraAvailable
+            val cameraAvailableAndOpenable =
+                cameraAvailability is CameraStatus.CameraAvailable &&
+                    lastCameraError != CameraError.ERROR_CAMERA_DISABLED
 
             // Camera priorities changed is a on-the-spot signal that doesn't actually indicate
             // whether we do have camera priority. The signal may come in early or late, and other
@@ -479,7 +481,7 @@ constructor(
 
             when (controllerState) {
                 ControllerState.DISCONNECTED ->
-                    if (cameraAvailable || prioritiesChanged) {
+                    if (cameraAvailableAndOpenable || prioritiesChanged) {
                         return true
                     } else if (
                         Build.VERSION.SDK_INT in (Build.VERSION_CODES.Q..Build.VERSION_CODES.S_V2)
@@ -495,7 +497,7 @@ constructor(
                     // an error during graph (session) configuration or the user lacks camera
                     // permission, since we'd be unlikely to succeed under these scenarios.
                     if (
-                        cameraAvailable &&
+                        cameraAvailableAndOpenable &&
                             lastCameraError != CameraError.ERROR_GRAPH_CONFIG &&
                             lastCameraError != CameraError.ERROR_SECURITY_EXCEPTION
                     ) {

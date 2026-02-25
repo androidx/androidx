@@ -325,9 +325,7 @@ protected constructor(metadata: FailureMetadata, actual: Iterable<T>?) :
                      *  But Fuzzy Truth doesn't (yet) make the mismatched value so prominent.
                      */
                     failWithoutActual(
-                        simpleFact(
-                            "Expected $actualElement to be equal to $requiredElement, but was not"
-                        )
+                        simpleFact("expected: $requiredElement but was: $actualElement")
                     )
                 }
 

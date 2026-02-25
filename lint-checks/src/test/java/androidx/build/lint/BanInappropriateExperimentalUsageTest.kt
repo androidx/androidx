@@ -151,8 +151,8 @@ class BanInappropriateExperimentalUsageTest :
 
         val expected =
             """
-No warnings.
-        """
+            No warnings.
+            """
                 .trimIndent()
 
         check(provider).expect(expected)
@@ -177,8 +177,8 @@ No warnings.
 
         val expected =
             """
-No warnings.
-        """
+            No warnings.
+            """
                 .trimIndent()
 
         check(provider).expect(expected)
@@ -234,32 +234,32 @@ No warnings.
 
         val expected =
             """
-../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:35: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
-    @ExperimentalSampleAnnotationJava
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:40: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
-    @RequiresOptInSampleAnnotationJava
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:45: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
-    @kotlin.OptIn(RequiresOptInSampleAnnotationJava::class)
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:50: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
-    @kotlin.OptIn(
-    ^
-../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:58: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
-    @kotlin.OptIn(
-    ^
-../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:66: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
-    @androidx.annotation.OptIn(RequiresAndroidXOptInSampleAnnotationJava::class)
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:71: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
-    @androidx.annotation.OptIn(
-    ^
-../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:79: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
-    @androidx.annotation.OptIn(
-    ^
-8 errors, 0 warnings
-        """
+            ../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:35: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+                @ExperimentalSampleAnnotationJava
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            ../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:40: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+                @RequiresOptInSampleAnnotationJava
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            ../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:45: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+                @kotlin.OptIn(RequiresOptInSampleAnnotationJava::class)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            ../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:50: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+                @kotlin.OptIn(
+                ^
+            ../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:58: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+                @kotlin.OptIn(
+                ^
+            ../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:66: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+                @androidx.annotation.OptIn(RequiresAndroidXOptInSampleAnnotationJava::class)
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            ../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:71: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+                @androidx.annotation.OptIn(
+                ^
+            ../consumer/src/main/kotlin/androidx/sample/consumer/OutsideGroupExperimentalAnnotatedClass.kt:79: Error: Experimental and RequiresOptIn APIs may only be used within the same-version group where they were defined. [IllegalExperimentalApiUsage]
+                @androidx.annotation.OptIn(
+                ^
+            8 errors, 0 warnings
+            """
                 .trimIndent()
 
         check(provider, consumer).expect(expected)
@@ -317,8 +317,8 @@ No warnings.
 
         val expected =
             """
-No warnings.
-        """
+            No warnings.
+            """
                 .trimIndent()
 
         check(provider, consumer).expect(expected)

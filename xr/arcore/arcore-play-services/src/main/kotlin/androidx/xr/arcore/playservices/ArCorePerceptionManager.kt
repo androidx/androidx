@@ -28,7 +28,8 @@ import androidx.xr.arcore.runtime.HitResult
 import androidx.xr.arcore.runtime.PerceptionManager
 import androidx.xr.arcore.runtime.RenderViewpoint
 import androidx.xr.arcore.runtime.Trackable
-import androidx.xr.runtime.Config
+import androidx.xr.runtime.CameraFacingDirection
+import androidx.xr.runtime.DepthEstimationMode
 import androidx.xr.runtime.internal.UnsupportedDeviceException
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Ray
@@ -48,7 +49,21 @@ import kotlin.time.TimeSource.Monotonic
 /**
  * Implementation of the perception capabilities of a runtime using ARCore.
  *
- * @property timeSource The time source to use for the perception manager.
+ * @property timeSource the time source to use for the perception manager
+ * @property trackables the collection of [Trackable] objects
+ * @property leftEye the left eye, or null if not available
+ * @property rightEye the right eye, or null if not available
+ * @property leftHand the left hand, or null if not available
+ * @property rightHand the right hand, or null if not available
+ * @property userFace the user's face, or null if not available
+ * @property geospatial the [ArCoreEarth] instance
+ * @property arDevice the [ArCoreDevice] instance
+ * @property leftRenderViewpoint the left [RenderViewpoint], or null if not available
+ * @property rightRenderViewpoint the right [RenderViewpoint], or null if not available
+ * @property monoRenderViewpoint the mono [RenderViewpoint], or null if not available
+ * @property leftDepthMap the left [DepthMap], or null if not available
+ * @property rightDepthMap the right [DepthMap], or null if not available
+ * @property monoDepthMap the mono [DepthMap], or null if not available
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class ArCorePerceptionManager
@@ -66,7 +81,7 @@ internal constructor(private val timeSource: ArCoreTimeSource) : PerceptionManag
     internal fun timeSinceLastFrame(): Duration = lastFrameTimeMark?.elapsedNow() ?: Duration.ZERO
 
     private val xrResources: XrResources = XrResources()
-    internal var depthEstimationMode = Config.DepthEstimationMode.DISABLED
+    internal var depthEstimationMode = DepthEstimationMode.DISABLED
 
     private var displayRotation = Surface.ROTATION_0
     private var displayWidth = 0
@@ -76,6 +91,7 @@ internal constructor(private val timeSource: ArCoreTimeSource) : PerceptionManag
     /**
      * The latest [Frame] returned by the underlying [Session].
      *
+     * @return the latest [Frame]
      * @sample androidx.xr.arcore.samples.getARCoreFrame
      */
     @UnsupportedArCoreCompatApi public fun lastFrame(): Frame = _latestFrame
@@ -96,8 +112,8 @@ internal constructor(private val timeSource: ArCoreTimeSource) : PerceptionManag
      *
      * This method calls the [Session.createAnchor] method.
      *
-     * @param pose The pose of the anchor.
-     * @return The created anchor.
+     * @param pose the [Pose] of the anchor
+     * @return the created [Anchor]
      */
     override fun createAnchor(pose: Pose): Anchor {
         try {
@@ -114,8 +130,8 @@ internal constructor(private val timeSource: ArCoreTimeSource) : PerceptionManag
      *
      * This method calls the [Frame.hitTest] method.
      *
-     * @param ray The ray to perform the hit test against.
-     * @return The list of hit results.
+     * @param ray the [Ray] to perform the hit test against
+     * @return the list of [HitResult] objects
      */
     override fun hitTest(ray: Ray): List<HitResult> {
         val origin = floatArrayOf(ray.origin.x, ray.origin.y, ray.origin.z)
@@ -161,88 +177,35 @@ internal constructor(private val timeSource: ArCoreTimeSource) : PerceptionManag
 
     override val trackables: Collection<Trackable> = xrResources.trackables.values
 
-    /**
-     * Returns the left eye.
-     *
-     * ARCore does not support eye tracking, so this property is always null.
-     */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) override val leftEye: Eye? = null
 
-    /**
-     * Returns the right eye.
-     *
-     * ARCore does not support eye tracking, so this property is always null.
-     */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) override val rightEye: Eye? = null
 
-    /**
-     * Returns the left hand.
-     *
-     * ARCore does not support hand tracking, so this property is always null.
-     */
     override val leftHand: Hand? = null
 
-    /**
-     * Returns the right hand.
-     *
-     * ARCore does not support hand tracking, so this property is always null.
-     */
     override val rightHand: Hand? = null
 
-    /**
-     * Returns the face
-     *
-     * ARCore does not support face tracking, so this property is always null.
-     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) override val userFace: Face? = null
 
-    /** Returns the [Geospatial] instance. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override val geospatial: ArCoreEarth = xrResources.geospatial
 
-    /** Returns the [ArDevice] instance. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override val arDevice: ArCoreDevice = xrResources.arDevice
 
-    /**
-     * Returns the left [RenderViewpoint] object.
-     *
-     * This is not available in ARCore.
-     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override val leftRenderViewpoint: RenderViewpoint? = null
 
-    /**
-     * Returns the right [RenderViewpoint] object.
-     *
-     * This is not available in ARCore.
-     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override val rightRenderViewpoint: RenderViewpoint? = null
 
-    /**
-     * Returns the mono[RenderViewpoint] object.
-     *
-     * This is not currently implemented in ARCore.
-     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override val monoRenderViewpoint: RenderViewpoint? = null
 
-    /**
-     * Returns the left [DepthMap] object.
-     *
-     * This is not available in ARCore.
-     */
     override val leftDepthMap: DepthMap? = null
 
-    /**
-     * Returns the right [DepthMap] object.
-     *
-     * This is not available in ARCore.
-     */
     override val rightDepthMap: DepthMap? = null
 
-    /** Returns the mono [DepthMap] object. */
     override val monoDepthMap: DepthMap?
         get() = xrResources.depthMap
 
@@ -286,7 +249,7 @@ internal constructor(private val timeSource: ArCoreTimeSource) : PerceptionManag
 
         arDevice.update(_latestFrame)
 
-        if (depthEstimationMode != Config.DepthEstimationMode.DISABLED) {
+        if (depthEstimationMode != DepthEstimationMode.DISABLED) {
             xrResources.depthMap.update(_latestFrame)
         }
 
@@ -314,9 +277,9 @@ internal constructor(private val timeSource: ArCoreTimeSource) : PerceptionManag
     /**
      * Sets the Depth Estimation Mode for the Perception Manager and the [xrResources.depthMap]
      *
-     * @param depthMode The desired [Config.DepthEstimationMode].
+     * @param depthMode the desired [DepthEstimationMode]
      */
-    public fun setDepthEstimationMode(depthMode: Config.DepthEstimationMode) {
+    public fun setDepthEstimationMode(depthMode: DepthEstimationMode) {
         depthEstimationMode = depthMode
         xrResources.depthMap.updateDepthEstimationMode(depthMode)
     }
@@ -330,11 +293,11 @@ internal constructor(private val timeSource: ArCoreTimeSource) : PerceptionManag
         xrResources.depthMap.dispose()
     }
 
-    internal fun setCameraFacingDirection(facingDirection: Config.CameraFacingDirection) {
+    internal fun setCameraFacingDirection(facingDirection: CameraFacingDirection) {
         val arCoreFacingDirection =
             when (facingDirection) {
-                Config.CameraFacingDirection.USER -> CameraConfig.FacingDirection.FRONT
-                Config.CameraFacingDirection.WORLD -> CameraConfig.FacingDirection.BACK
+                CameraFacingDirection.USER -> CameraConfig.FacingDirection.FRONT
+                CameraFacingDirection.WORLD -> CameraConfig.FacingDirection.BACK
                 else ->
                     throw IllegalArgumentException(
                         "Unsupported CameraFacingDirection ${facingDirection}."

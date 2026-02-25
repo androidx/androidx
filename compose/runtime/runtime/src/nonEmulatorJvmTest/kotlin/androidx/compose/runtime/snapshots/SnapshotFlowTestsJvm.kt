@@ -16,6 +16,7 @@
 
 package androidx.compose.runtime.snapshots
 
+import androidx.compose.runtime.ExperimentalComposeRuntimeApi
 import androidx.compose.runtime.SnapshotFlowManager
 import androidx.compose.runtime.internal.AtomicBoolean
 import androidx.compose.runtime.mutableIntStateOf
@@ -23,6 +24,7 @@ import androidx.compose.runtime.snapshotFlow
 import kotlin.concurrent.thread
 import kotlin.test.Test
 import kotlin.test.fail
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -49,6 +51,7 @@ class SnapshotFlowTestsJvm {
      * the [SnapshotFlowManager] backing the [snapshotFlow] are determined by
      * [snapshotFlowManagerKind].
      */
+    @OptIn(ExperimentalComposeRuntimeApi::class)
     private fun snapshotFlowManagerRaceTestsImpl(snapshotFlowManagerKind: SnapshotFlowManagerKind) =
         runBlocking {
             (0 until 100).forEach { _ ->
@@ -67,14 +70,29 @@ class SnapshotFlowTestsJvm {
                     thread(name = "collector") {
                         runBlocking {
                             var manager: SnapshotFlowManager? = null
+                            var launchSupplementalJob: ((CoroutineScope) -> Unit)? = null
                             if (
                                 snapshotFlowManagerKind ==
                                     SnapshotFlowManagerKind.MULTI_SUBSCRIPTION
                             ) {
                                 manager = SnapshotFlowManager()
-                                supplementalJob =
-                                    snapshotFlowFactory(manager) { stateObjects[0].intValue }
-                                        .launchIn(this)
+                                launchSupplementalJob = { scope ->
+                                    supplementalJob =
+                                        snapshotFlowFactory(manager) {
+                                                stateObjects.first().intValue
+                                            }
+                                            .onEach {
+                                                // The cancellation of the supplemental job is
+                                                // intertwined with
+                                                // [Snapshot.sendApplyNotifications] calls (see
+                                                // [mutator]) so that this test can also cover races
+                                                // between the cancellation of a [snapshotFlow] and
+                                                // [Snapshot.sendApplyNotifications] calls running
+                                                // on another thread.
+                                                supplementalJob!!.cancel()
+                                            }
+                                            .launchIn(scope)
+                                }
                             }
 
                             job =
@@ -84,6 +102,14 @@ class SnapshotFlowTestsJvm {
                                     .onEach { l ->
                                         if (l.all { it == 1 }) {
                                             firstValueReceived.set(true)
+                                            // The launching of the supplemental job is intertwined
+                                            // with [Snapshot.sendApplyNotifications] calls (see
+                                            // [mutator]) so that this test can also cover races
+                                            // between the promotion of a
+                                            // [SingleSubscriptionSnapshotFlowManager] and
+                                            // [Snapshot.sendApplyNotifications] calls running on
+                                            // another thread.
+                                            launchSupplementalJob?.invoke(this)
                                         } else if (l.all { it == 2 }) {
                                             // If the `snapshotFlow` fails to emit an array full of
                                             // `2`s because data corruption causes the manager to
@@ -105,11 +131,6 @@ class SnapshotFlowTestsJvm {
                             Snapshot.sendApplyNotifications()
                         }
                     }
-                // The cancellation of the supplemental job is intertwined with the
-                // [Snapshot.sendApplyNotifications] calls so that this test can also cover races
-                // between the cancellation of a [snapshotFlow] and
-                // [Snapshot.sendApplyNotifications] calls running on another thread.
-                supplementalJob?.cancel()
 
                 var timesDelayed = 0
                 while (!lastValueReceived.get() && timesDelayed < 1000) {
@@ -157,7 +178,15 @@ class SnapshotFlowTestsJvm {
                     runBlocking {
                         lateinit var job: Job
                         job =
-                            snapshotFlow { state.intValue }
+                            snapshotFlow {
+                                    Snapshot.takeSnapshot().run {
+                                        try {
+                                            enter { state.intValue }
+                                        } finally {
+                                            dispose()
+                                        }
+                                    }
+                                }
                                 .onEach {
                                     if (it == timesToIncrementState) {
                                         job.cancel()
@@ -179,6 +208,7 @@ class SnapshotFlowTestsJvm {
 
     companion object {
         // Like `snapshotFlow`, but with a nullable `manager` parameter.
+        @OptIn(ExperimentalComposeRuntimeApi::class)
         fun <T> snapshotFlowFactory(manager: SnapshotFlowManager?, block: () -> T): Flow<T> {
             return if (manager == null) {
                 snapshotFlow(block)

@@ -27,8 +27,7 @@ internal expect inline fun TraceContext.currentProcessTrack(): ProcessTrack
 // False positive: https://youtrack.jetbrains.com/issue/KTIJ-22326
 @Suppress("OPTIONAL_DECLARATION_USAGE_IN_NON_COMMON_SOURCE")
 @RestrictTo(Scope.LIBRARY_GROUP)
-public class PerfettoTracer(context: TraceContext, name: String) :
-    Tracer(name = name, isEnabled = context.isEnabled) {
+public class PerfettoTracer(context: TraceContext) : Tracer(isEnabled = context.isEnabled) {
     // The process track
     @JvmField internal var process: ProcessTrack = context.currentProcessTrack()
 
@@ -80,13 +79,14 @@ public class PerfettoTracer(context: TraceContext, name: String) :
 
     @ExperimentalContextPropagation
     override fun tokenForManualPropagation(): PropagationToken {
-        return inheritedPropagationToken(parent = null, track = currentThreadTrack())
+        return inheritedPropagationToken(parent = null, tracer = this)
     }
 
     @DelicateTracingApi
-    override suspend fun tokenFromCoroutineContext(): PlatformThreadContextElement<*> {
-        val parent = currentCoroutineContext()[PlatformThreadContextElement.KEY]
-        val current = inheritedCoroutinePropagationToken(parent, currentThreadTrack())
+    override suspend fun tokenFromCoroutineContext():
+        PlatformThreadContextElement<*, PerfettoTracer> {
+        val parent = currentCoroutineContext().platformThreadContextElement()
+        val current = inheritedCoroutinePropagationToken(parent, tracer = this)
         return current
     }
 
@@ -106,11 +106,12 @@ public class PerfettoTracer(context: TraceContext, name: String) :
                 token = PropagationUnsupportedToken,
             )
         } else {
+            @Suppress("UNCHECKED_CAST")
             val parent =
-                token as? PlatformThreadContextElement<*>
+                token as? PlatformThreadContextElement<*, PerfettoTracer>
                     ?: throw IllegalArgumentException("Unsupported token type $token")
             val track = currentThreadTrack()
-            val tokenElement = inheritedPropagationToken(parent = parent, track = track)
+            val tokenElement = inheritedPropagationToken(parent = parent, tracer = this)
             track.beginCoroutineSection(category = category, name = name, token = tokenElement)
         }
     }
@@ -139,17 +140,15 @@ public class PerfettoTracer(context: TraceContext, name: String) :
                     tokenFromCoroutineContext()
                 } else {
                     // Context Propagation is explicit.
+                    @Suppress("UNCHECKED_CAST")
                     val parent =
-                        token as? PlatformThreadContextElement<*>
+                        token as? PlatformThreadContextElement<*, PerfettoTracer>
                             ?: throw IllegalArgumentException("Unsupported token type $token")
-                    inheritedCoroutinePropagationToken(
-                        parent = parent,
-                        track = currentThreadTrack(),
-                    )
+                    inheritedCoroutinePropagationToken(parent = parent, tracer = this)
                 }
             tokenElement.name = name
             tokenElement.category = category
-            val track = tokenElement.owner
+            val track = tokenElement.tracer.currentThreadTrack()
             track.beginCoroutineSection(category = category, name = name, token = tokenElement)
         }
     }
@@ -165,9 +164,5 @@ public class PerfettoTracer(context: TraceContext, name: String) :
     override fun instant(category: String, name: String): EventMetadataCloseable {
         val track = currentThreadTrack()
         return track.instant(category = category, name = name)
-    }
-
-    override fun close() {
-        // Does nothing
     }
 }

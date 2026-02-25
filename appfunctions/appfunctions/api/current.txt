@@ -200,9 +200,9 @@ package androidx.appfunctions {
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface AppFunctionSerializable {
-    ctor @KotlinOnly public AppFunctionSerializable(optional boolean isDescribedByKdoc);
-    method @InaccessibleFromKotlin public abstract boolean isDescribedByKdoc() default false;
-    property public abstract boolean isDescribedByKdoc;
+    ctor @KotlinOnly public AppFunctionSerializable(optional boolean isDescribedByKDoc);
+    method @InaccessibleFromKotlin public abstract boolean isDescribedByKDoc() default false;
+    property public abstract boolean isDescribedByKDoc;
   }
 
   @RequiresApi(android.os.Build.VERSION_CODES.BAKLAVA) public abstract class AppFunctionService extends android.app.appfunctions.AppFunctionService {
@@ -225,7 +225,7 @@ package androidx.appfunctions {
     ctor @BytecodeOnly public AppFunctionSystemUnknownException(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
-  @androidx.appfunctions.AppFunctionSerializable(isDescribedByKdoc=true) public final class AppFunctionTextResource {
+  @androidx.appfunctions.AppFunctionSerializable(isDescribedByKDoc=true) public final class AppFunctionTextResource {
     ctor public AppFunctionTextResource(String mimeType, String content);
     method @InaccessibleFromKotlin public String getContent();
     method @InaccessibleFromKotlin public String getMimeType();
@@ -253,6 +253,8 @@ package androidx.appfunctions {
     method @InaccessibleFromKotlin public String getFunctionIdentifier();
     method @InaccessibleFromKotlin public androidx.appfunctions.AppFunctionData getFunctionParameters();
     method @InaccessibleFromKotlin public String getTargetPackageName();
+    method @RequiresApi(android.os.Build.VERSION_CODES.BAKLAVA) public static androidx.appfunctions.ExecuteAppFunctionRequest toCompatExecuteAppFunctionRequest(android.app.appfunctions.ExecuteAppFunctionRequest, androidx.appfunctions.metadata.AppFunctionMetadata functionMetadata);
+    method @RequiresApi(android.os.Build.VERSION_CODES.BAKLAVA) public android.app.appfunctions.ExecuteAppFunctionRequest toPlatformExecuteAppFunctionRequest();
     property public String functionIdentifier;
     property public androidx.appfunctions.AppFunctionData functionParameters;
     property public String targetPackageName;
@@ -260,6 +262,7 @@ package androidx.appfunctions {
   }
 
   public static final class ExecuteAppFunctionRequest.Companion {
+    method @RequiresApi(android.os.Build.VERSION_CODES.BAKLAVA) public androidx.appfunctions.ExecuteAppFunctionRequest toCompatExecuteAppFunctionRequest(android.app.appfunctions.ExecuteAppFunctionRequest, androidx.appfunctions.metadata.AppFunctionMetadata functionMetadata);
   }
 
   public sealed exhaustive interface ExecuteAppFunctionResponse {
@@ -274,12 +277,15 @@ package androidx.appfunctions {
   public static final class ExecuteAppFunctionResponse.Success implements androidx.appfunctions.ExecuteAppFunctionResponse {
     ctor public ExecuteAppFunctionResponse.Success(androidx.appfunctions.AppFunctionData returnValue);
     method @InaccessibleFromKotlin public androidx.appfunctions.AppFunctionData getReturnValue();
+    method @RequiresApi(android.os.Build.VERSION_CODES.BAKLAVA) public static androidx.appfunctions.ExecuteAppFunctionResponse.Success toCompatExecuteAppFunctionResponse(android.app.appfunctions.ExecuteAppFunctionResponse, androidx.appfunctions.metadata.AppFunctionMetadata functionMetadata);
+    method @RequiresApi(android.os.Build.VERSION_CODES.BAKLAVA) public android.app.appfunctions.ExecuteAppFunctionResponse toPlatformExecuteAppFunctionResponse();
     property public androidx.appfunctions.AppFunctionData returnValue;
     field public static final androidx.appfunctions.ExecuteAppFunctionResponse.Success.Companion Companion;
     field public static final String PROPERTY_RETURN_VALUE = "androidAppfunctionsReturnValue";
   }
 
   public static final class ExecuteAppFunctionResponse.Success.Companion {
+    method @RequiresApi(android.os.Build.VERSION_CODES.BAKLAVA) public androidx.appfunctions.ExecuteAppFunctionResponse.Success toCompatExecuteAppFunctionResponse(android.app.appfunctions.ExecuteAppFunctionResponse, androidx.appfunctions.metadata.AppFunctionMetadata functionMetadata);
     property public static String PROPERTY_RETURN_VALUE;
   }
 

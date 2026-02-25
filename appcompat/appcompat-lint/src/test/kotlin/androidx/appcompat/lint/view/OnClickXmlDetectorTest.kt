@@ -118,7 +118,7 @@ class OnClickXmlDetectorTest {
                         <activity android:name=".CustomActivity"/>
                     </application>
                 </manifest>
-            """
+                """
                     .trimIndent()
             )
 
@@ -137,10 +137,10 @@ class OnClickXmlDetectorTest {
             .run()
             .expect(
                 """
-res/layout/view_with_click.xml:10: Warning: Use databinding or explicit wiring of click listener in code [UsingOnClickInXml]
-        android:onClick="myButtonClick"
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 1 warnings
+                res/layout/view_with_click.xml:10: Warning: Use databinding or explicit wiring of click listener in code [UsingOnClickInXml]
+                        android:onClick="myButtonClick"
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                0 errors, 1 warnings
                 """
                     .trimIndent()
             )
@@ -166,7 +166,7 @@ res/layout/view_with_click.xml:10: Warning: Use databinding or explicit wiring o
                         <activity android:name=".CustomActivity"/>
                     </application>
                 </manifest>
-            """
+                """
                     .trimIndent()
             )
 
@@ -205,7 +205,7 @@ res/layout/view_with_click.xml:10: Warning: Use databinding or explicit wiring o
                         <activity android:name=".CustomActivity"/>
                     </application>
                 </manifest>
-            """
+                """
                     .trimIndent()
             )
 

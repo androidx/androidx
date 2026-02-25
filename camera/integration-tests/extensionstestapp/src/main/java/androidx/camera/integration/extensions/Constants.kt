@@ -30,8 +30,6 @@ const val PERMISSIONS_REQUEST_CODE = 42
 
 /** Intent extra keys to pass necessary information between the caller and callee activities. */
 object IntentExtraKey {
-    /** Launches the activity with the specified CameraX implementation. */
-    const val INTENT_EXTRA_CAMERA_IMPLEMENTATION = "camera_implementation"
 
     /**
      * Launches the activity with the specified direction of camera.
@@ -168,8 +166,6 @@ object RequestResultErrorCode {
     const val RESULT_ERROR_FAILED_TO_RETRIEVE_EXTENSIONS_MANAGER = 3
     /** Target testing extension mode is not supported on the target camera device. */
     const val RESULT_ERROR_EXTENSION_MOD_NOT_SUPPORTED = 4
-    /** Incorrect camera implementation. */
-    const val RESULT_ERROR_INCORRECT_CAMERA_IMPLEMENTATION = 5
     /** Failed to take a picture. */
-    const val RESULT_ERROR_TAKE_PICTURE_FAILED = 6
+    const val RESULT_ERROR_TAKE_PICTURE_FAILED = 5
 }

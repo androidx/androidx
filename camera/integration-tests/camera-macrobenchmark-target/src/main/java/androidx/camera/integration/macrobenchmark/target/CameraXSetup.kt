@@ -19,7 +19,6 @@ package androidx.camera.integration.macrobenchmark.target
 import android.content.Context
 import android.content.Intent
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
@@ -34,7 +33,6 @@ object CameraXSetup {
     fun Intent.toCameraXConfig() =
         when (extras?.getString("camerax_config")) {
             Camera2Config::class.simpleName -> Camera2Config.defaultConfig()
-            CameraPipeConfig::class.simpleName -> CameraPipeConfig.defaultConfig()
             else -> Camera2Config.defaultConfig()
         }
 

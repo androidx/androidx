@@ -21,7 +21,11 @@ import androidx.xr.arcore.runtime.ArDevice
 import androidx.xr.runtime.math.Pose
 import com.google.ar.core.Frame
 
-/** Provides access to the current [Frame]'s camera pose */
+/**
+ * Provides access to the current [Frame]'s camera pose.
+ *
+ * @property devicePose the [Pose] of the device
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class ArCoreDevice internal constructor() : ArDevice {
 

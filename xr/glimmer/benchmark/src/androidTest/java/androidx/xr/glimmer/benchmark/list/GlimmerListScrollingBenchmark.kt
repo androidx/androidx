@@ -21,8 +21,6 @@ package androidx.xr.glimmer.benchmark.list
 import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.gestures.FlingBehavior
-import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,6 +46,7 @@ import androidx.xr.glimmer.Text
 import androidx.xr.glimmer.benchmark.sendIndirectSwipe
 import androidx.xr.glimmer.list.ListState
 import androidx.xr.glimmer.list.VerticalList
+import androidx.xr.glimmer.testutils.NoFlingBehavior
 import androidx.xr.glimmer.testutils.createGlimmerRule
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -193,11 +192,5 @@ internal abstract class ScrollableGlimmerListTestCase(val listState: ListState) 
         private val SpacedBy = 12.dp
         private val ItemHeight = 50.dp
         private val ListHeight = 400.dp
-    }
-}
-
-private object NoFlingBehavior : FlingBehavior {
-    override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
-        return 0f
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.compose.remote.player.compose
+
+import androidx.annotation.RestrictTo
 
 /**
  * This is a collection of flags which are used to guard against regressions in some of the
@@ -48,8 +49,16 @@ package androidx.compose.remote.player.compose
  *          public static boolean SomeFeatureEnabled return false
  *      }
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @ExperimentalRemotePlayerApi
 public object RemoteComposePlayerFlags {
-    /** Whether to use the view player. If false, it uses the compose player. */
-    @field:Suppress("MutableBareField") @JvmField public var isViewPlayerEnabled: Boolean = true
+    /**
+     * Whether the [androidx.compose.remote.player.view.RemoteComposePlayer] should wrap the content
+     * size. This will only work for [androidx.compose.remote.core.CoreDocument] that contains
+     * [androidx.compose.remote.core.operations.Header.FEATURE_PAINT_MEASURE] with value zero.
+     */
+    // TODO(b/434130504): Remove flag once CoreDocument.DEFAULT_FEATURE_PAINT_MEASURE is set to zero
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var shouldPlayerWrapContentSize: Boolean = false
 }

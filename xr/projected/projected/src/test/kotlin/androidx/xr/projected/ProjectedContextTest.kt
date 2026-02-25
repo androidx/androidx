@@ -29,7 +29,6 @@ import androidx.xr.projected.ProjectedContext.PROJECTED_DEVICE_NAME
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
 import androidx.xr.projected.testing.ProjectedTestRule
 import com.google.common.truth.Truth.assertThat
-import java.util.concurrent.Executor
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertThrows
@@ -37,7 +36,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
+import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowDisplayManager
+import org.robolectric.shadows.ShadowVirtualDeviceManager
 import org.robolectric.util.ReflectionHelpers
 import org.robolectric.util.ReflectionHelpers.ClassParameter
 
@@ -210,17 +211,17 @@ class ProjectedContextTest {
         override fun getDeviceId() = deviceId
     }
 
-    // TODO: b/476403759 - Replace reflection with the shadow APIs when they are available.
-    private fun createVirtualDisplayForDevice(virtualDevice: Any?): VirtualDisplay {
-        val virtualDisplayConfig =
-            VirtualDisplayConfig.Builder(ProjectedContext.PROJECTED_DISPLAY_NAME, 10, 10, 10)
-                .build()
-        return ReflectionHelpers.callInstanceMethod(
-            virtualDevice,
-            "createVirtualDisplay",
-            ClassParameter(VirtualDisplayConfig::class.java, virtualDisplayConfig),
-            ClassParameter(Executor::class.java, null),
-            ClassParameter(VirtualDisplay.Callback::class.java, null),
-        )
-    }
+    private fun createVirtualDisplayForDevice(virtualDevice: Any?): VirtualDisplay =
+        Shadow.extract<ShadowVirtualDeviceManager.ShadowVirtualDevice>(virtualDevice)
+            .createVirtualDisplay(
+                VirtualDisplayConfig.Builder(
+                        ProjectedContext.PROJECTED_DISPLAY_NAME,
+                        /* width = */ 10,
+                        /* height = */ 10,
+                        /* densityDpi = */ 10,
+                    )
+                    .build(),
+                /* executor= */ null,
+                /* callback= */ null,
+            )
 }

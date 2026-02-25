@@ -60,7 +60,6 @@ public class ActivitySpaceImpl(
     extensions: XrExtensions,
     entityManager: EntityManager,
     private val spatialStateProvider: Supplier<SpatialState>,
-    private val unscaledGravityAlignedActivitySpace: Boolean,
     executor: ScheduledExecutorService,
 ) : SystemSpaceEntityImpl(activity, taskNode, extensions, entityManager, executor), ActivitySpace {
 
@@ -162,7 +161,7 @@ public class ActivitySpaceImpl(
                     "ActivitySpace is a root space and it does not have a parent."
                 )
             Space.ACTIVITY -> activitySpaceScale
-            Space.REAL_WORLD -> super.worldSpaceScale
+            Space.REAL_WORLD -> worldSpaceScale
             else -> throw IllegalArgumentException("Unsupported relativeTo value: $relativeTo")
         }
     }
@@ -189,9 +188,10 @@ public class ActivitySpaceImpl(
      * 2. The 'Scene Root Node' becomes a child of 'Scene Parent Node' and inherits its transform
      * when activity enters FULL_SPACE_MANAGED mode.
      * </pre>
-     * <p>By inverting the full inherited rotation and scale, SceneCore effectively re-orients the
-     * ActivitySpace to be unscaled and gravity-aligned like its grand parent OpenXR unbounded
-     * space.
+     * <p>By inverting the inherited scale and roll and pitch rotations of the scene parent
+     * transform, SceneCore effectively re-orients the ActivitySpace to be unscaled and
+     * gravity-aligned like its grandparent OpenXR unbounded space, while preserving its yaw
+     * rotation (i.e. facing user direction).
      *
      * <p>To maintain continuity when entering FSM, SceneCore provides the original rotation and
      * scale of the scene parent transform via the onSpatialModeChanged callback. This ensures FSM
@@ -200,41 +200,39 @@ public class ActivitySpaceImpl(
      * @param newTransform New scene parent transform relative to OpenXR unbounded reference space.
      */
     public fun handleOriginUpdate(newTransform: Matrix4) {
-        mOpenXrReferenceSpaceTransform.set(newTransform)
+        openXrReferenceSpaceTransform.set(newTransform)
         var transformScaleAbsolute = Vector3(1.0f, 1.0f, 1.0f)
         var activitySpaceRotation = Quaternion.Identity
 
-        if (unscaledGravityAlignedActivitySpace) {
-            val transformScale = newTransform.scale
-            transformScaleAbsolute =
-                Vector3(abs(transformScale.x), abs(transformScale.y), abs(transformScale.z))
-            // Get the unscaled rotation of the activity space.
-            activitySpaceRotation = newTransform.unscaled().rotation
-            val yaw = activitySpaceRotation.eulerAngles.y
-            val yawRotation = Quaternion.fromEulerAngles(0.0f, yaw, 0.0f)
-            val gravityAlignedRotation = activitySpaceRotation.inverse * yawRotation
-            mExtensions.createNodeTransaction().use { transaction ->
-                transaction
-                    .setScale(
-                        getNode(),
-                        1.0f / transformScaleAbsolute.x,
-                        1.0f / transformScaleAbsolute.y,
-                        1.0f / transformScaleAbsolute.z,
-                    )
-                    .setOrientation(
-                        getNode(),
-                        gravityAlignedRotation.x,
-                        gravityAlignedRotation.y,
-                        gravityAlignedRotation.z,
-                        gravityAlignedRotation.w,
-                    )
-                    .apply()
-            }
-            // Update the rotation to be sent out in onSpatialModeChanged.
-            // It needs to provide identity yaw rotation since we already preserved that part of
-            // original rotation for the activity space origin.
-            activitySpaceRotation = yawRotation.inverse * activitySpaceRotation
+        val transformScale = newTransform.scale
+        transformScaleAbsolute =
+            Vector3(abs(transformScale.x), abs(transformScale.y), abs(transformScale.z))
+        // Get the unscaled rotation of the activity space.
+        activitySpaceRotation = newTransform.unscaled().rotation
+        val yaw = activitySpaceRotation.eulerAngles.y
+        val yawRotation = Quaternion.fromEulerAngles(0.0f, yaw, 0.0f)
+        val gravityAlignedRotation = activitySpaceRotation.inverse * yawRotation
+        mExtensions.createNodeTransaction().use { transaction ->
+            transaction
+                .setScale(
+                    getNode(),
+                    1.0f / transformScaleAbsolute.x,
+                    1.0f / transformScaleAbsolute.y,
+                    1.0f / transformScaleAbsolute.z,
+                )
+                .setOrientation(
+                    getNode(),
+                    gravityAlignedRotation.x,
+                    gravityAlignedRotation.y,
+                    gravityAlignedRotation.z,
+                    gravityAlignedRotation.w,
+                )
+                .apply()
         }
+        // Update the rotation to be sent out in onSpatialModeChanged.
+        // It needs to provide identity yaw rotation since we already preserved that part of
+        // original rotation for the activity space origin.
+        activitySpaceRotation = yawRotation.inverse * activitySpaceRotation
 
         // The translation is zero - since the activity space origin has been already translated by
         // system. SceneCore is relaying the same rotation and scale that activity space would have
@@ -247,7 +245,7 @@ public class ActivitySpaceImpl(
 
     // TODO: b/469860602 - Remove this override once transform listener fix lands.
     override val worldSpaceScale: Vector3
-        get() = if (unscaledGravityAlignedActivitySpace) Vector3.One else super.worldSpaceScale
+        get() = Vector3.One
 
     override fun addOnBoundsChangedListener(listener: ActivitySpace.OnBoundsChangedListener) {
         boundsListeners.add(listener)

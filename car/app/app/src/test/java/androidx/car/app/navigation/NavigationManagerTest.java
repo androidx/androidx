@@ -116,6 +116,11 @@ public class NavigationManagerTest {
                     public void navigationEnded() throws RemoteException {
                         mMockNavHost.navigationEnded();
                     }
+
+                    @Override
+                    public int getInterfaceVersion() {
+                        return super.VERSION;
+                    }
                 };
         when(mMockCarHost.getHost(any())).thenReturn(navHostStub.asBinder());
 

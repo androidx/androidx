@@ -47,6 +47,7 @@ internal constructor(private val idProvider: (creationState: RemoteComposeCreati
             )
         })
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         idProvider(creationState)
 
@@ -99,6 +100,23 @@ internal constructor(private val idProvider: (creationState: RemoteComposeCreati
                     creationState.document.matrixExpression(
                         y.getFloatIdForCreationState(creationState),
                         MatrixOperations.TRANSLATE_Y,
+                    )
+                )
+            })
+
+        /**
+         * Creates a [RemoteMatrix3x3] that translates along the X-axis and the Y-axis.
+         *
+         * @param x The distance to translate along the X-axis.
+         * @param y The distance to translate along the Y-axis.
+         */
+        public fun createTranslateXY(x: RemoteFloat, y: RemoteFloat): RemoteMatrix3x3 =
+            RemoteMatrix3x3({ creationState ->
+                Utils.idFromNan(
+                    creationState.document.matrixExpression(
+                        x.getFloatIdForCreationState(creationState),
+                        y.getFloatIdForCreationState(creationState),
+                        MatrixOperations.TRANSLATE2,
                     )
                 )
             })

@@ -1,0 +1,83 @@
+// Klib ABI Dump
+// Targets: [linuxX64.linuxx64Stubs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.compose.material3.adaptive:adaptive>
+open annotation class androidx.compose.material3.adaptive/ExperimentalMaterial3AdaptiveApi : kotlin/Annotation { // androidx.compose.material3.adaptive/ExperimentalMaterial3AdaptiveApi|null[0]
+    constructor <init>() // androidx.compose.material3.adaptive/ExperimentalMaterial3AdaptiveApi.<init>|<init>(){}[0]
+}
+
+open annotation class androidx.compose.material3.adaptive/ExperimentalMaterial3AdaptiveComponentOverrideApi : kotlin/Annotation { // androidx.compose.material3.adaptive/ExperimentalMaterial3AdaptiveComponentOverrideApi|null[0]
+    constructor <init>() // androidx.compose.material3.adaptive/ExperimentalMaterial3AdaptiveComponentOverrideApi.<init>|<init>(){}[0]
+}
+
+final class androidx.compose.material3.adaptive/HingeInfo { // androidx.compose.material3.adaptive/HingeInfo|null[0]
+    constructor <init>(androidx.compose.ui.geometry/Rect, kotlin/Boolean, kotlin/Boolean, kotlin/Boolean, kotlin/Boolean) // androidx.compose.material3.adaptive/HingeInfo.<init>|<init>(androidx.compose.ui.geometry.Rect;kotlin.Boolean;kotlin.Boolean;kotlin.Boolean;kotlin.Boolean){}[0]
+
+    final val bounds // androidx.compose.material3.adaptive/HingeInfo.bounds|{}bounds[0]
+        final fun <get-bounds>(): androidx.compose.ui.geometry/Rect // androidx.compose.material3.adaptive/HingeInfo.bounds.<get-bounds>|<get-bounds>(){}[0]
+    final val isFlat // androidx.compose.material3.adaptive/HingeInfo.isFlat|{}isFlat[0]
+        final fun <get-isFlat>(): kotlin/Boolean // androidx.compose.material3.adaptive/HingeInfo.isFlat.<get-isFlat>|<get-isFlat>(){}[0]
+    final val isOccluding // androidx.compose.material3.adaptive/HingeInfo.isOccluding|{}isOccluding[0]
+        final fun <get-isOccluding>(): kotlin/Boolean // androidx.compose.material3.adaptive/HingeInfo.isOccluding.<get-isOccluding>|<get-isOccluding>(){}[0]
+    final val isSeparating // androidx.compose.material3.adaptive/HingeInfo.isSeparating|{}isSeparating[0]
+        final fun <get-isSeparating>(): kotlin/Boolean // androidx.compose.material3.adaptive/HingeInfo.isSeparating.<get-isSeparating>|<get-isSeparating>(){}[0]
+    final val isVertical // androidx.compose.material3.adaptive/HingeInfo.isVertical|{}isVertical[0]
+        final fun <get-isVertical>(): kotlin/Boolean // androidx.compose.material3.adaptive/HingeInfo.isVertical.<get-isVertical>|<get-isVertical>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.material3.adaptive/HingeInfo.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.material3.adaptive/HingeInfo.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.material3.adaptive/HingeInfo.toString|toString(){}[0]
+}
+
+final class androidx.compose.material3.adaptive/Posture { // androidx.compose.material3.adaptive/Posture|null[0]
+    constructor <init>(kotlin/Boolean = ..., kotlin.collections/List<androidx.compose.material3.adaptive/HingeInfo> = ...) // androidx.compose.material3.adaptive/Posture.<init>|<init>(kotlin.Boolean;kotlin.collections.List<androidx.compose.material3.adaptive.HingeInfo>){}[0]
+
+    final val hingeList // androidx.compose.material3.adaptive/Posture.hingeList|{}hingeList[0]
+        final fun <get-hingeList>(): kotlin.collections/List<androidx.compose.material3.adaptive/HingeInfo> // androidx.compose.material3.adaptive/Posture.hingeList.<get-hingeList>|<get-hingeList>(){}[0]
+    final val isTabletop // androidx.compose.material3.adaptive/Posture.isTabletop|{}isTabletop[0]
+        final fun <get-isTabletop>(): kotlin/Boolean // androidx.compose.material3.adaptive/Posture.isTabletop.<get-isTabletop>|<get-isTabletop>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.material3.adaptive/Posture.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.material3.adaptive/Posture.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.material3.adaptive/Posture.toString|toString(){}[0]
+}
+
+final class androidx.compose.material3.adaptive/WindowAdaptiveInfo { // androidx.compose.material3.adaptive/WindowAdaptiveInfo|null[0]
+    constructor <init>(androidx.window.core.layout/WindowSizeClass, androidx.compose.material3.adaptive/Posture) // androidx.compose.material3.adaptive/WindowAdaptiveInfo.<init>|<init>(androidx.window.core.layout.WindowSizeClass;androidx.compose.material3.adaptive.Posture){}[0]
+
+    final val windowPosture // androidx.compose.material3.adaptive/WindowAdaptiveInfo.windowPosture|{}windowPosture[0]
+        final fun <get-windowPosture>(): androidx.compose.material3.adaptive/Posture // androidx.compose.material3.adaptive/WindowAdaptiveInfo.windowPosture.<get-windowPosture>|<get-windowPosture>(){}[0]
+    final val windowSizeClass // androidx.compose.material3.adaptive/WindowAdaptiveInfo.windowSizeClass|{}windowSizeClass[0]
+        final fun <get-windowSizeClass>(): androidx.window.core.layout/WindowSizeClass // androidx.compose.material3.adaptive/WindowAdaptiveInfo.windowSizeClass.<get-windowSizeClass>|<get-windowSizeClass>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.material3.adaptive/WindowAdaptiveInfo.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.material3.adaptive/WindowAdaptiveInfo.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.material3.adaptive/WindowAdaptiveInfo.toString|toString(){}[0]
+}
+
+final val androidx.compose.material3.adaptive/allHorizontalHingeBounds // androidx.compose.material3.adaptive/allHorizontalHingeBounds|@androidx.compose.material3.adaptive.Posture{}allHorizontalHingeBounds[0]
+    final fun (androidx.compose.material3.adaptive/Posture).<get-allHorizontalHingeBounds>(): kotlin.collections/List<androidx.compose.ui.geometry/Rect> // androidx.compose.material3.adaptive/allHorizontalHingeBounds.<get-allHorizontalHingeBounds>|<get-allHorizontalHingeBounds>@androidx.compose.material3.adaptive.Posture(){}[0]
+final val androidx.compose.material3.adaptive/allVerticalHingeBounds // androidx.compose.material3.adaptive/allVerticalHingeBounds|@androidx.compose.material3.adaptive.Posture{}allVerticalHingeBounds[0]
+    final fun (androidx.compose.material3.adaptive/Posture).<get-allVerticalHingeBounds>(): kotlin.collections/List<androidx.compose.ui.geometry/Rect> // androidx.compose.material3.adaptive/allVerticalHingeBounds.<get-allVerticalHingeBounds>|<get-allVerticalHingeBounds>@androidx.compose.material3.adaptive.Posture(){}[0]
+final val androidx.compose.material3.adaptive/androidx_compose_material3_adaptive_HingeInfo$stableprop // androidx.compose.material3.adaptive/androidx_compose_material3_adaptive_HingeInfo$stableprop|#static{}androidx_compose_material3_adaptive_HingeInfo$stableprop[0]
+final val androidx.compose.material3.adaptive/androidx_compose_material3_adaptive_Posture$stableprop // androidx.compose.material3.adaptive/androidx_compose_material3_adaptive_Posture$stableprop|#static{}androidx_compose_material3_adaptive_Posture$stableprop[0]
+final val androidx.compose.material3.adaptive/androidx_compose_material3_adaptive_WindowAdaptiveInfo$stableprop // androidx.compose.material3.adaptive/androidx_compose_material3_adaptive_WindowAdaptiveInfo$stableprop|#static{}androidx_compose_material3_adaptive_WindowAdaptiveInfo$stableprop[0]
+final val androidx.compose.material3.adaptive/occludingHorizontalHingeBounds // androidx.compose.material3.adaptive/occludingHorizontalHingeBounds|@androidx.compose.material3.adaptive.Posture{}occludingHorizontalHingeBounds[0]
+    final fun (androidx.compose.material3.adaptive/Posture).<get-occludingHorizontalHingeBounds>(): kotlin.collections/List<androidx.compose.ui.geometry/Rect> // androidx.compose.material3.adaptive/occludingHorizontalHingeBounds.<get-occludingHorizontalHingeBounds>|<get-occludingHorizontalHingeBounds>@androidx.compose.material3.adaptive.Posture(){}[0]
+final val androidx.compose.material3.adaptive/occludingVerticalHingeBounds // androidx.compose.material3.adaptive/occludingVerticalHingeBounds|@androidx.compose.material3.adaptive.Posture{}occludingVerticalHingeBounds[0]
+    final fun (androidx.compose.material3.adaptive/Posture).<get-occludingVerticalHingeBounds>(): kotlin.collections/List<androidx.compose.ui.geometry/Rect> // androidx.compose.material3.adaptive/occludingVerticalHingeBounds.<get-occludingVerticalHingeBounds>|<get-occludingVerticalHingeBounds>@androidx.compose.material3.adaptive.Posture(){}[0]
+final val androidx.compose.material3.adaptive/separatingHorizontalHingeBounds // androidx.compose.material3.adaptive/separatingHorizontalHingeBounds|@androidx.compose.material3.adaptive.Posture{}separatingHorizontalHingeBounds[0]
+    final fun (androidx.compose.material3.adaptive/Posture).<get-separatingHorizontalHingeBounds>(): kotlin.collections/List<androidx.compose.ui.geometry/Rect> // androidx.compose.material3.adaptive/separatingHorizontalHingeBounds.<get-separatingHorizontalHingeBounds>|<get-separatingHorizontalHingeBounds>@androidx.compose.material3.adaptive.Posture(){}[0]
+final val androidx.compose.material3.adaptive/separatingVerticalHingeBounds // androidx.compose.material3.adaptive/separatingVerticalHingeBounds|@androidx.compose.material3.adaptive.Posture{}separatingVerticalHingeBounds[0]
+    final fun (androidx.compose.material3.adaptive/Posture).<get-separatingVerticalHingeBounds>(): kotlin.collections/List<androidx.compose.ui.geometry/Rect> // androidx.compose.material3.adaptive/separatingVerticalHingeBounds.<get-separatingVerticalHingeBounds>|<get-separatingVerticalHingeBounds>@androidx.compose.material3.adaptive.Posture(){}[0]
+
+final fun androidx.compose.material3.adaptive/androidx_compose_material3_adaptive_HingeInfo$stableprop_getter(): kotlin/Int // androidx.compose.material3.adaptive/androidx_compose_material3_adaptive_HingeInfo$stableprop_getter|androidx_compose_material3_adaptive_HingeInfo$stableprop_getter(){}[0]
+final fun androidx.compose.material3.adaptive/androidx_compose_material3_adaptive_Posture$stableprop_getter(): kotlin/Int // androidx.compose.material3.adaptive/androidx_compose_material3_adaptive_Posture$stableprop_getter|androidx_compose_material3_adaptive_Posture$stableprop_getter(){}[0]
+final fun androidx.compose.material3.adaptive/androidx_compose_material3_adaptive_WindowAdaptiveInfo$stableprop_getter(): kotlin/Int // androidx.compose.material3.adaptive/androidx_compose_material3_adaptive_WindowAdaptiveInfo$stableprop_getter|androidx_compose_material3_adaptive_WindowAdaptiveInfo$stableprop_getter(){}[0]
+final fun androidx.compose.material3.adaptive/currentWindowAdaptiveInfo(kotlin/Boolean, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int): androidx.compose.material3.adaptive/WindowAdaptiveInfo // androidx.compose.material3.adaptive/currentWindowAdaptiveInfo|currentWindowAdaptiveInfo(kotlin.Boolean;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
+final fun androidx.compose.material3.adaptive/currentWindowDpSize(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.ui.unit/DpSize // androidx.compose.material3.adaptive/currentWindowDpSize|currentWindowDpSize(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final fun androidx.compose.material3.adaptive/currentWindowSize(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.ui.unit/IntSize // androidx.compose.material3.adaptive/currentWindowSize|currentWindowSize(androidx.compose.runtime.Composer?;kotlin.Int){}[0]

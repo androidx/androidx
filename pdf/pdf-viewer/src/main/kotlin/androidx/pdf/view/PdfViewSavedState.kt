@@ -34,6 +34,7 @@ internal class PdfViewSavedState : AbsSavedState {
     var zoom: Float = 1F
     var isFormFillingEnabled: Boolean = false
     var isFormFillingTooltipEnabled: Boolean = false
+    var isImageSelectionEnabled: Boolean = false
     var pagesPerRow: Int = PdfView.SINGLE_PAGE
     var horizontalPageSpacing: Int = 20
     var verticalPageSpacing: Int = 20
@@ -74,6 +75,7 @@ internal class PdfViewSavedState : AbsSavedState {
         viewWidth = parcel.readInt()
         isFormFillingEnabled = parcel.readBoolean()
         isFormFillingTooltipEnabled = parcel.readBoolean()
+        isImageSelectionEnabled = parcel.readBoolean()
         pagesPerRow = parcel.readInt()
         horizontalPageSpacing = parcel.readInt()
         verticalPageSpacing = parcel.readInt()
@@ -95,6 +97,7 @@ internal class PdfViewSavedState : AbsSavedState {
         dest.writeInt(viewWidth)
         dest.writeBoolean(isFormFillingEnabled)
         dest.writeBoolean(isFormFillingTooltipEnabled)
+        dest.writeBoolean(isImageSelectionEnabled)
         dest.writeInt(pagesPerRow)
         dest.writeInt(horizontalPageSpacing)
         dest.writeInt(verticalPageSpacing)

@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.wear.compose.foundation.lazy.MeasurementDirection
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollProgress
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnParentData
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -306,8 +307,10 @@ internal class LazyLayoutAnimationSpecsNode(
     var placementSpec: FiniteAnimationSpec<IntOffset>?,
     var fadeOutSpec: FiniteAnimationSpec<Float>?,
 ) : Modifier.Node(), ParentDataModifierNode {
-
-    override fun Density.modifyParentData(parentData: Any?): Any = this@LazyLayoutAnimationSpecsNode
+    override fun Density.modifyParentData(parentData: Any?): Any =
+        (parentData as? TransformingLazyColumnParentData)?.copy(
+            animationSpecs = this@LazyLayoutAnimationSpecsNode
+        ) ?: TransformingLazyColumnParentData(animationSpecs = this@LazyLayoutAnimationSpecsNode)
 }
 
 /** We switch to this spec when a duration based animation is being interrupted. */

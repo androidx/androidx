@@ -29,6 +29,8 @@ import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.plus
 import androidx.compose.remote.creation.times
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 
 @Suppress("RestrictedApiAndroidX")
 fun MClock(): RemoteComposeWriter {
@@ -207,3 +209,5 @@ private class MClockColorPack(val rc: RemoteComposeContextAndroid) {
             return color
         }
 }
+
+@Preview @Composable private fun MClockPreview() = RemoteDocPreview(MClock())

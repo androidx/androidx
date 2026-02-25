@@ -221,7 +221,7 @@ package androidx.paging {
     method @InaccessibleFromKotlin @Deprecated public abstract boolean isDetached();
     method @InaccessibleFromKotlin @Deprecated public boolean isImmutable();
     method @Deprecated public final void loadAround(int index);
-    method @BytecodeOnly @Deprecated public final T! remove(int);
+    method @BytecodeOnly @Deprecated public final T remove(int);
     method @BytecodeOnly @Deprecated public Object! removeAt(int);
     method @Deprecated public final void removeWeakCallback(androidx.paging.PagedList.Callback callback);
     method @Deprecated public final void removeWeakLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);

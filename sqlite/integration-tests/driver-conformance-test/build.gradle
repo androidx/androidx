@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -85,6 +84,7 @@ androidXMultiplatform {
         packaging.jniLibs.useLegacyPackaging = true
     }
     ios()
+    js()
     jvm() {
         addNativeLibrariesToResources(it, extensionCompilation)
     }
@@ -92,26 +92,45 @@ androidXMultiplatform {
     mac()
     tvos()
     watchos()
+    wasmJs()
 
     sourceSets {
         commonTest.dependencies {
             implementation(project(":sqlite:sqlite"))
-            implementation(project(":sqlite:sqlite-bundled"))
             implementation(libs.kotlinTest)
             implementation(libs.kotlinCoroutinesTest)
             implementation(project(":kruth:kruth"))
         }
-        androidDeviceTest.dependencies {
-            implementation(project(":sqlite:sqlite-framework"))
-            implementation(libs.kotlinTestJunit)
-            implementation(libs.testRunner)
-            implementation(libs.testCore)
+        nonWebTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(project(":sqlite:sqlite-bundled"))
+            }
         }
-        jvmTest.dependencies {
-            implementation(libs.kotlinTestJunit)
+        androidDeviceTest {
+            dependsOn(nonWebTest)
+            dependencies {
+                implementation(project(":sqlite:sqlite-framework"))
+                implementation(libs.kotlinTestJunit)
+                implementation(libs.testRunner)
+                implementation(libs.testCore)
+            }
         }
-        nativeTest.dependencies {
-            implementation(project(":sqlite:sqlite-framework"))
+        webTest.dependencies {
+            implementation(project(":sqlite:sqlite-web"))
+            implementation(project(":sqlite:sqlite-web-worker-test"))
+        }
+        jvmTest {
+            dependsOn(nonWebTest)
+            dependencies {
+                implementation(libs.kotlinTestJunit)
+            }
+        }
+        nativeTest {
+            dependsOn(nonWebTest)
+            dependencies {
+                implementation(project(":sqlite:sqlite-framework"))
+            }
         }
         targets.configureEach { target ->
             if (target.platformType == KotlinPlatformType.native) {
@@ -119,7 +138,7 @@ androidXMultiplatform {
                 // see GenerateLoadableExtensionSource.groovy impl
                 if (extensionCompilation.canCompileOnCurrentHost(target.konanTarget)) {
                     extensionCompilation.configureTarget(target.konanTarget)
-                    configureLoadableExtensionTask(project, target, extensionCompilation.sharedObjectOutputFor(target.konanTarget))
+                    project.ext.configureLoadableExtensionTask(project, target, extensionCompilation.sharedObjectOutputFor(target.konanTarget))
                 }
             }
         }

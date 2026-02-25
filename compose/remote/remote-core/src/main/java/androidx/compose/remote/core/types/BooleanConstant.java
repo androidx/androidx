@@ -125,7 +125,7 @@ public class BooleanConstant extends Operation implements Serializable {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Expressions Operations", OP_CODE, "BooleanConstant")
+        doc.operation("Data Operations", OP_CODE, "BooleanConstant")
                 .description("A boolean and its associated id")
                 .field(DocumentedOperation.INT, "id", "id of Int")
                 .field(BYTE, "value", "8-bit 0 or 1");

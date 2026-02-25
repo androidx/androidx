@@ -16,7 +16,6 @@
 
 package androidx.xr.compose.subspace.layout
 
-import androidx.annotation.RestrictTo
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.xr.runtime.math.Pose
 
@@ -94,7 +93,6 @@ public abstract class SubspacePlaceable {
          *
          * @param pose The pose of the layout.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun SubspacePlaceable.placeRelative(pose: Pose) {
             var newPose = pose
             if (parentLayoutDirection == LayoutDirection.Rtl) {

@@ -35,7 +35,7 @@ import kotlin.jvm.JvmStatic
  * crosses over itself, as though each coat were painted in its entirety one at a time.
  */
 @ExperimentalInkCustomBrushApi
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @Suppress("NotCloseable") // Finalize is only used to free the native peer.
 public class BrushCoat
 private constructor(
@@ -87,8 +87,14 @@ private constructor(
      * @param tip The tip used to apply the paint.
      * @param paint The paint to be applied for this coat.
      */
-    @JvmOverloads
-    public constructor(tip: BrushTip = BrushTip(), paint: BrushPaint) : this(tip, listOf(paint))
+    public constructor(tip: BrushTip, paint: BrushPaint) : this(tip, listOf(paint))
+
+    /**
+     * Creates a [BrushCoat] with the given [paint] and the default [BrushTip].
+     *
+     * @param paint The paint to be applied for this coat.
+     */
+    public constructor(paint: BrushPaint) : this(BrushTip(), listOf(paint))
 
     /**
      * Creates a copy of `this` and allows named properties to be altered while keeping the rest

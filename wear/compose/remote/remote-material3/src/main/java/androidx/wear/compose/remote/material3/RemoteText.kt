@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 @file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@file:Suppress("RestrictedApiAndroidX")
 
 package androidx.wear.compose.remote.material3
 
@@ -24,19 +23,18 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.RemoteTextUnit
+import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.TextUnit
 import androidx.wear.compose.material3.LocalTextConfiguration
-import androidx.wear.compose.material3.LocalTextStyle
 
 /**
  * High level element that displays text and provides semantics / accessibility information.
@@ -68,17 +66,18 @@ import androidx.wear.compose.material3.LocalTextStyle
 public fun RemoteText(
     text: RemoteString,
     modifier: RemoteModifier = RemoteModifier,
-    color: RemoteColor? = LocalRemoteContentColor.current,
-    fontSize: TextUnit = TextUnit.Unspecified,
+    color: RemoteColor? = null,
+    fontSize: RemoteTextUnit? = null,
     fontStyle: FontStyle? = null,
     fontWeight: FontWeight? = null,
     fontFamily: FontFamily? = null,
     textAlign: TextAlign? = LocalTextConfiguration.current.textAlign,
     overflow: TextOverflow = LocalTextConfiguration.current.overflow,
     maxLines: Int = LocalTextConfiguration.current.maxLines,
-    style: TextStyle = LocalTextStyle.current,
+    style: RemoteTextStyle = LocalRemoteTextStyle.current,
     fontVariationSettings: FontVariation.Settings? = null,
 ) {
+    val color = color ?: style.color ?: LocalRemoteContentColor.current
     androidx.compose.remote.creation.compose.layout.RemoteText(
         text = text,
         modifier = modifier,

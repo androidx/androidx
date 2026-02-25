@@ -65,20 +65,20 @@ class TransitionStabilityTest {
         val transition =
             Transition(
                 """
-            {
-              from: 'start',
-              to: 'end',
-              KeyFrames: {
-                KeyAttributes: [
-                  {
-                    target: ['a'],
-                    frames: [20, 80],
-                    alpha: [0.2, 0.8],
+                {
+                  from: 'start',
+                  to: 'end',
+                  KeyFrames: {
+                    KeyAttributes: [
+                      {
+                        target: ['a'],
+                        frames: [20, 80],
+                        alpha: [0.2, 0.8],
+                      }
+                    ],
                   }
-                ],
-              }
-            }
-        """
+                }
+                """
                     .trimIndent()
             )
 
@@ -86,20 +86,20 @@ class TransitionStabilityTest {
             transition,
             Transition(
                 """
-            {
-              from: 'start',
-              to: 'end',
-              KeyFrames: {
-                KeyAttributes: [
-                  {
-                    target: ['a'],
-                    frames: [20, 80],
-                    alpha: [0.2, 0.8],
+                {
+                  from: 'start',
+                  to: 'end',
+                  KeyFrames: {
+                    KeyAttributes: [
+                      {
+                        target: ['a'],
+                        frames: [20, 80],
+                        alpha: [0.2, 0.8],
+                      }
+                    ],
                   }
-                ],
-              }
-            }
-            """
+                }
+                """
                     .trimIndent()
             ),
         )

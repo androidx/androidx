@@ -169,6 +169,8 @@ internal open class UwbClientSessionScopeAospImpl(
                             Log.w(TAG, "Failed to send RangingResultFailure", throwable)
                         }
                 }
+
+                override fun getInterfaceVersion(): Int = VERSION
             }
 
         try {

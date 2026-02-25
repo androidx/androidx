@@ -16,7 +16,6 @@
 
 package androidx.pdf.testapp.ui
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -34,7 +33,6 @@ import androidx.pdf.testapp.databinding.FragmentXmlStyledPdfBinding
 import androidx.pdf.viewer.fragment.PdfViewerFragment
 import com.google.android.material.button.MaterialButton
 
-@SuppressLint("RestrictedApiAndroidX")
 class XmlStyledPdfFragment : Fragment() {
 
     private lateinit var binding: FragmentXmlStyledPdfBinding

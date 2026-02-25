@@ -22,6 +22,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.FaceTrackingMode
 import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.internal.FaceTrackingNotCalibratedException
 import com.google.common.truth.Truth.assertThat
@@ -98,9 +99,9 @@ class OpenXrFaceTest {
 
             // Configure twice because the stubs return false calibration the first time
             try {
-                openXrManager.configure(Config(faceTracking = Config.FaceTrackingMode.BLEND_SHAPES))
+                openXrManager.configure(Config(faceTracking = FaceTrackingMode.BLEND_SHAPES))
             } catch (e: FaceTrackingNotCalibratedException) {
-                openXrManager.configure(Config(faceTracking = Config.FaceTrackingMode.BLEND_SHAPES))
+                openXrManager.configure(Config(faceTracking = FaceTrackingMode.BLEND_SHAPES))
             }
 
             testBody()

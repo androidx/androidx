@@ -29,17 +29,17 @@ class DatabaseConstructorProcessorTest {
         Source.kotlin(
             "Database.kt",
             """
-        package test
+            package test
 
-        import androidx.room3.*
+            import androidx.room3.*
 
-        @Database(entities = [TestEntity::class], version = 1, exportSchemas = false)
-        @ConstructedBy(TestDatabaseCtor::class)
-        abstract class TestDatabase : RoomDatabase
+            @Database(entities = [TestEntity::class], version = 1, exportSchemas = false)
+            @ConstructedBy(TestDatabaseCtor::class)
+            abstract class TestDatabase : RoomDatabase
 
-        @Entity
-        data class TestEntity(@PrimaryKey val id: Long)
-        """
+            @Entity
+            data class TestEntity(@PrimaryKey val id: Long)
+            """
                 .trimIndent(),
         )
 

@@ -1601,7 +1601,7 @@ public final class ImageCapture extends UseCase {
         }
         boolean isSimultaneousCapture = getCurrentConfig()
                 .getSecondaryInputFormat() != ImageFormat.UNKNOWN;
-        if (isSimultaneousCapture && secondaryOutputFileOptions == null) {
+        if (isSimultaneousCapture && secondaryOutputFileOptions == null && onDiskCallback != null) {
             throw new IllegalArgumentException(
                     "Simultaneous capture RAW and JPEG needs two output file options");
         }

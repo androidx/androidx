@@ -28,7 +28,6 @@ import androidx.annotation.LayoutRes
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope
 import androidx.compose.runtime.Composable
-import androidx.glance.GlanceBackendPreference
 import androidx.glance.GlanceComposable
 import androidx.glance.GlanceId
 import androidx.glance.appwidget.action.ActionCallbackBroadcastReceiver
@@ -111,10 +110,6 @@ public abstract class GlanceAppWidget(
 
     /** Defines the handling of sizes. */
     public open val sizeMode: SizeMode = SizeMode.Single
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // TODO: unrestrict in next CL
-    public open val backendPreference: GlanceBackendPreference = GlanceBackendPreference.Default
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) get
 
     /** Defines handling of sizes for previews. */
     public open val previewSizeMode: PreviewSizeMode = SizeMode.Single

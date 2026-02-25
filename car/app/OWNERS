@@ -1,6 +1,6 @@
 # Bug component: 460472
-davedandeneau@google.com #{LAST_RESORT_SUGGESTION}
-calcoholado@google.com
+calcoholado@google.com #{LAST_RESORT_SUGGESTION}
+kodlee@google.com
 
 # API owners
 per-file app/api/*=file:/car/app/API_OWNERS
@@ -13,7 +13,7 @@ per-file app/**=file:/car/app/LIBRARY_OWNERS
 per-file app-automotive/**=file:/car/app/LIBRARY_OWNERS
 per-file app-projected/**=file:/car/app/LIBRARY_OWNERS
 per-file app-testing/**=file:/car/app/LIBRARY_OWNERS
-per-file app-samples/**=nitishah@google.com
+per-file app-samples/**=file:/car/app/LIBRARY_OWNERS
 per-file app/app/src/main/java/androidx/car/app/mediaextensions/**=igorr@google.com
 per-file app/app/src/main/java/androidx/car/app/mediaextensions/**=arnaudberry@google.com
 per-file app/app/src/main/java/androidx/car/app/mediaextensions/**=markstanford@google.com

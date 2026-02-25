@@ -18,17 +18,14 @@ package androidx.xr.arcore.runtime
 
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.TrackingState
-import androidx.xr.runtime.math.Pose
 
-/** A trackable is something can be tracked in space and that an [Anchor] can be attached to. */
+/**
+ * Something that can be tracked in space.
+ *
+ * @property trackingState the [TrackingState] of this trackable
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface Trackable {
-    /**
-     * Creates an [Anchor] that is attached to this trackable, using the given initial [pose] in the
-     * world coordinate space.
-     */
-    public fun createAnchor(pose: Pose): Anchor
 
-    /** The [androidx.xr.runtime.TrackingState] of this trackable. */
     public val trackingState: TrackingState
 }

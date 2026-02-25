@@ -1,10 +1,7 @@
 plugins {
-    id("com.android.library")
+    id("org.jetbrains.kotlin.multiplatform")
+    id("com.android.kotlin.multiplatform.library")
     id("AndroidXDocsPlugin")
-}
-
-android {
-    namespace = "androidx.docs.tipoftree"
 }
 
 // The dependency list should only be changed when a new project is registered or a project's source is removed. Samples should never be added.
@@ -40,9 +37,10 @@ dependencies {
     kmpDocs(project(":benchmark:benchmark-traceprocessor"))
     docs(project(":biometric:biometric"))
     docs(project(":biometric:biometric-compose"))
-    stubs(project(":biometric:biometric-stubs"))
     docs(project(":browser:browser"))
     docs(project(":camera:camera-camera2"))
+    docs(project(":camera:camera-common"))
+    docs(project(":camera:camera-common-testing"))
     docs(project(":camera:camera-compose"))
     docs(project(":camera:camera-core"))
     docs(project(":camera:camera-effects"))
@@ -82,7 +80,7 @@ dependencies {
     kmpDocs(project(":compose:material3:xr:xr-adaptive"))
     kmpDocs(project(":compose:material:material"))
     kmpDocs(project(":compose:material:material-ripple"))
-    docs(project(":compose:material:material-navigation"))
+    kmpDocs(project(":compose:material:material-navigation"))
     docs(project(":compose:remote:remote-core"))
     kmpDocs(project(":compose:remote:remote-creation"))
     docs(project(":compose:remote:remote-creation-compose"))
@@ -196,7 +194,6 @@ dependencies {
     docs(project(":glance:glance-material3"))
     docs(project(":glance:glance-preview"))
     docs(project(":glance:glance-testing"))
-    docs(project(":glance:glance-wear-tiles"))
     docs(project(":glance:wear:wear"))
     docs(project(":glance:wear:wear-core"))
     docs(project(":graphics:filters:filters"))
@@ -312,6 +309,7 @@ dependencies {
     docs(project(":resourceinspection:resourceinspection-annotation"))
     kmpDocs(project(":room3:room3-common"))
     docs(project(":room3:room3-guava"))
+    docs(project(":room3:room3-livedata"))
     kmpDocs(project(":room3:room3-migration"))
     kmpDocs(project(":room3:room3-paging"))
     docs(project(":room3:room3-paging-guava"))
@@ -432,11 +430,14 @@ dependencies {
     docs(project(":xr:compose:material3:material3"))
     docs(project(":xr:glimmer:glimmer"))
     docs(project(":xr:runtime:runtime"))
+    docs(project(":xr:runtime:runtime-interfaces"))
     docs(project(":xr:runtime:runtime-manifest"))
+    docs(project(":xr:runtime:runtime-openxr"))
     docs(project(":xr:runtime:runtime-rxjava3"))
     docs(project(":xr:runtime:runtime-testing"))
     docs(project(":xr:scenecore:scenecore"))
     docs(project(":xr:scenecore:scenecore-guava"))
+    docs(project(":xr:scenecore:scenecore-projected"))
     docs(project(":xr:scenecore:scenecore-runtime"))
     docs(project(":xr:scenecore:scenecore-spatial-core"))
     docs(project(":xr:scenecore:scenecore-spatial-rendering"))

@@ -19,12 +19,8 @@ package androidx.camera.integration.extensions
 import android.Manifest
 import android.content.Context
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraXConfig
 import androidx.camera.extensions.ExtensionsManager
-import androidx.camera.integration.extensions.CameraExtensionsActivity.CAMERA2_IMPLEMENTATION_OPTION
-import androidx.camera.integration.extensions.CameraExtensionsActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.launchCameraExtensionsActivity
 import androidx.camera.integration.extensions.util.HOME_TIMEOUT_MS
@@ -32,7 +28,6 @@ import androidx.camera.integration.extensions.util.takePictureAndWaitForImageSav
 import androidx.camera.integration.extensions.util.waitForPreviewViewStreaming
 import androidx.camera.integration.extensions.utils.ExtensionModeUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.CoreAppTestUtil
@@ -60,20 +55,14 @@ private const val DEFAULT_BACK_CAMERA_ID = "0"
 /** Stress tests to verify that Preview and ImageCapture can work well when switching cameras. */
 @LargeTest
 @RunWith(Parameterized::class)
-class SwitchCameraStressTest(
-    private val configName: String,
-    private val cameraXConfig: CameraXConfig,
-    private val extensionMode: Int,
-) {
+class SwitchCameraStressTest(private val extensionMode: Int) {
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     @get:Rule
-    val cameraPipeConfigTestRule =
-        CameraPipeConfigTestRule(active = configName == CAMERA_PIPE_IMPLEMENTATION_OPTION)
-
-    @get:Rule
     val useCamera =
-        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraXConfig))
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            PreTestCameraIdList(Camera2Config.defaultConfig())
+        )
 
     @get:Rule
     val permissionRule =
@@ -89,23 +78,10 @@ class SwitchCameraStressTest(
     companion object {
         @ClassRule @JvmField val stressTest = StressTestRule()
 
-        @Parameterized.Parameters(name = "cameraXConfig = {0}, extensionMode = {2}")
+        @Parameterized.Parameters(name = "extensionMode = {0}")
         @JvmStatic
         fun parameters(): List<Array<Any>> {
-            return ExtensionModeUtil.AVAILABLE_EXTENSION_MODES.flatMap { extensionMode ->
-                listOf(
-                    arrayOf(
-                        CAMERA2_IMPLEMENTATION_OPTION,
-                        Camera2Config.defaultConfig(),
-                        extensionMode,
-                    ),
-                    arrayOf(
-                        CAMERA_PIPE_IMPLEMENTATION_OPTION,
-                        CameraPipeConfig.defaultConfig(),
-                        extensionMode,
-                    ),
-                )
-            }
+            return ExtensionModeUtil.AVAILABLE_EXTENSION_MODES.map { arrayOf(it) }
         }
     }
 
@@ -116,7 +92,6 @@ class SwitchCameraStressTest(
         assumeTrue(CameraUtil.deviceHasCamera())
         assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
         assumePcsSupportedForImageCapture(context)
-        ProcessCameraProvider.configureInstance(cameraXConfig)
         val cameraProvider =
             ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
 

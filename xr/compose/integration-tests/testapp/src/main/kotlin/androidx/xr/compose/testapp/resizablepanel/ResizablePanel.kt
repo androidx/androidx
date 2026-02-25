@@ -100,7 +100,7 @@ class ResizablePanel : ComponentActivity() {
         SpatialColumn(verticalArrangement = SpatialArrangement.spacedBy(20.dp)) {
             SpatialRow(
                 modifier = SubspaceModifier.fillMaxWidth(),
-                alignment = SpatialAlignment.Center,
+                verticalAlignment = SpatialAlignment.CenterVertically,
                 horizontalArrangement = SpatialArrangement.SpaceEvenly,
             ) {
                 SpatialColumn {

@@ -242,6 +242,8 @@
     <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"Popis 2"</string>
     <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Podtekst ispod svakog popisa"</string>
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Završi pokaznu verziju završne slike i radnji"</string>
+    <!-- no translation found for filter_chip_demo_title (92190365856639582) -->
+    <skip />
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Pokazna verzija predloška okna"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Pokazna verzija predloška popisa mjesta"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Pregledajte mjesta"</string>

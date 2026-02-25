@@ -39,7 +39,7 @@ object IntrospectionHelper {
     object AppFunctionAnnotation {
         val CLASS_NAME = ClassName(APP_FUNCTIONS_SERVICE_PACKAGE_NAME, "AppFunction")
         const val PROPERTY_IS_ENABLED = "isEnabled"
-        const val PROPERTY_IS_DESCRIBED_BY_KDOC = "isDescribedByKdoc"
+        const val PROPERTY_IS_DESCRIBED_BY_KDOC = "isDescribedByKDoc"
     }
 
     object AppFunctionSchemaDefinitionAnnotation {
@@ -51,7 +51,7 @@ object IntrospectionHelper {
 
     object AppFunctionSerializableAnnotation {
         val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionSerializable")
-        const val PROPERTY_IS_DESCRIBED_BY_KDOC = "isDescribedByKdoc"
+        const val PROPERTY_IS_DESCRIBED_BY_KDOC = "isDescribedByKDoc"
     }
 
     object AppFunctionSerializableInterfaceAnnotation {

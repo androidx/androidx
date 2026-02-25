@@ -45,20 +45,20 @@ class XExecutableTypeTest {
                     Source.kotlin(
                         "KotlinClass.kt",
                         """
-                    abstract class KotlinClass<T> constructor(t: T) {
-                        abstract fun foo(): KotlinClass<String>
-                    }
-                    """
+                        abstract class KotlinClass<T> constructor(t: T) {
+                            abstract fun foo(): KotlinClass<String>
+                        }
+                        """
                             .trimIndent(),
                     ),
                     Source.java(
                         "JavaClass",
                         """
-                    abstract class JavaClass<T> {
-                        JavaClass(T t) {}
-                        abstract JavaClass<String> foo();
-                    }
-                    """
+                        abstract class JavaClass<T> {
+                            JavaClass(T t) {}
+                            abstract JavaClass<String> foo();
+                        }
+                        """
                             .trimIndent(),
                     ),
                 )
@@ -88,14 +88,14 @@ class XExecutableTypeTest {
             Source.kotlin(
                 "Foo.kt",
                 """
-            interface MyInterface<T> {
-                fun getT(): T
-                fun setT(t:T): Unit
-                suspend fun suspendGetT(): T
-                suspend fun suspendSetT(t:T): Unit
-            }
-            abstract class Subject : MyInterface<String>
-            """
+                interface MyInterface<T> {
+                    fun getT(): T
+                    fun setT(t:T): Unit
+                    suspend fun suspendGetT(): T
+                    suspend fun suspendSetT(t:T): Unit
+                }
+                abstract class Subject : MyInterface<String>
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
@@ -155,28 +155,28 @@ class XExecutableTypeTest {
             Source.kotlin(
                 "MyInterface.kt",
                 """
-            interface MyInterface {
-              fun method(foo: Foo): Bar
-              fun methodWithDifferentName(foo: Foo): Bar
-              @kotlin.jvm.Throws(RuntimeException::class)
-              fun methodWithDifferentThrows(foo: Foo): Bar
-              fun methodWithDifferentReturn(foo: Foo): Unit
-              fun methodWithDifferentParameters(): Bar
-              fun methodWithDefault(foo: Foo): Bar = TODO()
-            }
-            class MyClass {
-              fun classMethod(foo: Foo): Bar = TODO()
-              companion object {
-                fun companionMethod(foo: Foo): Bar = TODO()
-              }
-            }
-            object MyObject {
-              fun objectMethod(foo: Foo): Bar = TODO()
-              @JvmStatic fun staticMethod(foo: Foo): Bar = TODO()
-            }
-            class Foo
-            class Bar
-            """
+                interface MyInterface {
+                  fun method(foo: Foo): Bar
+                  fun methodWithDifferentName(foo: Foo): Bar
+                  @kotlin.jvm.Throws(RuntimeException::class)
+                  fun methodWithDifferentThrows(foo: Foo): Bar
+                  fun methodWithDifferentReturn(foo: Foo): Unit
+                  fun methodWithDifferentParameters(): Bar
+                  fun methodWithDefault(foo: Foo): Bar = TODO()
+                }
+                class MyClass {
+                  fun classMethod(foo: Foo): Bar = TODO()
+                  companion object {
+                    fun companionMethod(foo: Foo): Bar = TODO()
+                  }
+                }
+                object MyObject {
+                  fun objectMethod(foo: Foo): Bar = TODO()
+                  @JvmStatic fun staticMethod(foo: Foo): Bar = TODO()
+                }
+                class Foo
+                class Bar
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
@@ -224,16 +224,16 @@ class XExecutableTypeTest {
             Source.kotlin(
                 "MyInterface.kt",
                 """
-            interface FooBar : MyInterface<Foo, Bar>
-            interface BarFoo : MyInterface<Bar, Foo>
-            interface MyInterface<T1, T2> {
-              fun methodFooBar(foo: Foo): Bar
-              fun methodBarFoo(bar: Bar): Foo
-              fun method(t1: T1): T2
-            }
-            class Foo
-            class Bar
-            """
+                interface FooBar : MyInterface<Foo, Bar>
+                interface BarFoo : MyInterface<Bar, Foo>
+                interface MyInterface<T1, T2> {
+                  fun methodFooBar(foo: Foo): Bar
+                  fun methodBarFoo(bar: Bar): Foo
+                  fun method(t1: T1): T2
+                }
+                class Foo
+                class Bar
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
@@ -263,13 +263,13 @@ class XExecutableTypeTest {
             Source.kotlin(
                 "MyInterface.kt",
                 """
-            abstract class ClassFoo constructor(foo: Foo)
-            abstract class ClassBar constructor(bar: Bar)
-            abstract class OtherClassFoo constructor(foo: Foo)
-            abstract class SubClassBar constructor(bar: Bar) : ClassBar(bar)
-            class Foo
-            class Bar
-            """
+                abstract class ClassFoo constructor(foo: Foo)
+                abstract class ClassBar constructor(bar: Bar)
+                abstract class OtherClassFoo constructor(foo: Foo)
+                abstract class SubClassBar constructor(bar: Bar) : ClassBar(bar)
+                class Foo
+                class Bar
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
@@ -303,11 +303,11 @@ class XExecutableTypeTest {
             Source.kotlin(
                 "ClassFoo.kt",
                 """
-            abstract class ClassFoo constructor(foo: Foo) {
-              abstract fun method(otherFoo: Foo)
-            }
-            class Foo
-            """
+                abstract class ClassFoo constructor(foo: Foo) {
+                  abstract fun method(otherFoo: Foo)
+                }
+                class Foo
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
@@ -330,11 +330,11 @@ class XExecutableTypeTest {
             Source.kotlin(
                 "MyInterface.kt",
                 """
-            abstract class GenericClass<T> constructor(t: T)
-            abstract class GenericClassFoo constructor(foo: Foo) : GenericClass<Foo>(foo)
-            abstract class ClassFoo constructor(foo: Foo)
-            class Foo
-            """
+                abstract class GenericClass<T> constructor(t: T)
+                abstract class GenericClassFoo constructor(foo: Foo) : GenericClass<Foo>(foo)
+                abstract class ClassFoo constructor(foo: Foo)
+                class Foo
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
@@ -366,18 +366,18 @@ class XExecutableTypeTest {
             Source.kotlin(
                 "MyInterface.kt",
                 """
-            class MyClass {
-                var fooField: Foo = TODO()
-                var fooFieldWithDifferentName: Foo = TODO()
-                val fooFieldWithVal: Foo = TODO()
-                var barField: Bar = TODO()
+                class MyClass {
+                    var fooField: Foo = TODO()
+                    var fooFieldWithDifferentName: Foo = TODO()
+                    val fooFieldWithVal: Foo = TODO()
+                    var barField: Bar = TODO()
 
-                fun fooMethodGetter(): Foo = TODO()
-                fun fooMethodSetter(foo: Foo) {}
-            }
-            class Foo
-            class Bar
-            """
+                    fun fooMethodGetter(): Foo = TODO()
+                    fun fooMethodSetter(foo: Foo) {}
+                }
+                class Foo
+                class Bar
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
@@ -430,15 +430,15 @@ class XExecutableTypeTest {
             Source.kotlin(
                 "Foo.kt",
                 """
-            interface MyInterface<T> {
-                val immutableT: T
-                var mutableT: T?
-                val list: List<T>
-                val nullableList: List<T?>
-            }
-            abstract class Subject : MyInterface<String>
-            abstract class NullableSubject: MyInterface<String?>
-            """
+                interface MyInterface<T> {
+                    val immutableT: T
+                    var mutableT: T?
+                    val list: List<T>
+                    val nullableList: List<T?>
+                }
+                abstract class Subject : MyInterface<String>
+                abstract class NullableSubject: MyInterface<String?>
+                """
                     .trimIndent(),
             )
         runProcessorTest(sources = listOf(src)) { invocation ->
@@ -560,32 +560,32 @@ class XExecutableTypeTest {
             Source.kotlin(
                 "KotlinSubject.kt",
                 """
-            class KotlinSubject {
-              fun <T> oneTypeVar(): Unit = TODO()
-              fun <T : MutableList<*>?> oneBoundedTypeVar(): Unit = TODO()
-              fun <T : MutableList<*>> oneBoundedTypeVarNotNull(): Unit = TODO()
-              fun <T : Any?> oneBoundedTypeVarAny(): Unit = TODO()
-              fun <T : Any> oneBoundedTypeVarNotNullAny(): Unit = TODO()
-              fun <A, B> twoTypeVar(param: B): A = TODO()
-            }
-            """
+                class KotlinSubject {
+                  fun <T> oneTypeVar(): Unit = TODO()
+                  fun <T : MutableList<*>?> oneBoundedTypeVar(): Unit = TODO()
+                  fun <T : MutableList<*>> oneBoundedTypeVarNotNull(): Unit = TODO()
+                  fun <T : Any?> oneBoundedTypeVarAny(): Unit = TODO()
+                  fun <T : Any> oneBoundedTypeVarNotNullAny(): Unit = TODO()
+                  fun <A, B> twoTypeVar(param: B): A = TODO()
+                }
+                """
                     .trimIndent(),
             )
         val javaSrc =
             Source.java(
                 "JavaSubject",
                 """
-            import java.util.List;
-            import org.jetbrains.annotations.NotNull;
-            class JavaSubject {
-              <T> void oneTypeVar() {}
-              <T extends List<?>> void oneBoundedTypeVar() { }
-              <T extends @NotNull List<?>> void oneBoundedTypeVarNotNull() { }
-              <T extends Object> void oneBoundedTypeVarAny() { }
-              <T extends @NotNull Object> void oneBoundedTypeVarNotNullAny() {}
-              <A, B> A twoTypeVar(B param) { return null; }
-            }
-            """
+                import java.util.List;
+                import org.jetbrains.annotations.NotNull;
+                class JavaSubject {
+                  <T> void oneTypeVar() {}
+                  <T extends List<?>> void oneBoundedTypeVar() { }
+                  <T extends @NotNull List<?>> void oneBoundedTypeVarNotNull() { }
+                  <T extends Object> void oneBoundedTypeVarAny() { }
+                  <T extends @NotNull Object> void oneBoundedTypeVarNotNullAny() {}
+                  <A, B> A twoTypeVar(B param) { return null; }
+                }
+                """
                     .trimIndent(),
             )
 

@@ -189,11 +189,11 @@ class RoomIncrementalAnnotationProcessingTest() {
             .resolve("gradle.properties")
             .writeText(
                 """
-            ksp.incremental=true
-            ksp.incremental.log=true
-            android.useAndroidX=true
-            android.builtInKotlin=false
-            """
+                ksp.incremental=true
+                ksp.incremental.log=true
+                android.useAndroidX=true
+                android.builtInKotlin=false
+                """
                     .trimIndent()
             )
     }

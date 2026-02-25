@@ -15,15 +15,15 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
 import androidx.build.AndroidXConfig
 import androidx.build.SoftwareType
+import com.android.build.api.variant.HasAndroidTest
 
 plugins {
     id("AndroidXPlugin")
@@ -48,6 +48,7 @@ dependencies {
     testImplementation(libs.mockitoCore)
     testImplementation(libs.mockitoKotlin4)
     testImplementation(libs.testExtJunit)
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
     testImplementation("org.robolectric:robolectric")
     testImplementation(project(":xr:runtime:runtime-testing"))
     testImplementation(project(":xr:scenecore:scenecore-testing"))
@@ -74,12 +75,16 @@ android {
         consumerProguardFiles("proguard-rules.pro")
         minSdk { version = release(24) }
     }
-    sourceSets {
-        androidTest {
-            jniLibs.srcDirs += new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/native/androidTest")
-        }
-    }
     namespace = "androidx.xr.scenecore.spatial.core"
+}
+
+androidComponents {
+    def nativeTestPath = new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/native/androidTest")
+            .absolutePath
+
+    onVariants(selector().all()) { variant ->
+        (variant as HasAndroidTest).androidTest.sources.jniLibs.addStaticSourceDirectory(nativeTestPath)
+    }
 }
 
 androidx {

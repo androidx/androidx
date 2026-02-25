@@ -34,6 +34,8 @@ dependencies {
     implementation(libs.kotlinCoroutinesAndroid)
     implementation("androidx.annotation:annotation-experimental:1.4.1")
     implementation("androidx.arch.core:core-common:2.2.0")
+    implementation("androidx.media3:media3-container:1.9.0")
+    implementation("androidx.media3:media3-muxer:1.9.0")
 
     annotationProcessor(libs.autoValue)
 
@@ -63,7 +65,6 @@ dependencies {
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
     androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     androidTestImplementation(project(":internal-testutils-truth"))
-    androidTestImplementation(project(":camera:camera-camera2-pipe-integration"))
     androidTestImplementation libs.mockitoKotlin, {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }

@@ -118,10 +118,10 @@ public class DataListFloat extends Operation implements VariableSupport, ArrayAc
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Data Operations", OP_CODE, CLASS_NAME)
-                .description("a list of Floats")
-                .field(DocumentedOperation.INT, "id", "id the array (2xxxxx)")
-                .field(INT, "length", "number of floats")
-                .field(FLOAT_ARRAY, "values", "length", "array of floats");
+                .description("A list of floats")
+                .field(DocumentedOperation.INT, "id", "The ID of the list")
+                .field(INT, "length", "Number of floats")
+                .field(FLOAT_ARRAY, "values", "The array of floats");
     }
 
     @NonNull

@@ -205,17 +205,17 @@ package androidx.camera.video {
     method public int getTargetRotation();
     method public boolean isVideoStabilizationEnabled();
     method public void setTargetRotation(int);
-    method public static <T extends androidx.camera.video.VideoOutput> androidx.camera.video.VideoCapture<T!> withOutput(T);
+    method public static <T extends androidx.camera.video.VideoOutput> androidx.camera.video.VideoCapture<T> withOutput(T);
   }
 
   public static final class VideoCapture.Builder<T extends androidx.camera.video.VideoOutput> implements androidx.camera.core.ExtendableBuilder<androidx.camera.video.VideoCapture!> {
     ctor public VideoCapture.Builder(T);
-    method public androidx.camera.video.VideoCapture<T!> build();
-    method public androidx.camera.video.VideoCapture.Builder<T!> setDynamicRange(androidx.camera.core.DynamicRange);
-    method public androidx.camera.video.VideoCapture.Builder<T!> setMirrorMode(int);
-    method public androidx.camera.video.VideoCapture.Builder<T!> setTargetFrameRate(android.util.Range<java.lang.Integer!>);
-    method public androidx.camera.video.VideoCapture.Builder<T!> setTargetRotation(int);
-    method public androidx.camera.video.VideoCapture.Builder<T!> setVideoStabilizationEnabled(boolean);
+    method public androidx.camera.video.VideoCapture<T> build();
+    method public androidx.camera.video.VideoCapture.Builder<T> setDynamicRange(androidx.camera.core.DynamicRange);
+    method public androidx.camera.video.VideoCapture.Builder<T> setMirrorMode(int);
+    method public androidx.camera.video.VideoCapture.Builder<T> setTargetFrameRate(android.util.Range<java.lang.Integer!>);
+    method public androidx.camera.video.VideoCapture.Builder<T> setTargetRotation(int);
+    method public androidx.camera.video.VideoCapture.Builder<T> setVideoStabilizationEnabled(boolean);
   }
 
   public interface VideoOutput {

@@ -8,9 +8,9 @@
 -if class androidx.ink.nativeloader.NativeLoader
 -keep class androidx.ink.nativeloader.UsedByNative
 
-# Keep annotated class names.
+# Keep annotated classes unconditionally.
 -if class androidx.ink.nativeloader.NativeLoader
--keepnames @androidx.ink.nativeloader.UsedByNative class * {
+-keep @androidx.ink.nativeloader.UsedByNative class * {
   <init>();
 }
 

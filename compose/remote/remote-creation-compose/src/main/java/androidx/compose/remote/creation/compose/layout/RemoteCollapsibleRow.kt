@@ -27,15 +27,17 @@ import androidx.compose.remote.creation.compose.modifier.WidthModifier
 import androidx.compose.remote.creation.compose.modifier.toComposeUiLayout
 import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.v2.RemoteCollapsibleRowV2
+import androidx.compose.remote.creation.compose.v2.RemoteComposeApplierV2
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 
 /** Utility modifier to record the layout information */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteComposeCollapsibleRowModifier(
+internal class RemoteComposeCollapsibleRowModifier(
     public val modifier: RecordingModifier,
     public val horizontalArrangement: RemoteArrangement.Horizontal = RemoteArrangement.Start,
     public val verticalAlignment: RemoteAlignment.Vertical = RemoteAlignment.Top,
@@ -70,6 +72,7 @@ public class RemoteCollapsibleRowScope {
  * RemoteRow to both work as a normal Row when called within a normal Compose tree, and capture the
  * layout information when called within a capture pass for RemoteCompose.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RemoteComposable
 @Composable
 public fun RemoteCollapsibleRow(
@@ -78,6 +81,10 @@ public fun RemoteCollapsibleRow(
     verticalAlignment: RemoteAlignment.Vertical = RemoteAlignment.Top,
     content: @Composable RemoteCollapsibleRowScope.() -> Unit,
 ) {
+    if (currentComposer.applier is RemoteComposeApplierV2) {
+        RemoteCollapsibleRowV2(modifier, horizontalArrangement, verticalAlignment, content)
+        return
+    }
 
     val scope = remember { RemoteCollapsibleRowScope() }
 

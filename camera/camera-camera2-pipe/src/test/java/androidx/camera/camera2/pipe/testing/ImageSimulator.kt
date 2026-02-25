@@ -50,6 +50,10 @@ internal class ImageSimulator(
         return fakeImageSources[streamId]!!.simulateImage(timestamp, outputId)
     }
 
+    fun simulateExpectedOutputs(streamId: StreamId, timestamp: Long, outputIds: Set<OutputId>) {
+        return fakeImageSources[streamId]!!.simulateExpectedOutputs(timestamp, outputIds)
+    }
+
     override fun close() {
         fakeSurfaces.close()
     }

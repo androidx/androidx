@@ -198,7 +198,8 @@ internal fun applySizeModifiers(
     when (width) {
         is Dimension.Dp -> outputModifier.width(width.toPixels(context))
         is Dimension.Resource -> TODO("Dimension.resource not yet supported")
-        Dimension.Expand -> outputModifier.horizontalWeight(RemoteComposeConstants.DefaultWeight)
+        Dimension.Expand ->
+            outputModifier.horizontalWeight(RemoteComposeConstants.Text.DefaultWeight)
         Dimension.Fill -> outputModifier.fillMaxWidth()
         Dimension.Wrap -> outputModifier.wrapContentWidth()
         null -> Unit
@@ -206,7 +207,7 @@ internal fun applySizeModifiers(
     when (height) {
         is Dimension.Dp -> outputModifier.height(height.toPixels(context))
         is Dimension.Resource -> TODO("Dimension.resource not yet supported")
-        Dimension.Expand -> outputModifier.verticalWeight(RemoteComposeConstants.DefaultWeight)
+        Dimension.Expand -> outputModifier.verticalWeight(RemoteComposeConstants.Text.DefaultWeight)
         Dimension.Fill -> outputModifier.fillMaxHeight()
         Dimension.Wrap -> outputModifier.wrapContentHeight()
         null -> Unit

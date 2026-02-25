@@ -52,7 +52,6 @@ package androidx.xr.arcore.openxr {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class OpenXrAugmentedObject implements androidx.xr.arcore.runtime.AugmentedObject {
-    method public androidx.xr.arcore.runtime.Anchor createAnchor(androidx.xr.runtime.math.Pose pose);
     method @InaccessibleFromKotlin public androidx.xr.runtime.AugmentedObjectCategory getCategory();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getCenterPose();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.FloatSize3d getExtents();
@@ -227,9 +226,9 @@ package androidx.xr.arcore.openxr {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class OpenXrRuntimeFactory implements androidx.xr.runtime.internal.PerceptionRuntimeFactory {
     ctor public OpenXrRuntimeFactory();
-    method public androidx.xr.arcore.runtime.PerceptionRuntime createRuntime(android.app.Activity activity, kotlin.coroutines.CoroutineContext coroutineContext);
-    method @InaccessibleFromKotlin public java.util.Set<androidx.xr.runtime.internal.Feature> getRequirements();
-    property public java.util.Set<androidx.xr.runtime.internal.Feature> requirements;
+    method public androidx.xr.arcore.runtime.PerceptionRuntime createRuntime(android.content.Context context, kotlin.coroutines.CoroutineContext coroutineContext);
+    method @InaccessibleFromKotlin public java.util.Set<androidx.xr.runtime.interfaces.Feature> getRequirements();
+    property public java.util.Set<androidx.xr.runtime.interfaces.Feature> requirements;
     field public static final androidx.xr.arcore.openxr.OpenXrRuntimeFactory.Companion Companion;
   }
 

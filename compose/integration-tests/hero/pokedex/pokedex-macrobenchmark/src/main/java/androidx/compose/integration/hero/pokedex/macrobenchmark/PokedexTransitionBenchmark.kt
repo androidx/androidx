@@ -23,21 +23,18 @@ import androidx.benchmark.macro.FrameTimingGfxInfoMetric
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.Metric
 import androidx.benchmark.macro.TraceSectionMetric
-import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.compose.integration.hero.common.macrobenchmark.HeroMacrobenchmarkDefaults
-import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexConstants.Compose.POKEDEX_ENABLE_SHARED_ELEMENT_TRANSITIONS
-import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexConstants.Compose.POKEDEX_ENABLE_SHARED_TRANSITION_SCOPE
 import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexConstants.POKEDEX_TARGET_PACKAGE_NAME
-import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexDatabaseCleanupRule
+import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.byResContains
+import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.findObjectOrThrow
+import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.waitOrThrow
 import androidx.test.filters.LargeTest
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import androidx.testutils.createCompilationParams
 import androidx.testutils.defaultComposeScrollingMetrics
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
@@ -47,15 +44,7 @@ class PokedexTransitionBenchmark(
     val compilationMode: CompilationMode,
     val enableSharedTransitionScope: Boolean,
     val enableSharedElementTransitions: Boolean,
-) {
-    private val benchmarkRule = MacrobenchmarkRule()
-
-    private val databaseCleanupRule = PokedexDatabaseCleanupRule()
-
-    @get:Rule
-    val pokedexBenchmarkRuleChain: RuleChain =
-        RuleChain.outerRule(databaseCleanupRule).around(benchmarkRule)
-
+) : PokedexBenchmarkBase() {
     private val FirstPokemonToClickOn = "Ablazeon"
     private val SecondPokemonToClickOn = "Amphibyte"
 
@@ -111,16 +100,13 @@ class PokedexTransitionBenchmark(
             iterations = iterations,
             setupBlock = {
                 killProcess()
-                setupPokedexBenchmarkTarget()
                 databaseCleanupRule.deleteDatabaseFiles()
-                killProcess()
 
                 val intent = Intent()
-                intent.action = action
-                intent.putExtra(POKEDEX_ENABLE_SHARED_TRANSITION_SCOPE, enableSharedTransitionScope)
-                intent.putExtra(
-                    POKEDEX_ENABLE_SHARED_ELEMENT_TRANSITIONS,
-                    enableSharedElementTransitions,
+                intent.configure(
+                    action = action,
+                    enableSharedTransitionScope = enableSharedTransitionScope,
+                    enableSharedElementTransitions = enableSharedElementTransitions,
                 )
                 startActivityAndWait(intent)
 

@@ -181,11 +181,6 @@ public class WebViewBuilderTest {
     }
 
     @Test
-    public void testApplyToUsedWebView_getUrl_illegalStateException() {
-        assertBuilderApplicationThrowsForUsedWebView(WebView::getUrl);
-    }
-
-    @Test
     public void testApplyToUsedWebView_loadUrl_illegalStateException() {
         assertBuilderApplicationThrowsForUsedWebView((webview) -> webview.loadUrl("about:blank"));
     }

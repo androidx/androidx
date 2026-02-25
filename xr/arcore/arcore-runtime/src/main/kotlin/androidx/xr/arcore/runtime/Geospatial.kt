@@ -22,7 +22,11 @@ import androidx.xr.runtime.math.GeospatialPose
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 
-/** Describes the interface for Geospatial localization and tracking. */
+/**
+ * Describes the interface for Geospatial localization and tracking.
+ *
+ * @property state the current [State] of Geospatial
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface Geospatial {
 
@@ -96,6 +100,12 @@ public interface Geospatial {
         }
     }
 
+    /**
+     * @property geospatialPose the [GeospatialPose] that was created
+     * @property horizontalAccuracy the estimated horizontal accuracy in meters
+     * @property verticalAccuracy the estimated altitude accuracy in meters
+     * @property orientationYawAccuracy the estimated orientation yaw angle accuracy
+     */
     public class GeospatialPoseResult(
         public val geospatialPose: GeospatialPose,
         public val horizontalAccuracy: Double,
@@ -121,24 +131,33 @@ public interface Geospatial {
         }
     }
 
-    /** The current state of Geospatial. */
     public val state: State
 
     /**
-     * Converts the input [androidx.xr.runtime.math.GeospatialPose] to a
-     * [androidx.xr.runtime.math.Pose] in the same position.
+     * Converts the input [GeospatialPose] to a [Pose] in the same position.
+     *
+     * @param geospatialPose the [GeospatialPose] to convert
+     * @return the converted [Pose]
      */
     public fun createPoseFromGeospatialPose(geospatialPose: GeospatialPose): Pose
 
     /**
-     * Converts the input [androidx.xr.runtime.math.Pose] to a
-     * [androidx.xr.runtime.math.GeospatialPose] in the same position.
+     * Converts the input [Pose] to a [GeospatialPose] in the same position.
+     *
+     * @param pose the [Pose] to convert
+     * @return the converted [GeospatialPoseResult]
      */
     public fun createGeospatialPoseFromPose(pose: Pose): GeospatialPoseResult
 
     /**
      * Creates an anchor at the specified geospatial location and orientation relative to
      * Geospatial.
+     *
+     * @param latitude the latitude of the anchor
+     * @param longitude the longitude of the anchor
+     * @param altitude the altitude of the anchor
+     * @param eastUpSouthQuaternion the rotation of the anchor
+     * @return the created [Anchor]
      */
     public fun createAnchor(
         latitude: Double,
@@ -150,6 +169,13 @@ public interface Geospatial {
     /**
      * Creates an anchor at a specified geospatial location and altitude relative to the horizontal
      * position's surface (Terrain or Rooftop).
+     *
+     * @param latitude the latitude of the anchor
+     * @param longitude the longitude of the anchor
+     * @param altitudeAboveSurface the altitude of the anchor above the surface
+     * @param eastUpSouthQuaternion the rotation of the anchor
+     * @param surface the [Surface] to create the anchor on
+     * @return the created [Anchor]
      */
     public suspend fun createAnchorOnSurface(
         latitude: Double,
@@ -161,8 +187,14 @@ public interface Geospatial {
 
     /**
      * Gets the availability of the Visual Positioning System (VPS) at a specified horizontal
-     * position. The availability of VPS in a given location helps to improve the quality of
-     * Geospatial localization and tracking accuracy.
+     * position.
+     *
+     * The availability of VPS in a given location helps to improve the quality of Geospatial
+     * localization and tracking accuracy.
+     *
+     * @param latitude the latitude to check
+     * @param longitude the longitude to check
+     * @return the [VpsAvailabilityResult]
      */
     public suspend fun checkVpsAvailability(
         latitude: Double,

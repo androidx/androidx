@@ -21,6 +21,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.datastore.core.handlers.ReThrowCorruptionHandler
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
+import androidx.tracing.Tracer
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -115,6 +116,35 @@ public actual object DataStoreFactory {
             corruptionHandler = corruptionHandler ?: ReThrowCorruptionHandler(),
             initTasksList = listOf(DataMigrationInitializer.getInitializer(migrations)),
             scope = scope,
+        )
+
+    /**
+     * Create an instance of SingleProcessDataStore with tracing enabled.
+     *
+     * @param storage Storage for the type T used with DataStore. The type T must be immutable.
+     * @param corruptionHandler The corruptionHandler is invoked if DataStore encounters a
+     *   [CorruptionException] when attempting to read data. CorruptionExceptions are thrown by
+     *   serializers when data can not be de-serialized.
+     * @param migrations Migrations are run before any access to data can occur. Migrations must be
+     *   idempotent.
+     * @param scope The scope in which IO operations and transform functions will execute.
+     * @param tracer The [Tracer] used to instrument and trace DataStore operations.
+     * @return a new DataStore instance with the provided configuration.
+     */
+    @JvmOverloads
+    public fun <T> createWithTracing(
+        storage: Storage<T>,
+        tracer: Tracer,
+        corruptionHandler: CorruptionHandler<T> = ReThrowCorruptionHandler(),
+        migrations: List<DataMigration<T>> = listOf(),
+        scope: CoroutineScope = CoroutineScope(ioDispatcher() + SupervisorJob()),
+    ): DataStore<T> =
+        DataStoreImpl(
+            storage = storage,
+            corruptionHandler = corruptionHandler,
+            initTasksList = listOf(DataMigrationInitializer.getInitializer(migrations)),
+            scope = scope,
+            tracer = tracer,
         )
 
     /**

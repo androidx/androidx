@@ -29,7 +29,6 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.graphics.Shader
 import androidx.compose.ui.graphics.TileMode as ComposeTileMode
 import androidx.compose.ui.graphics.toAndroidTileMode
 import androidx.compose.ui.graphics.toArgb
@@ -312,7 +311,7 @@ public data class RemoteLinearGradient(
     private val tileMode: ComposeTileMode = ComposeTileMode.Clamp,
 ) : RemoteBrush() {
 
-    override fun RemoteStateScope.createShader(size: RemoteSize): Shader {
+    override fun RemoteStateScope.createShader(size: RemoteSize): RemoteShader {
         val realStart = start ?: RemoteOffset(0.0f.rf, 0.0f.rf)
         val realEnd = end ?: endVector(size)
 

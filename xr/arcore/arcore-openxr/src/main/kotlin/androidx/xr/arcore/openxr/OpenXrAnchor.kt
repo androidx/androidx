@@ -28,16 +28,25 @@ import java.util.UUID
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
-/** Wraps the native [XrSpace] with the [androidx.xr.arcore.runtime.Anchor] interface. */
+/**
+ * Wraps a native `XrSpace` with the [ExportableAnchor] interface.
+ *
+ * @property nativePointer the native pointer to the `XrSpace` instance that backs this anchor
+ * @property anchorToken an [IBinder] reference of the anchor
+ * @property pose the [Pose] of the anchor
+ * @property trackingState the [TrackingState] of the anchor
+ * @property persistenceState the [Anchor.PersistenceState] for this anchor
+ * @property uuid the [UUID] that identifies this Anchor if it is persisted
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class OpenXrAnchor
 internal constructor(
-    override public val nativePointer: Long,
+    public override val nativePointer: Long,
     private val xrResources: XrResources,
     loadedUuid: UUID? = null,
 ) : ExportableAnchor, Updatable {
 
-    override public val anchorToken: IBinder by lazy { nativeGetAnchorToken(nativePointer) }
+    public override val anchorToken: IBinder by lazy { nativeGetAnchorToken(nativePointer) }
 
     override var pose: Pose = Pose()
         private set
@@ -77,6 +86,11 @@ internal constructor(
         xrResources.removeUpdatable(this)
     }
 
+    /**
+     * Updates the entity retrieving its state at [xrTime].
+     *
+     * @param xrTime the number of nanoseconds since the start of the OpenXR epoch
+     */
     override fun update(xrTime: Long) {
         val anchorState = nativeGetAnchorState(nativePointer, xrTime)
         if (anchorState == null) {

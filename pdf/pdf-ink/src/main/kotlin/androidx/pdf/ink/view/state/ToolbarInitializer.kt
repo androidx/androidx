@@ -48,9 +48,9 @@ internal object ToolbarInitializer {
             isAnnotationVisible = true,
             canUndo = false,
             canRedo = false,
-            isBrushSizeSliderVisible = false,
+            showBrushSizeSlider = false,
             isColorPaletteEnabled = true,
-            isColorPaletteVisible = false,
+            showColorPalette = false,
             penState =
                 ToolAttributes(
                     selectedBrushSizeIndex = 1,

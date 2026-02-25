@@ -77,6 +77,7 @@ package androidx.xr.arcore.testing {
 
   public final class FakeRuntimeAnchor {
     method public void detach();
+    method @InaccessibleFromKotlin public static int getAnchorResourceLimit();
     method @InaccessibleFromKotlin public static int getAnchorsCreatedCount();
     method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.Anchor.PersistenceState getPersistenceState();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getPose();
@@ -96,14 +97,14 @@ package androidx.xr.arcore.testing {
     property public androidx.xr.runtime.math.Pose pose;
     property public androidx.xr.runtime.TrackingState trackingState;
     property public java.util.UUID? uuid;
-    field public static final int ANCHOR_RESOURCE_LIMIT = 6; // 0x6
     field public static final androidx.xr.arcore.testing.FakeRuntimeAnchor.Companion Companion;
   }
 
   public static final class FakeRuntimeAnchor.Companion {
+    method @InaccessibleFromKotlin public int getAnchorResourceLimit();
     method @InaccessibleFromKotlin public int getAnchorsCreatedCount();
     method @InaccessibleFromKotlin public void setAnchorsCreatedCount(int);
-    property public static int ANCHOR_RESOURCE_LIMIT;
+    property public static int anchorResourceLimit;
     property public static int anchorsCreatedCount;
   }
 
@@ -111,8 +112,6 @@ package androidx.xr.arcore.testing {
     ctor public FakeRuntimeAugmentedObject();
     ctor @BytecodeOnly public FakeRuntimeAugmentedObject(androidx.xr.runtime.math.Pose!, androidx.xr.runtime.math.FloatSize3d!, androidx.xr.runtime.AugmentedObjectCategory!, androidx.xr.runtime.TrackingState!, java.util.Collection!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public FakeRuntimeAugmentedObject(optional androidx.xr.runtime.math.Pose centerPose, optional androidx.xr.runtime.math.FloatSize3d extents, optional androidx.xr.runtime.AugmentedObjectCategory category, optional androidx.xr.runtime.TrackingState trackingState, optional java.util.Collection<androidx.xr.arcore.runtime.Anchor> anchors);
-    method public androidx.xr.arcore.runtime.Anchor createAnchor(androidx.xr.runtime.math.Pose pose);
-    method public void detachAnchor(androidx.xr.arcore.runtime.Anchor anchor);
     method @InaccessibleFromKotlin public java.util.Collection<androidx.xr.arcore.runtime.Anchor> getAnchors();
     method @InaccessibleFromKotlin public androidx.xr.runtime.AugmentedObjectCategory getCategory();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getCenterPose();
@@ -170,17 +169,36 @@ package androidx.xr.arcore.testing {
     ctor public FakeRuntimeFace();
     ctor public FakeRuntimeFace(optional androidx.xr.runtime.TrackingState trackingState, optional boolean isValid, optional float[] blendShapeValues, optional float[] confidenceValues);
     ctor @BytecodeOnly public FakeRuntimeFace(androidx.xr.runtime.TrackingState!, boolean, float[]!, float[]!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public boolean canCreateAnchors();
+    method public androidx.xr.arcore.runtime.Anchor createAnchor(androidx.xr.runtime.math.Pose pose);
     method @InaccessibleFromKotlin public float[] getBlendShapeValues();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getCenterPose();
     method @InaccessibleFromKotlin public float[] getConfidenceValues();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getForeheadLeftPose();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getForeheadRightPose();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.runtime.Mesh getMesh();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getNoseTipPose();
     method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
     method @InaccessibleFromKotlin public boolean isValid();
     method @InaccessibleFromKotlin public void setBlendShapeValues(float[]);
+    method @InaccessibleFromKotlin public void setCanCreateAnchors(boolean);
+    method @InaccessibleFromKotlin public void setCenterPose(androidx.xr.runtime.math.Pose);
     method @InaccessibleFromKotlin public void setConfidenceValues(float[]);
+    method @InaccessibleFromKotlin public void setForeheadLeftPose(androidx.xr.runtime.math.Pose);
+    method @InaccessibleFromKotlin public void setForeheadRightPose(androidx.xr.runtime.math.Pose);
+    method @InaccessibleFromKotlin public void setMesh(androidx.xr.arcore.runtime.Mesh);
+    method @InaccessibleFromKotlin public void setNoseTipPose(androidx.xr.runtime.math.Pose);
     method @InaccessibleFromKotlin public void setTrackingState(androidx.xr.runtime.TrackingState);
     method @InaccessibleFromKotlin public void setValid(boolean);
     property public float[] blendShapeValues;
+    property public boolean canCreateAnchors;
+    property public androidx.xr.runtime.math.Pose centerPose;
     property public float[] confidenceValues;
+    property public androidx.xr.runtime.math.Pose foreheadLeftPose;
+    property public androidx.xr.runtime.math.Pose foreheadRightPose;
     property public boolean isValid;
+    property public androidx.xr.arcore.runtime.Mesh mesh;
+    property public androidx.xr.runtime.math.Pose noseTipPose;
     property public androidx.xr.runtime.TrackingState trackingState;
   }
 

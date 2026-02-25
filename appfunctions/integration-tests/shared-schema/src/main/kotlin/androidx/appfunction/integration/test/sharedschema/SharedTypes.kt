@@ -29,7 +29,7 @@ import java.time.LocalDateTime
 // schema.
 
 /** Example parameterized AppFunctionSerializable. */
-@AppFunctionSerializable(isDescribedByKdoc = true)
+@AppFunctionSerializable(isDescribedByKDoc = true)
 data class SetField<T>(
     /** Value property of SetField. */
     val value: T
@@ -59,7 +59,7 @@ data class CreateNoteParams(
 )
 
 /** Represents a note in the notes app. */
-@AppFunctionSerializable(isDescribedByKdoc = true)
+@AppFunctionSerializable(isDescribedByKDoc = true)
 data class Note(
     /** The note's title. */
     val title: String,
@@ -256,8 +256,7 @@ sealed interface OneOfSealedInterface {
 }
 
 @AppFunctionSerializable
-data class ASubclass(override val interfaceProperty: String, val str: String) :
-    OneOfSealedInterface
+data class ASubclass(override val interfaceProperty: String, val str: String) : OneOfSealedInterface
 
 @AppFunctionSerializable
 data class BSubclass(

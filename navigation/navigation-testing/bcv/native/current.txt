@@ -1,5 +1,5 @@
 // Klib ABI Dump
-// Targets: [linuxX64.linuxx64Stubs]
+// Targets: [iosArm64, iosSimulatorArm64, linuxArm64, linuxX64, macosArm64]
 // Rendering settings:
 // - Signature version: 2
 // - Show manifest properties: true
@@ -17,6 +17,11 @@ final class androidx.navigation.testing/TestNavigatorState : androidx.navigation
     constructor <init>(kotlinx.coroutines/CoroutineDispatcher = ...) // androidx.navigation.testing/TestNavigatorState.<init>|<init>(kotlinx.coroutines.CoroutineDispatcher){}[0]
 
     final fun createBackStackEntry(androidx.navigation/NavDestination, androidx.savedstate/SavedState?): androidx.navigation/NavBackStackEntry // androidx.navigation.testing/TestNavigatorState.createBackStackEntry|createBackStackEntry(androidx.navigation.NavDestination;androidx.savedstate.SavedState?){}[0]
+    final fun markTransitionComplete(androidx.navigation/NavBackStackEntry) // androidx.navigation.testing/TestNavigatorState.markTransitionComplete|markTransitionComplete(androidx.navigation.NavBackStackEntry){}[0]
+    final fun pop(androidx.navigation/NavBackStackEntry, kotlin/Boolean) // androidx.navigation.testing/TestNavigatorState.pop|pop(androidx.navigation.NavBackStackEntry;kotlin.Boolean){}[0]
+    final fun popWithTransition(androidx.navigation/NavBackStackEntry, kotlin/Boolean) // androidx.navigation.testing/TestNavigatorState.popWithTransition|popWithTransition(androidx.navigation.NavBackStackEntry;kotlin.Boolean){}[0]
+    final fun prepareForTransition(androidx.navigation/NavBackStackEntry) // androidx.navigation.testing/TestNavigatorState.prepareForTransition|prepareForTransition(androidx.navigation.NavBackStackEntry){}[0]
+    final fun push(androidx.navigation/NavBackStackEntry) // androidx.navigation.testing/TestNavigatorState.push|push(androidx.navigation.NavBackStackEntry){}[0]
     final fun restoreBackStackEntry(androidx.navigation/NavBackStackEntry): androidx.navigation/NavBackStackEntry // androidx.navigation.testing/TestNavigatorState.restoreBackStackEntry|restoreBackStackEntry(androidx.navigation.NavBackStackEntry){}[0]
 }
 

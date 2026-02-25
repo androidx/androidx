@@ -21,10 +21,11 @@ import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
 
 /**
- * Represents the current state of a [Hand] instance.
+ * Represents the current state of an [OpenXrHand] instance.
  *
- * According to https://registry.khronos.org/OpenXR/specs/1.0/man/html/XrHandJointEXT.html, the hand
- * joints should match the order defined in the same page as the enum values.
+ * @property trackingState the [TrackingState] of the hand
+ * @property handJoints the list of [Pose]s for each hand joint, ordered according to
+ *   [XrHandJointEXT](https://registry.khronos.org/OpenXR/specs/1.0/man/html/XrHandJointEXT.html)
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class HandState(

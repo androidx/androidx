@@ -484,26 +484,6 @@ private object BrushNative {
 
     @UsedByNative external fun computeComposeColorLong(nativePointer: Long): Long
 
-    /** This is a callback used by computeComposeColorLong. */
-    @UsedByNative
-    @JvmStatic
-    fun composeColorLongFromComponents(
-        colorSpaceId: Int,
-        redGammaCorrected: Float,
-        greenGammaCorrected: Float,
-        blueGammaCorrected: Float,
-        alpha: Float,
-    ): Long =
-        ComposeColor(
-                redGammaCorrected,
-                greenGammaCorrected,
-                blueGammaCorrected,
-                alpha,
-                colorSpace = composeColorSpaceFromInkColorSpaceId(colorSpaceId),
-            )
-            .value
-            .toLong()
-
     @UsedByNative external fun getSize(nativePointer: Long): Float
 
     @UsedByNative external fun getEpsilon(nativePointer: Long): Float

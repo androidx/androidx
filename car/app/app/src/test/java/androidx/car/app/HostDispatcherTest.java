@@ -100,6 +100,11 @@ public class HostDispatcherTest {
                     throws RemoteException {
                 return mMockAppHost.openMicrophone(openMicrophoneRequest);
             }
+
+            @Override
+            public int getInterfaceVersion() {
+                return super.VERSION;
+            }
         };
 
         mNavigationHost = new INavigationHost.Stub() {
@@ -114,12 +119,22 @@ public class HostDispatcherTest {
             @Override
             public void navigationEnded() {
             }
+
+            @Override
+            public int getInterfaceVersion() {
+                return super.VERSION;
+            }
         };
 
         mSuggestionHost = new ISuggestionHost.Stub() {
             @Override
             public void updateSuggestions(Bundleable suggestions){
 
+            }
+
+            @Override
+            public int getInterfaceVersion() {
+                return super.VERSION;
             }
         };
 

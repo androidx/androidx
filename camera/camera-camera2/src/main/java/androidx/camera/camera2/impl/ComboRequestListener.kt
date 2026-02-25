@@ -22,6 +22,7 @@ import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
+import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.RequestMetadata
@@ -68,10 +69,13 @@ public class ComboRequestListener @Inject constructor() : Request.Listener {
     override fun onBufferLost(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
-        stream: StreamId,
+        streamId: StreamId,
+        outputId: OutputId,
     ) {
         listeners.forEach { (listener, executor) ->
-            executor.execute { listener.onBufferLost(requestMetadata, frameNumber, stream) }
+            executor.execute {
+                listener.onBufferLost(requestMetadata, frameNumber, streamId, outputId)
+            }
         }
     }
 

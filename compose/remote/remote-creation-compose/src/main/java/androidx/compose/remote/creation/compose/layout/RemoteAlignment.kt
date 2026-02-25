@@ -90,6 +90,7 @@ public object RemoteAlignment {
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class RemoteHorizontalAlignment(var type: Int) : RemoteAlignment.Horizontal {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun toComposeUi(): androidx.compose.ui.Alignment.Horizontal {
         when (type) {
             0 -> return androidx.compose.ui.Alignment.Start
@@ -99,6 +100,7 @@ public data class RemoteHorizontalAlignment(var type: Int) : RemoteAlignment.Hor
         return androidx.compose.ui.Alignment.Start
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun toRemote(): Int {
         when (type) {
             0 -> return ColumnLayout.START
@@ -111,6 +113,7 @@ public data class RemoteHorizontalAlignment(var type: Int) : RemoteAlignment.Hor
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class RemoteVerticalAlignment(var type: Int) : RemoteAlignment.Vertical {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun toComposeUi(): androidx.compose.ui.Alignment.Vertical {
         when (type) {
             3 -> return androidx.compose.ui.Alignment.Top
@@ -120,6 +123,7 @@ public data class RemoteVerticalAlignment(var type: Int) : RemoteAlignment.Verti
         return androidx.compose.ui.Alignment.Top
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun toRemote(): Int {
         when (type) {
             3 -> return ColumnLayout.TOP

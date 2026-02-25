@@ -19,13 +19,18 @@ package androidx.compose.ui.semantics
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.RecomposeScope
 import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.Stable
@@ -47,10 +52,14 @@ import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.ValueElement
+import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsMatcher
@@ -68,6 +77,9 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -1304,6 +1316,568 @@ class SemanticsTests {
         assertEquals(density, result.density.density)
         assertEquals(14.0f, result.style.fontSize.value)
     }
+
+    @Test
+    fun getSemanticNodes_partiallyVisibleMergingParent_fullyVisibleChild_usesTouchTarget() {
+        lateinit var semanticsOwner: SemanticsOwner
+        rule.setContent {
+            semanticsOwner = (LocalView.current as RootForTest).semanticsOwner
+            val viewConfig = LocalViewConfiguration.current
+            val newConfig =
+                object : ViewConfiguration by viewConfig {
+                    override val minimumTouchTargetSize: DpSize
+                        get() = DpSize(40.dp, 40.dp)
+                }
+            CompositionLocalProvider(
+                LocalDensity provides Density(1f, 1f),
+                LocalViewConfiguration provides newConfig,
+            ) {
+                Column(
+                    Modifier.height(100.dp).verticalScroll(rememberScrollState())
+                ) { // scrolling container
+                    Box(Modifier.size(200.dp).semantics(true) {}) { // merging parent
+                        Box(
+                            Modifier.size(20.dp).offset(50.dp, 50.dp).clickable {}.testTag("child1")
+                        )
+                    }
+                }
+            }
+        }
+
+        val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
+        var childNode: SemanticsNodeWithAdjustedBounds? = null
+
+        rule.runOnIdle {
+            nodes.forEachValue { if (it.semanticsNode.isTestTag("child1")) childNode = it }
+            // takes minimum touch target into account
+            assertThat(childNode?.adjustedBounds).isEqualTo(IntRect(40, 40, 80, 80))
+        }
+    }
+
+    @Test
+    fun getSemanticNodes_partiallyVisibleMergingParent_fullyVisibleChild() {
+        lateinit var semanticsOwner: SemanticsOwner
+        rule.setContent {
+            semanticsOwner = (LocalView.current as RootForTest).semanticsOwner
+            CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
+                Column(
+                    Modifier.height(100.dp).verticalScroll(rememberScrollState())
+                ) { // scrolling container
+                    Box(Modifier.size(200.dp).semantics(true) {}) { // merging parent
+                        Box(Modifier.size(100.dp).importantWithTestTag("child1"))
+                    }
+                }
+            }
+        }
+
+        val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
+        var childNode: SemanticsNodeWithAdjustedBounds? = null
+
+        rule.runOnIdle {
+            nodes.forEachValue { if (it.semanticsNode.isTestTag("child1")) childNode = it }
+            assertThat(childNode?.adjustedBounds).isEqualTo(IntRect(0, 0, 100, 100))
+        }
+    }
+
+    @Test
+    fun getSemanticNodes_partiallyVisibleMergingParent_partiallyVisibleChild() {
+        lateinit var semanticsOwner: SemanticsOwner
+        rule.setContent {
+            semanticsOwner = (LocalView.current as RootForTest).semanticsOwner
+            CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
+                Column(
+                    Modifier.height(100.dp).verticalScroll(rememberScrollState())
+                ) { // scrolling container
+                    Box(Modifier.size(200.dp).semantics(true) {}) { // merging parent
+                        Box(
+                            Modifier.size(100.dp).offset(0.dp, 50.dp).importantWithTestTag("child1")
+                        )
+                    }
+                }
+            }
+        }
+
+        val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
+        var childNode: SemanticsNodeWithAdjustedBounds? = null
+
+        rule.runOnIdle {
+            nodes.forEachValue { if (it.semanticsNode.isTestTag("child1")) childNode = it }
+            // Child is at 0, 50 with size 100x100.
+            // Parent is at 0, 0 with size 200x200.
+            // Scrolling container is at 0, 0 with size 100x100.
+            // Child is partially visible in the scrolling container (0, 50, 100, 100).
+            assertThat(childNode?.adjustedBounds).isEqualTo(IntRect(0, 50, 100, 100))
+        }
+    }
+
+    @Test
+    fun getSemanticNodes_partiallyVisibleMergingParent_partiallyVisibleChild_usesTouchTarget() {
+        lateinit var semanticsOwner: SemanticsOwner
+        rule.setContent {
+            semanticsOwner = (LocalView.current as RootForTest).semanticsOwner
+            val viewConfig = LocalViewConfiguration.current
+            val newConfig =
+                object : ViewConfiguration by viewConfig {
+                    override val minimumTouchTargetSize: DpSize
+                        get() = DpSize(40.dp, 40.dp)
+                }
+            CompositionLocalProvider(
+                LocalDensity provides Density(1f, 1f),
+                LocalViewConfiguration provides newConfig,
+            ) {
+                Column(
+                    Modifier.height(100.dp).verticalScroll(rememberScrollState())
+                ) { // scrolling container
+                    Box(Modifier.size(200.dp).semantics(true) {}) { // merging parent
+                        Box(
+                            Modifier.size(20.dp).offset(10.dp, 90.dp).clickable {}.testTag("child1")
+                        )
+                    }
+                }
+            }
+        }
+
+        val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
+        var childNode: SemanticsNodeWithAdjustedBounds? = null
+
+        rule.runOnIdle {
+            nodes.forEachValue { if (it.semanticsNode.isTestTag("child1")) childNode = it }
+            // Child is at 10, 90 with size 20x20.
+            // Minimum touch target size is 40x40.
+            assertThat(childNode?.adjustedBounds).isEqualTo(IntRect(0, 80, 40, 120))
+        }
+    }
+
+    @Test
+    fun getSemanticNodes_partiallyVisibleMergingParent_fullyOffscreenChild() {
+        lateinit var semanticsOwner: SemanticsOwner
+        rule.setContent {
+            semanticsOwner = (LocalView.current as RootForTest).semanticsOwner
+            CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
+                Column(
+                    Modifier.height(100.dp).verticalScroll(rememberScrollState())
+                ) { // scrolling container
+                    Box(Modifier.size(200.dp).semantics(true) {}) { // merging parent
+                        Box(
+                            Modifier.size(100.dp)
+                                .offset(0.dp, 100.dp)
+                                .importantWithTestTag("child1")
+                        )
+                    }
+                }
+            }
+        }
+
+        val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
+        var childNode: SemanticsNodeWithAdjustedBounds? = null
+
+        rule.runOnIdle {
+            nodes.forEachValue { if (it.semanticsNode.isTestTag("child1")) childNode = it }
+            // Child is at 0, 100 with size 100x100.
+            // Parent is at 0, 0 with size 200x200.
+            // Scrolling container is at 0, 0 with size 100x100.
+            // Child is fully offscreen in the scrolling container.
+            // We expect it to be reported with its unclipped bounds.
+            assertThat(childNode?.adjustedBounds).isEqualTo(IntRect(0, 100, 100, 200))
+        }
+    }
+
+    @Test
+    fun getSemanticNodes_partiallyVisibleMergingParent_childrenFullyOverlapped_fullyVisible() {
+        lateinit var semanticsOwner: SemanticsOwner
+        rule.setContent {
+            semanticsOwner = (LocalView.current as RootForTest).semanticsOwner
+            CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
+                Column(
+                    Modifier.height(100.dp).verticalScroll(rememberScrollState())
+                ) { // scrolling container
+                    Box(Modifier.size(200.dp).semantics(true) {}) { // merging parent
+                        // Child 1 (bottom) fully visible
+                        Box(Modifier.size(50.dp).importantWithTestTag("child1"))
+                        // Child 2 (top) fully visible. Covers Child 1.
+                        Box(Modifier.size(50.dp).importantWithTestTag("child2"))
+                    }
+                }
+            }
+        }
+
+        val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
+        var child1Node: SemanticsNodeWithAdjustedBounds? = null
+        var child2Node: SemanticsNodeWithAdjustedBounds? = null
+
+        rule.runOnIdle {
+            nodes.forEachValue {
+                if (it.semanticsNode.isTestTag("child1")) child1Node = it
+                if (it.semanticsNode.isTestTag("child2")) child2Node = it
+            }
+            // Child 2 (top) is fully visible. Added.
+            assertThat(child2Node?.adjustedBounds).isEqualTo(IntRect(0, 0, 50, 50))
+            // Child 1 (bottom) is fully covered. Not added.
+            assertThat(child1Node).isNull()
+        }
+    }
+
+    @Test
+    fun getSemanticNodes_partiallyVisibleMergingParent_childrenFullyOverlapped_partiallyVisible() {
+        lateinit var semanticsOwner: SemanticsOwner
+        rule.setContent {
+            semanticsOwner = (LocalView.current as RootForTest).semanticsOwner
+            CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
+                Column(
+                    Modifier.height(100.dp).verticalScroll(rememberScrollState())
+                ) { // scrolling container
+                    Box(Modifier.size(200.dp).semantics(true) {}) { // merging parent
+                        // Child 1 (bottom) partially visible
+                        Box(
+                            Modifier.size(100.dp).offset(0.dp, 50.dp).importantWithTestTag("child1")
+                        )
+                        // Child 2 (top) partially visible. Covers Child 1.
+                        Box(
+                            Modifier.size(100.dp).offset(0.dp, 50.dp).importantWithTestTag("child2")
+                        )
+                    }
+                }
+            }
+        }
+
+        val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
+        var child1Node: SemanticsNodeWithAdjustedBounds? = null
+        var child2Node: SemanticsNodeWithAdjustedBounds? = null
+
+        rule.runOnIdle {
+            nodes.forEachValue {
+                if (it.semanticsNode.isTestTag("child1")) child1Node = it
+                if (it.semanticsNode.isTestTag("child2")) child2Node = it
+            }
+            // Child 2 (top) is partially visible. Added.
+            assertThat(child2Node?.adjustedBounds).isEqualTo(IntRect(0, 50, 100, 100))
+            // Child 1 (bottom) is fully covered. Not added.
+            assertThat(child1Node).isNull()
+        }
+    }
+
+    @Test
+    fun getSemanticNodes_partiallyVisibleMergingParent_childrenFullyOverlapped_fullyOffscreen() {
+        lateinit var semanticsOwner: SemanticsOwner
+        rule.setContent {
+            semanticsOwner = (LocalView.current as RootForTest).semanticsOwner
+            CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
+                Column(
+                    Modifier.height(100.dp).verticalScroll(rememberScrollState())
+                ) { // scrolling container
+                    Box(Modifier.size(200.dp).semantics(true) {}) { // merging parent
+                        // Child 1 (bottom) fully offscreen
+                        Box(
+                            Modifier.size(50.dp).offset(0.dp, 150.dp).importantWithTestTag("child1")
+                        )
+                        // Child 2 (top) fully offscreen. Covers Child 1.
+                        Box(
+                            Modifier.size(50.dp).offset(0.dp, 150.dp).importantWithTestTag("child2")
+                        )
+                    }
+                }
+            }
+        }
+
+        val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
+        var child1Node: SemanticsNodeWithAdjustedBounds? = null
+        var child2Node: SemanticsNodeWithAdjustedBounds? = null
+
+        rule.runOnIdle {
+            nodes.forEachValue {
+                if (it.semanticsNode.isTestTag("child1")) child1Node = it
+                if (it.semanticsNode.isTestTag("child2")) child2Node = it
+            }
+            // Child 2 (top) is fully offscreen. Added with unclipped bounds.
+            assertThat(child2Node?.adjustedBounds).isEqualTo(IntRect(0, 150, 50, 200))
+            // Child 1 (bottom) is fully covered. Not added.
+            assertThat(child1Node).isNull()
+        }
+    }
+
+    @Test
+    fun getSemanticNodes_partiallyVisibleMergingParent_childrenPartiallyOverlapped_bothFullyVisible() {
+        lateinit var semanticsOwner: SemanticsOwner
+        rule.setContent {
+            semanticsOwner = (LocalView.current as RootForTest).semanticsOwner
+            CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
+                Column(
+                    Modifier.height(100.dp).verticalScroll(rememberScrollState())
+                ) { // scrolling container
+                    Box(Modifier.size(200.dp).semantics(true) {}) { // merging parent
+                        // Child 1 (bottom) fully visible (10-60)
+                        Box(Modifier.size(50.dp).offset(0.dp, 10.dp).importantWithTestTag("child1"))
+                        // Child 2 (top) fully visible (40-90). Covers Child 1 (40-60).
+                        Box(Modifier.size(50.dp).offset(0.dp, 40.dp).importantWithTestTag("child2"))
+                    }
+                }
+            }
+        }
+
+        val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
+        var child1Node: SemanticsNodeWithAdjustedBounds? = null
+        var child2Node: SemanticsNodeWithAdjustedBounds? = null
+
+        rule.runOnIdle {
+            nodes.forEachValue {
+                if (it.semanticsNode.isTestTag("child1")) child1Node = it
+                if (it.semanticsNode.isTestTag("child2")) child2Node = it
+            }
+            // Child 2 (top) is fully visible. Added.
+            assertThat(child2Node?.adjustedBounds).isEqualTo(IntRect(0, 40, 50, 90))
+            // Child 1 (bottom) is partially covered by Child 2.
+            // Child 1 bounds: 10-60. Covered: 40-60. Visible: 10-40.
+            assertThat(child1Node?.adjustedBounds).isEqualTo(IntRect(0, 10, 50, 40))
+        }
+    }
+
+    @Test
+    fun getSemanticNodes_partiallyVisibleMergingParent_childrenPartiallyOverlapped_bothFullyOffscreen() {
+        lateinit var semanticsOwner: SemanticsOwner
+        rule.setContent {
+            semanticsOwner = (LocalView.current as RootForTest).semanticsOwner
+            CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
+                Column(
+                    Modifier.height(100.dp).verticalScroll(rememberScrollState())
+                ) { // scrolling container
+                    Box(Modifier.size(200.dp).semantics(true) {}) { // merging parent
+                        // Child 1 (bottom) fully offscreen (120-170)
+                        Box(
+                            Modifier.size(50.dp).offset(0.dp, 120.dp).importantWithTestTag("child1")
+                        )
+                        // Child 2 (top) fully offscreen (150-200). Covers child 1 (150-170).
+                        Box(
+                            Modifier.size(50.dp).offset(0.dp, 150.dp).importantWithTestTag("child2")
+                        )
+                    }
+                }
+            }
+        }
+
+        val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
+        var child1Node: SemanticsNodeWithAdjustedBounds? = null
+        var child2Node: SemanticsNodeWithAdjustedBounds? = null
+
+        rule.runOnIdle {
+            nodes.forEachValue {
+                if (it.semanticsNode.isTestTag("child1")) child1Node = it
+                if (it.semanticsNode.isTestTag("child2")) child2Node = it
+            }
+            // Child 2 (top) is fully offscreen. Added with unclipped bounds.
+            assertThat(child2Node?.adjustedBounds).isEqualTo(IntRect(0, 150, 50, 200))
+            // Child 1 (bottom) is partially covered by Child 2.
+            // Child 1 bounds: 120-170. Covered: 150-170. Uncovered: 120-150.
+            assertThat(child1Node?.adjustedBounds).isEqualTo(IntRect(0, 120, 50, 150))
+        }
+    }
+
+    @Test
+    fun getSemanticNodes_partiallyVisibleMergingParent_childrenPartiallyOverlapped_bothPartiallyVisible() {
+        lateinit var semanticsOwner: SemanticsOwner
+        rule.setContent {
+            semanticsOwner = (LocalView.current as RootForTest).semanticsOwner
+            CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
+                Column(
+                    Modifier.height(100.dp).verticalScroll(rememberScrollState())
+                ) { // scrolling container
+                    Box(Modifier.size(200.dp).semantics(true) {}) { // merging parent
+                        // Child 1 (bottom) partially visible (40-140). Visible part: 40-100.
+                        Box(
+                            Modifier.size(100.dp).offset(0.dp, 40.dp).importantWithTestTag("child1")
+                        )
+                        // Child 2 (top) partially visible (60-160). Visible part: 60-100. Covers
+                        // Child 1 (60-100).
+                        Box(
+                            Modifier.size(100.dp).offset(0.dp, 60.dp).importantWithTestTag("child2")
+                        )
+                    }
+                }
+            }
+        }
+
+        val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
+        var child1Node: SemanticsNodeWithAdjustedBounds? = null
+        var child2Node: SemanticsNodeWithAdjustedBounds? = null
+
+        rule.runOnIdle {
+            nodes.forEachValue {
+                if (it.semanticsNode.isTestTag("child1")) child1Node = it
+                if (it.semanticsNode.isTestTag("child2")) child2Node = it
+            }
+            // Child 2 (top) is partially visible. Added.
+            assertThat(child2Node?.adjustedBounds).isEqualTo(IntRect(0, 60, 100, 100))
+            // Child 1 (bottom) is partially visible (40-100).
+            // Covered by Child 2 (60-100).
+            // Remaining: 40-60.
+            assertThat(child1Node?.adjustedBounds).isEqualTo(IntRect(0, 40, 100, 60))
+        }
+    }
+
+    @Test
+    fun getSemanticNodes_partiallyVisibleMergingParent_childrenPartiallyOverlapped_topFullyVisible_bottomPartiallyVisible() {
+        lateinit var semanticsOwner: SemanticsOwner
+        rule.setContent {
+            semanticsOwner = (LocalView.current as RootForTest).semanticsOwner
+            CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
+                Column(
+                    Modifier.height(100.dp).verticalScroll(rememberScrollState())
+                ) { // scrolling container
+                    Box(Modifier.size(200.dp).semantics(true) {}) { // merging parent
+                        // Child 1 (bottom) partially visible (40-140). Visible part: 40-100.
+                        Box(
+                            Modifier.size(100.dp).offset(0.dp, 40.dp).importantWithTestTag("child1")
+                        )
+                        // Child 2 (top) fully visible (10-60). Covers Child 1 (40-60).
+                        Box(
+                            Modifier.height(50.dp)
+                                .width(100.dp)
+                                .offset(0.dp, 10.dp)
+                                .importantWithTestTag("child2")
+                        )
+                    }
+                }
+            }
+        }
+
+        val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
+        var child1Node: SemanticsNodeWithAdjustedBounds? = null
+        var child2Node: SemanticsNodeWithAdjustedBounds? = null
+
+        rule.runOnIdle {
+            nodes.forEachValue {
+                if (it.semanticsNode.isTestTag("child1")) child1Node = it
+                if (it.semanticsNode.isTestTag("child2")) child2Node = it
+            }
+            // Child 2 (top) is fully visible. Added.
+            assertThat(child2Node?.adjustedBounds).isEqualTo(IntRect(0, 10, 100, 60))
+            // Child 1 (bottom) is partially visible (40-100).
+            // Covered by Child 2 (40-60).
+            // Remaining: 60-100.
+            assertThat(child1Node?.adjustedBounds).isEqualTo(IntRect(0, 60, 100, 100))
+        }
+    }
+
+    @Test
+    fun getSemanticNodes_partiallyVisibleMergingParent_childrenPartiallyOverlapped_topPartiallyVisible_bottomFullyVisible() {
+        lateinit var semanticsOwner: SemanticsOwner
+        rule.setContent {
+            semanticsOwner = (LocalView.current as RootForTest).semanticsOwner
+            CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
+                Column(
+                    Modifier.height(100.dp).verticalScroll(rememberScrollState())
+                ) { // scrolling container
+                    Box(Modifier.size(200.dp).semantics(true) {}) { // merging parent
+                        // Child 1 (bottom) fully visible (10-60).
+                        Box(Modifier.size(50.dp).offset(0.dp, 10.dp).importantWithTestTag("child1"))
+                        // Child 2 (top) partially visible (40-140). Visible part: 40-100. Covers
+                        // Child 1 (40-60).
+                        Box(
+                            Modifier.size(100.dp).offset(0.dp, 40.dp).importantWithTestTag("child2")
+                        )
+                    }
+                }
+            }
+        }
+
+        val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
+        var child1Node: SemanticsNodeWithAdjustedBounds? = null
+        var child2Node: SemanticsNodeWithAdjustedBounds? = null
+
+        rule.runOnIdle {
+            nodes.forEachValue {
+                if (it.semanticsNode.isTestTag("child1")) child1Node = it
+                if (it.semanticsNode.isTestTag("child2")) child2Node = it
+            }
+            // Child 2 (top) is partially visible. Added.
+            assertThat(child2Node?.adjustedBounds).isEqualTo(IntRect(0, 40, 100, 100))
+            // Child 1 (bottom) is fully visible (10-60).
+            // Covered by Child 2 (40-60).
+            // Remaining: 10-40.
+            assertThat(child1Node?.adjustedBounds).isEqualTo(IntRect(0, 10, 50, 40))
+        }
+    }
+
+    @Test
+    fun getSemanticNodes_partiallyVisibleMergingParent_childrenPartiallyOverlapped_topPartiallyVisible_bottomFullyOffscreen() {
+        lateinit var semanticsOwner: SemanticsOwner
+        rule.setContent {
+            semanticsOwner = (LocalView.current as RootForTest).semanticsOwner
+            CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
+                Column(
+                    Modifier.height(100.dp).verticalScroll(rememberScrollState())
+                ) { // scrolling container
+                    Box(Modifier.size(200.dp).semantics(true) {}) { // merging parent
+                        // Child 1 (bottom) is fully offscreen (120-170).
+                        Box(
+                            Modifier.size(50.dp).offset(0.dp, 120.dp).importantWithTestTag("child1")
+                        )
+                        // Child 2 (top) partially visible (80-130). Visible part: 80-100. Covers
+                        // Child 1 (120-130).
+                        Box(Modifier.size(50.dp).offset(0.dp, 80.dp).importantWithTestTag("child2"))
+                    }
+                }
+            }
+        }
+
+        val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
+        var child1Node: SemanticsNodeWithAdjustedBounds? = null
+        var child2Node: SemanticsNodeWithAdjustedBounds? = null
+
+        rule.runOnIdle {
+            nodes.forEachValue {
+                if (it.semanticsNode.isTestTag("child1")) child1Node = it
+                if (it.semanticsNode.isTestTag("child2")) child2Node = it
+            }
+            // Child 2 (top) is partially visible. Added.
+            assertThat(child2Node?.adjustedBounds).isEqualTo(IntRect(0, 80, 50, 100))
+            // Child 1 (bottom) is fully offscreen (120-170).
+            // Covered by Child 2 (80-130) which reported visible bounds are (80-100).
+            // Remaining: 120-170.
+            assertThat(child1Node?.adjustedBounds).isEqualTo(IntRect(0, 120, 50, 170))
+        }
+    }
+
+    @Test
+    fun getSemanticNodes_partiallyVisibleMergingParent_childrenPartiallyOverlapped_topFullyOffscreen_bottomPartiallyVisible() {
+        lateinit var semanticsOwner: SemanticsOwner
+        rule.setContent {
+            semanticsOwner = (LocalView.current as RootForTest).semanticsOwner
+            CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
+                Column(
+                    Modifier.height(100.dp).verticalScroll(rememberScrollState())
+                ) { // scrolling container
+                    Box(Modifier.size(200.dp).semantics(true) {}) { // merging parent
+                        // Child 1 (bottom) partially visible (80-130). Visible part: 80-100.
+                        Box(Modifier.size(50.dp).offset(0.dp, 80.dp).importantWithTestTag("child1"))
+                        // Child 2 (top) is fully offscreen (120-170). Covers child 1 (120-130).
+                        Box(
+                            Modifier.size(50.dp).offset(0.dp, 120.dp).importantWithTestTag("child2")
+                        )
+                    }
+                }
+            }
+        }
+
+        val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
+        var child1Node: SemanticsNodeWithAdjustedBounds? = null
+        var child2Node: SemanticsNodeWithAdjustedBounds? = null
+
+        rule.runOnIdle {
+            nodes.forEachValue {
+                if (it.semanticsNode.isTestTag("child1")) child1Node = it
+                if (it.semanticsNode.isTestTag("child2")) child2Node = it
+            }
+            // Child 2 (top) is fully offscreen. Added with unclipped bounds.
+            assertThat(child2Node?.adjustedBounds).isEqualTo(IntRect(0, 120, 50, 170))
+            // Child 1 (bottom) is partially visible (80-100).
+            // Its offscreen part (100-130) is partially covered by Child 2 (120-130).
+            // Uncovered part is (80-120).
+            assertThat(child1Node?.adjustedBounds).isEqualTo(IntRect(0, 80, 50, 100))
+        }
+    }
+
+    private fun SemanticsNode.isTestTag(testTag: String) =
+        this.unmergedConfig.getOrNull(SemanticsProperties.TestTag) == testTag
 }
 
 private fun SemanticsNodeInteraction.assertDoesNotHaveProperty(property: SemanticsPropertyKey<*>) {
@@ -1437,3 +2011,11 @@ internal data class NodeElement(val node: Modifier.Node) : ModifierNodeElement<M
 
     override fun update(node: Modifier.Node) {}
 }
+
+private fun Modifier.importantWithTestTag(tag: String) =
+    this.then(
+        Modifier.semantics {
+            testTag = tag
+            text = AnnotatedString(tag) // adding this just to make node important for a11y
+        }
+    )

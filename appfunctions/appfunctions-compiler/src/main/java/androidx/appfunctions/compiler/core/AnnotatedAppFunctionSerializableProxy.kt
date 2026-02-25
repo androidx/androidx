@@ -40,7 +40,8 @@ data class AnnotatedAppFunctionSerializableProxy(
     override val classDeclaration: KSClassDeclaration
 ) : AppFunctionSerializableType {
 
-    override val isDescribedByKdoc = false
+    override val isDescribedByKDoc = false
+
     /** The type of the class that the proxy class is proxying. */
     val targetClassDeclaration: KSClassDeclaration by lazy {
         (classDeclaration.annotations.findAnnotation(

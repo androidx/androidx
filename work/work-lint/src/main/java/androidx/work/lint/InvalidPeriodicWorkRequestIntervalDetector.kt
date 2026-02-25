@@ -110,8 +110,8 @@ class InvalidPeriodicWorkRequestIntervalDetector : Detector(), SourceCodeScanner
                             ISSUE,
                             context.getLocation(node),
                             """
-                                Interval duration for `PeriodicWorkRequest`s must be at least 15 \
-                                minutes.
+                            Interval duration for `PeriodicWorkRequest`s must be at least 15 \
+                            minutes.
                             """
                                 .trimIndent(),
                         )
@@ -148,8 +148,8 @@ class InvalidPeriodicWorkRequestIntervalDetector : Detector(), SourceCodeScanner
                             ISSUE,
                             context.getLocation(node),
                             """
-                                Interval duration for `PeriodicWorkRequest`s must be at least 15 \
-                                minutes.
+                            Interval duration for `PeriodicWorkRequest`s must be at least 15 \
+                            minutes.
                             """
                                 .trimIndent(),
                         )

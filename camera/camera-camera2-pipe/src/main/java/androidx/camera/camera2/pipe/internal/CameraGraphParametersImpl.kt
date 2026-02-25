@@ -24,15 +24,19 @@ import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.config.ForCameraGraph
 import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.graph.GraphProcessor
-import androidx.camera.camera2.pipe.graph.SessionLock
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 
+/**
+ * Implementation of [Parameters]. It propagates the parameter changes to the camera device via
+ * [graphProcessor]. This is designed in such a way that helps us with reducing the actual number of
+ * invocations to [graphProcessor]. We try to batch the changes and apply them together if possible.
+ */
 @CameraGraphScope
 public class CameraGraphParametersImpl
 @Inject
 internal constructor(
-    private val sessionLock: SessionLock,
+    private val sessionLock: GraphSessionLock,
     private val graphProcessor: GraphProcessor,
     @ForCameraGraph private val graphScope: CoroutineScope,
 ) : Parameters {
@@ -41,8 +45,9 @@ internal constructor(
     @GuardedBy("lock") private val parameters = mutableMapOf<Any, Any?>()
 
     /**
-     * Set to true when [parameters] is modified. Set to false when the modified [parameters] is
-     * fetched.
+     * It tracks if the [parameters] map contains changes that have not been applied. It is set to
+     * true when we detect changes to [parameters] and is set to false when a snapshot is taken to
+     * be sent to the graphProcessor.
      */
     @GuardedBy("lock") private var dirty = false
 
@@ -64,20 +69,20 @@ internal constructor(
     }
 
     public override fun setAll(newParameters: Map<Any, Any?>) {
-        var invokeUpdate = false
-        synchronized(lock) {
-            var modified = false
-            for ((key, value) in newParameters.entries) {
-                modified = modify(parameters, key, value) || modified
+        val invokeUpdate =
+            synchronized(lock) {
+                var modified = false
+                for ((key, value) in newParameters.entries) {
+                    modified = modify(parameters, key, value) || modified
+                }
+                shouldApplyUpdate(modified)
             }
-            if (modified && !dirty) {
-                dirty = true
-                invokeUpdate = true
-            }
+        if (invokeUpdate) {
+            applyUpdate()
         }
-        applyUpdate(invokeUpdate)
     }
 
+    @GuardedBy("lock")
     private fun modify(map: MutableMap<Any, Any?>, key: Any, value: Any?): Boolean {
         if (key !is CaptureRequest.Key<*> && key !is Metadata.Key<*>) {
             warn {
@@ -85,31 +90,26 @@ internal constructor(
             }
             return false
         }
-        var modified = false
-        if (!map.containsKey(key)) {
-            modified = true
-        }
-        if (map[key] != value) {
-            modified = true
+        if (map.containsKey(key) && map[key] == value) {
+            return false
         }
         map[key] = value
-        return modified
+        return true
     }
 
     public override fun clear() {
-        var invokeUpdate = false
-        synchronized(lock) {
-            var modified = false
-            if (parameters.isNotEmpty()) {
-                parameters.clear()
-                modified = true
+        val invokeUpdate =
+            synchronized(lock) {
+                if (parameters.isNotEmpty()) {
+                    parameters.clear()
+                    shouldApplyUpdate(modified = true)
+                } else {
+                    false
+                }
             }
-            if (modified && !dirty) {
-                dirty = true
-                invokeUpdate = true
-            }
+        if (invokeUpdate) {
+            applyUpdate()
         }
-        applyUpdate(invokeUpdate)
     }
 
     public override fun <T> remove(key: CaptureRequest.Key<T>): Boolean {
@@ -121,48 +121,58 @@ internal constructor(
     }
 
     public override fun removeAll(keys: Set<*>): Boolean {
-        var invokeUpdate = false
         var modified = false
-        synchronized(lock) {
-            for (key in keys) {
-                if (parameters.containsKey(key)) {
-                    parameters.remove(key)
-                    modified = true
-                }
-                if (key !is CaptureRequest.Key<*> && key !is Metadata.Key<*>) {
-                    warn {
-                        "Skipping removing parameter with key $key. $key is not a valid parameter type."
+        val invokeUpdate =
+            synchronized(lock) {
+                for (key in keys) {
+                    if (parameters.containsKey(key)) {
+                        parameters.remove(key)
+                        modified = true
+                    }
+                    if (key !is CaptureRequest.Key<*> && key !is Metadata.Key<*>) {
+                        warn {
+                            "Skipping removing parameter with key $key. $key is not a valid parameter type."
+                        }
                     }
                 }
+                shouldApplyUpdate(modified)
             }
-            if (modified && !dirty) {
-                dirty = true
-                invokeUpdate = true
-            }
+
+        if (invokeUpdate) {
+            applyUpdate()
         }
-        applyUpdate(invokeUpdate)
         return modified
     }
 
-    /**
-     * Return the latest parameters if the class stored parameters has changed since the last time
-     * this method is called. If there is no parameter changes, return null.
-     */
-    public fun fetchUpdatedParameters(): Map<Any, Any?>? {
-        synchronized(lock) {
-            if (!dirty) return null
-
-            dirty = false
-            return parameters
+    // We should apply the update only if we the parameters are modified, and we are the one setting
+    // dirty to true. If the dirty was already true then someone else should "flush" the parameters
+    // as part of their update call.
+    @GuardedBy("lock")
+    private fun shouldApplyUpdate(modified: Boolean): Boolean {
+        if (!modified) {
+            return false
         }
+        if (!dirty) {
+            dirty = true
+            return true
+        }
+        return false
     }
 
-    private fun applyUpdate(update: Boolean) {
-        val unappliedParameters = fetchUpdatedParameters() ?: return
-        if (update) {
-            sessionLock.withTokenIn(graphScope) {
-                graphProcessor.updateGraphParameters(unappliedParameters)
+    private fun applyUpdate() {
+        sessionLock.withTokenIn(graphScope) { flush() }
+    }
+
+    // Note: this must be called only when caller has an active sessionLock token.
+    public fun flush() {
+        val snapshot =
+            synchronized(lock) {
+                if (!dirty) {
+                    return
+                }
+                dirty = false
+                HashMap(parameters)
             }
-        }
+        graphProcessor.updateGraphParameters(snapshot)
     }
 }

@@ -107,8 +107,8 @@ public class CollapsiblePriorityModifierOperation extends Operation
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", OP_CODE, "CollapsiblePriorityModifier")
-                .description("Add additional priority to children of Collapsible layouts")
+        doc.operation("Modifier Operations", OP_CODE, CLASS_NAME)
+                .description("Add additional priority to children of collapsible layouts")
                 .field(DocumentedOperation.INT, "orientation", "Horizontal(0) or Vertical (1)")
                 .field(DocumentedOperation.FLOAT, "priority", "The associated priority");
     }

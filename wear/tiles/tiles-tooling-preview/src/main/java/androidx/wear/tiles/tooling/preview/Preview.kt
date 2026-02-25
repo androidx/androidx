@@ -76,7 +76,7 @@ import androidx.wear.tooling.preview.devices.WearDevices
 @Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.FUNCTION)
 @Repeatable
 @MustBeDocumented
-annotation class Preview(
+public annotation class Preview(
     val name: String = "",
     val group: String = "",
     val locale: String = "",

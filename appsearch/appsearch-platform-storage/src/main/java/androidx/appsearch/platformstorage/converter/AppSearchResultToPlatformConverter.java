@@ -170,13 +170,20 @@ public final class AppSearchResultToPlatformConverter {
         for (Map.Entry<PlatformKey, android.app.appsearch.AppSearchResult<PlatformValue>> failure :
                 platformResult.getFailures().entrySet()) {
             JetpackKey jetpackKey = keyMapper.apply(failure.getKey());
+            int resultCode = failure.getValue().getResultCode();
+            String errorMessage = failure.getValue().getErrorMessage();
+            // In some situations the error message maybe null if the result code is
+            // RESULT_NOT_FOUND.
+            // In these cases we should populate the error message.
+            if (resultCode == AppSearchResult.RESULT_NOT_FOUND && errorMessage == null) {
+                errorMessage = "Document id '" + jetpackKey + "' doesn't exist";
+            }
             jetpackResultBuilder.setFailure(
                     jetpackKey,
                     // Without the SuppressLint annotation on the method, this line causes a
                     // lint error because getResultCode isn't defined as returning a value from
                     // AppSearchResult.ResultCode
-                    failure.getValue().getResultCode(),
-                    failure.getValue().getErrorMessage());
+                    resultCode, errorMessage);
         }
     }
 }

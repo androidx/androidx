@@ -17,6 +17,7 @@
 import android.graphics.RectF
 import androidx.pdf.annotation.models.EditId
 import androidx.pdf.annotation.models.PathPdfObject
+import androidx.pdf.annotation.models.PathPdfObject.PathInput
 import androidx.pdf.annotation.models.PdfAnnotationData
 import androidx.pdf.annotation.models.StampAnnotation
 import kotlin.math.abs
@@ -45,15 +46,17 @@ fun createPathPdfObjectList(size: Int): List<PathPdfObject> {
 fun randomizePathPdfObject(pathLength: Int): PathPdfObject =
     PathPdfObject(brushColor = 0, brushWidth = 0f, inputs = randomizePathInputs(pathLength))
 
-fun randomizePathInputs(pathLength: Int): List<PathPdfObject.PathInput> =
-    IntArray(pathLength).map {
-        PathPdfObject.PathInput(
+fun randomizePathInputs(pathLength: Int): List<PathInput> =
+    IntArray(pathLength).mapIndexed { index, _ ->
+        val command = if (index == 0) PathInput.MOVE_TO else PathInput.LINE_TO
+        PathInput(
             x = abs(Random.Default.nextInt(100, 1000).toFloat()),
             y = abs(Random.Default.nextInt(100, 1000).toFloat()),
+            command = command,
         )
     }
 
-fun List<PathPdfObject.PathInput>.computeBounds(): RectF {
+fun List<PathInput>.computeBounds(): RectF {
     val left = this.fold(Float.Companion.MAX_VALUE) { acc, input -> min(acc, input.x) }
     val top = this.fold(Float.Companion.MAX_VALUE) { acc, input -> min(acc, input.y) }
     val right = this.fold(Float.Companion.MIN_VALUE) { acc, input -> max(acc, input.x) }

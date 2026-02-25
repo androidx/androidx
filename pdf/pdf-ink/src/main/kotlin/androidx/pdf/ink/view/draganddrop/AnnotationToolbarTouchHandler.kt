@@ -19,6 +19,9 @@ package androidx.pdf.ink.view.draganddrop
 import android.view.GestureDetector
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
+import android.view.MotionEvent.ACTION_CANCEL
+import android.view.MotionEvent.ACTION_DOWN
+import android.view.MotionEvent.ACTION_UP
 import android.view.View
 import android.view.ViewConfiguration
 import kotlin.math.abs
@@ -41,6 +44,9 @@ internal class AnnotationToolbarTouchHandler(
     private val toolbarView: View,
     private val isTouchOnInteractiveChild: (MotionEvent) -> Boolean,
 ) {
+
+    internal var areAnimationsEnabled: Boolean = true
+
     private var isDragging = false
     private val touchSlop = ViewConfiguration.get(toolbarView.context).scaledTouchSlop
 
@@ -55,11 +61,7 @@ internal class AnnotationToolbarTouchHandler(
             toolbarView.context,
             object : GestureDetector.SimpleOnGestureListener() {
                 override fun onLongPress(event: MotionEvent) {
-                    isDragging = true
-                    // Critical: Stop children (buttons) from handling this touch any further
-                    toolbarView.parent.requestDisallowInterceptTouchEvent(true)
-                    toolbarView.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-                    dragListener?.onDragStart(event)
+                    startDrag(event)
                 }
 
                 override fun onScroll(
@@ -91,32 +93,67 @@ internal class AnnotationToolbarTouchHandler(
         )
 
     fun onInterceptTouchEvent(event: MotionEvent): Boolean {
-        if (isTouchOnInteractiveChild(event)) return false
+        // If not dragging, let buttons handle their own touches.
+        if (!isDragging && isTouchOnInteractiveChild(event)) return false
 
         gestureDetector.onTouchEvent(event)
+
+        // If we intercept an UP/CANCEL, the system will NOT call onTouchEvent.
+        // We must clean up state here manually.
+        when (event.actionMasked) {
+            ACTION_UP,
+            ACTION_CANCEL -> {
+                if (isDragging) {
+                    endDrag()
+                    return true // Ensures child gets ACTION_CANCEL, not ACTION_UP
+                }
+            }
+        }
 
         // If dragging is in progress, "steal" the event stream from child views (buttons)
         return isDragging
     }
 
     fun onTouchEvent(event: MotionEvent): Boolean {
-        if (isTouchOnInteractiveChild(event)) return false
+        if (!isDragging && isTouchOnInteractiveChild(event)) return false
 
-        gestureDetector.onTouchEvent(event)
+        // TEST HOOK: If animations are disabled (e.g., during Espresso tests),
+        // bypass the 500ms long-press delay and start dragging immediately.
+        if (!areAnimationsEnabled && event.actionMasked == ACTION_DOWN) {
+            startDrag(event)
+        }
+
+        // If we are dragging, we handle movement manually. No need to feed the detector.
+        if (!isDragging) gestureDetector.onTouchEvent(event)
 
         when (event.actionMasked) {
             MotionEvent.ACTION_MOVE -> {
                 if (isDragging) dragListener?.onDragMove(event)
             }
-            MotionEvent.ACTION_UP,
-            MotionEvent.ACTION_CANCEL -> {
-                if (isDragging) dragListener?.onDragEnd()
-
-                isDragging = false
-                toolbarView.parent.requestDisallowInterceptTouchEvent(false)
+            ACTION_UP,
+            ACTION_CANCEL -> {
+                if (isDragging) {
+                    endDrag()
+                    return true // Notify system we've consumed event stream
+                }
             }
         }
 
         return isDragging
+    }
+
+    private fun startDrag(event: MotionEvent) {
+        isDragging = true
+        // Critical: Stop children (buttons) from handling this touch any further
+        toolbarView.parent.requestDisallowInterceptTouchEvent(true)
+        toolbarView.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+        dragListener?.onDragStart(event)
+    }
+
+    private fun endDrag() {
+        dragListener?.onDragEnd()
+        isDragging = false
+        // Re-enable parent interception for normal scrolling behavior
+        toolbarView.parent.requestDisallowInterceptTouchEvent(false)
     }
 }

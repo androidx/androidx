@@ -30,6 +30,7 @@ import androidx.appfunctions.AppFunctionManager.Companion.APP_FUNCTION_STATE_ENA
 import androidx.appfunctions.AppFunctionSystemUnknownException
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
+import androidx.appfunctions.metadata.AppFunctionMetadata
 import com.android.extensions.appfunctions.AppFunctionManager as ExtensionAppFunctionManager
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -46,7 +47,8 @@ internal class ExtensionAppFunctionManagerApi(private val context: Context) :
     }
 
     override suspend fun executeAppFunction(
-        request: ExecuteAppFunctionRequest
+        request: ExecuteAppFunctionRequest,
+        functionMetadata: AppFunctionMetadata,
     ): ExecuteAppFunctionResponse {
         return suspendCancellableCoroutine { cont ->
             val cancellationSignal = CancellationSignal()
@@ -65,7 +67,10 @@ internal class ExtensionAppFunctionManagerApi(private val context: Context) :
                         result: com.android.extensions.appfunctions.ExecuteAppFunctionResponse
                     ) {
                         cont.resume(
-                            ExecuteAppFunctionResponse.Success.fromPlatformExtensionClass(result)
+                            ExecuteAppFunctionResponse.Success.fromPlatformExtensionClass(
+                                result,
+                                functionMetadata,
+                            )
                         )
                     }
 
