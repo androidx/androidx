@@ -18,9 +18,9 @@ package androidx.lifecycle.viewmodel.navigation3
 
 import androidx.compose.runtime.Composable
 
-actual object ViewModelStoreNavEntryDecoratorDefaults {
+public actual object ViewModelStoreNavEntryDecoratorDefaults {
     @Composable
-    actual fun removeViewModelStoreOnPop(): () -> Boolean {
+    public actual fun removeViewModelStoreOnPop(): () -> Boolean {
         return { true }
     }
 }
