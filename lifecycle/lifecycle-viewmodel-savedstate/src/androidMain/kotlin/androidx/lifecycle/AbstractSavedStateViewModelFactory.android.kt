@@ -41,6 +41,7 @@ import androidx.savedstate.SavedStateRegistryOwner
 @Deprecated(
     "Use `viewModelFactory` or implement `ViewModelProvider.Factory`, combined with `CreationExtras.createSavedStateHandle()`."
 )
+@Suppress("HiddenSuperclass")
 public abstract class AbstractSavedStateViewModelFactory :
     ViewModelProvider.OnRequeryFactory, ViewModelProvider.Factory {
 

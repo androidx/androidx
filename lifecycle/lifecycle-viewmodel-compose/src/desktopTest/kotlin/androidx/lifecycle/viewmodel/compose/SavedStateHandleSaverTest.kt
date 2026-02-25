@@ -37,7 +37,11 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 
-@OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
+@OptIn(
+    ExperimentalTestApi::class,
+    ExperimentalComposeUiApi::class,
+    SavedStateHandleSaveableApi::class,
+)
 class SavedStateHandleSaverTest {
 
     @Test

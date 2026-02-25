@@ -81,7 +81,7 @@ class LifecycleWhenChecksTest {
                 FooView().foo()
             }
         }
-    """
+        """
             .trimIndent()
 
     private val TEMPLATE_SIZE_BEFOFE_BODY = TEMPLATE.substringBefore("%s").lines().size
@@ -137,7 +137,7 @@ class LifecycleWhenChecksTest {
             } finally {
                 view.foo()
             }
-        """
+            """
                 .trimIndent()
 
         check(input.trimIndent()).expect(error(4))
@@ -154,7 +154,7 @@ class LifecycleWhenChecksTest {
                     view.foo()
                 }
             }
-        """
+            """
                 .trimIndent()
         check(input.trimIndent()).expectClean()
     }
@@ -171,7 +171,7 @@ class LifecycleWhenChecksTest {
                     view.foo()
                 }
             }
-        """
+            """
                 .trimIndent()
         check(input.trimIndent()).expect(error(6, "    view.foo()"))
     }
@@ -190,7 +190,7 @@ class LifecycleWhenChecksTest {
                     view.foo()
                 }
             }
-        """
+            """
                 .trimIndent()
         check(input.trimIndent()).expectClean()
     }
@@ -211,7 +211,7 @@ class LifecycleWhenChecksTest {
                     view.foo()
                 }
             }
-        """
+            """
                 .trimIndent()
         check(input.trimIndent()).expect(error(8, "        view.foo()")).expectErrorCount(1)
     }
@@ -227,7 +227,7 @@ class LifecycleWhenChecksTest {
             } finally {
                 view.foo()
             }
-        """
+            """
                 .trimIndent()
 
         check(input.trimIndent()).expect(error(6))
@@ -244,7 +244,7 @@ class LifecycleWhenChecksTest {
             } finally {
                 view.foo()
             }
-        """
+            """
                 .trimIndent()
         check(input.trimIndent()).expectClean()
     }
@@ -261,7 +261,7 @@ class LifecycleWhenChecksTest {
                     view.foo()
                 }
             }
-        """
+            """
                 .trimIndent()
         check(input.trimIndent()).expectClean()
     }
@@ -278,7 +278,7 @@ class LifecycleWhenChecksTest {
                     view.foo()
                 }
             }
-        """
+            """
                 .trimIndent()
         check(input.trimIndent()).expect(error(5, "    view.foo()"))
     }
@@ -306,7 +306,7 @@ class LifecycleWhenChecksTest {
                     view.foo()
                 }
             }
-        """
+            """
                 .trimIndent()
         check(input).expectClean()
     }
@@ -321,7 +321,7 @@ class LifecycleWhenChecksTest {
             } finally {
                 view.foo()
             }
-        """
+            """
                 .trimIndent()
         check(input).expect(error(5))
     }
@@ -336,7 +336,7 @@ class LifecycleWhenChecksTest {
             } finally {
                 view.foo()
             }
-        """
+            """
                 .trimIndent()
         check(input).expect(error(5))
     }
@@ -353,7 +353,7 @@ class LifecycleWhenChecksTest {
             } finally {
                 view.foo()
             }
-        """
+            """
                 .trimIndent()
         check(input).expect(error(7))
     }
@@ -370,7 +370,7 @@ class LifecycleWhenChecksTest {
             } finally {
                 view.foo()
             }
-        """
+            """
                 .trimIndent()
         check(input).expect(error(7))
     }
@@ -389,7 +389,7 @@ class LifecycleWhenChecksTest {
             } finally {
                 view.foo()
             }
-        """
+            """
                 .trimIndent()
         check(input).expect(error(4)).expectErrorCount(1)
     }
@@ -406,7 +406,7 @@ class LifecycleWhenChecksTest {
                     view.foo()
                 }
             }
-        """
+            """
                 .trimIndent()
         check(input).expect(error(6, "    view.foo()")).expectErrorCount(1)
     }
@@ -423,7 +423,7 @@ class LifecycleWhenChecksTest {
                 } finally {
                 }
             }
-        """
+            """
                 .trimIndent()
         check(input).expect(error(5, "    view.foo()")).expectErrorCount(1)
     }
@@ -443,7 +443,7 @@ class LifecycleWhenChecksTest {
             } finally {
                 view.foo()
             }
-        """
+            """
                 .trimIndent()
         check(input).expect(error(4)).expectErrorCount(1)
     }
@@ -461,7 +461,7 @@ class LifecycleWhenChecksTest {
             } finally {
                 view.foo()
             }
-        """
+            """
                 .trimIndent()
         check(input).expectClean()
     }
@@ -477,7 +477,7 @@ class LifecycleWhenChecksTest {
             } finally {
                 view.foo()
             }
-        """
+            """
                 .trimIndent()
         check(input).expectClean()
     }
@@ -491,7 +491,7 @@ class LifecycleWhenChecksTest {
             } finally {
                 accessView(view)
             }
-        """
+            """
                 .trimIndent()
         check(input)
             .expect(error(4, "accessView(view)", "src/foo/test.kt:31: Internal View access"))

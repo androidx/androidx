@@ -25,22 +25,22 @@ internal val VIEWMODEL =
         checksum = 0xacdef33f,
         source =
             """
-                package androidx.lifecycle
-                public open class ViewModel
+            package androidx.lifecycle
+            public open class ViewModel
 
-                public class ViewModelStoreOwner
-                public class ViewModelProvider {
-                   public class Factory {
-                        public fun <T : ViewModel> create(): T {
-                            return MockStore<T>().vm
-                        }
+            public class ViewModelStoreOwner
+            public class ViewModelProvider {
+               public class Factory {
+                    public fun <T : ViewModel> create(): T {
+                        return MockStore<T>().vm
+                    }
 
-                        private class MockStore<T : ViewModel> {
-                            lateinit var vm: T
-                        }
-                   }
-                }
-                public class CreationExtras
+                    private class MockStore<T : ViewModel> {
+                        lateinit var vm: T
+                    }
+               }
+            }
+            public class CreationExtras
             """
                 .trimIndent(),
         """
@@ -167,7 +167,7 @@ internal val VIEWMODEL_COMPOSE =
                 key: String? = null,
                 noinline initializer: CreationExtras.() -> VM
             ): VM { return CreationExtras().run { initializer() } }
-        """
+            """
                 .trimIndent(),
         """
                 META-INF/main.kotlin_module:

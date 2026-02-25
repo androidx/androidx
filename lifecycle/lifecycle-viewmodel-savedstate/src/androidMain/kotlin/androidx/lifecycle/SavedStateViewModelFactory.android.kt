@@ -40,6 +40,7 @@ import kotlin.reflect.KClass
  * constructor that receives [SavedStateHandle] only. [androidx.lifecycle.AndroidViewModel] is only
  * supported if you pass a non-null [Application] instance.
  */
+@Suppress("HiddenSuperclass")
 public actual class SavedStateViewModelFactory :
     ViewModelProvider.OnRequeryFactory, ViewModelProvider.Factory {
     private var application: Application? = null

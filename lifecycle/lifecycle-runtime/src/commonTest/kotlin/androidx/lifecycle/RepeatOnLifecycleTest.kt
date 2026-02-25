@@ -30,7 +30,6 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 
-@IgnoreWebTarget
 class RepeatOnLifecycleTest {
 
     private val expectations = Expectations()

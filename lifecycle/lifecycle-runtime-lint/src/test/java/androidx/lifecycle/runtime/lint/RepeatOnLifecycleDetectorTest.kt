@@ -75,10 +75,10 @@ class RepeatOnLifecycleDetectorTest(val config: TestConfig) {
                                 apiMethod,
                                 methodBody =
                                     """
-                                GlobalScope.launch {
-                                    helperMethod()
-                                }
-                            """
+                                    GlobalScope.launch {
+                                        helperMethod()
+                                    }
+                                    """
                                         .trimIndent(),
                                 // The helper method body depends on the apiMethod we're testing
                                 helperMethodBody =
@@ -187,7 +187,7 @@ class RepeatOnLifecycleDetectorTest(val config: TestConfig) {
                 %s // config.helperMethodBody
             }
         }
-    """
+        """
             .trimIndent()
 
     private val ACTIVITY_TEMPLATE =
@@ -210,7 +210,7 @@ class RepeatOnLifecycleDetectorTest(val config: TestConfig) {
                 %s // config.helperMethodBody
             }
         }
-    """
+        """
             .trimIndent()
 }
 
