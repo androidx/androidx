@@ -31,7 +31,7 @@ playground {
     selectProjectsFromAndroidX({ name ->
         // requires core:core which is not supported on Github
         if (name == ":navigation:navigation-compose:integration-tests:navigation-demos") return false
-        if (name.startsWith(":navigation")) return true
+        if (name.startsWith(":navigation:navigation-common")) return true
         return false
     })
 }

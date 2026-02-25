@@ -491,9 +491,6 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
                         mutableListOf(
                             "-Xskip-metadata-version-check",
                             "-jvm-default=no-compatibility",
-                            // These two args can be removed once kotlin 2.1 is used
-                            "-Xjspecify-annotations=strict",
-                            "-Xtype-enhancement-improvements-strict-mode",
                         )
                     if (androidXExtension.type.get().targetsKotlinConsumersOnly) {
                         // The Kotlin Compiler adds intrinsic assertions which are only relevant
