@@ -87,7 +87,7 @@ fun FloatingActionButtonMenuSample() {
             listState.firstVisibleItemIndex == 0 || listState.canScrollForward == false
         }
     }
-    val focusRequester = FocusRequester()
+    val focusRequester = remember { FocusRequester() }
 
     Box {
         LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {

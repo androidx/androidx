@@ -60,6 +60,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
@@ -90,6 +91,7 @@ import androidx.compose.ui.unit.coerceAtMost
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.width
+import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -299,8 +301,7 @@ class ModalBottomSheetTest {
         var screenWidth by mutableStateOf(0)
 
         rule.setContent {
-            val context = LocalContext.current
-            screenWidth = context.resources.displayMetrics.widthPixels
+            screenWidth = LocalResources.current.displayMetrics.widthPixels
 
             ModalBottomSheet(onDismissRequest = {}) {
                 Box(
@@ -398,8 +399,7 @@ class ModalBottomSheetTest {
             latch.await(3000, TimeUnit.MILLISECONDS)
             var screenWidthPx by mutableStateOf(0)
             rule.setContent {
-                val context = LocalContext.current
-                screenWidthPx = context.resources.displayMetrics.widthPixels
+                screenWidthPx = LocalResources.current.displayMetrics.widthPixels
                 ModalBottomSheet(onDismissRequest = {}, sheetMaxWidth = Dp.Unspecified) {
                     Box(Modifier.testTag(sheetTag).fillMaxHeight(0.4f))
                 }
@@ -506,6 +506,40 @@ class ModalBottomSheetTest {
     }
 
     @Test
+    fun modalBottomSheet_doesNotDismissOnBack_whenPropertyFalse() {
+        var dismissCount = 0
+        lateinit var sheetState: SheetState
+
+        rule.setContent {
+            sheetState = rememberModalBottomSheetState()
+            val scope = rememberCoroutineScope()
+
+            // Explicitly set shouldDismissOnBackPress = false
+            ModalBottomSheet(
+                onDismissRequest = { dismissCount++ },
+                sheetState = sheetState,
+                properties = ModalBottomSheetProperties(shouldDismissOnBackPress = false),
+            ) {
+                Box(Modifier.fillMaxSize())
+            }
+
+            // Ensure sheet is expanded to start
+            if (!sheetState.isVisible) {
+                androidx.compose.runtime.LaunchedEffect(Unit) { sheetState.show() }
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(sheetState.isVisible).isTrue()
+
+        Espresso.pressBackUnconditionally()
+        rule.waitForIdle()
+
+        assertThat(sheetState.isVisible).isTrue()
+        assertThat(dismissCount).isEqualTo(0)
+    }
+
+    @Test
     fun modalBottomSheet_tallSheet_isDismissedOnBackPress() {
         var showBottomSheet by mutableStateOf(true)
         lateinit var sheetState: SheetState
@@ -587,9 +621,8 @@ class ModalBottomSheetTest {
         var screenWidth by mutableStateOf(0.dp)
         rule.setContent {
             sheetMaxWidth = remember { mutableStateOf(0.dp) }
-            val context = LocalContext.current
             val density = LocalDensity.current
-            screenWidth = with(density) { context.resources.displayMetrics.widthPixels.toDp() }
+            screenWidth = with(density) { LocalResources.current.displayMetrics.widthPixels.toDp() }
             ModalBottomSheet(onDismissRequest = {}, sheetMaxWidth = sheetMaxWidth.value) {
                 Box(Modifier.fillMaxWidth().testTag(sheetTag))
             }
@@ -883,7 +916,7 @@ class ModalBottomSheetTest {
             sheetState = rememberModalBottomSheetState()
             scope = rememberCoroutineScope()
             ModalBottomSheet(onDismissRequest = {}, sheetState = sheetState) {
-                Box(Modifier.fillMaxSize().testTag(sheetTag))
+                Box(Modifier.fillMaxSize().weight(1f).testTag(sheetTag))
             }
         }
 

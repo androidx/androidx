@@ -21,13 +21,11 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.snap
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.snapTo
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -90,14 +88,11 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.dismiss
-import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
@@ -384,14 +379,15 @@ fun ModalNavigationDrawer(
             )
     ) {
         Box { content() }
+        val onDismissRequest = {
+            if (gesturesEnabled && drawerState.confirmStateChange(DrawerValue.Closed)) {
+                scope.launch { drawerState.close() }
+            }
+        }
         Scrim(
-            open = drawerState.isOpen,
-            onClose = {
-                if (gesturesEnabled && drawerState.confirmStateChange(DrawerValue.Closed)) {
-                    scope.launch { drawerState.close() }
-                }
-            },
-            fraction = { calculateFraction(minValue, maxValue, drawerState.requireOffset()) },
+            contentDescription = getString(Strings.CloseDrawer),
+            onClick = if (drawerState.isOpen) onDismissRequest else null,
+            alpha = { calculateFraction(minValue, maxValue, drawerState.requireOffset()) },
             color = scrimColor,
         )
         Layout(
@@ -1338,26 +1334,6 @@ private class DefaultDrawerItemsColor(
 
 private fun calculateFraction(a: Float, b: Float, pos: Float) =
     ((pos - a) / (b - a)).coerceIn(0f, 1f)
-
-@Composable
-private fun Scrim(open: Boolean, onClose: () -> Unit, fraction: () -> Float, color: Color) {
-    val closeDrawer = getString(Strings.CloseDrawer)
-    val dismissDrawer =
-        if (open) {
-            Modifier.pointerInput(onClose) { detectTapGestures { onClose() } }
-                .semantics(mergeDescendants = true) {
-                    contentDescription = closeDrawer
-                    onClick {
-                        onClose()
-                        true
-                    }
-                }
-        } else {
-            Modifier
-        }
-
-    Canvas(Modifier.fillMaxSize().then(dismissDrawer)) { drawRect(color, alpha = fraction()) }
-}
 
 private val DrawerPositionalThreshold = 0.5f
 private val DrawerVelocityThreshold = 400.dp

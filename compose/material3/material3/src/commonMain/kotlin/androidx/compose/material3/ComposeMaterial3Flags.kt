@@ -89,14 +89,4 @@ object ComposeMaterial3Flags {
     @field:Suppress("MutableBareField")
     @JvmField
     var isAnchoredDraggableComponentsInvalidationFixEnabled: Boolean = true
-
-    /**
-     * When the flag is `true`, the [TextButton] will use Material Design 3 paddings and sizings.
-     * When `false`, it uses older Material Design 2 styling. See
-     * [Material Design 2 Text Buttons Specs](https://m2.material.io/components/buttons#text-button)
-     * and [Material Design 3 Text Buttons Specs](https://m3.material.io/components/buttons/specs).
-     */
-    @field:Suppress("MutableBareField")
-    @JvmField
-    var isTextButtonContentPaddingFixEnabled: Boolean = false
 }

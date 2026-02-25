@@ -43,7 +43,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class NavigationSuiteScaffoldTest {
+class NavigationSuiteScaffoldDeviceTest {
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
     private val restorationTester = StateRestorationTester(rule)
 

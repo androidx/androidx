@@ -18,13 +18,20 @@ package androidx.compose.material3.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -73,6 +80,7 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -539,6 +547,131 @@ fun PinnedTopAppBar() {
 }
 
 /**
+ * A sample for a pinned small [TopAppBar].
+ *
+ * The top app bar here is pinned to its location and changes its container color when the content
+ * under it is scrolled. The content of the [LazyColumn] is pre-scrolled.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Sampled
+@Composable
+fun PinnedTopAppBarWithPreScrolledLazyColumn() {
+    val lazyListState = rememberLazyListState(initialFirstVisibleItemIndex = 30)
+    // Pass the state to ensure the top app bar color updates correctly when content is reversed or
+    // pre-scrolled.
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(lazyListState = lazyListState)
+    Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            TopAppBar(
+                title = { Text("TopAppBar", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                navigationIcon = {
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = { PlainTooltip { Text("Menu") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
+                        }
+                    }
+                },
+                scrollBehavior = scrollBehavior,
+            )
+        },
+        content = { innerPadding ->
+            LazyColumn(
+                state = lazyListState,
+                contentPadding = innerPadding,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                val list = (0..75).map { it.toString() }
+                items(count = list.size) {
+                    Text(
+                        text = list[it],
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    )
+                }
+            }
+        },
+    )
+}
+
+/**
+ * A sample for a pinned small [TopAppBar] that is scrolled with a reversed [LazyVerticalGrid].
+ *
+ * The top app bar here is pinned to its location and changes its container color when the content
+ * under it is scrolled.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Sampled
+@Composable
+fun PinnedTopAppBarWithReversedLazyGrid() {
+    val lazyGridState = rememberLazyGridState()
+    // In a reversed grid, we need to provide a custom `isAtTop` to the scroll behavior
+    // to ensure the top app bar's color changes correctly.
+    val isAtTop =
+        remember(lazyGridState) {
+            derivedStateOf {
+                if (lazyGridState.layoutInfo.reverseLayout) {
+                    !lazyGridState.canScrollForward
+                } else {
+                    !lazyGridState.canScrollBackward
+                }
+            }
+        }
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(isAtTop = { isAtTop.value })
+    Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            TopAppBar(
+                title = { Text("TopAppBar", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                navigationIcon = {
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = { PlainTooltip { Text("Menu") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
+                        }
+                    }
+                },
+                scrollBehavior = scrollBehavior,
+            )
+        },
+        content = { innerPadding ->
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = 100.dp),
+                reverseLayout = true,
+                contentPadding = innerPadding,
+                state = lazyGridState,
+            ) {
+                val list = (0..75).map { it.toString() }
+                items(count = list.size) {
+                    Box(Modifier.fillMaxWidth().height(50.dp)) {
+                        Text(
+                            text = list[it],
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        )
+                    }
+                }
+            }
+        },
+    )
+}
+
+/**
  * A sample for a small [TopAppBar] that collapses when the content is scrolled up, and appears when
  * the content scrolled down.
  */
@@ -600,6 +733,63 @@ fun EnterAlwaysTopAppBar() {
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                     )
+                }
+            }
+        },
+    )
+}
+
+/**
+ * A sample for a small [TopAppBar] that collapses when the content is scrolled up, and appears when
+ * the content is scrolled down, using a [Column] with reverse scrolling.
+ */
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@Preview
+@Sampled
+@Composable
+fun EnterAlwaysTopAppBarWithReverseScrolling() {
+    val scrollState = rememberScrollState()
+    val scrollBehavior =
+        // Pass these parameters to ensure the top app bar color updates correctly when content has
+        // reverse scrolling.
+        TopAppBarDefaults.enterAlwaysScrollBehavior(
+            scrollState = scrollState,
+            reverseScrolling = true,
+        )
+    Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            TopAppBar(
+                title = { Text("TopAppBar", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                navigationIcon = {
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = { PlainTooltip { Text("Menu") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
+                        }
+                    }
+                },
+                scrollBehavior = scrollBehavior,
+            )
+        },
+        content = { innerPadding ->
+            Column(
+                modifier =
+                    Modifier.fillMaxSize()
+                        .padding(paddingValues = innerPadding)
+                        .verticalScroll(state = scrollState, reverseScrolling = true),
+                verticalArrangement = Arrangement.Bottom,
+            ) {
+                (0..75).forEach {
+                    Box(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
+                        Text(text = it.toString(), style = MaterialTheme.typography.bodyLarge)
+                    }
                 }
             }
         },

@@ -229,7 +229,7 @@ fun FilterChipWithCustomSpacingSample() {
             } else {
                 null
             },
-        horizontalSpacing = 4.dp,
+        horizontalArrangement = FilterChipDefaults.horizontalArrangement(4.dp),
     )
 }
 

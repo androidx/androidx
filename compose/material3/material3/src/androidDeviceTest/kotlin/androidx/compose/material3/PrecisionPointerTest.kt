@@ -149,7 +149,7 @@ private fun ComposeContentTestRule.setContent(inputManager: InputManager) {
     setContent { CompositionLocalProvider(LocalContext provides fakeContext) { MaterialTheme {} } }
 }
 
-private object MockDevices {
+object MockDevices {
     private var nextId = 1000
 
     /** A full physical keyboard. */
@@ -208,7 +208,7 @@ private fun InputDevice.copy(
     on { this.keyboardType } doReturn keyboardType
 }
 
-private class FakeInputManager {
+class FakeInputManager {
     val inputManager: InputManager = mock {
         on { registerInputDeviceListener(any(), anyOrNull()) } doAnswer
             { invocation ->

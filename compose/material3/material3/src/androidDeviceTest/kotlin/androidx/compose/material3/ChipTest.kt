@@ -288,7 +288,7 @@ class ChipTest {
                     )
                 },
                 contentPadding = PaddingValues(horizontal = 4.dp),
-                horizontalSpacing = 6.dp,
+                horizontalArrangement = AssistChipDefaults.horizontalArrangement(6.dp),
             )
         }
 
@@ -555,7 +555,7 @@ class ChipTest {
                     )
                 },
                 contentPadding = PaddingValues(horizontal = 4.dp),
-                horizontalSpacing = 6.dp,
+                horizontalArrangement = FilterChipDefaults.horizontalArrangement(6.dp),
             )
         }
 
@@ -965,6 +965,37 @@ class ChipTest {
         rule
             .onNodeWithTag(TestChipTag, useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo(4.dp + InputChipDefaults.AvatarSize + 8.dp)
+            .assertWidthIsEqualTo(chipWidth - 12.dp - InputChipDefaults.AvatarSize - 12.dp)
+    }
+
+    @Test
+    fun horizontalPadding_inputChip_withContentPaddingAndSpacing() {
+        var chipCoordinates: LayoutCoordinates? = null
+        rule.setMaterialContent(lightColorScheme()) {
+            InputChip(
+                selected = false,
+                onClick = {},
+                modifier = Modifier.onGloballyPositioned { chipCoordinates = it },
+                label = { Text("Input Chip", Modifier.testTag(TestChipTag)) },
+                avatar = {
+                    Icon(
+                        imageVector = Icons.Filled.Done,
+                        contentDescription = "Localized Description",
+                        modifier = Modifier.size(InputChipDefaults.AvatarSize),
+                    )
+                },
+                contentPadding = PaddingValues(horizontal = 6.dp),
+                horizontalArrangement = InputChipDefaults.horizontalArrangement(6.dp),
+            )
+        }
+
+        var chipWidth = 0.dp
+        rule.runOnIdle {
+            chipWidth = with(rule.density) { chipCoordinates!!.boundsInWindow().width.toDp() }
+        }
+        rule
+            .onNodeWithTag(TestChipTag, useUnmergedTree = true)
+            .assertLeftPositionInRootIsEqualTo(6.dp + InputChipDefaults.AvatarSize + 6.dp)
             .assertWidthIsEqualTo(chipWidth - 12.dp - InputChipDefaults.AvatarSize - 12.dp)
     }
 

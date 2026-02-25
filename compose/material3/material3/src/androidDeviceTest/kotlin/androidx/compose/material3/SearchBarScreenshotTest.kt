@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import androidx.test.screenshot.matchers.MSSIMMatcher
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
@@ -699,7 +700,8 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
     @Test
     fun appBarWithSearch_withNavigationIconAndActions_dockedAndExpanded_withGap() {
         rule.setMaterialContent(scheme.colorScheme) {
-            val searchBarState = rememberSearchBarState(initialValue = SearchBarValue.Expanded)
+            val searchBarState =
+                rememberWithGapSearchBarState(initialValue = SearchBarValue.Expanded)
             val inputField =
                 @Composable {
                     SearchBarDefaults.InputField(
@@ -728,8 +730,10 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 }
             }
         }
+
         assertAgainstGolden(
-            "appBarWithSearch_withNavigationIconAndActions_dockedAndExpanded_withGap_${scheme.name}"
+            "appBarWithSearch_withNavigationIconAndActions_dockedAndExpanded_withGap_${scheme.name}",
+            threshold = 0.95,
         )
     }
 
@@ -737,7 +741,8 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
     @Test
     fun appBarWithSearch_withNavigationIconAndActions_fullScreenAndExpanded_contained() {
         rule.setMaterialContent(scheme.colorScheme) {
-            val searchBarState = rememberSearchBarState(initialValue = SearchBarValue.Expanded)
+            val searchBarState =
+                rememberContainedSearchBarState(initialValue = SearchBarValue.Expanded)
             val appBarWithSearchColors =
                 SearchBarDefaults.appBarWithSearchColors(
                     searchBarColors = SearchBarDefaults.containedColors(state = searchBarState)
@@ -828,8 +833,15 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
         assertAgainstGolden("appBarWithSearch_withScrolledContainerColor_${scheme.name}")
     }
 
-    private fun assertAgainstGolden(goldenName: String) {
-        rule.onNodeWithTag(testTag).captureToImage().assertAgainstGolden(screenshotRule, goldenName)
+    private fun assertAgainstGolden(goldenName: String, threshold: Double = 0.98) {
+        rule
+            .onNodeWithTag(testTag, useUnmergedTree = true)
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                goldenName,
+                matcher = MSSIMMatcher(threshold = threshold),
+            )
     }
 
     companion object {

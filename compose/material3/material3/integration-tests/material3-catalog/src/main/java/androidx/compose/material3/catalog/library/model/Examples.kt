@@ -84,6 +84,7 @@ import androidx.compose.material3.samples.ElevatedSplitButtonSample
 import androidx.compose.material3.samples.ElevatedSuggestionChipSample
 import androidx.compose.material3.samples.ElevatedToggleButtonSample
 import androidx.compose.material3.samples.EnterAlwaysTopAppBar
+import androidx.compose.material3.samples.EnterAlwaysTopAppBarWithReverseScrolling
 import androidx.compose.material3.samples.ExitAlwaysBottomAppBar
 import androidx.compose.material3.samples.ExitAlwaysBottomAppBarFixed
 import androidx.compose.material3.samples.ExitAlwaysBottomAppBarFixedVibrant
@@ -183,6 +184,8 @@ import androidx.compose.material3.samples.OverflowingVerticalFloatingToolbarSamp
 import androidx.compose.material3.samples.PasswordTextField
 import androidx.compose.material3.samples.PermanentNavigationDrawerSample
 import androidx.compose.material3.samples.PinnedTopAppBar
+import androidx.compose.material3.samples.PinnedTopAppBarWithPreScrolledLazyColumn
+import androidx.compose.material3.samples.PinnedTopAppBarWithReversedLazyGrid
 import androidx.compose.material3.samples.PlainTooltipSample
 import androidx.compose.material3.samples.PlainTooltipWithCaret
 import androidx.compose.material3.samples.PlainTooltipWithCaretBelowAnchor
@@ -1065,12 +1068,36 @@ val TopAppBarExamples =
             PinnedTopAppBar()
         },
         Example(
+            name = "PinnedTopAppBarWithPreScrolledLazyColumn",
+            description = TopAppBarExampleDescription,
+            sourceUrl = TopAppBarExampleSourceUrl,
+            isExpressive = false,
+        ) {
+            PinnedTopAppBarWithPreScrolledLazyColumn()
+        },
+        Example(
+            name = "PinnedTopAppBarWithReversedLazyGrid",
+            description = TopAppBarExampleDescription,
+            sourceUrl = TopAppBarExampleSourceUrl,
+            isExpressive = false,
+        ) {
+            PinnedTopAppBarWithReversedLazyGrid()
+        },
+        Example(
             name = "EnterAlwaysTopAppBar",
             description = TopAppBarExampleDescription,
             sourceUrl = TopAppBarExampleSourceUrl,
             isExpressive = true,
         ) {
             EnterAlwaysTopAppBar()
+        },
+        Example(
+            name = "EnterAlwaysTopAppBarWithReverseScrolling",
+            description = TopAppBarExampleDescription,
+            sourceUrl = TopAppBarExampleSourceUrl,
+            isExpressive = true,
+        ) {
+            EnterAlwaysTopAppBarWithReverseScrolling()
         },
         Example(
             name = "ExitUntilCollapsedMediumTopAppBar",

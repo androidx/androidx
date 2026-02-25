@@ -22,15 +22,14 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.R
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
-import androidx.core.os.ConfigurationCompat
-import java.util.Locale
+import androidx.compose.ui.platform.LocalLocale
+import androidx.compose.ui.platform.LocalResources
 
 @Composable
 @ReadOnlyComposable
 internal actual fun getString(string: Strings): String {
     LocalConfiguration.current
-    val resources = LocalContext.current.resources
+    val resources = LocalResources.current
     return resources.getString(string.value)
 }
 
@@ -38,8 +37,7 @@ internal actual fun getString(string: Strings): String {
 @ReadOnlyComposable
 internal actual fun getString(string: Strings, vararg formatArgs: Any): String {
     val raw = getString(string)
-    val locale =
-        ConfigurationCompat.getLocales(LocalConfiguration.current).get(0) ?: Locale.getDefault()
+    val locale = LocalLocale.current.platformLocale
     return String.format(locale, raw, *formatArgs)
 }
 
