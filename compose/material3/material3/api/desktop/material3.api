@@ -78,6 +78,8 @@ public final class androidx/compose/material3/AssistChipDefaults {
 	public final fun getHorizontalSpacing-D9Ej5fM ()F
 	public final fun getIconSize-D9Ej5fM ()F
 	public final fun getShape (Landroidx/compose/runtime/Composer;I)Landroidx/compose/ui/graphics/Shape;
+	public final fun horizontalArrangement ()Landroidx/compose/foundation/layout/Arrangement$Horizontal;
+	public final fun horizontalArrangement-0680j_4 (F)Landroidx/compose/foundation/layout/Arrangement$Horizontal;
 }
 
 public final class androidx/compose/material3/BadgeDefaults {
@@ -124,6 +126,8 @@ public final class androidx/compose/material3/ButtonDefaults {
 	public final fun buttonColors (Landroidx/compose/runtime/Composer;I)Landroidx/compose/material3/ButtonColors;
 	public final fun buttonColors-ro_MJ88 (JJJJLandroidx/compose/runtime/Composer;II)Landroidx/compose/material3/ButtonColors;
 	public final fun buttonElevation-R_JCAzs (FFFFFLandroidx/compose/runtime/Composer;II)Landroidx/compose/material3/ButtonElevation;
+	public final fun contentPaddingFor-8Feqmps (FZZ)Landroidx/compose/foundation/layout/PaddingValues;
+	public static synthetic fun contentPaddingFor-8Feqmps$default (Landroidx/compose/material3/ButtonDefaults;FZZILjava/lang/Object;)Landroidx/compose/foundation/layout/PaddingValues;
 	public final fun elevatedButtonColors (Landroidx/compose/runtime/Composer;I)Landroidx/compose/material3/ButtonColors;
 	public final fun elevatedButtonColors-ro_MJ88 (JJJJLandroidx/compose/runtime/Composer;II)Landroidx/compose/material3/ButtonColors;
 	public final fun elevatedButtonElevation-R_JCAzs (FFFFFLandroidx/compose/runtime/Composer;II)Landroidx/compose/material3/ButtonElevation;
@@ -301,19 +305,24 @@ public final class androidx/compose/material3/ChipElevation {
 
 public final class androidx/compose/material3/ChipKt {
 	public static final synthetic fun AssistChip (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/ChipColors;Landroidx/compose/material3/ChipElevation;Landroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
+	public static final fun AssistChip (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/ChipColors;Landroidx/compose/material3/ChipElevation;Landroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/layout/Arrangement$Horizontal;Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
 	public static final synthetic fun AssistChip (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/ChipColors;Landroidx/compose/material3/ChipElevation;Landroidx/compose/material3/ChipBorder;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
-	public static final fun AssistChip-ajgufuY (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/ChipColors;Landroidx/compose/material3/ChipElevation;Landroidx/compose/foundation/BorderStroke;FLandroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
+	public static final synthetic fun AssistChip-ajgufuY (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/ChipColors;Landroidx/compose/material3/ChipElevation;Landroidx/compose/foundation/BorderStroke;FLandroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
 	public static final synthetic fun ElevatedAssistChip (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/ChipColors;Landroidx/compose/material3/ChipElevation;Landroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
+	public static final fun ElevatedAssistChip (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/ChipColors;Landroidx/compose/material3/ChipElevation;Landroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/layout/Arrangement$Horizontal;Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
 	public static final synthetic fun ElevatedAssistChip (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/ChipColors;Landroidx/compose/material3/ChipElevation;Landroidx/compose/material3/ChipBorder;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
-	public static final fun ElevatedAssistChip-ajgufuY (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/ChipColors;Landroidx/compose/material3/ChipElevation;Landroidx/compose/foundation/BorderStroke;FLandroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
+	public static final synthetic fun ElevatedAssistChip-ajgufuY (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/ChipColors;Landroidx/compose/material3/ChipElevation;Landroidx/compose/foundation/BorderStroke;FLandroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
 	public static final synthetic fun ElevatedFilterChip (ZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/SelectableChipColors;Landroidx/compose/material3/SelectableChipElevation;Landroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
-	public static final fun ElevatedFilterChip-Qi0uq5o (ZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/SelectableChipColors;Landroidx/compose/material3/SelectableChipElevation;Landroidx/compose/foundation/BorderStroke;FLandroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
+	public static final fun ElevatedFilterChip (ZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/SelectableChipColors;Landroidx/compose/material3/SelectableChipElevation;Landroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/layout/Arrangement$Horizontal;Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
+	public static final synthetic fun ElevatedFilterChip-Qi0uq5o (ZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/SelectableChipColors;Landroidx/compose/material3/SelectableChipElevation;Landroidx/compose/foundation/BorderStroke;FLandroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
 	public static final synthetic fun ElevatedSuggestionChip (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/ChipColors;Landroidx/compose/material3/ChipElevation;Landroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;II)V
 	public static final fun ElevatedSuggestionChip (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/ChipColors;Landroidx/compose/material3/ChipElevation;Landroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/layout/Arrangement$Horizontal;Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
 	public static final synthetic fun ElevatedSuggestionChip (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/ChipColors;Landroidx/compose/material3/ChipElevation;Landroidx/compose/material3/ChipBorder;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;II)V
 	public static final synthetic fun FilterChip (ZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/SelectableChipColors;Landroidx/compose/material3/SelectableChipElevation;Landroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
-	public static final fun FilterChip-Qi0uq5o (ZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/SelectableChipColors;Landroidx/compose/material3/SelectableChipElevation;Landroidx/compose/foundation/BorderStroke;FLandroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
-	public static final fun InputChip (ZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/SelectableChipColors;Landroidx/compose/material3/SelectableChipElevation;Landroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
+	public static final fun FilterChip (ZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/SelectableChipColors;Landroidx/compose/material3/SelectableChipElevation;Landroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/layout/Arrangement$Horizontal;Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
+	public static final synthetic fun FilterChip-Qi0uq5o (ZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/SelectableChipColors;Landroidx/compose/material3/SelectableChipElevation;Landroidx/compose/foundation/BorderStroke;FLandroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
+	public static final synthetic fun InputChip (ZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/SelectableChipColors;Landroidx/compose/material3/SelectableChipElevation;Landroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
+	public static final fun InputChip (ZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/SelectableChipColors;Landroidx/compose/material3/SelectableChipElevation;Landroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/layout/Arrangement$Horizontal;Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
 	public static final synthetic fun SuggestionChip (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/ChipColors;Landroidx/compose/material3/ChipElevation;Landroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;II)V
 	public static final fun SuggestionChip (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/ChipColors;Landroidx/compose/material3/ChipElevation;Landroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/layout/Arrangement$Horizontal;Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
 	public static final synthetic fun SuggestionChip (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/ChipColors;Landroidx/compose/material3/ChipElevation;Landroidx/compose/material3/ChipBorder;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;II)V
@@ -464,7 +473,6 @@ public final class androidx/compose/material3/ComposableSingletons$ModalBottomSh
 	public static final field INSTANCE Landroidx/compose/material3/ComposableSingletons$ModalBottomSheetKt;
 	public fun <init> ()V
 	public final fun getLambda$1121996006$material3 ()Lkotlin/jvm/functions/Function2;
-	public final fun getLambda$2132285819$material3 ()Lkotlin/jvm/functions/Function2;
 }
 
 public final class androidx/compose/material3/ComposableSingletons$ScaffoldKt {
@@ -487,6 +495,13 @@ public final class androidx/compose/material3/ComposableSingletons$SegmentedButt
 	public static final field INSTANCE Landroidx/compose/material3/ComposableSingletons$SegmentedButtonKt;
 	public fun <init> ()V
 	public final fun getLambda$1863131183$material3 ()Lkotlin/jvm/functions/Function2;
+}
+
+public final class androidx/compose/material3/ComposableSingletons$SheetDefaultsKt {
+	public static final field INSTANCE Landroidx/compose/material3/ComposableSingletons$SheetDefaultsKt;
+	public fun <init> ()V
+	public final fun getLambda$-2061828736$material3 ()Lkotlin/jvm/functions/Function2;
+	public final fun getLambda$1335949740$material3 ()Lkotlin/jvm/functions/Function2;
 }
 
 public final class androidx/compose/material3/ComposableSingletons$SnackbarHostKt {
@@ -816,6 +831,8 @@ public final class androidx/compose/material3/FilterChipDefaults {
 	public final fun getHorizontalSpacing-D9Ej5fM ()F
 	public final fun getIconSize-D9Ej5fM ()F
 	public final fun getShape (Landroidx/compose/runtime/Composer;I)Landroidx/compose/ui/graphics/Shape;
+	public final fun horizontalArrangement ()Landroidx/compose/foundation/layout/Arrangement$Horizontal;
+	public final fun horizontalArrangement-0680j_4 (F)Landroidx/compose/foundation/layout/Arrangement$Horizontal;
 }
 
 public final class androidx/compose/material3/FloatingActionButtonDefaults {
@@ -973,10 +990,14 @@ public final class androidx/compose/material3/IconToggleButtonColors {
 public final class androidx/compose/material3/InputChipDefaults {
 	public static final field $stable I
 	public static final field INSTANCE Landroidx/compose/material3/InputChipDefaults;
+	public final fun contentPadding (ZZZ)Landroidx/compose/foundation/layout/PaddingValues;
 	public final fun getAvatarSize-D9Ej5fM ()F
 	public final fun getHeight-D9Ej5fM ()F
+	public final fun getHorizontalSpacing-D9Ej5fM ()F
 	public final fun getIconSize-D9Ej5fM ()F
 	public final fun getShape (Landroidx/compose/runtime/Composer;I)Landroidx/compose/ui/graphics/Shape;
+	public final fun horizontalArrangement ()Landroidx/compose/foundation/layout/Arrangement$Horizontal;
+	public final fun horizontalArrangement-0680j_4 (F)Landroidx/compose/foundation/layout/Arrangement$Horizontal;
 	public final fun inputChipBorder-_7El2pE (ZZJJJJFFLandroidx/compose/runtime/Composer;II)Landroidx/compose/foundation/BorderStroke;
 	public final fun inputChipColors (Landroidx/compose/runtime/Composer;I)Landroidx/compose/material3/SelectableChipColors;
 	public final fun inputChipColors-kwJvTHA (JJJJJJJJJJJJJLandroidx/compose/runtime/Composer;III)Landroidx/compose/material3/SelectableChipColors;
@@ -1099,11 +1120,28 @@ public final class androidx/compose/material3/MaterialTheme {
 	public static final field $stable I
 	public static final field INSTANCE Landroidx/compose/material3/MaterialTheme;
 	public final fun getColorScheme (Landroidx/compose/runtime/Composer;I)Landroidx/compose/material3/ColorScheme;
+	public final fun getLocalMaterialTheme ()Landroidx/compose/runtime/CompositionLocal;
+	public final fun getMotionScheme (Landroidx/compose/runtime/Composer;I)Landroidx/compose/material3/MotionScheme;
 	public final fun getShapes (Landroidx/compose/runtime/Composer;I)Landroidx/compose/material3/Shapes;
 	public final fun getTypography (Landroidx/compose/runtime/Composer;I)Landroidx/compose/material3/Typography;
 }
 
+public final class androidx/compose/material3/MaterialTheme$Values {
+	public static final field $stable I
+	public fun <init> ()V
+	public fun <init> (Landroidx/compose/material3/ColorScheme;Landroidx/compose/material3/Typography;Landroidx/compose/material3/Shapes;Landroidx/compose/material3/MotionScheme;)V
+	public synthetic fun <init> (Landroidx/compose/material3/ColorScheme;Landroidx/compose/material3/Typography;Landroidx/compose/material3/Shapes;Landroidx/compose/material3/MotionScheme;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getColorScheme ()Landroidx/compose/material3/ColorScheme;
+	public final fun getMotionScheme ()Landroidx/compose/material3/MotionScheme;
+	public final fun getShapes ()Landroidx/compose/material3/Shapes;
+	public final fun getTypography ()Landroidx/compose/material3/Typography;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class androidx/compose/material3/MaterialThemeKt {
+	public static final fun MaterialTheme (Landroidx/compose/material3/ColorScheme;Landroidx/compose/material3/MotionScheme;Landroidx/compose/material3/Shapes;Landroidx/compose/material3/Typography;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
 	public static final fun MaterialTheme (Landroidx/compose/material3/ColorScheme;Landroidx/compose/material3/Shapes;Landroidx/compose/material3/Typography;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
 }
 
@@ -1148,7 +1186,19 @@ public final class androidx/compose/material3/ModalWideNavigationRailProperties 
 	public fun hashCode ()I
 }
 
+public abstract interface class androidx/compose/material3/MotionScheme {
+	public static final field Companion Landroidx/compose/material3/MotionScheme$Companion;
+	public abstract fun defaultEffectsSpec ()Landroidx/compose/animation/core/FiniteAnimationSpec;
+	public abstract fun defaultSpatialSpec ()Landroidx/compose/animation/core/FiniteAnimationSpec;
+	public abstract fun fastEffectsSpec ()Landroidx/compose/animation/core/FiniteAnimationSpec;
+	public abstract fun fastSpatialSpec ()Landroidx/compose/animation/core/FiniteAnimationSpec;
+	public abstract fun slowEffectsSpec ()Landroidx/compose/animation/core/FiniteAnimationSpec;
+	public abstract fun slowSpatialSpec ()Landroidx/compose/animation/core/FiniteAnimationSpec;
+}
+
 public final class androidx/compose/material3/MotionScheme$Companion {
+	public final fun expressive ()Landroidx/compose/material3/MotionScheme;
+	public final fun standard ()Landroidx/compose/material3/MotionScheme;
 }
 
 public abstract interface class androidx/compose/material3/MultiChoiceSegmentedButtonRowScope : androidx/compose/foundation/layout/RowScope {
@@ -1313,6 +1363,10 @@ public final class androidx/compose/material3/OutlinedTextFieldKt {
 	public static final fun OutlinedTextField (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;ZZLandroidx/compose/ui/text/TextStyle;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;ZLandroidx/compose/ui/text/input/VisualTransformation;Landroidx/compose/foundation/text/KeyboardOptions;Landroidx/compose/foundation/text/KeyboardActions;ZIILandroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/TextFieldColors;Landroidx/compose/runtime/Composer;IIII)V
 }
 
+public final class androidx/compose/material3/PrecisionPointer {
+	public static final fun shouldUsePrecisionPointerComponentSizing ()Z
+}
+
 public final class androidx/compose/material3/ProgressIndicatorDefaults {
 	public static final field $stable I
 	public static final field INSTANCE Landroidx/compose/material3/ProgressIndicatorDefaults;
@@ -1421,6 +1475,16 @@ public final class androidx/compose/material3/ScaffoldDefaults {
 
 public final class androidx/compose/material3/ScaffoldKt {
 	public static final fun Scaffold-TvnljyQ (Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;IJJLandroidx/compose/foundation/layout/WindowInsets;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+}
+
+public final class androidx/compose/material3/ScrimDefaults {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/compose/material3/ScrimDefaults;
+	public final fun getColor (Landroidx/compose/runtime/Composer;I)J
+}
+
+public final class androidx/compose/material3/ScrimKt {
+	public static final fun Scrim-yrwZFoE (Ljava/lang/String;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;JLandroidx/compose/runtime/Composer;II)V
 }
 
 public final class androidx/compose/material3/SearchBarState$Companion {
@@ -2404,7 +2468,8 @@ public final class androidx/compose/material3/pulltorefresh/PullToRefreshDefault
 }
 
 public final class androidx/compose/material3/pulltorefresh/PullToRefreshKt {
-	public static final fun PullToRefreshBox (ZLkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Landroidx/compose/material3/pulltorefresh/PullToRefreshState;Landroidx/compose/ui/Alignment;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final synthetic fun PullToRefreshBox (ZLkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Landroidx/compose/material3/pulltorefresh/PullToRefreshState;Landroidx/compose/ui/Alignment;Lkotlin/jvm/functions/Function3;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final fun PullToRefreshBox-gMrHQkA (ZLkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Landroidx/compose/material3/pulltorefresh/PullToRefreshState;Landroidx/compose/ui/Alignment;Lkotlin/jvm/functions/Function3;ZFLkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
 	public static final fun PullToRefreshState ()Landroidx/compose/material3/pulltorefresh/PullToRefreshState;
 	public static final fun pullToRefresh-Z4HSEVQ (Landroidx/compose/ui/Modifier;ZLandroidx/compose/material3/pulltorefresh/PullToRefreshState;ZFLkotlin/jvm/functions/Function0;)Landroidx/compose/ui/Modifier;
 	public static synthetic fun pullToRefresh-Z4HSEVQ$default (Landroidx/compose/ui/Modifier;ZLandroidx/compose/material3/pulltorefresh/PullToRefreshState;ZFLkotlin/jvm/functions/Function0;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
