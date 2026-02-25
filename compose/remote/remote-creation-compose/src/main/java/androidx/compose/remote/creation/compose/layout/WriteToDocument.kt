@@ -18,9 +18,11 @@
 package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RecordingCanvas
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.RemoteState
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -37,4 +39,16 @@ public fun RecordingCanvas(content: RecordingCanvas.() -> Unit) {
     androidx.compose.foundation.layout.Box(
         Modifier.drawBehind { drawIntoRemoteCanvas { it.content() } }
     )
+}
+
+@Composable
+@RemoteComposable
+public fun <T : RemoteState<*>> T.withGlobalScope(): T {
+    with(LocalRemoteComposeCreationState.current) {
+        this.document.beginGlobal()
+        this@withGlobalScope.floatId
+        this.document.endGlobal()
+    }
+
+    return this
 }

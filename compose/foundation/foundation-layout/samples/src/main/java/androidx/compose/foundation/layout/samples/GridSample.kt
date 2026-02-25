@@ -21,9 +21,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalGridApi
 import androidx.compose.foundation.layout.Grid
+import androidx.compose.foundation.layout.GridFlow
 import androidx.compose.foundation.layout.GridTrackSize
+import androidx.compose.foundation.layout.GridTrackSize.Companion.Fixed
+import androidx.compose.foundation.layout.columns
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.rows
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -93,6 +97,85 @@ fun SimpleGrid() {
             contentAlignment = Alignment.Center,
         ) {
             Text("Footer", color = Color.White)
+        }
+    }
+}
+
+@Sampled
+@Composable
+@OptIn(ExperimentalGridApi::class)
+fun GridWithSpanningItems() {
+    Grid(
+        config = {
+            columns(Fixed(60.dp), Fixed(60.dp), Fixed(60.dp))
+            rows(Fixed(40.dp), Fixed(40.dp))
+            gap(4.dp)
+        },
+        modifier = Modifier.background(Color.LightGray),
+    ) {
+        Text("1x1", Modifier.gridItem(row = 1, column = 1).background(Color.White))
+        Text(
+            "1x2 span col",
+            Modifier.gridItem(row = 1, column = 2, columnSpan = 2).background(Color.Cyan),
+        )
+        Text(
+            "2x1 span row",
+            Modifier.gridItem(row = 1, column = 1, rowSpan = 2).background(Color.Yellow),
+        )
+        Text("2x2 span all", Modifier.gridItem(rows = 1..2, columns = 2..3).background(Color.Green))
+    }
+}
+
+@Sampled
+@Composable
+@OptIn(ExperimentalGridApi::class)
+fun GridWithAutoPlacement() {
+    Grid(
+        config = {
+            columns(Fixed(80.dp), Fixed(80.dp)) // Explicitly 2 columns
+            // Rows are implicit
+            flow = GridFlow.Row // Default
+            gap(4.dp)
+        }
+    ) {
+        // These items will fill row by row
+        repeat(6) { index ->
+            Text("Item $index", Modifier.background(Color(index * 40, 255 - index * 40, 128)))
+        }
+    }
+}
+
+@Sampled
+@Composable
+@OptIn(ExperimentalGridApi::class)
+fun GridConfigurationDslSample() {
+    Grid(
+        config = {
+            // This defines the first column
+            column(100.dp)
+            // This defines the second column
+            column(1.fr)
+
+            // This defines the first row
+            row(50.dp)
+            // The order is important. additional calls to row() or column() append tracks.
+
+            gap(all = 8.dp) // Set both row and column gaps
+            columnGap(16.dp) // Override column gap
+        }
+    ) {
+        Box(
+            modifier = Modifier.gridItem(row = 1, column = 1).background(Color.Blue).fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("Row: 1, Column: 1", color = Color.White)
+        }
+
+        Box(
+            modifier = Modifier.gridItem(row = 1, column = 1).background(Color.Blue).fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("Row: 1, Column: 2", color = Color.White)
         }
     }
 }

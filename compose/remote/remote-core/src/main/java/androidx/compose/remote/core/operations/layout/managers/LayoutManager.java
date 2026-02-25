@@ -40,6 +40,9 @@ public abstract class LayoutManager extends LayoutComponent implements Measurabl
 
     public static final int DEFAULT_MEASURE_TYPE = INSET_WRAP_MEASURE;
 
+    public static final int FIX_TOUCH_EVENT = 1;
+    public static final int DEFAULT_TOUCH_VERSION = FIX_TOUCH_EVENT;
+
     public LayoutManager(
             @Nullable Component parent,
             int componentId,
@@ -54,9 +57,9 @@ public abstract class LayoutManager extends LayoutComponent implements Measurabl
     /**
      * Allows layout managers to override elements visibility
      *
-     * @param selfWidth intrinsic width of the layout manager content
+     * @param selfWidth  intrinsic width of the layout manager content
      * @param selfHeight intrinsic height of the layout manager content
-     * @param measure measure pass
+     * @param measure    measure pass
      */
     public boolean applyVisibility(
             float selfWidth, float selfHeight, @NonNull MeasurePass measure) {
@@ -81,8 +84,8 @@ public abstract class LayoutManager extends LayoutComponent implements Measurabl
     }
 
     @Override
-    public float minIntrinsicHeight(@Nullable RemoteContext context) {
-        float height = computeModifierDefinedHeight(context);
+    public float minIntrinsicHeight(@NonNull RemoteContext context) {
+        float height = computeModifierDefinedHeight(context, true);
         for (Component c : mChildrenComponents) {
             height = Math.max(c.minIntrinsicHeight(context), height);
         }
@@ -90,8 +93,8 @@ public abstract class LayoutManager extends LayoutComponent implements Measurabl
     }
 
     @Override
-    public float minIntrinsicWidth(@Nullable RemoteContext context) {
-        float width = computeModifierDefinedWidth(context);
+    public float minIntrinsicWidth(@NonNull RemoteContext context) {
+        float width = computeModifierDefinedWidth(context, true);
         for (Component c : mChildrenComponents) {
             width = Math.max(c.minIntrinsicWidth(context), width);
         }
@@ -137,8 +140,16 @@ public abstract class LayoutManager extends LayoutComponent implements Measurabl
         return mWidthModifier.isFill();
     }
 
+    public boolean isInFillParentMaxWidth() {
+        return mWidthModifier.isFillParentMaxWidth();
+    }
+
     public boolean isInVerticalFill() {
         return mHeightModifier.isFill();
+    }
+
+    public boolean isInFillParentMaxHeight() {
+        return mHeightModifier.isFillParentMaxHeight();
     }
 
     private void measure_v0_4_0(
@@ -317,12 +328,29 @@ public abstract class LayoutManager extends LayoutComponent implements Measurabl
         float insetMaxWidth = maxWidth - mPaddingLeft - mPaddingRight;
         float insetMaxHeight = maxHeight - mPaddingTop - mPaddingBottom;
 
+        float oldViewportWidth = context.getContext().mViewportWidth;
+        float oldViewportHeight = context.getContext().mViewportHeight;
+
         boolean hasHorizontalWrap = false;
         boolean hasVerticalWrap = false;
 
         if (isInHorizontalFill()) {
+            float fraction = mWidthModifier.getValue();
+            if (Float.isNaN(fraction) || mWidthModifier.isExact()) {
+                measuredWidth = maxWidth;
+                minWidth = insetMaxWidth;
+            } else {
+                measuredWidth = maxWidth * fraction;
+                minWidth = measuredWidth - mPaddingLeft - mPaddingRight;
+            }
+        } else if (isInFillParentMaxWidth()) {
             measuredWidth = maxWidth;
-            minWidth = insetMaxWidth;
+            float fraction = mWidthModifier.getValue();
+            if (Float.isNaN(fraction)) {
+                fraction = 1f;
+            }
+            measuredWidth = context.getContext().mViewportWidth * fraction;
+            minWidth = measuredWidth - mPaddingLeft - mPaddingRight;
         } else if (mWidthModifier.hasWeight()) {
             measuredWidth =
                     Math.max(measuredWidth, computeModifierDefinedWidth(context.getContext()));
@@ -338,8 +366,22 @@ public abstract class LayoutManager extends LayoutComponent implements Measurabl
         }
 
         if (isInVerticalFill()) {
+            float fraction = mHeightModifier.getValue();
+            if (Float.isNaN(fraction) || mHeightModifier.isExact()) {
+                measuredHeight = maxHeight;
+                minHeight = insetMaxHeight;
+            } else {
+                measuredHeight = maxHeight * fraction;
+                minHeight = measuredHeight - mPaddingTop - mPaddingBottom;
+            }
+        } else if (isInFillParentMaxHeight()) {
             measuredHeight = maxHeight;
-            minHeight = insetMaxHeight;
+            float fraction = mHeightModifier.getValue();
+            if (Float.isNaN(fraction)) {
+                fraction = 1f;
+            }
+            measuredHeight = context.getContext().mViewportHeight * fraction;
+            minHeight = measuredHeight - mPaddingTop - mPaddingBottom;
         } else if (mHeightModifier.hasWeight()) {
             measuredHeight =
                     Math.max(measuredHeight, computeModifierDefinedHeight(context.getContext()));
@@ -352,6 +394,13 @@ public abstract class LayoutManager extends LayoutComponent implements Measurabl
                     insetMaxHeight = measuredHeight - mPaddingTop - mPaddingBottom;
                 }
             }
+        }
+
+        if (hasHorizontalScroll()) {
+            context.getContext().mViewportWidth = Math.min(measuredWidth, insetMaxWidth);
+        }
+        if (hasVerticalScroll()) {
+            context.getContext().mViewportHeight = Math.min(measuredHeight, insetMaxHeight);
         }
 
         if (minWidth == maxWidth) {
@@ -487,8 +536,16 @@ public abstract class LayoutManager extends LayoutComponent implements Measurabl
                 float maxChildWidth = measuredWidth - mPaddingLeft - mPaddingRight;
                 float maxChildHeight = measuredHeight - mPaddingTop - mPaddingBottom;
                 computeSize(context, 0, maxChildWidth, 0, maxChildHeight, measure);
+                int selfVisibilityAfterMeasure = measure.get(this).getVisibility();
+                if (Visibility.hasOverride(selfVisibilityAfterMeasure)
+                        && mScheduledVisibility != selfVisibilityAfterMeasure) {
+                    mScheduledVisibility = selfVisibilityAfterMeasure;
+                }
             }
         }
+
+        context.getContext().mViewportWidth = oldViewportWidth;
+        context.getContext().mViewportHeight = oldViewportHeight;
 
         if (mContent != null) {
             ComponentMeasure cm = measure.get(mContent);
@@ -557,9 +614,6 @@ public abstract class LayoutManager extends LayoutComponent implements Measurabl
 
     /**
      * Only layout self, not children
-     *
-     * @param context
-     * @param measure
      */
     public void selfLayout(@NonNull RemoteContext context, @NonNull MeasurePass measure) {
         super.layout(context, measure);

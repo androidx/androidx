@@ -174,6 +174,15 @@ public open class RemoteComposeContext {
         mRemoteWriter.box(modifier, horizontal, vertical) { content() }
     }
 
+    public fun fitBox(
+        modifier: RecordingModifier = Modifier,
+        horizontal: Int = BoxLayout.START,
+        vertical: Int = BoxLayout.TOP,
+        content: RemoteComposeContext.() -> Unit,
+    ) {
+        mRemoteWriter.fitBox(modifier, horizontal, vertical) { content() }
+    }
+
     public val Modifier: RecordingModifier
         get() = RecordingModifier()
 
@@ -772,6 +781,10 @@ public open class RemoteComposeContext {
         mRemoteWriter.setStringName(id, name)
     }
 
+    public fun setFloatName(id: Int, name: String) {
+        mRemoteWriter.setFloatName(id, name)
+    }
+
     public fun addNamedString(name: String, initialValue: String): Int {
         return mRemoteWriter.addNamedString(name, initialValue)
     }
@@ -1079,6 +1092,21 @@ public open class RemoteComposeContext {
         content: RemoteComposeWriterInterface,
     ) {
         mRemoteWriter.loop(indexId, from, step, until, content)
+    }
+
+    public fun ifElse(positive: Number, trueOps: RemoteComposeWriterInterface) {
+        conditionalOperations(Rc.Condition.GT, positive.toFloat(), 0f, trueOps)
+    }
+
+    public fun ifElse(
+        positive: Number,
+        trueOps: RemoteComposeWriterInterface,
+        elseOps: RemoteComposeWriterInterface?,
+    ) {
+        conditionalOperations(Rc.Condition.GT, positive.toFloat(), 0f, trueOps)
+        if (elseOps != null) {
+            conditionalOperations(Rc.Condition.LTE, positive.toFloat(), 0f, elseOps)
+        }
     }
 
     public fun conditionalOperations(

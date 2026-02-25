@@ -69,8 +69,7 @@ public fun RemoteCanvas(
 }
 
 /** Utility modifier to record the layout information */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteComposeCanvasModifier(public val modifier: RecordingModifier) : DrawModifier {
+internal class RemoteComposeCanvasModifier(public val modifier: RecordingModifier) : DrawModifier {
     override fun ContentDrawScope.draw() {
         drawIntoRemoteCanvas { canvas ->
             canvas.document.startCanvas(modifier)

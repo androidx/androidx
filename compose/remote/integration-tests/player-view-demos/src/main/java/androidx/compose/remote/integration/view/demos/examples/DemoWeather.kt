@@ -18,7 +18,6 @@
 package androidx.compose.remote.integration.view.demos.examples
 
 import android.graphics.BitmapFactory
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.remote.creation.compose.layout.FitBox
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
@@ -41,8 +40,10 @@ import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.modifier.widthIn
+import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.integration.view.demos.R
 import androidx.compose.remote.tooling.preview.RemotePreview
 import androidx.compose.runtime.Composable
@@ -54,7 +55,6 @@ import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 @RemoteComposable
 @Composable
@@ -81,8 +81,8 @@ fun WeatherDemo() {
                 RemoteCollapsibleColumn(
                     modifier =
                         RemoteModifier.fillMaxWidth()
-                            .widthIn(min = 180.dp)
-                            .clip(RoundedCornerShape(24.dp))
+                            .widthIn(min = 50.dp)
+                            .clip(RemoteRoundedCornerShape(24.rdp))
                             .background(Color(219, 247, 239))
                 ) {
                     WeatherHeader()
@@ -97,7 +97,7 @@ fun WeatherDemo() {
                     RemoteColumn(
                         modifier =
                             RemoteModifier.height(120.rdp)
-                                .clip(RoundedCornerShape(8.dp))
+                                .clip(RemoteRoundedCornerShape(8.rdp))
                                 .background(Color(219, 247, 239))
                                 //                            .background(Color.Blue)
                                 .padding(8.dp),
@@ -105,9 +105,9 @@ fun WeatherDemo() {
                         horizontalAlignment = RemoteAlignment.CenterHorizontally,
                     ) {
                         RemoteText("Rio de Janeiro")
-                        RemoteText("100º", fontSize = 26.sp, fontWeight = FontWeight.Medium)
+                        RemoteText("100º", fontSize = 26.rsp, fontWeight = FontWeight.Medium)
                         RemoteImage(image, RemoteString(""), modifier = RemoteModifier.size(48.rdp))
-                        RemoteText("H: 62º - L: 54º", fontSize = 10.sp)
+                        RemoteText("H: 62º - L: 54º", fontSize = 10.rsp)
                     }
                 }
             }
@@ -127,8 +127,7 @@ fun WeatherHeader() {
     }
     RemoteRow(
         modifier =
-            RemoteModifier.widthIn(min = 180.dp)
-                .width(400.rdp)
+            RemoteModifier.widthIn(min = 100.dp)
                 .heightIn(min = rowHeightDp)
                 .padding(8.dp), // .background(Color.Red),
         verticalAlignment = RemoteAlignment.CenterVertically,
@@ -153,8 +152,8 @@ fun WeatherBox() {
         verticalArrangement = RemoteArrangement.Center,
     ) {
         RemoteText("Rio de Janeiro")
-        RemoteText("100º", fontSize = 38.sp, fontWeight = FontWeight.Medium)
-        RemoteText("High: 62º - Low: 54º", fontSize = 10.sp)
+        RemoteText("100º", fontSize = 38.rsp, fontWeight = FontWeight.Medium)
+        RemoteText("High: 62º - Low: 54º", fontSize = 10.rsp)
     }
 }
 
@@ -179,7 +178,7 @@ fun WeatherBox2() {
     ) {
         RemoteImage(refresh, RemoteString(""), modifier = RemoteModifier.size(20.rdp))
         RemoteImage(image, RemoteString(""), modifier = RemoteModifier.size(48.rdp))
-        RemoteText("Mostly cloudy", fontSize = 10.sp)
+        RemoteText("Mostly cloudy", fontSize = 10.rsp)
     }
 }
 
@@ -229,7 +228,7 @@ fun WeatherDays() {
         modifier =
             RemoteModifier.fillMaxWidth()
                 .padding(16.dp)
-                .clip(RoundedCornerShape(8.dp))
+                .clip(RemoteRoundedCornerShape(8.rdp))
                 .background(Color(205, 232, 225))
                 .padding(8.dp),
         verticalArrangement = RemoteArrangement.SpaceEvenly,

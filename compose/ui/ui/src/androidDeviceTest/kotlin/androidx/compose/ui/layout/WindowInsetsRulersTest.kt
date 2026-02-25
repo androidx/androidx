@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Placeable.PlacementScope
@@ -50,6 +49,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.areWindowInsetsRulersEnabled
 import androidx.compose.ui.platform.disableWindowInsetsRulers
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.unit.Constraints
@@ -95,8 +95,6 @@ class WindowInsetsRulersTest {
     private var contentWidth = 0
     private var contentHeight = 0
     private val displayCutoutRects = mutableObjectListOf<IntRect?>()
-    @Suppress("DEPRECATION")
-    private var areWindowInsetsRulersEnabled = ComposeUiFlags.areWindowInsetsRulersEnabled
 
     @Before
     fun setup() {
@@ -109,8 +107,7 @@ class WindowInsetsRulersTest {
 
     @After
     fun tearDown() {
-        @Suppress("DEPRECATION")
-        ComposeUiFlags.areWindowInsetsRulersEnabled = areWindowInsetsRulersEnabled
+        areWindowInsetsRulersEnabled = true
     }
 
     private fun setContent(content: @Composable () -> Unit) {
@@ -312,7 +309,7 @@ class WindowInsetsRulersTest {
                 rule.runOnIdle {
                     val isRulerVisible =
                         visibleRulers === rulers ||
-                            (rulers === Waterfall && visibleRulers == DisplayCutout)
+                            (rulers === Waterfall && visibleRulers === DisplayCutout)
                     val expectedRect =
                         if (isRulerVisible) {
                             IntRect(1, 2, contentWidth - 3, contentHeight - 5)
@@ -448,7 +445,7 @@ class WindowInsetsRulersTest {
         val rulerState = mutableStateOf(SafeGestures)
         setSimpleRulerContent(rulerState)
 
-        mergedRulersMap.forEach { gestureRulers, includedTypes ->
+        mergedRulersMap.forEach { (gestureRulers, includedTypes) ->
             rulerState.value = gestureRulers
             rule.waitForIdle()
             InsetsRulerTypes.forEach { (rulers, type) ->
@@ -655,7 +652,7 @@ class WindowInsetsRulersTest {
         val rulerState = mutableStateOf(SafeGestures)
         setSimpleRulerContent(rulerState)
 
-        mergedRulersMap.forEach { mergedRulers, includedTypes ->
+        mergedRulersMap.forEach { (mergedRulers, includedTypes) ->
             rulerState.value = mergedRulers
             rule.waitForIdle()
             InsetsRulerTypes.forEach { (rulers, type) ->

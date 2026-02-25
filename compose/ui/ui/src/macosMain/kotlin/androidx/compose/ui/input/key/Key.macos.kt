@@ -562,6 +562,10 @@ actual value class Key(val keyCode: Long) {
         actual val NumPadPageUp = Key(-1000000204)
         actual val NumPadPageDown = Key(-1000000205)
         actual val NumPadInsert = Key(-1000000206)
+        actual val SystemHome: Key
+            get() = Unknown
+        actual val NumPadDelete: Key
+            get() = Unknown
     }
 
     actual override fun toString() = "Key keyCode: $keyCode"

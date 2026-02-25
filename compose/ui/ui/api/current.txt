@@ -71,12 +71,20 @@ package androidx.compose.ui {
   }
 
   @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public final class AndroidComposeUiFlags {
+    property public boolean isAccessibilityShowOnScreenNestedScrollingEnabled;
     property public boolean isSharedAccessibilityManagerEnabled;
+    property public boolean isSharedClipboardManagerEnabled;
     property public boolean isSharedComposeViewContextEnabled;
+    property public boolean isSharedDrawingEnabled;
+    property public boolean isSharedViewConfigurationEnabled;
     property public boolean isSharedWindowInfoEnabled;
     field public static final androidx.compose.ui.AndroidComposeUiFlags INSTANCE;
+    field public static boolean isAccessibilityShowOnScreenNestedScrollingEnabled;
     field public static boolean isSharedAccessibilityManagerEnabled;
+    field public static boolean isSharedClipboardManagerEnabled;
     field public static boolean isSharedComposeViewContextEnabled;
+    field public static boolean isSharedDrawingEnabled;
+    field public static boolean isSharedViewConfigurationEnabled;
     field public static boolean isSharedWindowInfoEnabled;
   }
 
@@ -150,30 +158,24 @@ package androidx.compose.ui {
   }
 
   @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public final class ComposeUiFlags {
-    property @Deprecated public boolean areWindowInsetsRulersEnabled;
-    property public boolean isAccessibilityShowOnScreenNestedScrollingEnabled;
+    property public boolean isAccessibilityShouldIncludeOffscreenChildrenEnabled;
     property public boolean isBypassUnfocusableComposeViewEnabled;
+    property public boolean isFocusRestorationEnabled;
     property public boolean isGraphicsLayerShapeSemanticsEnabled;
-    property public boolean isIgnoreInvalidPrevFocusRectEnabled;
     property public boolean isIndirectPointerNavigationGestureDetectorEnabled;
     property public boolean isInitialFocusOnFocusableAvailable;
     property public boolean isOptimizedFocusEventDispatchEnabled;
-    property public boolean isRectManagerOffsetUsageFromLayoutCoordinatesEnabled;
-    property public boolean isScrollCaptureCenteringEnabled;
     property public boolean isTrackpadGestureHandlingEnabled;
     property public boolean isTraversableDelegatesFixEnabled;
     property public boolean isViewFocusFixEnabled;
     field public static final androidx.compose.ui.ComposeUiFlags INSTANCE;
-    field @Deprecated public static boolean areWindowInsetsRulersEnabled;
-    field public static boolean isAccessibilityShowOnScreenNestedScrollingEnabled;
+    field public static boolean isAccessibilityShouldIncludeOffscreenChildrenEnabled;
     field public static boolean isBypassUnfocusableComposeViewEnabled;
+    field public static boolean isFocusRestorationEnabled;
     field public static boolean isGraphicsLayerShapeSemanticsEnabled;
-    field public static boolean isIgnoreInvalidPrevFocusRectEnabled;
     field public static boolean isIndirectPointerNavigationGestureDetectorEnabled;
     field public static boolean isInitialFocusOnFocusableAvailable;
     field public static boolean isOptimizedFocusEventDispatchEnabled;
-    field public static boolean isRectManagerOffsetUsageFromLayoutCoordinatesEnabled;
-    field public static boolean isScrollCaptureCenteringEnabled;
     field public static boolean isTrackpadGestureHandlingEnabled;
     field public static boolean isTraversableDelegatesFixEnabled;
     field public static boolean isViewFocusFixEnabled;
@@ -1686,7 +1688,7 @@ package androidx.compose.ui.input.key {
     method @BytecodeOnly public long getHeadsetHook-EK5gGoQ();
     method @BytecodeOnly public long getHelp-EK5gGoQ();
     method @BytecodeOnly public long getHenkan-EK5gGoQ();
-    method @BytecodeOnly public long getHome-EK5gGoQ();
+    method @BytecodeOnly @Deprecated public long getHome-EK5gGoQ();
     method @BytecodeOnly public long getI-EK5gGoQ();
     method @BytecodeOnly public long getInfo-EK5gGoQ();
     method @BytecodeOnly public long getInsert-EK5gGoQ();
@@ -1747,6 +1749,7 @@ package androidx.compose.ui.input.key {
     method @BytecodeOnly public long getNumPad9-EK5gGoQ();
     method @BytecodeOnly public long getNumPadAdd-EK5gGoQ();
     method @BytecodeOnly public long getNumPadComma-EK5gGoQ();
+    method @BytecodeOnly public long getNumPadDelete-EK5gGoQ();
     method @BytecodeOnly public long getNumPadDirectionDown-EK5gGoQ();
     method @BytecodeOnly public long getNumPadDirectionLeft-EK5gGoQ();
     method @BytecodeOnly public long getNumPadDirectionRight-EK5gGoQ();
@@ -1811,6 +1814,7 @@ package androidx.compose.ui.input.key {
     method @BytecodeOnly public long getStemPrimary-EK5gGoQ();
     method @BytecodeOnly public long getSwitchCharset-EK5gGoQ();
     method @BytecodeOnly public long getSymbol-EK5gGoQ();
+    method @BytecodeOnly public long getSystemHome-EK5gGoQ();
     method @BytecodeOnly public long getSystemNavigationDown-EK5gGoQ();
     method @BytecodeOnly public long getSystemNavigationLeft-EK5gGoQ();
     method @BytecodeOnly public long getSystemNavigationRight-EK5gGoQ();
@@ -1982,7 +1986,7 @@ package androidx.compose.ui.input.key {
     property public androidx.compose.ui.input.key.Key HeadsetHook;
     property public androidx.compose.ui.input.key.Key Help;
     property public androidx.compose.ui.input.key.Key Henkan;
-    property public androidx.compose.ui.input.key.Key Home;
+    property @Deprecated public androidx.compose.ui.input.key.Key Home;
     property public androidx.compose.ui.input.key.Key I;
     property public androidx.compose.ui.input.key.Key Info;
     property public androidx.compose.ui.input.key.Key Insert;
@@ -2043,6 +2047,7 @@ package androidx.compose.ui.input.key {
     property public androidx.compose.ui.input.key.Key NumPad9;
     property public androidx.compose.ui.input.key.Key NumPadAdd;
     property public androidx.compose.ui.input.key.Key NumPadComma;
+    property public androidx.compose.ui.input.key.Key NumPadDelete;
     property public androidx.compose.ui.input.key.Key NumPadDirectionDown;
     property public androidx.compose.ui.input.key.Key NumPadDirectionLeft;
     property public androidx.compose.ui.input.key.Key NumPadDirectionRight;
@@ -2107,6 +2112,7 @@ package androidx.compose.ui.input.key {
     property public androidx.compose.ui.input.key.Key StemPrimary;
     property public androidx.compose.ui.input.key.Key SwitchCharset;
     property public androidx.compose.ui.input.key.Key Symbol;
+    property public androidx.compose.ui.input.key.Key SystemHome;
     property public androidx.compose.ui.input.key.Key SystemNavigationDown;
     property public androidx.compose.ui.input.key.Key SystemNavigationLeft;
     property public androidx.compose.ui.input.key.Key SystemNavigationRight;
@@ -2777,7 +2783,7 @@ package androidx.compose.ui.layout {
 
   public interface BeyondBoundsLayout {
     method @KotlinOnly public <T> T? layout(androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection direction, kotlin.jvm.functions.Function1<androidx.compose.ui.layout.BeyondBoundsLayout.BeyondBoundsScope,T?> block);
-    method @BytecodeOnly public <T> T? layout-o7g1Pn8(int, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.BeyondBoundsLayout.BeyondBoundsScope!,? extends T!>);
+    method @BytecodeOnly public <T> T? layout-o7g1Pn8(int, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.BeyondBoundsLayout.BeyondBoundsScope!,? extends T>);
   }
 
   public static interface BeyondBoundsLayout.BeyondBoundsScope {
@@ -3391,7 +3397,7 @@ package androidx.compose.ui.layout {
     method public boolean retainAll(kotlin.jvm.functions.Function1<java.lang.Object?,java.lang.Boolean> predicate);
     method @BytecodeOnly public int size();
     method @BytecodeOnly public Object![]! toArray();
-    method @BytecodeOnly public <T> T![]! toArray(T![]!);
+    method @BytecodeOnly public <T> T[]! toArray(T[]!);
     method public void trimToSize(int maxSlotsToRetainForReuse);
     property public int size;
   }
@@ -3886,8 +3892,8 @@ package androidx.compose.ui.platform {
 
   public final class AndroidUiFrameClock implements androidx.compose.runtime.MonotonicFrameClock {
     ctor public AndroidUiFrameClock(android.view.Choreographer choreographer);
-    method @BytecodeOnly public <R> R! fold(R!, kotlin.jvm.functions.Function2<? super R!,? super kotlin.coroutines.CoroutineContext.Element!,? extends R!>);
-    method @BytecodeOnly public <E extends kotlin.coroutines.CoroutineContext.Element> E? get(kotlin.coroutines.CoroutineContext.Key<E!>);
+    method @BytecodeOnly public <R> R fold(R, kotlin.jvm.functions.Function2<? super R,? super kotlin.coroutines.CoroutineContext.Element!,? extends R>);
+    method @BytecodeOnly public <E extends kotlin.coroutines.CoroutineContext.Element> E? get(kotlin.coroutines.CoroutineContext.Key<E>);
     method @InaccessibleFromKotlin public android.view.Choreographer getChoreographer();
     method @BytecodeOnly public kotlin.coroutines.CoroutineContext minusKey(kotlin.coroutines.CoroutineContext.Key<? extends java.lang.Object!>);
     method @BytecodeOnly public kotlin.coroutines.CoroutineContext plus(kotlin.coroutines.CoroutineContext);
@@ -4963,8 +4969,8 @@ package androidx.compose.ui.text {
 package androidx.compose.ui.viewinterop {
 
   public final class AndroidView_androidKt {
-    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.ui.UiComposable public static <T extends android.view.View> void AndroidView(kotlin.jvm.functions.Function1<? super android.content.Context!,? extends T!>, androidx.compose.ui.Modifier?, kotlin.jvm.functions.Function1<? super T!,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
-    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.ui.UiComposable public static <T extends android.view.View> void AndroidView(kotlin.jvm.functions.Function1<? super android.content.Context!,? extends T!>, androidx.compose.ui.Modifier?, kotlin.jvm.functions.Function1<? super T!,kotlin.Unit!>?, kotlin.jvm.functions.Function1<? super T!,kotlin.Unit!>?, kotlin.jvm.functions.Function1<? super T!,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.ui.UiComposable public static <T extends android.view.View> void AndroidView(kotlin.jvm.functions.Function1<? super android.content.Context!,? extends T>, androidx.compose.ui.Modifier?, kotlin.jvm.functions.Function1<? super T,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.ui.UiComposable public static <T extends android.view.View> void AndroidView(kotlin.jvm.functions.Function1<? super android.content.Context!,? extends T>, androidx.compose.ui.Modifier?, kotlin.jvm.functions.Function1<? super T,kotlin.Unit!>?, kotlin.jvm.functions.Function1<? super T,kotlin.Unit!>?, kotlin.jvm.functions.Function1<? super T,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.ui.UiComposable public static <T extends android.view.View> void AndroidView(kotlin.jvm.functions.Function1<android.content.Context,T> factory, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<T,kotlin.Unit> update);
     method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.ui.UiComposable public static <T extends android.view.View> void AndroidView(kotlin.jvm.functions.Function1<android.content.Context,T> factory, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<T,kotlin.Unit>? onReset, optional kotlin.jvm.functions.Function1<T,kotlin.Unit> onRelease, optional kotlin.jvm.functions.Function1<T,kotlin.Unit> update);
     method @InaccessibleFromKotlin public static kotlin.jvm.functions.Function1<android.view.View,kotlin.Unit> getNoOpUpdate();

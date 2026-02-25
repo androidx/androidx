@@ -16,19 +16,18 @@
 
 package androidx.compose.remote.creation.compose.modifier
 
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
+import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
+import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
+import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI.Companion.DefaultContainerSize
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -52,15 +51,20 @@ class ClipModifierTest {
         composeTestRule.runScreenshotTest {
             val clips =
                 listOf<Pair<String, @Composable RemoteModifier.() -> RemoteModifier>>(
-                    "RectangleShape" to { clip(RectangleShape) },
-                    "CircleShape" to { clip(CircleShape) },
-                    "CircleShape DpSize" to { clip(CircleShape, DpSize(44.dp, 32.dp)) },
-                    "RoundedCornerShape size" to { clip(RoundedCornerShape(size = 10.dp)) },
-                    "RoundedCornerShape percent 25" to { clip(RoundedCornerShape(percent = 25)) },
-                    "RoundedCornerShape percent 50" to { clip(RoundedCornerShape(percent = 50)) },
+                    "RectangleShape" to { clip(RemoteRectangleShape) },
+                    "CircleShape" to { clip(RemoteCircleShape) },
+                    "RoundedCornerShape size" to { clip(RemoteRoundedCornerShape(size = 10.rdp)) },
+                    "RoundedCornerShape percent 25" to
+                        {
+                            clip(RemoteRoundedCornerShape(percent = 25))
+                        },
+                    "RoundedCornerShape percent 50" to
+                        {
+                            clip(RemoteRoundedCornerShape(percent = 50))
+                        },
                     "RoundedCornerShape custom size" to
                         {
-                            clip(RoundedCornerShape(topStart = 10.dp, bottomEnd = 10.dp))
+                            clip(RemoteRoundedCornerShape(topStart = 10.rdp, bottomEnd = 10.rdp))
                         },
                 )
 

@@ -30,10 +30,10 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.sp
 
 /** Class to provide a single UI composed of many other smaller UIs, displayed on a grid. */
 class GridScreenshotUI(
@@ -59,7 +59,7 @@ class GridScreenshotUI(
                             RemoteText(
                                 label,
                                 modifier = RemoteModifier.width(ContainerSize).height(20.rdp),
-                                fontSize = 8.sp,
+                                fontSize = 8.rsp,
                                 overflow = TextOverflow.Ellipsis,
                                 maxLines = 2,
                             )

@@ -34,12 +34,12 @@ import androidx.compose.remote.creation.compose.modifier.clip
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.widgets.RemoteComposeWidget
 import androidx.compose.remote.creation.compose.widgets.onClick
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalRemoteCreationComposeApi::class)
 @SuppressLint("RestrictedApiAndroidX")
@@ -61,7 +61,7 @@ class MyWidget : RemoteComposeWidget() {
             RemoteAlignment.CenterHorizontally,
             RemoteArrangement.Center,
         ) {
-            RemoteText(text, fontSize = 32.sp, color = RemoteColor(Color.White))
+            RemoteText(text, fontSize = 32.rsp, color = RemoteColor(Color.White))
         }
     }
 
@@ -75,7 +75,7 @@ class MyWidget : RemoteComposeWidget() {
             verticalAlignment = RemoteAlignment.CenterVertically,
         ) {
             Button("-", RemoteModifier.weight(1f)) { writeCounter(context, widgetId, -1) }
-            RemoteText("$counter", fontSize = 48.sp)
+            RemoteText("$counter", fontSize = 48.rsp)
             Button("+", RemoteModifier.weight(1f)) { writeCounter(context, widgetId, 1) }
         }
     }

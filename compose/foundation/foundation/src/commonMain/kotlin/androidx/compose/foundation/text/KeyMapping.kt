@@ -18,9 +18,6 @@ package androidx.compose.foundation.text
 
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.isAltPressed
-import androidx.compose.ui.input.key.isCtrlPressed
-import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 
 internal interface KeyMapping {
@@ -32,16 +29,17 @@ internal interface KeyMapping {
 internal expect val platformDefaultKeyMapping: KeyMapping
 
 // It's common for all platforms key mapping
-internal fun commonKeyMapping(shortcutModifier: (KeyEvent) -> Boolean): KeyMapping {
+internal fun commonKeyMapping(systemShortcutModifiers: KeyModifiers): KeyMapping {
     return object : KeyMapping {
         override fun map(event: KeyEvent): KeyCommand? {
-            return when {
-                shortcutModifier(event) && event.isShiftPressed ->
+            val keyModifiers = event.modifiers
+            return when (keyModifiers) {
+                systemShortcutModifiers + KeyModifiers.Shift ->
                     when (event.key) {
                         Key.Z -> KeyCommand.REDO
                         else -> null
                     }
-                shortcutModifier(event) ->
+                systemShortcutModifiers ->
                     when (event.key) {
                         Key.C,
                         Key.Insert,
@@ -53,8 +51,7 @@ internal fun commonKeyMapping(shortcutModifier: (KeyEvent) -> Boolean): KeyMappi
                         Key.Z -> KeyCommand.UNDO
                         else -> null
                     }
-                event.isCtrlPressed -> null
-                event.isShiftPressed ->
+                KeyModifiers.Shift ->
                     when (event.key) {
                         Key.DirectionLeft,
                         Key.NumPadDirectionLeft -> KeyCommand.SELECT_LEFT_CHAR
@@ -76,7 +73,7 @@ internal fun commonKeyMapping(shortcutModifier: (KeyEvent) -> Boolean): KeyMappi
                         Key.NumPadInsert -> KeyCommand.PASTE
                         else -> null
                     }
-                else ->
+                KeyModifiers.None ->
                     when (event.key) {
                         Key.DirectionLeft,
                         Key.NumPadDirectionLeft -> KeyCommand.LEFT_CHAR
@@ -105,6 +102,7 @@ internal fun commonKeyMapping(shortcutModifier: (KeyEvent) -> Boolean): KeyMappi
                         Key.Tab -> KeyCommand.TAB
                         else -> null
                     }
+                else -> null
             }
         }
     }
@@ -112,11 +110,28 @@ internal fun commonKeyMapping(shortcutModifier: (KeyEvent) -> Boolean): KeyMappi
 
 // It's "default" or actually "non macOS" key mapping
 internal val defaultKeyMapping: KeyMapping =
-    commonKeyMapping(KeyEvent::isCtrlPressed).let { common ->
+    commonKeyMapping(KeyModifiers.Ctrl).let { common ->
         object : KeyMapping {
             override fun map(event: KeyEvent): KeyCommand? {
-                return when {
-                    event.isShiftPressed && event.isCtrlPressed ->
+                val keyModifiers = event.modifiers
+                when (event.key) {
+                    Key.Backspace ->
+                        when (keyModifiers) {
+                            KeyModifiers.None,
+                            KeyModifiers.Shift,
+                            KeyModifiers.ShiftMeta -> KeyCommand.DELETE_PREV_CHAR
+                            KeyModifiers.Ctrl,
+                            KeyModifiers.CtrlShift -> KeyCommand.DELETE_PREV_WORD
+                            KeyModifiers.Alt -> KeyCommand.DELETE_FROM_LINE_START
+                            else -> null
+                        }
+                    else -> null
+                }?.let {
+                    return it
+                }
+
+                return when (event.modifiers) {
+                    KeyModifiers.CtrlShift ->
                         when (event.key) {
                             Key.DirectionLeft,
                             Key.NumPadDirectionLeft -> KeyCommand.SELECT_LEFT_WORD
@@ -128,7 +143,7 @@ internal val defaultKeyMapping: KeyMapping =
                             Key.NumPadDirectionDown -> KeyCommand.SELECT_NEXT_PARAGRAPH
                             else -> null
                         }
-                    event.isCtrlPressed ->
+                    KeyModifiers.Ctrl ->
                         when (event.key) {
                             Key.DirectionLeft,
                             Key.NumPadDirectionLeft -> KeyCommand.LEFT_WORD
@@ -140,11 +155,10 @@ internal val defaultKeyMapping: KeyMapping =
                             Key.NumPadDirectionDown -> KeyCommand.NEXT_PARAGRAPH
                             Key.H -> KeyCommand.DELETE_PREV_CHAR
                             Key.Delete -> KeyCommand.DELETE_NEXT_WORD
-                            Key.Backspace -> KeyCommand.DELETE_PREV_WORD
                             Key.Backslash -> KeyCommand.DESELECT
                             else -> null
                         }
-                    event.isShiftPressed ->
+                    KeyModifiers.Shift ->
                         when (event.key) {
                             Key.MoveHome,
                             Key.NumPadMoveHome -> KeyCommand.SELECT_LINE_START
@@ -152,9 +166,8 @@ internal val defaultKeyMapping: KeyMapping =
                             Key.NumPadMoveEnd -> KeyCommand.SELECT_LINE_END
                             else -> null
                         }
-                    event.isAltPressed ->
+                    KeyModifiers.Alt ->
                         when (event.key) {
-                            Key.Backspace -> KeyCommand.DELETE_FROM_LINE_START
                             Key.Delete -> KeyCommand.DELETE_TO_LINE_END
                             else -> null
                         }

@@ -1,2 +1,5 @@
 // Baseline format: 1.0
+[linuxX64]: Removed declaration androidx.compose.ui.graphics/NativeColorFilter from androidx.compose.ui:ui-graphics
+[linuxX64]: Removed declaration androidx.compose.ui.graphics/androidx_compose_ui_graphics_NativeColorFilter$stableprop from androidx.compose.ui:ui-graphics
 [linuxX64]: Removed declaration (androidx.compose.ui.graphics/Canvas).androidx.compose.ui.graphics/nativeCanvas from androidx.compose.ui:ui-graphics
+[linuxX64]: Removed declaration androidx.compose.ui.graphics/androidx_compose_ui_graphics_NativeColorFilter$stableprop_getter() from androidx.compose.ui:ui-graphics

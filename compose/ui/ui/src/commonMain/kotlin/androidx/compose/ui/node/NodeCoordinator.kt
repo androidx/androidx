@@ -21,7 +21,6 @@ import androidx.collection.MutableScatterSet
 import androidx.collection.mutableObjectIntMapOf
 import androidx.collection.mutableScatterSetOf
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.FrameRateCategory
 import androidx.compose.ui.Modifier
@@ -597,7 +596,7 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
             graphicsLayerScope.size = size.toSize()
             snapshotObserver.observeReads(this, onCommitAffectingLayerParams) {
                 layerBlock.invoke(graphicsLayerScope)
-                val hasShapeChanged = lastShape !== graphicsLayerScope.shape
+                val hasShapeChanged = lastShape != graphicsLayerScope.shape
                 val hasClipChanged = lastClip != graphicsLayerScope.clip
                 if (hasShapeChanged || hasClipChanged) {
                     lastShape = graphicsLayerScope.shape
@@ -1153,17 +1152,15 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
         var coordinator: NodeCoordinator? = this
         var position = relativeToLocal
         while (coordinator != null) {
-            if (ComposeUiFlags.isRectManagerOffsetUsageFromLayoutCoordinatesEnabled) {
-                val layoutNode = coordinator.layoutNode
-                if (
-                    coordinator === layoutNode.outerCoordinator &&
-                        !layoutNode.hasPositionalLayerTransformationsInOffsetFromRoot
-                ) {
-                    val offsetFromRectList =
-                        layoutNode.requireOwner().rectManager.getOffsetFromRectListFor(layoutNode)
-                    if (offsetFromRectList != IntOffset.Max) {
-                        return position + offsetFromRectList
-                    }
+            val layoutNode = coordinator.layoutNode
+            if (
+                coordinator === layoutNode.outerCoordinator &&
+                    !layoutNode.hasPositionalLayerTransformationsInOffsetFromRoot
+            ) {
+                val offsetFromRectList =
+                    layoutNode.requireOwner().rectManager.getOffsetFromRectListFor(layoutNode)
+                if (offsetFromRectList != IntOffset.Max) {
+                    return position + offsetFromRectList
                 }
             }
             position = coordinator.toParentPosition(position)
@@ -1271,14 +1268,16 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
             if (isClipping) {
                 if (clipToMinimumTouchTargetSize) {
                     val minTouch = minimumTouchTargetSize
-                    val horz = minTouch.width / 2f
-                    val vert = minTouch.height / 2f
-                    bounds.intersect(
-                        -horz,
-                        -vert,
-                        size.width.toFloat() + horz,
-                        size.height.toFloat() + vert,
-                    )
+                    val (left, top) = calculateMinimumTouchTargetOffset(bounds, minTouch)
+                    val (width, height) = size
+                    val right =
+                        minOf(width + minTouch.width, maxOf(width.toFloat(), left + minTouch.width))
+                    val bottom =
+                        minOf(
+                            height + minTouch.height,
+                            maxOf(height.toFloat(), top + minTouch.height),
+                        )
+                    bounds.intersect(left, top, right, bottom)
                 } else if (clipBounds) {
                     bounds.intersect(0f, 0f, size.width.toFloat(), size.height.toFloat())
                 }
@@ -1427,6 +1426,44 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
         val widthDiff = minimumTouchTargetSize.width - measuredWidth.toFloat()
         val heightDiff = minimumTouchTargetSize.height - measuredHeight.toFloat()
         return Size(maxOf(0f, widthDiff / 2f), maxOf(0f, heightDiff / 2f))
+    }
+
+    /**
+     * Returns the offset of the child to give the best minimum touch target to it. If the child is
+     * smaller than minimum touch target size, then the offset will be away from the child position
+     * such that it is centered within the minimum touch target space, which may be outside of the
+     * parent. Otherwise, it will return the child offset.
+     */
+    protected fun calculateMinimumTouchTargetOffset(
+        childRect: MutableRect,
+        minimumTouchTargetSize: Size,
+    ): Offset {
+        val childLeft = childRect.left
+        val childTop = childRect.top
+        if (
+            childRect.right < 0 ||
+                childLeft > size.width ||
+                childRect.bottom < 0 ||
+                childTop > size.height
+        ) {
+            return Offset.Zero
+        }
+        val (mttWidth, mttHeight) = minimumTouchTargetSize
+        val underWidth = (mttWidth - childRect.width) / 2f
+        val left =
+            if (underWidth > 0) {
+                childLeft - underWidth
+            } else {
+                childLeft.coerceAtLeast(-mttWidth / 2f)
+            }
+        val underHeight = (mttHeight - childRect.height) / 2f
+        val top =
+            if (underHeight > 0) {
+                childTop - underHeight
+            } else {
+                childTop.coerceAtLeast(-mttHeight / 2f)
+            }
+        return Offset(left, top)
     }
 
     /**

@@ -26,13 +26,11 @@ import kotlinx.coroutines.test.TestDispatcher
 /**
  * Factory method to provide an implementation of [ComposeContentTestRule].
  *
- * This API differs from the deprecated API by using
- * [kotlinx.coroutines.test.StandardTestDispatcher] by default for running composition, instead of
- * [kotlinx.coroutines.test.UnconfinedTestDispatcher]. This ensures that the test behavior is
- * consistent with [kotlinx.coroutines.test.runTest] and provides explicit control over coroutine
- * execution order. This means you may need to explicitly advance time or run current coroutines
- * when testing complex coroutine logic, as tasks are queued on the scheduler rather than running
- * eagerly.
+ * This implementation uses [kotlinx.coroutines.test.StandardTestDispatcher] by default for running
+ * composition. This ensures that the test behavior is consistent with
+ * [kotlinx.coroutines.test.runTest] and provides explicit control over coroutine execution order.
+ * This means you may need to explicitly advance time or run current coroutines when testing complex
+ * coroutine logic, as tasks are queued on the scheduler rather than running eagerly.
  *
  * This method is useful for tests in compose libraries where it is irrelevant where the compose
  * content is hosted (e.g. an Activity on Android). Such tests typically set compose content

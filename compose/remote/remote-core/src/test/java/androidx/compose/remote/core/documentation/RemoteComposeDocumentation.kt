@@ -163,7 +163,7 @@ import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-class RemoteComposeDocumentation(val title: String, val intro: String) : DocumentationBuilder {
+class RemoteComposeDocumentation(val title: String) : DocumentationBuilder {
     var buffer = StringBuilder(preamble())
 
     fun role(content: String) {
@@ -231,6 +231,10 @@ class RemoteComposeDocumentation(val title: String, val intro: String) : Documen
             }
 }
             </style>
+            <script type="module">
+                import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+                mermaid.initialize({ startOnLoad: true });
+            </script>
         """
     }
 
@@ -605,28 +609,18 @@ class RemoteComposeDocumentation(val title: String, val intro: String) : Documen
         role(
             "*Current number of operations: ${numOperations + numWIPOperations} ($numWIPOperations not fully documented)*"
         )
-        role(intro)
 
         //    val interpolationMethods = InterpolationReader.map.values
         //    for (m in interpolationMethods) {
         //      m.documentation(this)
         //    }
 
-        val layoutPart = readPart("rc_layout.md")
-        if (layoutPart != null) {
-            buffer.append(layoutPart)
-        }
+        addPart("rc_intro_wire_format.md")
+        addPart("rc_layout.md")
+        addPart("rc_scroll.md")
+        addPart("rc_click.md")
 
         val categories =
-            ////            arrayListOf(
-            ////                "Protocol Operations",
-            ////                "Data Operations",
-            ////                "Canvas Operations",
-            ////                "Draw Operations",
-            ////                "Expressions Operations",
-            ////                "Layout Operations",
-            ////                "Modifier Operations",
-            ////            )
             arrayListOf(
                 "Document Protocol Operations",
                 "Data Operations",
@@ -645,18 +639,6 @@ class RemoteComposeDocumentation(val title: String, val intro: String) : Documen
             )
 
         val categoriesDescriptions =
-            //            hashMapOf(
-            //                "Protocol Operations" to "Operations related to the Origami protocol
-            // itself.",
-            //                "Data operations" to "Operations related to resource loading.",
-            //                "Canvas operations" to
-            //                    "Canvas state manipulations (save, restore, translate, etc.)",
-            //                "Draw operations" to
-            //                    "Operations representing canvas draw commands (draw line, etc.)",
-            //                "Expressions operations" to "Operations related to expression
-            // evaluation.",
-            //                "Layout Operations" to "Layout related operations.",
-            //            )
             hashMapOf(
                 "Document Protocol Operations" to
                     "Core document metadata, versioning, themes, and high-level behaviors.",
@@ -914,6 +896,13 @@ class RemoteComposeDocumentation(val title: String, val intro: String) : Documen
             }
         }
         return null
+    }
+
+    fun addPart(name: String) {
+        val part = readPart(name)
+        if (part != null) {
+            buffer.append(part)
+        }
     }
 
     override fun add(value: String) {

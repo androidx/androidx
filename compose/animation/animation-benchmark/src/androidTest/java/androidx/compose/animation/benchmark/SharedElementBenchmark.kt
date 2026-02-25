@@ -18,9 +18,11 @@ package androidx.compose.animation.benchmark
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
@@ -39,15 +41,19 @@ import androidx.compose.testutils.benchmark.toggleStateBenchmarkRecompose
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
+import org.junit.runners.Parameterized.Parameters
 
 @LargeTest
-@RunWith(AndroidJUnit4::class)
-class SharedElementBenchmark {
+@RunWith(Parameterized::class)
+class SharedElementBenchmark(private val count: Int) {
+    companion object {
+        @JvmStatic @Parameters(name = "count={0}") fun data() = listOf(1, 10)
+    }
 
     @get:Rule val rule = ComposeBenchmarkRule()
 
@@ -57,7 +63,7 @@ class SharedElementBenchmark {
      */
     @Test
     fun instantiateSharedElementCallerManagedVisibility() {
-        rule.benchmarkFirstCompose(::SharedElementCallerManagedVisibilityTestCase)
+        rule.benchmarkFirstCompose { SharedElementCallerManagedVisibilityTestCase(count) }
     }
 
     /**
@@ -67,7 +73,7 @@ class SharedElementBenchmark {
     @Test
     fun recomposeSharedElementCallerManagedVisibility() {
         rule.toggleStateBenchmarkRecompose(
-            ::SharedElementCallerManagedVisibilityTestCase,
+            { SharedElementCallerManagedVisibilityTestCase(count) },
             assertOneRecomposition = false,
         )
     }
@@ -78,7 +84,7 @@ class SharedElementBenchmark {
     @Test
     fun layoutSharedElementCallerManagedVisibility() {
         rule.toggleStateBenchmarkLayout(
-            ::SharedElementCallerManagedVisibilityTestCase,
+            { SharedElementCallerManagedVisibilityTestCase(count) },
             assertOneRecomposition = false,
         )
     }
@@ -87,7 +93,7 @@ class SharedElementBenchmark {
     @Test
     fun drawSharedElementCallerManagedVisibility() {
         rule.toggleStateBenchmarkDraw(
-            ::SharedElementCallerManagedVisibilityTestCase,
+            { SharedElementCallerManagedVisibilityTestCase(count) },
             assertOneRecomposition = false,
         )
     }
@@ -97,7 +103,7 @@ class SharedElementBenchmark {
      */
     @Test
     fun instantiateSharedElementAnimatedVisibility() {
-        rule.benchmarkFirstCompose(::SharedElementAnimatedVisibilityTestCase)
+        rule.benchmarkFirstCompose { SharedElementAnimatedVisibilityTestCase(count) }
     }
 
     /**
@@ -107,7 +113,7 @@ class SharedElementBenchmark {
     @Test
     fun recomposeSharedElementAnimatedVisibility() {
         rule.toggleStateBenchmarkRecompose(
-            ::SharedElementAnimatedVisibilityTestCase,
+            { SharedElementAnimatedVisibilityTestCase(count) },
             assertOneRecomposition = false,
         )
     }
@@ -116,7 +122,7 @@ class SharedElementBenchmark {
     @Test
     fun layoutSharedElementAnimatedVisibility() {
         rule.toggleStateBenchmarkLayout(
-            ::SharedElementAnimatedVisibilityTestCase,
+            { SharedElementAnimatedVisibilityTestCase(count) },
             assertOneRecomposition = false,
         )
     }
@@ -125,7 +131,7 @@ class SharedElementBenchmark {
     @Test
     fun drawSharedElementAnimatedVisibility() {
         rule.toggleStateBenchmarkDraw(
-            ::SharedElementAnimatedVisibilityTestCase,
+            { SharedElementAnimatedVisibilityTestCase(count) },
             assertOneRecomposition = false,
         )
     }
@@ -133,7 +139,7 @@ class SharedElementBenchmark {
     /** Measures the instantiation cost of a screen with Shared Elements using AnimatedContent. */
     @Test
     fun instantiateSharedElementAnimatedContent() {
-        rule.benchmarkFirstCompose(::SharedElementAnimatedContentTestCase)
+        rule.benchmarkFirstCompose { SharedElementAnimatedContentTestCase(count) }
     }
 
     /**
@@ -142,7 +148,7 @@ class SharedElementBenchmark {
     @Test
     fun recomposeSharedElementAnimatedContent() {
         rule.toggleStateBenchmarkRecompose(
-            ::SharedElementAnimatedContentTestCase,
+            { SharedElementAnimatedContentTestCase(count) },
             assertOneRecomposition = false,
         )
     }
@@ -151,7 +157,7 @@ class SharedElementBenchmark {
     @Test
     fun layoutSharedElementAnimatedContent() {
         rule.toggleStateBenchmarkLayout(
-            ::SharedElementAnimatedContentTestCase,
+            { SharedElementAnimatedContentTestCase(count) },
             assertOneRecomposition = false,
         )
     }
@@ -160,13 +166,49 @@ class SharedElementBenchmark {
     @Test
     fun drawSharedElementAnimatedContent() {
         rule.toggleStateBenchmarkDraw(
-            ::SharedElementAnimatedContentTestCase,
+            { SharedElementAnimatedContentTestCase(count) },
             assertOneRecomposition = false,
         )
     }
 }
 
-private class SharedElementAnimatedVisibilityTestCase :
+@Composable
+private fun Modifier.sharedElements(
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    count: Int,
+): Modifier =
+    with(sharedTransitionScope) {
+        var result = this@sharedElements
+        repeat(count) {
+            result =
+                result.sharedElement(
+                    rememberSharedContentState(key = "key_$it"),
+                    animatedVisibilityScope = animatedVisibilityScope,
+                )
+        }
+        result
+    }
+
+@Composable
+private fun Modifier.sharedElements(
+    sharedTransitionScope: SharedTransitionScope,
+    isExpanded: Boolean,
+    count: Int,
+): Modifier =
+    with(sharedTransitionScope) {
+        var result = this@sharedElements
+        repeat(count) {
+            result =
+                result.sharedElementWithCallerManagedVisibility(
+                    rememberSharedContentState(key = "key_$it"),
+                    isExpanded,
+                )
+        }
+        result
+    }
+
+private class SharedElementAnimatedVisibilityTestCase(val modifierCount: Int) :
     LayeredComposeTestCase(), ToggleableTestCase {
     private var isExpanded by mutableStateOf(false)
 
@@ -181,9 +223,10 @@ private class SharedElementAnimatedVisibilityTestCase :
                 Box(
                     Modifier.offset(100.dp, 100.dp)
                         .size(200.dp)
-                        .sharedElement(
-                            rememberSharedContentState(key = "key"),
-                            animatedVisibilityScope = this,
+                        .sharedElements(
+                            this@SharedTransitionLayout,
+                            this@AnimatedVisibility,
+                            modifierCount,
                         )
                         .background(Color.Red)
                 )
@@ -197,9 +240,10 @@ private class SharedElementAnimatedVisibilityTestCase :
                 Box(
                     Modifier.offset(0.dp, 0.dp)
                         .size(50.dp)
-                        .sharedElement(
-                            rememberSharedContentState(key = "key"),
-                            animatedVisibilityScope = this,
+                        .sharedElements(
+                            this@SharedTransitionLayout,
+                            this@AnimatedVisibility,
+                            modifierCount,
                         )
                         .background(Color.Red)
                 )
@@ -212,7 +256,8 @@ private class SharedElementAnimatedVisibilityTestCase :
     }
 }
 
-private class SharedElementAnimatedContentTestCase : LayeredComposeTestCase(), ToggleableTestCase {
+private class SharedElementAnimatedContentTestCase(val modifierCount: Int) :
+    LayeredComposeTestCase(), ToggleableTestCase {
     private var isExpanded by mutableStateOf(false)
 
     @Composable
@@ -224,9 +269,10 @@ private class SharedElementAnimatedContentTestCase : LayeredComposeTestCase(), T
                     Box(
                         Modifier.offset(100.dp, 100.dp)
                             .size(200.dp)
-                            .sharedElement(
-                                rememberSharedContentState(key = "key"),
-                                animatedVisibilityScope = this,
+                            .sharedElements(
+                                this@SharedTransitionLayout,
+                                this@AnimatedContent,
+                                modifierCount,
                             )
                             .background(Color.Red)
                     )
@@ -234,9 +280,10 @@ private class SharedElementAnimatedContentTestCase : LayeredComposeTestCase(), T
                     Box(
                         Modifier.offset(0.dp, 0.dp)
                             .size(50.dp)
-                            .sharedElement(
-                                rememberSharedContentState(key = "key"),
-                                animatedVisibilityScope = this,
+                            .sharedElements(
+                                this@SharedTransitionLayout,
+                                this@AnimatedContent,
+                                modifierCount,
                             )
                             .background(Color.Red)
                     )
@@ -250,7 +297,7 @@ private class SharedElementAnimatedContentTestCase : LayeredComposeTestCase(), T
     }
 }
 
-private class SharedElementCallerManagedVisibilityTestCase :
+private class SharedElementCallerManagedVisibilityTestCase(val modifierCount: Int) :
     LayeredComposeTestCase(), ToggleableTestCase {
     private var isExpanded by mutableStateOf(false)
 
@@ -260,20 +307,14 @@ private class SharedElementCallerManagedVisibilityTestCase :
             Box(
                 Modifier.offset(0.dp, 0.dp)
                     .size(50.dp)
-                    .sharedElementWithCallerManagedVisibility(
-                        rememberSharedContentState(key = "key"),
-                        visible = !isExpanded,
-                    )
+                    .sharedElements(this@SharedTransitionLayout, isExpanded, modifierCount)
                     .background(Color.Red)
             )
 
             Box(
                 Modifier.offset(100.dp, 100.dp)
                     .size(200.dp)
-                    .sharedElementWithCallerManagedVisibility(
-                        rememberSharedContentState(key = "key"),
-                        visible = isExpanded,
-                    )
+                    .sharedElements(this@SharedTransitionLayout, isExpanded, modifierCount)
                     .background(Color.Red)
             )
         }

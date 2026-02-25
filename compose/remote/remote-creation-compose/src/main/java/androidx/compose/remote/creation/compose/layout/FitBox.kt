@@ -29,8 +29,7 @@ import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 
 /** Utility modifier to record the layout information */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteComposeFitBoxModifier(
+internal class RemoteComposeFitBoxModifier(
     private val modifier: RemoteModifier,
     private val horizontalAlignment: RemoteAlignment.Horizontal = RemoteAlignment.Start,
     private val verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Top,
@@ -53,6 +52,7 @@ public class RemoteComposeFitBoxModifier(
  * FitBox to both work as a normal Box when called within a normal Compose tree, and capture the
  * layout information when called within a capture pass for RemoteCompose.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RemoteComposable
 @Composable
 public fun FitBox(

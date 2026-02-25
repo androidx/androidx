@@ -78,12 +78,10 @@ internal class SharedElementEntry(
         if (shouldRenderInOverlay) {
             with(drawScope) {
                 val (x, y) = currentBounds.topLeft
-                if (SharedTransitionDebug) {
-                    println(
-                        "SharedTransition, drawing in overlay. key = ${sharedElement.key}," +
-                            " at $x, $y current size: ${currentBounds.size} " +
-                            "state: $matchState"
-                    )
+                sharedTransitionDebug {
+                    "drawing in overlay. key = ${sharedElement.key}," +
+                        " at $x, $y current size: ${currentBounds.size} " +
+                        "state: $matchState"
                 }
                 clipPathInOverlay?.let { clipPath(it) { translate(x, y) { drawLayer(layer) } } }
                     ?: translate(x, y) { drawLayer(layer) }

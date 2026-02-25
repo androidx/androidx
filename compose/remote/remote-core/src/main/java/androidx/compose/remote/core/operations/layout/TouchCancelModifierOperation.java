@@ -49,17 +49,17 @@ public class TouchCancelModifierOperation extends ListActionsOperation implement
     }
 
     @Override
-    public void onTouchDown(
+    public boolean onTouchDown(
             @NonNull RemoteContext context,
             @NonNull CoreDocument document,
             @NonNull Component component,
             float x,
             float y) {
-        // nothing
+        return false;
     }
 
     @Override
-    public void onTouchUp(
+    public boolean onTouchUp(
             @NonNull RemoteContext context,
             @NonNull CoreDocument document,
             @NonNull Component component,
@@ -67,27 +67,28 @@ public class TouchCancelModifierOperation extends ListActionsOperation implement
             float y,
             float dx,
             float dy) {
-        // nothing
+        return false;
     }
 
     @Override
-    public void onTouchCancel(
+    public boolean onTouchCancel(
             @NonNull RemoteContext context,
             @NonNull CoreDocument document,
             @NonNull Component component,
             float x,
             float y) {
         applyActions(context, document, component, x, y, true);
+        return true;
     }
 
     @Override
-    public void onTouchDrag(
+    public boolean onTouchDrag(
             @NonNull RemoteContext context,
             @NonNull CoreDocument document,
             @NonNull Component component,
             float x,
             float y) {
-        // nothing
+        return false;
     }
 
     /**

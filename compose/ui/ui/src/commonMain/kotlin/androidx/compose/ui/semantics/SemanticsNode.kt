@@ -32,9 +32,10 @@ import androidx.compose.ui.node.NodeCoordinator
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.node.SemanticsModifierNode
+import androidx.compose.ui.node.boundsInRoot
+import androidx.compose.ui.node.effectiveBoundsInRoot
 import androidx.compose.ui.node.requireCoordinator
 import androidx.compose.ui.node.requireLayoutNode
-import androidx.compose.ui.node.touchBoundsInRoot
 import androidx.compose.ui.node.useMinimumTouchTarget
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.unit.IntSize
@@ -92,8 +93,9 @@ internal constructor(
     // We emit fake nodes for several cases. One is to prevent the content description clobbering
     // issue. Another case is  temporary workaround to retrieve default role ordering for Button
     // and other selection controls.
-    internal var isFake = false
     private var fakeNodeParent: SemanticsNode? = null
+    internal val isFake: Boolean
+        get() = fakeNodeParent != null
 
     internal val isUnmergedLeafNode
         get() =
@@ -133,8 +135,23 @@ internal constructor(
                 // the inner coordinator to get the bounds.
                 return layoutNode.innerCoordinator.touchBoundsInRoot()
             }
-            return semanticsModifierNode.node.touchBoundsInRoot(
-                unmergedConfig.useMinimumTouchTarget
+            return semanticsModifierNode.node.effectiveBoundsInRoot(
+                unmergedConfig.useMinimumTouchTarget,
+                clipBounds = true,
+            )
+        }
+
+    internal val unclippedBoundsInRoot: Rect
+        get() {
+            val semanticsModifierNode = findSemanticsModifierNodeToGetBounds()
+            if (semanticsModifierNode == null) {
+                // If no node is found that has isImportantForBounds == true, then we fallback to
+                // the inner coordinator to get the bounds.
+                return layoutNode.innerCoordinator.boundsInRoot(false)
+            }
+            return semanticsModifierNode.node.effectiveBoundsInRoot(
+                useMinimumTouchTarget = false,
+                clipBounds = false,
             )
         }
 
@@ -501,7 +518,6 @@ internal constructor(
                     ),
                 unmergedConfig = configuration,
             )
-        fakeNode.isFake = true
         fakeNode.fakeNodeParent = this
         return fakeNode
     }

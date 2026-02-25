@@ -25,6 +25,9 @@
             android:windowSoftInputMode="adjustResize"
             android:theme="@android:style/Theme.Material.Light.NoActionBar" />
         <activity
+            android:name="androidx.compose.ui.focus.OrientationChangeActivity"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar" />
+        <activity
             android:name="androidx.compose.ui.window.ActivityWithInsets"
             android:windowSoftInputMode="adjustResize"
             android:theme="@android:style/Theme.Material.Light.NoActionBar" />

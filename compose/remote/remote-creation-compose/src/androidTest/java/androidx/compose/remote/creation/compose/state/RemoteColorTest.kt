@@ -27,7 +27,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,11 +42,11 @@ class RemoteColorTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     @Test
-    fun copy_rememberRemoteColor_resultsSingleNamedColor() = runBlocking {
+    fun copy_rememberRemoteColor_resultsSingleNamedColor() = runTest {
         val colorName = "TEST"
         val coreDoc =
             remoteComposeTestRule.captureDocument(context = context) {
-                val color = rememberRemoteColor(colorName) { Color.Red }
+                val color = rememberNamedRemoteColor(colorName, Color.Red)
 
                 val copy = color.copy(alpha = 0f.rf)
 

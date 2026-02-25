@@ -19,8 +19,6 @@ package androidx.compose.runtime.platform
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
-import kotlin.experimental.ExperimentalNativeApi
-import kotlin.native.ref.createCleaner
 
 @PublishedApi
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
@@ -35,64 +33,4 @@ internal actual inline fun makeSynchronizedObject(ref: Any?) = SynchronizedObjec
 internal actual inline fun <R> synchronized(lock: SynchronizedObject, block: () -> R): R {
     contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
     return kotlinx.atomicfu.locks.synchronized(lock, block)
-}
-
-/**
- * This class should never be used outside of this file. It is just a helper class that was added to
- * minimize code duplication between the Unix and mingwX64 implementations of [Monitor].
- */
-internal expect class NativeMonitor() {
-    fun enter()
-
-    fun exit()
-
-    fun wait()
-
-    fun notifyAll()
-
-    fun dispose()
-}
-
-private class MonitorWrapper {
-    val monitor: NativeMonitor = NativeMonitor()
-
-    @OptIn(ExperimentalNativeApi::class)
-    val cleaner = createCleaner(monitor, NativeMonitor::dispose)
-}
-
-internal actual class Monitor {
-    private val monitorWrapper: MonitorWrapper by lazy { MonitorWrapper() }
-    private val monitor: NativeMonitor
-        get() = monitorWrapper.monitor
-
-    @PublishedApi
-    internal fun lock() {
-        monitor.enter()
-    }
-
-    @PublishedApi
-    internal fun unlock() {
-        monitor.exit()
-    }
-
-    actual fun wait() {
-        monitor.wait()
-    }
-
-    actual fun notifyAll() {
-        monitor.notifyAll()
-    }
-}
-
-@Suppress("NOTHING_TO_INLINE") internal actual inline fun makeMonitor(ref: Any?) = Monitor()
-
-internal actual inline fun <R> synchronized(monitor: Monitor, block: () -> R): R {
-    monitor.run {
-        lock()
-        return try {
-            block()
-        } finally {
-            unlock()
-        }
-    }
 }

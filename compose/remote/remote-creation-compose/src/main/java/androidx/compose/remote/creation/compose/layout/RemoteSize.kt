@@ -23,7 +23,6 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.geometry.Size
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteSize {
 
     public val width: RemoteFloat
@@ -34,6 +33,7 @@ public class RemoteSize {
         this.height = height
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(size: Size) {
         this.width = size.width.rf
         this.height = size.height.rf
@@ -46,6 +46,7 @@ public class RemoteSize {
     public val minDimension: RemoteFloat
         get() = width.min(height)
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun asSize(scope: RemoteStateScope): Size {
         with(scope) {
             return Size(width.floatId, height.floatId)

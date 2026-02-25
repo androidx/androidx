@@ -99,6 +99,7 @@ public class LayoutTestPlayer {
             if (needsRepaint == 0 && forceRepaint) {
                 needsRepaint = 1;
             }
+            doc.needsMeasure();
             count = 0;
             while (needsRepaint != 0 && count < max) {
                 debugContext.currentTime += needsRepaint;

@@ -224,9 +224,9 @@ internal class RemoteTextNodeV2 : RemoteComposeNodeV2() {
     var maxLines: Int = Int.MAX_VALUE
     var minFontSize: Float? = null
     var maxFontSize: Float? = null
-    var letterSpacing: Float? = null
+    var letterSpacing: RemoteFloat = 0f.rf
     var lineHeightAdd: Float? = null
-    var lineHeightMultiply: Float? = null
+    var lineHeightMultiply: RemoteFloat = 1f.rf
     var textDecoration: TextDecoration = TextDecoration.None
     var fontVariationSettings: FontVariation.Settings? = null
 
@@ -260,6 +260,8 @@ internal class RemoteTextNodeV2 : RemoteComposeNodeV2() {
                 extractFontSettings(fontVariationSettings?.settings)
 
             val fontSizePx = fontSize.getFloatIdForCreationState(creationState)
+            val letterSpacingId = letterSpacing.getFloatIdForCreationState(creationState)
+            val lineHeightMultiplyId = lineHeightMultiply.getFloatIdForCreationState(creationState)
 
             creationState.document.startTextComponent(
                 with(modifier) { creationState.toRecordingModifier() },
@@ -275,9 +277,9 @@ internal class RemoteTextNodeV2 : RemoteComposeNodeV2() {
                 textAlign.encode(),
                 overflow.encode(),
                 maxLines,
-                letterSpacing ?: 0f,
+                letterSpacingId,
                 lineHeightAdd ?: 0f,
-                lineHeightMultiply ?: 1f,
+                lineHeightMultiplyId,
                 0, // lineBreakStrategy
                 0, // hyphenationFrequency
                 0, // justificationMode

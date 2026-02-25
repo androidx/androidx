@@ -30,9 +30,16 @@ public class ApplyTouchDown extends TestOperation {
 
     private final float mX;
     private final float mY;
+    private final long mTimeMillis;
+
     public ApplyTouchDown(float x, float y) {
+        this(x, y, 0);
+    }
+
+    public ApplyTouchDown(float x, float y, long timeMillis) {
         mX = x;
         mY = y;
+        mTimeMillis = timeMillis;
     }
 
     @Override
@@ -42,9 +49,14 @@ public class ApplyTouchDown extends TestOperation {
             Map<String, Object> applyTouchDown = new LinkedHashMap<>();
             applyTouchDown.put("x", mX);
             applyTouchDown.put("y", mY);
+            if (mTimeMillis != 0) {
+                applyTouchDown.put("timeMillis", mTimeMillis);
+            }
             Map<String, Object> testResult = new LinkedHashMap<>();
             commands.add(command("Apply TouchDown", applyTouchDown, testResult));
         }
+        context.currentTime += mTimeMillis;
+        context.setAnimationTime(context.currentTime / 1000f);
         document.touchDown(context, mX, mY);
         return false;
     }

@@ -619,6 +619,10 @@ actual value class Key(val keyCode: Long) {
 
         /** Numeric keypad Insert Key. */
         actual val NumPadInsert = Key(KeyEvent.VK_INSERT, KEY_LOCATION_NUMPAD)
+        actual val SystemHome: Key
+            get() = Unknown
+        actual val NumPadDelete: Key
+            get() = Unknown
     }
 
     actual override fun toString(): String {

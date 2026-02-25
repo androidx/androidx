@@ -13,14 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.modifiers.ShapeType
-import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
-import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteFloatContext
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
@@ -34,15 +31,14 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.BorderModifier as CreationBorderModifier
 import androidx.compose.remote.creation.modifiers.DynamicBorderModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.toArgb
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class BorderModifier(
+internal class BorderModifier(
     public val width: RemoteFloat,
     public val color: RemoteColor,
     public val shape: RemoteShape = RemoteRectangleShape,
 ) : RemoteModifier.Element {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         var shapeType = ShapeType.RECTANGLE
         var roundedCorner = 0f
@@ -78,13 +74,10 @@ public class BorderModifier(
  *   corners.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Composable
-@RemoteComposable
 public fun RemoteModifier.border(
     width: RemoteDp,
     color: RemoteColor,
     shape: RemoteShape = RemoteRectangleShape,
 ): RemoteModifier {
-    val remoteDensity = LocalRemoteComposeCreationState.current.remoteDensity
-    return then(BorderModifier(width.toPx(remoteDensity), color, shape))
+    return then(BorderModifier(width.toPx(), color, shape))
 }

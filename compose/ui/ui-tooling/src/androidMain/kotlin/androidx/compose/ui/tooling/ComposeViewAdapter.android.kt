@@ -301,7 +301,7 @@ internal class ComposeViewAdapter : FrameLayout {
     private fun findAndTrackAnimations() {
         val slotTrees = slotTableRecord.store.map { it.asTree() }
         val isAnimationPreview = ::clock.isInitialized
-        AnimationSearch(::clock, ::requestLayout).let {
+        AnimationSearch(::clock).let {
             hasAnimations = it.searchAny(slotTrees)
             if (isAnimationPreview && hasAnimations) {
                 it.attachAllAnimations(slotTrees)
@@ -468,10 +468,8 @@ internal class ComposeViewAdapter : FrameLayout {
                 WrapPreview {
                     val composer = currentComposer
                     // We need to delay the reflection instantiation of the class until we are in
-                    // the
-                    // composable to ensure all the right initialization has happened and the
-                    // Composable
-                    // class loads correctly.
+                    // the composable to ensure all the right initialization has happened and the
+                    // Composable class loads correctly.
                     val composable = {
                         try {
                             ComposableInvoker.invokeComposable(
@@ -498,22 +496,21 @@ internal class ComposeViewAdapter : FrameLayout {
                     if (animationClockStartTime >= 0) {
                         // When animation inspection is enabled, i.e. when a valid (non-negative)
                         // `animationClockStartTime` is passed, set the Preview Animation Clock.
-                        // This
-                        // clock will control the animations defined in this `ComposeViewAdapter`
-                        // from Android Studio.
-                        clock = PreviewAnimationClock {
-                            // Invalidate the descendants of this ComposeViewAdapter's only
-                            // grandchild
-                            // (an AndroidOwner) when setting the clock time to make sure the
-                            // Compose
-                            // Preview will animate when the states are read inside the draw scope.
-                            val composeView = getChildAt(0) as ComposeView
-                            (composeView.getChildAt(0) as? ViewRootForTest)?.invalidateDescendants()
-                            // Send pending apply notifications to ensure the animation duration
-                            // will
-                            // be read in the correct frame.
-                            Snapshot.sendApplyNotifications()
-                        }
+                        // This clock will control the animations defined in this
+                        // `ComposeViewAdapter` from Android Studio.
+                        clock =
+                            PreviewAnimationClock(requestLayout = ::requestLayout) {
+                                // Invalidate the descendants of this ComposeViewAdapter's only
+                                // grandchild (an AndroidOwner) when setting the clock time to make
+                                // sure the Compose Preview will animate when the states are read
+                                // inside the draw scope.
+                                val composeView = getChildAt(0) as ComposeView
+                                (composeView.getChildAt(0) as? ViewRootForTest)
+                                    ?.invalidateDescendants()
+                                // Send pending apply notifications to ensure the animation duration
+                                // will be read in the correct frame.
+                                Snapshot.sendApplyNotifications()
+                            }
                     }
                     composable()
                 }

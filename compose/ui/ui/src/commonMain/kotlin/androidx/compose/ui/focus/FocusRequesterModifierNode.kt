@@ -87,6 +87,13 @@ fun FocusRequesterModifierNode.freeFocus(): Boolean {
  * @return true if the focus target associated with this node has a focused child and we
  *   successfully saved a reference to it.
  */
+// TODO: Deprecate once focus restoration is enabled by default via flags.
+// @Deprecated(
+//     message =
+//         "The focused child is now saved automatically whenever focus changes. Just call" +
+//             " restoreFocusedChild to restore focus.",
+//     level = DeprecationLevel.WARNING,
+// )
 fun FocusRequesterModifierNode.saveFocusedChild(): Boolean {
     visitSelfAndChildren(Nodes.FocusTarget) {
         if (it.saveFocusedChild()) {

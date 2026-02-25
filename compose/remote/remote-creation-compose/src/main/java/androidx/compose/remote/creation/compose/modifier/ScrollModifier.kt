@@ -53,14 +53,17 @@ public fun rememberRemoteScrollState(evenNotches: Int = 0): RemoteScrollState {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class ScrollModifier(val direction: Int, val state: RemoteScrollState) :
     RemoteModifier.Element {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         return CoreScrollModifier(direction, state.positionState.floatId, state.notches)
     }
 }
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.verticalScroll(state: RemoteScrollState): RemoteModifier {
     return this.then(ScrollModifier(CoreScrollModifier.VERTICAL, state))
 }
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.horizontalScroll(state: RemoteScrollState): RemoteModifier =
     this.then(ScrollModifier(CoreScrollModifier.HORIZONTAL, state))

@@ -49,7 +49,7 @@ public class TouchDownModifierOperation extends ListActionsOperation implements 
     }
 
     @Override
-    public void onTouchDown(
+    public boolean onTouchDown(
             @NonNull RemoteContext context,
             @NonNull CoreDocument document,
             @NonNull Component component,
@@ -57,11 +57,13 @@ public class TouchDownModifierOperation extends ListActionsOperation implements 
             float y) {
         if (applyActions(context, document, component, x, y, false)) {
             document.appliedTouchOperation(component);
+            return true;
         }
+        return false;
     }
 
     @Override
-    public void onTouchUp(
+    public boolean onTouchUp(
             @NonNull RemoteContext context,
             @NonNull CoreDocument document,
             @NonNull Component component,
@@ -69,27 +71,27 @@ public class TouchDownModifierOperation extends ListActionsOperation implements 
             float y,
             float dx,
             float dy) {
-        // nothing
+        return false;
     }
 
     @Override
-    public void onTouchCancel(
+    public boolean onTouchCancel(
             @NonNull RemoteContext context,
             @NonNull CoreDocument document,
             @NonNull Component component,
             float x,
             float y) {
-        // nothing
+        return false;
     }
 
     @Override
-    public void onTouchDrag(
+    public boolean onTouchDrag(
             @NonNull RemoteContext context,
             @NonNull CoreDocument document,
             @NonNull Component component,
             float x,
             float y) {
-        // nothing
+        return false;
     }
 
     /**

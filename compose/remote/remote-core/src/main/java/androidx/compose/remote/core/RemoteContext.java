@@ -21,6 +21,7 @@ import androidx.compose.remote.core.operations.ShaderData;
 import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.layout.Component;
+import androidx.compose.remote.core.operations.layout.managers.LayoutManager;
 import androidx.compose.remote.core.operations.layout.utils.DebugLog;
 import androidx.compose.remote.core.operations.utilities.ArrayAccess;
 import androidx.compose.remote.core.operations.utilities.CollectionsAccess;
@@ -59,6 +60,10 @@ public abstract class RemoteContext {
 
     public float mWidth = 0f;
     public float mHeight = 0f;
+
+    public float mViewportWidth = 0f;
+    public float mViewportHeight = 0f;
+
     private float mAnimationTime;
 
     private boolean mAnimate = true;
@@ -67,6 +72,8 @@ public abstract class RemoteContext {
     public long currentTime = 0L;
 
     private boolean mUseChoreographer = true;
+
+    private int mTouchVersion = LayoutManager.DEFAULT_TOUCH_VERSION;
 
     public RemoteContext() {
         this(RemoteClock.SYSTEM);
@@ -102,6 +109,7 @@ public abstract class RemoteContext {
     public void setDensity(float density) {
         if (!Float.isNaN(density) && density > 0) {
             mDensity = density;
+            loadFloat(ID_DENSITY, density);
         }
     }
 
@@ -424,6 +432,31 @@ public abstract class RemoteContext {
      */
     public int getPaintTheme() {
         return mPaintTheme;
+    }
+
+    /**
+     * Set the touch version
+     * @param touchVersion
+     */
+    public void setTouchVersion(int touchVersion) {
+        mTouchVersion = touchVersion;
+    }
+
+    /**
+     * Get the touch version
+     * @return
+     */
+    public int getTouchVersion() {
+        return mTouchVersion;
+    }
+
+    /**
+     * Return true if the provided feature is enabled in the document
+     * @param feature feature id
+     * @return
+     */
+    public boolean useFeature(short feature) {
+        return mDocument.useFeature(feature);
     }
 
     /** The font information */

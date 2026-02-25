@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.state
 
@@ -21,10 +20,10 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.TextFromFloat
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator
-import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import kotlin.math.abs
 import kotlin.math.max
@@ -56,8 +55,9 @@ private const val MAX_SAFE_LONG_ARRAY = 30
  *
  * @param v The integer value of the reference.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Stable
 @JvmInline
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public value class RemoteIntReference(private val v: Int) {
     public fun toInt(): Int {
         return v
@@ -65,19 +65,15 @@ public value class RemoteIntReference(private val v: Int) {
 }
 
 /**
- * Abstract base class for all remote integer representations in Compose Remote, this extends.
- * [RemoteState<Int>].
+ * Abstract base class for all remote integer representations.
  *
- * @property hasConstantValue Whether this [RemoteInt] will always evaluate to the same value. This
- *   is a conservative check that may report false negatives for some expressions that reference
- *   other expressions since the tracking involved is expensive.
- * @property arrayProvider A lambda that provides the [LongArray] representing the expression for
- *   this [RemoteInt], given a [RemoteComposeCreationState].
+ * `RemoteInt` represents an integer value that can be a constant, a named variable, or a dynamic
+ * expression (e.g., a bitwise OR).
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Stable
 public abstract class RemoteInt
 internal constructor(
-    public override val constantValueOrNull: Int?,
+    @get:Suppress("AutoBoxing") public override val constantValueOrNull: Int?,
     internal val arrayProvider: (creationState: RemoteComposeCreationState) -> LongArray,
 ) : BaseRemoteState<Int>() {
 
@@ -89,6 +85,7 @@ internal constructor(
      * @param creationState The current [RemoteComposeCreationState].
      * @return The [LongArray] representing this remote integer\'s expression.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     internal fun arrayForCreationState(creationState: RemoteComposeCreationState): LongArray {
         val cachedArray = creationState.longArrayCache.get(this)
         if (cachedArray != null) {
@@ -106,6 +103,7 @@ internal constructor(
      *
      * @return A [RemoteFloatExpression] representing this integer as a float.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toRemoteFloat(): RemoteFloat {
         constantValueOrNull?.let {
             return RemoteFloat(it.toFloat())
@@ -122,6 +120,7 @@ internal constructor(
      * @param before The number of digits to display.
      * @param flags The flags that control how the number is formatted. See [TextFromFloat].
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toRemoteString(before: Int, flags: Int = TextFromFloat.PAD_PRE_SPACE): RemoteString {
         constantValueOrNull?.let {
             return RemoteString(floatToString(it.toFloat(), before, 0, flags))
@@ -160,7 +159,7 @@ internal constructor(
      *
      * This is temporarily useful because the floatArray has a maximum size.
      */
-    // TODO: Remove the need for this.
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun createReference(): RemoteInt {
         return RemoteIntExpression(
             constantValueOrNull,
@@ -185,92 +184,208 @@ internal constructor(
         }
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public operator fun plus(v: Int): RemoteInt {
         if (v == 0) {
             return this
         }
-        return binaryOp(this, v, OP_ADD) { a, b -> a + b }
+        return binaryOp(this, v, OP_ADD, { a, b -> a + b }) { array, opId ->
+            when (opId) {
+                OP_ADD -> {
+                    val arrayCopy = array.clone()
+                    arrayCopy[arrayCopy.size - 2] += v
+                    maybeTrimIfZero(arrayCopy)
+                }
+                OP_SUB -> {
+                    val arrayCopy = array.clone()
+                    arrayCopy[arrayCopy.size - 2] -= v
+                    maybeTrimIfZero(arrayCopy)
+                }
+                else -> null
+            }
+        }
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public operator fun minus(v: Int): RemoteInt {
         if (v == 0) {
             return this
         }
-        return binaryOp(this, v, OP_SUB) { a, b -> a - b }
+        return binaryOp(this, v, OP_SUB, { a, b -> a - b }) { array, opId ->
+            when (opId) {
+                OP_ADD -> {
+                    val arrayCopy = array.clone()
+                    arrayCopy[arrayCopy.size - 2] -= v
+                    maybeTrimIfZero(arrayCopy)
+                }
+                OP_SUB -> {
+                    val arrayCopy = array.clone()
+                    arrayCopy[arrayCopy.size - 2] += v
+                    maybeTrimIfZero(arrayCopy)
+                }
+                else -> null
+            }
+        }
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public operator fun times(v: Int): RemoteInt {
+        if (v == 0) {
+            return RemoteInt(0)
+        }
         if (v == 1) {
             return this
         }
         if (constantValueOrNull != null && constantValueOrNull == 1) {
             return RemoteInt(v)
         }
-        return binaryOp(this, v, OP_MUL) { a, b -> a * b }
+        return binaryOp(this, v, OP_MUL, { a, b -> a * b }) { array, opId ->
+            when (opId) {
+                OP_MUL -> {
+                    val arrayCopy = array.clone()
+                    arrayCopy[arrayCopy.size - 2] *= v
+                    maybeTrimIfOne(arrayCopy)
+                }
+                OP_DIV -> {
+                    val arrayCopy = array.clone()
+                    arrayCopy[arrayCopy.size - 2] /= v
+                    maybeTrimIfOne(arrayCopy)
+                }
+                else -> null
+            }
+        }
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public operator fun div(v: Int): RemoteInt {
+        if (constantValueOrNull != null && constantValueOrNull == 0) {
+            return RemoteInt(0)
+        }
         if (v == 1) {
             return this
         }
-        return binaryOp(this, v, OP_DIV) { a, b -> a / b }
+        return binaryOp(this, v, OP_DIV, { a, b -> a / b }) { array, opId ->
+            when (opId) {
+                OP_MUL -> {
+                    val arrayCopy = array.clone()
+                    if (arrayCopy[arrayCopy.size - 2] % v == 0L) {
+                        arrayCopy[arrayCopy.size - 2] /= v
+                        maybeTrimIfOne(arrayCopy)
+                    } else {
+                        null
+                    }
+                }
+                OP_DIV -> {
+                    val arrayCopy = array.clone()
+                    arrayCopy[arrayCopy.size - 2] *= v
+                    maybeTrimIfOne(arrayCopy)
+                }
+                else -> null
+            }
+        }
     }
 
+    private fun maybeTrimIfZero(array: LongArray) =
+        if (array.size >= 2 && array[array.size - 2] == 0L) {
+            array.copyOfRange(0, array.size - 2)
+        } else {
+            array
+        }
+
+    private fun maybeTrimIfOne(array: LongArray) =
+        if (array.size >= 2 && array[array.size - 2] == 1L) {
+            array.copyOfRange(0, array.size - 2)
+        } else {
+            array
+        }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public operator fun rem(v: Int): RemoteInt = binaryOp(this, v, OP_MOD) { a, b -> a % b }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public operator fun plus(v: RemoteInt): RemoteInt {
-        if (v.constantValueOrNull != null && v.constantValueOrNull == 0) {
-            return this
+        v.constantValueOrNull?.let {
+            return plus(it)
         }
-        if (constantValueOrNull != null && constantValueOrNull == 0) {
-            return v
+        constantValueOrNull?.let {
+            return v.plus(it)
         }
         return binaryOp(this, v, OP_ADD) { a, b -> a + b }
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public operator fun minus(v: RemoteInt): RemoteInt {
-        if (v.constantValueOrNull != null && v.constantValueOrNull == 0) {
-            return this
+        v.constantValueOrNull?.let {
+            return minus(it)
+        }
+        constantValueOrNull?.let {
+            return (-v).plus(it)
         }
         return binaryOp(this, v, OP_SUB) { a, b -> a - b }
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public operator fun times(v: RemoteInt): RemoteInt {
-        if (v.constantValueOrNull != null && v.constantValueOrNull == 1) {
-            return this
+        if (
+            (constantValueOrNull != null && constantValueOrNull == 0) ||
+                (v.constantValueOrNull != null && v.constantValueOrNull == 0)
+        ) {
+            return RemoteInt(0)
         }
-        if (constantValueOrNull != null && constantValueOrNull == 1) {
-            return v
+        v.constantValueOrNull?.let {
+            return times(it)
+        }
+        constantValueOrNull?.let {
+            return v.times(it)
         }
         return binaryOp(this, v, OP_MUL) { a, b -> a * b }
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public operator fun div(v: RemoteInt): RemoteInt {
-        if (v.constantValueOrNull != null && v.constantValueOrNull == 1) {
-            return this
+        if (constantValueOrNull != null && constantValueOrNull == 0) {
+            return RemoteInt(0)
+        }
+        v.constantValueOrNull?.let {
+            return div(it)
         }
         return binaryOp(this, v, OP_DIV) { a, b -> a / b }
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public operator fun rem(v: RemoteInt): RemoteInt = binaryOp(this, v, OP_MOD) { a, b -> a % b }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public operator fun unaryMinus(): RemoteInt = unaryOp(OP_NEG) { v -> -v }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun inv(): RemoteInt = unaryOp(OP_NOT) { v -> v.inv() }
 
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val absoluteValue: RemoteInt
         get() = unaryOp(OP_ABS) { v -> abs(v) }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
+        public operator fun invoke(value: Int): RemoteInt {
+            return RemoteIntExpression(value, { longArrayOf(value.toLong()) })
+        }
+
         /**
-         * Creates a [RemoteInt] instance from a constant [Int] value.
+         * Creates a [RemoteInt] referencing a remote ID.
          *
-         * @param v The constant [Int] value.
-         * @return A [RemoteIntExpression] representing the constant integer.
+         * @param v The remote ID.
+         * @return A [RemoteInt] referencing the ID.
          */
-        public operator fun invoke(v: Int): RemoteInt {
-            return RemoteIntExpression(v, { creationState -> longArrayOf(v.toLong()) })
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        internal fun createForId(v: Long): RemoteInt {
+            if (isConstant(v)) {
+                return RemoteIntExpression(v.toInt(), { longArrayOf(v) })
+            }
+            return RemoteIntExpression(
+                constantValueOrNull = null,
+                { creationState -> longArrayOf(v) },
+            )
         }
 
         /**
@@ -279,6 +394,7 @@ internal constructor(
          * @param v The [Long] value to check.
          * @return `true` if the value is a literal, `false` otherwise.
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun isLiteral(v: Long): Boolean = v < 0x100000000L
 
         /**
@@ -289,6 +405,7 @@ internal constructor(
          * @param v The [Long] value representing a remote integer (could be a literal or an ID).
          * @return `true` if the value is constant, `false` otherwise.
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun isConstant(v: Long): Boolean {
             if (isLiteral(v)) {
                 return true
@@ -313,14 +430,10 @@ internal constructor(
          * @param v The constant [Long] value.
          * @return A [RemoteIntExpression] representing the constant integer.
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @Deprecated("Use createForId")
         public operator fun invoke(v: Long): RemoteInt {
-            if (isConstant(v)) {
-                return RemoteIntExpression(v.toInt(), { creationState -> longArrayOf(v) })
-            }
-            return RemoteIntExpression(
-                constantValueOrNull = null,
-                { creationState -> longArrayOf(v) },
-            )
+            return createForId(v)
         }
 
         /**
@@ -328,15 +441,18 @@ internal constructor(
          * AndroidRemoteContext.setNamedInt.
          *
          * @param name The unique name for this remote long.
-         * @param initialValue The initial [Int] value for the named remote int.
+         * @param defaultValue The initial [Int] value for the named remote int.
          * @return A [RemoteInt] representing the named int.
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
-        public fun createNamedRemoteInt(name: String, initialValue: Int): RemoteInt {
+        public fun createNamedRemoteInt(
+            name: String,
+            defaultValue: Int,
+            domain: RemoteState.Domain = RemoteState.Domain.User,
+        ): RemoteInt {
             return RemoteIntExpression(constantValueOrNull = null) { creationState ->
-                // TODO: check what happens if the initial value for this is the same as a
-                //  subsequent non-named variable.
-                longArrayOf(creationState.document.addNamedInt(name, initialValue))
+                longArrayOf(creationState.document.addNamedInt("$domain:$name", defaultValue))
             }
         }
     }
@@ -345,6 +461,7 @@ internal constructor(
      * Returns a [RemoteBoolean] that evaluates to `true` if [b] is equal to the value of this
      * [RemoteInt] or `false` otherwise.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public infix fun eq(b: RemoteInt): RemoteBoolean =
         comparisonOp(this, b, { a, b -> longArrayOf(1, 0, *b, *a, OP_SUB, OP_ABS, OP_IFELSE) }) {
             a,
@@ -356,6 +473,7 @@ internal constructor(
      * Returns a [RemoteBoolean] that evaluates to `true` if [b] is not equal to the value of this
      * [RemoteInt] or `false` otherwise.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public infix fun ne(b: RemoteInt): RemoteBoolean =
         comparisonOp(this, b, { a, b -> longArrayOf(0, 1, *b, *a, OP_SUB, OP_ABS, OP_IFELSE) }) {
             a,
@@ -367,6 +485,7 @@ internal constructor(
      * Returns a [RemoteBoolean] that evaluates to `true` if [b] is less than the value of this
      * [RemoteInt] or `false` otherwise.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public infix fun lt(b: RemoteInt): RemoteBoolean =
         comparisonOp(this, b, { a, b -> longArrayOf(0, 1, *b, *a, OP_SUB, OP_IFELSE) }) { a, b ->
             if (a < b) 1 else 0
@@ -376,6 +495,7 @@ internal constructor(
      * Returns a [RemoteBoolean] that evaluates to `true` if [b] is less than or equal to the value
      * of this [RemoteInt] or `false` otherwise.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public infix fun le(b: RemoteInt): RemoteBoolean =
         comparisonOp(this, b, { a, b -> longArrayOf(1, 0, *a, *b, OP_SUB, OP_IFELSE) }) { a, b ->
             if (a <= b) 1 else 0
@@ -385,6 +505,7 @@ internal constructor(
      * Returns a [RemoteBoolean] that evaluates to `true` if [b] is greater than the value of this
      * [RemoteInt] or `false` otherwise.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public infix fun gt(b: RemoteInt): RemoteBoolean =
         comparisonOp(this, b, { a, b -> longArrayOf(0, 1, *a, *b, OP_SUB, OP_IFELSE) }) { a, b ->
             if (a > b) 1 else 0
@@ -394,6 +515,7 @@ internal constructor(
      * Returns a [RemoteBoolean] that evaluates to `true` if [b] is greater than or equal to the
      * value of this [RemoteInt] or `false` otherwise.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public infix fun ge(b: RemoteInt): RemoteBoolean =
         comparisonOp(this, b, { a, b -> longArrayOf(1, 0, *b, *a, OP_SUB, OP_IFELSE) }) { a, b ->
             if (a >= b) 1 else 0
@@ -403,30 +525,35 @@ internal constructor(
      * Returns a [RemoteInt] that evaluates to the value of this [RemoteInt] shifted left by the
      * value of [v].
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public infix fun shl(v: RemoteInt): RemoteInt = binaryOp(this, v, OP_SHL) { a, b -> a shl b }
 
     /**
      * Returns a [RemoteInt] that evaluates to the value of this [RemoteInt] shifted right by the
      * value of [v].
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public infix fun shr(v: RemoteInt): RemoteInt = binaryOp(this, v, OP_SHR) { a, b -> a shr b }
 
     /**
      * Returns a [RemoteInt] that evaluates to the value of this [RemoteInt] logic or with the value
      * of [v].
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public infix fun or(v: RemoteInt): RemoteInt = binaryOp(this, v, OP_OR) { a, b -> a or b }
 
     /**
      * Returns a [RemoteInt] that evaluates to the value of this [RemoteInt] logic and with the
      * value of [v].
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public infix fun and(v: RemoteInt): RemoteInt = binaryOp(this, v, OP_AND) { a, b -> a and b }
 
     /**
      * Returns a [RemoteInt] that evaluates to the value of this [RemoteInt] logic xor with the
      * value of [v].
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public infix fun xor(v: RemoteInt): RemoteInt = binaryOp(this, v, OP_XOR) { a, b -> a xor b }
 }
 
@@ -435,6 +562,7 @@ internal constructor(
  * [extras]. Inlining is preferred as long as the resulting array length is less than
  * [MAX_SAFE_LONG_ARRAY].
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal fun combineToLongArray(
     creationState: RemoteComposeCreationState,
     remoteInts: Array<RemoteInt>,
@@ -475,8 +603,46 @@ internal fun combineToLongArray(
     return combinedArray
 }
 
-// TODO: Restrict to LibraryGroup.
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun LongArray.isLiteral(): Boolean = size == 1 && RemoteInt.isLiteral(get(0))
+
+/**
+ * Boilerplate for implementing a binary operation.
+ *
+ * @param a The left hand side value of the binary operation
+ * @param b The right hand side value of the binary operation
+ * @param opCode The opcode to insert in the generated [LongArray] if both sources aren\'t a const
+ *   int.
+ * @param directEval When the source is a const int, this lambda will be called to evaluate the
+ *   result directly.
+ * @param peepHoleEval This allows the caller the option to apply a peephole optimization to a
+ *   previous operation. E.g. (x * 3) * 4 could be written as x * 12. If no optimization is possible
+ *   peepHoleEval should return null.
+ */
+private fun binaryOp(
+    a: RemoteInt,
+    b: Int,
+    opCode: Long,
+    directEval: (Int, Int) -> Int,
+    peepHoleEval: (LongArray, Long) -> LongArray?,
+): RemoteInt {
+    val aConst = a.constantValueOrNull
+    if (aConst != null) {
+        return RemoteInt(directEval(aConst, b))
+    }
+    return RemoteIntExpression(constantValueOrNull = null) { creationState ->
+        val aArray = a.arrayForCreationState(creationState)
+        val last = aArray.last()
+        if (aArray.size > 2 && last >= 0x100000000L && aArray[aArray.size - 2] < 0x100000000L) {
+            // If the last two elements of the array are a regular number and an operation, run
+            // peepHoleEval with combineToLongArray if that returned null.
+            peepHoleEval(aArray, last)
+                ?: combineToLongArray(creationState, arrayOf(a), b.toLong(), opCode)
+        } else {
+            combineToLongArray(creationState, arrayOf(a), b.toLong(), opCode)
+        }
+    }
+}
 
 /**
  * Boilerplate for implementing a binary operation.
@@ -534,6 +700,7 @@ private fun binaryOp(
  * @param directEval When the sources are const float, this lambda will be called to evaluate the
  *   result directly.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal fun comparisonOp(
     a: RemoteInt,
     b: RemoteInt,
@@ -572,6 +739,7 @@ internal fun comparisonOp(
  * @param sign The [RemoteInt] whose sign is used.
  * @return A [RemoteInt] with the magnitude of `v` and the sign of `sign`.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun copySign(v: RemoteInt, sign: RemoteInt): RemoteInt =
     binaryOp(v, sign, OP_COPY_SIGN) { a, b -> Math.copySign(a.toDouble(), b.toDouble()).toInt() }
 
@@ -582,6 +750,7 @@ public fun copySign(v: RemoteInt, sign: RemoteInt): RemoteInt =
  * @param b The second [RemoteInt].
  * @return A [RemoteInt] representing the minimum of `a` and `b`.\
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun min(a: RemoteInt, b: RemoteInt): RemoteInt = binaryOp(a, b, OP_MIN) { a, b -> min(a, b) }
 
 /**
@@ -591,6 +760,7 @@ public fun min(a: RemoteInt, b: RemoteInt): RemoteInt = binaryOp(a, b, OP_MIN) {
  * @param b The second [RemoteInt].
  * @return A [RemoteInt] representing the maximum of `a` and `b`.\
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun max(a: RemoteInt, b: RemoteInt): RemoteInt = binaryOp(a, b, OP_MAX) { a, b -> max(a, b) }
 
 /**
@@ -601,6 +771,7 @@ public fun max(a: RemoteInt, b: RemoteInt): RemoteInt = binaryOp(a, b, OP_MAX) {
  * @param value The [RemoteInt] to clamp.
  * @return A [RemoteInt] representing the clamped value.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun clamp(min: RemoteInt, max: RemoteInt, value: RemoteInt): RemoteInt {
     val minConst = min.constantValueOrNull
     val maxConst = max.constantValueOrNull
@@ -620,15 +791,11 @@ public fun clamp(min: RemoteInt, max: RemoteInt, value: RemoteInt): RemoteInt {
     }
 }
 
-/**
- * A mutable implementation of [RemoteInt].
- *
- * @property idProvider A lambda that provides the unique ID for this mutable integer within the
- *   [RemoteComposeCreationState]. This ID is used to identify the integer in the remote document.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class MutableRemoteInt(
+/** A mutable implementation of [RemoteInt]. */
+public class MutableRemoteInt
+internal constructor(
     constantValueOrNull: Int? = null,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val idProvider: (creationState: RemoteComposeCreationState) -> Long,
 ) :
     RemoteInt(
@@ -637,15 +804,30 @@ public class MutableRemoteInt(
     ),
     MutableRemoteState<Int> {
 
-    /**
-     * Constructor for [MutableRemoteInt] that allows specifying an initial ID.
-     *
-     * @param id An explicit ID for this mutable integer.
-     */
-    public constructor(
-        id: Long
-    ) : this(constantValueOrNull = null, idProvider = { creationState -> id })
+    public companion object {
+        /**
+         * Creates a new mutable state (allocates an ID).
+         *
+         * @param initialValue The initial value for the state.
+         * @return A new [MutableRemoteInt] instance.
+         */
+        public fun createMutable(initialValue: Int): MutableRemoteInt {
+            return MutableRemoteInt(constantValueOrNull = null) { creationState ->
+                creationState.document.addInteger(initialValue)
+            }
+        }
 
+        /**
+         * Maps an existing mutable ID to a state instance.
+         *
+         * @param id The existing mutable ID.
+         * @return A [MutableRemoteInt] instance mapping to the ID.
+         */
+        internal fun createMutableForId(id: Long): MutableRemoteInt =
+            MutableRemoteInt(constantValueOrNull = null, idProvider = { creationState -> id })
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         Utils.idFromLong(idProvider(creationState)).toInt()
 }
@@ -667,7 +849,8 @@ private fun calcHashID(array: LongArray): Int {
  * @param ifFalse The [RemoteInt] to return if `a >= b`.
  * @return A [RemoteInt] representing the selected value.
  */
-public fun selectIfLT(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun selectIfLt(
     a: RemoteInt,
     b: RemoteInt,
     ifTrue: RemoteInt,
@@ -697,7 +880,8 @@ public fun selectIfLT(
  * @param ifFalse The [RemoteInt] to return if `a > b`.
  * @return A [RemoteInt] representing the selected value.
  */
-public fun selectIfLE(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun selectIfLe(
     a: RemoteInt,
     b: RemoteInt,
     ifTrue: RemoteInt,
@@ -727,7 +911,8 @@ public fun selectIfLE(
  * @param ifFalse The [RemoteInt] to return if `a <= b`.
  * @return A [RemoteInt] representing the selected value.
  */
-public fun selectIfGT(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun selectIfGt(
     a: RemoteInt,
     b: RemoteInt,
     ifTrue: RemoteInt,
@@ -757,7 +942,8 @@ public fun selectIfGT(
  * @param ifFalse The [RemoteInt] to return if `a < b`.
  * @return A [RemoteInt] representing the selected value.
  */
-public fun selectIfGE(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun selectIfGe(
     a: RemoteInt,
     b: RemoteInt,
     ifTrue: RemoteInt,
@@ -791,6 +977,7 @@ internal constructor(
     arrayProvider: (creationState: RemoteComposeCreationState) -> LongArray,
 ) : RemoteInt(constantValueOrNull, arrayProvider) {
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
         val array = arrayForCreationState(creationState)
 
@@ -820,21 +1007,29 @@ internal constructor(
 }
 
 /**
- * A Composable function to remember and provide a mutable remote integer value.
+ * Factory composable for mutable remote integer state.
  *
- * @param value A lambda that provides the initial [Int] value for this remote integer.
+ * @param initialValue The initial [Int] value.
  * @return A [MutableRemoteInt] instance that will be remembered across recompositions.
  */
 @Composable
 @RemoteComposable
-public fun rememberRemoteIntValue(value: () -> Int): MutableRemoteInt {
-    val state = LocalRemoteComposeCreationState.current
-    return remember {
-        val initial = value()
-        val id = state.document.addInteger(initial)
-        MutableRemoteInt(id = id)
-    }
+public fun rememberMutableRemoteInt(initialValue: Int): MutableRemoteInt {
+    return remember { MutableRemoteInt.createMutable(initialValue) }
 }
+
+/**
+ * Factory composable for state.
+ *
+ * @param value A lambda that provides the initial [Int] value for this remote integer.
+ * @return A [MutableRemoteInt] instance that will be remembered across recompositions.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Composable
+@RemoteComposable
+@Deprecated("Use rememberMutableRemoteInt", ReplaceWith("rememberMutableRemoteInt(value())"))
+public fun rememberRemoteIntValue(value: () -> Int): MutableRemoteInt =
+    rememberMutableRemoteInt(value())
 
 /**
  * A Composable function to remember and provide a **named** mutable remote integer value.
@@ -843,22 +1038,28 @@ public fun rememberRemoteIntValue(value: () -> Int): MutableRemoteInt {
  * @param domain The domain of the named integer (defaults to [RemoteState.Domain.User]). This helps
  *   organize named values in the remote document.
  * @param value A lambda that provides the initial [Int] value for this remote integer.
- * @return A [MutableRemoteInt] instance that will be remembered across recompositions.
+ * @return A [RemoteInt] instance that will be remembered across recompositions.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 @RemoteComposable
+@Deprecated(
+    "Use rememberNamedRemoteInt",
+    ReplaceWith("rememberNamedRemoteInt(name, domain) { value().ri }"),
+)
 public fun rememberRemoteIntValue(
     name: String,
     domain: RemoteState.Domain = RemoteState.Domain.User,
     value: () -> Int,
 ): RemoteInt {
-    val state = LocalRemoteComposeCreationState.current
     return rememberNamedState(name, domain) {
-        val initial = value()
-        // TODO either store with an id and reference, or use directly
-        val id = state.document.addInteger(initial)
-        state.document.setStringName(id.toInt(), "$domain:$name")
-        MutableRemoteInt(id = id)
+        MutableRemoteInt(
+            constantValueOrNull = null,
+            idProvider = { creationState ->
+                val initial = value()
+                creationState.document.addNamedInt("$domain:$name", initial)
+            },
+        )
     }
 }
 
@@ -868,45 +1069,38 @@ public fun rememberRemoteIntValue(
  * @param content A lambda that provides the [RemoteInt] expression.
  * @return A [RemoteIntExpression] representing the remembered remote integer.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 @RemoteComposable
+@Deprecated("Use rememberMutableRemoteInt", ReplaceWith("rememberMutableRemoteInt(value())"))
 public fun rememberRemoteInt(content: () -> RemoteInt): RemoteInt {
-    val state = LocalRemoteComposeCreationState.current
     return remember {
         val remoteInt = content()
-        remoteInt.getIdForCreationState(state)
-        RemoteIntExpression(remoteInt.constantValue, remoteInt.arrayProvider)
+        RemoteIntExpression(remoteInt.constantValueOrNull, remoteInt.arrayProvider)
     }
 }
 
 /**
- * A Composable function to remember and provide a **named** [RemoteInt] expression.
+ * Remembers a named remote integer expression.
  *
- * @param name The unique name for this remote integer.
- * @param domain The domain of the named integer (defaults to [RemoteState.Domain.User]).
- * @param content A lambda that provides the [RemoteInt] expression.
- * @return A [RemoteIntExpression] representing the named remote integer.
+ * @param name A unique name to identify this state within its [domain].
+ * @param domain The domain for the named state. Defaults to [RemoteState.Domain.User].
+ * @param defaultValue The initial [Int] value.
+ * @return A [RemoteInt] instance representing the named expression.
  */
 @Composable
-public fun rememberRemoteInt(
+@RemoteComposable
+public fun rememberNamedRemoteInt(
     name: String,
+    defaultValue: Int,
     domain: RemoteState.Domain = RemoteState.Domain.User,
-    content: () -> RemoteInt,
-): RemoteIntExpression {
-    val state = LocalRemoteComposeCreationState.current
+): RemoteInt {
     return rememberNamedState(name, domain) {
-
-        // Since this is named, its value can be change, so it's not const.
-        RemoteIntExpression(constantValueOrNull = null) { creationState ->
-            val remoteInt = content()
-            state.document.setStringName(remoteInt.getIdForCreationState(state), "$domain:$name")
-
-            longArrayOf(remoteInt.getLongIdForCreationState(creationState))
-        }
+        RemoteInt.createNamedRemoteInt(name, defaultValue, domain)
     }
 }
 
-/** Extension property to convert a [Int] to a [RemoteInt]. */
+/** Extension property to convert an [Int] to a [RemoteInt]. */
 public val Int.ri: RemoteInt
     get() {
         return RemoteInt(this)

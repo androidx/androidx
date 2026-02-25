@@ -349,6 +349,24 @@ class CommonTextFieldKeyEventTest {
             expectedClipboardText = DEFAULT_TEST_STRING,
         )
 
+    @Test
+    fun textField_backspace() =
+        singleKeyStrokeTest(
+            initSelection = TextRange(DEFAULT_TEST_STRING.length),
+            key = Key.Backspace,
+            expectedText = DEFAULT_TEST_STRING.substring(0, DEFAULT_TEST_STRING.length - 1),
+            expectedSelection = TextRange(DEFAULT_TEST_STRING.length - 1),
+        )
+
+    @Test
+    fun textField_shiftBackspace() =
+        singleKeyStrokeTest(
+            initSelection = TextRange(DEFAULT_TEST_STRING.length),
+            keys = Key.ShiftLeft + Key.Backspace,
+            expectedText = DEFAULT_TEST_STRING.substring(0, DEFAULT_TEST_STRING.length - 1),
+            expectedSelection = TextRange(DEFAULT_TEST_STRING.length - 1),
+        )
+
     private class SequenceScope(
         private val state: TextFieldState,
         private val clipboard: FakeClipboard,

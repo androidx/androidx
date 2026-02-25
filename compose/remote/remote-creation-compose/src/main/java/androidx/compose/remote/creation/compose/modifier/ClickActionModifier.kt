@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.modifier
 
@@ -23,8 +22,8 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.ui.semantics.Role
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ClickActionModifier(public val actions: List<Action>) : RemoteModifier.Element {
+internal class ClickActionModifier(public val actions: List<Action>) : RemoteModifier.Element {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.ClickActionModifier(
             @Suppress("ListIterator") actions.map { action -> with(action) { toRemoteAction() } }

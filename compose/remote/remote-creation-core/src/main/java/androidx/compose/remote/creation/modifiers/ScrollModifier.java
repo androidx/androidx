@@ -40,7 +40,8 @@ public class ScrollModifier implements RecordingModifier.Element {
     @Override
     public void write(@NonNull RemoteComposeWriter writer) {
         if (mPositionId <= 0f) {
-            // direct scrolling, no touch expression
+            // no position, but we still use touchexpression
+            // TODO: use platform's velocity tracker instead
             float variable = writer.addFloatConstant(0f);
             writer.addModifierScroll(mDirection, variable);
         } else if (mNotches <= 0f) {

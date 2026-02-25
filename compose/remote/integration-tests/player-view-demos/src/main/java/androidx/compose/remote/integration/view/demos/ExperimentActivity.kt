@@ -71,6 +71,8 @@ import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.RemoteComposeContext
 import androidx.compose.remote.creation.RemoteComposeWriter
+import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
+import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.capture.DisplayPool
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCapture
 import androidx.compose.remote.creation.compose.capture.rememberVirtualDisplay
@@ -82,7 +84,10 @@ import androidx.compose.remote.integration.view.demos.examples.RcCanvasComponent
 import androidx.compose.remote.integration.view.demos.examples.RcCanvasComponents3
 import androidx.compose.remote.integration.view.demos.examples.RcCanvasComponents4
 import androidx.compose.remote.integration.view.demos.examples.RcCanvasComponents5
+import androidx.compose.remote.integration.view.demos.examples.RcCollapsiblePriority
+import androidx.compose.remote.integration.view.demos.examples.RcFitBox
 import androidx.compose.remote.integration.view.demos.examples.RcFlow
+import androidx.compose.remote.integration.view.demos.examples.RcScrollview
 import androidx.compose.remote.integration.view.demos.examples.RcSimpleClock1
 import androidx.compose.remote.integration.view.demos.examples.RcTextDemo
 import androidx.compose.remote.integration.view.demos.examples.RcTextDemo2
@@ -312,7 +317,10 @@ class ExperimentActivity : ComponentActivity() {
                 ),
             "Procedural..." to
                 listOf(
+                    getpc("RcScrollViewport") { RcScrollview() },
                     getpc("RcFlow") { RcFlow() },
+                    getpc("RcCollapsiblePriority") { RcCollapsiblePriority() },
+                    getpc("RcFitBox") { RcFitBox() },
                     getpc("Stock") { RcTicker(applicationContext) },
                     getpc("2 VText") { RcCanvasComponents5() },
                     getpc("Canvas + HText") { RcCanvasComponents4() },
@@ -465,10 +473,12 @@ class ExperimentActivity : ComponentActivity() {
     }
 
     /** Runs the menu if no Bundle containing what to run */
+    @OptIn(ExperimentalRemoteCreationComposeApi::class)
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        RemoteComposeCreationComposeFlags.isRemoteApplierEnabled = false
         val fullList = cmap.toMutableList()
         fullList.addAll(subMenus.values.flatten())
 

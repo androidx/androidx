@@ -99,7 +99,8 @@ In this example, **Item 2** has a higher priority value (lower importance), so i
 #### Measurement Phase
 
 1.  **Priority Sorting**:
-    -   If children have `CollapsiblePriority` modifiers, they are sorted by priority (lowest values are kept first).
+    -   If children have `CollapsiblePriority` modifiers, they are sorted by priority (highest values are kept first).
+    -   If no priority is set, they are considered in last resort.
     -   If priorities are equal, the original hierarchy order is used.
 
 2.  **Overflow Detection**:

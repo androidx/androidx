@@ -192,13 +192,13 @@ public class StateLayout extends LayoutManager {
     }
 
     @Override
-    public void onClick(
+    public boolean onClick(
             @NonNull RemoteContext context, @NonNull CoreDocument document, float x, float y) {
-        if (!contains(x, y)) {
-            return;
+        if (!contains(context, x, y)) {
+            return false;
         }
         LayoutManager layout = getLayout(currentLayoutIndex);
-        layout.onClick(context, document, x, y);
+        return layout.onClick(context, document, x, y);
     }
 
     @Override

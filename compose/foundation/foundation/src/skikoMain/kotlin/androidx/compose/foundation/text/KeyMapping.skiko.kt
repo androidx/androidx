@@ -40,7 +40,7 @@ internal object defaultSkikoKeyMapping : KeyMapping {
 }
 
 internal fun createMacosDefaultKeyMapping(): KeyMapping {
-    val common = commonKeyMapping(KeyEvent::isMetaPressed)
+    val common = commonKeyMapping(KeyModifiers.Meta)
     return object : KeyMapping {
         override fun map(event: KeyEvent): KeyCommand? {
             return when {

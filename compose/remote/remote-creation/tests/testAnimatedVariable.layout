@@ -1,0 +1,189 @@
+- description: Initial State
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - type: FloatExpression
+        id: 42
+        srcValues:
+        - {type: Value, value: 0.0}
+        animation: null
+      - {type: NamedVariable, varId: 42, varName: animated, varType: FLOAT_TYPE}
+      - type: BOX
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 0.0
+        height: 0.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 42, value: 0.0}
+            dimensionModifierType: EXACT
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 42, value: 0.0}
+            dimensionModifierType: EXACT
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 0.0, height: 0.0,
+            color: '0xffff0000', shapeType: RECTANGLE}
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: CENTER
+        horizontalPositioning: CENTER
+- description: Component Tree
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - type: FloatExpression
+        id: 42
+        srcValues:
+        - {type: Value, value: 0.0}
+        animation: null
+      - {type: NamedVariable, varId: 42, varName: animated, varType: FLOAT_TYPE}
+      - type: BOX
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 0.0
+        height: 0.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 42, value: 0.0}
+            dimensionModifierType: EXACT
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 42, value: 0.0}
+            dimensionModifierType: EXACT
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 0.0, height: 0.0,
+            color: '0xffff0000', shapeType: RECTANGLE}
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: CENTER
+        horizontalPositioning: CENTER
+- description: Validate Named Float
+  command: {name: animated, expected: 0.0}
+  result: {actual: 0.0}
+- description: Advance Time
+  command: {deltaMillis: 100}
+  result: {}
+- description: Component Tree
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - type: FloatExpression
+        id: 42
+        srcValues:
+        - {type: Value, value: 0.0}
+        animation: null
+      - {type: NamedVariable, varId: 42, varName: animated, varType: FLOAT_TYPE}
+      - type: BOX
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 0.0
+        height: 0.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 42, value: 0.0}
+            dimensionModifierType: EXACT
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 42, value: 0.0}
+            dimensionModifierType: EXACT
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 0.0, height: 0.0,
+            color: '0xffff0000', shapeType: RECTANGLE}
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: CENTER
+        horizontalPositioning: CENTER
+- description: Advance Time
+  command: {deltaMillis: 500}
+  result: {}
+- description: Component Tree
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - type: FloatExpression
+        id: 42
+        srcValues:
+        - {type: Value, value: 0.0}
+        animation: null
+      - {type: NamedVariable, varId: 42, varName: animated, varType: FLOAT_TYPE}
+      - type: BOX
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 0.0
+        height: 0.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 42, value: 0.0}
+            dimensionModifierType: EXACT
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 42, value: 0.0}
+            dimensionModifierType: EXACT
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 0.0, height: 0.0,
+            color: '0xffff0000', shapeType: RECTANGLE}
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: CENTER
+        horizontalPositioning: CENTER

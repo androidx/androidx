@@ -551,7 +551,7 @@ package androidx.compose.foundation.layout {
     method @KotlinOnly public void column(androidx.compose.foundation.layout.Fr weight);
     method @KotlinOnly public void column(androidx.compose.foundation.layout.GridTrackSize size);
     method @KotlinOnly public void column(androidx.compose.ui.unit.Dp size);
-    method public void column(float percentage);
+    method public void column(@FloatRange(from=0.0, to=1.0) float percentage);
     method @BytecodeOnly public void column-0680j_4(float);
     method @BytecodeOnly public void column-118E5d0(long);
     method @BytecodeOnly public void column-XZblgos(float);
@@ -568,7 +568,7 @@ package androidx.compose.foundation.layout {
     method @KotlinOnly public void row(androidx.compose.foundation.layout.Fr weight);
     method @KotlinOnly public void row(androidx.compose.foundation.layout.GridTrackSize size);
     method @KotlinOnly public void row(androidx.compose.ui.unit.Dp size);
-    method public void row(float percentage);
+    method public void row(@FloatRange(from=0.0, to=1.0) float percentage);
     method @BytecodeOnly public void row-0680j_4(float);
     method @BytecodeOnly public void row-118E5d0(long);
     method @BytecodeOnly public void row-XZblgos(float);
@@ -610,7 +610,7 @@ package androidx.compose.foundation.layout {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalGridApi @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Immutable @kotlin.jvm.JvmDefaultWithCompatibility public interface GridScope {
-    method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier gridItem(androidx.compose.ui.Modifier, optional int row, optional int column, optional int rowSpan, optional int columnSpan, optional androidx.compose.ui.Alignment alignment);
+    method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier gridItem(androidx.compose.ui.Modifier, optional @IntRange(from=-1000L, to=androidx.compose.foundation.layout.GridScope.MaxGridIndex.toLong()) int row, optional @IntRange(from=-1000L, to=androidx.compose.foundation.layout.GridScope.MaxGridIndex.toLong()) int column, optional @IntRange(from=1L) int rowSpan, optional @IntRange(from=1L) int columnSpan, optional androidx.compose.ui.Alignment alignment);
     method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier gridItem(androidx.compose.ui.Modifier, kotlin.ranges.IntRange rows, kotlin.ranges.IntRange columns, optional androidx.compose.ui.Alignment alignment);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! gridItem$default(androidx.compose.foundation.layout.GridScope!, androidx.compose.ui.Modifier!, int, int, int, int, androidx.compose.ui.Alignment!, int, Object!);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! gridItem$default(androidx.compose.foundation.layout.GridScope!, androidx.compose.ui.Modifier!, kotlin.ranges.IntRange!, kotlin.ranges.IntRange!, androidx.compose.ui.Alignment!, int, Object!);
@@ -647,9 +647,9 @@ package androidx.compose.foundation.layout {
     method @BytecodeOnly public long getAuto-eyNpfc4();
     method @BytecodeOnly public long getMaxContent-eyNpfc4();
     method @BytecodeOnly public long getMinContent-eyNpfc4();
-    property @androidx.compose.runtime.Stable public androidx.compose.foundation.layout.GridTrackSize Auto;
-    property @androidx.compose.runtime.Stable public androidx.compose.foundation.layout.GridTrackSize MaxContent;
-    property @androidx.compose.runtime.Stable public androidx.compose.foundation.layout.GridTrackSize MinContent;
+    property public androidx.compose.foundation.layout.GridTrackSize Auto;
+    property public androidx.compose.foundation.layout.GridTrackSize MaxContent;
+    property public androidx.compose.foundation.layout.GridTrackSize MinContent;
   }
 
   @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalGridApi public sealed exhaustive interface GridTrackSpec {

@@ -53,6 +53,7 @@ public class GraphicsLayerModifier(
     public val renderEffect: RenderEffect?,
 ) : RemoteModifier.Element {
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         val layer = androidx.compose.remote.creation.modifiers.GraphicsLayerModifier()
         if (scaleX.floatId != 1f) {
@@ -155,6 +156,7 @@ public class GraphicsLayerModifier(
     }
 }
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.graphicsLayer(
     scaleX: RemoteFloat = 1f.rf,
     scaleY: RemoteFloat = 1f.rf,

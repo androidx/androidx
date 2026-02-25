@@ -60,7 +60,7 @@ import org.junit.runner.RunWith
  */
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-class ClickableIndirectPointerInputTest() {
+class ClickableIndirectPointerInputTest {
 
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
@@ -70,37 +70,6 @@ class ClickableIndirectPointerInputTest() {
         with(InstrumentationRegistry.getInstrumentation()) {
             if (SDK_INT < 33) setInTouchMode(true) else resetInTouchMode()
         }
-
-    @Test
-    fun clickWithIndirectPointer() {
-        var counter = 0
-        val focusRequester = FocusRequester()
-        lateinit var inputModeManager: InputModeManager
-        rule.setContent {
-            inputModeManager = LocalInputModeManager.current
-            BasicText(
-                "ClickableText",
-                modifier =
-                    Modifier.testTag("myClickable").focusRequester(focusRequester).clickable {
-                        counter++
-                    },
-            )
-        }
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            focusRequester.requestFocus()
-        }
-
-        val downEvent = rule.onNodeWithTag("myClickable").sendIndirectPointerPressEvent(rule)
-
-        rule.runOnIdle { assertThat(counter).isEqualTo(0) }
-
-        rule
-            .onNodeWithTag("myClickable")
-            .sendIndirectPointerReleaseEvent(rule, previousEvent = downEvent)
-
-        rule.runOnIdle { assertThat(counter).isEqualTo(1) }
-    }
 
     @Test
     fun clickWithIndirectPointer_notInvokedIfFocusIsLostWhilePressed() {
@@ -183,51 +152,6 @@ class ClickableIndirectPointerInputTest() {
         // The clickable should not invoke onClick because it only saw the up event, not the
         // corresponding down, and hence should not be considered pressed
         rule.runOnIdle { assertThat(counter).isEqualTo(0) }
-    }
-
-    @Test
-    fun indirectPointerPress_emitsInteraction() {
-        val interactionSource = MutableInteractionSource()
-        val focusRequester = FocusRequester()
-        lateinit var scope: CoroutineScope
-        lateinit var inputModeManager: InputModeManager
-        rule.setContent {
-            scope = rememberCoroutineScope()
-            inputModeManager = LocalInputModeManager.current
-            Box(Modifier.padding(10.dp)) {
-                BasicText(
-                    "ClickableText",
-                    modifier =
-                        Modifier.testTag("clickable").focusRequester(focusRequester).clickable(
-                            interactionSource = interactionSource,
-                            indication = null,
-                        ) {},
-                )
-            }
-        }
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            focusRequester.requestFocus()
-        }
-        val interactions = mutableListOf<Interaction>()
-        scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
-
-        val downEvent = rule.onNodeWithTag("clickable").sendIndirectPointerPressEvent(rule)
-
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(1)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-        }
-
-        rule
-            .onNodeWithTag("clickable")
-            .sendIndirectPointerReleaseEvent(rule, previousEvent = downEvent)
-
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(2)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-            assertThat(interactions.last()).isInstanceOf(PressInteraction.Release::class.java)
-        }
     }
 
     @Test

@@ -823,10 +823,6 @@ final class androidx.compose.ui.graphics/NativeCanvas { // androidx.compose.ui.g
     constructor <init>() // androidx.compose.ui.graphics/NativeCanvas.<init>|<init>(){}[0]
 }
 
-final class androidx.compose.ui.graphics/NativeColorFilter { // androidx.compose.ui.graphics/NativeColorFilter|null[0]
-    constructor <init>() // androidx.compose.ui.graphics/NativeColorFilter.<init>|<init>(){}[0]
-}
-
 final class androidx.compose.ui.graphics/NativePaint { // androidx.compose.ui.graphics/NativePaint|null[0]
     constructor <init>() // androidx.compose.ui.graphics/NativePaint.<init>|<init>(){}[0]
 }
@@ -2002,7 +1998,6 @@ final val androidx.compose.ui.graphics/androidx_compose_ui_graphics_IntervalTree
 final val androidx.compose.ui.graphics/androidx_compose_ui_graphics_LightingColorFilter$stableprop // androidx.compose.ui.graphics/androidx_compose_ui_graphics_LightingColorFilter$stableprop|#static{}androidx_compose_ui_graphics_LightingColorFilter$stableprop[0]
 final val androidx.compose.ui.graphics/androidx_compose_ui_graphics_LinearGradient$stableprop // androidx.compose.ui.graphics/androidx_compose_ui_graphics_LinearGradient$stableprop|#static{}androidx_compose_ui_graphics_LinearGradient$stableprop[0]
 final val androidx.compose.ui.graphics/androidx_compose_ui_graphics_NativeCanvas$stableprop // androidx.compose.ui.graphics/androidx_compose_ui_graphics_NativeCanvas$stableprop|#static{}androidx_compose_ui_graphics_NativeCanvas$stableprop[0]
-final val androidx.compose.ui.graphics/androidx_compose_ui_graphics_NativeColorFilter$stableprop // androidx.compose.ui.graphics/androidx_compose_ui_graphics_NativeColorFilter$stableprop|#static{}androidx_compose_ui_graphics_NativeColorFilter$stableprop[0]
 final val androidx.compose.ui.graphics/androidx_compose_ui_graphics_NativePaint$stableprop // androidx.compose.ui.graphics/androidx_compose_ui_graphics_NativePaint$stableprop|#static{}androidx_compose_ui_graphics_NativePaint$stableprop[0]
 final val androidx.compose.ui.graphics/androidx_compose_ui_graphics_OffsetEffect$stableprop // androidx.compose.ui.graphics/androidx_compose_ui_graphics_OffsetEffect$stableprop|#static{}androidx_compose_ui_graphics_OffsetEffect$stableprop[0]
 final val androidx.compose.ui.graphics/androidx_compose_ui_graphics_Outline$stableprop // androidx.compose.ui.graphics/androidx_compose_ui_graphics_Outline$stableprop|#static{}androidx_compose_ui_graphics_Outline$stableprop[0]
@@ -2134,7 +2129,6 @@ final fun androidx.compose.ui.graphics/androidx_compose_ui_graphics_IntervalTree
 final fun androidx.compose.ui.graphics/androidx_compose_ui_graphics_LightingColorFilter$stableprop_getter(): kotlin/Int // androidx.compose.ui.graphics/androidx_compose_ui_graphics_LightingColorFilter$stableprop_getter|androidx_compose_ui_graphics_LightingColorFilter$stableprop_getter(){}[0]
 final fun androidx.compose.ui.graphics/androidx_compose_ui_graphics_LinearGradient$stableprop_getter(): kotlin/Int // androidx.compose.ui.graphics/androidx_compose_ui_graphics_LinearGradient$stableprop_getter|androidx_compose_ui_graphics_LinearGradient$stableprop_getter(){}[0]
 final fun androidx.compose.ui.graphics/androidx_compose_ui_graphics_NativeCanvas$stableprop_getter(): kotlin/Int // androidx.compose.ui.graphics/androidx_compose_ui_graphics_NativeCanvas$stableprop_getter|androidx_compose_ui_graphics_NativeCanvas$stableprop_getter(){}[0]
-final fun androidx.compose.ui.graphics/androidx_compose_ui_graphics_NativeColorFilter$stableprop_getter(): kotlin/Int // androidx.compose.ui.graphics/androidx_compose_ui_graphics_NativeColorFilter$stableprop_getter|androidx_compose_ui_graphics_NativeColorFilter$stableprop_getter(){}[0]
 final fun androidx.compose.ui.graphics/androidx_compose_ui_graphics_NativePaint$stableprop_getter(): kotlin/Int // androidx.compose.ui.graphics/androidx_compose_ui_graphics_NativePaint$stableprop_getter|androidx_compose_ui_graphics_NativePaint$stableprop_getter(){}[0]
 final fun androidx.compose.ui.graphics/androidx_compose_ui_graphics_OffsetEffect$stableprop_getter(): kotlin/Int // androidx.compose.ui.graphics/androidx_compose_ui_graphics_OffsetEffect$stableprop_getter|androidx_compose_ui_graphics_OffsetEffect$stableprop_getter(){}[0]
 final fun androidx.compose.ui.graphics/androidx_compose_ui_graphics_Outline$stableprop_getter(): kotlin/Int // androidx.compose.ui.graphics/androidx_compose_ui_graphics_Outline$stableprop_getter|androidx_compose_ui_graphics_Outline$stableprop_getter(){}[0]

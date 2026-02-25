@@ -380,7 +380,9 @@ class LiveEditApiTests : BaseComposeTest() {
             LaunchedEffect(Unit) {
                 Recomposer.runningRecomposers.collect { recomposerInfos ->
                     recomposerInfos.forEach { info ->
-                        recompositionErrors[info] = mutableListOf()
+                        if (info !in recompositionErrors) {
+                            recompositionErrors[info] = mutableListOf()
+                        }
                         info.errorState.collect { error -> recompositionErrors[info]!!.add(error) }
                     }
                 }
@@ -399,6 +401,10 @@ class LiveEditApiTests : BaseComposeTest() {
             activity.waitForAFrame()
 
             assertTrue("TestError should be invoked!", errorInvoked > start)
+
+            // Wait for two more frames for coroutines to settle.
+            activity.waitForAFrame()
+            activity.waitForAFrame()
         }
 
         assertThat(recompositionErrors).hasSize(1)

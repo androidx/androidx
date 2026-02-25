@@ -62,7 +62,7 @@ public sealed class RemoteOutline {
             val bottomRight: RemoteFloat
             val bottomLeft: RemoteFloat
 
-            when (layoutDirection) {
+            when (remoteCanvas.layoutDirection) {
                 LayoutDirection.Ltr -> {
                     topLeft = topStart
                     topRight = topEnd

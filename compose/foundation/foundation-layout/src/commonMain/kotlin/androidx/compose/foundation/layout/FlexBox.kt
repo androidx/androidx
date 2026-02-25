@@ -53,6 +53,7 @@ import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastMaxBy
+import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.util.fastSumBy
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -507,8 +508,8 @@ private class FlexBoxMeasurePolicy(private val flexBoxConfigState: State<FlexBox
             return items.fastSumBy(startIndex, endIndex) { it.targetMainSize } + totalGap
         }
 
-        val initialFreeSpace = (containerMainAxisSize - hypotheticalLineSize).toDouble()
-        val isGrowing = initialFreeSpace > 0
+        var remainingFreeSpace = (containerMainAxisSize - hypotheticalLineSize).toDouble()
+        val isGrowing = remainingFreeSpace > 0
 
         var sumOfFrozenSizes = 0
         var sumOfBaseSizes = 0
@@ -530,33 +531,48 @@ private class FlexBoxMeasurePolicy(private val flexBoxConfigState: State<FlexBox
             }
         }
         var lineMainAxisSize = sumOfFrozenSizes
-        val remainingFreeSpace =
-            (containerMainAxisSize - (sumOfFrozenSizes + sumOfBaseSizes)).toDouble()
 
         if (isGrowing) {
             if (sumOfGrowFactors > 0) {
+                var remainingGrowFactors = sumOfGrowFactors
+
                 items.fastForEachUntil(startIndex, endIndex) { item ->
                     if (!item.isFrozen) {
-                        val share = (item.grow / sumOfGrowFactors) * remainingFreeSpace
-                        item.targetMainSize = item.flexBaseSize + share.toInt()
+                        // Calculate share based on REMAINING space and weight
+                        // This absorbs rounding errors into the subsequent items
+                        val share = (item.grow / remainingGrowFactors) * remainingFreeSpace
+                        val roundedShare = share.fastRoundToInt()
+
+                        item.targetMainSize = item.flexBaseSize + roundedShare
                         item.isFrozen = true
+
                         lineMainAxisSize += item.targetMainSize
+                        remainingFreeSpace -= roundedShare
+                        remainingGrowFactors -= item.grow
                     }
                 }
             }
         } else { // shrinking
             if (sumOfScaledShrinkFactors > 0) {
+                var remainingShrinkFactors = sumOfScaledShrinkFactors
+                var spaceToRemove = abs(remainingFreeSpace)
+
                 items.fastForEachUntil(startIndex, endIndex) { item ->
                     if (!item.isFrozen) {
-                        val scaledFactor = item.shrink * item.flexBaseSize
-                        val share =
-                            (scaledFactor / sumOfScaledShrinkFactors) * abs(remainingFreeSpace)
-                        item.targetMainSize =
-                            (item.flexBaseSize - share.toInt()).fastCoerceAtLeast(
-                                item.getMinMainAxisSize(isHorizontal)
-                            )
+                        val weight = (item.shrink * item.flexBaseSize).toDouble()
+
+                        val share = (weight / remainingShrinkFactors) * spaceToRemove
+                        val roundedShare = share.fastRoundToInt()
+
+                        val minSize = item.getMinMainAxisSize(isHorizontal)
+                        val newSize = (item.flexBaseSize - roundedShare).fastCoerceAtLeast(minSize)
+
+                        item.targetMainSize = newSize
                         item.isFrozen = true
+
                         lineMainAxisSize += item.targetMainSize
+                        spaceToRemove -= roundedShare
+                        remainingShrinkFactors -= weight
                     }
                 }
             }

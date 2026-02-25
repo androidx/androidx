@@ -1225,30 +1225,38 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
 
     // Called from the observation in SharedTransitionScopeRootModifierNode
     internal val observeAnimatingBlock: () -> Unit = {
-        sharedElements.any { (_, element) -> element.isAnimating() }
+        sharedElementsIterator.any { element -> element.isAnimating() }
     }
 
     @OptIn(ExperimentalLookaheadAnimationVisualDebugApi::class)
     internal fun updateTransitionActiveness() {
-        val isActive = sharedElements.any { (_, element) -> element.isAnimating() }
+        val sharedElements = sharedElementsIterator
+        var isActive = false
+        sharedElements.forEach { element ->
+            isActive = isActive || element.isAnimating()
+            element.updateMatch()
+        }
         if (isActive != isTransitionActive) {
             isTransitionActive = isActive
             if (!isActive) {
-                sharedElements.forEach { (_, element) -> element.onSharedTransitionFinished() }
-                if (
-                    isLookaheadAnimationVisualDebuggingEnabled &&
-                        lookaheadAnimationVisualDebugHelper != null
-                ) {
-                    lookaheadAnimationVisualDebugHelper!!.onDetach(coroutineScope)
-                }
-            } else if (
-                isLookaheadAnimationVisualDebuggingEnabled &&
-                    lookaheadAnimationVisualDebugHelper != null
-            ) {
-                lookaheadAnimationVisualDebugHelper!!.onAttach(coroutineScope)
+                attachLookaheadAnimationVisualDebugHelper()
+                sharedElements.forEach { element -> element.onSharedTransitionFinished() }
+            } else {
+                detachLookaheadAnimationVisualDebugHelper()
             }
         }
-        sharedElements.forEach { (_, element) -> element.updateMatch() }
+    }
+
+    private fun attachLookaheadAnimationVisualDebugHelper() {
+        if (isLookaheadAnimationVisualDebuggingEnabled) {
+            lookaheadAnimationVisualDebugHelper?.onAttach(coroutineScope)
+        }
+    }
+
+    private fun detachLookaheadAnimationVisualDebugHelper() {
+        if (isLookaheadAnimationVisualDebuggingEnabled) {
+            lookaheadAnimationVisualDebugHelper?.onDetach(coroutineScope)
+        }
     }
 
     /** ******** Impl details below **************** */
@@ -1322,12 +1330,10 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
                             }
                             .also {
                                 it.updateAnimation(animation, boundsTransform)
-                                if (SharedTransitionDebug) {
-                                    println(
-                                        "SharedTransition, current state:" +
-                                            " ${boundsTransition.currentState}" +
-                                            ", target: ${boundsTransition.targetState}"
-                                    )
+                                sharedTransitionDebug {
+                                    "current state:" +
+                                        " ${boundsTransition.currentState}" +
+                                        ", target: ${boundsTransition.targetState}"
                                 }
                             }
                     }
@@ -1418,7 +1424,20 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
     // and 2) all transitions are finished. As such, the map containing the key-sharedElement pairs
     // need to be observable, in order to update the observation when new shared elements are
     // added or removed.
+    // TODO: Use MutableScatterMap here, as it is much faster for iteration.
     private val sharedElements = mutableStateMapOf<Any, SharedElement>()
+    // SnapshotStateMap is mainly built for get/set operations, so any other methods from collection
+    // or kotlin map interface are implemented in a suboptimal way. For example, when iterating over
+    // the entries, it allocates the entry for each iteration step and produces a new read.
+    // The most efficient way to iterate this map is to:
+    // 1) get underlying PersistentMap with .toMap;
+    // 2) iterate over keys and values separately, since calling into .entries also allocates an
+    // entry for each iteration step.
+    // In this particular case, it is more efficient to use a `MutableScatterMap`, as it has
+    // 0 allocations on iteration and is generally the fastest for every operation. The issue is
+    // that copying it on each mutation is more expensive, so it is not used here yet.
+    private inline val sharedElementsIterator
+        get() = sharedElements.toMap().values
 
     private fun sharedElementsFor(key: Any): SharedElement {
         return sharedElements[key] ?: SharedElement(key, this).also { sharedElements[key] = it }
@@ -1436,11 +1455,9 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
     }
 
     internal fun onEntryRemoved(sharedElementState: SharedElementEntry) {
-        if (SharedTransitionDebug) {
-            println(
-                "SharedTransition, entry removed, key: ${sharedElementState.sharedElement.key}," +
-                    " state: ${sharedElementState.sharedElement.state}"
-            )
+        sharedTransitionDebug {
+            "entry removed, key: ${sharedElementState.sharedElement.key}," +
+                " state: ${sharedElementState.sharedElement.state}"
         }
         with(sharedElementState.sharedElement) {
             removeEntry(sharedElementState)
@@ -1449,12 +1466,10 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
             if (allEntries.isEmpty()) {
                 scope.coroutineScope.launch {
                     if (allEntries.isEmpty()) {
-                        if (SharedTransitionDebug) {
-                            println(
-                                "SharedTransition, key removed. key =" +
-                                    " ${sharedElementState.sharedElement.key}," +
-                                    " state: ${sharedElementState.sharedElement.state}"
-                            )
+                        sharedTransitionDebug {
+                            "key removed. key =" +
+                                " ${sharedElementState.sharedElement.key}," +
+                                " state: ${sharedElementState.sharedElement.state}"
                         }
                         scope.sharedElements.remove(key)
                     }

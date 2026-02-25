@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.tooling.animation.AnimatedContentComposeAnimation.Companion.parseAnimatedContent
 import androidx.compose.ui.tooling.animation.Utils.addAnimations
+import androidx.compose.ui.tooling.animation.search.AnimatedContentSearchInfo
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -51,7 +52,8 @@ class AnimatedContentComposeAnimationTest {
             }
         }
         assertEquals(1, search.animations.size)
-        val composeAnimation = search.animations.first().transition.parseAnimatedContent()!!
+        val composeAnimation =
+            AnimatedContentSearchInfo(search.animations.first().transition).parseAnimatedContent()!!
         composeAnimation.animationObject.let {
             assertNotNull(it)
             assertEquals(1.dp, it.currentState)
@@ -72,7 +74,9 @@ class AnimatedContentComposeAnimationTest {
             }
         }
         assertEquals(1, search.animations.size)
-        assertNull(search.animations.first().transition.parseAnimatedContent())
+        assertNull(
+            AnimatedContentSearchInfo(search.animations.first().transition).parseAnimatedContent()
+        )
         AnimatedContentComposeAnimation.testOverrideAvailability(true)
     }
 
@@ -85,6 +89,8 @@ class AnimatedContentComposeAnimationTest {
             }
         }
         assertEquals(1, search.animations.size)
-        assertNull(search.animations.first().transition.parseAnimatedContent())
+        assertNull(
+            AnimatedContentSearchInfo(search.animations.first().transition).parseAnimatedContent()
+        )
     }
 }

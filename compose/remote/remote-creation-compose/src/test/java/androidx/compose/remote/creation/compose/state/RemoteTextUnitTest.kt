@@ -58,8 +58,8 @@ class RemoteTextUnitTest {
     @Test
     fun extensionProperties_createCorrectly() {
         assertThat(16.rsp.value.constantValue).isEqualTo(16f)
-        assertThat(16.sp.asRemote.value.constantValue).isEqualTo(16f)
-        assertThat(16.sp.asRemote.type).isEqualTo(TextUnitType.Sp)
+        assertThat(16.sp.asRemoteTextUnit().value.constantValue).isEqualTo(16f)
+        assertThat(16.sp.asRemoteTextUnit().type).isEqualTo(TextUnitType.Sp)
     }
 
     @Test

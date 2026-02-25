@@ -1891,6 +1891,16 @@ public class RemoteComposeWriter {
     }
 
     /**
+     * Set the name of the float associated with the id
+     *
+     * @param id   of the float
+     * @param name name of the float
+     */
+    public void setFloatName(int id, @NonNull String name) {
+        mBuffer.setNamedVariable(id, name, NamedVariable.FLOAT_TYPE);
+    }
+
+    /**
      * @param name         The String representing the name of the Bitmap.
      * @param initialValue the initial Bitmap
      * @return the id of the Bitmap
@@ -3141,6 +3151,24 @@ public class RemoteComposeWriter {
     public void endBox() {
         mBuffer.addContainerEnd();
         mBuffer.addContainerEnd();
+    }
+
+    /**
+     * Add a fitBox layout
+     *
+     * @param modifier   list of modifiers for the layout
+     * @param horizontal horizontal positioning
+     * @param vertical   vertical positioning
+     * @param content    content of the layout
+     */
+    public void fitBox(
+            @NonNull RecordingModifier modifier,
+            int horizontal,
+            int vertical,
+            @NonNull RemoteComposeWriterInterface content) {
+        startFitBox(modifier, horizontal, vertical);
+        content.run();
+        endFitBox();
     }
 
     /**

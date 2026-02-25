@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,5 +18,4 @@ package androidx.compose.material.navigation.internal
 
 import androidx.compose.runtime.Composable
 
-// TODO(b/352352908): Remove once this API will be available in common
 @Composable internal expect fun BackHandler(enabled: Boolean = true, onBack: () -> Unit)

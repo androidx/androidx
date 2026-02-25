@@ -16,6 +16,7 @@
 package androidx.compose.remote.core;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.operations.layout.managers.LayoutManager;
 import androidx.compose.remote.core.operations.paint.PaintBundle;
 
 import org.jspecify.annotations.NonNull;
@@ -33,7 +34,7 @@ public abstract class PaintContext {
     public static final int TEXT_MEASURE_AUTOSIZE = 0x10;
     protected @NonNull RemoteContext mContext;
     private boolean mNeedsRepaint = false;
-    private int mMeasureVersion;
+    private int mMeasureVersion = LayoutManager.DEFAULT_MEASURE_TYPE;
 
     @NonNull
     public RemoteContext getContext() {
@@ -573,5 +574,14 @@ public abstract class PaintContext {
      */
     public int getMeasureVersion() {
         return mMeasureVersion;
+    }
+
+    /**
+     * Return true if the provided feature is enabled in the document
+     * @param feature feature id
+     * @return
+     */
+    public boolean useFeature(short feature) {
+        return mContext.useFeature(feature);
     }
 }

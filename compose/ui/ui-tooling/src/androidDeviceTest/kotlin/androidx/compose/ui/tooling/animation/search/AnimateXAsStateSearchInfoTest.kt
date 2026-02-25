@@ -18,11 +18,16 @@ package androidx.compose.ui.tooling.animation.search
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.animateValueAsState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.tooling.animation.AnimationSearch
+import androidx.compose.ui.tooling.animation.NoopClockInfo
 import androidx.compose.ui.tooling.animation.ToolingState
 import androidx.compose.ui.tooling.animation.Utils.addAnimations
+import androidx.compose.ui.tooling.animation.Utils.nullableFloatConverter
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -49,9 +54,25 @@ class AnimateXAsStateSearchInfoTest {
             val animation = searchInfo.createAnimation()
             assertNotNull(animation)
             animation!!
-            val clock = searchInfo.createClock(animation)
+            val clock = searchInfo.createClock(animation, NoopClockInfo)
             assertNotNull(clock)
         }
+    }
+
+    @Test
+    fun customLabel() {
+        val search = AnimationSearch.AnimateXAsStateSearch {}
+        rule.addAnimations(search) { animateIntAsState(1, label = "customLabel") }
+
+        assertEquals("customLabel", search.animations.first().label)
+    }
+
+    @Test
+    fun defaultLabel() {
+        val search = AnimationSearch.AnimateXAsStateSearch {}
+        rule.addAnimations(search) { animateIntAsState(1) }
+
+        assertEquals("IntAnimation", search.animations.first().label)
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -82,5 +103,41 @@ class AnimateXAsStateSearchInfoTest {
             assertEquals(10, searchInfo.toolingOverride.override.value?.value)
             assertEquals(10, animatedValue.value)
         }
+    }
+
+    @Test
+    fun findInitialAndTargetStates() {
+        val search = AnimationSearch.AnimateXAsStateSearch {}
+        val state = mutableStateOf(true)
+        rule.addAnimations(search) { animateIntAsState(if (state.value) 1 else 10) }
+        val searchInfo = search.animations.first()
+        searchInfo.setInitialStateToCurrentAnimationValue()
+        assertEquals(1, searchInfo.initialState)
+
+        // Change target state.
+        state.value = false
+        Snapshot.sendApplyNotifications()
+        rule.waitForIdle()
+        searchInfo.setTargetStateToCurrentAnimationValue()
+        assertEquals(10, searchInfo.targetState)
+    }
+
+    @Test
+    fun findInitialAndTargetNullableStates() {
+        val search = AnimationSearch.AnimateXAsStateSearch {}
+        val state = mutableStateOf(true)
+        rule.addAnimations(search) {
+            animateValueAsState(if (state.value) 10f else null, nullableFloatConverter)
+        }
+        val searchInfo = search.animations.first()
+        searchInfo.setInitialStateToCurrentAnimationValue()
+        assertEquals(10f, searchInfo.initialState)
+
+        // Change target state.
+        state.value = false
+        Snapshot.sendApplyNotifications()
+        rule.waitForIdle()
+        searchInfo.setTargetStateToCurrentAnimationValue()
+        assertEquals(null, searchInfo.targetState)
     }
 }

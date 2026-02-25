@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.action
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.modifiers.HostNamedActionOperation
-import androidx.compose.remote.creation.actions.HostAction
+import androidx.compose.remote.creation.actions.Action as CreationAction
+import androidx.compose.remote.creation.actions.HostAction as CreationHostAction
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteState
@@ -57,17 +57,17 @@ public class HostAction(
         value: RemoteString,
     ) : this(name, Type.STRING, id, value)
 
-    override fun RemoteStateScope.toRemoteAction():
-        androidx.compose.remote.creation.actions.Action {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun RemoteStateScope.toRemoteAction(): CreationAction {
         val valueId = value?.id ?: -1
         val constantValue = name.constantValueOrNull
         if (id != 0) {
-            return HostAction(id, valueId)
+            return CreationHostAction(id, valueId)
         }
         return if (constantValue != null) {
-            HostAction(constantValue, type.ordinal, valueId)
+            CreationHostAction(constantValue, type.ordinal, valueId)
         } else {
-            HostAction(name.id, valueId)
+            CreationHostAction(name.id, valueId)
         }
     }
 }

@@ -162,7 +162,6 @@ import androidx.compose.ui.input.pointer.ProcessResult
 import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
 import androidx.compose.ui.input.rotary.RotaryInputModifierNode
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
-import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.layout.InsetsListener
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -231,6 +230,7 @@ import androidx.compose.ui.util.trace
 import androidx.compose.ui.viewinterop.AndroidViewHolder
 import androidx.compose.ui.viewinterop.InteropView
 import androidx.core.os.ConfigurationCompat
+import androidx.core.os.LocaleListCompat
 import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.InputDeviceCompat.SOURCE_ROTARY_ENCODER
 import androidx.core.view.InputDeviceCompat.SOURCE_TOUCH_NAVIGATION
@@ -341,7 +341,14 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         IndirectPointerEventPrimaryDirectionalMotionAxis? =
         null
 
-    override val sharedDrawScope = LayoutNodeDrawScope()
+    override val sharedDrawScope =
+        // TODO: when removing the flag, change this to a get() block
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (AndroidComposeUiFlags.isSharedDrawingEnabled) {
+            composeViewContext.sharedDrawScope
+        } else {
+            LayoutNodeDrawScope()
+        }
 
     override val view: View
         get() = this
@@ -561,10 +568,23 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         return null
     }
 
-    private val canvasHolder = CanvasHolder()
+    private val canvasHolder: CanvasHolder =
+        // TODO: when removing the flag, change this to a get() block
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (AndroidComposeUiFlags.isSharedDrawingEnabled) {
+            composeViewContext.canvasHolder
+        } else {
+            CanvasHolder()
+        }
 
     override val viewConfiguration: ViewConfiguration =
-        AndroidViewConfiguration(android.view.ViewConfiguration.get(context))
+        // TODO: when removing the flag, change this to a get() block
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (AndroidComposeUiFlags.isSharedViewConfigurationEnabled) {
+            composeViewContext.viewConfiguration
+        } else {
+            AndroidViewConfiguration(android.view.ViewConfiguration.get(context))
+        }
 
     val insetsListener = InsetsListener(this)
 
@@ -654,14 +674,22 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         mutableStateOf(Configuration(context.resources.configuration))
 
     override val localeList: LocaleList by derivedStateOf {
-        val platformLocaleListCompat = ConfigurationCompat.getLocales(configuration)
-        checkPrecondition(!platformLocaleListCompat.isEmpty) {
-            "LocaleList from Configuration was empty - this indicates that Compose is being used " +
-                "in an environment with no available locale, which is not supported. If you " +
-                "are seeing this error and you believe the use case should work, please report a " +
-                "bug to the issue tracker."
-        }
-        LocaleList(List(platformLocaleListCompat.size()) { Locale(platformLocaleListCompat[it]!!) })
+        val configurationLocaleListCompat = ConfigurationCompat.getLocales(configuration)
+        val guaranteedNonEmptyLocaleListCompat =
+            if (configurationLocaleListCompat.isEmpty) {
+                // The Configuration doesn't have a locale. This is weird, since we should have a
+                // fully defined Configuration in a fully defined environment, but some
+                // environments like previews may not have one. Instead of crashing, pull a
+                // guaranteed non-empty list.
+                LocaleListCompat.getDefault()
+            } else {
+                configurationLocaleListCompat
+            }
+        LocaleList(
+            List(guaranteedNonEmptyLocaleListCompat.size()) {
+                Locale(guaranteedNonEmptyLocaleListCompat[it]!!)
+            }
+        )
     }
 
     private val _autofill = if (autofillSupported()) AndroidAutofill(this, autofillTree) else null
@@ -692,9 +720,23 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     private var observationClearRequested = false
 
     /** Provide clipboard manager to the user. Use the Android version of clipboard manager. */
-    override val clipboardManager = AndroidClipboardManager(context)
+    override val clipboardManager =
+        // TODO: when removing the flag, change this to a get() block
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (AndroidComposeUiFlags.isSharedClipboardManagerEnabled) {
+            composeViewContext.clipboardManager
+        } else {
+            AndroidClipboardManager(context)
+        }
 
-    override val clipboard = AndroidClipboard(clipboardManager)
+    override val clipboard =
+        // TODO: when removing the flag, change this to a get() block
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (AndroidComposeUiFlags.isSharedClipboardManagerEnabled) {
+            composeViewContext.clipboard
+        } else {
+            AndroidClipboard(clipboardManager)
+        }
 
     override val snapshotObserver = OwnerSnapshotObserver { command ->
         val exceptionHandler = uncaughtExceptionHandler
@@ -1301,14 +1343,11 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             }
         if (requestFocusWithPrevRect == true) return true
 
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (ComposeUiFlags.isIgnoreInvalidPrevFocusRectEnabled) {
-            val requestFocusWithoutPrevRect =
-                focusOwner.focusSearch(focusDirection = focusDirection, focusedRect = null) {
-                    it.requestFocus(focusDirection)
-                }
-            if (requestFocusWithoutPrevRect == true) return true
-        }
+        val requestFocusWithoutPrevRect =
+            focusOwner.focusSearch(focusDirection = focusDirection, focusedRect = null) {
+                it.requestFocus(focusDirection)
+            }
+        if (requestFocusWithoutPrevRect == true) return true
 
         // If we landed on this view and a sub-view already has focus, it means that FocusFinder
         // could not find something else to focus on, and rolled over and returned back to this
@@ -2284,7 +2323,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         if (SDK_INT < 30) {
             showLayoutBounds = getIsShowingLayoutBounds()
         }
-        if (ComposeUiFlags.areWindowInsetsRulersEnabled) {
+        if (areWindowInsetsRulersEnabled) {
             insetsListener.onViewAttachedToWindow(this)
         }
         addNotificationForSysPropsChange(this)
@@ -2413,7 +2452,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         isAttached = false
-        if (ComposeUiFlags.areWindowInsetsRulersEnabled) {
+        if (areWindowInsetsRulersEnabled) {
             insetsListener.onViewDetachedFromWindow(this)
         }
         val frameRateCategoryView = frameRateCategoryView
@@ -3506,7 +3545,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             previousGeneration = generation.intValue // just read the value so it is observed
             // When generation is 0, no updateInsets() has been called yet, so we don't need to
             // provide any insets.
-            if (previousGeneration > 0 && ComposeUiFlags.areWindowInsetsRulersEnabled) {
+            if (previousGeneration > 0 && areWindowInsetsRulersEnabled) {
                 provideWindowInsetsRulers(this@RootModifierNode)
             }
         }
