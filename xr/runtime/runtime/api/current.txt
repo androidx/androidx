@@ -14,7 +14,7 @@ package androidx.xr.runtime {
 
   public final class AugmentedObjectCategory {
     method @Deprecated public static java.util.List<androidx.xr.runtime.AugmentedObjectCategory> all();
-    method public static java.util.List<androidx.xr.runtime.AugmentedObjectCategory> allSupported();
+    method public static java.util.Set<androidx.xr.runtime.AugmentedObjectCategory> allSupported();
     field public static final androidx.xr.runtime.AugmentedObjectCategory.Companion Companion;
     field public static final androidx.xr.runtime.AugmentedObjectCategory KEYBOARD;
     field public static final androidx.xr.runtime.AugmentedObjectCategory LAPTOP;
@@ -24,7 +24,7 @@ package androidx.xr.runtime {
 
   public static final class AugmentedObjectCategory.Companion {
     method @Deprecated public java.util.List<androidx.xr.runtime.AugmentedObjectCategory> all();
-    method public java.util.List<androidx.xr.runtime.AugmentedObjectCategory> allSupported();
+    method public java.util.Set<androidx.xr.runtime.AugmentedObjectCategory> allSupported();
     property public androidx.xr.runtime.AugmentedObjectCategory KEYBOARD;
     property public androidx.xr.runtime.AugmentedObjectCategory LAPTOP;
     property public androidx.xr.runtime.AugmentedObjectCategory MOUSE;
@@ -47,8 +47,8 @@ package androidx.xr.runtime {
     ctor public Config(optional androidx.xr.runtime.PlaneTrackingMode planeTracking, optional androidx.xr.runtime.HandTrackingMode handTracking, optional androidx.xr.runtime.DeviceTrackingMode deviceTracking, optional androidx.xr.runtime.DepthEstimationMode depthEstimation, optional androidx.xr.runtime.AnchorPersistenceMode anchorPersistence);
     ctor public Config(optional androidx.xr.runtime.PlaneTrackingMode planeTracking, optional androidx.xr.runtime.HandTrackingMode handTracking, optional androidx.xr.runtime.DeviceTrackingMode deviceTracking, optional androidx.xr.runtime.DepthEstimationMode depthEstimation, optional androidx.xr.runtime.AnchorPersistenceMode anchorPersistence, optional androidx.xr.runtime.FaceTrackingMode faceTracking);
     ctor public Config(optional androidx.xr.runtime.PlaneTrackingMode planeTracking, optional androidx.xr.runtime.HandTrackingMode handTracking, optional androidx.xr.runtime.DeviceTrackingMode deviceTracking, optional androidx.xr.runtime.DepthEstimationMode depthEstimation, optional androidx.xr.runtime.AnchorPersistenceMode anchorPersistence, optional androidx.xr.runtime.FaceTrackingMode faceTracking, optional androidx.xr.runtime.GeospatialMode geospatial);
-    ctor @BytecodeOnly public Config(androidx.xr.runtime.PlaneTrackingMode!, androidx.xr.runtime.HandTrackingMode!, androidx.xr.runtime.DeviceTrackingMode!, androidx.xr.runtime.DepthEstimationMode!, androidx.xr.runtime.AnchorPersistenceMode!, androidx.xr.runtime.FaceTrackingMode!, androidx.xr.runtime.GeospatialMode!, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor public Config(optional androidx.xr.runtime.PlaneTrackingMode planeTracking, optional androidx.xr.runtime.HandTrackingMode handTracking, optional androidx.xr.runtime.DeviceTrackingMode deviceTracking, optional androidx.xr.runtime.DepthEstimationMode depthEstimation, optional androidx.xr.runtime.AnchorPersistenceMode anchorPersistence, optional androidx.xr.runtime.FaceTrackingMode faceTracking, optional androidx.xr.runtime.GeospatialMode geospatial, optional java.util.List<androidx.xr.runtime.AugmentedObjectCategory> augmentedObjectCategories);
+    ctor @BytecodeOnly public Config(androidx.xr.runtime.PlaneTrackingMode!, androidx.xr.runtime.HandTrackingMode!, androidx.xr.runtime.DeviceTrackingMode!, androidx.xr.runtime.DepthEstimationMode!, androidx.xr.runtime.AnchorPersistenceMode!, androidx.xr.runtime.FaceTrackingMode!, androidx.xr.runtime.GeospatialMode!, java.util.Set!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public Config(optional androidx.xr.runtime.PlaneTrackingMode planeTracking, optional androidx.xr.runtime.HandTrackingMode handTracking, optional androidx.xr.runtime.DeviceTrackingMode deviceTracking, optional androidx.xr.runtime.DepthEstimationMode depthEstimation, optional androidx.xr.runtime.AnchorPersistenceMode anchorPersistence, optional androidx.xr.runtime.FaceTrackingMode faceTracking, optional androidx.xr.runtime.GeospatialMode geospatial, optional java.util.Set<androidx.xr.runtime.AugmentedObjectCategory> augmentedObjectCategories);
     method public androidx.xr.runtime.Config copy();
     method public androidx.xr.runtime.Config copy(optional androidx.xr.runtime.PlaneTrackingMode planeTracking);
     method public androidx.xr.runtime.Config copy(optional androidx.xr.runtime.PlaneTrackingMode planeTracking, optional androidx.xr.runtime.HandTrackingMode handTracking);
@@ -57,7 +57,7 @@ package androidx.xr.runtime {
     method public androidx.xr.runtime.Config copy(optional androidx.xr.runtime.PlaneTrackingMode planeTracking, optional androidx.xr.runtime.HandTrackingMode handTracking, optional androidx.xr.runtime.DeviceTrackingMode deviceTracking, optional androidx.xr.runtime.DepthEstimationMode depthEstimation, optional androidx.xr.runtime.AnchorPersistenceMode anchorPersistence);
     method @BytecodeOnly public static androidx.xr.runtime.Config! copy$default(androidx.xr.runtime.Config!, androidx.xr.runtime.PlaneTrackingMode!, androidx.xr.runtime.HandTrackingMode!, androidx.xr.runtime.DeviceTrackingMode!, androidx.xr.runtime.DepthEstimationMode!, androidx.xr.runtime.AnchorPersistenceMode!, int, Object!);
     method @InaccessibleFromKotlin public androidx.xr.runtime.AnchorPersistenceMode getAnchorPersistence();
-    method @InaccessibleFromKotlin public java.util.List<androidx.xr.runtime.AugmentedObjectCategory> getAugmentedObjectCategories();
+    method @InaccessibleFromKotlin public java.util.Set<androidx.xr.runtime.AugmentedObjectCategory> getAugmentedObjectCategories();
     method @InaccessibleFromKotlin public androidx.xr.runtime.DepthEstimationMode getDepthEstimation();
     method @InaccessibleFromKotlin public androidx.xr.runtime.DeviceTrackingMode getDeviceTracking();
     method @InaccessibleFromKotlin public androidx.xr.runtime.FaceTrackingMode getFaceTracking();
@@ -65,7 +65,7 @@ package androidx.xr.runtime {
     method @InaccessibleFromKotlin public androidx.xr.runtime.HandTrackingMode getHandTracking();
     method @InaccessibleFromKotlin public androidx.xr.runtime.PlaneTrackingMode getPlaneTracking();
     property public androidx.xr.runtime.AnchorPersistenceMode anchorPersistence;
-    property public java.util.List<androidx.xr.runtime.AugmentedObjectCategory> augmentedObjectCategories;
+    property public java.util.Set<androidx.xr.runtime.AugmentedObjectCategory> augmentedObjectCategories;
     property public androidx.xr.runtime.DepthEstimationMode depthEstimation;
     property public androidx.xr.runtime.DeviceTrackingMode deviceTracking;
     property public androidx.xr.runtime.FaceTrackingMode faceTracking;

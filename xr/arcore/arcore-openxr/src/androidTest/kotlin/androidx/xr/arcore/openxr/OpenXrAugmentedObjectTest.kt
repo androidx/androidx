@@ -113,7 +113,7 @@ class OpenXrAugmentedObjectTest {
             openXrManager.configure(
                 Config(
                     augmentedObjectCategories =
-                        listOf(
+                        setOf(
                             AugmentedObjectCategory.KEYBOARD,
                             AugmentedObjectCategory.MOUSE,
                             AugmentedObjectCategory.LAPTOP,

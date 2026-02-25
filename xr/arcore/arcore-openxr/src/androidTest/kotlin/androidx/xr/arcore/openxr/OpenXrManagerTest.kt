@@ -337,7 +337,7 @@ class OpenXrManagerTest {
             check(perceptionManager.xrResources.updatables.isEmpty())
 
             underTest.configure(
-                Config(augmentedObjectCategories = listOf(AugmentedObjectCategory.KEYBOARD))
+                Config(augmentedObjectCategories = setOf(AugmentedObjectCategory.KEYBOARD))
             )
             underTest.update()
 

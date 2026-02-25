@@ -286,7 +286,7 @@ public class GeospatialGuavaTest {
                                         AnchorPersistenceMode.DISABLED,
                                         FaceTrackingMode.DISABLED,
                                         GeospatialMode.VPS_AND_GPS,
-                                        java.util.Collections.emptyList(),
+                                        java.util.Collections.emptySet(),
                                         EyeTrackingMode.DISABLED,
                                         CameraFacingDirection.WORLD));
 

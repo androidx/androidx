@@ -218,7 +218,7 @@ class SessionTest {
         val newConfig =
             Config(
                 planeTracking = PlaneTrackingMode.DISABLED,
-                augmentedObjectCategories = listOf<AugmentedObjectCategory>(),
+                augmentedObjectCategories = setOf<AugmentedObjectCategory>(),
                 handTracking = HandTrackingMode.DISABLED,
                 deviceTracking = DeviceTrackingMode.DISABLED,
                 depthEstimation = DepthEstimationMode.DISABLED,

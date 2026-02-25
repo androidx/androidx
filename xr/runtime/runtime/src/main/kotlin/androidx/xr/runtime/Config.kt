@@ -56,7 +56,7 @@ constructor(
         androidx.xr.runtime.FaceTrackingMode.DISABLED,
     public val geospatial: androidx.xr.runtime.GeospatialMode =
         androidx.xr.runtime.GeospatialMode.DISABLED,
-    public val augmentedObjectCategories: List<AugmentedObjectCategory> = listOf(),
+    public val augmentedObjectCategories: Set<AugmentedObjectCategory> = setOf(),
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public val eyeTracking: EyeTrackingMode = EyeTrackingMode.DISABLED,
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -103,7 +103,7 @@ constructor(
             androidx.xr.runtime.FaceTrackingMode.DISABLED,
         geospatial: androidx.xr.runtime.GeospatialMode =
             androidx.xr.runtime.GeospatialMode.DISABLED,
-        augmentedObjectCategories: List<AugmentedObjectCategory> = listOf(),
+        augmentedObjectCategories: Set<AugmentedObjectCategory> = setOf(),
     ) : this(
         planeTracking,
         handTracking,
@@ -133,7 +133,7 @@ constructor(
     @Suppress("DEPRECATION")
     public constructor(
         planeTracking: Config.PlaneTrackingMode
-    ) : this(planeTracking = planeTracking.toNewType(), augmentedObjectCategories = listOf())
+    ) : this(planeTracking = planeTracking.toNewType(), augmentedObjectCategories = setOf())
 
     /**
      * Defines a configuration state of all available features to be set at runtime.
@@ -163,7 +163,7 @@ constructor(
         handTracking: Config.HandTrackingMode,
     ) : this(
         planeTracking = planeTracking.toNewType(),
-        augmentedObjectCategories = listOf(),
+        augmentedObjectCategories = setOf(),
         handTracking = handTracking.toNewType(),
     )
 
@@ -199,7 +199,7 @@ constructor(
         deviceTracking: Config.DeviceTrackingMode,
     ) : this(
         planeTracking = planeTracking.toNewType(),
-        augmentedObjectCategories = listOf(),
+        augmentedObjectCategories = setOf(),
         handTracking = handTracking.toNewType(),
         deviceTracking = deviceTracking.toNewType(),
     )
@@ -240,7 +240,7 @@ constructor(
         depthEstimation: Config.DepthEstimationMode,
     ) : this(
         planeTracking = planeTracking.toNewType(),
-        augmentedObjectCategories = listOf(),
+        augmentedObjectCategories = setOf(),
         handTracking = handTracking.toNewType(),
         deviceTracking = deviceTracking.toNewType(),
         depthEstimation = depthEstimation.toNewType(),
@@ -286,7 +286,7 @@ constructor(
         anchorPersistence: Config.AnchorPersistenceMode,
     ) : this(
         planeTracking = planeTracking.toNewType(),
-        augmentedObjectCategories = listOf(),
+        augmentedObjectCategories = setOf(),
         handTracking = handTracking.toNewType(),
         deviceTracking = deviceTracking.toNewType(),
         depthEstimation = depthEstimation.toNewType(),
@@ -337,7 +337,7 @@ constructor(
         faceTracking: Config.FaceTrackingMode,
     ) : this(
         planeTracking = planeTracking.toNewType(),
-        augmentedObjectCategories = listOf(),
+        augmentedObjectCategories = setOf(),
         handTracking = handTracking.toNewType(),
         deviceTracking = deviceTracking.toNewType(),
         depthEstimation = depthEstimation.toNewType(),
@@ -393,7 +393,7 @@ constructor(
         geospatial: Config.GeospatialMode,
     ) : this(
         planeTracking = planeTracking.toNewType(),
-        augmentedObjectCategories = listOf(),
+        augmentedObjectCategories = setOf(),
         handTracking = handTracking.toNewType(),
         deviceTracking = deviceTracking.toNewType(),
         depthEstimation = depthEstimation.toNewType(),
@@ -466,7 +466,7 @@ constructor(
         anchorPersistence: androidx.xr.runtime.AnchorPersistenceMode = this.anchorPersistence,
         faceTracking: androidx.xr.runtime.FaceTrackingMode = this.faceTracking,
         geospatial: androidx.xr.runtime.GeospatialMode = this.geospatial,
-        augmentedObjectCategories: List<AugmentedObjectCategory> = this.augmentedObjectCategories,
+        augmentedObjectCategories: Set<AugmentedObjectCategory> = this.augmentedObjectCategories,
         eyeTracking: EyeTrackingMode = this.eyeTracking,
         cameraFacingDirection: CameraFacingDirection = this.cameraFacingDirection,
     ): Config {

@@ -2423,6 +2423,7 @@ package androidx.health.connect.client.request {
   }
 
   public final class ReadRecordsRequest<T extends androidx.health.connect.client.records.Record> {
+    ctor @BytecodeOnly public ReadRecordsRequest(kotlin.reflect.KClass!, androidx.health.connect.client.time.TimeRangeFilter!, java.util.Set!, boolean, int, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public ReadRecordsRequest(kotlin.reflect.KClass<T> recordType, androidx.health.connect.client.time.TimeRangeFilter timeRangeFilter, optional java.util.Set<androidx.health.connect.client.records.metadata.DataOrigin> dataOriginFilter, optional boolean ascendingOrder, optional int pageSize, optional String? pageToken);
   }
 

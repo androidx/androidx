@@ -59,8 +59,8 @@ public class AugmentedObjectCategory private constructor(private val value: Int)
          * the device.
          */
         @JvmStatic
-        public fun allSupported(): List<AugmentedObjectCategory> =
-            listOf(
+        public fun allSupported(): Set<AugmentedObjectCategory> =
+            setOf(
                 // TODO b/483728983 determine contents of this list dynamically based on device
                 // capability
                 KEYBOARD,

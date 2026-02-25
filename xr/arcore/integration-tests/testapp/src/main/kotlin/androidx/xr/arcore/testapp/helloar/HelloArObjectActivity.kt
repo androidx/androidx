@@ -71,7 +71,7 @@ class HelloArObjectActivity : ComponentActivity() {
                 Config(
                     deviceTracking = DeviceTrackingMode.LAST_KNOWN,
                     augmentedObjectCategories =
-                        listOf(
+                        setOf(
                             AugmentedObjectCategory.KEYBOARD,
                             AugmentedObjectCategory.MOUSE,
                             AugmentedObjectCategory.LAPTOP,
