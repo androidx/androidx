@@ -49,7 +49,7 @@ internal class RememberSceneStateBenchmark {
                         rememberDecoratedNavEntries(backStack = backStack) { key ->
                             NavEntry(key) { Box(Modifier.fillMaxSize()) }
                         },
-                    sceneStrategy = SinglePaneSceneStrategy(),
+                    sceneStrategies = listOf(SinglePaneSceneStrategy()),
                     onBack = { /* no-op */ },
                 )
             }

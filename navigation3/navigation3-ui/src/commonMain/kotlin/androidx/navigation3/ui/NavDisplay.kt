@@ -243,7 +243,9 @@ public object NavDisplay {
  * @sample androidx.navigation3.ui.samples.SceneNavSharedElementSample
  */
 @Deprecated(
-    message = "Deprecated in favor of NavDisplay that supports sharedTransitionScope",
+    message =
+        "Deprecated in favor of NavDisplay that supports sharedTransitionScope and takes " +
+            "a List<SceneStrategy>",
     level = DeprecationLevel.HIDDEN,
 )
 @Composable
@@ -277,7 +279,7 @@ public fun <T : Any> NavDisplay(
         contentAlignment = contentAlignment,
         onBack = onBack,
         entryDecorators = entryDecorators,
-        sceneStrategy = sceneStrategy,
+        sceneStrategies = listOf(sceneStrategy),
         sharedTransitionScope = null,
         sizeTransform = sizeTransform,
         transitionSpec = transitionSpec,
@@ -291,9 +293,8 @@ public fun <T : Any> NavDisplay(
  * A nav display that renders and animates between different [Scene]s, each of which can render one
  * or more [NavEntry]s.
  *
- * The [Scene]s are calculated with the given [SceneStrategy], which may be an assembled delegated
- * chain of [SceneStrategy]s. If no [Scene] is calculated, the fallback will be to a
- * [SinglePaneSceneStrategy].
+ * The [Scene]s are calculated with the given list of [SceneStrategy] in the order of the list. If
+ * no [Scene] is calculated, the fallback will be to a [SinglePaneSceneStrategy].
  *
  * It is allowable for different [Scene]s to render the same [NavEntry]s, perhaps on some conditions
  * as determined by the [sceneStrategy] based on window size, form factor, other arbitrary logic.
@@ -317,7 +318,8 @@ public fun <T : Any> NavDisplay(
  * @param onBack a callback for handling system back press. By default, this pops a single item off
  *   of the given back stack if it is a [MutableList], otherwise you should provide this parameter.
  * @param entryDecorators list of [NavEntryDecorator] to add information to the entry content
- * @param sceneStrategy the [SceneStrategy] to determine which scene to render a list of entries.
+ * @param sceneStrategies the list of [SceneStrategy] to determine which scene to render a list of
+ *   entries.
  * @param sceneDecoratorStrategies list of [SceneDecoratorStrategy] to add content to the scene.
  * @param sharedTransitionScope the [SharedTransitionScope] to allow transitions between scenes.
  * @param sizeTransform the [SizeTransform] for the [AnimatedContent].
@@ -342,7 +344,7 @@ public fun <T : Any> NavDisplay(
     },
     entryDecorators: List<NavEntryDecorator<T>> =
         listOf(rememberSaveableStateHolderNavEntryDecorator()),
-    sceneStrategy: SceneStrategy<T> = SinglePaneSceneStrategy(),
+    sceneStrategies: List<SceneStrategy<T>> = listOf(SinglePaneSceneStrategy()),
     sceneDecoratorStrategies: List<SceneDecoratorStrategy<T>> = emptyList(),
     sharedTransitionScope: SharedTransitionScope? = null,
     sizeTransform: SizeTransform? = null,
@@ -368,7 +370,7 @@ public fun <T : Any> NavDisplay(
 
     NavDisplay(
         entries = entries,
-        sceneStrategy = sceneStrategy,
+        sceneStrategies = sceneStrategies,
         sceneDecoratorStrategies = sceneDecoratorStrategies,
         sharedTransitionScope = sharedTransitionScope,
         modifier = modifier,
@@ -428,7 +430,9 @@ public fun <T : Any> NavDisplay(
  * @see [rememberDecoratedNavEntries]
  */
 @Deprecated(
-    message = "Deprecated in favor of NavDisplay that supports sharedTransitionScope",
+    message =
+        "Deprecated in favor of NavDisplay that supports sharedTransitionScope and takes " +
+            "a List<SceneStrategy>",
     level = DeprecationLevel.HIDDEN,
 )
 @Composable
@@ -451,7 +455,7 @@ public fun <T : Any> NavDisplay(
 ) {
     NavDisplay(
         entries = entries,
-        sceneStrategy = sceneStrategy,
+        sceneStrategies = listOf(sceneStrategy),
         sharedTransitionScope = null,
         modifier = modifier,
         contentAlignment = contentAlignment,
@@ -467,9 +471,8 @@ public fun <T : Any> NavDisplay(
  * A nav display that renders and animates between different [Scene]s, each of which can render one
  * or more [NavEntry]s.
  *
- * The [Scene]s are calculated with the given [SceneStrategy], which may be an assembled delegated
- * chain of [SceneStrategy]s. If no [Scene] is calculated, the fallback will be to a
- * [SinglePaneSceneStrategy].
+ * The [Scene]s are calculated with the given list of [SceneStrategy] in the order of the list. If
+ * no [Scene] is calculated, the fallback will be to a [SinglePaneSceneStrategy].
  *
  * It is allowable for different [Scene]s to render the same [NavEntry]s, perhaps on some conditions
  * as determined by the [sceneStrategy] based on window size, form factor, other arbitrary logic.
@@ -498,7 +501,8 @@ public fun <T : Any> NavDisplay(
  *   backStack decorated with [NavEntryDecorator] via [rememberDecoratedNavEntries].
  * @param modifier the modifier to be applied to the layout.
  * @param contentAlignment The [Alignment] of the [AnimatedContent]
- * @param sceneStrategy the [SceneStrategy] to determine which scene to render a list of entries.
+ * @param sceneStrategies the list of [SceneStrategy] to determine which scene to render a list of
+ *   entries.
  * @param sceneDecoratorStrategies list of [SceneDecoratorStrategy] to add content to the scene.
  * @param sharedTransitionScope the [SharedTransitionScope] to allow transitions between scenes.
  * @param sizeTransform the [SizeTransform] for the [AnimatedContent].
@@ -517,7 +521,7 @@ public fun <T : Any> NavDisplay(
     entries: List<NavEntry<T>>,
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.TopStart,
-    sceneStrategy: SceneStrategy<T> = SinglePaneSceneStrategy(),
+    sceneStrategies: List<SceneStrategy<T>> = listOf(SinglePaneSceneStrategy()),
     sceneDecoratorStrategies: List<SceneDecoratorStrategy<T>> = emptyList(),
     sharedTransitionScope: SharedTransitionScope? = null,
     sizeTransform: SizeTransform? = null,
@@ -537,7 +541,7 @@ public fun <T : Any> NavDisplay(
     val sceneState =
         rememberSceneState(
             entries,
-            sceneStrategy,
+            sceneStrategies,
             sceneDecoratorStrategies,
             sharedTransitionScope,
             onBack,

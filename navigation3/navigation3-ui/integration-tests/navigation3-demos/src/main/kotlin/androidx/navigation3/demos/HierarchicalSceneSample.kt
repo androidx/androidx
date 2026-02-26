@@ -79,7 +79,7 @@ fun HierarchicalSceneSample() {
             NavDisplay(
                 backStack = backStack,
                 onBack = { backStack.removeAt(backStack.lastIndex) },
-                sceneStrategy = sceneStrategy,
+                sceneStrategies = listOf(sceneStrategy),
                 sharedTransitionScope = this,
             ) {
                 NavEntry(key = it, contentKey = it.id) { entry ->

@@ -135,7 +135,7 @@ class AnimatedTest {
             backStack = remember { mutableStateListOf(first, second, third) }
             backPressedDispatcher =
                 LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
-            NavDisplay(backStack = backStack, sceneStrategy = CardStackSceneStrategy()) {
+            NavDisplay(backStack = backStack, sceneStrategies = listOf(CardStackSceneStrategy())) {
                 when (it) {
                     first -> NavEntry(first, metadata = mapOf(CARD_KEY to first)) { RedBox(first) }
                     second ->

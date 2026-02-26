@@ -40,7 +40,7 @@ fun SceneStateSample() {
     val sceneState =
         rememberSceneState(
             entries,
-            SinglePaneSceneStrategy(),
+            listOf(SinglePaneSceneStrategy()),
             onBack = { backStack.removeLastOrNull() },
         )
     val currentScene = sceneState.currentScene
