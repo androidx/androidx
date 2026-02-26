@@ -15,6 +15,7 @@
  */
 package androidx.compose.material3
 
+import android.hardware.input.InputManager
 import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,6 +32,7 @@ import androidx.compose.material3.tokens.FilledButtonTokens
 import androidx.compose.material3.tokens.FilledTonalButtonTokens
 import androidx.compose.material3.tokens.OutlinedButtonTokens
 import androidx.compose.material3.tokens.TextButtonTokens
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,6 +41,7 @@ import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
@@ -67,6 +70,8 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -263,69 +268,37 @@ class ButtonTest {
         )
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Test
-    fun text_button_isTextButtonContentPaddingFixEnabled_positioning() {
-        ComposeMaterial3Flags.isTextButtonContentPaddingFixEnabled = true
+    fun text_button_baseline_positioning() {
         rule.setMaterialContent(lightColorScheme()) {
             TextButton(
                 onClick = { /* Do something! */ },
                 modifier = Modifier.testTag(ButtonTestTag),
             ) {
                 Text(
-                    "Label",
+                    "Button",
                     modifier = Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {},
                 )
             }
         }
 
-        val textBounds = rule.onNodeWithTag(TextTestTag).getUnclippedBoundsInRoot()
         val buttonBounds = rule.onNodeWithTag(ButtonTestTag).getUnclippedBoundsInRoot()
+        val textBounds = rule.onNodeWithTag(TextTestTag).getUnclippedBoundsInRoot()
 
         (textBounds.left - buttonBounds.left).assertIsEqualTo(
-            24.dp,
-            "Padding between start of text button and start of icon.",
+            12.dp,
+            "padding between the start of the button and the start of the text.",
         )
 
         (buttonBounds.right - textBounds.right).assertIsEqualTo(
-            24.dp,
-            "padding between end of text and end of text button.",
+            12.dp,
+            "padding between the end of the text and the end of the button.",
         )
-    }
-
-    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
-    @Test
-    fun text_button_shapesRequired_isTextButtonContentPaddingFixEnabled_positioning() {
-        ComposeMaterial3Flags.isTextButtonContentPaddingFixEnabled = true
-        rule.setMaterialContent(lightColorScheme()) {
-            TextButton(
-                onClick = { /* Do something! */ },
-                shapes = ButtonDefaults.shapes(),
-                modifier = Modifier.testTag(ButtonTestTag),
-            ) {
-                Text(
-                    "Label",
-                    modifier = Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {},
-                )
-            }
-        }
-
-        val textBounds = rule.onNodeWithTag(TextTestTag).getUnclippedBoundsInRoot()
-        val buttonBounds = rule.onNodeWithTag(ButtonTestTag).getUnclippedBoundsInRoot()
-
-        (textBounds.left - buttonBounds.left).assertIsEqualTo(
-            16.dp,
-            "Padding between start of text button and start of icon.",
-        )
-
-        (buttonBounds.right - textBounds.right).assertIsEqualTo(
-            16.dp,
-            "padding between end of text and end of text button.",
-        )
+        buttonBounds.height.assertIsEqualTo(ButtonDefaults.MinHeight, "height of button.")
     }
 
     @Test
-    fun text_button_withIcon_positioning() {
+    fun text_button_baseline_withIcon_positioning() {
         rule.setMaterialContent(lightColorScheme()) {
             TextButton(
                 onClick = { /* Do something! */ },
@@ -366,6 +339,662 @@ class ButtonTest {
             16.dp,
             "padding between end of text and end of text button.",
         )
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun text_button_shapesRequired_positioning() {
+        rule.setMaterialContent(lightColorScheme()) {
+            TextButton(
+                onClick = { /* Do something! */ },
+                shapes = ButtonDefaults.shapes(),
+                modifier = Modifier.testTag(ButtonTestTag),
+            ) {
+                Text(
+                    "Label",
+                    modifier = Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {},
+                )
+            }
+        }
+
+        val textBounds = rule.onNodeWithTag(TextTestTag).getUnclippedBoundsInRoot()
+        val buttonBounds = rule.onNodeWithTag(ButtonTestTag).getUnclippedBoundsInRoot()
+
+        (textBounds.left - buttonBounds.left).assertIsEqualTo(
+            16.dp,
+            "Padding between start of text button and start of icon.",
+        )
+
+        (buttonBounds.right - textBounds.right).assertIsEqualTo(
+            16.dp,
+            "padding between end of text and end of text button.",
+        )
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun text_button_shapesRequired_withIcon_positioning() {
+        rule.setMaterialContent(lightColorScheme()) {
+            TextButton(
+                onClick = { /* Do something! */ },
+                shapes = ButtonDefaults.shapes(),
+                contentPadding =
+                    ButtonDefaults.contentPaddingFor(ButtonDefaults.MinHeight, hasStartIcon = true),
+                modifier = Modifier.testTag(ButtonTestTag),
+            ) {
+                Icon(
+                    Icons.Filled.Favorite,
+                    contentDescription = "Localized description",
+                    modifier =
+                        Modifier.size(ButtonDefaults.iconSizeFor(ButtonDefaults.MinHeight))
+                            .testTag(IconTestTag)
+                            .semantics(mergeDescendants = true) {},
+                )
+                Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(ButtonDefaults.MinHeight)))
+                Text(
+                    "Like",
+                    modifier = Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {},
+                )
+            }
+        }
+
+        val textBounds = rule.onNodeWithTag(TextTestTag).getUnclippedBoundsInRoot()
+        val iconBounds = rule.onNodeWithTag(IconTestTag).getUnclippedBoundsInRoot()
+        val buttonBounds = rule.onNodeWithTag(ButtonTestTag).getUnclippedBoundsInRoot()
+
+        (iconBounds.left - buttonBounds.left).assertIsEqualTo(
+            16.dp,
+            "Padding between start of text button and start of icon.",
+        )
+
+        (textBounds.left - iconBounds.right).assertIsEqualTo(
+            ButtonDefaults.IconSpacing,
+            "Padding between end of icon and start of text.",
+        )
+
+        (buttonBounds.right - textBounds.right).assertIsEqualTo(
+            16.dp,
+            "padding between end of text and end of text button.",
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // Needed for inline mocking
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun button_small_precisionPointerEnabled_positioning() {
+        ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled = true
+        val inputManager = FakeInputManager()
+        inputManager.addDevice(MockDevices.physicalKeyboard)
+        inputManager.addDevice(MockDevices.mouse)
+
+        rule.setContent {
+            CompositionLocalProvider(
+                LocalContext provides
+                    (mock {
+                        on { getSystemService(InputManager::class.java) } doReturn
+                            inputManager.inputManager
+                    })
+            ) {
+                MaterialTheme {
+                    Button(
+                        onClick = { /* Do something! */ },
+                        modifier = Modifier.testTag(ButtonTestTag),
+                        contentPadding = ButtonDefaults.contentPaddingFor(ButtonDefaults.MinHeight),
+                    ) {
+                        Text(
+                            "Button",
+                            modifier =
+                                Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {},
+                        )
+                    }
+                }
+            }
+        }
+        val buttonBounds = rule.onNodeWithTag(ButtonTestTag).getUnclippedBoundsInRoot()
+        val textBounds = rule.onNodeWithTag(TextTestTag).getUnclippedBoundsInRoot()
+
+        (textBounds.left - buttonBounds.left).assertIsEqualTo(16.dp, "button start padding")
+        (buttonBounds.right - textBounds.right).assertIsEqualTo(16.dp, "button end padding")
+        textBounds.height.assertIsEqualTo(20.dp, "label line height")
+        buttonBounds.height.assertIsEqualTo(36.dp, "height of button.")
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // Needed for inline mocking
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun button_medium_precisionPointerEnabled_positioning() {
+        ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled = true
+        val inputManager = FakeInputManager()
+        inputManager.addDevice(MockDevices.physicalKeyboard)
+        inputManager.addDevice(MockDevices.mouse)
+
+        rule.setContent {
+            CompositionLocalProvider(
+                LocalContext provides
+                    (mock {
+                        on { getSystemService(InputManager::class.java) } doReturn
+                            inputManager.inputManager
+                    })
+            ) {
+                MaterialTheme {
+                    Button(
+                        onClick = { /* Do something! */ },
+                        modifier = Modifier.testTag(ButtonTestTag),
+                        contentPadding =
+                            ButtonDefaults.contentPaddingFor(ButtonDefaults.MediumContainerHeight),
+                    ) {
+                        Text(
+                            "Button",
+                            modifier =
+                                Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {},
+                            style =
+                                ButtonDefaults.textStyleFor(ButtonDefaults.MediumContainerHeight),
+                        )
+                    }
+                }
+            }
+        }
+        val buttonBounds = rule.onNodeWithTag(ButtonTestTag).getUnclippedBoundsInRoot()
+        val textBounds = rule.onNodeWithTag(TextTestTag).getUnclippedBoundsInRoot()
+
+        assertThat(shouldUsePrecisionPointerComponentSizing.value).isTrue()
+        (textBounds.left - buttonBounds.left).assertIsEqualTo(24.dp, "button start padding")
+        (buttonBounds.right - textBounds.right).assertIsEqualTo(24.dp, "button end padding")
+        textBounds.height.assertIsEqualTo(22.dp, "label line height")
+        buttonBounds.height.assertIsEqualTo(46.dp, "height of button.")
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // Needed for inline mocking
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun button_large_precisionPointerEnabled_positioning() {
+        ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled = true
+        val inputManager = FakeInputManager()
+        inputManager.addDevice(MockDevices.physicalKeyboard)
+        inputManager.addDevice(MockDevices.mouse)
+
+        rule.setContent {
+            CompositionLocalProvider(
+                LocalContext provides
+                    (mock {
+                        on { getSystemService(InputManager::class.java) } doReturn
+                            inputManager.inputManager
+                    })
+            ) {
+                MaterialTheme {
+                    Button(
+                        onClick = { /* Do something! */ },
+                        modifier = Modifier.testTag(ButtonTestTag),
+                        contentPadding =
+                            ButtonDefaults.contentPaddingFor(ButtonDefaults.LargeContainerHeight),
+                    ) {
+                        Text(
+                            "Button",
+                            modifier =
+                                Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {},
+                            style = ButtonDefaults.textStyleFor(ButtonDefaults.LargeContainerHeight),
+                        )
+                    }
+                }
+            }
+        }
+        val buttonBounds = rule.onNodeWithTag(ButtonTestTag).getUnclippedBoundsInRoot()
+        val textBounds = rule.onNodeWithTag(TextTestTag).getUnclippedBoundsInRoot()
+
+        (textBounds.left - buttonBounds.left).assertIsEqualTo(32.dp, "button start padding")
+        (buttonBounds.right - textBounds.right).assertIsEqualTo(32.dp, "button end padding")
+        textBounds.height.assertIsEqualTo(26.dp, "label line height")
+        buttonBounds.height.assertIsEqualTo(54.dp, "height of button.")
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // Needed for inline mocking
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun button_small_withIcon_precisionPointerEnabled_positioning() {
+        ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled = true
+        val inputManager = FakeInputManager()
+        inputManager.addDevice(MockDevices.physicalKeyboard)
+        inputManager.addDevice(MockDevices.mouse)
+
+        rule.setContent {
+            CompositionLocalProvider(
+                LocalContext provides
+                    (mock {
+                        on { getSystemService(InputManager::class.java) } doReturn
+                            inputManager.inputManager
+                    })
+            ) {
+                MaterialTheme {
+                    Button(
+                        onClick = { /* Do something! */ },
+                        modifier = Modifier.testTag(ButtonTestTag),
+                        contentPadding =
+                            ButtonDefaults.contentPaddingFor(
+                                ButtonDefaults.MinHeight,
+                                hasStartIcon = true,
+                            ),
+                    ) {
+                        Icon(
+                            Icons.Filled.Favorite,
+                            contentDescription = "Localized description",
+                            modifier =
+                                Modifier.size(ButtonDefaults.iconSizeFor(ButtonDefaults.MinHeight))
+                                    .testTag(IconTestTag)
+                                    .semantics(mergeDescendants = true) {},
+                        )
+                        Spacer(
+                            Modifier.size(ButtonDefaults.iconSpacingFor(ButtonDefaults.MinHeight))
+                        )
+                        Text(
+                            "Button",
+                            modifier =
+                                Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {},
+                        )
+                    }
+                }
+            }
+        }
+        val buttonBounds = rule.onNodeWithTag(ButtonTestTag).getUnclippedBoundsInRoot()
+        val iconBounds = rule.onNodeWithTag(IconTestTag).getUnclippedBoundsInRoot()
+        val textBounds = rule.onNodeWithTag(TextTestTag).getUnclippedBoundsInRoot()
+
+        (iconBounds.left - buttonBounds.left).assertIsEqualTo(12.dp, "button start padding")
+        (textBounds.left - iconBounds.right).assertIsEqualTo(8.dp, "icon to label padding")
+        (buttonBounds.right - textBounds.right).assertIsEqualTo(16.dp, "button end padding")
+        textBounds.height.assertIsEqualTo(20.dp, "label line height")
+        iconBounds.height.assertIsEqualTo(20.dp, "icon height")
+        buttonBounds.height.assertIsEqualTo(36.dp, "height of button.")
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // Needed for inline mocking
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun button_small_withTwoIcons_precisionPointerEnabled_positioning() {
+        ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled = true
+        val inputManager = FakeInputManager()
+        inputManager.addDevice(MockDevices.physicalKeyboard)
+        inputManager.addDevice(MockDevices.mouse)
+
+        rule.setContent {
+            CompositionLocalProvider(
+                LocalContext provides
+                    (mock {
+                        on { getSystemService(InputManager::class.java) } doReturn
+                            inputManager.inputManager
+                    })
+            ) {
+                MaterialTheme {
+                    Button(
+                        onClick = { /* Do something! */ },
+                        modifier = Modifier.testTag(ButtonTestTag),
+                        contentPadding =
+                            ButtonDefaults.contentPaddingFor(
+                                ButtonDefaults.MinHeight,
+                                hasStartIcon = true,
+                                hasEndIcon = true,
+                            ),
+                    ) {
+                        Icon(
+                            Icons.Filled.Favorite,
+                            contentDescription = "Localized description",
+                            modifier =
+                                Modifier.size(ButtonDefaults.iconSizeFor(ButtonDefaults.MinHeight))
+                                    .testTag(IconTestTag)
+                                    .semantics(mergeDescendants = true) {},
+                        )
+                        Spacer(
+                            Modifier.size(ButtonDefaults.iconSpacingFor(ButtonDefaults.MinHeight))
+                        )
+                        Text(
+                            "Button",
+                            modifier =
+                                Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {},
+                        )
+                        Spacer(
+                            Modifier.size(ButtonDefaults.iconSpacingFor(ButtonDefaults.MinHeight))
+                        )
+                        Icon(
+                            Icons.Filled.Favorite,
+                            contentDescription = "Localized description",
+                            modifier =
+                                Modifier.size(ButtonDefaults.iconSizeFor(ButtonDefaults.MinHeight))
+                                    .testTag("EndIcon")
+                                    .semantics(mergeDescendants = true) {},
+                        )
+                    }
+                }
+            }
+        }
+        val buttonBounds = rule.onNodeWithTag(ButtonTestTag).getUnclippedBoundsInRoot()
+        val startIconBounds = rule.onNodeWithTag(IconTestTag).getUnclippedBoundsInRoot()
+        val textBounds = rule.onNodeWithTag(TextTestTag).getUnclippedBoundsInRoot()
+        val endIconBounds = rule.onNodeWithTag("EndIcon").getUnclippedBoundsInRoot()
+
+        (startIconBounds.left - buttonBounds.left).assertIsEqualTo(12.dp, "button start padding")
+        (textBounds.left - startIconBounds.right).assertIsEqualTo(
+            8.dp,
+            "start icon to label padding",
+        )
+        (endIconBounds.left - textBounds.right).assertIsEqualTo(8.dp, "label to end icon padding")
+        (buttonBounds.right - endIconBounds.right).assertIsEqualTo(12.dp, "button end padding")
+        textBounds.height.assertIsEqualTo(20.dp, "label line height")
+        startIconBounds.height.assertIsEqualTo(20.dp, "start icon height")
+        endIconBounds.height.assertIsEqualTo(20.dp, "end icon height")
+        buttonBounds.height.assertIsEqualTo(36.dp, "height of button.")
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // Needed for inline mocking
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun button_medium_withIcon_precisionPointerEnabled_positioning() {
+        ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled = true
+        val inputManager = FakeInputManager()
+        inputManager.addDevice(MockDevices.physicalKeyboard)
+        inputManager.addDevice(MockDevices.mouse)
+
+        rule.setContent {
+            CompositionLocalProvider(
+                LocalContext provides
+                    (mock {
+                        on { getSystemService(InputManager::class.java) } doReturn
+                            inputManager.inputManager
+                    })
+            ) {
+                MaterialTheme {
+                    Button(
+                        onClick = { /* Do something! */ },
+                        modifier = Modifier.testTag(ButtonTestTag),
+                        contentPadding =
+                            ButtonDefaults.contentPaddingFor(
+                                ButtonDefaults.MediumContainerHeight,
+                                hasStartIcon = true,
+                            ),
+                    ) {
+                        Icon(
+                            Icons.Filled.Favorite,
+                            contentDescription = "Localized description",
+                            modifier =
+                                Modifier.size(
+                                        ButtonDefaults.iconSizeFor(
+                                            ButtonDefaults.MediumContainerHeight
+                                        )
+                                    )
+                                    .testTag(IconTestTag)
+                                    .semantics(mergeDescendants = true) {},
+                        )
+                        Spacer(
+                            Modifier.size(
+                                ButtonDefaults.iconSpacingFor(ButtonDefaults.MediumContainerHeight)
+                            )
+                        )
+                        Text(
+                            "Button",
+                            modifier =
+                                Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {},
+                            style =
+                                ButtonDefaults.textStyleFor(ButtonDefaults.MediumContainerHeight),
+                        )
+                    }
+                }
+            }
+        }
+        val buttonBounds = rule.onNodeWithTag(ButtonTestTag).getUnclippedBoundsInRoot()
+        val iconBounds = rule.onNodeWithTag(IconTestTag).getUnclippedBoundsInRoot()
+        val textBounds = rule.onNodeWithTag(TextTestTag).getUnclippedBoundsInRoot()
+
+        (iconBounds.left - buttonBounds.left).assertIsEqualTo(20.dp, "button start padding")
+        (textBounds.left - iconBounds.right).assertIsEqualTo(8.dp, "icon to label padding")
+        (buttonBounds.right - textBounds.right).assertIsEqualTo(24.dp, "button end padding")
+        textBounds.height.assertIsEqualTo(22.dp, "label line height")
+        iconBounds.height.assertIsEqualTo(24.dp, "icon height")
+        buttonBounds.height.assertIsEqualTo(48.dp, "height of button.")
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // Needed for inline mocking
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun button_medium_withTwoIcons_precisionPointerEnabled_positioning() {
+        ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled = true
+        val inputManager = FakeInputManager()
+        inputManager.addDevice(MockDevices.physicalKeyboard)
+        inputManager.addDevice(MockDevices.mouse)
+
+        rule.setContent {
+            CompositionLocalProvider(
+                LocalContext provides
+                    (mock {
+                        on { getSystemService(InputManager::class.java) } doReturn
+                            inputManager.inputManager
+                    })
+            ) {
+                MaterialTheme {
+                    Button(
+                        onClick = { /* Do something! */ },
+                        modifier = Modifier.testTag(ButtonTestTag),
+                        contentPadding =
+                            ButtonDefaults.contentPaddingFor(
+                                ButtonDefaults.MediumContainerHeight,
+                                hasStartIcon = true,
+                                hasEndIcon = true,
+                            ),
+                    ) {
+                        Icon(
+                            Icons.Filled.Favorite,
+                            contentDescription = "Localized description",
+                            modifier =
+                                Modifier.size(
+                                        ButtonDefaults.iconSizeFor(
+                                            ButtonDefaults.MediumContainerHeight
+                                        )
+                                    )
+                                    .testTag(IconTestTag)
+                                    .semantics(mergeDescendants = true) {},
+                        )
+                        Spacer(
+                            Modifier.size(
+                                ButtonDefaults.iconSpacingFor(ButtonDefaults.MediumContainerHeight)
+                            )
+                        )
+                        Text(
+                            "Button",
+                            modifier =
+                                Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {},
+                            style =
+                                ButtonDefaults.textStyleFor(ButtonDefaults.MediumContainerHeight),
+                        )
+                        Spacer(
+                            Modifier.size(
+                                ButtonDefaults.iconSpacingFor(ButtonDefaults.MediumContainerHeight)
+                            )
+                        )
+                        Icon(
+                            Icons.Filled.Favorite,
+                            contentDescription = "Localized description",
+                            modifier =
+                                Modifier.size(
+                                        ButtonDefaults.iconSizeFor(
+                                            ButtonDefaults.MediumContainerHeight
+                                        )
+                                    )
+                                    .testTag("EndIcon")
+                                    .semantics(mergeDescendants = true) {},
+                        )
+                    }
+                }
+            }
+        }
+        val buttonBounds = rule.onNodeWithTag(ButtonTestTag).getUnclippedBoundsInRoot()
+        val startIconBounds = rule.onNodeWithTag(IconTestTag).getUnclippedBoundsInRoot()
+        val textBounds = rule.onNodeWithTag(TextTestTag).getUnclippedBoundsInRoot()
+        val endIconBounds = rule.onNodeWithTag("EndIcon").getUnclippedBoundsInRoot()
+
+        (startIconBounds.left - buttonBounds.left).assertIsEqualTo(20.dp, "button start padding")
+        (textBounds.left - startIconBounds.right).assertIsEqualTo(
+            8.dp,
+            "start icon to label padding",
+        )
+        (endIconBounds.left - textBounds.right).assertIsEqualTo(8.dp, "label to end icon padding")
+        (buttonBounds.right - endIconBounds.right).assertIsEqualTo(20.dp, "button end padding")
+        textBounds.height.assertIsEqualTo(22.dp, "label line height")
+        startIconBounds.height.assertIsEqualTo(24.dp, "start icon height")
+        endIconBounds.height.assertIsEqualTo(24.dp, "end icon height")
+        buttonBounds.height.assertIsEqualTo(48.dp, "height of button.")
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // Needed for inline mocking
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun button_large_withIcon_precisionPointerEnabled_positioning() {
+        ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled = true
+        val inputManager = FakeInputManager()
+        inputManager.addDevice(MockDevices.physicalKeyboard)
+        inputManager.addDevice(MockDevices.mouse)
+
+        rule.setContent {
+            CompositionLocalProvider(
+                LocalContext provides
+                    (mock {
+                        on { getSystemService(InputManager::class.java) } doReturn
+                            inputManager.inputManager
+                    })
+            ) {
+                MaterialTheme {
+                    Button(
+                        onClick = { /* Do something! */ },
+                        modifier = Modifier.testTag(ButtonTestTag),
+                        contentPadding =
+                            ButtonDefaults.contentPaddingFor(
+                                ButtonDefaults.LargeContainerHeight,
+                                hasStartIcon = true,
+                            ),
+                    ) {
+                        Icon(
+                            Icons.Filled.Favorite,
+                            contentDescription = "Localized description",
+                            modifier =
+                                Modifier.size(
+                                        ButtonDefaults.iconSizeFor(
+                                            ButtonDefaults.LargeContainerHeight
+                                        )
+                                    )
+                                    .testTag(IconTestTag)
+                                    .semantics(mergeDescendants = true) {},
+                        )
+                        Spacer(
+                            Modifier.size(
+                                ButtonDefaults.iconSpacingFor(ButtonDefaults.LargeContainerHeight)
+                            )
+                        )
+                        Text(
+                            "Button",
+                            modifier =
+                                Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {},
+                            style = ButtonDefaults.textStyleFor(ButtonDefaults.LargeContainerHeight),
+                        )
+                    }
+                }
+            }
+        }
+        val buttonBounds = rule.onNodeWithTag(ButtonTestTag).getUnclippedBoundsInRoot()
+        val iconBounds = rule.onNodeWithTag(IconTestTag).getUnclippedBoundsInRoot()
+        val textBounds = rule.onNodeWithTag(TextTestTag).getUnclippedBoundsInRoot()
+
+        (iconBounds.left - buttonBounds.left).assertIsEqualTo(28.dp, "button start padding")
+        (textBounds.left - iconBounds.right).assertIsEqualTo(8.dp, "icon to label padding")
+        (buttonBounds.right - textBounds.right).assertIsEqualTo(32.dp, "button end padding")
+        textBounds.height.assertIsEqualTo(26.dp, "label line height")
+        iconBounds.height.assertIsEqualTo(24.dp, "icon height")
+        buttonBounds.height.assertIsEqualTo(54.dp, "height of button.")
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // Needed for inline mocking
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun button_large_withTwoIcons_precisionPointerEnabled_positioning() {
+        ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled = true
+        val inputManager = FakeInputManager()
+        inputManager.addDevice(MockDevices.physicalKeyboard)
+        inputManager.addDevice(MockDevices.mouse)
+
+        rule.setContent {
+            CompositionLocalProvider(
+                LocalContext provides
+                    (mock {
+                        on { getSystemService(InputManager::class.java) } doReturn
+                            inputManager.inputManager
+                    })
+            ) {
+                MaterialTheme {
+                    Button(
+                        onClick = { /* Do something! */ },
+                        modifier = Modifier.testTag(ButtonTestTag),
+                        contentPadding =
+                            ButtonDefaults.contentPaddingFor(
+                                ButtonDefaults.LargeContainerHeight,
+                                hasStartIcon = true,
+                                hasEndIcon = true,
+                            ),
+                    ) {
+                        Icon(
+                            Icons.Filled.Favorite,
+                            contentDescription = "Localized description",
+                            modifier =
+                                Modifier.size(
+                                        ButtonDefaults.iconSizeFor(
+                                            ButtonDefaults.LargeContainerHeight
+                                        )
+                                    )
+                                    .testTag(IconTestTag)
+                                    .semantics(mergeDescendants = true) {},
+                        )
+                        Spacer(
+                            Modifier.size(
+                                ButtonDefaults.iconSpacingFor(ButtonDefaults.LargeContainerHeight)
+                            )
+                        )
+                        Text(
+                            "Button",
+                            modifier =
+                                Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {},
+                            style = ButtonDefaults.textStyleFor(ButtonDefaults.LargeContainerHeight),
+                        )
+                        Spacer(
+                            Modifier.size(
+                                ButtonDefaults.iconSpacingFor(ButtonDefaults.LargeContainerHeight)
+                            )
+                        )
+                        Icon(
+                            Icons.Filled.Favorite,
+                            contentDescription = "Localized description",
+                            modifier =
+                                Modifier.size(
+                                        ButtonDefaults.iconSizeFor(
+                                            ButtonDefaults.LargeContainerHeight
+                                        )
+                                    )
+                                    .testTag("EndIcon")
+                                    .semantics(mergeDescendants = true) {},
+                        )
+                    }
+                }
+            }
+        }
+        val buttonBounds = rule.onNodeWithTag(ButtonTestTag).getUnclippedBoundsInRoot()
+        val startIconBounds = rule.onNodeWithTag(IconTestTag).getUnclippedBoundsInRoot()
+        val textBounds = rule.onNodeWithTag(TextTestTag).getUnclippedBoundsInRoot()
+        val endIconBounds = rule.onNodeWithTag("EndIcon").getUnclippedBoundsInRoot()
+
+        (startIconBounds.left - buttonBounds.left).assertIsEqualTo(28.dp, "button start padding")
+        (textBounds.left - startIconBounds.right).assertIsEqualTo(
+            8.dp,
+            "start icon to label padding",
+        )
+        (endIconBounds.left - textBounds.right).assertIsEqualTo(8.dp, "label to end icon padding")
+        (buttonBounds.right - endIconBounds.right).assertIsEqualTo(28.dp, "button end padding")
+        textBounds.height.assertIsEqualTo(26.dp, "label line height")
+        startIconBounds.height.assertIsEqualTo(24.dp, "start icon height")
+        endIconBounds.height.assertIsEqualTo(24.dp, "end icon height")
+        buttonBounds.height.assertIsEqualTo(54.dp, "height of button.")
     }
 
     @Test
@@ -560,6 +1189,113 @@ class ButtonTest {
             ButtonDefaults.ExtraSmallContainerHeight,
             "height of button",
         )
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun button_small_positioning() {
+        val size = ButtonDefaults.MinHeight
+        val contentPadding = ButtonDefaults.contentPaddingFor(size)
+        var expectedStartPadding: Dp = 0.dp
+        var expectedEndPadding: Dp = 0.dp
+        rule.setMaterialContent(lightColorScheme()) {
+            val layoutDirection = LocalLayoutDirection.current
+            expectedStartPadding = contentPadding.calculateStartPadding(layoutDirection)
+            expectedEndPadding = contentPadding.calculateEndPadding(layoutDirection)
+            Button(
+                onClick = { /* Do something! */ },
+                shapes = ButtonDefaults.shapes(),
+                modifier = Modifier.testTag(ButtonTestTag),
+            ) {
+                Text(
+                    "Button",
+                    modifier = Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {},
+                )
+            }
+        }
+        val buttonBounds = rule.onNodeWithTag(ButtonTestTag).getUnclippedBoundsInRoot()
+        val textBounds = rule.onNodeWithTag(TextTestTag).getUnclippedBoundsInRoot()
+
+        // Assert small sizes
+        (textBounds.left - buttonBounds.left).assertIsEqualTo(
+            expectedStartPadding,
+            "button start padding",
+        )
+        (textBounds.top - buttonBounds.top).assertIsEqualTo(
+            contentPadding.calculateTopPadding(),
+            "button top padding",
+        )
+        (buttonBounds.right - textBounds.right).assertIsEqualTo(
+            expectedEndPadding,
+            "button end padding",
+        )
+        (buttonBounds.bottom - textBounds.bottom).assertIsEqualTo(
+            contentPadding.calculateBottomPadding(),
+            "button bottom padding",
+        )
+        textBounds.height.assertIsEqualTo(20.dp, "label line height")
+        buttonBounds.height.assertIsEqualTo(size, "height of button.")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun button_small_withIcon_positioning() {
+        val size = ButtonDefaults.MinHeight
+        val contentPadding = ButtonDefaults.contentPaddingFor(size, true)
+        var expectedStartPadding: Dp = 0.dp
+        var expectedEndPadding: Dp = 0.dp
+        rule.setMaterialContent(lightColorScheme()) {
+            val layoutDirection = LocalLayoutDirection.current
+            expectedStartPadding = contentPadding.calculateStartPadding(layoutDirection)
+            expectedEndPadding = contentPadding.calculateEndPadding(layoutDirection)
+            Button(
+                onClick = { /* Do something! */ },
+                modifier = Modifier.testTag(ButtonTestTag),
+                contentPadding = contentPadding,
+            ) {
+                Icon(
+                    Icons.Filled.Favorite,
+                    contentDescription = "Localized description",
+                    modifier =
+                        Modifier.size(ButtonDefaults.iconSizeFor(size))
+                            .testTag(IconTestTag)
+                            .semantics(mergeDescendants = true) {},
+                )
+                Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(size)))
+                Text(
+                    "Button",
+                    modifier = Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {},
+                )
+            }
+        }
+        val buttonBounds = rule.onNodeWithTag(ButtonTestTag).getUnclippedBoundsInRoot()
+        val textBounds = rule.onNodeWithTag(TextTestTag).getUnclippedBoundsInRoot()
+        val iconBounds = rule.onNodeWithTag(IconTestTag).getUnclippedBoundsInRoot()
+
+        // Assert small sizes
+        (iconBounds.left - buttonBounds.left).assertIsEqualTo(
+            expectedStartPadding,
+            "button start padding",
+        )
+        (textBounds.top - buttonBounds.top).assertIsEqualTo(
+            contentPadding.calculateTopPadding(),
+            "button top padding",
+        )
+        (buttonBounds.right - textBounds.right).assertIsEqualTo(
+            expectedEndPadding,
+            "button end padding",
+        )
+        (buttonBounds.bottom - textBounds.bottom).assertIsEqualTo(
+            contentPadding.calculateBottomPadding(),
+            "button bottom padding",
+        )
+        (textBounds.left - iconBounds.right).assertIsEqualTo(
+            ButtonDefaults.IconSpacing,
+            "icon to label space",
+        )
+        textBounds.height.assertIsEqualTo(20.dp, "label line height")
+        iconBounds.height.assertIsEqualTo(20.dp, "icon height")
+        buttonBounds.height.assertIsEqualTo(size, "height of button.")
     }
 
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)

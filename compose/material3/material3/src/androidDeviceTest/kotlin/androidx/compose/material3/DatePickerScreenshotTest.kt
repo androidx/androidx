@@ -16,9 +16,7 @@
 
 package androidx.compose.material3
 
-import android.content.res.Configuration
 import android.os.Build
-import android.os.LocaleList
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.wrapContentSize
@@ -26,16 +24,18 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.LayoutDirection
+import androidx.compose.ui.test.Locales
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.then
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.filters.LargeTest
@@ -287,15 +287,7 @@ class DatePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
     @Test
     fun datePicker_customLocale() {
         rule.setMaterialContent(scheme.colorScheme) {
-            val preferredLocales = LocaleList.forLanguageTags("HE")
-            val config = Configuration()
-            config.setLocales(preferredLocales)
-            val newContext = LocalContext.current.createConfigurationContext(config)
-            CompositionLocalProvider(
-                LocalContext provides newContext,
-                LocalConfiguration provides config,
-                LocalLayoutDirection provides LayoutDirection.Rtl,
-            ) {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.Locales(LocaleList("HE"))) {
                 Box(wrap.testTag(wrapperTestTag)) {
                     val monthInUtcMillis =
                         dayInUtcMilliseconds(year = 2021, month = 1, dayOfMonth = 1)
@@ -312,14 +304,11 @@ class DatePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
     @Test
     fun datePicker_arabicLocaleWithArabicNumerals() {
         rule.setMaterialContent(scheme.colorScheme) {
-            val preferredLocales = LocaleList.forLanguageTags("ar-u-nu-arab")
-            val config = Configuration()
-            config.setLocales(preferredLocales)
-            val newContext = LocalContext.current.createConfigurationContext(config)
-            CompositionLocalProvider(
-                LocalContext provides newContext,
-                LocalConfiguration provides config,
-                LocalLayoutDirection provides LayoutDirection.Rtl,
+            val preferredLocales = LocaleList("ar-u-nu-arab")
+
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.Locales(preferredLocales)
+                    .then(DeviceConfigurationOverride.LayoutDirection(LayoutDirection.Rtl))
             ) {
                 Box(wrap.testTag(wrapperTestTag)) {
                     val monthInUtcMillis =
@@ -337,15 +326,8 @@ class DatePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
     @Test
     fun datePicker_arabicLocaleWithLatinNumerals() {
         rule.setMaterialContent(scheme.colorScheme) {
-            val preferredLocales = LocaleList.forLanguageTags("ar-u-nu-latn")
-            val config = Configuration()
-            config.setLocales(preferredLocales)
-            val newContext = LocalContext.current.createConfigurationContext(config)
-            CompositionLocalProvider(
-                LocalContext provides newContext,
-                LocalConfiguration provides config,
-                LocalLayoutDirection provides LayoutDirection.Rtl,
-            ) {
+            val preferredLocales = LocaleList("ar-u-nu-latn")
+            DeviceConfigurationOverride(DeviceConfigurationOverride.Locales(preferredLocales)) {
                 Box(wrap.testTag(wrapperTestTag)) {
                     val monthInUtcMillis =
                         dayInUtcMilliseconds(year = 2021, month = 1, dayOfMonth = 1)

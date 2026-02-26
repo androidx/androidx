@@ -14,11 +14,27 @@
  * limitations under the License.
  */
 
+@file:JvmName("PrecisionPointer")
+
 package androidx.compose.material3
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import kotlin.jvm.JvmName
+
+/**
+ * Whether components should have a denser spacing and sizing due to a precision pointer being
+ * present.
+ *
+ * Note that this will always return `false` if the
+ * [ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled] flag is not enabled.
+ *
+ * @see ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled
+ */
+fun shouldUsePrecisionPointerComponentSizing(): Boolean {
+    return shouldUsePrecisionPointerComponentSizing.value
+}
 
 /**
  * A flag that represents whether a precision pointer is present, and thus whether components should

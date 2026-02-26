@@ -76,7 +76,7 @@ import kotlinx.coroutines.launch
 fun ModalNavigationDrawerSample() {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    val focusRequester = FocusRequester()
+    val focusRequester = remember { FocusRequester() }
     // icons to mimic drawer destinations
     val items =
         listOf(
@@ -207,7 +207,7 @@ fun PermanentNavigationDrawerSample() {
 fun DismissibleNavigationDrawerSample() {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    val focusRequester = FocusRequester()
+    val focusRequester = remember { FocusRequester() }
     // icons to mimic drawer destinations
     val items =
         listOf(

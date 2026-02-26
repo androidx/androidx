@@ -47,8 +47,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
@@ -481,43 +479,4 @@ private fun BottomSheetScaffoldLayout(
             snackbarPlaceables.fastForEach { it.placeRelative(snackbarOffsetX, snackbarOffsetY) }
         }
     }
-}
-
-/**
- * A [Modifier] that scales up the drawing layer on the Y axis in case the [SheetState]'s
- * anchoredDraggableState offset overflows below the min anchor coordinates. The scaling will ensure
- * that there is no visible gap between the sheet and the edge of the screen in case the sheet
- * bounces when it opens due to a more expressive motion setting.
- *
- * A [verticalScaleDown] should be applied to the content of the sheet to maintain the content
- * aspect ratio as the container scales up.
- *
- * @param state a [SheetState]
- * @see verticalScaleDown
- */
-@OptIn(ExperimentalMaterial3Api::class)
-internal fun Modifier.verticalScaleUp(state: SheetState) = graphicsLayer {
-    val offset = state.anchoredDraggableState.offset
-    val anchor = state.anchoredDraggableState.anchors.minPosition()
-    val overflow = if (offset < anchor) anchor - offset else 0f
-    scaleY = if (overflow > 0f) (size.height + overflow) / size.height else 1f
-    transformOrigin = TransformOrigin(pivotFractionX = 0.5f, pivotFractionY = 0f)
-}
-
-/**
- * A [Modifier] that scales down the drawing layer on the Y axis in case the [SheetState]'s
- * anchoredDraggableState offset overflows below the min anchor coordinates. This modifier should be
- * applied to the content inside a component that was scaled up with a [verticalScaleUp] modifier.
- * It will ensure that the content maintains its aspect ratio as the container scales up.
- *
- * @param state a [SheetState]
- * @see verticalScaleUp
- */
-@OptIn(ExperimentalMaterial3Api::class)
-internal fun Modifier.verticalScaleDown(state: SheetState) = graphicsLayer {
-    val offset = state.anchoredDraggableState.offset
-    val anchor = state.anchoredDraggableState.anchors.minPosition()
-    val overflow = if (offset < anchor) anchor - offset else 0f
-    scaleY = if (overflow > 0f) 1 / ((size.height + overflow) / size.height) else 1f
-    transformOrigin = TransformOrigin(pivotFractionX = 0.5f, pivotFractionY = 0f)
 }

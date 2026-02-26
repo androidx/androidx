@@ -20,14 +20,12 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.anchoredDraggable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -65,7 +63,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -75,14 +72,12 @@ import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
@@ -91,9 +86,7 @@ import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.isTraversalGroup
-import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Constraints
@@ -678,11 +671,14 @@ object DefaultModalWideNavigationRailOverride : ModalWideNavigationRailOverride 
             )
         val isCollapsed: Boolean by remember { derivedStateOf { positionProgress.value == 0f } }
         val modalExpanded: Boolean by remember { derivedStateOf { positionProgress.value >= 0.3f } }
-        val animateToDismiss: suspend () -> Unit = {
-            if (shouldHideOnCollapse) {
-                modalState.collapse()
+        val scope = rememberCoroutineScope()
+        val animateToDismiss: () -> Unit = {
+            scope.launch {
+                if (shouldHideOnCollapse) {
+                    modalState.collapse()
+                }
+                state.collapse()
             }
-            state.collapse()
         }
         val modalAnimateToDismiss: suspend () -> Unit = {
             if (shouldHideOnCollapse) {
@@ -765,12 +761,18 @@ object DefaultModalWideNavigationRailOverride : ModalWideNavigationRailOverride 
                             modalExpanded
                         }
 
+                    val alpha by
+                        animateFloatAsState(
+                            targetValue = if (isScrimVisible) 1f else 0f,
+                            // TODO: Load the motionScheme tokens from the component tokens file.
+                            animationSpec = MotionSchemeKeyTokens.DefaultEffects.value(),
+                        )
                     Scrim(
+                        contentDescription = getString(Strings.CloseRail),
+                        onClick = animateToDismiss,
+                        alpha = { alpha },
                         color = colors.modalScrimColor,
-                        onDismissRequest = animateToDismiss,
-                        visible = isScrimVisible,
                     )
-
                     ModalWideNavigationRailContent(
                         expanded = shouldHideOnCollapse || modalExpanded,
                         isStandaloneModal = shouldHideOnCollapse,
@@ -1575,38 +1577,6 @@ private fun GraphicsLayerScope.calculatePredictiveBackScaleY(progress: Float): F
         1f
     } else {
         1f - lerp(0f, min(PredictiveBackMaxScaleYDistance.toPx(), height), progress) / height
-    }
-}
-
-@Composable
-private fun Scrim(color: Color, onDismissRequest: suspend () -> Unit, visible: Boolean) {
-    if (color.isSpecified) {
-        val alpha by
-            animateFloatAsState(
-                targetValue = if (visible) 1f else 0f,
-                // TODO: Load the motionScheme tokens from the component tokens file.
-                animationSpec = MotionSchemeKeyTokens.DefaultEffects.value(),
-            )
-        var dismiss by remember { mutableStateOf(false) }
-        val closeModalRail = getString(Strings.CloseRail)
-        val dismissModalRail =
-            if (visible) {
-                Modifier.pointerInput(onDismissRequest) { detectTapGestures { dismiss = true } }
-                    .semantics(mergeDescendants = true) {
-                        contentDescription = closeModalRail
-                        onClick {
-                            dismiss = true
-                            true
-                        }
-                    }
-            } else {
-                Modifier
-            }
-        Canvas(Modifier.fillMaxSize().then(dismissModalRail)) {
-            drawRect(color = color, alpha = alpha.coerceIn(0f, 1f))
-        }
-
-        LaunchedEffect(dismiss) { if (dismiss) onDismissRequest() }
     }
 }
 

@@ -25,9 +25,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ComposeMaterial3Flags
 import androidx.compose.material3.ElevatedButton
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -118,38 +116,37 @@ fun OutlinedButtonWithAnimatedShapeSample() {
     OutlinedButton(onClick = {}, shapes = ButtonDefaults.shapes()) { Text("Outlined Button") }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
 fun TextButtonSample() {
-    ComposeMaterial3Flags.isTextButtonContentPaddingFixEnabled = true
     TextButton(onClick = { /* Do something! */ }) { Text("Text Button") }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
 fun TextButtonWithAnimatedShapeSample() {
-    ComposeMaterial3Flags.isTextButtonContentPaddingFixEnabled = true
     TextButton(onClick = {}, shapes = ButtonDefaults.shapes()) { Text("Text Button") }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
 fun ButtonWithIconSample() {
     Button(
         onClick = { /* Do something! */ },
-        contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
+        contentPadding =
+            ButtonDefaults.contentPaddingFor(ButtonDefaults.MinHeight, hasStartIcon = true),
     ) {
         Icon(
             Icons.Filled.Favorite,
             contentDescription = "Localized description",
-            modifier = Modifier.size(ButtonDefaults.IconSize),
+            modifier = Modifier.size(ButtonDefaults.iconSizeFor(ButtonDefaults.MinHeight)),
         )
-        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+        Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(ButtonDefaults.MinHeight)))
         Text("Like")
     }
 }
@@ -163,7 +160,7 @@ fun XSmallButtonWithIconSample() {
     Button(
         onClick = { /* Do something! */ },
         modifier = Modifier.heightIn(size),
-        contentPadding = ButtonDefaults.contentPaddingFor(size),
+        contentPadding = ButtonDefaults.contentPaddingFor(size, hasStartIcon = true),
     ) {
         Icon(
             Icons.Filled.Edit,
@@ -184,7 +181,7 @@ fun MediumButtonWithIconSample() {
     Button(
         onClick = { /* Do something! */ },
         modifier = Modifier.heightIn(size),
-        contentPadding = ButtonDefaults.contentPaddingFor(size),
+        contentPadding = ButtonDefaults.contentPaddingFor(size, hasStartIcon = true),
     ) {
         Icon(
             Icons.Filled.Edit,
@@ -205,7 +202,7 @@ fun LargeButtonWithIconSample() {
     Button(
         onClick = { /* Do something! */ },
         modifier = Modifier.heightIn(size),
-        contentPadding = ButtonDefaults.contentPaddingFor(size),
+        contentPadding = ButtonDefaults.contentPaddingFor(size, hasStartIcon = true),
     ) {
         Icon(
             Icons.Filled.Edit,
@@ -226,7 +223,7 @@ fun XLargeButtonWithIconSample() {
     Button(
         onClick = { /* Do something! */ },
         modifier = Modifier.heightIn(size),
-        contentPadding = ButtonDefaults.contentPaddingFor(size),
+        contentPadding = ButtonDefaults.contentPaddingFor(size, hasStartIcon = true),
     ) {
         Icon(
             Icons.Filled.Edit,

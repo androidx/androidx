@@ -365,15 +365,6 @@ private class ModalBottomSheetDialogWrapper(
 
         // Initial setup
         updateParameters(onDismissRequest, properties, contentColor, layoutDirection)
-
-        WindowCompat.getInsetsController(window, window.decorView).apply {
-            // Theme system bars based on content color. Light system bars provide dark icons
-            // and vice-versa. This maintains visible system bars for the bottom sheet window.
-            isAppearanceLightStatusBars =
-                properties.isAppearanceLightStatusBars ?: contentColor.isDark()
-            isAppearanceLightNavigationBars =
-                properties.isAppearanceLightNavigationBars ?: contentColor.isDark()
-        }
     }
 
     private fun setLayoutDirection(layoutDirection: LayoutDirection) {
@@ -425,6 +416,14 @@ private class ModalBottomSheetDialogWrapper(
                 @Suppress("DEPRECATION") WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
             }
         )
+        WindowCompat.getInsetsController(window!!, window!!.decorView).apply {
+            // Theme system bars based on content color. Light system bars provide dark icons
+            // and vice versa. This maintains visible system bars for the bottom sheet window.
+            isAppearanceLightStatusBars =
+                properties.isAppearanceLightStatusBars ?: contentColor.isDark()
+            isAppearanceLightNavigationBars =
+                properties.isAppearanceLightNavigationBars ?: contentColor.isDark()
+        }
     }
 
     fun disposeComposition() {

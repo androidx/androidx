@@ -31,6 +31,7 @@ import androidx.compose.testutils.assertContainsColor
 import androidx.compose.testutils.assertDoesNotContainColor
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertAll
 import androidx.compose.ui.test.assertIsDisplayed
@@ -72,9 +73,10 @@ class DateRangePickerTest {
 
     @Test
     fun state_initWithoutRemember() {
+        val locale = Locale("en", "US")
         val dateRangePickerState =
             DateRangePickerState(
-                locale = Locale.getDefault(),
+                locale = locale,
                 initialSelectedStartDateMillis = 1649721600000L, // 04/12/2022
                 initialSelectedEndDateMillis = 1649721600000L + MillisecondsIn24Hours, // 04/13/2022
             )
@@ -83,12 +85,9 @@ class DateRangePickerTest {
             assertThat(selectedEndDateMillis).isEqualTo(1649721600000L + MillisecondsIn24Hours)
             assertThat(displayedMonthMillis)
                 .isEqualTo(
-                    // Using the JVM Locale.getDefault() for testing purposes only.
-                    createCalendarModel(Locale.getDefault())
-                        .getMonth(year = 2022, month = 4)
-                        .startUtcTimeMillis
+                    createCalendarModel(locale).getMonth(year = 2022, month = 4).startUtcTimeMillis
                 )
-            assertThat(locale).isEqualTo(Locale.getDefault())
+            assertThat(locale).isEqualTo(locale)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 assertThat(getSelectedStartDate()).isEqualTo(LocalDate.of(2022, 4, 12))
@@ -101,7 +100,9 @@ class DateRangePickerTest {
     @Test
     fun state_initWithSelectedDates() {
         lateinit var dateRangePickerState: DateRangePickerState
+        lateinit var locale: Locale
         rule.setMaterialContent(lightColorScheme()) {
+            locale = LocalLocale.current.platformLocale
             // 04/12/2022
             dateRangePickerState =
                 rememberDateRangePickerState(
@@ -116,10 +117,7 @@ class DateRangePickerTest {
             assertThat(selectedEndDateMillis).isEqualTo(1649721600000L + MillisecondsIn24Hours)
             assertThat(displayedMonthMillis)
                 .isEqualTo(
-                    // Using the JVM Locale.getDefault() for testing purposes only.
-                    createCalendarModel(Locale.getDefault())
-                        .getMonth(year = 2022, month = 4)
-                        .startUtcTimeMillis
+                    createCalendarModel(locale).getMonth(year = 2022, month = 4).startUtcTimeMillis
                 )
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 assertThat(getSelectedStartDate()).isEqualTo(LocalDate.of(2022, 4, 12))
@@ -131,8 +129,10 @@ class DateRangePickerTest {
 
     @Test
     fun state_initWithSelectedDates_roundingToUtcMidnight() {
+        lateinit var locale: Locale
         lateinit var dateRangePickerState: DateRangePickerState
         rule.setMaterialContent(lightColorScheme()) {
+            locale = LocalLocale.current.platformLocale
             dateRangePickerState =
                 rememberDateRangePickerState(
                     // 04/12/2022
@@ -148,9 +148,7 @@ class DateRangePickerTest {
             assertThat(selectedEndDateMillis).isEqualTo(1649721600000L + MillisecondsIn24Hours)
             assertThat(displayedMonthMillis)
                 .isEqualTo(
-                    createCalendarModel(Locale.getDefault())
-                        .getMonth(year = 2022, month = 4)
-                        .startUtcTimeMillis
+                    createCalendarModel(locale).getMonth(year = 2022, month = 4).startUtcTimeMillis
                 )
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 assertThat(getSelectedStartDate()).isEqualTo(LocalDate.of(2022, 4, 12))
@@ -706,9 +704,12 @@ class DateRangePickerTest {
     fun state_restoresDatePickerState() {
         val restorationTester = StateRestorationTester(rule)
         var dateRangePickerState: DateRangePickerState? = null
-        restorationTester.setContent { dateRangePickerState = rememberDateRangePickerState() }
-        // Using the JVM Locale.getDefault() for testing purposes only.
-        val calendarModel = createCalendarModel(Locale.getDefault())
+        lateinit var locale: Locale
+        restorationTester.setContent {
+            locale = LocalLocale.current.platformLocale
+            dateRangePickerState = rememberDateRangePickerState()
+        }
+        val calendarModel = createCalendarModel(locale)
         // 04/12/2022
         val startDate = calendarModel.getCanonicalDate(1649721600000L)
         // 04/13/2022
@@ -860,19 +861,20 @@ class DateRangePickerTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun state_initWithJavaTimeApi_withoutRemember() {
+        val locale = Locale("en", "US")
         val startDateInUtcMillis = dayInUtcMilliseconds(year = 2022, month = 4, dayOfMonth = 12)
         val endDateInUtcMillis = dayInUtcMilliseconds(year = 2022, month = 6, dayOfMonth = 20)
         val monthInUtcMillis = dayInUtcMilliseconds(year = 2024, month = 1, dayOfMonth = 1)
         val dateRangePickerState =
             DateRangePickerState(
-                locale = Locale.getDefault(),
+                locale = locale,
                 initialSelectedStartDateMillis = startDateInUtcMillis,
                 initialSelectedEndDateMillis = endDateInUtcMillis,
                 initialDisplayedMonthMillis = monthInUtcMillis,
             )
         val dateRangePickerStateWithJavaTimeApi =
             DateRangePickerState(
-                locale = Locale.getDefault(),
+                locale = locale,
                 initialSelectedStartDate = LocalDate.of(2022, 4, 12),
                 initialSelectedEndDate = LocalDate.of(2022, 6, 20),
                 initialDisplayedMonth = YearMonth.of(2024, 1),
@@ -959,7 +961,7 @@ class DateRangePickerTest {
     fun yearRange_minYearAfterCurrentYear() {
         var currentYear = 0
         rule.setMaterialContent(lightColorScheme()) {
-            currentYear = createCalendarModel(Locale.getDefault()).today.year
+            currentYear = createCalendarModel(LocalLocale.current.platformLocale).today.year
             DateRangePicker(
                 state =
                     rememberDateRangePickerState(

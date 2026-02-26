@@ -29,7 +29,6 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 class MotionSchemeTest {
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
@@ -62,16 +61,17 @@ class MotionSchemeTest {
         }
     }
 
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun readLocalMotionScheme() {
         lateinit var mainMotionScheme: MotionScheme
         lateinit var nestedMotionScheme: MotionScheme
         rule.setContent {
             MaterialTheme {
-                mainMotionScheme = MaterialTheme.LocalMotionScheme.current
+                mainMotionScheme = MaterialTheme.motionScheme
 
                 MaterialTheme(motionScheme = MotionScheme.expressive()) {
-                    nestedMotionScheme = MaterialTheme.LocalMotionScheme.current
+                    nestedMotionScheme = MaterialTheme.motionScheme
                 }
             }
         }

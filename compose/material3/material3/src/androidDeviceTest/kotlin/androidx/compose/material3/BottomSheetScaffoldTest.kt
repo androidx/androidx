@@ -66,8 +66,8 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.AccessibilityAction
 import androidx.compose.ui.semantics.SemanticsActions
@@ -660,8 +660,7 @@ class BottomSheetScaffoldTest {
             latch.await(1500, TimeUnit.MILLISECONDS)
             var screenWidthPx by mutableStateOf(0)
             rule.setContent {
-                val context = LocalContext.current
-                screenWidthPx = context.resources.displayMetrics.widthPixels
+                screenWidthPx = LocalResources.current.displayMetrics.widthPixels
                 BottomSheetScaffold(
                     sheetMaxWidth = Dp.Unspecified,
                     sheetContent = { Box(Modifier.testTag(sheetTag).fillMaxHeight(0.4f)) },
@@ -821,9 +820,8 @@ class BottomSheetScaffoldTest {
         var screenWidth by mutableStateOf(0.dp)
         rule.setContent {
             sheetMaxWidth = remember { mutableStateOf(0.dp) }
-            val context = LocalContext.current
             val density = LocalDensity.current
-            screenWidth = with(density) { context.resources.displayMetrics.widthPixels.toDp() }
+            screenWidth = with(density) { LocalResources.current.displayMetrics.widthPixels.toDp() }
             BottomSheetScaffold(
                 sheetContent = { Box(Modifier.fillMaxSize().testTag(sheetTag)) },
                 sheetPeekHeight = peekHeight,
