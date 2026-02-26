@@ -44,9 +44,8 @@ internal const val SAVED_STATE_KEY = "androidx.lifecycle.internal.SavedStateHand
  * with [SavedStateHandle] is requested.
  */
 @MainThread
-public fun <T> T.enableSavedStateHandles() where
-T : SavedStateRegistryOwner,
-T : ViewModelStoreOwner {
+public fun <T> T.enableSavedStateHandles()
+    where T : SavedStateRegistryOwner, T : ViewModelStoreOwner {
     val currentState = lifecycle.currentState
     require(currentState == Lifecycle.State.INITIALIZED || currentState == Lifecycle.State.CREATED)
 

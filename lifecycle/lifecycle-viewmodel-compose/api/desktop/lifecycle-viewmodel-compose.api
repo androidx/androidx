@@ -5,6 +5,10 @@ public final class androidx/lifecycle/viewmodel/compose/LocalViewModelStoreOwner
 	public final fun provides (Landroidx/lifecycle/ViewModelStoreOwner;)Landroidx/compose/runtime/ProvidedValue;
 }
 
+public final class androidx/lifecycle/viewmodel/compose/LocalViewModelStoreOwner_desktopKt {
+	public static final fun getViewModelStoreOwnerHostDefaultKey ()Landroidx/compose/runtime/HostDefaultKey;
+}
+
 public abstract interface annotation class androidx/lifecycle/viewmodel/compose/SavedStateHandleSaveableApi : java/lang/annotation/Annotation {
 }
 

@@ -1,6 +1,6 @@
 // Baseline format: 1.0
 TopLevelBuilder: androidx.lifecycle.viewmodel.InitializerViewModelFactoryBuilder:
-    Builder should be defined as inner class: androidx.lifecycle.viewmodel.InitializerViewModelFactoryBuilder
+    Builder should be defined as nested class: androidx.lifecycle.viewmodel.InitializerViewModelFactoryBuilder
 
 
 TypeParameterName: androidx.lifecycle.ViewModelLazy:

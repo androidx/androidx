@@ -71,7 +71,7 @@ class WhenMethodsTest(val config: TestConfig) {
 
         suspend fun suspendingFun() {
         }
-    """
+        """
             .trimIndent()
 
     private fun template(body: String) = TEMPLATE.format(body)
