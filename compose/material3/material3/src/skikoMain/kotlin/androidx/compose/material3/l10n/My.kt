@@ -76,7 +76,7 @@ internal fun Translations.my() = mapOf(
     Strings.FloatingToolbarCollapse to "ကိရိယာဘား ချုံ့ရန်",
     Strings.FloatingToolbarExpand to "ကိရိယာဘား ချဲ့ရန်",
     Strings.FloatingToolbarMoreOptions to "နောက်ထပ် ရွေးစရာများ",
-    Strings.TooltipPaneDescription to "အကြံပြုချက်ပြ ပေါ့အပ် ဝင်းဒိုး",
+    Strings.TooltipPaneDescription to "အကြံပြုချက်အကွက်",
     Strings.TooltipLongPressLabel to "အကြံပြုချက်ပြ ပေါ့အပ်ဝင်းဒိုး ပြရန်",
     Strings.TimePickerPM to "PM",
     Strings.TimePickerAM to "AM",
