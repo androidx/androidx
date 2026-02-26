@@ -566,6 +566,16 @@ class HardwareKeyboardTest {
         }
     }
 
+    @Test
+    fun textField_ctrlAltA() {
+        keysSequenceTest(initText = "text") {
+            Key.A.downAndUp(META_CTRL_ON or META_ALT_ON)
+            // ctrl-alt-A shouldn't do anything
+            expectedSelection(TextRange.Zero)
+            expectedText("text")
+        }
+    }
+
     private inner class SequenceScope(
         val state: MutableState<TextFieldValue>,
         val nodeGetter: () -> SemanticsNodeInteraction,

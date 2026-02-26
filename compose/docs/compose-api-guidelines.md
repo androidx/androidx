@@ -476,15 +476,131 @@ fun Modifier.myModifier(
 ): Modifier = then(MyModifierImpl(param1, ... paramN))
 ```
 
-### Layout-scoped modifiers
+### Parent data and layout-scoped Modifiers
 
 Android's View system has the concept of LayoutParams - a type of object stored opaquely with a ViewGroup's child view that provides layout instructions specific to the ViewGroup that will measure and position it.
 
-Compose UI modifiers afford a related pattern using `ParentDataModifier` and receiver scope objects for layout content functions:
+Compose UI modifiers afford a related pattern with parent data (using `ParentDataModifierNode`) and receiver scope objects for layout composable functions. A `ParentDataModifierNode` is a tool for an integrator to provide arguments to a parent layout for each child.
 
-#### Example
+This pattern is useful when a parent layout needs to receive child-specific information to configure its behavior around that child. This allows the parent's API to remain simple and decoupled from the specific children placed inside it. Instead of passing a complex data structure to the parent describing all children, the integrator can provide configuration for each child individually at the call site where the child is defined. For example, `Row` uses `ParentDataModifierNode` for the `weight` modifier, allowing each child to specify how much space it should occupy. This avoids having to pass a list of weights to the `Row` itself.
+
+When using `ParentDataModifierNode`s, follow these guidelines:
+
+**Parent data modifiers MUST be defined on a layout scope**
+
+Parent data modifiers provide a way for a child to give data to a parent layout. To guide users to only provide parent data modifiers to direct children of a matching layout, and to make it clear where the data is being consumed, these modifiers should be defined on a scope object that is only available within the parent's content lambda. They should not be defined as top-level functions that can be used anywhere. This improves API clarity and prevents misuse.
+
+#### Do
 
 ```kotlin
+// The weight modifier is scoped to a specific interface that is only available
+// in the content lambda of the parent.
+@LayoutScopeMarker
+@Stable
+interface MyRowScope {
+    fun Modifier.weight(weight: Float): Modifier
+}
+
+@Composable
+fun MyRow(content: @Composable MyRowScope.() -> Unit) {
+    // ...
+}
+
+// The weight modifier can only be used inside MyRowScope.
+MyRow {
+    Text("Hello", Modifier.weight(1f)) // weight is available on the receiver scope
+}
+
+// This will not compile, as MyRowScope is not present.
+Box {
+    Text("Hello", Modifier.weight(1f)) // COMPILE ERROR
+}
+```
+
+#### Don't
+
+```kotlin
+// A top-level weight modifier can be used anywhere, creating ambiguity, as it is
+// not clear which layout it provides data for.
+fun Modifier.weight(weight: Float): Modifier {
+    // ...
+}
+
+// It's unclear what this weight modifier does in this context, as Box does not
+// read any weight parent data.
+Box(Modifier.weight(1f)) {
+    // ...
+}
+```
+
+**Parent data modifiers MUST be explicitly provided by a user**
+
+When using parent data there are three entities:
+
+1.  **The parent**: A layout that arranges other components (e.g., `Row`, `Column`).
+2.  **The child**: A component placed within a parent (e.g., `Text`, `Image`).
+3.  **The integration code / user code**: The end-user code that places child components into a parent layout.
+
+The `ParentDataModifierNode` is a tool for the user code to provide child-specific information to a parent layout. It MUST NOT be used by the child author as an implementation detail to implicitly communicate with a parent that may or may not be present. All parent data must be explicitly provided by the user via a modifier.
+
+#### Don't
+
+```kotlin
+@Composable
+fun ButtonGroup(content: @Composable () -> Unit) {
+    // reads parent data to correctly handle child buttons
+}
+
+// This component tries to implicitly communicate with a parent by setting
+// parent data as an implementation detail to allow for 'automatic' configuration when it is used with the parent. This creates a hidden contract that is not explicit in the API.
+@Composable
+fun BadButton(modifier: Modifier = Modifier) {
+    val buttonGroupId = // ...
+    Text(
+        "Bad button",
+        modifier.then(
+            object : ParentDataModifierNode {
+                override fun Density.modifyParentData(parentData: Any?) = buttonGroupId
+            }
+        )
+    )
+}
+
+// The user may not be aware of this implicit communication, and the
+// BadButton will behave unexpectedly when not in a ButtonGroup.
+Column {
+    BadButton()
+}
+```
+
+#### Do
+
+```kotlin
+// The correct way to do this is for the user to explicitly provide
+// the parent data via a modifier exposed by the parent's scope.
+ButtonGroup {
+    GoodButton(modifier = Modifier.buttonGroupId(1))
+}
+```
+
+**Parent data MUST flow from the child to the parent**
+
+Parent data is a mechanism for the author of the integration code to provide information from a child, up to a parent. This data flow should be one-directional, from the child to the parent. This data should not flow back down to modify the internals of the child, and instead should be used in place to configure the behavior of the parent. The provided data must not be modified by the child or the parent, it is owned by the user.
+
+**Provided parent data MUST be stateless**
+
+The data passed in a `ParentDataModifierNode` should be raw, stateless configuration for a parent layout. Parent data should avoid internal mutable state. A good mental model is that the data should be serializable.
+
+Parent data should be used to allow a child to provide configuration information used by a parent. Avoid using parent data as a generic communication channel to allow implicitly passing state from a child to a parent. Instead, prefer hoisting state and explicitly providing it to both the parent and child, to allow for better readability, testability, and ownership.
+
+Changing parent data should be driven through recomposition, by creating a new modifier with new data, not through side channels (such as internal state).
+
+#### Do
+
+```kotlin
+// The parent data is a simple, immutable float.
+// The parent (WeightedRow) uses this to decide how to layout this child.
+@LayoutScopeMarker
 @Stable
 interface WeightScope {
     fun Modifier.weight(weight: Float): Modifier
@@ -504,7 +620,45 @@ WeightedRow {
 }
 ```
 
-**Jetpack Compose framework development and library development** SHOULD use scoped modifier factory functions to provide parent data modifiers specific to a parent layout composable.
+#### Don't
+
+```kotlin
+// Parent data should not be used to communicate child state up to the parent.
+// This creates an implicit, hard-to-trace data flow.
+class ChildState(val isExpanded: MutableState<Boolean>)
+
+fun Modifier.childState(state: ChildState): Modifier
+
+// This child component tries to share its internal `isExpanded` state with
+// its parent through parent data.
+@Composable
+fun ExpandingChild() {
+    val isExpanded = remember { mutableStateOf(false) }
+    Box(
+        Modifier
+            .childState(ChildState(isExpanded))
+            .clickable { isExpanded.value = !isExpanded.value }
+    ) {
+        // ...
+    }
+}
+
+// Now there is an implicit contract which is hard to follow and easy to break.
+// State should be hoisted instead, and provided explicitly to the parent.
+@Composable
+fun ParentOfExpandingChild(modifier: Modifier = Modifier) {
+    Layout(
+        content = { ExpandingChild() },
+        modifier = modifier
+    ) { measurables, constraints ->
+        // ...
+        val childState = measurables.first().parentData as? ChildState
+        val isExpanded = childState?.isExpanded?.value ?: false
+        // ... layout based on isExpanded
+    }
+}
+```
+
 
 # Compose API design patterns
 
@@ -603,7 +757,7 @@ Custom implementations or even external ownership of these policy objects are of
 ### Example:
 
 ```kotlin
-fun VerticalScrollerState(): VerticalScrollerState = 
+fun VerticalScrollerState(): VerticalScrollerState =
     VerticalScrollerStateImpl()
 
 private class VerticalScrollerStateImpl(

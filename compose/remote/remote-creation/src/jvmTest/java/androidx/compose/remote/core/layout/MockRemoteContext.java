@@ -372,11 +372,6 @@ public class MockRemoteContext extends RemoteContext {
         return stringBuilder.toString();
     }
 
-    @Override
-    public float getAnimationTime() {
-        return 1f;
-    }
-
     public void setHideString(boolean h) {
         mHideString = h;
     }
@@ -649,6 +644,7 @@ public class MockRemoteContext extends RemoteContext {
 
     @Override
     public void overrideFloat(int id, float value) {
+        floatCache.put(id, value);
         stringBuilder.append("overrideFloat(").append(id).append(")").append(value).append("\n");
     }
 
@@ -681,6 +677,7 @@ public class MockRemoteContext extends RemoteContext {
 
     @Override
     public void overrideText(int id, int valueId) {
+        stringCache.put(id, getText(valueId));
         stringBuilder.append("overrideText(").append(id).append(")").append(valueId).append("\n");
     }
 
@@ -734,17 +731,8 @@ public class MockRemoteContext extends RemoteContext {
 
     @Override
     public int updateOps() {
-        if (true) { // FIXME -- we don't update ops here in the real player
-            return 0;
-        }
-        for (int c = 0; c < listenerCount; c++) {
-            ArrayList<Object> list = mVariableSupport[listeners[c]];
-            if (list != null) {
-                for (Object v : list) {
-                    VariableSupport vs = (VariableSupport) v;
-                    vs.updateVariables(this);
-                }
-            }
+        if (mDocument != null) {
+            mDocument.mTimeVariables.updateTime(this);
         }
         return 0; // TODO map out when to update
     }

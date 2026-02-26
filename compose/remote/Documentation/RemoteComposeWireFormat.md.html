@@ -56,13 +56,16 @@
             }
 }
             </style>
+            <script type="module">
+                import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+                mermaid.initialize({ startOnLoad: true });
+            </script>
         
 **RemoteCompose Wire Format v1.1.0**
-    January 29, 2026
+    February 09, 2026
 
 
 *Current number of operations: 141 (0 not fully documented)*
-
 
 !!! ERROR
     This is work in progress and subject to modifications.
@@ -166,8 +169,6 @@ Such layoutable/resizable components are structured slightly differently:
 In the example above, you can see that RowLayout is comprised of two sections -- a list of Modifier operations followed by a LayoutComponentContent component,
 containing the components to be laid out.
 
-
-
 # Layout overview
 
 ## Overview
@@ -177,108 +178,79 @@ LayoutComponents are able to be laid out as well as resized, while Components ca
 
 The following diagram shows the runtime class hiearchy:
 
-****************************************************************************************************
-*                                        .---------.
-*                                       | Component |
-*                                        '----+----'                                                    
-*                                             |            .-------------------.
-*                                             |'----------| RootLayoutComponent |
-*                                             |            '-------------------'
-*                                     .-------+-------.   
-*                                    | LayoutComponent |
-*                                     '-------+-------'                                                   
-*                                             |
-*                                      .------+------.
-*                                     | LayoutManager |
-*                                      '------+------'                           
-*                                             |
-*       .--------------+---------------+------+------------------.
-*      |               |               |                          |
-*  .---+-----.   .-----+------.   .----+----.                     |    .--------------.  
-* | BoxLayout | | ColumnLayout | | RowLayout |                    |'--| ImageComponent |
-*  '---------'   '-----+------'   '----+----'                     |    '--------------'                                                    
-*                      |               |                          |    .------------.
-*       .--------------+--------.   .--+-----------------.        |'--| CanvasLayout |
-*      | CollapsibleColumnLayout | | CollapsibleRowLayout |       |    '------------'
-*       '-----------------------'   '--------------------'        |    .-----------.
-*                                                                  '--| StateLayout |
-*                                                                      '-----------'
-****************************************************************************************************
+<pre>
+<div class="mermaid">
+---
+config:
+  class:
+    hideEmptyMembersBox: true
+---
+classDiagram
+    Component <|-- RootLayoutComponent
+    Component <|-- LayoutComponent
+    LayoutComponent <|-- LayoutManager
+    LayoutManager <|-- BoxLayout
+    LayoutManager <|-- ColumnLayout
+    LayoutManager <|-- RowLayout
+    LayoutManager <|-- FitBoxLayout
+    LayoutManager <|-- CoreText
+    BoxLayout <|-- CanvasLayout
+    ColumnLayout <|-- CollapsibleColumnLayout
+    RowLayout <|-- CollapsibleRowLayout
+    RowLayout <|-- FlowLayout
+    LayoutManager <|-- ImageLayout
+    LayoutManager <|-- StateLayout
+</div>
+</pre>
 
-The following runtime classes directly map to layout operations in the wire format:
-
-
-           | Layout Operation | 
-           |----|
-           | **Component** |
-           | **RootLayoutComponent** |
-           | **BoxLayout** |
-           | **ColumnLayout** |
-           | **RowLayout** |
-           | *CollapsibleColumnLayout* (1) |
-           | *CollapsibleRowLayout* (1) |
-           | *ImageComponent* (1) |
-           | *CanvasLayout* (1) |
-           | *StateLayout* (1) |
-           | *LazyRow* (1) |
-           | *LazyColumn* (1) |
-
-(1) Work in Progress
 ## Components
 
 **Component** is the base class representing Origami Components.
                     
 We create components when loading the document, out of the **ComponentStart**
 and **ComponentEnd** operations in the original operations stream, grouping a list of operations:
-                   
-****************************************************************************************************
-*  .--------------.                 .---------.   
-* | ComponentStart |               | Component |
-*  '--------------'                 '--+------'
-*    .---------.                       |   
-*   | Operation |                      |'--> Operation  
-*    '---------'         --->          |
-*        ...                           |'--> ....
-*    .---------.                       |
-*   | Operation |                       '--> Operation
-*    '---------'
-*  .------------.
-* | ComponentEnd |
-*  '------------'
-****************************************************************************************************
+
+<pre>
+<div class="mermaid">
+graph LR
+    operations["`ComponentStart
+    Operation 1
+    ...
+    Operation n
+    ComponentEnd 3`"]
+    operations --> Result
+
+    Result
+    subgraph Result [Runtime Component]
+        Component --> OP1[Operation 1]
+        Component --> OP2[...]
+        Component --> OP3[Operation n]
+    end
+</div>
+</pre>
 
 ## LayoutComponents
 
 **LayoutComponent** represents layoutable components, which can be measured and may layout sub-components.
 It keeps track of a list of modifiers as well as a list of child components.           
 
-****************************************************************************************************
-*  .---------------.
-* | LayoutComponent |
-*  '-+-------------'                                                   
-*    |      .---------.
-*    |'--> | Modifiers | 
-*    |      '---------'                      
-*    |         |
-*    |         |'--> modifier 1                                                
-*    |         |
-*    |         |'--> modifier 2                                                
-*    |         |
-*    |         |'--> ...                                                
-*    |         |
-*    |          '--> modifier n                                                
-*    |      .--------.
-*     '--> | children | 
-*           '--------'                      
-*             |
-*             |'--> component 1                                                
-*             |
-*             |'--> component 2                                                
-*             |
-*             |'--> ...                                                
-*             |
-*              '--> component n                                                
-****************************************************************************************************
+<pre>
+<div class="mermaid">
+graph TD
+    LC[LayoutComponent]
+    LC --> Mods[Modifiers]
+    Mods --> M1[modifier 1]
+    Mods --> M2[modifier 2]
+    Mods --> M3[...]
+    Mods --> MN[modifier n]
+    
+    LC --> Children[children]
+    Children --> C1[component 1]
+    Children --> C2[component 2]
+    Children --> C3[...]
+    Children --> CN[component n]
+</div>
+</pre>
 
 ### Modifiers
 
@@ -286,20 +258,20 @@ Modifiers are a list of operations that change the way a component can be displa
 
 We have several modifiers that are related to the layout itself:
 
-Modifiers                | Role
--------------------------|-------
-WidthModifierOperation   | width as fixed dimension
-HeightModifierOperation  | height as fixed dimension
-PaddingModifierOperation | padding information
+| Modifiers                | Role                      |
+|--------------------------|---------------------------|
+| WidthModifierOperation   | width as fixed dimension  |
+| HeightModifierOperation  | height as fixed dimension |
+| PaddingModifierOperation | padding information       |
 
 As well as modifiers that are able to change the way the component paint itself:
 
-Modifiers    | Role
--------------|-------
-BackgroundModifierOperation | Draw a plain color background
-BorderModifierOperation | Draw a border around the component
-ClipRectModifierOperation | Add a clipping rect
-RoundedClipRectModifierOperation | Add a clipping round rect
+| Modifiers                        | Role                               |
+|----------------------------------|------------------------------------|
+| BackgroundModifierOperation      | Draw a plain color background      |
+| BorderModifierOperation          | Draw a border around the component |
+| ClipRectModifierOperation        | Add a clipping rect                |
+| RoundedClipRectModifierOperation | Add a clipping round rect          |
 
 Modifiers are being applied in order, with Size and Padding impacting the draw-related
 modifiers. Modifiers are doing a simple version of the layout pass (i.e. we don't ask modifiers
@@ -308,12 +280,14 @@ to measure and then layout them, we only layout them).
 Padding modifiers can be used before or after the content modifiers, which means that we do not
 need a "margin" concept as in other UI systems. Instead we can set up something like:
 
-
-****************************************************************************************************
-*  .---------.      .----------.      .---------.        .---------.
-* | Padding 4 |--> | Background |--> | Padding 8 | -->  / Content /
-*  '---------'      '----------'      '---------'      '---------'
-****************************************************************************************************
+<pre>
+<div class="mermaid">
+graph LR
+    P1[Padding 4] --> BG[Background]
+    BG --> P2[Padding 8]
+    P2 --> Content[/Content/]
+</div>
+</pre>
 
 Which would result in a "margin" of 4 followed by painting the background, with a "padding" of 8
 for the actual content.
@@ -324,11 +298,13 @@ If a component is set to compute its own size (WRAP), Padding will be added to t
 
 But to note, if a component uses a modifier for indicating a fixed dimension, such as:
 
-****************************************************************************************************
-*  .---------.      .----------.      .---------.
-* | Padding 4 |--> | Size 10x10 |--> | Padding 2 |
-*  '---------'      '----------'      '---------'
-****************************************************************************************************
+<pre>
+<div class="mermaid">
+graph LR
+    P1[Padding 4] --> S[Size 10x10]
+    S --> P2[Padding 2]
+</div>
+</pre>
 
 The computed size of the component for its parent layout manager will be 14x14.
 
@@ -338,11 +314,14 @@ The computed size of the component for its parent layout manager will be 14x14.
 Borders are always applied on top of the content, so putting the border before a background or after would result in the same visuals:
 
 
-****************************************************************************************************
-*  .------.      .----------.          .----------.      .------.
-* | Border |--> | Background |   ==   | Background |--> | Border |
-*  '------'      '----------'          '----------'      '------'
-****************************************************************************************************
+<pre>
+<div class="mermaid">
+graph LR
+    B1[Border] --> BG1[Background]
+    BG1 == "visual equivalent" ==> BG2[Background]
+    BG2 --> B2[Border]
+</div>
+</pre>
 
 Borders are purely a visual decoration, they do not impact sizing/padding, but they are impacted
 by them, so have to be evaluated in order.
@@ -353,82 +332,60 @@ by them, so have to be evaluated in order.
 
 The actual layout managers are implemented as subclass of LayoutManager:
 
-Layout Manager          | Role
-------------------------|-----
-BoxLayout               | Layout elements in the same place
-RowLayout               | Layout elements in a row
-ColumnLayout            | Layout elements in a column
-CollapsibleRowLayout    | as RowLayout, but skip elements that don't fit
-CollapsibleColumnLayout | as ColumnLayout, but skip elements that don't fit
-FitBoxLayout		| pick the first child that fits
-FlowLayout              | as RowLayout, but wrap elements if they don't fit
+| Layout Manager          | Role                                              |
+|-------------------------|---------------------------------------------------|
+| BoxLayout               | Layout elements in the same place                 |
+| RowLayout               | Layout elements in a row                          |
+| ColumnLayout            | Layout elements in a column                       |
+| CollapsibleRowLayout    | as RowLayout, but skip elements that don't fit    |
+| CollapsibleColumnLayout | as ColumnLayout, but skip elements that don't fit |
+| FitBoxLayout		          | pick the first child that fits                    |
+| FlowLayout              | as RowLayout, but wrap elements if they don't fit |
 
 ### Scroll areas
 
 Scroll areas are handled as subclasses of LayoutContent:
 
-****************************************************************************************************
-*  .-----------------.
-* | ScrollContentHost |
-*  '--+--------------'
-*     |      .-------------.
-*     |'--> | ScrollContent |
-*     |      '-------------'
-*     |      .-------------.
-*      '--> | LayoutContent |
-*            '-------------'
-****************************************************************************************************
+<pre>
+<div class="mermaid">
+graph TD
+    SCH[ScrollContentHost]
+    SCH --> SC[ScrollContent]
+    SCH --> LC[LayoutContent]
+</div>
+</pre>
 
 ## Layout / Measure cycle
 
 For a runtime document, we end up with the following structure for the layout operations:
 
-****************************************************************************************************
-*  .-------------------.
-* | RootLayoutComponent |
-*  '--+----------------'
-*     |      .-------------.
-*      '--> | LayoutManager |
-*            '--+----------'
-*               |      .-------------.
-*               |'--> | LayoutManager |
-*               |      '--+----------'
-*               |         |      .---------.
-*               |         |'--> | Component |
-*               |         |      '---------'
-*               |         |      .---------.
-*               |          '--> | Component |
-*               |                '---------'
-*               |      .---------.
-*                '--> | Component |
-*                      '---------'
-****************************************************************************************************
+<pre>
+<div class="mermaid">
+graph TD
+    RLC[RootLayoutComponent]
+    RLC --> LM1[LayoutManager]
+    LM1 --> LM2[LayoutManager]
+    LM2 --> C1[Component]
+    LM2 --> C2[Component]
+    LM1 --> C3[Component]
+</div>
+</pre>
 
 The general layout / measure cycle works as follow:
  - for each LayoutComponent, measure their children recursively
  - capture that measure in a MeasurePass object
  - then recursively layout the components by using the MeasurePass information.
 
-****************************************************************************************************
-*     .-------.
-*    |         |<--.
-*    | Measure |    | ideally single pass, using intrinsic sizes
-*    |         +---'  (multi-measure is discouraged, but allowed)
-*     '---+---'
-*         | 
-*         v
-*   .-----------.
-*  | MeasurePass |  contains position+size of all the components
-*   '-----+-----'
-*         |
-*         v
-*     .------.
-*    | Layout |<----.   we can animate upon receiving a new layout(measurePass) request
-*     '---+--'       |
-*         |      .---+---.
-*          '--> | Animate | 
-*                '-------'
-****************************************************************************************************
+<pre>
+<div class="mermaid">
+graph TD
+    M[Measure]
+    M -- "ideally single pass, using intrinsic sizes (multi-measure is discouraged, but allowed)" --> M
+    M --> MP[MeasurePass]
+    MP -- "contains position+size of all the components" --> L[Layout]
+    L -- "we can animate upon receiving a new layout(measurePass) request " --> A[Animate]
+</div>
+</pre>
 
 1. RootLayoutComponent.layout(width, height) will measure all its children (Components), and gather
    the result of the measure in a MeasurePass object. The MeasurePass is then used to layout
@@ -483,6 +440,112 @@ Components can do that simply by calling `invalidateMeasure()` -- this will mark
 as needing both a repaint and a remeasure, and will walk the tree up until the root component,
 invalidating them as the tree is traversed. The root component then uses this to trigger a measure pass.
 
+# Scrolling Architecture in RemoteCompose
+
+RemoteCompose provides a physics-based, hierarchical scrolling system that supports orthogonal nesting (e.g., horizontal rows inside vertical columns) and dynamic state synchronization.
+
+## Core Concepts
+
+### 1. Coordinate Spaces
+To handle deep nesting and scrolling reliably, the interaction engine uses three distinct coordinate spaces:
+
+| Space | Reference | Usage |
+| :--- | :--- | :--- |
+| **Root-Relative** | Document origin (0,0) | Used for top-level hit testing (`contains(x, y)`). |
+| **Viewport-Relative** (`lx, ly`) | Component top-left on screen | Used by Modifiers (ripples, scroll logic). |
+| **Content-Relative** (`cx, cy`) | Component's scrollable origin | Passed to children so they can ignore parent scroll. |
+
+### 2. The Scroll Delegate
+Scrolling is not hardcoded into layouts. Instead, `LayoutComponent` uses a `ScrollDelegate` interface. If a component has a `ScrollModifierOperation` in its modifier list, it registers itself as the delegate for horizontal or vertical axes.
+
+- **Measure Phase**: The layout manager queries the delegate for the "content dimension" (total scrollable area).
+- **Layout Phase**: The delegate updates the component's internal scroll offsets based on user interaction or bound variables.
+- **Paint Phase**: `LayoutComponent` applies a translation transformation (`getScrollX()`, `getScrollY()`) before painting its children.
+
+## The Interaction Pipeline
+
+### 1. Event Entry (`CoreDocument`)
+Touch events enter via `CoreDocument.touchDown/Drag/Up`. The document tracks "applied touch operations"—components currently being interacted with—to bypass hit-testing during a drag.
+
+### 2. Recursive Dispatch (`Component`)
+Events propagate down the tree in **reverse drawing order** (top-most component first).
+- A component first performs a **Root-Relative** hit test.
+- If it contains the point, it calculates the **Viewport** and **Content** offsets.
+- It dispatches to children using the **Content** space.
+- It then dispatches to its own modifiers using the **Viewport** space.
+
+### 3. Event Consumption
+Interaction handlers return a `boolean`.
+- If a child component consumes an event (e.g., a button click), sibling components are ignored.
+- **Crucially**, parent modifiers (like a `ScrollModifier`) are still notified even if a child consumed the event. This allows a nested list to scroll even if the user started the drag on a button.
+
+## Physics and State (`TouchExpression`)
+
+The `ScrollModifierOperation` typically hosts a `TouchExpression`. This engine handles:
+- **Velocity Tracking**: Calculates pixels-per-second during a drag.
+- **Fling/Easing**: When the user releases, it uses a `VelocityEasing` curve to continue the scroll.
+- **Notches**: Supports snapping to specific positions (even spacing, absolute points, or percentages).
+
+## Nested Scrolling Logic
+
+RemoteCompose handles nested scrolls by utilizing the "Orthogonal Capture" rule:
+1. A vertical scroll only consumes the **Y** component of a drag.
+2. A horizontal scroll only consumes the **X** component.
+3. Because propagation continues up the parent chain for modifiers, a vertical swipe inside a horizontal row will be ignored by the row's scroll logic but captured by the parent column's scroll logic.
+
+## Layout Integration
+
+Layout managers like `ColumnLayout` and `RowLayout` are "scroll-aware":
+- During `internalLayoutMeasure`, they check `mComponentModifiers.hasVerticalScroll()`.
+- If true, they allow the content to exceed the host's viewport height.
+- They then call `setVerticalScrollDimension()` to inform the modifier of the total scrollable range, which the `TouchExpression` uses for boundary clamping.
+# Click Handling and Actions in RemoteCompose
+
+RemoteCompose provides a flexible click system based on modifiers that can trigger both internal state changes and host-side callbacks.
+
+## Click Propagation Process
+
+Click events follow a similar propagation path to touch events but are specifically triggered on the "up" phase of a gesture if the movement threshold hasn't been exceeded.
+
+### 1. Root Dispatch (`CoreDocument`)
+When a user clicks, `CoreDocument.onClick(x, y)` is called with root-relative coordinates.
+
+### 2. Backward Search (`Component`)
+The document iterates through its component tree in **reverse drawing order** (top-to-bottom). For each component:
+- It checks if the point `(x, y)` is within the component's bounds via `contains(x, y)`.
+- If contained, it recursively calls `onClick` on its children.
+- If no child handles the click, it dispatches to its own `onClick` handlers (usually via `ComponentModifiers`).
+
+### 3. Local Transformation
+Before reaching a `ClickModifierOperation`, the coordinates are transformed:
+- **Root Space**: Used for initial hit detection.
+- **Content Space**: Passed to children and modifiers, accounting for parent scrolling and padding.
+
+## Click Modifiers (`ClickModifierOperation`)
+
+The primary way to make a component interactive is by adding a click modifier.
+
+### Interaction Features
+- **Ripple Animation**: Triggers a visual feedback ripple at the exact touch location. The ripple uses `Easing.CUBIC_STANDARD` and animates both color and radius over 1000ms.
+- **Haptic Feedback**: Automatically triggers a host haptic effect (type 3) upon a successful click.
+- **Role & Semantics**: Identifies the component as a `Role.BUTTON` for accessibility services (e.g., TalkBack).
+
+## Actions
+
+A `ClickModifierOperation` acts as a container for one or more `ActionOperation`s.
+
+| Action Type | Description |
+| :--- | :--- |
+| **ValueChange** | Updates a RemoteCompose variable (Float, String, or Boolean). Useful for toggling states like `isExpanded` or `clickCount`. |
+| **HostAction** | Sends a metadata string back to the host application (Android/iOS). This is used for navigation or triggering native logic. |
+| **Custom Actions** | Can be implemented to perform complex sequences, such as multiple variable updates or conditional logic. |
+
+## Interaction with Scrolling
+
+The system ensures that clicks and scrolls don't conflict:
+1. **Threshold**: If a touch move exceeds a small distance threshold (e.g., 5-10 pixels), the gesture is "captured" by a scroll parent.
+2. **Cancellation**: Once captured by a scroll, any pending click animations or actions on child components are cancelled.
+3. **Consumption**: If a click is handled by a child, the event returns `true`, stopping further propagation to parent click handlers.
 # Document Protocol Operations
 Core document metadata, versioning, themes, and high-level behaviors.
 
@@ -1944,7 +2007,6 @@ Operations in this category:
     | 182 | TextSubtext | v7 | 17 
     | 183 | BitmapTextMeasure | v7 | 21 
     | 184 | DrawBitmapTextAnchored | v7 | 33 
-    | 192 | IdLookup | v7 | 13 
     | 199 | TextTransform | v7 | 21 
     | 208 | TextLayout | v6 | 45 
 
@@ -2484,15 +2546,6 @@ Draw bitmap font text anchored to a point with alignment (pan)
 <br><table><tr><th>Type</th><th>Name</th><th>Description</th></tr>
 <tr><td>BYTE</td><td>DrawBitmapTextAnchored</td><td>Value: 184</td></tr>
 <tr><td>INT</td><td>textId</td><td>The ID of the text to render</td></tr><tr><td>INT</td><td>bitmapFontId</td><td>The ID of the bitmap font</td></tr><tr><td>FLOAT</td><td>start</td><td>The start index of the text to render</td></tr><tr><td>FLOAT</td><td>end</td><td>The end index of the text to render</td></tr><tr><td>FLOAT</td><td>x</td><td>The x-position of the anchor point</td></tr><tr><td>FLOAT</td><td>y</td><td>The y-position of the anchor point</td></tr><tr><td>FLOAT</td><td>panX</td><td>The horizontal pan from left(-1) to right(1), 0 being centered</td></tr><tr><td>FLOAT</td><td>panY</td><td>The vertical pan from top(-1) to bottom(1), 0 being centered</td></tr></table>
-
-
-## IdLookup (added in v7)
-Look up an ID from an ID collection via index
-
-3 Fields, total size 13 bytes
-<br><table><tr><th>Type</th><th>Name</th><th>Description</th></tr>
-<tr><td>BYTE</td><td>IdLookup</td><td>Value: 192</td></tr>
-<tr><td>INT</td><td>textId</td><td>The ID of the integer variable to store the result</td></tr><tr><td>FLOAT</td><td>dataSet</td><td>The ID of the collection</td></tr><tr><td>FLOAT</td><td>index</td><td>The index of the ID to retrieve</td></tr></table>
 
 
 ## TextTransform [EXPERIMENTAL] (added in v7)
@@ -5071,6 +5124,7 @@ Operations in this category:
     | 171 | ImageAttribute | v6 | 13 
     | 172 | TimeAttribute | v6 | 13 
     | 178 | ConditionalOperations | v6 | 10 
+    | 192 | IdLookup | v7 | 13 
     | 215 | Loop | v6 | 17 
 
 ## FloatExpression
@@ -5156,6 +5210,15 @@ Execute a list of operations if a condition is met
     | TYPE_LTE | 3 
     | TYPE_GT | 4 
     | TYPE_GTE | 5 
+
+## IdLookup (added in v7)
+Look up an ID from an ID collection via index
+
+3 Fields, total size 13 bytes
+<br><table><tr><th>Type</th><th>Name</th><th>Description</th></tr>
+<tr><td>BYTE</td><td>IdLookup</td><td>Value: 192</td></tr>
+<tr><td>INT</td><td>textId</td><td>The ID of the integer variable to store the result</td></tr><tr><td>FLOAT</td><td>dataSet</td><td>The ID of the collection</td></tr><tr><td>FLOAT</td><td>index</td><td>The index of the ID to retrieve</td></tr></table>
+
 
 ## Loop
 Execute a list of operations in a loop
@@ -6018,7 +6081,7 @@ The following 22 operations were added in version 7 of the format.
     | 189 | FontData | Data Operations | Embed raw font data in the document |
     | 190 | DrawToBitmap | Canvas Operations | Draw to a bitmap |
     | 191 | WakeIn | Protocol Operations | Wake up the render loop after a certain amount of time |
-    | 192 | IdLookup | Text Operations | Look up an ID from an ID collection via index |
+    | 192 | IdLookup | Logic & Expressions Operations | Look up an ID from an ID collection via index |
     | 194 | ParticlesCompare | Animation & Particles Operations | Compare particles and execute conditional logic |
     | 196 | ColorTheme | Paint & Styles Operations | Define a color that adapts to the current theme (light/dark) |
     | 197 | DataDynamicListFloat | Data Operations | A dynamic list of floats |

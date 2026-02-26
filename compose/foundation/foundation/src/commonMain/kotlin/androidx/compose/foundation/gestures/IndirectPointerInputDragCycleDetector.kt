@@ -24,7 +24,6 @@ import androidx.compose.foundation.gestures.DragEvent.DragCancelled
 import androidx.compose.foundation.gestures.DragEvent.DragDelta
 import androidx.compose.foundation.gestures.DragEvent.DragStarted
 import androidx.compose.foundation.gestures.DragEvent.DragStopped
-import androidx.compose.ui.ExperimentalIndirectPointerApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
@@ -45,7 +44,6 @@ import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastFirstOrNull
 import kotlin.math.absoluteValue
 
-@OptIn(ExperimentalIndirectPointerApi::class)
 internal class IndirectPointerInputDragCycleDetector(val node: DragGestureNode) {
     /** Store non-initialized states for re-use */
     private var _awaitDownState: DragDetectionState.AwaitDown? = null
@@ -533,7 +531,6 @@ internal class IndirectPointerInputDragCycleDetector(val node: DragGestureNode) 
         node.onDragEvent(DragCancelled)
     }
 
-    @OptIn(ExperimentalIndirectPointerApi::class)
     sealed class DragDetectionState {
         /**
          * Starter state for any drag gesture cycle. At this state we're waiting for a Down event to
@@ -582,28 +579,22 @@ internal class IndirectPointerInputDragCycleDetector(val node: DragGestureNode) 
 }
 
 // these should probably go into IndirectPointerInputChange in UI
-@ExperimentalIndirectPointerApi
 private fun IndirectPointerInputChange.positionChange(
     orientation: Orientation?,
     primaryDirectionalMotionAxis: IndirectPointerEventPrimaryDirectionalMotionAxis?,
 ) = this.positionChangeInternal(orientation, primaryDirectionalMotionAxis, false)
 
-@ExperimentalIndirectPointerApi
 private fun IndirectPointerInputChange.positionChangeIgnoreConsumed(
     orientation: Orientation?,
     primaryDirectionalMotionAxis: IndirectPointerEventPrimaryDirectionalMotionAxis?,
 ) = this.positionChangeInternal(orientation, primaryDirectionalMotionAxis, true)
 
-@ExperimentalIndirectPointerApi
 private fun IndirectPointerInputChange.changedToUpIgnoreConsumed() = previousPressed && !pressed
 
-@ExperimentalIndirectPointerApi
 private fun IndirectPointerInputChange.changedToDown() = !isConsumed && !previousPressed && pressed
 
-@ExperimentalIndirectPointerApi
 internal fun IndirectPointerInputChange.changedToDownIgnoreConsumed() = !previousPressed && pressed
 
-@ExperimentalIndirectPointerApi
 private fun IndirectPointerInputChange.positionChangeInternal(
     orientation: Orientation?,
     primaryDirectionalMotionAxis: IndirectPointerEventPrimaryDirectionalMotionAxis?,
@@ -629,7 +620,6 @@ private fun IndirectPointerInputChange.positionChangeInternal(
  * smoothing logic, it's complicated to manage primary axis as well as smoothed positions, so we
  * just make the change here for simplicity.
  */
-@OptIn(ExperimentalIndirectPointerApi::class)
 private fun IndirectPointerInputChange.primaryAxisPosition(
     orientation: Orientation?,
     primaryDirectionalMotionAxis: IndirectPointerEventPrimaryDirectionalMotionAxis?,
@@ -649,7 +639,6 @@ private fun IndirectPointerInputChange.primaryAxisPosition(
     }
 }
 
-@OptIn(ExperimentalIndirectPointerApi::class)
 private fun Offset.primaryAxisPosition(
     orientation: Orientation?,
     primaryDirectionalMotionAxis: IndirectPointerEventPrimaryDirectionalMotionAxis?,
@@ -669,7 +658,6 @@ private fun Offset.primaryAxisPosition(
     }
 }
 
-@OptIn(ExperimentalIndirectPointerApi::class)
 private fun IndirectPointerInputChange.primaryAxisPreviousPosition(
     orientation: Orientation?,
     primaryDirectionalMotionAxis: IndirectPointerEventPrimaryDirectionalMotionAxis?,
@@ -689,7 +677,6 @@ private fun IndirectPointerInputChange.primaryAxisPreviousPosition(
     }
 }
 
-@OptIn(ExperimentalIndirectPointerApi::class)
 private fun VelocityTracker.addIndirectPointerInputChange(
     event: IndirectPointerInputChange,
     orientation: Orientation?,
@@ -710,7 +697,6 @@ private fun VelocityTracker.addIndirectPointerInputChange(
  *
  * TODO(levima): Remove this once b/413645371 lands and events are dispatched less frequently.
  */
-@OptIn(ExperimentalIndirectPointerApi::class)
 internal class IndirectPointerInputEventSmoother() {
     private var eventRotatingIndex = 0
     private var eventRotatingArray = mutableObjectListOf<IndirectPointerInputChange>()

@@ -26,7 +26,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -320,8 +319,7 @@ class ScrollCaptureTest {
                 val halfSize = size / 2
                 // Vertical offset for captures for centering. Half the difference between the full
                 // size and the capture height.
-                val centeringOffset =
-                    if (ComposeUiFlags.isScrollCaptureCenteringEnabled) halfSize / 2 else 0
+                val centeringOffset = halfSize / 2
                 captureTester.setContent {
                     TestVerticalScrollable(
                         size = size,
@@ -381,8 +379,7 @@ class ScrollCaptureTest {
                 val halfSize = size / 2
                 // Vertical offset for captures for centering. Half the difference between the full
                 // size and the capture height.
-                val centeringOffset =
-                    if (ComposeUiFlags.isScrollCaptureCenteringEnabled) halfSize / 2 else 0
+                val centeringOffset = halfSize / 2
                 captureTester.setContent {
                     TestVerticalScrollable(
                         reverseScrolling = true,

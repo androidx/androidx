@@ -19,8 +19,11 @@ package androidx.compose.ui.tooling.animation.search
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material3.Text
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.tooling.animation.AnimationSearch
+import androidx.compose.ui.tooling.animation.NoopClockInfo
 import androidx.compose.ui.tooling.animation.Utils.addAnimations
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -28,6 +31,7 @@ import androidx.test.filters.MediumTest
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,8 +56,124 @@ class AnimatedContentSearchInfoTest {
             val animation = searchInfo.createAnimation()
             assertNotNull(animation)
             animation!!
-            val clock = searchInfo.createClock(animation)
+            val clock = searchInfo.createClock(animation, NoopClockInfo)
             assertNotNull(clock)
         }
+    }
+
+    @Test
+    fun customLabel() {
+        val search = AnimationSearch.AnimatedContentSearch {}
+        rule.addAnimations(search) {
+            AnimatedContent(targetState = null, label = "customLabel") { state ->
+                Text(text = ("$state"))
+            }
+        }
+
+        assertEquals("customLabel", search.animations.first().label)
+    }
+
+    @Test
+    fun defaultLabel() {
+        val search = AnimationSearch.AnimatedContentSearch {}
+        rule.addAnimations(search) {
+            AnimatedContent(targetState = null) { state -> Text(text = ("$state")) }
+        }
+
+        assertEquals("AnimatedContent", search.animations.first().label)
+    }
+
+    @Test
+    fun findInitialAndTargetDpStates() {
+        val search = AnimationSearch.AnimatedContentSearch {}
+        val state = mutableStateOf(0)
+
+        rule.addAnimations(search) {
+            AnimatedContent(
+                targetState =
+                    when (state.value) {
+                        0 -> 0.dp
+                        1 -> 1.dp
+                        else -> null
+                    }
+            ) { target ->
+                Text(text = "targetState: $target")
+            }
+        }
+        val searchInfo = search.animations.first()
+        searchInfo.setInitialStateToCurrentAnimationValue()
+        assertEquals(0.dp, searchInfo.initialState)
+
+        // Change target state.
+        state.value = 1
+        Snapshot.sendApplyNotifications()
+        rule.waitForIdle()
+        searchInfo.setTargetStateToCurrentAnimationValue()
+        assertEquals(1.dp, searchInfo.targetState)
+
+        // Change target state.
+        state.value = 10
+        Snapshot.sendApplyNotifications()
+        rule.waitForIdle()
+        searchInfo.setTargetStateToCurrentAnimationValue()
+        assertNull(searchInfo.targetState)
+    }
+
+    @Test
+    fun findInitialAndTargetDataClassStates() {
+        val search = AnimationSearch.AnimatedContentSearch {}
+        val state = mutableStateOf(0)
+
+        data class Data(val value: Int)
+
+        rule.addAnimations(search) {
+            AnimatedContent(
+                targetState =
+                    when (state.value) {
+                        0 -> Data(0)
+                        else -> Data(1)
+                    }
+            ) { data ->
+                Text(text = "Data: $data")
+            }
+        }
+        val searchInfo = search.animations.first()
+        searchInfo.setInitialStateToCurrentAnimationValue()
+        assertEquals(Data(0), searchInfo.initialState)
+
+        // Change target state.
+        state.value = 1
+        Snapshot.sendApplyNotifications()
+        rule.waitForIdle()
+        searchInfo.setTargetStateToCurrentAnimationValue()
+        assertEquals(Data(1), searchInfo.targetState)
+    }
+
+    @Test
+    fun findInitialAndTargetNullableStates() {
+        val search = AnimationSearch.AnimatedContentSearch {}
+        val state = mutableStateOf(0)
+
+        rule.addAnimations(search) {
+            AnimatedContent(
+                targetState =
+                    when (state.value) {
+                        0 -> 0
+                        else -> null
+                    }
+            ) { state ->
+                Text(text = "State: $state")
+            }
+        }
+        val searchInfo = search.animations.first()
+        searchInfo.setInitialStateToCurrentAnimationValue()
+        assertEquals(0, searchInfo.initialState)
+
+        // Change target state.
+        state.value = 10
+        Snapshot.sendApplyNotifications()
+        rule.waitForIdle()
+        searchInfo.setTargetStateToCurrentAnimationValue()
+        assertNull(searchInfo.targetState)
     }
 }

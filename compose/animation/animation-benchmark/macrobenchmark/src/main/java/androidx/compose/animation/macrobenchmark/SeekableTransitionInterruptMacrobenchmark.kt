@@ -50,8 +50,7 @@ class SeekableTransitionInterruptMacrobenchmark {
             setupBlock = {
                 pressHome()
                 startActivityAndWait()
-                val buttonText = "interrupt animation w/ seekTo"
-                button = device.findObject(By.text(buttonText))
+                button = device.findObject(By.res("seekable_transition_interrupt_button"))
             },
         ) {
             button.click()

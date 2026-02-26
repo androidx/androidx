@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.animation.search.AnimatedContentSearchInfo
 import androidx.compose.ui.tooling.animation.search.AnimatedVisibilitySearchInfo
 import androidx.compose.ui.tooling.animation.search.InfiniteTransitionSearchInfo
 import androidx.compose.ui.tooling.animation.search.TransitionSearchInfo
+import androidx.compose.ui.tooling.animation.search.UnsupportedSearchInfo
 import androidx.compose.ui.tooling.data.CallGroup
 import androidx.compose.ui.tooling.data.Group
 import androidx.compose.ui.tooling.data.UiToolingDataApi
@@ -77,24 +78,21 @@ private inline fun <reified T> Group.findData(includeGrandchildren: Boolean = fa
 
 /** Contains tree parsers for different animation types. */
 @OptIn(UiToolingDataApi::class)
-internal class AnimationSearch(
-    private val clock: () -> PreviewAnimationClock,
-    private val onSeek: () -> Unit,
-) {
-    private val transitionSearch = TransitionSearch { clock().trackTransition(it) }
-    private val animatedContentSearch = AnimatedContentSearch { clock().trackAnimatedContent(it) }
+internal class AnimationSearch(private val clock: () -> PreviewAnimationClock) {
+    private val transitionSearch = TransitionSearch { clock().trackComposeAnimation(it) }
+    private val animatedContentSearch = AnimatedContentSearch { clock().trackComposeAnimation(it) }
     private val animatedVisibilitySearch = AnimatedVisibilitySearch {
-        clock().trackAnimatedVisibility(it, onSeek)
+        clock().trackComposeAnimation(it)
     }
 
     private fun animateXAsStateSearch() =
         if (AnimateXAsStateComposeAnimation.apiAvailable)
-            setOf(AnimateXAsStateSearch() { clock().trackAnimateXAsState(it) })
+            setOf(AnimateXAsStateSearch() { clock().trackComposeAnimation(it) })
         else emptyList()
 
     private fun infiniteTransitionSearch() =
         if (InfiniteTransitionComposeAnimation.apiAvailable)
-            setOf(InfiniteTransitionSearch() { clock().trackInfiniteTransition(it) })
+            setOf(InfiniteTransitionSearch() { clock().trackComposeAnimation(it) })
         else emptySet()
 
     /** All supported animations. */
@@ -108,9 +106,15 @@ internal class AnimationSearch(
     private fun unsupportedSearch() =
         if (UnsupportedComposeAnimation.apiAvailable)
             setOf(
-                AnimateContentSizeSearch { clock().trackAnimateContentSize(it) },
-                TargetBasedSearch { clock().trackTargetBasedAnimations(it) },
-                DecaySearch { clock().trackDecayAnimations(it) },
+                AnimateContentSizeSearch {
+                    clock().trackComposeAnimation(UnsupportedSearchInfo(it, "animateContentSize"))
+                },
+                TargetBasedSearch {
+                    clock().trackComposeAnimation(UnsupportedSearchInfo(it, "TargetBasedAnimation"))
+                },
+                DecaySearch {
+                    clock().trackComposeAnimation(UnsupportedSearchInfo(it, "DecayAnimation"))
+                },
             )
         else emptyList()
 

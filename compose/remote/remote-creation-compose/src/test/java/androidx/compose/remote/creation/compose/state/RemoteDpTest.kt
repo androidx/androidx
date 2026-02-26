@@ -99,18 +99,21 @@ class RemoteDpTest {
         val floatValue = 10.5f
         val density = 2f
 
-        val (resultDpId, resultPxId) =
+        val (resultDpId, resultPxId, resultPxId2) =
             remoteComposeTestRule.initialise {
                 val remoteFloatDp = RemoteDp(floatValue.rf)
                 val remoteFloatPx = remoteFloatDp.toPx(testScope.remoteDensity)
+                val remoteFloatPx2 = remoteFloatDp.toPx()
 
                 val resultDpId = remoteFloatDp.value.getIdForCreationState(it)
                 val resultPxId = remoteFloatPx.getIdForCreationState(it)
-                Pair(resultDpId, resultPxId)
+                val resultPxId2 = remoteFloatPx2.getIdForCreationState(it)
+                Triple(resultDpId, resultPxId, resultPxId2)
             }
 
         assertThat(context.getFloat(resultDpId)).isEqualTo(floatValue)
         assertThat(context.getFloat(resultPxId)).isEqualTo(floatValue * density)
+        assertThat(context.getFloat(resultPxId2)).isEqualTo(floatValue * density)
     }
 
     @Test
@@ -142,5 +145,18 @@ class RemoteDpTest {
             }
 
         assertThat(context.getFloat(resultDpId)).isEqualTo(px)
+    }
+
+    @Test
+    fun asRdpFloatIdIsConstant() {
+        val dp = 152.dp
+
+        val resultFloat =
+            remoteComposeTestRule.initialise {
+                val remoteFloatDp = dp.asRdp()
+                with(it) { remoteFloatDp.floatId }
+            }
+
+        assertThat(resultFloat).isEqualTo(304f)
     }
 }

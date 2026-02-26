@@ -146,6 +146,13 @@ class FocusRequester @RememberInComposition constructor() {
      *   and we successfully saved a reference to it.
      * @sample androidx.compose.ui.samples.RestoreFocusSample
      */
+    // TODO: Deprecate once focus restoration is enabled by default via flags.
+    // @Deprecated(
+    //    message =
+    //        "The focused child is now saved automatically whenever focus changes. Just call" +
+    //            " restoreFocusedChild to restore focus.",
+    //    level = DeprecationLevel.WARNING,
+    // )
     fun saveFocusedChild(): Boolean {
         if (focusRequesterNodes.isEmpty()) {
             println("$FocusWarning: $FocusRequesterNotInitialized")

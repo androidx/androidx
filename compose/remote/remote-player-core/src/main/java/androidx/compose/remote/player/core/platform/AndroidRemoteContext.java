@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 /**
  * An implementation of Context for Android.
@@ -166,6 +167,25 @@ public class AndroidRemoteContext extends RemoteContext {
     }
 
     HashMap<String, VarName> mVarNameHashMap = new HashMap<>();
+
+    /**
+     * Returns the id of a variable
+     * @param name
+     * @return
+     */
+    public int getVariableId(@NonNull String name) {
+        return Objects.requireNonNull(mVarNameHashMap.get(name)).mId;
+    }
+
+    /**
+     * Returns the content of a name variable
+     * @param name
+     * @return
+     */
+    public @Nullable String getStringVariableName(@NonNull String name) {
+        int id = getVariableId(name);
+        return getText(id);
+    }
 
     @Override
     public void loadVariableName(@NonNull String varName, int varId, int varType) {

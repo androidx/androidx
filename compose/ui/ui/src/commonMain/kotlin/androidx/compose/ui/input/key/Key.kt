@@ -46,11 +46,24 @@ expect value class Key(val keyCode: Long) {
         val SoftRight: Key
 
         /**
-         * Home key.
+         * System Home key.
          *
          * This key is handled by the framework and is never delivered to applications.
          */
+        @Deprecated(
+            "`Key.Home` is never delivered to applications. For the keyboard \"Home\" key " +
+                "use `Key.MoveHome`. For the system \"Home\" key (unlikely to be needed), use " +
+                "`Key.SystemHome`",
+            level = DeprecationLevel.ERROR,
+        )
         val Home: Key
+
+        /**
+         * System Home key.
+         *
+         * This key is handled by the framework and is never delivered to applications.
+         */
+        val SystemHome: Key
 
         /** Back key. */
         val Back: Key
@@ -803,6 +816,9 @@ expect value class Key(val keyCode: Long) {
 
         /** Numeric keypad Insert Key. */
         val NumPadInsert: Key
+
+        /** Numeric keypad Delete Key. */
+        val NumPadDelete: Key
 
         /** Play media key. */
         val MediaPlay: Key

@@ -86,10 +86,17 @@ internal fun FocusTargetNode.performRequestFocus(): Boolean {
     // We also check if the previous active node is an ancestor of the new active node, in which
     // case we don't need to clear focus from it.
     var shouldClearFocusFromPreviousActiveNode = true
+
+    val commonAncestorTargetNodes = mutableVectorOf<FocusTargetNode>()
     val ancestorTargetNodes = mutableVectorOf<FocusTargetNode>()
     visitAncestors(Nodes.FocusTarget) {
         val removed = previousAncestorTargetNodes?.remove(it)
-        if (removed == null || !removed) {
+        // If the currently visited node was in the previousAncestorTargetNodes, then it is a
+        // common ancestor of both the new focus and the previous focus. Otherwise, it is newly
+        // an active parent
+        if (removed == true) {
+            commonAncestorTargetNodes.add(it)
+        } else {
             ancestorTargetNodes.add(it)
         }
         if (it === previousActiveNode) shouldClearFocusFromPreviousActiveNode = false
@@ -146,6 +153,18 @@ internal fun FocusTargetNode.performRequestFocus(): Boolean {
     if (focusOwner.activeFocusTargetNode !== this) {
         // The focus request was redirected or cancelled in a previous focus change callback
         return false
+    }
+
+    // Now that we are sure that the focus request succeeded, we save the focused path.
+    @OptIn(ExperimentalComposeUiApi::class)
+    if (ComposeUiFlags.isFocusRestorationEnabled) {
+        run saveFocus@{
+            val closestCommonAncestor = commonAncestorTargetNodes.lastOrNull()
+            visitAncestors(Nodes.FocusTarget) {
+                it.saveFocusedChild()
+                if (it === closestCommonAncestor) return@saveFocus
+            }
+        }
     }
 
     @OptIn(ExperimentalComposeUiApi::class, InternalComposeUiApi::class)

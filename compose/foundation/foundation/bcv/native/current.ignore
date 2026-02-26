@@ -1,2 +1,4 @@
 // Baseline format: 1.0
 [linuxX64]: Removed declaration androidx.compose.foundation.gestures/ExperimentalTapGestureDetectorBehaviorApi from androidx.compose.foundation:foundation
+[linuxX64]: Removed declaration androidx.compose.foundation/androidx_compose_foundation_AbstractClickableNode_IndirectPointerClickDetector$stableprop from androidx.compose.foundation:foundation
+[linuxX64]: Removed declaration androidx.compose.foundation/androidx_compose_foundation_AbstractClickableNode_IndirectPointerClickDetector$stableprop_getter() from androidx.compose.foundation:foundation

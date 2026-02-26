@@ -112,6 +112,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.testutils.expectError
 import androidx.compose.ui.AndroidComposeViewAccessibilityDelegateCompatTest.Companion.AccessibilityEventComparator
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -151,6 +152,7 @@ import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.isSensitiveData
 import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.pageUp
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.role
@@ -240,6 +242,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.hamcrest.CoreMatchers.instanceOf
 import org.junit.After
+import org.junit.Assume
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
@@ -4186,6 +4189,40 @@ class AndroidAccessibilityTest {
         }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun testAccessibilityNodeInfoTreePruned_completelyCovered_whenInMergingContainer() {
+        Assume.assumeTrue(ComposeUiFlags.isAccessibilityShouldIncludeOffscreenChildrenEnabled)
+        // Arrange.
+        val parentTag = "ParentForOverlappedChildren"
+        val childOneTag = "OverlappedChildOne"
+        val childTwoTag = "OverlappedChildTwo"
+        setContent {
+            Box(Modifier.testTag(parentTag).semantics(true) {}) {
+                with(LocalDensity.current) {
+                    BasicText(
+                        "Child One",
+                        Modifier.zIndex(1f).testTag(childOneTag).requiredSize(50.toDp()),
+                    )
+                    BasicText("Child Two", Modifier.testTag(childTwoTag).requiredSize(50.toDp()))
+                }
+            }
+        }
+        val parentNodeId = rule.onNodeWithTag(parentTag, useUnmergedTree = true).semanticsId()
+        val overlappedChildOneNodeId =
+            rule.onNodeWithTag(childOneTag, useUnmergedTree = true).semanticsId()
+        val overlappedChildTwoNodeId =
+            rule.onNodeWithTag(childTwoTag, useUnmergedTree = true).semanticsId()
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(createAccessibilityNodeInfo(parentNodeId).childCount).isEqualTo(1)
+            assertThat(createAccessibilityNodeInfo(overlappedChildOneNodeId).text.toString())
+                .isEqualTo("Child One")
+            assertThat(provider.createAccessibilityNodeInfo(overlappedChildTwoNodeId)).isNull()
+        }
+    }
+
     @Test
     fun testAccessibilityNodeInfoTreePruned_partiallyCovered() {
         // Arrange.
@@ -4536,6 +4573,43 @@ class AndroidAccessibilityTest {
         info.getBoundsInScreen(rect)
         assertThat(rect.width()).isEqualTo(150)
         assertThat(rect.height()).isEqualTo(150)
+    }
+
+    // Regression test for b/479577752
+    @Test
+    fun testChildBounds_clippedToParentBounds_whenParentLargerThanMinTouchTarget() {
+        // When parent's size (100) is larger than minimum touch target (48),
+        // and the child bounds are larger than the parent's (200),
+        // child bounds should be clipped to parent's actual bounds (100),
+        // not parent bounds + half min touch target (100 + 24 = 124).
+        setContent {
+            // density = 1f so that we don't have to convert at all.
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                Box(Modifier.size(200.dp).background(Color.Black.copy(alpha = 0.1f))) {
+                    // Constraining and clipping parent
+                    Box(Modifier.requiredSize(100.dp).clipToBounds()) {
+                        // Semantically clickable and clipped child
+                        Box(
+                            Modifier.wrapContentSize(Alignment.TopStart, unbounded = true)
+                                .requiredSize(200.dp)
+                                .background(Color.Blue)
+                                // onClick needed to go down the touch bounds path.
+                                .semantics { onClick { true } }
+                                .testTag(tag)
+                        )
+                    }
+                }
+            }
+        }
+
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
+        val info = rule.runOnIdle { createAccessibilityNodeInfo(virtualViewId) }
+        val rect = Rect().also { info.getBoundsInScreen(it) }
+
+        // Child should be clipped to parent's 100px.
+        // The regression size for 48 minTouchTarget would be 124.
+        assertThat(rect.width()).isEqualTo(100)
+        assertThat(rect.height()).isEqualTo(100)
     }
 
     @Test

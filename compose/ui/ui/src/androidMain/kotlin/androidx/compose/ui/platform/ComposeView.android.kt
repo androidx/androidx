@@ -27,7 +27,6 @@ import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.AndroidComposeUiFlags
-import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.R
@@ -610,6 +609,14 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 }
 
 /**
+ * Flag to disable WindowInsetsRulers. System UI needs to disable WindowInsets Rulers for all
+ * ComposeViews, so this is a global switch. We don't want to have them add a ComposeView and the
+ * new ComposeView suddenly requests WindowInsets updates, changing the behavior so that the insets
+ * suddenly notify.
+ */
+internal var areWindowInsetsRulersEnabled = true
+
+/**
  * Used to disable [androidx.compose.ui.layout.WindowInsetsRulers]. This can be used when UI never
  * reads WindowInsets across the process and having WindowInsets callbacks cause frame generation
  * when no content is updated. Applications typically would not use this method, but it may be
@@ -618,8 +625,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
  */
 @ExperimentalComposeUiApi
 fun ComposeView.Companion.disableWindowInsetsRulers() {
-    @Suppress("DEPRECATION")
-    ComposeUiFlags.areWindowInsetsRulersEnabled = false
+    areWindowInsetsRulersEnabled = false
 }
 
 @OptIn(ExperimentalComposeUiApi::class)

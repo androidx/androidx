@@ -90,7 +90,11 @@ class SnapshotFlowBenchmark(
 
                 // This test uses a `runTest` single-threaded dispatcher, which means that changes
                 // aren't flushed to `snapshotFlow`s until we `yield()` intentionally.
-                runWithMeasurementDisabled { testScheduler.runCurrent() }
+                runWithMeasurementDisabled {
+                    testScheduler.advanceUntilIdle()
+                    assertEquals(n, count)
+                    Snapshot.notifyObjectsInitialized()
+                }
 
                 stateObjects.forEach {
                     runWithMeasurementDisabled { it.value = true }
@@ -146,7 +150,10 @@ class SnapshotFlowBenchmark(
 
                 // This test uses a `runTest` single-threaded dispatcher, which means that changes
                 // aren't flushed to `snapshotFlow`s until we `yield()` intentionally.
-                runWithMeasurementDisabled { testScheduler.runCurrent() }
+                runWithMeasurementDisabled {
+                    testScheduler.advanceUntilIdle()
+                    assertEquals(n, count)
+                }
 
                 stateObjects.forEach {
                     runWithMeasurementDisabled { it.value = true }

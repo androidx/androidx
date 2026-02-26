@@ -38,18 +38,18 @@ import androidx.compose.ui.layout.ContentScale
  * API incompatibilities.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public open class RemoteDrawScope(public val remoteCanvas: RemoteCanvas) :
+public open class RemoteDrawScope internal constructor(public val remoteCanvas: RemoteCanvas) :
     RemoteStateScope by remoteCanvas {
     public val remoteComposeCreationState: RemoteComposeCreationState
         get() = remoteCanvas.creationState
 
     /** The width of the drawing area as a [RemoteFloat]. */
     public val remoteWidth: RemoteFloat
-        get() = remoteCanvas.componentWidth
+        get() = remoteCanvas.remote.component.width
 
     /** The height of the drawing area as a [RemoteFloat]. */
     public val remoteHeight: RemoteFloat
-        get() = remoteCanvas.componentHeight
+        get() = remoteCanvas.remote.component.height
 
     /** The center of the drawing area as a [RemoteOffset]. */
     public val remoteCenter: RemoteOffset
@@ -391,5 +391,5 @@ public open class RemoteDrawScope(public val remoteCanvas: RemoteCanvas) :
     }
 
     /** Access to remote-specific utilities like time and animations. */
-    public val remote: RemoteAccess = RemoteAccess(this, remoteComposeCreationState)
+    public val remote: RemoteAccess = RemoteAccess(this)
 }

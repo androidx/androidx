@@ -18,13 +18,15 @@ package androidx.compose.ui.focus
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.key
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlin.reflect.KMutableProperty0
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,39 +34,85 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class RestoreFocusTest {
-    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule()
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Test
-    fun noSavedChild_doesNotRestoreChild() {
-        // Arrange.
-        val (parent, child1) = FocusRequester.createRefs()
-        lateinit var focusManager: FocusManager
-        lateinit var child1State: FocusState
-        lateinit var child2State: FocusState
-        rule.setFocusableContent {
-            focusManager = LocalFocusManager.current
-            Box(Modifier.focusRequester(parent).focusTarget()) {
-                key(1) {
-                    Box(
-                        Modifier.focusRequester(child1)
-                            .onFocusChanged { child1State = it }
-                            .focusTarget()
-                    )
+    fun restoresChild_evenIfNotExplicitlySaved() {
+        featureFlagTest(
+            ComposeUiFlags::isInitialFocusOnFocusableAvailable to true,
+            ComposeUiFlags::isFocusRestorationEnabled to true,
+        ) {
+            // Arrange.
+            val (parent, child2) = FocusRequester.createRefs()
+            lateinit var focusManager: FocusManager
+            lateinit var child1State: FocusState
+            lateinit var child2State: FocusState
+            rule.setFocusableContent {
+                focusManager = LocalFocusManager.current
+                Box(Modifier.focusRequester(parent).focusTarget()) {
+                    key(1) { Box(Modifier.onFocusChanged { child1State = it }.focusTarget()) }
+                    key(2) {
+                        Box(
+                            Modifier.focusRequester(child2)
+                                .onFocusChanged { child2State = it }
+                                .focusTarget()
+                        )
+                    }
                 }
-                key(2) { Box(Modifier.onFocusChanged { child2State = it }.focusTarget()) }
+            }
+            rule.runOnIdle { child2.requestFocus() }
+
+            // Act.
+            rule.runOnIdle { focusManager.clearFocus() }
+            val restoredSuccessfully = rule.runOnIdle { parent.restoreFocusedChild() }
+
+            // Assert.
+            rule.runOnIdle {
+                assertThat(restoredSuccessfully).isTrue()
+                assertThat(child1State.isFocused).isFalse()
+                assertThat(child2State.isFocused).isTrue()
             }
         }
-        rule.runOnIdle { child1.requestFocus() }
+    }
 
-        // Act.
-        rule.runOnIdle { focusManager.clearFocus() }
-        val restoredSuccessfully = rule.runOnIdle { parent.restoreFocusedChild() }
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun noSavedChild_doesNotRestoreChild() {
+        featureFlagTest(
+            ComposeUiFlags::isInitialFocusOnFocusableAvailable to false,
+            ComposeUiFlags::isFocusRestorationEnabled to false,
+        ) {
+            // Arrange.
+            val (parent, child1) = FocusRequester.createRefs()
+            lateinit var focusManager: FocusManager
+            lateinit var child1State: FocusState
+            lateinit var child2State: FocusState
+            rule.setFocusableContent {
+                focusManager = LocalFocusManager.current
+                Box(Modifier.focusRequester(parent).focusTarget()) {
+                    key(1) {
+                        Box(
+                            Modifier.focusRequester(child1)
+                                .onFocusChanged { child1State = it }
+                                .focusTarget()
+                        )
+                    }
+                    key(2) { Box(Modifier.onFocusChanged { child2State = it }.focusTarget()) }
+                }
+            }
+            rule.runOnIdle { child1.requestFocus() }
 
-        // Assert.
-        rule.runOnIdle {
-            assertThat(restoredSuccessfully).isFalse()
-            assertThat(child1State.isFocused).isFalse()
-            assertThat(child2State.isFocused).isFalse()
+            // Act.
+            rule.runOnIdle { focusManager.clearFocus() }
+            val restoredSuccessfully = rule.runOnIdle { parent.restoreFocusedChild() }
+
+            // Assert.
+            rule.runOnIdle {
+                assertThat(restoredSuccessfully).isFalse()
+                assertThat(child1State.isFocused).isFalse()
+                assertThat(child2State.isFocused).isFalse()
+            }
         }
     }
 
@@ -91,7 +139,8 @@ class RestoreFocusTest {
         rule.runOnIdle { child2.requestFocus() }
 
         // Act.
-        val savedSuccessfully = rule.runOnIdle { parent.saveFocusedChild() }
+        val savedSuccessfully =
+            rule.runOnIdle { @Suppress("DEPRECATION") parent.saveFocusedChild() }
         rule.runOnIdle { focusManager.clearFocus() }
         val restoredSuccessfully = rule.runOnIdle { parent.restoreFocusedChild() }
 
@@ -104,72 +153,97 @@ class RestoreFocusTest {
         }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun adjacentCallsRestoreTheFocusToTheCorrectChild() {
-        // Arrange.
-        val (parent, child2) = FocusRequester.createRefs()
-        lateinit var focusManager: FocusManager
-        lateinit var child1State: FocusState
-        lateinit var child2State: FocusState
-        rule.setFocusableContent {
-            focusManager = LocalFocusManager.current
-            Box(Modifier.focusRequester(parent).focusTarget()) {
-                Box(Modifier.onFocusChanged { child1State = it }.focusTarget())
-                Box(
-                    Modifier.focusRequester(child2)
-                        .onFocusChanged { child2State = it }
-                        .focusTarget()
-                )
-            }
-        }
-        rule.runOnIdle { child2.requestFocus() }
-
-        // Act.
-        val savedSuccessfully = rule.runOnIdle { parent.saveFocusedChild() }
-        rule.runOnIdle { focusManager.clearFocus() }
-        val restoredSuccessfully = rule.runOnIdle { parent.restoreFocusedChild() }
-
-        // Assert.
-        rule.runOnIdle {
-            assertThat(savedSuccessfully).isTrue()
-            assertThat(restoredSuccessfully).isTrue()
-            assertThat(child1State.isFocused).isFalse()
-            assertThat(child2State.isFocused).isTrue()
-        }
-    }
-
-    @Test
-    fun doesNotRestoreGrandChild_butFocusesOnChildInstead() {
-        // Arrange.
-        val (parent, grandChild) = FocusRequester.createRefs()
-        lateinit var focusManager: FocusManager
-        lateinit var childState: FocusState
-        lateinit var grandChildState: FocusState
-        rule.setFocusableContent {
-            focusManager = LocalFocusManager.current
-            Box(Modifier.focusRequester(parent).focusTarget()) {
-                Box(Modifier.onFocusChanged { childState = it }.focusTarget()) {
+        featureFlagTest(
+            ComposeUiFlags::isInitialFocusOnFocusableAvailable to false,
+            ComposeUiFlags::isFocusRestorationEnabled to false,
+        ) {
+            // Arrange.
+            val (parent, child2) = FocusRequester.createRefs()
+            lateinit var focusManager: FocusManager
+            lateinit var child1State: FocusState
+            lateinit var child2State: FocusState
+            rule.setFocusableContent {
+                focusManager = LocalFocusManager.current
+                Box(Modifier.focusRequester(parent).focusTarget()) {
+                    Box(Modifier.onFocusChanged { child1State = it }.focusTarget())
                     Box(
-                        Modifier.focusRequester(grandChild)
-                            .onFocusChanged { grandChildState = it }
+                        Modifier.focusRequester(child2)
+                            .onFocusChanged { child2State = it }
                             .focusTarget()
                     )
                 }
             }
-        }
-        rule.runOnIdle { grandChild.requestFocus() }
+            rule.runOnIdle { child2.requestFocus() }
 
-        // Act.
-        val savedSuccessfully = rule.runOnIdle { parent.saveFocusedChild() }
-        rule.runOnIdle { focusManager.clearFocus() }
-        val restoredSuccessfully = rule.runOnIdle { parent.restoreFocusedChild() }
+            // Act.
+            val savedSuccessfully = rule.runOnIdle { parent.saveFocusedChild() }
+            rule.runOnIdle { focusManager.clearFocus() }
+            val restoredSuccessfully = rule.runOnIdle { parent.restoreFocusedChild() }
 
-        // Assert.
-        rule.runOnIdle {
-            assertThat(savedSuccessfully).isTrue()
-            assertThat(restoredSuccessfully).isTrue()
-            assertThat(childState.isFocused).isTrue()
-            assertThat(grandChildState.isFocused).isFalse()
+            // Assert.
+            rule.runOnIdle {
+                assertThat(savedSuccessfully).isTrue()
+                assertThat(restoredSuccessfully).isTrue()
+                assertThat(child1State.isFocused).isFalse()
+                assertThat(child2State.isFocused).isTrue()
+            }
         }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun doesNotRestoreGrandChild_butFocusesOnChildInstead() {
+        featureFlagTest(
+            ComposeUiFlags::isInitialFocusOnFocusableAvailable to false,
+            ComposeUiFlags::isFocusRestorationEnabled to false,
+        ) {
+            // Arrange.
+            val (parent, grandChild) = FocusRequester.createRefs()
+            lateinit var focusManager: FocusManager
+            lateinit var childState: FocusState
+            lateinit var grandChildState: FocusState
+            rule.setFocusableContent {
+                focusManager = LocalFocusManager.current
+                Box(Modifier.focusRequester(parent).focusTarget()) {
+                    Box(Modifier.onFocusChanged { childState = it }.focusTarget()) {
+                        Box(
+                            Modifier.focusRequester(grandChild)
+                                .onFocusChanged { grandChildState = it }
+                                .focusTarget()
+                        )
+                    }
+                }
+            }
+            rule.runOnIdle { grandChild.requestFocus() }
+
+            // Act.
+            val savedSuccessfully = rule.runOnIdle { parent.saveFocusedChild() }
+            rule.runOnIdle { focusManager.clearFocus() }
+            val restoredSuccessfully = rule.runOnIdle { parent.restoreFocusedChild() }
+
+            // Assert.
+            rule.runOnIdle {
+                assertThat(savedSuccessfully).isTrue()
+                assertThat(restoredSuccessfully).isTrue()
+                assertThat(childState.isFocused).isTrue()
+                assertThat(grandChildState.isFocused).isFalse()
+            }
+        }
+    }
+}
+
+internal fun featureFlagTest(
+    vararg properties: Pair<KMutableProperty0<Boolean>, Boolean>,
+    block: () -> Unit,
+) {
+    val originalValues = properties.map { it.first.get() }
+    try {
+        properties.forEach { (property, override) -> property.set(override) }
+        block()
+    } finally {
+        properties.forEachIndexed { index, (property, _) -> property.set(originalValues[index]) }
     }
 }

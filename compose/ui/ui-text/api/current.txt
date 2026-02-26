@@ -76,7 +76,7 @@ package androidx.compose.ui.text {
     method @Deprecated @SuppressCompatibility @androidx.compose.ui.text.ExperimentalTextApi public int pushUrlAnnotation(androidx.compose.ui.text.UrlAnnotation urlAnnotation);
     method public androidx.compose.ui.text.AnnotatedString toAnnotatedString();
     method @KotlinOnly public <R> R withBulletList(optional androidx.compose.ui.unit.TextUnit indentation, optional androidx.compose.ui.text.Bullet bullet, kotlin.jvm.functions.Function1<androidx.compose.ui.text.AnnotatedString.Builder.AnnotatedString.BulletScope,R> block);
-    method @BytecodeOnly public <R> R withBulletList-o2QH7mI(long, androidx.compose.ui.text.Bullet, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Builder.BulletScope!,? extends R!>);
+    method @BytecodeOnly public <R> R withBulletList-o2QH7mI(long, androidx.compose.ui.text.Bullet, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Builder.BulletScope!,? extends R>);
     method @BytecodeOnly public static Object! withBulletList-o2QH7mI$default(androidx.compose.ui.text.AnnotatedString.Builder!, long, androidx.compose.ui.text.Bullet!, kotlin.jvm.functions.Function1!, int, Object!);
     method public <R> R withBulletListItem(androidx.compose.ui.text.AnnotatedString.Builder.BulletScope, optional androidx.compose.ui.text.Bullet? bullet, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Builder,? extends R> block);
     method @BytecodeOnly public static Object! withBulletListItem$default(androidx.compose.ui.text.AnnotatedString.Builder!, androidx.compose.ui.text.AnnotatedString.Builder.BulletScope!, androidx.compose.ui.text.Bullet!, kotlin.jvm.functions.Function1!, int, Object!);
@@ -1163,7 +1163,7 @@ package androidx.compose.ui.text.font {
     method @BytecodeOnly public void sort(java.util.Comparator<? super androidx.compose.ui.text.font.Font!>!);
     method @BytecodeOnly public java.util.List<androidx.compose.ui.text.font.Font!> subList(int, int);
     method @BytecodeOnly public Object![]! toArray();
-    method @BytecodeOnly public <T> T![]! toArray(T![]!);
+    method @BytecodeOnly public <T> T[]! toArray(T[]!);
     property public java.util.List<androidx.compose.ui.text.font.Font> fonts;
   }
 
@@ -1718,7 +1718,7 @@ package androidx.compose.ui.text.intl {
     method @BytecodeOnly public boolean retainAll(java.util.Collection<? extends java.lang.Object!>!);
     method @BytecodeOnly public int size();
     method @BytecodeOnly public Object![]! toArray();
-    method @BytecodeOnly public <T> T![]! toArray(T![]!);
+    method @BytecodeOnly public <T> T[]! toArray(T[]!);
     property public java.util.List<androidx.compose.ui.text.intl.Locale> localeList;
     property public int size;
     field public static final androidx.compose.ui.text.intl.LocaleList.Companion Companion;

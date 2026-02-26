@@ -37,6 +37,8 @@ import androidx.compose.runtime.tooling.CompositionData
 import androidx.compose.runtime.tooling.LocalInspectionTables
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.R
+import androidx.compose.ui.graphics.CanvasHolder
+import androidx.compose.ui.node.LayoutNodeDrawScope
 import androidx.compose.ui.res.ImageVectorCache
 import androidx.compose.ui.res.ResourceIdCache
 import androidx.compose.ui.unit.Density
@@ -117,8 +119,27 @@ internal class ComposeViewContext(
     /** [UriHandler] provided by [LocalUriHandler] */
     internal val uriHandler = AndroidUriHandler(view.context)
 
+    /** [ClipboardManager] provided by [LocalClipboardManager] */
+    internal val clipboardManager: AndroidClipboardManager = AndroidClipboardManager(view.context)
+
+    /** [Clipboard] provided by [LocalClipboard] */
+    internal val clipboard: AndroidClipboard = AndroidClipboard(clipboardManager)
+
+    /** [ViewConfiguration] provided by [LocalViewConfiguration] */
+    internal val viewConfiguration =
+        AndroidViewConfiguration(android.view.ViewConfiguration.get(view.context))
+
+    /** [LayoutNodeDrawScope] shared across all [ComposeView]s using this [ComposeViewContext] */
+    internal val sharedDrawScope = LayoutNodeDrawScope()
+
     /** [WindowInfo] provide by [LocalWindowInfo]. */
     internal val windowInfo: LazyWindowInfo = LazyWindowInfo()
+
+    /**
+     * A [CanvasHolder] that can be used for all AndroidComposeViews using this
+     * [ComposeViewContext].
+     */
+    internal val canvasHolder = CanvasHolder()
 
     /**
      * The number of Views that are currently attached to the view hierarchy that are using this

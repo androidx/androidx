@@ -25,6 +25,7 @@ import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
+import androidx.compose.remote.core.operations.Header;
 import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.operations.layout.LayoutComponent;
 import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
@@ -161,18 +162,36 @@ public class CollapsibleColumnLayout extends ColumnLayout {
 
     @Override
     public float minIntrinsicHeight(@NonNull RemoteContext context) {
-        float height = computeModifierDefinedHeight(context);
+        float height = computeModifierDefinedHeight(context, true);
         if (!mChildrenComponents.isEmpty()) {
-            height += mChildrenComponents.get(0).minIntrinsicHeight(context);
+            Component c;
+            if (context.useFeature(Header.FEATURE_PRIORITY_FIX)) {
+                c = CollapsiblePriority.findLastStanding(
+                                mChildrenComponents, CollapsiblePriority.VERTICAL);
+            } else {
+                c = mChildrenComponents.get(0);
+            }
+            if (c != null) {
+                height += c.minIntrinsicHeight(context);
+            }
         }
         return height;
     }
 
     @Override
     public float minIntrinsicWidth(@NonNull RemoteContext context) {
-        float width = computeModifierDefinedWidth(context);
+        float width = computeModifierDefinedWidth(context, true);
         if (!mChildrenComponents.isEmpty()) {
-            width += mChildrenComponents.get(0).minIntrinsicWidth(context);
+            Component c;
+            if (context.useFeature(Header.FEATURE_PRIORITY_FIX)) {
+                c = CollapsiblePriority.findLastStanding(
+                                mChildrenComponents, CollapsiblePriority.VERTICAL);
+            } else {
+                c = mChildrenComponents.get(0);
+            }
+            if (c != null) {
+                width += c.minIntrinsicWidth(context);
+            }
         }
         return width;
     }

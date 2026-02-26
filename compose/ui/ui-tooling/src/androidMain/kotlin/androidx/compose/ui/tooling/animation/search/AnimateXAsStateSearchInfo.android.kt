@@ -21,6 +21,7 @@ import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationVector
 import androidx.compose.ui.tooling.animation.AnimateXAsStateComposeAnimation
 import androidx.compose.ui.tooling.animation.AnimateXAsStateComposeAnimation.Companion.parse
+import androidx.compose.ui.tooling.animation.ClockInfo
 import androidx.compose.ui.tooling.animation.ToolingOverride
 import androidx.compose.ui.tooling.animation.clock.AnimateXAsStateClock
 
@@ -36,12 +37,33 @@ internal data class AnimateXAsStateSearchInfo<T, V : AnimationVector>(
     val animationSpec: AnimationSpec<T>,
     val toolingOverride: ToolingOverride<T>,
 ) : SearchInfo<AnimateXAsStateComposeAnimation<*, *>, AnimateXAsStateClock<*, *>> {
+
+    override val animationObject: Any = animatable
+
+    override val label: String
+        get() = animatable.label
+
+    override var initialState: Any? = null
+        private set
+
+    override var targetState: Any? = null
+        private set
+
+    override fun setInitialStateToCurrentAnimationValue() {
+        initialState = animatable.targetValue
+    }
+
+    override fun setTargetStateToCurrentAnimationValue() {
+        targetState = animatable.targetValue
+    }
+
     override fun createAnimation(): AnimateXAsStateComposeAnimation<*, *>? {
         return this.parse()
     }
 
     override fun createClock(
-        animation: AnimateXAsStateComposeAnimation<*, *>
+        animation: AnimateXAsStateComposeAnimation<*, *>,
+        clockInfo: ClockInfo,
     ): AnimateXAsStateClock<*, *> {
         return AnimateXAsStateClock(animation)
     }

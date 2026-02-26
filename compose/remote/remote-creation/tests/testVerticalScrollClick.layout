@@ -1,0 +1,1567 @@
+- description: Initial State
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - {type: NamedVariable, varId: 42, varName: click, varType: STRING_TYPE}
+      - {type: TextData, textId: 42, text: empty}
+      - type: COLUMN
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1000.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: ClipRectModifierOperation, width: 1000.0, height: 1000.0}
+          - {type: ScrollModifierOperation, direction: 0, max: !!float 'NaN', notchMax: !!float 'NaN',
+            scrollValue: -0.0, maxScrollValue: 1000.0, contentDimension: 2000.0, hostDimension: 1000.0}
+        - type: BOX
+          id: -5
+          x: 0.0
+          y: 0.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xffff0000', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          - type: CORE_TEXT
+            id: -7
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 46
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: -9
+          x: 0.0
+          y: 200.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          - type: CORE_TEXT
+            id: -11
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 47
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: -13
+          x: 0.0
+          y: 400.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xffff0000', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          - type: CORE_TEXT
+            id: -15
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 48
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: -17
+          x: 0.0
+          y: 600.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          - type: CORE_TEXT
+            id: -19
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 49
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: -21
+          x: 0.0
+          y: 800.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xffff0000', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          - type: CORE_TEXT
+            id: -23
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 50
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: -25
+          x: 0.0
+          y: 1000.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          - type: CORE_TEXT
+            id: -27
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 51
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: -29
+          x: 0.0
+          y: 1200.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xffff0000', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          - type: CORE_TEXT
+            id: -31
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 52
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: -33
+          x: 0.0
+          y: 1400.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          - type: CORE_TEXT
+            id: -35
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 53
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: -37
+          x: 0.0
+          y: 1600.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xffff0000', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          - type: CORE_TEXT
+            id: -39
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 54
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: -41
+          x: 0.0
+          y: 1800.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          - type: CORE_TEXT
+            id: -43
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 55
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0
+- description: Component Tree
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - {type: NamedVariable, varId: 42, varName: click, varType: STRING_TYPE}
+      - {type: TextData, textId: 42, text: empty}
+      - type: COLUMN
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1000.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: ClipRectModifierOperation, width: 1000.0, height: 1000.0}
+          - {type: ScrollModifierOperation, direction: 0, max: !!float 'NaN', notchMax: !!float 'NaN',
+            scrollValue: -0.0, maxScrollValue: 1000.0, contentDimension: 2000.0, hostDimension: 1000.0}
+        - type: BOX
+          id: -5
+          x: 0.0
+          y: 0.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xffff0000', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          - type: CORE_TEXT
+            id: -7
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 46
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: -9
+          x: 0.0
+          y: 200.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          - type: CORE_TEXT
+            id: -11
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 47
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: -13
+          x: 0.0
+          y: 400.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xffff0000', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          - type: CORE_TEXT
+            id: -15
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 48
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: -17
+          x: 0.0
+          y: 600.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          - type: CORE_TEXT
+            id: -19
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 49
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: -21
+          x: 0.0
+          y: 800.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xffff0000', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          - type: CORE_TEXT
+            id: -23
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 50
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: -25
+          x: 0.0
+          y: 1000.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          - type: CORE_TEXT
+            id: -27
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 51
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: -29
+          x: 0.0
+          y: 1200.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xffff0000', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          - type: CORE_TEXT
+            id: -31
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 52
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: -33
+          x: 0.0
+          y: 1400.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          - type: CORE_TEXT
+            id: -35
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 53
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: -37
+          x: 0.0
+          y: 1600.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xffff0000', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          - type: CORE_TEXT
+            id: -39
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 54
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: -41
+          x: 0.0
+          y: 1800.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          - type: CORE_TEXT
+            id: -43
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 55
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0
+- description: Validate Named String
+  command: {name: click, expected: empty}
+  result: {actual: empty}
+- description: Apply Click
+  command: {x: 100.0, y: 100.0}
+  result: {}
+- description: Validate Named String
+  command: {name: click, expected: Box 0}
+  result: {actual: Box 0}
+- description: Apply TouchDown
+  command: {x: 500.0, y: 500.0}
+  result: {}
+- description: Apply TouchDrag
+  command: {x: 500.0, y: 300.0, timeMillis: 10}
+  result: {}
+- description: Apply TouchDrag
+  command: {x: 500.0, y: 100.0, timeMillis: 20}
+  result: {}
+- description: Apply TouchUp
+  command: {x: 500.0, y: 100.0, dx: 0.0, dy: 0.0, timeMillis: 30}
+  result: {}
+- description: Component Tree
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - {type: NamedVariable, varId: 42, varName: click, varType: STRING_TYPE}
+      - {type: TextData, textId: 42, text: empty}
+      - type: COLUMN
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1000.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: ClipRectModifierOperation, width: 1000.0, height: 1000.0}
+          - {type: ScrollModifierOperation, direction: 0, max: !!float 'NaN', notchMax: !!float 'NaN',
+            scrollValue: -400.0, maxScrollValue: 1000.0, contentDimension: 2000.0,
+            hostDimension: 1000.0}
+        - type: BOX
+          id: -5
+          x: 0.0
+          y: 0.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xffff0000', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          - type: CORE_TEXT
+            id: -7
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 46
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: -9
+          x: 0.0
+          y: 200.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          - type: CORE_TEXT
+            id: -11
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 47
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: -13
+          x: 0.0
+          y: 400.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xffff0000', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          - type: CORE_TEXT
+            id: -15
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 48
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: -17
+          x: 0.0
+          y: 600.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          - type: CORE_TEXT
+            id: -19
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 49
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: -21
+          x: 0.0
+          y: 800.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xffff0000', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          - type: CORE_TEXT
+            id: -23
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 50
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: -25
+          x: 0.0
+          y: 1000.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          - type: CORE_TEXT
+            id: -27
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 51
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: -29
+          x: 0.0
+          y: 1200.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xffff0000', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          - type: CORE_TEXT
+            id: -31
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 52
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: -33
+          x: 0.0
+          y: 1400.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          - type: CORE_TEXT
+            id: -35
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 53
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: -37
+          x: 0.0
+          y: 1600.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xffff0000', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          - type: CORE_TEXT
+            id: -39
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 54
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: -41
+          x: 0.0
+          y: 1800.0
+          width: 200.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 200.0, height: 200.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+            - {type: ClickModifierOperation}
+          - type: CORE_TEXT
+            id: -43
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 55
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0
+- description: Apply Click
+  command: {x: 100.0, y: 450.0}
+  result: {}
+- description: Validate Named String
+  command: {name: click, expected: Box 4}
+  result: {actual: Box 4}

@@ -21,7 +21,7 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteIntReference
-import androidx.compose.remote.creation.compose.state.rememberRemoteIntValue
+import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.runtime.Composable
 
 @Composable
@@ -37,7 +37,7 @@ public class RemoteStringList(public var listId: Float) {
     public operator fun get(value: RemoteInt): RemoteIntReference {
         val state = LocalRemoteComposeCreationState.current
 
-        val valueId = with(state) { value.id }
+        val valueId = value.getIdForCreationState(state)
         return RemoteIntReference(state.document.textLookup(listId, valueId))
     }
 
@@ -45,7 +45,7 @@ public class RemoteStringList(public var listId: Float) {
     public operator fun get(value: Int): RemoteIntReference {
         val state = LocalRemoteComposeCreationState.current
 
-        val index = with(state) { rememberRemoteIntValue { value }.id }
+        val index = rememberMutableRemoteInt(value).getIdForCreationState(state)
         return RemoteIntReference(state.document.textLookup(listId, index))
     }
 }

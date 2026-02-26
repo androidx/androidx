@@ -18,7 +18,7 @@ package androidx.compose.ui.graphics
 
 import org.jetbrains.skia.ColorFilter as SkiaColorFilter
 
-actual typealias NativeColorFilter = SkiaColorFilter
+internal actual typealias NativeColorFilter = SkiaColorFilter
 
 /**
  * Obtain a [org.jetbrains.skia.ColorFilter] instance from this [ColorFilter]

@@ -20,8 +20,7 @@ import java.io.File
 import java.io.PrintWriter
 
 fun main(args: Array<String>) {
-    val fileIntroduction = File("compose/remote/Documentation/parts/rc_intro_wire_format.md")
-    val doc = RemoteComposeDocumentation("RemoteCompose Wire Format", fileIntroduction.readText())
+    val doc = RemoteComposeDocumentation("RemoteCompose Wire Format")
     val file = File("compose/remote/Documentation/RemoteComposeWireFormat.md.html")
     val out = PrintWriter(file)
     out.println(doc.content())

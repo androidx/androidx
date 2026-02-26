@@ -258,13 +258,13 @@ public class RowLayout extends LayoutManager {
     }
 
     @Override
-    public float minIntrinsicWidth(@Nullable RemoteContext context) {
-        return minIntrinsicWidth(context, mChildrenComponents);
+    public float minIntrinsicWidth(@NonNull RemoteContext context) {
+        return minIntrinsicWidth(context, mChildrenComponents, true);
     }
 
-    protected float minIntrinsicWidth(@Nullable RemoteContext context,
-            @NonNull ArrayList<Component> components) {
-        float width = computeModifierDefinedWidth(context);
+    protected float minIntrinsicWidth(@NonNull RemoteContext context,
+            @NonNull ArrayList<Component> components, boolean isMin) {
+        float width = computeModifierDefinedWidth(context, isMin);
         float componentWidths = 0f;
         for (Component c : components) {
             componentWidths += c.minIntrinsicWidth(context);
@@ -273,18 +273,28 @@ public class RowLayout extends LayoutManager {
     }
 
     @Override
-    public float minIntrinsicHeight(@Nullable RemoteContext context) {
-        return minIntrinsicHeight(context, mChildrenComponents);
+    public float minIntrinsicHeight(@NonNull RemoteContext context) {
+        return minIntrinsicHeight(context, mChildrenComponents, true);
     }
 
     protected float minIntrinsicHeight(@Nullable RemoteContext context,
-            @NonNull ArrayList<Component> components) {
-        float height = computeModifierDefinedHeight(context);
+            @NonNull ArrayList<Component> components, boolean isMin) {
+        float height = computeModifierDefinedHeight(context, isMin);
         float componentHeights = 0f;
         for (Component c : components) {
             componentHeights = Math.max(componentHeights, c.minIntrinsicHeight(context));
         }
         return Math.max(height, componentHeights);
+    }
+
+    @Override
+    public float maxIntrinsicWidth(@NonNull RemoteContext context) {
+        float width = computeModifierDefinedWidth(context);
+        float childrenWidth = 0f;
+        for (Component c : mChildrenComponents) {
+            childrenWidth += c.maxIntrinsicWidth(context);
+        }
+        return Math.max(width, childrenWidth);
     }
 
     @Override
@@ -527,13 +537,15 @@ public class RowLayout extends LayoutManager {
     }
 
     @Override
-    public void getLocationInWindow(float @NonNull [] value, boolean forSelf) {
-        super.getLocationInWindow(value, forSelf);
+    public void getLocationInWindow(@NonNull RemoteContext context, float @NonNull [] value,
+            boolean forSelf) {
+        super.getLocationInWindow(context, value, forSelf);
+        if (context.getTouchVersion() != LayoutManager.FIX_TOUCH_EVENT) {
+            if (!forSelf && mHorizontalScrollDelegate instanceof ScrollModifierOperation) {
+                ScrollModifierOperation smo = (ScrollModifierOperation) mHorizontalScrollDelegate;
 
-        if (!forSelf && mHorizontalScrollDelegate instanceof ScrollModifierOperation) {
-            ScrollModifierOperation smo = (ScrollModifierOperation) mHorizontalScrollDelegate;
-
-            value[0] += smo.getScrollX();
+                value[0] += smo.getScrollX();
+            }
         }
     }
 

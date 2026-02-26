@@ -32,7 +32,6 @@ import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationCompos
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags.isRemoteApplierEnabled
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.v2.captureSingleRemoteDocumentV2
-import androidx.compose.remote.creation.compose.widgets.toLayoutDirection
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.Composable
@@ -369,6 +368,7 @@ public fun RememberRemoteDocumentInline(
                 captureSingleRemoteDocumentV2(
                     creationDisplayInfo = createCreationDisplayInfo(context),
                     layoutDirection = layoutDirection,
+                    profile = profile,
                     context = context,
                     content = content,
                 )
@@ -418,5 +418,14 @@ public fun RememberRemoteDocumentInline(
                 },
             )
         }
+    }
+}
+
+/** Convert an Android layout direction to a compose [layout direction][LayoutDirection]. */
+internal fun toLayoutDirection(androidLayoutDirection: Int): LayoutDirection {
+    return when (androidLayoutDirection) {
+        android.util.LayoutDirection.LTR -> LayoutDirection.Ltr
+        android.util.LayoutDirection.RTL -> LayoutDirection.Rtl
+        else -> throw IllegalArgumentException("Unknown layout direction: $androidLayoutDirection")
     }
 }

@@ -46,26 +46,7 @@ import org.junit.runners.JUnit4
 @MediumTest
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(JUnit4::class)
-class DrawOperationsComposeTest {
-    // Remote Compose player is called directly in this test so it uses a Compose rule to avoid
-    // nesting Remote Compose players.
-    @get:Rule
-    val composeTestRule =
-        ComposeScreenshotTestRule(
-            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
-            matcher = MSSIMMatcher(threshold = 0.999),
-        )
-
-    @Test
-    fun drawOperationsInGrid() {
-        composeTestRule.drawOperationsInGrid()
-    }
-}
-
-@MediumTest
-@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
-@RunWith(JUnit4::class)
-class DrawOperationsViewTest {
+class DrawOperationsTest {
     // Remote Compose player is called directly in this test so it uses a Compose rule to avoid
     // nesting Remote Compose players.
     @get:Rule

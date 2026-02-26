@@ -859,8 +859,7 @@ class RequestFocusTest {
                 assertThat(success).isTrue()
                 rule.onNodeWithTag(tag1).assertIsFocused()
             }
-            ComposeUiFlags.isBypassUnfocusableComposeViewEnabled &&
-                ComposeUiFlags.isIgnoreInvalidPrevFocusRectEnabled -> {
+            ComposeUiFlags.isBypassUnfocusableComposeViewEnabled -> {
                 assertThat(success).isTrue()
                 rule.onNodeWithTag(tag2).assertIsFocused()
             }

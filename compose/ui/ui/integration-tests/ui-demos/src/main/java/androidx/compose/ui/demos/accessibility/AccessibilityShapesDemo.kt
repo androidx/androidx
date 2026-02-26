@@ -17,11 +17,13 @@
 package androidx.compose.ui.demos.accessibility
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.rememberScrollState
@@ -42,11 +44,13 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun AccessibilityShapeOffscreenDemo() {
-    Column(Modifier.padding(vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    Column(
+        Modifier.fillMaxSize().padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
         Text(
             "Scroll a shape off screen and then use the a11y inspector on it " +
-                "to see if the a11y view of the shape matches its actual shape.",
-            Modifier.padding(horizontal = 16.dp),
+                "to see if the a11y view of the shape matches its actual shape."
         )
 
         @Composable
@@ -59,7 +63,7 @@ fun AccessibilityShapeOffscreenDemo() {
         }
 
         Column(
-            Modifier.horizontalScroll(rememberScrollState()),
+            Modifier.border(1.dp, Color.LightGray).horizontalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             RepeatedLayoutRow(RectangleShape)

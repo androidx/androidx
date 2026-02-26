@@ -31,6 +31,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.SessionMutex
+import androidx.compose.ui.areWindowInsetsRulersEnabled
 import androidx.compose.ui.autofill.AutofillManager
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusOwner

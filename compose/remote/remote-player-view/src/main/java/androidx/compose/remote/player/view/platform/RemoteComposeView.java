@@ -30,7 +30,6 @@ import android.view.VelocityTracker;
 import android.view.View;
 import android.widget.EdgeEffect;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
@@ -78,6 +77,8 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
     int mDebug = 0;
     boolean mHasClickAreas = false;
     Point mActionDownPoint = new Point(0, 0);
+    Point mActionCurrentPoint = new Point(0, 0);
+    int mTouchSlop;
     AndroidRemoteContext mARContext;
     Map<Integer, Object> mResolvedData = null;
 
@@ -107,6 +108,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
      */
     public RemoteComposeView(@NonNull Context context) {
         super(context);
+        mTouchSlop = android.view.ViewConfiguration.get(context).getScaledTouchSlop();
         addOnAttachStateChangeListener(this);
         setClock(RemoteClock.SYSTEM);
     }
@@ -118,7 +120,8 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
      * @param attrs   The attributes of the XML tag that is inflating the view.
      */
     public RemoteComposeView(@NonNull Context context, @NonNull AttributeSet attrs) {
-        super(context);
+        super(context, attrs);
+        mTouchSlop = android.view.ViewConfiguration.get(context).getScaledTouchSlop();
         addOnAttachStateChangeListener(this);
         setClock(RemoteClock.SYSTEM);
     }
@@ -134,6 +137,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
     public RemoteComposeView(@NonNull Context context, @NonNull AttributeSet attrs,
             int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        mTouchSlop = android.view.ViewConfiguration.get(context).getScaledTouchSlop();
         setBackgroundColor(Color.WHITE);
         addOnAttachStateChangeListener(this);
         setClock(RemoteClock.SYSTEM);
@@ -151,6 +155,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
     public RemoteComposeView(@NonNull Context context, @NonNull AttributeSet attrs,
             int defStyleAttr, @NonNull Clock clock) {
         super(context, attrs, defStyleAttr);
+        mTouchSlop = android.view.ViewConfiguration.get(context).getScaledTouchSlop();
         setBackgroundColor(Color.WHITE);
         addOnAttachStateChangeListener(this);
         setClock(new SystemClock(clock));
@@ -215,6 +220,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
         }
         mARContext.setDocLoadTime();
         mARContext.setAnimationEnabled(true);
+        mDensity = getContext().getResources().getDisplayMetrics().density;
         mARContext.setDensity(mDensity);
         mARContext.setUseChoreographer(true);
         setContentDescription(mDocument.getDocument().getContentDescription());
@@ -321,7 +327,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
      *
      * @return array of names or null
      */
-    public  @NonNull ArrayList<ColorTheme> getThemedColors() {
+    public @NonNull ArrayList<ColorTheme> getThemedColors() {
         return mDocument.getThemedColors();
     }
 
@@ -596,6 +602,8 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
             case MotionEvent.ACTION_DOWN:
                 mActionDownPoint.x = (int) event.getX();
                 mActionDownPoint.y = (int) event.getY();
+                mActionCurrentPoint.x = (int) event.getX();
+                mActionCurrentPoint.y = (int) event.getY();
                 CoreDocument doc = mDocument.getDocument();
                 if (doc.hasTouchListener()) {
                     mARContext.loadFloat(RemoteContext.ID_TOUCH_EVENT_TIME,
@@ -628,7 +636,14 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
 
             case MotionEvent.ACTION_UP:
                 mInActionDown = false;
-                performClick();
+                mActionCurrentPoint.x = (int) event.getX();
+                mActionCurrentPoint.y = (int) event.getY();
+                float dxDown = mActionCurrentPoint.x - mActionDownPoint.x;
+                float dyDown = mActionCurrentPoint.y - mActionDownPoint.y;
+                float distance = (float) Math.sqrt(dxDown * dxDown + dyDown * dyDown);
+                if (distance < mTouchSlop) {
+                    performClick();
+                }
                 doc = mDocument.getDocument();
                 if (doc.hasTouchListener()) {
                     mARContext.loadFloat(RemoteContext.ID_TOUCH_EVENT_TIME,
@@ -644,6 +659,8 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
 
             case MotionEvent.ACTION_MOVE:
                 if (mInActionDown) {
+                    mActionCurrentPoint.x = (int) event.getX();
+                    mActionCurrentPoint.y = (int) event.getY();
                     if (mVelocityTracker != null) {
                         mARContext.loadFloat(RemoteContext.ID_TOUCH_EVENT_TIME,
                                 mARContext.getAnimationTime());
@@ -666,8 +683,8 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
         if (USE_VIEW_AREA_CLICK && mHasClickAreas) {
             return super.performClick();
         }
-        mDocument.getDocument().onClick(mARContext, (float) mActionDownPoint.x,
-                (float) mActionDownPoint.y);
+        mDocument.getDocument().onClick(mARContext, (float) mActionCurrentPoint.x,
+                (float) mActionCurrentPoint.y);
         super.performClick();
         invalidate();
         return true;
@@ -911,7 +928,8 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
     }
 
     private float getDefaultTextSize() {
-        return new TextView(getContext()).getTextSize();
+        float density = getContext().getResources().getDisplayMetrics().density;
+        return 14f * density * getContext().getResources().getConfiguration().fontScale;
     }
 
     /**

@@ -183,7 +183,7 @@ public class RippleModifierOperation extends DecoratorModifierOperation implemen
     }
 
     @Override
-    public void onTouchDown(
+    public boolean onTouchDown(
             @NonNull RemoteContext context,
             @NonNull CoreDocument document,
             @NonNull Component component,
@@ -191,37 +191,44 @@ public class RippleModifierOperation extends DecoratorModifierOperation implemen
             float y) {
         locationInWindow[0] = 0f;
         locationInWindow[1] = 0f;
-        component.getLocationInWindow(locationInWindow);
+        component.getLocationInWindow(context, locationInWindow);
         animateRipple(
                 x - locationInWindow[0], y - locationInWindow[1], context.getClock().millis());
         context.hapticEffect(3);
+        return true;
     }
 
     @Override
-    public void onTouchUp(
+    public boolean onTouchUp(
             @NonNull RemoteContext context,
             @NonNull CoreDocument document,
             @NonNull Component component,
             float x,
             float y,
             float dx,
-            float dy) {}
+            float dy) {
+        return false;
+    }
 
     @Override
-    public void onTouchDrag(
+    public boolean onTouchDrag(
             @NonNull RemoteContext context,
             @NonNull CoreDocument document,
             @NonNull Component component,
             float x,
-            float y) {}
+            float y) {
+        return false;
+    }
 
     @Override
-    public void onTouchCancel(
+    public boolean onTouchCancel(
             @NonNull RemoteContext context,
             @NonNull CoreDocument document,
             @NonNull Component component,
             float x,
-            float y) {}
+            float y) {
+        return false;
+    }
 
     @Override
     public void serialize(@NonNull MapSerializer serializer) {

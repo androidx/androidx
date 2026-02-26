@@ -22,7 +22,6 @@ import androidx.compose.remote.core.operations.layout.animation.AnimationSpec.AN
 import androidx.compose.remote.core.operations.utilities.easing.GeneralEasing
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
-import androidx.compose.runtime.Composable
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AnimateSpecModifier(
@@ -34,6 +33,7 @@ public class AnimateSpecModifier(
     public val enterAnimation: ANIMATION,
     public val exitAnimation: ANIMATION,
 ) : RemoteModifier.Element {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.AnimateSpecModifier(
             animationId,
@@ -47,7 +47,7 @@ public class AnimateSpecModifier(
     }
 }
 
-@Composable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.animationSpec(
     animationId: Int = -1,
     motionDuration: Float,
@@ -72,7 +72,7 @@ public fun RemoteModifier.animationSpec(
     )
 }
 
-@Composable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.animationSpec(animationId: Int = -1, enabled: Boolean): RemoteModifier {
     val id = if (enabled) animationId else 0
     return then(

@@ -33,8 +33,9 @@ public interface ClickHandler extends TouchOperation {
      * @param component the component on which the click has been received
      * @param x the x position of the click in document coordinates
      * @param y the y position of the click in document coordinates
+     * @return true if the event has been handled
      */
-    void onClick(
+    boolean onClick(
             @NonNull RemoteContext context,
             @NonNull CoreDocument document,
             @NonNull Component component,

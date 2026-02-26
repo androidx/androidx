@@ -294,9 +294,11 @@ expect fun createComposeRule(): ComposeContentTestRule
  */
 @Deprecated(
     message =
-        "Use `androidx.compose.ui.test.junit4.v2.createComposeRule` instead. The v2 APIs use " +
-            "`StandardTestDispatcher` by default to better simulate production behavior where " +
-            "coroutines are queued rather than executed immediately.",
+        "Use `androidx.compose.ui.test.junit4.v2.createComposeRule` instead. " +
+            "The v2 APIs use StandardTestDispatcher instead of UnconfinedTestDispatcher, " +
+            "which aligns with standard coroutine behavior by queuing tasks rather than " +
+            "executing them immediately. Tests relying on immediate execution may require " +
+            "explicit synchronization. Please refer to the migration guide for more details.",
     level = DeprecationLevel.WARNING,
 )
 @Suppress("KmpExperimentalMismatch") // only experimental in jvmStubs

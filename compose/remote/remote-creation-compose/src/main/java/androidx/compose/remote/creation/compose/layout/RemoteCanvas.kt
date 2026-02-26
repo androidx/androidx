@@ -29,6 +29,8 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.Path
 
 /**
  * A wrapper around [RecordingCanvas] that provides overloads for remote types and avoids platform
@@ -39,6 +41,8 @@ public class RemoteCanvas(
     /** The underlying [RecordingCanvas] being wrapped. */
     public val internalCanvas: RecordingCanvas
 ) : RemoteStateScope by internalCanvas {
+    public val drawScope: RemoteDrawScope = RemoteDrawScope(this)
+    public val remote: RemoteAccess = RemoteAccess(drawScope)
 
     /** Saves the current canvas state. */
     public fun save() {
@@ -203,12 +207,12 @@ public class RemoteCanvas(
      * @param stop The stop value for internal tween calculations (often 1.0).
      */
     public fun drawTweenPath(
-        path1: androidx.compose.ui.graphics.Path,
-        path2: androidx.compose.ui.graphics.Path,
+        path1: Path,
+        path2: Path,
         tween: RemoteFloat,
         start: RemoteFloat,
         stop: RemoteFloat,
-        paint: androidx.compose.ui.graphics.Paint,
+        paint: Paint,
     ) {
         internalCanvas.drawTweenPath(path1, path2, tween, start, stop, paint)
     }
@@ -222,7 +226,7 @@ public class RemoteCanvas(
         tween: RemoteFloat,
         start: RemoteFloat,
         stop: RemoteFloat,
-        paint: androidx.compose.ui.graphics.Paint,
+        paint: Paint,
     ) {
         internalCanvas.drawTweenPath(path1, path2, tween, start, stop, paint)
     }
@@ -423,13 +427,3 @@ public class RemoteCanvas(
         internalCanvas.loop(from, until, step, body)
     }
 }
-
-/** Returns the width of the component as a [RemoteFloat]. */
-@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public val RemoteCanvas.componentWidth: RemoteFloat
-    get() = remoteComponentWidth(creationState)
-
-/** Returns the height of the component as a [RemoteFloat]. */
-@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public val RemoteCanvas.componentHeight: RemoteFloat
-    get() = remoteComponentHeight(creationState)

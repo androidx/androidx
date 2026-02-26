@@ -75,6 +75,7 @@ public class RemoteBitmapFont(
     public override val constantValueOrNull: Any?
         get() = null
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
         return creationState.document.addBitmapFont(
             Array<BitmapFontData.Glyph>(glyphs.size) { index ->

@@ -18,7 +18,8 @@ package androidx.compose.ui.node
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsNode
@@ -125,13 +126,21 @@ fun SemanticsModifierNode.invalidateSemantics() = requireLayoutNode().invalidate
 internal val SemanticsConfiguration.useMinimumTouchTarget: Boolean
     get() = getOrNull(SemanticsActions.OnClick) != null
 
-internal fun Modifier.Node.touchBoundsInRoot(useMinimumTouchTarget: Boolean): Rect {
+/** Returns bounds in root taking touch target size and clipping into consideration */
+internal fun Modifier.Node.effectiveBoundsInRoot(
+    useMinimumTouchTarget: Boolean,
+    clipBounds: Boolean,
+): Rect {
     if (!node.isAttached) {
         return Rect.Zero
     }
     if (!useMinimumTouchTarget) {
-        return requireCoordinator(Nodes.Semantics).boundsInRoot()
+        return requireCoordinator(Nodes.Semantics).boundsInRoot(clipBounds)
     }
 
     return requireCoordinator(Nodes.Semantics).touchBoundsInRoot()
 }
+
+/** The boundaries of this layout inside the root. */
+internal fun LayoutCoordinates.boundsInRoot(clipBounds: Boolean): Rect =
+    findRootCoordinates().localBoundingBoxOf(this, clipBounds)

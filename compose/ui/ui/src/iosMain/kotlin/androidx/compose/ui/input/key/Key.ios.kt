@@ -38,6 +38,13 @@ actual value class Key(val keyCode: Long) {
         actual val Home = Key(UIKeyboardHIDUsageKeyboardHome)
 
         /**
+         * System Home key.
+         *
+         * This key is handled by the framework and is never delivered to applications.
+         */
+        actual val SystemHome: Key = Key(-1000000207)
+
+        /**
          * Up Arrow Key / Directional Pad Up key.
          *
          * May also be synthesized from trackball motions.
@@ -564,6 +571,7 @@ actual value class Key(val keyCode: Long) {
         actual val NumPadPageUp = Key(-1000000204)
         actual val NumPadPageDown = Key(-1000000205)
         actual val NumPadInsert = Key(-1000000206)
+        actual val NumPadDelete: Key = Key(-1000000208)
     }
 
     actual override fun toString() = "Key keyCode: $keyCode"

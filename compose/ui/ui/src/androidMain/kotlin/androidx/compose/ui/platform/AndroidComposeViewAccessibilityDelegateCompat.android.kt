@@ -59,6 +59,7 @@ import androidx.collection.mutableIntObjectMapOf
 import androidx.collection.mutableIntSetOf
 import androidx.collection.mutableObjectIntMapOf
 import androidx.collection.mutableScatterSetOf
+import androidx.compose.ui.AndroidComposeUiFlags
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.R
@@ -590,6 +591,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         )
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     private fun populateAccessibilityNodeInfoProperties(
         virtualViewId: Int,
         info: AccessibilityNodeInfoCompat,
@@ -783,6 +785,14 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
         // Mark invisible nodes
         info.isVisibleToUser = !semanticsNode.isHidden
+        if (ComposeUiFlags.isAccessibilityShouldIncludeOffscreenChildrenEnabled) {
+            // We started to report more nodes on the edges of scrollable containers, and we don't
+            // use clip bounds for them. Therefore, we mark them as invisible to user to signal this
+            // information to the accessibility services.
+            info.setInvisibleIfEmptyBounds(
+                if (semanticsNode.isFake) semanticsNode.parent!! else semanticsNode
+            )
+        }
 
         semanticsNode.unmergedConfig.getOrNull(SemanticsProperties.LiveRegion)?.let {
             info.liveRegion =
@@ -1164,6 +1174,11 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             info.isContentInvalid = true
             info.error = node.unmergedConfig.getOrNull(SemanticsProperties.Error)
         }
+    }
+
+    /** Marks the node as not visible to user if its bounds have zero width or height */
+    private fun AccessibilityNodeInfoCompat.setInvisibleIfEmptyBounds(node: SemanticsNode) {
+        if (node.touchBoundsInRoot.isEmpty) isVisibleToUser = false
     }
 
     @OptIn(InternalTextApi::class)
@@ -1674,7 +1689,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                     ?: false
             }
             android.R.id.accessibilityActionShowOnScreen -> {
-                if (ComposeUiFlags.isAccessibilityShowOnScreenNestedScrollingEnabled) {
+                if (AndroidComposeUiFlags.isAccessibilityShowOnScreenNestedScrollingEnabled) {
                     return node.scrollOntoScreen()
                 } else {
                     @Suppress("DEPRECATION")
@@ -2593,6 +2608,14 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                             semanticsNodeIdToAccessibilityVirtualNodeId(id),
                             AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED,
                             AccessibilityEventCompat.CONTENT_CHANGE_TYPE_UNDEFINED,
+                        )
+                    }
+                    SemanticsProperties.Error -> {
+                        sendEventForVirtualView(
+                            semanticsNodeIdToAccessibilityVirtualNodeId(id),
+                            AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED,
+                            AccessibilityEventCompat.CONTENT_CHANGE_TYPE_ERROR or
+                                AccessibilityEventCompat.CONTENT_CHANGE_TYPE_CONTENT_INVALID,
                         )
                     }
                     SemanticsProperties.ProgressBarRangeInfo -> {

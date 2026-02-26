@@ -23,4 +23,21 @@ import androidx.compose.ui.tooling.animation.clock.TransitionClock
 /** [SearchInfo] for animations based on [Transition]. */
 internal abstract class TransitionBasedSearchInfo<AnimationType : TransitionBasedAnimation<*>>(
     val transition: Transition<*>
-) : SearchInfo<AnimationType, TransitionClock<*>>
+) : SearchInfo<AnimationType, TransitionClock<*>> {
+
+    override val animationObject: Any = transition
+
+    final override var initialState: Any? = null
+        private set
+
+    final override var targetState: Any? = null
+        private set
+
+    override fun setInitialStateToCurrentAnimationValue() {
+        initialState = transition.targetState
+    }
+
+    override fun setTargetStateToCurrentAnimationValue() {
+        targetState = transition.targetState
+    }
+}

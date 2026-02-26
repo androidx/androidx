@@ -25,7 +25,6 @@ import androidx.compose.remote.creation.compose.state.rdp
  * Describes a padding to be applied along the edges inside a box. Use the various
  * [RemotePaddingValues] constructors for convenient ways to build instances.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemotePaddingValues(
     public val leftPadding: RemoteDp = 0.rdp,
     public val topPadding: RemoteDp = 0.rdp,

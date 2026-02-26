@@ -172,9 +172,10 @@ fun <A : ComponentActivity> AndroidComposeUiTestEnvironmentNoSuspendingLambda(
  */
 @Deprecated(
     message =
-        "Use `androidx.compose.ui.test.v2.runComposeUiTest` instead. The v2 APIs use " +
-            "`StandardTestDispatcher` by default to better simulate production behavior where " +
-            "coroutines are queued rather than executed immediately.",
+        "Use `androidx.compose.ui.test.v2.runComposeUiTest` instead. The v2 APIs align with " +
+            "standard coroutine behavior by queuing tasks rather than executing them " +
+            "immediately. Tests relying on immediate execution may require explicit " +
+            "synchronization. Please refer to the migration guide for more details.",
     level = DeprecationLevel.WARNING,
 )
 @Suppress("RedundantUnitReturnType")
@@ -219,9 +220,10 @@ actual fun runComposeUiTest(
  */
 @Deprecated(
     message =
-        "Use `androidx.compose.ui.test.v2.runAndroidComposeUiTest` instead. The v2 APIs use " +
-            "`StandardTestDispatcher` by default to better simulate production behavior where " +
-            "coroutines are queued rather than executed immediately.",
+        "Use `androidx.compose.ui.test.v2.runAndroidComposeUiTest` instead. The v2 APIs align with " +
+            "standard coroutine behavior by queuing tasks rather than executing them " +
+            "immediately. Tests relying on immediate execution may require explicit " +
+            "synchronization. Please refer to the migration guide for more details.",
     level = DeprecationLevel.WARNING,
 )
 @Suppress("RedundantUnitReturnType")
@@ -261,9 +263,11 @@ inline fun <reified A : ComponentActivity> runAndroidComposeUiTest(
  */
 @Deprecated(
     message =
-        "Use `androidx.compose.ui.test.v2.runAndroidComposeUiTest` instead. The v2 APIs use " +
-            "`StandardTestDispatcher` by default to better simulate production behavior where " +
-            "coroutines are queued rather than executed immediately.",
+        "Use `androidx.compose.ui.test.v2.runAndroidComposeUiTest` instead. " +
+            "The v2 APIs use StandardTestDispatcher instead of UnconfinedTestDispatcher, " +
+            "which aligns with standard coroutine behavior by queuing tasks rather than " +
+            "executing them immediately. Tests relying on immediate execution may require " +
+            "explicit synchronization. Please refer to the migration guide for more details.",
     level = DeprecationLevel.WARNING,
 )
 @Suppress("RedundantUnitReturnType")
@@ -336,9 +340,10 @@ fun <A : ComponentActivity> runAndroidComposeUiTest(
  */
 @Deprecated(
     message =
-        "Use `androidx.compose.ui.test.v2.runEmptyComposeUiTest` instead. The v2 APIs use " +
-            "`StandardTestDispatcher` by default to better simulate production behavior where " +
-            "coroutines are queued rather than executed immediately.",
+        "Use `androidx.compose.ui.test.v2.runEmptyComposeUiTest` instead. The v2 APIs align with " +
+            "standard coroutine behavior by queuing tasks rather than executing them " +
+            "immediately. Tests relying on immediate execution may require explicit " +
+            "synchronization. Please refer to the migration guide for more details.",
     level = DeprecationLevel.WARNING,
 )
 @Suppress("RedundantUnitReturnType")
@@ -417,9 +422,10 @@ sealed interface AndroidComposeUiTest<A : ComponentActivity> : ComposeUiTest {
  */
 @Deprecated(
     message =
-        "Use `androidx.compose.ui.test.v2.AndroidComposeUiTestEnvironment` instead. The v2 APIs use " +
-            "`StandardTestDispatcher` by default to better simulate production behavior where " +
-            "coroutines are queued rather than executed immediately.",
+        "Use `androidx.compose.ui.test.v2.AndroidComposeUiTestEnvironment` instead. The v2 APIs align with " +
+            "standard coroutine behavior by queuing tasks rather than executing them " +
+            "immediately. Tests relying on immediate execution may require explicit " +
+            "synchronization. Please refer to the migration guide for more details.",
     level = DeprecationLevel.WARNING,
 )
 @ExperimentalTestApi

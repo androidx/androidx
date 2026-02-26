@@ -23,11 +23,8 @@ import androidx.compose.remote.core.operations.ConditionalOperations
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.utilities.MatrixOperations
 import androidx.compose.remote.creation.RemoteComposeContext
-import androidx.compose.remote.creation.RemoteComposeContextAndroid
-import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.min
-import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.round
 import androidx.compose.remote.creation.sign
 import androidx.compose.remote.tooling.preview.RemoteDocPreview
@@ -92,11 +89,10 @@ fun cube3d(): RemoteComposeContext {
             0,
         ) // Bottom face
 
-    return RemoteComposeContextAndroid(
-        AndroidxRcPlatformServices(),
-        RemoteComposeWriter.HTag(Header.DOC_CONTENT_DESCRIPTION, "Clock"),
-        RemoteComposeWriter.HTag(Header.DOC_DESIRED_FPS, 120),
-    ) {
+    addHeaderParam(Header.DOC_CONTENT_DESCRIPTION, "Cube")
+    addHeaderParam(Header.DOC_DESIRED_FPS, 120)
+
+    return demo7 {
         root {
             box(Modifier.fillMaxWidth().fillMaxHeight()) {
                 canvas(Modifier.fillMaxWidth().fillMaxHeight()) {

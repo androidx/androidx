@@ -50,6 +50,7 @@ public class MarqueeModifier(
     public val velocity: Float,
 ) : RemoteModifier.Element {
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.MarqueeModifier(
             iterations,
@@ -62,6 +63,7 @@ public class MarqueeModifier(
     }
 }
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.basicMarquee(
     iterations: Int = Int.MAX_VALUE,
     animationMode: Int = 0,

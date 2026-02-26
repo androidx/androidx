@@ -40,6 +40,8 @@ import androidx.compose.ui.tooling.animation.AnimationSearch
 import androidx.compose.ui.tooling.animation.TransitionComposeAnimation
 import androidx.compose.ui.tooling.animation.Utils.addAnimations
 import androidx.compose.ui.tooling.animation.parse
+import androidx.compose.ui.tooling.animation.search.AnimatedContentSearchInfo
+import androidx.compose.ui.tooling.animation.search.TransitionSearchInfo
 import androidx.compose.ui.tooling.animation.states.ComposeAnimationState
 import androidx.compose.ui.tooling.animation.states.TargetState
 import androidx.compose.ui.unit.Dp
@@ -477,7 +479,10 @@ class TransitionClockTest {
             ) {
                 targetColorByState(it)
             }
-            clock = TransitionClock(transition.parse() as TransitionComposeAnimation<S>)
+            clock =
+                TransitionClock(
+                    TransitionSearchInfo(transition).parse() as TransitionComposeAnimation<S>
+                )
         }
         return clock
     }
@@ -488,7 +493,10 @@ class TransitionClockTest {
         rule.setContent {
             val transition = updateTransition(targetState, label = "TestTransition")
             transition.AnimatedVisibility(visible = { it }) { Text(text = "TestText") }
-            clock = TransitionClock(transition.parse() as TransitionComposeAnimation<Boolean>)
+            clock =
+                TransitionClock(
+                    TransitionSearchInfo(transition).parse() as TransitionComposeAnimation<Boolean>
+                )
         }
         return clock
     }
@@ -505,7 +513,10 @@ class TransitionClockTest {
                     Text("TestText false")
                 }
             }
-            clock = TransitionClock(transition.parse() as TransitionComposeAnimation<Boolean>)
+            clock =
+                TransitionClock(
+                    TransitionSearchInfo(transition).parse() as TransitionComposeAnimation<Boolean>
+                )
         }
         return clock
     }
@@ -522,7 +533,10 @@ class TransitionClockTest {
                     Text("TestText false")
                 }
             }
-            clock = TransitionClock(transition.parse() as TransitionComposeAnimation<Boolean>)
+            clock =
+                TransitionClock(
+                    TransitionSearchInfo(transition).parse() as TransitionComposeAnimation<Boolean>
+                )
         }
         return clock
     }
@@ -531,7 +545,8 @@ class TransitionClockTest {
     fun childTransition() {
         val search = AnimationSearch.TransitionSearch {}
         rule.addAnimations(search) { ChildTransitions() }
-        val clock = TransitionClock(search.animations.first().transition.parse()!!)
+        val clock =
+            TransitionClock(TransitionSearchInfo(search.animations.first().transition).parse()!!)
 
         rule.runOnIdle {
             clock.getTransitions(100).let {
@@ -617,7 +632,11 @@ class TransitionClockTest {
         val search = AnimationSearch.AnimatedContentSearch {}
         val target = mutableStateOf<Dp?>(null)
         rule.addAnimations(search) { AnimatedContent(1.dp) { target.value = it } }
-        val clock = TransitionClock(search.animations.first().transition.parseAnimatedContent()!!)
+        val clock =
+            TransitionClock(
+                AnimatedContentSearchInfo(search.animations.first().transition)
+                    .parseAnimatedContent()!!
+            )
         rule.runOnIdle {
             clock.setStateParameters(10.dp, 10.dp)
             clock.setClockTime(0)
@@ -640,7 +659,11 @@ class TransitionClockTest {
         val search = AnimationSearch.AnimatedContentSearch {}
         val target = mutableStateOf<IntSize?>(null)
         rule.addAnimations(search) { AnimatedContent(IntSize(10, 10)) { target.value = it } }
-        val clock = TransitionClock(search.animations.first().transition.parseAnimatedContent()!!)
+        val clock =
+            TransitionClock(
+                AnimatedContentSearchInfo(search.animations.first().transition)
+                    .parseAnimatedContent()!!
+            )
         rule.runOnIdle {
             clock.setStateParameters(listOf(20, 30), listOf(40, 50))
             clock.setClockTime(0)
@@ -655,7 +678,11 @@ class TransitionClockTest {
     fun animatedContentClockProperties() {
         val search = AnimationSearch.AnimatedContentSearch {}
         rule.addAnimations(search) { AnimatedContent(1.dp) {} }
-        val clock = TransitionClock(search.animations.first().transition.parseAnimatedContent()!!)
+        val clock =
+            TransitionClock(
+                AnimatedContentSearchInfo(search.animations.first().transition)
+                    .parseAnimatedContent()!!
+            )
         rule.runOnIdle { clock.setStateParameters(10.dp, 10.dp) }
         rule.runOnIdle {
             assertEquals(2, clock.getAnimatedProperties().size)
@@ -668,7 +695,11 @@ class TransitionClockTest {
     fun animatedContentClockTransitions() {
         val search = AnimationSearch.AnimatedContentSearch {}
         rule.addAnimations(search) { AnimatedContent(1.dp) {} }
-        val clock = TransitionClock(search.animations.first().transition.parseAnimatedContent()!!)
+        val clock =
+            TransitionClock(
+                AnimatedContentSearchInfo(search.animations.first().transition)
+                    .parseAnimatedContent()!!
+            )
         rule.runOnIdle {
             clock.setStateParameters(10.dp, 10.dp)
             clock.setClockTime(0)
@@ -699,7 +730,11 @@ class TransitionClockTest {
     fun animatedContentClockDuration() {
         val search = AnimationSearch.AnimatedContentSearch {}
         rule.addAnimations(search) { AnimatedContent(targetState = 1.dp) {} }
-        val clock = TransitionClock(search.animations.first().transition.parseAnimatedContent()!!)
+        val clock =
+            TransitionClock(
+                AnimatedContentSearchInfo(search.animations.first().transition)
+                    .parseAnimatedContent()!!
+            )
         rule.runOnIdle {
             assertEquals(0, clock.getMaxDuration())
             assertEquals(0, clock.getMaxDurationPerIteration())

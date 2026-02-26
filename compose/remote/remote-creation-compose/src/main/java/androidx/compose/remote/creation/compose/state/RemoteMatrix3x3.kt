@@ -47,6 +47,7 @@ internal constructor(private val idProvider: (creationState: RemoteComposeCreati
             )
         })
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         idProvider(creationState)
 

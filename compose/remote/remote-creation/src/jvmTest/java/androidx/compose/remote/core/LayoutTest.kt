@@ -36,6 +36,7 @@ import androidx.compose.remote.creation.actions.ValueIntegerChange
 import androidx.compose.remote.creation.computeMeasure
 import androidx.compose.remote.creation.computePosition
 import androidx.compose.remote.creation.modifiers.RecordingModifier
+import org.junit.Ignore
 import org.junit.Test
 
 open class LayoutTest : BaseLayoutTest() {
@@ -333,6 +334,7 @@ open class LayoutTest : BaseLayoutTest() {
         )
     }
 
+    @Ignore // b/483480890
     @Test
     fun testScrollComponents() {
         val ops =

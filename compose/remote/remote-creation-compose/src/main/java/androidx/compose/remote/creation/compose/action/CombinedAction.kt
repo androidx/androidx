@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.action
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.actions.Action as CreationAction
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 
 /** Creates an action that's a composite of multiple actions. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CombinedAction(public vararg val actions: Action) : Action {
-    override fun RemoteStateScope.toRemoteAction():
-        androidx.compose.remote.creation.actions.Action {
-        return androidx.compose.remote.creation.actions.Action { writer ->
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun RemoteStateScope.toRemoteAction(): CreationAction {
+        return CreationAction { writer ->
             for (action in actions) {
                 with(action) { toRemoteAction().write(writer) }
             }
