@@ -16,11 +16,7 @@
 
 package androidx.compose.remote.integration.view.demos.examples
 
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.remote.creation.compose.action.ValueChange
-import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
-import androidx.compose.remote.creation.compose.capture.LogTodo
-import androidx.compose.remote.creation.compose.capture.NoRemoteCompose
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -42,13 +38,13 @@ import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.visibility
 import androidx.compose.remote.creation.compose.modifier.wrapContentSize
+import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberRemoteInt
-import androidx.compose.remote.creation.compose.state.rememberRemoteIntValue
+import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.tooling.preview.RemotePreview
 import androidx.compose.runtime.Composable
@@ -63,7 +59,7 @@ fun SwitchWidgetOnState(modifier: RemoteModifier = RemoteModifier, id: Int = 0) 
     RemoteBox(
         modifier =
             modifier
-                .clip(RoundedCornerShape(20.dp))
+                .clip(RemoteRoundedCornerShape(20.rdp))
                 .background(Color(63, 81, 181, 255))
                 .padding(2.dp),
         horizontalAlignment = RemoteAlignment.End,
@@ -88,7 +84,7 @@ fun SwitchWidgetOffState(modifier: RemoteModifier = RemoteModifier) {
         modifier =
             modifier
                 // todo: use the animationId
-                .clip(RoundedCornerShape(20.dp))
+                .clip(RemoteRoundedCornerShape(20.rdp))
                 .background(Color(100, 100, 100))
                 .padding(8.dp)
                 .then(modifier),
@@ -117,10 +113,7 @@ fun RemoteComponent(name: String, content: @Composable @RemoteComposable () -> U
 @Composable
 @RemoteComposable
 fun SwitchComponent(value: MutableRemoteInt) {
-    RemoteComponent("switch") {
-        // val localValue = parameter(value)
-        SwitchWidget(value)
-    }
+    RemoteComponent("switch") { SwitchWidget(value) }
 }
 
 @Suppress("RestrictedApiAndroidX")
@@ -130,22 +123,8 @@ fun SwitchWidget(value: MutableRemoteInt) {
     val (off, on) = listOf(0, 1)
     val fsm = rememberStateMachine(value, off, on)
 
-    val captureMode = LocalRemoteComposeCreationState.current
     val modifier =
-        if (captureMode is NoRemoteCompose) {
-            LogTodo("support expressions in previews")
-            RemoteModifier.clickable(
-                ValueChange(
-                    fsm.currentState as MutableRemoteInt,
-                    (fsm.currentState.constantValue + 1) % 2,
-                )
-            )
-        } else {
-            val toggleExpression = rememberRemoteInt { (fsm.currentState + 1) % 2 }
-            RemoteModifier.clickable(
-                ValueChange(fsm.currentState as MutableRemoteInt, toggleExpression)
-            )
-        }
+        RemoteModifier.clickable(ValueChange(remoteState = value, updatedValue = (value + 1) % 2))
 
     RemoteBox(
         modifier = RemoteModifier.padding(4.dp),
@@ -165,7 +144,7 @@ fun SwitchWidget(value: MutableRemoteInt) {
                 }
             }
         }
-        RemoteBox(modifier = modifierSize.clip(RoundedCornerShape(20.dp)).then(modifier))
+        RemoteBox(modifier = modifierSize.clip(RemoteRoundedCornerShape(20.rdp)).then(modifier))
     }
 }
 
@@ -211,9 +190,9 @@ fun Divider(modifier: RemoteModifier = RemoteModifier) {
 @RemoteComposable
 fun SwitchWidgetDemo() {
     RemoteColumn(modifier = Modifier.padding(8.dp).background(Color.LightGray)) {
-        val checkedA = rememberRemoteIntValue { 0 }
-        val checkedB = rememberRemoteIntValue { 0 }
-        val checkedC = rememberRemoteIntValue { 1 }
+        val checkedA = rememberMutableRemoteInt(0)
+        val checkedB = rememberMutableRemoteInt(0)
+        val checkedC = rememberMutableRemoteInt(1)
 
         val visibilityModifierC = RemoteModifier.visibility(checkedC)
         RowSwitch(checkedA, "State A")

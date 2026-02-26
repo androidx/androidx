@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @file:OptIn(ExperimentalRemoteCreationComposeApi::class)
 
 package androidx.compose.remote.creation.compose.action
@@ -21,6 +20,8 @@ package androidx.compose.remote.creation.compose.action
 import android.app.PendingIntent
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.Utils
+import androidx.compose.remote.creation.actions.Action as CreationAction
+import androidx.compose.remote.creation.actions.HostAction as CreationHostAction
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.capture.WriterEvents
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
@@ -28,20 +29,20 @@ import androidx.compose.runtime.Composable
 
 /** Create a [PendingIntentAction] to send the [PendingIntent] when invoked. */
 @Composable
-public fun pendingIntentAction(pendingIntent: PendingIntent): PendingIntentAction =
+public fun pendingIntentAction(pendingIntent: PendingIntent): Action =
     PendingIntentAction(pendingIntent)
 
 /** Send the [PendingIntent] when invoked. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class PendingIntentAction(public val pendingIntent: PendingIntent) : Action {
 
-    override fun RemoteStateScope.toRemoteAction():
-        androidx.compose.remote.creation.actions.Action {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun RemoteStateScope.toRemoteAction(): CreationAction {
         val writerCallback = document.writerCallback
         if (writerCallback is WriterEvents) {
             val index = writerCallback.storePendingIntent(pendingIntent)
             val valueId = document.addInteger(index)
-            return androidx.compose.remote.creation.actions.HostAction(
+            return CreationHostAction(
                 ACTION_NAME,
                 HostAction.Type.INT.ordinal,
                 Utils.idFromLong(valueId).toInt(),

@@ -55,9 +55,11 @@ actual fun createComposeRule(): ComposeContentTestRule =
 // experimental in desktop
 @Deprecated(
     message =
-        "Use `androidx.compose.ui.test.junit4.v2.createComposeRule` instead. The v2 APIs use " +
-            "`StandardTestDispatcher` by default to better simulate production behavior where " +
-            "coroutines are queued rather than executed immediately.",
+        "Use `androidx.compose.ui.test.junit4.v2.createComposeRule` instead. " +
+            "The v2 APIs use StandardTestDispatcher instead of UnconfinedTestDispatcher, " +
+            "which aligns with standard coroutine behavior by queuing tasks rather than " +
+            "executing them immediately. Tests relying on immediate execution may require " +
+            "explicit synchronization. Please refer to the migration guide for more details.",
     level = DeprecationLevel.WARNING,
 )
 @Suppress("DEPRECATION", "KmpExperimentalMismatch")
@@ -115,9 +117,11 @@ inline fun <reified A : ComponentActivity> createAndroidComposeRule():
  */
 @Deprecated(
     message =
-        "Use `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule` instead. The v2 APIs use " +
-            "`StandardTestDispatcher` by default to better simulate production behavior where " +
-            "coroutines are queued rather than executed immediately.",
+        "Use `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule` instead. " +
+            "The v2 APIs use StandardTestDispatcher instead of UnconfinedTestDispatcher, " +
+            "which aligns with standard coroutine behavior by queuing tasks rather than " +
+            "executing them immediately. Tests relying on immediate execution may require " +
+            "explicit synchronization. Please refer to the migration guide for more details.",
     level = DeprecationLevel.WARNING,
 )
 @Suppress("DEPRECATION")
@@ -182,9 +186,11 @@ fun <A : ComponentActivity> createAndroidComposeRule(
  */
 @Deprecated(
     message =
-        "Use `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule` instead. The v2 APIs use " +
-            "`StandardTestDispatcher` by default to better simulate production behavior where " +
-            "coroutines are queued rather than executed immediately.",
+        "Use `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule` instead. " +
+            "The v2 APIs use StandardTestDispatcher instead of UnconfinedTestDispatcher, " +
+            "which aligns with standard coroutine behavior by queuing tasks rather than " +
+            "executing them immediately. Tests relying on immediate execution may require " +
+            "explicit synchronization. Please refer to the migration guide for more details.",
     level = DeprecationLevel.WARNING,
 )
 @Suppress("DEPRECATION")
@@ -245,9 +251,11 @@ fun createEmptyComposeRule(): ComposeTestRule =
  */
 @Deprecated(
     message =
-        "Use `androidx.compose.ui.test.junit4.v2.createEmptyComposeRule` instead. The v2 APIs use " +
-            "`StandardTestDispatcher` by default to better simulate production behavior where " +
-            "coroutines are queued rather than executed immediately.",
+        "Use `androidx.compose.ui.test.junit4.v2.createEmptyComposeRule` instead. " +
+            "The v2 APIs use StandardTestDispatcher instead of UnconfinedTestDispatcher, " +
+            "which aligns with standard coroutine behavior by queuing tasks rather than " +
+            "executing them immediately. Tests relying on immediate execution may require " +
+            "explicit synchronization. Please refer to the migration guide for more details.",
     level = DeprecationLevel.WARNING,
 )
 @Suppress("DEPRECATION")
@@ -293,9 +301,11 @@ private constructor(
      */
     @Deprecated(
         message =
-            "Use `androidx.compose.ui.test.junit4.v2.AndroidComposeTestRule` instead. The v2 APIs use " +
-                "`StandardTestDispatcher` by default to better simulate production behavior where " +
-                "coroutines are queued rather than executed immediately.",
+            "Use `androidx.compose.ui.test.junit4.v2.AndroidComposeTestRule` instead. " +
+                "The v2 APIs use StandardTestDispatcher instead of UnconfinedTestDispatcher, " +
+                "which aligns with standard coroutine behavior by queuing tasks rather than " +
+                "executing them immediately. Tests relying on immediate execution may require " +
+                "explicit synchronization. Please refer to the migration guide for more details.",
         level = DeprecationLevel.WARNING,
     )
     @Suppress("DEPRECATION")
@@ -332,9 +342,11 @@ private constructor(
      */
     @Deprecated(
         message =
-            "Use `androidx.compose.ui.test.junit4.v2.AndroidComposeTestRule` instead. The v2 APIs use " +
-                "`StandardTestDispatcher` by default to better simulate production behavior where " +
-                "coroutines are queued rather than executed immediately.",
+            "Use `androidx.compose.ui.test.junit4.v2.AndroidComposeTestRule` instead. " +
+                "The v2 APIs use StandardTestDispatcher instead of UnconfinedTestDispatcher, " +
+                "which aligns with standard coroutine behavior by queuing tasks rather than " +
+                "executing them immediately. Tests relying on immediate execution may require " +
+                "explicit synchronization. Please refer to the migration guide for more details.",
         level = DeprecationLevel.WARNING,
     )
     constructor(

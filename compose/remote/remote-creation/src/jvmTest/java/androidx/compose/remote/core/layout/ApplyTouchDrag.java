@@ -30,9 +30,16 @@ public class ApplyTouchDrag extends TestOperation {
 
     private final float mX;
     private final float mY;
+    private final long mTimeMillis;
+
     public ApplyTouchDrag(float x, float y) {
+        this(x, y, 0);
+    }
+
+    public ApplyTouchDrag(float x, float y, long timeMillis) {
         mX = x;
         mY = y;
+        mTimeMillis = timeMillis;
     }
 
     @Override
@@ -42,9 +49,14 @@ public class ApplyTouchDrag extends TestOperation {
             Map<String, Object> applyTouchDrag = new LinkedHashMap<>();
             applyTouchDrag.put("x", mX);
             applyTouchDrag.put("y", mY);
+            if (mTimeMillis != 0) {
+                applyTouchDrag.put("timeMillis", mTimeMillis);
+            }
             Map<String, Object> testResult = new LinkedHashMap<>();
             commands.add(command("Apply TouchDrag", applyTouchDrag, testResult));
         }
+        context.currentTime += mTimeMillis;
+        context.setAnimationTime(context.currentTime / 1000f);
         document.touchDrag(context, mX, mY);
         return false;
     }

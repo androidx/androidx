@@ -30,9 +30,28 @@ public class ApplyTouchUp extends TestOperation {
 
     private final float mX;
     private final float mY;
+    private final float mDx;
+    private final float mDy;
+    private final long mTimeMillis;
+
     public ApplyTouchUp(float x, float y) {
+        this(x, y, 0f, 0f, 0);
+    }
+
+    public ApplyTouchUp(float x, float y, float dx, float dy) {
+        this(x, y, dx, dy, 0);
+    }
+
+    public ApplyTouchUp(float x, float y, long timeMillis) {
+        this(x, y, 0f, 0f, timeMillis);
+    }
+
+    public ApplyTouchUp(float x, float y, float dx, float dy, long timeMillis) {
         mX = x;
         mY = y;
+        mDx = dx;
+        mDy = dy;
+        mTimeMillis = timeMillis;
     }
 
     @Override
@@ -42,10 +61,17 @@ public class ApplyTouchUp extends TestOperation {
             Map<String, Object> applyTouchUp = new LinkedHashMap<>();
             applyTouchUp.put("x", mX);
             applyTouchUp.put("y", mY);
+            applyTouchUp.put("dx", mDx);
+            applyTouchUp.put("dy", mDy);
+            if (mTimeMillis != 0) {
+                applyTouchUp.put("timeMillis", mTimeMillis);
+            }
             Map<String, Object> testResult = new LinkedHashMap<>();
             commands.add(command("Apply TouchUp", applyTouchUp, testResult));
         }
-        document.touchUp(context, mX, mY, 0f, 0f);
+        context.currentTime += mTimeMillis;
+        context.setAnimationTime(context.currentTime / 1000f);
+        document.touchUp(context, mX, mY, mDx, mDy);
         return false;
     }
 }

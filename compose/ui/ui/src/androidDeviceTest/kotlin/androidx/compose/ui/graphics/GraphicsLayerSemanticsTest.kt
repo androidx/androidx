@@ -34,6 +34,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.ui.Alignment
@@ -49,6 +50,8 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.semanticsId
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
@@ -824,6 +827,105 @@ class GraphicsLayerSemanticsTest(private val modifierVariant: ModifierVariant) {
 
     @Test
     @SdkSuppress(minSdkVersion = 26)
+    fun shapeChange_newInstanceOfSameShapeWithEquals_doesNotInvalidateSemantics() {
+        // Arrange.
+        class ShapeWithEquals(val param: Int) : Shape {
+            override fun createOutline(
+                size: Size,
+                layoutDirection: LayoutDirection,
+                density: Density,
+            ): Outline = RectangleShape.createOutline(size, layoutDirection, density)
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) return true
+                if (other !is ShapeWithEquals) return false
+                if (param != other.param) return false
+                return true
+            }
+
+            override fun hashCode(): Int = param.hashCode()
+        }
+
+        val shape1 = ShapeWithEquals(42)
+        val shape2 = ShapeWithEquals(42)
+        val shouldUseShape2 = mutableStateOf(false)
+        var semanticsEvaluationCount = 0
+        rule.setContentWithAccessibilityEnabled {
+            // A remembered semantics modifier ensures recompositions don't auto-invalidate
+            // semantics, isolating this test strictly to NodeCoordinator's manual invalidations.
+            val semanticsModifier = remember {
+                Modifier.semantics {
+                    semanticsEvaluationCount++
+                    contentDescription = "test"
+                }
+            }
+            Box(
+                Modifier.size(10.dp)
+                    .then(semanticsModifier)
+                    .parameterizedGraphicsLayer(
+                        shape = if (!shouldUseShape2.value) shape1 else shape2,
+                        clip = true,
+                    )
+                    .testTag(testTag)
+            )
+        }
+        rule.waitForIdle()
+        semanticsEvaluationCount = 0
+
+        // Act.
+        rule.runOnIdle { shouldUseShape2.value = true }
+
+        // Assert.
+        rule.runOnIdle { assertThat(semanticsEvaluationCount).isEqualTo(0) }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    fun shapeChange_newInstanceOfSameShapeWithoutEquals_invalidateSemantics() {
+        // Arrange.
+        class ShapeWithoutEquals : Shape {
+            override fun createOutline(
+                size: Size,
+                layoutDirection: LayoutDirection,
+                density: Density,
+            ): Outline = RectangleShape.createOutline(size, layoutDirection, density)
+        }
+
+        val shape1 = ShapeWithoutEquals()
+        val shape2 = ShapeWithoutEquals()
+        val shouldUseShape2 = mutableStateOf(false)
+        var semanticsEvaluationCount = 0
+        rule.setContentWithAccessibilityEnabled {
+            // A remembered semantics modifier ensures recompositions don't auto-invalidate
+            // semantics, isolating this test strictly to NodeCoordinator's manual invalidations.
+            val semanticsModifier = remember {
+                Modifier.semantics {
+                    semanticsEvaluationCount++
+                    contentDescription = "test"
+                }
+            }
+            Box(
+                Modifier.size(10.dp)
+                    .then(semanticsModifier)
+                    .parameterizedGraphicsLayer(
+                        shape = if (!shouldUseShape2.value) shape1 else shape2,
+                        clip = true,
+                    )
+                    .testTag(testTag)
+            )
+        }
+        rule.waitForIdle()
+        semanticsEvaluationCount = 0
+
+        // Act.
+        rule.runOnIdle { shouldUseShape2.value = true }
+
+        // Assert.
+        rule.runOnIdle { assertThat(semanticsEvaluationCount).isEqualTo(1) }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
     fun alphaChange_invalidatesSemanticsVisibility() {
         // Arrange.
         var alpha by mutableStateOf(0f)
@@ -871,13 +973,18 @@ class GraphicsLayerSemanticsTest(private val modifierVariant: ModifierVariant) {
         }
     }
 
-    private fun Modifier.parameterizedGraphicsLayer(shape: Shape, clip: Boolean) =
+    private fun Modifier.parameterizedGraphicsLayer(
+        shape: Shape,
+        clip: Boolean,
+        alpha: Float = 1.0f,
+    ) =
         when (modifierVariant) {
-            ModifierVariant.Simple -> this.graphicsLayer(shape = shape, clip = clip)
+            ModifierVariant.Simple -> this.graphicsLayer(shape = shape, clip = clip, alpha = alpha)
             ModifierVariant.Block ->
                 this.graphicsLayer {
                     this.shape = shape
                     this.clip = clip
+                    this.alpha = alpha
                 }
         }
 

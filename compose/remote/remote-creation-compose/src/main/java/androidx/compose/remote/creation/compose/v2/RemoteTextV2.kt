@@ -48,9 +48,9 @@ public fun RemoteTextV2(
     maxLines: Int = Int.MAX_VALUE,
     minFontSize: Float? = null,
     maxFontSize: Float? = null,
-    letterSpacing: Float? = null,
+    letterSpacing: RemoteFloat = 0f.rf,
     lineHeightAdd: Float? = null,
-    lineHeightMultiply: Float? = null,
+    lineHeightMultiply: RemoteFloat = 1f.rf,
     textDecoration: TextDecoration = TextDecoration.None,
     fontVariationSettings: FontVariation.Settings? = null,
 ) {

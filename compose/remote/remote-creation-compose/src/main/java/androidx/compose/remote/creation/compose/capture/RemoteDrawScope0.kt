@@ -49,7 +49,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * This is used to intercept the DrawScope
@@ -280,8 +279,7 @@ public inline fun RemoteDrawScope0.withTransform(
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @DrawScopeMarker
-public // @JvmDefaultWithCompatibility
-interface RemoteDrawScope0 : Density, RemoteStateScope {
+public interface RemoteDrawScope0 : Density, RemoteStateScope {
     public val canvas: RecordingCanvas
         get() = drawContext.canvas.nativeCanvas as RecordingCanvas
 
@@ -307,8 +305,6 @@ interface RemoteDrawScope0 : Density, RemoteStateScope {
     public val remoteSize: RemoteSize
         get() = RemoteSize(remote.component.width, remote.component.height)
 
-    /** The layout direction of the layout being drawn in. */
-    public override val layoutDirection: LayoutDirection
     override val remoteDensity: RemoteDensity
         get() = canvas.remoteDensity
 

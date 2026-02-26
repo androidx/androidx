@@ -50,6 +50,30 @@ public class CollapsiblePriority {
     }
 
     /**
+     * Returns the component that should stay last (the one with the highest priority number).
+     *
+     * @param components the list of components
+     * @param orientation the orientation (HORIZONTAL or VERTICAL)
+     * @return the last standing component, or the first one if same priority
+     */
+    static Component findLastStanding(ArrayList<Component> components, int orientation) {
+        if (components.isEmpty()) {
+            return null;
+        }
+        Component best = components.get(0);
+        float maxPriority = getPriority(best, orientation);
+        for (int i = 1; i < components.size(); i++) {
+            Component c = components.get(i);
+            float p = getPriority(c, orientation);
+            if (p > maxPriority) {
+                maxPriority = p;
+                best = c;
+            }
+        }
+        return best;
+    }
+
+    /**
      * Allocate and return a sorted array of components by their priorities
      *
      * @param components the children components

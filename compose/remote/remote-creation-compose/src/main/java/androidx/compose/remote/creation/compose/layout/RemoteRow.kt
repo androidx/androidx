@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-
 package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
@@ -35,8 +33,7 @@ import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 
 /** Utility modifier to record the layout information */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteComposeRowModifier(
+internal class RemoteComposeRowModifier(
     public val modifier: RecordingModifier,
     public val horizontalArrangement: RemoteArrangement.Horizontal = RemoteArrangement.Start,
     public val verticalAlignment: RemoteAlignment.Vertical = RemoteAlignment.Top,
@@ -54,19 +51,31 @@ public class RemoteComposeRowModifier(
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/** Receiver scope used by [RemoteRow] for its content. */
 public class RemoteRowScope {
+    /**
+     * Sets the horizontal weight of this element relative to its siblings in the [RemoteRow].
+     *
+     * @param weight The proportional width to allocate to this element.
+     */
     public fun RemoteModifier.weight(weight: RemoteFloat): RemoteModifier =
         then(WidthModifier(Type.WEIGHT, weight))
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun RemoteModifier.weight(weight: Float): RemoteModifier =
         then(WidthModifier(Type.WEIGHT, RemoteFloat(weight)))
 }
 
 /**
- * RemoteRow implements a row layout, delegating to the foundation Row layout as needed. This allows
- * RemoteRow to both work as a normal Row when called within a normal Compose tree, and capture the
- * layout information when called within a capture pass for RemoteCompose.
+ * A layout composable that positions its children in a horizontal sequence.
+ *
+ * `RemoteRow` allows you to arrange children horizontally and control their [horizontalArrangement]
+ * (spacing) and [verticalAlignment].
+ *
+ * @param modifier The modifier to be applied to this row.
+ * @param horizontalArrangement The horizontal arrangement of the children.
+ * @param verticalAlignment The vertical alignment of the children.
+ * @param content The content of the row, which has access to [RemoteRowScope].
  */
 @RemoteComposable
 @Composable

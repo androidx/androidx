@@ -130,7 +130,7 @@ public class IdLookup extends Operation implements VariableSupport, Serializable
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Text Operations", OP_CODE, CLASS_NAME)
+        doc.operation("Logic & Expressions Operations", OP_CODE, CLASS_NAME)
                 .addedVersion(7)
                 .description("Look up an ID from an ID collection via index")
                 .field(INT, "textId", "The ID of the integer variable to store the result")

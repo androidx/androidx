@@ -22,6 +22,7 @@ import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.PaintOperation;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.operations.TextData;
+import androidx.compose.remote.core.operations.layout.managers.LayoutManager;
 import androidx.compose.remote.core.operations.layout.modifiers.ModifierOperation;
 import androidx.compose.remote.core.operations.utilities.StringSerializer;
 import androidx.compose.remote.core.serialize.MapSerializer;
@@ -119,12 +120,19 @@ public abstract class ListActionsOperation extends PaintOperation
         if (!force && !component.isVisible()) {
             return false;
         }
-        if (!force && !component.contains(x, y)) {
-            return false;
+        if (context.getTouchVersion() == LayoutManager.FIX_TOUCH_EVENT) {
+            if (!force && (x < 0 || x >= component.getWidth() || y < 0
+                    || y >= component.getHeight())) {
+                return false;
+            }
+        } else {
+            if (!force && !component.contains(context, x, y)) {
+                return false;
+            }
+            mLocationInWindow[0] = 0f;
+            mLocationInWindow[1] = 0f;
+            component.getLocationInWindow(context, mLocationInWindow);
         }
-        mLocationInWindow[0] = 0f;
-        mLocationInWindow[1] = 0f;
-        component.getLocationInWindow(mLocationInWindow);
         for (Operation o : mList) {
             if (o instanceof ActionOperation) {
                 ((ActionOperation) o).runAction(context, document, component, x, y);

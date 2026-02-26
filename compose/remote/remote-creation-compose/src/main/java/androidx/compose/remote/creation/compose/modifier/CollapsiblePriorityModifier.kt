@@ -28,6 +28,7 @@ public class CollapsiblePriorityModifier(
     public val priority: RemoteFloat,
 ) : RemoteModifier.Element {
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.CollapsiblePriorityModifier(
             orientation,

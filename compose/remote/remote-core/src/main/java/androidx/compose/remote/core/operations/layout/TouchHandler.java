@@ -33,8 +33,9 @@ public interface TouchHandler extends TouchOperation {
      * @param component the component on which the touch has been received
      * @param x the x position of the click in document coordinates
      * @param y the y position of the click in document coordinates
+     * @return true if the event has been handled
      */
-    void onTouchDown(
+    boolean onTouchDown(
             @NonNull RemoteContext context,
             @NonNull CoreDocument document,
             @NonNull Component component,
@@ -51,8 +52,9 @@ public interface TouchHandler extends TouchOperation {
      * @param y the y position of the click in document coordinates
      * @param dx
      * @param dy
+     * @return true if the event has been handled
      */
-    void onTouchUp(
+    boolean onTouchUp(
             @NonNull RemoteContext context,
             @NonNull CoreDocument document,
             @NonNull Component component,
@@ -69,8 +71,9 @@ public interface TouchHandler extends TouchOperation {
      * @param component the component on which the touch has been received
      * @param x the x position of the click in document coordinates
      * @param y the y position of the click in document coordinates
+     * @return true if the event has been handled
      */
-    void onTouchDrag(
+    boolean onTouchDrag(
             @NonNull RemoteContext context,
             @NonNull CoreDocument document,
             @NonNull Component component,
@@ -85,8 +88,9 @@ public interface TouchHandler extends TouchOperation {
      * @param component the component on which the touch has been received
      * @param x the x position of the click in document coordinates
      * @param y the y position of the click in document coordinates
+     * @return true if the event has been handled
      */
-    void onTouchCancel(
+    boolean onTouchCancel(
             @NonNull RemoteContext context,
             @NonNull CoreDocument document,
             @NonNull Component component,

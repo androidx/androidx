@@ -23,8 +23,10 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberRemoteFloat
-import androidx.compose.remote.creation.compose.state.rememberRemoteString
+import androidx.compose.remote.creation.compose.state.rememberNamedRemoteFloat
+import androidx.compose.remote.creation.compose.state.rememberNamedRemoteString
+import androidx.compose.remote.creation.compose.state.rememberRemoteFloatExpression
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.test.filters.MediumTest
@@ -53,11 +55,13 @@ class RemoteStateTest {
             RemoteColumn(modifier = RemoteModifier.size(100.rdp)) {
                 val creationState = LocalRemoteComposeCreationState.current
 
-                val width = rememberRemoteFloat { componentWidth() }
+                val width = rememberRemoteFloatExpression { componentWidth() }
 
-                val configurableWidth = rememberRemoteFloat(name = "configurableWidth") { width }
+                val configurableWidth =
+                    rememberNamedRemoteFloat(name = "configurableWidth") { width }
 
-                val configurableWidth2 = rememberRemoteFloat(name = "configurableWidth2") { width }
+                val configurableWidth2 =
+                    rememberNamedRemoteFloat(name = "configurableWidth2") { width }
 
                 RemoteText(RemoteString("Width: ") + width.toRemoteString(3, 0))
                 RemoteText(
@@ -87,11 +91,11 @@ class RemoteStateTest {
 
         composeTestRule.runTest {
             RemoteColumn(modifier = RemoteModifier.size(100.rdp)) {
-                val valString = rememberRemoteString { "Hello" }
+                val valString = "Hello".rs
 
-                val namedString1 = rememberRemoteString(name = "named1") { "Hello" }
+                val namedString1 = rememberNamedRemoteString(name = "named1", "Hello")
 
-                val namedString2 = rememberRemoteString(name = "named2") { "Hello" }
+                val namedString2 = rememberNamedRemoteString(name = "named2", "Hello")
 
                 RemoteText(RemoteString("val: ") + valString)
                 RemoteText(RemoteString("named1: ") + namedString1)

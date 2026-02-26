@@ -21,12 +21,10 @@ import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.creation.RFloat
 import androidx.compose.remote.creation.Rc
-import androidx.compose.remote.creation.RemoteComposeContextAndroid
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.abs
 import androidx.compose.remote.creation.min
 import androidx.compose.remote.creation.modifiers.RecordingModifier
-import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.plus
 import androidx.compose.remote.creation.sin
 import androidx.compose.remote.creation.times
@@ -36,76 +34,70 @@ import kotlin.math.sin
 
 @Suppress("RestrictedApiAndroidX")
 fun demoGraphs(): RemoteComposeWriter {
-    val rc =
-        RemoteComposeContextAndroid(
-            platform = AndroidxRcPlatformServices(),
-            apiLevel = 6,
-            RemoteComposeWriter.hTag(Header.DOC_WIDTH, 500),
-            RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 500),
-            RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Simple Timer"),
-            RemoteComposeWriter.hTag(Header.DOC_PROFILES, RcProfiles.PROFILE_ANDROIDX),
-        ) {
-            val density = rf(Rc.System.DENSITY)
-            root {
-                column {
-                    text(createTextFromFloat(Rc.System.WINDOW_WIDTH, 4, 2, 0))
-                    text(createTextFromFloat(Rc.System.WINDOW_HEIGHT, 4, 2, 0))
-                    text(createTextFromFloat(Rc.System.DENSITY, 4, 2, 0))
-                    text(createTextFromFloat(Rc.System.FONT_SIZE, 4, 2, 0))
-                    box(RecordingModifier().fillMaxSize(), BoxLayout.START, BoxLayout.START) {
-                        canvas(RecordingModifier().fillMaxSize().background(0xFF112244.toInt())) {
-                            val w = ComponentWidth() // component.width()
-                            val h = ComponentHeight()
-                            val cx = w / 2f
-                            val cy = h / 2f
-                            val data: FloatArray = FloatArray(32) { x -> sin(x / 3.14f) + 0.5f }
+    addHeaderParam(Header.DOC_WIDTH, 500)
+    addHeaderParam(Header.DOC_HEIGHT, 500)
+    addHeaderParam(Header.DOC_CONTENT_DESCRIPTION, "Simple Timer")
+    addHeaderParam(Header.DOC_PROFILES, RcProfiles.PROFILE_ANDROIDX)
 
-                            val values = RFloat(writer, addFloatArray(data))
-                            rcPlotXY(
-                                10f * density,
-                                10f * density,
-                                w - 10f * density,
-                                h - 10f * density,
-                                plot = values,
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    return rc.writer
-}
-
-@Suppress("RestrictedApiAndroidX")
-fun demoGraphs2(): RemoteComposeWriter {
-    val rc =
-        RemoteComposeContextAndroid(
-            platform = AndroidxRcPlatformServices(),
-            apiLevel = 7,
-            RemoteComposeWriter.hTag(Header.DOC_WIDTH, 500),
-            RemoteComposeWriter.hTag(Header.DOC_HEIGHT, 500),
-            RemoteComposeWriter.hTag(Header.DOC_CONTENT_DESCRIPTION, "Simple Timer"),
-            RemoteComposeWriter.hTag(Header.DOC_PROFILES, RcProfiles.PROFILE_ANDROIDX),
-        ) {
-            val density = rf(Rc.System.DENSITY)
-            root {
+    val rc = demo7 {
+        val density = rf(Rc.System.DENSITY)
+        root {
+            column {
+                text(createTextFromFloat(Rc.System.WINDOW_WIDTH, 4, 2, 0))
+                text(createTextFromFloat(Rc.System.WINDOW_HEIGHT, 4, 2, 0))
+                text(createTextFromFloat(Rc.System.DENSITY, 4, 2, 0))
+                text(createTextFromFloat(Rc.System.FONT_SIZE, 4, 2, 0))
                 box(RecordingModifier().fillMaxSize(), BoxLayout.START, BoxLayout.START) {
                     canvas(RecordingModifier().fillMaxSize().background(0xFF112244.toInt())) {
                         val w = ComponentWidth() // component.width()
                         val h = ComponentHeight()
                         val cx = w / 2f
                         val cy = h / 2f
-                        val scale = abs((sin(ContinuousSec()) + 1.5) * 10f).flush()
-                        val equ = rFun { x ->
-                            min(scale, 15f) * sin(x * 0.3f + ContinuousSec()) * sin(x * 7f)
-                        }
+                        val data: FloatArray = FloatArray(32) { x -> sin(x / 3.14f) + 0.5f }
 
-                        val function = FunctionPlot(equ, rf(-10f), rf(10f), -1f * scale, scale)
-                        rcPlotXY(10f * density, 10f * density, w, h, plot = function)
+                        val values = RFloat(writer, addFloatArray(data))
+                        rcPlotXY(
+                            10f * density,
+                            10f * density,
+                            w - 10f * density,
+                            h - 10f * density,
+                            plot = values,
+                        )
                     }
                 }
             }
         }
+    }
+    return rc.writer
+}
+
+@Suppress("RestrictedApiAndroidX")
+fun demoGraphs2(): RemoteComposeWriter {
+    addHeaderParam(Header.DOC_WIDTH, 500)
+    addHeaderParam(Header.DOC_HEIGHT, 500)
+    addHeaderParam(Header.DOC_CONTENT_DESCRIPTION, "Simple Timer")
+    addHeaderParam(Header.DOC_PROFILES, RcProfiles.PROFILE_ANDROIDX)
+
+    val rc = demo7 {
+        val density = rf(Rc.System.DENSITY)
+        root {
+            box(RecordingModifier().fillMaxSize(), BoxLayout.START, BoxLayout.START) {
+                canvas(RecordingModifier().fillMaxSize().background(0xFF112244.toInt())) {
+                    val w = ComponentWidth() // component.width()
+                    val h = ComponentHeight()
+                    val cx = w / 2f
+                    val cy = h / 2f
+                    val scale = abs((sin(ContinuousSec()) + 1.5) * 10f).flush()
+                    val equ = rFun { x ->
+                        min(scale, 15f) * sin(x * 0.3f + ContinuousSec()) * sin(x * 7f)
+                    }
+
+                    val function = FunctionPlot(equ, rf(-10f), rf(10f), -1f * scale, scale)
+                    rcPlotXY(10f * density, 10f * density, w, h, plot = function)
+                }
+            }
+        }
+    }
     return rc.writer
 }
 

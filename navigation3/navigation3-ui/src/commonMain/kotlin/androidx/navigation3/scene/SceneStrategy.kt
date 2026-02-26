@@ -72,6 +72,12 @@ public fun interface SceneStrategy<T : Any> {
      * [SceneStrategy]. For the returned [SceneStrategy], [calculateScene] will use the first
      * non-null result from the calculation.
      */
+    @Deprecated(
+        message =
+            "Deprecated in favor of List<SceneStrategy> APIs that take the output of this operator" +
+                " has been refactored to take a list of strategies instead.",
+        level = DeprecationLevel.WARNING,
+    )
     public infix fun then(sceneStrategy: SceneStrategy<T>): SceneStrategy<T> {
         val firstStrategy = this
         return SceneStrategy { entries ->

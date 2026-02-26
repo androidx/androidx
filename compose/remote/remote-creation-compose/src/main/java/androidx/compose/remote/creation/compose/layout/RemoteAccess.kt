@@ -26,7 +26,6 @@ import androidx.compose.remote.core.RemoteContext.FLOAT_TIME_IN_MIN
 import androidx.compose.remote.core.RemoteContext.FLOAT_TIME_IN_SEC
 import androidx.compose.remote.core.RemoteContext.FLOAT_WEEK_DAY
 import androidx.compose.remote.core.operations.Utils
-import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.state.AnimatedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 
@@ -34,14 +33,9 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
  * A class that provides access to remote-specific utilities.
  *
  * @param scope The scope instance.
- * @param underlyingDrawScope The underlying Compose DrawScope.
- * @param remoteComposeCreationState The current remote creation state.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteAccess(
-    private val scope: RemoteDrawScope,
-    public val remoteComposeCreationState: RemoteComposeCreationState,
-) {
+public class RemoteAccess(private val scope: RemoteDrawScope) {
     /** Access to remote time information. */
     public val time: RemoteTime = RemoteTime()
 
@@ -60,7 +54,6 @@ public class RemoteAccess(
         initialValue: Float = Float.NaN,
         wrap: Float = Float.NaN,
     ): RemoteFloat {
-        remoteComposeCreationState.time.value
         val anim = RemoteComposeBuffer.packAnimation(duration, type, spec, initialValue, wrap)
         return AnimatedRemoteFloat(rf, anim)
     }
@@ -84,10 +77,11 @@ public class RemoteAccess(
         step: Float = 1f,
         content: RemoteDrawScope.(RemoteFloat) -> Unit,
     ) {
-        val loopIndex = remoteComposeCreationState.document.addFloatConstant(0f)
-        remoteComposeCreationState.document.startLoop(Utils.idFromNan(loopIndex), from, step, until)
+        val document = scope.remoteComposeCreationState.document
+        val loopIndex = document.addFloatConstant(0f)
+        document.startLoop(Utils.idFromNan(loopIndex), from, step, until)
         content.invoke(scope, RemoteFloat(loopIndex))
-        remoteComposeCreationState.document.endLoop()
+        document.endLoop()
     }
 
     /** Runs [content] in a loop. */
@@ -121,17 +115,18 @@ public class RemoteAccess(
     /** A class that provides access to remote component information. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public inner class RemoteComponent {
+        private val context = RemoteFloatContext(scope.remoteComposeCreationState)
 
         public val width: RemoteFloat
-            get() = remoteComponentWidth(remoteComposeCreationState)
+            get() = context.componentWidth()
 
         public val height: RemoteFloat
-            get() = remoteComponentHeight(remoteComposeCreationState)
+            get() = context.componentHeight()
 
         public val centerX: RemoteFloat
-            get() = remoteComponentCenterX(remoteComposeCreationState)
+            get() = context.componentCenterX()
 
         public val centerY: RemoteFloat
-            get() = remoteComponentCenterY(remoteComposeCreationState)
+            get() = context.componentCenterY()
     }
 }

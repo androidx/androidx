@@ -145,7 +145,7 @@ class ListDetailSceneTest {
             NavDisplay(
                 backStack = backStack,
                 onBack = { backStack.removeAt(backStack.lastIndex) },
-                sceneStrategy = rememberListDetailSceneStrategy(),
+                sceneStrategies = listOf(rememberListDetailSceneStrategy()),
             ) {
                 when {
                     it == first ->
@@ -171,7 +171,7 @@ class ListDetailSceneTest {
             NavDisplay(
                 backStack = backStack,
                 onBack = { backStack.removeAt(backStack.lastIndex) },
-                sceneStrategy = rememberListDetailSceneStrategy(),
+                sceneStrategies = listOf(rememberListDetailSceneStrategy()),
             ) {
                 when {
                     it == first ->
@@ -204,7 +204,7 @@ class ListDetailSceneTest {
             NavDisplay(
                 backStack = backStack,
                 onBack = { backStack.removeAt(backStack.lastIndex) },
-                sceneStrategy = rememberListDetailSceneStrategy(),
+                sceneStrategies = listOf(rememberListDetailSceneStrategy()),
             ) {
                 when {
                     it == first ->
@@ -240,7 +240,7 @@ class ListDetailSceneTest {
             NavDisplay(
                 backStack = backStack,
                 onBack = { backStack.removeAt(backStack.lastIndex) },
-                sceneStrategy = rememberListDetailSceneStrategy(),
+                sceneStrategies = listOf(rememberListDetailSceneStrategy()),
             ) {
                 when {
                     it == first ->
@@ -272,7 +272,7 @@ class ListDetailSceneTest {
             NavDisplay(
                 backStack = backStack,
                 onBack = { backStack.removeAt(backStack.lastIndex) },
-                sceneStrategy = rememberListDetailSceneStrategy(),
+                sceneStrategies = listOf(rememberListDetailSceneStrategy()),
             ) {
                 when {
                     it == first ->

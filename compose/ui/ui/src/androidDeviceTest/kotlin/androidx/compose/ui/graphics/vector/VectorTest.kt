@@ -1272,7 +1272,7 @@ class VectorTest {
         var vectorCache: ImageVectorCache? = null
         var vectorInCache = false
         var theme: Resources.Theme? = null
-        var refillCache = true
+        var refillCache by mutableStateOf(true)
         try {
             rule.setContent {
                 val imageVectorCache = LocalImageVectorCache.current
@@ -1295,6 +1295,7 @@ class VectorTest {
                 Log.w(TAG, "device rotation unsuccessful")
                 return
             }
+            rule.waitForIdle()
 
             val cacheMiss =
                 vectorCache?.let {

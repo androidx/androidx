@@ -83,7 +83,7 @@ data class MaterialSprings(
 @Composable
 fun rememberMotionBuilderContext(): MotionBuilderContext {
     val density = LocalDensity.current
-    val motionScheme = MaterialTheme.motionScheme
+    val motionScheme = MaterialTheme.LocalMaterialTheme.current.motionScheme
     return remember(density, motionScheme) { ComposeMotionBuilderContext(motionScheme, density) }
 }
 
@@ -94,7 +94,7 @@ fun rememberMotionBuilderContext(): MotionBuilderContext {
  */
 fun CompositionLocalConsumerModifierNode.motionBuilderContext(): ComposeMotionBuilderContext {
     return ComposeMotionBuilderContext(
-        motionScheme = currentValueOf(MaterialTheme.LocalMotionScheme),
+        motionScheme = currentValueOf(MaterialTheme.LocalMaterialTheme).motionScheme,
         density = currentValueOf(LocalDensity),
     )
 }

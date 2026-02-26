@@ -82,7 +82,7 @@ private class ClickablePerformClickTestCase : ComposeTestCase {
     var isPressed = false
         private set
 
-    private val indication = EmptyIndication()
+    private val indication = EmptyIndication { isPressed = it }
 
     @Composable
     override fun Content() {
@@ -90,33 +90,44 @@ private class ClickablePerformClickTestCase : ComposeTestCase {
             Box(Modifier.fillMaxSize().clickable(onClick = { clickCount++ }))
         }
     }
+}
 
-    private inner class EmptyIndication : IndicationNodeFactory {
+internal class EmptyIndication(private val setIsPressed: (Boolean) -> Unit) :
+    IndicationNodeFactory {
 
-        override fun create(interactionSource: InteractionSource): DelegatableNode =
-            EmptyIndicationInstance(interactionSource)
+    override fun create(interactionSource: InteractionSource): DelegatableNode =
+        EmptyIndicationInstance(interactionSource, setIsPressed)
 
-        override fun hashCode(): Int = -1
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is EmptyIndication) return false
 
-        override fun equals(other: Any?) = other === this
+        if (setIsPressed !== other.setIsPressed) return false
 
-        private inner class EmptyIndicationInstance(
-            private val interactionSource: InteractionSource
-        ) : Modifier.Node() {
+        return true
+    }
 
-            // it is a simplified version of what is happening in the real indications like ripple.
-            // as delivering interactions updates is a crucial part of what is happening during
-            // click, we should have it as part of this benchmark.
-            override fun onAttach() {
-                coroutineScope.launch {
-                    var pressCount = 0
-                    interactionSource.interactions.collect { interaction ->
-                        when (interaction) {
-                            is PressInteraction.Press -> pressCount++
-                            is PressInteraction.Release -> pressCount--
-                        }
-                        isPressed = pressCount > 0
+    override fun hashCode(): Int {
+        return setIsPressed.hashCode()
+    }
+
+    private class EmptyIndicationInstance(
+        private val interactionSource: InteractionSource,
+        private val setIsPressed: (Boolean) -> Unit,
+    ) : Modifier.Node() {
+
+        // it is a simplified version of what is happening in the real indications like ripple.
+        // as delivering interactions updates is a crucial part of what is happening during
+        // click, we should have it as part of this benchmark.
+        override fun onAttach() {
+            coroutineScope.launch {
+                var pressCount = 0
+                interactionSource.interactions.collect { interaction ->
+                    when (interaction) {
+                        is PressInteraction.Press -> pressCount++
+                        is PressInteraction.Release -> pressCount--
                     }
+                    setIsPressed(pressCount > 0)
                 }
             }
         }

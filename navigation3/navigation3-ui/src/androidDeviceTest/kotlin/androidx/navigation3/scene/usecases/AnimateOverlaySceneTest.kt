@@ -78,10 +78,12 @@ class AnimateOverlaySceneTest {
                 onBack = { backStack.removeLastOrNull() },
                 // sheetState and onRemoved implemented here for test readability
                 // realistically it should be implemented within the scene
-                sceneStrategy =
-                    AnimatedBottomSheetSceneStrategy(
-                        sheetState = sheetState,
-                        onRemoved = { sheetState.hide() },
+                sceneStrategies =
+                    listOf(
+                        AnimatedBottomSheetSceneStrategy(
+                            sheetState = sheetState,
+                            onRemoved = { sheetState.hide() },
+                        )
                     ),
                 entryProvider =
                     entryProvider {

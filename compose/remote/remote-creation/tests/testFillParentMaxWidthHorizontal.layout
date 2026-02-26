@@ -1,0 +1,224 @@
+- description: Initial State
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - type: ROW
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1000.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: ClipRectModifierOperation, width: 1000.0, height: 1000.0}
+          - {type: ScrollModifierOperation, direction: 1, max: !!float 'NaN', notchMax: !!float 'NaN',
+            scrollValue: -0.0, maxScrollValue: 1000.0, contentDimension: 2000.0, hostDimension: 1000.0}
+        - type: BOX
+          id: -5
+          x: 0.0
+          y: 0.0
+          width: 1000.0
+          height: 1000.0
+          visibility: VISIBLE
+          list:
+          - {type: TextData, textId: 45, text: Viewport Filler}
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 1.0}
+              dimensionModifierType: FILL_PARENT_MAX_WIDTH
+            - type: HeightModifierOperation
+              height: {type: Variable, id: 0, value: !!float 'NaN'}
+              dimensionModifierType: FILL
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 1000.0, height: 1000.0,
+              color: '0xffff0000', shapeType: RECTANGLE}
+          - type: CORE_TEXT
+            id: -7
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 45
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: -9
+          x: 1000.0
+          y: 0.0
+          width: 1000.0
+          height: 600.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 1000.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 600.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 1000.0, height: 600.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0
+- description: Component Tree
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - type: ROW
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1000.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: ClipRectModifierOperation, width: 1000.0, height: 1000.0}
+          - {type: ScrollModifierOperation, direction: 1, max: !!float 'NaN', notchMax: !!float 'NaN',
+            scrollValue: -0.0, maxScrollValue: 1000.0, contentDimension: 2000.0, hostDimension: 1000.0}
+        - type: BOX
+          id: -5
+          x: 0.0
+          y: 0.0
+          width: 1000.0
+          height: 1000.0
+          visibility: VISIBLE
+          list:
+          - {type: TextData, textId: 45, text: Viewport Filler}
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 1.0}
+              dimensionModifierType: FILL_PARENT_MAX_WIDTH
+            - type: HeightModifierOperation
+              height: {type: Variable, id: 0, value: !!float 'NaN'}
+              dimensionModifierType: FILL
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 1000.0, height: 1000.0,
+              color: '0xffff0000', shapeType: RECTANGLE}
+          - type: CORE_TEXT
+            id: -7
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers: []
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            textId: 45
+            flags: 0
+            color: '0xff000000'
+            fontSize: {type: Value, value: 36.0}
+            fontStyle: 0
+            fontWeight: 400.0
+            fontFamilyId: -1
+            textAlign: 1
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+        - type: BOX
+          id: -9
+          x: 1000.0
+          y: 0.0
+          width: 1000.0
+          height: 600.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 1000.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 600.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 1000.0, height: 600.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: CENTER
+          horizontalPositioning: CENTER
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0

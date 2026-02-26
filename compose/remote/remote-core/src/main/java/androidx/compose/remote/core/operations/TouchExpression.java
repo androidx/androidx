@@ -29,6 +29,7 @@ import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.operations.layout.RootLayoutComponent;
+import androidx.compose.remote.core.operations.layout.managers.LayoutManager;
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression;
 import androidx.compose.remote.core.operations.utilities.NanMap;
 import androidx.compose.remote.core.operations.utilities.touch.VelocityEasing;
@@ -395,29 +396,36 @@ public class TouchExpression extends Operation
         }
     }
 
-    private void updateBounds() {
+    private void updateBounds(@NonNull RemoteContext context) {
         Component comp = mComponent;
         if (comp != null) {
-            float x = comp.getX();
-            float y = comp.getY();
-            float w = comp.getWidth();
-            float h = comp.getHeight();
-            comp = comp.getParent();
-            while (comp != null) {
-                x += comp.getX();
-                y += comp.getY();
+            if (context.getTouchVersion() == LayoutManager.FIX_TOUCH_EVENT) {
+                mScrLeft = 0;
+                mScrTop = 0;
+                mScrRight = comp.getWidth();
+                mScrBottom = comp.getHeight();
+            } else {
+                float x = comp.getX();
+                float y = comp.getY();
+                float w = comp.getWidth();
+                float h = comp.getHeight();
                 comp = comp.getParent();
+                while (comp != null) {
+                    x += comp.getX();
+                    y += comp.getY();
+                    comp = comp.getParent();
+                }
+                mScrLeft = x;
+                mScrTop = y;
+                mScrRight = w + x;
+                mScrBottom = h + y;
             }
-            mScrLeft = x;
-            mScrTop = y;
-            mScrRight = w + x;
-            mScrBottom = h + y;
         }
     }
 
     @Override
     public void apply(@NonNull RemoteContext context) {
-        updateBounds();
+        updateBounds(context);
         if (mUnmodified) {
             mCurrentValue = mOutDefValue;
             context.loadFloat(mId, wrap(mCurrentValue));
@@ -459,8 +467,11 @@ public class TouchExpression extends Operation
             mCurrentValue = Math.min(mMaxAtDown, mCurrentValue);
             mCurrentValue = Math.max(mMinAtDown, mCurrentValue);
         }
+        if (!mWrapMode) {
+            if (!Float.isNaN(mOutMin)) mCurrentValue = Math.max(mCurrentValue, mOutMin);
+            if (!Float.isNaN(mOutMax)) mCurrentValue = Math.min(mCurrentValue, mOutMax);
+        }
         context.loadFloat(mId, wrap(mCurrentValue));
-
     }
 
     float mValueAtDown; // The currently "displayed" value at down
@@ -505,13 +516,26 @@ public class TouchExpression extends Operation
             return;
         }
         float v = mExp.eval(context.getCollectionsAccess(), mPreCalcValue, mPreCalcValue.length);
-        for (int i = 0; i < mSrcExp.length; i++) {
-            if (Float.isNaN(mSrcExp[i])) {
-                int id = Utils.idFromNan(mSrcExp[i]);
-                if (id == RemoteContext.ID_TOUCH_POS_X) {
-                    mPreCalcValue[i] = x + dx * dt;
-                } else if (id == RemoteContext.ID_TOUCH_POS_Y) {
-                    mPreCalcValue[i] = y + dy * dt;
+        if (context.getTouchVersion() == LayoutManager.FIX_TOUCH_EVENT) {
+            for (int i = 0; i < mSrcExp.length; i++) {
+                if (Float.isNaN(mSrcExp[i])) {
+                    int id = Utils.idFromNan(mSrcExp[i]);
+                    if (id == RemoteContext.ID_TOUCH_POS_X) {
+                        mPreCalcValue[i] += dx * dt;
+                    } else if (id == RemoteContext.ID_TOUCH_POS_Y) {
+                        mPreCalcValue[i] += dy * dt;
+                    }
+                }
+            }
+        } else {
+            for (int i = 0; i < mSrcExp.length; i++) {
+                if (Float.isNaN(mSrcExp[i])) {
+                    int id = Utils.idFromNan(mSrcExp[i]);
+                    if (id == RemoteContext.ID_TOUCH_POS_X) {
+                        mPreCalcValue[i] = x + dx * dt;
+                    } else if (id == RemoteContext.ID_TOUCH_POS_Y) {
+                        mPreCalcValue[i] = y + dy * dt;
+                    }
                 }
             }
         }

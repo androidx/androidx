@@ -19,6 +19,7 @@
 package androidx.compose.foundation.layout
 
 import androidx.annotation.FloatRange
+import androidx.annotation.IntRange as AndroidXIntRange
 import androidx.collection.LongList
 import androidx.collection.MutableIntList
 import androidx.collection.MutableIntSet
@@ -76,6 +77,8 @@ import kotlin.math.roundToInt
  * Example usage:
  *
  * @sample androidx.compose.foundation.layout.samples.SimpleGrid
+ * @sample androidx.compose.foundation.layout.samples.GridWithSpanningItems
+ * @sample androidx.compose.foundation.layout.samples.GridWithAutoPlacement
  * @param config A block that defines the columns, rows, and gaps of the grid. This block runs
  *   during the measure pass, enabling efficient updates based on state.
  * @param modifier The modifier to be applied to the layout.
@@ -152,10 +155,12 @@ interface GridScope {
      */
     @Stable
     fun Modifier.gridItem(
+        @AndroidXIntRange(from = -MaxGridIndex.toLong(), to = MaxGridIndex.toLong())
         row: Int = GridIndexUnspecified,
+        @AndroidXIntRange(from = -MaxGridIndex.toLong(), to = MaxGridIndex.toLong())
         column: Int = GridIndexUnspecified,
-        rowSpan: Int = 1,
-        columnSpan: Int = 1,
+        @AndroidXIntRange(from = 1) rowSpan: Int = 1,
+        @AndroidXIntRange(from = 1) columnSpan: Int = 1,
         alignment: Alignment = Alignment.TopStart,
     ): Modifier
 
@@ -253,6 +258,15 @@ internal object GridScopeInstance : GridScope {
  *
  * This interface is implemented by the configuration block in [Grid]. It allows defining columns,
  * rows, and gaps.
+ *
+ * The order in which [column] and [row] functions are called within the `config` block is
+ * important. Tracks are added to the grid definition sequentially based on these calls. For
+ * example, calling `column(100.dp)` twice defines two columns.
+ *
+ * Gap configuration calls ([gap], [rowGap], [columnGap]) follow a "last-call-wins" policy for their
+ * respective axes.
+ *
+ * @sample androidx.compose.foundation.layout.samples.GridConfigurationDslSample
  */
 @LayoutScopeMarker
 @ExperimentalGridApi
@@ -270,8 +284,12 @@ interface GridConfigurationScope : Density {
     /** Defines a flexible column. Maps to [GridTrackSize.Flex]. */
     fun column(weight: Fr)
 
-    /** Defines a percentage-based column. Maps to [GridTrackSize.Percentage]. */
-    fun column(percentage: Float)
+    /**
+     * Defines a percentage-based column. Maps to [GridTrackSize.Percentage].
+     *
+     * @param percentage The percentage (0.0 to 1.0) of the available space.
+     */
+    fun column(@FloatRange(from = 0.0, to = 1.0) percentage: Float)
 
     /** Defines a new column track with the specified [size]. */
     fun column(size: GridTrackSize)
@@ -282,8 +300,12 @@ interface GridConfigurationScope : Density {
     /** Defines a flexible row. Maps to [GridTrackSize.Flex]. */
     fun row(weight: Fr)
 
-    /** Defines a percentage-based row. Maps to [GridTrackSize.Percentage]. */
-    fun row(percentage: Float)
+    /**
+     * Defines a percentage-based row. Maps to [GridTrackSize.Percentage].
+     *
+     * @param percentage The percentage (0.0 to 1.0) of the available space.
+     */
+    fun row(@FloatRange(from = 0.0, to = 1.0) percentage: Float)
 
     /** Defines a new row track with the specified [size]. */
     fun row(size: GridTrackSize)
@@ -397,6 +419,13 @@ value class GridFlow @PublishedApi internal constructor(private val bits: Int) {
  *
  * One [Fr] unit represents a fraction of the *remaining* space in the grid container after
  * [GridTrackSize.Fixed] and [GridTrackSize.Percentage] tracks have been allocated.
+ *
+ * When multiple tracks use [Fr] units (e.g., `1.fr`, `2.fr`, `1.fr`), the remaining space is
+ * divided proportionally to their weights. The total number of "fractional units" is the sum of all
+ * weights (in the example, 1 + 2 + 1 = 4). Each track receives a share of the space equal to its
+ * weight divided by the total weight.
+ * - The `1.fr` tracks would each get 1/4 of the remaining space.
+ * - The `2.fr` track would get 2/4 (or 1/2) of the remaining space.
  */
 @JvmInline
 @ExperimentalGridApi
@@ -493,16 +522,16 @@ value class GridTrackSize internal constructor(internal val encodedValue: Long) 
         }
 
         /** A track that sizes itself to fit the minimum intrinsic size of its contents. */
-        @Stable val MinContent = pack(TypeMinContent, 0f)
+        val MinContent = pack(TypeMinContent, 0f)
 
         /** A track that sizes itself to fit the maximum intrinsic size of its contents. */
-        @Stable val MaxContent = pack(TypeMaxContent, 0f)
+        val MaxContent = pack(TypeMaxContent, 0f)
 
         /**
          * A track that behaves as minmax(min-content, max-content). It occupies at least its
          * minimum content size, and grows to fit its maximum content size if space is available.
          */
-        @Stable val Auto = pack(TypeAuto, 0f)
+        val Auto = pack(TypeAuto, 0f)
 
         private fun pack(type: Int, value: Float): GridTrackSize {
             // Pack Type (High 32) and Float bits (Low 32) into one Long.

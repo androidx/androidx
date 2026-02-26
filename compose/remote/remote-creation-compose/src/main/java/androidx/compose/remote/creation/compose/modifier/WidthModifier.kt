@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.modifier
 
@@ -23,37 +22,63 @@ import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifie
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.modifiers.RecordingModifier
-import androidx.compose.runtime.Composable
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class WidthModifier(public val type: Type, public val value: RemoteFloat) :
+internal class WidthModifier(public val type: Type, public val value: RemoteFloat) :
     RemoteModifier.Element {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.WidthModifier(type, value.floatId)
     }
 }
 
+/** Sets the width of the content using [RemoteDp]. */
 public fun RemoteModifier.width(width: RemoteDp): RemoteModifier =
     then(WidthModifier(Type.EXACT_DP, width.value))
 
+/** Sets the width of the content using [RemoteFloat]. */
 public fun RemoteModifier.width(width: RemoteFloat): RemoteModifier =
     then(WidthModifier(Type.EXACT, width))
 
+/**
+ * Fills the maximum available width.
+ *
+ * @param fraction The fraction of the maximum width to use.
+ */
 public fun RemoteModifier.fillMaxWidth(fraction: RemoteFloat = RemoteFloat(1f)): RemoteModifier =
     then(WidthModifier(Type.FILL, fraction))
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.fillMaxWidth(fraction: Float): RemoteModifier =
     then(WidthModifier(Type.FILL, RemoteFloat(fraction)))
 
-public fun RemoteModifier.width(width: Int): RemoteModifier =
-    then(WidthModifier(Type.EXACT, RemoteFloat(width.toFloat())))
+/**
+ * Fills the parent's maximum available width.
+ *
+ * @param fraction The fraction of the parent's maximum width to use.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteModifier.fillParentMaxWidth(fraction: Float): RemoteModifier =
+    then(WidthModifier(Type.FILL_PARENT_MAX_WIDTH, RemoteFloat(fraction)))
 
-@Composable
+/**
+ * Fills the parent's maximum available width.
+ *
+ * @param fraction The fraction of the parent's maximum width to use.
+ */
+public fun RemoteModifier.fillParentMaxWidth(fraction: RemoteFloat = 1f.rf): RemoteModifier =
+    then(WidthModifier(Type.FILL_PARENT_MAX_WIDTH, fraction))
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteModifier.width(width: Int): RemoteModifier =
+    then(WidthModifier(Type.EXACT, width.rf))
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.width(width: IntrinsicSize): RemoteModifier {
     return if (width == IntrinsicSize.Min) {
-        then(WidthModifier(Type.INTRINSIC_MIN, RemoteFloat(0f)))
+        then(WidthModifier(Type.INTRINSIC_MIN, 0f.rf))
     } else {
-        then(WidthModifier(Type.INTRINSIC_MAX, RemoteFloat(0f)))
+        then(WidthModifier(Type.INTRINSIC_MAX, 0f.rf))
     }
 }

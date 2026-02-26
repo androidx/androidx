@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.modifier
 
@@ -22,9 +21,9 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ZIndexModifier(public val value: RemoteFloat) : RemoteModifier.Element {
+internal class ZIndexModifier(public val value: RemoteFloat) : RemoteModifier.Element {
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.ZIndexModifier(value.floatId)
     }

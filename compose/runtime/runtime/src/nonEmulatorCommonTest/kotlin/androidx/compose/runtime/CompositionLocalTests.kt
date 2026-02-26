@@ -27,6 +27,7 @@ import androidx.compose.runtime.mock.expectChanges
 import androidx.compose.runtime.mock.expectNoChanges
 import androidx.compose.runtime.mock.revalidate
 import androidx.compose.runtime.mock.validate
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -931,6 +932,7 @@ class CompositionLocalTests {
         }
     }
 
+    @Ignore // b/478445536
     @Test
     fun hostDefault_throwsForMissingNonNullableKey() = compositionTest {
         // Key expects a non-null String

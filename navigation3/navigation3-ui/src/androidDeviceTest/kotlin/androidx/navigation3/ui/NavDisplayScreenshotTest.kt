@@ -290,7 +290,7 @@ class NavDisplayScreenshotTest {
                 LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
             NavDisplay(
                 backStack = backStack,
-                sceneStrategy = CardStackSceneStrategy(),
+                sceneStrategies = listOf(CardStackSceneStrategy()),
                 modifier = Modifier.testTag(navHostTag),
             ) {
                 when (it) {
@@ -332,7 +332,7 @@ class NavDisplayScreenshotTest {
                 LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
             NavDisplay(
                 backStack = backStack,
-                sceneStrategy = CardStackSceneStrategy(duration),
+                sceneStrategies = listOf(CardStackSceneStrategy(duration)),
                 modifier = Modifier.testTag(navHostTag),
             ) {
                 when (it) {
@@ -378,7 +378,7 @@ class NavDisplayScreenshotTest {
                 LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
             NavDisplay(
                 backStack = backStack,
-                sceneStrategy = CardStackSceneStrategy(),
+                sceneStrategies = listOf(CardStackSceneStrategy()),
                 modifier = Modifier.testTag(navHostTag),
             ) {
                 when (it) {
@@ -645,7 +645,7 @@ class NavDisplayScreenshotTest {
                     slideInVertically(tween(duration)) { -it / 2 } togetherWith
                         slideOutVertically(tween(duration)) { it / 2 }
                 },
-                sceneStrategy = TestTwoPaneSceneStrategy(),
+                sceneStrategies = listOf(TestTwoPaneSceneStrategy()),
                 modifier = Modifier.testTag(navHostTag),
             ) { key ->
                 when (key) {
@@ -819,7 +819,7 @@ class NavDisplayScreenshotTest {
                 LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
             NavDisplay(
                 backStack = backStack,
-                sceneStrategy = CardStackSceneStrategy(duration),
+                sceneStrategies = listOf(CardStackSceneStrategy(duration)),
                 modifier = Modifier.testTag(navHostTag),
             ) {
                 when (it) {
@@ -856,7 +856,7 @@ class NavDisplayScreenshotTest {
                 LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
             NavDisplay(
                 backStack = backStack,
-                sceneStrategy = CardStackSceneStrategy(),
+                sceneStrategies = listOf(CardStackSceneStrategy()),
                 modifier = Modifier.testTag(navHostTag),
             ) {
                 when (it) {
@@ -1017,7 +1017,7 @@ class NavDisplayScreenshotTest {
             backStack = remember { mutableStateListOf(first, second) }
             NavDisplay(
                 backStack,
-                sceneStrategy = TestAnimatedTwoPaneSceneStrategy(duration),
+                sceneStrategies = listOf(TestAnimatedTwoPaneSceneStrategy(duration)),
                 modifier = Modifier.testTag(navHostTag),
             ) {
                 when (it) {
@@ -1068,8 +1068,10 @@ class NavDisplayScreenshotTest {
             backStack = remember { mutableStateListOf(first, second) }
             NavDisplay(
                 backStack,
-                sceneStrategy =
-                    TestAnimatedTwoPaneSceneStrategy(duration, overrideEntryAnimations = true),
+                sceneStrategies =
+                    listOf(
+                        TestAnimatedTwoPaneSceneStrategy(duration, overrideEntryAnimations = true)
+                    ),
                 modifier = Modifier.testTag(navHostTag),
             ) {
                 when (it) {
@@ -1125,8 +1127,10 @@ class NavDisplayScreenshotTest {
             backStack = remember { mutableStateListOf(first, second) }
             NavDisplay(
                 backStack,
-                sceneStrategy =
-                    TestAnimatedTwoPaneSceneStrategy(duration, overrideEntryAnimations = false),
+                sceneStrategies =
+                    listOf(
+                        TestAnimatedTwoPaneSceneStrategy(duration, overrideEntryAnimations = false)
+                    ),
                 modifier = Modifier.testTag(navHostTag),
             ) {
                 when (it) {
@@ -1236,7 +1240,7 @@ class NavDisplayScreenshotTest {
                         backStack = backStack,
                         onBack = { backStack.removeAt(backStack.lastIndex) },
                         sharedTransitionScope = this,
-                        sceneStrategy = rememberListDetailSceneStrategy(),
+                        sceneStrategies = listOf(rememberListDetailSceneStrategy()),
                         entryProvider =
                             entryProvider {
                                 entry(first, metadata = ListDetailScene.listPane()) {

@@ -78,7 +78,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalTestApi::class)
 class ScrollableFocusableInteractionTest {
     companion object {
-        fun initParameters() = arrayOf(
+        fun initParameters() = arrayOf<Array<Any>>(
             arrayOf(Vertical, true),
             arrayOf(Vertical, false),
             arrayOf(Horizontal, true),

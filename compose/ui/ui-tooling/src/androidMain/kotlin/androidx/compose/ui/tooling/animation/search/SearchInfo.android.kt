@@ -17,6 +17,7 @@
 package androidx.compose.ui.tooling.animation.search
 
 import androidx.compose.animation.tooling.ComposeAnimation
+import androidx.compose.ui.tooling.animation.ClockInfo
 import androidx.compose.ui.tooling.animation.clock.ComposeAnimationClock
 
 /**
@@ -26,24 +27,49 @@ import androidx.compose.ui.tooling.animation.clock.ComposeAnimationClock
  * example [androidx.compose.animation.core.Transition],
  * [androidx.compose.ui.tooling.animation.ToolingState].
  *
- * @param AnimationType type of [ComposeAnimation] associated with this [SearchInfo].
- * @param ClockType type of [ComposeAnimationClock] to be created using information from this
- *   [SearchInfo].
+ * @param Animation [ComposeAnimation] associated with this [SearchInfo].
+ * @param Clock [ComposeAnimationClock] to be created using information from this [SearchInfo].
  */
-internal interface SearchInfo<
-    AnimationType : ComposeAnimation,
-    ClockType : ComposeAnimationClock<*, *>,
-> {
+internal interface SearchInfo<Animation : ComposeAnimation, Clock : ComposeAnimationClock<*, *>> {
+    /** Animation object found in slotTree for which this [SearchInfo] is created. */
+    val animationObject: Any
+
+    /** Label of the animation. */
+    val label: String
+
+    /** Initial state of the animation. */
+    val initialState: Any?
+
+    /** Target state of the animation. */
+    val targetState: Any?
+
+    /**
+     * Set the [initialState] of this [SearchInfo] to the current value of the [animationObject]
+     * it's tracking.
+     */
+    fun setInitialStateToCurrentAnimationValue()
+
+    /**
+     * Set the [targetState] of this [SearchInfo] to the current value of the [animationObject] it's
+     * tracking.
+     */
+    fun setTargetStateToCurrentAnimationValue()
+
     /**
      * Create [ComposeAnimation] for this [SearchInfo].
      *
      * @return created [ComposeAnimation]. Can return null if corresponding API is not available or
      *   animation could not be parsed or invalid.
      */
-    fun createAnimation(): AnimationType?
+    fun createAnimation(): Animation?
 
-    /** Create [ComposeAnimationClock] for target [AnimationType]. */
-    fun createClock(animation: AnimationType): ClockType
+    /**
+     * Create [ComposeAnimationClock] for target [Animation].
+     *
+     * @param clockInfo extra information about
+     *   [androidx.compose.ui.tooling.animation.PreviewAnimationClock] required to create a clock.
+     */
+    fun createClock(animation: Animation, clockInfo: ClockInfo): Clock
 
     /** Attach [SearchInfo]'s overrides to allow tooling control animation values. */
     fun attach() {}

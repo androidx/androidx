@@ -69,4 +69,30 @@ object AndroidComposeUiFlags {
     @JvmField
     // To be removed b/479845566
     var isSharedAccessibilityManagerEnabled: Boolean = true
+
+    /** This moves DrawScope and CanvasHolder into the shared ComposeViewContext. */
+    // To be removed b/479849019
+    @field:Suppress("MutableBareField") @JvmField var isSharedDrawingEnabled: Boolean = true
+
+    /** This moves ViewConfiguration into the shared ComposeViewContext. */
+    @field:Suppress("MutableBareField")
+    @JvmField
+    // To be removed b/479890645
+    var isSharedViewConfigurationEnabled: Boolean = true
+
+    /** This moves Clipboard-related instances into the shared ComposeViewContext. */
+    @field:Suppress("MutableBareField")
+    @JvmField
+    // To be removed b/479895130
+    var isSharedClipboardManagerEnabled: Boolean = true
+
+    /**
+     * This flag enables support for walking up nested scrolling in response to
+     * android.R.id.accessibilityActionShowOnScreen from Accessibility.
+     *
+     * Enabled is correct nested scrolling behavior and it should be enabled in all apps.
+     */
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isAccessibilityShowOnScreenNestedScrollingEnabled: Boolean = true
 }

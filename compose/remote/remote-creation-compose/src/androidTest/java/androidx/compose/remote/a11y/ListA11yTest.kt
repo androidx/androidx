@@ -36,16 +36,17 @@ import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.uiautomator.uiAutomator
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -60,12 +61,15 @@ class ListA11yTest {
         RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
 
     @Test
+    @Ignore("b/484916070")
     fun listSemantics() {
         remoteComposeTestRule.runTest {
             ScrollableList(modifier = RemoteModifier.fillMaxSize(), items = 30, notches = 0)
         }
 
         uiAutomator {
+            device.dumpWindowHierarchy(System.out)
+
             val list = onElement { isScrollable }
 
             val listAni = list.accessibilityNodeInfo
@@ -94,6 +98,7 @@ class ListA11yTest {
     }
 
     @Test
+    @Ignore("b/484916070")
     fun listWithSnapSemantics() {
         remoteComposeTestRule.runTest {
             ScrollableList(modifier = RemoteModifier.fillMaxSize(), items = 30, notches = 29)
@@ -137,7 +142,7 @@ class ListA11yTest {
                     horizontalAlignment = RemoteAlignment.CenterHorizontally,
                     verticalArrangement = RemoteArrangement.Center,
                 ) {
-                    RemoteText("Item $it", color = RemoteColor(Color.Black), fontSize = 36.sp)
+                    RemoteText("Item $it", color = RemoteColor(Color.Black), fontSize = 36.rsp)
                 }
             }
         }

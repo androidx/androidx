@@ -13,38 +13,56 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.remote.creation.compose.state.asRdp
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.isUnspecified
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class WidthInModifier(
-    public val min: Dp = Dp.Unspecified,
-    public val max: Dp = Dp.Unspecified,
-) : RemoteModifier.Element {
+internal class WidthInModifier(val min: RemoteDp? = null, val max: RemoteDp? = null) :
+    RemoteModifier.Element {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         var minValue = 0f
         var maxValue = Float.MAX_VALUE
-        if (min != Dp.Unspecified) {
-            minValue = min.value
+        if (min != null) {
+            // specified in Dp values
+            minValue = min.value.floatId
         }
-        if (max != Dp.Unspecified) {
-            maxValue = max.value
+        if (max != null) {
+            // specified in Dp values
+            maxValue = max.value.floatId
         }
         return androidx.compose.remote.creation.modifiers.WidthInModifier(minValue, maxValue)
     }
 }
 
-@Composable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.widthIn(
     min: Dp = Dp.Unspecified,
     max: Dp = Dp.Unspecified,
 ): RemoteModifier {
-    return then(WidthInModifier(min, max))
+    return then(
+        WidthInModifier(
+            min = if (min.isUnspecified) null else min.asRdp(),
+            max = if (max.isUnspecified) null else max.asRdp(),
+        )
+    )
+}
+
+/**
+ * Sets the minimum and maximum width of the content.
+ *
+ * @param min The minimum width.
+ * @param max The maximum width.
+ */
+@Composable
+public fun RemoteModifier.widthIn(min: RemoteDp? = null, max: RemoteDp? = null): RemoteModifier {
+    return then(WidthInModifier(min = min, max = max))
 }

@@ -3765,7 +3765,7 @@ public class LayoutTest {
                 });
         ArrayList<TestComponentOperation> ops = new ArrayList<>();
         ops.add(new TestComponentVisibility(2, Component.Visibility.VISIBLE));
-        ops.add(new TestComponentTouchDownNoInvalOperation(3, 250, 50));
+        ops.add(new TestComponentTouchDownNoInvalOperation(3, 50, 50));
         ArrayList<TestComponentOperation> ops2 = new ArrayList<>();
         ops2.add(new TestComponentVisibility(2, Component.Visibility.GONE));
         baseTestComponent(writer, 400, 400, ops, ops2);

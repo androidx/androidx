@@ -20,6 +20,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
@@ -99,8 +100,49 @@ class PaddingModifierTest {
     fun symmetricEqualToAbsoluteWithExplicitSides() {
         assertTrue(
             haveSameValues(
-                RemoteModifier.padding(10f.rf, 20f.rf, 10f.rf, 20f.rf),
-                RemoteModifier.padding(10f.rf, 20f.rf),
+                RemoteModifier.padding(
+                    left = 10f.rf,
+                    top = 20f.rf,
+                    right = 10f.rf,
+                    bottom = 20f.rf,
+                ),
+                RemoteModifier.padding(horizontal = 10f.rf, vertical = 20f.rf),
+            )
+        )
+    }
+
+    /**
+     * Tests that [RemoteDp] padding values are equivalent to [RemoteFloat] values when the density
+     * is 1.
+     */
+    @Test
+    fun remoteDpPaddingMatchesAtDensity1() {
+        assertTrue(
+            /* condition = */ haveSameValues(
+                RemoteModifier.padding(all = 10f.rf),
+                RemoteModifier.padding(all = 10f.rdp),
+            )
+        )
+        assertTrue(
+            /* condition = */ haveSameValues(
+                RemoteModifier.padding(horizontal = 10f.rf, vertical = 20f.rf),
+                RemoteModifier.padding(horizontal = 10f.rdp, vertical = 20f.rdp),
+            )
+        )
+        assertTrue(
+            /* condition = */ haveSameValues(
+                RemoteModifier.padding(
+                    left = 10f.rf,
+                    top = 11f.rf,
+                    right = 12f.rf,
+                    bottom = 13f.rf,
+                ),
+                RemoteModifier.padding(
+                    left = 10f.rdp,
+                    top = 11f.rdp,
+                    right = 12f.rdp,
+                    bottom = 13f.rdp,
+                ),
             )
         )
     }

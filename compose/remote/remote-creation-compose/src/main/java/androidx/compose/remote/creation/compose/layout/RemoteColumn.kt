@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-
 package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
@@ -33,8 +31,7 @@ import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 
 /** Utility modifier to record the layout information */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteComposeColumnModifier(
+internal class RemoteComposeColumnModifier(
     public val modifier: RemoteModifier = RemoteModifier,
     public val horizontalAlignment: RemoteAlignment.Horizontal = RemoteAlignment.Start,
     public val verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Top,
@@ -52,19 +49,31 @@ public class RemoteComposeColumnModifier(
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/** Receiver scope used by [RemoteColumn] for its content. */
 public class RemoteColumnScope {
+    /**
+     * Sets the vertical weight of this element relative to its siblings in the [RemoteColumn].
+     *
+     * @param weight The proportional height to allocate to this element.
+     */
     public fun RemoteModifier.weight(weight: RemoteFloat): RemoteModifier =
         then(HeightModifier(Type.WEIGHT, weight))
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun RemoteModifier.weight(weight: Float): RemoteModifier =
         then(HeightModifier(Type.WEIGHT, RemoteFloat(weight)))
 }
 
 /**
- * RemoteColumn implements a Column layout, delegating to the foundation Column layout as needed.
- * This allows RemoteColumn to both work as a normal Column when called within a normal Compose
- * tree, and capture the layout information when called within a capture pass for RemoteCompose.
+ * A layout composable that positions its children in a vertical sequence.
+ *
+ * `RemoteColumn` allows you to arrange children vertically and control their [verticalArrangement]
+ * (spacing) and [horizontalAlignment].
+ *
+ * @param modifier The modifier to be applied to this column.
+ * @param verticalArrangement The vertical arrangement of the children.
+ * @param horizontalAlignment The horizontal alignment of the children.
+ * @param content The content of the column, which has access to [RemoteColumnScope].
  */
 @RemoteComposable
 @Composable

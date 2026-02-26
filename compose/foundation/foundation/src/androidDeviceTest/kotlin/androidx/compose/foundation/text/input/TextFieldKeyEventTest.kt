@@ -982,6 +982,21 @@ class TextFieldKeyEventTest {
         assertTrue(keyUpReceived)
     }
 
+    @Test
+    fun textField_ctrlBackspace() {
+        keysSequenceTest(
+            initText = "hello world",
+            initSelection = TextRange("hello world".length),
+        ) {
+            withKeyDown(Key.CtrlLeft) { pressKey(Key.Backspace) }
+            expectedText("hello ")
+
+            // ctrl-shift-backspace should also delete previous word
+            withKeysDown(Key.CtrlLeft + Key.ShiftLeft) { pressKey(Key.Backspace) }
+            expectedText("")
+        }
+    }
+
     private inner class SequenceScope(
         val state: TextFieldState,
         val clipboard: Clipboard,

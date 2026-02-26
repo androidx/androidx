@@ -207,15 +207,17 @@ internal fun SemanticsNodeInteraction.sendIndirectPointerCancelEvent(
 }
 
 @OptIn(ExperimentalIndirectPointerApi::class)
-internal fun SemanticsNodeInteraction.sendIndirectPressReleaseEvent(rule: ComposeTestRule) {
-    val currentTime = SystemClock.uptimeMillis()
+internal fun SemanticsNodeInteraction.sendIndirectPressReleaseEvent(
+    rule: ComposeTestRule,
+    time: Long = SystemClock.uptimeMillis(),
+) {
     val currentValue = Offset((TouchPadEnd - TouchPadStart) / 2, 0f)
-    val downEvent = sendIndirectPointerPressEvent(rule, currentTime, currentValue)
+    val downEvent = sendIndirectPointerPressEvent(rule, time, currentValue)
     val (newCurrentTime, newCurrentValue, lastMove) =
         sendIndirectPointerMoveEvents(
             rule,
             1,
-            currentTime,
+            time,
             currentValue,
             16L,
             Offset.Zero,

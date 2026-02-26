@@ -116,7 +116,7 @@ class HierarchicalSceneTest {
             NavDisplay(
                 backStack = backStack,
                 onBack = { backStack.removeAt(backStack.lastIndex) },
-                sceneStrategy = remember { HierarchicalSceneStrategy(2) },
+                sceneStrategies = remember { listOf(HierarchicalSceneStrategy(2)) },
             ) {
                 when (it) {
                     first -> NavEntry(first) { Text(first) }
@@ -140,7 +140,7 @@ class HierarchicalSceneTest {
             NavDisplay(
                 backStack = backStack,
                 onBack = { backStack.removeAt(backStack.lastIndex) },
-                sceneStrategy = remember { HierarchicalSceneStrategy(2) },
+                sceneStrategies = remember { listOf(HierarchicalSceneStrategy(2)) },
             ) {
                 when (it) {
                     first -> NavEntry(first) { Text(first) }
@@ -170,7 +170,7 @@ class HierarchicalSceneTest {
             NavDisplay(
                 backStack = backStack,
                 onBack = { backStack.removeAt(backStack.lastIndex) },
-                sceneStrategy = remember { HierarchicalSceneStrategy(2) },
+                sceneStrategies = remember { listOf(HierarchicalSceneStrategy(2)) },
             ) {
                 when (it) {
                     first -> NavEntry(first) { Text(first) }
@@ -213,7 +213,7 @@ class HierarchicalSceneTest {
             NavDisplay(
                 backStack = backStack,
                 onBack = { backStack.removeAt(backStack.lastIndex) },
-                sceneStrategy = remember(columns) { HierarchicalSceneStrategy(columns) },
+                sceneStrategies = remember(columns) { listOf(HierarchicalSceneStrategy(columns)) },
             ) {
                 when (it) {
                     first -> NavEntry(first) { Text(first) }
@@ -262,7 +262,7 @@ class HierarchicalSceneTest {
             NavDisplay(
                 backStack = backStack,
                 onBack = { backStack.removeAt(backStack.lastIndex) },
-                sceneStrategy = remember { HierarchicalSceneStrategy(2) },
+                sceneStrategies = remember { listOf(HierarchicalSceneStrategy(2)) },
             ) {
                 when (it) {
                     first ->
@@ -300,7 +300,7 @@ class HierarchicalSceneTest {
             NavDisplay(
                 backStack = backStack,
                 onBack = { backStack.removeAt(backStack.lastIndex) },
-                sceneStrategy = remember { HierarchicalSceneStrategy(2) },
+                sceneStrategies = remember { listOf(HierarchicalSceneStrategy(2)) },
             ) {
                 when (it) {
                     first ->
@@ -377,7 +377,7 @@ class HierarchicalSceneTest {
             NavDisplay(
                 backStack = backStack,
                 onBack = { backStack.removeAt(backStack.lastIndex) },
-                sceneStrategy = remember { HierarchicalSceneStrategy(2) },
+                sceneStrategies = remember { listOf(HierarchicalSceneStrategy(2)) },
             ) {
                 when (it) {
                     first -> NavEntry(first) { Text(first) }

@@ -62,7 +62,7 @@ internal class NavDisplayInfoTest {
             CompositionLocalProvider(LocalNavigationEventDispatcherOwner provides childOwner) {
                 NavDisplay(
                     backStack = backStack,
-                    sceneStrategy = sceneStrategy,
+                    sceneStrategies = listOf(sceneStrategy),
                     onBack = { backStack.removeAt(backStack.lastIndex) },
                     entryProvider = { key -> NavEntry(key) {} },
                 )

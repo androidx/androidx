@@ -18,6 +18,7 @@ package androidx.compose.ui.tooling.animation.search
 
 import androidx.compose.animation.core.Transition
 import androidx.compose.ui.tooling.animation.AnimatedVisibilityComposeAnimation
+import androidx.compose.ui.tooling.animation.ClockInfo
 import androidx.compose.ui.tooling.animation.clock.AnimatedVisibilityClock
 import androidx.compose.ui.tooling.animation.parseAnimatedVisibility
 
@@ -28,13 +29,37 @@ import androidx.compose.ui.tooling.animation.parseAnimatedVisibility
  */
 internal class AnimatedVisibilitySearchInfo(val transition: Transition<Boolean>) :
     SearchInfo<AnimatedVisibilityComposeAnimation, AnimatedVisibilityClock> {
+
+    override val animationObject: Any = transition
+
+    override val label: String
+        get() = transition.label ?: "AnimatedVisibility"
+
+    override var initialState: Boolean = transition.targetState
+        private set
+
+    override var targetState: Boolean = transition.targetState
+        private set
+
+    override fun setInitialStateToCurrentAnimationValue() {
+        initialState = transition.targetState
+    }
+
+    override fun setTargetStateToCurrentAnimationValue() {
+        targetState = transition.targetState
+    }
+
     override fun createAnimation(): AnimatedVisibilityComposeAnimation {
         return transition.parseAnimatedVisibility()
     }
 
     override fun createClock(
-        animation: AnimatedVisibilityComposeAnimation
+        animation: AnimatedVisibilityComposeAnimation,
+        clockInfo: ClockInfo,
     ): AnimatedVisibilityClock {
-        return AnimatedVisibilityClock(animation)
+        clockInfo.requestLayout()
+        val clock = AnimatedVisibilityClock(animation)
+        clock.setClockTime(0L)
+        return clock
     }
 }

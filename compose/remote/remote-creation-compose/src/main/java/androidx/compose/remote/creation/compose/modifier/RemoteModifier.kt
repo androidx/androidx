@@ -16,7 +16,6 @@
 
 package androidx.compose.remote.creation.compose.modifier
 
-import android.annotation.SuppressLint
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
@@ -25,9 +24,12 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 
 /**
- * An ordered, immutable, collection of modifier element for the Remote library.
+ * An ordered, immutable collection of modifier elements for Remote Compose.
  *
- * This plays the same role as [androidx.compose.ui.Modifier], but for the Remote composables.
+ * `RemoteModifier` is the remote-first equivalent of [androidx.compose.ui.Modifier]. It is used to
+ * decorate or augment remote composables (e.g., adding padding, background, or click listeners).
+ *
+ * Remote modifiers are designed to be encoded and evaluatable on a remote compose player.
  */
 @Stable
 public sealed interface RemoteModifier {
@@ -79,7 +81,6 @@ public sealed interface RemoteModifier {
      *
      * Returns a [RemoteModifier] representing this modifier followed by [other] in sequence.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public infix fun then(other: RemoteModifier): RemoteModifier =
         if (other === RemoteModifier) this else CombinedRemoteModifier(this, other)
 
@@ -96,17 +97,21 @@ public sealed interface RemoteModifier {
 
         override fun all(predicate: (Element) -> Boolean): Boolean = predicate(this)
 
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun RemoteStateScope.toRecordingModifier(): RecordingModifier {
             return RecordingModifier().then(toRecordingModifierElement())
         }
 
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element
     }
 
     /**
-     * The companion object `Modifier` is the empty, default, or starter [RemoteModifier] that
+     * The `RemoteModifier` companion object is the empty, default, or starter [RemoteModifier] that
      * contains no [elements][Element]. Use it to create a new [RemoteModifier] using modifier
      * extension factory functions.
+     *
+     * Example: `RemoteModifier.padding(16.rdp).background(RemoteColor.Red)`
      */
     // The companion object implements `Modifier` so that it may be used  as the start of a
     // modifier extension factory expression.
@@ -123,7 +128,6 @@ public sealed interface RemoteModifier {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun all(predicate: (Element) -> Boolean): Boolean = true
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override infix fun then(other: RemoteModifier): RemoteModifier = other
 
         override fun toString(): String = "Modifier"
@@ -137,10 +141,9 @@ public sealed interface RemoteModifier {
     }
 }
 
-/** Convert to Compose UI Modifier. */
-@SuppressLint("ModifierFactoryExtensionFunction")
-@Composable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Composable
+@Suppress("ModifierFactoryExtensionFunction")
 public fun RemoteModifier.toComposeUi(): Modifier {
     return Modifier.toComposeUi()
 }
@@ -157,9 +160,9 @@ public fun RemoteStateScope.toRecordingModifier(modifier: RemoteModifier): Recor
 /**
  * Filter the Layout relevant [RemoteModifier.Element]s and then convert to Compose UI [Modifier].
  */
-@SuppressLint("ModifierFactoryExtensionFunction")
-@Composable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Composable
+@Suppress("ModifierFactoryExtensionFunction")
 public fun RemoteModifier.toComposeUiLayout(): Modifier {
     return this.foldIn<RemoteModifier>(RemoteModifier) { r, n -> r.then(n) }.toComposeUi()
 }
@@ -168,12 +171,12 @@ public fun RemoteModifier.toComposeUiLayout(): Modifier {
  * A node in a [RemoteModifier] chain. A CombinedModifier always contains at least two elements; a
  * Modifier [outer] that wraps around the Modifier [inner].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class CombinedRemoteModifier(
+internal class CombinedRemoteModifier(
     private val outer: RemoteModifier,
     private val inner: RemoteModifier,
 ) : RemoteModifier {
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifier(): RecordingModifier {
         val scope = this
         return RecordingModifier().apply {
@@ -191,6 +194,7 @@ public class CombinedRemoteModifier(
         }
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Composable
     override fun Modifier.toComposeUi(): Modifier {
         var result = this

@@ -42,9 +42,10 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemoteState
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberRemoteBitmapValue
+import androidx.compose.remote.creation.compose.state.rememberNamedRemoteBitmap
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.runtime.Composable
@@ -208,7 +209,7 @@ class RemoteBrushTest {
     fun bitmapBrushTest() {
         remoteComposeTestRule.runScreenshotTest {
             val image =
-                rememberRemoteBitmapValue(name = "background") {
+                rememberNamedRemoteBitmap(name = "background", domain = RemoteState.Domain.User) {
                     createImage(400, 400).asImageBitmap()
                 }
             val imageSize = RemoteSize(image.width, image.height)

@@ -35,7 +35,7 @@ import androidx.compose.remote.creation.compose.layout.rememberStateMachine
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePaint
-import androidx.compose.remote.creation.compose.state.rememberRemoteIntValue
+import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -170,7 +170,7 @@ class RemoteComposeV2Test {
         val displayInfo = CreationDisplayInfo(500, 500, 1)
         val document =
             captureSingleRemoteDocumentV2(creationDisplayInfo = displayInfo, context = context) {
-                val checked = rememberRemoteIntValue { 1 }
+                val checked = rememberMutableRemoteInt(1)
                 val off = 0
                 val on = 1
                 val stateMachine = rememberStateMachine(checked, off, on)

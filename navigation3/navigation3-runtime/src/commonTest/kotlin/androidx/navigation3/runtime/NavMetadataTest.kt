@@ -98,6 +98,14 @@ class NavMetadataTest {
         assertThat(metadata2[classKey2]).isEqualTo(classObject2)
     }
 
+    @Test
+    fun testContains() {
+        val metadata = metadata { put(classKey1, classObject1) }
+
+        assertThat(metadata.contains(classKey1)).isTrue()
+        assertThat(metadata.contains(classKey2)).isFalse()
+    }
+
     private object TestObject
 
     private object TestObjectKey : NavMetadataKey<TestObject>

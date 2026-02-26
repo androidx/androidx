@@ -27,6 +27,8 @@ import org.jetbrains.annotations.TestOnly
 /** [ComposeAnimation] of type [ComposeAnimationType.ANIMATE_X_AS_STATE]. */
 internal class AnimateXAsStateComposeAnimation<T, V : AnimationVector>
 private constructor(
+    val initialState: Any?,
+    val targetState: Any?,
     val toolingState: ToolingState<T>,
     val animationSpec: AnimationSpec<T>,
     override val animationObject: Animatable<T, V>,
@@ -60,7 +62,13 @@ private constructor(
             if (!apiAvailable) return null
             // Tooling can't control nullable Animatable with value set to null.
             if (animatable.value == null) return null
-            return AnimateXAsStateComposeAnimation(toolingOverride.state, animationSpec, animatable)
+            return AnimateXAsStateComposeAnimation(
+                initialState = initialState,
+                targetState = targetState,
+                toolingState = toolingOverride.state,
+                animationSpec = animationSpec,
+                animationObject = animatable,
+            )
         }
 
         /** This method is for testing only. */

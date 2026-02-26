@@ -263,6 +263,15 @@ public class ExperimentRecyclerActivity extends Activity {
         toPlayer.setText("Player");
         toPlayer.setOnClickListener(this::setToPlayer);
         row.addView(toPlayer);
+        // ==================== Save All ==========================
+        Button saveAll = new Button(this);
+        saveAll.setTextSize(textSize);
+        p = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT);
+        p.weight = 1;
+        saveAll.setLayoutParams(p);
+        saveAll.setText("SaveAll");
+        saveAll.setOnClickListener(this::saveAll);
+        row.addView(saveAll);
         createNotificationChannel();
         // ================================ ==========================
 
@@ -339,6 +348,21 @@ public class ExperimentRecyclerActivity extends Activity {
         DecimalFormat df = new DecimalFormat("#.##");
         mStatsView.setText("render: " + df.format(mRenderingDuration) + "ms");
         setUpMetrics();
+    }
+
+    private void saveAll(View v) {
+        File storageDir = new File("/storage/self/primary/Download/");
+        File[] toRemove = storageDir.listFiles();
+        for (int i = 0; i < toRemove.length; i++) {
+            File file = toRemove[i];
+            if (file.getName().endsWith(".rc")) {
+                file.delete();
+            }
+        }
+
+        for (RCDoc doc : mDocList) {
+            saveDoc(doc.toString(), docToBytes(doc), getApplicationContext(), false);
+        }
     }
 
     private void sendDoc(RCDoc doc) {
@@ -487,7 +511,12 @@ public class ExperimentRecyclerActivity extends Activity {
     }
 
     static byte[] docToBytes(RCDoc doc) {
-        sCurrentBuffer = Objects.requireNonNull(doc.getDoc()).getDocument().getBuffer();
+        RemoteDocument rcdoc = doc.getDoc();
+        if (rcdoc == null) {
+            return null;
+        }
+        sCurrentBuffer = rcdoc.getDocument().getBuffer();
+
         byte[] buffer = Arrays.copyOf(sCurrentBuffer.getBuffer().getBuffer(),
                 sCurrentBuffer.getBuffer().getSize());
         int bufferSize = buffer.length;
@@ -552,7 +581,7 @@ public class ExperimentRecyclerActivity extends Activity {
             int read = byteArrayInputStream.read(bytes);
             System.out.println("read " + read);
             saveDoc(doc.toString(), bytes, getApplicationContext(), false);
-        } catch (IOException e) {
+        } catch (Exception e) {
             // Handle the exception
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
@@ -1113,12 +1142,19 @@ public class ExperimentRecyclerActivity extends Activity {
      * @param buff       the document
      * @param appContext the application context
      */
-    public static void saveDoc(@NonNull String name, byte @NonNull [] buff, @NonNull Context
+    public static void saveDoc(@NonNull String name, byte @Nullable [] buff, @NonNull Context
             appContext, boolean compress) {
+        if (buff == null) {
+            return;
+        }
         int len = buff.length;
         if (name.indexOf('/') >= 0) {
-            name = name.substring(name.lastIndexOf('/'));
+            name = name.substring(name.lastIndexOf('/') + 1);
         }
+
+        name = name.replaceFirst("^\\d+", "");
+        // convert to snake case
+        name = name.replaceAll("([a-z])([A-Z])", "$1_$2").toLowerCase();
         File storageDir = appContext.getExternalFilesDir(
                 Environment.DIRECTORY_PICTURES); // Using internal storage
         if (storageDir != null) {
@@ -1129,20 +1165,28 @@ public class ExperimentRecyclerActivity extends Activity {
             if (!mkdirs) {
                 return;
             }
-
         }
-        String str = Base64.getEncoder().encodeToString(buff);
-        StringBuilder output = new StringBuilder("\ndata = ");
-        int chunk = 72;
-        for (int i = 0; i < str.length(); i += chunk) {
-            int endIndex = Math.min(i + chunk, str.length());
-            if (i != 0) output.append("+");
-            output.append("\"").append(str.substring(i, endIndex)).append("\"\n");
+        System.out.println("saving " + name);
+        if (DEBUG) {
+            String str = Base64.getEncoder().encodeToString(buff);
+            StringBuilder output = new StringBuilder("\ndata = ");
+            int chunk = 72;
+            for (int i = 0; i < str.length(); i += chunk) {
+                int endIndex = Math.min(i + chunk, str.length());
+                if (i != 0) output.append("+");
+                output.append("\"").append(str.substring(i, endIndex)).append("\"\n");
+            }
+            Log.v("MAIN", "base64String: " + output);
         }
-
-        Log.v("MAIN", "base64String: " + output);
 
         File imageFile = new File(storageDir, name + ".rc");
+        if (imageFile.exists()) {
+            System.out.println("WARNING IMAGE EXIST " + name + " len = " + buff.length + "  "
+                    + imageFile.length());
+            if (buff.length != imageFile.length()) {
+                imageFile = new File(storageDir, name + "_c.rc");
+            }
+        }
         if (compress) {
             imageFile = new File(storageDir, name + ".rcz");
         }

@@ -18,8 +18,6 @@ package androidx.compose.remote.integration.view.demos.examples
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -41,21 +39,21 @@ import androidx.compose.remote.creation.compose.modifier.rememberRemoteScrollSta
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.modifier.width
+import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
+import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.abs
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberRemoteFloat
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.tooling.preview.RemotePreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 @Suppress("RestrictedApiAndroidX")
 @Composable
@@ -98,7 +96,8 @@ fun CanvasCalendarMonth(modifier: RemoteModifier = RemoteModifier, month: Int = 
         daysValue[i] = number
     }
     RemoteColumn(
-        modifier = modifier.clip(RoundedCornerShape(18.dp)).background(Color(3, 169, 244, 173)),
+        modifier =
+            modifier.clip(RemoteRoundedCornerShape(18.rdp)).background(Color(3, 169, 244, 173)),
         horizontalAlignment = RemoteAlignment.CenterHorizontally,
         verticalArrangement = RemoteArrangement.Center,
     ) {
@@ -107,7 +106,7 @@ fun CanvasCalendarMonth(modifier: RemoteModifier = RemoteModifier, month: Int = 
             monthNames[month],
             fontFamily = FontFamily.Serif,
             fontWeight = FontWeight.Bold,
-            fontSize = 32.sp,
+            fontSize = 32.rsp,
             modifier = RemoteModifier.padding(bottom = 24.dp),
         )
         //        CaptureAsDraw {
@@ -208,28 +207,25 @@ fun ScrollViewDemo() {
         verticalArrangement = RemoteArrangement.Bottom,
         horizontalAlignment = RemoteAlignment.End,
     ) {
-        val density = LocalRemoteComposeCreationState.current.remoteDensity
-        val height = dimensionCard.toPx(density)
+        val height = dimensionCard.toPx()
         val h2 = 280.rdp
         RemoteColumn(
             modifier =
                 RemoteModifier.fillMaxWidth()
                     .height(h2)
-                    .clip(RectangleShape)
+                    .clip(RemoteRectangleShape)
                     // .background(Color.LightGray)
                     .verticalScroll(scrollState),
             verticalArrangement = RemoteArrangement.Center,
             horizontalAlignment = RemoteAlignment.CenterHorizontally,
         ) {
             for (i in 0 until numElements) {
-                val scale = rememberRemoteFloat {
+                val scale =
                     0.8f.rf +
                         (1.rf - abs(scrollState.positionState - (height * i.toFloat())) / height) *
                             0.2f
-                }
-                val rotation = rememberRemoteFloat {
+                val rotation =
                     (abs(scrollState.positionState - (height * i.toFloat())) / height) * 40f
-                }
                 //                Box(horizontalAlignment = Alignment.End) {
                 CanvasCalendarMonth(
                     modifier =
@@ -259,10 +255,10 @@ fun ScrollViewDemo() {
                 val blue = RemoteColor(Color.Blue.toArgb())
                 RemoteText(
                     scrollState.positionState.toRemoteString(5),
-                    fontSize = 34.sp,
+                    fontSize = 34.rsp,
                     color = blue,
                 )
-                RemoteText(height.toRemoteString(5), fontSize = 34.sp, color = blue)
+                RemoteText(height.toRemoteString(5), fontSize = 34.rsp, color = blue)
             }
         }
         //            val value = rememberRemoteString(RemoteFloat(scrollState.position))

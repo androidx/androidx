@@ -52,7 +52,7 @@ class RemoteLongTest {
         val namedRemoteLong = RemoteLong.createNamedRemoteLong("testLong", 100)
         val longId = namedRemoteLong.getIdForCreationState(creationState)
 
-        makeAndUpdateCoreDocument { context.setNamedLong("testLong", 20) }
+        makeAndUpdateCoreDocument { context.setNamedLong("USER:testLong", 20) }
 
         assertThat(context.getLong(longId)).isEqualTo(20L)
     }

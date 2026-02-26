@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.state
 
@@ -27,85 +26,55 @@ import androidx.compose.remote.player.core.state.RemoteDomains
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 
-/** Common base interface for all Remote types. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class BaseRemoteState<T> internal constructor() : RemoteState<T> {
-    /** The constant value or null if there isn't one. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override abstract val constantValueOrNull: T?
-
-    /** Whether or not this remote value always evaluates to the same result. */
-    public open val hasConstantValue: Boolean
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) get() = constantValueOrNull != null
-
-    /**
-     * The constant value or throws if null or unknown. Use should be checked by hasConstant value
-     * first.
-     */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public override val constantValue: T
-        get() =
-            checkNotNull(constantValueOrNull) {
-                "constantValue should only be accessed if hasConstantValue is true"
-            }
-
-    /**
-     * Returns a new or cached id for this [RemoteState] within the RemoteComposeCreationState.
-     *
-     * @param creationState The [RemoteComposeCreationState] for which the ID will be generated
-     * @return The ID of this remote value, for the given [creationState]
-     */
-    public open fun getIdForCreationState(creationState: RemoteComposeCreationState): Int {
-        return creationState.remoteVariableToId.getOrPut(this) { writeToDocument(creationState) }
-    }
-
-    /**
-     * @param creationState The [RemoteComposeCreationState] for which the ID will be generated
-     * @return The ID of this remote value, for the given [creationState] as a long
-     */
-    public open fun getLongIdForCreationState(creationState: RemoteComposeCreationState): Long {
-        return getIdForCreationState(creationState).toLong() + 0x100000000L
-    }
-
-    /**
-     * @param creationState The [RemoteComposeCreationState] for which the ID will be generated
-     * @return The ID of this remote value encoded in a Float NaN, for the given [creationState]
-     */
-    public open fun getFloatIdForCreationState(creationState: RemoteComposeCreationState): Float =
-        Utils.asNan(getIdForCreationState(creationState))
-
-    /**
-     * Writes the Remote Value to the [creationState] and returns the allocated ID.
-     *
-     * @param creationState The [RemoteComposeCreationState] to write to
-     * @return The ID allocated by the [RemoteComposeWriter]
-     */
-    public abstract fun writeToDocument(creationState: RemoteComposeCreationState): Int
-}
-
 /**
  * A readable but not writable Remote Compose State value.
  *
- * It may represent either a mutable direct value (var), or some expression that might change
- * externally.
+ * `RemoteState` represents a value that is available during remote document creation. It may
+ * represent either a constant value or a dynamic expression that evaluates on the remote rendering
+ * engine.
  *
- * In Remote Compose recording mode, the type specific id should be used.
+ * In Remote Compose recording mode, a type-specific ID is used to refer to this state within
+ * [RemoteComposeCreationState].
+ *
+ * @param T The type of the value held by this state.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Stable
 public interface RemoteState<T> {
-    /** The constant value or throws if null or unknown. */
-    public val constantValue: T
+    /**
+     * Whether or not this remote state evaluates to a constant value.
+     *
+     * If true, [constantValue] will return the constant value.
+     */
+    @get:Suppress("GetterSetterNames")
+    public val hasConstantValue: Boolean
+        get() = constantValueOrNull != null
 
-    /** The constant value or null if there isn't one. */
+    /**
+     * The constant value held by this state.
+     *
+     * @throws IllegalStateException if [hasConstantValue] is false.
+     */
+    public val constantValue: T
+        get() = checkNotNull(constantValueOrNull) { "No constant value for this state" }
+
+    /** The constant value held by this state, or `null` if the state is dynamic. */
     public val constantValueOrNull: T?
 
-    /** Represents the domain (namespace) for named remote states. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    /**
+     * Represents the domain (namespace) for named remote states.
+     *
+     * Named states are used to identify variables that can be updated externally or shared across
+     * different parts of a remote document.
+     */
     public open class Domain internal constructor(internal val coreDomain: String?) {
-        /** The default user-defined domain. */
+        /**
+         * The default user-defined domain.
+         *
+         * Recommended for application-specific state.
+         */
         public object User : Domain(RemoteDomains.USER.toString())
 
-        /** The system-defined domain, used for platform-level states. */
+        /** The system-defined domain, used for platform-level or framework state. */
         public object System : Domain(RemoteDomains.SYSTEM.toString())
 
         override fun toString(): String {
@@ -122,16 +91,58 @@ public interface RemoteState<T> {
     }
 }
 
+/** Common base interface for all Remote types. */
+public abstract class BaseRemoteState<T> internal constructor() : RemoteState<T> {
+    /** The constant value or null if there isn't one. */
+    public abstract override val constantValueOrNull: T?
+
+    /**
+     * Returns a new or cached id for this [RemoteState] within the [RemoteComposeCreationState].
+     *
+     * @param creationState The [RemoteComposeCreationState] for which the ID will be generated.
+     * @return The ID of this remote value, for the given [creationState].
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public open fun getIdForCreationState(creationState: RemoteComposeCreationState): Int {
+        return creationState.remoteVariableToId.getOrPut(this) { writeToDocument(creationState) }
+    }
+
+    /**
+     * @param creationState The [RemoteComposeCreationState] for which the ID will be generated.
+     * @return The ID of this remote value, for the given [creationState] as a long.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public open fun getLongIdForCreationState(creationState: RemoteComposeCreationState): Long {
+        return getIdForCreationState(creationState).toLong() + 0x100000000L
+    }
+
+    /**
+     * @param creationState The [RemoteComposeCreationState] for which the ID will be generated.
+     * @return The ID of this remote value encoded in a Float NaN, for the given [creationState].
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public open fun getFloatIdForCreationState(creationState: RemoteComposeCreationState): Float =
+        Utils.asNan(getIdForCreationState(creationState))
+
+    /**
+     * Writes the Remote Value to the [creationState] and returns the allocated ID.
+     *
+     * @param creationState The [RemoteComposeCreationState] to write to.
+     * @return The ID allocated by the [RemoteComposeWriter].
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public abstract fun writeToDocument(creationState: RemoteComposeCreationState): Int
+}
+
 /**
  * A readable and writable Remote Compose State value.
  *
- * It represents a direct value (var).
+ * It represents a direct value (var) that can be modified, typically resulting in a variable being
+ * allocated in the remote document.
  *
- * In Remote Compose recording mode, the type specific id should be used.
+ * @param T The type of the value held by this state.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Stable
-public interface MutableRemoteState<T> : RemoteState<T> {}
+@Stable public interface MutableRemoteState<T> : RemoteState<T>
 
 /**
  * Remembers a named state value.
@@ -141,8 +152,8 @@ public interface MutableRemoteState<T> : RemoteState<T> {}
  * named state instance is reused across all compositions of the document, identified by its `name`
  * and `domain`.
  *
- * This method only caches the instance of the RemoteState. Avoiding writing the same value to the
- * document multiple times, is handled by [BaseRemoteState.getIdForCreationState]
+ * This method only caches the instance of the [RemoteState]. Avoiding writing the same value to the
+ * document multiple times is handled by [BaseRemoteState.getIdForCreationState].
  *
  * @param T The type of the state object, which must extend [BaseRemoteState].
  * @param name A unique name to identify this state object within its domain.

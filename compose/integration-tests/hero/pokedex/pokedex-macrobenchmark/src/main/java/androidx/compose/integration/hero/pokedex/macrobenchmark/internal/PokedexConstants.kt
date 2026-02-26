@@ -25,5 +25,6 @@ internal object PokedexConstants {
         const val POKEDEX_ENABLE_SHARED_TRANSITION_SCOPE = "enableSharedTransitionScope"
         const val POKEDEX_ENABLE_SHARED_ELEMENT_TRANSITIONS = "enableSharedElementTransitions"
         const val POKEDEX_START_DESTINATION = "startDestination"
+        const val POKEDEX_API_URL = "apiUrl"
     }
 }

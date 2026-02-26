@@ -89,6 +89,7 @@ public object RemoteArrangement {
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class VerticalArrangement(var type: Int) : RemoteArrangement.Vertical {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun toComposeUi(): androidx.compose.foundation.layout.Arrangement.Vertical {
         when (type) {
             0 -> return androidx.compose.foundation.layout.Arrangement.Top
@@ -98,6 +99,7 @@ public data class VerticalArrangement(var type: Int) : RemoteArrangement.Vertica
         return androidx.compose.foundation.layout.Arrangement.Top
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun toRemote(): Int {
         when (type) {
             0 -> return ColumnLayout.TOP
@@ -111,6 +113,7 @@ public data class VerticalArrangement(var type: Int) : RemoteArrangement.Vertica
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class HorizontalOrVerticalArrangement(var type: Int) :
     RemoteArrangement.HorizontalOrVertical {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun toComposeUi():
         androidx.compose.foundation.layout.Arrangement.HorizontalOrVertical {
         when (type) {
@@ -121,6 +124,7 @@ public data class HorizontalOrVerticalArrangement(var type: Int) :
         return androidx.compose.foundation.layout.Arrangement.spacedBy(0.dp)
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun toRemote(): Int {
         when (type) {
             6 -> return ColumnLayout.SPACE_BETWEEN
@@ -133,6 +137,7 @@ public data class HorizontalOrVerticalArrangement(var type: Int) :
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class HorizontalArrangement(var type: Int) : RemoteArrangement.Horizontal {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun toComposeUi(): androidx.compose.foundation.layout.Arrangement.Horizontal {
         when (type) {
             3 -> return androidx.compose.foundation.layout.Arrangement.Start
@@ -145,6 +150,7 @@ public data class HorizontalArrangement(var type: Int) : RemoteArrangement.Horiz
         return androidx.compose.foundation.layout.Arrangement.Start
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun toRemote(): Int {
         when (type) {
             3 -> return ColumnLayout.START

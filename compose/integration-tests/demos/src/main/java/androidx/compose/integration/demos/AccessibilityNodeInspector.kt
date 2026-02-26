@@ -86,6 +86,7 @@ import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.asComposePath
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
@@ -131,6 +132,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toOffset
+import androidx.compose.ui.unit.toRect
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
@@ -319,6 +321,10 @@ private class DrawSelectionOverlayModifierNode(val state: AccessibilityNodeInspe
     private val lazyPath: Path
         get() = _path ?: Path().also { _path = it }
 
+    private var _boundsPath: Path? = null
+    private val lazyBoundsPath: Path
+        get() = _boundsPath ?: Path().also { _boundsPath = it }
+
     private var _androidPath: AndroidPath? = null
     private val lazyAndroidPath: AndroidPath
         get() = _androidPath ?: AndroidPath().also { _androidPath = it }
@@ -417,7 +423,12 @@ private class DrawSelectionOverlayModifierNode(val state: AccessibilityNodeInspe
             }
             else -> return null
         }
-        return path
+
+        val boundsPath = lazyBoundsPath
+        boundsPath.rewind()
+        val bounds = boundsInScreen.toRect().run { translate(-topLeft) }
+        boundsPath.addRect(bounds)
+        return path.apply { op(path, boundsPath, PathOperation.Intersect) }
     }
 
     private fun LayoutCoordinates.screenToLocal(rect: IntRect): IntRect {

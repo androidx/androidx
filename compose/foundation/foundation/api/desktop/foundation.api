@@ -279,16 +279,6 @@ public final class androidx/compose/foundation/ProgressSemanticsKt {
 	public static synthetic fun progressSemantics$default (Landroidx/compose/ui/Modifier;FLkotlin/ranges/ClosedFloatingPointRange;IILjava/lang/Object;)Landroidx/compose/ui/Modifier;
 }
 
-public abstract interface class androidx/compose/foundation/ScrollIndicatorFactory {
-	public abstract fun createNode (Landroidx/compose/foundation/ScrollIndicatorState;Landroidx/compose/foundation/gestures/Orientation;)Landroidx/compose/ui/node/DelegatableNode;
-	public abstract fun equals (Ljava/lang/Object;)Z
-	public abstract fun hashCode ()I
-}
-
-public final class androidx/compose/foundation/ScrollIndicatorKt {
-	public static final fun scrollIndicator (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/ScrollIndicatorFactory;Landroidx/compose/foundation/ScrollIndicatorState;Landroidx/compose/foundation/gestures/Orientation;)Landroidx/compose/ui/Modifier;
-}
-
 public abstract interface class androidx/compose/foundation/ScrollIndicatorState {
 	public abstract fun getContentSize ()I
 	public abstract fun getScrollOffset ()I
@@ -1806,6 +1796,192 @@ public final class androidx/compose/foundation/shape/RoundedCornerShapeKt {
 	public static final fun RoundedCornerShape-a9UjIt4 (FFFF)Landroidx/compose/foundation/shape/RoundedCornerShape;
 	public static synthetic fun RoundedCornerShape-a9UjIt4$default (FFFFILjava/lang/Object;)Landroidx/compose/foundation/shape/RoundedCornerShape;
 	public static final fun getCircleShape ()Landroidx/compose/foundation/shape/RoundedCornerShape;
+}
+
+public abstract interface annotation class androidx/compose/foundation/style/ExperimentalFoundationStyleApi : java/lang/annotation/Annotation {
+}
+
+public final class androidx/compose/foundation/style/MutableStyleState : androidx/compose/foundation/style/StyleState {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/foundation/interaction/InteractionSource;)V
+	public fun get (Landroidx/compose/foundation/style/StyleStateKey;)Ljava/lang/Object;
+	public fun getTriStateToggle ()Landroidx/compose/ui/state/ToggleableState;
+	public fun isChecked ()Z
+	public fun isEnabled ()Z
+	public fun isFocused ()Z
+	public fun isHovered ()Z
+	public fun isPressed ()Z
+	public fun isSelected ()Z
+	public final fun remove (Landroidx/compose/foundation/style/StyleStateKey;)V
+	public final fun set (Landroidx/compose/foundation/style/StyleStateKey;Ljava/lang/Object;)V
+	public fun setChecked (Z)V
+	public fun setEnabled (Z)V
+	public fun setFocused (Z)V
+	public fun setHovered (Z)V
+	public fun setPressed (Z)V
+	public fun setSelected (Z)V
+	public fun setTriStateToggle (Landroidx/compose/ui/state/ToggleableState;)V
+}
+
+public abstract interface class androidx/compose/foundation/style/Style {
+	public static final field Companion Landroidx/compose/foundation/style/Style$Companion;
+	public abstract fun applyStyle (Landroidx/compose/foundation/style/StyleScope;)V
+}
+
+public final class androidx/compose/foundation/style/Style$Companion : androidx/compose/foundation/style/Style {
+	public fun applyStyle (Landroidx/compose/foundation/style/StyleScope;)V
+}
+
+public final class androidx/compose/foundation/style/StyleKt {
+	public static final fun Style (Landroidx/compose/foundation/style/Style;Landroidx/compose/foundation/style/Style;)Landroidx/compose/foundation/style/Style;
+	public static final fun Style (Landroidx/compose/foundation/style/Style;Landroidx/compose/foundation/style/Style;Landroidx/compose/foundation/style/Style;)Landroidx/compose/foundation/style/Style;
+	public static final fun Style ([Landroidx/compose/foundation/style/Style;)Landroidx/compose/foundation/style/Style;
+	public static final fun then (Landroidx/compose/foundation/style/Style;Landroidx/compose/foundation/style/Style;)Landroidx/compose/foundation/style/Style;
+}
+
+public final class androidx/compose/foundation/style/StyleModifierKt {
+	public static final fun styleable (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/style/StyleState;)Landroidx/compose/ui/Modifier;
+	public static final fun styleable (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/style/StyleState;Landroidx/compose/foundation/style/Style;)Landroidx/compose/ui/Modifier;
+	public static final fun styleable (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/style/StyleState;[Landroidx/compose/foundation/style/Style;)Landroidx/compose/ui/Modifier;
+	public static synthetic fun styleable$default (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/style/StyleState;Landroidx/compose/foundation/style/Style;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+}
+
+public abstract interface class androidx/compose/foundation/style/StyleScope : androidx/compose/runtime/CompositionLocalAccessorScope, androidx/compose/ui/unit/Density {
+	public abstract fun alpha (F)V
+	public abstract fun animate (Landroidx/compose/animation/core/AnimationSpec;Landroidx/compose/animation/core/AnimationSpec;Landroidx/compose/foundation/style/Style;)V
+	public abstract fun animate (Landroidx/compose/animation/core/AnimationSpec;Landroidx/compose/foundation/style/Style;)V
+	public abstract fun animate (Landroidx/compose/foundation/style/Style;)V
+	public abstract fun background (Landroidx/compose/ui/graphics/Brush;)V
+	public abstract fun background-8_81llA (J)V
+	public abstract fun baselineShift-4Dl_Bck (F)V
+	public abstract fun border-D5KLDUw (FLandroidx/compose/ui/graphics/Brush;)V
+	public abstract fun border-cXLIe8U (FJ)V
+	public abstract fun borderBrush (Landroidx/compose/ui/graphics/Brush;)V
+	public abstract fun borderColor-8_81llA (J)V
+	public abstract fun borderWidth-0680j_4 (F)V
+	public abstract fun bottom-0680j_4 (F)V
+	public abstract fun clip (Z)V
+	public static synthetic fun clip$default (Landroidx/compose/foundation/style/StyleScope;ZILjava/lang/Object;)V
+	public abstract fun contentBrush (Landroidx/compose/ui/graphics/Brush;)V
+	public abstract fun contentColor-8_81llA (J)V
+	public abstract fun contentPadding-0680j_4 (F)V
+	public abstract fun contentPadding-YgX7TsA (FF)V
+	public abstract fun contentPadding-a9UjIt4 (FFFF)V
+	public abstract fun contentPaddingBottom-0680j_4 (F)V
+	public abstract fun contentPaddingEnd-0680j_4 (F)V
+	public abstract fun contentPaddingHorizontal-0680j_4 (F)V
+	public abstract fun contentPaddingStart-0680j_4 (F)V
+	public abstract fun contentPaddingTop-0680j_4 (F)V
+	public abstract fun contentPaddingVertical-0680j_4 (F)V
+	public abstract fun dropShadow (Landroidx/compose/ui/graphics/shadow/Shadow;)V
+	public abstract fun dropShadow ([Landroidx/compose/ui/graphics/shadow/Shadow;)V
+	public abstract fun externalPadding-0680j_4 (F)V
+	public abstract fun externalPadding-YgX7TsA (FF)V
+	public abstract fun externalPadding-a9UjIt4 (FFFF)V
+	public abstract fun externalPaddingBottom-0680j_4 (F)V
+	public abstract fun externalPaddingEnd-0680j_4 (F)V
+	public abstract fun externalPaddingHorizontal-0680j_4 (F)V
+	public abstract fun externalPaddingStart-0680j_4 (F)V
+	public abstract fun externalPaddingTop-0680j_4 (F)V
+	public abstract fun externalPaddingVertical-0680j_4 (F)V
+	public abstract fun fontFamily (Landroidx/compose/ui/text/font/FontFamily;)V
+	public abstract fun fontSize--R2X_6o (J)V
+	public abstract fun fontStyle-nzbMABs (I)V
+	public abstract fun fontSynthesis-6p3vJLY (I)V
+	public abstract fun fontWeight (Landroidx/compose/ui/text/font/FontWeight;)V
+	public abstract fun foreground (Landroidx/compose/ui/graphics/Brush;)V
+	public abstract fun foreground-8_81llA (J)V
+	public abstract fun getState ()Landroidx/compose/foundation/style/StyleState;
+	public abstract fun height (F)V
+	public abstract fun height-0680j_4 (F)V
+	public abstract fun hyphens--3fSNIE (I)V
+	public abstract fun innerShadow (Landroidx/compose/ui/graphics/shadow/Shadow;)V
+	public abstract fun innerShadow ([Landroidx/compose/ui/graphics/shadow/Shadow;)V
+	public abstract fun left-0680j_4 (F)V
+	public abstract fun letterSpacing--R2X_6o (J)V
+	public abstract fun lineBreak-CZqVlQI (I)V
+	public abstract fun lineHeight--R2X_6o (J)V
+	public abstract fun maxHeight-0680j_4 (F)V
+	public abstract fun maxSize-EaSLcWc (J)V
+	public abstract fun maxSize-YgX7TsA (FF)V
+	public abstract fun maxWidth-0680j_4 (F)V
+	public abstract fun minHeight-0680j_4 (F)V
+	public abstract fun minSize-EaSLcWc (J)V
+	public abstract fun minSize-YgX7TsA (FF)V
+	public abstract fun minWidth-0680j_4 (F)V
+	public abstract fun right-0680j_4 (F)V
+	public abstract fun rotationX (F)V
+	public abstract fun rotationY (F)V
+	public abstract fun rotationZ (F)V
+	public abstract fun scale (F)V
+	public abstract fun scaleX (F)V
+	public abstract fun scaleY (F)V
+	public abstract fun shape (Landroidx/compose/ui/graphics/Shape;)V
+	public abstract fun size-0680j_4 (F)V
+	public abstract fun size-EaSLcWc (J)V
+	public abstract fun size-YgX7TsA (FF)V
+	public abstract fun state (Landroidx/compose/foundation/style/StyleStateKey;Landroidx/compose/foundation/style/Style;Lkotlin/jvm/functions/Function2;)V
+	public abstract fun textAlign-aXe7zB0 (I)V
+	public abstract fun textDecoration (Landroidx/compose/ui/text/style/TextDecoration;)V
+	public abstract fun textDirection-Hejc4pk (I)V
+	public abstract fun textIndent (Landroidx/compose/ui/text/style/TextIndent;)V
+	public abstract fun textStyle (Landroidx/compose/ui/text/TextStyle;)V
+	public abstract fun top-0680j_4 (F)V
+	public abstract fun transformOrigin-__ExYCQ (J)V
+	public abstract fun translation (FF)V
+	public abstract fun translation-k-4lQ0M (J)V
+	public abstract fun translationX (F)V
+	public abstract fun translationY (F)V
+	public abstract fun width (F)V
+	public abstract fun width-0680j_4 (F)V
+	public abstract fun zIndex (F)V
+}
+
+public final class androidx/compose/foundation/style/StyleScopeKt {
+	public static final fun apply (Landroidx/compose/foundation/style/StyleScope;Landroidx/compose/foundation/style/Style;)V
+	public static final fun fillHeight (Landroidx/compose/foundation/style/StyleScope;)V
+	public static final fun fillSize (Landroidx/compose/foundation/style/StyleScope;)V
+	public static final fun fillWidth (Landroidx/compose/foundation/style/StyleScope;)V
+}
+
+public abstract class androidx/compose/foundation/style/StyleState {
+	public static final field $stable I
+	public abstract fun get (Landroidx/compose/foundation/style/StyleStateKey;)Ljava/lang/Object;
+	public abstract fun getTriStateToggle ()Landroidx/compose/ui/state/ToggleableState;
+	public abstract fun isChecked ()Z
+	public abstract fun isEnabled ()Z
+	public abstract fun isFocused ()Z
+	public abstract fun isHovered ()Z
+	public abstract fun isPressed ()Z
+	public abstract fun isSelected ()Z
+}
+
+public class androidx/compose/foundation/style/StyleStateKey {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/foundation/style/StyleStateKey$Companion;
+	public fun <init> (Ljava/lang/Object;)V
+	protected fun processInteraction (Landroidx/compose/foundation/interaction/Interaction;Landroidx/compose/foundation/style/MutableStyleState;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class androidx/compose/foundation/style/StyleStateKey$Companion {
+	public final fun getEnabled ()Landroidx/compose/foundation/style/StyleStateKey;
+	public final fun getFocused ()Landroidx/compose/foundation/style/StyleStateKey;
+	public final fun getHovered ()Landroidx/compose/foundation/style/StyleStateKey;
+	public final fun getPressed ()Landroidx/compose/foundation/style/StyleStateKey;
+	public final fun getSelected ()Landroidx/compose/foundation/style/StyleStateKey;
+	public final fun getToggle ()Landroidx/compose/foundation/style/StyleStateKey;
+}
+
+public final class androidx/compose/foundation/style/StyleStateKt {
+	public static final fun checked (Landroidx/compose/foundation/style/StyleScope;Landroidx/compose/foundation/style/Style;)V
+	public static final fun disabled (Landroidx/compose/foundation/style/StyleScope;Landroidx/compose/foundation/style/Style;)V
+	public static final fun focused (Landroidx/compose/foundation/style/StyleScope;Landroidx/compose/foundation/style/Style;)V
+	public static final fun hovered (Landroidx/compose/foundation/style/StyleScope;Landroidx/compose/foundation/style/Style;)V
+	public static final fun pressed (Landroidx/compose/foundation/style/StyleScope;Landroidx/compose/foundation/style/Style;)V
+	public static final fun selected (Landroidx/compose/foundation/style/StyleScope;Landroidx/compose/foundation/style/Style;)V
+	public static final fun triStateToggleIndeterminate (Landroidx/compose/foundation/style/StyleScope;Landroidx/compose/foundation/style/Style;)V
+	public static final fun triStateToggleOff (Landroidx/compose/foundation/style/StyleScope;Landroidx/compose/foundation/style/Style;)V
+	public static final fun triStateToggleOn (Landroidx/compose/foundation/style/StyleScope;Landroidx/compose/foundation/style/Style;)V
 }
 
 public final class androidx/compose/foundation/text/AutofillHighlightKt {

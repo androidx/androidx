@@ -76,14 +76,17 @@ public class ExperimentWidgetProvider extends AppWidgetProvider {
     @SuppressLint("RestrictedApiAndroidX")
     private RemoteViews loadWidgetFromRemoteComposeContext() {
         try {
-            RemoteComposeBuffer doc = ExperimentRecyclerActivity.getCurrentDoc();
+            byte[] bytes = RawViewActivity.getCurrentDoc();
+            if (bytes == null || bytes.length == 0) {
+                RemoteComposeBuffer doc = ExperimentRecyclerActivity.getCurrentDoc();
 
-            WireBuffer buffer = doc.getBuffer();
-            int bufferSize = buffer.size();
-            byte[] bytes = new byte[bufferSize];
-            ByteArrayInputStream b = new ByteArrayInputStream(buffer.getBuffer(), 0, bufferSize);
-
-            b.read(bytes);
+                WireBuffer buffer = doc.getBuffer();
+                int bufferSize = buffer.size();
+                bytes = new byte[bufferSize];
+                ByteArrayInputStream b = new ByteArrayInputStream(buffer.getBuffer(), 0,
+                        bufferSize);
+                b.read(bytes);
+            }
 
             RemoteViews.DrawInstructions.Builder r =
                     new RemoteViews.DrawInstructions.Builder(List.of(bytes));

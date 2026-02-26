@@ -26,6 +26,7 @@ import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.operations.TextData;
 import androidx.compose.remote.core.operations.Utils;
+import androidx.compose.remote.core.operations.layout.managers.LayoutManager;
 import androidx.compose.remote.core.operations.layout.modifiers.ModifierOperation;
 import androidx.compose.remote.core.operations.paint.PaintBundle;
 import androidx.compose.remote.core.operations.utilities.ColorUtils;
@@ -47,10 +48,10 @@ import java.util.List;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ClickModifierOperation extends PaintOperation
         implements Container,
-                ModifierOperation,
-                DecoratorComponent,
-                ClickHandler,
-                AccessibleComponent {
+        ModifierOperation,
+        DecoratorComponent,
+        ClickHandler,
+        AccessibleComponent {
     private static final int OP_CODE = Operations.MODIFIER_CLICK;
 
     long mAnimateRippleStart = 0;
@@ -86,7 +87,6 @@ public class ClickModifierOperation extends PaintOperation
      *
      * @param x starting position x of the ripple
      * @param y starting position y of the ripple
-     * @param timeStampMillis
      */
     public void animateRipple(float x, float y, long timeStampMillis) {
         mAnimateRippleStart = timeStampMillis;
@@ -94,7 +94,8 @@ public class ClickModifierOperation extends PaintOperation
         mAnimateRippleY = y;
     }
 
-    @NonNull public ArrayList<Operation> mList = new ArrayList<>();
+    @NonNull
+    public ArrayList<Operation> mList = new ArrayList<>();
 
     @NonNull
     @Override
@@ -198,21 +199,29 @@ public class ClickModifierOperation extends PaintOperation
     }
 
     @Override
-    public void onClick(
+    public boolean onClick(
             @NonNull RemoteContext context,
             @NonNull CoreDocument document,
             @NonNull Component component,
             float x,
             float y) {
         if (!component.isVisible()) {
-            return;
+            return false;
         }
-        locationInWindow[0] = 0f;
-        locationInWindow[1] = 0f;
-        component.getLocationInWindow(locationInWindow);
-        if (context.isAnimationEnabled()) {
-            animateRipple(
-                    x - locationInWindow[0], y - locationInWindow[1], context.getClock().millis());
+        if (context.getTouchVersion() == LayoutManager.FIX_TOUCH_EVENT) {
+            if (context.isAnimationEnabled()) {
+                // x and y are already content-relative coordinates
+                animateRipple(x, y, context.getClock().millis());
+            }
+        } else {
+            locationInWindow[0] = 0f;
+            locationInWindow[1] = 0f;
+            component.getLocationInWindow(context, locationInWindow);
+            if (context.isAnimationEnabled()) {
+                animateRipple(
+                        x - locationInWindow[0], y - locationInWindow[1],
+                        context.getClock().millis());
+            }
         }
         for (Operation o : mList) {
             if (o instanceof ActionOperation) {
@@ -220,6 +229,7 @@ public class ClickModifierOperation extends PaintOperation
             }
         }
         context.hapticEffect(3);
+        return true;
     }
 
     /**
@@ -234,8 +244,6 @@ public class ClickModifierOperation extends PaintOperation
 
     /**
      * Write the operation on the buffer
-     *
-     * @param buffer
      */
     public static void apply(@NonNull WireBuffer buffer) {
         buffer.start(OP_CODE);
@@ -244,7 +252,7 @@ public class ClickModifierOperation extends PaintOperation
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer the buffer to read
+     * @param buffer     the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {

@@ -27,6 +27,7 @@ import androidx.compose.remote.integration.view.demos.examples.ColorCheckKt;
 import androidx.compose.remote.integration.view.demos.examples.ColorThemeCheckKt;
 import androidx.compose.remote.integration.view.demos.examples.CountdownKt;
 import androidx.compose.remote.integration.view.demos.examples.Cube3DKt;
+import androidx.compose.remote.integration.view.demos.examples.DataVizDemosKt;
 import androidx.compose.remote.integration.view.demos.examples.DemoAnchorText;
 import androidx.compose.remote.integration.view.demos.examples.DemoAttributedString;
 import androidx.compose.remote.integration.view.demos.examples.DemoColorKt;
@@ -44,9 +45,11 @@ import androidx.compose.remote.integration.view.demos.examples.FontCheckKt;
 import androidx.compose.remote.integration.view.demos.examples.HostileActor;
 import androidx.compose.remote.integration.view.demos.examples.LinearRegressionKt;
 import androidx.compose.remote.integration.view.demos.examples.MClockKt;
+import androidx.compose.remote.integration.view.demos.examples.MoonPhasesKt;
 import androidx.compose.remote.integration.view.demos.examples.PieChartKt;
 import androidx.compose.remote.integration.view.demos.examples.PlotWaveKt;
 import androidx.compose.remote.integration.view.demos.examples.PressureGaugeKt;
+import androidx.compose.remote.integration.view.demos.examples.RCPlayerInfoKt;
 import androidx.compose.remote.integration.view.demos.examples.ServerSideKt;
 import androidx.compose.remote.integration.view.demos.examples.ShaderCalendarKt;
 import androidx.compose.remote.integration.view.demos.examples.TextKt;
@@ -65,6 +68,7 @@ public abstract class DemosCreation {
      */
     public static @NonNull ArrayList<RCDoc> getDemos(@NonNull Activity activity) {
         return new ArrayList<>(Arrays.asList(
+                getp("0/0/PlayerInfo", RCPlayerInfoKt::info),
                 getp("0/A/PressureGauge", PressureGaugeKt::demoPressureGauge),
                 getp("0/og/serverClock", ServerSideKt::serverClock),
                 getp("0/A/demoGraphs1", DemoGraphsKt::demoGraphs),
@@ -73,8 +77,18 @@ public abstract class DemosCreation {
                 getpc("0/A/goodPieChart", PieChartKt::demoPieChart_good),
                 //getpc("0/A/PieChart2", PieChartKt::demoPieChart2),
                 getpc("0/A/LinearRegression", LinearRegressionKt::demoLinearRegression),
+                getpc("0/A/MoonPhases", MoonPhasesKt::demoMoonPhases),
                 getp("0/v/badMemory", MemoryKt::fillMemory),
-
+                 getp("DataViz/ActivityRings", DataVizDemosKt::demoActivityRings),
+                 getp("DataViz/HeartRateTimeline", DataVizDemosKt::demoHeartRateTimeline),
+                 getp("DataViz/StepProgressArc", DataVizDemosKt::demoStepProgressArc),
+                 getp("DataViz/WeatherForecastBars", DataVizDemosKt::demoWeatherForecastBars),
+                  getp("DataViz/SleepQualityRings", DataVizDemosKt::demoSleepQualityRings),
+                 getp("DataViz/BatteryRadialGauge", DataVizDemosKt::demoBatteryRadialGauge),
+                 getp("DataViz/CalendarHeatmapGrid", DataVizDemosKt::demoCalendarHeatmapGrid),
+                 getp("DataViz/StockSparkline", DataVizDemosKt::demoStockSparkline),
+                 getp("DataViz/MoonPhaseDial", DataVizDemosKt::demoMoonPhaseDial),
+                 getp("DataViz/HydrationWave", DataVizDemosKt::demoHydrationWave),
 
                 getp("5/Server/serverClock", ServerSideKt::serverClock),
                 getp("2/Example/spreadSheet", ExampleNumbersKt::spreadSheet),

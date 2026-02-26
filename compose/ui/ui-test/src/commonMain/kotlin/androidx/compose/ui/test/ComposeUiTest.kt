@@ -56,9 +56,10 @@ import kotlinx.coroutines.test.TestResult
  */
 @Deprecated(
     message =
-        "Use `androidx.compose.ui.test.v2.runComposeUiTest` instead. The v2 APIs use " +
-            "`StandardTestDispatcher` by default to better simulate production behavior where " +
-            "coroutines are queued rather than executed immediately.",
+        "Use `androidx.compose.ui.test.v2.runComposeUiTest` instead. The v2 APIs align with " +
+            "standard coroutine behavior by queuing tasks rather than executing them " +
+            "immediately. Tests relying on immediate execution may require explicit " +
+            "synchronization. Please refer to the migration guide for more details.",
     level = DeprecationLevel.WARNING,
 )
 @ExperimentalTestApi

@@ -118,7 +118,7 @@ object Utils {
         clock: PreviewAnimationClock,
         content: @Composable () -> Unit,
     ) {
-        val search = AnimationSearch({ clock }) {}
+        val search = AnimationSearch({ clock })
         val slotTableRecord = CompositionDataRecord.create()
         this.setContent { Inspectable(slotTableRecord) { content() } }
         this.runOnUiThread {

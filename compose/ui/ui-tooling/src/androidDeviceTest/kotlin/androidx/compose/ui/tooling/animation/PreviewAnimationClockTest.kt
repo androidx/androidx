@@ -47,6 +47,7 @@ import androidx.compose.ui.tooling.animation.Utils.attachAllAnimations
 import androidx.compose.ui.tooling.animation.search.AnimatedVisibilitySearchInfo
 import androidx.compose.ui.tooling.animation.search.TransitionSearchInfo
 import androidx.compose.ui.tooling.animation.states.AnimatedVisibilityState
+import androidx.compose.ui.tooling.animation.states.TargetState
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -69,17 +70,18 @@ class PreviewAnimationClockTest {
 
     @Before
     fun setUp() {
-        testClock = TestPreviewAnimationClock()
+        testClock = TestPreviewAnimationClock({}, {})
     }
 
     @Test
-    fun callbackCalledWhenSettingClockTime() {
-        var callbackCalledCount = 0
-        val clock = TestPreviewAnimationClock { callbackCalledCount++ }
+    fun snapshotAppliedWhenSettingClockTime() {
+        var applySnapshotCalls = 0
+        val clock =
+            TestPreviewAnimationClock(requestLayout = {}, applySnapshot = { applySnapshotCalls++ })
         clock.setClockTime(10)
         clock.setClockTime(20)
 
-        assertEquals(2, callbackCalledCount)
+        assertEquals(2, applySnapshotCalls)
     }
 
     @Test
@@ -94,7 +96,7 @@ class PreviewAnimationClockTest {
             animatedVisibility = createAnimationVisibility(1000)
         }
         composeRule.waitForIdle()
-        testClock.trackAnimatedVisibility(AnimatedVisibilitySearchInfo(animatedVisibility!!))
+        testClock.trackComposeAnimation(AnimatedVisibilitySearchInfo(animatedVisibility!!))
         composeRule.waitForIdle()
 
         testClock.setClockTime(200)
@@ -112,7 +114,10 @@ class PreviewAnimationClockTest {
         // the offset, and we set the clock to 25% of this time.
         assertEquals(25f, offset.value as Float, eps)
 
-        val animatedVisibilityComposeAnimation = testClock.animatedVisibilityClocks.keys.single()
+        val animatedVisibilityComposeAnimation =
+            testClock.animationClocks.keys
+                .filterIsInstance<AnimatedVisibilityComposeAnimation>()
+                .single()
         animatedProperties = testClock.getAnimatedProperties(animatedVisibilityComposeAnimation)
         val scale = animatedProperties.single { it.label == "box scale" }
         // We're animating from invisible to visible, which means PreEnter (scale 0.5f) to
@@ -145,9 +150,12 @@ class PreviewAnimationClockTest {
             animatedVisibility = createAnimationVisibility(1000)
         }
         composeRule.waitForIdle()
-        testClock.trackAnimatedVisibility(AnimatedVisibilitySearchInfo(animatedVisibility!!))
+        testClock.trackComposeAnimation(AnimatedVisibilitySearchInfo(animatedVisibility!!))
         composeRule.waitForIdle()
-        val animatedVisibilityComposeAnimation = testClock.animatedVisibilityClocks.keys.single()
+        val animatedVisibilityComposeAnimation =
+            testClock.animationClocks.keys
+                .filterIsInstance<AnimatedVisibilityComposeAnimation>()
+                .single()
         testClock.setClockTimes(
             mapOf(
                 rotationAnimation!! to 500,
@@ -204,11 +212,11 @@ class PreviewAnimationClockTest {
         var animatedVisibility: ComposeAnimation? = null
 
         composeRule.setContent {
-            testClock.trackTransition(TransitionSearchInfo(createAnimationVisibility(1000)))
+            testClock.trackComposeAnimation(TransitionSearchInfo(createAnimationVisibility(1000)))
         }
         composeRule.waitForIdle()
         composeRule.runOnIdle {
-            animatedVisibility = testClock.transitionClocks.keys.single()
+            animatedVisibility = testClock.animationClocks.keys.single()
             testClock.updateFromAndToStates(animatedVisibility!!, true, false)
         }
 
@@ -229,15 +237,16 @@ class PreviewAnimationClockTest {
     @Test
     fun onSeekCallbackCalledWhenTrackingAnimatedVisibility() {
         var animatedVisibility: Transition<Boolean>? = null
-        var onSeekCalls = 0
+        var requestLayoutCalls = 0
+        val clock =
+            TestPreviewAnimationClock(requestLayout = { requestLayoutCalls++ }, applySnapshot = {})
+
         composeRule.setContent { animatedVisibility = createAnimationVisibility(1000) }
 
         composeRule.waitForIdle()
-        assertEquals(0, onSeekCalls)
-        testClock.trackAnimatedVisibility(AnimatedVisibilitySearchInfo(animatedVisibility!!)) {
-            onSeekCalls++
-        }
-        assertEquals(1, onSeekCalls)
+        assertEquals(0, requestLayoutCalls)
+        clock.trackComposeAnimation(AnimatedVisibilitySearchInfo(animatedVisibility!!))
+        assertEquals(1, requestLayoutCalls)
     }
 
     @Test
@@ -253,7 +262,7 @@ class PreviewAnimationClockTest {
         }
 
         composeRule.waitForIdle()
-        testClock.trackAnimatedVisibility(AnimatedVisibilitySearchInfo(animatedVisibility!!))
+        testClock.trackComposeAnimation(AnimatedVisibilitySearchInfo(animatedVisibility!!))
         testClock.setClockTime(200)
         composeRule.waitForIdle()
 
@@ -305,7 +314,10 @@ class PreviewAnimationClockTest {
             grandChild.values.keys.sorted().toTypedArray(),
         )
 
-        val animatedVisibilityComposeAnimation = testClock.animatedVisibilityClocks.keys.single()
+        val animatedVisibilityComposeAnimation =
+            testClock.animationClocks.keys
+                .filterIsInstance<AnimatedVisibilityComposeAnimation>()
+                .single()
         transitions = testClock.getTransitions(animatedVisibilityComposeAnimation, 450)
         val scale = transitions.single { it.label == "box scale" }
         // We're animating from invisible to visible, which means PreEnter (scale 0.5f) to
@@ -339,7 +351,7 @@ class PreviewAnimationClockTest {
             animatedVisibility1200 = createAnimationVisibility(1200)
         }
         composeRule.waitForIdle()
-        testClock.trackAnimatedVisibility(AnimatedVisibilitySearchInfo(animatedVisibility900!!))
+        testClock.trackComposeAnimation(AnimatedVisibilitySearchInfo(animatedVisibility900!!))
         composeRule.waitForIdle()
 
         testClock.setClockTime(0L)
@@ -347,7 +359,7 @@ class PreviewAnimationClockTest {
 
         assertEquals(1000, testClock.getMaxDuration())
 
-        testClock.trackAnimatedVisibility(AnimatedVisibilitySearchInfo(animatedVisibility1200!!))
+        testClock.trackComposeAnimation(AnimatedVisibilitySearchInfo(animatedVisibility1200!!))
         composeRule.waitForIdle()
 
         assertEquals(1200, testClock.getMaxDuration())
@@ -358,11 +370,11 @@ class PreviewAnimationClockTest {
         var animatedVisibilityTransition: Transition<Boolean>? = null
         composeRule.setContent {
             animatedVisibilityTransition = createAnimationVisibility()
-            testClock.trackTransition(TransitionSearchInfo(updateTransition(Any())))
-            testClock.trackTransition(TransitionSearchInfo(updateTransition(Any())))
+            testClock.trackComposeAnimation(TransitionSearchInfo(updateTransition(Any())))
+            testClock.trackComposeAnimation(TransitionSearchInfo(updateTransition(Any())))
         }
         composeRule.waitForIdle()
-        testClock.trackAnimatedVisibility(
+        testClock.trackComposeAnimation(
             AnimatedVisibilitySearchInfo(animatedVisibilityTransition!!)
         )
 
@@ -393,7 +405,7 @@ class PreviewAnimationClockTest {
         assertTrue(states.contains(Offset.O1))
         assertTrue(states.contains(Offset.O2))
 
-        testClock.trackAnimatedVisibility(
+        testClock.trackComposeAnimation(
             AnimatedVisibilitySearchInfo(animatedVisibilityTransition!!)
         )
         assertEquals(2, testClock.notifySubscribeCount)
@@ -411,17 +423,17 @@ class PreviewAnimationClockTest {
             animatedVisibilityTransition = createAnimationVisibility()
         }
         composeRule.waitForIdle()
-        testClock.trackAnimatedVisibility(
+        testClock.trackComposeAnimation(
             AnimatedVisibilitySearchInfo(animatedVisibilityTransition!!)
         )
 
-        assertFalse(testClock.transitionClocks.keys.isEmpty())
-        assertFalse(testClock.animatedVisibilityClocks.keys.isEmpty())
+        assertFalse(testClock.animationClocks.keys.isEmpty())
+        assertFalse(testClock.animationClocks.keys.isEmpty())
 
         testClock.dispose()
 
-        assertTrue(testClock.transitionClocks.keys.isEmpty())
-        assertTrue(testClock.animatedVisibilityClocks.keys.isEmpty())
+        assertTrue(testClock.animationClocks.keys.isEmpty())
+        assertTrue(testClock.animationClocks.keys.isEmpty())
     }
 
     @Test
@@ -430,13 +442,13 @@ class PreviewAnimationClockTest {
         composeRule.setContent { animation = setUpRotationColorScenario() }
         composeRule.waitForIdle()
 
-        val stateBeforeUpdate = testClock.transitionClocks.values.single().state
+        val stateBeforeUpdate = testClock.animationClocks.values.single().state as TargetState<*>
         assertEquals(RotationColor.RC1, stateBeforeUpdate.initial)
         assertEquals(RotationColor.RC3, stateBeforeUpdate.target)
 
         testClock.updateFromAndToStates(animation!!, RotationColor.RC2, RotationColor.RC1)
 
-        val stateAfterUpdate = testClock.transitionClocks.values.single().state
+        val stateAfterUpdate = testClock.animationClocks.values.single().state as TargetState<*>
         assertEquals(RotationColor.RC2, stateAfterUpdate.initial)
         assertEquals(RotationColor.RC1, stateAfterUpdate.target)
     }
@@ -449,10 +461,10 @@ class PreviewAnimationClockTest {
             animatedVisibilityTransition = createAnimationVisibility(isEnter = true)
         }
         composeRule.waitForIdle()
-        testClock.trackAnimatedVisibility(
+        testClock.trackComposeAnimation(
             AnimatedVisibilitySearchInfo(animatedVisibilityTransition!!)
         )
-        val animation = testClock.animatedVisibilityClocks.keys.first()
+        val animation = testClock.animationClocks.keys.first()
         assertEquals(AnimatedVisibilityState.Enter, testClock.getAnimatedVisibilityState(animation))
 
         testClock.updateAnimatedVisibilityState(animation, AnimatedVisibilityState.Exit)
@@ -466,7 +478,7 @@ class PreviewAnimationClockTest {
         var animatedVisibilityTransitionExplicitLabel: Transition<Boolean>? = null
         composeRule.setContent {
             val transition = updateTransition(someState, "My animation label")
-            testClock.trackTransition(TransitionSearchInfo(transition))
+            testClock.trackComposeAnimation(TransitionSearchInfo(transition))
 
             setUpOffsetScenario()
             animatedVisibilityTransition = createAnimationVisibility(isEnter = false)
@@ -475,33 +487,35 @@ class PreviewAnimationClockTest {
         }
         composeRule.waitForIdle()
         val animationWithLabel =
-            testClock.transitionClocks.keys.single { it.states.contains(someState) }
+            testClock.animationClocks.keys.single { it.states.contains(someState) }
         // Label explicitly set
         assertEquals("My animation label", animationWithLabel.label)
 
         val animationWithoutLabel =
-            testClock.transitionClocks.keys.single { it.states.contains(Offset.O1) }
+            testClock.animationClocks.keys.single { it.states.contains(Offset.O1) }
         // Label is not explicitly set, but inferred from the state type
         assertEquals("Offset", animationWithoutLabel.label)
 
-        testClock.trackAnimatedVisibility(
+        testClock.trackComposeAnimation(
             AnimatedVisibilitySearchInfo(animatedVisibilityTransition!!)
         )
-        testClock.trackAnimatedVisibility(
+        testClock.trackComposeAnimation(
             AnimatedVisibilitySearchInfo(animatedVisibilityTransitionExplicitLabel!!)
         )
 
         val animatedVisibilityExplicitLabel =
-            testClock.animatedVisibilityClocks.keys.single {
-                testClock.getAnimatedVisibilityState(it) == AnimatedVisibilityState.Enter
-            }
+            testClock.animationClocks.keys
+                .filterIsInstance<AnimatedVisibilityComposeAnimation>()
+                .single {
+                    testClock.getAnimatedVisibilityState(it) == AnimatedVisibilityState.Enter
+                }
         // Label explicitly set
         assertEquals("My AnimatedVisibility label", animatedVisibilityExplicitLabel.label)
 
         val animatedVisibilityImplicitLabel =
-            testClock.animatedVisibilityClocks.keys.single {
-                testClock.getAnimatedVisibilityState(it) == AnimatedVisibilityState.Exit
-            }
+            testClock.animationClocks.keys
+                .filterIsInstance<AnimatedVisibilityComposeAnimation>()
+                .single { testClock.getAnimatedVisibilityState(it) == AnimatedVisibilityState.Exit }
         // Label is not explicitly set, so we fall back to the default AnimatedVisibility label
         assertEquals("AnimatedVisibility", animatedVisibilityImplicitLabel.label)
     }
@@ -528,8 +542,8 @@ class PreviewAnimationClockTest {
         // Default states.
         assertEquals(300, testClock.getMaxDuration())
         assertEquals(300, testClock.getMaxDurationPerIteration())
-        val transitionAnimation = testClock.transitionClocks.keys.first()
-        val infiniteAnimation = testClock.infiniteTransitionClocks.keys.first()
+        val transitionAnimation = testClock.animationClocks.keys.first()
+        val infiniteAnimation = testClock.animationClocks.keys.first()
         assertTrue(testClock.getAnimatedProperties(infiniteAnimation).isNotEmpty())
         testClock.getTransitions(infiniteAnimation, 100).let {
             assertTrue(it.isNotEmpty())
@@ -572,9 +586,9 @@ class PreviewAnimationClockTest {
             }
         }
 
-        testClock.trackTransition(TransitionSearchInfo(transition as Transition<Any>))
+        testClock.trackComposeAnimation(TransitionSearchInfo(transition as Transition<Any>))
         val animation =
-            testClock.transitionClocks.keys.single { it.states.contains(RotationColor.RC1) }
+            testClock.animationClocks.keys.single { it.states.contains(RotationColor.RC1) }
         testClock.updateFromAndToStates(animation, RotationColor.RC1, RotationColor.RC3)
         return animation
     }
@@ -615,8 +629,8 @@ class PreviewAnimationClockTest {
                 if (state == Offset.O1) Color.Red else Color.Blue
             }
 
-        testClock.trackTransition(TransitionSearchInfo(transition as Transition<Any>))
-        val animation = testClock.transitionClocks.keys.single { it.states.contains(Offset.O1) }
+        testClock.trackComposeAnimation(TransitionSearchInfo(transition as Transition<Any>))
+        val animation = testClock.animationClocks.keys.single { it.states.contains(Offset.O1) }
         testClock.updateFromAndToStates(animation, Offset.O1, Offset.O2)
         return animation
     }
@@ -654,8 +668,8 @@ class PreviewAnimationClockTest {
         return parentAnimatedVisibility
     }
 
-    private class TestPreviewAnimationClock(setClockTimeCallback: () -> Unit = {}) :
-        PreviewAnimationClock(setClockTimeCallback) {
+    private class TestPreviewAnimationClock(requestLayout: () -> Unit, applySnapshot: () -> Unit) :
+        PreviewAnimationClock(requestLayout, applySnapshot) {
         lateinit var subscribedAnimation: ComposeAnimation
         var notifySubscribeCount = 0
         var notifyUnsubscribeCount = 0

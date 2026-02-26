@@ -25,9 +25,12 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.RemoteComposeContext
+import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
+import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.runtime.Composable
 
 /** provider for an app widget */
+@OptIn(ExperimentalRemoteCreationComposeApi::class)
 @SuppressLint("RestrictedApiAndroidX")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class RemoteComposeWidget(useCompose: Boolean = true) : AppWidgetProvider() {
@@ -41,6 +44,7 @@ public abstract class RemoteComposeWidget(useCompose: Boolean = true) : AppWidge
 
     init {
         if (useCompose) {
+            RemoteComposeCreationComposeFlags.isRemoteApplierEnabled = false
             widget = RCWidget { context, widgetId -> Content(context, widgetId) }
         } else {
             widget = ProceduralRCWidget { context, widgetId ->

@@ -69,41 +69,16 @@ object ComposeUiFlags {
     @JvmField
     var isBypassUnfocusableComposeViewEnabled: Boolean = true
 
-    /**
-     * This flag enables a fix for b/388590015. The view system ignores an invalid prevFocusRect
-     * when requestFocus is called, so we support this behavior in Compose too.
-     */
-    @field:Suppress("MutableBareField")
-    @JvmField
-    var isIgnoreInvalidPrevFocusRectEnabled: Boolean = true
-
-    /**
-     * Enable WindowInsets rulers:
-     * * `SystemBarsRulers`
-     * * `ImeRulers`
-     * * `StatusBarsRulers`
-     * * `NavigationBarsRulers`
-     * * `CaptionBarRulers`
-     * * `MandatorySystemGesturesRulers`
-     * * `TappableElementRulers`
-     * * `WaterfallRulers`
-     * * `SafeDrawingRulers`
-     * * `SafeGesturesRulers`
-     * * `SafeContentRulers`
-     */
-    // off for b/410868572
-    @Deprecated(
-        "Use ComposeView.disableWindowInsetsRulers()",
-        replaceWith = ReplaceWith("ComposeView.disableWindowInsetsRulers()"),
-    )
-    @field:Suppress("MutableBareField")
-    @JvmField
-    var areWindowInsetsRulersEnabled = true
-
     /** Enable initial focus when a focusable is added to a screen with no focusable content. */
     @field:Suppress("MutableBareField")
     @JvmField
     var isInitialFocusOnFocusableAvailable: Boolean = false
+
+    /**
+     * Enable focus restoration, by always saving focus. This flag depends on
+     * [isInitialFocusOnFocusableAvailable] also being true.
+     */
+    @field:Suppress("MutableBareField") @JvmField var isFocusRestorationEnabled: Boolean = false
 
     /** Flag for enabling indirect pointer event navigation gestures in Compose. */
     @field:Suppress("MutableBareField")
@@ -121,23 +96,6 @@ object ComposeUiFlags {
     var isGraphicsLayerShapeSemanticsEnabled: Boolean = true
 
     /**
-     * Enable fix to scroll target rect to the center when performing scroll capture, thus generally
-     * avoiding floating content at the top and bottom of the UI.
-     */
-    @field:Suppress("MutableBareField")
-    @JvmField
-    var isScrollCaptureCenteringEnabled: Boolean = true
-
-    /**
-     * Enable performance optimization where coordinates calculations like
-     * [androidx.compose.ui.layout.LayoutCoordinates.localToRoot] are using the cached offsets we
-     * already have in RectManager, instead of traversing the whole tree on each call.
-     */
-    @field:Suppress("MutableBareField")
-    @JvmField
-    var isRectManagerOffsetUsageFromLayoutCoordinatesEnabled: Boolean = true
-
-    /**
      * Enables a fix where [TraversableNode] traversal method [findNearestAncestor] will take into
      * consideration any delegates that might also be traversable.
      */
@@ -146,14 +104,15 @@ object ComposeUiFlags {
     var isTraversableDelegatesFixEnabled: Boolean = true
 
     /**
-     * This flag enables support for walking up nested scrolling in response to
-     * android.R.id.accessibilityActionShowOnScreen from Accessibility.
+     * Enables a change where off-screen children of the partially visible merging nodes (e.g. a
+     * Text node of a Button) inside scrollable container are now also reported in the semantics
+     * tree for Accessibility needs.
      *
-     * Enabled is correct nested scrolling behavior and it should be enabled in all apps.
+     * Enabled is correct, and it should be enabled in all apps.
      */
     @field:Suppress("MutableBareField")
     @JvmField
-    var isAccessibilityShowOnScreenNestedScrollingEnabled: Boolean = true
+    var isAccessibilityShouldIncludeOffscreenChildrenEnabled: Boolean = true
 
     /**
      * Enables support of trackpad gesture events.

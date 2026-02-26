@@ -49,7 +49,7 @@ class OverlaySceneTest {
                 NavDisplay(
                     backStack = backStack,
                     onBack = { backStack.removeAt(backStack.lastIndex) },
-                    sceneStrategy = DialogSceneStrategy(),
+                    sceneStrategies = listOf(DialogSceneStrategy()),
                     sharedTransitionScope = this,
                 ) {
                     when (it) {

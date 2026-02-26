@@ -23,6 +23,7 @@ import androidx.compose.foundation.demos.text.SoftwareKeyboardControllerDemo
 import androidx.compose.integration.demos.common.ActivityDemo
 import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.integration.demos.common.DemoCategory
+import androidx.compose.ui.demos.accessibility.AccessibilityClippingDemo
 import androidx.compose.ui.demos.accessibility.AccessibilityShapeOffscreenDemo
 import androidx.compose.ui.demos.accessibility.LinearProgressIndicatorDemo
 import androidx.compose.ui.demos.accessibility.NestedContainersFalseDemo
@@ -343,6 +344,7 @@ val AccessibilityDemos =
             ComposableDemo("Dual LTR and RTL Scene") { SimpleRtlLayoutDemo() },
             ComposableDemo("Scrolling Tooltip scene") { SampleScrollingTooltipScreen() },
             ComposableDemo("Accessibility Shapes") { AccessibilityShapeOffscreenDemo() },
+            ComposableDemo("Accessibility Clipping Demo") { AccessibilityClippingDemo() },
         ),
     )
 

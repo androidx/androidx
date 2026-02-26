@@ -38,6 +38,7 @@ import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.integration.demos.widget.listWidget
 import androidx.compose.remote.player.view.RemoteComposePlayer
 import androidx.compose.remote.tooling.preview.RemotePreview
@@ -45,7 +46,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 
@@ -82,7 +82,7 @@ class ListActivity : ComponentActivity() {
 fun ScrollableList(name: String, modifier: RemoteModifier = RemoteModifier) {
     val scrollState = rememberRemoteScrollState()
     RemoteColumn(
-        modifier = modifier.verticalScroll(scrollState).background(Color.White),
+        modifier = modifier.verticalScroll(scrollState).background(Color.Yellow.rc),
         horizontalAlignment = RemoteAlignment.CenterHorizontally,
         verticalArrangement = RemoteArrangement.Center,
     ) {
@@ -100,7 +100,7 @@ fun ScrollableList(name: String, modifier: RemoteModifier = RemoteModifier) {
                 RemoteText(
                     if (it == 0) name else "Item $it",
                     color = RemoteColor(Color.Black),
-                    fontSize = 36.sp,
+                    fontSize = 36.rsp,
                 )
             }
         }
