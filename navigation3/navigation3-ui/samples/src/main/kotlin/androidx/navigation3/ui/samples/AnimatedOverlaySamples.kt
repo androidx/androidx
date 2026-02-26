@@ -60,7 +60,7 @@ fun AnimatedBottomSheetSample() {
     NavDisplay(
         backStack = backStack,
         onBack = { backStack.removeLastOrNull() },
-        sceneStrategy = AnimatedBottomSheetSceneStrategy(),
+        sceneStrategies = listOf(AnimatedBottomSheetSceneStrategy()),
         entryProvider =
             entryProvider {
                 entry<Landing> {

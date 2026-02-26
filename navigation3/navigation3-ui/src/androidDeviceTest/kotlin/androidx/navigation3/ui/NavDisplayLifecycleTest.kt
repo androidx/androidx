@@ -85,7 +85,10 @@ class NavDisplayLifecycleTest {
 
         val actualEvents = mutableListOf<Pair<String, String>>()
         rule.setContent {
-            NavDisplay(backStack = backStack, sceneStrategy = TestTwoPaneSceneStrategy()) { key ->
+            NavDisplay(
+                backStack = backStack,
+                sceneStrategies = listOf(TestTwoPaneSceneStrategy()),
+            ) { key ->
                 NavEntry(key) {
                     LifecycleResumeEffect(key1 = Unit) {
                         actualEvents += key to "ON_RESUME"
@@ -113,7 +116,10 @@ class NavDisplayLifecycleTest {
 
         val actualEvents = mutableListOf<Pair<String, String>>()
         rule.setContent {
-            NavDisplay(backStack = backStack, sceneStrategy = TestTwoPaneSceneStrategy()) { key ->
+            NavDisplay(
+                backStack = backStack,
+                sceneStrategies = listOf(TestTwoPaneSceneStrategy()),
+            ) { key ->
                 NavEntry(key) {
                     LifecycleResumeEffect(key1 = Unit) {
                         actualEvents += key to "ON_RESUME"

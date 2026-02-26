@@ -73,7 +73,7 @@ fun SceneDefaultTransitionsSample() {
         popTransitionSpec = { slideVertical },
         predictivePopTransitionSpec = { slideVertical },
         // but the Scene provides default transitions that slide horizontally
-        sceneStrategy = DefaultSceneTransitionsSceneStrategy(),
+        sceneStrategies = listOf(DefaultSceneTransitionsSceneStrategy()),
         entryProvider =
             entryProvider {
                 entry<A> { BlueBox("A") { backStack.add(B) } }
@@ -109,7 +109,7 @@ fun SceneOverrideEntryTransitionsSample() {
         onBack = { backStack.removeLastOrNull() },
         entryDecorators = listOf(rememberSaveableStateHolderNavEntryDecorator()),
         // the Scene overrides the NavEntry's slide vertical with slide horizontal transitions
-        sceneStrategy = SceneOverrideEntryTransitionsSceneStrategy(),
+        sceneStrategies = listOf(SceneOverrideEntryTransitionsSceneStrategy()),
         entryProvider =
             entryProvider {
                 entry<A> { BlueBox("A") { backStack.add(B) } }

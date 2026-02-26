@@ -67,12 +67,17 @@ public class SinglePaneSceneStrategy<T : Any> : SceneStrategy<T> {
     }
 }
 
-internal fun <T : Any> SceneStrategy<T>.calculateSceneWithSinglePaneFallback(
+internal fun <T : Any> calculateSceneWithSinglePaneFallback(
+    sceneStrategies: List<SceneStrategy<T>>,
     scope: SceneStrategyScope<T>,
     entries: List<NavEntry<T>>,
 ): Scene<T> {
-    return scope.calculateScene(entries)
-        ?: with(SinglePaneSceneStrategy<T>()) { scope.calculateScene(entries) }
+    var scene: Scene<T>? = null
+    for (index in sceneStrategies.indices) {
+        scene = with(sceneStrategies[index]) { scope.calculateScene(entries) }
+        if (scene != null) break
+    }
+    return scene ?: with(SinglePaneSceneStrategy<T>()) { scope.calculateScene(entries) }
 }
 
 internal fun <T : Any> SceneDecoratorStrategy<T>.decorateScene(

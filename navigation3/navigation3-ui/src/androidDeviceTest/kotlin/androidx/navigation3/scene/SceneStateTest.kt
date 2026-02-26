@@ -60,7 +60,7 @@ internal class SceneStateTest {
                     },
                 )
             sceneState =
-                rememberSceneState(entries, DialogSceneStrategy()) {
+                rememberSceneState(entries, listOf(DialogSceneStrategy())) {
                     backStack.removeAt(backStack.lastIndex)
                 }
         }
@@ -84,13 +84,14 @@ internal class SceneStateTest {
         assertThat(sceneState.overlayScenes).hasSize(1)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun testSceneStrategyThenFirstStrategy() {
         val sceneStrategy = TestTwoPaneSceneStrategy<String>() then (SinglePaneSceneStrategy())
         val entries = listOf(NavEntry(key = "first") {}, NavEntry(key = "second") {})
         var currentScene: Scene<String>? = null
         rule.setContent {
-            val sceneState = rememberSceneState(entries, sceneStrategy) {}
+            val sceneState = rememberSceneState(entries, listOf(sceneStrategy)) {}
             currentScene = sceneState.currentScene
         }
 
@@ -98,13 +99,14 @@ internal class SceneStateTest {
         assertThat(currentScene).isInstanceOf<TestTwoPaneScene<String>>()
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun testSceneStrategyThenChainedStrategy() {
         val sceneStrategy = TestTwoPaneSceneStrategy<String>() then (SinglePaneSceneStrategy())
         val entries = listOf(NavEntry(key = "first") {})
         var currentScene: Scene<String>? = null
         rule.setContent {
-            val sceneState = rememberSceneState(entries, sceneStrategy) {}
+            val sceneState = rememberSceneState(entries, listOf(sceneStrategy)) {}
             currentScene = sceneState.currentScene
         }
 
@@ -132,7 +134,7 @@ internal class SceneStateTest {
             // Read tick to participate in recomposition without changing inputs.
             @Suppress("UnusedVariable", "unused") val unused = tick
 
-            sceneStates += rememberSceneState(entries, strategy, onBack = {})
+            sceneStates += rememberSceneState(entries, listOf(strategy), onBack = {})
         }
 
         // First composition should call calculate once.
@@ -174,7 +176,7 @@ internal class SceneStateTest {
                 @Suppress("UNUSED_VARIABLE") val unused = tick
             }
 
-            rememberSceneState(entries, strategy, onBack = unstableOnBack)
+            rememberSceneState(entries, listOf(strategy), onBack = unstableOnBack)
         }
 
         // First composition should call calculate once.
@@ -203,7 +205,7 @@ internal class SceneStateTest {
                         entry<Second> { Text("Second") }
                     },
                 )
-            rememberSceneState(entries, strategy, onBack = {})
+            rememberSceneState(entries, listOf(strategy), onBack = {})
         }
 
         // First composition should call calculate once.
@@ -229,7 +231,7 @@ internal class SceneStateTest {
                     entryDecorators = emptyList(),
                     entryProvider { entry<First> { Text("First") } },
                 )
-            rememberSceneState(entries, strategy, onBack = {})
+            rememberSceneState(entries, listOf(strategy), onBack = {})
         }
 
         // First composition should call calculate once on the initial strategy.

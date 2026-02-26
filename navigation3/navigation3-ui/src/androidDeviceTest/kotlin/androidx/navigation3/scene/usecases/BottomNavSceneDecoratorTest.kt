@@ -200,7 +200,7 @@ class BottomNavSceneDecoratorTest {
             NavDisplay(
                 backStack = backStack,
                 onBack = { backStack.removeAt(backStack.lastIndex) },
-                sceneStrategy = DialogSceneStrategy(),
+                sceneStrategies = listOf(DialogSceneStrategy()),
                 sceneDecoratorStrategies = listOf(rememberBottomNavSceneStrategy()),
             ) {
                 when {
@@ -237,7 +237,7 @@ class BottomNavSceneDecoratorTest {
             NavDisplay(
                 backStack = backStack,
                 onBack = { backStack.removeAt(backStack.lastIndex) },
-                sceneStrategy = DialogSceneStrategy(),
+                sceneStrategies = listOf(DialogSceneStrategy()),
                 sceneDecoratorStrategies = listOf(rememberBottomNavSceneStrategy()),
             ) {
                 when {
@@ -272,7 +272,7 @@ class BottomNavSceneDecoratorTest {
             NavDisplay(
                 backStack = backStack,
                 onBack = { backStack.removeAt(backStack.lastIndex) },
-                sceneStrategy = DialogSceneStrategy(),
+                sceneStrategies = listOf(DialogSceneStrategy()),
                 sceneDecoratorStrategies = listOf(rememberBottomNavSceneStrategy()),
             ) {
                 when {
@@ -310,7 +310,7 @@ class BottomNavSceneDecoratorTest {
             NavDisplay(
                 backStack = backStack,
                 onBack = { backStack.removeAt(backStack.lastIndex) },
-                sceneStrategy = rememberListDetailSceneStrategy(),
+                sceneStrategies = listOf(rememberListDetailSceneStrategy()),
                 sceneDecoratorStrategies = listOf(rememberBottomNavSceneStrategy()),
             ) {
                 when {

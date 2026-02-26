@@ -58,3 +58,13 @@ public class MetadataScope {
 @Suppress("UNCHECKED_CAST")
 public operator fun <T : Any> Map<String, Any>.get(key: NavMetadataKey<T>): T? =
     get(key.toString()) as? T
+
+/**
+ * Checks if the metadata contains a given key.
+ *
+ * [T] the value type.
+ *
+ * @param key the key to check for
+ */
+public operator fun <T : Any> Map<String, Any>.contains(key: NavMetadataKey<T>): Boolean =
+    contains(key.toString())
