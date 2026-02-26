@@ -16,10 +16,19 @@
 
 package androidx.room3.integration.kotlintestapp.testutil
 
+import androidx.room3.DaoReturnTypeConverters
 import androidx.room3.Database
 import androidx.room3.RoomDatabase
+import androidx.room3.paging.PagingSourceDaoReturnTypeConverter
+import androidx.room3.paging.guava.ListenableFuturePagingSourceDaoReturnTypeConverter
+import androidx.room3.paging.rxjava3.RxPagingSourceDaoReturnTypeConverter
 
 @Database(version = 1, exportSchema = false, entities = [PagingEntity::class])
+@DaoReturnTypeConverters(
+    PagingSourceDaoReturnTypeConverter::class,
+    ListenableFuturePagingSourceDaoReturnTypeConverter::class,
+    RxPagingSourceDaoReturnTypeConverter::class,
+)
 abstract class PagingDb : RoomDatabase() {
     abstract fun getDao(): PagingEntityDao
 }

@@ -81,7 +81,12 @@ class FormWidgetInteractionHandlerTest {
         val expectedEditRecord =
             FormEditInfo.createClick(
                 widgetIndex = widgetIndex,
-                clickPoint = PdfPoint(pageNum, pdfCoordinates.x, pdfCoordinates.y),
+                clickPoint =
+                    PdfPoint(
+                        pageNum,
+                        formWidgetInfo.widgetRect.centerX().toFloat(),
+                        formWidgetInfo.widgetRect.centerY().toFloat(),
+                    ),
             )
 
         handler.handleInteraction(touchPoint, formWidgetInfo)
@@ -110,7 +115,12 @@ class FormWidgetInteractionHandlerTest {
         val expectedEditRecord =
             FormEditInfo.createClick(
                 widgetIndex = widgetIndex,
-                clickPoint = PdfPoint(pageNum, pdfCoordinates.x, pdfCoordinates.y),
+                clickPoint =
+                    PdfPoint(
+                        pageNum,
+                        formWidgetInfo.widgetRect.centerX().toFloat(),
+                        formWidgetInfo.widgetRect.centerY().toFloat(),
+                    ),
             )
 
         handler.handleInteraction(touchPoint, formWidgetInfo)
@@ -138,7 +148,12 @@ class FormWidgetInteractionHandlerTest {
         val expectedEditRecord =
             FormEditInfo.createClick(
                 widgetIndex = widgetIndex,
-                clickPoint = PdfPoint(pageNum, pdfCoordinates.x, pdfCoordinates.y),
+                clickPoint =
+                    PdfPoint(
+                        pageNum,
+                        formWidgetInfo.widgetRect.centerX().toFloat(),
+                        formWidgetInfo.widgetRect.centerY().toFloat(),
+                    ),
             )
 
         handler.handleInteraction(touchPoint, formWidgetInfo)

@@ -100,6 +100,7 @@ dependencies {
     androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.mockitoKotlin)
     androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testUiautomator)

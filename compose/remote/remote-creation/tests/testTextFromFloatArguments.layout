@@ -1,0 +1,548 @@
+- description: Initial State
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - type: COLUMN
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1000.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: TextFromFloat
+          textId: 42
+          value: {type: Value, value: 1234.5677}
+          digitsBefore: 0
+          digitsAfter: 2
+          flags: 0
+        - type: TextFromFloat
+          textId: 43
+          value: {type: Value, value: 1234.5677}
+          digitsBefore: 0
+          digitsAfter: 5
+          flags: 3
+        - type: TextFromFloat
+          textId: 44
+          value: {type: Value, value: 1234.5677}
+          digitsBefore: 6
+          digitsAfter: 2
+          flags: 12
+        - type: TextFromFloat
+          textId: 45
+          value: {type: Value, value: 1234567.9}
+          digitsBefore: 0
+          digitsAfter: 2
+          flags: 16
+        - type: TextFromFloat
+          textId: 46
+          value: {type: Value, value: -123.45}
+          digitsBefore: 0
+          digitsAfter: 2
+          flags: 256
+        - type: TextFromFloat
+          textId: 47
+          value: {type: Value, value: 123.456}
+          digitsBefore: 0
+          digitsAfter: 2
+          flags: 512
+        - type: TextFromFloat
+          textId: 48
+          value: {type: Value, value: 1234.5677}
+          digitsBefore: 0
+          digitsAfter: 0
+          flags: 512
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 1000.0, height: 1000.0,
+            color: '0xffffff00', shapeType: RECTANGLE}
+        - type: TEXT_LAYOUT
+          id: -5
+          x: 0.0
+          y: 0.0
+          width: 100.0
+          height: 10.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers: []
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          textId: 42
+          flags: 0
+          color: '0xff000000'
+          fontSize: {type: Value, value: 36.0}
+          fontStyle: 0
+          fontWeight: 400.0
+          fontFamilyId: -1
+          textAlign: 1
+          overflow: 1
+          maxLines: 2147483647
+        - type: TEXT_LAYOUT
+          id: -7
+          x: 0.0
+          y: 10.0
+          width: 100.0
+          height: 10.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers: []
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          textId: 43
+          flags: 0
+          color: '0xff000000'
+          fontSize: {type: Value, value: 36.0}
+          fontStyle: 0
+          fontWeight: 400.0
+          fontFamilyId: -1
+          textAlign: 1
+          overflow: 1
+          maxLines: 2147483647
+        - type: TEXT_LAYOUT
+          id: -9
+          x: 0.0
+          y: 20.0
+          width: 100.0
+          height: 10.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers: []
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          textId: 44
+          flags: 0
+          color: '0xff000000'
+          fontSize: {type: Value, value: 36.0}
+          fontStyle: 0
+          fontWeight: 400.0
+          fontFamilyId: -1
+          textAlign: 1
+          overflow: 1
+          maxLines: 2147483647
+        - type: TEXT_LAYOUT
+          id: -11
+          x: 0.0
+          y: 30.0
+          width: 100.0
+          height: 10.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers: []
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          textId: 45
+          flags: 0
+          color: '0xff000000'
+          fontSize: {type: Value, value: 36.0}
+          fontStyle: 0
+          fontWeight: 400.0
+          fontFamilyId: -1
+          textAlign: 1
+          overflow: 1
+          maxLines: 2147483647
+        - type: TEXT_LAYOUT
+          id: -13
+          x: 0.0
+          y: 40.0
+          width: 100.0
+          height: 10.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers: []
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          textId: 45
+          flags: 0
+          color: '0xff000000'
+          fontSize: {type: Value, value: 36.0}
+          fontStyle: 0
+          fontWeight: 400.0
+          fontFamilyId: -1
+          textAlign: 1
+          overflow: 1
+          maxLines: 2147483647
+        - type: TEXT_LAYOUT
+          id: -15
+          x: 0.0
+          y: 50.0
+          width: 100.0
+          height: 10.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers: []
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          textId: 46
+          flags: 0
+          color: '0xff000000'
+          fontSize: {type: Value, value: 36.0}
+          fontStyle: 0
+          fontWeight: 400.0
+          fontFamilyId: -1
+          textAlign: 1
+          overflow: 1
+          maxLines: 2147483647
+        - type: TEXT_LAYOUT
+          id: -17
+          x: 0.0
+          y: 60.0
+          width: 100.0
+          height: 10.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers: []
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          textId: 47
+          flags: 0
+          color: '0xff000000'
+          fontSize: {type: Value, value: 36.0}
+          fontStyle: 0
+          fontWeight: 400.0
+          fontFamilyId: -1
+          textAlign: 1
+          overflow: 1
+          maxLines: 2147483647
+        - type: TEXT_LAYOUT
+          id: -19
+          x: 0.0
+          y: 70.0
+          width: 100.0
+          height: 10.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers: []
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          textId: 48
+          flags: 0
+          color: '0xff000000'
+          fontSize: {type: Value, value: 36.0}
+          fontStyle: 0
+          fontWeight: 400.0
+          fontFamilyId: -1
+          textAlign: 1
+          overflow: 1
+          maxLines: 2147483647
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0
+- description: Component Tree
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - type: COLUMN
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1000.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: TextFromFloat
+          textId: 42
+          value: {type: Value, value: 1234.5677}
+          digitsBefore: 0
+          digitsAfter: 2
+          flags: 0
+        - type: TextFromFloat
+          textId: 43
+          value: {type: Value, value: 1234.5677}
+          digitsBefore: 0
+          digitsAfter: 5
+          flags: 3
+        - type: TextFromFloat
+          textId: 44
+          value: {type: Value, value: 1234.5677}
+          digitsBefore: 6
+          digitsAfter: 2
+          flags: 12
+        - type: TextFromFloat
+          textId: 45
+          value: {type: Value, value: 1234567.9}
+          digitsBefore: 0
+          digitsAfter: 2
+          flags: 16
+        - type: TextFromFloat
+          textId: 46
+          value: {type: Value, value: -123.45}
+          digitsBefore: 0
+          digitsAfter: 2
+          flags: 256
+        - type: TextFromFloat
+          textId: 47
+          value: {type: Value, value: 123.456}
+          digitsBefore: 0
+          digitsAfter: 2
+          flags: 512
+        - type: TextFromFloat
+          textId: 48
+          value: {type: Value, value: 1234.5677}
+          digitsBefore: 0
+          digitsAfter: 0
+          flags: 512
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 1000.0, height: 1000.0,
+            color: '0xffffff00', shapeType: RECTANGLE}
+        - type: TEXT_LAYOUT
+          id: -5
+          x: 0.0
+          y: 0.0
+          width: 100.0
+          height: 10.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers: []
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          textId: 42
+          flags: 0
+          color: '0xff000000'
+          fontSize: {type: Value, value: 36.0}
+          fontStyle: 0
+          fontWeight: 400.0
+          fontFamilyId: -1
+          textAlign: 1
+          overflow: 1
+          maxLines: 2147483647
+        - type: TEXT_LAYOUT
+          id: -7
+          x: 0.0
+          y: 10.0
+          width: 100.0
+          height: 10.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers: []
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          textId: 43
+          flags: 0
+          color: '0xff000000'
+          fontSize: {type: Value, value: 36.0}
+          fontStyle: 0
+          fontWeight: 400.0
+          fontFamilyId: -1
+          textAlign: 1
+          overflow: 1
+          maxLines: 2147483647
+        - type: TEXT_LAYOUT
+          id: -9
+          x: 0.0
+          y: 20.0
+          width: 100.0
+          height: 10.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers: []
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          textId: 44
+          flags: 0
+          color: '0xff000000'
+          fontSize: {type: Value, value: 36.0}
+          fontStyle: 0
+          fontWeight: 400.0
+          fontFamilyId: -1
+          textAlign: 1
+          overflow: 1
+          maxLines: 2147483647
+        - type: TEXT_LAYOUT
+          id: -11
+          x: 0.0
+          y: 30.0
+          width: 100.0
+          height: 10.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers: []
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          textId: 45
+          flags: 0
+          color: '0xff000000'
+          fontSize: {type: Value, value: 36.0}
+          fontStyle: 0
+          fontWeight: 400.0
+          fontFamilyId: -1
+          textAlign: 1
+          overflow: 1
+          maxLines: 2147483647
+        - type: TEXT_LAYOUT
+          id: -13
+          x: 0.0
+          y: 40.0
+          width: 100.0
+          height: 10.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers: []
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          textId: 45
+          flags: 0
+          color: '0xff000000'
+          fontSize: {type: Value, value: 36.0}
+          fontStyle: 0
+          fontWeight: 400.0
+          fontFamilyId: -1
+          textAlign: 1
+          overflow: 1
+          maxLines: 2147483647
+        - type: TEXT_LAYOUT
+          id: -15
+          x: 0.0
+          y: 50.0
+          width: 100.0
+          height: 10.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers: []
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          textId: 46
+          flags: 0
+          color: '0xff000000'
+          fontSize: {type: Value, value: 36.0}
+          fontStyle: 0
+          fontWeight: 400.0
+          fontFamilyId: -1
+          textAlign: 1
+          overflow: 1
+          maxLines: 2147483647
+        - type: TEXT_LAYOUT
+          id: -17
+          x: 0.0
+          y: 60.0
+          width: 100.0
+          height: 10.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers: []
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          textId: 47
+          flags: 0
+          color: '0xff000000'
+          fontSize: {type: Value, value: 36.0}
+          fontStyle: 0
+          fontWeight: 400.0
+          fontFamilyId: -1
+          textAlign: 1
+          overflow: 1
+          maxLines: 2147483647
+        - type: TEXT_LAYOUT
+          id: -19
+          x: 0.0
+          y: 70.0
+          width: 100.0
+          height: 10.0
+          visibility: VISIBLE
+          list:
+          - type: ComponentModifiers
+            modifiers: []
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          textId: 48
+          flags: 0
+          color: '0xff000000'
+          fontSize: {type: Value, value: 36.0}
+          fontStyle: 0
+          fontWeight: 400.0
+          fontFamilyId: -1
+          textAlign: 1
+          overflow: 1
+          maxLines: 2147483647
+        paddingLeft: 0.0
+        paddingRight: 0.0
+        paddingTop: 0.0
+        paddingBottom: 0.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0

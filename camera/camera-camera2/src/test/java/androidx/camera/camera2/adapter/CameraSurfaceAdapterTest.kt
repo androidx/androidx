@@ -205,5 +205,7 @@ class CameraSurfaceAdapterTest {
             }
             return underlyingFake.awaitCameraMetadata(cameraId, cameraBackendId)
         }
+
+        override fun awaitCameraMetadata(cameraId: CameraId) = awaitCameraMetadata(cameraId, null)
     }
 }

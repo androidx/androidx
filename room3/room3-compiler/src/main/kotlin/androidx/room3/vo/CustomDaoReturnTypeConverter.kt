@@ -22,15 +22,15 @@ import androidx.room3.compiler.processing.XMethodElement
 import androidx.room3.compiler.processing.XType
 import androidx.room3.compiler.processing.XTypeElement
 
+/** Holds info on the `convert()` function of a [DaoReturnTypeConverter]. */
 data class CustomDaoReturnTypeConverter(
     val to: XType,
     val enclosingClass: XTypeElement,
     val isEnclosingClassKotlinObject: Boolean,
     val function: XMethodElement,
     val isProvidedConverter: Boolean,
-    val hasNullableLambdaReturnType: Boolean,
-    val rowAdapterTypeArgPosition: Int = -1,
     val requiredFunctionParamTypes: List<XType>,
+    val executeAndReturnLambda: ExecuteAndReturnLambda,
 ) {
     val className: XClassName by lazy { enclosingClass.asClassName() }
     val isStatic by lazy { function.isStatic() }
@@ -41,3 +41,16 @@ data class CustomDaoReturnTypeConverter(
             CodeLanguage.KOTLIN -> function.name
         }
 }
+
+/**
+ * Holds info on the `executeAndReturn()` lambda parameter of a [DaoReturnTypeConverter]'s
+ * `convert()` function.
+ */
+data class ExecuteAndReturnLambda(
+    val returnType: XType,
+    val isParametrized: Boolean,
+    val hasNullableReturnType: Boolean,
+    val hasRawQueryParam: Boolean,
+    val rowAdapterTypeArgPosition: Int = -1,
+    val adjustToResultAdapterType: (XType) -> XType,
+)

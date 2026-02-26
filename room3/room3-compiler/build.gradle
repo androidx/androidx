@@ -90,6 +90,9 @@ dependencies {
     testImplementationAarAsJar(project(":room3:room3-rxjava3"))
     testImplementationAarAsJar(project(":room3:room3-livedata"))
     testImplementationAarAsJar(project(":room3:room3-guava"))
+    testImplementationAarAsJar(project(":room3:room3-paging"))
+    testImplementationAarAsJar(project(":room3:room3-paging-guava"))
+    testImplementationAarAsJar(project(":room3:room3-paging-rxjava3"))
     testImplementationAarAsJar(project(":sqlite:sqlite"))
     testImplementation(project(":internal-testutils-common"))
 }

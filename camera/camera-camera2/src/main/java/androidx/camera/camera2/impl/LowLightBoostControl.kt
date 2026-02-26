@@ -206,7 +206,7 @@ constructor(
                         if (lowLightBoost) CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY
                         else null
                     )
-                updateSignal.propagateTo(signal)
+                updateSignal.invokeOnCompletion { signal.complete(Unit) }
 
                 signal.invokeOnCompletion {
                     if (signal == _updateSignal) {

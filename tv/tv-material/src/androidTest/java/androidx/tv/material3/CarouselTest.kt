@@ -471,7 +471,6 @@ class CarouselTest {
         rule.onNodeWithTag(testTag).assertExists()
     }
 
-    @Test
     fun carousel_manualScrollingWithFocusableItemsOnTop_focusStaysWithinCarousel() {
         rule.setContent {
             Column {

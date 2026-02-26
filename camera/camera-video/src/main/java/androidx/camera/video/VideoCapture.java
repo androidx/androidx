@@ -55,7 +55,6 @@ import static androidx.camera.video.StreamInfo.STREAM_ID_ERROR;
 import static androidx.camera.video.impl.VideoCaptureConfig.OPTION_FORCE_ENABLE_SURFACE_PROCESSING;
 import static androidx.camera.video.impl.VideoCaptureConfig.OPTION_VIDEO_ENCODER_INFO_FINDER;
 import static androidx.camera.video.impl.VideoCaptureConfig.OPTION_VIDEO_OUTPUT;
-import static androidx.camera.video.internal.config.VideoConfigUtil.resolveVideoMimeInfo;
 import static androidx.camera.video.internal.utils.DynamicRangeUtil.isHdrSettingsMatched;
 import static androidx.camera.video.internal.utils.DynamicRangeUtil.videoProfileBitDepthToDynamicRangeBitDepth;
 import static androidx.camera.video.internal.utils.DynamicRangeUtil.videoProfileHdrFormatsToDynamicRangeEncoding;
@@ -103,6 +102,7 @@ import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.EncoderProfilesProxy;
+import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy;
 import androidx.camera.core.impl.ImageInputConfig;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
@@ -136,6 +136,8 @@ import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.video.internal.compat.quirk.HdrRepeatingRequestFailureQuirk;
 import androidx.camera.video.internal.compat.quirk.SizeCannotEncodeVideoQuirk;
+import androidx.camera.video.internal.config.MediaConfigUtil;
+import androidx.camera.video.internal.config.MediaInfo;
 import androidx.camera.video.internal.config.VideoMimeInfo;
 import androidx.camera.video.internal.encoder.SwappedVideoEncoderInfo;
 import androidx.camera.video.internal.encoder.VideoEncoderInfo;
@@ -207,6 +209,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private @Nullable SourceStreamRequirementObserver mSourceStreamRequirementObserver;
     private SessionConfig.@Nullable CloseableErrorListener mCloseableErrorListener;
     private Map<Quality, List<Size>> mQualityToCustomSizesMap = emptyMap();
+    private @Nullable MediaInfo mResolvedMediaInfo;
 
     /**
      * Create a VideoCapture associated with the given {@link VideoOutput}.
@@ -441,7 +444,27 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             Logger.w(TAG, "suggested resolution " + primaryStreamSpec.getResolution()
                     + " is not in custom ordered resolutions " + customOrderedResolutions);
         }
+
+        mResolvedMediaInfo = resolveMediaInfo(primaryStreamSpec);
+
         return primaryStreamSpec;
+    }
+
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public void onUnbind() {
+        mResolvedMediaInfo = null;
+    }
+
+    private @NonNull MediaInfo resolveMediaInfo(@NonNull StreamSpec streamSpec) {
+        CameraInternal camera = requireNonNull(getCamera());
+        EncoderProfilesResolver profilesResolver = getEncoderProfilesResolver(
+                camera.getCameraInfo(), streamSpec.getSessionType());
+        VideoValidatedEncoderProfilesProxy encoderProfiles =
+                profilesResolver.findNearestHigherSupportedEncoderProfilesFor(
+                        streamSpec.getResolution(), streamSpec.getDynamicRange());
+        return MediaConfigUtil.resolveMediaInfo(requireNonNull(getMediaSpec()),
+                streamSpec.getDynamicRange(), encoderProfiles);
     }
 
     /**
@@ -525,7 +548,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @Override
     @MainThread
     public void onSessionStop() {
-        Logger.d(TAG, "VideoCapture#onStateDetached");
+        Logger.d(TAG, "VideoCapture#onSessionStop");
 
         checkState(isMainThread(), "VideoCapture can only be detached on the main thread.");
 
@@ -711,16 +734,11 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         // handleInvalidate() can be used as an alternative.
         Runnable onSurfaceInvalidated = this::notifyReset;
         Range<Integer> expectedFrameRate = resolveFrameRate(streamSpec);
-        MediaSpec mediaSpec = requireNonNull(getMediaSpec());
         int sessionType = streamSpec.getSessionType();
-        EncoderProfilesResolver profilesResolver = getEncoderProfilesResolver(
-                camera.getCameraInfo(), sessionType);
         DynamicRange dynamicRange = streamSpec.getDynamicRange();
-        VideoValidatedEncoderProfilesProxy encoderProfiles =
-                profilesResolver.findNearestHigherSupportedEncoderProfilesFor(resolution,
-                        dynamicRange);
+        MediaInfo mediaInfo = requireNonNull(mResolvedMediaInfo);
         VideoEncoderInfo videoEncoderInfo = resolveVideoEncoderInfo(
-                config.getVideoEncoderInfoFinder(), encoderProfiles, mediaSpec, dynamicRange);
+                config.getVideoEncoderInfoFinder(), mediaInfo.getVideoMimeInfo());
         mRotationDegrees = getCompensatedRotation(camera);
         Rect originalCropRect = calculateCropRect(resolution, videoEncoderInfo);
         mCropRect = adjustCropRectWithInProgressTransformation(originalCropRect, mRotationDegrees);
@@ -1401,12 +1419,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
     private static @Nullable VideoEncoderInfo resolveVideoEncoderInfo(
             VideoEncoderInfo.@NonNull Finder videoEncoderInfoFinder,
-            @Nullable VideoValidatedEncoderProfilesProxy encoderProfiles,
-            @NonNull MediaSpec mediaSpec,
-            @NonNull DynamicRange dynamicRange) {
-        VideoMimeInfo videoMimeInfo = resolveVideoMimeInfo(mediaSpec, dynamicRange,
-                encoderProfiles);
-
+            @NonNull VideoMimeInfo videoMimeInfo) {
         VideoEncoderInfo videoEncoderInfo = videoEncoderInfoFinder.find(
                 videoMimeInfo.getMimeType());
         if (videoEncoderInfo == null) {
@@ -1417,8 +1430,9 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return null;
         }
 
-        Size profileSize = encoderProfiles != null
-                ? encoderProfiles.getDefaultVideoProfile().getResolution() : null;
+        VideoProfileProxy videoProfile = videoMimeInfo.getCompatibleVideoProfile();
+
+        Size profileSize = videoProfile != null ? videoProfile.getResolution() : null;
         return VideoEncoderInfoWrapper.from(videoEncoderInfo, profileSize);
     }
 
@@ -1797,8 +1811,9 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             @NonNull DynamicRange dynamicRange,
             @NonNull MediaSpec mediaSpec) {
         if (dynamicRange.isFullySpecified()) {
-            return resolveVideoEncoderInfo(videoEncoderInfoFinder, encoderProfiles, mediaSpec,
-                    dynamicRange);
+            MediaInfo mediaInfo = MediaConfigUtil.resolveMediaInfo(mediaSpec, dynamicRange,
+                    encoderProfiles);
+            return resolveVideoEncoderInfo(videoEncoderInfoFinder, mediaInfo.getVideoMimeInfo());
         }
         // There could be multiple VideoProfiles that match the non-fully specified DynamicRange.
         // The one with the largest supported size will be returned.
@@ -1810,9 +1825,10 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 DynamicRange profileDynamicRange = new DynamicRange(
                         videoProfileHdrFormatsToDynamicRangeEncoding(videoProfile.getHdrFormat()),
                         videoProfileBitDepthToDynamicRangeBitDepth(videoProfile.getBitDepth()));
-                VideoEncoderInfo videoEncoderInfo =
-                        resolveVideoEncoderInfo(videoEncoderInfoFinder, encoderProfiles, mediaSpec,
-                                profileDynamicRange);
+                MediaInfo mediaInfo = MediaConfigUtil.resolveMediaInfo(mediaSpec,
+                        profileDynamicRange, encoderProfiles);
+                VideoEncoderInfo videoEncoderInfo = resolveVideoEncoderInfo(videoEncoderInfoFinder,
+                        mediaInfo.getVideoMimeInfo());
                 if (videoEncoderInfo == null) {
                     continue;
                 }

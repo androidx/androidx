@@ -2602,6 +2602,47 @@ class GridTest : LayoutTest() {
             assertEquals(expectedColWidth, itemSize.value?.width)
         }
 
+    @Test
+    fun testGrid_aspectRatio_inFlexTrack_doesNotExplode() =
+        with(density) {
+            val gridWidth = 500
+            val gridHeight = 500
+            val latch = CountDownLatch(1)
+            val childSize = Ref<IntSize>()
+
+            show {
+                Box(Modifier.size(gridWidth.toDp(), gridHeight.toDp())) {
+                    Grid(
+                        config = {
+                            column(GridTrackSize.Flex(1.fr))
+                            row(GridTrackSize.Flex(1.fr))
+                        },
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        Box(
+                            Modifier.gridItem(1, 1)
+                                .aspectRatio(16f / 9f)
+                                .fillMaxSize()
+                                .onGloballyPositioned {
+                                    childSize.value = it.size
+                                    latch.countDown()
+                                }
+                        )
+                    }
+                }
+            }
+            assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+            // Grid is 500x500. Cell is 500x500.
+            // AspectRatio(16/9) inside a 500x500 constraint:
+            // Width = 500, Height = 500 * 9/16 = 281
+            assertEquals(
+                "Aspect ratio should size cleanly within the cell bounds without exploding the track width",
+                IntSize(500, 281),
+                childSize.value,
+            )
+        }
+
     @Composable
     private fun IntrinsicItem(
         minWidth: Int,

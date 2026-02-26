@@ -787,7 +787,6 @@ public class WebViewFeatureInternal {
      * {@link Navigation#getWebResourceError()}
      * {@link WebResourceErrorCompat#getDebugCode()}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final ApiFeature.NoFramework NAVIGATION_GET_WEB_RESOURCE_ERROR =
             new ApiFeature.NoFramework(
                     WebViewFeature.NAVIGATION_GET_WEB_RESOURCE_ERROR,

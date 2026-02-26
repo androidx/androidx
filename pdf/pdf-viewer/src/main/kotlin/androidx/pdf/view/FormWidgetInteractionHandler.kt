@@ -80,7 +80,15 @@ internal class FormWidgetInteractionHandler(
         formWidgetInfo: FormWidgetInfo,
     ) {
         val formEditInfo =
-            FormEditInfo.createClick(formWidgetInfo.widgetIndex, clickPoint = clickPoint)
+            FormEditInfo.createClick(
+                formWidgetInfo.widgetIndex,
+                clickPoint =
+                    PdfPoint(
+                        clickPoint.pageNum,
+                        formWidgetInfo.widgetRect.centerX().toFloat(),
+                        formWidgetInfo.widgetRect.centerY().toFloat(),
+                    ),
+            )
         relayFormEditInfo(formEditInfo)
     }
 

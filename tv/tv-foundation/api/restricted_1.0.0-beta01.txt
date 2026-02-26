@@ -1,0 +1,26 @@
+// Signature format: 4.0
+package @SuppressCompatibility androidx.tv.foundation {
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This tv-foundation API is experimental and likely to change or be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalTvFoundationApi {
+  }
+
+}
+
+package @SuppressCompatibility androidx.tv.foundation.text {
+
+  @SuppressCompatibility public final class TvImeOptionsKt {
+    method @SuppressCompatibility @androidx.tv.foundation.ExperimentalTvFoundationApi public static androidx.compose.ui.text.input.PlatformImeOptions PlatformImeOptions(androidx.tv.foundation.text.TvKeyboardAlignment horizontalAlignment);
+    method @SuppressCompatibility @androidx.tv.foundation.ExperimentalTvFoundationApi public static androidx.compose.ui.text.input.PlatformImeOptions keyboardAlignment(androidx.compose.ui.text.input.PlatformImeOptions, androidx.tv.foundation.text.TvKeyboardAlignment horizontalAlignment);
+  }
+
+  @SuppressCompatibility @androidx.tv.foundation.ExperimentalTvFoundationApi public enum TvKeyboardAlignment {
+    method @InaccessibleFromKotlin public String? getOption();
+    property public String? option;
+    enum_constant public static final androidx.tv.foundation.text.TvKeyboardAlignment Center;
+    enum_constant public static final androidx.tv.foundation.text.TvKeyboardAlignment Fullscreen;
+    enum_constant public static final androidx.tv.foundation.text.TvKeyboardAlignment Left;
+    enum_constant public static final androidx.tv.foundation.text.TvKeyboardAlignment Right;
+  }
+
+}
+

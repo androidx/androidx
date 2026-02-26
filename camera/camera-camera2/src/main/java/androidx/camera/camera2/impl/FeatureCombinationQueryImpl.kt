@@ -48,7 +48,7 @@ internal class FeatureCombinationQueryImpl(
                 cameraMetadata = cameraMetadata,
             )
 
-        val creationResult =
+        val graphConfigBundle =
             configProvider.create(
                 operatingMode = CameraGraph.OperatingMode.NORMAL,
                 sessionConfig = sessionConfig,
@@ -56,18 +56,19 @@ internal class FeatureCombinationQueryImpl(
             )
 
         return runBlocking {
-            cameraPipe.isConfigSupported(creationResult.config).apply {
+            cameraPipe.isConfigSupported(graphConfigBundle.graphConfig).apply {
                 Camera2Logger.debug {
                     val streamsLog =
-                        creationResult.config.streams.map { cameraStream ->
+                        graphConfigBundle.graphConfig.streams.map { cameraStream ->
                             cameraStream.outputs.map {
                                 "size=${it.size}, format=${it.format}," +
                                     " dynamicRangeProfile${it.dynamicRangeProfile}"
                             }
                         }
 
-                    "FeatureCombinationQueryImpl#isSupported: result = $this for sessionParameters =" +
-                        " ${creationResult.config.sessionParameters} and streams = $streamsLog"
+                    "FeatureCombinationQueryImpl#isSupported: result = $this for " +
+                        "sessionParameters = ${graphConfigBundle.graphConfig.sessionParameters} " +
+                        "and streams = $streamsLog"
                 }
             } == ConfigQueryResult.SUPPORTED
         }

@@ -43,17 +43,19 @@ public class StringUtils {
     public static final char PAD_NONE = 0;
     public static final char PAD_ZERO = '0';
     public static final char PAD_SPACE = ' ';
-    private StringUtils() {}
+
+    private StringUtils() {
+    }
 
     /**
      * Converts a float into a string. Providing a defined number of characters before and after the
      * decimal point.
      *
-     * @param value The value to convert to string
+     * @param value              The value to convert to string
      * @param beforeDecimalPoint digits before the decimal point
-     * @param afterDecimalPoint digits after the decimal point
-     * @param pre character to pad width 0 = no pad typically ' ' or '0'
-     * @param post character to pad width 0 = no pad typically ' ' or '0'
+     * @param afterDecimalPoint  digits after the decimal point
+     * @param pre                character to pad width 0 = no pad typically ' ' or '0'
+     * @param post               character to pad width 0 = no pad typically ' ' or '0'
      * @return The formatted string representation of the float.
      */
     @NonNull
@@ -203,6 +205,13 @@ public class StringUtils {
         } else if (iLen > beforeDecimalPoint) {
             integerPartString = integerPartString.substring(iLen - beforeDecimalPoint);
         }
+        int trimAfter = afterDecimalPoint;
+        if (iLen + afterDecimalPoint > 9) {
+            trimAfter = Math.max(1, 9 - iLen);
+        }
+        if (post == 0) {
+            afterDecimalPoint = trimAfter;
+        }
 
         if (afterDecimalPoint == 0) {
             if (!isNeg) {
@@ -215,12 +224,12 @@ public class StringUtils {
         }
         // Convert fractional part to string and pad with zeros
 
-        for (int i = 0; i < afterDecimalPoint; i++) {
+        for (int i = 0; i < trimAfter; i++) {
             fractionalPart *= 10;
         }
         fractionalPart = Math.round(fractionalPart);
 
-        for (int i = 0; i < afterDecimalPoint; i++) {
+        for (int i = 0; i < trimAfter; i++) {
             fractionalPart *= .1F;
         }
 

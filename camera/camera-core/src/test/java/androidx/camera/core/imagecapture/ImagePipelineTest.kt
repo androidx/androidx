@@ -108,6 +108,9 @@ class ImagePipelineTest {
     @After
     fun tearDown() {
         imagePipeline.close()
+
+        // Process any pending looper updates to prevent leaks
+        shadowOf(getMainLooper()).idle()
     }
 
     @Test

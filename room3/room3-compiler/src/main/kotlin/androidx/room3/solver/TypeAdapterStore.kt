@@ -49,9 +49,6 @@ import androidx.room3.processor.PropertyProcessor
 import androidx.room3.solver.binderprovider.CoroutineFlowResultBinderProvider
 import androidx.room3.solver.binderprovider.DaoReturnTypeQueryResultBinderProvider
 import androidx.room3.solver.binderprovider.InstantQueryResultBinderProvider
-import androidx.room3.solver.binderprovider.ListenableFuturePagingSourceQueryResultBinderProvider
-import androidx.room3.solver.binderprovider.PagingSourceQueryResultBinderProvider
-import androidx.room3.solver.binderprovider.RxJava3PagingSourceQueryResultBinderProvider
 import androidx.room3.solver.binderprovider.SuspendResultBinderProvider
 import androidx.room3.solver.prepared.binder.PreparedQueryResultBinder
 import androidx.room3.solver.prepared.binderprovider.GuavaListenableFuturePreparedQueryResultBinderProvider
@@ -217,9 +214,6 @@ private constructor(
 
     private val queryResultBinderProviders: List<QueryResultBinderProvider> =
         mutableListOf<QueryResultBinderProvider>().apply {
-            add(RxJava3PagingSourceQueryResultBinderProvider(context))
-            add(ListenableFuturePagingSourceQueryResultBinderProvider(context))
-            add(PagingSourceQueryResultBinderProvider(context))
             add(CoroutineFlowResultBinderProvider(context))
             addAll(
                 daoReturnTypeConverters
@@ -504,14 +498,6 @@ private constructor(
         params: List<ShortcutQueryParameter>,
     ): InsertOrUpsertFunctionAdapter? {
         return InsertOrUpsertFunctionAdapter.createUpsert(context, typeMirror, params)
-    }
-
-    fun findQueryResultAdapter(
-        typeMirror: XType,
-        query: ParsedQuery,
-        extrasCreator: TypeAdapterExtras.() -> Unit = {},
-    ): QueryResultAdapter? {
-        return findQueryResultAdapter(typeMirror, query, TypeAdapterExtras().apply(extrasCreator))
     }
 
     fun findQueryResultAdapter(

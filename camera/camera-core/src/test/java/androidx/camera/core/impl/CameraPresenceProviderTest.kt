@@ -16,6 +16,7 @@
 package androidx.camera.core.impl
 
 import android.os.Looper
+import android.os.Looper.getMainLooper
 import androidx.camera.core.CameraIdentifier
 import androidx.camera.core.CameraPresenceListener
 import androidx.camera.core.CameraSelector
@@ -32,11 +33,13 @@ import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
@@ -71,6 +74,12 @@ class CameraPresenceProviderTest {
         provider.addDependentInternalListener(fakeSurfaceManager)
         provider.addDependentInternalListener(fakeCoordinator)
         provider.addCameraPresenceListener(publicListener, MoreExecutors.directExecutor())
+    }
+
+    @After
+    fun tearDown() {
+        // Process any pending looper updates to prevent leaks
+        shadowOf(getMainLooper()).idle()
     }
 
     @Test

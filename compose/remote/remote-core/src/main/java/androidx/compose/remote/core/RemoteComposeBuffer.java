@@ -2537,7 +2537,7 @@ public class RemoteComposeBuffer {
 
     /**
      * Insert a conditional skip. Warning this should be used with care.
-     * It is incompatible with
+     * It is incompatible with being called between beginGlobal endGlobal
      */
     public int beginSkip(short type, int value) {
         return Skip.apply(mBuffer, type, value, 0);

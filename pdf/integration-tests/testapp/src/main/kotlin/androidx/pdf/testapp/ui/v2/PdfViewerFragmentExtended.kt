@@ -138,9 +138,11 @@ class PdfViewerFragmentExtended : PdfViewerFragment(), FeatureFlagListener {
 
     override fun onLoadDocumentSuccess(document: PdfDocument) {
         super.onLoadDocumentSuccess(document)
+        activePdfDocument = document
         if (PdfFeatureFlags.isThumbnailPreviewEnabled) {
             thumbnailAdapter.clearThumbnails()
             generateThumbnails(document)
+            pdfView.removeOnViewportChangedListener(thumbnailViewportListener)
             pdfView.addOnViewportChangedListener(thumbnailViewportListener)
         }
     }
@@ -229,6 +231,7 @@ class PdfViewerFragmentExtended : PdfViewerFragment(), FeatureFlagListener {
 
     override fun onLoadDocumentError(error: Throwable) {
         super.onLoadDocumentError(error)
+        activePdfDocument = null
         if (error is OperationCanceledException) {
             (activity as? OpCancellationHandler)?.handleCancelOperation()
         }
@@ -256,9 +259,13 @@ class PdfViewerFragmentExtended : PdfViewerFragment(), FeatureFlagListener {
                 pdfThumbnailToggleButton.visibility = if (enabled) View.VISIBLE else View.GONE
                 if (!enabled) {
                     pdfThumbnailRecyclerView.visibility = View.GONE
-                } else if (thumbnailAdapter.itemCount == 0) {
+                    pdfView.removeOnViewportChangedListener(thumbnailViewportListener)
+                } else {
                     activePdfDocument?.let {
-                        generateThumbnails(it)
+                        if (thumbnailAdapter.itemCount == 0) {
+                            generateThumbnails(it)
+                        }
+                        pdfView.removeOnViewportChangedListener(thumbnailViewportListener)
                         pdfView.addOnViewportChangedListener(thumbnailViewportListener)
                     }
                 }

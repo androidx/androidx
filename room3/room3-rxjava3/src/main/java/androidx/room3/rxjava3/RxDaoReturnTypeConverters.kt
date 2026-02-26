@@ -50,7 +50,7 @@ import kotlinx.coroutines.rx3.rxSingle
  * )
  * ```
  */
-public class Rx3DaoReturnTypeConverters {
+public class RxDaoReturnTypeConverters {
     /**
      * This [convert] function will be called from Room generated code to convert a Room query
      * result to the return type of this function.

@@ -31,6 +31,8 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onIdle
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.swipeLeft
+import androidx.test.espresso.action.ViewActions.swipeUp
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
 import androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA
@@ -364,6 +366,49 @@ class AnnotationToolbarTest {
         }
     }
 
+    @Test
+    fun testToolbarScrollable_whenDockedAtBottom() {
+        var toolbar: AnnotationToolbar? = null
+        setupAnnotationToolbar { toolbar = it }
+
+        activityRule.scenario.onActivity {
+            repeat(DUMMY_TOOLS_COUNT) {
+                toolbar?.toolTray?.addView(createAnnotationTool(toolbar.context))
+            }
+        }
+
+        // Assert pen tool, (i.e. 1st option in tool tray) is visible
+        onView(withId(R.id.pen_button)).check(matches(isDisplayed()))
+
+        onView(withId(R.id.scrollable_tool_tray_container)).perform(swipeLeft())
+
+        // Assert after scroll pen tool is no longer visible
+        onView(withId(R.id.pen_button)).check(matches(not(isDisplayed())))
+    }
+
+    @Test
+    fun testToolbarScrollable_whenDockedAtStart() {
+        var toolbar: AnnotationToolbar? = null
+        setupAnnotationToolbar {
+            toolbar = it
+            toolbar.dockState = DOCK_STATE_START
+        }
+
+        activityRule.scenario.onActivity {
+            repeat(DUMMY_TOOLS_COUNT) {
+                toolbar?.toolTray?.addView(createAnnotationTool(toolbar.context))
+            }
+        }
+
+        // Assert pen tool, (i.e. 1st option in tool tray) is visible
+        onView(withId(R.id.pen_button)).check(matches(isDisplayed()))
+
+        onView(withId(R.id.scrollable_tool_tray_container)).perform(swipeUp())
+
+        // Assert after scroll pen tool is no longer visible
+        onView(withId(R.id.pen_button)).check(matches(not(isDisplayed())))
+    }
+
     private fun assertColorPaletteChecks() {
         onView(withId(R.id.color_palette_button)).check(matches(isEnabled()))
         // assert initially color palette is not visible
@@ -415,6 +460,21 @@ class AnnotationToolbarTest {
         }
     }
 
+    private fun createAnnotationTool(context: Context): AnnotationToolView {
+        return AnnotationToolView(context).apply {
+            layoutParams =
+                LayoutParams(
+                    LayoutParams(
+                        context.resources.getDimensionPixelSize(R.dimen.annotation_tool_width),
+                        context.resources.getDimensionPixelSize(R.dimen.annotation_tool_height),
+                    )
+                )
+            icon = context.getDrawable(R.drawable.pen_state_drawable)
+            backgroundTintList =
+                context.getColorStateList(R.color.annotation_tool_background_color_state)
+        }
+    }
+
     private fun createToolbar(context: Context): AnnotationToolbar =
         AnnotationToolbar(context).apply {
             id = ANNOTATION_TOOLBAR_VIEW_ID
@@ -423,5 +483,6 @@ class AnnotationToolbarTest {
 
     companion object {
         private const val ANNOTATION_TOOLBAR_VIEW_ID = 4091995
+        private const val DUMMY_TOOLS_COUNT = 20
     }
 }

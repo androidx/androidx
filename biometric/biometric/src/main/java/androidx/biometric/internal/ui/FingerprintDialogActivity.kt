@@ -121,16 +121,11 @@ public class FingerprintDialogActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
 
+        destroyAlertDialog()
+
         if (!isChangingConfigurations) {
             cancelAuthentication(CanceledFrom.INTERNAL)
         }
-    }
-
-    /** Handles the pause event, removing any pending callbacks. */
-    override fun onPause() {
-        super.onPause()
-
-        destroyAlertDialog()
     }
 
     /**

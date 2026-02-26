@@ -79,6 +79,7 @@ package androidx.compose.ui {
     property public boolean isSharedHapticsEnabled;
     property public boolean isSharedViewConfigurationEnabled;
     property public boolean isSharedWindowInfoEnabled;
+    property public boolean isViewBasedSemanticsHandlerEnabled;
     field public static final androidx.compose.ui.AndroidComposeUiFlags INSTANCE;
     field public static boolean isAccessibilityShowOnScreenNestedScrollingEnabled;
     field public static boolean isSharedAccessibilityManagerEnabled;
@@ -88,6 +89,7 @@ package androidx.compose.ui {
     field public static boolean isSharedHapticsEnabled;
     field public static boolean isSharedViewConfigurationEnabled;
     field public static boolean isSharedWindowInfoEnabled;
+    field public static boolean isViewBasedSemanticsHandlerEnabled;
   }
 
   @androidx.compose.runtime.Immutable public final class BiasAbsoluteAlignment implements androidx.compose.ui.Alignment {
@@ -168,6 +170,7 @@ package androidx.compose.ui {
     property public boolean isInitialFocusOnFocusableAvailable;
     property public boolean isMediaQueryIntegrationEnabled;
     property public boolean isOptimizedFocusEventDispatchEnabled;
+    property public boolean isSkipNonImportantSemanticsNodesHitTestEnabled;
     property public boolean isTrackpadGestureHandlingEnabled;
     property public boolean isTraversableDelegatesFixEnabled;
     property public boolean isViewFocusFixEnabled;
@@ -180,6 +183,7 @@ package androidx.compose.ui {
     field public static boolean isInitialFocusOnFocusableAvailable;
     field public static boolean isMediaQueryIntegrationEnabled;
     field public static boolean isOptimizedFocusEventDispatchEnabled;
+    field public static boolean isSkipNonImportantSemanticsNodesHitTestEnabled;
     field public static boolean isTrackpadGestureHandlingEnabled;
     field public static boolean isTraversableDelegatesFixEnabled;
     field public static boolean isViewFocusFixEnabled;

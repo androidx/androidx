@@ -40,6 +40,7 @@ package androidx.webkit {
     method public androidx.webkit.Page? getPage();
     method public int getStatusCode();
     method public String getUrl();
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.NAVIGATION_GET_WEB_RESOURCE_ERROR, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public androidx.webkit.WebResourceErrorCompat? getWebResourceError();
     method public boolean isBack();
     method public boolean isForward();
     method public boolean isHistory();
@@ -415,6 +416,7 @@ package androidx.webkit {
   }
 
   public abstract class WebResourceErrorCompat {
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.NAVIGATION_GET_WEB_RESOURCE_ERROR, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract int getDebugCode();
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_RESOURCE_ERROR_GET_DESCRIPTION, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract CharSequence getDescription();
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.WEB_RESOURCE_ERROR_GET_CODE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract int getErrorCode();
   }
@@ -649,6 +651,7 @@ package androidx.webkit {
     field public static final String MULTI_PROFILE = "MULTI_PROFILE";
     field public static final String MUTE_AUDIO = "MUTE_AUDIO";
     field public static final String NAVIGATION_CALLBACK_BASIC = "WEB_VIEW_NAVIGATION_CLIENT_BASIC_USAGE";
+    field public static final String NAVIGATION_GET_WEB_RESOURCE_ERROR = "NAVIGATION_GET_WEB_RESOURCE_ERROR";
     field @SuppressCompatibility @androidx.webkit.WebNavigationClient.ExperimentalNavigationCallback public static final String NAVIGATION_LISTENER_NON_NULL_PAGE_FOR_SAME_DOCUMENT_NAVIGATIONS = "NAVIGATION_LISTENER_NON_NULL_PAGE_FOR_SAME_DOCUMENT_NAVIGATIONS";
     field @SuppressCompatibility @androidx.webkit.WebNavigationClient.ExperimentalNavigationCallback public static final String NAVIGATION_LISTENER_ON_COMPLETED_FIRES_FOR_NON_COMMITTED = "NAVIGATION_LISTENER_ON_COMPLETED_FIRES_FOR_NON_COMMITTED";
     field @SuppressCompatibility @androidx.webkit.WebNavigationClient.ExperimentalNavigationCallback public static final String NAVIGATION_LISTENER_V1 = "NAVIGATION_LISTENER_V1";

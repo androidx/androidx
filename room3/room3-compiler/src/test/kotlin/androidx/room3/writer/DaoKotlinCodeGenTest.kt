@@ -148,6 +148,57 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     }
 
     @Test
+    fun customDaoReturnTypeWithCollectionLambda() {
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
+                import androidx.room3.*
+
+                @DaoReturnTypeConverters(FooReturnTypeConverter::class)
+                @Dao
+                interface MyDao {
+                  @Query("SELECT * FROM MyEntity")
+                  suspend fun getFooList(): FooList<MyEntity>
+
+                  @Query("SELECT * FROM MyEntity")
+                  suspend fun getFooArray(): FooArray<MyEntity>
+                }
+
+                @Entity
+                data class MyEntity(@PrimaryKey val pk: Int)
+
+                class FooList<T>(val data: List<T>)
+                class FooArray<T>(val data: Array<T>)
+
+                class FooReturnTypeConverter {
+                    @DaoReturnTypeConverter
+                    suspend fun <T> convertArray(
+                        executeAndConvert: suspend () -> Array<T>,
+                    ): FooArray<T> {
+                        return FooArray(executeAndConvert.invoke())
+                    }
+
+                    @DaoReturnTypeConverter
+                    suspend fun <T> convertList(
+                        database: RoomDatabase,
+                        tableNames: Array<String>,
+                        executeAndConvert: suspend () -> List<T>,
+                    ): FooList<T> {
+                        return FooList(executeAndConvert.invoke())
+                    }
+                }
+                """
+                    .trimIndent(),
+            )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName.methodName),
+            compiledFiles = compileFiles(listOf()),
+        )
+    }
+
+    @Test
     fun dataClassRowAdapter_variableProperty() {
         val src =
             Source.kotlin(
@@ -1086,9 +1137,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 """
                 import androidx.room3.*
                 import androidx.paging.*
-                import androidx.paging.rxjava3.*
+                import androidx.room3.paging.PagingSourceDaoReturnTypeConverter
+                import androidx.room3.paging.rxjava3.RxPagingSourceDaoReturnTypeConverter
+                import androidx.room3.paging.guava.ListenableFuturePagingSourceDaoReturnTypeConverter
 
                 @Dao
+                @DaoReturnTypeConverters(ListenableFuturePagingSourceDaoReturnTypeConverter::class, PagingSourceDaoReturnTypeConverter::class, RxPagingSourceDaoReturnTypeConverter::class)
                 abstract class MyDao {
                   @Query("SELECT pk FROM MyEntity")
                   abstract fun getAllIds(): androidx.paging.PagingSource<Int, MyEntity>
@@ -2415,7 +2469,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
                 @Database(entities = [MyEntity::class], version = 1, exportSchema = false)
                 @DaoReturnTypeConverters(
-                    androidx.room3.rxjava3.Rx3DaoReturnTypeConverters::class
+                    androidx.room3.rxjava3.RxDaoReturnTypeConverters::class
                 )
                 abstract class MyDatabase : RoomDatabase() {
                     abstract fun getDao(): MyDao
@@ -2593,7 +2647,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
                 @Database(entities = [MyEntity::class], version = 1, exportSchema = false)
                 @DaoReturnTypeConverters(
-                    androidx.room3.rxjava3.Rx3DaoReturnTypeConverters::class
+                    androidx.room3.rxjava3.RxDaoReturnTypeConverters::class
                 )
                 abstract class MyDatabase : RoomDatabase() {
                     abstract fun getDao(): MyDao

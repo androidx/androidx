@@ -30,33 +30,31 @@ import androidx.room3.solver.query.result.DaoReturnTypeQueryResultBinder
 import androidx.room3.solver.query.result.QueryResultBinder
 import androidx.room3.solver.types.DaoReturnTypeConverter
 import com.google.common.base.Optional
-import kotlin.collections.plus
-import kotlin.collections.toSet
 
 class DaoReturnTypeQueryResultBinderProvider(
     val context: Context,
     val returnTypeConverter: DaoReturnTypeConverter,
 ) : QueryResultBinderProvider {
+    val executeAndReturnLambda = returnTypeConverter.executeAndReturnLambda
 
     override fun matches(declared: XType): Boolean {
         if (!declared.rawType.isAssignableFrom(returnTypeConverter.to.rawType)) {
             return false
         }
 
-        val converterReturnTypeArgs = returnTypeConverter.to.typeArguments.toMutableList()
+        val convertFunctionReturnTypeArgs = returnTypeConverter.to.typeArguments
         val daoFunctionReturnTypeArgs = declared.typeArguments
-        if (converterReturnTypeArgs.size != daoFunctionReturnTypeArgs.size) {
+
+        if (convertFunctionReturnTypeArgs.size != daoFunctionReturnTypeArgs.size) {
             return false
-        } else if (returnTypeConverter.rowAdapterTypeArgPosition >= converterReturnTypeArgs.size) {
-            return false
-        } else {
-            // Remove the element at row adapter type arg position
-            converterReturnTypeArgs.removeAt(returnTypeConverter.rowAdapterTypeArgPosition)
         }
 
         val allTypeArgsExceptRowAdapterPositionMatch =
-            converterReturnTypeArgs.zip(daoFunctionReturnTypeArgs).all { (converterType, daoType) ->
-                converterType.isAssignableFrom(daoType)
+            daoFunctionReturnTypeArgs.indices.all { pos ->
+                pos == executeAndReturnLambda.rowAdapterTypeArgPosition ||
+                    convertFunctionReturnTypeArgs[pos].isAssignableFrom(
+                        daoFunctionReturnTypeArgs[pos]
+                    )
             }
 
         context.checker.check(
@@ -79,24 +77,22 @@ class DaoReturnTypeQueryResultBinderProvider(
                 type.isTypeOf(Map::class)
         }
 
-        val typeArg =
+        val initialTypeArg =
             if (declared.typeArguments.isEmpty()) {
                     declared
                 } else {
-                    declared.typeArguments[returnTypeConverter.rowAdapterTypeArgPosition]
+                    declared.typeArguments[executeAndReturnLambda.rowAdapterTypeArgPosition]
                 }
                 .let {
-                    if (
-                        returnTypeConverter.hasNullableLambdaReturnType &&
-                            !isCollectionOrOptional(it)
-                    )
+                    if (executeAndReturnLambda.hasNullableReturnType && !isCollectionOrOptional(it))
                         it.makeNullable()
                     else it
                 }
-        if (typeArg.isVoidObject() && typeArg.nullability == XNullability.NONNULL) {
+        if (initialTypeArg.isVoidObject() && initialTypeArg.nullability == XNullability.NONNULL) {
             context.logger.e(ProcessorErrors.NONNULL_VOID)
         }
 
+        val typeArg = executeAndReturnLambda.adjustToResultAdapterType(initialTypeArg)
         val adapter = context.typeAdapterStore.findQueryResultAdapter(typeArg, query, extras)
         val tableNames =
             ((adapter?.accessedTableNames() ?: emptyList()) + query.tables.map { it.name }).toSet()

@@ -692,6 +692,37 @@ class ContentCaptureTest {
     }
 
     @Test
+    fun handlerUsesViewHandler() {
+        rule.setContentWithContentCaptureEnabled {
+            assertThat(androidComposeView.contentCaptureManager.handler)
+                .isSameInstanceAs(androidComposeView.handler)
+        }
+    }
+
+    @Test
+    // verify fix for b/486235925
+    fun handlerReturnsNullWhenDetached_doesntCrash() {
+        rule.setContentWithContentCaptureEnabled {
+            val view = androidComposeView
+            val manager = view.contentCaptureManager
+
+            // 1. Initial state: Attached
+            assertThat(manager.handler).isNotNull()
+
+            // 2. Action: Detach the view from the window
+            val parent = view.parent as android.view.ViewGroup
+            parent.removeView(view)
+
+            // 3. Verify: handler should now be null
+            // ensure we're reading the _attached_ handler
+            assertThat(manager.handler).isNull()
+
+            // 4. Verify: should not crash even with null handler
+            manager.onSemanticsChange()
+        }
+    }
+
+    @Test
     @SdkSuppress(minSdkVersion = 31)
     fun testOnHideTranslation() {
         // Arrange.

@@ -29,7 +29,7 @@ import androidx.camera.camera2.compat.workaround.TemplateParamsQuirkOverride
 import androidx.camera.camera2.config.CameraConfig
 import androidx.camera.camera2.config.UseCaseCameraComponent
 import androidx.camera.camera2.config.UseCaseCameraConfig
-import androidx.camera.camera2.config.UseCaseGraphContext
+import androidx.camera.camera2.config.UseCaseCameraContext
 import androidx.camera.camera2.impl.CameraCallbackMap
 import androidx.camera.camera2.impl.CameraGraphConfigProvider
 import androidx.camera.camera2.impl.ComboRequestListener
@@ -63,7 +63,6 @@ class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
     private var sessionConfigAdapter = SessionConfigAdapter(emptyList())
     private var cameraGraph = FakeCameraGraph()
     private val cameraStateAdapter = CameraStateAdapter()
-    private val graphStateToCameraStateAdapter = GraphStateToCameraStateAdapter(cameraStateAdapter)
     private val cameraMetadata = FakeCameraMetadata()
     private val cameraQuirks =
         CameraQuirks(
@@ -91,9 +90,9 @@ class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
         UseCaseCameraConfig.create(
             cameraGraphConfigProvider = configProvider,
             cameraGraphFactory = { _ -> cameraGraph },
-            graphStateToCameraStateAdapter = graphStateToCameraStateAdapter,
+            cameraStateAdapter = cameraStateAdapter,
             sessionConfigAdapter = sessionConfigAdapter,
-            isExtensions = false,
+            extensionMode = null,
             sessionProcessor = null,
         )
 
@@ -112,8 +111,8 @@ class FakeUseCaseCameraComponent() : UseCaseCameraComponent {
     private val fakeUseCaseCamera = FakeUseCaseCamera()
     private val cameraGraph = FakeCameraGraph()
     private val cameraStateAdapter = CameraStateAdapter()
-    private val useCaseGraphContext =
-        UseCaseGraphContext(
+    private val useCaseCameraContext =
+        UseCaseCameraContext(
             cameraGraphProvider = { cameraGraph },
             cameraStateAdapter = cameraStateAdapter,
             graphStateToCameraStateAdapter = GraphStateToCameraStateAdapter(cameraStateAdapter),
@@ -125,9 +124,9 @@ class FakeUseCaseCameraComponent() : UseCaseCameraComponent {
         return fakeUseCaseCamera
     }
 
-    override fun getUseCaseGraphContext(): UseCaseGraphContext {
+    override fun getUseCaseCameraContext(): UseCaseCameraContext {
         // TODO: Implement this properly once we need to use it with SessionProcessor enabled.
-        return useCaseGraphContext
+        return useCaseCameraContext
     }
 }
 

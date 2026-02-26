@@ -23,7 +23,7 @@ import androidx.camera.camera2.adapter.CameraStateAdapter
 import androidx.camera.camera2.adapter.GraphStateToCameraStateAdapter
 import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.compat.workaround.NoOpTemplateParamsOverride
-import androidx.camera.camera2.config.UseCaseGraphContext
+import androidx.camera.camera2.config.UseCaseCameraContext
 import androidx.camera.camera2.interop.setCamera2CaptureRequestConfigurator
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestTemplate
@@ -71,8 +71,8 @@ class UseCaseCameraRequestControlTest {
     }
     private val fakeCameraGraph = FakeCameraGraph()
     val cameraStateAdapter = CameraStateAdapter()
-    val fakeUseCaseGraphContext =
-        UseCaseGraphContext(
+    val fakeUseCaseCameraContext =
+        UseCaseCameraContext(
             cameraGraphProvider = { fakeCameraGraph },
             cameraStateAdapter = cameraStateAdapter,
             graphStateToCameraStateAdapter = GraphStateToCameraStateAdapter(cameraStateAdapter),
@@ -81,14 +81,14 @@ class UseCaseCameraRequestControlTest {
         )
     private val fakeUseCaseCameraState =
         UseCaseCameraState(
-            useCaseGraphContext = fakeUseCaseGraphContext,
+            useCaseCameraContext = fakeUseCaseCameraContext,
             templateParamsOverride = NoOpTemplateParamsOverride,
         )
     private val requestControl =
         UseCaseCameraRequestControlImpl(
             capturePipelineProvider = { FakeCapturePipeline() },
             useCaseCameraStateProvider = { fakeUseCaseCameraState },
-            useCaseGraphContext = fakeUseCaseGraphContext,
+            useCaseCameraContext = fakeUseCaseCameraContext,
             useCaseSurfaceManagerProvider = { FakeUseCaseSurfaceManager(threads = useCaseThreads) },
             threads = useCaseThreads,
         )
@@ -382,7 +382,7 @@ class UseCaseCameraRequestControlTest {
             UseCaseCameraRequestControlImpl(
                 capturePipelineProvider = { FakeCapturePipeline() },
                 useCaseCameraStateProvider = { fakeUseCaseCameraState },
-                useCaseGraphContext = fakeUseCaseGraphContext,
+                useCaseCameraContext = fakeUseCaseCameraContext,
                 useCaseSurfaceManagerProvider = {
                     FakeUseCaseSurfaceManager(threads = useCaseThreads)
                 },
@@ -421,7 +421,7 @@ class UseCaseCameraRequestControlTest {
             UseCaseCameraRequestControlImpl(
                 capturePipelineProvider = { FakeCapturePipeline() },
                 useCaseCameraStateProvider = { fakeUseCaseCameraState },
-                useCaseGraphContext = fakeUseCaseGraphContext,
+                useCaseCameraContext = fakeUseCaseCameraContext,
                 useCaseSurfaceManagerProvider = {
                     FakeUseCaseSurfaceManager(threads = useCaseThreads)
                 },

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,9 +59,6 @@ public class MainActivity extends AppCompatActivity {
                 new MenuListView.MenuItem(
                         getResources().getString(R.string.force_dark_strategy_activity_title),
                         new Intent(activityContext, ForceDarkStrategyActivity.class)),
-                new MenuListView.MenuItem(
-                        getResources().getString(R.string.multi_process_enabled_activity_title),
-                        new Intent(activityContext, MultiProcessEnabledActivity.class)),
                 new MenuListView.MenuItem(
                         getResources().getString(R.string.tracing_controller_activity_title),
                         new Intent(activityContext, TracingControllerActivity.class)),

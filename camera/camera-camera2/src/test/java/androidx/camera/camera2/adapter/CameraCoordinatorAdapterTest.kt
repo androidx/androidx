@@ -385,6 +385,8 @@ class CameraCoordinatorAdapterTest {
                 ): Set<Set<CameraId>> {
                     throw RuntimeException("Test failure from CameraDevices")
                 }
+
+                override fun awaitConcurrentCameraIds() = awaitConcurrentCameraIds(null)
             }
         val coordinatorWithFailingDeps = CameraCoordinatorAdapter(cameraPipe, failingCameraDevices)
 

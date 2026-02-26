@@ -17,6 +17,7 @@
 package androidx.tracing.wire
 
 import androidx.tracing.DEFAULT_LONG
+import androidx.tracing.ExperimentalContextPropagation
 import androidx.tracing.PooledTracePacketArray
 import androidx.tracing.TRACE_PACKET_BUFFER_SIZE
 import androidx.tracing.TRACE_PACKET_POOL_ARRAY_POOL_SIZE
@@ -27,16 +28,18 @@ import androidx.tracing.wire.protos.MutableCallstack
 import androidx.tracing.wire.protos.MutableTracePacket
 import androidx.tracing.wire.protos.MutableTrackDescriptor
 import androidx.tracing.wire.protos.MutableTrackEvent
+import kotlin.concurrent.thread
 import kotlin.test.Ignore
 import kotlin.test.Test
-import kotlin.test.assertContains
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import okio.blackholeSink
@@ -215,8 +218,52 @@ class TracingTest {
         assertNotNull(flowId) { "Packet $start does not include a flow_id" }
         val (method1, _) = sink.firstStartStopWithName("method1")
         val (method2, _) = sink.firstStartStopWithName("method2")
-        assertContains(method1.track_event?.flow_ids ?: emptyList(), flowId)
-        assertContains(method2.track_event?.flow_ids ?: emptyList(), flowId)
+        val method1FlowIds = method1.track_event?.flow_ids ?: emptyList()
+        val method2FlowIds = method2.track_event?.flow_ids ?: emptyList()
+        // Method 1, 2 should be assigned unique flow ids.
+        assertFalse { method1FlowIds.contains(flowId) }
+        assertFalse { method2FlowIds.contains(flowId) }
+    }
+
+    @Test
+    // The amount of time spent sleeping does not affect the outcome of the test.
+    @Suppress("BanThreadSleep")
+    @OptIn(ExperimentalContextPropagation::class)
+    internal fun testTrackEventsWithManualContextPropagation() = runTest {
+        driver.use {
+            val token = tracer.tokenForManualPropagation()
+            val threads = mutableListOf<Thread>()
+            threads += thread {
+                tracer.trace(category = "category", name = "first", token = token) {
+                    Thread.sleep(100L)
+                    tracer.trace(category = "category", name = "second", token = token) {
+                        Thread.sleep(200L)
+
+                        runBlocking {
+                            tracer.traceCoroutine(
+                                category = "category",
+                                name = "third",
+                                token = token,
+                            ) {
+                                delay(200L)
+                            }
+                        }
+                    }
+                }
+            }
+            threads.forEach { it.join() }
+        }
+        assertTrue(message = "Missing Packets in Trace Sink") { sink.packets.isNotEmpty() }
+        val (start, _) = sink.firstStartStopWithName("first")
+        val flowId = start.track_event?.flow_ids?.first()
+        assertNotNull(flowId) { "Packet $start does not include a flow_id" }
+        val (secondSlice, _) = sink.firstStartStopWithName("second")
+        val (thirdSlice, _) = sink.firstStartStopWithName("third")
+        val secondFlowIds = secondSlice.track_event?.flow_ids ?: emptyList()
+        val thirdFlowIds = thirdSlice.track_event?.flow_ids ?: emptyList()
+        // Method second and third should be assigned the same flow id as that of the first slice.
+        assertTrue { secondFlowIds.contains(flowId) }
+        assertTrue { thirdFlowIds.contains(flowId) }
     }
 
     @Test

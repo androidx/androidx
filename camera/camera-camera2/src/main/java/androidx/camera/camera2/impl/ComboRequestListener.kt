@@ -28,6 +28,7 @@ import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.core.impl.TagBundle
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import java.util.concurrent.Executor
 import javax.inject.Inject
 
@@ -38,130 +39,110 @@ import javax.inject.Inject
  */
 @CameraScope
 public class ComboRequestListener @Inject constructor() : Request.Listener {
-    private val requestListeners = mutableMapOf<Request.Listener, Executor>()
+    private val lock = Any()
 
-    @Volatile
-    public var listeners: Map<Request.Listener, Executor> = mapOf()
-        @VisibleForTesting get
-        private set
+    @Volatile private var _listenerHolders = emptyArray<ListenerHolder>()
+
+    @get:VisibleForTesting
+    internal val listenerHolders: Array<ListenerHolder>
+        get() = _listenerHolders
+
+    @VisibleForTesting
+    internal class ListenerHolder(
+        @JvmField val listener: Request.Listener,
+        @JvmField val executor: Executor,
+        @JvmField val isDirect: Boolean,
+    )
 
     public fun addListener(listener: Request.Listener, executor: Executor) {
-        check(!listeners.contains(listener)) { "$listener was already registered!" }
-        synchronized(requestListeners) {
-            requestListeners[listener] = executor
-            listeners = requestListeners.toMap()
+        synchronized(lock) {
+            if (_listenerHolders.any { it.listener === listener }) return
+
+            val isDirect = (executor == CameraXExecutors.directExecutor())
+            val newHolder = ListenerHolder(listener, executor, isDirect)
+            _listenerHolders += newHolder
         }
     }
 
     public fun removeListener(listener: Request.Listener) {
-        synchronized(requestListeners) {
-            requestListeners.remove(listener)
-            listeners = requestListeners.toMap()
+        synchronized(lock) {
+            _listenerHolders = _listenerHolders.filter { it.listener !== listener }.toTypedArray()
         }
     }
 
-    override fun onAborted(request: Request) {
-        listeners.forEach { (listener, executor) ->
-            executor.execute { listener.onAborted(request) }
+    private inline fun dispatch(crossinline action: (Request.Listener) -> Unit) {
+        val holders = _listenerHolders
+        val size = holders.size
+        if (size == 0) return
+
+        // Manual for-loop is the fastest way to iterate on API 23+
+        // as it avoids any Iterator or Stream overhead.
+        for (i in 0 until size) {
+            val holder = holders[i]
+            if (holder.isDirect) {
+                action(holder.listener)
+            } else {
+                holder.executor.execute { action(holder.listener) }
+            }
         }
     }
+
+    override fun onAborted(request: Request): Unit = dispatch { it.onAborted(request) }
 
     override fun onBufferLost(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
         streamId: StreamId,
         outputId: OutputId,
-    ) {
-        listeners.forEach { (listener, executor) ->
-            executor.execute {
-                listener.onBufferLost(requestMetadata, frameNumber, streamId, outputId)
-            }
-        }
-    }
+    ): Unit = dispatch { it.onBufferLost(requestMetadata, frameNumber, streamId, outputId) }
 
     override fun onComplete(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
         result: FrameInfo,
-    ) {
-        listeners.forEach { (listener, executor) ->
-            executor.execute { listener.onComplete(requestMetadata, frameNumber, result) }
-        }
-    }
+    ): Unit = dispatch { it.onComplete(requestMetadata, frameNumber, result) }
 
     override fun onFailed(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
         requestFailure: RequestFailure,
-    ) {
-        listeners.forEach { (listener, executor) ->
-            executor.execute { listener.onFailed(requestMetadata, frameNumber, requestFailure) }
-        }
-    }
+    ): Unit = dispatch { it.onFailed(requestMetadata, frameNumber, requestFailure) }
 
     override fun onPartialCaptureResult(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
         captureResult: FrameMetadata,
-    ) {
-        listeners.forEach { (listener, executor) ->
-            executor.execute {
-                listener.onPartialCaptureResult(requestMetadata, frameNumber, captureResult)
-            }
-        }
-    }
+    ): Unit = dispatch { it.onPartialCaptureResult(requestMetadata, frameNumber, captureResult) }
 
-    override fun onRequestSequenceAborted(requestMetadata: RequestMetadata) {
-        listeners.forEach { (listener, executor) ->
-            executor.execute { listener.onRequestSequenceAborted(requestMetadata) }
-        }
+    override fun onRequestSequenceAborted(requestMetadata: RequestMetadata): Unit = dispatch {
+        it.onRequestSequenceAborted(requestMetadata)
     }
 
     override fun onRequestSequenceCompleted(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
-    ) {
-        listeners.forEach { (listener, executor) ->
-            executor.execute { listener.onRequestSequenceCompleted(requestMetadata, frameNumber) }
-        }
+    ): Unit = dispatch { it.onRequestSequenceCompleted(requestMetadata, frameNumber) }
+
+    override fun onRequestSequenceCreated(requestMetadata: RequestMetadata): Unit = dispatch {
+        it.onRequestSequenceCreated(requestMetadata)
     }
 
-    override fun onRequestSequenceCreated(requestMetadata: RequestMetadata) {
-        listeners.forEach { (listener, executor) ->
-            executor.execute { listener.onRequestSequenceCreated(requestMetadata) }
-        }
-    }
-
-    override fun onRequestSequenceSubmitted(requestMetadata: RequestMetadata) {
-        listeners.forEach { (listener, executor) ->
-            executor.execute { listener.onRequestSequenceSubmitted(requestMetadata) }
-        }
+    override fun onRequestSequenceSubmitted(requestMetadata: RequestMetadata): Unit = dispatch {
+        it.onRequestSequenceSubmitted(requestMetadata)
     }
 
     override fun onStarted(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
         timestamp: CameraTimestamp,
-    ) {
-        listeners.forEach { (listener, executor) ->
-            executor.execute { listener.onStarted(requestMetadata, frameNumber, timestamp) }
-        }
-    }
+    ): Unit = dispatch { it.onStarted(requestMetadata, frameNumber, timestamp) }
 
     override fun onTotalCaptureResult(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
         totalCaptureResult: FrameInfo,
-    ) {
-        listeners.forEach { (listener, executor) ->
-            executor.execute {
-                listener.onTotalCaptureResult(requestMetadata, frameNumber, totalCaptureResult)
-            }
-        }
-    }
+    ): Unit = dispatch { it.onTotalCaptureResult(requestMetadata, frameNumber, totalCaptureResult) }
 }
 
 public fun RequestMetadata.containsTag(tagKey: String, tagValue: Any): Boolean =
-    getOrDefault(CAMERAX_TAG_BUNDLE, TagBundle.emptyBundle()).getTag(tagKey).let {
-        return it == tagValue
-    }
+    getOrDefault(CAMERAX_TAG_BUNDLE, TagBundle.emptyBundle()).getTag(tagKey) == tagValue

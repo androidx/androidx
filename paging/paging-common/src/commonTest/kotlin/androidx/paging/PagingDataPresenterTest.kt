@@ -2797,7 +2797,7 @@ private class HintReceiverFake : HintReceiver {
             return result
         }
 
-    override fun accessHint(viewportHint: ViewportHint) {
+    override fun processHint(viewportHint: ViewportHint) {
         _hints.add(viewportHint)
     }
 }
@@ -2827,9 +2827,9 @@ private class TrackableHintReceiverWrapper(private val receiver: HintReceiver? =
             return result
         }
 
-    override fun accessHint(viewportHint: ViewportHint) {
+    override fun processHint(viewportHint: ViewportHint) {
         _hints.add(viewportHint)
-        receiver?.accessHint(viewportHint)
+        receiver?.processHint(viewportHint)
     }
 }
 
@@ -2876,5 +2876,5 @@ internal val dummyUiReceiver =
 
 internal val dummyHintReceiver =
     object : HintReceiver {
-        override fun accessHint(viewportHint: ViewportHint) {}
+        override fun processHint(viewportHint: ViewportHint) {}
     }

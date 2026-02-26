@@ -60,8 +60,8 @@ fun FlexBoxAlignSelfDemo() {
 private fun FlexBoxRowAlignSelfSample() {
     FlexBox(
         config = {
-            direction = FlexDirection.Row
-            alignItems = FlexAlignItems.Start
+            direction(FlexDirection.Row)
+            alignItems(FlexAlignItems.Start)
         },
         modifier = Modifier.fillMaxWidth().border(1.dp, Color.Black),
     ) {
@@ -91,7 +91,7 @@ private fun FlexBoxRowAlignSelfSample() {
                     .height(50.dp)
                     .background(color = randomColor())
                     .border(1.dp, color = Color.Black)
-                    .flex { alignSelf = FlexAlignSelf.End }
+                    .flex { alignSelf(FlexAlignSelf.End) }
         ) {
             Text(text = "End", modifier = Modifier.align(Alignment.Center))
         }
@@ -102,7 +102,7 @@ private fun FlexBoxRowAlignSelfSample() {
                     .height(50.dp)
                     .background(color = randomColor())
                     .border(1.dp, color = Color.Black)
-                    .flex { alignSelf = FlexAlignSelf.Center }
+                    .flex { alignSelf(FlexAlignSelf.Center) }
         ) {
             Text(text = "Center", modifier = Modifier.align(Alignment.Center))
         }
@@ -112,7 +112,7 @@ private fun FlexBoxRowAlignSelfSample() {
                 Modifier.width(50.dp)
                     .background(color = randomColor())
                     .border(1.dp, color = Color.Black)
-                    .flex { alignSelf = FlexAlignSelf.Stretch }
+                    .flex { alignSelf(FlexAlignSelf.Stretch) }
         ) {
             Text(text = "Stretch", modifier = Modifier.align(Alignment.Center))
         }
@@ -124,8 +124,8 @@ private fun FlexBoxRowAlignSelfSample() {
 private fun FlexBoxColumnAlignSelfSample() {
     FlexBox(
         config = {
-            direction = FlexDirection.Column
-            alignItems = FlexAlignItems.Start
+            direction(FlexDirection.Column)
+            alignItems(FlexAlignItems.Start)
         },
         modifier = Modifier.height(300.dp).border(1.dp, Color.Black),
     ) {
@@ -155,7 +155,7 @@ private fun FlexBoxColumnAlignSelfSample() {
                     .width(50.dp)
                     .background(color = randomColor())
                     .border(1.dp, color = Color.Black)
-                    .flex { alignSelf = FlexAlignSelf.End }
+                    .flex { alignSelf(FlexAlignSelf.End) }
         ) {
             Text(text = "End", modifier = Modifier.align(Alignment.Center))
         }
@@ -166,7 +166,7 @@ private fun FlexBoxColumnAlignSelfSample() {
                     .width(50.dp)
                     .background(color = randomColor())
                     .border(1.dp, color = Color.Black)
-                    .flex { alignSelf = FlexAlignSelf.Center }
+                    .flex { alignSelf(FlexAlignSelf.Center) }
         ) {
             Text(text = "Center", modifier = Modifier.align(Alignment.Center))
         }
@@ -176,7 +176,7 @@ private fun FlexBoxColumnAlignSelfSample() {
                 Modifier.height(50.dp)
                     .background(color = randomColor())
                     .border(1.dp, color = Color.Black)
-                    .flex { alignSelf = FlexAlignSelf.Stretch }
+                    .flex { alignSelf(FlexAlignSelf.Stretch) }
         ) {
             Text(text = "Stretch", modifier = Modifier.align(Alignment.Center))
         }

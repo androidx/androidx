@@ -82,7 +82,6 @@ public abstract class WebResourceErrorCompat {
      */
     @RequiresFeature(name = WebViewFeature.NAVIGATION_GET_WEB_RESOURCE_ERROR,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public abstract int getDebugCode();
 
     /**

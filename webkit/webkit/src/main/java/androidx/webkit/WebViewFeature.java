@@ -731,7 +731,6 @@ public class WebViewFeature {
      * {@link Navigation#getWebResourceError()}
      * {@link WebResourceErrorCompat#getDebugCode()}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String NAVIGATION_GET_WEB_RESOURCE_ERROR =
             "NAVIGATION_GET_WEB_RESOURCE_ERROR";
 

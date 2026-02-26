@@ -302,7 +302,7 @@
     <string name="rows_demo_title" msgid="3198566660454251007">"Demo verzija redova"</string>
     <string name="text_icons_demo_title" msgid="8732943920672143201">"Demo verzije teksta i ikona"</string>
     <string name="row_text_icons_demo_title" msgid="135167694047524905">"Demo verzija redova s tekstom i ikonama"</string>
-    <string name="radio_button_list_demo_title" msgid="9082264324855338774">"Demo verzija lista s dugmadima za izbor"</string>
+    <string name="radio_button_list_demo_title" msgid="9082264324855338774">"Demo verzija lista s dugmadi za izbor"</string>
     <string name="selectable_lists_demo_title" msgid="5492658731113129386">"Demo verzija listi s odabirima"</string>
     <string name="option_1_title" msgid="7221252541651471199">"1. opcija"</string>
     <string name="option_2_title" msgid="1905146448697963818">"2. opcija"</string>

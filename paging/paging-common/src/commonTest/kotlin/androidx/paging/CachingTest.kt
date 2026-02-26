@@ -488,7 +488,7 @@ class CachingTest {
                         )
                         loadedPageCount += it.pages.size
                         if (items.size < expectedSize) {
-                            receiver.accessHint(
+                            receiver.processHint(
                                 ViewportHint.Access(
                                     pageOffset = loadedPageCount - 1,
                                     indexInPage = it.pages.last().data.size - 1,

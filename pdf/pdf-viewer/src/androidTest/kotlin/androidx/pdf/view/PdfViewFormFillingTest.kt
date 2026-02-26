@@ -100,6 +100,7 @@ class PdfViewFormFillingTest {
             "Test fails on cuttlefish b/466080956",
             Build.MODEL.contains("Cuttlefish", ignoreCase = true),
         )
+        val formWidgetRect = Rect(10, 10, 100, 100)
         val fakePdfDocument =
             FakePdfDocument(
                 pages = List(10) { Point(DEFAULT_WIDTH, DEFAULT_HEIGHT) },
@@ -110,7 +111,7 @@ class PdfViewFormFillingTest {
                             listOf(
                                 FormWidgetInfo.createRadioButton(
                                     widgetIndex = 0,
-                                    widgetRect = Rect(10, 10, 100, 100),
+                                    widgetRect = formWidgetRect,
                                     textValue = "TextField",
                                     accessibilityLabel = "TextField",
                                     isReadOnly = false,
@@ -141,7 +142,17 @@ class PdfViewFormFillingTest {
         // Confirm that fakePdfDocument.applyEdit is called.
         assertThat(formEditInfos).hasSize(1)
         assertThat(formEditInfos[0])
-            .isEqualTo(FormEditInfo.createClick(widgetIndex = 0, clickPoint = pdfClickPoint))
+            .isEqualTo(
+                FormEditInfo.createClick(
+                    widgetIndex = 0,
+                    clickPoint =
+                        PdfPoint(
+                            pdfClickPoint.pageNum,
+                            formWidgetRect.centerX().toFloat(),
+                            formWidgetRect.centerY().toFloat(),
+                        ),
+                )
+            )
     }
 
     @Test

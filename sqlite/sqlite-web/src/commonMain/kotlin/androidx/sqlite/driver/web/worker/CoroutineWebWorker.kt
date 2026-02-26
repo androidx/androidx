@@ -29,12 +29,17 @@ internal abstract class CoroutineWebWorker(worker: Worker) : WebWorkerWrapper(wo
     private val pendingMessages = mutableMapOf<Int, CompletableDeferred<WebWorkerMessage>>()
 
     override fun onMessage(message: WebWorkerMessage) {
-        val pendingCompletable =
-            pendingMessages[message.id]
-                ?: error("Error processing result, message id not found: ${message.id}.}")
-        val completed = pendingCompletable.complete(message)
-        if (!completed) {
-            error("Error processing result, message with id ${message.id} was already delivered.")
+        val pendingCompletable = pendingMessages[message.id]
+        if (pendingCompletable != null) {
+            val completed = pendingCompletable.complete(message)
+            if (!completed) {
+                error(
+                    "Error processing result, message with id ${message.id} was already delivered."
+                )
+            }
+        } else {
+            message.error?.let { onError(it) }
+                ?: error("Error processing result, message with id ${message.id} was not expected.")
         }
     }
 

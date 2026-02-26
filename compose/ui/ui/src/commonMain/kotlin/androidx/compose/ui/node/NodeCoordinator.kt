@@ -21,6 +21,7 @@ import androidx.collection.MutableScatterSet
 import androidx.collection.mutableObjectIntMapOf
 import androidx.collection.mutableScatterSetOf
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.FrameRateCategory
 import androidx.compose.ui.Modifier
@@ -56,6 +57,8 @@ import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.layout.positionOnScreen
+import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.semantics.isImportantForAccessibility
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -740,6 +743,10 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
     ) {
         if (this == null) {
             hitTestChild(hitTestSource, pointerPosition, hitTestResult, pointerType, isInLayer)
+        } else if (!hitTestSource.shouldHitTest(this)) {
+            // Transparent pass-through, as this node should be ignored by the hit test.
+            nextUntil(hitTestSource.entityType(), Nodes.Layout)
+                .hit(hitTestSource, pointerPosition, hitTestResult, pointerType, isInLayer)
         } else {
             hitTestResult.hit(this, isInLayer) {
                 nextUntil(hitTestSource.entityType(), Nodes.Layout)
@@ -778,6 +785,18 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
     ) {
         if (this == null) {
             hitTestChild(hitTestSource, pointerPosition, hitTestResult, pointerType, isInLayer)
+        } else if (!hitTestSource.shouldHitTest(this)) {
+            // Transparent pass-through, as this node should be ignored by the hit test.
+            nextUntil(hitTestSource.entityType(), Nodes.Layout)
+                .outOfBoundsHit(
+                    hitTestSource,
+                    pointerPosition,
+                    hitTestResult,
+                    pointerType,
+                    isInLayer,
+                    distanceFromEdge,
+                    isHitInMinimumTouchTargetBetter,
+                )
         } else if (isInExpandedTouchBounds(pointerPosition, pointerType)) {
             hitTestResult.hitExpandedTouchBounds(this, isInLayer) {
                 nextUntil(hitTestSource.entityType(), Nodes.Layout)
@@ -826,6 +845,17 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
     ) {
         if (this == null) {
             hitTestChild(hitTestSource, pointerPosition, hitTestResult, pointerType, isInLayer)
+        } else if (!hitTestSource.shouldHitTest(this)) {
+            // Transparent pass-through, as this node should be ignored by the hit test.
+            nextUntil(hitTestSource.entityType(), Nodes.Layout)
+                .hitNear(
+                    hitTestSource,
+                    pointerPosition,
+                    hitTestResult,
+                    pointerType,
+                    isInLayer,
+                    distanceFromEdge,
+                )
         } else {
             // Hit closer than existing handlers, so just record it
             hitTestResult.hitInMinimumTouchTarget(this, distanceFromEdge, isInLayer) {
@@ -857,6 +887,17 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
     ) {
         if (this == null) {
             hitTestChild(hitTestSource, pointerPosition, hitTestResult, pointerType, isInLayer)
+        } else if (!hitTestSource.shouldHitTest(this)) {
+            // Transparent pass-through, as this node should be ignored by the hit test.
+            nextUntil(hitTestSource.entityType(), Nodes.Layout)
+                .speculativeHit(
+                    hitTestSource,
+                    pointerPosition,
+                    hitTestResult,
+                    pointerType,
+                    isInLayer,
+                    distanceFromEdge,
+                )
         } else if (hitTestSource.interceptOutOfBoundsChildEvents(this)) {
             // We only want to replace the existing touch target if there are better
             // hits in the children
@@ -1524,6 +1565,28 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
             pointerType: PointerType,
             isInLayer: Boolean,
         )
+
+        /**
+         * Returns false if the hit test should bypass this node and transparently continue to its
+         * children.
+         */
+        fun shouldHitTest(node: Modifier.Node): Boolean = true
+
+        /**
+         * Called when a hit is found within [child] to process the hit and decide whether to share
+         * it with siblings.
+         *
+         * This method provides an opportunity for the [HitTestSource] to process the hit (for
+         * example, by calling [HitTestResult.acceptHits] to lock in the hit path depth and allow
+         * siblings to also be hit) and to determine whether hit testing should continue to evaluate
+         * [child]'s siblings.
+         *
+         * @param hitTestResult The [HitTestResult] being populated with the hit path.
+         * @param child The [LayoutNode] where the hit occurred.
+         * @return `true` to continue evaluating the remaining siblings of [child], or `false` to
+         *   halt the search and exclusively use the current hit path.
+         */
+        fun shareWithSiblings(hitTestResult: HitTestResult, child: LayoutNode): Boolean
     }
 
     internal companion object {
@@ -1568,6 +1631,17 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
                     pointerType: PointerType,
                     isInLayer: Boolean,
                 ) = layoutNode.hitTest(pointerPosition, hitTestResult, pointerType, isInLayer)
+
+                override fun shareWithSiblings(
+                    hitTestResult: HitTestResult,
+                    child: LayoutNode,
+                ): Boolean {
+                    if (child.outerCoordinator.shouldSharePointerInputWithSiblings()) {
+                        hitTestResult.acceptHits()
+                        return true
+                    }
+                    return false
+                }
             }
 
         /** Hit testing specifics for semantics. */
@@ -1593,6 +1667,23 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
                         pointerType,
                         isInLayer,
                     )
+
+                override fun shouldHitTest(node: Modifier.Node): Boolean {
+                    @OptIn(ExperimentalComposeUiApi::class)
+                    if (!ComposeUiFlags.isSkipNonImportantSemanticsNodesHitTestEnabled) return true
+
+                    return SemanticsNode(node.requireLayoutNode(), mergingEnabled = false)
+                        .isImportantForAccessibility()
+                }
+
+                override fun shareWithSiblings(
+                    hitTestResult: HitTestResult,
+                    child: LayoutNode,
+                ): Boolean {
+                    // Semantics hit testing never shares pointer input with siblings once a
+                    // semantic hit is found.
+                    return false
+                }
             }
     }
 }

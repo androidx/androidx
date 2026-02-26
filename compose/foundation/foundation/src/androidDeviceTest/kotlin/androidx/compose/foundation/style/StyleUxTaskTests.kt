@@ -642,8 +642,7 @@ private fun BaseStyleableButton(
     content: @Composable RowScope.() -> Unit,
 ) {
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
-    val styleState = remember(interactionSource) { MutableStyleState(interactionSource) }
-    styleState.isEnabled = enabled
+    val styleState = rememberUpdatedStyleState(interactionSource) { it.isEnabled = enabled }
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
@@ -779,9 +778,11 @@ private fun StyledSwitch(
     content: @Composable RowScope.() -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    val styleState = remember(interactionSource) { MutableStyleState(interactionSource) }
-    styleState.isEnabled = enabled
-    styleState.isChecked = checked
+    val styleState =
+        rememberUpdatedStyleState(interactionSource) {
+            it.isEnabled = enabled
+            it.isChecked = checked
+        }
     Row(
         modifier =
             modifier

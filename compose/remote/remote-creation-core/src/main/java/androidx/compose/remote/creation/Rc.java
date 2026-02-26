@@ -869,6 +869,10 @@ public class Rc {
         public static final int LEGACY_MODE =
                 androidx.compose.remote.core.operations.TextFromFloat.LEGACY_MODE;
 
+        /** Legacy compatibility mode grouping & separator ignored */
+        public static final int FULL_FORMAT =
+                androidx.compose.remote.core.operations.TextFromFloat.FULL_FORMAT;
+
     }
 
     /** Used in Texture */

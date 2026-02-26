@@ -89,14 +89,12 @@ internal class CameraGraphSessionImpl(
     }
 
     override fun close() {
-        // Apply any pending changes to parameters. Since we are already holding a session it's
-        // good to apply them, so that we avoid acquisition of a new session.
+        // Since we are already holding a session, it's good to flush any pending changes to
+        // parameters and listeners. This can potentially save any new session creation or code to
+        // that was meant to apply them in the first place.
         parameters.flush()
+        listeners.flush()
 
-        val unappliedListeners = listeners.fetchUpdatedListeners()
-        if (unappliedListeners != null) {
-            graphProcessor.updateRequestListeners(unappliedListeners)
-        }
         token.release()
     }
 

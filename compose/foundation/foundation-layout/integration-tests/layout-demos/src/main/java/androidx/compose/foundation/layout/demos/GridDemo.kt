@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.GridScope
 import androidx.compose.foundation.layout.GridTrackSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.columns
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -83,6 +84,7 @@ fun GridDemo() {
         Spacer(Modifier.height(32.dp))
         ResponsiveConstraintsDemo()
         Spacer(Modifier.height(32.dp))
+        AspectRatioDemo()
     }
 }
 
@@ -477,6 +479,34 @@ private fun ResponsiveConstraintsDemo() {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun AspectRatioDemo() {
+    DemoHeader("Aspect Ratio in Flex Tracks")
+    Text(
+        "Aspect ratio modifiers should be respected within flexible tracks without exploding grid bounds.",
+        fontSize = 12.sp,
+        fontStyle = FontStyle.Italic,
+        modifier = Modifier.padding(bottom = 8.dp),
+    )
+
+    Grid(
+        config = {
+            column(160.dp)
+            column(1.fr)
+            row(90.dp)
+            row(1.fr)
+            gap(8.dp)
+        },
+        modifier = Modifier.height(300.dp).fillMaxWidth().border(1.dp, Color.Gray).padding(8.dp),
+    ) {
+        val modifier = Modifier.aspectRatio(16f / 9f).fillMaxSize()
+        GridDemoItem("Fixed / Fixed", modifier = modifier, row = 1, column = 1, color = Color.Red)
+        GridDemoItem("Flex / Fixed", modifier = modifier, row = 1, column = 2, color = Color.Blue)
+        GridDemoItem("Fixed / Flex", modifier = modifier, row = 2, column = 1, color = Color.Green)
+        GridDemoItem("Flex / Flex", modifier = modifier, row = 2, column = 2, color = Color.Yellow)
     }
 }
 

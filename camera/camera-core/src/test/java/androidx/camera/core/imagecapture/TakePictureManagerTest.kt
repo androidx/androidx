@@ -58,8 +58,14 @@ class TakePictureManagerTest {
 
     @After
     fun tearDown() {
+        // Force-fail all pending and in-flight requests
+        takePictureManager.abortRequests()
+
         imagePipeline.close()
         imageCaptureControl.clear()
+
+        // Process any pending looper updates to prevent leaks
+        shadowOf(getMainLooper()).idle()
     }
 
     @Test
@@ -448,6 +454,9 @@ class TakePictureManagerTest {
 
         // Assert. new request can be issued after the capture failure of the first request
         takePictureManager.offerRequest(request2)
+
+        // Drain the failure callback of request2 to prevent cross-test leaks
+        shadowOf(getMainLooper()).idle()
     }
 
     @Test
@@ -470,6 +479,9 @@ class TakePictureManagerTest {
 
         // Assert. new request can be issued after the capture failure of the first request
         takePictureManager.offerRequest(request2)
+
+        // Drain the failure callback of request2 to prevent cross-test leaks
+        shadowOf(getMainLooper()).idle()
     }
 
     @Test

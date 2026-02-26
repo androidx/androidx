@@ -1,5 +1,5 @@
 import androidx.room3.RoomDatabase
-import androidx.room3.rxjava3.Rx3DaoReturnTypeConverters
+import androidx.room3.rxjava3.RxDaoReturnTypeConverters
 import androidx.room3.util.appendPlaceholders
 import androidx.room3.util.getColumnIndexOrThrow
 import androidx.room3.util.performSuspending
@@ -27,8 +27,7 @@ internal class MyDao_Impl(
 ) : MyDao {
   private val __db: RoomDatabase
 
-  private val __rx3DaoReturnTypeConverters: Rx3DaoReturnTypeConverters =
-      Rx3DaoReturnTypeConverters()
+  private val __rxDaoReturnTypeConverters: RxDaoReturnTypeConverters = RxDaoReturnTypeConverters()
   init {
     this.__db = __db
   }
@@ -40,7 +39,7 @@ internal class MyDao_Impl(
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
-    return __rx3DaoReturnTypeConverters.convertFlowable(__db, arrayOf("MyEntity")) {
+    return __rxDaoReturnTypeConverters.convertFlowable(__db, arrayOf("MyEntity")) {
       performSuspending(__db, true, false) { _connection ->
         val _stmt: SQLiteStatement = _connection.prepare(_sql)
         try {
@@ -80,7 +79,7 @@ internal class MyDao_Impl(
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
-    return __rx3DaoReturnTypeConverters.convertFlowable(__db, arrayOf("MyEntity")) {
+    return __rxDaoReturnTypeConverters.convertFlowable(__db, arrayOf("MyEntity")) {
       performSuspending(__db, true, false) { _connection ->
         val _stmt: SQLiteStatement = _connection.prepare(_sql)
         try {
@@ -121,7 +120,7 @@ internal class MyDao_Impl(
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
-    return __rx3DaoReturnTypeConverters.convertObservable(__db, arrayOf("MyEntity")) {
+    return __rxDaoReturnTypeConverters.convertObservable(__db, arrayOf("MyEntity")) {
       performSuspending(__db, true, false) { _connection ->
         val _stmt: SQLiteStatement = _connection.prepare(_sql)
         try {
@@ -161,7 +160,7 @@ internal class MyDao_Impl(
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
-    return __rx3DaoReturnTypeConverters.convertSingle(__db) {
+    return __rxDaoReturnTypeConverters.convertSingle(__db) {
       performSuspending(__db, true, false) { _connection ->
         val _stmt: SQLiteStatement = _connection.prepare(_sql)
         try {
@@ -201,7 +200,7 @@ internal class MyDao_Impl(
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
-    return __rx3DaoReturnTypeConverters.convertMaybe(__db) {
+    return __rxDaoReturnTypeConverters.convertMaybe(__db) {
       performSuspending(__db, true, false) { _connection ->
         val _stmt: SQLiteStatement = _connection.prepare(_sql)
         try {
@@ -241,7 +240,7 @@ internal class MyDao_Impl(
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
-    return __rx3DaoReturnTypeConverters.convertMaybe(__db) {
+    return __rxDaoReturnTypeConverters.convertMaybe(__db) {
       performSuspending(__db, true, false) { _connection ->
         val _stmt: SQLiteStatement = _connection.prepare(_sql)
         try {
@@ -281,7 +280,7 @@ internal class MyDao_Impl(
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
-    return __rx3DaoReturnTypeConverters.convertMaybe(__db) {
+    return __rxDaoReturnTypeConverters.convertMaybe(__db) {
       performSuspending(__db, true, false) { _connection ->
         val _stmt: SQLiteStatement = _connection.prepare(_sql)
         try {

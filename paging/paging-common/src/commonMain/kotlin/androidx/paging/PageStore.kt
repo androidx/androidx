@@ -128,7 +128,7 @@ internal class PageStore<T : Any>(
         )
     }
 
-    fun accessHintForPresenterIndex(index: Int): ViewportHint.Access {
+    fun createAccessHintForIndex(index: Int): ViewportHint.Access {
         var pageIndex = 0
         var indexInPage = index - placeholdersBefore
         while (indexInPage >= pages[pageIndex].data.size && pageIndex < pages.lastIndex) {

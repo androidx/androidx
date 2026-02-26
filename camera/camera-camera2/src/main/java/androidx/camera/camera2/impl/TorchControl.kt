@@ -172,12 +172,7 @@ constructor(
 
                     requestControl.setTorchOnAsync()
                 } else requestControl.setTorchOffAsync(aeMode)
-            deferred.propagateTo(signal) {
-                // TODO: b/209757083 - handle the failed result of the setTorchAsync().
-                //   Since we are not handling the result here, signal is completed with Unit
-                //   value here without exception when source deferred completes (returning Unit
-                //   explicitly is redundant and thus this block looks empty)
-            }
+            deferred.invokeOnCompletion { signal.complete(Unit) }
         }
             ?: run {
                 signal.createFailureResult(
@@ -229,7 +224,9 @@ constructor(
 
             val parameters: MutableMap<CaptureRequest.Key<*>, Any> = mutableMapOf()
             Api35Compat.setFlashStrengthLevel(parameters, level)
-            requestControl?.setParametersAsync(values = parameters)?.propagateTo(signal)
+            requestControl?.setParametersAsync(values = parameters)?.invokeOnCompletion {
+                signal.complete(Unit)
+            }
                 ?: run {
                     signal.createFailureResult(
                         CameraControl.OperationCanceledException("Camera is not active.")

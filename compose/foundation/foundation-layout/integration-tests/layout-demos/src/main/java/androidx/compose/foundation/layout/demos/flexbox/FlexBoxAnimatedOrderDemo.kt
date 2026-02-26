@@ -70,8 +70,8 @@ fun FlexBoxAnimatedOrderDemo() {
         LookaheadScope {
             FlexBox(
                 config = {
-                    direction = FlexDirection.Row
-                    wrap = FlexWrap.Wrap
+                    direction(FlexDirection.Row)
+                    wrap(FlexWrap.Wrap)
                     gap(8.dp)
                 },
                 modifier =
@@ -80,7 +80,7 @@ fun FlexBoxAnimatedOrderDemo() {
                 for (i in 0 until itemCount) {
                     Box(
                         modifier =
-                            Modifier.flex { order = itemOrders[i] }
+                            Modifier.flex { order(itemOrders[i]) }
                                 .animateBounds(
                                     lookaheadScope = this@LookaheadScope,
                                     modifier = Modifier.size(80.dp),

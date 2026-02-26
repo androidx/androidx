@@ -20,6 +20,7 @@ import androidx.room3.compiler.codegen.XCodeBlock
 import androidx.room3.compiler.codegen.XTypeName
 import androidx.room3.compiler.processing.XType
 import androidx.room3.solver.CodeGenScope
+import androidx.room3.vo.ExecuteAndReturnLambda
 
 /**
  * Internal compiler representation of a DAO return type adapter.
@@ -36,11 +37,8 @@ import androidx.room3.solver.CodeGenScope
  */
 abstract class DaoReturnTypeConverter(val to: XType) {
     abstract val isSuspend: Boolean
-
-    // A value of `-1` indicates that the row adapter does not have a type argument.
-    abstract val rowAdapterTypeArgPosition: Int
-    abstract val hasNullableLambdaReturnType: Boolean
     abstract val requiredFunctionParamTypes: List<XType>
+    abstract val executeAndReturnLambda: ExecuteAndReturnLambda
 
     /**
      * Returns a [XCodeBlock] that will compute the converted [to] value.

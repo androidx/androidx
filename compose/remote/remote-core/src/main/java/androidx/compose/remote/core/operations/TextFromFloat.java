@@ -57,6 +57,8 @@ public class TextFromFloat extends Operation implements VariableSupport, Seriali
     byte mGroup = GROUPING_NONE;
     byte mSeparator = SEPARATOR_PERIOD_COMMA;
     int mOptions;
+    boolean mFullFormat = false;
+
     // Theses flags define what how to/if  fill the space
     public static final int PAD_AFTER_SPACE = 0; // pad past point with space
     public static final int PAD_AFTER_NONE = 1; // do not pad past last digit
@@ -76,6 +78,8 @@ public class TextFromFloat extends Operation implements VariableSupport, Seriali
     public static final int OPTIONS_NEGATIVE_PARENTHESES = 1 << 8; // e.g. (890.12)
     public static final int OPTIONS_ROUNDING = 2 << 8; // Default is simple clipping
     public static final int LEGACY_MODE = 1 << 10; // Default is simple clipping
+    public static final int FULL_FORMAT = 1 << 9; // ignore all of the above full fidelity
+
     // the flags are critical
     // A = pad after
     // P = pad before
@@ -149,6 +153,9 @@ public class TextFromFloat extends Operation implements VariableSupport, Seriali
             mOptions |= OPTIONS_NEGATIVE_PARENTHESES >> 8;
         }
         mLegacy = (mFlags & LEGACY_MODE) != 0;
+        if ((mFlags & FULL_FORMAT) != 0) {
+            mFullFormat = true;
+        }
     }
 
     @Override
@@ -264,6 +271,11 @@ public class TextFromFloat extends Operation implements VariableSupport, Seriali
     public void apply(@NonNull RemoteContext context) {
         float v = mOutValue;
         String s;
+        if (mFullFormat) {
+            s = Float.toString(v);
+            context.loadText(mTextId, s);
+            return;
+        }
         if (mLegacy) {
             s = StringUtils.floatToString(v, mDigitsBefore, mDigitsAfter, mPre, mAfter);
         } else {

@@ -24,14 +24,12 @@ import androidx.annotation.GuardedBy
 import androidx.annotation.OptIn
 import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.adapter.CameraStateAdapter
-import androidx.camera.camera2.adapter.GraphStateToCameraStateAdapter
 import androidx.camera.camera2.adapter.SessionConfigAdapter
 import androidx.camera.camera2.adapter.SupportedSurfaceCombination
 import androidx.camera.camera2.adapter.ZslControl
 import androidx.camera.camera2.config.CameraScope
 import androidx.camera.camera2.config.UseCaseCameraComponent
 import androidx.camera.camera2.config.UseCaseCameraConfig
-import androidx.camera.camera2.config.UseCaseGraphContext
 import androidx.camera.camera2.internal.DynamicRangeResolver
 import androidx.camera.camera2.interop.Camera2CameraControl
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
@@ -156,9 +154,6 @@ constructor(
     @Volatile private var _activeComponent: UseCaseCameraComponent? = null
     public val camera: UseCaseCamera?
         get() = _activeComponent?.getUseCaseCamera()
-
-    public val useCaseGraphContext: UseCaseGraphContext?
-        get() = _activeComponent?.getUseCaseGraphContext()
 
     private val closingCameraJobs = mutableListOf<Job>()
 
@@ -377,21 +372,23 @@ constructor(
             }
         }
 
-        val graphStateToCameraStateAdapter = GraphStateToCameraStateAdapter(cameraStateAdapter)
-        val useCamera2Extension =
-            sessionProcessor?.implementationType?.first == SessionProcessor.TYPE_CAMERA2_EXTENSION
-        val sessionConfigAdapter = SessionConfigAdapter(useCases, isPrimary = isPrimary)
-
+        val extensionMode =
+            sessionProcessor?.implementationType?.let { implType ->
+                if (implType.first == SessionProcessor.TYPE_CAMERA2_EXTENSION) {
+                    implType.second
+                } else {
+                    null
+                }
+            }
         // Enables extensions with the Camera2 Extensions approach if extension mode is requested.
-        if (useCamera2Extension) {
+        if (extensionMode != null) {
             Camera2Logger.debug { "Setting up UseCaseManager with OperatingMode.EXTENSION" }
             sessionProcessor!!.initSession(cameraInfoInternal.get(), null)
         }
         tryResumeUseCaseManager(
             createUseCaseCameraConfig(
-                graphStateToCameraStateAdapter = graphStateToCameraStateAdapter,
-                sessionConfigAdapter = sessionConfigAdapter,
-                isExtensions = useCamera2Extension,
+                sessionConfigAdapter = SessionConfigAdapter(useCases, isPrimary = isPrimary),
+                extensionMode = extensionMode,
             )
         )
     }
@@ -399,16 +396,15 @@ constructor(
     @VisibleForTesting
     internal fun createUseCaseCameraConfig(
         sessionConfigAdapter: SessionConfigAdapter,
-        graphStateToCameraStateAdapter: GraphStateToCameraStateAdapter,
-        isExtensions: Boolean = false,
+        extensionMode: Int?,
     ): UseCaseCameraConfig {
         return UseCaseCameraConfig.create(
             cameraGraphConfigProvider = cameraGraphConfigProvider,
             sessionConfigAdapter = sessionConfigAdapter,
-            graphStateToCameraStateAdapter = graphStateToCameraStateAdapter,
             cameraGraphFactory = defaultCameraGraphFactory,
+            cameraStateAdapter = cameraStateAdapter,
             sessionProcessor = sessionProcessor,
-            isExtensions = isExtensions,
+            extensionMode = extensionMode,
         )
     }
 

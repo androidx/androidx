@@ -24,7 +24,6 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.nativePaint
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
@@ -32,6 +31,7 @@ import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.debugInspectorInfo
 
+@Suppress("DEPRECATION") // Reason: https://paste.googleplex.com/5371292946661376#l=14
 @Composable
 internal fun Modifier.tvSurfaceGlow(shape: Shape, glow: Glow): Modifier {
     val color =
@@ -90,6 +90,7 @@ private class SurfaceGlowElement(
     }
 }
 
+@Suppress("DEPRECATION") // Reason: https://paste.googleplex.com/5371292946661376#l=14
 private class SurfaceGlowNode(
     private var shape: Shape,
     private var glowBlurRadiusPx: Float,
@@ -161,7 +162,7 @@ private class SurfaceGlowNode(
 
     private fun initializePaint() {
         paint = Paint()
-        frameworkPaint = paint!!.nativePaint
+        frameworkPaint = paint!!.asFrameworkPaint()
     }
 
     private fun setShadowLayer() {

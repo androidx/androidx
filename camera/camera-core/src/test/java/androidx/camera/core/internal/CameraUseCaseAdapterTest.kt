@@ -21,6 +21,7 @@ import android.graphics.ImageFormat.JPEG_R
 import android.graphics.ImageFormat.RAW_SENSOR
 import android.graphics.Matrix
 import android.graphics.Rect
+import android.os.Looper.getMainLooper
 import android.util.Range
 import android.util.Rational
 import android.util.Size
@@ -106,6 +107,7 @@ import org.mockito.ArgumentMatchers.isNull
 import org.mockito.Mockito.spy
 import org.mockito.Mockito.verify
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.internal.DoNotInstrument
 
 private const val CAMERA_ID = "0"
@@ -170,6 +172,9 @@ class CameraUseCaseAdapterTest {
         for (adapter in adaptersToDetach) {
             adapter.removeAllUseCases()
         }
+
+        // Process any pending looper updates to prevent leaks
+        shadowOf(getMainLooper()).idle()
     }
 
     @Test(expected = CameraException::class)

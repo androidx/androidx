@@ -23,6 +23,12 @@ abstract class <#A: kotlin/Any> androidx.room3.paging/LimitOffsetPagingSource : 
     open suspend fun load(androidx.paging/PagingSource.LoadParams<kotlin/Int>): androidx.paging/PagingSource.LoadResult<kotlin/Int, #A> // androidx.room3.paging/LimitOffsetPagingSource.load|load(androidx.paging.PagingSource.LoadParams<kotlin.Int>){}[0]
 }
 
+final class androidx.room3.paging/PagingSourceDaoReturnTypeConverter { // androidx.room3.paging/PagingSourceDaoReturnTypeConverter|null[0]
+    constructor <init>() // androidx.room3.paging/PagingSourceDaoReturnTypeConverter.<init>|<init>(){}[0]
+
+    final fun <#A1: kotlin/Any> convert(androidx.room3/RoomDatabase, kotlin/Array<kotlin/String>, androidx.room3/RoomRawQuery, kotlin.coroutines/SuspendFunction1<androidx.room3/RoomRawQuery, kotlin.collections/List<#A1>>): androidx.paging/PagingSource<kotlin/Int, #A1> // androidx.room3.paging/PagingSourceDaoReturnTypeConverter.convert|convert(androidx.room3.RoomDatabase;kotlin.Array<kotlin.String>;androidx.room3.RoomRawQuery;kotlin.coroutines.SuspendFunction1<androidx.room3.RoomRawQuery,kotlin.collections.List<0:0>>){0§<kotlin.Any>}[0]
+}
+
 final const val androidx.room3.paging.util/INITIAL_ITEM_COUNT // androidx.room3.paging.util/INITIAL_ITEM_COUNT|{}INITIAL_ITEM_COUNT[0]
     final fun <get-INITIAL_ITEM_COUNT>(): kotlin/Int // androidx.room3.paging.util/INITIAL_ITEM_COUNT.<get-INITIAL_ITEM_COUNT>|<get-INITIAL_ITEM_COUNT>(){}[0]
 

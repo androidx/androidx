@@ -51,8 +51,8 @@
     <string name="zoomed_in_toast_msg" msgid="8915301497303842649">"Herangezoomt"</string>
     <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"Herausgezoomt"</string>
     <string name="triggered_toast_msg" msgid="3396166539208366382">"Ausgelöst"</string>
-    <string name="primary_toast_msg" msgid="7153771322662005447">"Primäre Schaltfläche gedrückt"</string>
-    <string name="search_toast_msg" msgid="7826530065407699347">"Schaltfläche „Suchen“ gedrückt"</string>
+    <string name="primary_toast_msg" msgid="7153771322662005447">"Primärer Button gedrückt"</string>
+    <string name="search_toast_msg" msgid="7826530065407699347">"Button „Suchen“ gedrückt"</string>
     <string name="options_toast_msg" msgid="2146223786877557730">"Optionsschaltfläche gedrückt"</string>
     <string name="favorite_toast_msg" msgid="522064494016370117">"Favorit!"</string>
     <string name="not_favorite_toast_msg" msgid="6831181108681007428">"Kein Favorit!"</string>
@@ -66,12 +66,12 @@
     <string name="settings_toast_msg" msgid="7697794473002342727">"Einstellungen angeklickt"</string>
     <string name="parked_toast_msg" msgid="2532422265890824446">"Aktion „Geparkt“"</string>
     <string name="more_toast_msg" msgid="5938288138225509885">"„Mehr“ angeklickt"</string>
-    <string name="commute_toast_msg" msgid="4112684360647638688">"Schaltfläche für Arbeitsweg gedrückt"</string>
+    <string name="commute_toast_msg" msgid="4112684360647638688">"Button für Arbeitsweg gedrückt"</string>
     <string name="grant_location_permission_toast_msg" msgid="268046297444808010">"Standortermittlung erlauben, um aktuellen Standort anzuzeigen"</string>
     <string name="sign_in_with_google_toast_msg" msgid="5720947549233124775">"Über Google anmelden beginnt hier"</string>
     <string name="changes_selection_to_index_toast_msg_prefix" msgid="957766225794389167">"Auswahl auf Index geändert"</string>
-    <string name="yes_action_toast_msg" msgid="6216215197177241247">"Schaltfläche „Ja“ gedrückt."</string>
-    <string name="no_action_toast_msg" msgid="6165492423831023809">"Schaltfläche „Nein“ gedrückt."</string>
+    <string name="yes_action_toast_msg" msgid="6216215197177241247">"Button „Ja“ gedrückt."</string>
+    <string name="no_action_toast_msg" msgid="6165492423831023809">"Button „Nein“ gedrückt."</string>
     <string name="alert_timeout_toast_msg" msgid="5568380708832805374">"Zeitüberschreitung bei Benachrichtigung."</string>
     <string name="first_row_title" msgid="219428344573165351">"Zeile mit großem Bild und langem Text langem Text langem Text langem Text langem Text"</string>
     <string name="first_row_text" msgid="3887390298628338716">"Text Text Text"</string>
@@ -265,7 +265,7 @@
     <string name="pin_sign_in_instruction" msgid="2288691296234360441">"Gib diese PIN auf deinem Telefon ein"</string>
     <string name="qr_code_sign_in_title" msgid="8137070561006464518">"Zum Anmelden QR-Code scannen"</string>
     <string name="sign_in_with_google_title" msgid="8043752000786977249">"Über Google anmelden"</string>
-    <string name="provider_sign_in_instruction" msgid="7586815688292506743">"Schließe mit dieser Schaltfläche dein Google Log-in ab"</string>
+    <string name="provider_sign_in_instruction" msgid="7586815688292506743">"Schließe mit diesem Button deinen Google Log-in ab"</string>
     <string name="sign_in_complete_text" msgid="8423984266325680606">"Du bist angemeldet!"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"Anmeldung abgeschlossen"</string>
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"Anmeldungsvorlagendemo"</string>
@@ -317,18 +317,18 @@
     <string name="task_step_of_text" msgid="4646729781462227219">"Klicken, um fortzufahren"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Bitte rufe die verschiedenen Vorlagen auf und achte darauf, dass sich das Auto im Fahrmodus befindet"</string>
     <string name="toggle_button_demo_title" msgid="3179103600967398928">"Demo des Ein-/Aus-Buttons"</string>
-    <string name="toggle_test_title" msgid="924485265152862631">"Test der Ein-/Aus-Schaltfläche"</string>
+    <string name="toggle_test_title" msgid="924485265152862631">"Test des Ein/Aus-Buttons"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Zustandsorientierte Änderungen sind erlaubt"</string>
-    <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"Test der Ein-/Aus-Schaltfläche aktivieren"</string>
-    <string name="toggle_test_first_toggle_text" msgid="5914741538328669668">"Klicke diese Option an, um den Test der Ein-/Aus-Schaltfläche zu aktivieren"</string>
-    <string name="toggle_test_second_toggle_title" msgid="1083594617400613969">"Test der Ein-/Aus-Schaltfläche"</string>
+    <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"Test des Ein/Aus-Buttons aktivieren"</string>
+    <string name="toggle_test_first_toggle_text" msgid="5914741538328669668">"Klicke diese Option an, um den Test des Ein/Aus-Buttons zu aktivieren"</string>
+    <string name="toggle_test_second_toggle_title" msgid="1083594617400613969">"Test des Ein/Aus-Buttons"</string>
     <string name="toggle_test_second_toggle_text" msgid="1813071017415876745">"Zustandsorientierte Änderungen sind erlaubt"</string>
     <string name="image_test_title" msgid="8273863429801477547">"Bildtest"</string>
     <string name="image_test_text" msgid="6264812093895530445">"Bildänderungen sind erlaubt"</string>
     <string name="additional_data_title" msgid="3546689652240300617">"Zusätzliche Daten"</string>
     <string name="additional_data_text" msgid="2846223398214158872">"Updates beim Zurückgehen erlaubt."</string>
-    <string name="toggle_test_enabled" msgid="982370904182034076">"Test der Ein-/Aus-Schaltfläche aktiviert"</string>
-    <string name="toggle_test_disabled" msgid="8366040658408451664">"Test der Ein-/Aus-Schaltfläche deaktiviert"</string>
+    <string name="toggle_test_enabled" msgid="982370904182034076">"Test des Ein/Aus-Buttons aktiviert"</string>
+    <string name="toggle_test_disabled" msgid="8366040658408451664">"Test des Ein/Aus-Buttons deaktiviert"</string>
     <string name="secondary_actions_decoration_button_demo_title" msgid="3710817648501132309">"Demo der sekundären Aktion und der Dekoration"</string>
     <string name="secondary_actions_test_title" msgid="3664453747553733613">"Test für sekundäre Aktion"</string>
     <string name="secondary_actions_test_subtitle" msgid="6985282813402073703">"Nur die sekundäre Aktion kann ausgewählt werden"</string>

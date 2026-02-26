@@ -18,7 +18,7 @@ import sqlite3InitModule from '@sqlite.org/sqlite-wasm';
 
 let sqlite3 = null;
 
-// Maps to track of active database connections and prepared statements by their unique IDs.
+// Maps to track active database connections and prepared statements by their unique IDs.
 const databases = new Map(); // stores databaseId -> SQLiteDbObject
 const statements = new Map(); // stores statementId -> SQLiteStatementObject
 
@@ -73,8 +73,8 @@ function stepRequest(id, requestData) {
             'rows': [],
             'columnTypes': []
         };
-        statement.reset()
-        statement.clearBindings()
+        statement.reset();
+        statement.clearBindings();
         for (let i = 0; i < requestData.bindings.length; i++) {
             statement.bind(i + 1, requestData.bindings[i]);
         }
@@ -93,7 +93,7 @@ function stepRequest(id, requestData) {
 }
 
 function closeRequest(id, requestData) {
-    if (requestData.statementId) {
+    if (requestData.statementId !== undefined && requestData.statementId != null) {
         const statement = statements.get(requestData.statementId);
         if (!statement) {
             postMessage({'id': id, error: "Invalid statement ID: " + requestData.statementId});
@@ -107,7 +107,7 @@ function closeRequest(id, requestData) {
         }
     }
 
-    if (requestData.databaseId) {
+    if (requestData.databaseId !== undefined && requestData.databaseId != null) {
         const database = databases.get(requestData.databaseId);
         if (!database) {
             postMessage({'id': id, error: "Invalid database ID: " + requestData.databaseId});

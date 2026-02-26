@@ -42,14 +42,11 @@ internal constructor(
     }
 
     public override fun addAll(listeners: List<Request.Listener>) {
-        var invokeUpdate = false
-        synchronized(lock) {
-            val modified = this.listeners.addAll(listeners)
-            if (modified && !dirty) {
-                dirty = true
-                invokeUpdate = true
+        val invokeUpdate =
+            synchronized(lock) {
+                val modified = this.listeners.addAll(listeners)
+                shouldApplyUpdate(modified)
             }
-        }
         if (invokeUpdate) {
             applyUpdate()
         }
@@ -60,32 +57,45 @@ internal constructor(
     }
 
     public override fun removeAll(listeners: List<Request.Listener>) {
-        var invokeUpdate = false
-        synchronized(lock) {
-            val modified = this.listeners.removeAll(listeners)
-            if (modified && !dirty) {
-                dirty = true
-                invokeUpdate = true
+        val invokeUpdate =
+            synchronized(lock) {
+                val modified = this.listeners.removeAll(listeners.toSet())
+                shouldApplyUpdate(modified)
             }
-        }
         if (invokeUpdate) {
             applyUpdate()
         }
     }
 
-    internal fun fetchUpdatedListeners(): List<Request.Listener>? {
-        synchronized(lock) {
-            if (!dirty) return null
-
-            dirty = false
-            return listeners.toList()
+    // We should apply the update only if the listener set is modified, and we are the one setting
+    // "dirty" to true. If the "dirty" flag was already true then someone else should "flush" the
+    // listeners as part of their update call.
+    @GuardedBy("lock")
+    private fun shouldApplyUpdate(modified: Boolean): Boolean {
+        if (!modified) {
+            return false
         }
+        if (!dirty) {
+            dirty = true
+            return true
+        }
+        return false
     }
 
     private fun applyUpdate() {
-        val unappliedListeners = fetchUpdatedListeners() ?: return
-        sessionLock.withTokenIn(graphScope) {
-            graphProcessor.updateRequestListeners(unappliedListeners)
-        }
+        sessionLock.withTokenIn(graphScope) { flush() }
+    }
+
+    // Note: this must be called only when caller has an active sessionLock token.
+    public fun flush() {
+        val snapshot =
+            synchronized(lock) {
+                if (!dirty) {
+                    return
+                }
+                dirty = false
+                listeners.toList()
+            }
+        graphProcessor.updateRequestListeners(snapshot)
     }
 }

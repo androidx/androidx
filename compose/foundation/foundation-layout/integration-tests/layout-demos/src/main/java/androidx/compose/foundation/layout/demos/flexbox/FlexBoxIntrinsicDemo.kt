@@ -51,8 +51,8 @@ fun FlexBoxIntrinsicDemo() {
         Box(modifier = Modifier.width(IntrinsicSize.Min).background(Color.LightGray)) {
             FlexBox(
                 config = {
-                    direction = FlexDirection.Row
-                    wrap = FlexWrap.NoWrap
+                    direction(FlexDirection.Row)
+                    wrap(FlexWrap.NoWrap)
                 },
                 modifier = Modifier.border(2.dp, Color.Red),
             ) {
@@ -70,8 +70,8 @@ fun FlexBoxIntrinsicDemo() {
         Box(modifier = Modifier.width(IntrinsicSize.Min).background(Color.LightGray)) {
             FlexBox(
                 config = {
-                    direction = FlexDirection.Row
-                    wrap = FlexWrap.Wrap
+                    direction(FlexDirection.Row)
+                    wrap(FlexWrap.Wrap)
                 },
                 modifier = Modifier.border(2.dp, Color.Red),
             ) {
@@ -90,8 +90,8 @@ fun FlexBoxIntrinsicDemo() {
         Box(modifier = Modifier.height(IntrinsicSize.Min).background(Color.LightGray)) {
             FlexBox(
                 config = {
-                    direction = FlexDirection.Column
-                    wrap = FlexWrap.NoWrap
+                    direction(FlexDirection.Column)
+                    wrap(FlexWrap.NoWrap)
                 },
                 modifier = Modifier.border(2.dp, Color.Red),
             ) {
@@ -109,8 +109,8 @@ fun FlexBoxIntrinsicDemo() {
         Box(modifier = Modifier.height(IntrinsicSize.Min).background(Color.LightGray)) {
             FlexBox(
                 config = {
-                    direction = FlexDirection.Column
-                    wrap = FlexWrap.Wrap
+                    direction(FlexDirection.Column)
+                    wrap(FlexWrap.Wrap)
                 },
                 modifier = Modifier.border(2.dp, Color.Red),
             ) {

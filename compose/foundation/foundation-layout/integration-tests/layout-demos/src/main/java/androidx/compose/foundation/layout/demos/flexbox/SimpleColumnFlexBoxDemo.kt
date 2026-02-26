@@ -80,8 +80,8 @@ fun SimpleColumnFlexBox() {
 private fun FlexBoxColumnDemo() {
     FlexBox(
         config = {
-            direction = FlexDirection.Column
-            rowGap = 6.dp
+            direction(FlexDirection.Column)
+            rowGap(6.dp)
         },
         modifier = Modifier.fillMaxWidth(),
     ) {
@@ -103,8 +103,8 @@ private fun FlexBoxColumnDemo() {
 private fun FlexBoxColumnWrapDemo() {
     FlexBox(
         config = {
-            direction = FlexDirection.Column
-            wrap = FlexWrap.Wrap
+            direction(FlexDirection.Column)
+            wrap(FlexWrap.Wrap)
         },
         modifier = Modifier.fillMaxHeight(),
     ) {
@@ -126,7 +126,7 @@ private fun FlexBoxColumnWrapDemo() {
 @OptIn(ExperimentalFlexBoxApi::class)
 private fun FlexBoxColumnReverseDemo() {
     FlexBox(
-        config = { direction = FlexDirection.ColumnReverse },
+        config = { direction(FlexDirection.ColumnReverse) },
         modifier = Modifier.fillMaxHeight(),
     ) {
         repeat(4) {
@@ -149,8 +149,8 @@ private fun FlexBoxColumnReverseDemo() {
 private fun FlexBoxColumnWrapReverseDemo() {
     FlexBox(
         config = {
-            direction = FlexDirection.Column
-            wrap = FlexWrap.WrapReverse
+            direction(FlexDirection.ColumnReverse)
+            wrap(FlexWrap.WrapReverse)
         },
         modifier = Modifier.fillMaxHeight(),
     ) {

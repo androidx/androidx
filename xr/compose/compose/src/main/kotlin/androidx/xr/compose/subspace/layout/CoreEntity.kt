@@ -18,7 +18,9 @@ package androidx.xr.compose.subspace.layout
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.os.Build
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -29,7 +31,6 @@ import androidx.xr.compose.subspace.SpatialPanelDefaults
 import androidx.xr.compose.subspace.draw.SpatialFeatheringEffect
 import androidx.xr.compose.subspace.draw.SpatialSmoothFeatheringEffect
 import androidx.xr.compose.subspace.node.SubspaceLayoutNode
-import androidx.xr.compose.subspace.node.SubspaceOwner
 import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.compose.unit.Meter
 import androidx.xr.compose.unit.toIntVolumeSize
@@ -40,6 +41,7 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.ActivityPanelEntity
 import androidx.xr.scenecore.Component
 import androidx.xr.scenecore.Entity
+import androidx.xr.scenecore.GltfAnimation
 import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.GltfModelNode
 import androidx.xr.scenecore.GroupEntity
@@ -47,13 +49,6 @@ import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.scene
 import kotlin.math.PI
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.shareIn
 import org.jetbrains.annotations.TestOnly
 
 /**
@@ -535,23 +530,8 @@ internal class CoreSphereSurfaceEntity(
 }
 
 internal class CoreModelEntity() : CoreEntity() {
-    private val scope: CoroutineScope by lazy {
-        val context = requireOwner().coroutineContext
-        CoroutineScope(context + Job(context[Job]))
-    }
-
     val nodes: List<GltfModelNode>
         get() = (entity as? GltfModelEntity)?.nodes ?: emptyList()
-
-    val animationStateFlow by lazy {
-        callbackFlow {
-                onEntity { @Suppress("DEPRECATION") addAnimationStateListener(::trySend) }
-                awaitClose {
-                    onEntity { @Suppress("DEPRECATION") removeAnimationStateListener(::trySend) }
-                }
-            }
-            .shareIn(scope = scope, started = SharingStarted.WhileSubscribed(5000), replay = 1)
-    }
 
     /**
      * The size of the glTF entity will be scaled uniformly such that it fits within the most
@@ -582,40 +562,8 @@ internal class CoreModelEntity() : CoreEntity() {
                     ?.toIntVolumeSize(density)
             } ?: IntVolumeSize.Zero
 
-    val isAnimating: Boolean
-        @Suppress("DEPRECATION")
-        get() {
-            return (entity as? GltfModelEntity)?.animationState ==
-                GltfModelEntity.AnimationState.PLAYING
-        }
-
-    override fun dispose() {
-        scope.cancel()
-        super.dispose()
-    }
-
-    @Suppress("DEPRECATION")
-    fun startAnimation(name: String? = null) {
-        if (name == null) {
-            onEntity { startAnimation(loop = false) }
-        } else {
-            onEntity { startAnimation(loop = false, animationName = name) }
-        }
-    }
-
-    @Suppress("DEPRECATION")
-    fun loopAnimation(name: String? = null) {
-        if (name == null) {
-            onEntity { startAnimation(loop = true) }
-        } else {
-            onEntity { startAnimation(loop = true, animationName = name) }
-        }
-    }
-
-    @Suppress("DEPRECATION")
-    fun stopAllAnimations() {
-        onEntity { stopAnimation() }
-    }
+    val animations: List<GltfAnimation>?
+        @RequiresApi(Build.VERSION_CODES.O) get() = (entity as? GltfModelEntity)?.animations
 
     private fun onEntity(action: GltfModelEntity.() -> Unit) {
         onEntityAttached { entity -> (entity as GltfModelEntity).action() }
@@ -630,6 +578,3 @@ internal interface MovableCoreEntity
 
 /** [CoreEntity] types that implement this interface may have the InteractableComponent attached. */
 internal interface InteractableCoreEntity
-
-private fun CoreEntity.requireOwner(): SubspaceOwner =
-    checkNotNull(layout?.owner) { "Failed to get SubspaceOwner for CoreEntity." }

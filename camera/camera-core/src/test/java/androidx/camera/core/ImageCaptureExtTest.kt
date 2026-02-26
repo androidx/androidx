@@ -84,6 +84,9 @@ class ImageCaptureExtTest {
         if (::cameraProvider.isInitialized) {
             cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
         }
+
+        // Process any pending looper updates to prevent leaks
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
     }
 
     @Test

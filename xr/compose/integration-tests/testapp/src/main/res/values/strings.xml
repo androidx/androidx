@@ -48,4 +48,5 @@
     <string name="switch_to_full_space_mode">Switch to Full Space Mode</string>
     <string name="accessibility_test">Accessibility test case</string>
     <string name="layout_performance">Layout Performance Test Case</string>
+    <string name="spatial_gltf_model_test">Spatial GLTF Model Test Case</string>"
 </resources>

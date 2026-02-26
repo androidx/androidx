@@ -55,6 +55,7 @@ import androidx.pdf.ink.view.draganddrop.ToolbarDockState.Companion.DOCK_STATE_E
 import androidx.pdf.ink.view.draganddrop.ToolbarDockState.Companion.DOCK_STATE_START
 import androidx.pdf.ink.view.draganddrop.ToolbarDragListener
 import androidx.pdf.ink.view.layout.AnnotationToolbarConstraintSet
+import androidx.pdf.ink.view.layout.ToolTrayScrollerManager
 import androidx.pdf.ink.view.state.AnnotationToolbarState
 import androidx.pdf.ink.view.state.ToolbarEffect
 import androidx.pdf.ink.view.state.ToolbarInitializer
@@ -199,6 +200,8 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         ContextCompat.getDrawable(context, R.drawable.color_palette_icon_stroke)?.mutate()
     }
 
+    private val toolbarScroller: ToolTrayScrollerManager
+
     private val toolbarTouchHandler: AnnotationToolbarTouchHandler by lazy {
         AnnotationToolbarTouchHandler(this) { event ->
             // Intercepting a long press during a slide on the brush size selector is unintended.
@@ -220,6 +223,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         background = context.getDrawable(R.drawable.annotation_toolbar_background)
 
         toolTray = findViewById(R.id.tool_tray)
+        toolbarScroller = ToolTrayScrollerManager(this, toolTray)
         brushSizeSelectorView = findViewById(R.id.brush_size_selector)
         colorPaletteView = findViewById(R.id.color_palette)
         pen = findViewById(R.id.pen_button)
@@ -573,21 +577,21 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     private fun updateDockState(dockedState: Int) {
         when (dockedState) {
             DOCK_STATE_START -> {
-                if (toolTray is LinearLayout) toolTray.orientation = VERTICAL
+                toolbarScroller.setOrientation(VERTICAL)
                 undoRedoContainer.orientation = VERTICAL
                 brushSizeSelectorView.orientation = VERTICAL
                 constraintSet.dockStateStart.applyTo(this)
             }
 
             DOCK_STATE_BOTTOM -> {
-                if (toolTray is LinearLayout) toolTray.orientation = HORIZONTAL
+                toolbarScroller.setOrientation(HORIZONTAL)
                 undoRedoContainer.orientation = HORIZONTAL
                 brushSizeSelectorView.orientation = HORIZONTAL
                 constraintSet.dockStateBottom.applyTo(this)
             }
 
             DOCK_STATE_END -> {
-                if (toolTray is LinearLayout) toolTray.orientation = VERTICAL
+                toolbarScroller.setOrientation(VERTICAL)
                 undoRedoContainer.orientation = VERTICAL
                 brushSizeSelectorView.orientation = VERTICAL
                 constraintSet.dockStateEnd.applyTo(this)

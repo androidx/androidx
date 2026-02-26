@@ -115,7 +115,7 @@ constructor(
             }
 
             _updateSignal = signal
-            state3AControl.setFlashModeAsync(flashMode).propagateTo(signal)
+            state3AControl.setFlashModeAsync(flashMode).invokeOnCompletion { signal.complete(Unit) }
         }
             ?: run {
                 signal.completeExceptionally(

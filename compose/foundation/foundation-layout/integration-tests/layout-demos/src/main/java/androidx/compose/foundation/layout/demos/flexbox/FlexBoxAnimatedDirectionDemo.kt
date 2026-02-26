@@ -60,7 +60,7 @@ fun FlexBoxAnimatedDirectionDemo() {
 
         LookaheadScope {
             FlexBox(
-                config = { direction = if (isRow) FlexDirection.Row else FlexDirection.Column },
+                config = { direction(if (isRow) FlexDirection.Row else FlexDirection.Column) },
                 modifier =
                     Modifier.fillMaxWidth().height(400.dp).padding(16.dp).border(1.dp, Color.Gray),
             ) {

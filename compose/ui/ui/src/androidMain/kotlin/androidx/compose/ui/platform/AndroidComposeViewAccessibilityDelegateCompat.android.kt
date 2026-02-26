@@ -308,7 +308,25 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 (accessibilityManager.isEnabled && accessibilityManager.isTouchExplorationEnabled)
 
     internal var requestFromAccessibilityToolForTesting: Boolean? = null
-    private val handler = Handler(Looper.getMainLooper())
+
+    // TODO remove with b/486998514
+    private val legacyMainHandler = Handler(Looper.getMainLooper())
+
+    /**
+     * Handler returns non-null ONLY when [view] is attached.
+     *
+     * Callers should not cache this value. Null means that we are not attached and don't need to
+     * process.
+     */
+    @OptIn(ExperimentalComposeUiApi::class)
+    private val handler: Handler?
+        get() =
+            if (AndroidComposeUiFlags.isViewBasedSemanticsHandlerEnabled) {
+                view.handler
+            } else {
+                legacyMainHandler
+            }
+
     private var nodeProvider = ComposeAccessibilityNodeProvider()
 
     private var accessibilityFocusedVirtualViewId = InvalidId
@@ -410,7 +428,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     }
 
     override fun onViewDetachedFromWindow(view: View) {
-        handler.removeCallbacks(semanticsChangeChecker)
+        handler!!.removeCallbacks(semanticsChangeChecker)
         accessibilityManager.removeAccessibilityStateChangeListener(this)
         accessibilityManager.removeTouchExplorationStateChangeListener(this)
     }
@@ -2336,9 +2354,10 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         // later, we can refresh currentSemanticsNodes if currentSemanticsNodes is stale.
         currentSemanticsNodesInvalidated = true
 
-        if (isEnabled && !checkingForSemanticsChanges) {
+        val localHandler = handler
+        if (isEnabled && !checkingForSemanticsChanges && localHandler != null) {
             checkingForSemanticsChanges = true
-            handler.post(semanticsChangeChecker)
+            localHandler.post(semanticsChangeChecker)
         }
     }
 
@@ -2377,9 +2396,10 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                     // notify, if we don't do the tree diffing and update our copy here, we will
                     // combine old change and new change, which is missing finer-grained
                     // notification.
-                    if (!checkingForSemanticsChanges) {
+                    val localHandler = handler
+                    if (!checkingForSemanticsChanges && localHandler != null) {
                         checkingForSemanticsChanges = true
-                        handler.post(semanticsChangeChecker)
+                        localHandler.post(semanticsChangeChecker)
                     }
                 }
                 subtreeChangedLayoutNodes.clear()

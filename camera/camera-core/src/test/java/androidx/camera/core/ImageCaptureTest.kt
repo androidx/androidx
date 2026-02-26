@@ -83,6 +83,7 @@ import java.io.File
 import java.util.Collections
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
+import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Before
@@ -172,9 +173,17 @@ class ImageCaptureTest {
     @Throws(ExecutionException::class, InterruptedException::class)
     fun tearDown() {
         capturedImage?.close()
-        CameraXUtil.shutdown().get()
+        if (::cameraUseCaseAdapter.isInitialized) {
+            cameraUseCaseAdapter.removeAllUseCases()
+        }
+        CameraXUtil.shutdown().get(10, TimeUnit.SECONDS)
         fakeImageReaderProxy = null
+
+        // Drain tasks before quitting the callback thread to avoid RejectedExecutionException
+        flushAll()
+
         callbackThread.quitSafely()
+        callbackThread.join()
     }
 
     @Test

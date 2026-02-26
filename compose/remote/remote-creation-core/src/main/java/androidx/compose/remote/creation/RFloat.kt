@@ -490,7 +490,7 @@ public fun pingPong(max: Number, x: Number): RFloat {
     val maxr = max as? RFloat ?: RFloat(null, max.toFloat())
     var writer = xr.writer
     if (writer == null) {
-        writer = xr.writer
+        writer = maxr.writer
     }
 
     if (writer == null) {

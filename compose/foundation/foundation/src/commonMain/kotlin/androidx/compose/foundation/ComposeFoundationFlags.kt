@@ -168,4 +168,13 @@ object ComposeFoundationFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     var isNonSuspendingPointerInputInCombinedClickableEnabled = true
+
+    /**
+     * This flag controls performance optimizations related to
+     * [androidx.compose.foundation.text.BasicTextField]'s internal min height calculations.
+     */
+    // TODO: Remove this flag once it has soaked (b/487251541)
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isBasicTextFieldMinSizeOptimizationEnabled = true
 }

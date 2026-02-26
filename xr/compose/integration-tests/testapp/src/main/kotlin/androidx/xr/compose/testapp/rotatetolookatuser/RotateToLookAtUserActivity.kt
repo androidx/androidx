@@ -108,7 +108,7 @@ class RotateToLookAtUserActivity : ComponentActivity() {
             config = session.config.copy(deviceTracking = DeviceTrackingMode.LAST_KNOWN)
         )
 
-        var isRotateToLookAtUserOn by remember { mutableStateOf(false) }
+        var isRotateToLookAtUserOn by remember { mutableStateOf(true) }
 
         IntegrationTestsAppTheme {
             Subspace(modifier = SubspaceModifier.width(1600.dp).height(1400.dp)) {

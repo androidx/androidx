@@ -299,33 +299,28 @@ package androidx.compose.foundation.layout {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalFlexBoxApi public sealed nonexhaustive interface FlexBoxConfigScope extends androidx.compose.ui.unit.Density {
-    method public void alignItemsToBaseline(androidx.compose.ui.layout.AlignmentLine alignmentLine);
-    method public void alignItemsToBaseline(kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.Measured,java.lang.Integer> alignmentLineBlock);
+    method @KotlinOnly public void alignContent(androidx.compose.foundation.layout.FlexAlignContent value);
+    method @BytecodeOnly public void alignContent-RVFKNBI(int);
+    method @KotlinOnly public void alignItems(androidx.compose.foundation.layout.FlexAlignItems value);
+    method public void alignItems(androidx.compose.ui.layout.AlignmentLine alignmentLine);
+    method public void alignItems(kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.Measured,java.lang.Integer> alignmentLineBlock);
+    method @BytecodeOnly public void alignItems-yvIbNKY(int);
+    method @KotlinOnly public void columnGap(androidx.compose.ui.unit.Dp value);
+    method @BytecodeOnly public void columnGap-0680j_4(float);
+    method @KotlinOnly public void direction(androidx.compose.foundation.layout.FlexDirection value);
+    method @BytecodeOnly public void direction-d5Yd7B0(int);
     method @KotlinOnly public void gap(androidx.compose.ui.unit.Dp value);
+    method @KotlinOnly public void gap(androidx.compose.ui.unit.Dp row, androidx.compose.ui.unit.Dp column);
     method @BytecodeOnly public void gap-0680j_4(float);
-    method @BytecodeOnly public int getAlignContent-d9B3MrI();
-    method @BytecodeOnly public int getAlignItems-20X20zU();
-    method @BytecodeOnly public float getColumnGap-D9Ej5fM();
+    method @BytecodeOnly public void gap-YgX7TsA(float, float);
     method @BytecodeOnly public long getConstraints-msEJaDk();
-    method @BytecodeOnly public int getDirection-T4wFHC8();
-    method @BytecodeOnly public int getJustifyContent-GomtQF4();
-    method @BytecodeOnly public float getRowGap-D9Ej5fM();
-    method @BytecodeOnly public int getWrap-7ziDAWk();
-    method @BytecodeOnly public void setAlignContent-RVFKNBI(int);
-    method @BytecodeOnly public void setAlignItems-yvIbNKY(int);
-    method @BytecodeOnly public void setColumnGap-0680j_4(float);
-    method @BytecodeOnly public void setDirection-d5Yd7B0(int);
-    method @BytecodeOnly public void setJustifyContent-q3qUS_E(int);
-    method @BytecodeOnly public void setRowGap-0680j_4(float);
-    method @BytecodeOnly public void setWrap-CLQ35Ag(int);
-    property public abstract androidx.compose.foundation.layout.FlexAlignContent alignContent;
-    property public abstract androidx.compose.foundation.layout.FlexAlignItems alignItems;
-    property public abstract androidx.compose.ui.unit.Dp columnGap;
+    method @KotlinOnly public void justifyContent(androidx.compose.foundation.layout.FlexJustifyContent value);
+    method @BytecodeOnly public void justifyContent-q3qUS_E(int);
+    method @KotlinOnly public void rowGap(androidx.compose.ui.unit.Dp value);
+    method @BytecodeOnly public void rowGap-0680j_4(float);
+    method @KotlinOnly public void wrap(androidx.compose.foundation.layout.FlexWrap value);
+    method @BytecodeOnly public void wrap-CLQ35Ag(int);
     property public abstract androidx.compose.ui.unit.Constraints constraints;
-    property public abstract androidx.compose.foundation.layout.FlexDirection direction;
-    property public abstract androidx.compose.foundation.layout.FlexJustifyContent justifyContent;
-    property public abstract androidx.compose.ui.unit.Dp rowGap;
-    property public abstract androidx.compose.foundation.layout.FlexWrap wrap;
   }
 
   @SuppressCompatibility public final class FlexBoxKt {
@@ -343,34 +338,26 @@ package androidx.compose.foundation.layout {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalFlexBoxApi public sealed nonexhaustive interface FlexConfigScope extends androidx.compose.ui.unit.Density {
-    method public void alignSelfToBaseline(androidx.compose.ui.layout.AlignmentLine alignmentLine);
-    method public void alignSelfToBaseline(kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.Measured,java.lang.Integer> alignmentLineBlock);
+    method @KotlinOnly public void alignSelf(androidx.compose.foundation.layout.FlexAlignSelf value);
+    method public void alignSelf(androidx.compose.ui.layout.AlignmentLine alignmentLine);
+    method public void alignSelf(kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.Measured,java.lang.Integer> alignmentLineBlock);
+    method @BytecodeOnly public void alignSelf-aKVMlHY(int);
+    method @KotlinOnly public void basis(androidx.compose.foundation.layout.FlexBasis value);
     method @KotlinOnly public void basis(androidx.compose.ui.unit.Dp value);
     method public void basis(@FloatRange(from=0.0, to=1.0) float value);
     method @BytecodeOnly public void basis-0680j_4(float);
-    method @BytecodeOnly public int getAlignSelf-_ov7Qcc();
-    method @BytecodeOnly public long getBasis-d-lZNVs();
+    method @BytecodeOnly public void basis-MFoeH6Y(long);
     method @InaccessibleFromKotlin public int getFlexBoxCrossAxisMax();
     method @InaccessibleFromKotlin public int getFlexBoxCrossAxisMin();
     method @InaccessibleFromKotlin public int getFlexBoxMainAxisMax();
     method @InaccessibleFromKotlin public int getFlexBoxMainAxisMin();
-    method @InaccessibleFromKotlin @FloatRange(from=0.0) public float getGrow();
-    method @InaccessibleFromKotlin public int getOrder();
-    method @InaccessibleFromKotlin @FloatRange(from=0.0) public float getShrink();
-    method @BytecodeOnly public void setAlignSelf-aKVMlHY(int);
-    method @BytecodeOnly public void setBasis-MFoeH6Y(long);
-    method @InaccessibleFromKotlin public void setGrow(@FloatRange(from=0.0) float);
-    method @InaccessibleFromKotlin public void setOrder(int);
-    method @InaccessibleFromKotlin public void setShrink(@FloatRange(from=0.0) float);
-    property public abstract androidx.compose.foundation.layout.FlexAlignSelf alignSelf;
-    property public abstract androidx.compose.foundation.layout.FlexBasis basis;
+    method public void grow(@FloatRange(from=0.0) float value);
+    method public void order(int value);
+    method public void shrink(@FloatRange(from=0.0) float value);
     property public abstract int flexBoxCrossAxisMax;
     property public abstract int flexBoxCrossAxisMin;
     property public abstract int flexBoxMainAxisMax;
     property public abstract int flexBoxMainAxisMin;
-    property @FloatRange(from=0.0) public abstract float grow;
-    property public abstract int order;
-    property @FloatRange(from=0.0) public abstract float shrink;
   }
 
   @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalFlexBoxApi @kotlin.jvm.JvmInline public final value class FlexDirection {

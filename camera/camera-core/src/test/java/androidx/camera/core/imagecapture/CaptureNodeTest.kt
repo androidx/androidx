@@ -65,6 +65,9 @@ class CaptureNodeTest {
     @After
     fun tearDown() {
         captureNode.release()
+
+        // Process any pending looper updates to prevent leaks
+        shadowOf(getMainLooper()).idle()
     }
 
     @Test

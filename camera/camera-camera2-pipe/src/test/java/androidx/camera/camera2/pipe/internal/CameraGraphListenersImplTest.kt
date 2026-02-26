@@ -195,7 +195,7 @@ class CameraGraphListenersImplTest {
     fun updateRequest_listenersContinueToReceiveCallbacks() =
         testScope.runTest {
             graphProcessor.onGraphStarted(grp)
-            graphProcessor.repeatingRequest = request
+            graphProcessor.repeatingRequest = request // Initial request
             val newListener: Request.Listener = mock()
             advanceUntilIdle()
 
@@ -204,9 +204,59 @@ class CameraGraphListenersImplTest {
             listeners.add(newListener)
             advanceUntilIdle()
 
-            // The request should be invalidated when there's a listener change, trigger a new
-            // callback.
+            // Update to a new request
+            graphProcessor.repeatingRequest = request2
+            advanceUntilIdle()
+
+            // requestListener: initial(1) + addListener(2) + updateRequest(3)
+            verify(requestListener, times(3)).onRequestSequenceCreated(any())
+            // newListener: addListener(1) + updateRequest(2)
+            verify(newListener, times(2)).onRequestSequenceCreated(any())
+        }
+
+    @Test
+    fun addExistingListener_doesNotTriggerUpdate() =
+        testScope.runTest {
+            graphProcessor.onGraphStarted(grp)
+            graphProcessor.repeatingRequest = request
+            val newListener: Request.Listener = mock()
+            advanceUntilIdle()
+
+            val listeners =
+                CameraGraphRequestListenersImpl(GraphSessionLock(), graphProcessor, testScope)
+
+            listeners.add(newListener)
+            advanceUntilIdle()
+
+            // Baseline verification
             verify(requestListener, times(2)).onRequestSequenceCreated(any())
             verify(newListener, times(1)).onRequestSequenceCreated(any())
+
+            // Add the same listener again
+            listeners.add(newListener)
+            advanceUntilIdle()
+
+            // Call counts should not increase because modified is false
+            verify(requestListener, times(2)).onRequestSequenceCreated(any())
+            verify(newListener, times(1)).onRequestSequenceCreated(any())
+        }
+
+    @Test
+    fun removeNonExistentListener_doesNotTriggerUpdate() =
+        testScope.runTest {
+            graphProcessor.onGraphStarted(grp)
+            graphProcessor.repeatingRequest = request
+            val newListener: Request.Listener = mock()
+            advanceUntilIdle()
+
+            val listeners =
+                CameraGraphRequestListenersImpl(GraphSessionLock(), graphProcessor, testScope)
+
+            // Remove a listener that was never added
+            listeners.remove(newListener)
+            advanceUntilIdle()
+
+            // Call count should remain 1 (from the initial graph start)
+            verify(requestListener, times(1)).onRequestSequenceCreated(any())
         }
 }

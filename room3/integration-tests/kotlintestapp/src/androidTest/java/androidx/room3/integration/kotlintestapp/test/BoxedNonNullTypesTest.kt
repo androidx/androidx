@@ -31,7 +31,10 @@ import androidx.room3.RoomDatabase
 import androidx.room3.guava.GuavaDaoReturnTypeConverter
 import androidx.room3.integration.kotlintestapp.assumeKsp
 import androidx.room3.livedata.LiveDataDaoReturnTypeConverter
-import androidx.room3.rxjava3.Rx3DaoReturnTypeConverters
+import androidx.room3.paging.PagingSourceDaoReturnTypeConverter
+import androidx.room3.paging.guava.ListenableFuturePagingSourceDaoReturnTypeConverter
+import androidx.room3.paging.rxjava3.RxPagingSourceDaoReturnTypeConverter
+import androidx.room3.rxjava3.RxDaoReturnTypeConverters
 import androidx.sqlite.driver.AndroidSQLiteDriver
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -193,8 +196,11 @@ class BoxedNonNullTypesTest {
     )
     @DaoReturnTypeConverters(
         LiveDataDaoReturnTypeConverter::class,
-        Rx3DaoReturnTypeConverters::class,
+        RxDaoReturnTypeConverters::class,
         GuavaDaoReturnTypeConverter::class,
+        PagingSourceDaoReturnTypeConverter::class,
+        ListenableFuturePagingSourceDaoReturnTypeConverter::class,
+        RxPagingSourceDaoReturnTypeConverter::class,
     )
     abstract class MyDb : RoomDatabase() {
         abstract fun myDao(): MyDao

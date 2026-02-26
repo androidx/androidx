@@ -17,6 +17,7 @@
 package androidx.car.app.sample.showcase.common.screens.templatelayouts.sectioneditemtemplates
 
 import android.graphics.Color
+import androidx.annotation.OptIn
 import androidx.car.app.CarContext
 import androidx.car.app.Screen
 import androidx.car.app.annotations.ExperimentalCarApi
@@ -46,7 +47,6 @@ import androidx.core.graphics.drawable.IconCompat
  *   this style for a single chip using [FilterChip#setStyle] when the chip is selected
  */
 @RequiresCarApi(8)
-@ExperimentalCarApi
 class FilterChipDemoScreen(carContext: CarContext) : Screen(carContext) {
     private val mSectionStyle =
         FilterChipStyle.Builder()
@@ -265,6 +265,7 @@ class FilterChipDemoScreen(carContext: CarContext) : Screen(carContext) {
             },
         )
 
+    @OptIn(markerClass = [ExperimentalCarApi::class])
     override fun onGetTemplate(): Template {
         val filterChipSectionBuilder = FilterChipSection.Builder().setStyle(mSectionStyle)
 

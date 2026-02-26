@@ -30,10 +30,12 @@ import androidx.room3.compiler.processing.XNullability
 import androidx.room3.compiler.processing.XRawType
 import androidx.room3.compiler.processing.XType
 import androidx.room3.compiler.processing.XTypeElement
+import androidx.room3.compiler.processing.isArray
 import androidx.room3.compiler.processing.isKotlinUnit
 import androidx.room3.compiler.processing.isSuspendFunction
 import androidx.room3.ext.KotlinTypeNames.NO_ARG_SUSPEND_LAMBDA
 import androidx.room3.ext.KotlinTypeNames.SINGLE_ARG_SUSPEND_LAMBDA
+import androidx.room3.ext.RoomTypeNames.RAW_QUERY
 import androidx.room3.ext.getRequiredFunctionParamTypes
 import androidx.room3.processor.ProcessorErrors.DAO_RETURN_TYPE_CONVERTER_EMPTY_CLASS
 import androidx.room3.processor.ProcessorErrors.DAO_RETURN_TYPE_CONVERTER_FUNCTIONS_MUST_HAVE_AT_MOST_ONE_TYPE_PARAMETER
@@ -44,6 +46,7 @@ import androidx.room3.processor.ProcessorErrors.DAO_RETURN_TYPE_CONVERTER_MUST_H
 import androidx.room3.processor.ProcessorErrors.daoReturnTypeConverterFunctionsWithATypeParamShouldHaveReturnTypeContainingTheSameTypeArg
 import androidx.room3.solver.types.DaoReturnTypeConverterWrapper
 import androidx.room3.vo.CustomDaoReturnTypeConverter
+import androidx.room3.vo.ExecuteAndReturnLambda
 
 /** Processes classes that are referenced in ReturnTypeConverters annotations. */
 class DaoReturnTypeConverterProcessor(
@@ -104,13 +107,9 @@ class DaoReturnTypeConverterProcessor(
             )
             return null
         }
-        val requiredFunctionNonLambdaParamTypes = function.getRequiredFunctionParamTypes()
+        val requiredFunctionParamTypes = function.getRequiredFunctionParamTypes()
         val suspendLambdaParam =
-            findAndValidateLambdaParams(
-                function,
-                lambdaTypes,
-                requiredFunctionNonLambdaParamTypes.lastIndex + 1,
-            )
+            findAndValidateLambdaParams(function, lambdaTypes, requiredFunctionParamTypes.lastIndex)
         if (suspendLambdaParam == null) {
             context.logger.e(
                 element = function,
@@ -121,7 +120,6 @@ class DaoReturnTypeConverterProcessor(
             val rowAdapterPosition =
                 findRowAdapterTypeArgPosition(functionType, to, function, suspendLambdaParam)
 
-            val lambaParam = function.parameters.last().type.typeArguments.last()
             val functionParamType =
                 function.executableType.typeVariables.singleOrNull()?.upperBounds?.singleOrNull()
             val functionReturnType =
@@ -130,23 +128,51 @@ class DaoReturnTypeConverterProcessor(
                 } else {
                     to
                 }
+            val lambdaReturnType = suspendLambdaParam.type.typeArguments.last()
+            // Wrap the return type in a collection if needed, e.g. a List for PagingSource.
+            // Returns the original type argument XType if wrapping is not needed, or a match is
+            // not found.
+            val adjustToResultAdapterType: (XType) -> XType = { arg ->
+                val env = context.processingEnv
+                if (lambdaReturnType.typeArguments.isNotEmpty()) {
+                    val rawType = lambdaReturnType.rawType
+                    when {
+                        rawType.isAssignableFrom(env.requireType(List::class)) ->
+                            env.getDeclaredType(env.requireTypeElement(List::class), arg)
+                        else -> arg
+                    }
+                } else if (lambdaReturnType.isArray()) {
+                    env.getArrayType(arg)
+                } else {
+                    arg
+                }
+            }
             val hasNullableLambdaReturnType =
-                (lambaParam.nullability != XNullability.NONNULL) &&
+                (lambdaReturnType.nullability != XNullability.NONNULL) &&
                     (functionParamType == null ||
                         functionParamType.nullability == XNullability.NONNULL &&
                             functionReturnType.nullability == XNullability.NONNULL)
-
             return DaoReturnTypeConverterWrapper(
-                CustomDaoReturnTypeConverter(
-                    to = to,
-                    enclosingClass = containerTypeElement,
-                    isEnclosingClassKotlinObject = false,
-                    function = function,
-                    isProvidedConverter = false,
-                    hasNullableLambdaReturnType = hasNullableLambdaReturnType,
-                    rowAdapterTypeArgPosition = rowAdapterPosition,
-                    requiredFunctionParamTypes = requiredFunctionNonLambdaParamTypes,
-                )
+                customDaoReturnTypeConverter =
+                    CustomDaoReturnTypeConverter(
+                        to = to,
+                        enclosingClass = containerTypeElement,
+                        isEnclosingClassKotlinObject = false,
+                        function = function,
+                        isProvidedConverter = false,
+                        requiredFunctionParamTypes = requiredFunctionParamTypes,
+                        executeAndReturnLambda =
+                            ExecuteAndReturnLambda(
+                                returnType = lambdaReturnType,
+                                adjustToResultAdapterType = adjustToResultAdapterType,
+                                hasNullableReturnType = hasNullableLambdaReturnType,
+                                rowAdapterTypeArgPosition = rowAdapterPosition,
+                                hasRawQueryParam =
+                                    requiredFunctionParamTypes.any { it.asTypeName() == RAW_QUERY },
+                                isParametrized =
+                                    requiredFunctionParamTypes.last().typeArguments.size > 1,
+                            ),
+                    )
             )
         }
     }
@@ -278,31 +304,36 @@ class DaoReturnTypeConverterProcessor(
 }
 
 private fun reportDuplicates(context: Context, converters: List<CustomDaoReturnTypeConverter>) {
-    val reportedConverters = mutableSetOf<CustomDaoReturnTypeConverter>()
-    converters
-        .groupBy { it.to.asTypeName() }
-        .filterValues { it.size > 1 }
-        .values
-        .forEach { possiblyDuplicateConverters ->
-            possiblyDuplicateConverters.forEach { converter ->
-                if (reportedConverters.contains(converter)) {
-                    return@forEach
-                }
-                val duplicates =
-                    possiblyDuplicateConverters.filter { duplicate ->
-                        duplicate !== converter &&
-                            duplicate.function.isSuspendFunction() ==
-                                converter.function.isSuspendFunction()
-                    }
-
-                if (duplicates.isNotEmpty()) {
-                    context.logger.e(
-                        converter.function,
-                        ProcessorErrors.duplicateDaoReturnTypeConverters(duplicates),
-                    )
-                    reportedConverters.add(converter)
-                    reportedConverters.addAll(duplicates)
-                }
+    fun CustomDaoReturnTypeConverter.checkIfMatches(other: CustomDaoReturnTypeConverter): Boolean {
+        if (this.to.rawType.asTypeName() != other.to.rawType.asTypeName()) return false
+        if (this.function.isSuspendFunction() != other.function.isSuspendFunction()) return false
+        // Are the amount of type args in the convert function the same
+        if (this.requiredFunctionParamTypes.size != other.requiredFunctionParamTypes.size)
+            return false
+        // Is the rowAdapterTypeArgPosition the same
+        if (
+            this.executeAndReturnLambda.rowAdapterTypeArgPosition !=
+                other.executeAndReturnLambda.rowAdapterTypeArgPosition
+        )
+            return false
+        // Are the type args of the convert return type expect the one in rowAdapterTypeArgPosition
+        // the same
+        val allTypeArgsExceptRowAdapterPositionMatch =
+            this.to.typeArguments.indices.all { pos ->
+                pos == executeAndReturnLambda.rowAdapterTypeArgPosition ||
+                    this.to.typeArguments[pos].isAssignableFrom(other.to.typeArguments[pos])
             }
+        return allTypeArgsExceptRowAdapterPositionMatch
+    }
+    converters.forEachIndexed { index, converter ->
+        // Only look at converters appearing after the current one to avoid double-reporting
+        val duplicates = converters.drop(index + 1).filter { it.checkIfMatches(converter) }
+
+        if (duplicates.isNotEmpty()) {
+            context.logger.e(
+                converter.function,
+                ProcessorErrors.duplicateDaoReturnTypeConverters(listOf(converter) + duplicates),
+            )
         }
+    }
 }

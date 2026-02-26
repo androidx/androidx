@@ -73,6 +73,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -87,8 +88,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.intl.LocaleList
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.constrain
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -477,7 +480,7 @@ internal fun BasicTextField(
                 Box(
                     propagateMinConstraints = true,
                     modifier =
-                        Modifier.heightIn(min = textLayoutState.minHeightForSingleLineField)
+                        Modifier.minHeightForSingleLineField(textLayoutState)
                             .heightInLines(
                                 textStyle = textStyle,
                                 minLines = minLines,
@@ -528,6 +531,26 @@ internal fun BasicTextField(
         }
     }
 }
+
+@OptIn(ExperimentalFoundationApi::class)
+private fun Modifier.minHeightForSingleLineField(textLayoutState: TextLayoutState) =
+    if (ComposeFoundationFlags.isBasicTextFieldMinSizeOptimizationEnabled) {
+        layout { measurable, constraints ->
+            val wrappedConstraints =
+                constraints.constrain(
+                    Constraints(
+                        minWidth = 0,
+                        maxWidth = Constraints.Infinity,
+                        minHeight = textLayoutState.minHeightForSingleLineField.roundToPx(),
+                        maxHeight = Constraints.Infinity,
+                    )
+                )
+            val placeable = measurable.measure(wrappedConstraints)
+            layout(placeable.width, placeable.height) { placeable.placeRelative(0, 0) }
+        }
+    } else {
+        heightIn(min = textLayoutState.minHeightForSingleLineField)
+    }
 
 @OptIn(ExperimentalFoundationApi::class)
 private fun Modifier.addContextMenuComponents(

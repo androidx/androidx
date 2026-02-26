@@ -96,11 +96,6 @@ constructor(
             null
         }
 
-    public data class CameraGraphCreationResult(
-        val config: CameraGraph.Config,
-        val streamConfigMap: Map<CameraStream.Config, DeferrableSurface>,
-    )
-
     public fun create(
         operatingMode: OperatingMode,
         sessionConfig: SessionConfig?,
@@ -109,7 +104,7 @@ constructor(
         camera2ExtensionMode: Int? = null,
         surfaceToStreamUseCaseMap: Map<DeferrableSurface, Long> = emptyMap(),
         surfaceToStreamUseHintMap: Map<DeferrableSurface, Long> = emptyMap(),
-    ): CameraGraphCreationResult {
+    ): GraphConfigBundle {
         val isExtensions = operatingMode == OperatingMode.EXTENSION
         val enableStreamUseCase = !isExtensions // Enable StreamUseCase if not in Extension mode
 
@@ -309,9 +304,9 @@ constructor(
                 graphStateListeners = listOfNotNull(graphStateToCameraStateAdapter),
             )
 
-        return CameraGraphCreationResult(
-            config = graphConfig,
-            streamConfigMap = streamConfigMap.toMap(),
+        return GraphConfigBundle(
+            graphConfig = graphConfig,
+            streamToSurfaceMap = streamConfigMap.toMap(),
         )
     }
 
@@ -490,3 +485,12 @@ constructor(
 
     override fun toString(): String = "CameraGraphConfigProvider<${cameraConfig.cameraId}>"
 }
+
+/**
+ * A bundle containing the [CameraGraph.Config] and the mapping of [CameraStream.Config] to
+ * [DeferrableSurface] used to bridge CameraPipe and CameraX.
+ */
+public data class GraphConfigBundle(
+    val graphConfig: CameraGraph.Config,
+    val streamToSurfaceMap: Map<CameraStream.Config, DeferrableSurface>,
+)

@@ -36,6 +36,8 @@ import androidx.compose.remote.core.operations.utilities.StringUtils;
 
 import org.junit.Test;
 
+import java.math.BigDecimal;
+
 public class FloatToStringTest {
     @Test
     public void testSimpleConversions() {
@@ -126,15 +128,15 @@ public class FloatToStringTest {
 
 
         int options = GROUPING_BY3;
-        assertEquals("1.234.567,88",
+        assertEquals("1.234.567,90",
                 StringUtils.floatToString(1234567.89f, 9, 2,
                         PAD_NONE, '0', SEPARATOR_PERIOD_COMMA,
                         GROUPING_BY3, NO_OPTIONS));
-        assertEquals("1 234 567,88",
+        assertEquals("1 234 567,90",
                 StringUtils.floatToString(1234567.89f, 9, 2,
                         PAD_NONE, '0', SEPARATOR_SPACE_COMMA,
                         GROUPING_BY3, NO_OPTIONS));
-        assertEquals("1_234_567.88",
+        assertEquals("1_234_567.90",
                 StringUtils.floatToString(1234567.89f, 9, 2,
                         PAD_NONE, '0', SEPARATOR_UNDER_PERIOD,
                         GROUPING_BY3, NO_OPTIONS));
@@ -208,19 +210,19 @@ public class FloatToStringTest {
         System.out.println("   Value: " + myValue);
         System.out.println("   Options: PAD_PRE_SPACE | PAD_AFTER_ZERO | "
                 + "SEPARATOR_COMMA_PERIOD | GROUPING_BY3 | NEGATIVE_PARENTHESES");
-        assertEquals("(         12,345.6777)",
+        assertEquals("(         12,345.6780)",
                 StringUtils.floatToString(myValue, 15, 4,
                         PAD_SPACE, PAD_ZERO, SEPARATOR_COMMA_PERIOD,
                         GROUPING_BY3, NEGATIVE_PARENTHESES));
-        assertEquals("(         12.345,6777)",
+        assertEquals("(         12.345,6780)",
                 StringUtils.floatToString(myValue, 15, 4,
                         PAD_SPACE, PAD_ZERO, SEPARATOR_PERIOD_COMMA,
                         GROUPING_BY3, NEGATIVE_PARENTHESES));
-        assertEquals("(         12_345.6777)",
+        assertEquals("(         12_345.6780)",
                 StringUtils.floatToString(myValue, 15, 4,
                         PAD_SPACE, PAD_ZERO, SEPARATOR_UNDER_PERIOD,
                         GROUPING_BY3, NEGATIVE_PARENTHESES));
-        assertEquals("(         12 345,6777)",
+        assertEquals("(         12 345,6780)",
                 StringUtils.floatToString(myValue, 15, 4,
                         PAD_SPACE, PAD_ZERO, SEPARATOR_SPACE_COMMA,
                         GROUPING_BY3, NEGATIVE_PARENTHESES));
@@ -230,13 +232,29 @@ public class FloatToStringTest {
 
 
     @Test
+    public void largerFractional() {
+        System.out.println(1.123456789f);
+        BigDecimal bigDecimal = new BigDecimal(1.123456789f);
+        System.out.println(bigDecimal);
+        assertEquals("1.12345685",
+                StringUtils.floatToString(1.123456789f, 2, 18,
+                        PAD_NONE, PAD_NONE, SEPARATOR_COMMA_PERIOD,
+                        GROUPING_NONE, ROUNDING));
+        System.out.println(11.123456789f);
+
+        assertEquals("11.123457",
+                StringUtils.floatToString(11.123456789f, 2, 18,
+                        PAD_NONE, PAD_NONE, SEPARATOR_COMMA_PERIOD,
+                        GROUPING_NONE, ROUNDING));
+    }
+
+    @Test
     public void testOne() {
 
         assertEquals("10,0 ",
                 StringUtils.floatToString(9.999f, 10, 2,
                         PAD_NONE, PAD_SPACE, SEPARATOR_PERIOD_COMMA,
                         GROUPING_NONE, ROUNDING));
-
 
     }
 

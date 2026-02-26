@@ -18,11 +18,13 @@ package androidx.room3.paging
 
 import androidx.paging.PagingSource
 import androidx.room3.Dao
+import androidx.room3.DaoReturnTypeConverters
 import androidx.room3.Delete
 import androidx.room3.Insert
 import androidx.room3.Query
 
 @Dao
+@DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)
 interface TestItemDao {
     @Insert fun addAllItems(testItems: List<TestItem>)
 

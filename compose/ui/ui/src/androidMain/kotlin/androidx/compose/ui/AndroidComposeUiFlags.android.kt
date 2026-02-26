@@ -100,4 +100,13 @@ object AndroidComposeUiFlags {
     /** This moves Haptics-related instances into the shared ComposeViewContext. */
     // TODO: b/479895628
     @field:Suppress("MutableBareField") @JvmField var isSharedHapticsEnabled: Boolean = true
+
+    /**
+     * This flag enables using the View's handler for semantics processing instead of the Main
+     * Looper. This avoids crashes in environments where Compose is used on a non-main thread.
+     */
+    @field:Suppress("MutableBareField")
+    @JvmField
+    // TODO remove me b/486998514
+    var isViewBasedSemanticsHandlerEnabled: Boolean = true
 }

@@ -92,8 +92,8 @@ fun FlexBoxJustifyContentDemo() {
 private fun FlexBoxRowJustifyContentStartSample() {
     FlexBox(
         config = {
-            direction = FlexDirection.Row
-            justifyContent = FlexJustifyContent.Start
+            direction(FlexDirection.Row)
+            justifyContent(FlexJustifyContent.Start)
         },
         modifier = Modifier.fillMaxWidth().border(1.dp, Color.Black),
     ) {
@@ -116,8 +116,8 @@ private fun FlexBoxRowJustifyContentStartSample() {
 private fun FlexBoxRowJustifyContentCenterSample() {
     FlexBox(
         config = {
-            direction = FlexDirection.Row
-            justifyContent = FlexJustifyContent.Center
+            direction(FlexDirection.Row)
+            justifyContent(FlexJustifyContent.Center)
         },
         modifier = Modifier.fillMaxWidth().border(1.dp, Color.Black),
     ) {
@@ -140,8 +140,8 @@ private fun FlexBoxRowJustifyContentCenterSample() {
 private fun FlexBoxRowJustifyContentSpaceAroundSample() {
     FlexBox(
         config = {
-            direction = FlexDirection.Row
-            justifyContent = FlexJustifyContent.SpaceAround
+            direction(FlexDirection.Row)
+            justifyContent(FlexJustifyContent.SpaceAround)
         },
         modifier = Modifier.fillMaxWidth().border(1.dp, Color.Black),
     ) {
@@ -164,8 +164,8 @@ private fun FlexBoxRowJustifyContentSpaceAroundSample() {
 private fun FlexBoxRowJustifyContentSpaceBetweenSample() {
     FlexBox(
         config = {
-            direction = FlexDirection.Row
-            justifyContent = FlexJustifyContent.SpaceBetween
+            direction(FlexDirection.Row)
+            justifyContent(FlexJustifyContent.SpaceBetween)
         },
         modifier = Modifier.fillMaxWidth().border(1.dp, Color.Black),
     ) {
@@ -188,8 +188,8 @@ private fun FlexBoxRowJustifyContentSpaceBetweenSample() {
 private fun FlexBoxRowJustifyContentEndSample() {
     FlexBox(
         config = {
-            direction = FlexDirection.Row
-            justifyContent = FlexJustifyContent.End
+            direction(FlexDirection.Row)
+            justifyContent(FlexJustifyContent.End)
         },
         modifier = Modifier.fillMaxWidth().border(1.dp, Color.Black),
     ) {
@@ -212,8 +212,8 @@ private fun FlexBoxRowJustifyContentEndSample() {
 private fun FlexBoxColumnJustifyContentStartSample() {
     FlexBox(
         config = {
-            direction = FlexDirection.Column
-            justifyContent = FlexJustifyContent.Start
+            direction(FlexDirection.Column)
+            justifyContent(FlexJustifyContent.Start)
         },
         modifier = Modifier.height(300.dp).fillMaxWidth().border(1.dp, Color.Black),
     ) {
@@ -236,8 +236,8 @@ private fun FlexBoxColumnJustifyContentStartSample() {
 private fun FlexBoxColumnJustifyContentCenterSample() {
     FlexBox(
         config = {
-            direction = FlexDirection.Column
-            justifyContent = FlexJustifyContent.Center
+            direction(FlexDirection.Column)
+            justifyContent(FlexJustifyContent.Center)
         },
         modifier = Modifier.height(300.dp).fillMaxWidth().border(1.dp, Color.Black),
     ) {
@@ -260,8 +260,8 @@ private fun FlexBoxColumnJustifyContentCenterSample() {
 private fun FlexBoxColumnJustifyContentSpaceAroundSample() {
     FlexBox(
         config = {
-            direction = FlexDirection.Column
-            justifyContent = FlexJustifyContent.SpaceAround
+            direction(FlexDirection.Column)
+            justifyContent(FlexJustifyContent.SpaceAround)
         },
         modifier = Modifier.height(300.dp).fillMaxWidth().border(1.dp, Color.Black),
     ) {
@@ -284,8 +284,8 @@ private fun FlexBoxColumnJustifyContentSpaceAroundSample() {
 private fun FlexBoxColumnJustifyContentSpaceBetweenSample() {
     FlexBox(
         config = {
-            direction = FlexDirection.Column
-            justifyContent = FlexJustifyContent.SpaceBetween
+            direction(FlexDirection.Column)
+            justifyContent(FlexJustifyContent.SpaceBetween)
         },
         modifier = Modifier.height(300.dp).fillMaxWidth().border(1.dp, Color.Black),
     ) {
@@ -308,8 +308,8 @@ private fun FlexBoxColumnJustifyContentSpaceBetweenSample() {
 private fun FlexBoxColumnJustifyContentEndSample() {
     FlexBox(
         config = {
-            direction = FlexDirection.Column
-            justifyContent = FlexJustifyContent.End
+            direction(FlexDirection.Column)
+            justifyContent(FlexJustifyContent.End)
         },
         modifier = Modifier.height(300.dp).fillMaxWidth().border(1.dp, Color.Black),
     ) {

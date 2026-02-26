@@ -27,9 +27,19 @@ import kotlin.coroutines.CoroutineContext
 @Suppress("OPTIONAL_DECLARATION_USAGE_IN_NON_COMMON_SOURCE")
 public abstract class PlatformThreadContextElement<S, T : Tracer>
 internal constructor(
+    /**
+     * The [Tracer] instance that can use this [PropagationToken] for context propagation when the
+     * coroutine suspends and resumes.
+     */
     public open val tracer: T,
+    /** The `category` that a trace section belongs to. */
     public open var category: String,
+    /** The `name` of the code section as it appears in a trace. */
     public open var name: String,
+    /**
+     * The underlying Perfetto flow ids that can be used to determine the causality for a given
+     * trace section.
+     */
     public open val flowIds: List<Long>,
 ) : AbstractCoroutineContextElement(key = KEY), PropagationToken, AutoCloseable {
     // Always starts in a `begin` state.

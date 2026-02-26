@@ -98,6 +98,7 @@ import androidx.xr.compose.testapp.spatialalignmentusage.SpatialAlignmentUsageAc
 import androidx.xr.compose.testapp.spatialarrangementusage.SpatialArrangementUsageActivity
 import androidx.xr.compose.testapp.spatialcompose.SpatialCompose
 import androidx.xr.compose.testapp.spatialelevation.SpatialElevation
+import androidx.xr.compose.testapp.spatialgltfmodel.SpatialGltfModelActivity
 import androidx.xr.compose.testapp.spatialpanel.SpatialPanelActivity
 import androidx.xr.compose.testapp.splitengine.SplitEngine
 import androidx.xr.compose.testapp.ui.components.FpsCounterScreen
@@ -314,6 +315,9 @@ class MainActivity : ComponentActivity() {
                     }
                     TestCaseColumnRowItem(getString(R.string.rotatetolookatuser_test_case)) {
                         startTest<RotateToLookAtUserActivity>()
+                    }
+                    TestCaseColumnRowItem(getString(R.string.spatial_gltf_model_test)) {
+                        startTest<SpatialGltfModelActivity>()
                     }
                     TestCaseBlankRow("THE FOLLOWING ARE JXR COMPOSE DEVELOPER TESTS")
                     TestCaseColumnRowItem(getString(R.string.fragment_compatibility_test)) {

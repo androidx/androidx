@@ -71,10 +71,10 @@ class QueryFunctionProcessorTest(private val enableVerification: Boolean) {
                 import java.util.*;
                 import com.google.common.collect.*;
                 import androidx.room3.livedata.LiveDataDaoReturnTypeConverter;
-                import androidx.room3.rxjava3.Rx3DaoReturnTypeConverters;
+                import androidx.room3.rxjava3.RxDaoReturnTypeConverters;
                 @DaoReturnTypeConverters(
                     { LiveDataDaoReturnTypeConverter.class,
-                    Rx3DaoReturnTypeConverters.class }
+                    RxDaoReturnTypeConverters.class }
                 )
                 @Dao
                 abstract class MyClass {
@@ -84,7 +84,7 @@ class QueryFunctionProcessorTest(private val enableVerification: Boolean) {
                 package foo.bar
                 import androidx.room3.*
                 import androidx.room3.livedata.LiveDataDaoReturnTypeConverter
-                import androidx.room3.rxjava3.Rx3DaoReturnTypeConverters
+                import androidx.room3.rxjava3.RxDaoReturnTypeConverters
                 import java.util.*
                 import io.reactivex.*         
                 import io.reactivex.rxjava3.core.*
@@ -94,7 +94,7 @@ class QueryFunctionProcessorTest(private val enableVerification: Boolean) {
                 import kotlinx.coroutines.flow.*
                 @DaoReturnTypeConverters(
                     LiveDataDaoReturnTypeConverter::class,
-                    Rx3DaoReturnTypeConverters::class,
+                    RxDaoReturnTypeConverters::class,
                 )
                 @Dao
                 abstract class MyClass {

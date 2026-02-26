@@ -31,8 +31,6 @@
     <dimen name="find_in_file_button_size">48dp</dimen>
 
     <dimen name="text_select_handle_touch_size">48dp</dimen>
-    <dimen name="pdf_horizontal_margin">0dp</dimen>
-    <dimen name="pdf_horizontal_margin_w840dp">40dp</dimen>
 
     <!--Fast scroller -->
     <dimen name="scroll_thumb_margin_end">0dp</dimen>

@@ -39,7 +39,6 @@ import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy.BIT_DEPTH_10
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy.BIT_DEPTH_8
 import androidx.camera.testing.impl.EncoderProfilesUtil
-import androidx.camera.video.MediaSpec
 import androidx.camera.video.VideoSpec
 import androidx.camera.video.VideoSpec.Companion.MIME_TYPE_UNSPECIFIED
 import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy
@@ -55,104 +54,6 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @DoNotInstrument
 @Config(sdk = [Config.ALL_SDKS])
 class VideoConfigUtilTest {
-
-    @Test
-    fun videoMimeInfo_resolvesFromDynamicRange_noCompatibleProfile() {
-        val videoMimeInfo =
-            VideoConfigUtil.resolveVideoMimeInfo(
-                createMediaSpec(),
-                HLG_10_BIT,
-                createFakeEncoderProfiles(listOf(VIDEO_PROFILE_DEFAULT)),
-            )
-
-        assertThat(videoMimeInfo.compatibleVideoProfile).isNull()
-        assertThat(videoMimeInfo.mimeType).isEqualTo(MIMETYPE_VIDEO_HEVC)
-    }
-
-    @Test
-    fun videoMimeInfo_resolvesFromDynamicRange_withCompatibleProfile() {
-        val videoMimeInfo =
-            VideoConfigUtil.resolveVideoMimeInfo(
-                createMediaSpec(outputFormat = MediaSpec.OUTPUT_FORMAT_UNSPECIFIED),
-                HLG_10_BIT,
-                createFakeEncoderProfiles(
-                    listOf(
-                        VIDEO_PROFILE_DEFAULT,
-                        VIDEO_PROFILE_HEVC_HLG10,
-                        VIDEO_PROFILE_DOLBY_VISION_10_BIT,
-                    )
-                ),
-            )
-
-        val compatibleProfile = videoMimeInfo.compatibleVideoProfile
-        assertThat(videoMimeInfo.compatibleVideoProfile).isEqualTo(VIDEO_PROFILE_HEVC_HLG10)
-        assertThat(videoMimeInfo.mimeType).isEqualTo(compatibleProfile!!.mediaType)
-    }
-
-    @Test
-    fun videoMimeInfo_ignoresVideoProfiles_withIncompatibleOutputFormat() {
-        val videoMimeInfo =
-            VideoConfigUtil.resolveVideoMimeInfo(
-                createMediaSpec(outputFormat = MediaSpec.OUTPUT_FORMAT_MPEG_4),
-                HLG_10_BIT,
-                createFakeEncoderProfiles(
-                    listOf(
-                        VIDEO_PROFILE_DEFAULT,
-                        VIDEO_PROFILE_VP9_HLG10, // VP9 uses WebM format
-                    )
-                ),
-            )
-
-        assertThat(videoMimeInfo.compatibleVideoProfile).isNull()
-    }
-
-    @Test
-    fun videoMimeInfo_ignoresVideoProfiles_withIncompatibleDynamicRange() {
-        val videoMimeInfo =
-            VideoConfigUtil.resolveVideoMimeInfo(
-                createMediaSpec(),
-                DOLBY_VISION_10_BIT,
-                createFakeEncoderProfiles(
-                    listOf(
-                        VIDEO_PROFILE_DEFAULT,
-                        VIDEO_PROFILE_DOLBY_VISION_8_BIT, // Dolby vision 8-bit, when 10-bit is
-                        // passed in
-                    )
-                ),
-            )
-
-        assertThat(videoMimeInfo.compatibleVideoProfile).isNull()
-        assertThat(videoMimeInfo.mimeType).isEqualTo(MIMETYPE_VIDEO_DOLBY_VISION)
-    }
-
-    @Test
-    fun videoMimeInfo_resolvesFromMatchingMime() {
-        val expectedProfileMap =
-            mapOf(
-                SDR to VIDEO_PROFILE_DEFAULT,
-                HLG_10_BIT to VIDEO_PROFILE_HEVC_HLG10,
-                HDR10_10_BIT to VIDEO_PROFILE_HEVC_HDR10,
-                HDR10_PLUS_10_BIT to VIDEO_PROFILE_HEVC_HDR10_PLUS,
-                DOLBY_VISION_10_BIT to VIDEO_PROFILE_DOLBY_VISION_10_BIT,
-                DOLBY_VISION_8_BIT to VIDEO_PROFILE_DOLBY_VISION_8_BIT,
-            )
-        val encoderProfiles = createFakeEncoderProfiles(expectedProfileMap.values.toList())
-
-        for (dynamicRangeAndExpectedProfile in expectedProfileMap) {
-            val dynamicRange = dynamicRangeAndExpectedProfile.key
-
-            val videoMimeInfo =
-                VideoConfigUtil.resolveVideoMimeInfo(
-                    createMediaSpec(),
-                    dynamicRange,
-                    encoderProfiles,
-                )
-
-            val expectedVideoProfile = dynamicRangeAndExpectedProfile.value
-            assertThat(videoMimeInfo.compatibleVideoProfile).isEqualTo(expectedVideoProfile)
-            assertThat(videoMimeInfo.mimeType).isEqualTo(expectedVideoProfile.mediaType)
-        }
-    }
 
     @Test
     fun resolveFrameRates_expectedCaptureFrameRateUnspecified_videoSpecUnspecified() {
@@ -305,9 +206,6 @@ class VideoConfigUtilTest {
                 emptyList(),
                 videoProfileProxies,
             )
-
-        fun createMediaSpec(outputFormat: Int = MediaSpec.OUTPUT_FORMAT_UNSPECIFIED) =
-            MediaSpec.builder().apply { setOutputFormat(outputFormat) }.build()
 
         private val DEFAULT_VIDEO_RESOLUTION = Size(1920, 1080)
 

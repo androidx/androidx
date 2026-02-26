@@ -21,8 +21,8 @@ package androidx.camera.camera2.impl
 import android.hardware.camera2.CaptureRequest
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.compat.workaround.TemplateParamsOverride
+import androidx.camera.camera2.config.UseCaseCameraContext
 import androidx.camera.camera2.config.UseCaseCameraScope
-import androidx.camera.camera2.config.UseCaseGraphContext
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
@@ -55,7 +55,7 @@ import kotlinx.coroutines.Deferred
 public class UseCaseCameraState
 @Inject
 constructor(
-    private val useCaseGraphContext: UseCaseGraphContext,
+    private val useCaseCameraContext: UseCaseCameraContext,
     private val templateParamsOverride: TemplateParamsOverride,
 ) {
     private val lock = Any()
@@ -210,7 +210,7 @@ constructor(
         var signalToComplete: CompletableDeferred<Unit>? = null
 
         try {
-            useCaseGraphContext.useGraphSession { session ->
+            useCaseCameraContext.useGraphSession { session ->
                 val request: Request?
                 val result: CompletableDeferred<Unit>?
 

@@ -64,7 +64,7 @@ import kotlinx.coroutines.launch
  *   direction of the ActivitySpace.
  */
 // TODO(b/461808266): LookAtUser and FollowingSubspace not compatible with each other
-// TODO(b/468104384): Optimize LookAtUser modifier initial rotation delay
+// TODO(b/487087894): [Moohan Emulator] ARCore ArDevice emit identity pose until user moves
 public fun SubspaceModifier.rotateToLookAtUser(
     upDirection: Vector3 = Vector3.Up
 ): SubspaceModifier = this.then(RotateToLookAtUserElement(upDirection))

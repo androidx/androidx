@@ -242,8 +242,7 @@
     <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"सूची २"</string>
     <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"प्रत्येक सूचीको मुनि रहेको सबटेक्स्ट"</string>
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"फोटो तथा कारबाहीको डेमो अन्त्य गर्नुहोस्"</string>
-    <!-- no translation found for filter_chip_demo_title (92190365856639582) -->
-    <skip />
+    <string name="filter_chip_demo_title" msgid="92190365856639582">"फिल्टर चिपको डेमो"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"पेनको टम्प्लेटको डेमो"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ठाउँको सूचीको टेम्प्लेटको डेमो"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"ठाउँहरू ब्राउज गर्नुहोस्"</string>

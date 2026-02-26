@@ -60,7 +60,10 @@ import androidx.room3.integration.kotlintestapp.vo.Song
 import androidx.room3.integration.kotlintestapp.vo.Toy
 import androidx.room3.integration.kotlintestapp.vo.User
 import androidx.room3.livedata.LiveDataDaoReturnTypeConverter
-import androidx.room3.rxjava3.Rx3DaoReturnTypeConverters
+import androidx.room3.paging.PagingSourceDaoReturnTypeConverter
+import androidx.room3.paging.guava.ListenableFuturePagingSourceDaoReturnTypeConverter
+import androidx.room3.paging.rxjava3.RxPagingSourceDaoReturnTypeConverter
+import androidx.room3.rxjava3.RxDaoReturnTypeConverters
 import java.nio.ByteBuffer
 import java.util.Date
 import java.util.UUID
@@ -97,8 +100,11 @@ import java.util.UUID
 )
 @DaoReturnTypeConverters(
     LiveDataDaoReturnTypeConverter::class,
-    Rx3DaoReturnTypeConverters::class,
+    RxDaoReturnTypeConverters::class,
     GuavaDaoReturnTypeConverter::class,
+    PagingSourceDaoReturnTypeConverter::class,
+    ListenableFuturePagingSourceDaoReturnTypeConverter::class,
+    RxPagingSourceDaoReturnTypeConverter::class,
 )
 @TypeConverters(TestDatabase.Converters::class)
 abstract class TestDatabase : RoomDatabase() {

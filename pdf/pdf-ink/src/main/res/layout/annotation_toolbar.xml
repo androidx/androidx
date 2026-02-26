@@ -21,7 +21,7 @@
     android:animateLayoutChanges="true"
     android:padding="@dimen/padding_8dp">
 
-    <ScrollView
+    <HorizontalScrollView
         android:id="@+id/scrollable_tool_tray_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -42,7 +42,7 @@
             <include layout="@layout/annotation_tools" />
 
         </LinearLayout>
-    </ScrollView>
+    </HorizontalScrollView>
 
 
     <androidx.pdf.ink.view.tool.AnnotationToolView

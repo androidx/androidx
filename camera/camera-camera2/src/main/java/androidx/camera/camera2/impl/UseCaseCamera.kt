@@ -20,8 +20,8 @@ import android.hardware.camera2.CaptureRequest
 import android.os.Build
 import android.util.Pair
 import androidx.camera.camera2.adapter.SessionConfigAdapter
+import androidx.camera.camera2.config.UseCaseCameraContext
 import androidx.camera.camera2.config.UseCaseCameraScope
-import androidx.camera.camera2.config.UseCaseGraphContext
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.core.ImageCapture
@@ -73,7 +73,7 @@ public interface UseCaseCamera {
 public class UseCaseCameraImpl
 @Inject
 constructor(
-    private val useCaseGraphContext: UseCaseGraphContext,
+    private val useCaseCameraContext: UseCaseCameraContext,
     private val threads: UseCaseThreads,
     private val sessionProcessor: SessionProcessor?,
     override val requestControl: UseCaseCameraRequestControl,
@@ -100,15 +100,15 @@ constructor(
                 }
                 return@confineLaunch
             }
-            val graph = useCaseGraphContext.graph
+            val graph = useCaseCameraContext.graph
 
             // Configure state listeners now that graph is ready
-            useCaseGraphContext.configureCameraStateListener()
+            useCaseCameraContext.configureCameraStateListener()
 
             // Start the CameraGraph first before setting up Surfaces.
             graph.start()
 
-            val surfaces = useCaseGraphContext.surfaceToStreamMap
+            val surfaces = useCaseCameraContext.surfaceToStreamMap
 
             // Calculate stream ID for session processor
             val stillCaptureStreamId = findStillCaptureStreamId()
@@ -144,7 +144,7 @@ constructor(
             sessionConfig.surfaces.firstOrNull { it !in repeatingSurfaces } ?: return null
 
         // Convert the surface back to a StreamId
-        return useCaseGraphContext
+        return useCaseCameraContext
             .getStreamIdsFromSurfaces(listOf(stillCaptureSurface))
             .firstOrNull()
     }
@@ -183,7 +183,7 @@ constructor(
             threads.confineLaunch {
                 Camera2Logger.debug { "Closing $this" }
                 sessionProcessor?.setCaptureSessionRequestProcessor(null)
-                useCaseGraphContext.closeGraph()
+                useCaseCameraContext.closeGraph()
                 useCaseSurfaceManager.stopAsync().await()
             }
         } else {
@@ -199,7 +199,7 @@ constructor(
                 }
                 return@confineLaunch
             }
-            useCaseGraphContext.graph.isForeground = enabled
+            useCaseCameraContext.graph.isForeground = enabled
         }
     }
 

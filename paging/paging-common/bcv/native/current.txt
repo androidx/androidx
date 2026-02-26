@@ -197,6 +197,11 @@ final class <#A: kotlin/Any, #B: kotlin/Any> androidx.paging/Pager { // androidx
 
     final val flow // androidx.paging/Pager.flow|{}flow[0]
         final fun <get-flow>(): kotlinx.coroutines.flow/Flow<androidx.paging/PagingData<#B>> // androidx.paging/Pager.flow.<get-flow>|<get-flow>(){}[0]
+
+    final fun append() // androidx.paging/Pager.append|append(){}[0]
+    final fun prepend() // androidx.paging/Pager.prepend|prepend(){}[0]
+    final fun refresh(#B) // androidx.paging/Pager.refresh|refresh(1:1){}[0]
+    final fun refresh() // androidx.paging/Pager.refresh|refresh(){}[0]
 }
 
 final class <#A: kotlin/Any, #B: kotlin/Any> androidx.paging/PagingState { // androidx.paging/PagingState|null[0]

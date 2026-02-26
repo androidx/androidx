@@ -154,7 +154,7 @@ public class ZoomControl @Inject constructor(private val zoomCompat: ZoomCompat)
                 } else {
                     zoomCompat.resetAsync(it)
                 }
-            deferred.propagateTo(signal)
+            deferred.invokeOnCompletion { signal.complete(Unit) }
         }
             ?: signal.completeExceptionally(
                 CameraControl.OperationCanceledException("Camera is not active.")

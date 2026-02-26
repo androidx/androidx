@@ -81,8 +81,7 @@
     <string name="form_click_toggle_instruction" msgid="7171111300244445911">"Il clic attiva/disattiva il valore."</string>
     <string name="form_click_opens_choices_menu_instruction" msgid="5648228168212004143">"Fai clic per aprire il menu di selezione delle opzioni."</string>
     <string name="form_click_enters_text_edit_mode_instruction" msgid="2305283577544618880">"Fai clic per attivare la modalità di modifica del testo."</string>
-    <!-- no translation found for combobox_custom_option (8730230629127076731) -->
-    <skip />
+    <string name="combobox_custom_option" msgid="8730230629127076731">"Personalizzato"</string>
     <string name="form_unknown" msgid="6371515914365431330">"Sconosciuto"</string>
     <string name="form_widget_type_push_button" msgid="3595388398616291441">"Pulsante di comando"</string>
     <string name="form_widget_type_checkbox" msgid="5165655383070460151">"Casella di controllo"</string>

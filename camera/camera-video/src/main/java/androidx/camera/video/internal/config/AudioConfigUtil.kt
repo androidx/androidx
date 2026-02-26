@@ -23,10 +23,8 @@ import androidx.camera.core.Logger
 import androidx.camera.core.impl.EncoderProfilesProxy.AudioProfileProxy
 import androidx.camera.core.impl.Timebase
 import androidx.camera.video.AudioSpec
-import androidx.camera.video.MediaSpec
 import androidx.camera.video.MediaSpec.Companion.OUTPUT_FORMAT_WEBM
 import androidx.camera.video.MediaSpec.OutputFormat
-import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy
 import androidx.camera.video.internal.audio.AudioSettings
 import androidx.camera.video.internal.audio.AudioSource
 import androidx.camera.video.internal.encoder.AudioEncoderConfig
@@ -102,74 +100,6 @@ public object AudioConfigUtil {
             MIMETYPE_AUDIO_AAC -> AAC_DEFAULT_PROFILE
             else -> EncoderConfig.CODEC_PROFILE_NONE
         }
-
-    /**
-     * Resolves the audio mime information into a [AudioMimeInfo].
-     *
-     * @param mediaSpec the media spec to resolve the mime info.
-     * @param encoderProfiles the encoder profiles to resolve the mime info. It can be null if there
-     *   is no relevant encoder profiles.
-     * @return the audio MimeInfo.
-     */
-    @JvmStatic
-    public fun resolveAudioMimeInfo(
-        mediaSpec: MediaSpec,
-        encoderProfiles: VideoValidatedEncoderProfilesProxy?,
-    ): AudioMimeInfo {
-        val mediaSpecAudioMime = MediaSpec.outputFormatToAudioMime(mediaSpec.outputFormat)
-        val mediaSpecAudioProfile = MediaSpec.outputFormatToAudioProfile(mediaSpec.outputFormat)
-        var resolvedAudioMime = mediaSpecAudioMime
-        var resolvedAudioProfile = mediaSpecAudioProfile
-        var compatibleAudioProfile: AudioProfileProxy? = null
-        encoderProfiles?.defaultAudioProfile?.let { audioProfile ->
-            val encoderProfileAudioMime = audioProfile.mediaType
-            val encoderProfileAudioProfile = audioProfile.profile
-            if (encoderProfileAudioMime == AudioProfileProxy.MEDIA_TYPE_NONE) {
-                Logger.d(
-                    TAG,
-                    "EncoderProfiles contains undefined AUDIO mime type so cannot be " +
-                        "used. May rely on fallback defaults to derive settings [chosen mime " +
-                        "type: $resolvedAudioMime(profile: $resolvedAudioProfile)]",
-                )
-            } else if (mediaSpec.outputFormat == MediaSpec.OUTPUT_FORMAT_UNSPECIFIED) {
-                compatibleAudioProfile = audioProfile
-                resolvedAudioMime = encoderProfileAudioMime
-                resolvedAudioProfile = encoderProfileAudioProfile
-                Logger.d(
-                    TAG,
-                    "MediaSpec contains OUTPUT_FORMAT_UNSPECIFIED. Using EncoderProfiles " +
-                        "to derive AUDIO settings [mime type: $resolvedAudioMime(profile: " +
-                        "$resolvedAudioProfile)]",
-                )
-            } else if (
-                mediaSpecAudioMime == encoderProfileAudioMime &&
-                    mediaSpecAudioProfile == encoderProfileAudioProfile
-            ) {
-                compatibleAudioProfile = audioProfile
-                resolvedAudioMime = encoderProfileAudioMime
-                Logger.d(
-                    TAG,
-                    "MediaSpec audio mime/profile matches EncoderProfiles. " +
-                        "Using EncoderProfiles to derive AUDIO settings [mime type: " +
-                        "$resolvedAudioMime(profile: $resolvedAudioProfile)]",
-                )
-            } else {
-                Logger.d(
-                    TAG,
-                    "MediaSpec audio mime or profile does not match EncoderProfiles, so " +
-                        "EncoderProfiles settings cannot be used. May rely on fallback defaults" +
-                        " to derive AUDIO settings [EncoderProfiles mime type: " +
-                        "$encoderProfileAudioMime(profile: $encoderProfileAudioProfile), " +
-                        "chosen mime type: $resolvedAudioMime(profile: $resolvedAudioProfile)]",
-                )
-            }
-        }
-        return AudioMimeInfo(
-            mimeType = resolvedAudioMime,
-            profile = resolvedAudioProfile,
-            compatibleAudioProfile = compatibleAudioProfile,
-        )
-    }
 
     /**
      * Resolves the audio source settings into an [AudioSettings].

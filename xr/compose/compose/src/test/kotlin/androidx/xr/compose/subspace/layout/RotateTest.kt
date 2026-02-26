@@ -100,7 +100,9 @@ class RotateTest {
     fun rotate_defaultPitchYawRoll_appliesIdentity() {
         composeTestRule.setContent {
             Subspace {
-                SpatialPanel(SubspaceModifier.testTag("panel").rotate()) { Text(text = "Panel") }
+                SpatialPanel(SubspaceModifier.testTag("panel").rotate(pitch = 0f)) {
+                    Text(text = "Panel")
+                }
             }
         }
 

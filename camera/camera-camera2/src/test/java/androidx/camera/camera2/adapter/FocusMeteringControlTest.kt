@@ -1042,7 +1042,7 @@ class FocusMeteringControlTest {
 
         // Assert.
         assertFutureFailedWithOperationCancellation(actionResult)
-        assertThat(cancelResult[3, TimeUnit.SECONDS]?.status).isEqualTo(Result3A.Status.OK)
+        assertThat(cancelResult[3, TimeUnit.SECONDS]).isNull()
     }
 
     @Test

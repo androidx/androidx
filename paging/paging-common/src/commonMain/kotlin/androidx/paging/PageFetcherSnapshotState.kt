@@ -44,7 +44,10 @@ internal class PageFetcherSnapshotState<Key : Any, Value : Any>
 private constructor(private val config: PagingConfig) {
     /** Raw loaded data (pre-transform) */
     private val _pages = mutableListOf<Page<Key, Value>>()
+
     internal val pages: List<Page<Key, Value>> = _pages
+
+    private val pageKeys = mutableMapOf<Int, Key?>()
 
     /**
      * Index of refresh page relative to the current first page.
@@ -144,6 +147,24 @@ private constructor(private val config: PagingConfig) {
     }
 
     /**
+     * Returns the key that was used to load the given page.
+     *
+     * The returned key is nullable because null keys are valid (usually on initial refresh).
+     *
+     * @throws IllegalArgumentException if the given page does not have a cached key.
+     */
+    fun getLoadKey(page: Page<Key, Value>): Key? {
+        val key = page.hashCode()
+        if (!pageKeys.contains(key)) {
+            throw IllegalArgumentException(
+                "Load key not found for Page $page. This likely indicates" +
+                    " an error in the library. Please file a bug in the Buganizer."
+            )
+        }
+        return pageKeys[key]
+    }
+
+    /**
      * Convert a loaded [Page] into a [PageEvent] for [PageFetcherSnapshot.pageEventCh].
      *
      * Note: This method should be called after state updated by [insert]
@@ -187,15 +208,25 @@ private constructor(private val config: PagingConfig) {
         }
     }
 
-    /** @return true if insert was applied, false otherwise. */
+    /**
+     * Inserts loaded pages into [_pages] and updates placeholders counts.
+     *
+     * Caches the [loadKey] that was used to load the inserted [page] so that future loads/refreshes
+     * that are anchored to a specific page can quickly retrieve and reuse the same load key. This
+     * means that every loaded page should be inserted along with its loadKey. Only test usages can
+     * avoid passing in a valid one.
+     *
+     * @return true if insert was applied, false otherwise.
+     */
     @CheckResult
-    fun insert(loadId: Int, loadType: LoadType, page: Page<Key, Value>): Boolean {
+    fun insert(loadId: Int, loadType: LoadType, page: Page<Key, Value>, loadKey: Key?): Boolean {
         when (loadType) {
             REFRESH -> {
                 check(pages.isEmpty()) { "cannot receive multiple init calls" }
                 check(loadId == 0) { "init loadId must be the initial value, 0" }
 
                 _pages.add(page)
+                pageKeys[page.hashCode()] = loadKey
                 initialPageIndex = 0
                 placeholdersAfter = page.itemsAfter
                 placeholdersBefore = page.itemsBefore
@@ -207,6 +238,7 @@ private constructor(private val config: PagingConfig) {
                 if (loadId != prependGenerationId) return false
 
                 _pages.add(0, page)
+                pageKeys[page.hashCode()] = loadKey
                 initialPageIndex++
                 placeholdersBefore =
                     if (page.itemsBefore == COUNT_UNDEFINED) {
@@ -225,6 +257,7 @@ private constructor(private val config: PagingConfig) {
                 if (loadId != appendGenerationId) return false
 
                 _pages.add(page)
+                pageKeys[page.hashCode()] = loadKey
                 placeholdersAfter =
                     if (page.itemsAfter == COUNT_UNDEFINED) {
                         (placeholdersAfter - page.data.size).coerceAtLeast(0)
@@ -251,7 +284,10 @@ private constructor(private val config: PagingConfig) {
 
         when (event.loadType) {
             PREPEND -> {
-                repeat(event.pageCount) { _pages.removeAt(0) }
+                repeat(event.pageCount) {
+                    val removed = _pages.removeAt(0)
+                    pageKeys.remove(removed.hashCode())
+                }
                 initialPageIndex -= event.pageCount
 
                 placeholdersBefore = event.placeholdersRemaining
@@ -260,7 +296,10 @@ private constructor(private val config: PagingConfig) {
                 prependGenerationIdCh.trySend(prependGenerationId)
             }
             APPEND -> {
-                repeat(event.pageCount) { _pages.removeAt(pages.size - 1) }
+                repeat(event.pageCount) {
+                    val removed = _pages.removeAt(pages.size - 1)
+                    pageKeys.remove(removed.hashCode())
+                }
 
                 placeholdersAfter = event.placeholdersRemaining
 

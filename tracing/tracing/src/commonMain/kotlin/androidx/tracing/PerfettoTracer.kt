@@ -19,7 +19,6 @@ package androidx.tracing
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope
 import kotlin.concurrent.Volatile
-import kotlinx.coroutines.currentCoroutineContext
 
 /** @return the [ProcessTrack] for the current process. */
 internal expect inline fun TraceContext.currentProcessTrack(): ProcessTrack
@@ -85,8 +84,10 @@ public class PerfettoTracer(context: TraceContext) : Tracer(isEnabled = context.
     @DelicateTracingApi
     override suspend fun tokenFromCoroutineContext():
         PlatformThreadContextElement<*, PerfettoTracer> {
-        val parent = currentCoroutineContext().platformThreadContextElement()
-        val current = inheritedCoroutinePropagationToken(parent, tracer = this)
+        // When context propagation is implicit, don't re-use flowIds from the CoroutineContext.
+        // Instead, allocate a new flowId for every child coroutine unless explicit
+        // propagation tokens are used.
+        val current = inheritedCoroutinePropagationToken(parent = null, tracer = this)
         return current
     }
 

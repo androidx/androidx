@@ -46,6 +46,7 @@ import androidx.camera.testing.impl.TestImageUtil.createRawFakeImageProxy
 import androidx.camera.testing.impl.fakes.FakeImageInfo
 import androidx.camera.testing.impl.fakes.FakeImageProxy
 import com.google.common.truth.Truth.assertThat
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -74,6 +75,12 @@ class ProcessingNodeTest {
     fun setUp() {
         processingNodeIn = ProcessingNode.In.of(JPEG, listOf(JPEG))
         node.transform(processingNodeIn)
+    }
+
+    @After
+    fun tearDown() {
+        // Process any pending looper updates to prevent leaks
+        shadowOf(getMainLooper()).idle()
     }
 
     @Test

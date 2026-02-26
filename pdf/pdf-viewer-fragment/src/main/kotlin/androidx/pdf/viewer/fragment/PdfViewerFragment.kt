@@ -44,7 +44,6 @@ import androidx.annotation.VisibleForTesting
 import androidx.core.os.OperationCanceledException
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_CONTINUE_ON_SUBTREE
-import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -79,7 +78,6 @@ import androidx.pdf.viewer.fragment.toolbox.ToolboxGestureEventProcessor.MotionE
 import androidx.pdf.viewer.fragment.toolbox.ToolboxGestureEventProcessor.ToolboxGestureDelegate
 import androidx.pdf.viewer.fragment.util.getCenter
 import androidx.pdf.viewer.fragment.view.PdfViewManager
-import androidx.window.layout.WindowMetricsCalculator
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -399,8 +397,6 @@ public open class PdfViewerFragment constructor() : Fragment() {
             _pdfView = pdfContainer.pdfView
         }
 
-        applyResponsiveMargins()
-
         val stylingOptions = pdfStylingOptions
         if (stylingOptions != null) {
             applyPdfViewStyledAttributes(stylingOptions.containerStyleResId)
@@ -415,31 +411,6 @@ public open class PdfViewerFragment constructor() : Fragment() {
         // Call onPdfViewCreated last to allow host apps to override any internal PdfView listeners
         // set by fragment.
         onPdfViewCreated(pdfView)
-    }
-
-    /**
-     * Applies responsive horizontal margins to the PDF container based on the window width,
-     * ensuring optimal content readability across different devices.
-     */
-    private fun applyResponsiveMargins() {
-        val windowMetrics =
-            WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(requireActivity())
-
-        val windowWidthPx = windowMetrics.bounds.width()
-        val density = resources.displayMetrics.density
-        val windowWidthDp = windowWidthPx / density
-
-        val dimenResId =
-            if (windowWidthDp >= 840) {
-                androidx.pdf.R.dimen.pdf_horizontal_margin_w840dp
-            } else {
-                androidx.pdf.R.dimen.pdf_horizontal_margin
-            }
-        val marginPx = resources.getDimensionPixelSize(dimenResId)
-        _pdfContainer.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-            leftMargin = marginPx
-            rightMargin = marginPx
-        }
     }
 
     private fun applyPdfViewStyledAttributes(resId: Int) {

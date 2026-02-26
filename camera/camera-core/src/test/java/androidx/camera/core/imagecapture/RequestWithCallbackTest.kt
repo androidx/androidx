@@ -65,6 +65,9 @@ class RequestWithCallbackTest {
     @After
     fun tearDown() {
         captureRequestFuture.cancel(true)
+
+        // Process any pending looper updates to prevent leaks
+        shadowOf(getMainLooper()).idle()
     }
 
     @Test

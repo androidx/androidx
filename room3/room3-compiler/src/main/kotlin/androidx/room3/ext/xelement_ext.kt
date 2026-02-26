@@ -62,12 +62,11 @@ class ValueClassInfo(
  * excluding the Coroutine parameter if it is a suspend function.
  */
 fun XExecutableElement.getRequiredFunctionParamTypes(): List<XType> {
-    val functionParams = this.parameters
-    val indexOfLastParam =
-        if (functionParams.last().isContinuationParam()) {
-            functionParams.lastIndex - 1
+    val adjustedSize =
+        if (parameters.last().isContinuationParam()) {
+            parameters.size - 1
         } else {
-            functionParams.lastIndex
+            parameters.size
         }
-    return functionParams.subList(0, indexOfLastParam).map { it.type }
+    return parameters.subList(0, adjustedSize).map { it.type }
 }

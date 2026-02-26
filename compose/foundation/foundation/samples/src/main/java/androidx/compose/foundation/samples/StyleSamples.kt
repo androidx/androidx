@@ -24,12 +24,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.style.ExperimentalFoundationStyleApi
-import androidx.compose.foundation.style.MutableStyleState
 import androidx.compose.foundation.style.Style
 import androidx.compose.foundation.style.StyleScope
 import androidx.compose.foundation.style.StyleStateKey
+import androidx.compose.foundation.style.disabled
 import androidx.compose.foundation.style.hovered
 import androidx.compose.foundation.style.pressed
+import androidx.compose.foundation.style.rememberUpdatedStyleState
 import androidx.compose.foundation.style.styleable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -64,9 +65,10 @@ fun StyleStateSample() {
         onClick: () -> Unit,
         modifier: Modifier = Modifier,
         style: Style = Style,
+        enabled: Boolean = true,
     ) {
         val interactionSource = remember { MutableInteractionSource() }
-        val styleState = remember { MutableStyleState(interactionSource) }
+        val styleState = rememberUpdatedStyleState(interactionSource) { it.isEnabled = enabled }
         Box(
             modifier =
                 modifier
@@ -83,6 +85,7 @@ fun StyleStateSample() {
             size(150.dp)
             hovered { background(Color.Yellow) }
             pressed { background(Color.Red) }
+            disabled { background(Color.Gray) }
         },
     )
 }
@@ -96,9 +99,10 @@ fun StyleAnimationSample() {
         onClick: () -> Unit,
         modifier: Modifier = Modifier,
         style: Style = Style,
+        enabled: Boolean = true,
     ) {
         val interactionSource = remember { MutableInteractionSource() }
-        val styleState = remember { MutableStyleState(interactionSource) }
+        val styleState = rememberUpdatedStyleState(interactionSource) { it.isEnabled = enabled }
         Box(
             modifier =
                 modifier
@@ -114,6 +118,7 @@ fun StyleAnimationSample() {
             size(150.dp)
             hovered { animate { background(Color.Yellow) } }
             pressed { animate { background(Color.Red) } }
+            disabled { animate { background(Color.Gray) } }
         },
     )
 }

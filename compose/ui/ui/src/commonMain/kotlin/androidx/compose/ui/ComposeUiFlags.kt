@@ -149,4 +149,13 @@ object ComposeUiFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     var isMediaQueryIntegrationEnabled: Boolean = false
+
+    /**
+     * Enables hit test to continue searching for "semantic nodes" if the initial node that is hit
+     * is unimportant from an accessibility semantics node point of view.
+     */
+    // TODO: b/487663967
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isSkipNonImportantSemanticsNodesHitTestEnabled: Boolean = true
 }

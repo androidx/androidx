@@ -29,7 +29,9 @@ import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
 import android.location.Location
 import android.media.MediaCodec
+import android.media.MediaFormat.MIMETYPE_AUDIO_OPUS
 import android.media.MediaFormat.MIMETYPE_VIDEO_AVC
+import android.media.MediaFormat.MIMETYPE_VIDEO_HEVC
 import android.media.MediaMetadataRetriever
 import android.media.MediaRecorder
 import android.net.Uri
@@ -69,6 +71,7 @@ import androidx.camera.testing.impl.mocks.MockConsumer
 import androidx.camera.testing.impl.mocks.helpers.CallTimes
 import androidx.camera.testing.impl.useAndRelease
 import androidx.camera.testing.impl.video.RecordingSession
+import androidx.camera.video.MediaSpec.Companion.OUTPUT_FORMAT_WEBM
 import androidx.camera.video.Recorder.VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE
 import androidx.camera.video.Recorder.VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES
 import androidx.camera.video.Recorder.sRetrySetupVideoDelayMs
@@ -100,7 +103,6 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
-import androidx.testutils.assertThrows
 import androidx.testutils.fail
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -119,6 +121,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
+import org.junit.Assert.assertThrows
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -879,7 +882,7 @@ class RecorderTest(private val implName: String, private val cameraConfig: Camer
         recording.start()
 
         // Assert.
-        assertThrows<IllegalStateException> {
+        assertThrows(IllegalStateException::class.java) {
             // Act: Prepare 2nd recording and start.
             recordingSession.createRecording(recorder = recorder).start()
         }
@@ -999,6 +1002,33 @@ class RecorderTest(private val implName: String, private val cameraConfig: Camer
         assertThrows(IllegalArgumentException::class.java) {
             createRecorder(videoCapabilitiesSource = Integer.MAX_VALUE)
         }
+    }
+
+    @Test
+    fun canSetOutputFormat() {
+        // Arrange.
+        val recorder = createRecorder(outputFormat = OUTPUT_FORMAT_WEBM)
+
+        // Assert.
+        assertThat(recorder.outputFormat).isEqualTo(OUTPUT_FORMAT_WEBM)
+    }
+
+    @Test
+    fun canSetVideoMimeType() {
+        // Arrange.
+        val recorder = createRecorder(videoMimeType = MIMETYPE_VIDEO_HEVC)
+
+        // Assert.
+        assertThat(recorder.videoMimeType).isEqualTo(MIMETYPE_VIDEO_HEVC)
+    }
+
+    @Test
+    fun canSetAudioMimeType() {
+        // Arrange.
+        val recorder = createRecorder(audioMimeType = MIMETYPE_AUDIO_OPUS)
+
+        // Assert.
+        assertThat(recorder.audioMimeType).isEqualTo(MIMETYPE_AUDIO_OPUS)
     }
 
     @Test
@@ -1328,6 +1358,9 @@ class RecorderTest(private val implName: String, private val cameraConfig: Camer
     private fun createRecorder(
         sendSurfaceRequest: Boolean = true,
         initSourceState: VideoOutput.SourceState = ACTIVE_STREAMING,
+        outputFormat: Int? = null,
+        videoMimeType: String? = null,
+        audioMimeType: String? = null,
         qualitySelector: QualitySelector? = null,
         videoCapabilitiesSource: Int? = null,
         executor: Executor? = null,
@@ -1345,6 +1378,9 @@ class RecorderTest(private val implName: String, private val cameraConfig: Camer
         val recorder =
             Recorder.Builder()
                 .apply {
+                    outputFormat?.let { setOutputFormat(it) }
+                    videoMimeType?.let { setVideoMimeType(it) }
+                    audioMimeType?.let { setAudioMimeType(it) }
                     qualitySelector?.let { setQualitySelector(it) }
                     videoCapabilitiesSource?.let { setVideoCapabilitiesSource(it) }
                     executor?.let { setExecutor(it) }

@@ -26,6 +26,7 @@ import androidx.camera.camera2.impl.Camera2Logger
 import androidx.camera.camera2.impl.CameraGraphConfigProvider
 import androidx.camera.camera2.impl.CapturePipeline
 import androidx.camera.camera2.impl.CapturePipelineImpl
+import androidx.camera.camera2.impl.GraphConfigBundle
 import androidx.camera.camera2.impl.UseCaseCamera
 import androidx.camera.camera2.impl.UseCaseCameraImpl
 import androidx.camera.camera2.impl.UseCaseCameraRequestControlImpl
@@ -74,10 +75,10 @@ public data class UseCaseCameraConfig(
     private val graphStateToCameraStateAdapter: GraphStateToCameraStateAdapter,
     private val sessionConfigAdapter: SessionConfigAdapter,
     private val sessionProcessor: SessionProcessor?,
-    private val lazyCreationResult: Lazy<CameraGraphConfigProvider.CameraGraphCreationResult>,
+    private val lazyGraphConfigBundle: Lazy<GraphConfigBundle>,
 ) {
     public val cameraGraphConfig: CameraGraph.Config
-        get() = lazyCreationResult.value.config
+        get() = lazyGraphConfigBundle.value.graphConfig
 
     @UseCaseCameraScope
     @Provides
@@ -92,27 +93,27 @@ public data class UseCaseCameraConfig(
     }
 
     /**
-     * [UseCaseGraphContext] would store the CameraGraph and related surface map that would be used
+     * [UseCaseCameraContext] would store the CameraGraph and related surface map that would be used
      * for [UseCaseCamera].
      */
     @UseCaseCameraScope
     @Provides
-    public fun provideUseCaseGraphContext(
+    public fun provideUseCaseCameraContext(
         cameraStateAdapter: CameraStateAdapter
-    ): UseCaseGraphContext {
-        Camera2Logger.debug { "Prepared UseCaseGraphContext (Deferred)" }
-        return UseCaseGraphContext(
+    ): UseCaseCameraContext {
+        Camera2Logger.debug { "Prepared UseCaseCameraContext (Deferred)" }
+        return UseCaseCameraContext(
             cameraGraphProvider = { cameraGraphFactory(cameraGraphConfig) },
             cameraStateAdapter = cameraStateAdapter,
-            streamConfigMapProvider = { lazyCreationResult.value.streamConfigMap },
+            streamConfigMapProvider = { lazyGraphConfigBundle.value.streamToSurfaceMap },
             graphStateToCameraStateAdapter = graphStateToCameraStateAdapter,
         )
     }
 
     /**
-     * Manually implemented equals() to ignore [lazyCreationResult] and [cameraGraphFactory].
+     * Manually implemented equals() to ignore [lazyGraphConfigBundle] and [cameraGraphFactory].
      *
-     * The [lazyCreationResult] is an object instance that uses reference equality. If we use the
+     * The [lazyGraphConfigBundle] is an object instance that uses reference equality. If we use the
      * default data class equals, two configs with identical inputs will never be equal because the
      * lazy instances are different objects.
      */
@@ -145,32 +146,26 @@ public data class UseCaseCameraConfig(
             sessionConfigAdapter: SessionConfigAdapter,
             cameraGraphConfigProvider: CameraGraphConfigProvider,
             cameraGraphFactory: (CameraGraph.Config) -> CameraGraph,
-            graphStateToCameraStateAdapter: GraphStateToCameraStateAdapter,
+            cameraStateAdapter: CameraStateAdapter,
             sessionProcessor: SessionProcessor?,
-            isExtensions: Boolean,
+            extensionMode: Int?,
         ): UseCaseCameraConfig {
+            val graphStateToCameraStateAdapter = GraphStateToCameraStateAdapter(cameraStateAdapter)
             // We use a lazy value here to defer the heavy creation of CameraGraph.Config.
             // Importantly, we pass this lazy instance into the constructor.
             // This ensures that if this data class is copied (via .copy()), the *same*
             // lazy instance (and its cached result) is carried over to the new object,
             // preserving the identity of the StreamIds within the GraphConfig.
-            val lazyResult = lazy {
+            val lazyGraphConfigBundle = lazy {
                 val sessionConfig = sessionConfigAdapter.getValidSessionConfigOrNull()
 
                 val operatingMode =
                     when {
-                        isExtensions -> OperatingMode.EXTENSION
+                        extensionMode != null -> OperatingMode.EXTENSION
                         sessionConfig == null -> OperatingMode.NORMAL
                         sessionConfig.sessionType == SESSION_HIGH_SPEED -> OperatingMode.HIGH_SPEED
                         sessionConfig.sessionType == SESSION_REGULAR -> OperatingMode.NORMAL
                         else -> OperatingMode.custom(sessionConfig.sessionType)
-                    }
-
-                val camera2ExtensionMode =
-                    if (isExtensions) {
-                        sessionProcessor?.implementationType?.second
-                    } else {
-                        null
                     }
 
                 cameraGraphConfigProvider.create(
@@ -178,7 +173,7 @@ public data class UseCaseCameraConfig(
                     sessionConfig = sessionConfig,
                     setOutputType = false,
                     graphStateToCameraStateAdapter = graphStateToCameraStateAdapter,
-                    camera2ExtensionMode = camera2ExtensionMode,
+                    camera2ExtensionMode = extensionMode,
                     surfaceToStreamUseCaseMap = sessionConfigAdapter.surfaceToStreamUseCaseMap,
                     surfaceToStreamUseHintMap = sessionConfigAdapter.surfaceToStreamUseHintMap,
                 )
@@ -189,13 +184,13 @@ public data class UseCaseCameraConfig(
                 graphStateToCameraStateAdapter = graphStateToCameraStateAdapter,
                 cameraGraphFactory = cameraGraphFactory,
                 sessionProcessor = sessionProcessor,
-                lazyCreationResult = lazyResult,
+                lazyGraphConfigBundle = lazyGraphConfigBundle,
             )
         }
     }
 }
 
-public class UseCaseGraphContext(
+public class UseCaseCameraContext(
     private val cameraGraphProvider: Provider<CameraGraph>,
     private val cameraStateAdapter: CameraStateAdapter,
     private val graphStateToCameraStateAdapter: GraphStateToCameraStateAdapter,
@@ -219,7 +214,9 @@ public class UseCaseGraphContext(
 
     public fun closeGraph() {
         if (_graph.isInitialized()) {
-            graph.close()
+            val initializedGraph = graph
+            initializedGraph.close()
+            cameraStateAdapter.onGraphClosed(initializedGraph)
         }
     }
 
@@ -249,7 +246,7 @@ public class UseCaseGraphContext(
 public interface UseCaseCameraComponent {
     public fun getUseCaseCamera(): UseCaseCamera
 
-    public fun getUseCaseGraphContext(): UseCaseGraphContext
+    public fun getUseCaseCameraContext(): UseCaseCameraContext
 
     @Subcomponent.Builder
     public interface Builder {

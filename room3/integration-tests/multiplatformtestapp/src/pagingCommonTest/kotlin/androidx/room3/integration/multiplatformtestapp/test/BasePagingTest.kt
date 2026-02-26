@@ -21,6 +21,7 @@ import androidx.paging.PagingSource
 import androidx.room3.ColumnInfo
 import androidx.room3.ConstructedBy
 import androidx.room3.Dao
+import androidx.room3.DaoReturnTypeConverters
 import androidx.room3.Database
 import androidx.room3.Insert
 import androidx.room3.Query
@@ -28,6 +29,7 @@ import androidx.room3.Relation
 import androidx.room3.RoomDatabase
 import androidx.room3.RoomDatabaseConstructor
 import androidx.room3.Transaction
+import androidx.room3.paging.PagingSourceDaoReturnTypeConverter
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 
@@ -111,6 +113,7 @@ abstract class BasePagingTest {
     }
 
     @Dao
+    @DaoReturnTypeConverters(PagingSourceDaoReturnTypeConverter::class)
     interface PagingDao {
 
         @Insert suspend fun insertSampleEntityList(entities: List<SampleEntity>)

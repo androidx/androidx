@@ -16,6 +16,8 @@
 
 package androidx.xr.compose.samples
 
+import android.net.Uri
+import android.util.Log
 import androidx.annotation.Sampled
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -23,17 +25,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialGltfModel
 import androidx.xr.compose.subspace.SpatialGltfModelSource
 import androidx.xr.compose.subspace.SpatialPanel
+import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
@@ -44,36 +46,66 @@ import androidx.xr.compose.unit.Meter
 import java.nio.file.Paths
 
 @Sampled
-public fun SpatialGltfModelSample() {
-    @Composable
-    fun AppContent() {
-        val modelState =
-            rememberSpatialGltfModelState(
-                source = SpatialGltfModelSource.fromPath(Paths.get("models", "Dragon_Evolved.gltf"))
-            )
-        Subspace() {
-            SpatialGltfModel(state = modelState) {
-                val headNode = modelState.nodes.find { it.name == "head" }
-                if (headNode != null) {
-                    val offsetX = Meter(headNode.modelPose.translation.x).toDp()
-                    val offsetY = Meter(headNode.modelPose.translation.y).toDp()
-                    val offsetZ = Meter(headNode.modelPose.translation.z).toDp()
-                    SpatialPanel(
-                        shape = SpatialRoundedCornerShape(CornerSize(25)),
-                        modifier =
-                            SubspaceModifier.width(700.dp)
-                                .height(700.dp)
-                                .offset(offsetX, offsetY, offsetZ),
-                    ) {
-                        Box(
-                            Modifier.fillMaxSize().background(Color.Blue.copy(alpha = 0.8f)),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Text(text = "Head", color = Color.White, fontSize = 30.sp)
-                        }
-                    }
+@Composable
+@SubspaceComposable
+public fun SpatialGltfModelSample(modifier: SubspaceModifier) {
+    val duckModelUri =
+        "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/Duck/glTF-Binary/Duck.glb"
+    val state =
+        rememberSpatialGltfModelState(SpatialGltfModelSource.fromUri(Uri.parse(duckModelUri)))
+    SpatialGltfModel(state = state, modifier = modifier)
+}
+
+@Sampled
+@Composable
+@SubspaceComposable
+public fun SpatialGltfModelNodeSample() {
+    val modelState =
+        rememberSpatialGltfModelState(
+            source = SpatialGltfModelSource.fromPath(Paths.get("models", "Dragon_Evolved.gltf"))
+        )
+    SpatialGltfModel(state = modelState) {
+        val headNode = modelState.nodes.find { it.name == "head" }
+        if (headNode != null) {
+            val offsetX = Meter(headNode.modelPose.translation.x).toDp()
+            val offsetY = Meter(headNode.modelPose.translation.y).toDp()
+            val offsetZ = Meter(headNode.modelPose.translation.z).toDp()
+            SpatialPanel(
+                shape = SpatialRoundedCornerShape(CornerSize(25)),
+                modifier =
+                    SubspaceModifier.width(700.dp).height(700.dp).offset(offsetX, offsetY, offsetZ),
+            ) {
+                Box(
+                    Modifier.fillMaxSize().background(Color.Blue.copy(alpha = 0.8f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(text = "Head", color = Color.White, fontSize = 30.sp)
                 }
             }
         }
     }
+}
+
+@Sampled
+@Composable
+@SubspaceComposable
+public fun SpatialGltfModelAnimationSample() {
+    val modelState =
+        rememberSpatialGltfModelState(
+            source = SpatialGltfModelSource.fromPath(Paths.get("models", "Biped.gltf"))
+        )
+    val animation = modelState.animations.find { it.name == "Walk" }
+
+    animation?.animationState?.let { state ->
+        LaunchedEffect(state) {
+            Log.i("SpatialGltfModelAnimationSample", "Animation State: $state")
+        }
+    }
+
+    DisposableEffect(animation) {
+        animation?.loop()
+        onDispose { animation?.stop() }
+    }
+
+    SpatialGltfModel(state = modelState)
 }

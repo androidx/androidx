@@ -337,5 +337,7 @@ class CameraFactoryAdapterTest {
         ): androidx.camera.camera2.pipe.CameraMetadata? {
             return dynamicMetadataMap[cameraId]
         }
+
+        override fun awaitCameraMetadata(cameraId: CameraId) = awaitCameraMetadata(cameraId, null)
     }
 }

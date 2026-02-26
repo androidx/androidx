@@ -16,13 +16,21 @@
 
 package androidx.sqlite.driver.web.worker
 
+import org.w3c.dom.ErrorEvent
+
 internal actual typealias Worker = org.w3c.dom.Worker
 
 internal actual abstract class WebWorkerWrapper actual constructor(private val worker: Worker) {
 
     init {
         worker.onmessage = { resultMsg -> onMessage(WebWorkerMessage(resultMsg.data)) }
-        worker.onerror = { errorMsg -> onError(JSON.stringify(errorMsg)) }
+        worker.onerror = { errorMsg ->
+            if (errorMsg is ErrorEvent) {
+                onError(errorMsg.message)
+            } else {
+                onError("An unknown error has occurred in the worker.")
+            }
+        }
     }
 
     protected actual abstract fun onMessage(message: WebWorkerMessage)

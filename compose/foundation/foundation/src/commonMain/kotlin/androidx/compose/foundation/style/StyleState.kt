@@ -28,10 +28,12 @@ import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.selection.triStateToggleable
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.state.ToggleableState
 
@@ -626,6 +628,25 @@ constructor(override val interactionSource: InteractionSource?) : StyleState() {
             }
         }
     }
+}
+
+/**
+ * Create, remember and update a [StyleState] for use as a parameter of a
+ * [androidx.compose.ui.Modifier.styleable] modifier.
+ *
+ * @param interactionSource the interaction source to observe for the style state.
+ * @param block a lambda that will initializes or updates the style state.
+ * @sample androidx.compose.foundation.samples.StyleStateSample
+ */
+@ExperimentalFoundationStyleApi
+@Composable
+inline fun rememberUpdatedStyleState(
+    interactionSource: InteractionSource?,
+    block: @Composable (MutableStyleState) -> Unit = {},
+): StyleState {
+    val mutableStyleState = remember(interactionSource) { MutableStyleState(interactionSource) }
+    block(mutableStyleState)
+    return mutableStyleState
 }
 
 @Suppress("UNCHECKED_CAST")

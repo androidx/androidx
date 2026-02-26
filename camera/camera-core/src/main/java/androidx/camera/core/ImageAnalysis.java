@@ -397,7 +397,7 @@ public final class ImageAnalysis extends UseCase {
         boolean isYuv2Nv21 = getImageFormat() == ImageFormat.YUV_420_888
                 && getOutputImageFormat() == OUTPUT_IMAGE_FORMAT_NV21;
         boolean isYuvRotationOrPixelShift = getImageFormat() == ImageFormat.YUV_420_888
-                && ((getCamera() != null && getRelativeRotation(getCamera()) != 0)
+                && (isOutputImageRotationEnabled()
                 || Boolean.TRUE.equals(getOnePixelShiftEnabled()));
 
         // TODO(b/195021586): to support RGB format input for image analysis for devices already

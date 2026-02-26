@@ -151,6 +151,7 @@ package androidx.compose.foundation {
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final class ComposeFoundationFlags {
     property public boolean isAnchoredDraggableTargetValueCalculationFixEnabled;
+    property public boolean isBasicTextFieldMinSizeOptimizationEnabled;
     property public boolean isBringIntoViewRltBouncyBehaviorInPagerFixEnabled;
     property public boolean isCacheWindowForPagerEnabled;
     property public boolean isCacheWindowRefillFixEnabled;
@@ -164,6 +165,7 @@ package androidx.compose.foundation {
     property public boolean isTrackpadGestureHandlingEnabled;
     field public static final androidx.compose.foundation.ComposeFoundationFlags INSTANCE;
     field public static boolean isAnchoredDraggableTargetValueCalculationFixEnabled;
+    field public static boolean isBasicTextFieldMinSizeOptimizationEnabled;
     field public static boolean isBringIntoViewRltBouncyBehaviorInPagerFixEnabled;
     field public static boolean isCacheWindowForPagerEnabled;
     field public static boolean isCacheWindowRefillFixEnabled;
@@ -2434,6 +2436,8 @@ package androidx.compose.foundation.style {
     method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void focused(androidx.compose.foundation.style.StyleScope, androidx.compose.foundation.style.Style value);
     method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void hovered(androidx.compose.foundation.style.StyleScope, androidx.compose.foundation.style.Style value);
     method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void pressed(androidx.compose.foundation.style.StyleScope, androidx.compose.foundation.style.Style value);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi @androidx.compose.runtime.Composable public static inline androidx.compose.foundation.style.StyleState rememberUpdatedStyleState(androidx.compose.foundation.interaction.InteractionSource? interactionSource, optional kotlin.jvm.functions.Function1<androidx.compose.foundation.style.MutableStyleState,kotlin.Unit> block);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi @androidx.compose.runtime.Composable public static androidx.compose.foundation.style.StyleState rememberUpdatedStyleState(androidx.compose.foundation.interaction.InteractionSource?, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.style.MutableStyleState!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
     method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void selected(androidx.compose.foundation.style.StyleScope, androidx.compose.foundation.style.Style value);
     method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void triStateToggleIndeterminate(androidx.compose.foundation.style.StyleScope, androidx.compose.foundation.style.Style value);
     method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void triStateToggleOff(androidx.compose.foundation.style.StyleScope, androidx.compose.foundation.style.Style value);

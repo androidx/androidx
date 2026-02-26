@@ -15,13 +15,9 @@
  */
 package androidx.camera.video
 
-import android.media.MediaCodecInfo
-import android.media.MediaFormat
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope
-import androidx.camera.video.internal.encoder.EncoderConfig
-import androidx.camera.video.internal.muxer.Muxer
 import androidx.core.util.Consumer
 import java.util.Objects
 
@@ -112,56 +108,12 @@ public constructor(
     public annotation class OutputFormat
 
     public companion object {
-        private const val AUDIO_ENCODER_MIME_MPEG4_DEFAULT = MediaFormat.MIMETYPE_AUDIO_AAC
-        private const val AUDIO_ENCODER_MIME_WEBM_DEFAULT = MediaFormat.MIMETYPE_AUDIO_VORBIS
-        private const val VIDEO_ENCODER_MIME_MPEG4_DEFAULT = MediaFormat.MIMETYPE_VIDEO_AVC
-        private const val VIDEO_ENCODER_MIME_WEBM_DEFAULT = MediaFormat.MIMETYPE_VIDEO_VP8
-        private const val AAC_DEFAULT_PROFILE = MediaCodecInfo.CodecProfileLevel.AACObjectLC
-
         /** The output format representing no preference. */
         public const val OUTPUT_FORMAT_UNSPECIFIED: Int = -1
         /** MPEG4 media file format. */
         public const val OUTPUT_FORMAT_MPEG_4: Int = 0
         /** VP8, VP9 media file format */
         public const val OUTPUT_FORMAT_WEBM: Int = 1
-
-        @JvmName("outputFormatToAudioMime")
-        @JvmStatic
-        internal fun outputFormatToAudioMime(@OutputFormat outputFormat: Int): String {
-            return when (outputFormat) {
-                OUTPUT_FORMAT_WEBM -> AUDIO_ENCODER_MIME_WEBM_DEFAULT
-                else -> AUDIO_ENCODER_MIME_MPEG4_DEFAULT
-            }
-        }
-
-        @JvmName("outputFormatToAudioProfile")
-        @JvmStatic
-        internal fun outputFormatToAudioProfile(@OutputFormat outputFormat: Int): Int {
-            val audioMime = outputFormatToAudioMime(outputFormat)
-            return if (audioMime == MediaFormat.MIMETYPE_AUDIO_AAC) {
-                AAC_DEFAULT_PROFILE
-            } else {
-                EncoderConfig.CODEC_PROFILE_NONE
-            }
-        }
-
-        @JvmName("outputFormatToVideoMime")
-        @JvmStatic
-        internal fun outputFormatToVideoMime(@OutputFormat outputFormat: Int): String {
-            return when (outputFormat) {
-                OUTPUT_FORMAT_WEBM -> VIDEO_ENCODER_MIME_WEBM_DEFAULT
-                else -> VIDEO_ENCODER_MIME_MPEG4_DEFAULT
-            }
-        }
-
-        @JvmName("outputFormatToMuxerFormat")
-        @JvmStatic
-        internal fun outputFormatToMuxerFormat(@OutputFormat outputFormat: Int): Int {
-            return when (outputFormat) {
-                OUTPUT_FORMAT_WEBM -> Muxer.MUXER_FORMAT_WEBM
-                else -> Muxer.MUXER_FORMAT_MPEG_4
-            }
-        }
 
         /** Creates a [Builder]. */
         @RestrictTo(Scope.LIBRARY) @JvmStatic public fun builder(): Builder = Builder()

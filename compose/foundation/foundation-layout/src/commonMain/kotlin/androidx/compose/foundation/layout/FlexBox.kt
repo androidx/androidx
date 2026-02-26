@@ -30,6 +30,7 @@ import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
+import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
@@ -66,20 +67,24 @@ import kotlin.math.roundToInt
  * [FlexBox] provides a configurable layout system that is a superset of [Row], [Column], [FlowRow],
  * and [FlowColumn].
  *
+ * Example:
+ *
+ * @sample androidx.compose.foundation.layout.samples.SimpleFlexBox
+ *
  * ## Key Concepts
  *
  * ### Main Axis and Cross Axis
  * The **main axis** is the primary axis along which flex items are laid out, determined by
- * [FlexBoxConfigScope.direction]. The **cross axis** is perpendicular to it.
+ * - [FlexBoxConfigScope.direction]. The **cross axis** is perpendicular to it.
  * - [FlexDirection.Row]/[FlexDirection.RowReverse]: main axis is horizontal, cross axis is vertical
  * - [FlexDirection.Column]/[FlexDirection.ColumnReverse]: main axis is vertical, cross axis is
  *   horizontal
  *
  * ### Flexibility
  * Children can grow or shrink to fill available space using the [FlexBoxScope.flex] modifier:
- * - [FlexConfigScope.grow]: How much the item should grow relative to siblings
- * - [FlexConfigScope.shrink]: How much the item should shrink relative to siblings
- * - [FlexConfigScope.basis]: The initial size before flex distribution
+ * - [FlexConfigScope.grow]: Sets the growth factor relative to siblings
+ * - [FlexConfigScope.shrink]: Sets the shrink factor relative to siblings
+ * - [FlexConfigScope.basis]: Sets the initial size before flex distribution
  *
  * ### Alignment
  * FlexBox provides granular control over alignment:
@@ -87,7 +92,6 @@ import kotlin.math.roundToInt
  * - [FlexBoxConfigScope.alignItems]: Aligns items within a line along the cross axis
  * - [FlexBoxConfigScope.alignContent]: Aligns multiple lines along the cross axis (when wrapping)
  *
- * @sample androidx.compose.foundation.layout.samples.SimpleFlexBox
  * @param modifier The modifier to be applied to the FlexBox container.
  * @param config A [FlexBoxConfig] that configures the container's layout properties. Defaults to a
  *   horizontal row layout without wrapping, with items aligned to the start on both axes and no
@@ -1135,6 +1139,10 @@ private inline fun intrinsicCrossAxisSize(
 /**
  * Receiver scope for the content of a [FlexBox]. Provides the [flex] modifier for configuring
  * individual flex item properties.
+ *
+ * @sample androidx.compose.foundation.layout.samples.FlexBoxScopeSample
+ * @see FlexBox
+ * @see FlexConfig
  */
 @LayoutScopeMarker
 @Immutable
@@ -1144,14 +1152,22 @@ interface FlexBoxScope {
     /**
      * Applies flex item properties using a [FlexConfig].
      *
+     * Example:
+     *
+     * @sample androidx.compose.foundation.layout.samples.FlexModifierWithConfigSample
      * @param flexConfig The flex configuration to apply.
+     * @see FlexConfig
      */
     @Stable fun Modifier.flex(flexConfig: FlexConfig): Modifier
 
     /**
      * Applies flex item properties using a configuration lambda.
      *
+     * Example:
+     *
+     * @sample androidx.compose.foundation.layout.samples.FlexModifierWithLambdaSample
      * @param flexConfig A lambda that configures the flex properties.
+     * @see FlexConfigScope
      */
     @Stable
     fun Modifier.flex(flexConfig: FlexConfigScope.() -> Unit): Modifier =
@@ -1264,15 +1280,19 @@ value class FlexWrap @PublishedApi internal constructor(private val bits: Int) {
             get() = FlexWrap(0)
 
         /**
-         * Items wrap onto multiple lines from top to bottom if the main axis is horizontal, or from
-         * start to end if the main axis is vertical.
+         * Items wrap onto multiple lines toward the cross axis end.
+         *
+         * For [FlexDirection.Row] and [FlexDirection.RowReverse]: lines wrap top to bottom. For
+         * [FlexDirection.Column] and [FlexDirection.ColumnReverse]: lines wrap start to end.
          */
         inline val Wrap
             get() = FlexWrap(1)
 
         /**
-         * Items wrap onto multiple lines from bottom to top if the main axis is horizontal, or from
-         * end to start if the main axis is vertical.
+         * Items wrap onto multiple lines toward the cross axis start.
+         *
+         * For [FlexDirection.Row] and [FlexDirection.RowReverse]: lines wrap bottom to top. For
+         * [FlexDirection.Column] and [FlexDirection.ColumnReverse]: lines wrap end to start.
          */
         inline val WrapReverse
             get() = FlexWrap(2)
@@ -1280,8 +1300,8 @@ value class FlexWrap @PublishedApi internal constructor(private val bits: Int) {
 }
 
 /**
- * Defines the default cross-axis alignment for items within a [FlexBox]. Can be overridden per-item
- * using [FlexAlignSelf].
+ * Defines the default cross-axis alignment for items within a [FlexBox]. This can be overridden for
+ * each item using [FlexAlignSelf].
  *
  * @see FlexBoxConfigScope.alignItems
  * @see FlexAlignSelf
@@ -1312,10 +1332,7 @@ value class FlexAlignItems @PublishedApi internal constructor(private val bits: 
         inline val Center
             get() = FlexAlignItems(2)
 
-        /**
-         * Items are stretched to fill the line's cross axis size. If the item has a fixed
-         * cross-axis size, stretch has no effect.
-         */
+        /** Items are stretched to fill the line's cross axis size. */
         inline val Stretch
             get() = FlexAlignItems(3)
 
@@ -1350,7 +1367,9 @@ value class FlexAlignSelf @PublishedApi internal constructor(private val bits: I
 
     companion object {
 
-        /** Inherits the alignment from the container's [FlexAlignItems]. */
+        /**
+         * Inherits the alignment from the container's [FlexAlignItems]. This is the default value.
+         */
         inline val Auto
             get() = FlexAlignSelf(0)
 
@@ -1409,7 +1428,10 @@ value class FlexAlignContent @PublishedApi internal constructor(private val bits
         inline val Center
             get() = FlexAlignContent(2)
 
-        /** Lines are stretched to fill the available cross-axis space. */
+        /**
+         * Lines are stretched to fill the available cross-axis space. Extra space is distributed
+         * equally among all lines.
+         */
         inline val Stretch
             get() = FlexAlignContent(3)
 
@@ -1483,6 +1505,9 @@ value class FlexJustifyContent @PublishedApi internal constructor(private val bi
 
 /**
  * Defines the initial main size of a flex item before free space distribution.
+ * - [Auto]: Uses the item's maximum intrinsic size
+ * - [Dp]: Uses a fixed size in dp
+ * - [Percent]: Uses a percentage of the container's main axis size
  *
  * @see FlexConfigScope.basis
  */
@@ -1497,13 +1522,31 @@ internal constructor(@PublishedApi internal val packedValue: Long) {
         private const val TypeDp = 1L
         private const val TypePercent = 2L
 
+        /**
+         * Use the item's maximum intrinsic (natural) size as the basis. This measures the item's
+         * preferred size without constraints.
+         *
+         * This is the default value.
+         */
         val Auto = FlexBasis(TypeAuto shl TypeShift)
 
+        /**
+         * Use a fixed size in Dp as the basis.
+         *
+         * @sample androidx.compose.foundation.layout.samples.FlexBasisDpSample
+         * @param value The basis size in Dp.
+         */
         fun Dp(value: Dp): FlexBasis {
             val valueBits = value.value.toBits().toLong() and 0xFFFFFFFFL
             return FlexBasis((TypeDp shl TypeShift) or valueBits)
         }
 
+        /**
+         * Use a percentage of the container's main axis size as the basis.
+         *
+         * @sample androidx.compose.foundation.layout.samples.FlexBasisPercentSample
+         * @param value A value between 0.0 and 1.0 representing the percentage.
+         */
         fun Percent(@FloatRange(0.0, 1.0) value: Float): FlexBasis {
             val valueBits = value.toBits().toLong() and 0xFFFFFFFFL
             return FlexBasis((TypePercent shl TypeShift) or valueBits)
@@ -1538,19 +1581,18 @@ internal constructor(@PublishedApi internal val packedValue: Long) {
  * [FlexBoxConfigScope] during the layout phase. This means that reading state inside the lambda
  * will only trigger relayout, not recomposition.
  *
- * **Note**: Configuration properties are **not additive**. If a property is assigned multiple times
- * within the configuration block, the last assignment overrides previous values.
+ * **Note**: Configuration is applied sequentially. If a function is called multiple times, the last
+ * call takes precedence.
  *
- * ### Reusable Config
- * For better performance, define configs as top-level constants:
- * ```kotlin
- * private val RowWrap = FlexBoxConfig {
- *     direction = FlexDirection.Row
- *     wrap = FlexWrap.Wrap
- *     gap = 8.dp
- * }
- * ```
+ * ## Reusable Configs
  *
+ * @sample androidx.compose.foundation.layout.samples.FlexBoxConfigReusableSample
+ *
+ * ## Responsive Configs
+ *
+ * Access [FlexBoxConfigScope.constraints] for responsive layouts:
+ *
+ * @sample androidx.compose.foundation.layout.samples.FlexBoxConfigResponsiveSample
  * @see FlexBoxConfigScope
  * @see FlexBox
  */
@@ -1572,8 +1614,8 @@ fun interface FlexBoxConfig {
 /**
  * Scope for configuring [FlexBox] container properties.
  *
- * Properties are read during the layout/measure phase, not during composition. Changes to
- * state-backed properties trigger relayout, not recomposition.
+ * All configuration functions are called during the layout/measure phase, not during composition.
+ * Changes to state-backed values trigger relayout, not recomposition.
  *
  * @see FlexBoxConfig
  */
@@ -1583,70 +1625,170 @@ sealed interface FlexBoxConfigScope : Density {
     /**
      * The layout constraints passed to this [FlexBox] from its parent.
      *
-     * These constraints represent the minimum and maximum size limits that the parent has imposed
-     * on this FlexBox. This can be useful for creating responsive layouts that adapt based on
-     * available space.
+     * Use this for creating responsive layouts that adapt based on available space.
      *
+     * @sample androidx.compose.foundation.layout.samples.FlexBoxConstraintsSample
      * @see Constraints
      */
     val constraints: Constraints
 
-    /** The direction of the main axis along which children are laid out. */
-    var direction: FlexDirection
-
-    /** Whether children should wrap to new lines when they exceed the main axis size. */
-    var wrap: FlexWrap
-
-    /** How children are distributed along the main axis. */
-    var justifyContent: FlexJustifyContent
-
     /**
-     * Default alignment for children along the cross axis within each line. Can be overridden
-     * per-child using [FlexConfigScope.alignSelf].
-     */
-    var alignItems: FlexAlignItems
-
-    /**
-     * Aligns items to a specific baseline. Overrides [alignItems] when set.
+     * Sets the direction of the main axis along which children are laid out.
      *
-     * Example:
-     * ```kotlin
-     * FlexBox(
-     *     flexBoxConfig = {
-     *         alignItemsToBaseline(FirstBaseline)
-     *         // or
-     *         alignItemsToBaseline(LastBaseline)
-     *         // or custom
-     *         alignItemsToBaseline { measured ->
-     *             measured[FirstBaseline] + 10
-     *         }
-     *     }
-     * )
-     * ```
-     */
-    fun alignItemsToBaseline(alignmentLine: AlignmentLine)
-
-    /** Aligns items to a custom baseline. Overrides [alignItems] when set. */
-    fun alignItemsToBaseline(alignmentLineBlock: (Measured) -> Int)
-
-    /**
-     * How multiple lines are aligned along the cross axis. Only applies when [wrap] is
-     * [FlexWrap.Wrap] or [FlexWrap.WrapReverse] with multiple lines.
-     */
-    var alignContent: FlexAlignContent
-
-    /** Vertical spacing between items (in Column) or lines (in Row with wrap). */
-    var rowGap: Dp
-
-    /** Horizontal spacing between columns of items. */
-    var columnGap: Dp
-
-    /**
-     * Convenience function to set both [rowGap] and [columnGap] to the same value.
+     * The main axis determines the primary direction of item placement:
+     * - [FlexDirection.Row]: Items placed horizontally, start to end (left to right in LTR)
+     * - [FlexDirection.RowReverse]: Items placed horizontally, end to start
+     * - [FlexDirection.Column]: Items placed vertically, top to bottom
+     * - [FlexDirection.ColumnReverse]: Items placed vertically, bottom to top
      *
+     * @sample androidx.compose.foundation.layout.samples.FlexBoxDirectionSample
+     * @param value The flex direction. Default is [FlexDirection.Row].
+     * @see FlexDirection
+     */
+    fun direction(value: FlexDirection)
+
+    /**
+     * Sets whether children should wrap to new lines when they exceed the main axis size.
+     * - [FlexWrap.NoWrap]: All items stay on one line, may overflow or shrink
+     * - [FlexWrap.Wrap]: Items wrap to new lines toward the cross axis end
+     * - [FlexWrap.WrapReverse]: Items wrap to new lines toward the cross axis start
+     *
+     * @sample androidx.compose.foundation.layout.samples.FlexBoxWrapSample
+     * @param value The wrap behavior. Default is [FlexWrap.NoWrap].
+     * @see FlexWrap
+     */
+    fun wrap(value: FlexWrap)
+
+    /**
+     * Sets how children are distributed along the main axis.
+     *
+     * This controls the spacing and positioning of items within each line:
+     * - [FlexJustifyContent.Start]: Items packed toward the start
+     * - [FlexJustifyContent.End]: Items packed toward the end
+     * - [FlexJustifyContent.Center]: Items centered along the main axis
+     * - [FlexJustifyContent.SpaceBetween]: Items evenly distributed; first at start, last at end
+     * - [FlexJustifyContent.SpaceAround]: Items evenly distributed with half-size space at edges
+     * - [FlexJustifyContent.SpaceEvenly]: Items evenly distributed with equal space everywhere
+     *
+     * @sample androidx.compose.foundation.layout.samples.FlexBoxJustifyContentSample
+     * @param value The justify content value. Default is [FlexJustifyContent.Start].
+     * @see FlexJustifyContent
+     */
+    fun justifyContent(value: FlexJustifyContent)
+
+    /**
+     * Sets the default alignment for children along the cross axis within each line.
+     *
+     * This controls how items are positioned perpendicular to the main axis:
+     * - [FlexAlignItems.Start]: Items aligned to the cross axis start
+     * - [FlexAlignItems.End]: Items aligned to the cross axis end
+     * - [FlexAlignItems.Center]: Items centered along the cross axis
+     * - [FlexAlignItems.Stretch]: Items stretched to fill the line's cross axis size
+     * - [FlexAlignItems.Baseline]: Items aligned by their first baseline
+     *
+     * Individual items can override this using [FlexConfigScope.alignSelf].
+     *
+     * @sample androidx.compose.foundation.layout.samples.FlexBoxAlignItemsSample
+     * @param value The align items value. Default is [FlexAlignItems.Start].
+     * @see FlexAlignItems
+     * @see FlexConfigScope.alignSelf
+     */
+    fun alignItems(value: FlexAlignItems)
+
+    /**
+     * Aligns all items to a specific baseline.
+     *
+     * This is equivalent to calling `alignItems(FlexAlignItems.Baseline)` but allows specifying
+     * which alignment line to use.
+     *
+     * @sample androidx.compose.foundation.layout.samples.FlexBoxAlignItemsBaselineSample
+     * @param alignmentLine The alignment line to use (e.g., [FirstBaseline], [LastBaseline]).
+     * @see AlignmentLine
+     * @see FirstBaseline
+     * @see LastBaseline
+     */
+    fun alignItems(alignmentLine: AlignmentLine)
+
+    /**
+     * Aligns all items to a custom baseline computed from each measured item.
+     *
+     * Use this when you need custom baseline calculation logic. This is same as using [alignBy] in
+     * [Row] and [Column]
+     *
+     * @sample androidx.compose.foundation.layout.samples.FlexBoxAlignItemsCustomBaselineSample
+     * @param alignmentLineBlock A function that computes the baseline position from a [Measured]
+     *   item.
+     * @see Measured
+     */
+    fun alignItems(alignmentLineBlock: (Measured) -> Int)
+
+    /**
+     * Sets how multiple lines are aligned along the cross axis.
+     *
+     * This only applies when [wrap] is [FlexWrap.Wrap] or [FlexWrap.WrapReverse] and there are
+     * multiple lines of items.
+     * - [FlexAlignContent.Start]: Lines packed toward the cross axis start
+     * - [FlexAlignContent.End]: Lines packed toward the cross axis end
+     * - [FlexAlignContent.Center]: Lines centered along the cross axis
+     * - [FlexAlignContent.Stretch]: Lines stretched to fill available cross axis space
+     * - [FlexAlignContent.SpaceBetween]: Lines evenly distributed; first at start, last at end
+     * - [FlexAlignContent.SpaceAround]: Lines evenly distributed with half-size space at edges
+     *
+     * @sample androidx.compose.foundation.layout.samples.FlexBoxAlignContentSample
+     * @param value The align content value. Default is [FlexAlignContent.Start].
+     * @see FlexAlignContent
+     * @see wrap
+     */
+    fun alignContent(value: FlexAlignContent)
+
+    /**
+     * Sets the vertical spacing between rows.
+     *
+     * In a [FlexDirection.Row] layout with [FlexWrap.Wrap], this is the space between lines. In a
+     * [FlexDirection.Column] layout, this is the space between items on main axis.
+     *
+     * @sample androidx.compose.foundation.layout.samples.FlexBoxRowGapSample
+     * @param value The row gap size. Default is `0.dp`.
+     * @see columnGap
+     * @see gap
+     */
+    fun rowGap(value: Dp)
+
+    /**
+     * Sets the horizontal spacing between columns.
+     *
+     * In a [FlexDirection.Row] layout, this is the space between items on main axis. In a
+     * [FlexDirection.Column] layout with [FlexWrap.Wrap], this is the space between lines.
+     *
+     * @sample androidx.compose.foundation.layout.samples.FlexBoxColumnGapSample
+     * @param value The column gap size. Default is `0.dp`.
+     * @see rowGap
+     * @see gap
+     */
+    fun columnGap(value: Dp)
+
+    /**
+     * Sets both [rowGap] and [columnGap] to the same value.
+     *
+     * This is a convenience function for uniform spacing.
+     *
+     * @sample androidx.compose.foundation.layout.samples.FlexBoxGapSample
      * @param value The gap size to apply to both row and column gaps.
+     * @see rowGap
+     * @see columnGap
      */
     fun gap(value: Dp)
+
+    /**
+     * Sets row and column gaps to different values.
+     *
+     * @sample androidx.compose.foundation.layout.samples.FlexBoxGapDifferentSample
+     * @param row The vertical spacing between rows.
+     * @param column The horizontal spacing between columns.
+     * @see rowGap
+     * @see columnGap
+     */
+    fun gap(row: Dp, column: Dp)
 }
 
 @OptIn(ExperimentalFlexBoxApi::class)
@@ -1674,38 +1816,71 @@ internal class ResolvedFlexBoxConfig : FlexBoxConfigScope {
     override var constraints: Constraints = Constraints()
         private set
 
-    override var direction: FlexDirection = FlexDirection.Row
+    internal var direction: FlexDirection = FlexDirection.Row
 
-    override var wrap: FlexWrap = FlexWrap.NoWrap
+    internal var wrap: FlexWrap = FlexWrap.NoWrap
 
-    override var justifyContent: FlexJustifyContent = FlexJustifyContent.Start
+    internal var justifyContent: FlexJustifyContent = FlexJustifyContent.Start
 
-    override var alignItems: FlexAlignItems = FlexAlignItems.Start
+    internal var alignItems: FlexAlignItems = FlexAlignItems.Start
 
-    override var alignContent: FlexAlignContent = FlexAlignContent.Start
+    internal var alignContent: FlexAlignContent = FlexAlignContent.Start
 
-    override var rowGap: Dp = 0.dp
+    internal var rowGap: Dp = 0.dp
 
-    override var columnGap: Dp = 0.dp
+    internal var columnGap: Dp = 0.dp
+
+    override fun direction(value: FlexDirection) {
+        this.direction = value
+    }
+
+    override fun wrap(value: FlexWrap) {
+        this.wrap = value
+    }
+
+    override fun justifyContent(value: FlexJustifyContent) {
+        this.justifyContent = value
+    }
+
+    override fun alignItems(value: FlexAlignItems) {
+        this.alignItems = value
+    }
 
     override fun gap(value: Dp) {
         rowGap = value
         columnGap = value
     }
 
-    override fun alignItemsToBaseline(alignmentLine: AlignmentLine) {
+    override fun alignItems(alignmentLine: AlignmentLine) {
         alignItems = FlexAlignItems.Baseline
         baselineAlignmentLine = alignmentLine
         baselineAlignmentBlock = null
     }
 
-    override fun alignItemsToBaseline(alignmentLineBlock: (Measured) -> Int) {
+    override fun alignItems(alignmentLineBlock: (Measured) -> Int) {
         alignItems = FlexAlignItems.Baseline
         baselineAlignmentLine = null
         baselineAlignmentBlock = alignmentLineBlock
     }
 
-    fun getBaseline(placeable: Placeable): Int {
+    override fun alignContent(value: FlexAlignContent) {
+        this.alignContent = value
+    }
+
+    override fun rowGap(value: Dp) {
+        this.rowGap = value
+    }
+
+    override fun columnGap(value: Dp) {
+        this.columnGap = value
+    }
+
+    override fun gap(row: Dp, column: Dp) {
+        this.rowGap = row
+        this.columnGap = column
+    }
+
+    internal fun getBaseline(placeable: Placeable): Int {
         return when {
             baselineAlignmentBlock != null -> baselineAlignmentBlock!!.invoke(placeable)
             baselineAlignmentLine != null -> {
@@ -1787,15 +1962,8 @@ internal class ResolvedFlexBoxConfig : FlexBoxConfigScope {
  * within the configuration block, the last assignment overrides previous values.
  *
  * Example:
- * ```
- * val growConfig = FlexConfig {
- *     grow = 1f
- *     alignSelf = AlignSelf.Center
- * }
  *
- * Box(modifier = Modifier.flex(growConfig))
- * ```
- *
+ * @sample androidx.compose.foundation.layout.samples.FlexConfigSample
  * @see FlexConfigScope
  * @see FlexBoxScope.flex
  */
@@ -1810,9 +1978,13 @@ fun interface FlexConfig {
 }
 
 /**
- * Scope for configuring flex item properties. Properties are read during the layout/measure phase,
- * not during composition.
+ * Scope for configuring flex item properties within a [FlexBox].
  *
+ * All configuration functions are called during the layout/measure phase, not during composition.
+ *
+ * Example:
+ *
+ * @sample androidx.compose.foundation.layout.samples.FlexConfigScopeSample
  * @see FlexConfig
  */
 @ExperimentalFlexBoxApi
@@ -1821,94 +1993,158 @@ sealed interface FlexConfigScope : Density {
     /**
      * The maximum size of the FlexBox container along the main axis.
      *
-     * This corresponds to [Constraints.maxWidth] if the direction is [FlexDirection.Row] or
-     * [FlexDirection.RowReverse], and [Constraints.maxHeight] if the direction is
-     * [FlexDirection.Column] or [FlexDirection.ColumnReverse].
+     * Corresponds to [Constraints.maxWidth] for [FlexDirection.Row]/[FlexDirection.RowReverse], or
+     * [Constraints.maxHeight] for [FlexDirection.Column]/[FlexDirection.ColumnReverse].
+     *
+     * Use this for responsive item sizing based on container size.
      */
     val flexBoxMainAxisMax: Int
 
     /**
      * The minimum size of the FlexBox container along the main axis.
      *
-     * This corresponds to [Constraints.minWidth] if the direction is [FlexDirection.Row] or
-     * [FlexDirection.RowReverse], and [Constraints.minHeight] if the direction is
-     * [FlexDirection.Column] or [FlexDirection.ColumnReverse].
+     * Corresponds to [Constraints.minWidth] for [FlexDirection.Row]/[FlexDirection.RowReverse], or
+     * [Constraints.minHeight] for [FlexDirection.Column]/[FlexDirection.ColumnReverse].
      */
     val flexBoxMainAxisMin: Int
 
     /**
      * The maximum size of the FlexBox container along the cross axis.
      *
-     * This corresponds to [Constraints.maxHeight] if the direction is [FlexDirection.Row] or
-     * [FlexDirection.RowReverse], and [Constraints.maxWidth] if the direction is
-     * [FlexDirection.Column] or [FlexDirection.ColumnReverse].
+     * Corresponds to [Constraints.maxHeight] for [FlexDirection.Row]/[FlexDirection.RowReverse], or
+     * [Constraints.maxWidth] for [FlexDirection.Column]/[FlexDirection.ColumnReverse].
      */
     val flexBoxCrossAxisMax: Int
 
     /**
      * The minimum size of the FlexBox container along the cross axis.
      *
-     * This corresponds to [Constraints.minHeight] if the direction is [FlexDirection.Row] or
-     * [FlexDirection.RowReverse], and [Constraints.minWidth] if the direction is
-     * [FlexDirection.Column] or [FlexDirection.ColumnReverse].
+     * Corresponds to [Constraints.minHeight] for [FlexDirection.Row]/[FlexDirection.RowReverse], or
+     * [Constraints.minWidth] for [FlexDirection.Column]/[FlexDirection.ColumnReverse].
      */
     val flexBoxCrossAxisMin: Int
 
-    /** Overrides the container's [FlexBoxConfigScope.alignItems] for this specific item. */
-    var alignSelf: FlexAlignSelf
-
-    /** Aligns items to a specific baseline. Overrides [alignSelf] when set. */
-    fun alignSelfToBaseline(alignmentLine: AlignmentLine)
-
-    /** Aligns items to a custom baseline. Overrides [alignSelf] when set. */
-    fun alignSelfToBaseline(alignmentLineBlock: (Measured) -> Int)
+    /**
+     * Overrides the container's [FlexBoxConfigScope.alignItems] for this specific item.
+     * - [FlexAlignSelf.Auto]: Use the container's [FlexBoxConfigScope.alignItems] value
+     * - [FlexAlignSelf.Start]: Align to the cross axis start
+     * - [FlexAlignSelf.End]: Align to the cross axis end
+     * - [FlexAlignSelf.Center]: Center along the cross axis
+     * - [FlexAlignSelf.Stretch]: Stretch to fill the line's cross axis size
+     * - [FlexAlignSelf.Baseline]: Align by baseline
+     *
+     * Example:
+     *
+     * @sample androidx.compose.foundation.layout.samples.FlexAlignSelfSample
+     * @param value The alignment for this item. Default is [FlexAlignSelf.Auto].
+     * @see FlexAlignSelf
+     * @see FlexBoxConfigScope.alignItems
+     */
+    fun alignSelf(value: FlexAlignSelf)
 
     /**
-     * The visual order of this item relative to siblings. Items are sorted by [order] in ascending
-     * order before layout, with lower values appearing first. Items with the same [order] maintain
-     * their original declaration order.
+     * Aligns this item to a specific baseline, overriding the container's alignment.
+     *
+     * @sample androidx.compose.foundation.layout.samples.FlexAlignSelfBaselineSample
+     * @param alignmentLine The alignment line to use (e.g., [FirstBaseline], [LastBaseline]).
+     * @see AlignmentLine
+     */
+    fun alignSelf(alignmentLine: AlignmentLine)
+
+    /**
+     * Aligns this item to a custom baseline computed from the measured item.
+     *
+     * @sample androidx.compose.foundation.layout.samples.FlexAlignSelfCustomBaselineSample
+     * @param alignmentLineBlock A function that computes the baseline from a [Measured] item.
+     */
+    fun alignSelf(alignmentLineBlock: (Measured) -> Int)
+
+    /**
+     * Sets the visual order of this item relative to siblings.
+     *
+     * Items are sorted by order value in ascending order before layout. Lower values appear first
+     * (closer to the start of the main axis). Items with the same order maintain their original
+     * declaration order.
      *
      * Default is `0`. Use negative values to move items before default-ordered items, or positive
      * values to move items after.
+     *
+     * Example:
+     *
+     * @sample androidx.compose.foundation.layout.samples.FlexOrderSample
+     * @param value The order value. Default is `0`.
      */
-    var order: Int
+    fun order(value: Int)
 
     /**
-     * The flex grow factor.
+     * Sets the flex grow factor, determining how much this item grows relative to siblings.
      *
-     * This value determines how much the item will grow relative to the rest of the flexible items
-     * to absorb free space along the main axis.
+     * When there is free space on the main axis, it is distributed among items proportional to
+     * their growth factors. Items with `grow(0f)` (the default) do not grow.
      *
-     * The value must be non-negative.
+     * **Note:** Items will grow even with explicit size constraints (e.g.,
+     * `Modifier.width(100.dp)`). Set `grow(0f)` to prevent growth.
      *
-     * **Note:** Items will grow even with explicit size constraints. Set `grow = 0f` to prevent
-     * growth.
+     * Example:
+     *
+     * @sample androidx.compose.foundation.layout.samples.FlexGrowSample
+     * @param value The growth factor. Must be non-negative. Default is `0f`.
+     * @throws IllegalArgumentException if [value] is negative.
+     * @see shrink
      */
-    @get:FloatRange(from = 0.0) @setparam:FloatRange(from = 0.0) var grow: Float
+    fun grow(@FloatRange(from = 0.0) value: Float)
 
     /**
-     * The flex shrink factor.
+     * Sets the flex shrink factor, determining how much this item shrinks relative to siblings.
      *
-     * This value determines how much the item will shrink relative to the rest of the flexible
-     * items when there is insufficient space along the main axis.
-     *
-     * The value must be non-negative.
+     * When items overflow the main axis, they shrink proportional to their shrink factors
+     * multiplied by their base size. Items with `shrink(0f)` do not shrink.
      *
      * **Note:** Items will not shrink below their minimum intrinsic size. Items with explicit size
-     * modifiers will not shrink at all.
+     * modifiers (e.g., `Modifier.width(100.dp)`) will not shrink.
+     *
+     * Example:
+     *
+     * @sample androidx.compose.foundation.layout.samples.FlexShrinkSample
+     * @param value The shrink factor. Must be non-negative. Default is `1f`.
+     * @throws IllegalArgumentException if [value] is negative.
+     * @see grow
      */
-    @get:FloatRange(from = 0.0) @setparam:FloatRange(from = 0.0) var shrink: Float
+    fun shrink(@FloatRange(from = 0.0) value: Float)
 
-    /** The initial main size of this item before flex distribution. */
-    var basis: FlexBasis
+    /**
+     * Sets the initial main size of this item before flex distribution.
+     *
+     * The basis determines the starting size before [grow] and [shrink] are applied:
+     * - [FlexBasis.Auto]: Use the item's maximum intrinsic size
+     * - [FlexBasis.Dp]: Use a fixed size in dp
+     * - [FlexBasis.Percent]: Use a percentage of the container's main axis size
+     *
+     * Example:
+     *
+     * @sample androidx.compose.foundation.layout.samples.FlexBasisSample
+     * @param value The basis value. Default is [FlexBasis.Auto].
+     * @see FlexBasis
+     */
+    fun basis(value: FlexBasis)
 
-    /** Sets the [basis] to a fixed Dp value. */
+    /**
+     * Sets the basis to a fixed Dp value.
+     *
+     * This is equivalent to `basis(FlexBasis.Dp(value))`.
+     *
+     * @param value The basis size in Dp.
+     * @see FlexBasis.Dp
+     */
     fun basis(value: Dp)
 
     /**
-     * Sets the [basis] to a percentage of the container's main axis size.
+     * Sets the basis to a percentage of the container's main axis size.
+     *
+     * This is equivalent to `basis(FlexBasis.Percent(value))`.
      *
      * @param value A value between 0.0 and 1.0 representing the percentage.
+     * @see FlexBasis.Percent
      */
     fun basis(@FloatRange(from = 0.0, to = 1.0) value: Float)
 }
@@ -1945,23 +2181,49 @@ internal class ResolvedFlexItemInfo : FlexConfigScope {
     override var flexBoxCrossAxisMin: Int = 0
         private set
 
-    override var alignSelf: FlexAlignSelf = FlexAlignSelf.Auto
+    override fun alignSelf(value: FlexAlignSelf) {
+        this.alignSelf = value
+    }
 
-    override var order: Int = 0
+    override fun alignSelf(alignmentLine: AlignmentLine) {
+        this.alignSelf = FlexAlignSelf.Baseline
+        this.baselineAlignmentLine = alignmentLine
+        this.baselineAlignmentBlock = null
+    }
 
-    override var grow: Float = 0f
-        set(value) {
-            requirePrecondition(value >= 0f) { "Flex grow cannot be negative: $value" }
-            field = value
-        }
+    override fun alignSelf(alignmentLineBlock: (Measured) -> Int) {
+        this.alignSelf = FlexAlignSelf.Baseline
+        this.baselineAlignmentLine = null
+        this.baselineAlignmentBlock = alignmentLineBlock
+    }
 
-    override var shrink: Float = 1f
-        set(value) {
-            requirePrecondition(value >= 0f) { "Flex shrink cannot be negative: $value" }
-            field = value
-        }
+    override fun order(value: Int) {
+        this.order = value
+    }
 
-    override var basis: FlexBasis = FlexBasis.Auto
+    override fun grow(value: Float) {
+        requirePrecondition(value >= 0f) { "Flex grow cannot be negative: $value" }
+        this.grow = value
+    }
+
+    override fun shrink(value: Float) {
+        requirePrecondition(value >= 0f) { "Flex shrink cannot be negative: $value" }
+        this.shrink = value
+    }
+
+    override fun basis(value: FlexBasis) {
+        this.basis = value
+    }
+
+    internal var alignSelf: FlexAlignSelf = FlexAlignSelf.Auto
+
+    internal var order: Int = 0
+
+    internal var grow: Float = 0f
+
+    internal var shrink: Float = 1f
+
+    internal var basis: FlexBasis = FlexBasis.Auto
 
     override fun basis(value: Dp) {
         basis = FlexBasis.Dp(value)
@@ -1969,18 +2231,6 @@ internal class ResolvedFlexItemInfo : FlexConfigScope {
 
     override fun basis(@FloatRange(from = 0.0, to = 1.0) value: Float) {
         basis = FlexBasis.Percent(value)
-    }
-
-    override fun alignSelfToBaseline(alignmentLine: AlignmentLine) {
-        alignSelf = FlexAlignSelf.Baseline
-        baselineAlignmentLine = alignmentLine
-        baselineAlignmentBlock = null
-    }
-
-    override fun alignSelfToBaseline(alignmentLineBlock: (Measured) -> Int) {
-        alignSelf = FlexAlignSelf.Baseline
-        baselineAlignmentLine = null
-        baselineAlignmentBlock = alignmentLineBlock
     }
 
     fun getBaseline(placeable: Placeable, fallback: ResolvedFlexBoxConfig): Int {
