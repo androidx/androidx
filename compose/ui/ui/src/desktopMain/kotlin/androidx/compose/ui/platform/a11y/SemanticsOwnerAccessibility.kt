@@ -103,6 +103,10 @@ internal class SemanticsOwnerAccessibility(
      * Returns the [Accessible] parent of the given [ComposeAccessible].
      */
     fun accessibleParentOf(accessible: ComposeAccessible): Accessible? {
+        // This can happen during onNodeRemoved. When the property change listeners are called, they
+        // can call `accessible.getAccessibleParent()`.
+        if (accessible.semanticsNode.id !in accessibleByNodeId) return null
+
         sceneAccessibility.accessibleParentOverride(accessible)?.let { return it }
 
         val parentNode = accessible.semanticsNode.parent ?: return sceneAccessibility.accessible()
@@ -150,27 +154,31 @@ internal class SemanticsOwnerAccessibility(
      * Invoked when a [ComposeAccessible] is removed.
      */
     private fun onNodeRemoved(accessible: ComposeAccessible) {
-        if (accessible.composeAccessibleContext.focused == true) {
+        val accessibleContext = accessible.composeAccessibleContext
+        if (accessibleContext.focused == true) {
             notifyOnFocusLost(accessible)
 
             // Testing showed that when focus is transferred manually when a node is removed (e.g.,
             // via FocusRequester), the removed node doesn't report it's focused at this point, but
             // just in case, check that no other nodes are focused before calling
             // onFocusReceived(null)
-            val anyNodeFocused = accessibleByNodeId.any { _, accessible ->
-                accessible.composeAccessibleContext.focused == true
+            val anyNodeFocused = accessibleByNodeId.any { _, a ->
+                a.composeAccessibleContext.focused == true
             }
             if (!anyNodeFocused) {
                 onFocusReceived(null)
             }
         }
-        if (accessible.composeAccessibleContext.isVisible) {
-            accessible.accessibleContext?.firePropertyChange(
+        if (accessibleContext.isVisible) {
+            accessibleContext.firePropertyChange(
                 ACCESSIBLE_STATE_PROPERTY,
                 AccessibleState.VISIBLE, null
             )
         }
 
+        // dispose() can only be called after the code above because after dispose(), the
+        // accessible.accessibleContext returns `null`, but the accessibility system can call it
+        // in the property change listener(s)
         accessible.dispose()
     }
 
@@ -361,7 +369,7 @@ internal class SemanticsOwnerAccessibility(
                 it.contains(SemanticsProperties.HideFromAccessibility)
         }
 
-        // Build new mapping of ComposeAccessible by node id
+        // Build a new mapping of ComposeAccessible by node id
         val previous = accessibleByNodeId
         val updated = auxAccessibleByNodeId
         if (rootSemanticNode.isValid())

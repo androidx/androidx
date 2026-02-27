@@ -49,7 +49,7 @@ internal class AccessibleFocusHelper(
         resetFocusAccessibleJob?.cancel()
         if (focusedAccessible != null) {
             resetFocusAccessibleJob = GlobalScope.launch(MainUIDispatcher) {
-                delay(100)
+                delay(RESET_FOCUS_ACCESSIBLE_DELAY)
                 focusedAccessible = null
             }
         }
@@ -82,6 +82,10 @@ internal class AccessibleFocusHelper(
 
     fun dispose() {
         resetFocusAccessibleJob?.cancel()
+    }
+
+    companion object {
+        const val RESET_FOCUS_ACCESSIBLE_DELAY = 100L
     }
 }
 
