@@ -18,5 +18,9 @@ package androidx.compose.ui.graphics
 
 import org.jetbrains.skia.ImageFilter
 
-@Deprecated("Use asSkiaImageFilter()", replaceWith = ReplaceWith("asSkiaImageFilter()"))
+@Deprecated(
+    message = "Use asSkiaImageFilter()",
+    replaceWith = ReplaceWith("asSkiaImageFilter()"),
+    level = DeprecationLevel.ERROR,
+)
 fun RenderEffect.asDesktopImageFilter(): ImageFilter = asSkiaImageFilter()

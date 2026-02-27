@@ -16,16 +16,24 @@
 
 package androidx.compose.ui.graphics
 
-import org.jetbrains.skia.ColorFilter as SkiaColorFilter
+import org.jetbrains.skia.ColorFilter as SkColorFilter
 
 /**
  * Obtain a reference to the desktop ColorFilter type
  */
-@Deprecated("Use asSkiaColorFilter()", replaceWith = ReplaceWith("asSkiaColorFilter()"))
-fun ColorFilter.asDesktopColorFilter(): SkiaColorFilter = nativeColorFilter
+@Deprecated(
+    message = "Use asSkiaColorFilter()",
+    replaceWith = ReplaceWith("asSkiaColorFilter()"),
+    level = DeprecationLevel.ERROR,
+)
+fun ColorFilter.asDesktopColorFilter(): SkColorFilter = nativeColorFilter
 
 /**
  * Obtain a [org.jetbrains.skia.ColorFilter] instance from this [ColorFilter]
  */
-@Deprecated("Use asComposeColorFilter()", replaceWith = ReplaceWith("asComposeColorFilter()"))
-fun SkiaColorFilter.toComposeColorFilter(): ColorFilter = ColorFilter(this)
+@Deprecated(
+    message = "Use asComposeColorFilter()",
+    replaceWith = ReplaceWith("asComposeColorFilter()"),
+    level = DeprecationLevel.ERROR,
+)
+fun SkColorFilter.toComposeColorFilter(): ColorFilter = ColorFilter(this)

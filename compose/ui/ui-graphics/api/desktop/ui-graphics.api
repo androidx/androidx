@@ -997,6 +997,7 @@ public final class androidx/compose/ui/graphics/SkiaBackedCanvas_skikoKt {
 public final class androidx/compose/ui/graphics/SkiaBackedPaint_skikoKt {
 	public static final fun Paint ()Landroidx/compose/ui/graphics/Paint;
 	public static final fun asComposePaint (Lorg/jetbrains/skia/Paint;)Landroidx/compose/ui/graphics/Paint;
+	public static final fun getNativePaint (Landroidx/compose/ui/graphics/Paint;)Lorg/jetbrains/skia/Paint;
 	public static final fun isSupported-s9anfk8 (I)Z
 }
 

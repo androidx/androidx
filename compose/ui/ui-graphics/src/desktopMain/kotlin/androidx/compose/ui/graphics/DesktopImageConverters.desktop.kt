@@ -48,7 +48,11 @@ import org.jetbrains.skia.ImageInfo
  * functions. Don't mutate [BufferedImage] after converting it to [Painter], it will lead to
  * undefined behavior.
  */
-@Deprecated("Use toPainter", replaceWith = ReplaceWith("toPainter()"))
+@Deprecated(
+    message = "Use toPainter",
+    replaceWith = ReplaceWith("toPainter()"),
+    level = DeprecationLevel.ERROR,
+)
 fun BufferedImage.asPainter(): Painter = BufferedImagePainter(this)
 
 /**
@@ -89,7 +93,8 @@ private class BufferedImagePainter(val image: BufferedImage) : Painter() {
  */
 @Deprecated(
     "Use toAwtImage",
-    replaceWith = ReplaceWith("toAwtImage(density, layoutDirection, size)")
+    replaceWith = ReplaceWith("toAwtImage(density, layoutDirection, size)"),
+    level = DeprecationLevel.ERROR,
 )
 fun Painter.asAwtImage(
     density: Density,
@@ -204,7 +209,11 @@ private class PainterImage(
  * Convert Compose [ImageBitmap] to AWT [BufferedImage]
  */
 
-@Deprecated("use toAwtImage", replaceWith = ReplaceWith("toAwtImage"))
+@Deprecated(
+    message = "use toAwtImage",
+    replaceWith = ReplaceWith("toAwtImage"),
+    level = DeprecationLevel.ERROR,
+)
 fun ImageBitmap.asAwtImage(): BufferedImage = toAwtImage()
 
 /**
@@ -231,7 +240,11 @@ fun ImageBitmap.toAwtImage(): BufferedImage {
 /**
  * Convert AWT [BufferedImage] to Compose [ImageBitmap]
  */
-@Deprecated("use toComposeImageBitmap()", replaceWith = ReplaceWith("toComposeImageBitmap()"))
+@Deprecated(
+    message = "use toComposeImageBitmap()",
+    replaceWith = ReplaceWith("toComposeImageBitmap()"),
+    level = DeprecationLevel.ERROR,
+)
 fun BufferedImage.toComposeBitmap(): ImageBitmap = toComposeImageBitmap()
 
 /**

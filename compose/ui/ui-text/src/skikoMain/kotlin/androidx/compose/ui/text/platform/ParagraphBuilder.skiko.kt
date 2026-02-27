@@ -140,9 +140,9 @@ private sealed interface ComputedStyle {
     ) : ComputedStyle {
         private val _foregroundPaint = SkiaTextPaint()
         fun getForegroundPaint(): SkPaint {
-            // `asFrameworkPaint` doesn't create a copy,
+            // `skiaPaint` doesn't create a copy,
             // so all the changes will be applied to skia paint.
-            val paint = _foregroundPaint.asFrameworkPaint()
+            val paint = _foregroundPaint.skiaPaint
             paint.reset()
             _foregroundPaint.color = textForegroundStyle.color
             _foregroundPaint.setBrush(textForegroundStyle.brush, brushSize, textForegroundStyle.alpha)

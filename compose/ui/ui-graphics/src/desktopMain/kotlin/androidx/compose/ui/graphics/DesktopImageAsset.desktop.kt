@@ -26,20 +26,32 @@ import org.jetbrains.skia.Image
  * not create a copy of the original [Bitmap] and changes to it
  * will modify the returned [ImageBitmap]
  */
-@Deprecated("Use asComposeImageBitmap", replaceWith = ReplaceWith("asComposeImageBitmap()"))
+@Deprecated(
+    message = "Use asComposeImageBitmap",
+    replaceWith = ReplaceWith("asComposeImageBitmap()"),
+    level = DeprecationLevel.ERROR,
+)
 fun Bitmap.asImageBitmap(): ImageBitmap = asComposeImageBitmap()
 
 /**
  * Create an [ImageBitmap] from the given [Image].
  */
-@Deprecated("Use toComposeImageBitmap", replaceWith = ReplaceWith("toComposeImageBitmap()"))
+@Deprecated(
+    message = "Use toComposeImageBitmap",
+    replaceWith = ReplaceWith("toComposeImageBitmap()"),
+    level = DeprecationLevel.ERROR,
+)
 fun Image.asImageBitmap(): ImageBitmap = toComposeImageBitmap()
 
 /**
  * @Throws UnsupportedOperationException if this [ImageBitmap] is not backed by an
  * org.jetbrains.skia.Image
  */
-@Deprecated("Use asSkiaBitmap()", replaceWith = ReplaceWith("asSkiaBitmap()"))
+@Deprecated(
+    message = "Use asSkiaBitmap()",
+    replaceWith = ReplaceWith("asSkiaBitmap()"),
+    level = DeprecationLevel.ERROR,
+)
 fun ImageBitmap.asDesktopBitmap(): Bitmap = asSkiaBitmap()
 
 internal actual fun ByteArray.putBytesInto(array: IntArray, offset: Int, length: Int) {

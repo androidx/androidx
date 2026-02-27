@@ -2024,6 +2024,8 @@ final val androidx.compose.ui.graphics/isUnspecified // androidx.compose.ui.grap
     final inline fun (androidx.compose.ui.graphics/Color).<get-isUnspecified>(): kotlin/Boolean // androidx.compose.ui.graphics/isUnspecified.<get-isUnspecified>|<get-isUnspecified>@androidx.compose.ui.graphics.Color(){}[0]
 final val androidx.compose.ui.graphics/nativeCanvas // androidx.compose.ui.graphics/nativeCanvas|@androidx.compose.ui.graphics.Canvas{}nativeCanvas[0]
     final fun (androidx.compose.ui.graphics/Canvas).<get-nativeCanvas>(): org.jetbrains.skia/Canvas // androidx.compose.ui.graphics/nativeCanvas.<get-nativeCanvas>|<get-nativeCanvas>@androidx.compose.ui.graphics.Canvas(){}[0]
+final val androidx.compose.ui.graphics/nativePaint // androidx.compose.ui.graphics/nativePaint|@androidx.compose.ui.graphics.Paint{}nativePaint[0]
+    final fun (androidx.compose.ui.graphics/Paint).<get-nativePaint>(): org.jetbrains.skia/Paint // androidx.compose.ui.graphics/nativePaint.<get-nativePaint>|<get-nativePaint>@androidx.compose.ui.graphics.Paint(){}[0]
 final val androidx.compose.ui.graphics/reverseDifference // androidx.compose.ui.graphics/reverseDifference|@androidx.compose.ui.graphics.PathOperation.Companion{}reverseDifference[0]
     final fun (androidx.compose.ui.graphics/PathOperation.Companion).<get-reverseDifference>(): androidx.compose.ui.graphics/PathOperation // androidx.compose.ui.graphics/reverseDifference.<get-reverseDifference>|<get-reverseDifference>@androidx.compose.ui.graphics.PathOperation.Companion(){}[0]
 final val androidx.compose.ui.graphics/union // androidx.compose.ui.graphics/union|@androidx.compose.ui.graphics.PathOperation.Companion{}union[0]

@@ -21,5 +21,9 @@ import org.jetbrains.skia.PathEffect as SkPathEffect
 /**
  * Obtain a reference to the desktop PathEffect type
  */
-@Deprecated("Use asSkiaPathEffect()", replaceWith = ReplaceWith("asSkiaPathEffect()"))
+@Deprecated(
+    message = "Use asSkiaPathEffect()",
+    replaceWith = ReplaceWith("asSkiaPathEffect()"),
+    level = DeprecationLevel.ERROR,
+)
 fun PathEffect.asDesktopPathEffect(): SkPathEffect = asSkiaPathEffect()

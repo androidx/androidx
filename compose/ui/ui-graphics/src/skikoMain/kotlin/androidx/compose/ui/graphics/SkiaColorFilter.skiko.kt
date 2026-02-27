@@ -16,22 +16,23 @@
 
 package androidx.compose.ui.graphics
 
-import org.jetbrains.skia.ColorFilter as SkiaColorFilter
+import org.jetbrains.skia.ColorFilter as SkColorFilter
+import org.jetbrains.skia.ColorMatrix as SkColorMatrix
 
-internal actual typealias NativeColorFilter = SkiaColorFilter
+internal actual typealias NativeColorFilter = SkColorFilter
 
 /**
  * Obtain a [org.jetbrains.skia.ColorFilter] instance from this [ColorFilter]
  */
-fun ColorFilter.asSkiaColorFilter(): SkiaColorFilter = nativeColorFilter
+fun ColorFilter.asSkiaColorFilter(): SkColorFilter = nativeColorFilter
 
 /**
  * Create a [ColorFilter] from the given [org.jetbrains.skia.ColorFilter] instance
  */
-fun org.jetbrains.skia.ColorFilter.asComposeColorFilter(): ColorFilter = ColorFilter(this)
+fun SkColorFilter.asComposeColorFilter(): ColorFilter = ColorFilter(this)
 
 internal actual fun actualTintColorFilter(color: Color, blendMode: BlendMode): NativeColorFilter =
-    SkiaColorFilter.makeBlend(color.toArgb(), blendMode.toSkia())
+    SkColorFilter.makeBlend(color.toArgb(), blendMode.toSkia())
 
 /**
  * Remaps compose [ColorMatrix] to [org.jetbrains.skia.ColorMatrix] and returns [ColorFilter]
@@ -44,14 +45,14 @@ internal actual fun actualColorMatrixColorFilter(colorMatrix: ColorMatrix): Nati
     remappedValues[14] *= (1f / 255f)
     remappedValues[19] *= (1f / 255f)
 
-    return SkiaColorFilter.makeMatrix(
-        org.jetbrains.skia.ColorMatrix(remappedValues)
+    return SkColorFilter.makeMatrix(
+        SkColorMatrix(remappedValues)
     )
 }
 
 internal actual fun actualLightingColorFilter(multiply: Color, add: Color): NativeColorFilter =
-    SkiaColorFilter.makeLighting(multiply.toArgb(), add.toArgb())
+    SkColorFilter.makeLighting(multiply.toArgb(), add.toArgb())
 
-// TODO(https://youtrack.jetbrains.com/issue/COMPOSE-739/Merge-1.6.-Implement-actualColorMatrixFromFilter) implement
+// TODO: https://youtrack.jetbrains.com/issue/CMP-739
 internal actual fun actualColorMatrixFromFilter(filter: NativeColorFilter): ColorMatrix =
     ColorMatrix()
