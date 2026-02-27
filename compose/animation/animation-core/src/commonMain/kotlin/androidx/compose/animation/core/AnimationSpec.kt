@@ -32,6 +32,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.util.fastRoundToInt
+import kotlin.math.PI
 import kotlin.math.abs
 
 public object AnimationConstants {
@@ -810,6 +811,33 @@ public fun <T> spring(
     stiffness: Float = Spring.StiffnessMedium,
     visibilityThreshold: T? = null,
 ): SpringSpec<T> = SpringSpec(dampingRatio, stiffness, visibilityThreshold)
+
+/**
+ * Creates a [SpringSpec] with a [durationMillis] and [bounce].
+ *
+ * Positive [bounce] values produce under-damped springs (bouncy), `0f` is critically damped, and
+ * negative values produce over-damped springs (no overshoot).
+ *
+ * @param durationMillis desired spring duration in milliseconds. Must be positive.
+ * @param bounce controls how bouncy the spring is. Must be in the range `(-1, 1]`.
+ * @param visibilityThreshold optionally specifies the visibility threshold.
+ */
+@Stable
+public fun <T> spring(
+    @IntRange(from = 1) durationMillis: Int,
+    @FloatRange(from = -1.0, to = 1.0) bounce: Float,
+    visibilityThreshold: T? = null,
+): SpringSpec<T> {
+    requirePrecondition(durationMillis > 0) { "Spring durationMillis must be positive." }
+    requirePrecondition(bounce > -1f && bounce <= 1f) { "Spring bounce must be in (-1, 1]." }
+
+    val durationSeconds = durationMillis / 1000f
+    val naturalFrequency = (2.0 * PI / durationSeconds).toFloat()
+    val stiffness = naturalFrequency * naturalFrequency
+    val dampingRatio = if (bounce > 0f) 1f - bounce else 1f / (bounce + 1f)
+
+    return SpringSpec(dampingRatio, stiffness, visibilityThreshold)
+}
 
 /**
  * Creates a [KeyframesSpec] animation, initialized with [init]. For example:

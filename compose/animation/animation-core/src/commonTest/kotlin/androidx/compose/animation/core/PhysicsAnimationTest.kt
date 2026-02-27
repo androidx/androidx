@@ -17,9 +17,11 @@
 package androidx.compose.animation.core
 
 import androidx.kruth.assertThat
+import kotlin.math.PI
 import kotlin.math.sign
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class PhysicsAnimationTest {
@@ -89,6 +91,27 @@ class PhysicsAnimationTest {
 
         assertThat(resultValue).isEqualTo(expectedValue)
         assertThat(resultVelocity).isEqualTo(expectedVelocity)
+    }
+
+    @Test
+    fun springFromDurationAndBounceProducesExpectedParameters() {
+        val underDampedSpec = spring<Float>(durationMillis = 500, bounce = 0.25f, visibilityThreshold = 1f)
+        val expectedUnderDampedStiffness = (4.0 * PI * PI / (0.5 * 0.5)).toFloat()
+        assertEquals(expectedUnderDampedStiffness, underDampedSpec.stiffness, absoluteTolerance = 0.001f)
+        assertEquals(0.75f, underDampedSpec.dampingRatio, absoluteTolerance = 0.001f)
+        assertEquals(1f, underDampedSpec.visibilityThreshold)
+
+        val overDampedSpec = spring<Float>(durationMillis = 400, bounce = -0.5f)
+        val expectedOverDampedStiffness = (4.0 * PI * PI / (0.4 * 0.4)).toFloat()
+        assertEquals(expectedOverDampedStiffness, overDampedSpec.stiffness, absoluteTolerance = 0.001f)
+        assertEquals(2f, overDampedSpec.dampingRatio, absoluteTolerance = 0.001f)
+    }
+
+    @Test
+    fun springFromDurationAndBounceRejectsInvalidArguments() {
+        assertFailsWith<IllegalArgumentException> { spring<Float>(durationMillis = 0, bounce = 0f) }
+        assertFailsWith<IllegalArgumentException> { spring<Float>(durationMillis = 500, bounce = 1.1f) }
+        assertFailsWith<IllegalArgumentException> { spring<Float>(durationMillis = 500, bounce = -1f) }
     }
 
     @Test

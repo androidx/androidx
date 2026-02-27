@@ -155,6 +155,8 @@ package androidx.compose.animation.core {
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.animation.core.RepeatableSpec! repeatable-91I0pcU$default(int, androidx.compose.animation.core.DurationBasedAnimationSpec!, androidx.compose.animation.core.RepeatMode!, long, int, Object!);
     method @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.SnapSpec<T> snap(optional int delayMillis);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.animation.core.SnapSpec! snap$default(int, int, Object!);
+    method @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.SpringSpec<T> spring(@IntRange(from=1) int durationMillis, @FloatRange(from=-1.0, to=1.0) float bounce, optional T? visibilityThreshold);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.animation.core.SpringSpec! spring$default(int, float, Object!, int, Object!);
     method @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.SpringSpec<T> spring(optional float dampingRatio, optional float stiffness, optional T? visibilityThreshold);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.animation.core.SpringSpec! spring$default(float, float, Object!, int, Object!);
     method @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.TweenSpec<T> tween(optional int durationMillis, optional int delayMillis, optional androidx.compose.animation.core.Easing easing);
@@ -992,4 +994,3 @@ package androidx.compose.animation.core {
   }
 
 }
-
