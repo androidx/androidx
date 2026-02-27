@@ -29,8 +29,10 @@ internal object defaultSkikoKeyMapping : KeyMapping {
         return when {
             event.isCtrlPressed && event.isShiftPressed -> {
                 when (event.key) {
-                    Key.MoveHome -> KeyCommand.SELECT_HOME
-                    Key.MoveEnd -> KeyCommand.SELECT_END
+                    Key.MoveHome,
+                    Key.NumPadMoveHome -> KeyCommand.SELECT_HOME
+                    Key.MoveEnd,
+                    Key.NumPadMoveEnd -> KeyCommand.SELECT_END
                     else -> null
                 }
             }
@@ -52,28 +54,40 @@ internal fun createMacosDefaultKeyMapping(): KeyMapping {
 
                 event.isShiftPressed && event.isAltPressed ->
                     when (event.key) {
-                        Key.DirectionLeft -> KeyCommand.SELECT_LEFT_WORD
-                        Key.DirectionRight -> KeyCommand.SELECT_RIGHT_WORD
-                        Key.DirectionUp -> KeyCommand.SELECT_PREV_PARAGRAPH
-                        Key.DirectionDown -> KeyCommand.SELECT_NEXT_PARAGRAPH
+                        Key.DirectionLeft,
+                        Key.NumPadDirectionLeft -> KeyCommand.SELECT_LEFT_WORD
+                        Key.DirectionRight,
+                        Key.NumPadDirectionRight -> KeyCommand.SELECT_RIGHT_WORD
+                        Key.DirectionUp,
+                        Key.NumPadDirectionUp -> KeyCommand.SELECT_PREV_PARAGRAPH
+                        Key.DirectionDown,
+                        Key.NumPadDirectionDown -> KeyCommand.SELECT_NEXT_PARAGRAPH
                         else -> null
                     }
 
                 event.isShiftPressed && event.isMetaPressed ->
                     when (event.key) {
-                        Key.DirectionLeft -> KeyCommand.SELECT_LINE_LEFT
-                        Key.DirectionRight -> KeyCommand.SELECT_LINE_RIGHT
-                        Key.DirectionUp -> KeyCommand.SELECT_HOME
-                        Key.DirectionDown -> KeyCommand.SELECT_END
+                        Key.DirectionLeft,
+                        Key.NumPadDirectionLeft -> KeyCommand.SELECT_LINE_LEFT
+                        Key.DirectionRight,
+                        Key.NumPadDirectionRight -> KeyCommand.SELECT_LINE_RIGHT
+                        Key.DirectionUp,
+                        Key.NumPadDirectionUp -> KeyCommand.SELECT_HOME
+                        Key.DirectionDown,
+                        Key.NumPadDirectionDown -> KeyCommand.SELECT_END
                         else -> null
                     }
 
                 event.isMetaPressed ->
                     when (event.key) {
-                        Key.DirectionLeft -> KeyCommand.LINE_LEFT
-                        Key.DirectionRight -> KeyCommand.LINE_RIGHT
-                        Key.DirectionUp -> KeyCommand.HOME
-                        Key.DirectionDown -> KeyCommand.END
+                        Key.DirectionLeft,
+                        Key.NumPadDirectionLeft -> KeyCommand.LINE_LEFT
+                        Key.DirectionRight,
+                        Key.NumPadDirectionRight -> KeyCommand.LINE_RIGHT
+                        Key.DirectionUp,
+                        Key.NumPadDirectionUp -> KeyCommand.HOME
+                        Key.DirectionDown,
+                        Key.NumPadDirectionDown -> KeyCommand.END
                         Key.Backspace -> KeyCommand.DELETE_FROM_LINE_START
                         else -> null
                     }
@@ -126,18 +140,25 @@ internal fun createMacosDefaultKeyMapping(): KeyMapping {
 
                 event.isShiftPressed ->
                     when (event.key) {
-                        Key.MoveHome -> KeyCommand.SELECT_HOME
-                        Key.MoveEnd -> KeyCommand.SELECT_END
+                        Key.MoveHome,
+                        Key.NumPadMoveHome -> KeyCommand.SELECT_HOME
+                        Key.MoveEnd,
+                        Key.NumPadMoveEnd -> KeyCommand.SELECT_END
                         else -> null
                     }
 
                 event.isAltPressed ->
                     when (event.key) {
-                        Key.DirectionLeft -> KeyCommand.LEFT_WORD
-                        Key.DirectionRight -> KeyCommand.RIGHT_WORD
-                        Key.DirectionUp -> KeyCommand.PREV_PARAGRAPH
-                        Key.DirectionDown -> KeyCommand.NEXT_PARAGRAPH
-                        Key.Delete -> KeyCommand.DELETE_NEXT_WORD
+                        Key.DirectionLeft,
+                        Key.NumPadDirectionLeft -> KeyCommand.LEFT_WORD
+                        Key.DirectionRight,
+                        Key.NumPadDirectionRight -> KeyCommand.RIGHT_WORD
+                        Key.DirectionUp,
+                        Key.NumPadDirectionUp -> KeyCommand.PREV_PARAGRAPH
+                        Key.DirectionDown,
+                        Key.NumPadDirectionDown -> KeyCommand.NEXT_PARAGRAPH
+                        Key.Delete,
+                        Key.NumPadDelete -> KeyCommand.DELETE_NEXT_WORD
                         Key.Backspace -> KeyCommand.DELETE_PREV_WORD
                         else -> null
                     }

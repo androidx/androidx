@@ -81,12 +81,12 @@ internal fun DefaultOpenContextMenu(
         onKeyEvent = {
             if (it.type == KeyEventType.KeyDown) {
                 when (it.key) {
-                    Key.DirectionDown  -> {
+                    Key.DirectionDown, Key.NumPadDirectionUp  -> {
                         inputModeManager!!.requestInputMode(InputMode.Keyboard)
                         focusManager!!.moveFocus(FocusDirection.Next)
                         true
                     }
-                    Key.DirectionUp -> {
+                    Key.DirectionUp, Key.NumPadDirectionDown -> {
                         inputModeManager!!.requestInputMode(InputMode.Keyboard)
                         focusManager!!.moveFocus(FocusDirection.Previous)
                         true

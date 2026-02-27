@@ -19,11 +19,7 @@ package androidx.compose.material
 
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.interaction.Interaction
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -146,12 +142,12 @@ internal fun handlePopupOnKeyEvent(
     inputModeManager: InputModeManager?
 ): Boolean = if (keyEvent.type == KeyEventType.KeyDown) {
     when (keyEvent.key) {
-        Key.DirectionDown -> {
+        Key.DirectionDown, Key.NumPadDirectionDown -> {
             inputModeManager?.requestInputMode(InputMode.Keyboard)
             focusManager?.moveFocus(FocusDirection.Next)
             true
         }
-        Key.DirectionUp -> {
+        Key.DirectionUp, Key.NumPadDirectionUp -> {
             inputModeManager?.requestInputMode(InputMode.Keyboard)
             focusManager?.moveFocus(FocusDirection.Previous)
             true

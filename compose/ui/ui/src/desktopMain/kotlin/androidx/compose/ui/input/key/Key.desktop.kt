@@ -281,6 +281,22 @@ actual value class Key(val keyCode: Long) {
         actual val PrintScreen = Key(KeyEvent.VK_PRINTSCREEN)
 
         /**
+         * Home Movement key.
+         *
+         * Used for scrolling or moving the cursor around to the start of a line or to the top of a
+         * list.
+         */
+        actual val MoveHome = Key(KeyEvent.VK_HOME)
+
+        /**
+         * End Movement key.
+         *
+         * Used for scrolling or moving the cursor around to the end of a line or to the bottom of a
+         * list.
+         */
+        actual val MoveEnd = Key(KeyEvent.VK_END)
+
+        /**
          * Insert key.
          *
          * Toggles insert / overwrite edit mode.
@@ -430,8 +446,35 @@ actual value class Key(val keyCode: Long) {
         /** Numeric keypad ')' key. */
         actual val NumPadRightParenthesis = Key(KeyEvent.VK_RIGHT_PARENTHESIS, KEY_LOCATION_NUMPAD)
 
-        actual val MoveHome = Key(KeyEvent.VK_HOME)
-        actual val MoveEnd = Key(KeyEvent.VK_END)
+        /** Numeric keypad Up Arrow Key. */
+        actual val NumPadDirectionUp = Key(KeyEvent.VK_UP, KEY_LOCATION_NUMPAD)
+
+        /** Numeric keypad Down Arrow Key. */
+        actual val NumPadDirectionDown = Key(KeyEvent.VK_DOWN, KEY_LOCATION_NUMPAD)
+
+        /** Numeric keypad Left Arrow Key. */
+        actual val NumPadDirectionLeft = Key(KeyEvent.VK_LEFT, KEY_LOCATION_NUMPAD)
+
+        /** Numeric keypad Right Arrow Key. */
+        actual val NumPadDirectionRight = Key(KeyEvent.VK_RIGHT, KEY_LOCATION_NUMPAD)
+
+        /** Numeric keypad Home Key. */
+        actual val NumPadMoveHome: Key = Key(KeyEvent.VK_HOME, KEY_LOCATION_NUMPAD)
+
+        /** Numeric keypad End Key. */
+        actual val NumPadMoveEnd = Key(KeyEvent.VK_END, KEY_LOCATION_NUMPAD)
+
+        /** Numeric keypad Page Up Key. */
+        actual val NumPadPageUp = Key(KeyEvent.VK_PAGE_UP, KEY_LOCATION_NUMPAD)
+
+        /** Numeric keypad Page Down Key. */
+        actual val NumPadPageDown = Key(KeyEvent.VK_PAGE_DOWN, KEY_LOCATION_NUMPAD)
+
+        /** Numeric keypad Insert Key. */
+        actual val NumPadInsert = Key(KeyEvent.VK_INSERT, KEY_LOCATION_NUMPAD)
+
+        /** Numeric keypad Delete Key. */
+        actual val NumPadDelete: Key = Key(KeyEvent.VK_DELETE, KEY_LOCATION_NUMPAD)
 
         // Unsupported Keys. These keys will never be sent by the desktop. However we need unique
         // keycodes so that these constants can be used in a when statement without a warning.
@@ -606,37 +649,7 @@ actual value class Key(val keyCode: Long) {
         actual val ThumbsUp = Key(-1000000181)
         actual val ThumbsDown = Key(-1000000182)
         actual val ProfileSwitch = Key(-1000000183)
-
-        /** Numeric keypad Up Arrow Key. */
-        actual val NumPadDirectionUp = Key(KeyEvent.VK_UP, KEY_LOCATION_NUMPAD)
-
-        /** Numeric keypad Down Arrow Key. */
-        actual val NumPadDirectionDown = Key(KeyEvent.VK_DOWN, KEY_LOCATION_NUMPAD)
-
-        /** Numeric keypad Left Arrow Key. */
-        actual val NumPadDirectionLeft = Key(KeyEvent.VK_LEFT, KEY_LOCATION_NUMPAD)
-
-        /** Numeric keypad Right Arrow Key. */
-        actual val NumPadDirectionRight = Key(KeyEvent.VK_RIGHT, KEY_LOCATION_NUMPAD)
-
-        /** Numeric keypad Home Key. */
-        actual val NumPadMoveHome: Key = Key(KeyEvent.VK_HOME, KEY_LOCATION_NUMPAD)
-
-        /** Numeric keypad End Key. */
-        actual val NumPadMoveEnd = Key(KeyEvent.VK_END, KEY_LOCATION_NUMPAD)
-
-        /** Numeric keypad Page Up Key. */
-        actual val NumPadPageUp = Key(KeyEvent.VK_PAGE_UP, KEY_LOCATION_NUMPAD)
-
-        /** Numeric keypad Page Down Key. */
-        actual val NumPadPageDown = Key(KeyEvent.VK_PAGE_DOWN, KEY_LOCATION_NUMPAD)
-
-        /** Numeric keypad Insert Key. */
-        actual val NumPadInsert = Key(KeyEvent.VK_INSERT, KEY_LOCATION_NUMPAD)
-
-        /** Numeric keypad Delete Key. */
-        actual val NumPadDelete: Key = Key(KeyEvent.VK_DELETE, KEY_LOCATION_NUMPAD)
-    }
+}
 
     actual override fun toString(): String {
         return "Key: ${KeyEvent.getKeyText(nativeKeyCode)}"
