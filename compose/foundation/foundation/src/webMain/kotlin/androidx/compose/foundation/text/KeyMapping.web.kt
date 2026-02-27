@@ -29,7 +29,7 @@ internal actual val platformDefaultKeyMapping: KeyMapping = createPlatformDefaul
 internal fun createPlatformDefaultKeyMapping(platform: OS): KeyMapping {
     val keyMapping = when (platform) {
         OS.MacOS -> createMacosDefaultKeyMapping()
-        else -> defaultSkikoKeyMapping
+        else -> DefaultSkikoKeyMapping
     }
     return object : KeyMapping {
         private val clipboardKeys = setOf(Key.C, Key.V, Key.X)
