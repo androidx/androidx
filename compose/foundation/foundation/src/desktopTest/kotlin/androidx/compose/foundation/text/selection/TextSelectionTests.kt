@@ -217,7 +217,7 @@ class TextSelectionTests {
     fun `Select till text start with DesktopPlatform-MacOs`() {
         DesktopPlatform.MacOS.selectTextStart {
             keyDown(Key.ShiftLeft)
-            pressKey(Key.Home)
+            pressKey(Key.MoveHome)
             keyUp(Key.ShiftLeft)
         }
     }

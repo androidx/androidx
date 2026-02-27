@@ -130,8 +130,8 @@ class SliderTest {
             Assert.assertEquals(1f, state.value)
         }
 
-        rule.onRoot().performKeyPress(KeyEvent(Key.Home, KeyEventType.KeyDown))
-        rule.onRoot().performKeyPress(KeyEvent(Key.Home, KeyEventType.KeyUp))
+        rule.onRoot().performKeyPress(KeyEvent(Key.MoveHome, KeyEventType.KeyDown))
+        rule.onRoot().performKeyPress(KeyEvent(Key.MoveHome, KeyEventType.KeyUp))
         rule.runOnIdle {
             Assert.assertEquals(0f, state.value)
         }
@@ -271,8 +271,8 @@ class SliderTest {
             Assert.assertEquals(30f, state.value)
         }
 
-        rule.onRoot().performKeyPress(KeyEvent(Key.Home, KeyEventType.KeyDown))
-        rule.onRoot().performKeyPress(KeyEvent(Key.Home, KeyEventType.KeyUp))
+        rule.onRoot().performKeyPress(KeyEvent(Key.MoveHome, KeyEventType.KeyDown))
+        rule.onRoot().performKeyPress(KeyEvent(Key.MoveHome, KeyEventType.KeyUp))
         rule.runOnIdle {
             Assert.assertEquals(0f, state.value)
         }

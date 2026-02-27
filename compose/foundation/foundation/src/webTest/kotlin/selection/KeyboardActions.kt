@@ -89,7 +89,7 @@ internal object MacosKeyboardActions : KeyboardActions {
 
     override fun KeyInjectionScope.selectTextStart() {
         keyDown(Key.ShiftLeft)
-        pressKey(Key.Home)
+        pressKey(Key.MoveHome)
         keyUp(Key.ShiftLeft)
     }
 
