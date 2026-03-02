@@ -76,4 +76,4 @@ var ComposeUiFlags.isDialogAnimationEnabled by SkikoComposeUiFlags::isDialogAnim
  * * `SafeContentRulers`
  */
 @ExperimentalComposeUiApi
-var ComposeUiFlags.areWindowInsetsRulersEnabled by SkikoComposeUiFlags::isDialogAnimationEnabled
+var ComposeUiFlags.areWindowInsetsRulersEnabled by SkikoComposeUiFlags::areWindowInsetsRulersEnabled
