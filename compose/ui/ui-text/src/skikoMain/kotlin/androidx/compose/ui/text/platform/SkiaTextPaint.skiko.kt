@@ -27,7 +27,7 @@ import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.Shader
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.nativePaint
+import androidx.compose.ui.graphics.skiaPaint
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -40,7 +40,7 @@ internal class SkiaTextPaint(
     private val original: Paint = Paint(),
 ) : Paint by original {
     internal val skiaPaint
-        get() = original.nativePaint
+        get() = original.skiaPaint
 
     @VisibleForTesting
     internal var brush: Brush? = null

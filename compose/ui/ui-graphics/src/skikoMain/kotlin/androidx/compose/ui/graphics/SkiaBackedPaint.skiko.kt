@@ -36,23 +36,27 @@ actual fun Paint(): Paint = SkiaBackedPaint()
 //  consider to replace to `fun Paint(skiaPaint: org.jetbrains.skia.Paint)`
 fun SkPaint.asComposePaint(): Paint = SkiaBackedPaint(this)
 
-/** Convert a Compose [Paint] instance into an [org.jetbrains.skia.Paint]. */
-val Paint.nativePaint: SkPaint
+/**
+ * Provides access to the underlying [org.jetbrains.skia.Paint] instance.
+ *
+ * It throws an exception if accessed on unsupported types.
+ */
+val Paint.skiaPaint: SkPaint
     get() {
         requirePrecondition(this is SkiaBackedPaint) {
             "Extracting skia paint reference is only supported from androidx.compose.ui.graphics.SkiaBackedPaint instances but received ${this::class}"
         }
-        return skiaPaint
+        return internalSkiaPaint
     }
 
 internal class SkiaBackedPaint(
-    val skiaPaint: SkPaint = SkPaint()
+    val internalSkiaPaint: SkPaint = SkPaint()
 ) : Paint {
     @Deprecated(
-        message = "Use [nativePaint] extension instead",
-        replaceWith = ReplaceWith("nativePaint"),
+        message = "Use [Paint.nativePaint] extension instead",
+        replaceWith = ReplaceWith("skiaPaint", "androidx.compose.ui.graphics.skiaPaint"),
     )
-    override fun asFrameworkPaint(): SkPaint = skiaPaint
+    override fun asFrameworkPaint(): SkPaint = internalSkiaPaint
 
     private var mAlphaMultiplier = 1.0f
 
@@ -65,60 +69,60 @@ internal class SkiaBackedPaint(
         }
 
     private fun updateAlpha(alpha: Float = this.alpha, multiplier: Float = this.mAlphaMultiplier) {
-        skiaPaint.color = Color(skiaPaint.color).copy(alpha = alpha * multiplier).toArgb()
+        internalSkiaPaint.color = Color(internalSkiaPaint.color).copy(alpha = alpha * multiplier).toArgb()
     }
 
     override var alpha: Float
-        get() = Color(skiaPaint.color).alpha
+        get() = Color(internalSkiaPaint.color).alpha
         set(value) {
             updateAlpha(alpha = value)
         }
 
     override var isAntiAlias: Boolean
-        get() = skiaPaint.isAntiAlias
+        get() = internalSkiaPaint.isAntiAlias
         set(value) {
-            skiaPaint.isAntiAlias = value
+            internalSkiaPaint.isAntiAlias = value
         }
 
     override var color: Color
-        get() = Color(skiaPaint.color)
+        get() = Color(internalSkiaPaint.color)
         set(color) {
-            skiaPaint.color = color.toArgb()
+            internalSkiaPaint.color = color.toArgb()
         }
 
     override var blendMode: BlendMode = BlendMode.SrcOver
         set(value) {
-            skiaPaint.blendMode = value.toSkia()
+            internalSkiaPaint.blendMode = value.toSkia()
             field = value
         }
 
     override var style: PaintingStyle = PaintingStyle.Fill
         set(value) {
-            skiaPaint.mode = value.toSkia()
+            internalSkiaPaint.mode = value.toSkia()
             field = value
         }
 
     override var strokeWidth: Float
-        get() = skiaPaint.strokeWidth
+        get() = internalSkiaPaint.strokeWidth
         set(value) {
-            skiaPaint.strokeWidth = value
+            internalSkiaPaint.strokeWidth = value
         }
 
     override var strokeCap: StrokeCap = StrokeCap.Butt
         set(value) {
-            skiaPaint.strokeCap = value.toSkia()
+            internalSkiaPaint.strokeCap = value.toSkia()
             field = value
         }
 
     override var strokeJoin: StrokeJoin = StrokeJoin.Round
         set(value) {
-            skiaPaint.strokeJoin = value.toSkia()
+            internalSkiaPaint.strokeJoin = value.toSkia()
             field = value
         }
 
     override var strokeMiterLimit: Float = 0f
         set(value) {
-            skiaPaint.strokeMiter = value
+            internalSkiaPaint.strokeMiter = value
             field = value
         }
 
@@ -126,19 +130,19 @@ internal class SkiaBackedPaint(
 
     override var shader: Shader? = null
         set(value) {
-            skiaPaint.shader = value
+            internalSkiaPaint.shader = value
             field = value
         }
 
     override var colorFilter: ColorFilter? = null
         set(value) {
-            skiaPaint.colorFilter = value?.asSkiaColorFilter()
+            internalSkiaPaint.colorFilter = value?.asSkiaColorFilter()
             field = value
         }
 
     override var pathEffect: PathEffect? = null
         set(value) {
-            skiaPaint.pathEffect = (value as SkiaBackedPathEffect?)?.asSkiaPathEffect()
+            internalSkiaPaint.pathEffect = (value as SkiaBackedPathEffect?)?.asSkiaPathEffect()
             field = value
         }
 

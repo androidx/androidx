@@ -25,7 +25,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.DrawCache
-import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.skiaCanvas
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import java.io.InputStream
@@ -132,7 +132,7 @@ private class SVGPainter(
             root?.width = SVGLength(size.width, SVGLengthUnit.PX)
             root?.height = SVGLength(size.height, SVGLengthUnit.PX)
             root?.preserveAspectRatio = SVGPreserveAspectRatio(SVGPreserveAspectRatioAlign.NONE)
-            dom.render(canvas.nativeCanvas)
+            dom.render(canvas.skiaCanvas)
         }
     }
 }

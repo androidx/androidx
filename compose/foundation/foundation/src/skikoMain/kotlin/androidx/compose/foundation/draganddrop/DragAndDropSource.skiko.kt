@@ -27,14 +27,13 @@ import androidx.compose.ui.graphics.asComposeCanvas
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.draw
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.skiaCanvas
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerInputScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.jetbrains.skia.Picture
 import org.jetbrains.skia.PictureRecorder
-import org.jetbrains.skia.Rect
 
 @Immutable
 internal actual object DragAndDropSourceDefaults {
@@ -71,7 +70,7 @@ internal actual class CacheDrawScopeDragShadowCallback {
                     throw IllegalArgumentException(
                         "No cached drag shadow. Check if Modifier.cacheDragShadow(painter) was called."
                     )
-                else -> drawIntoCanvas { canvas -> canvas.nativeCanvas.drawPicture(picture) }
+                else -> drawIntoCanvas { canvas -> canvas.skiaCanvas.drawPicture(picture) }
             }
         }
 
@@ -101,7 +100,7 @@ internal actual class CacheDrawScopeDragShadowCallback {
                 pictureRecorder.close()
                 cachedPicture = picture
 
-                drawIntoCanvas { canvas -> canvas.nativeCanvas.drawPicture(picture) }
+                drawIntoCanvas { canvas -> canvas.skiaCanvas.drawPicture(picture) }
             }
         }
 }

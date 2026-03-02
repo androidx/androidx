@@ -17,23 +17,31 @@
 package androidx.compose.ui.graphics
 
 import androidx.compose.ui.geometry.Offset
+import org.jetbrains.skia.PathMeasure as SkPathMeasure
+
 /**
  * Convert the [org.jetbrains.skia.PathMeasure] instance into a Compose-compatible PathMeasure
  */
-fun org.jetbrains.skia.PathMeasure.asComposePathEffect(): PathMeasure = SkiaBackedPathMeasure(this)
+fun SkPathMeasure.asComposePathEffect(): PathMeasure = SkiaBackedPathMeasure(this)
 
 /**
- * Obtain a reference to skia PathMeasure type
+ * Obtain a reference the underlying [org.jetbrains.skia.PathMeasure] instance.
+ *
+ * It throws an exception if accessed on unsupported types.
  */
-fun PathMeasure.asSkiaPathMeasure(): org.jetbrains.skia.PathMeasure =
-    (this as SkiaBackedPathMeasure).skia
+fun PathMeasure.asSkiaPathMeasure(): SkPathMeasure {
+    requirePrecondition(this is SkiaBackedPathMeasure) {
+        "Extracting skia path measure reference is only supported from androidx.compose.ui.graphics.SkiaBackedPathMeasure instances but received ${this::class}"
+    }
+    return internalSkiaPathMeasure
+}
 
 internal class SkiaBackedPathMeasure(
-    internal val skia: org.jetbrains.skia.PathMeasure = org.jetbrains.skia.PathMeasure()
+    internal val internalSkiaPathMeasure: SkPathMeasure = SkPathMeasure()
 ) : PathMeasure {
 
     override fun setPath(path: Path?, forceClosed: Boolean) {
-        skia.setPath(path?.asSkiaPath(), forceClosed)
+        internalSkiaPathMeasure.setPath(path?.asSkiaPath(), forceClosed)
     }
 
     override fun getSegment(
@@ -41,7 +49,7 @@ internal class SkiaBackedPathMeasure(
         stopDistance: Float,
         destination: Path,
         startWithMoveTo: Boolean
-    ) = skia.getSegment(
+    ) = internalSkiaPathMeasure.getSegment(
         startDistance,
         stopDistance,
         destination.asSkiaPath(),
@@ -49,12 +57,12 @@ internal class SkiaBackedPathMeasure(
     )
 
     override val length: Float
-        get() = skia.length
+        get() = internalSkiaPathMeasure.length
 
     override fun getPosition(
         distance: Float
     ): Offset {
-        val result = skia.getPosition(distance)
+        val result = internalSkiaPathMeasure.getPosition(distance)
         return if (result != null) {
             Offset(result.x, result.y)
         } else {
@@ -65,7 +73,7 @@ internal class SkiaBackedPathMeasure(
     override fun getTangent(
         distance: Float
     ): Offset {
-        val result = skia.getTangent(distance)
+        val result = internalSkiaPathMeasure.getTangent(distance)
         return if (result != null) {
             Offset(result.x, result.y)
         } else {

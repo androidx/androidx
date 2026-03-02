@@ -75,8 +75,6 @@ public final class androidx/compose/ui/graphics/BlurEffect : androidx/compose/ui
 }
 
 public final class androidx/compose/ui/graphics/BlurEffect$Companion {
-	public final fun convertRadiusToSigma (F)F
-	public final fun getBlurSigmaScale ()F
 }
 
 public abstract class androidx/compose/ui/graphics/Brush {
@@ -992,12 +990,13 @@ public abstract interface class androidx/compose/ui/graphics/Shape {
 public final class androidx/compose/ui/graphics/SkiaBackedCanvas_skikoKt {
 	public static final fun asComposeCanvas (Lorg/jetbrains/skia/Canvas;)Landroidx/compose/ui/graphics/Canvas;
 	public static final fun getNativeCanvas (Landroidx/compose/ui/graphics/Canvas;)Lorg/jetbrains/skia/Canvas;
+	public static final fun getSkiaCanvas (Landroidx/compose/ui/graphics/Canvas;)Lorg/jetbrains/skia/Canvas;
 }
 
 public final class androidx/compose/ui/graphics/SkiaBackedPaint_skikoKt {
 	public static final fun Paint ()Landroidx/compose/ui/graphics/Paint;
 	public static final fun asComposePaint (Lorg/jetbrains/skia/Paint;)Landroidx/compose/ui/graphics/Paint;
-	public static final fun getNativePaint (Landroidx/compose/ui/graphics/Paint;)Lorg/jetbrains/skia/Paint;
+	public static final fun getSkiaPaint (Landroidx/compose/ui/graphics/Paint;)Lorg/jetbrains/skia/Paint;
 	public static final fun isSupported-s9anfk8 (I)Z
 }
 
@@ -1020,6 +1019,7 @@ public final class androidx/compose/ui/graphics/SkiaBackedPath_skikoKt {
 
 public final class androidx/compose/ui/graphics/SkiaBackedRenderEffect_skikoKt {
 	public static final fun asComposeRenderEffect (Lorg/jetbrains/skia/ImageFilter;)Landroidx/compose/ui/graphics/RenderEffect;
+	public static final fun getSkiaImageFilter (Landroidx/compose/ui/graphics/RenderEffect;)Lorg/jetbrains/skia/ImageFilter;
 }
 
 public final class androidx/compose/ui/graphics/SkiaColorFilter_skikoKt {

@@ -23,7 +23,6 @@ import androidx.compose.ui.FrameRateCategory
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
@@ -41,9 +40,10 @@ import androidx.compose.ui.graphics.alphaMultiplier
 import androidx.compose.ui.graphics.asComposeCanvas
 import androidx.compose.ui.graphics.asSkiaPath
 import androidx.compose.ui.graphics.layer.GraphicsLayer
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.nativePaint
+import androidx.compose.ui.graphics.skiaCanvas
+import androidx.compose.ui.graphics.skiaPaint
 import androidx.compose.ui.graphics.prepareTransformationMatrix
+import androidx.compose.ui.graphics.skiaImageFilter
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.node.OwnedLayer
 import androidx.compose.ui.unit.Density
@@ -51,7 +51,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toRect
-import androidx.compose.ui.unit.toSize
 import kotlin.math.abs
 import kotlin.math.max
 import org.jetbrains.skia.ClipMode
@@ -262,7 +261,7 @@ internal class LegacyRenderNodeLayer(
         canvas.save()
         canvas.concat(matrix)
         canvas.translate(position.x.toFloat(), position.y.toFloat())
-        canvas.nativeCanvas.drawPicture(picture!!, null, null)
+        canvas.skiaCanvas.drawPicture(picture!!, null, null)
         canvas.restore()
     }
 
@@ -295,7 +294,7 @@ internal class LegacyRenderNodeLayer(
                     )
                     is Outline.Rounded -> {
                         val antiAlias = true
-                        canvas.nativeCanvas.clipRRect(
+                        canvas.skiaCanvas.clipRRect(
                             outline.roundRect.left,
                             outline.roundRect.top,
                             outline.roundRect.right,
@@ -332,7 +331,7 @@ internal class LegacyRenderNodeLayer(
                     bounds,
                     Paint().apply {
                         alpha = this@LegacyRenderNodeLayer.alpha
-                        nativePaint.imageFilter = currentRenderEffect?.asSkiaImageFilter()
+                        skiaPaint.imageFilter = currentRenderEffect?.skiaImageFilter
                     }
                 )
             } else {
@@ -364,10 +363,7 @@ internal class LegacyRenderNodeLayer(
             else -> return
         }
 
-        // TODO: perspective?
         val zParams = Point3(0f, 0f, shadowElevation)
-
-        // TODO: configurable?
         val lightPos = Point3(0f, -300.dp.toPx(), 600.dp.toPx())
         val lightRad = 800.dp.toPx()
 
@@ -377,19 +373,13 @@ internal class LegacyRenderNodeLayer(
         val spotColor = spotShadowColor.copy(alpha = spotAlpha)
 
         ShadowUtils.drawShadow(
-            canvas.nativeCanvas, path.asSkiaPath(), zParams, lightPos,
+            canvas.skiaCanvas, path.asSkiaPath(), zParams, lightPos,
             lightRad,
             ambientColor.toArgb(),
             spotColor.toArgb(), alpha < 1f, false
         )
     }
 }
-
-// Copy from Android's frameworks/base/libs/hwui/utils/MathUtils.h
-private const val NON_ZERO_EPSILON = 0.001f
-
-@Suppress("NOTHING_TO_INLINE")
-private inline fun Float.isZero(): Boolean = abs(this) <= NON_ZERO_EPSILON
 
 // The goal with selecting the size of the rectangle here is to avoid limiting the
 // drawable area as much as possible.

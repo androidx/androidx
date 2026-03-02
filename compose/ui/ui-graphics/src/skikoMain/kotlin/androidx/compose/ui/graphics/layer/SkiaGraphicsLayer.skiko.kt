@@ -37,7 +37,8 @@ import androidx.compose.ui.graphics.asSkiaPath
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.draw
-import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.skiaCanvas
+import androidx.compose.ui.graphics.skiaImageFilter
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toSkia
 import androidx.compose.ui.unit.Density
@@ -353,7 +354,7 @@ actual class GraphicsLayer internal constructor(
         if (isReleased) return
         configureOutlineAndClip()
         parentLayer?.addSubLayer(this)
-        renderNode?.drawInto(canvas.nativeCanvas)
+        renderNode?.drawInto(canvas.skiaCanvas)
     }
 
     private fun onAddedToParentLayer() {
@@ -443,7 +444,7 @@ actual class GraphicsLayer internal constructor(
         renderNode?.layerPaint = if (requiresLayer()) {
             SkPaint().also {
                 it.setAlphaf(alpha)
-                it.imageFilter = renderEffect?.asSkiaImageFilter()
+                it.imageFilter = renderEffect?.skiaImageFilter
                 it.colorFilter = colorFilter?.asSkiaColorFilter()
                 it.blendMode = blendMode.toSkia()
             }

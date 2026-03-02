@@ -16,11 +16,14 @@
 
 package androidx.compose.ui.graphics.shadow
 
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.graphics.BlurEffect.Companion.convertRadiusToSigma
 import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.skiaPaint
 import org.jetbrains.skia.FilterBlurMode
 import org.jetbrains.skia.MaskFilter
 
+@OptIn(InternalComposeUiApi::class)
 internal actual fun BlurFilter(radius: Float): BlurFilter {
     val sigma = convertRadiusToSigma(radius);
     return MaskFilter.makeBlur(FilterBlurMode.NORMAL, sigma)
@@ -31,5 +34,5 @@ internal actual fun BlurFilter(radius: Float): BlurFilter {
 internal actual typealias BlurFilter = MaskFilter // Only the base type is available
 
 internal actual fun Paint.setBlurFilter(blur: BlurFilter?) {
-    asFrameworkPaint().maskFilter = blur
+    skiaPaint.maskFilter = blur
 }

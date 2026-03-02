@@ -20,6 +20,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import org.jetbrains.skia.Matrix33
+import org.jetbrains.skia.Path as SkPath
 import org.jetbrains.skia.PathDirection
 import org.jetbrains.skia.PathBuilder
 import org.jetbrains.skia.PathFillMode
@@ -30,41 +31,41 @@ actual fun Path(): Path = SkiaBackedPath()
 /**
  * Convert the [org.jetbrains.skia.Path] instance into a Compose-compatible Path
  */
-fun org.jetbrains.skia.Path.asComposePath(): Path = SkiaBackedPath(this)
+fun SkPath.asComposePath(): Path = SkiaBackedPath(this)
 
 /**
- * Obtain a reference to the [org.jetbrains.skia.Path]
+ * Obtain a reference to the underlying [org.jetbrains.skia.Path] instance.
  *
- * @Throws UnsupportedOperationException if this Path is not backed by an org.jetbrains.skia.Path
+ * It throws an exception if accessed on unsupported types.
  */
-fun Path.asSkiaPath(): org.jetbrains.skia.Path =
-    if (this is SkiaBackedPath) {
-        internalPath
-    } else {
-        throw UnsupportedOperationException("Unable to obtain org.jetbrains.skia.Path")
+fun Path.asSkiaPath(): SkPath {
+    requirePrecondition(this is SkiaBackedPath) {
+        "Extracting skia path reference is only supported from androidx.compose.ui.graphics.SkiaBackedPath instances but received ${this::class}"
     }
+    return internalSkiaPath
+}
 
 @Suppress("OVERRIDE_DEPRECATION")
 internal class SkiaBackedPath(
-    internalPath: org.jetbrains.skia.Path = org.jetbrains.skia.Path()
+    internalSkiaPath: SkPath = SkPath()
 ) : Path {
-    var internalPath = internalPath
+    internal var internalSkiaPath = internalSkiaPath
         private set
-    private var pathBuilder = PathBuilder(internalPath)
+    private var pathBuilder = PathBuilder(internalSkiaPath)
 
     private inline fun mutatePath(block: PathBuilder.() -> Unit) {
         pathBuilder.apply(block)
-        internalPath = pathBuilder.snapshot()
+        internalSkiaPath = pathBuilder.snapshot()
     }
 
-    private fun replacePath(path: org.jetbrains.skia.Path) {
-        internalPath = path
+    private fun replacePath(path: SkPath) {
+        internalSkiaPath = path
         pathBuilder = PathBuilder(path)
     }
 
     override var fillType: PathFillType
         get() {
-            return if (internalPath.fillMode == PathFillMode.EVEN_ODD) {
+            return if (internalSkiaPath.fillMode == PathFillMode.EVEN_ODD) {
                 PathFillType.EvenOdd
             } else {
                 PathFillType.NonZero
@@ -79,7 +80,7 @@ internal class SkiaBackedPath(
                     PathFillMode.WINDING
                 }
             )
-            internalPath = pathBuilder.snapshot()
+            internalSkiaPath = pathBuilder.snapshot()
         }
 
     override fun moveTo(x: Float, y: Float) = mutatePath {
@@ -270,26 +271,26 @@ internal class SkiaBackedPath(
     }
 
     override fun reset() {
-        val fillMode = internalPath.fillMode
+        val fillMode = internalSkiaPath.fillMode
         pathBuilder.reset().setFillType(fillMode)
-        internalPath = pathBuilder.snapshot()
+        internalSkiaPath = pathBuilder.snapshot()
     }
 
     override fun translate(offset: Offset) {
-        pathBuilder = PathBuilder(internalPath.fillMode)
-            .addPath(internalPath, offset.x, offset.y)
-        internalPath = pathBuilder.snapshot()
+        pathBuilder = PathBuilder(internalSkiaPath.fillMode)
+            .addPath(internalSkiaPath, offset.x, offset.y)
+        internalSkiaPath = pathBuilder.snapshot()
     }
 
     override fun transform(matrix: Matrix) {
         val skiaMatrix = Matrix33.makeTranslate(0f, 0f).apply { setFrom(matrix) }
-        pathBuilder = PathBuilder(internalPath.fillMode)
-            .addPath(internalPath, skiaMatrix)
-        internalPath = pathBuilder.snapshot()
+        pathBuilder = PathBuilder(internalSkiaPath.fillMode)
+            .addPath(internalSkiaPath, skiaMatrix)
+        internalSkiaPath = pathBuilder.snapshot()
     }
 
     override fun getBounds(): Rect {
-        val bounds = internalPath.bounds
+        val bounds = internalSkiaPath.bounds
         return Rect(
             bounds.left,
             bounds.top,
@@ -303,7 +304,7 @@ internal class SkiaBackedPath(
         path2: Path,
         operation: PathOperation
     ): Boolean {
-        val path = org.jetbrains.skia.Path.makeCombining(
+        val path = SkPath.makeCombining(
             path1.asSkiaPath(),
             path2.asSkiaPath(),
             operation.toSkiaOperation()
@@ -324,9 +325,9 @@ internal class SkiaBackedPath(
         else -> PathOp.XOR
     }
 
-    override val isConvex: Boolean get() = internalPath.isConvex
+    override val isConvex: Boolean get() = internalSkiaPath.isConvex
 
-    override val isEmpty: Boolean get() = internalPath.isEmpty
+    override val isEmpty: Boolean get() = internalSkiaPath.isEmpty
 }
 
 private fun Path.Direction.toSkiaPathDirection() = when (this) {

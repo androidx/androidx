@@ -18,7 +18,9 @@ package androidx.compose.ui.graphics
 
 import org.jetbrains.skia.PathEffect as SkPathEffect
 
-internal class SkiaBackedPathEffect(val nativePathEffect: SkPathEffect) : PathEffect
+internal class SkiaBackedPathEffect(
+    internal val internalSkiaPathEffect: SkPathEffect,
+) : PathEffect
 
 /**
  * Convert the [org.jetbrains.skia.PathEffect] instance into a Compose-compatible PathEffect
@@ -26,10 +28,16 @@ internal class SkiaBackedPathEffect(val nativePathEffect: SkPathEffect) : PathEf
 fun SkPathEffect.asComposePathEffect(): PathEffect = SkiaBackedPathEffect(this)
 
 /**
- * Obtain a reference to skia PathEffect type
+ * Obtain a reference the underlying [org.jetbrains.skia.PathEffect] instance.
+ *
+ * It throws an exception if accessed on unsupported types.
  */
-fun PathEffect.asSkiaPathEffect(): SkPathEffect =
-    (this as SkiaBackedPathEffect).nativePathEffect
+fun PathEffect.asSkiaPathEffect(): SkPathEffect {
+    requirePrecondition(this is SkiaBackedPathEffect) {
+        "Extracting skia path effect reference is only supported from androidx.compose.ui.graphics.SkiaBackedPathEffect instances but received ${this::class}"
+    }
+    return internalSkiaPathEffect
+}
 
 internal actual fun actualCornerPathEffect(radius: Float): PathEffect =
     SkiaBackedPathEffect(SkPathEffect.makeCorner(radius))

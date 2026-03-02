@@ -24,7 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.skiaCanvas
 import kotlin.math.roundToInt
 import org.jetbrains.skia.Rect
 import org.jetbrains.skia.skottie.Animation
@@ -78,7 +78,7 @@ private fun InfiniteAnimation(animation: Animation, modifier: Modifier) {
 
         drawIntoCanvas {
             animation.render(
-                canvas = it.nativeCanvas,
+                canvas = it.skiaCanvas,
                 dst = Rect.makeWH(size.width, size.height)
             )
         }

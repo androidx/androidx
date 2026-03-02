@@ -25,7 +25,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.nativePaint
+import androidx.compose.ui.graphics.skiaPaint
 import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.scene.skia.SkiaLayerComponent
 import androidx.compose.ui.skiko.OverlayRenderDecorator
@@ -194,7 +194,7 @@ internal class WindowComposeSceneLayer(
         val paint = Paint().apply {
             color = scrimColor
             blendMode = getDialogScrimBlendMode(transparent)
-        }.nativePaint
+        }.skiaPaint
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
     }
 

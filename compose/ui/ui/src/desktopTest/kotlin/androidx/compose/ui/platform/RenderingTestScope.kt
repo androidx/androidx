@@ -20,7 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asComposeCanvas
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.skiaCanvas
 import androidx.compose.ui.scene.CanvasLayersComposeScene
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
@@ -86,7 +86,7 @@ internal class RenderingTestScope(
     }
 
     private fun onRender(timeNanos: Long) {
-        canvas.nativeCanvas.clear(Color.Transparent.toArgb())
+        canvas.skiaCanvas.clear(Color.Transparent.toArgb())
         scene.render(canvas, timeNanos)
         onRender.complete(Unit)
     }

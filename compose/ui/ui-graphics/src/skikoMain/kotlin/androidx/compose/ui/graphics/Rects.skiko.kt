@@ -17,9 +17,11 @@ package androidx.compose.ui.graphics
 
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
+import org.jetbrains.skia.Rect as SkRect
+import org.jetbrains.skia.RRect as SkRRect
 
-fun Rect.toSkiaRect(): org.jetbrains.skia.Rect {
-    return org.jetbrains.skia.Rect.makeLTRB(
+fun Rect.toSkiaRect(): SkRect {
+    return SkRect.makeLTRB(
         left,
         top,
         right,
@@ -27,10 +29,10 @@ fun Rect.toSkiaRect(): org.jetbrains.skia.Rect {
     )
 }
 
-fun org.jetbrains.skia.Rect.toComposeRect() =
-    androidx.compose.ui.geometry.Rect(left, top, right, bottom)
+fun SkRect.toComposeRect() =
+    Rect(left, top, right, bottom)
 
-fun RoundRect.toSkiaRRect(): org.jetbrains.skia.RRect {
+fun RoundRect.toSkiaRRect(): SkRRect {
     val radii = FloatArray(8)
 
     radii[0] = topLeftCornerRadius.x
@@ -45,5 +47,5 @@ fun RoundRect.toSkiaRRect(): org.jetbrains.skia.RRect {
     radii[6] = bottomLeftCornerRadius.x
     radii[7] = bottomLeftCornerRadius.y
 
-    return org.jetbrains.skia.RRect.makeComplexLTRB(left, top, right, bottom, radii)
+    return SkRRect.makeComplexLTRB(left, top, right, bottom, radii)
 }

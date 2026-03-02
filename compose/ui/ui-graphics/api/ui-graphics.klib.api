@@ -785,12 +785,7 @@ final class androidx.compose.ui.graphics/BlurEffect : androidx.compose.ui.graphi
     final fun hashCode(): kotlin/Int // androidx.compose.ui.graphics/BlurEffect.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // androidx.compose.ui.graphics/BlurEffect.toString|toString(){}[0]
 
-    final object Companion { // androidx.compose.ui.graphics/BlurEffect.Companion|null[0]
-        final val BlurSigmaScale // androidx.compose.ui.graphics/BlurEffect.Companion.BlurSigmaScale|{}BlurSigmaScale[0]
-            final fun <get-BlurSigmaScale>(): kotlin/Float // androidx.compose.ui.graphics/BlurEffect.Companion.BlurSigmaScale.<get-BlurSigmaScale>|<get-BlurSigmaScale>(){}[0]
-
-        final fun convertRadiusToSigma(kotlin/Float): kotlin/Float // androidx.compose.ui.graphics/BlurEffect.Companion.convertRadiusToSigma|convertRadiusToSigma(kotlin.Float){}[0]
-    }
+    final object Companion // androidx.compose.ui.graphics/BlurEffect.Companion|null[0]
 }
 
 final class androidx.compose.ui.graphics/ColorMatrixColorFilter : androidx.compose.ui.graphics/ColorFilter { // androidx.compose.ui.graphics/ColorMatrixColorFilter|null[0]
@@ -2024,10 +2019,14 @@ final val androidx.compose.ui.graphics/isUnspecified // androidx.compose.ui.grap
     final inline fun (androidx.compose.ui.graphics/Color).<get-isUnspecified>(): kotlin/Boolean // androidx.compose.ui.graphics/isUnspecified.<get-isUnspecified>|<get-isUnspecified>@androidx.compose.ui.graphics.Color(){}[0]
 final val androidx.compose.ui.graphics/nativeCanvas // androidx.compose.ui.graphics/nativeCanvas|@androidx.compose.ui.graphics.Canvas{}nativeCanvas[0]
     final fun (androidx.compose.ui.graphics/Canvas).<get-nativeCanvas>(): org.jetbrains.skia/Canvas // androidx.compose.ui.graphics/nativeCanvas.<get-nativeCanvas>|<get-nativeCanvas>@androidx.compose.ui.graphics.Canvas(){}[0]
-final val androidx.compose.ui.graphics/nativePaint // androidx.compose.ui.graphics/nativePaint|@androidx.compose.ui.graphics.Paint{}nativePaint[0]
-    final fun (androidx.compose.ui.graphics/Paint).<get-nativePaint>(): org.jetbrains.skia/Paint // androidx.compose.ui.graphics/nativePaint.<get-nativePaint>|<get-nativePaint>@androidx.compose.ui.graphics.Paint(){}[0]
 final val androidx.compose.ui.graphics/reverseDifference // androidx.compose.ui.graphics/reverseDifference|@androidx.compose.ui.graphics.PathOperation.Companion{}reverseDifference[0]
     final fun (androidx.compose.ui.graphics/PathOperation.Companion).<get-reverseDifference>(): androidx.compose.ui.graphics/PathOperation // androidx.compose.ui.graphics/reverseDifference.<get-reverseDifference>|<get-reverseDifference>@androidx.compose.ui.graphics.PathOperation.Companion(){}[0]
+final val androidx.compose.ui.graphics/skiaCanvas // androidx.compose.ui.graphics/skiaCanvas|@androidx.compose.ui.graphics.Canvas{}skiaCanvas[0]
+    final fun (androidx.compose.ui.graphics/Canvas).<get-skiaCanvas>(): org.jetbrains.skia/Canvas // androidx.compose.ui.graphics/skiaCanvas.<get-skiaCanvas>|<get-skiaCanvas>@androidx.compose.ui.graphics.Canvas(){}[0]
+final val androidx.compose.ui.graphics/skiaImageFilter // androidx.compose.ui.graphics/skiaImageFilter|@androidx.compose.ui.graphics.RenderEffect{}skiaImageFilter[0]
+    final fun (androidx.compose.ui.graphics/RenderEffect).<get-skiaImageFilter>(): org.jetbrains.skia/ImageFilter // androidx.compose.ui.graphics/skiaImageFilter.<get-skiaImageFilter>|<get-skiaImageFilter>@androidx.compose.ui.graphics.RenderEffect(){}[0]
+final val androidx.compose.ui.graphics/skiaPaint // androidx.compose.ui.graphics/skiaPaint|@androidx.compose.ui.graphics.Paint{}skiaPaint[0]
+    final fun (androidx.compose.ui.graphics/Paint).<get-skiaPaint>(): org.jetbrains.skia/Paint // androidx.compose.ui.graphics/skiaPaint.<get-skiaPaint>|<get-skiaPaint>@androidx.compose.ui.graphics.Paint(){}[0]
 final val androidx.compose.ui.graphics/union // androidx.compose.ui.graphics/union|@androidx.compose.ui.graphics.PathOperation.Companion{}union[0]
     final fun (androidx.compose.ui.graphics/PathOperation.Companion).<get-union>(): androidx.compose.ui.graphics/PathOperation // androidx.compose.ui.graphics/union.<get-union>|<get-union>@androidx.compose.ui.graphics.PathOperation.Companion(){}[0]
 final val androidx.compose.ui.graphics/xor // androidx.compose.ui.graphics/xor|@androidx.compose.ui.graphics.PathOperation.Companion{}xor[0]

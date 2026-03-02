@@ -27,9 +27,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.asComposePath
-import androidx.compose.ui.graphics.asSkiaPath
 import androidx.compose.ui.graphics.drawscope.DrawStyle
-import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.skiaCanvas
 import androidx.compose.ui.graphics.toComposeRect
 import androidx.compose.ui.text.internal.requirePrecondition
 import androidx.compose.ui.text.platform.SkiaParagraphIntrinsics
@@ -601,7 +600,7 @@ internal class SkiaParagraph(
                 width = width
             )
         }
-        paragraph.paint(canvas.nativeCanvas, 0.0f, 0.0f)
+        paragraph.paint(canvas.skiaCanvas, 0.0f, 0.0f)
     }
 
     @ExperimentalTextApi
@@ -625,7 +624,7 @@ internal class SkiaParagraph(
                 width = width
             )
         }
-        paragraph.paint(canvas.nativeCanvas, 0.0f, 0.0f)
+        paragraph.paint(canvas.skiaCanvas, 0.0f, 0.0f)
     }
 
     @ExperimentalTextApi
@@ -654,7 +653,7 @@ internal class SkiaParagraph(
                 width = width
             )
         }
-        paragraph.paint(canvas.nativeCanvas, 0.0f, 0.0f)
+        paragraph.paint(canvas.skiaCanvas, 0.0f, 0.0f)
     }
 
     /**
