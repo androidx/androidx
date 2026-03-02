@@ -18,11 +18,13 @@ package androidx.compose.foundation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
@@ -45,6 +47,7 @@ import androidx.compose.ui.window.rememberPopupPositionProviderAtPosition
 import androidx.compose.ui.window.rememberComponentRectPositionProvider
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**
@@ -105,25 +108,26 @@ fun TooltipArea(
     var cursorPosition by remember { mutableStateOf(Offset.Zero) }
     var isVisible by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    var job: Job? by remember { mutableStateOf(null) }
+    var showTooltipJob: Job? by remember { mutableStateOf(null) }
 
     fun startShowing() {
-        if (job?.isActive == true) {  // Don't restart the job if it's already active
+        if (showTooltipJob?.isActive == true) {  // Don't restart the job if it's already active
             return
         }
-        job = scope.launch {
+        showTooltipJob = scope.launch {
             delay(delayMillis.toLong())
             isVisible = true
         }
     }
 
     fun hide() {
-        job?.cancel()
-        job = null
+        showTooltipJob?.cancel()
+        showTooltipJob = null
         isVisible = false
     }
 
     fun hideIfNotHovered(localBounds: LayoutBoundsHolder, localPointerPosition: Offset) {
+        if (!isVisible) return
         val offsetInRoot = localBounds.bounds?.positionInRoot ?: return
         val pointerPositionInRoot = offsetInRoot + localPointerPosition.round()
         val parentBoundsInRoot = parentBounds.bounds?.boundsInRoot ?: return
@@ -132,10 +136,30 @@ fun TooltipArea(
         }
     }
 
+    var tooltipHidingScheduled by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        snapshotFlow { tooltipHidingScheduled }
+            .collectLatest {
+                if (tooltipHidingScheduled) {
+                    hide()
+                    tooltipHidingScheduled = false
+                }
+            }
+    }
+    fun scheduleCancelableHiding() {
+        // Set `tooltipHidingScheduled = true` even if the tooltip is not showing, because it may
+        // already be scheduled to be shown later (and hide() will cancel that job).
+        tooltipHidingScheduled = true
+    }
+    fun cancelScheduledHiding() {
+        tooltipHidingScheduled = false
+    }
+
     Box(
         modifier = modifier
             .layoutBounds(parentBounds)
             .onPointerEvent(PointerEventType.Enter) {
+                cancelScheduledHiding()
                 cursorPosition = it.position
                 if (!isVisible && !it.buttons.areAnyPressed) {
                     startShowing()
@@ -148,7 +172,7 @@ fun TooltipArea(
                 }
             }
             .onPointerEvent(PointerEventType.Exit) {
-                hideIfNotHovered(parentBounds, it.position)
+                scheduleCancelableHiding()
             }
             .onPointerEvent(PointerEventType.Press, pass = PointerEventPass.Initial) {
                 hide()
@@ -165,11 +189,15 @@ fun TooltipArea(
                 Box(
                     Modifier
                         .layoutBounds(popupLayoutBounds)
+                        .onPointerEvent(PointerEventType.Enter) {
+                            cancelScheduledHiding()
+                        }
                         .onPointerEvent(PointerEventType.Move) {
+                            // The pointer could be moving outside the area while inside the tooltip
                             hideIfNotHovered(popupLayoutBounds, it.position)
                         }
                         .onPointerEvent(PointerEventType.Exit) {
-                            hideIfNotHovered(popupLayoutBounds, it.position)
+                            scheduleCancelableHiding()
                         }
                 ) {
                     tooltip()
