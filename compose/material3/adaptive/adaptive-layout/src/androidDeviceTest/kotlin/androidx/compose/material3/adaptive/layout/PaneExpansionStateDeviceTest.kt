@@ -36,7 +36,7 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-class PaneExpansionStateTest {
+class PaneExpansionStateDeviceTest {
 
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 

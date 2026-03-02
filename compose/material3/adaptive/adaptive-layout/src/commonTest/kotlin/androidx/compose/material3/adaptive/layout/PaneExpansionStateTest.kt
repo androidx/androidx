@@ -18,12 +18,9 @@ package androidx.compose.material3.adaptive.layout
 
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
-import com.google.common.truth.Truth.assertThat
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import androidx.kruth.assertThat
+import kotlin.test.Test
 
-@RunWith(JUnit4::class)
 class PaneExpansionStateTest {
     @Test
     fun draggingPositively_withinBounds() {
