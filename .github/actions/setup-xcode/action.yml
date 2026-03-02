@@ -9,7 +9,7 @@ runs:
     - name: Setup Xcode version
       shell: bash
       run: |
-        sudo xcode-select -s /Applications/Xcode_16.4.app
+        sudo xcode-select -s /Applications/Xcode_26.3.app
         /usr/bin/xcodebuild -version
 
     - name: Cache Xcode DerivedData
