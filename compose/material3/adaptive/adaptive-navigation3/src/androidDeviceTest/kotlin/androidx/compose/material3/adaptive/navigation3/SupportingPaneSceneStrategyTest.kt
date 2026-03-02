@@ -301,7 +301,7 @@ class SupportingPaneSceneStrategyTest {
         NavDisplay(
             backStack = backStack,
             modifier = Modifier.fillMaxSize(),
-            sceneStrategy = supportingSceneStrategy,
+            sceneStrategies = listOf(supportingSceneStrategy),
             entryProvider =
                 entryProvider {
                     entry<HomeKey> { RedBox("Home", Modifier.testTag(HomeScreenTestTag)) }

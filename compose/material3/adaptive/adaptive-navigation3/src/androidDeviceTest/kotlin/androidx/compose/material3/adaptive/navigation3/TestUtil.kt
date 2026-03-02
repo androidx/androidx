@@ -188,7 +188,7 @@ fun NavScreen(
     NavDisplay(
         backStack = backStack,
         modifier = Modifier.fillMaxSize().testTag(NavDisplayTestTag),
-        sceneStrategy = listDetailSceneStrategy,
+        sceneStrategies = listOf(listDetailSceneStrategy),
         entryProvider =
             entryProvider {
                 entry<HomeKey> { RedBox("Home", Modifier.testTag(HomeScreenTestTag)) }

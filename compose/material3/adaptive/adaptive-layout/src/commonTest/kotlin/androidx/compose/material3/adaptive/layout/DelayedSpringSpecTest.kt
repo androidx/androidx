@@ -21,6 +21,7 @@ import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.VectorizedAnimationSpec
 import androidx.compose.animation.core.spring
 import androidx.kruth.assertThat
+import kotlin.Float
 import kotlin.test.Test
 
 class DelayedSpringSpecTest {

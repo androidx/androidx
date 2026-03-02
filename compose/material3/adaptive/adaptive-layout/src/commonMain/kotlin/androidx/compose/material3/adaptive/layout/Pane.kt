@@ -170,10 +170,7 @@ private object DefaultAnimatedPaneOverride : AnimatedPaneOverride {
             scaffoldStateTransition.AnimatedVisibility(
                 visible = { value: ScaffoldValue -> value[paneRole] != PaneAdaptedValue.Hidden },
                 modifier =
-                    // The size modifiers have to be applied at this level so the scaffold can read
-                    // them from the parent data.
-                    paneModifier
-                        .animatedPane()
+                    Modifier.animatedPane()
                         .animateBounds(
                             animateFraction = motionProgress,
                             animationSpec = boundsAnimationSpec,
@@ -186,7 +183,13 @@ private object DefaultAnimatedPaneOverride : AnimatedPaneOverride {
                         // This is a workaround to b/375496210 - shadows cannot be faded so we have
                         // to apply shadows on AnimatedVisibility instead of the content.
                         .levitatedProperties(paneValue, dragToResizeHandle != null)
-                        .then(if (animatingBounds) Modifier else Modifier.clipToBounds()),
+                        .then(if (animatingBounds) Modifier else Modifier.clipToBounds())
+                        // The pane modifiers contains:
+                        // 1. Size modifiers that have to be applied at this level so the scaffold
+                        //    can read them from the parent data.
+                        // 2. The graphics layer modifiers, which have to be applied last so they
+                        //    can take effect on modifiers (like, shadows) applied before them.
+                        .then(paneModifier),
                 enter = enterTransition,
                 exit = exitTransition,
             ) {

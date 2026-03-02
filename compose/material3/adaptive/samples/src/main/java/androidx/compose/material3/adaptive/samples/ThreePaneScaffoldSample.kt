@@ -666,7 +666,7 @@ fun ListDetailWithNavigation3Sample() {
     NavDisplay(
         backStack = backStack,
         modifier = Modifier.fillMaxSize(),
-        sceneStrategy = sceneStrategy,
+        sceneStrategies = listOf(sceneStrategy),
         entryProvider =
             entryProvider {
                 entry<HomeKey> {
