@@ -86,12 +86,6 @@ internal fun compositionEnd(data: String) =
 internal fun beforeInput(inputType: String, data: String?, isComposing: Boolean = false) =
     InputEvent("beforeinput", InputEventInit(inputType = inputType, data = data, isComposing = isComposing))
 
-private fun DummyTouchEventInit(): TouchEventInit = js("({ changedTouches: [new Touch({identifier: 0, target: document})] })")
-
-internal fun createTouchEvent(type: String): TouchEvent {
-    return TouchEvent(type, DummyTouchEventInit())
-}
-
 internal fun createMouseEvent(type: String): MouseEvent {
     return MouseEvent(type)
 }

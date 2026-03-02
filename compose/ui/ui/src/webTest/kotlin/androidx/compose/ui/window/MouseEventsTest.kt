@@ -83,42 +83,6 @@ class MouseEventsTest : OnCanvasTests {
         assertEquals(PointerButton.Secondary, pointerEvents[4].button)
     }
 
-    @Test
-    fun testPointerEventsNonMouseIsIgnored() = runTest {
-        val pointerEvents = mutableListOf<ComposePointerEvent>()
-
-        createComposeWindow {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .pointerInput(Unit) {
-                        awaitPointerEventScope {
-                            while (isActive) {
-                                pointerEvents.add(awaitPointerEvent())
-                            }
-                        }
-                    }
-            ) {}
-        }
-
-        dispatchEvents(
-            PointerEvent("pointerenter", PointerEventInit(clientX = 100, clientY = 100, pointerType = "touch")),
-            PointerEvent("pointerdown", PointerEventInit(clientX = 100, clientY = 100, button = 0, buttons = 1, pointerType = "touch")),
-            PointerEvent("pointerup", PointerEventInit(clientX = 100, clientY = 100, button = 0, buttons = 0, pointerType = "touch"))
-        )
-
-        assertEquals(0, pointerEvents.size, "touch devices shouldn't be processed as pointer events")
-
-        dispatchEvents(
-            PointerEvent("pointerenter", PointerEventInit(clientX = 100, clientY = 100, pointerType = "pen")),
-            PointerEvent("pointerdown", PointerEventInit(clientX = 100, clientY = 100, button = 0, buttons = 1, pointerType = "pen")),
-            PointerEvent("pointerup", PointerEventInit(clientX = 100, clientY = 100, button = 0, buttons = 0, pointerType = "pen"))
-        )
-
-        assertEquals(0, pointerEvents.size, "pen devices  shouldn't be processed as pointer events")
-    }
-
-
     @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun testOnClickWithPointerMatchers() = runTest {

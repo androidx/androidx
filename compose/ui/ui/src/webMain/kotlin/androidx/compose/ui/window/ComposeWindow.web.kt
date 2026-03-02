@@ -128,6 +128,7 @@ fun ComposeViewport(
     canvas.setAttribute("tabindex", "0")
     canvas.setAttribute("role", "generic")
     canvas.style.outline = "none" // Fixes https://youtrack.jetbrains.com/issue/CMP-9040
+    canvas.style.setProperty("touch-action", "none") //blocks default browser touch handling
     appContainer.appendChild(canvas)
 
     //a11y container
