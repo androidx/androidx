@@ -5,6 +5,10 @@ public final class androidx/navigationevent/compose/LocalNavigationEventDispatch
 	public final fun provides (Landroidx/navigationevent/NavigationEventDispatcherOwner;)Landroidx/compose/runtime/ProvidedValue;
 }
 
+public final class androidx/navigationevent/compose/LocalNavigationEventDispatcherOwner_desktopKt {
+	public static final fun getNavigationEventDispatcherOwnerHostDefaultKey ()Landroidx/compose/runtime/HostDefaultKey;
+}
+
 public final class androidx/navigationevent/compose/NavigationEventHandlerKt {
 	public static final fun NavigationBackHandler (Landroidx/navigationevent/compose/NavigationEventState;ZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;II)V
 	public static final fun NavigationEventHandler (Landroidx/navigationevent/compose/NavigationEventState;ZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;ZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;II)V

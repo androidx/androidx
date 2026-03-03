@@ -78,6 +78,12 @@ public fun NavigationEventHandler(
     onBackCancelled: () -> Unit = {},
     onBackCompleted: () -> Unit = {},
 ) {
+    if (isInspectionMode()) {
+        // TODO(b/462365661): Return early to prevent Preview crashes. Future work should implement
+        //  full support for navigation events in Interactive Previews instead of disabling them.
+        return
+    }
+
     val dispatcher =
         checkNotNull(LocalNavigationEventDispatcherOwner.current) {
                 "No NavigationEventDispatcher was provided via LocalNavigationEventDispatcherOwner"
@@ -243,3 +249,9 @@ private class ComposeNavigationEventHandler<T : NavigationEventInfo>(
         currentOnBackCompleted.invoke()
     }
 }
+
+/**
+ * Determines if the current composition is running in inspection mode (e.g., Android Studio
+ * Preview).
+ */
+@Composable internal expect fun isInspectionMode(): Boolean

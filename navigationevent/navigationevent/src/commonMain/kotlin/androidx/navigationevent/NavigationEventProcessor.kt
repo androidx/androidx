@@ -16,6 +16,7 @@
 
 package androidx.navigationevent
 
+import androidx.collection.mutableOrderedScatterSetOf
 import androidx.navigationevent.NavigationEventDispatcher.Companion.PRIORITY_DEFAULT
 import androidx.navigationevent.NavigationEventDispatcher.Companion.PRIORITY_OVERLAY
 import androidx.navigationevent.NavigationEventDispatcher.Priority
@@ -132,7 +133,7 @@ internal class NavigationEventProcessor {
      * These are typically treated as the lowest priority level, processed only after
      * [defaultInputs] and [overlayInputs].
      */
-    private val unspecifiedInputs = mutableSetOf<NavigationEventInput>()
+    private val unspecifiedInputs = mutableOrderedScatterSetOf<NavigationEventInput>()
 
     /**
      * Holds inputs registered with the [PRIORITY_DEFAULT] priority.
@@ -140,7 +141,7 @@ internal class NavigationEventProcessor {
      * This level is for primary UI content and is processed before [unspecifiedInputs] but after
      * [overlayInputs].
      */
-    private val defaultInputs = mutableSetOf<NavigationEventInput>()
+    private val defaultInputs = mutableOrderedScatterSetOf<NavigationEventInput>()
 
     /**
      * Holds inputs registered with the [PRIORITY_OVERLAY] priority.
@@ -148,7 +149,7 @@ internal class NavigationEventProcessor {
      * This is the highest priority level, intended for UI elements like dialogs or bottom sheets
      * that appear on top of other content.
      */
-    private val overlayInputs = mutableSetOf<NavigationEventInput>()
+    private val overlayInputs = mutableOrderedScatterSetOf<NavigationEventInput>()
 
     /** Whether at least one handler with [PRIORITY_DEFAULT] is enabled. */
     private var hasEnabledDefaultHandlers = false
@@ -180,19 +181,19 @@ internal class NavigationEventProcessor {
 
         // 2) Notify only when a priority’s state actually changed.
         if (overlayEnabledChanged) {
-            for (input in overlayInputs) {
+            overlayInputs.forEach { input ->
                 input.doOnHasEnabledHandlersChanged(hasEnabledHandlers = newOverlayEnabled)
             }
         }
 
         if (defaultEnabledChanged) {
-            for (input in defaultInputs) {
+            defaultInputs.forEach { input ->
                 input.doOnHasEnabledHandlersChanged(hasEnabledHandlers = newDefaultEnabled)
             }
         }
 
         if (anyEnabledChanged) {
-            for (input in unspecifiedInputs) {
+            unspecifiedInputs.forEach { input ->
                 input.doOnHasEnabledHandlersChanged(hasEnabledHandlers = newAnyEnabled)
             }
         }
@@ -250,15 +251,9 @@ internal class NavigationEventProcessor {
         // Notify inputs directly for immediate, synchronous updates. This avoids
         // delays from the coroutine dispatcher, ensuring that consumers can react
         // to the state change within the same frame.
-        for (input in overlayInputs) {
-            input.doOnHistoryChanged(newHistory)
-        }
-        for (input in defaultInputs) {
-            input.doOnHistoryChanged(newHistory)
-        }
-        for (input in unspecifiedInputs) {
-            input.doOnHistoryChanged(newHistory)
-        }
+        overlayInputs.forEach { input -> input.doOnHistoryChanged(newHistory) }
+        defaultInputs.forEach { input -> input.doOnHistoryChanged(newHistory) }
+        unspecifiedInputs.forEach { input -> input.doOnHistoryChanged(newHistory) }
     }
 
     /** [NavigationEventDispatcher.addHandler] */

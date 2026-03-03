@@ -20,6 +20,7 @@ package androidx.navigationevent {
     ctor public NavigationEvent(optional int swipeEdge, optional @FloatRange(from=0.0, to=1.0) float progress, optional @FloatRange(from=0.0) float touchX);
     ctor public NavigationEvent(optional int swipeEdge, optional @FloatRange(from=0.0, to=1.0) float progress, optional @FloatRange(from=0.0) float touchX, optional @FloatRange(from=0.0) float touchY);
     ctor public NavigationEvent(optional int swipeEdge, optional @FloatRange(from=0.0, to=1.0) float progress, optional @FloatRange(from=0.0) float touchX, optional @FloatRange(from=0.0) float touchY, optional long frameTimeMillis);
+    ctor @BytecodeOnly public NavigationEvent(int, float, float, float, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public long getFrameTimeMillis();
     method @InaccessibleFromKotlin @FloatRange(from=0.0, to=1.0) public float getProgress();
     method @InaccessibleFromKotlin public int getSwipeEdge();
@@ -48,6 +49,7 @@ package androidx.navigationevent {
     ctor public NavigationEventDispatcher(androidx.navigationevent.OnBackCompletedFallback onBackCompletedFallback);
     method @MainThread public void addHandler(androidx.navigationevent.NavigationEventHandler<? extends java.lang.Object?> handler);
     method @MainThread public void addHandler(androidx.navigationevent.NavigationEventHandler<? extends java.lang.Object?> handler, optional int priority);
+    method @BytecodeOnly @MainThread public static void addHandler$default(androidx.navigationevent.NavigationEventDispatcher!, androidx.navigationevent.NavigationEventHandler!, int, int, Object!);
     method @MainThread public void addInput(androidx.navigationevent.NavigationEventInput input);
     method @MainThread public void addInput(androidx.navigationevent.NavigationEventInput input, int priority);
     method @MainThread public void dispose();
@@ -97,6 +99,7 @@ package androidx.navigationevent {
     method public final void setInfo(T currentInfo);
     method public final void setInfo(T currentInfo, optional java.util.List<? extends T> backInfo);
     method public final void setInfo(T currentInfo, optional java.util.List<? extends T> backInfo, optional java.util.List<? extends T> forwardInfo);
+    method @BytecodeOnly public static void setInfo$default(androidx.navigationevent.NavigationEventHandler!, androidx.navigationevent.NavigationEventInfo!, java.util.List!, java.util.List!, int, Object!);
     property public final java.util.List<T> backInfo;
     property public final T currentInfo;
     property public final java.util.List<T> forwardInfo;

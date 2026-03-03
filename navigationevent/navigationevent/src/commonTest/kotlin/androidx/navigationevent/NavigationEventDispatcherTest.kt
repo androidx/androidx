@@ -1515,6 +1515,25 @@ class NavigationEventDispatcherTest {
     }
 
     @Test
+    fun dispose_doesNotThrow_ConcurrentModificationException() {
+        val dispatcher = NavigationEventDispatcher()
+
+        // We need more many elements in each collection to guarantee that the
+        // iterator attempts to call `next()` after an element has been removed during
+        // the loop. Standard ConcurrentModificationExceptions typically occur at that
+        // point if the collection wasn't copied prior to iteration.
+        repeat(times = 10) {
+            dispatcher.addInput(TestNavigationEventInput())
+            dispatcher.addHandler(TestNavigationEventHandler())
+        }
+
+        // This ensures that the disposal logic, which iterates over 'inputs' and
+        // 'handlers' while simultaneously triggering their removal, does so safely
+        // (e.g., by iterating over a snapshot/copy of the list).
+        dispatcher.dispose()
+    }
+
+    @Test
     fun isEnabled_whenTrue_dispatchesEvents() {
         val dispatcher = NavigationEventDispatcher()
         val handler = TestNavigationEventHandler()

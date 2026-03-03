@@ -1,5 +1,5 @@
 // Klib ABI Dump
-// Targets: [iosArm64, iosSimulatorArm64, js, macosArm64, wasmJs]
+// Targets: [iosArm64, iosSimulatorArm64, js, linuxArm64, linuxX64, macosArm64, mingwX64, tvosArm64, tvosSimulatorArm64, wasmJs, watchosArm32, watchosArm64, watchosSimulatorArm64]
 // Rendering settings:
 // - Signature version: 2
 // - Show manifest properties: true
@@ -24,6 +24,8 @@ final object androidx.navigationevent.compose/LocalNavigationEventDispatcherOwne
     final fun provides(androidx.navigationevent/NavigationEventDispatcherOwner): androidx.compose.runtime/ProvidedValue<androidx.navigationevent/NavigationEventDispatcherOwner?> // androidx.navigationevent.compose/LocalNavigationEventDispatcherOwner.provides|provides(androidx.navigationevent.NavigationEventDispatcherOwner){}[0]
 }
 
+final val androidx.navigationevent.compose/NavigationEventDispatcherOwnerHostDefaultKey // androidx.navigationevent.compose/NavigationEventDispatcherOwnerHostDefaultKey|{}NavigationEventDispatcherOwnerHostDefaultKey[0]
+    final fun <get-NavigationEventDispatcherOwnerHostDefaultKey>(): androidx.compose.runtime/HostDefaultKey<androidx.navigationevent/NavigationEventDispatcherOwner?> // androidx.navigationevent.compose/NavigationEventDispatcherOwnerHostDefaultKey.<get-NavigationEventDispatcherOwnerHostDefaultKey>|<get-NavigationEventDispatcherOwnerHostDefaultKey>(){}[0]
 final val androidx.navigationevent.compose/androidx_navigationevent_compose_LocalNavigationEventDispatcherOwner$stableprop // androidx.navigationevent.compose/androidx_navigationevent_compose_LocalNavigationEventDispatcherOwner$stableprop|#static{}androidx_navigationevent_compose_LocalNavigationEventDispatcherOwner$stableprop[0]
 final val androidx.navigationevent.compose/androidx_navigationevent_compose_NavigationEventState$stableprop // androidx.navigationevent.compose/androidx_navigationevent_compose_NavigationEventState$stableprop|#static{}androidx_navigationevent_compose_NavigationEventState$stableprop[0]
 

@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -40,7 +39,11 @@ androidXMultiplatform {
     }
     desktop()
     mac()
+    linux()
     ios()
+    watchos()
+    tvos()
+    mingwX64()
     js()
     wasmJs()
 
@@ -51,8 +54,7 @@ androidXMultiplatform {
 
         commonMain.dependencies {
             api("androidx.navigationevent:navigationevent:$navigationEventVersion")
-            implementation(project(":compose:ui:ui"))
-            implementation(project(":compose:runtime:runtime"))
+            api(project(":compose:runtime:runtime"))
             implementation(libs.kotlinCoroutinesCore)
         }
 
@@ -63,8 +65,9 @@ androidXMultiplatform {
         }
 
         androidMain.dependencies {
-            implementation("androidx.compose.ui:ui:1.9.2") {
-                because("LocalView")
+            // TODO(mgalhardo): Change this to constraint once Compose 1.11 prebuilds are released.
+            implementation(project(":compose:ui:ui")) {
+                because("Ensure we are using the Compose-UI 1.11 or above")
             }
         }
 
@@ -80,7 +83,10 @@ androidXMultiplatform {
             implementation(libs.espressoCore)
         }
 
-        nonAndroidMain {
+        wasmJsMain.dependencies {
+            implementation(libs.kotlinXw3c)
+		}
+		nonAndroidMain {
             dependsOn(commonMain)
         }
 
@@ -112,6 +118,12 @@ androidXMultiplatform {
             dependsOn(nonAndroidTest)
         }
     }
+}
+
+dependencies.constraints {
+    // TODO(mgalhardo): Add constraints to properly migrate from the JetBrains fork.
+    //  We need to prevent symbol duplication with old versions of the fork.
+    //  Once the fork publishes a version that redirects to this artifact.
 }
 
 androidx {

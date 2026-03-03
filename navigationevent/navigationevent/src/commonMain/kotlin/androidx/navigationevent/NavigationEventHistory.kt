@@ -37,28 +37,18 @@ import kotlin.jvm.JvmOverloads
 @Immutable
 public class NavigationEventHistory
 private constructor(
-    /** Combined stack from root to leaf. */
-    public val mergedHistory: List<NavigationEventInfo>,
+    private val currentInfo: NavigationEventInfo? = null,
+    private val backInfo: List<NavigationEventInfo> = emptyList(),
+    private val forwardInfo: List<NavigationEventInfo> = emptyList(),
     /** Index of current in mergedHistory. */
     public val currentIndex: Int,
 ) {
-
-    init {
-        require(
-            mergedHistory.isEmpty() && currentIndex == -1 ||
-                mergedHistory.isNotEmpty() && currentIndex in mergedHistory.indices
-        ) {
-            "Invalid 'NavigationEventHistory' state: " +
-                " 'currentIndex' must be within the bounds of 'mergedHistory' (or -1 if empty)." +
-                " Received: currentIndex = '$currentIndex', bounds = '${mergedHistory.indices}'."
-        }
-    }
 
     /**
      * A convenience constructor that creates an empty [NavigationEventHistory] instance,
      * representing a state with no navigation history.
      */
-    internal constructor() : this(mergedHistory = emptyList(), currentIndex = -1)
+    internal constructor() : this(currentIndex = -1)
 
     /**
      * A convenience constructor that creates a [NavigationEventHistory] instance from the history
@@ -74,14 +64,28 @@ private constructor(
         backInfo: List<NavigationEventInfo> = emptyList(),
         forwardInfo: List<NavigationEventInfo> = emptyList(),
     ) : this(
-        mergedHistory =
-            buildList {
-                this += backInfo
-                this += currentInfo
-                this += forwardInfo
-            },
+        currentInfo = currentInfo,
+        backInfo = backInfo,
+        forwardInfo = forwardInfo,
         currentIndex = backInfo.size,
     )
+
+    // Lazily allocated to avoid overhead during high-frequency `handler.isEnabled`
+    // changes (common in Compose effects). Only actually needed if read by a consumer.
+    private var _mergedHistory: List<NavigationEventInfo>? = null
+
+    /** Combined stack from root to leaf. */
+    public val mergedHistory: List<NavigationEventInfo>
+        get() {
+            if (_mergedHistory == null) {
+                _mergedHistory = buildList {
+                    addAll(backInfo)
+                    currentInfo?.let { add(it) }
+                    addAll(forwardInfo)
+                }
+            }
+            return _mergedHistory!!
+        }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
