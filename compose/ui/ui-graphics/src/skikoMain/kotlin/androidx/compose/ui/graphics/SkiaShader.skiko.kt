@@ -19,10 +19,22 @@ package androidx.compose.ui.graphics
 import androidx.compose.ui.geometry.Offset
 import org.jetbrains.skia.GradientStyle
 import org.jetbrains.skia.Matrix33
+import org.jetbrains.skia.Shader as SkShader
 
-// TODO: Do not expose skiko types to common
-//  https://youtrack.jetbrains.com/issue/CMP-219
-actual typealias Shader = org.jetbrains.skia.Shader
+actual class Shader internal constructor(
+    internal val internalSkiaShader: SkShader,
+)
+
+/**
+ * Convert the [org.jetbrains.skia.Shader] instance into a Compose-compatible Shader
+ */
+fun SkShader.asComposeShader(): Shader = Shader(internalSkiaShader = this)
+
+/**
+ * Provides access to the underlying [org.jetbrains.skia.Shader] instance.
+ */
+val Shader.skiaShader: SkShader
+    get() = internalSkiaShader
 
 internal actual class TransformShader {
     private var _shader: Shader? = null
@@ -40,7 +52,10 @@ internal actual class TransformShader {
         get() {
             val matrix = _matrix ?: return _shader
             if (_wrapper == null) {
-                _wrapper = _shader?.makeWithLocalMatrix(matrix)
+                _wrapper = _shader
+                    ?.skiaShader
+                    ?.makeWithLocalMatrix(matrix)
+                    ?.asComposeShader()
             }
             return _wrapper
         }
@@ -58,10 +73,10 @@ internal actual fun ActualLinearGradientShader(
     tileMode: TileMode
 ): Shader {
     validateColorStops(colors, colorStops)
-    return Shader.makeLinearGradient(
+    return SkShader.makeLinearGradient(
         from.x, from.y, to.x, to.y, colors.toIntArray(), colorStops?.toFloatArray(),
         GradientStyle(tileMode.toSkiaTileMode(), true, identityMatrix33())
-    )
+    ).asComposeShader()
 }
 
 internal actual fun ActualRadialGradientShader(
@@ -72,14 +87,14 @@ internal actual fun ActualRadialGradientShader(
     tileMode: TileMode
 ): Shader {
     validateColorStops(colors, colorStops)
-    return Shader.makeRadialGradient(
+    return SkShader.makeRadialGradient(
         center.x,
         center.y,
         radius,
         colors.toIntArray(),
         colorStops?.toFloatArray(),
         GradientStyle(tileMode.toSkiaTileMode(), true, identityMatrix33())
-    )
+    ).asComposeShader()
 }
 
 internal actual fun ActualSweepGradientShader(
@@ -88,12 +103,12 @@ internal actual fun ActualSweepGradientShader(
     colorStops: List<Float>?
 ): Shader {
     validateColorStops(colors, colorStops)
-    return Shader.makeSweepGradient(
+    return SkShader.makeSweepGradient(
         center.x,
         center.y,
         colors.toIntArray(),
         colorStops?.toFloatArray()
-    )
+    ).asComposeShader()
 }
 
 internal actual fun ActualImageShader(
@@ -104,11 +119,15 @@ internal actual fun ActualImageShader(
     return image.asSkiaBitmap().makeShader(
         tileModeX.toSkiaTileMode(),
         tileModeY.toSkiaTileMode()
-    )
+    ).asComposeShader()
 }
 
 internal actual fun ActualCompositeShader(dst: Shader, src: Shader, blendMode: BlendMode): Shader =
-    org.jetbrains.skia.Shader.makeBlend(mode = blendMode.toSkia(), dst = dst, src = src)
+    SkShader.makeBlend(
+        mode = blendMode.toSkia(),
+        dst = dst.skiaShader,
+        src = src.skiaShader
+    ).asComposeShader()
 
 private fun List<Color>.toIntArray(): IntArray =
     IntArray(size) { i -> this[i].toArgb() }

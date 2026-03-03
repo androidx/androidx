@@ -130,7 +130,7 @@ internal class SkiaBackedPaint(
 
     override var shader: Shader? = null
         set(value) {
-            internalSkiaPaint.shader = value
+            internalSkiaPaint.shader = value?.skiaShader
             field = value
         }
 

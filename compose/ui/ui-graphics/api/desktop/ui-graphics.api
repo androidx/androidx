@@ -109,7 +109,7 @@ public final class androidx/compose/ui/graphics/Brush$Companion {
 }
 
 public final class androidx/compose/ui/graphics/BrushKt {
-	public static final fun ShaderBrush (Lorg/jetbrains/skia/Shader;)Landroidx/compose/ui/graphics/ShaderBrush;
+	public static final fun ShaderBrush (Landroidx/compose/ui/graphics/Shader;)Landroidx/compose/ui/graphics/ShaderBrush;
 }
 
 public abstract interface class androidx/compose/ui/graphics/Canvas {
@@ -481,7 +481,7 @@ public final class androidx/compose/ui/graphics/LightingColorFilter : androidx/c
 public final class androidx/compose/ui/graphics/LinearGradient : androidx/compose/ui/graphics/ShaderBrush, androidx/compose/ui/graphics/Interpolatable {
 	public static final field $stable I
 	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;JJIILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public fun createShader-uvyYCjk (J)Lorg/jetbrains/skia/Shader;
+	public fun createShader-uvyYCjk (J)Landroidx/compose/ui/graphics/Shader;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getIntrinsicSize-NH-jbRc ()J
 	public fun hashCode ()I
@@ -596,7 +596,7 @@ public abstract interface class androidx/compose/ui/graphics/Paint {
 	public abstract fun getColorFilter ()Landroidx/compose/ui/graphics/ColorFilter;
 	public abstract fun getFilterQuality-f-v9h1I ()I
 	public abstract fun getPathEffect ()Landroidx/compose/ui/graphics/PathEffect;
-	public abstract fun getShader ()Lorg/jetbrains/skia/Shader;
+	public abstract fun getShader ()Landroidx/compose/ui/graphics/Shader;
 	public abstract fun getStrokeCap-KaPHkGw ()I
 	public abstract fun getStrokeJoin-LxFBmk8 ()I
 	public abstract fun getStrokeMiterLimit ()F
@@ -610,7 +610,7 @@ public abstract interface class androidx/compose/ui/graphics/Paint {
 	public abstract fun setColorFilter (Landroidx/compose/ui/graphics/ColorFilter;)V
 	public abstract fun setFilterQuality-vDHp3xo (I)V
 	public abstract fun setPathEffect (Landroidx/compose/ui/graphics/PathEffect;)V
-	public abstract fun setShader (Lorg/jetbrains/skia/Shader;)V
+	public abstract fun setShader (Landroidx/compose/ui/graphics/Shader;)V
 	public abstract fun setStrokeCap-BeK7IIE (I)V
 	public abstract fun setStrokeJoin-Ww9F2mQ (I)V
 	public abstract fun setStrokeMiterLimit (F)V
@@ -904,7 +904,7 @@ public final class androidx/compose/ui/graphics/PointMode$Companion {
 public final class androidx/compose/ui/graphics/RadialGradient : androidx/compose/ui/graphics/ShaderBrush, androidx/compose/ui/graphics/Interpolatable {
 	public static final field $stable I
 	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;JFIILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public fun createShader-uvyYCjk (J)Lorg/jetbrains/skia/Shader;
+	public fun createShader-uvyYCjk (J)Landroidx/compose/ui/graphics/Shader;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getIntrinsicSize-NH-jbRc ()J
 	public fun hashCode ()I
@@ -939,25 +939,29 @@ public final class androidx/compose/ui/graphics/RenderEffect_desktopKt {
 	public static final fun asDesktopImageFilter (Landroidx/compose/ui/graphics/RenderEffect;)Lorg/jetbrains/skia/ImageFilter;
 }
 
+public final class androidx/compose/ui/graphics/Shader {
+	public static final field $stable I
+}
+
 public abstract class androidx/compose/ui/graphics/ShaderBrush : androidx/compose/ui/graphics/Brush {
 	public static final field $stable I
 	public fun <init> ()V
 	public final fun applyTo-Pq9zytI (JLandroidx/compose/ui/graphics/Paint;F)V
-	public abstract fun createShader-uvyYCjk (J)Lorg/jetbrains/skia/Shader;
+	public abstract fun createShader-uvyYCjk (J)Landroidx/compose/ui/graphics/Shader;
 	public final fun getTransform-3i98HWw ()[F
 	public final fun setTransform-Q8lPUPs ([F)V
 }
 
 public final class androidx/compose/ui/graphics/ShaderKt {
-	public static final fun CompositeShader-7EN7VTw (Lorg/jetbrains/skia/Shader;Lorg/jetbrains/skia/Shader;I)Lorg/jetbrains/skia/Shader;
-	public static final fun ImageShader-F49vj9s (Landroidx/compose/ui/graphics/ImageBitmap;II)Lorg/jetbrains/skia/Shader;
-	public static synthetic fun ImageShader-F49vj9s$default (Landroidx/compose/ui/graphics/ImageBitmap;IIILjava/lang/Object;)Lorg/jetbrains/skia/Shader;
-	public static final fun LinearGradientShader-VjE6UOU (JJLjava/util/List;Ljava/util/List;I)Lorg/jetbrains/skia/Shader;
-	public static synthetic fun LinearGradientShader-VjE6UOU$default (JJLjava/util/List;Ljava/util/List;IILjava/lang/Object;)Lorg/jetbrains/skia/Shader;
-	public static final fun RadialGradientShader-8uybcMk (JFLjava/util/List;Ljava/util/List;I)Lorg/jetbrains/skia/Shader;
-	public static synthetic fun RadialGradientShader-8uybcMk$default (JFLjava/util/List;Ljava/util/List;IILjava/lang/Object;)Lorg/jetbrains/skia/Shader;
-	public static final fun SweepGradientShader-9KIMszo (JLjava/util/List;Ljava/util/List;)Lorg/jetbrains/skia/Shader;
-	public static synthetic fun SweepGradientShader-9KIMszo$default (JLjava/util/List;Ljava/util/List;ILjava/lang/Object;)Lorg/jetbrains/skia/Shader;
+	public static final fun CompositeShader-7EN7VTw (Landroidx/compose/ui/graphics/Shader;Landroidx/compose/ui/graphics/Shader;I)Landroidx/compose/ui/graphics/Shader;
+	public static final fun ImageShader-F49vj9s (Landroidx/compose/ui/graphics/ImageBitmap;II)Landroidx/compose/ui/graphics/Shader;
+	public static synthetic fun ImageShader-F49vj9s$default (Landroidx/compose/ui/graphics/ImageBitmap;IIILjava/lang/Object;)Landroidx/compose/ui/graphics/Shader;
+	public static final fun LinearGradientShader-VjE6UOU (JJLjava/util/List;Ljava/util/List;I)Landroidx/compose/ui/graphics/Shader;
+	public static synthetic fun LinearGradientShader-VjE6UOU$default (JJLjava/util/List;Ljava/util/List;IILjava/lang/Object;)Landroidx/compose/ui/graphics/Shader;
+	public static final fun RadialGradientShader-8uybcMk (JFLjava/util/List;Ljava/util/List;I)Landroidx/compose/ui/graphics/Shader;
+	public static synthetic fun RadialGradientShader-8uybcMk$default (JFLjava/util/List;Ljava/util/List;IILjava/lang/Object;)Landroidx/compose/ui/graphics/Shader;
+	public static final fun SweepGradientShader-9KIMszo (JLjava/util/List;Ljava/util/List;)Landroidx/compose/ui/graphics/Shader;
+	public static synthetic fun SweepGradientShader-9KIMszo$default (JLjava/util/List;Ljava/util/List;ILjava/lang/Object;)Landroidx/compose/ui/graphics/Shader;
 }
 
 public final class androidx/compose/ui/graphics/Shadow {
@@ -1038,6 +1042,11 @@ public final class androidx/compose/ui/graphics/SkiaPathIterator_skikoKt {
 	public static synthetic fun PathIterator$default (Landroidx/compose/ui/graphics/Path;Landroidx/compose/ui/graphics/PathIterator$ConicEvaluation;FILjava/lang/Object;)Landroidx/compose/ui/graphics/PathIterator;
 }
 
+public final class androidx/compose/ui/graphics/SkiaShader_skikoKt {
+	public static final fun asComposeShader (Lorg/jetbrains/skia/Shader;)Landroidx/compose/ui/graphics/Shader;
+	public static final fun getSkiaShader (Landroidx/compose/ui/graphics/Shader;)Lorg/jetbrains/skia/Shader;
+}
+
 public final class androidx/compose/ui/graphics/SkiaTileMode_skikoKt {
 	public static final fun isSupported-0vamqd0 (I)Z
 }
@@ -1113,7 +1122,7 @@ public final class androidx/compose/ui/graphics/StrokeJoin$Companion {
 public final class androidx/compose/ui/graphics/SweepGradient : androidx/compose/ui/graphics/ShaderBrush, androidx/compose/ui/graphics/Interpolatable {
 	public static final field $stable I
 	public synthetic fun <init> (JLjava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public fun createShader-uvyYCjk (J)Lorg/jetbrains/skia/Shader;
+	public fun createShader-uvyYCjk (J)Landroidx/compose/ui/graphics/Shader;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun hashCode ()I
 	public fun lerp (Ljava/lang/Object;F)Ljava/lang/Object;
