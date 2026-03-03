@@ -31,6 +31,9 @@
 		99D97A882BF73A9B0035552B /* CMPEditMenuView.m in Sources */ = {isa = PBXBuildFile; fileRef = 99D97A872BF73A9B0035552B /* CMPEditMenuView.m */; };
 		99DCAB0E2BD00F5C002E6AC7 /* CMPTextLoupeSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 99DCAB0D2BD00F5C002E6AC7 /* CMPTextLoupeSession.m */; };
 		A01609822EB42A3300FB9790 /* CMPLayoutRegion.m in Sources */ = {isa = PBXBuildFile; fileRef = A01609812EB42A3300FB9790 /* CMPLayoutRegion.m */; };
+		C4C07E892F57037300A9DC94 /* CMPTextInputView.m in Sources */ = {isa = PBXBuildFile; fileRef = C4C07E882F57037300A9DC94 /* CMPTextInputView.m */; };
+		C4C07E8A2F57037300A9DC94 /* CMPEditMenuCustomAction.m in Sources */ = {isa = PBXBuildFile; fileRef = C4C07E842F57037300A9DC94 /* CMPEditMenuCustomAction.m */; };
+		C4C07E8B2F57037300A9DC94 /* CMPTextInputStringTokenizer.m in Sources */ = {isa = PBXBuildFile; fileRef = C4C07E862F57037300A9DC94 /* CMPTextInputStringTokenizer.m */; };
 		EA4B52962C2EDEF200FBB55C /* CMPGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = EA4B52952C2EDEF200FBB55C /* CMPGestureRecognizer.m */; };
 		EA70A7EB2B27106100300068 /* CMPAccessibilityElement.m in Sources */ = {isa = PBXBuildFile; fileRef = EA70A7E82B27106100300068 /* CMPAccessibilityElement.m */; };
 		EA82F4F92B86144E00465418 /* CMPOSLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = EA82F4F82B86144E00465418 /* CMPOSLogger.m */; };
@@ -113,6 +116,12 @@
 		99DCAB0D2BD00F5C002E6AC7 /* CMPTextLoupeSession.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CMPTextLoupeSession.m; sourceTree = "<group>"; };
 		A01609812EB42A3300FB9790 /* CMPLayoutRegion.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CMPLayoutRegion.m; sourceTree = "<group>"; };
 		A0E69B242EB4227A0049B20F /* CMPLayoutRegion.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CMPLayoutRegion.h; sourceTree = "<group>"; };
+		C4C07E832F57037300A9DC94 /* CMPEditMenuCustomAction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CMPEditMenuCustomAction.h; sourceTree = "<group>"; };
+		C4C07E842F57037300A9DC94 /* CMPEditMenuCustomAction.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CMPEditMenuCustomAction.m; sourceTree = "<group>"; };
+		C4C07E852F57037300A9DC94 /* CMPTextInputStringTokenizer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CMPTextInputStringTokenizer.h; sourceTree = "<group>"; };
+		C4C07E862F57037300A9DC94 /* CMPTextInputStringTokenizer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CMPTextInputStringTokenizer.m; sourceTree = "<group>"; };
+		C4C07E872F57037300A9DC94 /* CMPTextInputView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CMPTextInputView.h; sourceTree = "<group>"; };
+		C4C07E882F57037300A9DC94 /* CMPTextInputView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CMPTextInputView.m; sourceTree = "<group>"; };
 		EA4B52942C2EDEF200FBB55C /* CMPGestureRecognizer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CMPGestureRecognizer.h; sourceTree = "<group>"; };
 		EA4B52952C2EDEF200FBB55C /* CMPGestureRecognizer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CMPGestureRecognizer.m; sourceTree = "<group>"; };
 		EA70A7E62B27106100300068 /* CMPAccessibilityElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMPAccessibilityElement.h; sourceTree = "<group>"; };
@@ -162,6 +171,12 @@
 		996EFEEB2B02CE5D0000FE0F /* CMPUIKitUtils */ = {
 			isa = PBXGroup;
 			children = (
+				C4C07E832F57037300A9DC94 /* CMPEditMenuCustomAction.h */,
+				C4C07E842F57037300A9DC94 /* CMPEditMenuCustomAction.m */,
+				C4C07E852F57037300A9DC94 /* CMPTextInputStringTokenizer.h */,
+				C4C07E862F57037300A9DC94 /* CMPTextInputStringTokenizer.m */,
+				C4C07E872F57037300A9DC94 /* CMPTextInputView.h */,
+				C4C07E882F57037300A9DC94 /* CMPTextInputView.m */,
 				EA70A7E62B27106100300068 /* CMPAccessibilityElement.h */,
 				EA70A7E82B27106100300068 /* CMPAccessibilityElement.m */,
 				99CC4B282ECE04AC007C5C44 /* CMPComposeContainerLifecycleDelegate.h */,
@@ -391,6 +406,9 @@
 				99009B7B2F322B4700518C1F /* CMPMetalLayer.m in Sources */,
 				99CC4B2E2ECE0838007C5C44 /* CMPView.m in Sources */,
 				EABD912B2BC02B5F00455279 /* CMPInteropWrappingView.m in Sources */,
+				C4C07E892F57037300A9DC94 /* CMPTextInputView.m in Sources */,
+				C4C07E8A2F57037300A9DC94 /* CMPEditMenuCustomAction.m in Sources */,
+				C4C07E8B2F57037300A9DC94 /* CMPTextInputStringTokenizer.m in Sources */,
 				EADD02902C9846D9003F66E8 /* CMPDragInteractionProxy.m in Sources */,
 				992EDDFB2E55EC8400FB44C5 /* CMPKeyValueObserver.m in Sources */,
 				EA82F4F92B86144E00465418 /* CMPOSLogger.m in Sources */,

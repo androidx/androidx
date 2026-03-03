@@ -18,6 +18,8 @@ package androidx.compose.ui.platform
 
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.DpRect
+import androidx.compose.ui.window.PlatformTextLayoutDirection
 
 internal interface IOSSkikoInput {
 
@@ -134,4 +136,63 @@ internal interface IOSSkikoInput {
      * Returned value must be in range between 0 and length of the text (inclusive).
      */
     fun verticalPositionFromPosition(position: Int, verticalOffset: Int): Int?
+
+    /**
+     * Returns the caret rectangle for a given text position.
+     * https://developer.apple.com/documentation/uikit/uitextinput/caretrect(for:)
+     * @param position A text position within the document.
+     * @return A rectangle, in dp, that encloses the caret at the specified position, or `null`
+     * if the position is invalid.
+     */
+    fun caretDpRectForPosition(position: Int): DpRect?
+
+    /**
+     * Returns the selection rectangles that enclose a range of text.
+     * https://developer.apple.com/documentation/uikit/uitextinput/selectionrects(for:)
+     * @param range A range of text in the document.
+     * @return A list of rectangles, in dp, that tightly bound the visual selection for the range.
+     */
+    fun selectionDpRectsForRange(range: TextRange): List<TextSelectionRect>
+
+    /**
+     * Returns the first rectangle that encloses a range of text.
+     * https://developer.apple.com/documentation/uikit/uitextinput/firstrect(for:)
+     * @param range A range of text in the document.
+     * @return The first selection rectangle, in dp, or `null` if the range is invalid or empty.
+     */
+    fun firstSelectionRectForRange(range: TextRange): DpRect?
+
+    /**
+     * Returns the text position that is closest to the specified point.
+     * https://developer.apple.com/documentation/uikit/uitextinput/closestposition(to:)
+     * @param point A point, in dp, in the coordinate space of the text input.
+     * @return The position closest to the point, or `null` if none can be determined.
+     */
+    fun closestPositionToPoint(point: DpOffset): Int?
+
+    /**
+     * Returns the text position that is closest to the specified point within range.
+     * https://developer.apple.com/documentation/uikit/uitextinput/closestposition(to:within:)
+     * @param point A point, in dp, in the coordinate space of the text input.
+     * @param withinRange A range that limits the returned position.
+     * @return The closest position within the given range, or `null` if none exists.
+     */
+    fun closestPositionToPoint(point: DpOffset, withinRange: TextRange): Int?
+
+    /**
+     * Returns the character range at the specified dp point.
+     * https://developer.apple.com/documentation/uikit/uitextinput/characterrange(at:)
+     * @param point A point, in dp, in the coordinate space of the text input.
+     * @return The range of the character at the point, or `null` if none.
+     */
+    fun characterRangeAtPoint(point: DpOffset): TextRange?
+
+    /**
+     * Returns the position in a specified direction that is farthest within a given range.
+     * https://developer.apple.com/documentation/uikit/uitextinput/position(within:farthestin:)
+     * @param range The limiting range.
+     * @param farthestInDirection A direction constant (left, right, up, or down).
+     * @return The farthest position within the range in the given direction, or `null` if none.
+     */
+    fun positionWithinRange(range: TextRange, farthestInDirection: PlatformTextLayoutDirection): Int?
 }

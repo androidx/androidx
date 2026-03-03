@@ -17,6 +17,7 @@
 package androidx.compose.ui.node
 
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformTextInputMethodRequest
@@ -223,4 +224,5 @@ private class TestInputRequest: PlatformTextInputMethodRequest {
     override val textFieldRectInRoot: () -> Rect? get() = error("Test method")
     override val textClippingRectInRoot: () -> Rect? get() = error("Test method")
     override val editText: (TextEditingScope.() -> Unit) -> Unit get() = error("Test method")
+    override val unclippedTextOffsetInRoot: () -> Offset? get() = error("Test method")
 }

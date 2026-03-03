@@ -154,8 +154,8 @@ private class TouchesGestureRecognizer(
             }
         }
 
-        val interactionMode = touchesToInteractionMode.values.map {
-            it?.findAncestorInteropWrappingView()?.interactionMode
+        val interactionMode = touchesToInteractionMode.map {
+            it.value?.findAncestorInteractionMode(it.key)
         }.findMostRestrictedInteractionMode()
         when (interactionMode) {
             is UIKitInteropInteractionMode.Cooperative -> {
@@ -587,6 +587,15 @@ internal class OverlayInputView(
             // Interop view is located inside another container.
             return null
         }
+        val nativeTextInputViewHitTest = subviews.firstNotNullOfOrNull { it ->
+            (it as? IntermediateTextScrollView)?.let {
+                val inputPoint = convertPoint(point, toView = it)
+                it.hitTest(inputPoint, withEvent)
+            }
+        }
+        if (nativeTextInputViewHitTest != null) {
+            return nativeTextInputViewHitTest
+        }
         return super.hitTest(point, withEvent)
     }
 
@@ -727,11 +736,14 @@ internal class BackgroundInputView(
  * query. This extension method allows finding the nearest [InteropWrappingView] up the view
  * hierarchy and request the value retroactively.
  */
-private fun UIView.findAncestorInteropWrappingView(): InteropWrappingView? {
+private fun UIView.findAncestorInteractionMode(touch: UITouch): UIKitInteropInteractionMode? {
     var view: UIView? = this
     while (view != null) {
         if (view is InteropWrappingView) {
-            return view
+            return view.interactionMode
+        }
+        if (view is IntermediateTextScrollView) {
+            return view.interactionModeAt(touch.locationInView(view))
         }
         view = view.superview
     }
@@ -750,6 +762,7 @@ private fun UIView?.hasTrackingUIScrollView(): Boolean {
         }
         if (view is UIScrollView &&
             view.userInteractionEnabled &&
+            view.scrollEnabled &&
             view.panGestureRecognizer.isEnabled()) {
             if ((view.panGestureRecognizer.state == UIGestureRecognizerStatePossible ||
                     view.panGestureRecognizer.state == UIGestureRecognizerStateBegan) &&

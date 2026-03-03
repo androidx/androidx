@@ -20,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.text.TextLayoutResult
@@ -48,6 +49,7 @@ internal actual fun createLegacyPlatformTextInputServiceAdapter():
         private var focusedRectInRoot by mutableStateOf(Rect.Zero)
         private var textFieldRectInRoot by mutableStateOf(Rect.Zero)
         private var textClippingRectInRoot by mutableStateOf(Rect.Zero)
+        private var unclippedTextOffsetInRoot by mutableStateOf(Offset.Zero)
 
         override fun startInput(
             value: TextFieldValue,
@@ -95,6 +97,7 @@ internal actual fun createLegacyPlatformTextInputServiceAdapter():
             textClippingRectInRoot = matrix.map(innerTextFieldBounds)
             val cursorOffset = offsetMapping.originalToTransformed(textFieldValue.selection.max)
             focusedRectInRoot = matrix.map(textLayoutResult.getCursorRect(cursorOffset))
+            unclippedTextOffsetInRoot = textClippingRectInRoot.topLeft - innerTextFieldBounds.topLeft
         }
 
         override fun startStylusHandwriting() {}
@@ -131,6 +134,7 @@ internal actual fun createLegacyPlatformTextInputServiceAdapter():
                 focusedRectInRoot = { focusedRectInRoot },
                 textFieldRectInRoot = { textFieldRectInRoot },
                 textClippingRectInRoot = { textClippingRectInRoot },
+                unclippedTextOffsetInRoot = { unclippedTextOffsetInRoot },
                 editText = editBlock
             )
         }

@@ -64,7 +64,7 @@ private val THICKNESS = 2.dp
  * [SelectionHandle] was initially designed as iOS entity but later was commonized as is.
  */
 @Composable
-internal actual fun SelectionHandle(
+internal fun SkikoSelectionHandle(
     offsetProvider: OffsetProvider,
     isStartHandle: Boolean,
     direction: ResolvedTextDirection,

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,25 @@
  * limitations under the License.
  */
 
-package androidx.compose.mpp.demo
+#import "CMPEditMenuCustomAction.h"
 
-val IosSpecificFeatures = Screen.Selection(
-    "iOS-specific features",
-    NativeModalWithNavigationExample,
-    NativePopupWithComposePopupExample,
-    HapticFeedbackExample,
-    IosPredictiveBackExample,
-    LazyColumnWithInteropViewsExample,
-    AccessibilityLiveRegionExample,
-    InteropViewAndSemanticsConfigMerge,
-    InteropExample,
-    ReusableMapsExample,
-    UpdatableInteropPropertiesExample,
-    IosImeOptionsExample,
-    NativeTextInputTextFields,
-)
+@implementation CMPEditMenuCustomAction
+
+- (id)initWithTitle:(NSString *)title action:(void (^)(void))actionBlock {
+    self = [super init];
+    if (self) {
+        _title = [title copy];
+        _actionBlock = [actionBlock copy];
+    }
+    return self;
+}
+
+- (BOOL)isEqual:(id)other {
+    return [self.title isEqualToString:((CMPEditMenuCustomAction *)other).title];
+}
+
+- (NSUInteger)hash {
+    return self.title.hash;
+}
+
+@end

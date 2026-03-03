@@ -16,8 +16,12 @@
 
 package androidx.compose.ui.platform
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
@@ -38,20 +42,30 @@ import androidx.compose.ui.text.input.SetComposingRegionCommand
 import androidx.compose.ui.text.input.SetComposingTextCommand
 import androidx.compose.ui.text.input.SetSelectionCommand
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.usingNativeTextInput
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.uikit.density
+import androidx.compose.ui.uikit.utils.CMPEditMenuCustomAction
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.asCGRect
 import androidx.compose.ui.unit.asDpOffset
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.toOffset
+import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.window.BackgroundInputView
 import androidx.compose.ui.window.FocusedViewsList
 import androidx.compose.ui.window.IntermediateTextInputUIView
-import androidx.compose.ui.window.BackgroundInputView
+import androidx.compose.ui.window.IntermediateTextScrollView
 import androidx.compose.ui.window.OverlayInputView
+import androidx.compose.ui.window.PlatformTextLayoutDirection
 import kotlin.math.absoluteValue
+import kotlin.math.max
 import kotlin.math.min
 import kotlinx.cinterop.useContents
-import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.skia.BreakIterator
@@ -67,7 +81,7 @@ import platform.UIKit.UIViewAutoresizingFlexibleWidth
 private val CLEAR_FOCUS_DELAY: Long = 10L
 
 internal class UIKitTextInputService(
-    private val updateView: () -> Unit,
+    private val updateView: UIKitTextInputService.() -> Unit,
     private val view: UIView,
     private val viewConfiguration: ViewConfiguration,
     private val focusedViewsList: FocusedViewsList?,
@@ -77,14 +91,30 @@ internal class UIKitTextInputService(
      * Erasure happens due to K/N not supporting Obj-C lightweight generics.
      */
     private var onKeyboardPresses: (Set<*>) -> Unit,
-    private var focusManager: () -> ComposeSceneFocusManager?
-) : PlatformTextInputService, TextToolbar {
+    private var focusManager: () -> ComposeSceneFocusManager?,
+    coroutineContext: kotlin.coroutines.CoroutineContext
+) : PlatformTextInputService, TextToolbar, UIKitNativeTextInputContext {
+
+    private val coroutineScope = CoroutineScope(coroutineContext)
+
+    var usingNativeTextInput by mutableStateOf(false)
+        private set
 
     private var currentOnEditCommand: ((List<EditCommand>) -> Unit)? = null
     private var currentImeOptions: ImeOptions? = null
     private var currentImeActionHandler: ((ImeAction) -> Unit)? = null
     private var textUIView: IntermediateTextInputUIView? = null
-    private var textLayoutResult : TextLayoutResult? = null
+    private val scrollView by lazy { IntermediateTextScrollView() }
+    private var textLayoutResult: TextLayoutResult? = null
+
+    private var currentFocusedRect: Rect? = null
+
+    /**
+     * Matches DefaultCursorThickness
+     *
+     * Must be at least 1.dp to make caret interactable
+     */
+    private val cursorThickness = 2.dp
 
     /**
      * Workaround to prevent calling textWillChange, textDidChange, selectionWillChange, and
@@ -132,7 +162,6 @@ internal class UIKitTextInputService(
      * And after clear in updateState function.
      */
     private var _tempCursorPos: Int? = null
-    private val mainScope = MainScope()
 
     override fun startInput(
         value: TextFieldValue,
@@ -145,6 +174,7 @@ internal class UIKitTextInputService(
         }
         currentOnEditCommand = onEditCommand
         currentImeOptions = imeOptions
+        usingNativeTextInput = imeOptions.platformImeOptions?.usingNativeTextInput ?: false
         currentImeActionHandler = onImeActionPerformed
 
         attachIntermediateTextInputView()
@@ -160,11 +190,17 @@ internal class UIKitTextInputService(
         sessionEditProcessor = null
         currentImeOptions = null
         currentImeActionHandler = null
+        textLayoutResult = null
+
         hideSoftwareKeyboard()
 
         textUIView?.inputTraits = EmptyInputTraits
         textUIView?.input = null
+
         detachIntermediateTextInputView()
+        usingNativeTextInput = false
+
+        selectionTintColor = null
     }
 
     override fun showSoftwareKeyboard() {
@@ -193,13 +229,14 @@ internal class UIKitTextInputService(
             it.reset(newValue, null)
             _tempCursorPos = null
         }
+
         if (textChanged) {
             textUIView?.textDidChange()
         }
         if (selectionChanged) {
             textUIView?.selectionDidChange()
         }
-        if (textChanged || selectionChanged) {
+        if (!usingNativeTextInput && (textChanged || selectionChanged)) {
             updateView()
         }
     }
@@ -214,8 +251,67 @@ internal class UIKitTextInputService(
     }
 
     fun updateTextFrame(rect: Rect) {
-        textUIView?.setFrame(rect.toDpRect(view.density).asCGRect())
+        if (usingNativeTextInput) {
+            textFieldFrameInRoot = rect
+        } else {
+            textUIView?.setFrame(rect.toDpRect(view.density).asCGRect())
+        }
         showMenuOrUpdatePosition()
+    }
+
+    private fun calculateContentBounds(textLayoutResult: TextLayoutResult, textFieldFrame: Rect, unclippedTextPosition: Offset): Rect {
+        val textSize = textLayoutResult.size.toSize()
+        val contentBounds = Rect(
+            offset = Offset(x = textFieldFrame.left - unclippedTextPosition.x, y = textFieldFrame.top - unclippedTextPosition.y),
+            size = textSize
+        )
+        return contentBounds
+    }
+
+    private fun calculateContentInsets(textFieldFrame: Rect, contentBounds: Rect): DpInsets = with(view.density) {
+        return DpInsets(
+            left = max(0f, -contentBounds.left).toDp(),
+            top = max(0f, -contentBounds.top).toDp(),
+            right = max(0f, textFieldFrame.width - contentBounds.width + contentBounds.left).toDp(),
+            bottom = max(0f, textFieldFrame.height - contentBounds.height + contentBounds.top).toDp()
+        )
+    }
+
+    fun updateFocusedRect(rect: Rect) {
+        currentFocusedRect = rect
+    }
+
+    private var textFieldFrameInRoot: Rect? = null
+    private var clippingTextFrame: Rect? = null
+    private var currentContentBounds: Rect? = null
+    private var currentContentInsets: DpInsets? = null
+    fun updateClippingTextFrame(rect: Rect) {
+        clippingTextFrame = rect
+    }
+
+    fun updateUnclippedTextPosition(offset: Offset) {
+        if (usingNativeTextInput) {
+            // Since Compose content is rendered on a MetalView and the UITextInput-implementing
+            // view is overlayed on top of it, we need to synchronize the Compose text
+            // field with the IntermediateTextScrollView (which contains IntermediateUITextView)
+            // to ensure native iOS text input controls
+            // align correctly with the rendered text.
+            val rect = textFieldFrameInRoot ?: return
+            val layoutResult = textLayoutResult ?: return
+            val contentBounds = calculateContentBounds(
+                layoutResult,
+                rect,
+                offset
+            )
+            currentContentBounds = contentBounds
+            val contentInsets = calculateContentInsets(rect, contentBounds)
+            currentContentInsets = contentInsets
+            scrollView.setFrame(
+                rect.toDpRect(view.density),
+                contentBounds.toDpRect(view.density),
+                contentInsets
+            )
+        }
     }
 
     fun updateTextLayoutResult(textLayoutResult: TextLayoutResult) {
@@ -268,6 +364,14 @@ internal class UIKitTextInputService(
 
         editCommandsBatch.addAll(commands)
         flushEditCommandsIfNeeded()
+
+        if (usingNativeTextInput) {
+            // For Native Text Input it's essential to trigger view update right after send edit command,
+            // otherwise UIKit calls may use an invalid layout state
+            coroutineScope.launch {
+                updateView()
+            }
+        }
     }
 
     fun flushEditCommandsIfNeeded(force: Boolean = false) {
@@ -321,7 +425,7 @@ internal class UIKitTextInputService(
     private var textInputServiceInvalidationsCount = 0
     private fun textMenuAppearanceChanged() {
         textInputServiceInvalidationsCount++
-        mainScope.launch {
+        coroutineScope.launch {
             // Time to show, hide or update state of context menu
             delay(500)
             textInputServiceInvalidationsCount--
@@ -334,6 +438,7 @@ internal class UIKitTextInputService(
 
     // Fixes a problem where the menu is shown before the textUIView gets its final layout.
     private var showMenuOrUpdatePosition = {}
+
     override fun showMenu(
         rect: Rect,
         onCopyRequested: (() -> Unit)?,
@@ -341,36 +446,52 @@ internal class UIKitTextInputService(
         onCutRequested: (() -> Unit)?,
         onSelectAllRequested: (() -> Unit)?
     ) {
-        if (textUIView == null) {
-            // If showMenu() is called and textUIView is not created,
-            // then it means that showMenu() called in SelectionContainer without any textfields,
-            // and IntermediateTextInputView must be created to show an editing menu
-            attachIntermediateTextInputView()
-            updateView()
-        }
-        showMenuOrUpdatePosition = {
-            textUIView?.let { textUIView ->
-                val density = view.density
-                val offset = textUIView.frame.useContents { origin.asDpOffset().toOffset(density) }
-                val target = rect.translate(-offset).toDpRect(density).asCGRect()
-                textUIView.showTextMenu(
-                    targetRect = target,
-                    textActions = object : TextActions {
-                        override val copy: (() -> Unit)? = onCopyRequested
-                        override val cut: (() -> Unit)? = onCutRequested
-                        override val paste: (() -> Unit)? = onPasteRequested
-                        override val selectAll: (() -> Unit)? = onSelectAllRequested
-                    }
-                )
-                textMenuAppearanceChanged()
-            }
-        }
-        showMenuOrUpdatePosition()
+        showMenu(
+            rect = rect,
+            onCopyRequested = onCopyRequested,
+            onPasteRequested = onPasteRequested,
+            onCutRequested = onCutRequested,
+            onSelectAllRequested = onSelectAllRequested,
+            onAutofillRequested = null
+        )
     }
 
-    /**
-     * TODO on UIKit native behaviour is hide text menu, when touch outside
-     */
+    override fun showMenu(
+        rect: Rect,
+        onCopyRequested: (() -> Unit)?,
+        onPasteRequested: (() -> Unit)?,
+        onCutRequested: (() -> Unit)?,
+        onSelectAllRequested: (() -> Unit)?,
+        onAutofillRequested: (() -> Unit)?
+    ) {
+        if (!usingNativeTextInput) {
+            if (textUIView == null) {
+                // If showMenu() is called and textUIView is not created,
+                // then it means that showMenu() called in SelectionContainer without any textfields,
+                // and IntermediateTextInputView must be created to show an editing menu
+                attachIntermediateTextInputView()
+                updateView()
+            }
+            showMenuOrUpdatePosition = {
+                textUIView?.let { textUIView ->
+                    val density = view.density
+                    val offset = textUIView.frame.useContents { origin.asDpOffset().toOffset(density) }
+                    val target = rect.translate(-offset).toDpRect(density).asCGRect()
+                    textUIView.showEditMenuAtRect(
+                        targetRect = target,
+                        copy = onCopyRequested,
+                        cut = onCutRequested,
+                        paste = onPasteRequested,
+                        selectAll = onSelectAllRequested,
+                        customActions = emptyList<CMPEditMenuCustomAction>()
+                    )
+                    textMenuAppearanceChanged()
+                }
+            }
+            showMenuOrUpdatePosition()
+        }
+    }
+
     override fun hide() {
         showMenuOrUpdatePosition = {}
         textUIView?.let {
@@ -383,41 +504,124 @@ internal class UIKitTextInputService(
         }
     }
 
+    override fun updateNativeTextInputEditMenuState(
+        copy: (() -> Unit)?,
+        paste: (() -> Unit)?,
+        cut: (() -> Unit)?,
+        selectAll: (() -> Unit)?,
+        customActions: List<UIKitNativeTextInputContextMenuCustomAction>?
+    ) {
+        // This path is native text input only, shouldn't be called elsewhere
+        textUIView?.updateMenuActions(
+            copy,
+            paste,
+            cut,
+            selectAll,
+            customActions?.map { action ->
+                CMPEditMenuCustomAction(action.title, action.action)
+            } ?: emptyList()
+        )
+    }
+
+    override fun usingNativeTextInput(): Boolean = usingNativeTextInput
+
+    // If not specified, iOS would use the default system tint color
+    private var selectionTintColor: Color? = null
+    private fun setupTintColor() {
+        textUIView?.let {
+            val uiColor = selectionTintColor?.toUIColor()
+            it.setTintColor(uiColor)
+        }
+    }
+
+    override fun updateNativeTextInputTintColor(color: Color?) {
+        selectionTintColor = color
+        setupTintColor()
+    }
+
     override val status: TextToolbarStatus
-        get() = if (textUIView?.isTextMenuShown() == true)
-            TextToolbarStatus.Shown
-        else
+        get() = if (usingNativeTextInput) {
+            // In this case the menu is controlled by UIKit.
             TextToolbarStatus.Hidden
+        } else {
+            if (textUIView?.isTextMenuShown() == true)
+                TextToolbarStatus.Shown
+            else
+                TextToolbarStatus.Hidden
+        }
 
     private fun attachIntermediateTextInputView() {
         detachIntermediateTextInputView()
-        showMenuOrUpdatePosition = {}
-        textUIView = IntermediateTextInputUIView(
-            doubleTapTimeoutMillis = viewConfiguration.doubleTapTimeoutMillis
-        ).also {
-            it.setAutoresizingMask(
-                UIViewAutoresizingFlexibleWidth or UIViewAutoresizingFlexibleHeight
-            )
-            it.onKeyboardPresses = onKeyboardPresses
-            view.addSubview(it)
-            it.setFrame(view.bounds)
+        if (usingNativeTextInput) {
+            textUIView = IntermediateTextInputUIView(
+                doubleTapTimeoutMillis = viewConfiguration.doubleTapTimeoutMillis,
+                usingNativeTextInput = usingNativeTextInput,
+                coroutineScope = coroutineScope
+            ).also {
+                view.addSubview(scrollView)
+                scrollView.textView = it
+
+                it.onKeyboardPresses = onKeyboardPresses
+                it.clipsToBounds = false
+                it.input = createSkikoInput()
+                it.inputTraits = getUITextInputTraits(currentImeOptions)
+
+                // Resizing should be done later
+                it.resignFirstResponder()
+                it.becomeFirstResponder()
+            }
+            setupTintColor()
+        } else {
+            textUIView = IntermediateTextInputUIView(
+                doubleTapTimeoutMillis = viewConfiguration.doubleTapTimeoutMillis,
+                usingNativeTextInput = usingNativeTextInput,
+                coroutineScope = coroutineScope
+            ).also {
+                it.setAutoresizingMask(
+                    UIViewAutoresizingFlexibleWidth or UIViewAutoresizingFlexibleHeight
+                )
+                it.onKeyboardPresses = onKeyboardPresses
+                view.addSubview(it)
+                it.setFrame(view.bounds)
+            }
         }
     }
 
     private fun detachIntermediateTextInputView() {
-        showMenuOrUpdatePosition = {}
-        textUIView?.let { view ->
-            val outOfBoundsFrame = CGRectMake(-100000.0, 0.0, 1.0, 1.0)
-            // Set out-of-bounds non-empty frame to hide text keyboard focus frame
-            view.setFrame(outOfBoundsFrame)
+        // Out-of-bounds non-empty frame is required to hide text keyboard focus frame
+        val outOfBoundsFrame = CGRectMake(-100000.0, 0.0, 1.0, 1.0)
 
-            view.resetOnKeyboardPressesCallback()
-            mainScope.launch {
-                delay(CLEAR_FOCUS_DELAY)
-                view.removeFromSuperview()
+        if (usingNativeTextInput) {
+            textUIView?.input = null
+            textUIView?.inputTraits = EmptyInputTraits
+
+            textUIView?.let { textView ->
+                textView.setFrame(outOfBoundsFrame)
+
+                textView.resetOnKeyboardPressesCallback()
+                coroutineScope.launch {
+                    delay(CLEAR_FOCUS_DELAY)
+                    if (scrollView.textView == textView) {
+                        scrollView.textView = null
+                        textView.removeFromSuperview()
+                    }
+                }
             }
+            textUIView = null
+            scrollView.removeFromSuperview()
+        } else {
+            showMenuOrUpdatePosition = {}
+            textUIView?.let { view ->
+                view.setFrame(outOfBoundsFrame)
+
+                view.resetOnKeyboardPressesCallback()
+                coroutineScope.launch {
+                    delay(CLEAR_FOCUS_DELAY)
+                    view.removeFromSuperview()
+                }
+            }
+            textUIView = null
         }
-        textUIView = null
     }
 
     fun dispose() {
@@ -445,7 +649,7 @@ internal class UIKitTextInputService(
 
         override fun onResignFocus() {
             textInputServiceInvalidationsCount++
-            mainScope.launch {
+            coroutineScope.launch {
                 if (hasFocusedNonComposeInputViewInWindowHierarchy()) {
                     focusManager()?.releaseFocus()
                 }
@@ -454,7 +658,9 @@ internal class UIKitTextInputService(
         }
 
         override fun beginFloatingCursor(offset: DpOffset) {
-            val cursorPos = getCursorPos() ?: getState()?.selection?.start ?: return
+            val cursorPos = if (usingNativeTextInput) {
+                getState()?.selection?.start ?: return
+            } else getCursorPos() ?: getState()?.selection?.start ?: return
             val cursorRect = textLayoutResult?.getCursorRect(cursorPos) ?: return
             floatingCursorTranslation = cursorRect.center - offset.toOffset(view.density)
         }
@@ -677,7 +883,210 @@ internal class UIKitTextInputService(
             }
         }
 
-        private fun isIncorrect(range: TextRange): Boolean =
-            range.start < 0 || range.end > endOfDocument() || range.start > range.end
+        override fun caretDpRectForPosition(position: Int): DpRect? {
+            val text = getState()?.text ?: return null
+            if (position < 0 || position > text.length) {
+                return null
+            }
+            val currentTextLayoutResult = textLayoutResult ?: return null
+            if (position > currentTextLayoutResult.multiParagraph.intrinsics.annotatedString.length) {
+                return null
+            }
+            val rect = currentTextLayoutResult.getCursorRect(position)
+            return rect.toDpRect(view.density).let {
+                val hafWidth = cursorThickness / 2
+                val center = (it.left + it.right) / 2
+                it.copy(left = center - hafWidth, right = center + hafWidth)
+            }
+        }
+
+        override fun selectionDpRectsForRange(range: TextRange): List<TextSelectionRect> {
+            // Native selection rects are required for correct work of the text editing menu
+            // Without them, it will be impossible to call the text editing menu by tapping on the selected area
+            if (range.collapsed || isIncorrect(range)) {
+                return emptyList()
+            }
+            val currentTextLayoutResult = textLayoutResult ?: return emptyList()
+
+            val startSelectionHandleRect = currentTextLayoutResult.getCursorRect(range.start)
+            val endSelectionHandleRect = currentTextLayoutResult.getCursorRect(range.end)
+
+            val firstLineNumber = currentTextLayoutResult.getLineForOffset(range.start)
+            val lastLineNumber = currentTextLayoutResult.getLineForOffset(range.end)
+
+            return if (firstLineNumber == lastLineNumber) {
+                listOf(
+                    TextSelectionRect(
+                        dpRect = Rect(
+                            topLeft = startSelectionHandleRect.topLeft,
+                            bottomRight = endSelectionHandleRect.bottomRight
+                        ).toDpRect(view.density),
+                        writingDirection = TextDirection.Content,
+                        containsStart = true,
+                        containsEnd = true,
+                        isVertical = false
+                    )
+                )
+            } else {
+                // TODO Consider RTL Layout
+                // We require separate rects for start line, end line and everything in between them
+                val contentInsets = currentContentInsets ?: return emptyList()
+                val contentRect = currentContentBounds?.let {
+                    with(view.density) {
+                        Rect(
+                            top = it.top + contentInsets.top.toPx(),
+                            left = it.left + contentInsets.left.toPx(),
+                            right = it.right + contentInsets.right.toPx(),
+                            bottom = it.bottom + contentInsets.bottom.toPx()
+                        )
+                    }
+                } ?: return emptyList()
+
+                val firstLineSelectionRect = TextSelectionRect(
+                    dpRect = Rect(
+                        top = startSelectionHandleRect.top,
+                        left = startSelectionHandleRect.left,
+                        right = contentRect.right,
+                        bottom = startSelectionHandleRect.bottom
+                    ).toDpRect(view.density),
+                    writingDirection = TextDirection.Content,
+                    containsStart = true,
+                    containsEnd = false,
+                    isVertical = false
+                )
+
+                val middleAreaSelectionRect = TextSelectionRect(
+                    dpRect = Rect(
+                        top = startSelectionHandleRect.bottom,
+                        left = contentRect.left,
+                        right = contentRect.right,
+                        bottom = endSelectionHandleRect.top
+                    ).toDpRect(view.density),
+                    writingDirection = TextDirection.Content,
+                    containsStart = false,
+                    containsEnd = false,
+                    isVertical = false
+                )
+
+                val lastLineStartRect = currentTextLayoutResult.getCursorRect(
+                    currentTextLayoutResult.getLineStart(lastLineNumber)
+                )
+                val lastLineRect = TextSelectionRect(
+                    dpRect = Rect(
+                        topLeft = lastLineStartRect.topLeft,
+                        bottomRight = endSelectionHandleRect.bottomRight
+                    ).toDpRect(view.density),
+                    writingDirection = TextDirection.Content,
+                    containsStart = false,
+                    containsEnd = true,
+                    isVertical = false
+                )
+
+                listOf(
+                    firstLineSelectionRect,
+                    middleAreaSelectionRect,
+                    lastLineRect
+                )
+            }
+        }
+
+        override fun firstSelectionRectForRange(range: TextRange): DpRect? {
+            if (range.collapsed || isIncorrect(range)) {
+                return null
+            }
+            val currentTextLayoutResult = textLayoutResult ?: return null
+
+            val startHandleLineNumber = currentTextLayoutResult.getLineForOffset(range.start)
+            val endHandleLineNumber = currentTextLayoutResult.getLineForOffset(range.end)
+
+            val startHandleRect = currentTextLayoutResult.getCursorRect(range.start)
+
+            return if (startHandleLineNumber == endHandleLineNumber) {
+                Rect(
+                    topLeft = startHandleRect.topLeft,
+                    bottomRight = currentTextLayoutResult.getCursorRect(range.end).bottomRight
+                ).toDpRect(view.density)
+            } else {
+                val startLineNumber = currentTextLayoutResult.getLineForOffset(range.start)
+                val startLineRight = currentTextLayoutResult.getLineRight(startLineNumber)
+                Rect(
+                    startHandleRect.left,
+                    startHandleRect.top,
+                    startLineRight,
+                    startHandleRect.bottom
+                ).toDpRect(view.density)
+            }
+        }
+
+        override fun closestPositionToPoint(point: DpOffset): Int? {
+            return textLayoutResult?.getOffsetForPosition(point.toOffset(view.density))
+        }
+
+        override fun closestPositionToPoint(point: DpOffset, withinRange: TextRange): Int? {
+            val pointOffset =
+                textLayoutResult?.getOffsetForPosition(point.toOffset(view.density))
+                    ?: return null
+            return pointOffset.coerceIn(withinRange.start, withinRange.end)
+        }
+
+        override fun characterRangeAtPoint(point: DpOffset): TextRange? {
+            val pointOffset =
+                textLayoutResult?.getOffsetForPosition(point.toOffset(view.density))
+                    ?: return null
+            return textLayoutResult?.getWordBoundary(pointOffset)
+        }
+
+        override fun positionWithinRange(
+            range: TextRange,
+            farthestInDirection: PlatformTextLayoutDirection
+        ): Int? {
+            if (isIncorrect(range)) return null
+            return when (farthestInDirection) {
+                PlatformTextLayoutDirection.Up -> range.start
+                PlatformTextLayoutDirection.Down -> range.end
+                else -> {
+                    val layout = textLayoutResult ?: return null
+                    val startLine = layout.getLineForOffset(range.start)
+                    val endLine = layout.getLineForOffset(range.end)
+                    val lineRange = startLine..endLine
+
+                    when (farthestInDirection) {
+                        PlatformTextLayoutDirection.Left -> {
+                            lineRange.minByOrNull {
+                                when (it) {
+                                    startLine -> layout.getHorizontalPosition(range.start, true)
+                                    else -> layout.getLineLeft(it)
+                                }
+                            }
+                        }
+                        PlatformTextLayoutDirection.Right -> {
+                            lineRange.maxByOrNull {
+                                when (it) {
+                                    endLine -> layout.getHorizontalPosition(range.end, true)
+                                    else -> layout.getLineRight(it)
+                                }
+                            }
+                        }
+                        else -> null
+                    }
+                }
+            }
+        }
+
+        private fun isIncorrect(range: TextRange): Boolean {
+            return range.start < 0 || range.end > endOfDocument() || range.start > range.end
+        }
     }
 }
+
+internal data class TextSelectionRect(
+    val dpRect: DpRect,
+    val writingDirection: TextDirection,
+    val containsStart: Boolean,
+    val containsEnd: Boolean,
+    val isVertical: Boolean
+)
+
+// Insets in DP
+internal data class DpInsets(val left: Dp, val top: Dp, val right: Dp, val bottom: Dp)
+

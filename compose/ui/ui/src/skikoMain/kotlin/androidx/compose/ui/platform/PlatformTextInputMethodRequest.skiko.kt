@@ -17,6 +17,7 @@
 package androidx.compose.ui.platform
 
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.input.EditCommand
@@ -81,6 +82,19 @@ actual interface PlatformTextInputMethodRequest {
      */
     @ExperimentalComposeUiApi
     val textClippingRectInRoot: () -> Rect?
+
+    /**
+     * Returns the top-left corner of the unclipped text block, represented as an [Offset] in the
+     * root layout coordinate system. This point represents where the text begins (the (0,0) point
+     * of the [TextLayoutResult]) and its position changes as the text field is scrolled.
+     *
+     * This offset is required to synchronize platform overlay text input views (such as those
+     * implemented on iOS) with scrollable text.
+     *
+     * `null` return values mean that the text has not been laid out yet. They may be ignored.
+     */
+    @ExperimentalComposeUiApi
+    val unclippedTextOffsetInRoot: () -> Offset?
 
     /**
      * Allows the text input service to edit the text.

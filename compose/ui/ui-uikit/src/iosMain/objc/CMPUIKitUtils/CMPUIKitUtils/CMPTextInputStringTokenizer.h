@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.compose.mpp.demo
+#import <UIKit/UIKit.h>
 
-val IosSpecificFeatures = Screen.Selection(
-    "iOS-specific features",
-    NativeModalWithNavigationExample,
-    NativePopupWithComposePopupExample,
-    HapticFeedbackExample,
-    IosPredictiveBackExample,
-    LazyColumnWithInteropViewsExample,
-    AccessibilityLiveRegionExample,
-    InteropViewAndSemanticsConfigMerge,
-    InteropExample,
-    ReusableMapsExample,
-    UpdatableInteropPropertiesExample,
-    IosImeOptionsExample,
-    NativeTextInputTextFields,
-)
+NS_ASSUME_NONNULL_BEGIN
+
+@interface CMPTextInputStringTokenizer: UITextInputStringTokenizer <UITextInputTokenizer>
+
+- (BOOL)isPositionAtBoundary:(UITextPosition *)position atBoundary:(UITextGranularity)granularity inDirection:(UITextDirection)direction;
+- (BOOL)isPositionWithinTextUnit:(UITextPosition *)position withinTextUnit:(UITextGranularity)granularity inDirection:(UITextDirection)direction;
+
+@end
+
+NS_ASSUME_NONNULL_END

@@ -17,6 +17,10 @@
 package androidx.compose.ui.uikit
 
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.InternalComposeUiApi
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.UIKitNativeTextInputContextMenuCustomAction
+import androidx.compose.ui.platform.UIKitNativeTextInputContext
 import platform.UIKit.UIView
 import platform.UIKit.UIViewController
 
@@ -38,4 +42,21 @@ val LocalUIViewController = staticCompositionLocalOf<UIViewController> {
  */
 val LocalUIView = staticCompositionLocalOf<UIView> {
     error("CompositionLocal UIView not provided")
+}
+
+@InternalComposeUiApi
+val LocalNativeTextInputContext = staticCompositionLocalOf<UIKitNativeTextInputContext> {
+    object : UIKitNativeTextInputContext {
+        override fun usingNativeTextInput(): Boolean = false
+
+        override fun updateNativeTextInputEditMenuState(
+            copy: (() -> Unit)?,
+            paste: (() -> Unit)?,
+            cut: (() -> Unit)?,
+            selectAll: (() -> Unit)?,
+            customActions: List<UIKitNativeTextInputContextMenuCustomAction>?
+        ) {}
+
+        override fun updateNativeTextInputTintColor(color: Color?) {}
+    }
 }

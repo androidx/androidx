@@ -59,9 +59,11 @@ import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.uikit.InterfaceOrientation
+import androidx.compose.ui.uikit.LocalNativeTextInputContext
 import androidx.compose.ui.uikit.LocalUIView
 import androidx.compose.ui.uikit.OnFocusBehavior
 import androidx.compose.ui.uikit.density
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntRect
@@ -367,8 +369,16 @@ internal class ComposeSceneMediator(
     private val textInputService: UIKitTextInputService by lazy {
         UIKitTextInputService(
             updateView = {
-                redrawer.setNeedsRedraw()
-                CATransaction.flush() // clear all animations
+                if (usingNativeTextInput) {
+                    // Too heavy method for this purpose
+                    // we actually do not need to re-render the scene -
+                    // just flush all events and update its state.
+                    // https://youtrack.jetbrains.com/issue/CMP-9767
+                    redrawer.draw(false)
+                } else {
+                    redrawer.setNeedsRedraw()
+                }
+                CATransaction.flush()
             },
             view = _overlayView,
             viewConfiguration = viewConfiguration,
@@ -377,7 +387,8 @@ internal class ComposeSceneMediator(
                 animateKeyboardOffsetChanges = true
             },
             onKeyboardPresses = ::onKeyboardPresses,
-            focusManager = { scene.focusManager }
+            focusManager = { scene.focusManager },
+            coroutineContext = coroutineContext
         ).also {
             KeyboardVisibilityListener.initialize()
         }
@@ -592,11 +603,13 @@ internal class ComposeSceneMediator(
     fun retrieveInteropTransaction(): UIKitInteropTransaction =
         interopContainer.retrieveTransaction()
 
+    @OptIn(InternalComposeUiApi::class)
     @Composable
     private fun ProvideComposeSceneMediatorCompositionLocals(content: @Composable () -> Unit) =
         CompositionLocalProvider(
             LocalInteropContainer provides interopContainer,
             LocalUIView provides _overlayView,
+            LocalNativeTextInputContext provides textInputService,
             content = content
         )
 
@@ -743,8 +756,23 @@ internal class ComposeSceneMediator(
                     }
                 }
                 launch {
+                    snapshotFlow { request.textClippingRectInRoot() }.filterNotNull().collect {
+                        textInputService.updateClippingTextFrame(it)
+                    }
+                }
+                launch {
                     snapshotFlow { request.textFieldRectInRoot() }.filterNotNull().collect {
                         textInputService.updateTextFrame(it)
+                    }
+                }
+                launch {
+                    snapshotFlow { request.focusedRectInRoot() }.filterNotNull().collect {
+                        textInputService.updateFocusedRect(it)
+                    }
+                }
+                launch {
+                    snapshotFlow { request.unclippedTextOffsetInRoot() }.filterNotNull().collect {
+                        textInputService.updateUnclippedTextPosition(it)
                     }
                 }
                 suspendCancellableCoroutine<Nothing> { continuation ->

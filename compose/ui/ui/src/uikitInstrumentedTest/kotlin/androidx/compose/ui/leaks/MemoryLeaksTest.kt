@@ -41,6 +41,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.IntermediateTextInputUIView
 import kotlin.native.runtime.GC
 import kotlin.native.runtime.NativeRuntimeApi
+import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -51,6 +52,8 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import platform.CoreGraphics.CGRectMake
@@ -540,9 +543,16 @@ class MemoryLeaksTest {
         delay(duration.inWholeMilliseconds)
     }
 
+    private val mainScope = MainScope()
+
+    @AfterTest
+    fun tearDown() {
+        mainScope.cancel()
+    }
+
     @OptIn(ExperimentalForeignApi::class)
-    private fun startFakeTextInputSession() {
-        val input = IntermediateTextInputUIView(0)
+    private fun startFakeTextInputSession(useNativeInput: Boolean = false) {
+        val input = IntermediateTextInputUIView(0, useNativeInput, coroutineScope = mainScope)
         UIApplication.sharedApplication.keyWindow?.rootViewController?.view?.addSubview(input)
         input.setFrame(CGRectMake(0.0, 0.0, 100.0, 100.0))
         input.becomeFirstResponder()

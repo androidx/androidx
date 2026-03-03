@@ -15,17 +15,10 @@
  */
 
 #import <UIKit/UIKit.h>
+#import "CMPEditMenuCustomAction.h"
+#import "CMPTextInputView.h"
 
-@interface CMPEditMenuCustomAction : NSObject
-
-@property (copy, nonatomic) NSString *title;
-@property (copy, nonatomic) void (^actionBlock)(void);
-
-- (id)initWithTitle:(NSString *)title action:(void (^)(void))actionBlock;
-
-@end
-
-@interface CMPEditMenuView : UIView
+@interface CMPEditMenuView : CMPTextInputView
 
 @property (readonly) BOOL isEditMenuShown;
 
@@ -49,5 +42,9 @@
 - (UIView *)inputView;
 
 - (UIView *)inputAccessoryView;
+
+- (void)activateTextInputInteractionIfNeeded;
+
+- (void)deactivateTextInputInteractionIfNeeded;
 
 @end
