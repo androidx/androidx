@@ -49,7 +49,6 @@ import androidx.compose.ui.platform.CUPERTINO_TOUCH_SLOP
 import androidx.compose.ui.platform.DefaultInputModeManager
 import androidx.compose.ui.platform.PlatformArchitectureComponentsOwner
 import androidx.compose.ui.platform.PlatformContext
-import androidx.compose.ui.platform.PlatformInsets
 import androidx.compose.ui.platform.PlatformScreenReader
 import androidx.compose.ui.platform.PlatformTextInputMethodRequest
 import androidx.compose.ui.platform.PlatformWindowContext
@@ -76,9 +75,7 @@ import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.unit.roundToIntSize
 import androidx.compose.ui.unit.toOffset
-import androidx.compose.ui.unit.toPlatformInsets
 import androidx.compose.ui.unit.toSize
-import androidx.compose.ui.util.lerp
 import androidx.compose.ui.viewinterop.LocalInteropContainer
 import androidx.compose.ui.viewinterop.TrackInteropPlacementContainer
 import androidx.compose.ui.viewinterop.UIKitInteropContainer
@@ -224,7 +221,7 @@ internal class ComposeSceneMediator(
         )
     }
 
-    private var size: IntSize?
+    private var composeSceneSize: IntSize?
         get() = scene.size
         set(value) {
             if (isActive) {
@@ -325,7 +322,10 @@ internal class ComposeSceneMediator(
         getComposeRootDragAndDropNode = { scene.rootDragAndDropNode },
     )
 
-    private val windowInsetsManager = UIKitWindowInsetsManager(interfaceOrientation = interfaceOrientationState)
+    private val windowInsetsManager = UIKitWindowInsetsManager(
+        windowInsetsView = { windowContext.window?.rootViewController?.view },
+        interfaceOrientation = interfaceOrientationState
+    )
 
     /**
      * A callback to define whether the precondition for the user input view hit test is met.
@@ -561,24 +561,17 @@ internal class ComposeSceneMediator(
     fun prepareAndGetSizeTransitionAnimation(withProgress: suspend ((Float) -> Unit) -> Unit): suspend () -> Unit {
         isLayoutTransitionAnimating = true
 
-        val initialLayoutMargins = windowInsetsManager.layoutMargins.value
-        val initialSafeAreaInsets = windowInsetsManager.safeAreaInsets.value
+        val initialWindowInsets = windowInsetsManager.windowInsetsSnapshot()
         val initialSize = scene.size?.toSize() ?: return {}
 
         return {
             try {
                 withProgress { progress ->
-                    windowInsetsManager.layoutMargins.value = lerp(
-                        start = initialLayoutMargins,
-                        stop = _overlayView.layoutMargins.toPlatformInsets(screenDensity),
-                        fraction = progress
+                    windowInsetsManager.updateInsetsForAnimation(
+                        initialWindowInsets = initialWindowInsets,
+                        progress = progress
                     )
-                    windowInsetsManager.safeAreaInsets.value = lerp(
-                        start = initialSafeAreaInsets,
-                        stop = _overlayView.safeAreaInsets.toPlatformInsets(screenDensity),
-                        fraction = progress
-                    )
-                    size = lerp(
+                    composeSceneSize = lerp(
                         start = initialSize,
                         stop = currentViewSize,
                         fraction = progress
@@ -653,16 +646,15 @@ internal class ComposeSceneMediator(
         if (isLayoutTransitionAnimating) {
             return
         }
-        windowInsetsManager.layoutMargins.value = _overlayView.layoutMargins.toPlatformInsets(_overlayView.density)
-        windowInsetsManager.safeAreaInsets.value = _overlayView.safeAreaInsets.toPlatformInsets(_overlayView.density)
-        size = currentViewSize.roundToIntSize()
+        windowInsetsManager.updateInsets()
+        composeSceneSize = currentViewSize.roundToIntSize()
         interactionBounds = with(screenDensity) {
             _overlayView.bounds.asDpRect().toRect().roundToIntRect()
         }
     }
 
     private val currentViewSize: Size get() {
-        return with(_overlayView.density) {
+        return with(screenDensity) {
             _overlayView.frame.useContents { size.asDpSize() }.toSize()
         }
     }
@@ -858,11 +850,3 @@ private fun UITouch.offsetInView(view: UIView, density: Float): Offset =
     locationInView(view).useContents {
         Offset(x.toFloat() * density, y.toFloat() * density)
     }
-
-private fun lerp(start: PlatformInsets, stop: PlatformInsets, fraction: Float) =
-    PlatformInsets(
-        left = lerp(start.left, stop.left, fraction),
-        right = lerp(start.right, stop.right, fraction),
-        top = lerp(start.top, stop.top, fraction),
-        bottom = lerp(start.bottom, stop.bottom, fraction)
-    )

@@ -16,16 +16,24 @@
 
 package androidx.compose.ui.platform
 
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.uikit.InterfaceOrientation
+import androidx.compose.ui.uikit.density
+import androidx.compose.ui.uikit.utils.CMPLayoutRegion
+import androidx.compose.ui.uikit.utils.CMPLayoutRegionAdaptivityAxisVertical
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.toPlatformInsets
+import androidx.compose.ui.util.lerp
 import platform.UIKit.UIDevice
 import platform.UIKit.UIUserInterfaceIdiom
 import platform.UIKit.UIUserInterfaceIdiomPad
+import platform.UIKit.UIView
 
 internal class UIKitWindowInsetsManager(
+    val windowInsetsView: () -> UIView?,
     val interfaceOrientation: State<InterfaceOrientation>,
     userInterfaceIdiom: UIUserInterfaceIdiom = UIDevice.currentDevice.userInterfaceIdiom
 ) {
@@ -51,6 +59,46 @@ internal class UIKitWindowInsetsManager(
      * - Whether to exclude IME insets (keyboard)
      */
     private val windowInsetsExclusionsCache = HashMap<Pair<Boolean, Boolean>, PlatformWindowInsets>()
+
+    private val safeAreaRegion = CMPLayoutRegion.safeAreaWithCornerAdaptation(CMPLayoutRegionAdaptivityAxisVertical)
+    private val layoutMarginsRegion = CMPLayoutRegion.marginsWithCornerAdaptation(CMPLayoutRegionAdaptivityAxisVertical)
+
+    fun updateInsets() {
+        layoutMargins.value = layoutMarginsRegion.toPlatformInsets()
+        safeAreaInsets.value = safeAreaRegion.toPlatformInsets()
+    }
+
+    fun updateInsetsForAnimation(
+        initialWindowInsets: UIKitWindowInsetsSnapshot,
+        progress: Float
+    ) {
+        layoutMargins.value = lerp(
+            start = initialWindowInsets.layoutMargins,
+            stop = layoutMarginsRegion.toPlatformInsets(),
+            fraction = progress
+        )
+        safeAreaInsets.value = lerp(
+            start = initialWindowInsets.safeAreaInsets,
+            stop = safeAreaRegion.toPlatformInsets(),
+            fraction = progress
+        )
+    }
+
+    private fun CMPLayoutRegion.toPlatformInsets(): PlatformInsets {
+        val view = windowInsetsView() ?: return PlatformInsets.Zero
+
+        return edgeInsetsInView(view).toPlatformInsets(view.density)
+    }
+
+    internal class UIKitWindowInsetsSnapshot(
+        val layoutMargins: PlatformInsets,
+        val safeAreaInsets: PlatformInsets
+    )
+
+    fun windowInsetsSnapshot(): UIKitWindowInsetsSnapshot = UIKitWindowInsetsSnapshot(
+        layoutMargins.value,
+        safeAreaInsets.value
+    )
 
     private inner class UIKitWindowInsets(
         private val layoutMargins: () -> PlatformInsets,
@@ -148,3 +196,11 @@ internal class UIKitWindowInsetsManager(
         }
     }
 }
+
+private fun lerp(start: PlatformInsets, stop: PlatformInsets, fraction: Float) =
+    PlatformInsets(
+        left = lerp(start.left, stop.left, fraction),
+        right = lerp(start.right, stop.right, fraction),
+        top = lerp(start.top, stop.top, fraction),
+        bottom = lerp(start.bottom, stop.bottom, fraction)
+    )

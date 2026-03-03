@@ -30,6 +30,7 @@
 		99CC4B322ECE16C8007C5C44 /* CMPViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99CC4B312ECE16C8007C5C44 /* CMPViewTests.swift */; };
 		99D97A882BF73A9B0035552B /* CMPEditMenuView.m in Sources */ = {isa = PBXBuildFile; fileRef = 99D97A872BF73A9B0035552B /* CMPEditMenuView.m */; };
 		99DCAB0E2BD00F5C002E6AC7 /* CMPTextLoupeSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 99DCAB0D2BD00F5C002E6AC7 /* CMPTextLoupeSession.m */; };
+		A01609822EB42A3300FB9790 /* CMPLayoutRegion.m in Sources */ = {isa = PBXBuildFile; fileRef = A01609812EB42A3300FB9790 /* CMPLayoutRegion.m */; };
 		EA4B52962C2EDEF200FBB55C /* CMPGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = EA4B52952C2EDEF200FBB55C /* CMPGestureRecognizer.m */; };
 		EA70A7EB2B27106100300068 /* CMPAccessibilityElement.m in Sources */ = {isa = PBXBuildFile; fileRef = EA70A7E82B27106100300068 /* CMPAccessibilityElement.m */; };
 		EA82F4F92B86144E00465418 /* CMPOSLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = EA82F4F82B86144E00465418 /* CMPOSLogger.m */; };
@@ -110,6 +111,8 @@
 		99D97A872BF73A9B0035552B /* CMPEditMenuView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CMPEditMenuView.m; sourceTree = "<group>"; };
 		99DCAB0C2BD00F5C002E6AC7 /* CMPTextLoupeSession.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CMPTextLoupeSession.h; sourceTree = "<group>"; };
 		99DCAB0D2BD00F5C002E6AC7 /* CMPTextLoupeSession.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CMPTextLoupeSession.m; sourceTree = "<group>"; };
+		A01609812EB42A3300FB9790 /* CMPLayoutRegion.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CMPLayoutRegion.m; sourceTree = "<group>"; };
+		A0E69B242EB4227A0049B20F /* CMPLayoutRegion.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CMPLayoutRegion.h; sourceTree = "<group>"; };
 		EA4B52942C2EDEF200FBB55C /* CMPGestureRecognizer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CMPGestureRecognizer.h; sourceTree = "<group>"; };
 		EA4B52952C2EDEF200FBB55C /* CMPGestureRecognizer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CMPGestureRecognizer.m; sourceTree = "<group>"; };
 		EA70A7E62B27106100300068 /* CMPAccessibilityElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMPAccessibilityElement.h; sourceTree = "<group>"; };
@@ -201,6 +204,8 @@
 				99CC4B2D2ECE0838007C5C44 /* CMPView.m */,
 				997DFCDC2B18D135000B56B5 /* CMPViewController.h */,
 				997DFCDD2B18D135000B56B5 /* CMPViewController.m */,
+				A0E69B242EB4227A0049B20F /* CMPLayoutRegion.h */,
+				A01609812EB42A3300FB9790 /* CMPLayoutRegion.m */,
 			);
 			path = CMPUIKitUtils;
 			sourceTree = "<group>";
@@ -389,6 +394,7 @@
 				EADD02902C9846D9003F66E8 /* CMPDragInteractionProxy.m in Sources */,
 				992EDDFB2E55EC8400FB44C5 /* CMPKeyValueObserver.m in Sources */,
 				EA82F4F92B86144E00465418 /* CMPOSLogger.m in Sources */,
+				A01609822EB42A3300FB9790 /* CMPLayoutRegion.m in Sources */,
 				9968C3612D7746BD005E8DE4 /* CMPHoverGestureHandler.m in Sources */,
 				EA4B52962C2EDEF200FBB55C /* CMPGestureRecognizer.m in Sources */,
 				EA70A7EB2B27106100300068 /* CMPAccessibilityElement.m in Sources */,
