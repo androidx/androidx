@@ -315,11 +315,17 @@ internal class TextFieldCoreModifierNode(
         if (value.selection.collapsed) {
             drawText(textLayoutResult)
             if (value.shouldShowSelection()) {
-                drawCursor()
+                this@TextFieldCoreModifierNode.drawCursor(
+                    scope = this,
+                    brush = cursorBrush,
+                    showCursor = showCursor,
+                    cursorAnimation = cursorAnimation,
+                    textFieldSelectionState = textFieldSelectionState,
+                )
             }
         } else {
             if (value.shouldShowSelection()) {
-                drawSelection(value.selection, textLayoutResult)
+                drawSelectionHighlight(this, value.selection, textLayoutResult)
             }
             drawText(textLayoutResult)
         }
@@ -513,17 +519,6 @@ internal class TextFieldCoreModifierNode(
         }
     }
 
-    /** Draws the selection highlight. */
-    private fun DrawScope.drawSelection(selection: TextRange, textLayoutResult: TextLayoutResult) {
-        val start = selection.min
-        val end = selection.max
-        if (start != end) {
-            val selectionBackgroundColor = currentValueOf(LocalTextSelectionColors).backgroundColor
-            val selectionPath = textLayoutResult.getPathForRange(start, end)
-            drawPath(selectionPath, color = selectionBackgroundColor)
-        }
-    }
-
     private fun DrawScope.drawHighlight(
         highlight: Pair<TextHighlightType, TextRange>,
         textLayoutResult: TextLayoutResult,
@@ -556,28 +551,6 @@ internal class TextFieldCoreModifierNode(
     /** Draws the text content. */
     private fun DrawScope.drawText(textLayoutResult: TextLayoutResult) {
         drawIntoCanvas { canvas -> TextPainter.paint(canvas, textLayoutResult) }
-    }
-
-    /**
-     * Draws the cursor indicator. Do not confuse it with cursor handle which is a popup that
-     * carries the cursor movement gestures.
-     */
-    private fun DrawScope.drawCursor() {
-        // Only draw cursor if it can be shown and its alpha is higher than 0f
-        // Alpha is checked before showCursor purposefully to make sure that we read
-        // cursorAlpha in draw phase. So, when the alpha value changes, draw phase invalidates.
-        val cursorAlphaValue = cursorAnimation?.cursorAlpha ?: 0f
-        if (cursorAlphaValue == 0f || !showCursor) return
-
-        val cursorRect = textFieldSelectionState.getCursorRect()
-
-        drawLine(
-            cursorBrush,
-            cursorRect.topCenter,
-            cursorRect.bottomCenter,
-            alpha = cursorAlphaValue,
-            strokeWidth = cursorRect.width,
-        )
     }
 
     /**
@@ -681,3 +654,80 @@ private fun Float.roundToNext(): Float =
         this > 0 -> ceil(this)
         else -> floor(this)
     }
+
+/**
+ * Draws the visual highlight for the given text [selection].
+ *
+ * Platforms may override this to customize how text selection is rendered. The shared default
+ * implementation is provided by [drawDefaultSelectionHighlight].
+ *
+ * @param scope [DrawScope] used for issuing drawing commands.
+ * @param selection Range of selected text in [textLayoutResult].
+ * @param textLayoutResult Layout information used to map [selection] to canvas coordinates.
+ */
+internal expect fun TextFieldCoreModifierNode.drawSelectionHighlight(
+    scope: DrawScope,
+    selection: TextRange,
+    textLayoutResult: TextLayoutResult,
+)
+
+internal fun TextFieldCoreModifierNode.drawDefaultSelectionHighlight(
+    scope: DrawScope,
+    selection: TextRange,
+    textLayoutResult: TextLayoutResult,
+) {
+    val start = selection.min
+    val end = selection.max
+    if (start != end) {
+        val selectionBackgroundColor = currentValueOf(LocalTextSelectionColors).backgroundColor
+        val selectionPath = textLayoutResult.getPathForRange(start, end)
+        with(scope) { drawPath(selectionPath, color = selectionBackgroundColor) }
+    }
+}
+
+/**
+ * Draws the cursor indicator. Do not confuse it with cursor handle which is a popup that carries
+ * the cursor movement gestures.
+ *
+ * Platforms may override this to customize how the text cursor is rendered. The shared default
+ * implementation is provided by [drawDefaultCursor].
+ *
+ * @param scope [DrawScope] used for issuing drawing commands.
+ * @param brush [Brush] used to paint the cursor.
+ * @param showCursor Whether the cursor should be visible based on focus and writeability.
+ * @param cursorAnimation Current state of the cursor blink animation.
+ * @param textFieldSelectionState State used to calculate the cursor's position.
+ */
+internal expect fun TextFieldCoreModifierNode.drawCursor(
+    scope: DrawScope,
+    brush: Brush,
+    showCursor: Boolean,
+    cursorAnimation: CursorAnimationState?,
+    textFieldSelectionState: TextFieldSelectionState,
+)
+
+internal fun TextFieldCoreModifierNode.drawDefaultCursor(
+    scope: DrawScope,
+    brush: Brush,
+    showCursor: Boolean,
+    cursorAnimation: CursorAnimationState?,
+    textFieldSelectionState: TextFieldSelectionState,
+) {
+    // Only draw cursor if it can be shown and its alpha is higher than 0f
+    // Alpha is checked before showCursor purposefully to make sure that we read
+    // cursorAlpha in draw phase. So, when the alpha value changes, draw phase invalidates.
+    val cursorAlphaValue = cursorAnimation?.cursorAlpha ?: 0f
+    if (cursorAlphaValue == 0f || !showCursor) return
+
+    val cursorRect = textFieldSelectionState.getCursorRect()
+
+    with(scope) {
+        drawLine(
+            brush = brush,
+            start = cursorRect.topCenter,
+            end = cursorRect.bottomCenter,
+            alpha = cursorAlphaValue,
+            strokeWidth = cursorRect.width,
+        )
+    }
+}
