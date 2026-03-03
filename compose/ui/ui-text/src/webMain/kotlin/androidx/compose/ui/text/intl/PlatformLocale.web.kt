@@ -23,6 +23,8 @@ import kotlin.js.js
 
 @Immutable
 actual class Locale internal constructor(internal val platformLocale: IntlLocale) {
+    private val languageTag = platformLocale._baseName
+
     actual val language: String
         get() = platformLocale._language
     actual val script: String
@@ -30,7 +32,7 @@ actual class Locale internal constructor(internal val platformLocale: IntlLocale
     actual val region: String
         get() = platformLocale._region.orEmpty()
 
-    actual fun toLanguageTag(): String = platformLocale._baseName
+    actual fun toLanguageTag(): String = languageTag
 
     actual override operator fun equals(other: Any?): Boolean {
         if (other == null) return false

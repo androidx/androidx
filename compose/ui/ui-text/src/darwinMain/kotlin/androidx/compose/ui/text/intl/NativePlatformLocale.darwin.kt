@@ -38,6 +38,8 @@ internal fun NSLocale.isRtl(): Boolean =
 // TODO: https://youtrack.jetbrains.com/issue/CMP-9697/Add-public-API-to-create-a-Compose-Locale-instance-via-NSLocale
 @Immutable
 actual class Locale internal constructor(internal val platformLocale: NSLocale) {
+    private val languageTag: String = platformLocale.languageIdentifier
+
     actual val language: String
         get() = platformLocale.languageCode
     actual val script: String
@@ -45,8 +47,7 @@ actual class Locale internal constructor(internal val platformLocale: NSLocale) 
     actual val region: String
         get() = platformLocale.countryCode ?: "US"
 
-    actual fun toLanguageTag(): String =
-        platformLocale.languageIdentifier
+    actual fun toLanguageTag(): String = languageTag
 
     actual override operator fun equals(other: Any?): Boolean {
         if (other == null) return false
