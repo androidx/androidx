@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -40,7 +39,11 @@ androidXMultiplatform {
     }
     desktop()
     mac()
+    linux()
     ios()
+    watchos()
+    tvos()
+    mingwX64()
     js()
     wasmJs()
 
@@ -53,21 +56,20 @@ androidXMultiplatform {
             api(project(":lifecycle:lifecycle-viewmodel-savedstate"))
             api("androidx.annotation:annotation:1.9.1")
             api(project(":compose:runtime:runtime"))
-            api("org.jetbrains.compose.ui:ui:1.9.3")
+            api(project(":compose:runtime:runtime-saveable"))
             api(libs.kotlinSerializationCore)
         }
 
         commonTest.dependencies {
-            implementation(libs.kotlinTest)
-            implementation(project(":kruth:kruth"))
-            implementation(project(":compose:ui:ui-test"))
-            implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
             implementation(project(":lifecycle:lifecycle-viewmodel-testing"))
             implementation(project(":lifecycle:lifecycle-runtime-testing"))
         }
 
         androidMain.dependencies {
-            api("androidx.compose.ui:ui:1.9.0")
+            // TODO(mgalhardo): Change this to constraint once Compose 1.11 prebuilds are released.
+            implementation(project(":compose:ui:ui")) {
+                because("Ensure we are using the Compose-UI 1.11 or above")
+            }
             // Converting `lifecycle-viewmodel-compose` to KMP and including a transitive
             // dependency on `lifecycle-livedata-core` triggered a Gradle bug. Adding the
             // `livedata` dependency directly works around the issue.
@@ -134,6 +136,12 @@ androidXMultiplatform {
             dependsOn(nonAndroidTest)
         }
     }
+}
+
+dependencies.constraints {
+    // TODO(mgalhardo): Add constraints to properly migrate from the JetBrains fork.
+    //  We need to prevent symbol duplication with old versions of the fork.
+    //  Once the fork publishes a version that redirects to this artifact.
 }
 
 dependencies {

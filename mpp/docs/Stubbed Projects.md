@@ -9,7 +9,9 @@
 - `:lifecycle:lifecycle-runtime` is stubbed by `lifecycle/lifecycle-runtime-compatibility-stub`, it depends on `androidx.lifecycle:lifecycle-runtime`
 - `:lifecycle:lifecycle-runtime-compose` is stubbed by `lifecycle/lifecycle-runtime-compose-compatibility-stub`, it depends on `androidx.lifecycle:lifecycle-runtime-compose`
 - `:lifecycle:lifecycle-viewmodel` is stubbed by `lifecycle/lifecycle-viewmodel-compatibility-stub`, it depends on `androidx.lifecycle:lifecycle-viewmodel`
+- `:lifecycle:lifecycle-viewmodel-compose` is stubbed by `lifecycle/lifecycle-viewmodel-compose-compatibility-stub`, it depends on `androidx.lifecycle:lifecycle-viewmodel-compose`
 - `:lifecycle:lifecycle-viewmodel-savedstate` is stubbed by `lifecycle/lifecycle-viewmodel-savedstate-compatibility-stub`, it depends on `androidx.lifecycle:lifecycle-viewmodel-savedstate`
+- `:navigationevent:navigationevent-compose` is stubbed by `navigationevent/navigationevent-compose-compatibility-stub`, it depends on `androidx.navigationevent:navigationevent-compose`
 - `:savedstate:savedstate` is stubbed by `savedstate/savedstate-compatibility-stub`, it depends on `androidx.savedstate:savedstate`
 - `:savedstate:savedstate-compose` is stubbed by `savedstate/savedstate-compose-compatibility-stub`, it depends on `androidx.savedstate:savedstate-compose`
 - `:window:window-core` is stubbed by `window/window-core-compatibility-stub`, it depends on `androidx.window:window-core`
