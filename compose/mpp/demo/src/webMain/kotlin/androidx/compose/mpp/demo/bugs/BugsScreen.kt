@@ -25,6 +25,9 @@ val BugsScreen = Screen.Selection("Web Bug Reproducers", screens = listOf(
     Screen.Example("Touch events") {
         // https://youtrack.jetbrains.com/issue/CMP-9030/wasm-canvas-incorrect-handling-of-multi-touch-input
         PointerInputDebugOverlay()
+    },
+    Screen.Example("MagicMouse") {
+        MagicMouse()
     }
 ))
 

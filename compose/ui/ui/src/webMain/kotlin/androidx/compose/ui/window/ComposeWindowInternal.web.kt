@@ -204,6 +204,8 @@ internal class ComposeWindow(
 ) {
     private var isDisposed = false
 
+    private var actualActivePointerButtons: PointerButtons? = null
+
     private val density: Density = Density(
         density = actualDensity.toFloat(),
         fontScale = 1f
@@ -628,6 +630,25 @@ internal class ComposeWindow(
             }
         } else {
             keyboardModeState = KeyboardModeState.Hardware
+
+            // validate event before sending it further - see
+            // https://youtrack.jetbrains.com/issue/CMP-8430/Sequence-of-Move-PointerInputEvents-cancel-out-press-PointerInputEvent-under-certain-conditions
+
+            var isValidEvent = true
+            when (eventType) {
+                PointerEventType.Press -> {
+                    actualActivePointerButtons = event.composeButtons
+                }
+                PointerEventType.Release -> {
+                    actualActivePointerButtons = null
+                }
+                PointerEventType.Move -> {
+                    isValidEvent = actualActivePointerButtons == null || actualActivePointerButtons == event.composeButtons
+                }
+            }
+
+            if (!isValidEvent) return
+
             result = scene.sendPointerEvent(
                 eventType = eventType,
                 position = event.offset,
