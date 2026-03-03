@@ -30,6 +30,8 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -39,7 +41,7 @@ import androidx.compose.ui.input.pointer.isPrimaryPressed
 import androidx.compose.ui.input.pointer.isShiftPressed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastForEach
 import kotlin.coroutines.cancellation.CancellationException
@@ -234,6 +236,7 @@ private fun Modifier.selectionGestureInput(
     // TODO(https://youtrack.jetbrains.com/issue/COMPOSE-79) how we can rewrite this without `composed`?
     val currentMouseSelectionObserver by rememberUpdatedState(mouseSelectionObserver)
     val currentTextDragObserver by rememberUpdatedState(textDragObserver)
+    val hapticFeedback = LocalHapticFeedback.current
     this.pointerInput(Unit) {
         val clicksCounter = ClicksCounter(viewConfiguration)
         awaitEachGesture {
@@ -245,7 +248,7 @@ private fun Modifier.selectionGestureInput(
             ) {
                 mouseSelection(currentMouseSelectionObserver, clicksCounter, down)
             } else if (!down.isMouseOrTouchPad()) {
-                touchSelection(currentTextDragObserver, clicksCounter, down)
+                touchSelection(currentTextDragObserver, clicksCounter, down, hapticFeedback)
             }
         }
     }
@@ -254,7 +257,8 @@ private fun Modifier.selectionGestureInput(
 private suspend fun AwaitPointerEventScope.touchSelection(
     observer: CupertinoTextDragObserver,
     clicksCounter: ClicksCounter,
-    down: PointerEvent
+    down: PointerEvent,
+    hapticFeedback: HapticFeedback?,
 ) {
     try {
         val firstDown = down.changes.first()
@@ -274,6 +278,7 @@ private suspend fun AwaitPointerEventScope.touchSelection(
 
         if (drag != null) {
             observer.onStart(firstDown.position, SelectionAdjustment.Word)
+            hapticFeedback?.performHapticFeedback(HapticFeedbackType.LongPress)
             if (
                 drag(drag.id) {
                     observer.onDrag(it.position, SelectionAdjustment.CharacterWithWordAccelerate)

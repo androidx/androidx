@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text.input.internal.selection
 
 import androidx.compose.foundation.MagnifierNode
+import androidx.compose.foundation.PlatformMagnifierFactory
 import androidx.compose.foundation.isPlatformMagnifierSupported
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.input.internal.TextLayoutState
@@ -95,6 +96,8 @@ internal class TextFieldMagnifierNodeImpl(
         MagnifierNode(
             sourceCenter = { sourceCenter },
             onSizeChanged = { magnifierSize = it },
+            platformMagnifierFactory = PlatformMagnifierFactory.getForCurrentPlatform(),
+            hapticFeedback = textFieldSelectionState.hapticFeedBack,
         )
     )
 
@@ -111,7 +114,10 @@ internal class TextFieldMagnifierNodeImpl(
             color = currentValueOf(LocalTextSelectionColors).handleColor
             density = currentValueOf(LocalDensity)
 
-            magnifierNode.update(color = color)
+            magnifierNode.update(
+                color = color,
+                hapticFeedback = textFieldSelectionState.hapticFeedBack,
+            )
         }
     }
 

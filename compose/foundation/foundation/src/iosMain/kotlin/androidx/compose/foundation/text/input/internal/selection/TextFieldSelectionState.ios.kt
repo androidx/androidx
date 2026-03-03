@@ -278,8 +278,7 @@ private fun doRepeatingTapSelection(
         selectionOffset,
         isStartHandle = false,
         adjustment = selectionAdjustment,
-        // TODO: https://youtrack.jetbrains.com/issue/CMP-9694/Pass-correct-values-to-haptic-feedback-type-in-TextFieldSelectionState.ios.kt
-        hapticFeedbackType = null,
+        hapticFeedbackType = HapticFeedbackType.TextHandleMove,
     )
 
     selectionState.textFieldState.selectCharsIn(newSelection)
@@ -299,8 +298,7 @@ private fun clearSelection(
         selectionOffset,
         isStartHandle = false,
         adjustment = SelectionAdjustment.None,
-        // TODO: https://youtrack.jetbrains.com/issue/CMP-9694/Pass-correct-values-to-haptic-feedback-type-in-TextFieldSelectionState.ios.kt
-        hapticFeedbackType = null,
+        hapticFeedbackType = HapticFeedbackType.TextHandleMove,
     )
     selectionState.textFieldState.selectCharsIn(clearedSelection)
 }
@@ -340,7 +338,7 @@ private class UIKitTextFieldTextDragObserver(
         dragBeginPosition = startPoint
         dragTotalDistance = Offset.Zero
 
-        textFieldSelectionState.hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+        textFieldSelectionState.hapticFeedBack?.performHapticFeedback(HapticFeedbackType.LongPress)
         // Long Press at the blank area, the cursor should show up at the end of the line.
         if (!textFieldSelectionState.textLayoutState.isPositionOnText(startPoint)) {
             val offset = textFieldSelectionState.textLayoutState.getOffsetForPosition(startPoint)

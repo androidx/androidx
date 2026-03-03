@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.selection
 
-import androidx.compose.foundation.PlatformMagnifierFactory
 import androidx.compose.foundation.isPlatformMagnifierSupported
 import androidx.compose.foundation.magnifier
 import androidx.compose.foundation.text.addTextContextMenuComponents
@@ -56,8 +55,8 @@ internal actual fun Modifier.selectionMagnifier(manager: SelectionManager): Modi
                     IntSize(size.width.roundToPx(), size.height.roundToPx())
                 }
             },
-            color = color.handleColor, // align magnifier border color with selection handleColor
-            platformMagnifierFactory = PlatformMagnifierFactory.getForCurrentPlatform()
+            color = color.handleColor, // align magnifier border color with selection handleColor,
+            hapticFeedback = manager.hapticFeedBack,
         )
     }
 }

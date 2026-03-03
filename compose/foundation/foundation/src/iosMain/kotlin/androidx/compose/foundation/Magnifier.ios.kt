@@ -25,6 +25,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
@@ -63,35 +64,18 @@ internal val MagnifierPositionInWindow =
 
 internal fun Modifier.magnifier(
     sourceCenter: Density.() -> Offset,
-    magnifierCenter: (Density.() -> Offset)? = null,
+    onSizeChanged: ((DpSize) -> Unit)?,
     color: Color = Color.Unspecified,
-    onSizeChanged: ((DpSize) -> Unit)? = null,
-): Modifier {
-    return magnifier(
-        sourceCenter = sourceCenter,
-        magnifierCenter = magnifierCenter,
-        onSizeChanged = onSizeChanged,
-        color = color,
-        platformMagnifierFactory = null
-    )
-}
-
-internal fun Modifier.magnifier(
-    sourceCenter: Density.() -> Offset,
-    magnifierCenter: (Density.() -> Offset)? = null,
-    onSizeChanged: ((DpSize) -> Unit)? = null,
-    color: Color = Color.Unspecified,
-    platformMagnifierFactory: PlatformMagnifierFactory? = null
+    hapticFeedback: HapticFeedback?,
 ): Modifier {
     return if (isPlatformMagnifierSupported()) {
         then(
             MagnifierElement(
                 sourceCenter = sourceCenter,
-                magnifierCenter = magnifierCenter,
                 onSizeChanged = onSizeChanged,
                 color = color,
-                platformMagnifierFactory = platformMagnifierFactory
-                    ?: PlatformMagnifierFactory.getForCurrentPlatform() // this doesn't do an alloc
+                platformMagnifierFactory = PlatformMagnifierFactory.getForCurrentPlatform(),
+                hapticFeedback = hapticFeedback,
             )
         )
     } else {
@@ -100,7 +84,6 @@ internal fun Modifier.magnifier(
             inspectorInfo = debugInspectorInfo {
                 name = "magnifier (not supported)"
                 properties["sourceCenter"] = sourceCenter
-                properties["magnifierCenter"] = magnifierCenter
                 properties["color"] = color
             }
         ) { this }
@@ -109,29 +92,29 @@ internal fun Modifier.magnifier(
 
 internal class MagnifierElement(
     private val sourceCenter: Density.() -> Offset,
-    private val magnifierCenter: (Density.() -> Offset)? = null,
-    private val onSizeChanged: ((DpSize) -> Unit)? = null,
+    private val onSizeChanged: ((DpSize) -> Unit)?,
     private val color : Color = Color.Unspecified,
-    private val platformMagnifierFactory: PlatformMagnifierFactory
+    private val platformMagnifierFactory: PlatformMagnifierFactory,
+    private val hapticFeedback: HapticFeedback?,
 ) : ModifierNodeElement<MagnifierNode>() {
 
     override fun create(): MagnifierNode {
         return MagnifierNode(
             sourceCenter = sourceCenter,
-            magnifierCenter = magnifierCenter,
             onSizeChanged = onSizeChanged,
             platformMagnifierFactory = platformMagnifierFactory,
-            color = color
+            color = color,
+            hapticFeedback = hapticFeedback,
         )
     }
 
     override fun update(node: MagnifierNode) {
         node.update(
             sourceCenter = sourceCenter,
-            magnifierCenter = magnifierCenter,
             onSizeChanged = onSizeChanged,
             color = color,
-            platformMagnifierFactory = platformMagnifierFactory
+            platformMagnifierFactory = platformMagnifierFactory,
+            hapticFeedback = hapticFeedback,
         )
     }
 
@@ -140,38 +123,36 @@ internal class MagnifierElement(
         if (other !is MagnifierElement) return false
 
         if (sourceCenter != other.sourceCenter) return false
-        if (magnifierCenter != other.magnifierCenter) return false
         if (onSizeChanged != other.onSizeChanged) return false
         if (color != other.color) return false
         if (platformMagnifierFactory != other.platformMagnifierFactory) return false
+        if (hapticFeedback != other.hapticFeedback) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = sourceCenter.hashCode()
-        result = 31 * result + magnifierCenter.hashCode()
         result = 31 * result + (onSizeChanged?.hashCode() ?: 0)
         result = 31 * result + color.hashCode()
         result = 31 * result + platformMagnifierFactory.hashCode()
+        result = 31 * result + hapticFeedback.hashCode()
         return result
     }
 
     override fun InspectorInfo.inspectableProperties() {
         name = "magnifier"
         properties["sourceCenter"] = sourceCenter
-        properties["magnifierCenter"] = magnifierCenter
         properties["color"] = color
     }
 }
 
 internal class MagnifierNode(
     var sourceCenter: Density.() -> Offset,
-    var magnifierCenter: (Density.() -> Offset)? = null,
-    var onSizeChanged: ((DpSize) -> Unit)? = null,
+    var onSizeChanged: ((DpSize) -> Unit)?,
     var color : Color = Color.Unspecified,
-    var platformMagnifierFactory: PlatformMagnifierFactory =
-        PlatformMagnifierFactory.getForCurrentPlatform()
+    var platformMagnifierFactory: PlatformMagnifierFactory,
+    var hapticFeedback: HapticFeedback?,
 ) : Modifier.Node(),
     CompositionLocalConsumerModifierNode,
     GlobalPositionAwareModifierNode,
@@ -214,19 +195,19 @@ internal class MagnifierNode(
 
     fun update(
         sourceCenter: Density.() -> Offset = this.sourceCenter,
-        magnifierCenter: (Density.() -> Offset)? = this.magnifierCenter,
         onSizeChanged: ((DpSize) -> Unit)? = this.onSizeChanged,
         color: Color = this.color,
-        platformMagnifierFactory: PlatformMagnifierFactory = this.platformMagnifierFactory
+        platformMagnifierFactory: PlatformMagnifierFactory = this.platformMagnifierFactory,
+        hapticFeedback: HapticFeedback?,
     ) {
         val previousPlatformMagnifierFactory = this.platformMagnifierFactory
         val previousColor = this.color
 
         this.sourceCenter = sourceCenter
-        this.magnifierCenter = magnifierCenter
         this.onSizeChanged = onSizeChanged
         this.color = color
         this.platformMagnifierFactory = platformMagnifierFactory
+        this.hapticFeedback = hapticFeedback
 
         if (
             magnifier == null ||
@@ -268,7 +249,6 @@ internal class MagnifierNode(
             updateMagnifier()
         }
     }
-
 
     private fun recreateMagnifier() {
         magnifier?.dismiss()

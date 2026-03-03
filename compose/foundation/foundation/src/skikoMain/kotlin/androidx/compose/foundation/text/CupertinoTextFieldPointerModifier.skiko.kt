@@ -184,6 +184,8 @@ private fun getLongPressHandlerModifier(
                     currentManager.draggingHandle = Handle.SelectionEnd
                     currentManager.currentDragPosition = startPoint
 
+                    currentManager.hapticFeedBack?.performHapticFeedback(HapticFeedbackType.LongPress)
+
                     currentState.layoutResult?.let { layoutResult ->
                         TextFieldDelegate.setCursorOffset(
                             startPoint,

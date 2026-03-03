@@ -64,7 +64,7 @@ internal actual fun Modifier.textFieldMagnifier(manager: TextFieldSelectionManag
                 }
             },
             color = color.handleColor, // align magnifier border color with selection handleColor
-            platformMagnifierFactory = PlatformMagnifierFactory.getForCurrentPlatform()
+            hapticFeedback = manager.hapticFeedBack,
         )
     }
 }
