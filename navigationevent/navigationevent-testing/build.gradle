@@ -46,8 +46,10 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
+        def navigationEventVersion = project.findProperty('artifactRedirection.version.androidx.navigationevent')
+
         commonMain.dependencies {
-            api(project(":navigationevent:navigationevent"))
+            implementation("androidx.navigationevent:navigationevent:$navigationEventVersion")
         }
     }
 }
