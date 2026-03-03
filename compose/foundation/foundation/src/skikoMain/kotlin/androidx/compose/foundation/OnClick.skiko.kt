@@ -20,16 +20,18 @@ import androidx.compose.foundation.gestures.PressGestureScope
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
-import androidx.compose.runtime.*
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.FocusRequesterModifierNode
+import androidx.compose.ui.focus.requestFocus
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
+import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -64,17 +66,15 @@ fun Modifier.onClick(
     onDoubleClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
     onClick: () -> Unit
-) = composed {
-    Modifier.onClick(
-        enabled = enabled,
-        matcher = matcher,
-        keyboardModifiers = keyboardModifiers,
-        interactionSource = remember { MutableInteractionSource() },
-        onDoubleClick = onDoubleClick,
-        onLongClick = onLongClick,
-        onClick = onClick
-    )
-}
+) = onClick(
+    enabled = enabled,
+    interactionSource = null,
+    matcher = matcher,
+    keyboardModifiers = keyboardModifiers,
+    onDoubleClick = onDoubleClick,
+    onLongClick = onLongClick,
+    onClick = onClick
+)
 
 /**
  * Configure component to receive clicks, double clicks and long clicks via input only (no accessibility "click" event)
@@ -100,78 +100,112 @@ fun Modifier.onClick(
  * @param onDoubleClick will be called when user double clicks on the element
  * @param onClick will be called when user clicks on the element
  */
-// TODO(https://youtrack.jetbrains.com/issue/COMPOSE-156) rewrite to Modifier.Node
 @ExperimentalFoundationApi
 fun Modifier.onClick(
     enabled: Boolean = true,
-    interactionSource: MutableInteractionSource,
+    interactionSource: MutableInteractionSource?,
     matcher: PointerMatcher = PointerMatcher.Primary,
     keyboardModifiers: PointerKeyboardModifiers.() -> Boolean = { true },
     onDoubleClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
-    onClick: () -> Unit
-) = composed(
-    inspectorInfo = {
+    onClick: () -> Unit,
+): Modifier = if (enabled) {
+    this.then(
+        OnClickModifierElement(
+            interactionSource = interactionSource,
+            matcher = matcher,
+            keyboardModifiers = keyboardModifiers,
+            onDoubleClick = onDoubleClick,
+            onLongClick = onLongClick,
+            onClick = onClick
+        )
+    )
+} else {
+    this
+}
+
+private class OnClickModifierElement(
+    private val interactionSource: MutableInteractionSource?,
+    private val matcher: PointerMatcher,
+    private val keyboardModifiers: PointerKeyboardModifiers.() -> Boolean,
+    private val onDoubleClick: (() -> Unit)?,
+    private val onLongClick: (() -> Unit)?,
+    private val onClick: () -> Unit,
+): ModifierNodeElement<OnClickModifierNode>() {
+    override fun create(): OnClickModifierNode = OnClickModifierNode(
+        interactionSource = interactionSource ?: MutableInteractionSource(),
+        matcher = matcher,
+        keyboardModifiers = keyboardModifiers,
+        onDoubleClick = onDoubleClick,
+        onLongClick = onLongClick,
+        onClick = onClick,
+    )
+    override fun InspectorInfo.inspectableProperties() {
         name = "onClick"
-        properties["enabled"] = enabled
         properties["matcher"] = matcher
         properties["keyboardModifiers"] = keyboardModifiers
         properties["onDoubleClick"] = onDoubleClick
         properties["onLongClick"] = onLongClick
         properties["onClick"] = onClick
         properties["interactionSource"] = interactionSource
-    },
-    factory = {
+    }
+    override fun update(node: OnClickModifierNode) = node.update(
+        interactionSource = interactionSource,
+        matcher = matcher,
+        keyboardModifiers = keyboardModifiers,
+        onDoubleClick = onDoubleClick,
+        onLongClick = onLongClick,
+        onClick = onClick
+    )
 
-        val gestureModifier = if (enabled) {
-            val interactionData = remember { InteractionData() }
-            val onClickState = rememberUpdatedState(onClick)
-            val on2xClickState = rememberUpdatedState(onDoubleClick)
-            val onLongClickState = rememberUpdatedState(onLongClick)
-            val keyboardModifiersState = rememberUpdatedState(keyboardModifiers)
-            val focusRequester = remember { FocusRequester() }
-            val currentKeyPressInteractions = remember { mutableMapOf<Key, PressInteraction.Press>() }
+    override fun hashCode(): Int {
+        var result = (interactionSource?.hashCode() ?: 0)
+        result = 31 * result + matcher.hashCode()
+        result = 31 * result + keyboardModifiers.hashCode()
+        result = 31 * result + (onDoubleClick?.hashCode() ?: 0)
+        result = 31 * result + (onLongClick?.hashCode() ?: 0)
+        result = 31 * result + onClick.hashCode()
+        return result
+    }
 
-            val hasLongClick = onLongClick != null
-            val hasDoubleClick = onDoubleClick != null
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is OnClickModifierElement) return false
+        return interactionSource == other.interactionSource &&
+            matcher == other.matcher &&
+            keyboardModifiers === other.keyboardModifiers &&
+            onDoubleClick === other.onDoubleClick &&
+            onLongClick === other.onLongClick &&
+            onClick === other.onClick
+    }
+}
 
-            DisposableEffect(hasLongClick) {
-                onDispose {
-                    interactionData.pressInteraction?.let { oldValue ->
-                        val interaction = PressInteraction.Cancel(oldValue)
-                        interactionSource.tryEmit(interaction)
-                        interactionData.pressInteraction = null
-                    }
-                }
-            }
-            DisposableEffect(interactionSource) {
-                onDispose {
-                    interactionData.pressInteraction?.let { oldValue ->
-                        val interaction = PressInteraction.Cancel(oldValue)
-                        interactionSource.tryEmit(interaction)
-                        interactionData.pressInteraction = null
-                    }
-                    currentKeyPressInteractions.values.forEach {
-                        interactionSource.tryEmit(PressInteraction.Cancel(it))
-                    }
-                    currentKeyPressInteractions.clear()
-                }
-            }
+private class OnClickModifierNode(
+    private var interactionSource: MutableInteractionSource,
+    private var keyboardModifiers: PointerKeyboardModifiers.() -> Boolean,
+    private var matcher: PointerMatcher,
+    private var onClick: () -> Unit,
+    private var onDoubleClick: (() -> Unit)?,
+    private var onLongClick: (() -> Unit)?,
+): DelegatingNode(), FocusRequesterModifierNode {
+    private val hasDoubleClick: Boolean get() = onDoubleClick != null
+    private val hasLongClick: Boolean get() =  onLongClick != null
+    private val interactionData = InteractionData()
+    private val pointerInputEventHandlerResetTick = mutableStateOf(0)
 
-            val matcherState = rememberUpdatedState(matcher)
-
-            Modifier.pointerInput(interactionSource, hasLongClick, hasDoubleClick) {
+    private val pointerInputNode = delegate(
+        SuspendingPointerInputModifierNode(
+            pointerInputEventHandler = {
+                pointerInputEventHandlerResetTick.value
                 detectTapGestures(
-                    matcher = matcherState.value,
-                    keyboardModifiers = {
-                        keyboardModifiersState.value(this)
-                    },
+                    matcher = matcher,
+                    keyboardModifiers = { keyboardModifiers(this) },
                     onDoubleTap = if (hasDoubleClick) {
                         {
                             if (isRequestFocusOnClickEnabled()) {
-                                focusRequester.requestFocus()
+                                requestFocus()
                             }
-                            on2xClickState.value!!.invoke()
+                            onDoubleClick?.invoke()
                         }
                     } else {
                         null
@@ -179,18 +213,18 @@ fun Modifier.onClick(
                     onLongPress = if (hasLongClick) {
                         {
                             if (isRequestFocusOnClickEnabled()) {
-                                focusRequester.requestFocus()
+                                requestFocus()
                             }
-                            onLongClickState.value!!.invoke()
+                            onLongClick?.invoke()
                         }
                     } else {
                         null
                     },
                     onTap = {
                         if (isRequestFocusOnClickEnabled()) {
-                            focusRequester.requestFocus()
+                            requestFocus()
                         }
-                        onClickState.value()
+                        onClick()
                     },
                     onPress = {
                         handlePressInteraction(
@@ -201,14 +235,85 @@ fun Modifier.onClick(
                         )
                     }
                 )
-            }.focusRequester(focusRequester)
-        } else {
-            Modifier
+            }
+        )
+    )
+
+    override fun onDetach() {
+        cancelPressInteraction()
+        super.onDetach()
+    }
+
+    fun update(
+        interactionSource: MutableInteractionSource?,
+        matcher: PointerMatcher,
+        keyboardModifiers: PointerKeyboardModifiers.() -> Boolean,
+        onDoubleClick: (() -> Unit)?,
+        onLongClick: (() -> Unit)?,
+        onClick: () -> Unit,
+    ) {
+        var pointerInputNodeNeedsReset = false
+        var pointerInputEventHandlerNeedsResetTick = false
+
+        if (this.interactionSource != interactionSource) {
+            pointerInputNodeNeedsReset = true
+            cancelPressInteraction()
+        }
+        if (interactionSource != null) {
+            this.interactionSource = interactionSource
         }
 
-        gestureModifier
+        if (this.onDoubleClick != onDoubleClick) {
+            pointerInputEventHandlerNeedsResetTick = true
+        }
+        val hadDoubleClick = hasDoubleClick
+        if (hasDoubleClick != hadDoubleClick) {
+            pointerInputNodeNeedsReset = true
+        }
+        this.onDoubleClick = onDoubleClick
+
+        if (this.onLongClick != onLongClick) {
+            pointerInputEventHandlerNeedsResetTick = true
+        }
+        val hadLongClick = hasLongClick
+        if (hasLongClick != hadLongClick) {
+            pointerInputNodeNeedsReset = true
+            cancelPressInteraction()
+        }
+        this.onLongClick = onLongClick
+
+        if (this.onClick != onClick) {
+            pointerInputEventHandlerNeedsResetTick = true
+        }
+        this.onClick = onClick
+
+        if (this.matcher != matcher) {
+            pointerInputEventHandlerNeedsResetTick = true
+        }
+        this.matcher = matcher
+
+        if (this.keyboardModifiers != keyboardModifiers) {
+            pointerInputEventHandlerNeedsResetTick = true
+        }
+        this.keyboardModifiers = keyboardModifiers
+
+        if (pointerInputNodeNeedsReset) {
+            pointerInputNode.resetPointerInputHandler()
+        }
+
+        if (pointerInputEventHandlerNeedsResetTick) {
+            pointerInputEventHandlerResetTick.value++
+        }
     }
-)
+
+    private fun cancelPressInteraction() {
+        interactionData.pressInteraction?.let { oldValue ->
+            val interaction = PressInteraction.Cancel(oldValue)
+            interactionSource.tryEmit(interaction)
+            interactionData.pressInteraction = null
+        }
+    }
+}
 
 // todo https://youtrack.jetbrains.com/issue/COMPOSE-1268/Refactor-Modifier.onClick-get-rid-of-InteractionData Refactor the same way as in 2e1799e0
 
