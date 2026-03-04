@@ -77,7 +77,6 @@ import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.toIntSize
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.viewinterop.InteropViewGroup
 import androidx.compose.ui.viewinterop.LocalInteropContainer
 import androidx.compose.ui.viewinterop.TrackInteropPlacementContainer
@@ -88,6 +87,7 @@ import kotlin.coroutines.coroutineContext
 import kotlin.js.ExperimentalWasmJsInterop
 import kotlin.js.JsArray
 import kotlin.js.js
+import kotlin.js.toInt
 import kotlin.js.toList
 import kotlin.math.absoluteValue
 import kotlinx.browser.document
@@ -525,30 +525,7 @@ internal class ComposeWindow(
         val event: PointerEvent,
         val containerOffset: Offset
     ) {
-        val position: Offset by lazy {
-            Offset(
-                x = (event.clientX - containerOffset.x) * density.density,
-                y = (event.clientY - containerOffset.y) * density.density
-            )
-        }
-
-        val composePointers: List<ComposeScenePointer> by lazy {
-            val coalesced = getCoalescedEvents(event).toList()
-            val list = coalesced.takeIf { it.isNotEmpty() } ?: listOf(event)
-            list.fastMap { e ->
-                val type = e.getPointerEventType()
-                ComposeScenePointer(
-                    id = PointerId(e.pointerId.toLong()),
-                    position = Offset(
-                        x = (e.clientX - containerOffset.x) * density.density,
-                        y = (e.clientY - containerOffset.y) * density.density
-                    ),
-                    pressed = type == PointerEventType.Press || type == PointerEventType.Move,
-                    type = PointerType.Touch,
-                    pressure = e.pressure
-                )
-            }
-        }
+        val composePointer = event.toScenePointerEvent(containerOffset, density)
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -571,17 +548,17 @@ internal class ComposeWindow(
 
     private val activeTouchPointers = mutableIntObjectMapOf<TouchEventWithContainerOffset>()
     private val reusableTouchPointerList = mutableListOf<ComposeScenePointer>()
-    private fun getCoalescedTouchPointers(): List<ComposeScenePointer> {
+    private fun getActivePointers(): MutableList<ComposeScenePointer> {
         reusableTouchPointerList.clear()
         activeTouchPointers.forEachValue {
-            it.composePointers.fastForEach { p -> reusableTouchPointerList.add(p) }
+            reusableTouchPointerList.add(it.composePointer)
         }
         return reusableTouchPointerList
     }
 
     private fun onPointerEvent(event: PointerEvent) {
         val eventType = event.getPointerEventType()
-        val result: PointerEventResult
+        var result: PointerEventResult? = null
 
         if (isTouchEvent(event)) {
             if (eventType == PointerEventType.Enter || eventType == PointerEventType.Exit) {
@@ -613,16 +590,54 @@ internal class ComposeWindow(
             }
             activeTouchPointers[event.pointerId] = current
 
-            activeTouchOffset = current.position
-            result = scene.sendPointerEvent(
-                eventType = eventType,
-                pointers = getCoalescedTouchPointers(),
-                buttons = PointerButtons(),
-                keyboardModifiers = PointerKeyboardModifiers(),
-                scrollDelta = Offset.Zero,
-                nativeEvent = event,
-                button = null
-            )
+            activeTouchOffset = current.composePointer.position
+
+            val pointers = getActivePointers()
+            val buttons = PointerButtons()
+            val keyboardModifiers = PointerKeyboardModifiers()
+
+            var coalescedEvents: List<PointerEvent>? = null
+            if (eventType == PointerEventType.Move) {
+                coalescedEvents = getCoalescedEvents(event).toList()
+            }
+
+            if (coalescedEvents != null && coalescedEvents.size > 1) {
+                var indexOfCurrentPointer = -1
+                for (index in pointers.indices) {
+                    if (pointers[index] == current.composePointer) {
+                        indexOfCurrentPointer = index
+                        break
+                    }
+                }
+
+                coalescedEvents.fastForEach { coalescedEvent ->
+                    val coalescedEventType = coalescedEvent.getPointerEventType()
+                    val sceneEvent = coalescedEvent.toScenePointerEvent(current.containerOffset, density)
+                    pointers[indexOfCurrentPointer] = sceneEvent
+                    result = scene.sendPointerEvent(
+                        eventType = coalescedEventType,
+                        pointers = pointers,
+                        buttons = buttons,
+                        keyboardModifiers = keyboardModifiers,
+                        scrollDelta = Offset.Zero,
+                        timeMillis = coalescedEvent.timeStamp.toInt().toLong(),
+                        nativeEvent = coalescedEvent,
+                        button = null
+                    )
+                }
+            } else {
+                result = scene.sendPointerEvent(
+                    eventType = eventType,
+                    pointers = pointers,
+                    buttons = buttons,
+                    keyboardModifiers = keyboardModifiers,
+                    scrollDelta = Offset.Zero,
+                    timeMillis = event.timeStamp.toInt().toLong(),
+                    nativeEvent = event,
+                    button = null
+                )
+            }
+
             activeTouchOffset = null
 
             if (eventType == PointerEventType.Release) {
@@ -652,6 +667,7 @@ internal class ComposeWindow(
             result = scene.sendPointerEvent(
                 eventType = eventType,
                 position = event.offset,
+                timeMillis = event.timeStamp.toInt().toLong(),
                 buttons = event.composeButtons,
                 keyboardModifiers = PointerKeyboardModifiers(
                     isCtrlPressed = event.ctrlKey,
@@ -664,7 +680,7 @@ internal class ComposeWindow(
             )
         }
 
-        if (result.anyChangeConsumed && event.cancelable) {
+        if (result != null && result.anyChangeConsumed && event.cancelable) {
             event.preventDefault()
 
             // Since we call preventDefault, the browser will not focus the canvas automatically,
@@ -745,6 +761,26 @@ private fun setPointerCapture(target: EventTarget, pointerId: Int) {
 
 private fun getCoalescedEvents(pointerEvent: PointerEvent): JsArray<PointerEvent> =
     js("pointerEvent.getCoalescedEvents ? pointerEvent.getCoalescedEvents() : []")
+
+private fun PointerEvent.toScenePointerEvent(
+    containerOffset: Offset,
+    density: Density,
+    pointerType: PointerType = PointerType.Touch
+): ComposeScenePointer {
+    val event = this
+    val type = event.getPointerEventType()
+    val position = Offset(
+        x = (event.clientX - containerOffset.x) * density.density,
+        y = (event.clientY - containerOffset.y) * density.density
+    )
+    return ComposeScenePointer(
+        id = PointerId(event.pointerId.toLong()),
+        position = position,
+        pressed = type == PointerEventType.Press || type == PointerEventType.Move,
+        type = pointerType,
+        pressure = event.pressure
+    )
+}
 
 /**
  * The purpose of the clipTarget element is to briefly steal the focus to let the browser dispatch
