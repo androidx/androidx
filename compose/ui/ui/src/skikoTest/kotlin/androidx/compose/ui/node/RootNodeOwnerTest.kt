@@ -27,7 +27,6 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
-import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.text.input.TextEditingScope
 import androidx.compose.ui.text.input.TextEditorState
 import androidx.compose.ui.text.input.TextFieldValue
@@ -54,7 +53,8 @@ class RootNodeOwnerTest {
         var inputStarted = false
         var inputStopped = false
 
-        val textInputService = object : PlatformTextInputService {
+        @Suppress("DEPRECATION")
+        val textInputService = object : androidx.compose.ui.text.input.PlatformTextInputService {
             override fun startInput(
                 value: TextFieldValue,
                 imeOptions: ImeOptions,
@@ -77,7 +77,8 @@ class RootNodeOwnerTest {
         }
         val owner = RootNodeOwner(
             platformContext = object : PlatformContext.Empty() {
-                override val textInputService: PlatformTextInputService = textInputService
+                @Suppress("DEPRECATION")
+                override val textInputService: androidx.compose.ui.text.input.PlatformTextInputService = textInputService
                 override suspend fun startInputMethod(request: PlatformTextInputMethodRequest): Nothing {
                     sessionStarted = true
                     awaitCancellation()
@@ -107,7 +108,8 @@ class RootNodeOwnerTest {
         var keyboardShowCalled = false
         var keyboardHideCalled = false
 
-        val textInputService = object : PlatformTextInputService {
+        @Suppress("DEPRECATION")
+        val textInputService = object : androidx.compose.ui.text.input.PlatformTextInputService {
             override fun startInput(
                 value: TextFieldValue,
                 imeOptions: ImeOptions,
@@ -128,7 +130,8 @@ class RootNodeOwnerTest {
         }
         val owner = RootNodeOwner(
             platformContext = object : PlatformContext.Empty() {
-                override val textInputService: PlatformTextInputService = textInputService
+                @Suppress("DEPRECATION")
+                override val textInputService: androidx.compose.ui.text.input.PlatformTextInputService = textInputService
                 override suspend fun startInputMethod(request: PlatformTextInputMethodRequest): Nothing {
                     awaitCancellation()
                 }

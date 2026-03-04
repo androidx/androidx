@@ -45,9 +45,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.TextInputService
 import kotlin.test.Ignore
 import kotlin.test.Test
 
@@ -57,7 +55,8 @@ class CoreTextFieldInputServiceIntegrationTest {
 
     private lateinit var focusManager: FocusManager
     private val platformTextInputService = FakePlatformTextInputService()
-    private val textInputService = TextInputService(platformTextInputService)
+    @Suppress("DEPRECATION")
+    private val textInputService = androidx.compose.ui.text.input.TextInputService(platformTextInputService)
 
     @Test
     fun textField_ImeOptions_isPassedTo_platformTextInputService() = runSkikoComposeUiTest {
@@ -323,7 +322,8 @@ class CoreTextFieldInputServiceIntegrationTest {
         }
     }
 
-    private class FakePlatformTextInputService : PlatformTextInputService {
+    @Suppress("DEPRECATION")
+    private class FakePlatformTextInputService : androidx.compose.ui.text.input.PlatformTextInputService {
         var startInputCalls = 0
         var stopInputCalls = 0
         var inputStarted = false

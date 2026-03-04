@@ -19,10 +19,10 @@ package androidx.compose.ui.platform
 import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
-import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.text.input.TextFieldValue
 
-internal class MacosTextInputService : PlatformTextInputService {
+@Suppress("DEPRECATION") // TODO https://youtrack.jetbrains.com/issue/CMP-9858
+internal class MacosTextInputService : androidx.compose.ui.text.input.PlatformTextInputService {
 
     data class CurrentInput(
         var value: TextFieldValue,

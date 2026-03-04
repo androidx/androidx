@@ -94,6 +94,7 @@ class TextFieldUndoTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     private val mock = object : PlatformTextInputService {
         override fun startInput(
             value: TextFieldValue,

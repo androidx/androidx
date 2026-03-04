@@ -23,7 +23,6 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
-import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.height
@@ -41,7 +40,9 @@ internal interface InputAwareInputService {
     fun getNewGeometryForBackingInput(rect: Rect): DpRect
 }
 
-internal abstract class WebTextInputService : PlatformTextInputService, InputAwareInputService {
+@Suppress("DEPRECATION") // TODO https://youtrack.jetbrains.com/issue/CMP-9858
+internal abstract class WebTextInputService :
+    androidx.compose.ui.text.input.PlatformTextInputService, InputAwareInputService {
 
     private var backingDomInput: BackingDomInput? = null
         set(value) {

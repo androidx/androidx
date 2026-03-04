@@ -37,7 +37,6 @@ import androidx.compose.ui.text.input.EditProcessor
 import androidx.compose.ui.text.input.FinishComposingTextCommand
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
-import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.text.input.SetComposingRegionCommand
 import androidx.compose.ui.text.input.SetComposingTextCommand
 import androidx.compose.ui.text.input.SetSelectionCommand
@@ -80,6 +79,7 @@ import platform.UIKit.UIViewAutoresizingFlexibleWidth
 // Adding a delay to the 'resignFirstResponder' function call to eliminate this issue.
 private val CLEAR_FOCUS_DELAY: Long = 10L
 
+@Suppress("DEPRECATION") // TODO https://youtrack.jetbrains.com/issue/CMP-9858
 internal class UIKitTextInputService(
     private val updateView: UIKitTextInputService.() -> Unit,
     private val view: UIView,
@@ -93,7 +93,7 @@ internal class UIKitTextInputService(
     private var onKeyboardPresses: (Set<*>) -> Unit,
     private var focusManager: () -> ComposeSceneFocusManager?,
     coroutineContext: kotlin.coroutines.CoroutineContext
-) : PlatformTextInputService, TextToolbar, UIKitNativeTextInputContext {
+) : androidx.compose.ui.text.input.PlatformTextInputService, TextToolbar, UIKitNativeTextInputContext {
 
     private val coroutineScope = CoroutineScope(coroutineContext)
 

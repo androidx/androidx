@@ -22,7 +22,6 @@ import androidx.compose.ui.text.input.DeleteSurroundingTextInCodePointsCommand
 import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
-import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.text.input.SetComposingTextCommand
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.substring
@@ -38,8 +37,9 @@ import kotlin.math.min
 import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.hostOs
 
+@Suppress("DEPRECATION") // TODO https://youtrack.jetbrains.com/issue/CMP-9858
 internal class DesktopTextInputService(private val component: PlatformComponent) :
-    PlatformTextInputService {
+    androidx.compose.ui.text.input.PlatformTextInputService {
     data class CurrentInput(
         var value: TextFieldValue,
         val onEditCommand: ((List<EditCommand>) -> Unit),
