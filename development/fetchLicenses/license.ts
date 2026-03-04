@@ -41,6 +41,10 @@ export async function handleRequest(request: Request, response: Response) {
         response.status(400).send('Invalid request.');
         return;
       }
+      if (!isAllowedHost(url)) {
+        response.status(400).send('Invalid request.');
+        return;
+      }
 
       const nodes = await handleLicenseRequest(url);
       const content = PlainTextFormatter.plainTextFor(nodes);
@@ -71,6 +75,30 @@ function isValidProtocol(requestUrl: string): boolean {
     log(`Invalid protocol ${url.protocol}`);
     return false;
   }
+}
+
+/**
+ * Validates that the URL hostname is in an allowed list.
+ * This helps prevent server-side request forgery by restricting
+ * outgoing requests to known external services.
+ */
+function isAllowedHost(requestUrl: string): boolean {
+  let url: URL;
+  try {
+    url = new URL(requestUrl);
+  } catch (e) {
+    log('Invalid URL format', e);
+    return false;
+  }
+  const allowedHosts = new Set<string>([
+    'github.com',
+    'raw.githubusercontent.com',
+  ]);
+  if (!allowedHosts.has(url.hostname)) {
+    log(`Disallowed host ${url.hostname}`);
+    return false;
+  }
+  return true;
 }
 
 async function handleLicenseRequest(url: string, enableLocalDebugging: boolean = false): Promise<ContentNode[]> {
