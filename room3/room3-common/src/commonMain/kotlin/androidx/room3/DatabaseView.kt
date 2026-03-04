@@ -21,28 +21,29 @@ package androidx.room3
  *
  * The value of the annotation is a SELECT query used when the view is created.
  *
- * The class will behave like normal POJO when it is used in a [Dao]. You can SELECT FROM a
- * [DatabaseView] similar to an [Entity], but you can not INSERT, DELETE or UPDATE into a
+ * The class will behave like normal data object when it is used in a [Dao]. You can SELECT FROM a
+ * [DatabaseView] similar to an [Entity], but you can not `INSERT`, `DELETE` or `UPDATE` into a
  * [DatabaseView].
  *
- * Similar to an [Entity], you can use [ColumnInfo] and [Embedded] inside to customize the data
- * class.
+ * Similar to an [Entity], you can use [ColumnInfo] and [Embedded] to customize the data class.
  *
  * Example:
  * ```
  * @DatabaseView(
- *   "SELECT id, name, release_year FROM Song " +
- *   "WHERE release_year >= 1990 AND release_year <= 1999"
+ *     """
+ *     SELECT id, name, release_year FROM Song
+ *     WHERE release_year >= 1990 AND release_year <= 1999
+ *     """
  * )
  * data class SongFrom90s (
- *   val id: Long,
- *   val name: String,
- *   @ColumnInfo(name = "release_year")
- *   val releaseYear: Int
+ *     val id: Long,
+ *     val name: String,
+ *     @ColumnInfo(name = "release_year")
+ *     val releaseYear: Int
  * )
  * ```
  *
- * Views have to be registered to a RoomDatabase via [Database.views].
+ * Views have to be registered to a Room database via [Database.views].
  *
  * @see [Dao]
  * @see [Database]

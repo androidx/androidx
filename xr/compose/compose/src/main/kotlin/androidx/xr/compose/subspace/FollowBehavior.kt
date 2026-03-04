@@ -105,9 +105,9 @@ public sealed class FollowBehavior protected constructor() {
  * accessible through the public interface as FollowBehavior.soft()
  *
  * @param durationMs Amount of milliseconds it takes for the content to catch up to the user.
- *   Default is [DEFAULT_SOFT_DURATION_MS] milliseconds. A value less than [MIN_SOFT_DURATION_MS]
- *   will be rounded up to [MIN_SOFT_DURATION_MS] to allow enough time to complete the content
- *   movement.
+ *   Default is [FollowBehavior.DEFAULT_SOFT_DURATION_MS] milliseconds. A value less than
+ *   [FollowBehavior.MIN_SOFT_DURATION_MS] will be rounded up to
+ *   [FollowBehavior.MIN_SOFT_DURATION_MS] to allow enough time to complete the content movement.
  */
 @OptIn(ExperimentalFollowingSubspaceApi::class)
 internal class SoftFollowBehavior(private val durationMs: Int = DEFAULT_SOFT_DURATION_MS) :

@@ -65,6 +65,7 @@ open class InProgressStrokesViewTestBase {
     @Before
     fun setup() {
         activityScenarioRule.scenario.onActivity { activity ->
+            activity.inProgressStrokesView.eagerInit()
             activity.inProgressStrokesView.addFinishedStrokesListener(onStrokesFinishedListener)
         }
         yieldingSleep()
@@ -187,8 +188,8 @@ open class InProgressStrokesViewTestBase {
         )
 
     protected companion object {
-        const val SLEEP_INTERVAL_MS = 100L
-        const val SCREENSHOT_RETRY_COUNT = 4
+        const val SLEEP_INTERVAL_MS = 200L
+        const val SCREENSHOT_RETRY_COUNT = 5
 
         val BRUSH_COLORS =
             listOf(

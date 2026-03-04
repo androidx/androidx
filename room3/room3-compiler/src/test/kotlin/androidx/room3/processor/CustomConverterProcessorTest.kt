@@ -295,7 +295,7 @@ class CustomConverterProcessorTest {
                 .isEqualTo(XTypeName.BOXED_SHORT.copy(nullable = true))
             assertThat(converter?.toTypeName).isEqualTo(XTypeName.BOXED_CHAR.copy(nullable = true))
             invocation.assertCompilationResult {
-                hasErrorContaining("Multiple functions define the same conversion")
+                hasErrorContaining("Multiple @TypeConverter functions define the same conversion.")
             }
         }
     }

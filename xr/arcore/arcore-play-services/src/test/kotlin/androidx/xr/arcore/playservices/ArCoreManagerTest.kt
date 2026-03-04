@@ -30,7 +30,7 @@ import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.internal.ApkCheckAvailabilityErrorException
 import androidx.xr.runtime.internal.ApkCheckAvailabilityInProgressException
 import androidx.xr.runtime.internal.ApkNotInstalledException
-import androidx.xr.runtime.internal.GooglePlayServicesLocationLibraryNotLinkedException
+import androidx.xr.runtime.internal.LibraryNotLinkedException
 import androidx.xr.runtime.internal.UnsupportedDeviceException
 import com.google.ar.core.ArCoreApk
 import com.google.ar.core.ArCoreApk.Availability
@@ -267,9 +267,7 @@ class ArCoreManagerTest {
             .doThrow(ARCore1xGooglePlayServicesLocationLibraryNotLinkedException("Test Exception"))
 
         val config = Config()
-        assertFailsWith<GooglePlayServicesLocationLibraryNotLinkedException> {
-            underTest.configure(config)
-        }
+        assertFailsWith<LibraryNotLinkedException> { underTest.configure(config) }
         verify(mockSession).configure(mockArConfig)
     }
 

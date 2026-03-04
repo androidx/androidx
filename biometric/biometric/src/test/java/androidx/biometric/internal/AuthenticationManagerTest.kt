@@ -17,6 +17,7 @@
 package androidx.biometric.internal
 
 import android.app.Application
+import androidx.biometric.AuthenticationRequest
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.internal.data.CanceledFrom
@@ -56,6 +57,7 @@ class AuthenticationManagerTest {
     private var authErrorCode: Int = -1
     private var authErrorString: CharSequence = ""
     private var authResult: BiometricPrompt.AuthenticationResult? = null
+    private var authFallback: AuthenticationRequest.Biometric.Fallback.CustomOption? = null
     private var authFailed: Boolean = false
     private val clientAuthenticationCallback =
         object : BiometricPrompt.AuthenticationCallback() {
@@ -66,6 +68,12 @@ class AuthenticationManagerTest {
 
             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                 this@AuthenticationManagerTest.authResult = result
+            }
+
+            override fun onFallbackSelected(
+                fallback: AuthenticationRequest.Biometric.Fallback.CustomOption
+            ) {
+                this@AuthenticationManagerTest.authFallback = fallback
             }
 
             override fun onAuthenticationFailed() {
@@ -96,7 +104,7 @@ class AuthenticationManagerTest {
         assertThat(viewModel.isPromptShowing).isTrue()
         assertThat(viewModel.isAwaitingResult).isTrue()
         assertThat(viewModel.title).isEqualTo(promptInfo.title)
-        assertThat(viewModel.negativeButtonText).isEqualTo(promptInfo.negativeButtonText)
+        assertThat(viewModel.singleFallbackOptionText).isEqualTo(promptInfo.negativeButtonText)
         assertThat(viewModel.allowedAuthenticators).isEqualTo(promptInfo.allowedAuthenticators)
     }
 
@@ -356,10 +364,5 @@ class AuthenticationManagerTest {
         }
         builder.setAllowedAuthenticators(authenticators)
         return builder.build()
-    }
-
-    companion object {
-        private const val AUTHENTICATION_KEY1 = 1
-        private const val AUTHENTICATION_KEY2 = 2
     }
 }

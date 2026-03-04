@@ -849,12 +849,19 @@ class InProgressStrokeTest {
                     behaviors =
                         listOf(
                             BrushBehavior(
-                                source = BrushBehavior.Source.TIME_SINCE_INPUT_IN_MILLIS,
-                                sourceValueRangeStart = timeSinceInputStartMillis,
-                                sourceValueRangeEnd = timeSinceInputEndMillis,
-                                target = BrushBehavior.Target.CORNER_ROUNDING_OFFSET,
-                                targetModifierRangeStart = 0F,
-                                targetModifierRangeEnd = 1F,
+                                BrushBehavior.TargetNode(
+                                    target = BrushBehavior.Target.CORNER_ROUNDING_OFFSET,
+                                    targetModifierRangeStart = 0F,
+                                    targetModifierRangeEnd = 1F,
+                                    input =
+                                        BrushBehavior.SourceNode(
+                                            source =
+                                                BrushBehavior.Source.TIME_SINCE_INPUT_IN_SECONDS,
+                                            sourceValueRangeStart =
+                                                timeSinceInputStartMillis / 1000f,
+                                            sourceValueRangeEnd = timeSinceInputEndMillis / 1000f,
+                                        ),
+                                )
                             )
                         )
                 )

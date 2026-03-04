@@ -210,8 +210,8 @@ private object MeshNative {
      * and scales for the attribute with the given [attributeIndex].
      *
      * @return The number of elements of [offsets] and [scales] that have been filled. This is the
-     *   number of [ComponentUnpackingParams] in the [MeshAttributeUnpackingParams] that should be
-     *   created for this attribute.
+     *   number of [MeshAttributeUnpackingParams.ComponentUnpackingParams] in the
+     *   [MeshAttributeUnpackingParams] that should be created for this attribute.
      */
     @UsedByNative
     external fun fillAttributeUnpackingParams(

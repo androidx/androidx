@@ -21,7 +21,6 @@ import android.view.SurfaceView
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
-import androidx.ink.authoring.InProgressStrokeId
 
 /**
  * A version of [FrontBufferToHwuiHandoff] that relies on temporarily translating the [SurfaceView]
@@ -38,8 +37,7 @@ internal class FrontBufferToHwuiHandoffV29<CompletedShapeT : Any>(
      *
      * @see InProgressStrokesRenderHelper.Callback.onStrokeCohortHandoffToHwui
      */
-    @UiThread
-    private val onCohortHandoff: (Map<InProgressStrokeId, FinishedStroke<CompletedShapeT>>) -> Unit,
+    @UiThread private val onCohortHandoff: (List<FinishedStroke<CompletedShapeT>>) -> Unit,
 
     /**
      * Called after [onCohortHandoff] when it is safe for higher level code to start drawing again.
@@ -63,10 +61,8 @@ internal class FrontBufferToHwuiHandoffV29<CompletedShapeT : Any>(
     override fun cleanup() = Unit
 
     @UiThread
-    override fun requestCohortHandoff(
-        handingOff: Map<InProgressStrokeId, FinishedStroke<CompletedShapeT>>
-    ) {
-        onCohortHandoff(handingOff)
+    override fun requestCohortHandoff(cohort: List<FinishedStroke<CompletedShapeT>>) {
+        onCohortHandoff(cohort)
         hideThenWaitThenShow()
     }
 

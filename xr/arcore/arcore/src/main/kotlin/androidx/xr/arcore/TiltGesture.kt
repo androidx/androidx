@@ -93,7 +93,7 @@ public object TiltGesture {
      * The device's tilt is calculated based on the `devicePose.rotation` from this state.
      *
      * **Precondition**: The [session] must be configured with device tracking set to
-     * [androidx.xr.runtime.DeviceTrackingMode.LAST_KNOWN]. If
+     * [androidx.xr.runtime.DeviceTrackingMode.SPATIAL_LAST_KNOWN]. If
      * [androidx.xr.runtime.DeviceTrackingMode.DISABLED] is used, this function will throw an
      * [IllegalStateException] when attempting to acquire the [ArDevice] instance.
      *
@@ -105,7 +105,7 @@ public object TiltGesture {
      * used to create the XR [Session], as changes to [ArDevice.state] drive the emissions.
      *
      * @param session the active XR session configured with
-     *   [androidx.xr.runtime.DeviceTrackingMode.LAST_KNOWN]
+     *   [androidx.xr.runtime.DeviceTrackingMode.SPATIAL_LAST_KNOWN]
      * @return a [Flow] that emits the current [State], starting with an initial state of
      *   [State.tilt] as [Tilt.UP] and [State.progress] as 0f
      * @throws IllegalStateException if [session] is configured with

@@ -744,6 +744,9 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         mCropRect = adjustCropRectWithInProgressTransformation(originalCropRect, mRotationDegrees);
         Size nodeResolution = adjustResolutionWithInProgressTransformation(resolution,
                 originalCropRect, mCropRect);
+        boolean isBufferRotationRequired =
+                mRotationDegrees != 0 && !MediaConfigUtil.canWriteOrientationMetadata(
+                        mediaInfo.getContainerInfo().getOutputFormat());
         if (shouldCompensateTransformation()) {
             // If this pipeline is created with in-progress transformation, we need to reset the
             // pipeline when the transformation becomes invalid.
@@ -753,11 +756,11 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 mCropRect,
                 mRotationDegrees,
                 isCreateNodeNeeded(camera, config, sessionType, mCropRect, resolution,
-                        dynamicRange),
+                        dynamicRange, isBufferRotationRequired),
                 videoEncoderInfo
         );
         mNode = createNodeIfNeeded(camera, config, sessionType, mCropRect, resolution,
-                dynamicRange);
+                dynamicRange, isBufferRotationRequired);
         boolean hasGlProcessing = !camera.getHasTransform() || mNode != null;
         Timebase timebase = resolveTimebase(camera, mNode);
         Logger.d(TAG, "camera timebase = " + camera.getCameraInfoInternal().getTimebase()
@@ -1122,7 +1125,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             int sessionType,
             @NonNull Rect cropRect,
             @NonNull Size resolution,
-            @NonNull DynamicRange dynamicRange
+            @NonNull DynamicRange dynamicRange,
+            boolean shouldRotateBuffer
     ) {
         if (sessionType == SESSION_TYPE_HIGH_SPEED) {
             // High-Speed capture on preview surface (ex: SurfaceTexture Surface) is not
@@ -1130,6 +1134,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return false;
         }
         return getEffect() != null
+                || shouldRotateBuffer
                 || shouldEnableSurfaceProcessingByConfig(camera, config)
                 || shouldEnableSurfaceProcessingByQuirk(camera)
                 || shouldEnableSurfaceProcessingBasedOnDynamicRangeByQuirk(camera, dynamicRange)
@@ -1143,8 +1148,10 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             int sessionType,
             @NonNull Rect cropRect,
             @NonNull Size resolution,
-            @NonNull DynamicRange dynamicRange) {
-        if (isCreateNodeNeeded(camera, config, sessionType, cropRect, resolution, dynamicRange)) {
+            @NonNull DynamicRange dynamicRange,
+            boolean shouldRotateBuffer) {
+        if (isCreateNodeNeeded(camera, config, sessionType, cropRect, resolution, dynamicRange,
+                shouldRotateBuffer)) {
             Logger.d(TAG, "Surface processing is enabled.");
             return new SurfaceProcessorNode(requireNonNull(getCamera()),
                     getEffect() != null ? getEffect().createSurfaceProcessorInternal() :

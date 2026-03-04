@@ -65,7 +65,7 @@ constructor(
     /** Creates a new pose with the same values as the [other] pose. */
     public constructor(other: Pose) : this(other.translation, other.rotation)
 
-    /** Returns the result of composing [this] with [other]. */
+    /** Returns the result of composing `this` with [other]. */
     public infix fun compose(other: Pose): Pose =
         Pose(rotation * other.translation + this.translation, rotation * other.rotation)
 

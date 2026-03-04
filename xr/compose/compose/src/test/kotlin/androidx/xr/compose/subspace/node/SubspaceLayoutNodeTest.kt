@@ -36,7 +36,6 @@ import androidx.xr.compose.testing.TestLogger
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.scenecore.Entity
-import androidx.xr.scenecore.GroupEntity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -60,10 +59,10 @@ class SubspaceLayoutNodeTest {
         composeTestRule.setContent {
             Subspace {
                 val session = checkNotNull(LocalSession.current)
-                parentEntity = GroupEntity.create(session, "ParentEntity")
+                parentEntity = Entity.create(session, "ParentEntity")
                 EntityLayout(entity = parentEntity) {
                     EntityLayout(
-                        entity = GroupEntity.create(session, "ChildEntity"),
+                        entity = Entity.create(session, "ChildEntity"),
                         modifier = SubspaceModifier.testTag("Child"),
                     )
                 }

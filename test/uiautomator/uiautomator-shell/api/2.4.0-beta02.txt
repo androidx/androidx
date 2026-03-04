@@ -1,0 +1,125 @@
+// Signature format: 4.0
+package androidx.test.shell {
+
+  public final class Shell {
+    method public androidx.test.shell.Shell.CommandOutput command(String command);
+    method @InaccessibleFromKotlin public androidx.test.shell.command.ApplicationCommands getApplication();
+    method @InaccessibleFromKotlin public androidx.test.shell.command.ProcessCommands getProcess();
+    method @InaccessibleFromKotlin public androidx.test.shell.command.RecorderCommands getRecorder();
+    method @InaccessibleFromKotlin public androidx.test.shell.command.ScreenCommands getScreen();
+    method @InaccessibleFromKotlin public androidx.test.shell.command.WifiCommands getWifi();
+    method public androidx.test.shell.command.PermissionCommands permission(String packageName);
+    method public void setShellServer(androidx.test.shell.ShellServer shellServer);
+    property public androidx.test.shell.command.ApplicationCommands application;
+    property public androidx.test.shell.command.ProcessCommands process;
+    property public androidx.test.shell.command.RecorderCommands recorder;
+    property public androidx.test.shell.command.ScreenCommands screen;
+    property public androidx.test.shell.command.WifiCommands wifi;
+    field public static final androidx.test.shell.Shell INSTANCE;
+  }
+
+  public static final class Shell.CommandOutput {
+    ctor public Shell.CommandOutput(String command, androidx.test.shell.ShellProcess shellProcess);
+    method @InaccessibleFromKotlin public String getStdErr();
+    method @InaccessibleFromKotlin public java.io.InputStream getStdErrStream();
+    method @InaccessibleFromKotlin public String getStdOut();
+    method @InaccessibleFromKotlin public java.io.InputStream getStdOutStream();
+    method public boolean isRunning();
+    property public String stdErr;
+    property public java.io.InputStream stdErrStream;
+    property public String stdOut;
+    property public java.io.InputStream stdOutStream;
+  }
+
+  public final class ShellProcess implements java.lang.AutoCloseable {
+    method public void close();
+    method @InaccessibleFromKotlin public java.io.InputStream getStdErr();
+    method @InaccessibleFromKotlin public java.io.OutputStream getStdIn();
+    method @InaccessibleFromKotlin public java.io.InputStream getStdOut();
+    method public boolean isClosed();
+    method public void writeLine(String string);
+    property public java.io.InputStream stdErr;
+    property public java.io.OutputStream stdIn;
+    property public java.io.InputStream stdOut;
+  }
+
+  public final class ShellServer implements java.lang.AutoCloseable {
+    method public void close();
+    method public androidx.test.shell.ShellProcess newProcess();
+    method public static androidx.test.shell.ShellServer start();
+    method public static androidx.test.shell.ShellServer start(optional int stdInSocketPort);
+    method public static androidx.test.shell.ShellServer start(optional int stdInSocketPort, optional int stdOutSocketPort);
+    method public static androidx.test.shell.ShellServer start(optional int stdInSocketPort, optional int stdOutSocketPort, optional int stdErrSocketPort);
+    method public static androidx.test.shell.ShellServer start(optional int stdInSocketPort, optional int stdOutSocketPort, optional int stdErrSocketPort, optional boolean nativeLogs);
+    method public static androidx.test.shell.ShellServer start(optional int stdInSocketPort, optional int stdOutSocketPort, optional int stdErrSocketPort, optional boolean nativeLogs, optional long connectTimeoutMs);
+    field public static final androidx.test.shell.ShellServer.Companion Companion;
+  }
+
+  public static final class ShellServer.Companion {
+    method public androidx.test.shell.ShellServer start();
+    method public androidx.test.shell.ShellServer start(optional int stdInSocketPort);
+    method public androidx.test.shell.ShellServer start(optional int stdInSocketPort, optional int stdOutSocketPort);
+    method public androidx.test.shell.ShellServer start(optional int stdInSocketPort, optional int stdOutSocketPort, optional int stdErrSocketPort);
+    method public androidx.test.shell.ShellServer start(optional int stdInSocketPort, optional int stdOutSocketPort, optional int stdErrSocketPort, optional boolean nativeLogs);
+    method public androidx.test.shell.ShellServer start(optional int stdInSocketPort, optional int stdOutSocketPort, optional int stdErrSocketPort, optional boolean nativeLogs, optional long connectTimeoutMs);
+    method @BytecodeOnly public static androidx.test.shell.ShellServer! start$default(androidx.test.shell.ShellServer.Companion!, int, int, int, boolean, long, int, Object!);
+  }
+
+}
+
+package androidx.test.shell.command {
+
+  public final class ApplicationCommands {
+    method public void amStartActivityIntent(android.content.Intent intent);
+    method public void amStartActivityIntent(android.content.Intent intent, optional String additionalArguments);
+    method @BytecodeOnly public static void amStartActivityIntent$default(androidx.test.shell.command.ApplicationCommands!, android.content.Intent!, String!, int, Object!);
+    method public void clearAppData(String packageName);
+    method public void startApp(String packageName);
+    method public void stopApp(String packageName);
+  }
+
+  public final class PermissionCommands {
+    method public void grant(java.lang.String... permissions);
+    method public void revoke(java.lang.String... permissions);
+  }
+
+  public final class ProcessCommands {
+    method public int getPid(String processName);
+    method public boolean isProcessAlive(int pid);
+    method public void killPid(int pid);
+    method public void killPid(int pid, optional String signal);
+    method @BytecodeOnly public static void killPid$default(androidx.test.shell.command.ProcessCommands!, int, String!, int, Object!);
+    method public java.util.List<androidx.test.shell.command.ProcessPid> processGrep(String processName);
+  }
+
+  public final class ProcessPid {
+    ctor public ProcessPid(String processName, int pid);
+    method @InaccessibleFromKotlin public int getPid();
+    method @InaccessibleFromKotlin public String getProcessName();
+    property public int pid;
+    property public String processName;
+  }
+
+  public final class RecorderCommands {
+    method public androidx.test.shell.command.Recording start(java.io.File outputFile, optional int width, optional int height, optional @IntRange(from=0L) int bitRateMb);
+    method @BytecodeOnly public static androidx.test.shell.command.Recording! start$default(androidx.test.shell.command.RecorderCommands!, java.io.File!, int, int, int, int, Object!);
+  }
+
+  public final class Recording implements java.lang.AutoCloseable {
+    method public void close();
+    method public boolean isRunning();
+  }
+
+  public final class ScreenCommands {
+    method public boolean isKeyboardVisible();
+    method public String resumedActivityName();
+  }
+
+  public final class WifiCommands {
+    method public boolean isEnabled();
+    method public void turnOff();
+    method public void turnOn();
+  }
+
+}
+

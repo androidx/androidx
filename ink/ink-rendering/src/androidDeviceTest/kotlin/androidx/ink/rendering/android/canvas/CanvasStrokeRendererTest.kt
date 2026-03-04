@@ -125,26 +125,38 @@ class CanvasStrokeRendererTest {
                             behaviors =
                                 listOf(
                                     BrushBehavior(
-                                        source =
-                                            BrushBehavior.Source
-                                                .DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE,
-                                        target = BrushBehavior.Target.OPACITY_MULTIPLIER,
-                                        sourceValueRangeStart = 0f,
-                                        sourceValueRangeEnd = 2f,
-                                        targetModifierRangeStart = 1f,
-                                        targetModifierRangeEnd = 0.25f,
-                                        sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.MIRROR,
+                                        BrushBehavior.TargetNode(
+                                            target = BrushBehavior.Target.OPACITY_MULTIPLIER,
+                                            targetModifierRangeStart = 1f,
+                                            targetModifierRangeEnd = 0.25f,
+                                            input =
+                                                BrushBehavior.SourceNode(
+                                                    source =
+                                                        BrushBehavior.Source
+                                                            .DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE,
+                                                    sourceValueRangeStart = 0f,
+                                                    sourceValueRangeEnd = 2f,
+                                                    sourceOutOfRangeBehavior =
+                                                        BrushBehavior.OutOfRange.MIRROR,
+                                                ),
+                                        )
                                     ),
                                     BrushBehavior(
-                                        source =
-                                            BrushBehavior.Source
-                                                .DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE,
-                                        target = BrushBehavior.Target.HUE_OFFSET_IN_RADIANS,
-                                        sourceValueRangeStart = 0f,
-                                        sourceValueRangeEnd = 3f,
-                                        targetModifierRangeStart = 0f,
-                                        targetModifierRangeEnd = Angle.FULL_TURN_RADIANS,
-                                        sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.REPEAT,
+                                        BrushBehavior.TargetNode(
+                                            target = BrushBehavior.Target.HUE_OFFSET_IN_RADIANS,
+                                            targetModifierRangeStart = 0f,
+                                            targetModifierRangeEnd = Angle.FULL_TURN_RADIANS,
+                                            input =
+                                                BrushBehavior.SourceNode(
+                                                    source =
+                                                        BrushBehavior.Source
+                                                            .DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE,
+                                                    sourceValueRangeStart = 0f,
+                                                    sourceValueRangeEnd = 3f,
+                                                    sourceOutOfRangeBehavior =
+                                                        BrushBehavior.OutOfRange.REPEAT,
+                                                ),
+                                        )
                                     ),
                                 )
                         )
@@ -248,7 +260,6 @@ class CanvasStrokeRendererTest {
          * Texture Size Units
          ******************************************************************
          */
-        // TODO: b/336835642 - add a case for STROKE_SIZE
         TEXTURE_SIZE_UNITS_BRUSH_SIZE_15(
             finishedInProgressStroke(
                 texturedBrush(

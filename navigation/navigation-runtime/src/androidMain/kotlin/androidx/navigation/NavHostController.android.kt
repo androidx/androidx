@@ -26,8 +26,8 @@ public actual open class NavHostController
  * should not be used outside of their context and retain a hard reference to the context supplied.
  * If you need a global controller, pass [Context.getApplicationContext].
  *
- * Note that controllers that are not constructed with an [Activity] context (or a wrapped activity
- * context) will only be able to navigate to
+ * Note that controllers that are not constructed with an [android.app.Activity] context (or a
+ * wrapped activity context) will only be able to navigate to
  * [new tasks][android.content.Intent.FLAG_ACTIVITY_NEW_TASK] or
  * [new document tasks][android.content.Intent.FLAG_ACTIVITY_NEW_DOCUMENT] when navigating to new
  * activities.

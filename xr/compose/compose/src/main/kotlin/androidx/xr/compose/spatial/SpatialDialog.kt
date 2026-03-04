@@ -55,6 +55,8 @@ import androidx.xr.compose.platform.LocalDialogManager
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.platform.findNearestParentEntity
+import androidx.xr.compose.platform.getActivity
+import androidx.xr.compose.platform.isEmbedded
 import androidx.xr.compose.subspace.layout.CoreEntity
 import androidx.xr.compose.subspace.layout.CorePanelEntity
 import androidx.xr.compose.subspace.spatialComposeView
@@ -148,7 +150,8 @@ private val EmptyContent: @Composable () -> Unit = {}
  * When spatial dialogs are displayed the dialog appears on top of the content at the base elevation
  * level.
  *
- * In non-spatialized environments, a standard Compose Dialog is utilized to display the content.
+ * In non-spatialized environments or embedded activities, a standard Compose [Dialog] is utilized
+ * to display the content.
  *
  * @param onDismissRequest a callback to be invoked when the dialog should be dismissed.
  * @param properties the dialog properties.
@@ -160,8 +163,11 @@ public fun SpatialDialog(
     properties: SpatialDialogProperties = SpatialDialogProperties(),
     content: @Composable () -> Unit,
 ) {
+    val activity = LocalContext.current.getActivity()
     val movableContent = remember { movableContentOf(content) }
-    if (LocalSpatialCapabilities.current.isSpatialUiEnabled) {
+    val isActivityEmbedded = activity?.isEmbedded() ?: false
+
+    if (!isActivityEmbedded && LocalSpatialCapabilities.current.isSpatialUiEnabled) {
         LayoutSpatialDialog(onDismissRequest, properties, movableContent)
     } else {
         Dialog(

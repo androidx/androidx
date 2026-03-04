@@ -25,6 +25,8 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -1566,6 +1568,51 @@ class ModalBottomSheetTest {
             assertThat(reportedTopInset).isWithin(1f).of(actualOffset)
             assertThat(reportedTopInset).isGreaterThan(0)
         }
+    }
+
+    @Test
+    fun bottomSheet_respectsMaterialThemeMotionScheme() {
+        val customSpatialSpec = tween<Float>(durationMillis = 123)
+        val customEffectsSpec = tween<Float>(durationMillis = 456)
+
+        // Mock a MotionScheme that returns our specific specs
+        val customMotionScheme =
+            object : MotionScheme {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T> defaultSpatialSpec(): FiniteAnimationSpec<T> =
+                    customSpatialSpec as FiniteAnimationSpec<T>
+
+                @Suppress("UNCHECKED_CAST")
+                override fun <T> fastEffectsSpec(): FiniteAnimationSpec<T> =
+                    customEffectsSpec as FiniteAnimationSpec<T>
+
+                override fun <T> fastSpatialSpec() = defaultSpatialSpec<T>()
+
+                override fun <T> slowSpatialSpec() = defaultSpatialSpec<T>()
+
+                override fun <T> defaultEffectsSpec() = fastEffectsSpec<T>()
+
+                override fun <T> slowEffectsSpec() = fastEffectsSpec<T>()
+            }
+
+        lateinit var sheetState: SheetState
+
+        rule.setContent {
+            MaterialTheme(motionScheme = customMotionScheme) {
+                sheetState = rememberModalBottomSheetState()
+
+                BottomSheet(
+                    state = sheetState,
+                    onDismissRequest = {},
+                    content = { /* Empty Content */ },
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(sheetState.showMotionSpec).isEqualTo(customSpatialSpec)
+        assertThat(sheetState.anchoredDraggableMotionSpec).isEqualTo(customSpatialSpec)
+        assertThat(sheetState.hideMotionSpec).isEqualTo(customEffectsSpec)
     }
 
     private val Bundle.traversalBefore: Int

@@ -16,10 +16,10 @@
 
 package androidx.webkit.internal;
 
-import androidx.webkit.OutcomeReceiverCompat;
 import androidx.webkit.PrefetchException;
 import androidx.webkit.PrefetchNetworkException;
 import androidx.webkit.Profile;
+import androidx.webkit.WebViewOutcomeReceiver;
 
 import org.chromium.support_lib_boundary.PrefetchOperationCallbackBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
@@ -38,7 +38,7 @@ public class PrefetchOperationCallbackAdapter {
      */
     @Profile.ExperimentalUrlPrefetch
     public static @NonNull /* PrefetchOperationCallback */ InvocationHandler buildInvocationHandler(
-            @NonNull OutcomeReceiverCompat<@Nullable Void, @NonNull PrefetchException> callback) {
+            @NonNull WebViewOutcomeReceiver<@Nullable Void, @NonNull PrefetchException> callback) {
         PrefetchOperationCallbackBoundaryInterface operationCallback =
                 new PrefetchOperationCallbackBoundaryInterface() {
                     @Override

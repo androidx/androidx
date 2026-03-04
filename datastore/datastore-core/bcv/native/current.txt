@@ -25,6 +25,14 @@ abstract interface <#A: kotlin/Any?> androidx.datastore.core/DataStore { // andr
         abstract fun <get-data>(): kotlinx.coroutines.flow/Flow<#A> // androidx.datastore.core/DataStore.data.<get-data>|<get-data>(){}[0]
 
     abstract suspend fun updateData(kotlin.coroutines/SuspendFunction1<#A, #A>): #A // androidx.datastore.core/DataStore.updateData|updateData(kotlin.coroutines.SuspendFunction1<1:0,1:0>){}[0]
+
+    final class <#A1: kotlin/Any?> Builder { // androidx.datastore.core/DataStore.Builder|null[0]
+        constructor <init>(androidx.datastore.core/Storage<#A1>, kotlin.coroutines/CoroutineContext) // androidx.datastore.core/DataStore.Builder.<init>|<init>(androidx.datastore.core.Storage<1:0>;kotlin.coroutines.CoroutineContext){}[0]
+
+        final fun addMigrations(kotlin.collections/List<androidx.datastore.core/DataMigration<#A1>>): androidx.datastore.core/DataStore.Builder<#A1> // androidx.datastore.core/DataStore.Builder.addMigrations|addMigrations(kotlin.collections.List<androidx.datastore.core.DataMigration<1:0>>){}[0]
+        final fun build(): androidx.datastore.core/DataStore<#A1> // androidx.datastore.core/DataStore.Builder.build|build(){}[0]
+        final fun setCorruptionHandler(androidx.datastore.core/CorruptionHandler<#A1>): androidx.datastore.core/DataStore.Builder<#A1> // androidx.datastore.core/DataStore.Builder.setCorruptionHandler|setCorruptionHandler(androidx.datastore.core.CorruptionHandler<1:0>){}[0]
+    }
 }
 
 abstract interface <#A: kotlin/Any?> androidx.datastore.core/ReadScope : androidx.datastore.core/Closeable { // androidx.datastore.core/ReadScope|null[0]

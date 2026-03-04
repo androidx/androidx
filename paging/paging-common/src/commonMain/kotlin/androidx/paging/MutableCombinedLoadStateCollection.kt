@@ -42,7 +42,7 @@ internal class MutableCombinedLoadStateCollection {
     // load states are de-duplicated
     fun set(sourceLoadStates: LoadStates, remoteLoadStates: LoadStates?) =
         dispatchNewState { currState ->
-            computeNewState(currState, sourceLoadStates, remoteLoadStates)
+            currState.computeNewState(sourceLoadStates, remoteLoadStates)
         }
 
     // load states are de-duplicated
@@ -55,7 +55,7 @@ internal class MutableCombinedLoadStateCollection {
         } else {
             source = source.modifyState(type, state)
         }
-        computeNewState(currState, source, mediator)
+        currState.computeNewState(source, mediator)
     }
 
     fun get(type: LoadType, remote: Boolean): LoadState? {
@@ -106,66 +106,65 @@ internal class MutableCombinedLoadStateCollection {
         }
         newState?.apply { listeners.forEach { it(this) } }
     }
+}
 
-    private fun computeNewState(
-        previousState: CombinedLoadStates?,
-        newSource: LoadStates,
-        newRemote: LoadStates?,
-    ): CombinedLoadStates {
-        val refresh =
-            computeHelperState(
-                previousState = previousState?.refresh ?: NotLoading.Incomplete,
-                sourceRefreshState = newSource.refresh,
-                sourceState = newSource.refresh,
-                remoteState = newRemote?.refresh,
-            )
-        val prepend =
-            computeHelperState(
-                previousState = previousState?.prepend ?: NotLoading.Incomplete,
-                sourceRefreshState = newSource.refresh,
-                sourceState = newSource.prepend,
-                remoteState = newRemote?.prepend,
-            )
-        val append =
-            computeHelperState(
-                previousState = previousState?.append ?: NotLoading.Incomplete,
-                sourceRefreshState = newSource.refresh,
-                sourceState = newSource.append,
-                remoteState = newRemote?.append,
-            )
-
-        return CombinedLoadStates(
-            refresh = refresh,
-            prepend = prepend,
-            append = append,
-            source = newSource,
-            mediator = newRemote,
+internal fun CombinedLoadStates?.computeNewState(
+    newSource: LoadStates,
+    newRemote: LoadStates?,
+): CombinedLoadStates {
+    val refresh =
+        computeHelperState(
+            previousState = this?.refresh ?: NotLoading.Incomplete,
+            sourceRefreshState = newSource.refresh,
+            sourceState = newSource.refresh,
+            remoteState = newRemote?.refresh,
         )
-    }
+    val prepend =
+        computeHelperState(
+            previousState = this?.prepend ?: NotLoading.Incomplete,
+            sourceRefreshState = newSource.refresh,
+            sourceState = newSource.prepend,
+            remoteState = newRemote?.prepend,
+        )
+    val append =
+        computeHelperState(
+            previousState = this?.append ?: NotLoading.Incomplete,
+            sourceRefreshState = newSource.refresh,
+            sourceState = newSource.append,
+            remoteState = newRemote?.append,
+        )
 
-    /**
-     * Computes the next value for the convenience helpers in [CombinedLoadStates], which generally
-     * defers to remote state, but waits for both source and remote states to become [NotLoading]
-     * before moving to that state. This provides a reasonable default for the common use-case where
-     * you generally want to wait for both RemoteMediator to return and for the update to get
-     * applied before signaling to UI that a network fetch has "finished".
-     */
-    private fun computeHelperState(
-        previousState: LoadState,
-        sourceRefreshState: LoadState,
-        sourceState: LoadState,
-        remoteState: LoadState?,
-    ): LoadState {
-        if (remoteState == null) return sourceState
+    return CombinedLoadStates(
+        refresh = refresh,
+        prepend = prepend,
+        append = append,
+        source = newSource,
+        mediator = newRemote,
+    )
+}
 
-        return when (previousState) {
-            is Loading ->
-                when {
-                    sourceRefreshState is NotLoading && remoteState is NotLoading -> remoteState
-                    remoteState is Error -> remoteState
-                    else -> previousState
-                }
-            else -> remoteState
-        }
+/**
+ * Computes the next value for the convenience helpers in [CombinedLoadStates], which generally
+ * defers to remote state, but waits for both source and remote states to become [NotLoading] before
+ * moving to that state. This provides a reasonable default for the common use-case where you
+ * generally want to wait for both RemoteMediator to return and for the update to get applied before
+ * signaling to UI that a network fetch has "finished".
+ */
+private fun computeHelperState(
+    previousState: LoadState,
+    sourceRefreshState: LoadState,
+    sourceState: LoadState,
+    remoteState: LoadState?,
+): LoadState {
+    if (remoteState == null) return sourceState
+
+    return when (previousState) {
+        is Loading ->
+            when {
+                sourceRefreshState is NotLoading && remoteState is NotLoading -> remoteState
+                remoteState is LoadState.Error -> remoteState
+                else -> previousState
+            }
+        else -> remoteState
     }
 }

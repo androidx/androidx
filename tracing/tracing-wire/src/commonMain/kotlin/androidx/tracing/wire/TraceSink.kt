@@ -73,8 +73,8 @@ public class TraceSink(
     /** Coroutine context to execute the serialization on. */
     private val coroutineContext: CoroutineContext = NonCancellable + Dispatchers.IO,
 ) : androidx.tracing.TraceSink() {
-    private val wireTraceEventSerializer =
-        WireTraceEventSerializer(sequenceId, ProtoWriter(bufferedSink))
+    private val protoWriter = ProtoWriter(bufferedSink)
+    private val wireTraceEventSerializer = WireTraceEventSerializer(sequenceId)
 
     // There are 2 distinct mechanisms for thread safety here, and they are not necessarily in sync.
     // The Queue by itself is thread-safe, but after we drain the queue we mark drainRequested
@@ -167,6 +167,7 @@ public class TraceSink(
                     val reportDroppedEvent =
                         if (firstEventInBatch) reportDroppedTraceEvent else false
                     wireTraceEventSerializer.writeTraceEvent(
+                        protoWriter = protoWriter,
                         event = it,
                         reportDroppedTraceEvent = reportDroppedEvent,
                     )

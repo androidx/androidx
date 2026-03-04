@@ -21,7 +21,7 @@ import androidx.xr.arcore.apps.whitebox.mobile.samplerender.Mesh
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.SampleRender
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.Shader
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.Texture
-import androidx.xr.runtime.Log
+import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Pose
 import java.io.IOException
@@ -62,7 +62,7 @@ class FaceObjectRenderer(
 
             objectMesh = Mesh.createFromAsset(render, meshObjAssetPath)
         } catch (e: IOException) {
-            Log.error(e) { "Failed to initialize FaceMesh assets" }
+            XrLog.error(e) { "Failed to initialize FaceMesh assets" }
         }
     }
 

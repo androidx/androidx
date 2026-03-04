@@ -52,7 +52,7 @@ class EntityManagerTest {
     private val panelEntityNode: Node = xrExtensions.createNode()
     private val anchorEntityNode: Node = xrExtensions.createNode()
     private val entityManager = EntityManager()
-    private lateinit var groupEntityNode: Node
+    private lateinit var entityNode: Node
     private lateinit var gltfEntityNode: Node
     private val activity = Robolectric.buildActivity(Activity::class.java).create().start().get()
     private lateinit var spatialSceneRuntime: SpatialSceneRuntime
@@ -94,7 +94,7 @@ class EntityManagerTest {
     fun creatingEntity_addsEntityToEntityManager() {
         val gltfEntity = createGltfEntity()
         val panelEntity = createPanelEntity()
-        val groupEntity = createGroupEntity()
+        val entity = createEntity()
         val anchorEntity = createAnchorEntity()
         val activityPanelEntity = createActivityPanelEntity()
 
@@ -103,26 +103,20 @@ class EntityManagerTest {
         // the runtime is created.
         assertThat(entityManager.getAllEntities().size).isAtLeast(5)
         assertThat(entityManager.getAllEntities())
-            .containsAtLeast(
-                gltfEntity,
-                panelEntity,
-                groupEntity,
-                anchorEntity,
-                activityPanelEntity,
-            )
+            .containsAtLeast(gltfEntity, panelEntity, entity, anchorEntity, activityPanelEntity)
     }
 
     @Test
     fun getEntityForNode_returnsEntity() {
         val gltfEntity = createGltfEntity()
         val panelEntity = createPanelEntity()
-        val groupEntity = createGroupEntity()
+        val entity = createEntity()
         val anchorEntity = createAnchorEntity()
         val testNode = xrExtensions.createNode()
 
         assertThat(entityManager.getEntityForNode(gltfEntityNode)).isEqualTo(gltfEntity)
         assertThat(entityManager.getEntityForNode(panelEntityNode)).isEqualTo(panelEntity)
-        assertThat(entityManager.getEntityForNode(groupEntityNode)).isEqualTo(groupEntity)
+        assertThat(entityManager.getEntityForNode(entityNode)).isEqualTo(entity)
         assertThat(entityManager.getEntityForNode(anchorEntityNode)).isEqualTo(anchorEntity)
         assertThat(entityManager.getEntityForNode(testNode)).isNull()
     }
@@ -131,7 +125,7 @@ class EntityManagerTest {
     fun getEntityByType_returnsEntityOfType() {
         val gltfEntity = createGltfEntity()
         val panelEntity = createPanelEntity()
-        val groupEntity = createGroupEntity()
+        val entity = createEntity()
         val anchorEntity = createAnchorEntity()
         val activityPanelEntity = createActivityPanelEntity()
 
@@ -140,8 +134,7 @@ class EntityManagerTest {
         // MainPanel is also a PanelEntity.
         assertThat(entityManager.getEntitiesOfType(PanelEntity::class.java)).contains(panelEntity)
         // Base class of all entities.
-        assertThat(entityManager.getEntitiesOfType<Entity>(Entity::class.java))
-            .contains(groupEntity)
+        assertThat(entityManager.getEntitiesOfType<Entity>(Entity::class.java)).contains(entity)
         assertThat(entityManager.getEntitiesOfType<AnchorEntity>(AnchorEntity::class.java))
             .containsExactly(anchorEntity)
         assertThat(
@@ -156,48 +149,36 @@ class EntityManagerTest {
     fun removeEntity_removesFromEntityManager() {
         val gltfEntity = createGltfEntity()
         val panelEntity = createPanelEntity()
-        val groupEntity = createGroupEntity()
+        val entity = createEntity()
         val anchorEntity = createAnchorEntity()
         val activityPanelEntity = createActivityPanelEntity()
 
         assertThat(entityManager.getAllEntities().size).isAtLeast(5)
         assertThat(entityManager.getAllEntities())
-            .containsAtLeast(
-                gltfEntity,
-                panelEntity,
-                groupEntity,
-                anchorEntity,
-                activityPanelEntity,
-            )
+            .containsAtLeast(gltfEntity, panelEntity, entity, anchorEntity, activityPanelEntity)
 
-        entityManager.removeEntityForNode(groupEntityNode)
+        entityManager.removeEntityForNode(entityNode)
 
         assertThat(entityManager.getAllEntities().size).isAtLeast(4)
-        assertThat(entityManager.getAllEntities()).doesNotContain(groupEntity)
+        assertThat(entityManager.getAllEntities()).doesNotContain(entity)
     }
 
     @Test
     fun disposeEntity_removesFromEntityManager() {
         val gltfEntity = createGltfEntity()
         val panelEntity = createPanelEntity()
-        val groupEntity = createGroupEntity()
+        val entity = createEntity()
         val anchorEntity = createAnchorEntity()
         val activityPanelEntity = createActivityPanelEntity()
 
         assertThat(entityManager.getAllEntities().size).isAtLeast(5)
         assertThat(entityManager.getAllEntities())
-            .containsAtLeast(
-                gltfEntity,
-                panelEntity,
-                groupEntity,
-                anchorEntity,
-                activityPanelEntity,
-            )
+            .containsAtLeast(gltfEntity, panelEntity, entity, anchorEntity, activityPanelEntity)
 
-        groupEntity.dispose()
+        entity.dispose()
 
         assertThat(entityManager.getAllEntities().size).isAtLeast(4)
-        assertThat(entityManager.getAllEntities()).doesNotContain(groupEntity)
+        assertThat(entityManager.getAllEntities()).doesNotContain(entity)
     }
 
     @Test
@@ -226,19 +207,13 @@ class EntityManagerTest {
     fun clearEntityManager_removesAllEntityFromEntityManager() {
         val gltfEntity = createGltfEntity()
         val panelEntity = createPanelEntity()
-        val groupEntity = createGroupEntity()
+        val entity = createEntity()
         val anchorEntity = createAnchorEntity()
         val activityPanelEntity = createActivityPanelEntity()
 
         assertThat(entityManager.getAllEntities().size).isAtLeast(5)
         assertThat(entityManager.getAllEntities())
-            .containsAtLeast(
-                gltfEntity,
-                panelEntity,
-                groupEntity,
-                anchorEntity,
-                activityPanelEntity,
-            )
+            .containsAtLeast(gltfEntity, panelEntity, entity, anchorEntity, activityPanelEntity)
 
         entityManager.clear()
 
@@ -307,16 +282,12 @@ class EntityManagerTest {
         return panelEntity
     }
 
-    private fun createGroupEntity(): Entity {
-        val groupEntity =
-            spatialSceneRuntime.createGroupEntity(
-                Pose(),
-                "testGroup",
-                spatialSceneRuntime.activitySpace,
-            )
-        groupEntityNode = (groupEntity as AndroidXrEntity).getNode()
-        entityManager.setEntityForNode(groupEntityNode, groupEntity)
-        return groupEntity
+    private fun createEntity(): Entity {
+        val entity =
+            spatialSceneRuntime.createEntity(Pose(), "testGroup", spatialSceneRuntime.activitySpace)
+        entityNode = (entity as AndroidXrEntity).getNode()
+        entityManager.setEntityForNode(entityNode, entity)
+        return entity
     }
 
     private fun createAnchorEntity(): AnchorEntity {

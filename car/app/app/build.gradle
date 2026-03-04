@@ -136,7 +136,7 @@ abstract class ProtocolApiTask extends DefaultTask {
                 (bootClasspath.files + dependencyClasspath.files).join(File.pathSeparator),
                 '--source-path',
                 sourceDirs.filter { it.exists() }.join(File.pathSeparator),
-                '--format=v4',
+                '--format=4.0',
                 '--quiet'
         ]
         standardArgs.addAll(additionalArgs)
@@ -144,7 +144,6 @@ abstract class ProtocolApiTask extends DefaultTask {
         MetalavaRunnerKt.runMetalavaWithArgs(
                 metalavaClasspath,
                 standardArgs,
-                /* k2UastEnabled= */ false,
                 kotlinSourceLevel.get(),
                 workerExecutor,
         )

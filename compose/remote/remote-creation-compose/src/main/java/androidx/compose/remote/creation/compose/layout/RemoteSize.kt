@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.layout
 
@@ -23,6 +22,11 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.geometry.Size
 
+/**
+ * An immutable, 2D floating-point size with [width] and [height] represented as [RemoteFloat]s.
+ *
+ * This class is used in remote creation to represent dimensions that may be backed by remote state.
+ */
 public class RemoteSize {
 
     public val width: RemoteFloat
@@ -39,10 +43,15 @@ public class RemoteSize {
         this.height = size.height.rf
     }
 
+    /**
+     * Returns a [RemoteSize] with the width and height decreased by the [offset]'s x and y
+     * coordinates, respectively.
+     */
     public fun offsetSize(offset: RemoteOffset): RemoteSize {
         return RemoteSize(width - offset.x, height - offset.y)
     }
 
+    /** The lesser of the magnitudes of the [width] and the [height]. */
     public val minDimension: RemoteFloat
         get() = width.min(height)
 
@@ -53,10 +62,12 @@ public class RemoteSize {
         }
     }
 
+    /** The offset to the center of this [RemoteSize]. */
     public val center: RemoteOffset
         get() = RemoteOffset(width / 2f, height / 2f)
 
     public companion object {
+        /** A [RemoteSize] with [width] and [height] set to 0. */
         public val Zero: RemoteSize = RemoteSize(0f.rf, 0f.rf)
     }
 }

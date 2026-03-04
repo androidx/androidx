@@ -20,9 +20,9 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.xr.runtime.Log
 import androidx.xr.runtime.SessionCreateApkRequired
 import androidx.xr.runtime.SessionCreateResult
+import androidx.xr.runtime.XrLog
 import com.google.ar.core.ArCoreApk
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException
 import kotlinx.coroutines.CoroutineScope
@@ -133,7 +133,7 @@ class ArCoreVerificationHelper(
                 )
             ) {
                 ArCoreApk.InstallStatus.INSTALL_REQUESTED -> {
-                    Log.info { "ARCore installation requested." }
+                    XrLog.info { "ARCore installation requested." }
                     installRequested = true
                     return
                 }
@@ -181,7 +181,7 @@ class ArCoreVerificationHelper(
         private val TAG = this::class.simpleName
 
         private fun <F> showErrorMessage(activity: ComponentActivity, error: F) {
-            Log.error { error.toString() }
+            XrLog.error { error.toString() }
             Toast.makeText(activity, error.toString(), Toast.LENGTH_LONG).show()
         }
 

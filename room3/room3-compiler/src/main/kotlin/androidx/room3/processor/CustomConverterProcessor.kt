@@ -111,7 +111,13 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
                         if (duplicates.isNotEmpty()) {
                             context.logger.e(
                                 converter.function,
-                                ProcessorErrors.duplicateTypeConverters(duplicates),
+                                ProcessorErrors.duplicateTypeConverters(
+                                    duplicates.map {
+                                        it.className.toString(context.codeLanguage) +
+                                            "." +
+                                            it.function.name
+                                    }
+                                ),
                             )
                         }
                     }
@@ -166,7 +172,7 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
         val returnType = asMember.returnType
         val invalidReturnType = returnType.isInvalidReturnType()
         context.checker.check(
-            functionElement.isPublic(),
+            functionElement.isPublic() || functionElement.isInternal(),
             functionElement,
             TYPE_CONVERTER_MUST_BE_PUBLIC,
         )

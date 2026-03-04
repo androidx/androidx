@@ -401,7 +401,7 @@ class CardTest {
 
         rule.onNodeWithTag("header").apply {
             with(getBoundsInRoot()) {
-                width.assertIsEqualTo(cardBounds.width - 16.dp - 16.dp, "width")
+                width.assertIsEqualTo(cardBounds.width - Spacing.Medium * 2, "width")
                 height.assertIsEqualTo(width / 1.6f, "height")
             }
         }
@@ -422,7 +422,7 @@ class CardTest {
 
         rule.onNodeWithTag("header").apply {
             with(getBoundsInRoot()) {
-                width.assertIsEqualTo(cardBounds.width - 16.dp - 16.dp, "width")
+                width.assertIsEqualTo(cardBounds.width - Spacing.Medium * 2, "width")
                 height.assertIsEqualTo(width / 1.6f, "height")
             }
         }
@@ -443,7 +443,7 @@ class CardTest {
 
         rule.onNodeWithTag("header").apply {
             with(getBoundsInRoot()) {
-                width.assertIsEqualTo(cardBounds.width - 16.dp - 16.dp, "width")
+                width.assertIsEqualTo(cardBounds.width - Spacing.Medium * 2, "width")
                 height.assertIsEqualTo(10.dp, "height")
             }
         }
@@ -465,7 +465,7 @@ class CardTest {
         rule.onNodeWithTag("header").apply {
             with(getBoundsInRoot()) {
                 width.assertIsEqualTo(10.dp, "width")
-                height.assertIsEqualTo((cardBounds.width - 16.dp - 16.dp) / 1.6f, "height")
+                height.assertIsEqualTo((cardBounds.width - Spacing.Medium * 2) / 1.6f, "height")
             }
         }
     }
@@ -506,8 +506,8 @@ class CardTest {
         rule.onNodeWithTag("header").apply {
             with(getBoundsInRoot()) {
                 // Height and width should be unmodified
-                height.assertIsEqualTo(50.dp - 16.dp - 16.dp, "height")
-                width.assertIsEqualTo(150.dp - 16.dp - 16.dp, "width")
+                height.assertIsEqualTo(50.dp - Spacing.Medium * 2, "height")
+                width.assertIsEqualTo(150.dp - Spacing.Medium * 2, "width")
             }
         }
     }
@@ -559,11 +559,11 @@ class CardTest {
             // Default card width fills the maximum width
             width.assertIsEqualTo(rule.onRoot().getBoundsInRoot().width, "total card width")
             // Overall card height should be determined by the size of the card content and action
+            val totalOuterAndInnerPadding = (Spacing.Medium + Spacing.Small) * 2
             height.assertIsEqualTo(
                 (actionBounds.height - /* overlapping offset */ 16.dp) +
                     cardContentBounds.height +
-                    24.dp +
-                    24.dp,
+                    totalOuterAndInnerPadding,
                 "total card height",
             )
         }
@@ -600,15 +600,18 @@ class CardTest {
             }
 
         rule.onNodeWithTag("cardContent").getBoundsInRoot().apply {
-            width.assertIsEqualTo(cardAndActionBounds.width - 24.dp - 24.dp, "card content width")
+            val totalOuterAndInnerPadding = (Spacing.Medium + Spacing.Small) * 2
+            width.assertIsEqualTo(
+                cardAndActionBounds.width - totalOuterAndInnerPadding,
+                "card content width",
+            )
             // Card content should be allowed to fill up the height left from the
             // cardAndActionBounds after accounting for the space the action takes up in the
             // layout (and the content padding)
             height.assertIsEqualTo(
                 cardAndActionBounds.height -
                     (actionBounds.height - /* overlapping offset */ 16.dp) -
-                    24.dp -
-                    24.dp,
+                    totalOuterAndInnerPadding,
                 "card content height",
             )
         }
@@ -673,7 +676,7 @@ class CardTest {
         )
 
         (contentBounds.left - cardBounds.left).assertIsEqualTo(
-            24.dp,
+            Spacing.Medium + Spacing.Small,
             "Padding between the start of the card and the start of the content.",
         )
 
@@ -711,22 +714,22 @@ class CardTest {
         // Title should be top aligned when the height of the content, title, and subtitle is
         // greater than minimum card height
         (titleBounds.top - cardBounds.top).assertIsEqualTo(
-            24.dp,
+            Spacing.Medium + Spacing.Small,
             "Padding between top of card and top of title.",
         )
 
         (titleBounds.left - cardBounds.left).assertIsEqualTo(
-            24.dp,
+            Spacing.Medium + Spacing.Small,
             "Padding between the start of the card and the start of the title.",
         )
 
         (subtitleBounds.left - cardBounds.left).assertIsEqualTo(
-            24.dp,
+            Spacing.Medium + Spacing.Small,
             "Padding between the start of the card and the start of the subtitle.",
         )
 
         (contentBounds.left - cardBounds.left).assertIsEqualTo(
-            24.dp,
+            Spacing.Medium + Spacing.Small,
             "Padding between the start of the card and the start of the content.",
         )
 
@@ -741,7 +744,7 @@ class CardTest {
         )
 
         (cardBounds.bottom - contentBounds.bottom).assertIsEqualTo(
-            24.dp,
+            Spacing.Medium + Spacing.Small,
             "Padding between bottom of card and bottom of content.",
         )
 
@@ -791,12 +794,12 @@ class CardTest {
             rule.onNodeWithTag("card", useUnmergedTree = true).getUnclippedBoundsInRoot()
 
         (leadingIconBounds.top - cardBounds.top).assertIsEqualTo(
-            24.dp,
+            Spacing.Medium + Spacing.Small,
             "Padding between top of card and top of leading icon.",
         )
 
         (leadingIconBounds.left - cardBounds.left).assertIsEqualTo(
-            24.dp,
+            Spacing.Medium + Spacing.Small,
             "Padding between start of card and start of leading icon.",
         )
 
@@ -808,24 +811,25 @@ class CardTest {
         )
 
         (contentBounds.left - leadingIconBounds.right).assertIsEqualTo(
-            12.dp,
+            Spacing.Medium,
             "Padding between end of leading icon and start of content.",
         )
 
         (trailingIconBounds.top - cardBounds.top).assertIsEqualTo(
-            24.dp,
+            Spacing.Medium + Spacing.Small,
             "Padding between top of card and top of trailing icon.",
         )
 
         (cardBounds.right - trailingIconBounds.right).assertIsEqualTo(
-            24.dp,
+            Spacing.Medium + Spacing.Small,
             "Padding between end of trailing icon and end of card.",
         )
 
         // The width should fill the max width, like with the spacer
         cardBounds.width.assertIsEqualTo(spacerBounds.width, "width of card.")
+        val totalOuterAndInnerPadding = (Spacing.Medium + Spacing.Small) * 2
         cardBounds.height.assertIsEqualTo(
-            /* vertical padding * 2 + icon height*/ (24 + 24 + 56).dp,
+            /* vertical padding * 2 + icon height*/ totalOuterAndInnerPadding + 56.dp,
             "height of card.",
         )
     }
@@ -833,13 +837,13 @@ class CardTest {
     @Test
     fun positioning_header() {
         rule.setGlimmerThemeContent {
-            Column {
+            Column(Modifier.width(300.dp)) {
                 Spacer(Modifier.height(10.dp).fillMaxWidth().testTag("spacer"))
                 Card(
                     modifier = Modifier.testTag("card"),
                     header = {
                         Image(
-                            placeholderImagePainter(Size(1000f, 1000f)),
+                            placeholderImagePainter(Size(width = 1000f, height = 1000f)),
                             "Localized description",
                             modifier = Modifier.testTag("header"),
                             contentScale = ContentScale.FillWidth,
@@ -861,32 +865,32 @@ class CardTest {
             rule.onNodeWithTag("card", useUnmergedTree = true).getUnclippedBoundsInRoot()
 
         (headerBounds.top - cardBounds.top).assertIsEqualTo(
-            16.dp,
+            Spacing.Medium,
             "Padding between top of card and top of header image.",
         )
 
         (headerBounds.left - cardBounds.left).assertIsEqualTo(
-            16.dp,
+            Spacing.Medium,
             "Padding between the start of the card and the start of the header image.",
         )
 
         (cardBounds.right - headerBounds.right).assertIsEqualTo(
-            16.dp,
+            Spacing.Medium,
             "Padding between the end of the header image and the end of the card.",
         )
 
         (contentBounds.left - cardBounds.left).assertIsEqualTo(
-            24.dp,
+            Spacing.Medium + Spacing.Small,
             "Padding between the start of the card and the start of the content.",
         )
 
         (contentBounds.top - headerBounds.bottom).assertIsEqualTo(
-            8.dp,
+            Spacing.Small,
             "Padding between the bottom of the header image and the top of the content.",
         )
 
         (cardBounds.bottom - contentBounds.bottom).assertIsEqualTo(
-            24.dp,
+            Spacing.Medium + Spacing.Small,
             "Padding between bottom of card and bottom of content.",
         )
 
@@ -929,7 +933,7 @@ class CardTest {
         )
 
         (contentBounds.left - cardBounds.left).assertIsEqualTo(
-            24.dp,
+            Spacing.Medium + Spacing.Small,
             "Padding between the start of the card and the start of the content.",
         )
 
@@ -1002,34 +1006,34 @@ class CardTest {
             rule.onNodeWithTag("card", useUnmergedTree = true).getUnclippedBoundsInRoot()
 
         (leadingIconBounds.top - cardBounds.top).assertIsEqualTo(
-            24.dp,
+            Spacing.Medium + Spacing.Small,
             "Padding between top of card and top of leading icon.",
         )
 
         (leadingIconBounds.left - cardBounds.left).assertIsEqualTo(
-            24.dp,
+            Spacing.Medium + Spacing.Small,
             "Padding between start of card and start of leading icon.",
         )
 
         // Title should be top aligned when the height of the content, title, and subtitle is
         // greater than minimum card height
         (titleBounds.top - cardBounds.top).assertIsEqualTo(
-            24.dp,
+            Spacing.Medium + Spacing.Small,
             "Padding between top of card and top of title.",
         )
 
         (titleBounds.left - leadingIconBounds.right).assertIsEqualTo(
-            12.dp,
+            Spacing.Medium,
             "Padding between end of leading icon and start of title.",
         )
 
         (subtitleBounds.left - leadingIconBounds.right).assertIsEqualTo(
-            12.dp,
+            Spacing.Medium,
             "Padding between end of leading icon and start of subtitle.",
         )
 
         (contentBounds.left - leadingIconBounds.right).assertIsEqualTo(
-            12.dp,
+            Spacing.Medium,
             "Padding between end of leading icon and start of content.",
         )
 
@@ -1044,17 +1048,17 @@ class CardTest {
         )
 
         (cardBounds.bottom - contentBounds.bottom).assertIsEqualTo(
-            24.dp,
+            Spacing.Medium + Spacing.Small,
             "Padding between bottom of card and bottom of content.",
         )
 
         (trailingIconBounds.top - cardBounds.top).assertIsEqualTo(
-            24.dp,
+            Spacing.Medium + Spacing.Small,
             "Padding between top of card and top of trailing icon.",
         )
 
         (cardBounds.right - trailingIconBounds.right).assertIsEqualTo(
-            24.dp,
+            Spacing.Medium + Spacing.Small,
             "Padding between end of trailing icon and end of card.",
         )
 
@@ -1068,7 +1072,7 @@ class CardTest {
     @Test
     fun positioning_titleAndSubtitle_withImageAndIcons() {
         rule.setGlimmerThemeContent {
-            Column {
+            Column(Modifier.width(300.dp)) {
                 Spacer(Modifier.height(10.dp).fillMaxWidth().testTag("spacer"))
                 Card(
                     modifier = Modifier.testTag("card"),
@@ -1120,47 +1124,47 @@ class CardTest {
             rule.onNodeWithTag("card", useUnmergedTree = true).getUnclippedBoundsInRoot()
 
         (headerBounds.top - cardBounds.top).assertIsEqualTo(
-            16.dp,
+            Spacing.Medium,
             "Padding between top of card and top of header image.",
         )
 
         (headerBounds.left - cardBounds.left).assertIsEqualTo(
-            16.dp,
+            Spacing.Medium,
             "Padding between the start of the card and the start of the header image.",
         )
 
         (cardBounds.right - headerBounds.right).assertIsEqualTo(
-            16.dp,
+            Spacing.Medium,
             "Padding between the end of the header image and the end of the card.",
         )
 
         (leadingIconBounds.top - headerBounds.bottom).assertIsEqualTo(
-            8.dp,
+            Spacing.Small,
             "Padding between the bottom of header image and top of leading icon.",
         )
 
         (leadingIconBounds.left - cardBounds.left).assertIsEqualTo(
-            24.dp,
+            Spacing.Medium + Spacing.Small,
             "Padding between start of card and start of leading icon.",
         )
 
         (titleBounds.top - headerBounds.bottom).assertIsEqualTo(
-            8.dp,
+            Spacing.Small,
             "Padding between the bottom of header image and top of title.",
         )
 
         (titleBounds.left - leadingIconBounds.right).assertIsEqualTo(
-            12.dp,
+            Spacing.Medium,
             "Padding between end of leading icon and start of title.",
         )
 
         (subtitleBounds.left - leadingIconBounds.right).assertIsEqualTo(
-            12.dp,
+            Spacing.Medium,
             "Padding between end of leading icon and start of subtitle.",
         )
 
         (contentBounds.left - leadingIconBounds.right).assertIsEqualTo(
-            12.dp,
+            Spacing.Medium,
             "Padding between end of leading icon and start of content.",
         )
 
@@ -1175,17 +1179,17 @@ class CardTest {
         )
 
         (cardBounds.bottom - contentBounds.bottom).assertIsEqualTo(
-            24.dp,
+            Spacing.Medium + Spacing.Small,
             "Padding between bottom of card and bottom of content.",
         )
 
         (trailingIconBounds.top - headerBounds.bottom).assertIsEqualTo(
-            8.dp,
+            Spacing.Small,
             "Padding between the bottom of header image and top of trailing icon.",
         )
 
         (cardBounds.right - trailingIconBounds.right).assertIsEqualTo(
-            24.dp,
+            Spacing.Medium + Spacing.Small,
             "Padding between end of trailing icon and end of card.",
         )
 
@@ -1198,7 +1202,7 @@ class CardTest {
     @Test
     fun positioning_titleAndSubtitle_withImageAndIcons_withAction() {
         rule.setGlimmerThemeContent {
-            Column {
+            Column(Modifier.width(300.dp)) {
                 Spacer(Modifier.height(10.dp).fillMaxWidth().testTag("spacer"))
                 Card(
                     action = { Button(onClick = {}, Modifier.testTag("action")) { Text("Send") } },
@@ -1253,47 +1257,47 @@ class CardTest {
             rule.onNodeWithTag("card", useUnmergedTree = true).getUnclippedBoundsInRoot()
 
         (headerBounds.top - cardBounds.top).assertIsEqualTo(
-            16.dp,
+            Spacing.Medium,
             "Padding between top of card and top of header image.",
         )
 
         (headerBounds.left - cardBounds.left).assertIsEqualTo(
-            16.dp,
+            Spacing.Medium,
             "Padding between the start of the card and the start of the header image.",
         )
 
         (cardBounds.right - headerBounds.right).assertIsEqualTo(
-            16.dp,
+            Spacing.Medium,
             "Padding between the end of the header image and the end of the card.",
         )
 
         (leadingIconBounds.top - headerBounds.bottom).assertIsEqualTo(
-            8.dp,
+            Spacing.Small,
             "Padding between the bottom of header image and top of leading icon.",
         )
 
         (leadingIconBounds.left - cardBounds.left).assertIsEqualTo(
-            24.dp,
+            Spacing.Medium + Spacing.Small,
             "Padding between start of card and start of leading icon.",
         )
 
         (titleBounds.top - headerBounds.bottom).assertIsEqualTo(
-            8.dp,
+            Spacing.Small,
             "Padding between the bottom of header image and top of title.",
         )
 
         (titleBounds.left - leadingIconBounds.right).assertIsEqualTo(
-            12.dp,
+            Spacing.Medium,
             "Padding between end of leading icon and start of title.",
         )
 
         (subtitleBounds.left - leadingIconBounds.right).assertIsEqualTo(
-            12.dp,
+            Spacing.Medium,
             "Padding between end of leading icon and start of subtitle.",
         )
 
         (contentBounds.left - leadingIconBounds.right).assertIsEqualTo(
-            12.dp,
+            Spacing.Medium,
             "Padding between end of leading icon and start of content.",
         )
 
@@ -1308,18 +1312,18 @@ class CardTest {
         )
 
         (trailingIconBounds.top - headerBounds.bottom).assertIsEqualTo(
-            8.dp,
+            Spacing.Small,
             "Padding between the bottom of header image and top of trailing icon.",
         )
 
         (cardBounds.right - trailingIconBounds.right).assertIsEqualTo(
-            24.dp,
+            Spacing.Medium + Spacing.Small,
             "Padding between end of trailing icon and end of card.",
         )
 
         (actionBounds.top).assertIsEqualTo(
             // Padding - offset
-            contentBounds.bottom + 24.dp - 16.dp,
+            contentBounds.bottom + Spacing.Medium + Spacing.Small - 16.dp,
             "Space between the top of the action and the bottom of the content",
         )
 
@@ -1343,7 +1347,7 @@ class CardTest {
     @Test
     fun positioning_titleAndSubtitle_withIcons_longText() {
         rule.setGlimmerThemeContent {
-            Column {
+            Column(Modifier.width(300.dp)) {
                 Spacer(Modifier.height(10.dp).fillMaxWidth().testTag("spacer"))
                 Card(
                     modifier = Modifier.testTag("card"),
@@ -1385,34 +1389,34 @@ class CardTest {
             rule.onNodeWithTag("card", useUnmergedTree = true).getUnclippedBoundsInRoot()
 
         (leadingIconBounds.top - cardBounds.top).assertIsEqualTo(
-            24.dp,
+            Spacing.Medium + Spacing.Small,
             "Padding between top of card and top of leading icon.",
         )
 
         (leadingIconBounds.left - cardBounds.left).assertIsEqualTo(
-            24.dp,
+            Spacing.Medium + Spacing.Small,
             "Padding between start of card and start of leading icon.",
         )
 
         // Title should be top aligned when the height of the content, title, and subtitle is
         // greater than minimum card height
         (titleBounds.top - cardBounds.top).assertIsEqualTo(
-            24.dp,
+            Spacing.Medium + Spacing.Small,
             "Padding between top of card and top of title.",
         )
 
         (titleBounds.left - leadingIconBounds.right).assertIsEqualTo(
-            12.dp,
+            Spacing.Medium,
             "Padding between end of leading icon and start of title.",
         )
 
         (subtitleBounds.left - leadingIconBounds.right).assertIsEqualTo(
-            12.dp,
+            Spacing.Medium,
             "Padding between end of leading icon and start of subtitle.",
         )
 
         (contentBounds.left - leadingIconBounds.right).assertIsEqualTo(
-            12.dp,
+            Spacing.Medium,
             "Padding between end of leading icon and start of content.",
         )
 
@@ -1427,17 +1431,17 @@ class CardTest {
         )
 
         (cardBounds.bottom - contentBounds.bottom).assertIsEqualTo(
-            24.dp,
+            Spacing.Medium + Spacing.Small,
             "Padding between bottom of card and bottom of content.",
         )
 
         (trailingIconBounds.top - cardBounds.top).assertIsEqualTo(
-            24.dp,
+            Spacing.Medium + Spacing.Small,
             "Padding between top of card and top of trailing icon.",
         )
 
         (cardBounds.right - trailingIconBounds.right).assertIsEqualTo(
-            24.dp,
+            Spacing.Medium + Spacing.Small,
             "Padding between end of trailing icon and end of card.",
         )
 

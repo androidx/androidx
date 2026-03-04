@@ -70,7 +70,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 class Foo<T>(data: T): Bar<T>(data)
 
                 class FooReturnTypeConverter {
-                    @DaoReturnTypeConverter
+                    @DaoReturnTypeConverter(operations = [OperationType.READ, OperationType.WRITE])
                     suspend fun <T> convert(
                         database: RoomDatabase,
                         tableNames: Array<String>,
@@ -116,7 +116,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 class Foo<T>(data: T): Bar<T>(data)
 
                 class FooReturnTypeConverter {
-                    @DaoReturnTypeConverter
+                    @DaoReturnTypeConverter(operations = [OperationType.READ, OperationType.WRITE])
                     suspend fun <T> convert(
                         database: RoomDatabase,
                         tableNames: Array<String>,
@@ -125,7 +125,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                         return Foo(executeAndConvert.invoke())
                     }
 
-                    @DaoReturnTypeConverter
+                    @DaoReturnTypeConverter(operations = [OperationType.READ, OperationType.WRITE])
                     fun <T> convertBlocking(
                         database: RoomDatabase,
                         tableNames: Array<String>,
@@ -172,14 +172,14 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 class FooArray<T>(val data: Array<T>)
 
                 class FooReturnTypeConverter {
-                    @DaoReturnTypeConverter
+                    @DaoReturnTypeConverter(operations = [OperationType.READ, OperationType.WRITE])
                     suspend fun <T> convertArray(
                         executeAndConvert: suspend () -> Array<T>,
                     ): FooArray<T> {
                         return FooArray(executeAndConvert.invoke())
                     }
 
-                    @DaoReturnTypeConverter
+                    @DaoReturnTypeConverter(operations = [OperationType.READ, OperationType.WRITE])
                     suspend fun <T> convertList(
                         database: RoomDatabase,
                         tableNames: Array<String>,
@@ -2466,11 +2466,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                     import androidx.room3.*
                     import io.reactivex.rxjava3.core.*
                     import com.google.common.base.Optional
+                    import androidx.room3.rxjava3.RxDaoReturnTypeConverters
 
                 @Database(entities = [MyEntity::class], version = 1, exportSchema = false)
-                @DaoReturnTypeConverters(
-                    androidx.room3.rxjava3.RxDaoReturnTypeConverters::class
-                )
+                @DaoReturnTypeConverters(RxDaoReturnTypeConverters::class)
                 abstract class MyDatabase : RoomDatabase() {
                     abstract fun getDao(): MyDao
                 }
@@ -2537,6 +2536,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 import io.reactivex.rxjava3.core.*
 
                 @Dao
+                @DaoReturnTypeConverters(
+                    androidx.room3.rxjava3.RxDaoReturnTypeConverters::class
+                )
                 interface MyDao {
                     @Query("INSERT INTO MyEntity (pk, other) VALUES (:id, :name)")
                     fun insertPublisherSingle(id: String, name: String): Single<Long>

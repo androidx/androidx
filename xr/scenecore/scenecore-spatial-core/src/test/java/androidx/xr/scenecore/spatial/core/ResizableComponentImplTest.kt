@@ -94,7 +94,7 @@ class ResizableComponentImplTest {
     }
 
     private fun createTestEntity(): Entity {
-        return fakeSceneRuntime.createGroupEntity(Pose(), "test", fakeSceneRuntime.activitySpace)
+        return fakeSceneRuntime.createEntity(Pose(), "test", fakeSceneRuntime.activitySpace)
     }
 
     /**

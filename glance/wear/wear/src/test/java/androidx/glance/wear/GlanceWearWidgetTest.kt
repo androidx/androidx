@@ -29,6 +29,7 @@ import org.junit.runner.RunWith
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 
 @RunWith(AndroidJUnit4::class)
@@ -38,16 +39,46 @@ class GlanceWearWidgetTest {
     fun triggerUpdate_clientRequestsUpdateForAll() {
         val mockUpdateClient = mock<WidgetUpdateClient>()
         val widget = TestWidget(mockUpdateClient)
-        val componentName = ComponentName("my.package", "my.package.MyClass")
 
-        widget.triggerUpdate(getApplicationContext(), componentName)
+        widget.triggerUpdate(getApplicationContext(), TEST_COMPONENT)
 
-        verify(mockUpdateClient).requestUpdate(any(), eq(componentName))
+        verify(mockUpdateClient).requestUpdate(any(), eq(TEST_COMPONENT))
+    }
+
+    @Test
+    fun triggerUpdate_debuggable_sendsUpdateBroadcast() {
+        val mockUpdateClient = mock<WidgetUpdateClient>()
+        val widget = TestWidget(mockUpdateClient)
+        val context = getApplicationContext<Context>()
+        context.applicationInfo.flags =
+            context.applicationInfo.flags or android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE
+
+        widget.triggerUpdate(context, TEST_COMPONENT)
+
+        verify(mockUpdateClient).sendUpdateBroadcast(any(), eq(TEST_COMPONENT))
+    }
+
+    @Test
+    fun triggerUpdate_notDebuggable_doesNotSendUpdateBroadcast() {
+        val mockUpdateClient = mock<WidgetUpdateClient>()
+        val widget = TestWidget(mockUpdateClient)
+        val context = getApplicationContext<Context>()
+        context.applicationInfo.flags =
+            context.applicationInfo.flags and
+                android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE.inv()
+
+        widget.triggerUpdate(context, TEST_COMPONENT)
+
+        verify(mockUpdateClient, never()).sendUpdateBroadcast(any(), eq(TEST_COMPONENT))
     }
 
     private class TestWidget(updateClient: WidgetUpdateClient) : GlanceWearWidget(updateClient) {
 
         override suspend fun provideWidgetData(context: Context, params: WearWidgetParams) =
             WearWidgetDocument(backgroundColor = Color.Transparent) { RemoteText("Testing...") }
+    }
+
+    private companion object {
+        val TEST_COMPONENT = ComponentName("my.package", "my.package.MyClass")
     }
 }

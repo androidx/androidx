@@ -176,10 +176,12 @@ public object ListHeaderDefaults {
 
     /**
      * The minimum top content padding for the list when a [ListHeader] is placed at the top.
-     * Recommended for use with [TransformingLazyColumnItemScope]'s
-     * [Modifier.minimumVerticalContentPadding], which allows items to choose a preferred content
-     * padding for the list. [TransformingLazyColumn] takes its contentPadding as the maximum of the
-     * preferred content padding values and its own contentPadding parameter.
+     * Recommended for use with
+     * [androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope]'s
+     * [androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope.minimumVerticalContentPadding],
+     * which allows items to choose a preferred content padding for the list.
+     * [TransformingLazyColumn] takes its contentPadding as the maximum of the preferred content
+     * padding values and its own contentPadding parameter.
      *
      * @sample androidx.wear.compose.material3.samples.TransformingLazyColumnMinimumVerticalContentPaddingSample
      */
@@ -188,10 +190,12 @@ public object ListHeaderDefaults {
 
     /**
      * The minimum bottom content padding for the list when a [ListHeader] is placed at the bottom.
-     * Recommended for use with [TransformingLazyColumnItemScope]'s
-     * [Modifier.minimumVerticalContentPadding], which allows items to choose a preferred content
-     * padding for the list. [TransformingLazyColumn] takes its contentPadding as the maximum of the
-     * preferred content padding values and its own contentPadding parameter.
+     * Recommended for use with
+     * [androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope]'s
+     * [androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope.minimumVerticalContentPadding],
+     * which allows items to choose a preferred content padding for the list.
+     * [TransformingLazyColumn] takes its contentPadding as the maximum of the preferred content
+     * padding values and its own contentPadding parameter.
      */
     public val minimumBottomListContentPadding: Dp
         @Composable get() = screenHeightFraction(LARGE_VERTICAL_CONTENT_PADDING_FRACTION)

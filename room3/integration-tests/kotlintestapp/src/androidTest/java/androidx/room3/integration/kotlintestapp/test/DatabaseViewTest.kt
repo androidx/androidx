@@ -22,7 +22,6 @@ import androidx.room3.Database
 import androidx.room3.DatabaseView
 import androidx.room3.Embedded
 import androidx.room3.Entity
-import androidx.room3.ExperimentalRoomApi
 import androidx.room3.ForeignKey
 import androidx.room3.Index
 import androidx.room3.Insert
@@ -334,7 +333,6 @@ class DatabaseViewTest {
 
     @Test
     @MediumTest
-    @OptIn(ExperimentalRoomApi::class)
     fun nestedFlow() = runTest {
         val employee = db.employee().flowDetailById(2L).produceIn(this)
 

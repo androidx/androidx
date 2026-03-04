@@ -162,7 +162,7 @@ interface Modifier {
      * @see androidx.compose.ui.node.ParentDataModifierNode
      * @see androidx.compose.ui.node.LayoutAwareModifierNode
      * @see androidx.compose.ui.node.GlobalPositionAwareModifierNode
-     * @see androidx.compose.ui.node.ApproachLayoutModifierNode
+     * @see androidx.compose.ui.layout.ApproachLayoutModifierNode
      */
     abstract class Node : DelegatableNode {
         @Suppress("LeakingThis")
@@ -224,8 +224,8 @@ interface Modifier {
         /**
          * If this property returns `true`, then nodes will be automatically invalidated after the
          * modifier update completes (For example, if the returned Node is a [DrawModifierNode], its
-         * [DrawModifierNode.invalidateDraw] function will be invoked automatically as part of auto
-         * invalidation).
+         * [androidx.compose.ui.node.invalidateDraw] function will be invoked automatically as part
+         * of auto invalidation).
          *
          * This is enabled by default, and provides a convenient mechanism to schedule invalidation
          * and apply changes made to the modifier. You may choose to set this to `false` if your

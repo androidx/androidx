@@ -43,8 +43,8 @@ fun activitySample() {
                             is AuthenticationResult.Success -> {
                                 Log.i(TAG, "onAuthenticationSucceeded with type ${result.authType}")
                             }
-                            // Handle authentication error, e.g. negative button click, user
-                            // cancellation, etc
+                            // Handle authentication error, e.g. user cancellation, lockout errors,
+                            // etc
                             is AuthenticationResult.Error -> {
                                 Log.i(
                                     TAG,
@@ -52,6 +52,10 @@ fun activitySample() {
                                         "with error code: ${result.errorCode} " +
                                         "and error string: ${result.errString}",
                                 )
+                            }
+                            // Handle fallback option clicks
+                            is AuthenticationResult.CustomFallbackSelected -> {
+                                Log.i(TAG, "fallback is selected, text: ${result.fallback.text}")
                             }
                         }
                     }
@@ -67,10 +71,7 @@ fun activitySample() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             val authRequest =
-                biometricRequest(
-                    title = "Title",
-                    authFallback = Biometric.Fallback.DeviceCredential,
-                ) {
+                biometricRequest(title = "Title", Biometric.Fallback.DeviceCredential) {
                     setSubtitle("Subtitle")
                     setContent(
                         AuthenticationRequest.BodyContent.VerticalList(
@@ -100,8 +101,7 @@ fun fragmentSample() {
                     is AuthenticationResult.Success -> {
                         Log.i(TAG, "onAuthenticationSucceeded with type ${result.authType}")
                     }
-                    // Handle authentication error, e.g. negative button click, user
-                    // cancellation, etc
+                    // Handle authentication error, e.g. user cancellation, lockout errors, etc
                     is AuthenticationResult.Error -> {
                         Log.i(
                             TAG,
@@ -110,16 +110,17 @@ fun fragmentSample() {
                                 "and error string: ${result.errString}",
                         )
                     }
+                    // Handle fallback option clicks
+                    is AuthenticationResult.CustomFallbackSelected -> {
+                        Log.i(TAG, "fallback is selected, text: ${result.fallback.text}")
+                    }
                 }
             }
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             val authRequest =
-                biometricRequest(
-                    title = "Title",
-                    authFallback = Biometric.Fallback.DeviceCredential,
-                ) {
+                biometricRequest(title = "Title", Biometric.Fallback.DeviceCredential) {
                     setSubtitle("Subtitle")
                     setContent(
                         AuthenticationRequest.BodyContent.VerticalList(

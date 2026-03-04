@@ -58,7 +58,7 @@ class SpatialAudioTrackTest {
     fun setWithPointSource_callsRuntimeAudioTrackSetPointSource() {
         val track = AudioTrack.Builder().build()
 
-        val entity = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
         val pointSourceParams = PointSourceParams(entity)
 
         SpatialAudioTrack.setPointSourceParams(session, track, pointSourceParams)
@@ -68,14 +68,14 @@ class SpatialAudioTrackTest {
 
         assertThat(storedRtParams).isNotNull()
         assertThat(storedRtParams?.entity).isEqualTo(pointSourceParams.rtPointSourceParams.entity)
-        assertThat(storedRtParams?.entity).isEqualTo(entity.rtEntity)
+        assertThat(storedRtParams?.entity).isEqualTo((entity as BaseEntity<*>).rtEntity)
     }
 
     @Test
     fun setWithPointSource_rethrowsIfExtensionThrows() {
         val track = AudioTrack.Builder().build()
 
-        val entity = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
         val pointSourceParams = PointSourceParams(entity)
         val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
         fakeSceneRuntime.audioTrackExtensionsWrapper.fakeExtensionException =
@@ -90,7 +90,7 @@ class SpatialAudioTrackTest {
     fun setWithPointSource_callsRuntimeAudioTrackBuilderSetPointSource() {
         val builder = AudioTrack.Builder()
 
-        val entity = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
         val pointSourceParams = PointSourceParams(entity)
 
         SpatialAudioTrackBuilder.setPointSourceParams(session, builder, pointSourceParams)
@@ -131,7 +131,7 @@ class SpatialAudioTrackTest {
     @Test
     fun getPointSourceParams_callsRuntimeAudioTrackGetPointSourceParams() {
         val audioTrack = AudioTrack.Builder().build()
-        val entity = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
 
         val temp: BaseEntity<*> = entity as BaseEntity<*>
         val rtEntity = temp.rtEntity!!

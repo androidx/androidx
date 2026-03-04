@@ -24,6 +24,7 @@ import androidx.datastore.core.IOException
 import androidx.datastore.core.Serializer
 import androidx.datastore.dataStore
 import androidx.glance.wear.core.ContainerInfo
+import androidx.glance.wear.core.WearWidgetParams
 import androidx.glance.wear.core.WidgetInstanceId
 import androidx.glance.wear.proto.WearWidgetCacheProto
 import androidx.glance.wear.proto.WidgetContainerSpecProto
@@ -72,14 +73,24 @@ internal constructor(private val dataStore: DataStore<WearWidgetCacheProto>) {
      * Reads the container spec for a given container type from the cache.
      *
      * @param containerType The container type to read the spec for.
-     * @return The [WidgetContainerSpec], or `null` if it doesn't exist in the cache.
+     * @param instanceId The instance id to use for the returned [WearWidgetParams].
+     * @return The reconstructed [WearWidgetParams], or `null` if it doesn't exist in the cache.
      */
-    suspend fun getContainerSpec(
-        @ContainerInfo.ContainerType containerType: Int
-    ): WidgetContainerSpec? {
+    suspend fun getWidgetParams(
+        @ContainerInfo.ContainerType containerType: Int,
+        instanceId: WidgetInstanceId,
+    ): WearWidgetParams? {
         val cacheProto = dataStore.data.first()
-        return cacheProto.container_type_to_spec[containerType]?.let {
-            WidgetContainerSpec.fromProto(it)
+        return cacheProto.container_type_to_spec[containerType]?.let { specProto ->
+            WearWidgetParams(
+                instanceId = instanceId,
+                containerType = containerType,
+                widthDp = specProto.width_dp,
+                heightDp = specProto.height_dp,
+                horizontalPaddingDp = specProto.horizontal_padding_dp,
+                verticalPaddingDp = specProto.vertical_padding_dp,
+                cornerRadiusDp = specProto.corner_radius_dp,
+            )
         }
     }
 
@@ -115,17 +126,20 @@ internal constructor(private val dataStore: DataStore<WearWidgetCacheProto>) {
         }
 
         /**
-         * Sets the container spec for a given container type. Overwrites any existing entry for the
-         * same [containerType].
+         * Sets the params for a given container type. Overwrites any existing entry for the same
+         * container type in [params].
          *
-         * @param containerType The container type.
-         * @param spec The [WidgetContainerSpec] for the container type.
+         * @param params The parameters to be updated in the cache.
          */
-        fun setContainerSpec(
-            @ContainerInfo.ContainerType containerType: Int,
-            spec: WidgetContainerSpec,
-        ) {
-            containerTypeToSpec[containerType] = spec.toProto()
+        fun setWidgetParams(params: WearWidgetParams) {
+            containerTypeToSpec[params.containerType] =
+                WidgetContainerSpecProto(
+                    width_dp = params.widthDp,
+                    height_dp = params.heightDp,
+                    horizontal_padding_dp = params.horizontalPaddingDp,
+                    vertical_padding_dp = params.verticalPaddingDp,
+                    corner_radius_dp = params.cornerRadiusDp,
+                )
         }
 
         internal fun toProto(): WearWidgetCacheProto {
@@ -138,23 +152,6 @@ internal constructor(private val dataStore: DataStore<WearWidgetCacheProto>) {
 
     internal companion object {
         private const val TAG = "WearWidgetCache"
-    }
-}
-
-/**
- * Represents the container spec for widget containers.
- *
- * @property widthDp The width of the content area in dp.
- * @property heightDp The height of the content area in dp.
- */
-internal data class WidgetContainerSpec(val widthDp: Float, val heightDp: Float) {
-    /** Converts this [WidgetContainerSpec] to a [WidgetContainerSpecProto]. */
-    internal fun toProto() = WidgetContainerSpecProto(width_dp = widthDp, height_dp = heightDp)
-
-    internal companion object {
-        /** Converts a [WidgetContainerSpecProto] to a [WidgetContainerSpec]. */
-        internal fun fromProto(specProto: WidgetContainerSpecProto) =
-            WidgetContainerSpec(widthDp = specProto.width_dp, heightDp = specProto.height_dp)
     }
 }
 

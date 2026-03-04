@@ -39,7 +39,7 @@ import kotlinx.coroutines.withContext
  * Base class for all Room databases. All classes that are annotated with [Database] must extend
  * this class.
  *
- * RoomDatabase provides direct access to the underlying database implementation but you should
+ * RoomDatabase provides direct access to the underlying database implementation, but you should
  * prefer using [Dao] classes.
  *
  * @see Database
@@ -516,7 +516,6 @@ public suspend fun <R> RoomDatabase.useWriterConnection(block: suspend (Transact
  * roomDatabase.useReaderConnection { it.withTransaction(DEFERRED) { block() } }
  * ```
  */
-@ExperimentalRoomApi
 public suspend fun <R> RoomDatabase.withReadTransaction(
     block: suspend TransactionScope<R>.() -> R
 ): R = useReaderConnection { it.withTransaction(Transactor.SQLiteTransactionType.DEFERRED, block) }
@@ -530,7 +529,6 @@ public suspend fun <R> RoomDatabase.withReadTransaction(
  * roomDatabase.useWriterConnection { it.withTransaction(IMMEDIATE) { block() } }
  * ```
  */
-@ExperimentalRoomApi
 public suspend fun <R> RoomDatabase.withWriteTransaction(
     block: suspend TransactionScope<R>.() -> R
 ): R = useWriterConnection { it.withTransaction(Transactor.SQLiteTransactionType.IMMEDIATE, block) }

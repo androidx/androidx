@@ -127,8 +127,9 @@ public abstract class Box internal constructor() {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public abstract fun toImmutable(): ImmutableBox
 
     /**
-     * Compares this [Box] with [other], and returns true if the difference between [xMin] and
-     * [other.xMin] is less than [tolerance], and likewise for [xMax], [yMin], and [yMax].
+     * Compares this [Box] with [other], and returns true if the difference between [xMin] from
+     * `this` and [xMin] from [other] is less than [tolerance], and likewise for [xMax], [yMin], and
+     * [yMax].
      */
     public fun isAlmostEqual(other: Box, @FloatRange(from = 0.0) tolerance: Float): Boolean =
         this === other ||

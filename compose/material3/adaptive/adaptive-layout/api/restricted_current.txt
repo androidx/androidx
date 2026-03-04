@@ -67,7 +67,7 @@ package androidx.compose.material3.adaptive.layout {
 
   @androidx.compose.runtime.Stable public abstract class DragToResizeState implements androidx.compose.foundation.gestures.DraggableState {
     method public void dispatchRawDelta(float delta);
-    method public suspend Object? drag(androidx.compose.foundation.MutatePriority dragPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.DragScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? drag(optional androidx.compose.foundation.MutatePriority dragPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.DragScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     field public static final androidx.compose.material3.adaptive.layout.DragToResizeState.Companion Companion;
   }
 

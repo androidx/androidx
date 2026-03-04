@@ -147,6 +147,23 @@ import java.util.concurrent.TimeUnit;
  * video capture feature can be enabled. Disabling/enabling {@link UseCase}s freezes the preview for
  * a short period of time. To avoid the glitch, the {@link UseCase}s need to be enabled/disabled
  * before the controller is set on {@link PreviewView}.
+ *
+ * <p>There are two main approaches to configure the {@link CameraController}:
+ * <ol>
+ *     <li><b>Use {@link #setEnabledUseCases(int)}</b>: This is for basic usage scenarios. The
+ *     {@link CameraController} will manage the {@link UseCase} lifecycles and configurations for
+ *     you. You can enable or disable features like image capture, image analysis, and video
+ *     capture as needed.
+ *     </li>
+ *     <li><b>Use {@link #setSessionConfig(SessionConfig, CameraSelector)}</b>: This approach is
+ *     for apps where the methods exposed from the CameraController can't fulfill their
+ *     requirements. Apps can use this to configure the UseCases via SessionConfig and then they
+ *     can access those methods via the UseCases directly. If apps need to access many advanced
+ *     methods from UseCases that are not exposed from the CameraController, it is recommended to
+ *     directly use UseCases, PreviewView and setViewPort to do the implementation. When using
+ *     this approach, a {@link Preview} use case is mandatory.
+ *     </li>
+ * </ol>
  */
 public abstract class CameraController {
 
@@ -474,7 +491,8 @@ public abstract class CameraController {
      * @param enabledUseCases one or more of the following use cases, bitwise-OR-ed together:
      * {@link #IMAGE_CAPTURE}, {@link #IMAGE_ANALYSIS} and/or {@link #VIDEO_CAPTURE}.
      * @throws IllegalStateException If the current camera selector is unable to resolve a camera
-     * to be used for the enabled use cases.
+     * to be used for the enabled use cases, or if a {@link SessionConfig} has been set to the
+     * CameraController.
      * @see UseCase
      * @see ImageCapture
      * @see ImageAnalysis
@@ -581,7 +599,6 @@ public abstract class CameraController {
      *                                  unsupported {@link UseCase} combination) or cannot be used
      *                                  to create a functional camera capture session.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @MainThread
     public void setSessionConfig(@NonNull SessionConfig sessionConfig,
             @NonNull CameraSelector cameraSelector) {
@@ -816,6 +833,8 @@ public abstract class CameraController {
      * avoid this, set the value before controller is bound to lifecycle.
      *
      * @param targetSize the intended output size for {@link Preview}.
+     * @throws IllegalStateException if a {@link SessionConfig} has been set to the
+     * CameraController.
      * @see Preview.Builder#setTargetAspectRatio(int)
      * @see Preview.Builder#setTargetResolution(Size)
      * @deprecated Use {@link #setPreviewResolutionSelector(ResolutionSelector)} instead.
@@ -858,6 +877,8 @@ public abstract class CameraController {
      * <p>Changing the value will reconfigure the camera which will cause additional latency. To
      * avoid this, set the value before controller is bound to lifecycle.
      *
+     * @throws IllegalStateException if a {@link SessionConfig} has been set to the
+     * CameraController.
      * @see Preview.Builder#setResolutionSelector(ResolutionSelector)
      */
     @MainThread
@@ -903,6 +924,8 @@ public abstract class CameraController {
      * {@link DynamicRange#HDR_UNSPECIFIED_10_BIT}. If the dynamic range is not provided, the
      * default value is {@link DynamicRange#SDR}.
      *
+     * @throws IllegalStateException if a {@link SessionConfig} has been set to the
+     * CameraController.
      * @see Preview.Builder#setDynamicRange(DynamicRange)
      *
      * TODO: make this public in the next release.
@@ -1182,6 +1205,8 @@ public abstract class CameraController {
      * <p>Changing the value will reconfigure the camera which will cause additional latency. To
      * avoid this, set the value before controller is bound to lifecycle.
      *
+     * @throws IllegalStateException if a {@link SessionConfig} has been set to the
+     * CameraController.
      * @param captureMode The requested image capture mode.
      */
     @MainThread
@@ -1220,6 +1245,8 @@ public abstract class CameraController {
      * avoid this, set the value before controller is bound to lifecycle.
      *
      * @param targetSize The intended image size for {@link ImageCapture}.
+     * @throws IllegalStateException if a {@link SessionConfig} has been set to the
+     * CameraController.
      * @deprecated Use {@link #setImageCaptureResolutionSelector(ResolutionSelector)} instead.
      */
     @MainThread
@@ -1261,6 +1288,8 @@ public abstract class CameraController {
      * <p>Changing the value will reconfigure the camera which will cause additional latency. To
      * avoid this, set the value before controller is bound to lifecycle.
      *
+     * @throws IllegalStateException if a {@link SessionConfig} has been set to the
+     * CameraController.
      * @see ImageCapture.Builder#setResolutionSelector(ResolutionSelector)
      */
     @MainThread
@@ -1303,6 +1332,8 @@ public abstract class CameraController {
      * <p>Changing the value will reconfigure the camera which will cause additional latency.
      * To avoid this, set the value before controller is bound to lifecycle.
      *
+     * @throws IllegalStateException if a {@link SessionConfig} has been set to the
+     * CameraController.
      * @param executor The executor which will be used for IO tasks.
      */
     @MainThread
@@ -1398,6 +1429,8 @@ public abstract class CameraController {
      * @param executor The executor in which the
      * {@link ImageAnalysis.Analyzer#analyze(ImageProxy)} will be run.
      * @param analyzer of the images.
+     * @throws IllegalStateException if a {@link SessionConfig} has been set to the
+     * CameraController.
      * @see ImageAnalysis#setAnalyzer(Executor, ImageAnalysis.Analyzer)
      */
     @MainThread
@@ -1424,6 +1457,8 @@ public abstract class CameraController {
      * non-null value, calling this method will reconfigure the camera which might cause additional
      * latency. To avoid this, call this method when the lifecycle is not active.
      *
+     * @throws IllegalStateException if a {@link SessionConfig} has been set to the
+     * CameraController.
      * @see ImageAnalysis#clearAnalyzer().
      */
     @MainThread
@@ -1480,6 +1515,8 @@ public abstract class CameraController {
      * avoid this, set the value before controller is bound to lifecycle.
      *
      * @param strategy The strategy to use.
+     * @throws IllegalStateException if a {@link SessionConfig} has been set to the
+     * CameraController.
      * @see ImageAnalysis.Builder#setBackpressureStrategy(int)
      */
     @MainThread
@@ -1507,6 +1544,8 @@ public abstract class CameraController {
      * avoid this, set the value before controller is bound to lifecycle.
      *
      * @param depth The total number of images available.
+     * @throws IllegalStateException if a {@link SessionConfig} has been set to the
+     * CameraController.
      * @see ImageAnalysis.Builder#setImageQueueDepth(int)
      */
     @MainThread
@@ -1548,6 +1587,8 @@ public abstract class CameraController {
      * @param targetSize The intended output size for {@link ImageAnalysis}.
      * @see ImageAnalysis.Builder#setTargetAspectRatio(int)
      * @see ImageAnalysis.Builder#setTargetResolution(Size)
+     * @throws IllegalStateException if a {@link SessionConfig} has been set to the
+     * CameraController.
      * @deprecated Use {@link #setImageAnalysisResolutionSelector(ResolutionSelector)} instead.
      */
     @MainThread
@@ -1592,6 +1633,8 @@ public abstract class CameraController {
      * <p>Changing the value will reconfigure the camera which will cause additional latency. To
      * avoid this, set the value before controller is bound to lifecycle.
      *
+     * @throws IllegalStateException if a {@link SessionConfig} has been set to the
+     * CameraController.
      * @see ImageAnalysis.Builder#setResolutionSelector(ResolutionSelector)
      */
     @MainThread
@@ -1638,6 +1681,8 @@ public abstract class CameraController {
      * avoid this, set the value before controller is bound to lifecycle.
      *
      * @param executor The executor for {@link ImageAnalysis} background tasks.
+     * @throws IllegalStateException if a {@link SessionConfig} has been set to the
+     * CameraController.
      * @see ImageAnalysis.Builder#setBackgroundExecutor(Executor)
      */
     @MainThread
@@ -1689,6 +1734,8 @@ public abstract class CameraController {
      * when the camera is active, check the {@link ImageProxy#getFormat()} value to determine
      * when the new format takes effect.
      *
+     * @throws IllegalStateException if a {@link SessionConfig} has been set to the
+     * CameraController.
      * @see ImageAnalysis.Builder#setOutputImageFormat(int)
      * @see ImageAnalysis.Builder#getOutputImageFormat()
      * @see ImageAnalysis#getOutputImageFormat()
@@ -2057,6 +2104,8 @@ public abstract class CameraController {
      * avoid this, set the value before controller is bound to lifecycle.
      *
      * @param qualitySelector The quality selector for {@link #VIDEO_CAPTURE}.
+     * @throws IllegalStateException if a {@link SessionConfig} has been set to the
+     * CameraController.
      * @see QualitySelector
      */
     @MainThread
@@ -2092,6 +2141,8 @@ public abstract class CameraController {
      * {@link MirrorMode#MIRROR_MODE_ON} and {@link MirrorMode#MIRROR_MODE_ON_FRONT_ONLY}.
      * If not set, it defaults to {@link MirrorMode#MIRROR_MODE_OFF}.
      *
+     * @throws IllegalStateException if a {@link SessionConfig} has been set to the
+     * CameraController.
      * @see VideoCapture.Builder#setMirrorMode(int)
      */
     @MainThread
@@ -2135,6 +2186,8 @@ public abstract class CameraController {
      *
      * <p>If the dynamic range is not provided, the default value is {@link DynamicRange#SDR}.
      *
+     * @throws IllegalStateException if a {@link SessionConfig} has been set to the
+     * CameraController.
      * @see VideoCapture.Builder#setDynamicRange(DynamicRange)
      */
     @MainThread
@@ -2172,6 +2225,8 @@ public abstract class CameraController {
      * <p>By default, the value is {@link StreamSpec#FRAME_RATE_RANGE_UNSPECIFIED}. For supported
      * frame rates, see {@link CameraInfo#getSupportedFrameRateRanges()}.
      *
+     * @throws IllegalStateException if a {@link SessionConfig} has been set to the
+     * CameraController.
      * @see VideoCapture.Builder#setTargetFrameRate(Range)
      */
     @MainThread
@@ -2361,6 +2416,14 @@ public abstract class CameraController {
      * otherwise, the new {@link CameraSelector} will be used when the camera becomes ready.
      *
      * <p>The default value is {@link CameraSelector#DEFAULT_BACK_CAMERA}.
+     *
+     * <p>If a {@link SessionConfig} with advanced settings is set, it might only be supported on
+     * specific camera devices, it is recommended to check whether it can be supported via
+     * {@link CameraInfo#isSessionConfigSupported(SessionConfig)} before switching the camera
+     * selector. It is also recommended to use
+     * {@link #setSessionConfig(SessionConfig, CameraSelector)} to switch camera with
+     * SessionConfig in one function call, in case the camera resolved by the new CameraSelector
+     * can't support current SessionConfig and then make the camera switching operation failed.
      *
      * @throws IllegalStateException If the provided camera selector is unable to resolve a camera
      * to be used for the enabled use cases.
@@ -2952,6 +3015,8 @@ public abstract class CameraController {
      *
      * @param effects The effects applied to camera output.
      * @throws IllegalArgumentException if the combination of effects is not supported by CameraX.
+     * @throws IllegalStateException if a {@link SessionConfig} has been set to the
+     * CameraController.
      * @see UseCaseGroup.Builder#addEffect
      */
     @MainThread
@@ -2995,6 +3060,9 @@ public abstract class CameraController {
      * Removes all effects.
      *
      * <p>Once called, CameraX will remove all the effects and rebind the {@link UseCase}.
+     *
+     * @throws IllegalStateException if a {@link SessionConfig} has been set to the
+     * CameraController.
      */
     @MainThread
     public void clearEffects() {

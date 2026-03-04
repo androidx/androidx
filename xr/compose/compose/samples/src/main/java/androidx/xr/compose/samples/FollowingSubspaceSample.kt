@@ -64,7 +64,7 @@ public fun FollowingSubspaceSample() {
         val session: Session? = LocalSession.current
         if (session == null) return
         session.configure(
-            config = session.config.copy(deviceTracking = DeviceTrackingMode.LAST_KNOWN)
+            config = session.config.copy(deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN)
         )
         FollowingSubspace(
             target = FollowTarget.ArDevice(session),

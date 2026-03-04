@@ -22,7 +22,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue
 
 /**
  * Represents a semantics node and the path to fetch it from the semantics tree. One can perform
- * assertions or navigate to other nodes such as [onChildren].
+ * assertions or navigate to other nodes such as [androidx.compose.ui.test.onChildren].
  *
  * An instance of [SubspaceSemanticsNodeInteraction] can be obtained from [onSubspaceNode] and
  * convenience methods that use a specific filter.
@@ -127,12 +127,12 @@ internal constructor(
 
 /**
  * Represents a collection of semantics nodes and the path to fetch them from the semantics tree.
- * One can interact with these nodes by performing assertions such as [assertCountEquals], or
- * navigate to other nodes such as [get].
+ * One can interact with these nodes by performing assertions such as
+ * [androidx.compose.ui.test.assertCountEquals], or navigate to other nodes such as [get].
  *
  * An instance of [SubspaceSemanticsNodeInteractionCollection] can be obtained from
  * [onAllSubspaceNodes] and convenience methods that use a specific filter, such as
- * [onAllNodesWithText].
+ * [androidx.compose.ui.test.onAllNodesWithText].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class SubspaceSemanticsNodeInteractionCollection

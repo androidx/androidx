@@ -267,6 +267,26 @@ class TracingTest {
     }
 
     @Test
+    internal fun testTrackEventsWithExplicitPropagation() = runTest {
+        driver.use {
+            tracer.traceCoroutine(category = "category", name = "first") {
+                val token = tracer.tokenFromCoroutineContext()
+                tracer.traceCoroutine(category = "category", name = "second", token = token) {
+                    delay(10)
+                }
+            }
+        }
+        assertTrue(message = "Missing Packets in Trace Sink") { sink.packets.isNotEmpty() }
+        val (start, _) = sink.firstStartStopWithName("first")
+        val flowId = start.track_event?.flow_ids?.first()
+        assertNotNull(flowId) { "Packet $start does not include a flow_id" }
+        val (secondSlice, _) = sink.firstStartStopWithName("second")
+        val secondFlowIds = secondSlice.track_event?.flow_ids ?: emptyList()
+        // Method second should be assigned the same flow id as that of the first slice.
+        assertTrue { secondFlowIds.contains(flowId) }
+    }
+
+    @Test
     internal fun testCounterTrackEvents() {
         driver.use { tracer.counter(category = "counter", "counter").setValue(10L) }
         assertEquals(3, sink.packets.size)

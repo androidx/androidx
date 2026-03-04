@@ -111,6 +111,8 @@ constructor(
      * Appends that are triggered by scrolling (i.e. if user scrolls to end of the list and triggers
      * [PagingConfig.prefetchDistance]) takes precedence over this append. This ensures that items
      * that are currently accessed gets loaded in first.
+     *
+     * No-op if preceding [append] returned [LoadState.Error]. To recover from error, use [retry]
      */
     public fun append() {
         pageFetcher.load(LoadType.APPEND)
@@ -126,6 +128,8 @@ constructor(
      * Prepends that are triggered by scrolling (i.e. if user scrolls to start of the list and
      * triggers [PagingConfig.prefetchDistance]) takes precedence over this prepend. This ensures
      * that items that are currently accessed gets loaded in first.
+     *
+     * No-op if preceding [prepend] returned [LoadState.Error]. To recover from error, use [retry]
      */
     public fun prepend() {
         pageFetcher.load(LoadType.PREPEND)
@@ -163,5 +167,16 @@ constructor(
      */
     public fun refresh(item: Value) {
         pageFetcher.refresh(item)
+    }
+
+    /**
+     * Retry most recent load that returned [PagingSource.LoadResult.Error]. No-op if there were no
+     * errors.
+     *
+     * Applicable to all [LoadType]s. The retry is not guaranteed to succeed as the cause of the
+     * initial may persist on retries.
+     */
+    public fun retry() {
+        pageFetcher.retry()
     }
 }

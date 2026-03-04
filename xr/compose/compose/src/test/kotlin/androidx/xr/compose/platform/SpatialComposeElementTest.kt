@@ -22,7 +22,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.compose.subspace.layout.CoreGroupEntity
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.configureFakeSession
-import androidx.xr.scenecore.GroupEntity
+import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.runtime.SceneRuntime
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -71,7 +71,7 @@ class SpatialComposeElementTest {
     @Test
     fun spatialComposeElement_constructor_initializesPropertiesWithCustomValues() {
         val session = composeTestRule.configureFakeSession()
-        val entity = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
         val coreEntity = CoreGroupEntity(entity)
         lateinit var scene: SpatialComposeScene
         lateinit var composition: androidx.compose.runtime.CompositionContext

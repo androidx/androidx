@@ -18,7 +18,6 @@ package androidx.xr.glimmer.list
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.util.fastSumBy
 
 /** Information about the layout of the [VerticalList]. */
 public interface ListLayoutInfo {
@@ -65,16 +64,11 @@ public interface ListLayoutInfo {
     /** The content padding in pixels applied after the last item in the direction of scrolling. */
     public val afterContentPadding: Int
 
+    /** The spacing that will be applied between items in the direction of scrolling, in pixels. */
     public val mainAxisItemSpacing: Int
 }
 
-internal fun ListLayoutInfo.visibleItemsAverageSize(): Int {
-    val visibleItems = visibleItemsInfo
-    val itemsSum = visibleItems.fastSumBy { it.size }
-    return itemsSum / visibleItems.size + mainAxisItemSpacing
-}
-
-internal val ListLayoutInfo.singleAxisViewportSize: Int
+internal val ListLayoutInfo.mainAxisViewportSize: Int
     get() =
         if (orientation == Orientation.Vertical) {
             viewportSize.height

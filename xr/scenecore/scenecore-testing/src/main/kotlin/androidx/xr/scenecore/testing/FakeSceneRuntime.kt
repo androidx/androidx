@@ -198,12 +198,18 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
         return surfaceEntity
     }
 
-    override fun createGroupEntity(pose: Pose, name: String, parent: Entity?): Entity {
-        val entity = FakeEntity(name)
+    override fun createEntity(pose: Pose, name: String?, parent: Entity?): Entity {
+        val entityName = name ?: ""
+        val entity = FakeEntity(entityName)
         entity.setPose(pose)
         entity.parent = parent
 
         return entity
+    }
+
+    @Deprecated("Use createEntity instead.")
+    override fun createGroupEntity(pose: Pose, name: String, parent: Entity?): Entity {
+        return createEntity(pose, name, parent)
     }
 
     override fun createLoggingEntity(pose: Pose): LoggingEntity =

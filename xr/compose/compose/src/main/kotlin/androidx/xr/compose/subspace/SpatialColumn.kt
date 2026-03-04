@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.LayoutScopeMarker
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastRoundToInt
 import androidx.xr.compose.subspace.layout.SpatialAlignment
 import androidx.xr.compose.subspace.layout.SpatialArrangement
@@ -206,7 +207,11 @@ internal class SpatialColumnMeasurePolicy(
         }
     }
 
-    override fun getMainAxisOffset(contentSize: IntVolumeSize, containerSize: IntVolumeSize): Int {
+    override fun getMainAxisOffset(
+        contentSize: IntVolumeSize,
+        containerSize: IntVolumeSize,
+        layoutDirection: LayoutDirection,
+    ): Int {
         // Each child will have its main-axis offset adjusted, based on extra space available and
         // the provided alignment. `mainAxisOffset` represents the top edge of the content in the
         // container space.
@@ -256,6 +261,7 @@ internal class SpatialColumnMeasurePolicy(
         resolvedMeasurable: ResolvedMeasurable,
         containerSize: IntVolumeSize,
         mainAxisOffset: Int,
+        layoutDirection: LayoutDirection,
     ): Pose {
         val mainAxisPosition = (resolvedMeasurable.mainAxisPosition ?: 0) + mainAxisOffset
 
@@ -272,6 +278,7 @@ internal class SpatialColumnMeasurePolicy(
                 width = crossAxisSize,
                 space = containerSize.width,
                 parentSpatialAlignment = alignment,
+                layoutDirection = layoutDirection,
             )
 
         val depthPosition =
@@ -363,22 +370,22 @@ private operator fun SpatialAlignment.Horizontal.plus(
     when (this) {
         is SpatialBiasAlignment.Horizontal ->
             SpatialBiasAlignment(
-                horizontalBias = bias,
+                horizontalBias = horizontalBias,
                 verticalBias = 0f,
                 depthBias =
                     when (other) {
-                        is SpatialBiasAlignment.Depth -> other.bias
+                        is SpatialBiasAlignment.Depth -> other.depthBias
                         else -> 0f
                     },
             )
 
         is SpatialBiasAbsoluteAlignment.Horizontal ->
             SpatialBiasAbsoluteAlignment(
-                horizontalBias = bias,
+                horizontalBias = horizontalBias,
                 verticalBias = 0f,
                 depthBias =
                     when (other) {
-                        is SpatialBiasAlignment.Depth -> other.bias
+                        is SpatialBiasAlignment.Depth -> other.depthBias
                         else -> 0f
                     },
             )

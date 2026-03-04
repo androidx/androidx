@@ -21,21 +21,21 @@ import kotlin.reflect.KClass
 /**
  * Declares a foreign key on another [Entity].
  *
- * Foreign keys allows you to specify constraints across Entities such that SQLite will ensure that
+ * Foreign keys allows you to specify constraints across entities such that SQLite will ensure that
  * the relationship is valid when you modify the database.
  *
  * When a foreign key constraint is specified, SQLite requires the referenced columns to be part of
  * a unique index in the parent table or the primary key of that table. You must create a unique
- * index in the parent entity that covers the referenced columns (Room will verify this at compile
- * time and print an error if it is missing).
+ * index in the parent entity that covers the referenced columns. Room will verify this at compile
+ * time and output an error if it is missing.
  *
  * It is also recommended to create an index on the child table to avoid full table scans when the
- * parent table is modified. If a suitable index on the child table is missing, Room will print
+ * parent table is modified. If a suitable index on the child table is missing, Room will output the
  * [RoomWarnings.MISSING_INDEX_ON_FOREIGN_KEY_CHILD] warning.
  *
  * A foreign key constraint can be deferred until the transaction is complete. This is useful if you
  * are doing bulk inserts into the database in a single transaction. By default, foreign key
- * constraints are immediate but you can change this value by setting [deferred] to `true`. You can
+ * constraints are immediate, but you can change this value by setting [deferred] to `true`. You can
  * also use [defer_foreign_keys](https://sqlite.org/pragma.html#pragma_defer_foreign_keys) to defer
  * them depending on your transaction.
  *
@@ -93,7 +93,7 @@ public annotation class ForeignKey(
     /**
      * A foreign key constraint can be deferred until the transaction is complete. This is useful if
      * you are doing bulk inserts into the database in a single transaction. By default, foreign key
-     * constraints are immediate but you can change it by setting this property to `true`. You can
+     * constraints are immediate, but you can change it by setting this property to `true`. You can
      * also use [defer_foreign_keys](https://sqlite.org/pragma.html#pragma_defer_foreign_keys)
      * PRAGMA to defer them depending on your transaction.
      *
@@ -115,7 +115,7 @@ public annotation class ForeignKey(
         /**
          * Possible value for [onDelete] or [onUpdate].
          *
-         * The RESTRICT action means that the application is prohibited from deleting (for
+         * The `RESTRICT` action means that the application is prohibited from deleting (for
          * [onDelete]) or modifying (for [onUpdate]) a parent key when there exists one or more
          * child keys mapped to it. The difference between the effect of a RESTRICT action and
          * normal foreign key constraint enforcement is that the RESTRICT action processing happens
@@ -123,16 +123,16 @@ public annotation class ForeignKey(
          * with an immediate constraint, or at the end of the current transaction as it would with a
          * [deferred] constraint.
          *
-         * Even if the foreign key constraint it is attached to is [deferred], configuring a
-         * RESTRICT action causes SQLite to return an error immediately if a parent key with
-         * dependent child keys is deleted or modified.
+         * Even if the foreign key constraint is attached to is [deferred], configuring a `RESTRICT`
+         * action causes SQLite to return an error immediately if a parent key with dependent child
+         * keys is deleted or modified.
          */
         public const val RESTRICT: Int = 2
 
         /**
          * Possible value for [onDelete] or [onUpdate].
          *
-         * If the configured action is "SET NULL", then when a parent key is deleted (for
+         * If the configured action is `SET NULL`, then when a parent key is deleted (for
          * [onDelete]) or modified (for [onUpdate]), the child key columns of all rows in the child
          * table that mapped to the parent key are set to contain `NULL` values.
          */
@@ -141,15 +141,17 @@ public annotation class ForeignKey(
         /**
          * Possible value for [onDelete] or [onUpdate].
          *
-         * The "SET DEFAULT" actions are similar to [SET_NULL], except that each of the child key
+         * The `SET DEFAULT` actions are similar to [SET_NULL], except that each of the child key
          * columns is set to contain the columns default value instead of `NULL`.
+         *
+         * @see ColumnInfo.defaultValue
          */
         public const val SET_DEFAULT: Int = 4
 
         /**
          * Possible value for [onDelete] or [onUpdate].
          *
-         * A "CASCADE" action propagates the delete or update operation on the parent key to each
+         * A `CASCADE` action propagates the delete or update operation on the parent key to each
          * dependent child key. For [onDelete] action, this means that each row in the child entity
          * that was associated with the deleted parent row is also deleted. For an [onUpdate]
          * action, it means that the values stored in each dependent child key are modified to match

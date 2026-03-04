@@ -205,7 +205,7 @@ public class SplitController internal constructor(private val embeddingBackend: 
      * - A window or device state updates (e,g. due to screen rotation or folding state update).
      *
      * In most cases it is suggested to use
-     * [ActivityEmbeddingController.invalidateTopVisibleActivityStacks] if a calculator has been set
+     * [ActivityEmbeddingController.invalidateVisibleActivityStacks] if a calculator has been set
      * through [setSplitAttributesCalculator].
      *
      * @param splitInfo the split pair to update

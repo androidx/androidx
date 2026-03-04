@@ -592,6 +592,7 @@ constructor(
              * [androidx.xr.arcore.RenderViewpoint.State.pose].
              */
             @JvmField public val DISABLED: DeviceTrackingMode = DeviceTrackingMode(0)
+
             /**
              * The device pose will be tracked and the last known pose from the system at the time
              * of runtime update will be provided. Note that there is generally a delay between the
@@ -611,7 +612,7 @@ constructor(
         public fun toNewType(): androidx.xr.runtime.DeviceTrackingMode =
             when (this) {
                 DISABLED -> androidx.xr.runtime.DeviceTrackingMode.DISABLED
-                LAST_KNOWN -> androidx.xr.runtime.DeviceTrackingMode.LAST_KNOWN
+                LAST_KNOWN -> androidx.xr.runtime.DeviceTrackingMode.SPATIAL_LAST_KNOWN
                 else -> androidx.xr.runtime.DeviceTrackingMode.DISABLED
             }
     }

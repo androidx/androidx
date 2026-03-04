@@ -4,10 +4,12 @@ package androidx.compose.material3 {
   public final class AlertDialogDefaults {
     method @BytecodeOnly @androidx.compose.runtime.Composable public long getContainerColor(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public long getIconContentColor(androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly public float getIconSize-D9Ej5fM();
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getShape(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public long getTextContentColor(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public long getTitleContentColor(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly public float getTonalElevation-D9Ej5fM();
+    property public androidx.compose.ui.unit.Dp IconSize;
     property public androidx.compose.ui.unit.Dp TonalElevation;
     property public androidx.compose.ui.graphics.Color containerColor;
     property public androidx.compose.ui.graphics.Color iconContentColor;
@@ -1136,7 +1138,6 @@ package androidx.compose.material3 {
   }
 
   public final class DefaultTooltipCaretShape implements androidx.compose.ui.graphics.Shape {
-    ctor public DefaultTooltipCaretShape();
     ctor @KotlinOnly public DefaultTooltipCaretShape(optional androidx.compose.ui.unit.DpSize caretSize);
     ctor @BytecodeOnly public DefaultTooltipCaretShape(long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public DefaultTooltipCaretShape(long, kotlin.jvm.internal.DefaultConstructorMarker!);
@@ -3002,7 +3003,6 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class RippleConfiguration {
-    ctor public RippleConfiguration();
     ctor @KotlinOnly public RippleConfiguration(optional androidx.compose.ui.graphics.Color color, optional androidx.compose.material.ripple.RippleAlpha? rippleAlpha);
     ctor @BytecodeOnly public RippleConfiguration(long, androidx.compose.material.ripple.RippleAlpha!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public RippleConfiguration(long, androidx.compose.material.ripple.RippleAlpha!, kotlin.jvm.internal.DefaultConstructorMarker!);
@@ -3588,7 +3588,7 @@ package androidx.compose.material3 {
     ctor @BytecodeOnly public SliderState(float, int, kotlin.jvm.functions.Function0!, kotlin.ranges.ClosedFloatingPointRange!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public SliderState(optional float value, optional @IntRange(from=0L) int steps, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onValueChangeFinished, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange);
     method public void dispatchRawDelta(float delta);
-    method public suspend Object? drag(androidx.compose.foundation.MutatePriority dragPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.DragScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? drag(optional androidx.compose.foundation.MutatePriority dragPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.DragScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @InaccessibleFromKotlin public float getCoercedValueAsFraction();
     method @InaccessibleFromKotlin public kotlin.jvm.functions.Function1<java.lang.Float,kotlin.Unit>? getOnValueChange();
     method @InaccessibleFromKotlin public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnValueChangeFinished();
@@ -5182,7 +5182,7 @@ package androidx.compose.material3.carousel {
     method public float dispatchRawDelta(float delta);
     method @InaccessibleFromKotlin public int getCurrentItem();
     method @InaccessibleFromKotlin public boolean isScrollInProgress();
-    method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? scroll(optional androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? scrollToItem(int item, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public int currentItem;
     property public boolean isScrollInProgress;

@@ -54,20 +54,12 @@ constructor(@Internal protected val workerExecutor: WorkerExecutor) : DefaultTas
     /** Dependencies (compiled classes) of the project. */
     @get:Classpath lateinit var dependencyClasspath: FileCollection
 
-    @get:Input abstract val k2UastEnabled: Property<Boolean>
-
     @get:Input abstract val kotlinSourceLevel: Property<KotlinVersion>
 
     @get:Input abstract val targetsJavaConsumers: Property<Boolean>
 
     fun runWithArgs(args: List<String>) {
-        runMetalavaWithArgs(
-            metalavaClasspath,
-            args,
-            k2UastEnabled.get(),
-            kotlinSourceLevel.get(),
-            workerExecutor,
-        )
+        runMetalavaWithArgs(metalavaClasspath, args, kotlinSourceLevel.get(), workerExecutor)
     }
 }
 

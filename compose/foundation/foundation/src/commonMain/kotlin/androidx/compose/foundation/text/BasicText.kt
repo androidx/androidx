@@ -85,8 +85,8 @@ import kotlin.math.floor
  * @param autoSize Enable auto sizing for this text composable. Finds the biggest font size that
  *   fits in the available space and lays the text out with this size. This performs multiple layout
  *   passes and can be slower than using a fixed font size. This takes precedence over sizes defined
- *   through [style]. See [TextAutoSize] and
- *   [androidx.compose.foundation.samples.TextAutoSizeBasicTextSample].
+ *   through [style]. See [TextAutoSize] and the sample code.
+ * @sample androidx.compose.foundation.samples.TextAutoSizeBasicTextSample
  */
 @Composable
 fun BasicText(
@@ -182,8 +182,8 @@ fun BasicText(
  * @param autoSize Enable auto sizing for this text composable. Finds the biggest font size that
  *   fits in the available space and lays the text out with this size. This performs multiple layout
  *   passes and can be slower than using a fixed font size. This takes precedence over sizes defined
- *   through [style]. See [TextAutoSize] and
- *   [androidx.compose.foundation.samples.TextAutoSizeBasicTextSample].
+ *   through [style]. See [TextAutoSize] and the sample code.
+ * @sample androidx.compose.foundation.samples.TextAutoSizeBasicTextSample
  */
 @Composable
 fun BasicText(

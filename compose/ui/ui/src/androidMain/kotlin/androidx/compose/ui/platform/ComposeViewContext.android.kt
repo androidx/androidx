@@ -30,6 +30,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LocalHostDefaultProvider
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.retain.RetainedValuesStore
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
@@ -47,6 +48,9 @@ import androidx.compose.ui.hapticfeedback.PlatformHapticFeedback
 import androidx.compose.ui.node.LayoutNodeDrawScope
 import androidx.compose.ui.res.ImageVectorCache
 import androidx.compose.ui.res.ResourceIdCache
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.lifecycle.LifecycleOwner
@@ -130,6 +134,17 @@ internal class ComposeViewContext(
 
     /** [Clipboard] provided by [LocalClipboard] */
     internal val clipboard: AndroidClipboard = AndroidClipboard(clipboardManager)
+
+    /** [Font.ResourceLoader] provided by [LocalFontLoader] */
+    @Suppress("DEPRECATION")
+    internal val fontLoader: Font.ResourceLoader = AndroidFontResourceLoader(view.context)
+
+    /**
+     * [FontFamily.Resolver] provided by [LocalFontFamilyResolver]. This is updated when the
+     * configuration changes.
+     */
+    internal val fontFamilyResolver =
+        mutableStateOf(createFontFamilyResolver(view.context), referentialEqualityPolicy())
 
     /** [HapticFeedback] provided by [LocalHapticFeedback] */
     internal val hapticFeedback: HapticFeedback = PlatformHapticFeedback(view)
@@ -260,6 +275,9 @@ internal class ComposeViewContext(
             imageVectorCache.prune(changedFlags)
             this@ComposeViewContext.configuration.value = Configuration(configuration)
             resourceIdCache.clear()
+            if (changedFlags and ActivityInfo.CONFIG_FONT_WEIGHT_ADJUSTMENT != 0) {
+                fontFamilyResolver.value = createFontFamilyResolver(view.context)
+            }
             if (changedFlags and MaskForNonWindowMetricsChanges.inv() != 0) {
                 windowInfo.updateContainerSizeIfObserved(calculateWindowSizeLambda)
             }

@@ -30,9 +30,9 @@ import androidx.room3.solver.prepared.result.PreparedQueryResultAdapter
 
 /** Binder of prepared queries of a Kotlin coroutine suspend function. */
 class CoroutinePreparedQueryResultBinder(
-    adapter: PreparedQueryResultAdapter?,
     private val continuationParamName: String,
-) : PreparedQueryResultBinder(adapter) {
+    override val adapter: PreparedQueryResultAdapter?,
+) : PreparedQueryResultBinder {
 
     override fun executeAndReturn(
         sqlQueryVar: String,

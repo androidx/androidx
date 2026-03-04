@@ -32,7 +32,7 @@ import kotlin.jvm.JvmStatic
  *
  * The type completely describes how inputs are used to create stroke meshes, and how those meshes
  * should be drawn by stroke renderers. In an analogous way to "font" and "font family", a [Brush]
- * can be considered an instance of a [BrushFamily] with a particular [color], [size], and an extra
+ * can be considered an instance of a [BrushFamily] with a particular color, [size], and an extra
  * parameter controlling visual fidelity, called [epsilon].
  */
 @Suppress("NotCloseable") // Finalize is only used to free the native peer.

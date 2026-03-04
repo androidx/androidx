@@ -1,6 +1,19 @@
 // Signature format: 4.0
 package androidx.tracing.wire {
 
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="Marks APIs that are experimental for ring buffer tracing.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ExperimentalRingBufferApi {
+  }
+
+  @SuppressCompatibility @androidx.tracing.wire.ExperimentalRingBufferApi public final class InMemoryRingBufferTraceSink extends androidx.tracing.TraceSink {
+    ctor public InMemoryRingBufferTraceSink(@IntRange(from=1L) int sequenceId, long capacityInBytes);
+    method public void close();
+    method public void closeAndFlushTo(okio.BufferedSink bufferedSink);
+    method public void enqueue(androidx.tracing.PooledTracePacketArray pooledPacketArray);
+    method public void flush();
+    method public void flushTo(okio.BufferedSink bufferedSink);
+    method public void onDroppedTraceEvent();
+  }
+
   public final class TraceDriverUtils {
     method public static androidx.tracing.TraceDriver TraceDriver(android.content.Context context, androidx.tracing.wire.TraceSink sink);
     method public static androidx.tracing.TraceDriver TraceDriver(android.content.Context context, androidx.tracing.wire.TraceSink sink, optional boolean isEnabled);

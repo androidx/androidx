@@ -59,9 +59,9 @@ private constructor(private val implementationHelper: ImplementationHelper) : La
 
     public fun interface Callback {
         /**
-         * Callback invoked at most once per [period] to report the latest start and end values
-         * passed to [aggregate]. This callback runs in the [CoroutineScope] (or, for Java clients,
-         * the [Executor]) passed to [create].
+         * Callback invoked at most once per `period` (specified in [create]) to report the latest
+         * start and end values passed to [aggregate]. This callback runs in the [CoroutineScope]
+         * (or, for Java clients, the [Executor]) passed to [create].
          */
         public suspend fun onLatencySample(startNanos: Long, endNanos: Long): Unit
     }
@@ -82,7 +82,7 @@ private constructor(private val implementationHelper: ImplementationHelper) : La
     public companion object {
         /**
          * Returns a new [RateLimitedLatencyAggregator]. For use by Kotlin clients. [callback] will
-         * be called in the given [scope], using its default [CoroutineContext].
+         * be called in the given [scope], using its default [kotlin.coroutines.CoroutineContext].
          *
          * @param period The period of time over which at most one sample will be reported.
          * @param scope The scope in which to aggregate and to call the callback. The scope's

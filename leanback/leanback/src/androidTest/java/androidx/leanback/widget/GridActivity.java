@@ -409,6 +409,8 @@ public class GridActivity extends Activity {
                             return 1;
                         }
                     };
+                    mSpanSizeLookup.setSpanGroupIndexCacheEnabled(true);
+                    mSpanSizeLookup.setSpanIndexCacheEnabled(true);
                 }
             }
         }
@@ -582,7 +584,8 @@ public class GridActivity extends Activity {
         if (mGridView.getAdapter() instanceof MyAdapter) {
             androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup spanSizeLookup =
                     ((MyAdapter) mGridView.getAdapter()).mSpanSizeLookup;
-            multiSpan = spanSizeLookup != null && spanSizeLookup.getSpanSize(position) > 1;
+            multiSpan = spanSizeLookup != null && (spanSizeLookup.getSpanSize(position) > 1
+                    || spanSizeLookup.getSpanSize(position) < 0);
         }
         ViewGroup.LayoutParams p = view.getLayoutParams();
         if (p == null || mNewLayoutParamsOnBind) {

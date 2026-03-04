@@ -17,11 +17,12 @@
 package androidx.room3
 
 /**
- * Marks a class as an auto migration spec that will be provided to Room at runtime.
+ * Marks a [androidx.room3.migration.AutoMigrationSpec] class that will be provided to Room at
+ * runtime.
  *
- * An instance of a class annotated with this annotation has to be provided to Room using
- * `Room.databaseBuilder.addAutoMigrationSpec(AutoMigrationSpec)`. Room will verify that the spec is
- * provided in the builder configuration and if not, an [IllegalArgumentException] will be thrown.
+ * An instance of a class annotated with this annotation has to be provided to the Room database
+ * using [androidx.room3.RoomDatabase.Builder.addAutoMigrationSpec]. Room will verify that the spec
+ * is provided in the builder and if not, it will throw an exception.
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)

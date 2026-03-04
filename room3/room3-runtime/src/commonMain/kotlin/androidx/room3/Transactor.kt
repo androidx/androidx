@@ -30,7 +30,7 @@ public interface PooledConnection {
      * Prepares a new SQL statement and use it within the code [block].
      *
      * Using the given [SQLiteStatement] after [block] completes is prohibited. The statement will
-     * also be thread confined, attempting to use it from another thread is an error.
+     * also be coroutine confined, attempting to use it from another coroutine is an error.
      *
      * Using a statement locks the connection it belongs to, therefore try not to do long-running
      * computations within the [block].
@@ -52,8 +52,8 @@ public interface Transactor : PooledConnection {
 
     /**
      * Begins a transaction and runs the [block] within the transaction. If [block] fails to
-     * complete normally i.e., an exception is thrown, or [TransactionScope.rollback] is invoked
-     * then the transaction will be rollback, otherwise it is committed.
+     * complete normally i.e. an exception is thrown, or [TransactionScope.rollback] is invoked then
+     * the transaction will be rollback, otherwise it is committed.
      *
      * If [inTransaction] returns `true` and this function is invoked it is the equivalent of
      * starting a nested transaction as if [TransactionScope.withNestedTransaction] was invoked and
@@ -103,10 +103,10 @@ public interface TransactionScope<T> : PooledConnection {
 
     /**
      * Begins a nested transaction and runs the [block] within the transaction. If [block] fails to
-     * complete normally i.e., an exception is thrown, or [rollback] is invoked then the transaction
+     * complete normally i.e. an exception is thrown, or [rollback] is invoked then the transaction
      * will be rollback, otherwise it is committed.
      *
-     * Note that a nested transaction is still governed by its parent transaction and it too must
+     * Note that a nested transaction is still governed by its parent transaction, and it too must
      * complete successfully for all its children transactions to be committed.
      *
      * See also [Savepoint](https://www.sqlite.org/lang_savepoint.html)

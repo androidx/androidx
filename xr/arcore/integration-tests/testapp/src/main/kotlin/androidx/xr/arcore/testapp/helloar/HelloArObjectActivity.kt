@@ -69,7 +69,7 @@ class HelloArObjectActivity : ComponentActivity() {
             SessionLifecycleHelper(
                 this,
                 Config(
-                    deviceTracking = DeviceTrackingMode.LAST_KNOWN,
+                    deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
                     augmentedObjectCategories =
                         setOf(
                             AugmentedObjectCategory.KEYBOARD,

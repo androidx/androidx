@@ -293,7 +293,10 @@ public fun VerticalPager(
     }
 }
 
-/** Contains the default values used by [Pager]. These are optimised for Wear. */
+/**
+ * Contains the default values used by [androidx.compose.foundation.pager.Pager]. These are
+ * optimised for Wear.
+ */
 public object PagerDefaults {
     /**
      * The default behaviour for when [HorizontalPager] should handle gestures. In this
@@ -339,10 +342,11 @@ public object PagerDefaults {
     /**
      * Default fling behavior for pagers on Wear, snaps at most one page at a time.
      *
-     * @param state The [PagerState] that controls the [Pager] to which this FlingBehavior will be
-     *   applied to.
-     * @param maxFlingPages the maximum number of pages this [Pager] is allowed to fling after
-     *   scrolling is finished and fling has started.
+     * @param state The [PagerState] that controls the [androidx.compose.foundation.pager.Pager] to
+     *   which this FlingBehavior will be applied to.
+     * @param maxFlingPages the maximum number of pages this
+     *   [androidx.compose.foundation.pager.Pager] is allowed to fling after scrolling is finished
+     *   and fling has started.
      * @param decayAnimationSpec The animation spec used to approach the target offset. When the
      *   fling velocity is large enough. Large enough means large enough to naturally decay. For
      *   single page snapping this usually never happens since there won't be enough space to run a
@@ -395,8 +399,8 @@ public object PagerDefaults {
     /**
      * The default value used to configure the size of the left edge zone in a [HorizontalPager].
      * The left edge zone in this case refers to the leftmost edge of the screen, in this region in
-     * a [Pager] it is common to disable scrolling in order for swipe-to-dismiss handlers to take
-     * over.
+     * a [androidx.compose.foundation.pager.Pager] it is common to disable scrolling in order for
+     * swipe-to-dismiss handlers to take over.
      */
     public val LeftEdgeZoneFraction: Float = 0.15f
 

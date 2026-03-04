@@ -71,7 +71,7 @@ import androidx.xr.arcore.testapp.persistentanchors.PersistentAnchorsActivity
 import androidx.xr.arcore.testapp.ui.theme.GoogleYellow
 import androidx.xr.arcore.testapp.ui.theme.JXRARCoreTestsTheme
 import androidx.xr.arcore.testapp.ui.theme.Purple80
-import androidx.xr.runtime.Log
+import androidx.xr.runtime.XrLog
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -93,8 +93,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        Log.enabled = true
-        Log.level = Log.Level.VERBOSE
+        XrLog.isEnabled = true
+        XrLog.level = XrLog.Level.VERBOSE
 
         requestUserPermissions(
             arrayOf(

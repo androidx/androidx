@@ -16,6 +16,7 @@
 
 package androidx.room3.solver.types
 
+import androidx.room3.OperationType
 import androidx.room3.compiler.codegen.XCodeBlock
 import androidx.room3.compiler.codegen.XTypeName
 import androidx.room3.compiler.processing.XType
@@ -35,7 +36,7 @@ import androidx.room3.vo.ExecuteAndReturnLambda
  * @param to The target type of the conversion, which is the custom return type specified by the DAO
  *   method (e.g., `Foo<MyEntity>`).
  */
-abstract class DaoReturnTypeConverter(val to: XType) {
+abstract class DaoReturnTypeConverter(val to: XType, val operationTypes: List<OperationType>) {
     abstract val isSuspend: Boolean
     abstract val requiredFunctionParamTypes: List<XType>
     abstract val executeAndReturnLambda: ExecuteAndReturnLambda

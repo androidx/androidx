@@ -37,7 +37,6 @@ import androidx.compose.ui.layout.PlacementScope
 import androidx.compose.ui.modifier.ModifierLocalManager
 import androidx.compose.ui.platform.AccessibilityManager
 import androidx.compose.ui.platform.Clipboard
-import androidx.compose.ui.platform.PlatformTextInputModifierNode
 import androidx.compose.ui.platform.PlatformTextInputSessionScope
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.TextToolbar
@@ -53,7 +52,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.viewinterop.InteropView
 import kotlin.coroutines.CoroutineContext
-import kotlinx.coroutines.Job
 
 /**
  * Owner implements the connection to the underlying view system. On Android, this connects to
@@ -351,11 +349,12 @@ internal interface Owner : PositionCalculator {
 
     /**
      * Starts a new text input session and suspends until it's closed. For more information see
-     * [PlatformTextInputModifierNode.establishTextInputSession].
+     * [androidx.compose.ui.platform.establishTextInputSession].
      *
      * Implementations must ensure that new requests cancel any active request. They must also
      * ensure that the previous request is finished running all cancellation tasks before starting
-     * the new session, to ensure that no session code overlaps (e.g. using [Job.cancelAndJoin]).
+     * the new session, to ensure that no session code overlaps (e.g. using
+     * [kotlinx.coroutines.cancelAndJoin]).
      */
     suspend fun textInputSession(
         session: suspend PlatformTextInputSessionScope.() -> Nothing
@@ -391,7 +390,7 @@ internal interface Owner : PositionCalculator {
     /**
      * Dispatches a callback when something in this hierarchy scrolls.
      *
-     * @param offset Delta scrolled.
+     * @param delta Delta scrolled.
      */
     fun dispatchOnScrollChanged(delta: Offset) {}
 

@@ -92,7 +92,7 @@ import kotlinx.coroutines.launch
  * container.
  *
  * Creates a [ScrollIndicator] based on the values in a [ScrollState] object. e.g. a [Column]
- * implementing [Modifier.verticalScroll] provides a [ScrollState].
+ * implementing [androidx.compose.foundation.verticalScroll] provides a [ScrollState].
  *
  * To comply with Wear Material Design guidelines, this composable should be aligned to the center
  * end of the screen using `Alignment.CenterEnd`, such as by setting `modifier =
@@ -207,7 +207,7 @@ public fun ScrollIndicator(
  * container.
  *
  * Creates an [ScrollIndicator] based on the values in a [TransformingLazyColumnState] object that a
- * [TransformingLazyColumn] uses.
+ * [androidx.wear.compose.foundation.lazy.TransformingLazyColumn] uses.
  *
  * Typically used with the [ScreenScaffold] but can be used to decorate any full screen situation.
  *
@@ -643,7 +643,8 @@ internal class DisplayState(val position: Float, val size: Float, arcLengthPx: F
 
 /**
  * An implementation of [IndicatorState] to display the amount and position of a component
- * implementing the [ScrollState] class such as a [Column] implementing [Modifier.verticalScroll].
+ * implementing the [ScrollState] class such as a [Column] implementing
+ * [androidx.compose.foundation.verticalScroll].
  *
  * @param scrollState the [ScrollState] to adapt
  * @VisibleForTesting
@@ -839,7 +840,8 @@ internal class ScalingLazyColumnStateAdapter(
 
 /**
  * An implementation of [IndicatorState] to display the amount and position of a
- * [TransformingLazyColumn] component via its [TransformingLazyColumnState].
+ * [androidx.wear.compose.foundation.lazy.TransformingLazyColumn] component via its
+ * [TransformingLazyColumnState].
  *
  * @param state the [TransformingLazyColumnState] to adapt.
  * @VisibleForTesting

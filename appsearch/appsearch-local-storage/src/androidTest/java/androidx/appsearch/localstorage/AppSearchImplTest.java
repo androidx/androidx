@@ -3258,9 +3258,11 @@ public class AppSearchImplTest {
         SearchSpec searchSpec =
                 new SearchSpec.Builder().addFilterSchemas("FakeType").setTermMatch(
                         TermMatchType.Code.PREFIX_VALUE).build();
+        Map<String, Set<String>> deletedIds = new ArrayMap<>();
         mAppSearchImpl.removeByQuery("package", "EmptyDatabase",
-                "", searchSpec, /*deletedIds=*/null, /*statsBuilder=*/ null,
+                "", searchSpec, deletedIds, /*statsBuilder=*/ null,
                 /*callStatsBuilder=*/null);
+        assertThat(deletedIds).isEmpty();
 
         searchSpec =
                 new SearchSpec.Builder().addFilterNamespaces("FakeNamespace").setTermMatch(
@@ -3268,10 +3270,12 @@ public class AppSearchImplTest {
         mAppSearchImpl.removeByQuery("package", "EmptyDatabase",
                 "", searchSpec, /*deletedIds=*/null, /*statsBuilder=*/ null,
                 /*callStatsBuilder=*/null);
+        assertThat(deletedIds).isEmpty();
 
         searchSpec = new SearchSpec.Builder().setTermMatch(TermMatchType.Code.PREFIX_VALUE).build();
         mAppSearchImpl.removeByQuery("package", "EmptyDatabase", "", searchSpec,
                 /*deletedIds=*/null, /*statsBuilder=*/ null, /*callStatsBuilder=*/null);
+        assertThat(deletedIds).isEmpty();
     }
 
     @Test
@@ -5937,10 +5941,13 @@ public class AppSearchImplTest {
         assertThat(getResult).isEqualTo(document2);
 
         // Delete the first document
+        Map<String, Set<String>> deletedIds = new ArrayMap<>();
         mAppSearchImpl.removeByQuery("package", "database", "",
                 new SearchSpec.Builder().addFilterNamespaces("namespace1").setTermMatch(
-                        SearchSpec.TERM_MATCH_EXACT_ONLY).build(), /*deletedIds=*/null,
+                        SearchSpec.TERM_MATCH_EXACT_ONLY).build(), deletedIds,
                 /*statsBuilder=*/ null, /*callStatsBuilder=*/null);
+        assertThat(deletedIds).containsKey("namespace1");
+        assertThat(deletedIds.get("namespace1")).containsExactly("id1");
         mAppSearchImpl.persistToDisk("package",
                 BaseStats.CALL_TYPE_REMOVE_DOCUMENTS_BY_SEARCH,
                 PersistType.Code.LITE, /*logger=*/ null,
@@ -6218,10 +6225,13 @@ public class AppSearchImplTest {
         assertThat(getResult).isEqualTo(document2);
 
         // Delete the first document
+        Map<String, Set<String>> deletedIds = new ArrayMap<>();
         mAppSearchImpl.removeByQuery("package", "database", "",
                 new SearchSpec.Builder().addFilterNamespaces("namespace1").setTermMatch(
-                        SearchSpec.TERM_MATCH_EXACT_ONLY).build(), /*deletedIds=*/null,
+                        SearchSpec.TERM_MATCH_EXACT_ONLY).build(), deletedIds,
                 /*statsBuilder=*/ null, /*callStatsBuilder=*/null);
+        assertThat(deletedIds).containsKey("namespace1");
+        assertThat(deletedIds.get("namespace1")).containsExactly("id1");
         mAppSearchImpl.persistToDisk("package",
                 BaseStats.CALL_TYPE_REMOVE_DOCUMENTS_BY_SEARCH,
                 PersistType.Code.RECOVERY_PROOF, /*logger=*/ null,
@@ -6584,10 +6594,13 @@ public class AppSearchImplTest {
         // Delete the document and check remove stats
         RemoveStats.Builder removeStatsBuilder = new RemoveStats.Builder(
                 "package", "database");
+        Map<String, Set<String>> deletedIds = new ArrayMap<>();
         mAppSearchImpl.removeByQuery("package", "database", "",
                 new SearchSpec.Builder().addFilterNamespaces("namespace1").setTermMatch(
                         SearchSpec.TERM_MATCH_EXACT_ONLY).build(),
-                /*deletedIds=*/null, removeStatsBuilder, /*callStatsBuilder=*/null);
+                deletedIds, removeStatsBuilder, /*callStatsBuilder=*/null);
+        assertThat(deletedIds).containsKey("namespace1");
+        assertThat(deletedIds.get("namespace1")).containsExactly("id1");
         RemoveStats removeStats = removeStatsBuilder.build();
         assertThat(removeStats.getEnabledFeatures()).isEqualTo(onlyLaunchVMFeature);
 
@@ -6680,10 +6693,13 @@ public class AppSearchImplTest {
         // Delete the document and check remove stats
         RemoveStats.Builder removeStatsBuilder = new RemoveStats.Builder(
                 "package", "database");
+        Map<String, Set<String>> deletedIds = new ArrayMap<>();
         mAppSearchImpl.removeByQuery("package", "database", "",
                 new SearchSpec.Builder().addFilterNamespaces("namespace1").setTermMatch(
-                        SearchSpec.TERM_MATCH_EXACT_ONLY).build(), /*deletedIds=*/null,
+                        SearchSpec.TERM_MATCH_EXACT_ONLY).build(), deletedIds,
                 removeStatsBuilder, /*callStatsBuilder=*/null);
+        assertThat(deletedIds).containsKey("namespace1");
+        assertThat(deletedIds.get("namespace1")).containsExactly("id1");
         RemoveStats removeStats = removeStatsBuilder.build();
         assertThat(removeStats.getEnabledFeatures()).isEqualTo(noLaunchFeature);
 
@@ -6855,9 +6871,11 @@ public class AppSearchImplTest {
         removeStatsBuilder = new RemoveStats.Builder(
                 "package", "database");
         callStatsBuilder = new CallStats.Builder();
+        Map<String, Set<String>> deletedIds = new ArrayMap<>();
         mAppSearchImpl.removeByQuery("package", "database", "",
-                new SearchSpec.Builder().build(), /*deletedIds=*/null, removeStatsBuilder,
+                new SearchSpec.Builder().build(), deletedIds, removeStatsBuilder,
                 callStatsBuilder);
+        assertThat(deletedIds).isEmpty();
         removeStats = removeStatsBuilder.build();
         assertThat(removeStats.getLastBlockingOperation())
                 .isEqualTo(BaseStats.CALL_TYPE_REMOVE_DOCUMENT_BY_ID);
@@ -7096,10 +7114,13 @@ public class AppSearchImplTest {
         assertThat(callStatsBuilder.build().getNumIcingCalls()).isEqualTo(1);
 
         // RemoveByQuery
+        Map<String, Set<String>> deletedIds = new ArrayMap<>();
         callStatsBuilder = new CallStats.Builder();
         mAppSearchImpl.removeByQuery("package", "database", "",
-                new SearchSpec.Builder().build(), /*deletedIds=*/null, /*removeStatsBuilder=*/ null,
+                new SearchSpec.Builder().build(), deletedIds, /*removeStatsBuilder=*/ null,
                 callStatsBuilder);
+        assertThat(deletedIds).containsKey("namespace");
+        assertThat(deletedIds.get("namespace")).containsExactly("id2", "id3");
         assertThat(callStatsBuilder.build().getNumIcingCalls()).isEqualTo(1);
 
         // Optimize
@@ -7829,14 +7850,16 @@ public class AppSearchImplTest {
                 "Package \"package\" exceeded limit of 3 documents");
 
         // Run removebyquery, deleting nothing
+        Map<String, Set<String>> deletedIds = new ArrayMap<>();
         mAppSearchImpl.removeByQuery(
                 "package",
                 "database",
                 "nothing",
                 new SearchSpec.Builder().build(),
-                /*deletedIds=*/null,
+                deletedIds,
                 /*removeStatsBuilder=*/null,
                 /*callStatsBuilder=*/null);
+        assertThat(deletedIds).isEmpty();
 
         // Should still fail
         e = assertThrows(AppSearchException.class, () ->
@@ -7857,9 +7880,11 @@ public class AppSearchImplTest {
                 "database",
                 "tab",
                 new SearchSpec.Builder().build(),
-                /*deletedIds=*/null,
+                deletedIds,
                 /*removeStatsBuilder=*/null,
                 /*callStatsBuilder=*/null);
+        assertThat(deletedIds).containsKey("namespace");
+        assertThat(deletedIds.get("namespace")).containsExactly("id1", "id2");
 
         // Now doc4 and doc5 should work
         mAppSearchImpl.putDocument(
@@ -8812,9 +8837,12 @@ public class AppSearchImplTest {
 
         // Remove two documents by query. Now we should be under the limit and be able to add
         // another document.
+        Map<String, Set<String>> deletedIds = new ArrayMap<>();
         mAppSearchImpl.removeByQuery("package", "database", "evenOdd:odd",
-                new SearchSpec.Builder().build(), /*deletedIds=*/null, /*removeStatsBuilder=*/null,
+                new SearchSpec.Builder().build(), deletedIds, /*removeStatsBuilder=*/null,
                 /*callStatsBuilder=*/null);
+        assertThat(deletedIds).containsKey("namespace");
+        assertThat(deletedIds.get("namespace")).containsExactly("id1", "id3");
         mAppSearchImpl.putDocument(
                 "package", "database", document5, /*sendChangeNotifications=*/ false,
                 /*logger=*/ null,
@@ -13053,10 +13081,13 @@ public class AppSearchImplTest {
         assertThat(mAppSearchImpl.getAndResetNeedPersistToDisk()).isFalse();
 
         // Remove by query. Need persistToDisk.
+        Map<String, Set<String>> deletedIds = new ArrayMap<>();
         mAppSearchImpl.removeByQuery("package", "database", /* queryExpression= */ "foo",
                 new SearchSpec.Builder().addFilterNamespaces("namespace").setTermMatch(
-                        SearchSpec.TERM_MATCH_PREFIX).build(), /* deletedIds= */ null,
+                        SearchSpec.TERM_MATCH_PREFIX).build(), deletedIds,
                 /* statsBuilder= */ null, /* callStatsBuilder= */null);
+        assertThat(deletedIds).containsKey("namespace");
+        assertThat(deletedIds.get("namespace")).containsExactly("id");
         assertThat(mAppSearchImpl.getAndResetNeedPersistToDisk()).isTrue();
     }
 
@@ -13124,6 +13155,152 @@ public class AppSearchImplTest {
         mAppSearchImpl.setBlobNamespaceVisibility("package", "db1", ImmutableList.of(config),
                 /* callStatsBuilder= */ null);
         assertThat(mAppSearchImpl.getAndResetNeedPersistToDisk()).isTrue();
+    }
+
+    @Test
+    public void testRemoveByQuery_multipleNamespaces_returnsDeletedIds()
+            throws Exception {
+        List<AppSearchSchema> schemas = Arrays.asList(
+                new AppSearchSchema.Builder("Type1")
+                        .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("body")
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setIndexingType(
+                                        AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                .setTokenizerType(
+                                        AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .build())
+                        .build(),
+                new AppSearchSchema.Builder("Type2")
+                        .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("body")
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setIndexingType(
+                                        AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                .setTokenizerType(
+                                        AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .build())
+                        .build());
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
+                "package",
+                "database",
+                schemas,
+                /*visibilityConfigs=*/ Collections.emptyList(),
+                /*accountPropertyPaths=*/ ImmutableMap.of(),
+                /* forceOverride= */ false,
+                /* version= */ 0,
+                /* setSchemaStatsBuilder= */ null,
+                /* callStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
+
+        GenericDocument doc1 = new GenericDocument.Builder<>("namespace1", "id", "Type1")
+                .setPropertyString("body", "foo bar baz")
+                .build();
+        mAppSearchImpl.putDocument(
+                "package", "database", doc1,
+                /* sendChangeNotifications= */ false,
+                /* logger= */ null,
+                /* callStatsBuilder= */ null);
+        GenericDocument doc2 = new GenericDocument.Builder<>("namespace2", "id", "Type1")
+                .setPropertyString("body", "foo bar baz")
+                .build();
+        mAppSearchImpl.putDocument(
+                "package",
+                "database",
+                doc2,
+                /* sendChangeNotifications= */ false,
+                /* logger= */ null,
+                /* callStatsBuilder= */ null);
+        GenericDocument doc3 = new GenericDocument.Builder<>("namespace1", "id2", "Type2")
+                .setPropertyString("body", "foo bar baz")
+                .build();
+        mAppSearchImpl.putDocument(
+                "package",
+                "database",
+                doc3,
+                /* sendChangeNotifications= */ false,
+                /* logger= */ null,
+                /* callStatsBuilder= */ null);
+
+        Map<String, Set<String>> deletedIds = new ArrayMap<>();
+        mAppSearchImpl.removeByQuery("package", "database", /* queryExpression= */ "foo",
+                new SearchSpec.Builder().addFilterSchemas("Type1").setTermMatch(
+                        SearchSpec.TERM_MATCH_PREFIX).build(), deletedIds,
+                /* statsBuilder= */ null, /* callStatsBuilder= */null);
+        assertThat(deletedIds).containsKey("namespace1");
+        assertThat(deletedIds.get("namespace1")).containsExactly("id");
+        assertThat(deletedIds).containsKey("namespace2");
+        assertThat(deletedIds.get("namespace2")).containsExactly("id");
+    }
+
+    @Test
+    public void testRemoveByQuery_multipleTypes_returnsDeletedIds()
+            throws Exception {
+        List<AppSearchSchema> schemas = Arrays.asList(
+                new AppSearchSchema.Builder("Type1")
+                        .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("body")
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setIndexingType(
+                                        AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                .setTokenizerType(
+                                        AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .build())
+                        .build(),
+                new AppSearchSchema.Builder("Type2")
+                        .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("body")
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                .setIndexingType(
+                                        AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                .setTokenizerType(
+                                        AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .build())
+                        .build());
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
+                "package",
+                "database",
+                schemas,
+                /*visibilityConfigs=*/ Collections.emptyList(),
+                /*accountPropertyPaths=*/ ImmutableMap.of(),
+                /* forceOverride= */ false,
+                /* version= */ 0,
+                /* setSchemaStatsBuilder= */ null,
+                /* callStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
+
+        GenericDocument doc1 = new GenericDocument.Builder<>("namespace1", "id", "Type1")
+                .setPropertyString("body", "foo bar baz")
+                .build();
+        mAppSearchImpl.putDocument(
+                "package", "database", doc1,
+                /* sendChangeNotifications= */ false,
+                /* logger= */ null,
+                /* callStatsBuilder= */ null);
+        GenericDocument doc2 = new GenericDocument.Builder<>("namespace2", "id", "Type1")
+                .setPropertyString("body", "foo bar baz")
+                .build();
+        mAppSearchImpl.putDocument(
+                "package",
+                "database",
+                doc2,
+                /* sendChangeNotifications= */ false,
+                /* logger= */ null,
+                /* callStatsBuilder= */ null);
+        GenericDocument doc3 = new GenericDocument.Builder<>("namespace1", "id2", "Type2")
+                .setPropertyString("body", "foo bar baz")
+                .build();
+        mAppSearchImpl.putDocument(
+                "package",
+                "database",
+                doc3,
+                /* sendChangeNotifications= */ false,
+                /* logger= */ null,
+                /* callStatsBuilder= */ null);
+
+        Map<String, Set<String>> deletedIds = new ArrayMap<>();
+        mAppSearchImpl.removeByQuery("package", "database", /* queryExpression= */ "foo",
+                new SearchSpec.Builder().addFilterNamespaces("namespace1").setTermMatch(
+                        SearchSpec.TERM_MATCH_PREFIX).build(), deletedIds,
+                /* statsBuilder= */ null, /* callStatsBuilder= */null);
+        assertThat(deletedIds).containsKey("namespace1");
+        assertThat(deletedIds.get("namespace1")).containsExactly("id", "id2");
     }
 
     private SchemaProto getSchemaProtoWithDatabase(SchemaProto schema) throws AppSearchException {

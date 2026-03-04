@@ -96,7 +96,6 @@ import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.AnchorEntity
 import androidx.xr.scenecore.Entity
-import androidx.xr.scenecore.GroupEntity
 import androidx.xr.scenecore.PlaneOrientation
 import androidx.xr.scenecore.PlaneSemanticType
 import androidx.xr.scenecore.Space
@@ -111,7 +110,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
@@ -189,7 +187,7 @@ class SubspaceTest {
         val result = Session.create(composeTestRule.activity, testDispatcher)
         val session = assertIs<SessionCreateSuccess>(result).session
         session.configure(
-            config = session.config.copy(deviceTracking = DeviceTrackingMode.LAST_KNOWN)
+            config = session.config.copy(deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN)
         )
 
         return session
@@ -683,7 +681,7 @@ class SubspaceTest {
         var testNode: Entity? = null
 
         composeTestRule.setContent {
-            testNode = GroupEntity.create(LocalSession.current!!, "TestRoot")
+            testNode = Entity.create(LocalSession.current!!, "TestRoot")
             CompositionLocalProvider(LocalSubspaceRootNode provides testNode) {
                 Subspace { SpatialBox(modifier = SubspaceModifier.testTag("Box")) {} }
             }

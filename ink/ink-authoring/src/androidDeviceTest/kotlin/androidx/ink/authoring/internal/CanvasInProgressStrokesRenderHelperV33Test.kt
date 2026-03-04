@@ -40,11 +40,15 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
-import org.mockito.kotlin.mock
+import org.mockito.kotlin.clearInvocations
 import org.mockito.kotlin.never
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
@@ -77,26 +81,59 @@ class CanvasInProgressStrokesRenderHelperV33Test {
     val activityScenarioRule =
         ActivityScenarioRule(CanvasInProgressStrokesRenderHelperV33TestActivity::class.java)
 
-    private val renderer = mock<CanvasStrokeRenderer> {}
-    private val callback = mock<InProgressStrokesRenderHelper.Callback<Stroke>> {}
+    lateinit internal var mockCallback: InProgressStrokesRenderHelper.Callback<Stroke>
+    lateinit internal var mockRenderer: CanvasStrokeRenderer
+
+    @Before
+    fun setUp() {
+        activityScenarioRule.scenario.onActivity { activity ->
+            mockCallback = activity.mockCallback
+            mockRenderer = activity.mockRenderer
+        }
+        // Complete initialization and assert that initialization logic is run on both UI and render
+        // threads.
+        var ranAnyOnUiThread = false
+        var ranAnyOnRenderThread = false
+        val awaitResumeLatch = CountDownLatch(1)
+        withActivity { activity ->
+            activity.renderHelper.countDownAfterHandoffsResumedTestLatch = awaitResumeLatch
+        }
+        val backgroundExecutor = Executors.newSingleThreadExecutor()
+        var awaitingInitialization = true
+        backgroundExecutor.execute {
+            while (awaitingInitialization) {
+                withActivity { activity ->
+                    if (activity.fakeThreads.runUiThreadOnce()) {
+                        ranAnyOnUiThread = true
+                    }
+                    if (activity.fakeThreads.runRenderThreadOnce()) {
+                        ranAnyOnRenderThread = true
+                    }
+                }
+            }
+        }
+        try {
+            assertThat(awaitResumeLatch.await(10, TimeUnit.SECONDS)).isTrue()
+        } finally {
+            awaitingInitialization = false
+            // shutdownNow() _could_ do more to stop the existing task (e.g. interrupt the thread),
+            // but
+            // it's not guaranteed to and doesn't seem to on at least some of the emulators this
+            // test is
+            // running on.
+            backgroundExecutor.shutdown()
+            assertThat(backgroundExecutor.awaitTermination(10, TimeUnit.SECONDS)).isTrue()
+        }
+        assertThat(ranAnyOnUiThread).isTrue()
+        assertThat(ranAnyOnRenderThread).isTrue()
+    }
 
     @Test
-    fun init_shouldAddSurfaceViewAndRunUiThreadTasks() {
+    fun init_shouldAddSurfaceView() {
         withActivity { activity ->
             assertThat(activity.mainView.childCount).isEqualTo(1)
             assertThat(activity.mainView.getChildAt(0)).isInstanceOf(SurfaceView::class.java)
         }
-        var ranAnyOnUiThread = false
-        for (i in 0 until 3) {
-            onIdle()
-            withActivity { activity ->
-                if (activity.fakeThreads.runUiThreadToIdle()) {
-                    ranAnyOnUiThread = true
-                }
-            }
-            SystemClock.sleep(1000)
-        }
-        assertThat(ranAnyOnUiThread).isTrue()
     }
 
     @Test
@@ -109,43 +146,17 @@ class CanvasInProgressStrokesRenderHelperV33Test {
 
     @Test
     fun requestDraw_runsCallbackOnDrawAndOnDrawComplete() {
-        var ranAnyOnUiThread = false
-        for (i in 0 until 3) {
-            onIdle()
-            withActivity { activity ->
-                if (activity.fakeThreads.runUiThreadToIdle()) {
-                    ranAnyOnUiThread = true
-                }
-            }
-            SystemClock.sleep(1000)
-        }
-        // Make sure it fully initialized.
-        assertThat(ranAnyOnUiThread).isTrue()
-
         withActivity { activity ->
             activity.renderHelper.requestDraw()
 
             assertThat(activity.fakeThreads.runRenderThreadToIdle()).isTrue()
-            verify(callback).onDraw()
-            verify(callback).onDrawComplete()
+            verify(mockCallback).onDraw()
+            verify(mockCallback).onDrawComplete()
         }
     }
 
     @Test
     fun requestDraw_whenCalledAgainBeforeDrawFinished_nextDrawIsQueuedAndBothHandOffLatencyData() {
-        var ranAnyOnUiThread = false
-        for (i in 0 until 3) {
-            onIdle()
-            withActivity { activity ->
-                if (activity.fakeThreads.runUiThreadToIdle()) {
-                    ranAnyOnUiThread = true
-                }
-            }
-            SystemClock.sleep(1000)
-        }
-        // Make sure it fully initialized.
-        assertThat(ranAnyOnUiThread).isTrue()
-
         withActivity { activity ->
             // Run pending initialization tasks.
             activity.fakeThreads.runRenderThreadToIdle()
@@ -158,10 +169,10 @@ class CanvasInProgressStrokesRenderHelperV33Test {
             assertThat(activity.fakeThreads.runRenderThreadOnce()).isTrue()
 
             // onDraw and onDrawComplete executed just for the first draw request.
-            verify(callback, times(1)).onDraw()
-            verify(callback, times(1)).onDrawComplete()
-            verify(callback, never()).setCustomLatencyDataField(any())
-            verify(callback, never()).handOffAllLatencyData()
+            verify(mockCallback, times(1)).onDraw()
+            verify(mockCallback, times(1)).onDrawComplete()
+            verify(mockCallback, never()).setCustomLatencyDataField(any())
+            verify(mockCallback, never()).handOffAllLatencyData()
         }
 
         // The draw request may be async outside of our code's control, so wait for it to finish,
@@ -180,29 +191,16 @@ class CanvasInProgressStrokesRenderHelperV33Test {
         assertThat(ranAnyOnRenderThread).isTrue()
 
         // Now the second draw was able to execute onDraw and onDrawComplete.
-        verify(callback, times(2)).onDraw()
-        verify(callback, times(2)).onDrawComplete()
-        verify(callback, times(2)).setCustomLatencyDataField(any())
-        verify(callback, times(2)).handOffAllLatencyData()
+        verify(mockCallback, times(2)).onDraw()
+        verify(mockCallback, times(2)).onDrawComplete()
+        verify(mockCallback, times(2)).setCustomLatencyDataField(any())
+        verify(mockCallback, times(2)).handOffAllLatencyData()
     }
 
     @Test
     fun drawInModifiedRegion_callsRenderer() {
-        var ranAnyOnUiThread = false
-        for (i in 0 until 3) {
-            onIdle()
-            withActivity { activity ->
-                if (activity.fakeThreads.runUiThreadToIdle()) {
-                    ranAnyOnUiThread = true
-                }
-            }
-            SystemClock.sleep(1000)
-        }
-        // Make sure it fully initialized.
-        assertThat(ranAnyOnUiThread).isTrue()
-
         withActivity { activity ->
-            whenever(callback.onDraw()).then {
+            whenever(mockCallback.onDraw()).then {
                 activity.renderHelper.prepareToDrawInModifiedRegion(MutableBox())
                 activity.renderHelper.drawInModifiedRegion(InkInProgressShape(), Matrix())
                 activity.renderHelper.afterDrawInModifiedRegion()
@@ -211,61 +209,88 @@ class CanvasInProgressStrokesRenderHelperV33Test {
             activity.renderHelper.requestDraw()
             assertThat(activity.fakeThreads.runRenderThreadToIdle()).isTrue()
 
-            verify(callback, times(1)).onDraw()
-            verify(renderer, times(1))
+            verify(mockCallback, times(1)).onDraw()
+            verify(mockRenderer, times(1))
                 .draw(any(), any<InProgressStroke>(), any<Matrix>(), any<Float>())
-            verify(callback, times(1)).onDrawComplete()
+            verify(mockCallback, times(1)).onDrawComplete()
         }
     }
 
     @Test
     fun requestStrokeCohortHandoffToHwui_shouldExecuteCallbackHandoffAndPauseHandoffs() {
-        run {
-            var ranAnyOnUiThread = false
-            for (i in 0 until 3) {
-                onIdle()
-                withActivity { activity ->
-                    if (activity.fakeThreads.runUiThreadToIdle()) {
-                        ranAnyOnUiThread = true
-                    }
-                }
-                SystemClock.sleep(1000)
-            }
-            // Make sure it fully initialized.
-            assertThat(ranAnyOnUiThread).isTrue()
-        }
+        // Handoffs are paused during initialization and unpaused when the viewport is initialized,
+        // to
+        // ensure that unpause happens if the preivous viewport was removed mid-handoff.
+        verify(mockCallback).pauseStrokeCohortHandoffs()
+        verify(mockCallback).resumeStrokeCohortHandoffs()
+        clearInvocations(mockCallback)
 
         withActivity { activity ->
             val brush = Brush(family = StockBrushes.marker(), size = 10f, epsilon = 0.1f)
             val stroke = Stroke(brush, ImmutableStrokeInputBatch.EMPTY)
-            val handingOff = mapOf(InProgressStrokeId() to FinishedStroke(stroke, Matrix()))
-            activity.renderHelper.requestStrokeCohortHandoffToHwui(handingOff)
-            verify(callback).setPauseStrokeCohortHandoffs(true)
-            verify(callback).onStrokeCohortHandoffToHwui(handingOff)
-            verify(callback).onStrokeCohortHandoffToHwuiComplete()
-
-            activity.fakeThreads.runOnRenderThread { activity.renderHelper.clear() }
-            assertThat(activity.fakeThreads.uiThreadDelayedTaskCount()).isEqualTo(1)
-            assertThat(activity.fakeThreads.uiThreadReadyTaskCount()).isEqualTo(0)
-
-            activity.fakeThreads.clock.currentTimeMillis += 1000
+            val cohort = listOf(FinishedStroke(InProgressStrokeId(), stroke, Matrix()))
+            // This kicks off the handoff process which goes back and forth between the render and
+            // UI
+            // threads. resumeStrokeCohortHandoffs() is called at the end when the inactive buffer
+            // is
+            // cleared and ready for the next handoff.
+            activity.renderHelper.requestStrokeCohortHandoffToHwui(cohort)
+            verify(mockCallback).pauseStrokeCohortHandoffs()
+            verify(mockCallback).onStrokeCohortHandoffToHwui(cohort)
+            verify(mockCallback).onStrokeCohortHandoffToHwuiComplete()
             assertThat(activity.fakeThreads.uiThreadDelayedTaskCount()).isEqualTo(0)
-            assertThat(activity.fakeThreads.uiThreadReadyTaskCount()).isEqualTo(1)
-            assertThat(activity.fakeThreads.runUiThreadToIdle()).isTrue()
+            assertThat(activity.fakeThreads.uiThreadReadyTaskCount()).isEqualTo(0)
         }
 
-        // The draw request may be async outside of our code's control, so wait for it to finish,
-        // and
-        // run any UI thread tasks that it enqueues.
+        // The next draw happens outside of our fake threads, so we need to wait for the transaction
+        // to
+        // be committed, running any tasks enqueued on the fakes.
         run {
             for (i in 0 until 3) {
+                var delayedClearQueued = false
                 onIdle()
-                withActivity { activity -> activity.fakeThreads.runUiThreadToIdle() }
+                withActivity { activity ->
+                    // Not running the UI thread because handoff needs to be able to complete and
+                    // handoffs be unpaused while the UI thread is waiting during flush.
+                    activity.fakeThreads.runRenderThreadToIdle()
+                    delayedClearQueued = activity.fakeThreads.renderThreadDelayedTaskCount() > 0
+                }
+                if (delayedClearQueued) {
+                    break
+                }
                 SystemClock.sleep(250)
             }
         }
 
-        verify(callback).setPauseStrokeCohortHandoffs(false)
+        withActivity { activity ->
+            // Delayed handoff to clear happens on the render thread.
+            assertThat(activity.fakeThreads.uiThreadDelayedTaskCount()).isEqualTo(0)
+            assertThat(activity.fakeThreads.uiThreadReadyTaskCount()).isEqualTo(0)
+            assertThat(activity.fakeThreads.renderThreadDelayedTaskCount()).isEqualTo(1)
+            assertThat(activity.fakeThreads.renderThreadReadyTaskCount()).isEqualTo(0)
+            activity.fakeThreads.clock.currentTimeMillis += 1000
+            assertThat(activity.fakeThreads.renderThreadDelayedTaskCount()).isEqualTo(0)
+            assertThat(activity.fakeThreads.renderThreadReadyTaskCount()).isEqualTo(1)
+            assertThat(activity.fakeThreads.runRenderThreadToIdle()).isTrue()
+        }
+
+        // Once again have to wait for the actual draw that does the clear, handoffs are unpaused in
+        // a
+        // callback after the draw finishes.
+        for (i in 0 until 3) {
+            onIdle()
+            withActivity { activity ->
+                // Again, want to make sure this isn't dependent on doing anything on the UI thread,
+                // so
+                // it can get all the way to `resumeStrokeCohortHandoffs` while the UI thread is
+                // blocked.
+                activity.fakeThreads.runRenderThreadToIdle()
+            }
+            SystemClock.sleep(250)
+        }
+
+        // At the end of the process
+        verify(mockCallback).resumeStrokeCohortHandoffs()
     }
 
     @Test
@@ -350,10 +375,23 @@ class CanvasInProgressStrokesRenderHelperV33Test {
         }
     }
 
+    @Test
+    fun executeOnRenderThread_shouldExecute() {
+        var executed = false
+        withActivity { activity ->
+            val callback = Runnable {
+                activity.renderHelper.assertOnRenderThread()
+                executed = true
+            }
+            activity.renderHelper.executeOnRenderThread(callback)
+            assertThat(executed).isFalse()
+            assertThat(activity.fakeThreads.runRenderThreadToIdle()).isTrue()
+            assertThat(executed).isTrue()
+        }
+    }
+
     private fun withActivity(block: (CanvasInProgressStrokesRenderHelperV33TestActivity) -> Unit) {
         activityScenarioRule.scenario.onActivity { activity ->
-            activity.renderer = renderer
-            activity.callback = callback
             activity.fakeThreads.runOnUiThread {
                 // Code run within onActivity can be considered to be on the UI thread for
                 // assertions. There

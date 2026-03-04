@@ -64,6 +64,7 @@ package androidx.lifecycle {
   }
 
   public final class LifecycleKt {
+    method public static inline androidx.lifecycle.LifecycleObserver addObserver(androidx.lifecycle.Lifecycle, kotlin.jvm.functions.Function3<? super androidx.lifecycle.LifecycleObserver,? super androidx.lifecycle.LifecycleOwner,? super androidx.lifecycle.Lifecycle.Event,kotlin.Unit> action);
     method @InaccessibleFromKotlin public static androidx.lifecycle.LifecycleCoroutineScope getCoroutineScope(androidx.lifecycle.Lifecycle);
     method @InaccessibleFromKotlin public static kotlinx.coroutines.flow.Flow<androidx.lifecycle.Lifecycle.Event> getEventFlow(androidx.lifecycle.Lifecycle);
     property public static androidx.lifecycle.LifecycleCoroutineScope androidx.lifecycle.Lifecycle.coroutineScope;

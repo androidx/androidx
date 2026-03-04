@@ -51,7 +51,7 @@ public class FakePerceptionRuntimeFactory() : PerceptionRuntimeFactory {
     /**
      * Creates a [FakePerceptionRuntime] instance for testing purposes.
      *
-     * @param activity The host [Activity].
+     * @param context The host [Context].
      * @param coroutineContext The [CoroutineContext] for the runtime to use during testing.
      */
     override fun createRuntime(

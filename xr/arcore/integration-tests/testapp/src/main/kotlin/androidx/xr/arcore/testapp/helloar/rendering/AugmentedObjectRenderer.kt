@@ -20,9 +20,9 @@ import android.annotation.SuppressLint
 import android.content.res.Resources
 import androidx.xr.arcore.AugmentedObject
 import androidx.xr.runtime.AugmentedObjectCategory
-import androidx.xr.runtime.Log as XRLog
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.TrackingState
+import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.GltfModel
@@ -57,7 +57,7 @@ internal class AugmentedObjectRenderer {
         _coroutineScope = CoroutineScope(coroutineScope.coroutineContext + _supervisorJob)
 
         _coroutineScope.launch {
-            XRLog.debug { "listening to AugmentedObject flow" }
+            XrLog.debug { "listening to AugmentedObject flow" }
             AugmentedObject.subscribe(_session).collect { updateObjectModels(it) }
         }
     }
@@ -117,7 +117,7 @@ internal class AugmentedObjectRenderer {
         // The counter starts at max to trigger the resize on the first update loop.
         var counter = PANEL_RESIZE_UPDATE_COUNT
         try {
-            XRLog.debug { "Starting render job for $augmentedObject ($currentCategory)" }
+            XrLog.debug { "Starting render job for $augmentedObject ($currentCategory)" }
             augmentedObject.state.collect { state ->
                 // update the model entity based on the current tracking state,
                 // pose, and extents.
@@ -163,7 +163,7 @@ internal class AugmentedObjectRenderer {
                 }
             }
         } finally {
-            XRLog.debug { "Stopping render job for $augmentedObject" }
+            XrLog.debug { "Stopping render job for $augmentedObject" }
             // we've been cancelled, so dispose of the model entity.
             modelEntity.dispose()
         }

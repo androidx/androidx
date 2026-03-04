@@ -181,3 +181,22 @@ public val XR_BOUNDARY_TYPE_NO_RECOMMENDATION: String = "XR_BOUNDARY_TYPE_NO_REC
 @JvmField
 public val PROPERTY_XR_USES_CUSTOM_FULL_SPACE_MANAGED_ANIMATION: String =
     "android.window.PROPERTY_XR_USES_CUSTOM_FULL_SPACE_MANAGED_ANIMATION"
+
+/**
+ * Activity level [ActivityInfo.Property][android.content.pm.ActivityInfo.Property] to inform the
+ * system that the activity should be displayed on a projected display, rather than on the device
+ * display.
+ *
+ * **Syntax:**
+ *
+ * ```
+ * <application>
+ * <activity
+ *   android:requiredDisplayCategory="android.hardware.display.category.XR_PROJECTED" />
+ * </application>
+ * ```
+ *
+ * Constant Value: "android.hardware.display.category.XR_PROJECTED"
+ */
+@JvmField
+public val DISPLAY_CATEGORY_XR_PROJECTED: String = "android.hardware.display.category.XR_PROJECTED"

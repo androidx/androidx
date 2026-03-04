@@ -24,9 +24,9 @@ import androidx.ink.authoring.InProgressStrokeId
 
 /**
  * Timestamps for signpost moments in the processing of a single input event. This structure is for
- * measuring and reporting the latency in [InProgressStrokesView] and its various helper classes.
- * Timestamps are in the [System.nanoTime] timebase, which is nanoseconds since system boot, except
- * for deep sleep time.
+ * measuring and reporting the latency in [androidx.ink.authoring.InProgressStrokesView] and its
+ * various helper classes. Timestamps are in the [System.nanoTime] timebase, which is nanoseconds
+ * since system boot, except for deep sleep time.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @ExperimentalLatencyDataApi
@@ -99,9 +99,11 @@ public class LatencyData {
         get() = osDetectsEvent != Long.MIN_VALUE
 
     /**
-     * Nanosecond timestamp of the start of the call to [InProgressStrokesView.startStroke],
-     * [InProgressStrokesView.addToStroke], [InProgressStrokesView.finishStroke], or
-     * [InProgressStrokesView.cancelStroke].
+     * Nanosecond timestamp of the start of the call to
+     * [androidx.ink.authoring.InProgressStrokesView.startStroke],
+     * [androidx.ink.authoring.InProgressStrokesView.addToStroke],
+     * [androidx.ink.authoring.InProgressStrokesView.finishStroke], or
+     * [androidx.ink.authoring.InProgressStrokesView.cancelStroke].
      */
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var strokesViewGetsAction: Long = Long.MIN_VALUE
@@ -110,8 +112,8 @@ public class LatencyData {
         get() = strokesViewGetsAction != Long.MIN_VALUE
 
     /**
-     * Nanosecond timestamp of when [InProgressStrokesView] finishes all geometry generation and
-     * renderer draw calls.
+     * Nanosecond timestamp of when [androidx.ink.authoring.InProgressStrokesView] finishes all
+     * geometry generation and renderer draw calls.
      */
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var strokesViewFinishesDrawCalls: Long = Long.MIN_VALUE
@@ -127,7 +129,9 @@ public class LatencyData {
     public val canvasFrontBufferStrokesRenderHelperData: CanvasFrontBufferStrokesRenderHelperData =
         CanvasFrontBufferStrokesRenderHelperData()
 
-    /** Fields specific to [CanvasInProgressStrokesRenderHelperV29]. */
+    /**
+     * Fields specific to [androidx.ink.authoring.internal.CanvasInProgressStrokesRenderHelperV29].
+     */
     public class CanvasFrontBufferStrokesRenderHelperData {
         /**
          * Nanosecond timestamp of when the render helper finishes draw calls to the front-buffered
@@ -149,7 +153,9 @@ public class LatencyData {
     public val hwuiInProgressStrokesRenderHelperData: HwuiInProgressStrokesRenderHelperData =
         HwuiInProgressStrokesRenderHelperData()
 
-    /** Fields specific to [CanvasInProgressStrokesRenderHelperV21]. */
+    /**
+     * Fields specific to [androidx.ink.authoring.internal.CanvasInProgressStrokesRenderHelperV21].
+     */
     public class HwuiInProgressStrokesRenderHelperData {
         /**
          * Nanosecond timestamp of when the render helper finishes draw calls to the

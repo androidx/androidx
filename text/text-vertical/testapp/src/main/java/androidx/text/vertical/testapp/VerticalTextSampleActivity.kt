@@ -18,7 +18,9 @@ package androidx.text.vertical.testapp
 
 import android.graphics.Typeface
 import android.os.Bundle
+import android.text.Layout
 import android.text.Spanned
+import android.text.StaticLayout
 import android.text.TextPaint
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -52,6 +54,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import androidx.text.vertical.EmphasisSpan
 import androidx.text.vertical.VerticalTextLayout
 import java.util.Locale
 import kotlin.math.max
@@ -64,8 +67,13 @@ class VerticalTextSampleActivity : ComponentActivity() {
         setContent {
             val demos =
                 arrayOf<Pair<String, @Composable () -> Unit>>(
-                    "Long Text" to { ZoomableVerticalText { LongText(it) } },
-                    "Complex Text" to { ZoomableVerticalText { ComplexText(it) } },
+                    "Vertical Text" to { ZoomableVerticalText { LongText(it) } },
+                    "Vertical Multi-style Text" to { ZoomableVerticalText { ComplexText(it) } },
+                    "Horizontal Text" to { ZoomableVerticalText { LongHorizontalText(it) } },
+                    "Horizontal Emphasis Text" to
+                        {
+                            ZoomableVerticalText { ComplexHorizontalText(it) }
+                        },
                 )
 
             Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -152,32 +160,65 @@ fun VerticalText(text: Spanned, paint: TextPaint, modifier: Modifier = Modifier)
 }
 
 @Composable
+fun LegacyHorizontalText(text: Spanned, paint: TextPaint, modifier: Modifier = Modifier) {
+    var hTextLayout by remember { mutableStateOf<Layout?>(null) }
+    Layout(
+        modifier =
+            modifier.fillMaxSize().drawWithContent {
+                drawIntoCanvas { c -> hTextLayout?.draw(c.nativeCanvas) }
+            },
+        content = {},
+    ) { _, constraints ->
+        hTextLayout =
+            StaticLayout.Builder.obtain(text, 0, text.length, paint, constraints.maxWidth).build()
+        layout(constraints.maxWidth, constraints.maxHeight) {}
+    }
+}
+
+@Composable
 fun LongText(paint: TextPaint, modifier: Modifier = Modifier) {
-    VerticalText(
+    VerticalText(makeSampleText(), paint, modifier)
+}
+
+@Composable
+fun LongHorizontalText(paint: TextPaint, modifier: Modifier = Modifier) {
+    LegacyHorizontalText(makeSampleText(), paint, modifier)
+}
+
+@Composable
+fun ComplexHorizontalText(paint: TextPaint, modifier: Modifier = Modifier) {
+    LegacyHorizontalText(
         buildVerticalText {
-            text("吾輩は猫である。", mapOf("吾輩" to "わがはい", "猫" to "ねこ"))
-            text("名前はまだ無い。", mapOf("名前" to "なまえ", "無" to "な"))
-            text("\n")
-            text("どこで生まれたかとんと見当がつかぬ。", mapOf("見当" to "けんとう"))
-            text("何でも薄暗いじめじめしたところでニャーニャー泣いていた事だけは記憶している。")
-            text("吾輩はここで始めて人間というものを見た。")
-            text("しかもあとで聞くとそれは書生という人間中で一番獰悪な種族であったそうだ。", mapOf("獰悪" to "どうあく"))
-            text("この書生というのは時々我々を捕えて煮て食うという話である。", mapOf("捕" to "つかま", "煮" to "に"))
-            text("しかしその当時は何という考もなかったから別段恐しいとも思わなかった。")
-            text("ただ彼の掌に載せられてスーと持ち上げられた時何だかフワフワした感じがあったばかりである。", mapOf("掌" to "てのひら"))
-            text("掌の上で少し落ちついて書生の顔を見たのがいわゆる人間というものの見始であろう。", mapOf("見始" to "みはじめ"))
-            text("この時妙なものだと思った感じが今でも残っている。")
-            text("第一毛をもって装飾されべきはずの顔がつるつるしてまるで薬缶だ。", mapOf("薬缶" to "やかん"))
-            text("その後猫にもだいぶ逢ったがこんな片輪には一度も出会わした事がない。", mapOf("片端" to "かたわ", "出会" to "でく"))
-            text("のみならず顔の真中があまりに突起している。")
-            text("そうしてその穴の中から時々ぷうぷうと煙を吹く。", mapOf("煙" to "けむり"))
-            text("どうも咽せぽくて実に弱った。", mapOf("咽" to "む"))
-            text("これが人間の飲む煙草というものである事はようやくこの頃知った。", mapOf("煙草" to "たばこ"))
-            text("\n")
+            withEmphasis { text("傍点も") }
+            text("Support")
+            withEmphasis(EmphasisSpan.STYLE_SESAME) { text("されてます。") }
         },
         paint,
         modifier,
     )
+}
+
+@Composable
+fun makeSampleText() = buildVerticalText {
+    text("吾輩は猫である。", mapOf("吾輩" to "わがはい", "猫" to "ねこ"))
+    text("名前はまだ無い。", mapOf("名前" to "なまえ", "無" to "な"))
+    text("\n")
+    text("どこで生まれたかとんと見当がつかぬ。", mapOf("見当" to "けんとう"))
+    text("何でも薄暗いじめじめしたところでニャーニャー泣いていた事だけは記憶している。")
+    text("吾輩はここで始めて人間というものを見た。")
+    text("しかもあとで聞くとそれは書生という人間中で一番獰悪な種族であったそうだ。", mapOf("獰悪" to "どうあく"))
+    text("この書生というのは時々我々を捕えて煮て食うという話である。", mapOf("捕" to "つかま", "煮" to "に"))
+    text("しかしその当時は何という考もなかったから別段恐しいとも思わなかった。")
+    text("ただ彼の掌に載せられてスーと持ち上げられた時何だかフワフワした感じがあったばかりである。", mapOf("掌" to "てのひら"))
+    text("掌の上で少し落ちついて書生の顔を見たのがいわゆる人間というものの見始であろう。", mapOf("見始" to "みはじめ"))
+    text("この時妙なものだと思った感じが今でも残っている。")
+    text("第一毛をもって装飾されべきはずの顔がつるつるしてまるで薬缶だ。", mapOf("薬缶" to "やかん"))
+    text("その後猫にもだいぶ逢ったがこんな片輪には一度も出会わした事がない。", mapOf("片端" to "かたわ", "出会" to "でく"))
+    text("のみならず顔の真中があまりに突起している。")
+    text("そうしてその穴の中から時々ぷうぷうと煙を吹く。", mapOf("煙" to "けむり"))
+    text("どうも咽せぽくて実に弱った。", mapOf("咽" to "む"))
+    text("これが人間の飲む煙草というものである事はようやくこの頃知った。", mapOf("煙草" to "たばこ"))
+    text("\n")
 }
 
 @Composable

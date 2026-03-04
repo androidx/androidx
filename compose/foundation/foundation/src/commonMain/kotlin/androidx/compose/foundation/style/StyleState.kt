@@ -168,7 +168,7 @@ open class StyleStateKey<T>(internal val defaultValue: T) {
 /**
  * A utility function used to update boolean values of the predefined state of a [StyleState].
  *
- * @param predefinedState the value of [StyleStateImpl.predefinedState] to update
+ * @param predefinedState the value of [MutableStyleState.predefinedState] to update
  * @param mask the value mask of the state to update.
  * @param include whether to include the state or exclude it.
  * @see FocusedStateMask

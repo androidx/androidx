@@ -22,13 +22,14 @@ import androidx.room3.solver.shortcut.result.InsertOrUpsertFunctionAdapter
 import androidx.room3.vo.ShortcutQueryParameter
 
 /** Connects the insert and upsert method, the database and the [InsertOrUpsertFunctionAdapter]. */
-abstract class InsertOrUpsertFunctionBinder(val adapter: InsertOrUpsertFunctionAdapter?) {
+interface InsertOrUpsertFunctionBinder {
+    val adapter: InsertOrUpsertFunctionAdapter?
 
     /**
      * Received an insert or upsert method parameters, their adapters and generations the code that
      * runs the insert or upsert and returns the result.
      */
-    abstract fun convertAndReturn(
+    fun convertAndReturn(
         parameters: List<ShortcutQueryParameter>,
         adapters: Map<String, Pair<XPropertySpec, Any>>,
         dbProperty: XPropertySpec,

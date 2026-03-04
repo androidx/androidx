@@ -23,16 +23,26 @@ package androidx.room3
  * include a variety of query methods.
  *
  * The class marked with `@Dao` should either be an interface or an abstract class. At compile time,
- * Room will generate an implementation of this class when it is referenced by a [Database].
+ * Room will generate an implementation of this class when it is referenced by a
+ * [androidx.room3.RoomDatabase] that is annotated with [Database].
  *
  * An abstract `@Dao` class can optionally have a constructor that takes a [Database] as its only
- * parameter.
+ * parameter:
+ * ```
+ * @Dao
+ * abstract class SongDao(private val database: RoomDatabase) {
+ *     // ...
+ * }
+ * ```
  *
  * It is recommended to have multiple `Dao` classes in your codebase depending on the tables they
- * touch.
+ * access.
  *
  * @see [Query]
- * @see [Delete]
  * @see [Insert]
+ * @see [Delete]
+ * @see [Update]
+ * @see [Upsert]
+ * @see [RawQuery]
  */
 @Target(AnnotationTarget.CLASS) @Retention(AnnotationRetention.BINARY) public annotation class Dao

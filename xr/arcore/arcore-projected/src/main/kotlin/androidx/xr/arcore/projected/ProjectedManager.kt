@@ -28,8 +28,8 @@ import androidx.xr.arcore.runtime.Geospatial
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.GeospatialMode
-import androidx.xr.runtime.Log
 import androidx.xr.runtime.TrackingState
+import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.internal.LifecycleManager
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
@@ -100,7 +100,8 @@ internal constructor(
     private fun serviceRequired(config: Config): Boolean {
         // The service is required if tracking or geospatial are enabled.
         // I.E. if no features are needed from the service we don't require it.
-        return config.deviceTracking == DeviceTrackingMode.LAST_KNOWN ||
+        return config.deviceTracking == DeviceTrackingMode.SPATIAL_LAST_KNOWN ||
+            config.deviceTracking == DeviceTrackingMode.INERTIAL_LAST_KNOWN ||
             config.geospatial == GeospatialMode.VPS_AND_GPS
     }
 
@@ -162,10 +163,17 @@ internal constructor(
         }
         val result = perceptionManager.xrResources.service.update()
         updateTrackingStates(result.deviceTrackingState.toInt(), result.earthTrackingState.toInt())
-        perceptionManager.xrResources.arDevice.update(
-            toTrackingState(result.deviceTrackingState.toInt()),
-            toPose(result.devicePose),
-        )
+        if (config.deviceTracking != DeviceTrackingMode.DISABLED) {
+            val trackingState = toTrackingState(result.deviceTrackingState.toInt())
+            val pose =
+                if (
+                    trackingState == TrackingState.TRACKING ||
+                        trackingState == TrackingState.TRACKING_DEGRADED
+                ) {
+                    toPose(result.devicePose)
+                } else null
+            perceptionManager.xrResources.arDevice.update(trackingState, pose)
+        }
         perceptionManager.xrResources.geospatial.state =
             toGeospatialState(result.earthTrackingState.toInt())
         timeSource.update(result.currentTimeNanos)
@@ -192,7 +200,12 @@ internal constructor(
             serviceConfig.trackingMode = ProjectedTrackingMode.PROJECTED_TRACKING_6DOF
         } else {
             serviceConfig.geospatialMode = ProjectedGeospatialMode.DISABLED
-            serviceConfig.trackingMode = ProjectedTrackingMode.PROJECTED_TRACKING_3DOF
+            serviceConfig.trackingMode =
+                if (config.deviceTracking == DeviceTrackingMode.INERTIAL_LAST_KNOWN) {
+                    ProjectedTrackingMode.PROJECTED_TRACKING_3DOF
+                } else {
+                    ProjectedTrackingMode.PROJECTED_TRACKING_6DOF
+                }
         }
         val status = service.startWithConfiguration(serviceConfig)
         if (status == ProjectedStatus.PROJECTED_ERROR_FINE_LOCATION_PERMISSION_NOT_GRANTED) {
@@ -258,9 +271,9 @@ internal constructor(
                 serviceBinder?.unlinkToDeath(serviceDeathRecipient, /* flags= */ 0)
             }
         } catch (e: IllegalArgumentException) {
-            Log.warn(e) { "Tried to unbind service that was already unbound." }
+            XrLog.warn(e) { "Tried to unbind service that was already unbound." }
         } catch (e: NoSuchElementException) {
-            Log.warn(e) { "Tried to unbind service that was already unbound." }
+            XrLog.warn(e) { "Tried to unbind service that was already unbound." }
         }
         serviceBinder = null
     }

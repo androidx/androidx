@@ -105,7 +105,6 @@ public fun RemoteText(
  * @param style The [RemoteTextStyle] to be applied to the text.
  * @param fontVariationSettings The font variation settings to be applied to the text.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 @RemoteComposable
 public fun RemoteText(

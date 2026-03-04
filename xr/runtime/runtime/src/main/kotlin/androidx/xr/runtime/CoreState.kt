@@ -21,9 +21,9 @@ import kotlin.time.ComparableTimeMark
 /**
  * Represents the state of the XR system at a specific point in time.
  *
- * Instances of this class can be accessed via the [Session.state] [StateFlow] property. This class
- * may include extension properties provided by implementations of the [StateExtender] interface
- * found during [Session] creation.
+ * Instances of this class can be accessed via the [Session.state]
+ * [kotlinx.coroutines.flow.StateFlow] property. This class may include extension properties
+ * provided by implementations of the [StateExtender] interface found during [Session] creation.
  *
  * @property timeMark at which the state was computed.
  */

@@ -36,7 +36,9 @@ import android.media.EncoderProfiles
 import android.media.MediaFormat.MIMETYPE_VIDEO_AV1
 import android.media.MediaFormat.MIMETYPE_VIDEO_AVC
 import android.media.MediaFormat.MIMETYPE_VIDEO_HEVC
-import android.media.MediaRecorder
+import android.media.MediaFormat.MIMETYPE_VIDEO_VP8
+import android.media.MediaRecorder.OutputFormat.WEBM
+import android.media.MediaRecorder.VideoEncoder.VP8
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper
@@ -111,6 +113,7 @@ import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_QHD
 import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_QVGA
 import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_VGA
 import androidx.camera.testing.impl.EncoderProfilesUtil.createFakeAudioProfileProxy
+import androidx.camera.testing.impl.EncoderProfilesUtil.createFakeEncoderProfilesProxy
 import androidx.camera.testing.impl.EncoderProfilesUtil.createFakeHighSpeedEncoderProfilesProxy
 import androidx.camera.testing.impl.EncoderProfilesUtil.createFakeVideoProfileProxy
 import androidx.camera.testing.impl.FrameRateUtil.FPS_120_120
@@ -124,6 +127,7 @@ import androidx.camera.testing.impl.fakes.FakeSurfaceEffect
 import androidx.camera.testing.impl.fakes.FakeSurfaceProcessorInternal
 import androidx.camera.testing.impl.fakes.FakeUseCaseConfigFactory
 import androidx.camera.testing.impl.fakes.FakeVideoEncoderInfo
+import androidx.camera.video.MediaSpec.Companion.OUTPUT_FORMAT_WEBM
 import androidx.camera.video.Quality.FHD
 import androidx.camera.video.Quality.HD
 import androidx.camera.video.Quality.HIGHEST
@@ -153,7 +157,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import org.robolectric.shadows.ShadowLog
 
 private val ANY_SIZE by lazy { Size(640, 480) }
 private const val CAMERA_ID_0 = "0"
@@ -179,8 +182,6 @@ class VideoCaptureTest {
 
     @Before
     fun setup() {
-        ShadowLog.stream = System.out
-
         DefaultSurfaceProcessor.Factory.setSupplier { createFakeSurfaceProcessor() }
     }
 
@@ -782,7 +783,7 @@ class VideoCaptureTest {
         // Arrange: create HD EncoderProfiles.
         val audioProfile = createFakeAudioProfileProxy()
         val durationSeconds = 20
-        val outputFormat = MediaRecorder.OutputFormat.WEBM
+        val outputFormat = WEBM
         val profilesHd =
             EncoderProfilesProxy.ImmutableEncoderProfilesProxy.create(
                 durationSeconds,
@@ -2083,6 +2084,58 @@ class VideoCaptureTest {
         assertThat(videoCapture.targetRotation).isEqualTo(Surface.ROTATION_180)
     }
 
+    @Test
+    fun webmOutput_withNonZeroRotation_enablesSurfaceProcessing() {
+        // Arrange: Configure WebM support and Camera
+        val profileMap =
+            mapOf(
+                QUALITY_720P to
+                    createFakeEncoderProfilesProxy(
+                        videoProfiles =
+                            listOf(
+                                createFakeVideoProfileProxy(
+                                    videoResolution = RESOLUTION_720P,
+                                    videoCodec = VP8,
+                                    videoMediaType = MIMETYPE_VIDEO_VP8,
+                                )
+                            ),
+                        recommendedFileFormat = WEBM,
+                    )
+            )
+        // Camera sensor rotation is 0
+        setupCamera(profiles = profileMap, sensorRotation = 0)
+        createCameraUseCaseAdapter()
+
+        val profilesResolver = createFakeEncoderProfilesResolver(profileMap)
+        val videoCapabilities = createFakeVideoCapabilities(profilesResolver)
+
+        // Arrange: Create VideoOutput specifically requesting WebM
+        val webmVideoOutput =
+            createVideoOutput(
+                mediaSpec = createMediaSpec(outputFormat = OUTPUT_FORMAT_WEBM),
+                profilesResolver = profilesResolver,
+                videoCapabilities = videoCapabilities,
+            )
+
+        // Create one VideoCapture with 0 rotation (no processing needed)
+        // and one with 90 degrees (processing needed for WebM)
+        val videoCaptureNoRotation =
+            createVideoCapture(videoOutput = webmVideoOutput, targetRotation = Surface.ROTATION_0)
+        val videoCaptureWithRotation =
+            createVideoCapture(videoOutput = webmVideoOutput, targetRotation = Surface.ROTATION_90)
+
+        // Act: Attach use cases to trigger internal pipeline resolution
+        addAndAttachUseCases(videoCaptureNoRotation)
+        addAndAttachUseCases(videoCaptureWithRotation)
+
+        // Assert: 0-degree rotation should not trigger processing
+        assertThat(videoCaptureNoRotation.isSurfaceProcessingEnabled()).isFalse()
+
+        // Assert: Non-zero rotation in WebM must trigger surface processing (the Node)
+        // because WebM does not support orientation metadata.
+        assertThat(videoCaptureWithRotation.isSurfaceProcessingEnabled()).isTrue()
+    }
+
     private fun testSelectedQualityIsExpected(
         streamSpecConfiguredResolution: Size,
         streamSpecResolution: Size = streamSpecConfiguredResolution,
@@ -2279,10 +2332,12 @@ class VideoCaptureTest {
         }
 
     private fun createMediaSpec(
+        outputFormat: Int? = null,
         qualitySelector: QualitySelector = DEFAULT_QUALITY_SELECTOR,
         @AspectRatio.Ratio aspectRatio: Int? = null,
     ): MediaSpec {
         return MediaSpec.builder()
+            .apply { outputFormat?.let { setOutputFormat(it) } }
             .configureVideo { config ->
                 config.setQualitySelector(qualitySelector)
                 aspectRatio?.let { config.setAspectRatio(it) }

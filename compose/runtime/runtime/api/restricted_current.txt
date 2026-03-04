@@ -1085,7 +1085,7 @@ package androidx.compose.runtime.snapshots {
     method public boolean hasPendingChanges();
     method public androidx.compose.runtime.snapshots.MutableSnapshot takeNestedMutableSnapshot(optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver, optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? writeObserver);
     method @BytecodeOnly public static androidx.compose.runtime.snapshots.MutableSnapshot! takeNestedMutableSnapshot$default(androidx.compose.runtime.snapshots.MutableSnapshot!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, int, Object!);
-    method public androidx.compose.runtime.snapshots.Snapshot takeNestedSnapshot(kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver);
+    method public androidx.compose.runtime.snapshots.Snapshot takeNestedSnapshot(optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver);
     property public boolean readOnly;
     property public androidx.compose.runtime.snapshots.Snapshot root;
   }

@@ -21,6 +21,7 @@ import android.app.KeyguardManager
 import android.content.Context
 import android.hardware.biometrics.BiometricManager
 import android.os.Build
+import androidx.biometric.AuthenticationRequest
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.internal.data.CanceledFrom
 import androidx.biometric.internal.data.FakeAuthenticationStateRepository
@@ -40,6 +41,8 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowKeyguardManager
 
+private const val NEGATIVE_BUTTON_TEXT = "test"
+
 @RunWith(AndroidJUnit4::class)
 class AuthenticationHandlerFingerprintManagerTest {
     private val context: Application = ApplicationProvider.getApplicationContext()
@@ -51,10 +54,17 @@ class AuthenticationHandlerFingerprintManagerTest {
 
     private var isConfirmCredentialActivityLaunched = false
     private var errorCode: Int = -1
+    private var fallback: AuthenticationRequest.Biometric.Fallback.CustomOption? = null
     private val clientAuthenticationCallback =
         object : BiometricPrompt.AuthenticationCallback() {
             override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                 this@AuthenticationHandlerFingerprintManagerTest.errorCode = errorCode
+            }
+
+            override fun onFallbackSelected(
+                fallback: AuthenticationRequest.Biometric.Fallback.CustomOption
+            ) {
+                this@AuthenticationHandlerFingerprintManagerTest.fallback = fallback
             }
         }
 
@@ -167,12 +177,47 @@ class AuthenticationHandlerFingerprintManagerTest {
         assertThat(errorCode).isEqualTo(BiometricPrompt.ERROR_HW_UNAVAILABLE)
     }
 
+    @Test
+    fun onNegativeButtonPressed_sendsFallbackOptionAndCancels() {
+        authenticationHandler.authenticate(getPromptInfo(), null)
+        val cancellationSignal = viewModel.cancellationSignalProvider.fingerprintCancellationSignal
+        assertThat(cancellationSignal.isCanceled).isFalse()
+
+        viewModel.setNegativeButtonPressPending()
+
+        assertThat(fallback?.text).isEqualTo(NEGATIVE_BUTTON_TEXT)
+        assertThat(cancellationSignal.isCanceled).isTrue()
+        assertThat(viewModel.canceledFrom).isEqualTo(CanceledFrom.NEGATIVE_BUTTON)
+    }
+
+    @Test
+    fun onDefaultCancelButtonPressed_sendsErrorAndCancels() {
+        val authenticators = androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_WEAK
+        val builder = BiometricPrompt.PromptInfo.Builder().setTitle("test")
+        val defaultCancelText = "Cancel"
+        builder.addFallbackOption(
+            AuthenticationRequest.Biometric.Fallback.DefaultCancel(defaultCancelText)
+        )
+        builder.setAllowedAuthenticators(authenticators)
+        authenticationHandler.authenticate(builder.build(), null)
+        val cancellationSignal = viewModel.cancellationSignalProvider.biometricCancellationSignal
+        assertThat(cancellationSignal.isCanceled).isFalse()
+
+        viewModel.setNegativeButtonPressPending()
+
+        assertThat(errorCode).isEqualTo(BiometricPrompt.ERROR_CANCELED)
+        assertThat(cancellationSignal.isCanceled).isTrue()
+        assertThat(viewModel.canceledFrom).isEqualTo(CanceledFrom.USER)
+    }
+
     private fun getPromptInfo(
         authenticators: Int = BiometricManager.Authenticators.BIOMETRIC_WEAK
     ): BiometricPrompt.PromptInfo {
         val builder = BiometricPrompt.PromptInfo.Builder().setTitle("test")
         if (!AuthenticatorUtils.isDeviceCredentialAllowed(authenticators)) {
-            builder.setNegativeButtonText("test")
+            builder.addFallbackOption(
+                AuthenticationRequest.Biometric.Fallback.CustomOption(NEGATIVE_BUTTON_TEXT)
+            )
         }
         builder.setAllowedAuthenticators(authenticators)
         return builder.build()

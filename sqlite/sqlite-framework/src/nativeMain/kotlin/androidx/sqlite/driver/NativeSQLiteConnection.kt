@@ -28,6 +28,7 @@ import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.CPointerVar
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.allocPointerTo
+import kotlinx.cinterop.cstr
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.toKStringFromUtf8
@@ -38,7 +39,6 @@ import sqlite3.SQLITE_OK
 import sqlite3.sqlite3_close_v2
 import sqlite3.sqlite3_free
 import sqlite3.sqlite3_get_autocommit
-import sqlite3.sqlite3_load_extension
 import sqlite3.sqlite3_prepare16_v2
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // For actual typealias in unbundled
@@ -80,7 +80,12 @@ public class NativeSQLiteConnection(private val dbPointer: CPointer<sqlite3>) : 
         }
         val errorMessagePointer = alloc<CPointerVar<ByteVar>>()
         val resultCode =
-            sqlite3_load_extension(dbPointer, fileName, entryPoint, errorMessagePointer.ptr)
+            tryLoadExtension(
+                db = dbPointer,
+                zFile = fileName.cstr.ptr,
+                zProc = entryPoint?.cstr?.ptr,
+                pzErrMsg = errorMessagePointer.ptr,
+            )
 
         if (resultCode != SQLITE_OK) {
             val errorMessage = errorMessagePointer.value?.toKStringFromUtf8()

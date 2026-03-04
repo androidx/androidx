@@ -37,7 +37,7 @@ internal interface CoreEntityNode : DelegatableSubspaceNode {
  *
  * This is used to request a relayout in stateful layout modifiers that are impacted by events that
  * don't trigger a recomposition. *Do not* call this from [CoreEntityNode.modifyCoreEntity] as
- * [CoreEntityNode.modifyCoreEntity] is called during layout and [requestRelayout] will cause a
+ * [CoreEntityNode.modifyCoreEntity] is called during layout and [invalidatePlacement] will cause a
  * relayout loop.
  */
 internal fun CoreEntityNode.invalidatePlacement() {

@@ -230,7 +230,14 @@ class RemoteCanvasTest {
     @RemoteComposable
     @Composable
     fun TestDrawAnchoredText_colorExpression() {
-        val color = RemoteColor.fromARGB(0.9f.rf.createReference(), 0.8f.rf, 0.9f.rf, 0.9f.rf)
+        val color =
+            RemoteColor.rgb(
+                red = 0.8f.rf,
+                green = 0.9f.rf,
+                blue = 0.9f.rf,
+                // Force a non const expression with createReference
+                alpha = 0.9f.rf.createReference(),
+            )
         val text = "Visible Hello".rs
         RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
             val w = remoteWidth

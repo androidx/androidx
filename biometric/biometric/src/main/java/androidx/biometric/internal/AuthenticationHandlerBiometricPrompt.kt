@@ -29,6 +29,7 @@ import android.util.Log
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
+import androidx.biometric.AuthenticationRequest
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt.AuthenticationCallback
 import androidx.biometric.BiometricPrompt.CryptoObject
@@ -74,12 +75,6 @@ internal class AuthenticationHandlerBiometricPrompt(
             clientAuthenticationCallback,
         )
 
-    private val isMoreOptionsButtonPressPendingObserver = {
-        if (viewModel.isPromptShowing) {
-            onMoreOptionsButtonPressed()
-        }
-    }
-
     init {
         val resultDispatcher =
             object :
@@ -96,9 +91,7 @@ internal class AuthenticationHandlerBiometricPrompt(
                     val knownErrorCode = ErrorUtils.toKnownErrorCodeForAuthenticate(errorCode)
                     if (
                         ErrorUtils.isLockoutError(knownErrorCode) &&
-                            context.isManagingDeviceCredentialButton(
-                                viewModel.allowedAuthenticators
-                            )
+                            viewModel.isOverriddenDeviceCredential
                     ) {
                         showKMAsFallback()
                         return
@@ -119,8 +112,17 @@ internal class AuthenticationHandlerBiometricPrompt(
                             }
                         }
                         launch {
+                            viewModel.isFallbackOptionPressPending.collect { fallback ->
+                                if (viewModel.isPromptShowing) {
+                                    onFallbackOptionPressed(fallback)
+                                }
+                            }
+                        }
+                        launch {
                             viewModel.isMoreOptionsButtonPressPending.collect {
-                                isMoreOptionsButtonPressPendingObserver()
+                                if (viewModel.isPromptShowing) {
+                                    onMoreOptionsButtonPressed()
+                                }
                             }
                         }
                     }
@@ -157,7 +159,7 @@ internal class AuthenticationHandlerBiometricPrompt(
             Api28Impl.setDescription(builder, description)
         }
 
-        val negativeButtonText: CharSequence? = viewModel.negativeButtonText
+        val negativeButtonText: CharSequence? = viewModel.singleFallbackOptionText
         if (negativeButtonText != null && !TextUtils.isEmpty(negativeButtonText)) {
             Api28Impl.setNegativeButton(
                 builder,
@@ -166,6 +168,19 @@ internal class AuthenticationHandlerBiometricPrompt(
                 viewModel.negativeButtonListener,
             )
         }
+
+        val fallbackOptionList = viewModel.multipleFallbackOptionList
+        fallbackOptionList
+            ?.filterIsInstance<AuthenticationRequest.Biometric.Fallback.CustomOption>()
+            ?.forEach {
+                Api36MinorImpl.addFallbackOption(
+                    builder,
+                    it.text,
+                    it.iconType,
+                    clientExecutor,
+                    viewModel.fallbackOptionListener(it),
+                )
+            }
 
         // Set the confirmation required option introduced in Android 10 (API 29).
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -257,6 +272,38 @@ internal class AuthenticationHandlerBiometricPrompt(
             context.getString(R.string.content_view_more_options_button_clicked),
         )
         cancelAuthentication(CanceledFrom.MORE_OPTIONS_BUTTON)
+    }
+
+    /**
+     * Callback that is run when the view model reports that the fallback options has been pressed.
+     */
+    private fun onFallbackOptionPressed(
+        fallback: AuthenticationRequest.Biometric.Fallback.CustomOption
+    ) {
+        authenticationManager.resultDispatcher.sendFallbackOptionAndDismiss(fallback)
+        cancelAuthentication(CanceledFrom.FALLBACK_OPTION)
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES_FULL.BAKLAVA_1)
+private object Api36MinorImpl {
+    /**
+     * Sets the text, icon, executor, and click listener for a fallback option in biometric prompt.
+     *
+     * @param text Text to be shown on the fallback option for the prompt.
+     * @param iconType Icon to be shown for the fallback option
+     * @param executor Executor that will be used to run the on click callback.
+     * @param listener Listener containing a callback to be run when the button is pressed.
+     */
+    @DoNotInline
+    fun addFallbackOption(
+        builder: BiometricPrompt.Builder,
+        text: CharSequence,
+        iconType: Int,
+        executor: Executor,
+        listener: DialogInterface.OnClickListener,
+    ) {
+        builder.addFallbackOption(text, iconType, executor, listener)
     }
 }
 

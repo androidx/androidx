@@ -54,12 +54,6 @@ public class MainActivity extends AppCompatActivity {
                         getResources().getString(R.string.asset_loader_list_activity_title),
                         new Intent(activityContext, AssetLoaderListActivity.class)),
                 new MenuListView.MenuItem(
-                        getResources().getString(R.string.force_dark_activity_title),
-                        new Intent(activityContext, ForceDarkActivity.class)),
-                new MenuListView.MenuItem(
-                        getResources().getString(R.string.force_dark_strategy_activity_title),
-                        new Intent(activityContext, ForceDarkStrategyActivity.class)),
-                new MenuListView.MenuItem(
                         getResources().getString(R.string.tracing_controller_activity_title),
                         new Intent(activityContext, TracingControllerActivity.class)),
                 new MenuListView.MenuItem(

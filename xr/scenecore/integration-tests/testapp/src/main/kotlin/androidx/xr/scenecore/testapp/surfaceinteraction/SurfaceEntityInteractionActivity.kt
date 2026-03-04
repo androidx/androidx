@@ -52,7 +52,7 @@ import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.GroupEntity
+import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.InteractableComponent
 import androidx.xr.scenecore.MovableComponent
 import androidx.xr.scenecore.Scene
@@ -67,7 +67,7 @@ internal const val TAG = "JXR-SurfaceEntityInteractionActivity"
 class SurfaceEntityInteractionActivity : AppCompatActivity() {
     private val activity = this
     private var hasPermission: Boolean = false
-    private var surfaceParent: GroupEntity? = null
+    private var surfaceParent: Entity? = null
     private var surfaceEntity: SurfaceEntity? = null
     private var exoPlayer: ExoPlayer? = null
     private val requestReadMediaVideo: Int = 1
@@ -114,14 +114,14 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
         scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
         session.configure(
             Config(
-                deviceTracking = DeviceTrackingMode.LAST_KNOWN,
+                deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
                 handTracking = HandTrackingMode.BOTH,
             )
         )
         session.scene.keyEntity = session.scene.mainPanelEntity
         device = ArDevice.getInstance(session)
 
-        surfaceParent = GroupEntity.create(session, "SurfaceParent", Pose.Identity)
+        surfaceParent = Entity.create(session, "SurfaceParent", Pose.Identity)
         videoInputManager = VideoInputManager()
         pointerLogManager = PointerLogManager(this, session)
 
@@ -426,17 +426,17 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
         val shapeOffset: Pose,
         val canvasShape: SurfaceEntity.Shape,
         val inputHandlerProvider:
-            VideoAttributes.(GroupEntity, ExoPlayer) -> VideoInputManager.InputHandler,
+            VideoAttributes.(Entity, ExoPlayer) -> VideoInputManager.InputHandler,
     ) {
         val isProtected
             get() = protection == SurfaceEntity.SurfaceProtection.PROTECTED
 
-        fun createInputHandler(parent: GroupEntity, player: ExoPlayer) =
+        fun createInputHandler(parent: Entity, player: ExoPlayer) =
             inputHandlerProvider(parent, player)
     }
 
     companion object {
-        private fun alignPoseToPlayerHead(scene: Scene, device: ArDevice, entity: GroupEntity) {
+        private fun alignPoseToPlayerHead(scene: Scene, device: ArDevice, entity: Entity) {
             val pose =
                 scene.perceptionSpace.transformPoseTo(
                     device.state.value.devicePose,
@@ -448,7 +448,7 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
 
         private fun createSurfaceEntity(
             session: Session,
-            parent: GroupEntity,
+            parent: Entity,
             initPose: Pose,
             shape: SurfaceEntity.Shape,
             stereoMode: SurfaceEntity.StereoMode,

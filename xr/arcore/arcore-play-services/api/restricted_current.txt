@@ -51,7 +51,6 @@ package androidx.xr.arcore.playservices {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class ArCoreFace implements androidx.xr.arcore.runtime.Face {
     method @SuppressCompatibility @androidx.xr.arcore.playservices.UnsupportedArCoreCompatApi public com.google.ar.core.AugmentedFace arCoreAugmentedFace();
-    method public androidx.xr.arcore.runtime.Anchor createAnchor(androidx.xr.runtime.math.Pose pose);
     method @InaccessibleFromKotlin public float[]? getBlendShapeValues();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getCenterPose();
     method @InaccessibleFromKotlin public float[]? getConfidenceValues();

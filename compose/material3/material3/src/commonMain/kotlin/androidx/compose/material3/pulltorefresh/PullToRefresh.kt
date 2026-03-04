@@ -130,7 +130,7 @@ import kotlinx.coroutines.launch
  * @param enabled whether nested scroll events should be consumed by this component
  * @param threshold how much distance can be scrolled down before [onRefresh] is invoked
  * @param content the content of the pull refresh container, typically a scrollable layout such as
- *   [LazyColumn] or a layout using [Modifier.verticalScroll]
+ *   [LazyColumn] or a layout using [androidx.compose.foundation.verticalScroll]
  */
 @Composable
 fun PullToRefreshBox(

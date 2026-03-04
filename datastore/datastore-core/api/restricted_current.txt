@@ -30,6 +30,14 @@ package androidx.datastore.core {
     property public abstract kotlinx.coroutines.flow.Flow<T> data;
   }
 
+  public static final class DataStore.Builder<T> {
+    ctor public DataStore.Builder(androidx.datastore.core.Storage<T> storage, kotlin.coroutines.CoroutineContext context);
+    method public androidx.datastore.core.DataStore.Builder<T> addMigrations(java.util.List<? extends androidx.datastore.core.DataMigration<T>> migrations);
+    method public androidx.datastore.core.DataStore<T> build();
+    method public androidx.datastore.core.DataStore.Builder<T> setCorruptionHandler(androidx.datastore.core.CorruptionHandler<T> handler);
+    method public androidx.datastore.core.DataStore.Builder<T> setTracer(androidx.tracing.Tracer tracer);
+  }
+
   public final class DataStoreFactory {
     method public <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<T>> migrations, kotlin.jvm.functions.Function0<? extends java.io.File> produceFile);
     method public <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<T>> migrations, optional kotlinx.coroutines.CoroutineScope scope, kotlin.jvm.functions.Function0<? extends java.io.File> produceFile);

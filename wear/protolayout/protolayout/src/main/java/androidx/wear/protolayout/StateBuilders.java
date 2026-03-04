@@ -193,7 +193,7 @@ public final class StateBuilders {
              *     allowed limit ({@link #getMaxStateEntryCount()}).
              */
             @RequiresSchemaVersion(major = 1, minor = 200)
-            public @NonNull Builder setStateMap(@NonNull DynamicDataPair<?>... pairs) {
+            public @NonNull Builder setStateMap(@NonNull DynamicDataPair<?> @NonNull ... pairs) {
                 return setStateMap(dynamicDataMapOf(pairs));
             }
 
@@ -205,7 +205,8 @@ public final class StateBuilders {
              */
             @RequiresSchemaVersion(major = 1, minor = 200)
             @SuppressLint("MissingGetterMatchingBuilder")
-            public @NonNull Builder addToStateMap(@NonNull DynamicDataPair<?>... entries) {
+            public @NonNull Builder addToStateMap(
+                    @NonNull DynamicDataPair<?> @NonNull ... entries) {
                 if (mImpl.getIdToValueMap().size() + entries.length > getMaxStateEntryCount()) {
                     throw new IllegalArgumentException(
                             String.format(

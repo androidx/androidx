@@ -40,6 +40,7 @@ dexmaker = "2.28.6"
 espresso = "3.7.0"
 espressoDevice = "1.1.0"
 grpc = "1.52.0"
+gson = "2.9.0"
 guavaJre = "33.2.1-jre"
 hamcrestCore = "1.3"
 hilt = "2.59"
@@ -72,16 +73,17 @@ metalava = "1.0.0-alpha14"
 mockito = "2.25.0"
 moshi = "1.13.0"
 node = "22.0.0"
-protobuf = "4.28.2"
+protobuf = "4.33.5"
 skiko = "0.7.7"
 spdxGradlePlugin = "0.6.0"
 sqldelight = "1.3.0"
+tink = "1.20.0"
 retrofit = "2.12.0"
 wire = "5.4.0"
 core = "1.12.0"
 xmlApis = "1.4.01"
 yarn = "1.22.17"
-extensionsXr = "1.3.0-alpha02"
+extensionsXr = "1.3.0"
 
 [libraries]
 agpTestingPlatformCoreProto =  { module = "com.google.testing.platform:core-proto", version = "0.0.8-alpha08" }
@@ -181,7 +183,7 @@ grpcProtobufCompiler = { module = "io.grpc:protoc-gen-grpc-java", version.ref = 
 grpcProtobufLite = { module = "io.grpc:grpc-protobuf-lite", version.ref = "grpc" }
 grpcStub = { module = "io.grpc:grpc-stub", version.ref = "grpc" }
 grpcTesting = { module = "io.grpc:grpc-testing", version.ref = "grpc" }
-gson = { module = "com.google.code.gson:gson", version = "2.9.0" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 guava = { module = "com.google.guava:guava", version.ref = "guavaJre" }
 guavaAndroid = { module = "com.google.guava:guava", version = "32.0.1-android" }
 guavaListenableFuture = { module = "com.google.guava:listenablefuture", version = "1.0" }
@@ -302,6 +304,8 @@ testParameterInjector = { module = "com.google.testparameterinjector:test-parame
 testRules = { module = "androidx.test:rules", version.ref = "androidxTestRules" }
 testRunner = { module = "androidx.test:runner", version.ref = "androidxTestRunner" }
 testUiautomator = { module = "androidx.test.uiautomator:uiautomator", version = "2.2.0" }
+tink = { module = "com.google.crypto.tink:tink", version.ref = "tink" }
+tinkAndroid = { module = "com.google.crypto.tink:tink-android", version.ref = "tink" }
 truth = { module = "com.google.truth:truth", version = "1.0.1" }
 toml = { module = "org.tomlj:tomlj", version = "1.0.0" }
 uast = { module = "com.android.tools.external.org-jetbrains:uast", version.ref = "androidLint" }

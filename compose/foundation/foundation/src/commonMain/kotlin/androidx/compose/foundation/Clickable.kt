@@ -52,6 +52,7 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
 import androidx.compose.ui.input.pointer.changedToUp
+import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.isOutOfBounds
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatableNode
@@ -1160,20 +1161,34 @@ private class CombinedClickableNode(
                 if (pointerEvent.isDeepPress) {
                     handleDeepPress()
                 }
+
+                if (longPressTriggered) {
+                    // This branch specifically handles the case where the long press callback has
+                    // already been invoked.
+                    if (pointerEvent.changes.fastAll { it.changedToUpIgnoreConsumed() }) {
+                        // A long press already fired its callback and all the pointers are up. We
+                        // must reset our state even if the up event was already consumed by a
+                        // child.
+                        val up = pointerEvent.changes[0]
+                        up.consume()
+                        handleUpEvent(uptimeMillis = up.uptimeMillis, downChange = downEvent!!)
+                    } else {
+                        // Once a long press has triggered, consume every event until pointers are
+                        // up.
+                        pointerEvent.changes.fastForEach { it.consume() }
+                    }
+                    return
+                }
+
                 if (pointerEvent.changes.fastAll { it.changedToUp() }) {
                     // All pointers are up
                     val up = pointerEvent.changes[0]
                     up.consume()
                     handleUpEvent(uptimeMillis = up.uptimeMillis, downChange = downEvent!!)
                 } else {
-                    // Once a long press has triggered, consume every event until pointers are up
-                    if (longPressTriggered) {
-                        pointerEvent.changes.fastForEach { it.consume() }
-                    } else {
-                        // Other events need to be checked for consumption / bounds related
-                        // cancellation.
-                        handleNonUpEventIfNeeded(pointerEvent, bounds)
-                    }
+                    // Other events need to be checked for consumption / bounds related
+                    // cancellation.
+                    handleNonUpEventIfNeeded(pointerEvent, bounds)
                 }
             }
         } else if (pass == PointerEventPass.Final) {
@@ -1189,19 +1204,35 @@ private class CombinedClickableNode(
                     handleDownEvent(event.changes[0])
                 }
             } else {
+                if (indirectLongPressTriggered) {
+                    // This branch specifically handles the case where the long press callback has
+                    // already been invoked.
+                    if (event.changes.fastAll { it.changedToUpIgnoreConsumed() }) {
+                        // A long press already fired its callback and all the pointers are up. We
+                        // must reset our state even if the up event was already consumed by a
+                        // child.
+                        val up = event.changes[0]
+                        up.consume()
+                        handleUpEvent(
+                            uptimeMillis = up.uptimeMillis,
+                            downChange = indirectDownEvent!!,
+                        )
+                    } else {
+                        // Once a long press has triggered, consume every event until pointers are
+                        // up
+                        event.changes.fastForEach { it.consume() }
+                    }
+                    return
+                }
+
                 if (event.changes.fastAll { it.changedToUp() }) {
                     // All pointers are up
                     val up = event.changes[0]
                     up.consume()
                     handleUpEvent(uptimeMillis = up.uptimeMillis, downChange = indirectDownEvent!!)
                 } else {
-                    // Once a long press has triggered, consume every event until pointers are up
-                    if (indirectLongPressTriggered) {
-                        event.changes.fastForEach { it.consume() }
-                    } else {
-                        // Other events need to be checked for consumption / exceeding touch slop
-                        handleNonUpEventIfNeeded(event)
-                    }
+                    // Other events need to be checked for consumption / exceeding touch slop
+                    handleNonUpEventIfNeeded(event)
                 }
             }
         } else if (pass == PointerEventPass.Final) {
@@ -2318,3 +2349,5 @@ private fun unsupportedIndicationExceptionMessage(indication: Indication): Strin
 }
 
 private fun IndirectPointerInputChange.changedToUp() = !isConsumed && previousPressed && !pressed
+
+private fun IndirectPointerInputChange.changedToUpIgnoreConsumed() = previousPressed && !pressed

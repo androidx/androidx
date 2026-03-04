@@ -29,8 +29,8 @@ import androidx.room3.solver.shortcut.result.DeleteOrUpdateFunctionAdapter
 import androidx.room3.vo.ShortcutQueryParameter
 
 /** Binder that knows how to write instant (blocking) delete and update methods. */
-class InstantDeleteOrUpdateFunctionBinder(adapter: DeleteOrUpdateFunctionAdapter?) :
-    DeleteOrUpdateFunctionBinder(adapter) {
+class InstantDeleteOrUpdateFunctionBinder(override val adapter: DeleteOrUpdateFunctionAdapter?) :
+    DeleteOrUpdateFunctionBinder {
 
     override fun convertAndReturn(
         parameters: List<ShortcutQueryParameter>,

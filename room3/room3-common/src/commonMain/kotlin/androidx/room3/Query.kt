@@ -17,105 +17,145 @@
 package androidx.room3
 
 /**
- * Marks a method in a `Dao` annotated class as a query method.
+ * Marks a function in a [Dao] annotated class as a query function.
  *
- * The value of the annotation includes the query that will be run when this method is called. This
- * query is **verified at compile time** by Room to ensure that it compiles fine against the
- * database.
+ * The [value] of the annotation is the SQL query that will be run when this function is called.
+ * This query is **verified at compile time** by Room to ensure that it executes fine against the
+ * database schema.
  *
- * The arguments of the method will be bound to the bind arguments in the SQL statement. See
- * [SQLite's binding documentation](https://www.sqlite.org/c3ref/bind_blob.html) for details of bind
- * arguments in SQLite.
+ * **Query Parameters**
  *
- * Room only supports named bind parameter `:name` to avoid any confusion between the method
- * parameters and the query bind parameters.
+ * The arguments of the function will be bound to the parameters of the SQL statement. See
+ * [SQLite's binding documentation](https://www.sqlite.org/c3ref/bind_blob.html) for details of
+ * binding parameters in SQLite.
  *
- * Room will automatically bind the parameters of the method into the bind arguments. This is done
- * by matching the name of the parameters to the name of the bind arguments.
+ * Room only supports named parameters (e.g.`:name`) to avoid any confusion between the function
+ * parameters and the SQL parameters.
  *
- * ```
- *   @Query("SELECT * FROM song WHERE release_year = :year")
- *   public abstract fun findSongsByReleaseYear(year: Int): List<Song>
- * ```
- *
- * As an extension over SQLite bind arguments, Room supports binding a list of parameters to the
- * query. At runtime, Room will build the correct query to have matching number of bind arguments
- * depending on the number of items in the method parameter.
+ * Room will automatically bind the parameters of the function as arguments into the SQL statement.
+ * This is done by matching the name of the parameters to the name of the SQL parameters.
  *
  * ```
- *   @Query("SELECT * FROM song WHERE id IN(:songIds)")
- *   public abstract fun findByIds(songIds: Array<Long>): List<Song>
+ * @Query("SELECT * FROM song WHERE release_year = :year")
+ * suspend fun findSongsByReleaseYear(year: Int): List<Song>
+ * ```
+ *
+ * As an extension over SQL parameters, Room supports binding a parameter of collection type to the
+ * query. At runtime, Room will transform the SQL query to have matching number of arguments
+ * depending on the number of items in the function parameter.
+ *
+ * ```
+ * @Query("SELECT * FROM song WHERE id IN (:songIds)")
+ * suspend fun findByIds(songIds: Array<Long>): List<Song>
  * ```
  *
  * For the example above, if the `songIds` is an array of 3 elements, Room will run the query as:
- * `SELECT * FROM song WHERE id IN(?, ?, ?)` and bind each item in the `songIds` array into the
- * statement. One caveat of this type of binding is that only 999 items can be bound to the query,
- * this is a limitation of SQLite
- * [see Section 9 of SQLite Limits](https://www.sqlite.org/limits.html)
+ * `SELECT * FROM song WHERE id IN (?, ?, ?)` and bind each item in the `songIds` array argument
+ * into the statement. One caveat of this type of binding is the max amount of items that can be
+ * bound are based on the [androidx.sqlite.SQLiteDriver] implementation provided to Room. For
+ * example for a driver that uses Android's SQLite binding the limit is 999 items. See also
+ * [Section 9 of SQLite Limits](https://www.sqlite.org/limits.html)
  *
- * There are 4 type of statements supported in `Query` methods: SELECT, INSERT, UPDATE, and DELETE.
+ * **Supported Statements**
  *
- * For SELECT queries, Room will infer the result contents from the method's return type and
- * generate the code that will automatically convert the query result into the method's return type.
- * For single result queries, the return type can be any data object (also known as data classes).
- * For queries that return multiple values, you can use [java.util.List] or `Array`. In addition to
- * these, any query may return [android.database.Cursor] or any query result can be wrapped in a
- * [androidx.lifecycle.LiveData].
+ * There are 4 type of statements supported in `@Query` functions: `SELECT`, `INSERT`, `UPDATE`, and
+ * `DELETE`.
  *
- * INSERT queries can return `void` or `Long`. If it is a `Long`, the value is the SQLite rowid of
- * the row inserted by this query. Note that queries which insert multiple rows cannot return more
- * than one rowid, so avoid such statements if returning `Long`.
+ * For `SELECT` statements, Room will infer the result contents from the function's return type and
+ * generate the code that will automatically convert the query result into the function's return
+ * type. For single row result queries, the return type can be any data object (also known as data
+ * classes) and for single column result queries, the return type can be any of the built-in types,
+ * primitives, [String], [ByteArray] and enums. For queries that return multiple values, you can use
+ * [List], [Array] or [Map].
  *
- * UPDATE or DELETE queries can return `void` or `Int`. If it is an `Int`, the value is the number
- * of rows affected by this query.
+ * `INSERT` queries can return `void` / [Unit] or [Long]. If it is a `Long`, the value is the SQLite
+ * 'rowid' of the inserted row (i.e. `SELECT last_insert_rowid()`). Note that queries which insert
+ * multiple rows cannot return more than one 'rowid', so avoid such statements if returning `Long`.
  *
- * **Flow**
+ * `UPDATE` and `DELETE` queries can return `void` / [Unit] or [Int]. If it is an `Int`, the value
+ * is the number of rows affected by this query (i.e. `SELECT changes()`).
  *
- * If you are using Kotlin, you can also return `Flow<T>` from query methods. This creates a
- * `Flow<T>` object that emits the results of the query and re-dispatches the query every time the
- * data in the queried table changes.
+ * **Flow Observable Queries**
  *
- * Note that querying a table with a return type of `Flow<T>` always returns the first row in the
- * result set, rather than emitting all of the rows in sequence. To observe changes over multiple
- * rows in a table, use a return type of `Flow<List<T>>` instead.
+ * `@Query` functions with `SELECT` statement can also return a [kotlinx.coroutines.flow.Flow]. This
+ * creates a `Flow<T>` object that emits the results of the query and re-dispatches the query every
+ * time the data in the queried table changes where `T` is one of the supported query types for
+ * `SELECT` statements.
  *
- * Keep nullability in mind when choosing a return type, as it affects how the query method handles
- * empty tables:
+ * Note that a non-collection type argument on the return type of `Flow<T>` will always return the
+ * first row in the result set, rather than emitting all the rows in sequence. To observe changes
+ * over multiple rows in a table, use a collection type argument, i.e. use the return type
+ * `Flow<List<T>>` instead.
+ *
+ * Keep nullability in mind when choosing a return type, as it affects how the query function
+ * handles empty tables:
  * * When the return type is `Flow<T>`, querying an empty table throws a null pointer exception.
  * * When the return type is `Flow<T?>`, querying an empty table emits a null value.
  * * When the return type is `Flow<List<T>>`, querying an empty table emits an empty list.
  *
- * Additionally if the statement is an INSERT, UPDATE or DELETE then the return types, `Single<T>`,
- * `Maybe<T>` and `Completable` are supported.
+ * Example:
+ * ```
+ * @Query("SELECT * FROM Song")
+ * suspend fun getSongs(): Flow<List<Song>>
+ * ```
  *
- * You can return arbitrary data classes from your query methods as long as the properties of the
+ * **DAO Function Return Types**
+ *
+ * You can return arbitrary data classes from your query functions as long as the properties of the
  * data class match the column names in the query result.
  *
  * For example, if you have class:
  * ```
  * data class SongDuration (
- *   val name: String,
- *   @ColumnInfo(name = "duration")
- *   val length: String
+ *     val name: String,
+ *     @ColumnInfo(name = "duration")
+ *     val length: String
  * )
  * ```
  *
  * You can write a query like this:
  * ```
- *   @Query("SELECT name, duration FROM song WHERE id = :songId LIMIT 1")
- *   public abstract fun findSongDuration(songId: Int): SongDuration
+ * @Query("SELECT name, duration FROM song WHERE id = :songId LIMIT 1")
+ * suspend fun findSongDuration(songId: Int): SongDuration
  * ```
  *
  * And Room will create the correct implementation to convert the query result into a `SongDuration`
- * object. If there is a mismatch between the query result and the properties of the data class, and
- * as long as there is at least 1 field match, Room prints a [RoomWarnings.QUERY_MISMATCH] warning
- * and sets as many properties as it can.
+ * object. If there is a mismatch between the query result columns and the properties of the data
+ * class, and as long as there is at least 1 column match, Room prints a
+ * [RoomWarnings.QUERY_MISMATCH] warning and sets as many properties as it can. Data classes may
+ * additional have embedded properties via [Embedded] declarations and / or relations via [Relation]
+ * declarations. See the documentation on those annotation for more information.
+ *
+ * For multiple values, use one of the supported collection return types:
+ * ```
+ * /** Gets all songs */
+ * @Query("SELECT * FROM Song")
+ * suspend fun getSongs(): List<Song>
+ *
+ * /** Gets a map of all albums and their associated songs */
+ * @Query("SELECT * FROM Album LEFT JOIN Song ON Album.albumId = Song.albumId")
+ * suspend fun getSongsByAlbum(): Map<Album, List<Song>>
+ *
+ * /** Gets a map of categories and the amount of songs in each category */
+ * @Query(
+ *     """
+ *     SELECT Category.*, COUNT(Song.id) AS songCount
+ *     FROM Category LEFT JOIN Song ON Category.cid = Song.cid
+ *     GROUP BY Category.cid, Category.name
+ *     """
+ * )
+ * suspend fun getCategoriesCount(): Map<Category, @MapColumn("songCount") Int>
+ * ```
+ *
+ * Additional return types can be supported via [DaoReturnTypeConverter] functions.
+ *
+ * @see DaoReturnTypeConverter
  */
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER)
 @Retention(AnnotationRetention.BINARY)
 public annotation class Query(
     /**
-     * The SQLite query to be run.
+     * The SQL statement to be run.
      *
      * @return The query to be run.
      */

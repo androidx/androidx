@@ -24,9 +24,9 @@ import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
-import androidx.xr.scenecore.GroupEntity
 import androidx.xr.scenecore.scene
 import java.nio.file.Paths
 import kotlinx.coroutines.CoroutineScope
@@ -38,7 +38,7 @@ class GazeRenderer {
 
     class EyeWidget(
         private val session: Session,
-        private val entity: GroupEntity,
+        private val entity: Entity,
         private val model: GltfModelEntity,
         private val left: Boolean,
     ) {
@@ -46,10 +46,10 @@ class GazeRenderer {
 
         companion object {
             suspend fun create(session: Session, name: String, isLeft: Boolean): EyeWidget {
-                val rootEntity = GroupEntity.create(session, "$name Root")
+                val rootEntity = Entity.create(session, "$name Root")
 
                 val offsetPose = Pose(Vector3(0f, 0f, -0.2f), Quaternion.Identity)
-                val offsetEntity = GroupEntity.create(session, "$name Offset", offsetPose)
+                val offsetEntity = Entity.create(session, "$name Offset", offsetPose)
                 rootEntity.addChild(offsetEntity)
 
                 val assetName =

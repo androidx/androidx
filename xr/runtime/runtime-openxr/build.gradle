@@ -49,7 +49,7 @@ dependencies {
 
 
 android {
-    namespace = "xr.runtime.openxr"
+    namespace = "androidx.xr.runtime.openxr"
     sourceSets.main {
         jniLibs.srcDirs += new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/native/android")
     }

@@ -17,7 +17,6 @@
 package androidx.room3.integration.kotlintestapp.test
 
 import androidx.kruth.assertThat
-import androidx.room3.ExperimentalRoomApi
 import androidx.room3.integration.kotlintestapp.vo.Book
 import androidx.room3.withWriteTransaction
 import androidx.test.filters.LargeTest
@@ -162,7 +161,6 @@ class SuspendingTransactionCancellationTest(driver: UseDriver) : TestDatabaseTes
         repeat(100) { canceledTransaction_immediatelyOnTheSameThread() }
 
     /** Reads data from the database but also runs the given code inside the transaction. */
-    @OptIn(ExperimentalRoomApi::class)
     private suspend fun getBook(
         // executed after method starts
         inTransaction: (suspend () -> Unit)? = null

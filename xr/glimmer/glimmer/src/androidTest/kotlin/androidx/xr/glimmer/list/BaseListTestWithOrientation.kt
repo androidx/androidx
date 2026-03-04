@@ -207,7 +207,7 @@ abstract class BaseListTestWithOrientation(protected val orientation: Orientatio
         return scrolled
     }
 
-    private fun PaddingValues(
+    fun PaddingValues(
         beforeContent: Dp = 0.dp,
         afterContent: Dp = 0.dp,
         beforeContentCrossAxis: Dp = 0.dp,

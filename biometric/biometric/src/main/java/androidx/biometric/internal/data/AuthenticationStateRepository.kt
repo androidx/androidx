@@ -16,6 +16,7 @@
 
 package androidx.biometric.internal.data
 
+import androidx.biometric.AuthenticationRequest
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.utils.BiometricErrorData
 import androidx.biometric.utils.CancellationSignalProvider
@@ -58,6 +59,9 @@ internal interface AuthenticationStateRepository {
     /** A flow that emits when the negative button is pressed. */
     val isNegativeButtonPressPending: Flow<Unit>
 
+    /** A flow that emits when the fallback option is pressed. */
+    val isFallbackOptionPressPending: Flow<AuthenticationRequest.Biometric.Fallback.CustomOption>
+
     /** A flow that emits when the more options button is pressed. */
     val isMoreOptionsButtonPressPending: Flow<Unit>
 
@@ -84,6 +88,11 @@ internal interface AuthenticationStateRepository {
 
     /** Emits an event for a negative button press. */
     suspend fun setNegativeButtonPressPending()
+
+    /** Emits an event for a [fallbackOption] press. */
+    suspend fun setFallbackOptionPressPending(
+        fallbackOption: AuthenticationRequest.Biometric.Fallback.CustomOption
+    )
 
     /** Emits an event for a more options button press. */
     suspend fun setMoreOptionsButtonPressPending()
@@ -130,6 +139,12 @@ internal class AuthenticationStateRepositoryImpl : AuthenticationStateRepository
     override val isNegativeButtonPressPending: SharedFlow<Unit> =
         _isNegativeButtonPressPending.asSharedFlow()
 
+    private val _isFallbackOptionPressPending =
+        MutableSharedFlow<AuthenticationRequest.Biometric.Fallback.CustomOption>()
+    override val isFallbackOptionPressPending:
+        SharedFlow<AuthenticationRequest.Biometric.Fallback.CustomOption> =
+        _isFallbackOptionPressPending.asSharedFlow()
+
     private val _isMoreOptionsButtonPressPending = MutableSharedFlow<Unit>()
     override val isMoreOptionsButtonPressPending: SharedFlow<Unit> =
         _isMoreOptionsButtonPressPending.asSharedFlow()
@@ -159,6 +174,12 @@ internal class AuthenticationStateRepositoryImpl : AuthenticationStateRepository
 
     override suspend fun setNegativeButtonPressPending() {
         _isNegativeButtonPressPending.emit(Unit)
+    }
+
+    override suspend fun setFallbackOptionPressPending(
+        fallbackOption: AuthenticationRequest.Biometric.Fallback.CustomOption
+    ) {
+        _isFallbackOptionPressPending.emit(fallbackOption)
     }
 
     override suspend fun setMoreOptionsButtonPressPending() {

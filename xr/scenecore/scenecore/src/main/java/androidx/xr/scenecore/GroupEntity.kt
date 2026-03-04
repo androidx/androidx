@@ -17,8 +17,8 @@
 package androidx.xr.scenecore
 
 import androidx.annotation.RestrictTo
-import androidx.xr.runtime.Log
 import androidx.xr.runtime.Session
+import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.runtime.Entity as RtEntity
 import androidx.xr.scenecore.runtime.SceneRuntime
@@ -39,11 +39,11 @@ public class GroupEntity private constructor(rtEntity: RtEntity, entityManager: 
             parent: Entity? = entityManager.getEntityForRtEntity(sceneRuntime.activitySpace),
         ): GroupEntity =
             GroupEntity(
-                sceneRuntime.createGroupEntity(
+                sceneRuntime.createEntity(
                     pose,
                     name,
                     if (parent != null && parent !is BaseEntity<*>) {
-                        Log.warn(
+                        XrLog.warn(
                             "The provided parent is not a BaseEntity. The GroupEntity will " +
                                 "be created without a parent."
                         )
@@ -64,6 +64,11 @@ public class GroupEntity private constructor(rtEntity: RtEntity, entityManager: 
          */
         @JvmOverloads
         @JvmStatic
+        @Deprecated(
+            message =
+                "Use Entity.create instead. Creating an Entity without any content is now done from the Entity class",
+            replaceWith = ReplaceWith("Entity.create", "androidx.xr.scenecore.Entity"),
+        )
         public fun create(session: Session, name: String, pose: Pose = Pose.Identity): GroupEntity =
             create(session.sceneRuntime, session.scene.entityManager, name, pose)
 

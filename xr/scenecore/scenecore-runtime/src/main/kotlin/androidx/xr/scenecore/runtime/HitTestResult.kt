@@ -23,7 +23,8 @@ import androidx.xr.runtime.math.Vector3
 /**
  * Defines an intersection between a ray and the scene.
  *
- * This can be obtained by running [hitTest] or [hitTestAsync] on a [ScenePose].
+ * This can be obtained by running [ScenePose.hitTest] or [androidx.xr.scenecore.guava.hitTestAsync]
+ * on a [ScenePose].
  *
  * @property hitPosition the [androidx.xr.runtime.math.Vector3] position of the intersection between
  *   a ray and the Scene. This will be null if nothing was hit

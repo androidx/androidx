@@ -44,7 +44,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-unit:1.7.5")
     implementation("androidx.compose.ui:ui-util:1.7.5")
     implementation("androidx.compose.ui:ui-test-junit4:1.7.5")
-    implementation("com.google.ar:impress:0.0.12")
+    implementation("com.google.ar:impress:0.0.13")
 
     compileOnly("com.google.errorprone:error_prone_annotations:2.30.0")
     compileOnly(libs.androidExtensionsXr)

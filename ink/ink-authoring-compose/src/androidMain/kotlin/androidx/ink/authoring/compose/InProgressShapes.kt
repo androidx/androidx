@@ -82,7 +82,7 @@ import java.util.concurrent.TimeUnit
  * [androidx.ink.rendering.android.canvas.CanvasStrokeRenderer].
  *
  * @param customShapeWorkflow A [ShapeWorkflow] to be used as an alternative to the standard Ink
- *   behavior provided by [InProgressStrokesView].
+ *   behavior provided by [androidx.ink.authoring.InProgressStrokesView].
  * @param defaultShapeSpec Specification for the shape being started. If this is `null`, nothing
  *   will be drawn, but the internal rendering resources will be preserved to avoid paying the cost
  *   for reinitialization when drawing is needed again. If different [ShapeSpecT] values are needed

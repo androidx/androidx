@@ -18,6 +18,7 @@
 package androidx.room3.rxjava3
 
 import androidx.room3.DaoReturnTypeConverter
+import androidx.room3.OperationType
 import androidx.room3.RoomDatabase
 import io.reactivex.rxjava3.core.BackpressureStrategy
 import io.reactivex.rxjava3.core.Completable
@@ -42,8 +43,8 @@ import kotlinx.coroutines.rx3.rxSingle
  * `executeAndConvert` lambda must return `T?`, signaling Room to handle a null/empty result when
  * converting this DAO return type.
  *
- * You can register this converter via annotating a [Database] or [Dao] using the annotation
- * [DaoReturnTypeConverters]:
+ * You can register this converter via annotating a [androidx.room3.Database] or
+ * [androidx.room3.Dao] using the annotation [androidx.room3.DaoReturnTypeConverters]:
  * ```
  * @DaoReturnTypeConverters(
  *     Rx3DaoReturnTypeConverters::class
@@ -52,15 +53,19 @@ import kotlinx.coroutines.rx3.rxSingle
  */
 public class RxDaoReturnTypeConverters {
     /**
-     * This [convert] function will be called from Room generated code to convert a Room query
-     * result to the return type of this function.
+     * This [convertFlowable] function will be called from Room generated code to convert a Room
+     * query result to the return type of this function.
+     *
+     * This converter is restricted to [OperationType.READ] via the
+     * [DaoReturnTypeConverter.operations] property, as [Flowable] is intended for observing
+     * continuous data changes.
      *
      * @param database RoomDatabase instance
      * @param tableNames List of names of the tables of the RoomDatabase
      * @param executeAndConvert A suspend lambda function that invokes the part of the generated
      *   code that executes the query.
      */
-    @DaoReturnTypeConverter
+    @DaoReturnTypeConverter(operations = [OperationType.READ])
     public fun <T : Any> convertFlowable(
         database: RoomDatabase,
         tableNames: Array<String>,
@@ -75,15 +80,19 @@ public class RxDaoReturnTypeConverters {
     }
 
     /**
-     * This [convert] function will be called from Room generated code to convert a Room query
-     * result to the return type of this function.
+     * This [convertObservable] function will be called from Room generated code to convert a Room
+     * query result to the return type of this function.
+     *
+     * This converter is restricted to [OperationType.READ] via the
+     * [DaoReturnTypeConverter.operations] property, as [Flowable] is intended for observing
+     * continuous data changes.
      *
      * @param database RoomDatabase instance
      * @param tableNames List of names of the tables of the RoomDatabase
      * @param executeAndConvert A suspend lambda function that invokes the part of the generated
      *   code that executes the query.
      */
-    @DaoReturnTypeConverter
+    @DaoReturnTypeConverter(operations = [OperationType.READ])
     public fun <T : Any> convertObservable(
         database: RoomDatabase,
         tableNames: Array<String>,
@@ -98,14 +107,18 @@ public class RxDaoReturnTypeConverters {
     }
 
     /**
-     * This [convert] function will be called from Room generated code to convert a Room query
+     * This [convertMaybe] function will be called from Room generated code to convert a Room query
      * result to the return type of this function.
+     *
+     * This converter can be used for both [OperationType.READ] and [OperationType.WRITE]. Note that
+     * Room shortcut methods (@Insert, @Update, @Delete) are always treated as
+     * [OperationType.WRITE].
      *
      * @param database RoomDatabase instance
      * @param executeAndConvert A suspend lambda function that invokes the part of the generated
      *   code that executes the query.
      */
-    @DaoReturnTypeConverter
+    @DaoReturnTypeConverter(operations = [OperationType.READ, OperationType.WRITE])
     public fun <T : Any> convertMaybe(
         database: RoomDatabase,
         executeAndConvert: suspend () -> T?,
@@ -114,14 +127,19 @@ public class RxDaoReturnTypeConverters {
     }
 
     /**
-     * This [convert] function will be called from Room generated code to convert a Room query
-     * result to the return type of this function.
+     * This [convertCompletable] function will be called from Room generated code to convert a Room
+     * query result to the return type of this function.
+     *
+     * This converter is restricted to [OperationType.WRITE] via the
+     * [DaoReturnTypeConverter.operations] property, as [Completable] is typically used for
+     * operations that modify the database without returning a value, such as Room shortcut methods
+     * (@Insert, @Update, @Delete).
      *
      * @param database RoomDatabase instance
      * @param executeAndConvert A suspend lambda function that invokes the part of the generated
      *   code that executes the query.
      */
-    @DaoReturnTypeConverter
+    @DaoReturnTypeConverter(operations = [OperationType.WRITE])
     public fun convertCompletable(
         database: RoomDatabase,
         executeAndConvert: suspend () -> Unit?,
@@ -132,14 +150,18 @@ public class RxDaoReturnTypeConverters {
     }
 
     /**
-     * This [convert] function will be called from Room generated code to convert a Room query
+     * This [convertSingle] function will be called from Room generated code to convert a Room query
      * result to the return type of this function.
+     *
+     * This converter can be used for both [OperationType.READ] and [OperationType.WRITE]. Note that
+     * Room shortcut methods (@Insert, @Update, @Delete) are always treated as
+     * [OperationType.WRITE].
      *
      * @param database RoomDatabase instance
      * @param executeAndConvert A suspend lambda function that invokes the part of the generated
      *   code that executes the query.
      */
-    @DaoReturnTypeConverter
+    @DaoReturnTypeConverter(operations = [OperationType.READ, OperationType.WRITE])
     public fun <T : Any> convertSingle(
         database: RoomDatabase,
         executeAndConvert: suspend () -> T?,

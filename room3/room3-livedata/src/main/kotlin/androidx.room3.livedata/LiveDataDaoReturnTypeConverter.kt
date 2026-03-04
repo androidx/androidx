@@ -19,11 +19,13 @@ package androidx.room3.livedata
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import androidx.room3.DaoReturnTypeConverter
+import androidx.room3.OperationType
 import androidx.room3.RoomDatabase
 import kotlinx.coroutines.flow.map
 
 /**
- * A [DaoReturnTypeConverter] container that allows Room to return [LiveData] from [Dao] functions.
+ * A [DaoReturnTypeConverter] container that allows Room to return [LiveData] from
+ * [androidx.room3.Dao] functions.
  */
 public class LiveDataDaoReturnTypeConverter {
     /**
@@ -35,12 +37,14 @@ public class LiveDataDaoReturnTypeConverter {
      * [androidx.room3.InvalidationTracker.createFlow]. It inherits the default timeout behavior (5
      * seconds) where the upstream Flow is cancelled if the LiveData becomes inactive.
      *
+     * This converter can be only be used for [OperationType.READ].
+     *
      * @param database RoomDatabase instance
      * @param tableNames List of names of the tables of the RoomDatabase
      * @param executeAndConvert A suspend lambda function that invokes the part of the generated
      *   code that executes the query.
      */
-    @DaoReturnTypeConverter
+    @DaoReturnTypeConverter(operations = [OperationType.READ])
     public fun <T> convert(
         database: RoomDatabase,
         tableNames: Array<String>,

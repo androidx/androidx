@@ -18,8 +18,6 @@ package androidx.xr.arcore
 
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
-import androidx.xr.arcore.runtime.Anchor as RuntimeAnchor
-import androidx.xr.arcore.runtime.AnchorResourcesExhaustedException
 import androidx.xr.arcore.runtime.Face as RuntimeFace
 import androidx.xr.arcore.runtime.Mesh
 import androidx.xr.runtime.FaceTrackingMode
@@ -42,7 +40,7 @@ public class Face
 internal constructor(
     internal val runtimeFace: RuntimeFace,
     internal val xrResourceManager: XrResourcesManager,
-) : Anchorable<Face.State>, Updatable {
+) : Trackable<Face.State>, Updatable {
 
     public companion object {
         /**
@@ -277,21 +275,6 @@ internal constructor(
 
     /** The current [State] of this Face. */
     public override val state: StateFlow<State> = _state.asStateFlow()
-
-    /** Create and attach an [Anchor] to the Face at the given [Pose] in world space. */
-    public override fun createAnchor(pose: Pose): AnchorCreateResult {
-        val runtimeAnchor: RuntimeAnchor
-        try {
-            runtimeAnchor = runtimeFace.createAnchor(pose)
-        } catch (e: AnchorResourcesExhaustedException) {
-            return AnchorCreateResourcesExhausted()
-        } catch (e: IllegalStateException) {
-            throw UnsupportedOperationException("The Face does not support anchors.", e)
-        }
-        val anchor = Anchor(runtimeAnchor, xrResourceManager)
-        xrResourceManager.addUpdatable(anchor)
-        return AnchorCreateSuccess(anchor)
-    }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public override suspend fun update() {

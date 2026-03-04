@@ -737,12 +737,14 @@ internal class GapComposer(
     }
 
     override fun startReuseFromRoot() {
-        reusingGroup = rootKey
+        // 0 is the root group index
+        reusingGroup = 0
         reusing = true
     }
 
     override fun endReuseFromRoot() {
-        requirePrecondition(!isComposing && reusingGroup == rootKey) {
+        // 0 is the root group index
+        requirePrecondition(!isComposing && reusingGroup == 0) {
             "Cannot disable reuse from root if it was caused by other groups"
         }
         reusingGroup = -1

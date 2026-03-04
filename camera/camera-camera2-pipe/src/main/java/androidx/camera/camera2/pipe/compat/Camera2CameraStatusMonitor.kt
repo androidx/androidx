@@ -79,7 +79,6 @@ internal class Camera2CameraStatusMonitor(
         val availabilityCallback =
             object : CameraManager.AvailabilityCallback() {
                 override fun onCameraAccessPrioritiesChanged() {
-                    Log.debug { "Camera access priorities have changed" }
                     trySendBlocking(CameraStatus.CameraPrioritiesChanged).onFailure {
                         Log.warn { "Failed to emit CameraPrioritiesChanged" }
                     }
@@ -87,14 +86,12 @@ internal class Camera2CameraStatusMonitor(
 
                 override fun onCameraAvailable(cameraId: String) {
                     if (cameraId != this@Camera2CameraStatusMonitor.cameraId.value) return
-                    Log.debug { "Camera $cameraId has become available" }
                     trySendBlocking(CameraStatus.CameraAvailable(CameraId.fromCamera2Id(cameraId)))
                         .onFailure { Log.warn { "Failed to emit CameraAvailable($cameraId)" } }
                 }
 
                 override fun onCameraUnavailable(cameraId: String) {
                     if (cameraId != this@Camera2CameraStatusMonitor.cameraId.value) return
-                    Log.debug { "Camera $cameraId has become unavailable" }
                     trySendBlocking(
                             CameraStatus.CameraUnavailable(CameraId.fromCamera2Id(cameraId))
                         )

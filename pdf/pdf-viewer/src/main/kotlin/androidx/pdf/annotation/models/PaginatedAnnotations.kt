@@ -25,7 +25,7 @@ import androidx.pdf.annotation.KeyedPdfAnnotation
 /**
  * Represents a paginated batch of PDF annotations.
  *
- * @property annotations The list of [PdfAnnotationData] objects for the current page or batch.
+ * @property annotations The list of [KeyedPdfAnnotation] objects for the current page or batch.
  * @property currentBatchIndex The 0-based index of the current batch of annotations.
  * @property totalBatchCount The total number of batches available.
  */

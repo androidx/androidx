@@ -30,6 +30,7 @@ import androidx.compose.foundation.gestures.scrollBy
  * In mathematical terms, it converts `Sc -> Su` and applies `Su` to the state.
  */
 internal suspend fun ListState.scrollContentBy(value: Float) {
+    val layoutInfo = layoutInfoState.value
     val fullViewport =
         if (layoutInfo.orientation == Orientation.Vertical) {
             layoutInfo.viewportSize.height
@@ -38,7 +39,7 @@ internal suspend fun ListState.scrollContentBy(value: Float) {
         }
     val viewportWithoutPaddings =
         fullViewport - layoutInfo.beforeContentPadding - layoutInfo.afterContentPadding
-    val contentLength = layoutInfo.totalItemsCount * layoutInfo.visibleItemsAverageSize()
+    val contentLength = layoutInfo.totalItemsCount * layoutInfo.visibleItemsAverageSize
     val scrollThreshold = viewportWithoutPaddings * ProportionalThresholdFactor
 
     val userScroll =

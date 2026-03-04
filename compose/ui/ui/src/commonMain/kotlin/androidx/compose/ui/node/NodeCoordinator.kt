@@ -570,13 +570,13 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
                     layoutNode.onCoordinatorRectChanged(this)
                 }
                 it.destroy()
+                layer = null
                 layoutNode.innerLayerCoordinatorIsDirty = true
                 invalidateParentLayer()
                 if (isAttached && layoutNode.isPlaced) {
                     layoutNode.owner?.onLayoutChange(layoutNode)
                 }
             }
-            layer = null
             lastLayerDrawingWasSkipped = false
         }
     }

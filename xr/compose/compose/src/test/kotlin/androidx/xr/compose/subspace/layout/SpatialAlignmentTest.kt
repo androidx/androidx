@@ -515,7 +515,8 @@ class SpatialAlignmentTest {
     @Test
     fun spatialBiasAlignment_Horizontal_toString() {
         val original = SpatialBiasAlignment.Horizontal(0.75f)
-        assertThat(original.toString()).isEqualTo("Horizontal(bias=${0.75f})")
+        assertThat(original.toString())
+            .isEqualTo("SpatialBiasAlignment#Horizontal(horizontalBias=${0.75f})")
     }
 
     @Test
@@ -527,7 +528,7 @@ class SpatialAlignmentTest {
 
         val copyNewBias = original.copy(bias = -0.25f)
         assertThat(copyNewBias).isNotEqualTo(original)
-        assertThat(copyNewBias.bias).isEqualTo(-0.25f)
+        assertThat(copyNewBias.horizontalBias).isEqualTo(-0.25f)
     }
 
     @Test
@@ -555,7 +556,8 @@ class SpatialAlignmentTest {
     @Test
     fun spatialBiasAlignment_Vertical_toString() {
         val original = SpatialBiasAlignment.Vertical(0.75f)
-        assertThat(original.toString()).isEqualTo("Vertical(bias=${0.75f})")
+        assertThat(original.toString())
+            .isEqualTo("SpatialBiasAlignment#Vertical(verticalBias=${0.75f})")
     }
 
     @Test
@@ -567,7 +569,7 @@ class SpatialAlignmentTest {
 
         val copyNewBias = original.copy(bias = -0.25f)
         assertThat(copyNewBias).isNotEqualTo(original)
-        assertThat(copyNewBias.bias).isEqualTo(-0.25f)
+        assertThat(copyNewBias.verticalBias).isEqualTo(-0.25f)
     }
 
     @Test
@@ -595,7 +597,7 @@ class SpatialAlignmentTest {
     @Test
     fun spatialBiasAlignment_Depth_toString() {
         val original = SpatialBiasAlignment.Depth(0.75f)
-        assertThat(original.toString()).isEqualTo("Depth(bias=${0.75f})")
+        assertThat(original.toString()).isEqualTo("SpatialBiasAlignment#Depth(depthBias=${0.75f})")
     }
 
     @Test
@@ -607,7 +609,7 @@ class SpatialAlignmentTest {
 
         val copyNewBias = original.copy(bias = -0.25f)
         assertThat(copyNewBias).isNotEqualTo(original)
-        assertThat(copyNewBias.bias).isEqualTo(-0.25f)
+        assertThat(copyNewBias.depthBias).isEqualTo(-0.25f)
     }
 
     // --- Tests for SpatialAbsoluteAlignment APIs ---
@@ -934,7 +936,7 @@ class SpatialAlignmentTest {
     fun spatialBiasAbsoluteAlignment_Horizontal_toString() {
         val original = SpatialBiasAbsoluteAlignment.Horizontal(0.75f)
         assertThat(original.toString())
-            .isEqualTo("SpatialBiasAbsoluteAlignment#Horizontal(bias=0.75)")
+            .isEqualTo("SpatialBiasAbsoluteAlignment#Horizontal(horizontalBias=0.75)")
     }
 
     @Test

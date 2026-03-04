@@ -244,6 +244,7 @@ public class PdfDocumentService extends Service {
             return true;
         }
 
+        @SuppressWarnings("removal")
         @Override
         protected void finalize() throws Throwable {
             mAdapter.close();

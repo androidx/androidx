@@ -31,6 +31,8 @@ import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.nativePaint
+import androidx.graphics.shapes.RoundedPolygon
 
 /**
  * A wrapper around [RecordingCanvas] that provides overloads for remote types and avoids platform
@@ -299,6 +301,21 @@ public class RemoteCanvas(
     /** Draws a remote path using the specified [paint]. */
     public fun drawPath(path: RemotePath, paint: RemotePaint) {
         internalCanvas.drawRPath(path, paint)
+    }
+
+    /** Draws a [RoundedPolygon] using the specified [paint]. */
+    public fun drawRoundedPolygon(roundedPolygon: RoundedPolygon, paint: Paint) {
+        internalCanvas.drawRoundedPolygon(roundedPolygon, paint.nativePaint)
+    }
+
+    /** Draws a morph between two [RoundedPolygon]s using the specified [paint]. */
+    public fun drawRoundedPolygonMorph(
+        from: RoundedPolygon,
+        to: RoundedPolygon,
+        progress: RemoteFloat,
+        paint: Paint,
+    ) {
+        internalCanvas.drawRoundedPolygonMorph(from, to, progress, paint.nativePaint)
     }
 
     /** Draws a bitmap at ([left], [top]) using the specified [paint]. */

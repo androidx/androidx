@@ -68,7 +68,7 @@ class EyeTrackingActivity : ComponentActivity() {
     private lateinit var sessionHelper: SessionLifecycleHelper
     private var config: Config =
         Config(
-            deviceTracking = DeviceTrackingMode.LAST_KNOWN,
+            deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
             eyeTracking = EyeTrackingMode.COARSE_TRACKING,
         )
 
@@ -128,7 +128,8 @@ class EyeTrackingActivity : ComponentActivity() {
             }
 
         // reconfigure the session
-        config = Config(deviceTracking = DeviceTrackingMode.LAST_KNOWN, eyeTracking = newMode)
+        config =
+            Config(deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN, eyeTracking = newMode)
         sessionHelper.tryUpdateConfig(config)
     }
 

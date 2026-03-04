@@ -19,6 +19,7 @@ package androidx.biometric.internal
 import android.app.KeyguardManager
 import android.content.Context
 import android.util.Log
+import androidx.biometric.AuthenticationRequest
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.BiometricPrompt.AuthenticationCallback
 import androidx.biometric.R
@@ -144,5 +145,29 @@ internal abstract class AuthenticationResultDispatcher(
         }
 
         clientExecutor.execute { clientAuthenticationCallback.onAuthenticationFailed() }
+    }
+
+    /**
+     * Sends an unrecoverable fallback option result with [fallback] to the client and dismisses the
+     * prompt.
+     *
+     * @param fallback The selected fallback option
+     */
+    fun sendFallbackOptionAndDismiss(
+        fallback: AuthenticationRequest.Biometric.Fallback.CustomOption
+    ) {
+        sendFallbackOption(fallback)
+        dismiss()
+    }
+
+    /** Sends an unrecoverable fallback option result to the client. */
+    fun sendFallbackOption(fallback: AuthenticationRequest.Biometric.Fallback.CustomOption) {
+        if (!viewModel.isAwaitingResult) {
+            Log.w(TAG, "Error not sent to client. Client is not awaiting a result.")
+            return
+        }
+
+        viewModel.isAwaitingResult = false
+        clientExecutor.execute { clientAuthenticationCallback.onFallbackSelected(fallback) }
     }
 }

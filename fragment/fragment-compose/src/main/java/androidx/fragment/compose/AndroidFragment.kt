@@ -39,8 +39,8 @@ import androidx.lifecycle.LifecycleOwner
  * Allows for adding a [Fragment] directly into Compose. It creates a fragment of the given class
  * and adds it to the fragment manager.
  *
- * Updating the [clazz] or [fragmentState] parameters will result in a new fragment instance being
- * added to the fragment manager and invoke the [onUpdate] callback with the new instance.
+ * Updating the [T] or [fragmentState] parameters will result in a new fragment instance being added
+ * to the fragment manager and invoke the [onUpdate] callback with the new instance.
  *
  * @sample androidx.fragment.compose.samples.BasicAndroidFragment
  * @param modifier the modifier to be applied to the layout

@@ -498,7 +498,7 @@ abstract class TraceMetric : Metric() {
 
 /**
  * Captures the time taken by named trace section - a named begin / end pair matching the provided
- * [sectionName].
+ * [sectionNames].
  *
  * Select how matching sections are resolved into a duration metric with [mode], and configure if
  * sections outside the target process are included with [targetPackageOnly].

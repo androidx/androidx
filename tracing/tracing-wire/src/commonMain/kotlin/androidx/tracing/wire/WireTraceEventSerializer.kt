@@ -48,7 +48,7 @@ import com.squareup.wire.ProtoWriter
  *
  * Internally uses mutable protos to avoid allocations / GC churn.
  */
-internal class WireTraceEventSerializer(sequenceId: Int, val protoWriter: ProtoWriter) {
+internal class WireTraceEventSerializer(sequenceId: Int) {
     /**
      * Private scratchpad packet, used to avoid allocating a packet for each one serialized
      *
@@ -82,7 +82,11 @@ internal class WireTraceEventSerializer(sequenceId: Int, val protoWriter: ProtoW
 
     private val scratchTrackEvent = MutableTrackEvent(track_uuid = DEFAULT_LONG)
 
-    fun writeTraceEvent(event: TraceEvent, reportDroppedTraceEvent: Boolean = false) {
+    fun writeTraceEvent(
+        protoWriter: ProtoWriter,
+        event: TraceEvent,
+        reportDroppedTraceEvent: Boolean = false,
+    ) {
         updateScratchPacketFromTraceEvent(
             event = event,
             reportDroppedTraceEvent = reportDroppedTraceEvent,

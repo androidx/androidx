@@ -31,7 +31,7 @@ import androidx.xr.runtime.math.Quaternion
 public interface Geospatial {
 
     /**
-     * Describes the state of Geospatial. The State must be [Running] to use Geospatial
+     * Describes the state of Geospatial. The State must be [RUNNING] to use Geospatial
      * functionality. If Geospatial has entered an error state other than [ERROR_APP_PREEMPTED],
      * Geospatial must be disabled and re-enabled to use Geospatial again.
      */

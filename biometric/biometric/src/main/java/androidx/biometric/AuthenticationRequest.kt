@@ -19,8 +19,10 @@ import android.Manifest.permission.SET_BIOMETRIC_DIALOG_ADVANCED
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.annotation.DrawableRes
+import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
+import androidx.annotation.RestrictTo
 
 /**
  * Types for configuring authentication prompt with options that are commonly used together. For
@@ -28,10 +30,10 @@ import androidx.annotation.RequiresPermission
  * ```
  * val request = biometricRequest(
  *     title = "title",
- *     authFallback = BiometricRequest.Fallback.NegativeButton("cancel")
+ *     Biometric.Fallback.CustomOption("cancel")
  * ) {
  *     setSubtitle("sub title")
- *     setMinStrength(BiometricRequest.Strength.Class2)
+ *     setMinStrength(Biometric.Strength.Class2)
  * }
  * ```
  *
@@ -60,13 +62,29 @@ public abstract class AuthenticationRequest internal constructor() {
          *
          * **Note for Java users:** This method is intended for use in Kotlin. For Java, please use
          * [Biometric.Builder] instead.
+         *
+         * @param title The title of the prompt.
+         * @param authFallbacks A list of [Biometric.Fallback] options (up to
+         *   [Biometric.getMaxFallbackOptions]). If empty, a default "Cancel" button is used; If one
+         *   option is provided, it is displayed as the negative button on the primary
+         *   authentication screen. If multiple options are provided, these are displayed as a list
+         *   on a separate fallback options page.
+         * @param init A block to configure the [Biometric] instance.
+         * @throws IllegalArgumentException if more than one [Biometric.Fallback.DeviceCredential]
+         *   is provided, or if the total number of fallbacks exceeds
+         *   [Biometric.getMaxFallbackOptions].
+         *
+         * **Compatibility Note:** Prior to [Build.VERSION_CODES_FULL.BAKLAVA_1] (API 36.1), only
+         * one fallback option is supported. If multiple options are provided on earlier Android
+         * versions, only the first fallback will be displayed as the negative button (without an
+         * icon), and the remaining fallbacks will be ignored.
          */
         @Suppress("MissingJvmstatic")
         public inline fun biometricRequest(
             title: String,
-            authFallback: Biometric.Fallback,
+            vararg authFallbacks: Biometric.Fallback,
             init: Biometric.Builder.() -> Unit,
-        ): Biometric = Biometric.Builder(title, authFallback).apply(init).build()
+        ): Biometric = Biometric.Builder(title, *authFallbacks).apply(init).build()
 
         /**
          * Construct an instance of [Credential] that includes a set of configurable options for how
@@ -88,7 +106,7 @@ public abstract class AuthenticationRequest internal constructor() {
      * biometric authentication with fallbacks.
      *
      * @property title The title of the prompt.
-     * @property authFallback The [Fallback] for the biometric authentication.
+     * @property authFallbacks The [Fallback] options for the biometric authentication.
      * @property minStrength The minimum biometric strength for the authentication. Note that
      *   **Class 3** biometrics are guaranteed to meet the requirements for **Class 2** and thus
      *   will also be accepted.
@@ -100,7 +118,7 @@ public abstract class AuthenticationRequest internal constructor() {
     public class Biometric
     private constructor(
         public val title: String,
-        public val authFallback: Fallback,
+        public val authFallbacks: List<Fallback>,
         public val minStrength: Strength = Strength.Class2,
         public val subtitle: String? = null,
         public val content: BodyContent? = null,
@@ -108,11 +126,33 @@ public abstract class AuthenticationRequest internal constructor() {
         @get:RequiresPermission(SET_BIOMETRIC_DIALOG_ADVANCED)
         public val logoBitmap: Bitmap? = null,
         @get:RequiresPermission(SET_BIOMETRIC_DIALOG_ADVANCED)
-        @DrawableRes
+        @param:DrawableRes
         public val logoRes: Int = 0,
         @get:RequiresPermission(SET_BIOMETRIC_DIALOG_ADVANCED)
         public val logoDescription: String? = null,
     ) : AuthenticationRequest() {
+        init {
+            // Enforce the limit of at most one DeviceCredential
+            require(authFallbacks.count { it is Fallback.DeviceCredential } <= 1) {
+                "At most one DeviceCredential can be provided as a fallback option."
+            }
+
+            // Enforce total size limit
+            require(authFallbacks.size <= getMaxFallbackOptions()) {
+                "Maximum fallback option count exceeded. " +
+                    "A maximum of ${getMaxFallbackOptions()} fallbacks are allowed."
+            }
+        }
+
+        public companion object {
+            /**
+             * Returns the maximum number of fallback options that can be added to the prompt.
+             *
+             * @return The maximum number of fallback options.
+             */
+            @JvmStatic
+            public fun getMaxFallbackOptions(): Int = BiometricPrompt.MAX_FALLBACK_OPTIONS
+        }
 
         /**
          * Builder used to create an instance of [Biometric].
@@ -121,9 +161,22 @@ public abstract class AuthenticationRequest internal constructor() {
          * function to construct [Biometric] instances.
          *
          * @param title The title of the prompt.
-         * @param authFallback The [Fallback] for the biometric authentication.
+         * @param authFallbacks A list of [Biometric.Fallback] options (up to
+         *   [Biometric.getMaxFallbackOptions]). If empty, a default "Cancel" button is used; If one
+         *   option is provided, it is displayed as the negative button on the primary
+         *   authentication screen. If multiple options are provided, these are displayed as a list
+         *   on a separate fallback options page.
+         * @throws IllegalArgumentException if more than one [Biometric.Fallback.DeviceCredential]
+         *   is provided, or if the total number of fallbacks exceeds
+         *   [Biometric.getMaxFallbackOptions].
+         *
+         * **Compatibility Note:** Prior to [Build.VERSION_CODES_FULL.BAKLAVA_1] (API 36.1), only
+         * one fallback option is supported. If multiple options are provided on earlier Android
+         * versions, only the first fallback will be displayed as the negative button (without an
+         * icon), and the remaining fallbacks will be ignored.
          */
-        public class Builder(private val title: String, private val authFallback: Fallback) {
+        public class Builder(private val title: String, vararg authFallbacks: Fallback) {
+            private val authFallbacks: List<Fallback> = authFallbacks.toList()
             private var minStrength: Strength = Strength.Class2
             private var subtitle: String? = null
             private var content: BodyContent? = null
@@ -194,7 +247,7 @@ public abstract class AuthenticationRequest internal constructor() {
             public fun build(): Biometric {
                 return Biometric(
                     title = title,
-                    authFallback = authFallback,
+                    authFallbacks = authFallbacks,
                     minStrength = minStrength,
                     subtitle = subtitle,
                     content = content,
@@ -220,11 +273,59 @@ public abstract class AuthenticationRequest internal constructor() {
             public object DeviceCredential : Fallback()
 
             /**
-             * A customized negative button as the fallback.
+             * Custom Fallback option displayed as the negative button in prompt authentication
+             * screen if it is the only option or displayed in a list in the fallback options page
+             * if there are more than one.
              *
-             * @property negativeButtonText The text of the button.
+             * @param text Text to be shown on the fallback option for the prompt.
+             * @param iconType Icon to be shown for the fallback option
              */
-            public class NegativeButton(public val negativeButtonText: String) : Fallback()
+            public class CustomOption
+            @JvmOverloads
+            constructor(
+                public val text: String,
+                @param:IconType public val iconType: Int = ICON_TYPE_GENERIC,
+            ) : Fallback()
+
+            /**
+             * Default cancel button displayed as the negative button in prompt authentication
+             * screen if there's no custom option set and device credential is not allowed.
+             *
+             * @param text Text to be shown on the fallback option for the prompt.
+             */
+            internal class DefaultCancel(val text: String) : Fallback()
+
+            /**
+             * Device credential button displayed as the negative button in prompt authentication
+             * prompt. This is used for older Android versions when
+             * [androidx.biometric.internal.isManagingDeviceCredentialButton] is true.
+             *
+             * @param text Text to be shown on the fallback option for the prompt.
+             */
+            internal class OverriddenDeviceCredential(val text: String) : Fallback()
+
+            public companion object {
+                /** An icon representing a password. */
+                public const val ICON_TYPE_PASSWORD: Int = BiometricConstants.ICON_TYPE_PASSWORD
+
+                /** An icon representing a QR code. */
+                public const val ICON_TYPE_QR_CODE: Int = BiometricConstants.ICON_TYPE_QR_CODE
+
+                /** An icon representing a user account. */
+                public const val ICON_TYPE_ACCOUNT: Int = BiometricConstants.ICON_TYPE_ACCOUNT
+
+                /** A generic icon. */
+                public const val ICON_TYPE_GENERIC: Int = BiometricConstants.ICON_TYPE_GENERIC
+
+                /**
+                 * An [IntDef] representing the different icon types that can be used in the
+                 * biometric prompt fallback options
+                 */
+                @IntDef(ICON_TYPE_PASSWORD, ICON_TYPE_QR_CODE, ICON_TYPE_ACCOUNT, ICON_TYPE_GENERIC)
+                @Retention(AnnotationRetention.SOURCE)
+                @RestrictTo(RestrictTo.Scope.LIBRARY)
+                public annotation class IconType
+            }
         }
 
         /** Types of biometric strength for the prompt. */

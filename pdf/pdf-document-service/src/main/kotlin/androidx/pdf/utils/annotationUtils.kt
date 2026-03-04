@@ -17,40 +17,11 @@
 package androidx.pdf.utils
 
 import android.graphics.Path
-import android.os.ParcelFileDescriptor
 import androidx.annotation.RestrictTo
 import androidx.pdf.annotation.models.PathPdfObject.PathInput
-import androidx.pdf.annotation.models.PdfAnnotationData
-import java.io.IOException
 
 /** Tolerance level for path approximation. */
 private const val ACCEPTABLE_TOLERANCE_IN_PATH = 0.5f
-
-/**
- * Writes a list of [PdfAnnotationData] objects to a [ParcelFileDescriptor].
- *
- * @param pfd The [ParcelFileDescriptor] to write to.
- * @param annotations The list of [PdfAnnotationData] objects to write.
- * @throws IOException If there is an error writing to the file.
- */
-internal fun writeAnnotationsToFile(
-    pfd: ParcelFileDescriptor,
-    annotations: List<PdfAnnotationData>,
-) {
-    // TODO: Read and write annotations to file with org.json
-}
-
-/**
- * Reads a list of [PdfAnnotationData] objects from a [ParcelFileDescriptor].
- *
- * @param pfd The [ParcelFileDescriptor] to read from.
- * @return A list of [PdfAnnotationData] objects read from the file.
- */
-internal fun readAnnotationsFromPfd(pfd: ParcelFileDescriptor): List<PdfAnnotationData> {
-    // TODO: Read and write annotations to file with org.json
-    val jsonString = readFromPfd(pfd)
-    return listOf()
-}
 
 /**
  * Creates a [Path] object from a list of [PathInput] points.

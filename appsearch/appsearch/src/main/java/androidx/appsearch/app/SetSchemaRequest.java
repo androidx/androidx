@@ -220,6 +220,7 @@ public final class SetSchemaRequest {
      *
      * @exportToFramework:hide
      */
+    @Deprecated
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int EXECUTE_APP_FUNCTIONS_TRUSTED = 10;
 

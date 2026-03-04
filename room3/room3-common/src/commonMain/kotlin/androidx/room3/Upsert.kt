@@ -19,62 +19,60 @@ package androidx.room3
 import kotlin.reflect.KClass
 
 /**
- * Marks a method in a [Dao] annotated class as an upsert (insert or update) method.
+ * Marks a function in a [Dao] annotated class as an upsert (insert or update) function.
  *
- * The implementation of the method will insert its parameters into the database if it does not
- * already exists (checked by primary key). If it already exists, it will update its parameters in
+ * The implementation of the function will insert its parameters into the database if it does not
+ * already exist (checked by primary key). If it already exists, it will update its parameters in
  * the database.
  *
- * All of the parameters of the upsert method must either be classes annotated with [Entity] or
+ * All the parameters of the upsert function must either be classes annotated with [Entity] or
  * collections/array of it.
  *
  * Example:
  * ```
  * @Dao
  * interface MusicDao {
- *   @Upsert
- *   fun upsertSongs(varargs songs: Song)
+ *     @Upsert
+ *     suspend fun upsertSongs(varargs songs: Song)
  *
- *   @Upsert
- *   fun upsertBoth(song1: Song, song2: Song)
+ *     @Upsert
+ *     suspend fun upsertBoth(song1: Song, song2: Song)
  *
- *   @Upsert
- *   fun upsertAlbumWithSongs(album: Album, songs: List<Song>)
+ *     @Upsert
+ *     suspend fun upsertAlbumWithSongs(album: Album, songs: List<Song>)
  * }
  * ```
  *
- * If the target entity is specified via [entity] then the parameters can be of arbitrary POJO types
- * that will be interpreted as partial entities. For example:
+ * If a target entity is specified via [entity] value then the parameters can be of arbitrary data
+ * object types that will be interpreted as partial entities. For example:
  * ```
  * @Entity
  * data class Playlist (
- *   @PrimaryKey(autoGenerate = true)
- *   val playlistId: Long,
- *   val name: String,
- *   val description: String?,
- *
- *   @ColumnInfo(defaultValue = "normal")
- *   val category: String,
- *
- *   @ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
- *   val createdTime: String,
- *
- *   @ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
- *   val lastModifiedTime: String
+ *     @PrimaryKey(autoGenerate = true)
+ *     val playlistId: Long,
+ *     val name: String,
+ *     val description: String?,
+ *     @ColumnInfo(defaultValue = "normal")
+ *     val category: String,
+ *     @ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
+ *     val createdTime: String,
+ *     @ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
+ *     val lastModifiedTime: String
  * )
  *
  * data class NameAndDescription (
- *   val name: String,
- *   val description: String
+ *     val name: String,
+ *     val description: String
  * )
  *
  * @Dao
  * interface PlaylistDao {
- *   @Upsert(entity = Playlist::class)
- *   fun upsertNewPlaylist(nameDescription: NameAndDescription)
+ *     @Upsert(entity = Playlist::class)
+ *     suspend fun upsertNewPlaylist(nameDescription: NameAndDescription)
  * }
  * ```
  *
+ * @see [Delete]
  * @see [Insert]
  * @see [Update]
  */
@@ -83,21 +81,22 @@ import kotlin.reflect.KClass
 public annotation class Upsert(
 
     /**
-     * The target entity of the upsert method.
+     * The target entity of the upsert function.
      *
-     * When this is declared, the upsert method parameters are interpreted as partial entities when
-     * the type of the parameter differs from the target. The POJO class that represents the entity
-     * must contain all of the non-null fields without default values of the target entity.
+     * When this is declared, the upsert function parameters are interpreted as partial entities
+     * when the type of the parameter differs from the target. The data object class that represents
+     * the entity must contain all the non-null properties without default values of the target
+     * entity.
      *
-     * If the target entity contains a [PrimaryKey] that is auto generated, then the POJO class
-     * doesn't need an equal primary key field, otherwise primary keys must also be present in the
-     * POJO. If the primary key already exists, only the columns represented by the partial entity
-     * fields will be updated
+     * If the target entity contains a [PrimaryKey] that is auto generated, then the data object
+     * class doesn't need an equal primary key field, otherwise primary keys must also be present in
+     * the data object. If the primary key already exists, only the columns represented by the
+     * partial entity properties will be updated
      *
-     * By default the target entity is interpreted by the method parameters.
+     * By default, the target entity is interpreted by the function parameters.
      *
-     * @return the target entity of the upsert method or none if the method should use the parameter
-     *   type entities.
+     * @return the target entity of the upsert function or none if the function should use the
+     *   parameter type entities.
      */
     val entity: KClass<*> = Any::class
 )

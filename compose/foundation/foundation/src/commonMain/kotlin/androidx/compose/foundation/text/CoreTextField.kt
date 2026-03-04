@@ -393,23 +393,7 @@ internal fun CoreTextField(
             offsetMapping,
         )
 
-    val drawModifier =
-        Modifier.drawBehind {
-            state.layoutResult?.let { layoutResult ->
-                drawIntoCanvas { canvas ->
-                    TextFieldDelegate.draw(
-                        canvas,
-                        value,
-                        state.selectionPreviewHighlightRange,
-                        state.deletionPreviewHighlightRange,
-                        offsetMapping,
-                        layoutResult.value,
-                        state.highlightPaint,
-                        state.selectionBackgroundColor,
-                    )
-                }
-            }
-        }
+    val drawModifier = Modifier.textFieldDraw(state, value, offsetMapping)
 
     val onPositionedModifier =
         Modifier.onGloballyPositioned {
@@ -463,7 +447,8 @@ internal fun CoreTextField(
         )
 
     val showCursor = enabled && !readOnly && windowInfo.isWindowFocused && !state.hasHighlight()
-    val cursorModifier = Modifier.cursor(state, value, offsetMapping, cursorBrush, showCursor)
+    val cursorModifier =
+        Modifier.textFieldCursor(state, value, offsetMapping, cursorBrush, showCursor)
 
     DisposableEffect(manager) { onDispose { manager.hideSelectionToolbar() } }
 
@@ -1105,6 +1090,69 @@ internal fun TextFieldCursorHandle(manager: TextFieldSelectionManager) {
         )
     }
 }
+
+/**
+ * Applies a modifier to a text field to handle cursor rendering.
+ *
+ * The default common implementation provided in [cursor].
+ *
+ * @param state The state representing the internal configuration and status of the text field.
+ * @param value The current value of the text field including text and selection information.
+ * @param offsetMapping Maps character offsets between the visual text and the composable's internal
+ *   representation.
+ * @param cursorBrush The brush used to draw the cursor, allowing customization of its appearance.
+ * @param showCursor A flag indicating whether the cursor should be visible.
+ * @return A [Modifier] that applies the cursor functionality to the text field.
+ */
+internal expect fun Modifier.textFieldCursor(
+    state: LegacyTextFieldState,
+    value: TextFieldValue,
+    offsetMapping: OffsetMapping,
+    cursorBrush: Brush,
+    showCursor: Boolean,
+): Modifier
+
+/**
+ * Applies drawing behavior for a text field on the given [Modifier].
+ *
+ * This function modifies the provided [Modifier] to include logic for rendering visual aspects of a
+ * composable text field: text, text selection highlight and selection and deletion preview
+ * highlight
+ *
+ * The default common implementation is stored in [defaultTextFieldDraw]
+ *
+ * @param state The state object managing the internal state of the legacy text field.
+ * @param value The current text field value, including the text content and selection info.
+ * @param offsetMapping A mapping between character offsets and visual cursor positions.
+ * @return A [Modifier] instance that includes the text field drawing behavior.
+ */
+internal expect fun Modifier.textFieldDraw(
+    state: LegacyTextFieldState,
+    value: TextFieldValue,
+    offsetMapping: OffsetMapping,
+): Modifier
+
+internal fun Modifier.defaultTextFieldDraw(
+    state: LegacyTextFieldState,
+    value: TextFieldValue,
+    offsetMapping: OffsetMapping,
+): Modifier =
+    this.drawBehind {
+        state.layoutResult?.let { layoutResult ->
+            drawIntoCanvas { canvas ->
+                TextFieldDelegate.draw(
+                    canvas,
+                    value,
+                    state.selectionPreviewHighlightRange,
+                    state.deletionPreviewHighlightRange,
+                    offsetMapping,
+                    layoutResult.value,
+                    state.highlightPaint,
+                    state.selectionBackgroundColor,
+                )
+            }
+        }
+    }
 
 @Composable
 internal expect fun CursorHandle(

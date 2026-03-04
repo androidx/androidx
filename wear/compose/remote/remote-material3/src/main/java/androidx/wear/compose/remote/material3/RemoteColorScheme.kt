@@ -35,7 +35,6 @@ import androidx.wear.compose.material3.ColorScheme
  *
  * @param colorScheme The local `ColorScheme` to retrieve colors from.
  */
-@Suppress("RestrictedApiAndroidX")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class RemoteColorScheme(internal val colorScheme: ColorScheme = ColorScheme()) {
 

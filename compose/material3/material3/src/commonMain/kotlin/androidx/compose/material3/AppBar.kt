@@ -1389,8 +1389,9 @@ interface TopAppBarScrollBehavior {
     val flingAnimationSpec: DecayAnimationSpec<Float>?
 
     /**
-     * A [NestedScrollConnection] that should be attached to a [Modifier.nestedScroll] in order to
-     * keep track of the scroll events.
+     * A [NestedScrollConnection] that should be attached to a
+     * [androidx.compose.ui.input.nestedscroll.nestedScroll] in order to keep track of the scroll
+     * events.
      */
     val nestedScrollConnection: NestedScrollConnection
 }
@@ -2388,8 +2389,9 @@ interface BottomAppBarScrollBehavior {
     val flingAnimationSpec: DecayAnimationSpec<Float>?
 
     /**
-     * A [NestedScrollConnection] that should be attached to a [Modifier.nestedScroll] in order to
-     * keep track of the scroll events.
+     * A [NestedScrollConnection] that should be attached to a
+     * [androidx.compose.ui.input.nestedscroll.nestedScroll] in order to keep track of the scroll
+     * events.
      */
     val nestedScrollConnection: NestedScrollConnection
 }

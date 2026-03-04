@@ -82,7 +82,7 @@ private constructor(
 
     /**
      * 2D scale used to calculate the initial width and height of the tip shape relative to the
-     * brush size prior to applying [slant] and [rotation].
+     * brush size prior to applying [slantDegrees] and [rotationDegrees].
      *
      * The base width and height of the tip will be equal to the brush size multiplied by [scaleX]
      * and [scaleY] respectively. Valid values must be finite and non-negative, with at least one
@@ -94,7 +94,7 @@ private constructor(
 
     /**
      * 2D scale used to calculate the initial width and height of the tip shape relative to the
-     * brush size prior to applying [slant] and [rotation].
+     * brush size prior to applying [slantDegrees] and [rotationDegrees].
      *
      * The base width and height of the tip will be equal to the brush size multiplied by [scaleX]
      * and [scaleY] respectively. Valid values must be finite and non-negative, with at least one
@@ -115,7 +115,7 @@ private constructor(
 
     /**
      * Angle in degrees used to calculate the initial slant of the tip shape prior to applying
-     * [rotation].
+     * [rotationDegrees].
      *
      * The value should be in the range [-90, 90] degrees, and represents the angle by which
      * "vertical" lines of the tip shape will appear rotated about their intersection with the
@@ -133,7 +133,7 @@ private constructor(
 
     /**
      * A unitless parameter in the range [0, 1] that controls the separation between two of the
-     * shape's corners prior to applying [rotation].
+     * shape's corners prior to applying [rotationDegrees].
      *
      * The two corners affected lie toward the negative y-axis relative to the center of the tip
      * shape. I.e. the "upper edge" of the shape if positive y is chosen to point "down" in stroke

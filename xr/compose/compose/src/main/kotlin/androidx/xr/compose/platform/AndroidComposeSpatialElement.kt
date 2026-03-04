@@ -160,6 +160,15 @@ internal class AndroidComposeSpatialElement :
         }
     }
 
+    override fun requestEntityUpdate(node: SubspaceLayoutNode, forceRequest: Boolean) {
+
+        if (!root.isPlaced) return
+
+        if (measureAndLayoutDelegate.requestEntityUpdate(node, forceRequest)) {
+            scheduleMeasureAndLayout()
+        }
+    }
+
     // TODO: Consider adding stricter control over how this is called here, or at call sites, if it
     // becomes too easy to generate superfluous layouts.
     private fun scheduleMeasureAndLayout() {

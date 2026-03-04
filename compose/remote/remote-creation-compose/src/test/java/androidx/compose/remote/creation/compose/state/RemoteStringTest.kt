@@ -31,9 +31,10 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
+@Config(sdk = [Config.TARGET_SDK])
 class RemoteStringTest {
 
     val context =
@@ -796,6 +797,26 @@ class RemoteStringTest {
         makeAndPaintCoreDocument()
 
         assertThat(context.getInteger(lenId)).isEqualTo(8)
+    }
+
+    @Test
+    fun cacheKeys() {
+        val constant = RemoteString("test")
+        assertThat(constant.cacheKey).isEqualTo(RemoteConstantCacheKey("test"))
+
+        val named = RemoteString.createNamedRemoteString("test", "")
+        assertThat(named.cacheKey).isEqualTo(RemoteNamedCacheKey(RemoteState.Domain.User, "test"))
+
+        val op = named.substring(0.ri, 2.ri)
+        assertThat(op.cacheKey)
+            .isEqualTo(
+                RemoteOperationCacheKey.create(
+                    RemoteString.OperationKey.Substring,
+                    named,
+                    0.ri,
+                    2.ri,
+                )
+            )
     }
 
     @Test

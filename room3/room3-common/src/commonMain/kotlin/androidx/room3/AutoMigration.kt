@@ -19,75 +19,67 @@ package androidx.room3
 import kotlin.reflect.KClass
 
 /**
- * Declares an automatic migration on a Database.
+ * Declares an automatic migration on a [Database].
  *
  * An automatic migration is a [androidx.room3.migration.Migration] that is generated via the use of
  * database schema files at two versions of a [androidx.room3.RoomDatabase]. Room automatically
  * detects changes on the database between these two schemas, and constructs a
  * [androidx.room3.migration.Migration] to migrate between the two versions. In case of ambiguous
  * scenarios (e.g. column/table rename/deletes), additional information is required, and can be
- * provided via the [androidx.room3.migration.AutoMigrationSpec] property.
+ * provided via a [androidx.room3.migration.AutoMigrationSpec] defined in the [spec] property.
  *
  * An auto migration must define the 'from' and 'to' versions of the schema for which a migration
- * implementation will be generated. A class that implements AutoMigrationSpec can be declared in
- * the [androidx.room3.migration.AutoMigrationSpec] property to either provide more information for
- * ambiguous scenarios or execute callbacks during the migration.
+ * implementation will be generated. A class that implements `AutoMigrationSpec` can be declared in
+ * the [spec] property to either provide more information for ambiguous scenarios or execute
+ * callbacks during the migration.
  *
- * If there are any column/table renames/deletes between the two versions of the database provided
- * then it is said that there are ambiguous scenarios in the migration. In such scenarios then an
- * [androidx.room3.migration.AutoMigrationSpec] is required and the class provided must be annotated
- * with the relevant change annotation(s): [RenameColumn], [RenameTable], [DeleteColumn] or
- * [DeleteTable]. When no ambiguous scenario is present, then the
- * [androidx.room3.migration.AutoMigrationSpec] property is optional.
+ * If there are any column or table renames or deletes between the two versions of the database
+ * provided then it is said that there are ambiguous scenarios in the migration. In such scenarios
+ * then an [androidx.room3.migration.AutoMigrationSpec] is required and the class provided must be
+ * annotated with the relevant change annotation(s): [RenameColumn], [RenameTable], [DeleteColumn]
+ * or [DeleteTable]. When no ambiguous scenario is present, then the [spec] property is optional.
  *
  * If an auto migration is defined for a database, then [androidx.room3.Database.exportSchema] must
- * be set to true.
+ * be set to `true`.
  *
  * Example:
  * ```
  * @Database(
- *    version = MusicDatabase.LATEST_VERSION,
- *    entities = [
- *        Song.class,
- *        Artist.class
- *    ],
- *    autoMigrations = [
- *        AutoMigration (
- *            from = 1,
- *            to = 2
- *        ),
- *        AutoMigration (
- *            from = 2,
- *            to = 3,
- *            spec = MusicDatabase.MyExampleAutoMigration::class
- *        )
- *    ],
- *    exportSchema = true
+ *     version = MusicDatabase.LATEST_VERSION,
+ *     entities = [
+ *         Song.class,
+ *         Artist.class
+ *     ],
+ *     autoMigrations = [
+ *         AutoMigration (from = 1, to = 2),
+ *         AutoMigration (from = 2, to = 3, spec = MusicDatabase.MyExampleAutoMigrationSpec::class)
+ *     ],
+ *     exportSchema = true
  * )
  * abstract class MusicDatabase  : RoomDatabase() {
- *    const val LATEST_VERSION = 3
+ *     const val LATEST_VERSION = 3
  *
- *    @DeleteTable(deletedTableName = "Album")
- *    @RenameTable(fromTableName = "Singer", toTableName = "Artist")
- *    @RenameColumn(
- *        tableName = "Song",
- *        fromColumnName = "songName",
- *        toColumnName = "songTitle"
- *     )
- *    @DeleteColumn(fromTableName = "Song", deletedColumnName = "genre")
- *    class MyExampleAutoMigration : AutoMigrationSpec {
- *        @Override
- *        override fun onPostMigrate(db: SupportSQLiteDatabase) {
- *            // Invoked once auto migration is done
- *        }
+ *     @DeleteTable(tableName = "Album")
+ *     @RenameTable(fromTableName = "Singer", toTableName = "Artist")
+ *     @RenameColumn(
+ *         tableName = "Song",
+ *         fromColumnName = "songName",
+ *         toColumnName = "songTitle"
+ *      )
+ *     @DeleteColumn(tableName = "Song", columnName = "genre")
+ *     class MyExampleAutoMigrationSpec : AutoMigrationSpec {
+ *         override suspend fun onPostMigrate(connection: SQLiteConnection) {
+ *             // Invoked once auto migration is done
+ *         }
  *     }
  * }
  * ```
  *
  * @see [androidx.room3.RoomDatabase]
  * @see [androidx.room3.migration.AutoMigrationSpec]
+ * @see [ProvidedAutoMigrationSpec]
  */
-@Target(AnnotationTarget.CLASS)
+@Target(allowedTargets = []) // Complex annotation target
 @Retention(AnnotationRetention.BINARY)
 public annotation class AutoMigration(
     /**

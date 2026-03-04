@@ -712,7 +712,7 @@ public final class JavaScriptSandbox implements AutoCloseable {
     }
 
     @Override
-    @SuppressWarnings("GenericException") // super.finalize() throws Throwable
+    @SuppressWarnings({"GenericException", "removal"}) // super.finalize() throws Throwable
     protected void finalize() throws Throwable {
         try {
             mGuard.warnIfOpen();

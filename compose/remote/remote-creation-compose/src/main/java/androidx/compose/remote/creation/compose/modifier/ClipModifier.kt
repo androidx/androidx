@@ -75,7 +75,6 @@ public class ClipModifier(public val shape: RemoteShape = RemoteRectangleShape) 
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.clip(shape: RemoteShape = RemoteRectangleShape): RemoteModifier =
     then(ClipModifier(shape))
 

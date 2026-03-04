@@ -373,7 +373,7 @@ constructor(
 
     private suspend fun processRequestOpen(request: RequestOpen) {
         val cameraIdToOpen = request.virtualCamera.cameraId
-        Log.info { "PruningCamera2DeviceManager#processRequestOpen($cameraIdToOpen)" }
+        Log.debug { "PruningCamera2DeviceManager#processRequestOpen($cameraIdToOpen)" }
 
         val camerasToClose =
             if (request.sharedCameraIds.isEmpty()) {
@@ -453,7 +453,7 @@ constructor(
 
     private suspend fun processRequestClose(request: RequestClose) {
         val cameraId = request.activeCamera.cameraId
-        Log.info { "PruningCamera2DeviceManager#processRequestClose($cameraId)" }
+        Log.debug { "PruningCamera2DeviceManager#processRequestClose($cameraId)" }
 
         if (activeCameras.contains(request.activeCamera)) {
             activeCameras.remove(request.activeCamera)
@@ -488,7 +488,7 @@ constructor(
     }
 
     private suspend fun processRequestCloseAll(requestCloseAll: RequestCloseAll) {
-        Log.info { "PruningCamera2DeviceManager#processRequestCloseAll()" }
+        Log.debug { "PruningCamera2DeviceManager#processRequestCloseAll()" }
 
         disconnectPendingRequestOpens(pendingRequestOpens)
         for (activeCamera in activeCameras) {

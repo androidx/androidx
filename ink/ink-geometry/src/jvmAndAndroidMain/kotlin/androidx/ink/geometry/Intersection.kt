@@ -75,7 +75,8 @@ public object Intersection {
 
     /**
      * Returns true when a [Segment] intersects with another [Segment] --- when this segment has at
-     * least one point (including the [start] and [end] points) in common with another [Segment].
+     * least one point (including the [Segment.start] and [Segment.end] points) in common with
+     * another [Segment].
      */
     @JvmStatic
     public fun Segment.intersects(other: Segment): Boolean {
@@ -399,7 +400,7 @@ public object Intersection {
      * Returns true when a [PartitionedMesh] intersects with a [PartitionedMesh].
      *
      * Note that, because it is expensive to apply a transform to a mesh, this method takes two
-     * [AffineTransform] objects: [thisToCommonTransForm] and [otherToCommonTransform]. These
+     * [AffineTransform] objects: [thisToCommonTransform] and [otherToCommonTransform]. These
      * transforms map from the respective [PartitionedMesh]s' coordinate spaces to the common
      * coordinate space that the intersection should be checked in.
      */

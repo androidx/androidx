@@ -80,7 +80,7 @@ public constructor(private val controller: WindowAreaController) {
      * =unavailable. One example of this is if the device is currently moved to the
      * [TYPE_REAR_FACING] window area of a foldable device, the device will be moved back to the
      * default window area, and the status of the operation will no longer be
-     * [WINDOW_AREA_STATUS_ACTIVE].
+     * [androidx.window.area.WindowAreaCapability.Status.WINDOW_AREA_STATUS_ACTIVE].
      *
      * @param windowAreaToken [WindowAreaToken] window area token that identifies the [WindowArea]
      *   to move to.

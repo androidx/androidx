@@ -19,8 +19,9 @@ package androidx.room3
 import kotlin.reflect.KClass
 
 /**
- * A convenience annotation which can be used in a POJO to automatically fetch relation entities.
- * When the POJO is returned from a query, all of its relations are also fetched by Room.
+ * A convenience annotation which can be used in a data object class to automatically fetch relation
+ * entities. When the data object is returned from a query, all of its relations are also fetched by
+ * Room.
  *
  * ```
  * @Entity
@@ -29,7 +30,7 @@ import kotlin.reflect.KClass
  *     val songId: Int,
  *     val albumId: Int,
  *     val name: String
- *     // other fields
+ *     // other properties
  * )
  *
  * data class AlbumNameAndAllSongs (
@@ -40,22 +41,23 @@ import kotlin.reflect.KClass
  * )
  *
  * @Dao
- * public interface MusicDao {
+ * interface MusicDao {
  *     @Query("SELECT id, name FROM Album")
- *     fun loadAlbumAndSongs(): List<AlbumNameAndAllSongs>
+ *     suspend fun loadAlbumAndSongs(): List<AlbumNameAndAllSongs>
  * }
  * ```
  *
- * For a one-to-many or many-to-many relationship, the type of the field annotated with `Relation`
- * must be a [java.util.List] or [java.util.Set].
+ * For a one-to-many or many-to-many relationship, the type of the property annotated with
+ * `Relation` must be a [List] or [Set].
  *
  * By default, the [Entity] type is inferred from the return type. If you would like to return a
  * different object, you can specify the [entity] property in the annotation.
  *
  * ```
+ * @Entity
  * data class Album (
  *     val id: Int
- *     // other fields
+ *     // other properties
  * )
  *
  * data class SongNameAndId (
@@ -66,23 +68,23 @@ import kotlin.reflect.KClass
  * data class AlbumAllSongs (
  *     @Embedded
  *     val album: Album,
- *     @Relation(parentColumn = "id", entityColumn = "albumId", entity = Song.class)
+ *     @Relation(parentColumn = "id", entityColumn = "albumId", entity = Song::class)
  *     val songs: List<SongNameAndId>
  * )
  *
  * @Dao
- * public interface MusicDao {
+ * interface MusicDao {
  *     @Query("SELECT * from Album")
- *     val loadAlbumAndSongs(): List<AlbumAllSongs>
+ *     suspend fun loadAlbumAndSongs(): List<AlbumAllSongs>
  * }
  * ```
  *
- * In the example above, `SongNameAndId` is a regular POJO but all of fields are fetched from the
- * `entity` defined in the `@Relation` annotation _Song_. `SongNameAndId` could also define its own
- * relations all of which would also be fetched automatically.
+ * In the example above, `SongNameAndId` is a regular data class but all properties are fetched from
+ * the `entity` defined in the `@Relation` annotation `Song`. `SongNameAndId` could also define its
+ * own relations all of which would also be fetched automatically.
  *
  * If you would like to specify which columns are fetched from the child [Entity], you can use
- * [projection] property in the `Relation` annotation.
+ * [projection] property in the `@Relation` annotation.
  *
  * ```
  * data class AlbumAndAllSongs (
@@ -91,21 +93,22 @@ import kotlin.reflect.KClass
  *     @Relation(
  *         parentColumn = "id",
  *         entityColumn = "albumId",
- *         entity = Song.class,
- *         projection = {"name"})
+ *         entity = Song::class,
+ *         projection = ["name"]
+ *     )
  *     val songNames: List<String>
  * )
  * ```
  *
- * If the relationship is defined by an associative table (also know as junction table) then you can
- * use [associateBy] to specify it. This is useful for fetching many-to-many relations.
+ * If the relationship is defined by an associative table (also known as junction table) then you
+ * can use [associateBy] to specify it. This is useful for fetching many-to-many relations.
  *
- * Note that `@Relation` annotation can be used only in POJO classes, an [Entity] class cannot have
- * relations. This is a design decision to avoid common pitfalls in [Entity] setups. You can read
- * more about it in the main
+ * Note that `@Relation` annotation can be used only in data object classes, an [Entity] class
+ * cannot have relations. This is a design decision to avoid common pitfalls in [Entity] setups. You
+ * can read more about it in the main
  * [Room documentation](https://developer.android.com/training/data-storage/room/referencing-data#understand-no-object-references).
- * When loading data, you can simply work around this limitation by creating POJO classes that
- * extend the [Entity].
+ * When loading data, you can simply work around this limitation by creating data object classes
+ * that extend the [Entity].
  *
  * @see [Junction]
  */
@@ -121,7 +124,7 @@ public annotation class Relation(
     @Suppress("KotlinDefaultParameterOrder") val entity: KClass<*> = Any::class,
 
     /**
-     * Reference column in the parent POJO.
+     * Reference column in the parent data class.
      *
      * In a one-to-one or one-to-many relation, this value will be matched against the column
      * defined in [entityColumn]. In a many-to-many using [associateBy] then this value will be
@@ -141,7 +144,7 @@ public annotation class Relation(
     val entityColumn: String,
 
     /**
-     * The entity or view to be used as a associative table (also known as a junction table) when
+     * The entity or view to be used as an associative table (also known as a junction table) when
      * fetching the relating entities.
      *
      * @return The junction describing the associative table. By default, no junction is specified
@@ -151,7 +154,7 @@ public annotation class Relation(
     val associateBy: Junction = Junction(Any::class),
 
     /**
-     * If sub columns should be fetched from the entity, you can specify them using this field.
+     * If sub columns should be fetched from the entity, you can specify them using this property.
      *
      * By default, inferred from the return type.
      *

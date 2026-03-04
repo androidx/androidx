@@ -66,6 +66,8 @@ internal constructor(
                 return AnchorCreateResourcesExhausted()
             } catch (e: AnchorNotTrackingException) {
                 return AnchorCreateTrackingUnavailable()
+            } catch (e: IllegalStateException) {
+                return AnchorCreateIllegalState()
             }
             val anchor = generateAnchor(runtimeAnchor, perceptionStateExtender.xrResourcesManager)
             return AnchorCreateSuccess(anchor)

@@ -210,7 +210,7 @@ class SessionTest {
                     planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
                     augmentedObjectCategories = AugmentedObjectCategory.allSupported(),
                     handTracking = HandTrackingMode.BOTH,
-                    deviceTracking = DeviceTrackingMode.LAST_KNOWN,
+                    deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
                     depthEstimation = DepthEstimationMode.SMOOTH_AND_RAW,
                     anchorPersistence = AnchorPersistenceMode.LOCAL,
                 )

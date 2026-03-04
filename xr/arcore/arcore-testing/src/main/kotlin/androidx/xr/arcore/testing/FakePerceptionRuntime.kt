@@ -28,7 +28,7 @@ import kotlin.time.ComparableTimeMark
  * @property lifecycleManager the [FakeLifecycleManager] for this fake runtime
  * @property perceptionManager the [FakePerceptionManager] for this fake runtime
  * @property xrDevicePreferredDisplayBlendMode the value that will be returned by
- *   [XrDevice.getPreferredDisplayBlendMode]
+ *   [androidx.xr.runtime.XrDevice.getPreferredDisplayBlendMode]
  */
 @Suppress("DataClassDefinition")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)

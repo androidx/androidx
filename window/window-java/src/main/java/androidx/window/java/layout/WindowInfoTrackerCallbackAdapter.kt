@@ -52,9 +52,10 @@ private constructor(
 
     /**
      * Registers a listener to consume [WindowLayoutInfo] values of the [Activity] window from a
-     * [Flow]. If the same consumer is registered twice then this method is a no-op.
+     * [kotlinx.coroutines.flow.Flow]. If the same consumer is registered twice then this method is
+     * a no-op.
      *
-     * @param activity an [Activity] that hosts a [Window].
+     * @param activity an [Activity] that hosts a [android.view.Window].
      * @param executor that the consumer will invoke on.
      * @param consumer for [WindowLayoutInfo] values.
      * @see WindowInfoTracker.windowLayoutInfo
@@ -73,8 +74,9 @@ private constructor(
     }
 
     /**
-     * Registers a [UiContext] listener to consume [WindowLayoutInfo] values from a [Flow]. If the
-     * same consumer is registered twice then this method is a no-op.
+     * Registers a [UiContext] listener to consume [WindowLayoutInfo] values from a
+     * [kotlinx.coroutines.flow.Flow]. If the same consumer is registered twice then this method is
+     * a no-op.
      *
      * @param context a [UiContext] such as an [Activity], created with
      *   [Context#createWindowContext] or is a [InputMethodService].
@@ -117,8 +119,9 @@ private constructor(
     }
 
     /**
-     * Remove a listener to stop consuming [WindowLayoutInfo] values from a [Flow]. If the listener
-     * has already been removed then this is a no-op.
+     * Remove a listener to stop consuming [WindowLayoutInfo] values from a
+     * [kotlinx.coroutines.flow.Flow]. If the listener has already been removed then this is a
+     * no-op.
      *
      * @see WindowInfoTracker.windowLayoutInfo
      * @deprecated Use [WindowInfoTracker.unregisterWindowLayoutInfoListener] instead.

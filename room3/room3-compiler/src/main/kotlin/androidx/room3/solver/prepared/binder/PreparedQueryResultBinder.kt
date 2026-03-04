@@ -28,13 +28,15 @@ import androidx.room3.solver.prepared.result.PreparedQueryResultAdapter
  * than executed directly then alternative implementations can be implement using this interface
  * (e.g. Rx, ListenableFuture).
  */
-abstract class PreparedQueryResultBinder(val adapter: PreparedQueryResultAdapter?) {
+interface PreparedQueryResultBinder {
+
+    val adapter: PreparedQueryResultAdapter?
 
     /**
      * Receives the SQL and a function to bind args into a statement, it must then generate the code
      * that steps on the query and if applicable returns the result of the write operation.
      */
-    abstract fun executeAndReturn(
+    fun executeAndReturn(
         sqlQueryVar: String,
         dbProperty: XPropertySpec,
         bindStatement: CodeGenScope.(String) -> Unit,

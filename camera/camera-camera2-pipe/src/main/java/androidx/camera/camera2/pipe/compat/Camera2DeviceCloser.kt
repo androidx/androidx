@@ -173,7 +173,6 @@ constructor(
         androidCameraState: AndroidCameraState,
     ) {
         val cameraDeviceId = cameraDevice.id
-        Log.debug { "closeCameraDevice($cameraDeviceId)" }
         var cameraDeviceClosed = false
         threads.runBlockingCheckedOrNull(CAMERA_CLOSE_TIMEOUT_MS) {
             cameraDevice.closeWithTrace()

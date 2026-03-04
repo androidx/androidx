@@ -170,6 +170,7 @@ private class VideoEncodeThread(
     private val width: Int,
     private val height: Int,
     private val fps: Int,
+    private val bitrate: Int,
     private val durationMillis: Long,
     private val videoDocument: RemoteDocument,
     private val virtualDisplay: VirtualDisplay,
@@ -201,7 +202,11 @@ private class VideoEncodeThread(
                         MediaFormat.KEY_COLOR_FORMAT,
                         MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface,
                     )
-                    setInteger(MediaFormat.KEY_BIT_RATE, 2_000_000)
+                    setInteger(
+                        MediaFormat.KEY_BITRATE_MODE,
+                        MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CBR,
+                    )
+                    setInteger(MediaFormat.KEY_BIT_RATE, bitrate)
                     setInteger(MediaFormat.KEY_FRAME_RATE, fps)
                     setFloat(MediaFormat.KEY_MAX_FPS_TO_ENCODER, fps.toFloat())
                     setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1)
@@ -214,10 +219,11 @@ private class VideoEncodeThread(
             imageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 3)
 
             val durationSeconds = durationMillis / 1000
+            val bitrateKbps = bitrate / 1000
             val outputFile =
                 File(
                     context.cacheDir,
-                    "${sampleName}_${width}x${height}_${durationSeconds}s_${fps}fps.mp4",
+                    "${sampleName}_${width}x${height}_${durationSeconds}s_${fps}fps_${bitrateKbps}kbps.mp4",
                 )
             mediaMuxer =
                 MediaMuxer(outputFile.absolutePath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
@@ -397,6 +403,7 @@ fun mediaH264Preview(
     height: Int,
     durationMillis: Long,
     fps: Int,
+    bitrate: Int,
 ): DumperOutputData? {
     var status by remember { mutableStateOf("Initializing...") }
     var outputData by remember { mutableStateOf<DumperOutputData?>(null) }
@@ -452,6 +459,7 @@ fun mediaH264Preview(
                 width,
                 height,
                 fps,
+                bitrate,
                 durationMillis,
                 videoDocument!!,
                 virtualDisplay,

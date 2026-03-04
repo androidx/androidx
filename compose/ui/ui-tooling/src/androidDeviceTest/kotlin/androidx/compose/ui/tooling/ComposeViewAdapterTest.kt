@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.animation.AnimateXAsStateComposeAnimation
 import androidx.compose.ui.tooling.animation.PreviewAnimationClock
 import androidx.compose.ui.tooling.animation.UnsupportedComposeAnimation
 import androidx.compose.ui.tooling.data.UiToolingDataApi
+import androidx.compose.ui.tooling.preview.PreviewWrapper
 import androidx.compose.ui.tooling.test.R
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
@@ -59,8 +60,12 @@ class ComposeViewAdapterTest {
     }
 
     /** Asserts that the given Composable method executes correct and outputs some [ViewInfo]s. */
-    private fun assertRendersCorrectly(className: String, methodName: String): List<ViewInfo> {
-        initAndWaitForDraw(className, methodName)
+    private fun assertRendersCorrectly(
+        className: String,
+        methodName: String,
+        previewWrapper: Class<out PreviewWrapper>? = null,
+    ): List<ViewInfo> {
+        initAndWaitForDraw(className, methodName, previewWrapper = previewWrapper)
         activityTestRule.runOnUiThread { assertTrue(composeViewAdapter.viewInfos.isNotEmpty()) }
 
         return composeViewAdapter.viewInfos
@@ -73,6 +78,7 @@ class ComposeViewAdapterTest {
         className: String,
         methodName: String,
         designInfoProvidersArgument: String? = null,
+        previewWrapper: Class<out PreviewWrapper>? = null,
     ) {
         val committedAndDrawn = CountDownLatch(1)
         val committed = AtomicBoolean(false)
@@ -83,6 +89,7 @@ class ComposeViewAdapterTest {
                 debugViewInfos = true,
                 lookForDesignInfoProviders = true,
                 designInfoProvidersArgument = designInfoProvidersArgument,
+                previewWrapper = previewWrapper,
                 onCommit = { committed.set(true) },
                 onDraw = {
                     if (committed.get()) {
@@ -583,6 +590,33 @@ class ComposeViewAdapterTest {
 
         checkDesignInfoList("DesignInfoProviderB", "A", "Invalid, x=0, y=0")
         checkDesignInfoList("DesignInfoProviderB", "B", "ObjectB, x=0, y=0")
+    }
+
+    @Test
+    fun testPreviewWrapper() {
+        val viewInfos =
+            assertRendersCorrectly(
+                "androidx.compose.ui.tooling.SimpleComposablePreviewKt",
+                "TestWrapperPreview",
+                previewWrapper = TestWrapper::class.java,
+            )
+
+        activityTestRule.runOnUiThread {
+            assertTrue(viewInfos.isNotEmpty())
+            // Verify that the wrapper (WrapperContainer) is present.
+            val wrapperInfo =
+                viewInfos
+                    .flatMap { it.allChildren() + it }
+                    .find {
+                        it.name == "WrapperContainer" && it.fileName == "SimpleComposablePreview.kt"
+                    }
+            assertTrue("WrapperContainer from wrapper should be present", wrapperInfo != null)
+
+            // Verify it has children (Header, Content, Footer)
+            // Content is the SimpleComposablePreview which has a Surface
+            // Header and Footer are Text
+            assertTrue((wrapperInfo?.children?.size ?: 0) > 0)
+        }
     }
 
     @Test

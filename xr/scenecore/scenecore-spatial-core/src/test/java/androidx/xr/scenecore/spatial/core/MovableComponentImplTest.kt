@@ -120,7 +120,7 @@ class MovableComponentImplTest {
     }
 
     private fun createTestEntity(): Entity {
-        return sceneRuntime.createGroupEntity(Pose(), "test", sceneRuntime.activitySpace)
+        return sceneRuntime.createEntity(Pose(), "test", sceneRuntime.activitySpace)
     }
 
     private fun createTestPanelEntity(): PanelEntity {

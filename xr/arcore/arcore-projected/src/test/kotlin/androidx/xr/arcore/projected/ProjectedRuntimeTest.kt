@@ -68,7 +68,7 @@ class ProjectedRuntimeTest {
             listOf(
                 PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
                 HandTrackingMode.BOTH,
-                DeviceTrackingMode.LAST_KNOWN,
+                DeviceTrackingMode.SPATIAL_LAST_KNOWN,
                 DepthEstimationMode.RAW_ONLY,
                 DepthEstimationMode.SMOOTH_ONLY,
                 DepthEstimationMode.SMOOTH_AND_RAW,

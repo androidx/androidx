@@ -17,11 +17,13 @@
 package androidx.ink.authoring.internal
 
 import android.graphics.Matrix
+import androidx.ink.authoring.InProgressStrokeId
 
 /**
  * Includes the [CompletedShapeT] along with a transform indicating where the stroke is on screen.
  */
 internal class FinishedStroke<CompletedShapeT : Any>(
+    val strokeId: InProgressStrokeId,
     val stroke: CompletedShapeT,
     val strokeToViewTransform: Matrix,
 )

@@ -163,12 +163,14 @@ constructor(
                 currentTimestampTs,
             )
         ) {
-            Log.debug {
-                "$this: Not restarting. " +
-                    "Controller state = $controllerState, last camera error = $lastCameraError, " +
-                    "camera availability = $cameraAvailability, " +
-                    "last camera priorities changed = $lastCameraPrioritiesChangedTs, " +
-                    "current timestamp = $currentTimestampTs."
+            if (DEBUG) {
+                Log.debug {
+                    "$this: Not restarting. " +
+                        "Controller state = $controllerState, last camera error = $lastCameraError, " +
+                        "camera availability = $cameraAvailability, " +
+                        "last camera priorities changed = $lastCameraPrioritiesChangedTs, " +
+                        "current timestamp = $currentTimestampTs."
+                }
             }
             return
         }
@@ -276,7 +278,9 @@ constructor(
     }
 
     private fun onCameraStatusChanged(cameraStatus: CameraStatus) {
-        Log.debug { "$this ($cameraId) camera status changed: $cameraStatus" }
+        if (DEBUG) {
+            Log.debug { "$this ($cameraId) camera status changed: $cameraStatus" }
+        }
         synchronized(lock) {
             if (isClosed()) {
                 return
@@ -454,6 +458,7 @@ constructor(
     }
 
     companion object {
+        private const val DEBUG = false
         private const val RESTART_TIMEOUT_WHEN_ENABLED_MS = 700L // 0.7s
         private const val MS_TO_NS = 1_000_000
         private val PRIORITIES_CHANGED_THRESHOLD_NS = DurationNs(200_000_000L) // 200ms

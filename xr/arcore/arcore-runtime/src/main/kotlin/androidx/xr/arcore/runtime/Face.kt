@@ -34,7 +34,7 @@ import androidx.xr.runtime.math.Pose
  *   it exists
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public interface Face : Anchorable {
+public interface Face : Trackable {
     public val isValid: Boolean
     public val blendShapeValues: FloatArray?
     public val confidenceValues: FloatArray?

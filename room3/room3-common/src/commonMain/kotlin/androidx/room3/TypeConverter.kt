@@ -17,20 +17,25 @@
 package androidx.room3
 
 /**
- * Marks a method as a type converter. A class can have as many @TypeConverter methods as it needs.
+ * Marks a function as a type converter. A class can have as many `@TypeConverter` functions as it
+ * needs.
  *
- * Each converter method should receive 1 parameter and have non-void return type.
+ * Converter functions are useful for helping Room support types beyond the built-in ones,
+ * primitives [String], [ByteArray] and enums. `@TypeConverter` functions are for converting a
+ * column values may it be when reading from a query result or binding parameters into a statement.
+ *
+ * Each converter function should receive 1 parameter and have non-void / non-[Unit] return type.
  *
  * ```
- * // example converter for java.util.Date
- * public class Converters {
+ * // Example converter for Date
+ * object Converters {
  *     @TypeConverter
- *     public fun fromTimestamp(value: Long): Date {
+ *     fun fromTimestamp(value: Long?): Date? {
  *         return value == null ? null : Date(value)
  *     }
  *
  *     @TypeConverter
- *     public fun dateToTimestamp(date: Date): Long {
+ *     fun dateToTimestamp(date: Date?): Long? {
  *         if (date == null) {
  *             return null
  *         } else {

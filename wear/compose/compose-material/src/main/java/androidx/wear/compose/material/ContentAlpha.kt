@@ -29,7 +29,7 @@ import androidx.compose.ui.graphics.luminance
 public object ContentAlpha {
     /**
      * A high level of content alpha, used to represent high emphasis text such as input text in a
-     * selected [TextField].
+     * selected [androidx.compose.material.TextField].
      */
     public val high: Float
         @Composable
@@ -41,7 +41,7 @@ public object ContentAlpha {
 
     /**
      * A medium level of content alpha, used to represent medium emphasis text such as placeholder
-     * text in a [TextField].
+     * text in a [androidx.compose.material.TextField].
      */
     public val medium: Float
         @Composable

@@ -340,11 +340,6 @@ public class TileBoard {
         }
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-    }
-
     /**
      * Returns the {@link TileInfo}s for all tiles whose coordinates overlap with the areas
      * covered by

@@ -125,7 +125,9 @@ class TiltGestureTrackingActivity : ComponentActivity() {
                 session = result.session
                 try {
                     val configResult =
-                        session.configure(Config(deviceTracking = DeviceTrackingMode.LAST_KNOWN))
+                        session.configure(
+                            Config(deviceTracking = DeviceTrackingMode.INERTIAL_LAST_KNOWN)
+                        )
                     when (configResult) {
                         is SessionConfigureSuccess -> {
                             Log.i(TAG, "Session created successfully!!")

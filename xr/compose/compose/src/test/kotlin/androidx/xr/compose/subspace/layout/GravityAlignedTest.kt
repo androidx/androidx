@@ -38,7 +38,7 @@ import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.compose.testing.session
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
-import androidx.xr.scenecore.GroupEntity
+import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.Space
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.Ignore
@@ -351,8 +351,7 @@ class GravityAlignedTest {
     @Ignore("b/448989958 - The SceneCore Fakes need to be updated to support this test.")
     fun gravityAligned_onSubspace_alignsTiltedRootToWorld() {
         composeTestRule.configureFakeSession()
-        val tiltedRootNode =
-            GroupEntity.create(checkNotNull(composeTestRule.session), "tiltedRootNode")
+        val tiltedRootNode = Entity.create(checkNotNull(composeTestRule.session), "tiltedRootNode")
         val tiltedRootRotation = Quaternion.fromEulerAngles(pitch = 20f, yaw = 60f, roll = -25f)
         tiltedRootNode.setPose(
             relativeTo = Space.REAL_WORLD,

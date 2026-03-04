@@ -375,7 +375,7 @@ w: Language version 1\.9 is deprecated and its support will be removed in a futu
 # Remove when https://youtrack.jetbrains.com/issue/KT-70013 is fixed, o/w anytime a new entry is added to this list, this message will be printed.
 Calculating task graph as configuration cache cannot be reused because the set of paths ignored in file-system-check input tracking.*
 # b/414775532
-# > Task :compose-hero-benchmarks:poxedex-compose:app:kspReleaseKotlin
+# > Task :compose-hero-benchmarks:pokedex-compose:app:kspReleaseKotlin
 w: \[ksp\] LibraryGlideModules \[\] are included more than once, keeping only one\!
 # b/439568035
 WARNING: The option setting 'android\.newDsl=false' is deprecated\.
@@ -419,19 +419,7 @@ w: KLIB resolver: The same 'unique_name=kotlin\-stdlib\-common' found in more th
 java\.lang\.IllegalStateException: The following LookupSymbols are not yet converted to ProgramSymbols:.*
 (?:.*[\n\r])*.*Falling back to non\-incremental compilation \(reason = IC_FAILED_TO_COMPUTE_FILES_TO_RECOMPILE\)
 (?:.*[\n\r])*.*e: Incremental compilation failed: The following LookupSymbols are not yet converted to ProgramSymbols:.*SchemaAppFunctionInventory_Impl\)
-# > Task :credentials:credentials-e2ee:compileReleaseKotlin
-w: file://\$SUPPORT/credentials/credentials\-e[0-9]+ee/src/main/java/androidx/credentials/e[0-9]+ee/IdentityKey\.kt:[0-9]+:[0-9]+ 'class IdentityKey : Any' is deprecated\. This API is deprecated and will be removed in a future release\.
-w: file://\$SUPPORT/credentials/credentials\-e[0-9]+ee/src/main/java/androidx/credentials/e[0-9]+ee/IdentityKey\.kt:[0-9]+:[0-9]+ 'constructor\(public: ByteArray, private: ByteArray, type: Int\): IdentityKey' is deprecated\. This API is deprecated and will be removed in a future release\.
-# > Task :credentials:credentials-e2ee:compileReleaseAndroidTestKotlin
-w: file://\$SUPPORT/credentials/credentials\-e[0-9]+ee/src/androidTest/java/androidx/credentials/e[0-9]+ee/IdentityKeyTest\.kt:[0-9]+:[0-9]+ 'class IdentityKey : Any' is deprecated\. This API is deprecated and will be removed in a future release\.
-w: file://\$SUPPORT/credentials/credentials\-e[0-9]+ee/src/androidTest/java/androidx/credentials/e[0-9]+ee/IdentityKeyTest\.kt:[0-9]+:[0-9]+ 'companion object Companion : Any' is deprecated\. This API is deprecated and will be removed in a future release\.
-w: file://\$SUPPORT/credentials/credentials\-e[0-9]+ee/src/androidTest/java/androidx/credentials/e[0-9]+ee/IdentityKeyTest\.kt:[0-9]+:[0-9]+ 'fun createFromPrf\(prf: ByteArray, salt: ByteArray\?, keyType: Int\): IdentityKey' is deprecated\. This API is deprecated and will be removed in a future release\.
-# > Task :credentials:credentials-e2ee:compileReleaseAndroidTestJavaWithJavac
-\$SUPPORT/credentials/credentials\-e[0-9]+ee/src/androidTest/java/androidx/credentials/e[0-9]+ee/IdentityKeyJavaTest\.java:[0-9]+: warning: \[deprecation\] IdentityKey in androidx\.credentials\.e[0-9]+ee has been deprecated
-IdentityKey identityKey = IdentityKey\.createFromPrf\(prf, salt,
+# > Task :car:app:app-automotive:compileReleaseJavaWithJavac b/316376113
+\$OUT_DIR/androidx/car/app/app\-automotive/build/generated/source/stable_aidl/release/androidx/car/app/activity/renderer/IInsetsListener\.java:[0-9]+: warning: \[dep\-ann\] deprecated item is not annotated with @Deprecated
+@Override public void onInsetsChanged\(android\.graphics\.Insets insets\) throws android\.os\.RemoteException
 \^
-IdentityKey\.IDENTITY_KEY_TYPE_ED[0-9]+\);
-\$SUPPORT/credentials/credentials\-e[0-9]+ee/src/androidTest/java/androidx/credentials/e[0-9]+ee/IdentityKeyJavaTest\.java:[0-9]+: warning: \[deprecation\] createFromPrf\(byte\[\],byte\[\],int\) in IdentityKey has been deprecated
-IdentityKey identityKey = IdentityKey\.createFromPrf\(prf, /\* salt= \*/null,
-IdentityKey identityKey[0-9]+ = IdentityKey\.createFromPrf\(prf, new byte\[[0-9]+\],
-IdentityKey identityKey = IdentityKey\.createFromPrf\(prfOutput, salt,

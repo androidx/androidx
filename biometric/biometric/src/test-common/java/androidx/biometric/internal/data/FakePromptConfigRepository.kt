@@ -16,6 +16,7 @@
 
 package androidx.biometric.internal.data
 
+import androidx.biometric.AuthenticationRequest.Biometric.Fallback
 import androidx.biometric.BiometricPrompt
 
 /** A fake implementation of [PromptConfigRepository] for testing purposes. */
@@ -38,8 +39,17 @@ internal class FakePromptConfigRepository : PromptConfigRepository {
         get() = promptInfo?.allowedAuthenticators ?: 0
 
     private var _negativeButtonTextOverride: CharSequence? = null
-    override val negativeButtonText: CharSequence?
-        get() = _negativeButtonTextOverride ?: promptInfo?.negativeButtonText
+    override val fallbackOptionList: List<Fallback>
+        get() =
+            _negativeButtonTextOverride?.let {
+                listOf(Fallback.OverriddenDeviceCredential(it.toString()))
+            }
+                ?: promptInfo
+                    ?.negativeButtonText
+                    ?.takeUnless { it.isEmpty() }
+                    ?.let { listOf(Fallback.CustomOption(it.toString())) }
+                ?: promptInfo?.fallbackOptionList
+                ?: emptyList()
 
     override var isIdentityCheckAvailable = false
 

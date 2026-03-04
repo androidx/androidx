@@ -16,34 +16,20 @@
 
 package androidx.webkit;
 
-import org.jspecify.annotations.NonNull;
-
 /**
- * Callback interface intended for use when an asynchronous operation may result in a failure.
+ * Transition interface for {@link WebViewOutcomeReceiver} to support renaming in client code.
  *
- * This interface may be used in cases where an asynchronous API may complete either with a value
- * or with a {@link Throwable} that indicates an error.
+ * @see WebViewOutcomeReceiver
+ * @deprecated The {@code OutcomeReceiverCompat} name clashes with the same class in {@code
+ * androidx.core}, so the webkit library version was renamed to avoid confusion. Clients should
+ * migrate to the new name. This class will only be maintained until the APIs that originally
+ * used the name are no longer considered experimental.
+ *
  * @param <T> The type of the result that's being sent.
  * @param <E> The type of the {@link Throwable} that contains more information about the error.
- *
- * This interface serves the same purpose as
- * <a href="https://developer.android.com/reference/android/os/OutcomeReceiver">
- * android.os.OutcomeReceiver</a>, but can be used on API versions before 31.
- *
- * TODO(b/380060342): To be removed once we release androidx.core.os.OutcomeReceiverCompat.
  */
 @Profile.ExperimentalUrlPrefetch
-public interface OutcomeReceiverCompat<T, E extends Throwable> {
-    /**
-     * Called when the asynchronous operation succeeds and delivers a result value.
-     * @param result The value delivered by the asynchronous operation.
-     */
-    void onResult(T result);
-
-    /**
-     * Called when the asynchronous operation fails. The mode of failure is indicated by the
-     * {@link Throwable} passed as an argument to this method.
-     * @param error A subclass of {@link Throwable} with more details about the error that occurred.
-     */
-    default void onError(@NonNull E error) {}
+@Deprecated(forRemoval = true)
+public interface OutcomeReceiverCompat<T, E extends Throwable> extends
+        WebViewOutcomeReceiver<T, E> {
 }

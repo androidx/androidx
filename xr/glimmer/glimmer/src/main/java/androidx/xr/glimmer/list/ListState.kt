@@ -18,6 +18,7 @@ package androidx.xr.glimmer.list
 
 import androidx.annotation.IntRange
 import androidx.compose.foundation.MutatePriority
+import androidx.compose.foundation.ScrollIndicatorState
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
@@ -81,7 +82,7 @@ public class ListState(firstVisibleItemIndex: Int = 0, firstVisibleItemScrollOff
         GlimmerListScrollPosition(firstVisibleItemIndex, firstVisibleItemScrollOffset)
 
     /** Backing state for [layoutInfo] */
-    private val layoutInfoState = mutableStateOf(EmptyLazyListMeasureResult, neverEqualPolicy())
+    internal val layoutInfoState = mutableStateOf(EmptyLazyListMeasureResult, neverEqualPolicy())
 
     private val density: Density
         get() = layoutInfoState.value.density
@@ -295,6 +296,51 @@ public class ListState(firstVisibleItemIndex: Int = 0, firstVisibleItemScrollOff
     @get:Suppress("GetterSetterNames")
     override var canScrollBackward: Boolean by mutableStateOf(false)
         private set
+
+    override val scrollIndicatorState: ScrollIndicatorState
+        get() = _scrollIndicatorState
+
+    private val _scrollIndicatorState =
+        object : ScrollIndicatorState {
+            override val scrollOffset: Int
+                @FrequentlyChangingValue
+                get() =
+                    with(layoutInfoState.value) {
+                        if (this === EmptyLazyListMeasureResult) {
+                            Int.MAX_VALUE
+                        } else {
+                            this@ListState.firstVisibleItemIndex * visibleItemsAverageSize +
+                                this@ListState.firstVisibleItemScrollOffset
+                        }
+                    }
+
+            override val contentSize: Int
+                @FrequentlyChangingValue
+                get() =
+                    with(layoutInfoState.value) {
+                        if (this === EmptyLazyListMeasureResult) {
+                            Int.MAX_VALUE
+                        } else {
+                            // Approximate size of all content
+                            (totalItemsCount * visibleItemsAverageSize) -
+                                // Subtract the final trailing spacing that is not shown
+                                (if (totalItemsCount > 0) mainAxisItemSpacing else 0) +
+                                // Add the inner paddings (which are separate from the item sizes)
+                                beforeContentPadding +
+                                afterContentPadding
+                        }
+                    }
+
+            override val viewportSize: Int
+                get() =
+                    with(layoutInfoState.value) {
+                        if (this === EmptyLazyListMeasureResult) {
+                            Int.MAX_VALUE
+                        } else {
+                            mainAxisViewportSize
+                        }
+                    }
+        }
 
     /**
      * Instantly brings the item at [index] to the top of the viewport, offset by [scrollOffset]

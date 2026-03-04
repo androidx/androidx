@@ -134,7 +134,7 @@ public abstract class Triangle internal constructor() {
     /**
      * Calls the provided callback with four floats corresponding to the (minX, maxX, minY, maxY)
      * bounds of the triangle. These bounds are used to compute the bounding rectangle of
-     * [triangle].
+     * [Triangle].
      */
     private inline fun <R> withXAndYBounds(callback: (Float, Float, Float, Float) -> R) =
         callback(

@@ -55,6 +55,9 @@ public class AuthenticationSampleActivity extends FragmentActivity {
                                                 + " "
                                                 + result.error().getErrString()
                                 );
+                            } else if (result.isCustomFallbackSelected()) {
+                                Log.i(TAG, "fallback is selected, text:"
+                                        + result.customFallbackSelected().getFallback().getText());
                             }
                         }
 
@@ -80,11 +83,10 @@ public class AuthenticationSampleActivity extends FragmentActivity {
                                         new PromptContentItemBulletedText("test item2")))
 
                 );
-        Biometric.Fallback fallback = new Biometric.Fallback.NegativeButton("Cancel button");
         Biometric.Strength minStrength = Biometric.Strength.Class2.INSTANCE;
 
         AuthenticationRequest authRequest =
-                new Biometric.Builder(title, fallback)
+                new Biometric.Builder(title, new Biometric.Fallback.CustomOption("Cancel button"))
                         .setMinStrength(minStrength)
                         .setSubtitle(subtitle)
                         .setContent(bodyContent)

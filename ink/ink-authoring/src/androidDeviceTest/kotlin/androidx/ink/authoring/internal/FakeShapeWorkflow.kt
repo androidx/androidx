@@ -82,6 +82,9 @@ internal class FakeInProgressShape : InProgressShape<FakeShapeSpec, ImmutableStr
     private var forcedCompletion = false
     private var finishedTimeMillis: Long? = null
     private var updateSinceLastReset = false
+    private var canceled = false
+
+    override fun isCanceled(): Boolean = canceled
 
     override fun start(shapeSpec: FakeShapeSpec, systemElapsedTimeMillis: Long) {
         this.shapeSpec = shapeSpec
@@ -93,6 +96,7 @@ internal class FakeInProgressShape : InProgressShape<FakeShapeSpec, ImmutableStr
         forcedCompletion = false
         finishedTimeMillis = null
         updateSinceLastReset = false
+        canceled = false
     }
 
     override fun enqueueInputs(realInputs: StrokeInputBatch, predictedInputs: StrokeInputBatch) {
@@ -115,7 +119,9 @@ internal class FakeInProgressShape : InProgressShape<FakeShapeSpec, ImmutableStr
         forcedCompletion = true
     }
 
-    override fun cancel() {}
+    override fun cancel() {
+        canceled = true
+    }
 
     override fun getUpdatedRegion(): Box? = if (updateSinceLastReset) FAKE_UPDATE_BOX else null
 

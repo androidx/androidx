@@ -272,8 +272,8 @@ class EvControlDeviceTest {
         val current = exposureState.exposureCompensationIndex
 
         return when {
-            range.contains(current + 1) -> current + 1
             range.contains(current - 1) -> current - 1
+            range.contains(current + 1) -> current + 1
             else -> throw IllegalArgumentException("Cannot find safe target EV.")
         }
     }

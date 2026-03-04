@@ -53,9 +53,9 @@ public class InkInProgressShape : InProgressShape<Brush, Stroke> {
     internal var textureAnimationDurationMillis: Long = Long.MIN_VALUE
         private set
 
-    /** Whether this shape has been canceled. Primarily tracked for defensive coding purposes. */
-    internal var canceled = false
-        private set
+    private var canceled = false
+
+    override fun isCanceled(): Boolean = canceled
 
     private var updateSinceResetUpdatedRegion = false
     private var cancelSinceResetUpdatedRegion = false
@@ -78,20 +78,9 @@ public class InkInProgressShape : InProgressShape<Brush, Stroke> {
      */
     private val scratchBoxAccumulator = BoxAccumulator()
 
-    private fun resetState() {
-        startSystemElapsedTimeMillis = Long.MIN_VALUE
-        lastUpdateSystemElapsedTimeMillis = Long.MIN_VALUE
-        updateSinceResetUpdatedRegion = false
-        cancelSinceResetUpdatedRegion = false
-        canceled = false
-        textureAnimationDurationMillis = Long.MIN_VALUE
-        shapeChangesWithTime = false
-        inProgressStroke.clear()
-    }
-
     @OptIn(ExperimentalInkCustomBrushApi::class)
     override fun start(shapeSpec: Brush, systemElapsedTimeMillis: Long) {
-        resetState()
+        prepareToRecycle()
         this.brush = shapeSpec
         if (!shouldPreserveNoiseSeed) {
             this.noiseSeed = Random.Default.nextInt()
@@ -116,9 +105,8 @@ public class InkInProgressShape : InProgressShape<Brush, Stroke> {
         }
     }
 
-    override fun changesWithTime(): Boolean {
-        return shapeChangesWithTime || textureAnimationDurationMillis > 0
-    }
+    override fun changesWithTime(): Boolean =
+        shapeChangesWithTime || textureAnimationDurationMillis > 0
 
     override fun update(shapeDurationMillis: Long) {
         // Update these values even if the underlying [InProgressStroke] doesn't need updating, so
@@ -126,8 +114,6 @@ public class InkInProgressShape : InProgressShape<Brush, Stroke> {
         // texture animations can be properly rendered.
         lastUpdateSystemElapsedTimeMillis = startSystemElapsedTimeMillis + shapeDurationMillis
         updateSinceResetUpdatedRegion = true
-
-        if (!inProgressStroke.isUpdateNeeded()) return
         runCatching { inProgressStroke.updateShape(shapeDurationMillis) }
             .exceptionOrNull()
             ?.let {
@@ -201,6 +187,13 @@ public class InkInProgressShape : InProgressShape<Brush, Stroke> {
         }
 
     override fun prepareToRecycle() {
-        resetState()
+        startSystemElapsedTimeMillis = Long.MIN_VALUE
+        lastUpdateSystemElapsedTimeMillis = Long.MIN_VALUE
+        updateSinceResetUpdatedRegion = false
+        cancelSinceResetUpdatedRegion = false
+        canceled = false
+        textureAnimationDurationMillis = Long.MIN_VALUE
+        shapeChangesWithTime = false
+        inProgressStroke.clear()
     }
 }

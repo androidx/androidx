@@ -54,12 +54,7 @@ internal fun glimmerListSemanticState(
             }
 
         override val viewport: Int
-            get() =
-                if (state.layoutInfo.orientation == Orientation.Vertical) {
-                    state.layoutInfo.viewportSize.height
-                } else {
-                    state.layoutInfo.viewportSize.width
-                }
+            get() = state.layoutInfo.mainAxisViewportSize
 
         override val contentPadding: Int
             get() = state.layoutInfo.beforeContentPadding + state.layoutInfo.afterContentPadding

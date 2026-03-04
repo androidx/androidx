@@ -83,6 +83,7 @@ import androidx.xr.compose.platform.SpatialCapabilities
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.semantics.testTag
+import androidx.xr.compose.testing.ShadowActivityEmbeddingController
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.configureFakeSession
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
@@ -97,9 +98,11 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 
 /** Tests for [SpatialPopup]. */
 @RunWith(AndroidJUnit4::class)
+@Config(shadows = [ShadowActivityEmbeddingController::class])
 class SpatialPopupTest {
 
     // Migrate to `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule`,
@@ -1483,5 +1486,15 @@ class SpatialPopupTest {
                 .fetchSemanticsNode()
                 .positionOnScreen
         assertThat(textPositionOnScreen.x).isEqualTo(popupOffset.value)
+    }
+
+    @Test
+    fun spatialPopup_whenActivityIsEmbedded_fallsBackToStandardPopup() {
+        ShadowActivityEmbeddingController.isEmbedded = true
+
+        composeTestRule.setContent { SpatialPopup { Text("Fallback Content") } }
+        composeTestRule.onNodeWithText("Fallback Content")
+
+        ShadowActivityEmbeddingController.isEmbedded = false
     }
 }

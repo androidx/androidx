@@ -18,6 +18,7 @@ package androidx.glance.wear.cache
 
 import androidx.datastore.core.DataStoreFactory
 import androidx.glance.wear.core.ContainerInfo
+import androidx.glance.wear.core.WearWidgetParams
 import androidx.glance.wear.core.WidgetInstanceId
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
@@ -47,45 +48,95 @@ class WearWidgetCacheTest {
     }
 
     @Test
-    fun setAndGetContainerSpec_restoresValue() = runTest {
-        val spec = WidgetContainerSpec(100f, 200f)
+    fun setAndGetWidgetParams_restoresValue() = runTest {
+        val params =
+            WearWidgetParams(
+                instanceId = INSTANCE_ID_1,
+                containerType = ContainerInfo.CONTAINER_TYPE_LARGE,
+                widthDp = 100f,
+                heightDp = 200f,
+                horizontalPaddingDp = 10f,
+                verticalPaddingDp = 20f,
+                cornerRadiusDp = 5f,
+            )
 
-        cacheUnderTest.update { setContainerSpec(ContainerInfo.CONTAINER_TYPE_LARGE, spec) }
-        val readSpec = cacheUnderTest.getContainerSpec(ContainerInfo.CONTAINER_TYPE_LARGE)
+        cacheUnderTest.update { setWidgetParams(params) }
+        val restoredParams =
+            cacheUnderTest.getWidgetParams(ContainerInfo.CONTAINER_TYPE_LARGE, INSTANCE_ID_1)
 
-        assertThat(readSpec).isEqualTo(spec)
+        assertThat(restoredParams).isEqualTo(params)
     }
 
     @Test
-    fun setAndGetContainerSpec_withMultipleTypes_restoresValues() = runTest {
-        val spec1 = WidgetContainerSpec(300f, 400f)
-        val spec2 = WidgetContainerSpec(100f, 200f)
+    fun setAndGetWidgetParams_withMultipleTypes_restoresValues() = runTest {
+        val params1 =
+            WearWidgetParams(
+                instanceId = INSTANCE_ID_1,
+                containerType = ContainerInfo.CONTAINER_TYPE_LARGE,
+                widthDp = 300f,
+                heightDp = 400f,
+                horizontalPaddingDp = 30f,
+                verticalPaddingDp = 40f,
+                cornerRadiusDp = 15f,
+            )
+        val params2 =
+            WearWidgetParams(
+                instanceId = INSTANCE_ID_2,
+                containerType = ContainerInfo.CONTAINER_TYPE_SMALL,
+                widthDp = 100f,
+                heightDp = 200f,
+                horizontalPaddingDp = 10f,
+                verticalPaddingDp = 20f,
+                cornerRadiusDp = 5f,
+            )
 
         cacheUnderTest.update {
-            setContainerSpec(ContainerInfo.CONTAINER_TYPE_LARGE, spec1)
-            setContainerSpec(ContainerInfo.CONTAINER_TYPE_SMALL, spec2)
+            setWidgetParams(params1)
+            setWidgetParams(params2)
         }
-        val readSpec1 = cacheUnderTest.getContainerSpec(ContainerInfo.CONTAINER_TYPE_LARGE)
-        val readSpec2 = cacheUnderTest.getContainerSpec(ContainerInfo.CONTAINER_TYPE_SMALL)
+        val restoredParams1 =
+            cacheUnderTest.getWidgetParams(ContainerInfo.CONTAINER_TYPE_LARGE, INSTANCE_ID_1)
+        val restoredParams2 =
+            cacheUnderTest.getWidgetParams(ContainerInfo.CONTAINER_TYPE_SMALL, INSTANCE_ID_2)
 
-        assertThat(readSpec1).isEqualTo(spec1)
-        assertThat(readSpec2).isEqualTo(spec2)
+        assertThat(restoredParams1).isEqualTo(params1)
+        assertThat(restoredParams2).isEqualTo(params2)
     }
 
     @Test
-    fun setAndGetContainerSpec_withExistingType_overwritesValue() = runTest {
-        val spec1 = WidgetContainerSpec(100f, 200f)
-        val spec2 = WidgetContainerSpec(300f, 400f)
+    fun setAndGetWidgetParams_withExistingType_overwritesValue() = runTest {
+        val params1 =
+            WearWidgetParams(
+                instanceId = INSTANCE_ID_1,
+                containerType = ContainerInfo.CONTAINER_TYPE_LARGE,
+                widthDp = 100f,
+                heightDp = 200f,
+                horizontalPaddingDp = 10f,
+                verticalPaddingDp = 20f,
+                cornerRadiusDp = 5f,
+            )
+        val params2 =
+            WearWidgetParams(
+                instanceId = INSTANCE_ID_1,
+                containerType = ContainerInfo.CONTAINER_TYPE_LARGE,
+                widthDp = 300f,
+                heightDp = 400f,
+                horizontalPaddingDp = 30f,
+                verticalPaddingDp = 40f,
+                cornerRadiusDp = 15f,
+            )
 
         cacheUnderTest.update {
-            setContainerSpec(ContainerInfo.CONTAINER_TYPE_LARGE, spec1)
-            setContainerSpec(ContainerInfo.CONTAINER_TYPE_LARGE, spec2)
+            setWidgetParams(params1)
+            setWidgetParams(params2)
         }
-        val readSpec = cacheUnderTest.getContainerSpec(ContainerInfo.CONTAINER_TYPE_LARGE)
-        val readOtherSpec = cacheUnderTest.getContainerSpec(ContainerInfo.CONTAINER_TYPE_SMALL)
+        val restoredParams =
+            cacheUnderTest.getWidgetParams(ContainerInfo.CONTAINER_TYPE_LARGE, INSTANCE_ID_1)
+        val restoredOtherParams =
+            cacheUnderTest.getWidgetParams(ContainerInfo.CONTAINER_TYPE_SMALL, INSTANCE_ID_1)
 
-        assertThat(readSpec).isEqualTo(spec2)
-        assertThat(readOtherSpec).isNull()
+        assertThat(restoredParams).isEqualTo(params2)
+        assertThat(restoredOtherParams).isNull()
     }
 
     @Test

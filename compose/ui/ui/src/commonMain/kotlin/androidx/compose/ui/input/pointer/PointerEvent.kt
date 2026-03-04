@@ -445,8 +445,8 @@ class PointerInputChange(
         isInitiallyConsumed: Boolean,
         type: PointerType = PointerType.Touch,
         scrollDelta: Offset = Offset.Zero,
-        scaleGestureFactor: Float = 1f,
-        panGestureOffset: Offset = Offset.Zero,
+        scaleFactor: Float = 1f,
+        panOffset: Offset = Offset.Zero,
     ) : this(
         id = id,
         uptimeMillis = uptimeMillis,
@@ -459,8 +459,8 @@ class PointerInputChange(
         isInitiallyConsumed = isInitiallyConsumed,
         type = type,
         scrollDelta = scrollDelta,
-        scaleFactor = scaleGestureFactor,
-        panOffset = panGestureOffset,
+        scaleFactor = scaleFactor,
+        panOffset = panOffset,
     )
 
     @Deprecated(message = "Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
@@ -563,8 +563,8 @@ class PointerInputChange(
         type: PointerType,
         historical: List<HistoricalChange>,
         scrollDelta: Offset,
-        scaleGestureFactor: Float,
-        panGestureOffset: Offset,
+        scaleFactor: Float,
+        panOffset: Offset,
         originalEventPosition: Offset,
     ) : this(
         id = id,
@@ -578,8 +578,8 @@ class PointerInputChange(
         isInitiallyConsumed = isInitiallyConsumed,
         type = type,
         scrollDelta = scrollDelta,
-        scaleFactor = scaleGestureFactor,
-        panOffset = panGestureOffset,
+        scaleFactor = scaleFactor,
+        panOffset = panOffset,
     ) {
         _historical = historical
         this.originalEventPosition = originalEventPosition
@@ -674,8 +674,8 @@ class PointerInputChange(
                 type = type,
                 historical = this.historical,
                 scrollDelta = this.scrollDelta,
-                scaleGestureFactor = this.scaleFactor,
-                panGestureOffset = this.panOffset,
+                scaleFactor = this.scaleFactor,
+                panOffset = this.panOffset,
                 originalEventPosition = this.originalEventPosition,
             )
             .also {
@@ -760,8 +760,8 @@ class PointerInputChange(
                 type = type,
                 historical = this.historical,
                 scrollDelta = scrollDelta,
-                scaleGestureFactor = this.scaleFactor,
-                panGestureOffset = this.panOffset,
+                scaleFactor = this.scaleFactor,
+                panOffset = this.panOffset,
                 originalEventPosition = this.originalEventPosition,
             )
             .also {
@@ -804,8 +804,8 @@ class PointerInputChange(
                 type = type,
                 historical = this.historical,
                 scrollDelta = scrollDelta,
-                scaleGestureFactor = this.scaleFactor,
-                panGestureOffset = this.panOffset,
+                scaleFactor = this.scaleFactor,
+                panOffset = this.panOffset,
                 originalEventPosition = this.originalEventPosition,
             )
             .also {
@@ -890,8 +890,8 @@ class PointerInputChange(
                 type = type,
                 historical = historical,
                 scrollDelta = scrollDelta,
-                scaleGestureFactor = this.scaleFactor,
-                panGestureOffset = this.panOffset,
+                scaleFactor = this.scaleFactor,
+                panOffset = this.panOffset,
                 originalEventPosition = this.originalEventPosition,
             )
             .also {
@@ -921,8 +921,8 @@ class PointerInputChange(
         type: PointerType = this.type,
         historical: List<HistoricalChange> = this.historical,
         scrollDelta: Offset = this.scrollDelta,
-        scaleGestureFactor: Float = this.scaleFactor,
-        panGestureOffset: Offset = this.panOffset,
+        scaleFactor: Float = this.scaleFactor,
+        panOffset: Offset = this.panOffset,
     ): PointerInputChange =
         PointerInputChange(
                 id = id,
@@ -937,8 +937,8 @@ class PointerInputChange(
                 type = type,
                 historical = historical,
                 scrollDelta = scrollDelta,
-                scaleGestureFactor = scaleGestureFactor,
-                panGestureOffset = panGestureOffset,
+                scaleFactor = scaleFactor,
+                panOffset = panOffset,
                 originalEventPosition = this.originalEventPosition,
             )
             .also {
@@ -1005,10 +1005,10 @@ class HistoricalChange(
     internal constructor(
         uptimeMillis: Long,
         position: Offset,
-        scaleGestureFactor: Float,
-        panGestureOffset: Offset,
+        scaleFactor: Float,
+        panOffset: Offset,
         originalEventPosition: Offset,
-    ) : this(uptimeMillis, position, scaleGestureFactor, panGestureOffset) {
+    ) : this(uptimeMillis, position, scaleFactor, panOffset) {
         this.originalEventPosition = originalEventPosition
     }
 

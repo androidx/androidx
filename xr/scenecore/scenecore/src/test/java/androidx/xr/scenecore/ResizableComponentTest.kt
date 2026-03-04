@@ -75,7 +75,7 @@ class ResizableComponentTest {
 
     @Test
     fun addResizableComponent_addsRuntimeResizableComponent() {
-        val entity = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
         assertThat(entity).isNotNull()
 
         val resizableComponent =
@@ -92,7 +92,7 @@ class ResizableComponentTest {
 
     @Test
     fun addResizableComponentDefaultArguments_addsRuntimeResizableComponentWithDefaults() {
-        val entity = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
         assertThat(entity).isNotNull()
         val resizableComponent = ResizableComponent.create(session) {}
         val rtResizableComponent = addAndGetFakeResizableComponent(entity, resizableComponent)
@@ -112,7 +112,7 @@ class ResizableComponentTest {
 
     @Test
     fun removeResizableComponent_removesRuntimeResizableComponent() {
-        val entity = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
         assertThat(entity).isNotNull()
 
         val resizableComponent =
@@ -128,15 +128,15 @@ class ResizableComponentTest {
 
         entity.removeComponent(resizableComponent)
 
-        assertThat(entity.rtEntity?.getComponents()).hasSize(0)
+        assertThat((entity as BaseEntity<*>).rtEntity?.getComponents()).hasSize(0)
         // The listeners map will not be reset after removing the component.
         assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(1)
     }
 
     @Test
     fun resizableComponent_canAttachOnlyOnce() {
-        val entity = GroupEntity.create(session, "test")
-        val entity2 = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
+        val entity2 = Entity.create(session, "test")
         assertThat(entity).isNotNull()
 
         val resizableComponent =
@@ -153,7 +153,7 @@ class ResizableComponentTest {
 
     @Test
     fun resizableComponent_setSizeInvokesRuntimeResizableComponentSetSize() {
-        val entity = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
         assertThat(entity).isNotNull()
 
         val resizableComponent =
@@ -176,7 +176,7 @@ class ResizableComponentTest {
 
     @Test
     fun resizableComponent_setMinimumSizeInvokesRuntimeResizableComponentSetMinimumSize() {
-        val entity = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
         assertThat(entity).isNotNull()
 
         val resizableComponent =
@@ -199,7 +199,7 @@ class ResizableComponentTest {
 
     @Test
     fun resizableComponent_setMaximumSizeInvokesRuntimeResizableComponentSetMaximumSize() {
-        val entity = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
         assertThat(entity).isNotNull()
 
         val resizableComponent =
@@ -222,7 +222,7 @@ class ResizableComponentTest {
 
     @Test
     fun resizableComponent_setFixedAspectRatioInvokesRuntimeResizableComponentSetFixedAspectRatio() {
-        val entity = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
         assertThat(entity).isNotNull()
 
         val resizableComponent =
@@ -245,7 +245,7 @@ class ResizableComponentTest {
 
     @Test
     fun resizableComponent_setAutoHideContentWhileResizingInvokesRuntimeResizableComponentSetAutoHideContent() {
-        val entity = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
         assertThat(entity).isNotNull()
 
         val resizableComponent =
@@ -268,7 +268,7 @@ class ResizableComponentTest {
 
     @Test
     fun resizableComponent_setAutoUpdateOverlayInvokesRuntimeResizableComponentSetAutoUpdateSize() {
-        val entity = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
         assertThat(entity).isNotNull()
 
         val resizableComponent =
@@ -291,7 +291,7 @@ class ResizableComponentTest {
 
     @Test
     fun resizableComponent_setAlwaysShowOverlayInvokesRuntimeResizableComponentSetForceShowResizeOverlay() {
-        val entity = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
         assertThat(entity).isNotNull()
 
         val resizableComponent =
@@ -314,7 +314,7 @@ class ResizableComponentTest {
 
     @Test
     fun createResizableComponentWithListener_invokesRuntimeAddResizeEventListener() {
-        val entity = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
         assertThat(entity).isNotNull()
 
         val initialListener = TestResizeListener()
@@ -360,7 +360,7 @@ class ResizableComponentTest {
 
     @Test
     fun addResizeListener_invokesRuntimeAddResizeEventListener() {
-        val entity = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
         assertThat(entity).isNotNull()
 
         val resizeListener2 = TestResizeListener()
@@ -409,7 +409,7 @@ class ResizableComponentTest {
 
     @Test
     fun addMultipleResizeEventListeners_invokesAllListeners() {
-        val entity = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
         assertThat(entity).isNotNull()
 
         val initialListener = TestResizeListener()
@@ -451,7 +451,7 @@ class ResizableComponentTest {
 
     @Test
     fun removeResizeEventListener_invokesRuntimeRemoveResizeEventListener() {
-        val entity = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
         assertThat(entity).isNotNull()
 
         val initialListener = TestResizeListener()
@@ -496,7 +496,7 @@ class ResizableComponentTest {
 
     @Test
     fun resizableComponent_canAttachAgainAfterDetach() {
-        val entity = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
         assertThat(entity).isNotNull()
 
         val resizableComponent =
@@ -514,7 +514,7 @@ class ResizableComponentTest {
 
     @Test
     fun resizableComponent_attachAfterDetachPreservesListeners() {
-        val entity = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
         assertThat(entity).isNotNull()
 
         val initialListener = TestResizeListener()
@@ -553,7 +553,7 @@ class ResizableComponentTest {
         // Detach and reattach the resizable component.
         entity.removeComponent(resizableComponent)
 
-        assertThat(entity.rtEntity?.getComponents()).hasSize(0)
+        assertThat((entity as BaseEntity<*>).rtEntity?.getComponents()).hasSize(0)
 
         rtResizableComponent = addAndGetFakeResizableComponent(entity, resizableComponent)
 

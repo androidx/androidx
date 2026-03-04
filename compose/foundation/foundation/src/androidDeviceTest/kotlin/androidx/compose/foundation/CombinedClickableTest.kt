@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalIndirectPointerApi::class)
-
 package androidx.compose.foundation
 
 import android.os.Build
@@ -56,7 +54,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.first
-import androidx.compose.ui.ExperimentalIndirectPointerApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusManager
@@ -993,6 +990,71 @@ class CombinedClickableTest {
     }
 
     @Test
+    fun longClick_childConsumesUp_handlesNextClick() {
+        var clickCounter = 0
+        var longClickCounter = 0
+        var consumeEventsInChild = false
+        lateinit var viewConfiguration: ViewConfiguration
+
+        rule.setContent {
+            viewConfiguration = LocalViewConfiguration.current
+            Box(
+                modifier =
+                    Modifier.testTag("myClickable")
+                        .size(100.dp)
+                        .combinedClickable(
+                            onClick = { ++clickCounter },
+                            onLongClick = { ++longClickCounter },
+                        )
+                        // The modifier order here places this pointerInput deeper in the node tree.
+                        // During the Main pass, it will intercept and consume events before
+                        // combinedClickable.
+                        .pointerInput(Unit) {
+                            awaitPointerEventScope {
+                                while (true) {
+                                    val event = awaitPointerEvent()
+                                    if (consumeEventsInChild) {
+                                        event.changes.forEach { it.consume() }
+                                    }
+                                }
+                            }
+                        }
+            )
+        }
+
+        // Start a long press gesture
+        rule.onNodeWithTag("myClickable").performTouchInput { down(center) }
+
+        val longPressTimeout = viewConfiguration.longPressTimeoutMillis + 100
+        rule.mainClock.advanceTimeBy(longPressTimeout)
+
+        rule.runOnIdle {
+            // Ensure the long click triggered properly
+            assertThat(longClickCounter).isEqualTo(1)
+            assertThat(clickCounter).isEqualTo(0)
+
+            // Instruct the child to start swallowing events before the UP event fires
+            consumeEventsInChild = true
+        }
+
+        // Release the pointer
+        rule.onNodeWithTag("myClickable").performTouchInput { up() }
+
+        rule.runOnIdle {
+            // Stop consuming events so we can attempt a normal click
+            consumeEventsInChild = false
+        }
+
+        // Attempt a normal click
+        rule.onNodeWithTag("myClickable").performClick()
+
+        rule.runOnIdle {
+            assertThat(clickCounter).isEqualTo(1)
+            assertThat(longClickCounter).isEqualTo(1)
+        }
+    }
+
+    @Test
     @LargeTest
     fun longClick_consumesEventsAfterLongClick_indirectPointer() {
         var counter = 0
@@ -1366,6 +1428,86 @@ class CombinedClickableTest {
         }
     }
 
+    @Test
+    fun longClick_childConsumesUp_handlesNextClick_indirectPointer() {
+        var clickCounter = 0
+        var longClickCounter = 0
+        var consumeEventsInChild = false
+        val focusRequester = FocusRequester()
+        lateinit var inputModeManager: InputModeManager
+        lateinit var viewConfiguration: ViewConfiguration
+
+        val childConsumingNode =
+            object : IndirectPointerInputModifierNode, Modifier.Node() {
+                override fun onIndirectPointerEvent(
+                    event: IndirectPointerEvent,
+                    pass: PointerEventPass,
+                ) {
+                    if (consumeEventsInChild && pass == PointerEventPass.Main) {
+                        event.changes.forEach { it.consume() }
+                    }
+                }
+
+                override fun onCancelIndirectPointerInput() {}
+            }
+
+        rule.setContent {
+            inputModeManager = LocalInputModeManager.current
+            viewConfiguration = LocalViewConfiguration.current
+            Box(
+                modifier =
+                    Modifier.testTag("myClickable")
+                        .size(100.dp)
+                        .combinedClickable(
+                            onClick = { ++clickCounter },
+                            onLongClick = { ++longClickCounter },
+                        )
+                        // The modifier order here places this node deeper in the node tree.
+                        // During the Main pass, it will intercept and consume events before
+                        // combinedClickable.
+                        .elementFor(childConsumingNode)
+                        .focusRequester(focusRequester)
+                        .focusTarget()
+            )
+        }
+
+        rule.runOnIdle { inputModeManager.requestInputMode(Keyboard) }
+        rule.runOnIdle { assertThat(focusRequester.requestFocus()).isTrue() }
+
+        // Start a long press gesture
+        val downEvent = rule.onNodeWithTag("myClickable").sendIndirectPointerPressEvent(rule)
+
+        val longPressTimeout = viewConfiguration.longPressTimeoutMillis + 100
+        rule.mainClock.advanceTimeBy(longPressTimeout)
+
+        rule.runOnIdle {
+            // Ensure the long click triggered properly
+            assertThat(longClickCounter).isEqualTo(1)
+            assertThat(clickCounter).isEqualTo(0)
+
+            // Instruct the child to start swallowing events before the UP event fires
+            consumeEventsInChild = true
+        }
+
+        // Release the pointer
+        rule
+            .onNodeWithTag("myClickable")
+            .sendIndirectPointerReleaseEvent(rule, previousEvent = downEvent)
+
+        rule.runOnIdle {
+            // Stop consuming events so we can attempt a normal click
+            consumeEventsInChild = false
+        }
+
+        // Attempt a normal click
+        rule.onNodeWithTag("myClickable").sendIndirectPressReleaseEvent(rule)
+
+        rule.runOnIdle {
+            assertThat(clickCounter).isEqualTo(1)
+            assertThat(longClickCounter).isEqualTo(1)
+        }
+    }
+
     /**
      * Integration test to make sure that a scrollable parent cannot scroll after a long click when
      * using indirect pointer events.
@@ -1506,6 +1648,91 @@ class CombinedClickableTest {
         rule
             .onNodeWithTag("myClickable")
             .sendIndirectPointerReleaseEvent(rule, previousEvent = downEvent)
+
+        rule.runOnIdle {
+            assertThat(clickCounter).isEqualTo(1)
+            assertThat(longClickCounter).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun click_afterLongClick() {
+        var clickCounter = 0
+        var longClickCounter = 0
+        val onClick: () -> Unit = { ++clickCounter }
+        val onLongClick: () -> Unit = { ++longClickCounter }
+
+        rule.setContent {
+            Box {
+                BasicText(
+                    "ClickableText",
+                    modifier =
+                        Modifier.testTag("myClickable")
+                            .combinedClickable(onLongClick = onLongClick, onClick = onClick),
+                )
+            }
+        }
+
+        rule.onNodeWithTag("myClickable").performTouchInput { longClick() }
+
+        rule.runOnIdle {
+            assertThat(clickCounter).isEqualTo(0)
+            assertThat(longClickCounter).isEqualTo(1)
+        }
+
+        rule.onNodeWithTag("myClickable").performClick()
+
+        rule.runOnIdle {
+            assertThat(clickCounter).isEqualTo(1)
+            assertThat(longClickCounter).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun click_afterLongClick_indirectPointer() {
+        var clickCounter = 0
+        var longClickCounter = 0
+        val onClick: () -> Unit = { ++clickCounter }
+        val onLongClick: () -> Unit = { ++longClickCounter }
+
+        val focusRequester = FocusRequester()
+        lateinit var inputModeManager: InputModeManager
+        lateinit var viewConfiguration: ViewConfiguration
+        rule.setContent {
+            inputModeManager = LocalInputModeManager.current
+            viewConfiguration = LocalViewConfiguration.current
+            Box {
+                BasicText(
+                    "ClickableText",
+                    modifier =
+                        Modifier.testTag("myClickable")
+                            .focusRequester(focusRequester)
+                            .combinedClickable(onLongClick = onLongClick, onClick = onClick),
+                )
+            }
+        }
+
+        rule.runOnIdle { inputModeManager.requestInputMode(Keyboard) }
+        rule.runOnIdle { assertThat(focusRequester.requestFocus()).isTrue() }
+
+        val downEvent = rule.onNodeWithTag("myClickable").sendIndirectPointerPressEvent(rule)
+        rule.mainClock.advanceTimeBy(viewConfiguration.longPressTimeoutMillis + 100)
+
+        rule.runOnIdle {
+            assertThat(clickCounter).isEqualTo(0)
+            assertThat(longClickCounter).isEqualTo(1)
+        }
+
+        rule
+            .onNodeWithTag("myClickable")
+            .sendIndirectPointerReleaseEvent(rule, previousEvent = downEvent)
+
+        rule.runOnIdle {
+            assertThat(clickCounter).isEqualTo(0)
+            assertThat(longClickCounter).isEqualTo(1)
+        }
+
+        rule.onNodeWithTag("myClickable").sendIndirectPressReleaseEvent(rule)
 
         rule.runOnIdle {
             assertThat(clickCounter).isEqualTo(1)

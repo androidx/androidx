@@ -259,7 +259,9 @@ object KotlinTypeNames {
     val STRING_BUILDER = XClassName.get("kotlin.text", "StringBuilder")
     val LINKED_HASH_MAP = XClassName.get("kotlin.collections", "LinkedHashMap")
     val NO_ARG_SUSPEND_LAMBDA = XClassName.get("kotlin.coroutines", "SuspendFunction0")
+    val NO_ARG_LAMBDA = XClassName.get("kotlin", "Function0")
     val SINGLE_ARG_SUSPEND_LAMBDA = XClassName.get("kotlin.coroutines", "SuspendFunction1")
+    val SINGLE_ARG_LAMBDA = XClassName.get("kotlin", "Function1")
 }
 
 object RoomMemberNames {

@@ -30,7 +30,7 @@ import android.opengl.GLES20.glBindTexture
 import android.opengl.GLES20.glGenTextures
 import android.opengl.GLES20.glTexParameteri
 import android.opengl.GLES30
-import androidx.xr.runtime.Log
+import androidx.xr.runtime.XrLog
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
@@ -219,7 +219,7 @@ class DepthMapRenderer {
 
             // If the compilation failed, delete the shader.
             if (compileStatus[0] == 0) {
-                Log.error { "Error compiling shader: " + GLES30.glGetShaderInfoLog(shader) }
+                XrLog.error { "Error compiling shader: " + GLES30.glGetShaderInfoLog(shader) }
                 GLES30.glDeleteShader(shader)
                 shader = 0
             }
@@ -236,7 +236,7 @@ class DepthMapRenderer {
             // Drain the queue of all errors.
             var error: Int = GLES30.glGetError()
             while (error != GLES30.GL_NO_ERROR) {
-                Log.error { "$label: glError $error" }
+                XrLog.error { "$label: glError $error" }
                 lastError = error
                 error = GLES30.glGetError()
             }

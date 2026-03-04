@@ -153,7 +153,7 @@ internal class StrokeInputPool(preAllocatedInstances: Int = 15) {
      *   coordinates of [event] into the client-defined stroke coordinate system.
      * @param strokeStartTimeMillis The time at which the stroke started in the
      *   [android.os.SystemClock.elapsedRealtime] time base.
-     * @param outBatch The [StrokeInputBatch.Builder] that will contain the produced result values.
+     * @param outBatch The [MutableStrokeInputBatch] that will contain the produced result values.
      *   Any existing data in here will be lost.
      */
     @UiThread

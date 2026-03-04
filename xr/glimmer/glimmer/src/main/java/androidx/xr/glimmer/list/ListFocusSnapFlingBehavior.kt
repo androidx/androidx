@@ -37,10 +37,11 @@ public fun SnapLayoutInfoProvider(state: ListState): SnapLayoutInfoProvider =
          * smoother animation.
          */
         override fun calculateApproachOffset(velocity: Float, decayOffset: Float): Float {
-            if (state.layoutInfo.totalItemsCount == 0) {
+            val layoutInfo = state.layoutInfoState.value
+            if (layoutInfo.totalItemsCount == 0) {
                 return 0f
             }
-            val averageItemSize = state.layoutInfo.visibleItemsAverageSize()
+            val averageItemSize = layoutInfo.visibleItemsAverageSize
             return (abs(decayOffset) - averageItemSize).coerceAtLeast(0.0f) * decayOffset.sign
         }
 

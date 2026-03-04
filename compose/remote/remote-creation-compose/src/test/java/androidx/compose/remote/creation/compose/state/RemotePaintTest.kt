@@ -79,11 +79,11 @@ class RemotePaintTest {
     fun remoteColorNonConstantTest() {
         val remotePaint = RemotePaint()
         val remoteColor =
-            RemoteColor.fromARGB(
-                RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC),
-                RemoteFloat(1f),
-                RemoteFloat(1f),
-                RemoteFloat(1f),
+            RemoteColor.rgb(
+                red = RemoteFloat(1f),
+                green = RemoteFloat(1f),
+                blue = RemoteFloat(1f),
+                alpha = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC),
             )
         remotePaint.remoteColor = remoteColor
         assertThat(remotePaint.color).isEqualTo(AndroidColor.TRANSPARENT)
@@ -113,11 +113,11 @@ class RemotePaintTest {
     fun remoteColorFilterNonConstantTest() {
         val remotePaint = RemotePaint()
         val remoteColor =
-            RemoteColor.fromARGB(
-                RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC),
-                RemoteFloat(1f),
-                RemoteFloat(1f),
-                RemoteFloat(1f),
+            RemoteColor.rgb(
+                red = RemoteFloat(1f),
+                green = RemoteFloat(1f),
+                blue = RemoteFloat(1f),
+                alpha = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC),
             )
         val remoteColorFilter = RemoteBlendModeColorFilter(remoteColor, BlendMode.MULTIPLY)
         remotePaint.remoteColorFilter = remoteColorFilter

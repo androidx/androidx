@@ -334,13 +334,14 @@ private fun Project.getSbomPublishDir(): Provider<Directory> {
 }
 
 private const val MAVEN_CENTRAL_REPO_URL = "https://repo.maven.apache.org/maven2"
-private const val GMAVEN_REPO_URL = "https://dl.google.com/android/maven2"
+private const val GMAVEN_REPO_URL = "https://dl.google.com/dl/android/maven2"
 
 /** Returns a mapping from local repo url to public repo url */
 private fun Project.getRepoPublicUrls(): Map<String, String> {
     return if (ProjectLayoutType.isPlayground(this)) {
         mapOf(
             MAVEN_CENTRAL_REPO_URL to MAVEN_CENTRAL_REPO_URL,
+            GMAVEN_REPO_URL to GMAVEN_REPO_URL,
             AndroidXPlaygroundRootImplPlugin.INTERNAL_PREBUILTS_REPO_URL to GMAVEN_REPO_URL,
         )
     } else {

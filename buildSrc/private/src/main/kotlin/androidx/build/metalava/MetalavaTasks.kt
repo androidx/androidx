@@ -57,12 +57,8 @@ internal object MetalavaTasks {
         val generateRestrictToLibraryGroupAPIs = !extension.mavenGroup!!.requireSameVersion
         val kotlinSourceLevel: Provider<KotlinVersion> = extension.kotlinApiVersion
         val targetsJavaConsumers = extension.type.map { !it.targetsKotlinConsumersOnly }
-        // For a KMP project, only use multiplatform metalava if K2 is also used as K1 metalava does
-        // not support multiplatform.
-        val multiplatform =
-            extension.metalavaK2UastEnabled.map {
-                it && compilationInputs is MultiplatformCompilationInputs
-            }
+        val multiplatform = compilationInputs is MultiplatformCompilationInputs
+
         val generateApi =
             project.tasks.register("generateApi", GenerateApiTask::class.java) { task ->
                 task.group = "API"
@@ -72,7 +68,6 @@ internal object MetalavaTasks {
                 task.generateRestrictToLibraryGroupAPIs = generateRestrictToLibraryGroupAPIs
                 task.baselines.set(baselinesApiLocation)
                 task.targetsJavaConsumers.set(targetsJavaConsumers)
-                task.k2UastEnabled.set(extension.metalavaK2UastEnabled)
                 task.kotlinSourceLevel.set(kotlinSourceLevel)
                 task.multiplatform.set(multiplatform)
 
@@ -103,7 +98,6 @@ internal object MetalavaTasks {
                     task.version.set(version)
                     task.dependencyClasspath = compilationInputs.dependencyClasspath
                     task.bootClasspath = compilationInputs.bootClasspath
-                    task.k2UastEnabled.set(extension.metalavaK2UastEnabled)
                     task.kotlinSourceLevel.set(kotlinSourceLevel)
                     task.targetsJavaConsumers.set(targetsJavaConsumers)
                     task.cacheEvenIfNoOutputs()
@@ -120,7 +114,6 @@ internal object MetalavaTasks {
                     task.version.set(version)
                     task.dependencyClasspath = compilationInputs.dependencyClasspath
                     task.bootClasspath = compilationInputs.bootClasspath
-                    task.k2UastEnabled.set(extension.metalavaK2UastEnabled)
                     task.kotlinSourceLevel.set(kotlinSourceLevel)
                     task.targetsJavaConsumers.set(targetsJavaConsumers)
                     task.dependsOn(generateApi)
@@ -135,7 +128,6 @@ internal object MetalavaTasks {
                 task.metalavaClasspath.from(metalavaClasspath)
                 task.baselines.set(baselinesApiLocation)
                 task.targetsJavaConsumers.set(targetsJavaConsumers)
-                task.k2UastEnabled.set(extension.metalavaK2UastEnabled)
                 task.kotlinSourceLevel.set(kotlinSourceLevel)
                 task.multiplatform.set(multiplatform)
                 applyInputs(compilationInputs, task, generateApiDependencies, androidManifest)

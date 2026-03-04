@@ -6,16 +6,17 @@ package androidx.biometric {
   }
 
   public static final class AuthenticationRequest.Biometric extends androidx.biometric.AuthenticationRequest {
-    method @InaccessibleFromKotlin public androidx.biometric.AuthenticationRequest.Biometric.Fallback getAuthFallback();
+    method @InaccessibleFromKotlin public java.util.List<androidx.biometric.AuthenticationRequest.Biometric.Fallback> getAuthFallbacks();
     method @InaccessibleFromKotlin public androidx.biometric.AuthenticationRequest.BodyContent? getContent();
     method @InaccessibleFromKotlin @RequiresPermission(android.Manifest.permission.SET_BIOMETRIC_DIALOG_ADVANCED) public android.graphics.Bitmap? getLogoBitmap();
     method @InaccessibleFromKotlin @RequiresPermission(android.Manifest.permission.SET_BIOMETRIC_DIALOG_ADVANCED) public String? getLogoDescription();
     method @InaccessibleFromKotlin @RequiresPermission(android.Manifest.permission.SET_BIOMETRIC_DIALOG_ADVANCED) public int getLogoRes();
+    method public static int getMaxFallbackOptions();
     method @InaccessibleFromKotlin public androidx.biometric.AuthenticationRequest.Biometric.Strength getMinStrength();
     method @InaccessibleFromKotlin public String? getSubtitle();
     method @InaccessibleFromKotlin public String getTitle();
     method @InaccessibleFromKotlin public boolean isConfirmationRequired();
-    property public androidx.biometric.AuthenticationRequest.Biometric.Fallback authFallback;
+    property public java.util.List<androidx.biometric.AuthenticationRequest.Biometric.Fallback> authFallbacks;
     property public androidx.biometric.AuthenticationRequest.BodyContent? content;
     property public boolean isConfirmationRequired;
     property @RequiresPermission(android.Manifest.permission.SET_BIOMETRIC_DIALOG_ADVANCED) public android.graphics.Bitmap? logoBitmap;
@@ -24,10 +25,11 @@ package androidx.biometric {
     property public androidx.biometric.AuthenticationRequest.Biometric.Strength minStrength;
     property public String? subtitle;
     property public String title;
+    field public static final androidx.biometric.AuthenticationRequest.Biometric.Companion Companion;
   }
 
   public static final class AuthenticationRequest.Biometric.Builder {
-    ctor public AuthenticationRequest.Biometric.Builder(String title, androidx.biometric.AuthenticationRequest.Biometric.Fallback authFallback);
+    ctor public AuthenticationRequest.Biometric.Builder(String title, androidx.biometric.AuthenticationRequest.Biometric.Fallback... authFallbacks);
     method public androidx.biometric.AuthenticationRequest.Biometric build();
     method public androidx.biometric.AuthenticationRequest.Biometric.Builder setContent(androidx.biometric.AuthenticationRequest.BodyContent? content);
     method public androidx.biometric.AuthenticationRequest.Biometric.Builder setIsConfirmationRequired(boolean isConfirmationRequired);
@@ -38,17 +40,37 @@ package androidx.biometric {
     method public androidx.biometric.AuthenticationRequest.Biometric.Builder setSubtitle(String? subtitle);
   }
 
+  public static final class AuthenticationRequest.Biometric.Companion {
+    method public int getMaxFallbackOptions();
+  }
+
   public abstract static class AuthenticationRequest.Biometric.Fallback {
+    field public static final androidx.biometric.AuthenticationRequest.Biometric.Fallback.Companion Companion;
+    field public static final int ICON_TYPE_ACCOUNT = 2; // 0x2
+    field public static final int ICON_TYPE_GENERIC = 3; // 0x3
+    field public static final int ICON_TYPE_PASSWORD = 0; // 0x0
+    field public static final int ICON_TYPE_QR_CODE = 1; // 0x1
+  }
+
+  public static final class AuthenticationRequest.Biometric.Fallback.Companion {
+    property public static int ICON_TYPE_ACCOUNT;
+    property public static int ICON_TYPE_GENERIC;
+    property public static int ICON_TYPE_PASSWORD;
+    property public static int ICON_TYPE_QR_CODE;
+  }
+
+  public static final class AuthenticationRequest.Biometric.Fallback.CustomOption extends androidx.biometric.AuthenticationRequest.Biometric.Fallback {
+    ctor public AuthenticationRequest.Biometric.Fallback.CustomOption(String text);
+    ctor public AuthenticationRequest.Biometric.Fallback.CustomOption(String text, optional int iconType);
+    ctor @BytecodeOnly public AuthenticationRequest.Biometric.Fallback.CustomOption(String!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public int getIconType();
+    method @InaccessibleFromKotlin public String getText();
+    property public int iconType;
+    property public String text;
   }
 
   public static final class AuthenticationRequest.Biometric.Fallback.DeviceCredential extends androidx.biometric.AuthenticationRequest.Biometric.Fallback {
     field public static final androidx.biometric.AuthenticationRequest.Biometric.Fallback.DeviceCredential INSTANCE;
-  }
-
-  public static final class AuthenticationRequest.Biometric.Fallback.NegativeButton extends androidx.biometric.AuthenticationRequest.Biometric.Fallback {
-    ctor public AuthenticationRequest.Biometric.Fallback.NegativeButton(String negativeButtonText);
-    method @InaccessibleFromKotlin public String getNegativeButtonText();
-    property public String negativeButtonText;
   }
 
   public abstract static class AuthenticationRequest.Biometric.Strength {
@@ -95,7 +117,7 @@ package androidx.biometric {
   }
 
   public static final class AuthenticationRequest.Companion {
-    method public inline androidx.biometric.AuthenticationRequest.Biometric biometricRequest(String title, androidx.biometric.AuthenticationRequest.Biometric.Fallback authFallback, kotlin.jvm.functions.Function1<? super androidx.biometric.AuthenticationRequest.Biometric.Builder,kotlin.Unit> init);
+    method public inline androidx.biometric.AuthenticationRequest.Biometric biometricRequest(String title, androidx.biometric.AuthenticationRequest.Biometric.Fallback[] authFallbacks, kotlin.jvm.functions.Function1<? super androidx.biometric.AuthenticationRequest.Biometric.Builder,kotlin.Unit> init);
     method @RequiresApi(android.os.Build.VERSION_CODES.R) public androidx.biometric.AuthenticationRequest.Credential credentialRequest(String title, kotlin.jvm.functions.Function1<? super androidx.biometric.AuthenticationRequest.Credential.Builder,kotlin.Unit> init);
   }
 
@@ -119,10 +141,18 @@ package androidx.biometric {
   }
 
   public sealed exhaustive interface AuthenticationResult {
+    method public default androidx.biometric.AuthenticationResult.CustomFallbackSelected? customFallbackSelected();
     method public default androidx.biometric.AuthenticationResult.Error? error();
+    method public default boolean isCustomFallbackSelected();
     method public default boolean isError();
     method public default boolean isSuccess();
     method public default androidx.biometric.AuthenticationResult.Success? success();
+  }
+
+  public static final class AuthenticationResult.CustomFallbackSelected implements androidx.biometric.AuthenticationResult {
+    ctor public AuthenticationResult.CustomFallbackSelected(androidx.biometric.AuthenticationRequest.Biometric.Fallback.CustomOption fallback);
+    method @InaccessibleFromKotlin public androidx.biometric.AuthenticationRequest.Biometric.Fallback.CustomOption getFallback();
+    property public androidx.biometric.AuthenticationRequest.Biometric.Fallback.CustomOption fallback;
   }
 
   public static final class AuthenticationResult.Error implements androidx.biometric.AuthenticationResult {

@@ -62,7 +62,7 @@ class ReplaceFileCorruptionHandlerTest {
                     testFile
                 },
                 corruptionHandler = ReplaceFileCorruptionHandler<Byte> { 10 },
-                scope = backgroundScope,
+                context = backgroundScope.coroutineContext,
             )
 
         assertThat(store.data.first()).isEqualTo(10)
@@ -84,7 +84,7 @@ class ReplaceFileCorruptionHandlerTest {
                     testFile
                 },
                 corruptionHandler = ReplaceFileCorruptionHandler<Byte> { 10 },
-                scope = backgroundScope,
+                context = backgroundScope.coroutineContext,
             )
 
         assertThat(store.updateData { it.inc() }).isEqualTo(11)
@@ -106,7 +106,7 @@ class ReplaceFileCorruptionHandlerTest {
                     testFile
                 },
                 corruptionHandler = ReplaceFileCorruptionHandler<Byte> { 10 },
-                scope = backgroundScope,
+                context = backgroundScope.coroutineContext,
             )
 
         val plus1 = async { store.updateData { it.inc() } }
@@ -135,7 +135,7 @@ class ReplaceFileCorruptionHandlerTest {
                     testFile
                 },
                 corruptionHandler = ReplaceFileCorruptionHandler<Byte> { 10 },
-                scope = backgroundScope,
+                context = backgroundScope.coroutineContext,
             )
 
         assertThrows<IOException> { store.data.first() }
@@ -146,7 +146,10 @@ class ReplaceFileCorruptionHandlerTest {
 
     private suspend fun preSeedData(file: File, byte: Byte) {
         runTest {
-            DataStoreImpl(FileStorage(TestingSerializer()) { file }, scope = backgroundScope)
+            DataStoreImpl(
+                    FileStorage(TestingSerializer()) { file },
+                    context = backgroundScope.coroutineContext,
+                )
                 .updateData { byte }
         }
     }

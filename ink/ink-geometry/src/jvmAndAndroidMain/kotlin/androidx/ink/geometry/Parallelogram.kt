@@ -73,15 +73,15 @@ import kotlin.math.abs
  * rotation to the range [0, 360).
  *
  * A [Parallelogram] may also be degenerate; that is, its [width] or [height], or both, may be zero.
- * Degenerate [Parallelogram]s may still have a non-zero [rotation] and/or [skew]. A [Parallelogram]
- * that has both [width] and [height] of zero is effectively a point, and so [rotation] and [skew]
- * do not affect the values of the axes or corners. A [Parallelogram] that has [height] of zero is
- * effectively a horizontal line, and so is unaffected by [skew].
+ * Degenerate [Parallelogram]s may still have a non-zero [rotationDegrees] and/or [skew]. A
+ * [Parallelogram] that has both [width] and [height] of zero is effectively a point, and so
+ * [rotationDegrees] and [skew] do not affect the values of the axes or corners. A [Parallelogram]
+ * that has [height] of zero is effectively a horizontal line, and so is unaffected by [skew].
  *
  * A few geometric objects can be represented as special cases of a [Parallelogram]. A rectangle is
  * a [Parallelogram] with [skew] of zero. (It can be rotated with respect to the axes, and hence
- * might have a non-zero [rotation].) A [Box], an axis-aligned rectangle, is a [Parallelogram] with
- * both [rotation] and [skew] of zero.
+ * might have a non-zero [rotationDegrees].) A [Box], an axis-aligned rectangle, is a
+ * [Parallelogram] with both [rotationDegrees] and [skew] of zero.
  */
 public abstract class Parallelogram internal constructor() {
 
@@ -170,7 +170,7 @@ public abstract class Parallelogram internal constructor() {
      * - (.5 * h * (s * cos(θ) - sin(θ)), .5 * h * (s * sin(θ) + cos(θ)))
      * ```
      *
-     * respectively, where w = [width], h = [height], θ = [rotation], and s = [skew]
+     * respectively, where w = [width], h = [height], θ = [rotationDegrees], and s = [skew]
      *
      * The semi-axes of a parallelogram are two vectors. Each one points from the center to the
      * midpoint of an edge. The first semi-axis points from the center to the midpoint of the edge
@@ -281,7 +281,8 @@ public abstract class Parallelogram internal constructor() {
     /**
      * Compares this [Parallelogram] with [other], and returns true if both [center] points are
      * considered almost equal with the given [tolerance], and the difference between [width] and
-     * `other.width` is less than [tolerance], and likewise for [height], [rotation], and [skew].
+     * `other.width` is less than [tolerance], and likewise for [height], [rotationDegrees], and
+     * [skew].
      */
     public fun isAlmostEqual(
         other: Parallelogram,

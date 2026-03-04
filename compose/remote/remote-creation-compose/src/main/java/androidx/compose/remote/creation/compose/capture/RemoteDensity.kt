@@ -31,7 +31,6 @@ import androidx.compose.remote.creation.compose.state.rf
  * @property density The logical density of the display, used to convert DP to pixels.
  * @property fontScale The current user preference for the scaling factor for fonts.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteDensity(public val density: RemoteFloat, public val fontScale: RemoteFloat) {
     public companion object {
         private const val DEFAULT_FONT_SIZE = 14f
@@ -45,6 +44,7 @@ public class RemoteDensity(public val density: RemoteFloat, public val fontScale
          * @return A [RemoteDensity] instance with the density from the display info and the local
          *   font scale.
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun from(
             creationDisplayInfo: CreationDisplayInfo,
             context: Context? = null,
@@ -57,7 +57,7 @@ public class RemoteDensity(public val density: RemoteFloat, public val fontScale
          * A [RemoteDensity] instance that represents the host's screen density, with font scale
          * derived from the host's system font size and density settings.
          */
-        public val HOST: RemoteDensity
+        public val Host: RemoteDensity
             get() {
                 val density = RemoteFloat(RemoteContext.FLOAT_DENSITY)
                 val fontScale = RemoteFloat(Rc.System.FONT_SIZE) / DEFAULT_FONT_SIZE / density

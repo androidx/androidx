@@ -314,7 +314,8 @@ public object TextConfigurationDefaults {
 public object TextDefaults {
     /**
      * The minimum top content padding for the list when a [Text] is placed at the top. Recommended
-     * for use with [TransformingLazyColumnItemScope]'s [Modifier.minimumVerticalContentPadding],
+     * for use with [androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope]'s
+     * [androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope.minimumVerticalContentPadding],
      * which allows items to choose a preferred content padding for the list.
      * [TransformingLazyColumn] takes its contentPadding as the maximum of the preferred content
      * padding values and its own contentPadding parameter.
@@ -324,10 +325,12 @@ public object TextDefaults {
 
     /**
      * The minimum bottom content padding for the list when a [Text] is placed at the bottom.
-     * Recommended for use with [TransformingLazyColumnItemScope]'s
-     * [Modifier.minimumVerticalContentPadding], which allows items to choose a preferred content
-     * padding for the list. [TransformingLazyColumn] takes its contentPadding as the maximum of the
-     * preferred content padding values and its own contentPadding parameter.
+     * Recommended for use with
+     * [androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope]'s
+     * [androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope.minimumVerticalContentPadding],
+     * which allows items to choose a preferred content padding for the list.
+     * [TransformingLazyColumn] takes its contentPadding as the maximum of the preferred content
+     * padding values and its own contentPadding parameter.
      */
     public val minimumBottomListContentPadding: Dp
         @Composable get() = screenHeightFraction(LARGE_VERTICAL_CONTENT_PADDING_FRACTION)

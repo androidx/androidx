@@ -73,7 +73,7 @@ class ArDeviceTest {
         activityController.create()
 
         session = (Session.create(activity, testDispatcher) as SessionCreateSuccess).session
-        session.configure(Config(deviceTracking = DeviceTrackingMode.LAST_KNOWN))
+        session.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN))
         xrResourcesManager.lifecycleManager = session.perceptionRuntime.lifecycleManager
     }
 

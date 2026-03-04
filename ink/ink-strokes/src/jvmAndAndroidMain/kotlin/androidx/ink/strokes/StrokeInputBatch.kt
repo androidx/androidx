@@ -25,11 +25,11 @@ import androidx.ink.nativeloader.UsedByNative
 /**
  * A read-only view of an object that stores multiple [StrokeInput] values together in a more
  * memory-efficient manner than just `List<StrokeInput>`. The input points in this batch are
- * guaranteed to be consistent with one another – for example, they all have the same [toolType] and
- * the same set of optional fields like pressure/tilt/orientation, and their timestamps are all
- * monotonically non-decreasing. This can be an [ImmutableStrokeInputBatch] for data that cannot
- * change, and a [MutableStrokeInputBatch] for data that is meant to be modified or incrementally
- * built.
+ * guaranteed to be consistent with one another – for example, they all have the same
+ * [StrokeInput.toolType] and the same set of optional fields like pressure/tilt/orientation, and
+ * their timestamps are all monotonically non-decreasing. This can be an [ImmutableStrokeInputBatch]
+ * for data that cannot change, or a [MutableStrokeInputBatch] for data that is meant to be modified
+ * or incrementally built.
  */
 @Suppress("NotCloseable") // Finalize is only used to free the native peer.
 public abstract class StrokeInputBatch internal constructor(nativePointer: Long) {
@@ -66,7 +66,7 @@ public abstract class StrokeInputBatch internal constructor(nativePointer: Long)
         StrokeInputBatchNative.getStrokeUnitLengthCm(nativePointer)
 
     /**
-     * Whether [strokeUnitLengthCm] has a valid value, which is something other than
+     * Whether [StrokeInput.strokeUnitLengthCm] has a valid value, which is something other than
      * [StrokeInput.NO_STROKE_UNIT_LENGTH].
      */
     public fun hasStrokeUnitLength(): Boolean =
@@ -168,11 +168,12 @@ public class ImmutableStrokeInputBatch private constructor(nativePointer: Long) 
  * means:
  * 1) All floating point values are required to be finite and the format of all inputs must be
  *    consistent. This means all inputs must have the same set of optional member variables that
- *    hold a value. For example, every input holds a [pressure] value if-and-only-if every other
- *    input holds a [pressure] value. This is also true for [tiltRadians] and [orientationRadians].
+ *    hold a value. For example, every input holds a [StrokeInput.pressure] value if-and-only-if
+ *    every other input holds a [StrokeInput.pressure] value. This is also true for
+ *    [StrokeInput.tiltRadians] and [StrokeInput.orientationRadians].
  * 2) The sequence of [StrokeInput] values must not contain repeated x-y-t triplets, and the time
  *    values must be non-negative and non-decreasing.
- * 3) Values of [strokeUnitLengthCm] must be finite and positive, or be
+ * 3) Values of [StrokeInput.strokeUnitLengthCm] must be finite and positive, or be
  *    [StrokeInput.NO_STROKE_UNIT_LENGTH].
  * 4) Values of [StrokeInput.pressure] must fall within the range of [0, 1] or be
  *    [StrokeInput.NO_PRESSURE]
@@ -180,7 +181,8 @@ public class ImmutableStrokeInputBatch private constructor(nativePointer: Long) 
  *    [StrokeInput.NO_TILT].
  * 6) Values of [StrokeInput.orientationRadians] must fall within the range of
  *    [0, 2π) or be [StrokeInput.NO_ORIENTATION].
- * 7) The [toolType] and [strokeUnitLengthCm] values must be the same across all inputs.
+ * 7) The [StrokeInput.toolType] and [StrokeInput.strokeUnitLengthCm] values must be the same across
+ *    all inputs.
  */
 public class MutableStrokeInputBatch : StrokeInputBatch(StrokeInputBatchNative.create()) {
 

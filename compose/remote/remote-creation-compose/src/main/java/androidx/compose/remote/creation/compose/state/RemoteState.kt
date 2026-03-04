@@ -68,6 +68,23 @@ public interface RemoteState<T> {
      */
     public open class Domain internal constructor(internal val coreDomain: String?) {
         /**
+         * A string representation of the domain followed by a colon separator, or an empty string
+         * if the domain is null. This is used to namespace named remote states.
+         */
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public val prefix: String
+            get() = if (coreDomain != null) "$coreDomain:" else ""
+
+        /**
+         * Returns the given [name] prefixed with this domain and a colon, or just [name] if the
+         * [coreDomain] is null.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun prefixed(name: String): String {
+            return "$prefix$name"
+        }
+
+        /**
          * The default user-defined domain.
          *
          * Recommended for application-specific state.
@@ -92,7 +109,14 @@ public interface RemoteState<T> {
 }
 
 /** Common base interface for all Remote types. */
-public abstract class BaseRemoteState<T> internal constructor() : RemoteState<T> {
+public abstract class BaseRemoteState<T : Any> internal constructor() : RemoteState<T> {
+    /**
+     * A unique key used for caching the remote representation (e.g., expression or ID) of this
+     * state.
+     */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    internal abstract val cacheKey: RemoteStateCacheKey
+
     /** The constant value or null if there isn't one. */
     public abstract override val constantValueOrNull: T?
 
@@ -104,7 +128,7 @@ public abstract class BaseRemoteState<T> internal constructor() : RemoteState<T>
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open fun getIdForCreationState(creationState: RemoteComposeCreationState): Int {
-        return creationState.remoteVariableToId.getOrPut(this) { writeToDocument(creationState) }
+        return creationState.getOrPutVariableId(cacheKey) { writeToDocument(creationState) }
     }
 
     /**
@@ -171,7 +195,14 @@ internal inline fun <reified T : RemoteState<*>> rememberNamedState(
     return LocalRemoteComposeCreationState.current.getOrCreateNamedState(
         T::class.java,
         name,
-        domain.coreDomain,
+        domain,
         function,
     )
 }
+
+/** The cache key for this remote state within the RemoteComposeCreationState. */
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+internal val RemoteState<*>.cacheKey: RemoteStateCacheKey
+    get() =
+        if (this is BaseRemoteState<*>) cacheKey
+        else throw IllegalArgumentException("Not a BaseRemoteState")

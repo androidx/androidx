@@ -75,21 +75,22 @@ class PointerCaptureComponentTest {
 
     @Test
     fun addComponent_addsRuntimeComponent() {
-        val entity = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
+        val rtEntity = (entity as BaseEntity<*>).rtEntity
         assertThat(entity).isNotNull()
 
         val pointerCaptureComponent =
             PointerCaptureComponent.create(session, directExecutor(), stateListener, inputListener)
 
         assertThat(entity.addComponent(pointerCaptureComponent)).isTrue()
-        assertThat(entity.rtEntity?.getComponents()).hasSize(1)
-        assertThat(entity.rtEntity?.getComponents()[0])
+        assertThat(rtEntity?.getComponents()).hasSize(1)
+        assertThat(rtEntity?.getComponents()[0])
             .isInstanceOf(FakePointerCaptureComponent::class.java)
     }
 
     @Test
     fun addComponent_failsIfAlreadyAttached() {
-        val entity = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
         assertThat(entity).isNotNull()
 
         val pointerCaptureComponent =
@@ -100,18 +101,18 @@ class PointerCaptureComponentTest {
 
     @Test
     fun stateListener_propagatesCorrectlyFromRuntime() {
-        val entity = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
+        val rtEntity = (entity as BaseEntity<*>).rtEntity
         val pointerCaptureComponent =
             PointerCaptureComponent.create(session, directExecutor(), stateListener, inputListener)
 
         assertThat(entity.addComponent(pointerCaptureComponent)).isTrue()
-        assertThat(entity.rtEntity?.getComponents()).hasSize(1)
-        assertThat(entity.rtEntity?.getComponents()[0])
+        assertThat(rtEntity?.getComponents()).hasSize(1)
+        assertThat(rtEntity?.getComponents()[0])
             .isInstanceOf(FakePointerCaptureComponent::class.java)
 
         // Verify all states are properly converted and propagated.
-        val stateListenerCaptured =
-            entity.rtEntity?.getComponents()[0] as FakePointerCaptureComponent
+        val stateListenerCaptured = rtEntity?.getComponents()[0] as FakePointerCaptureComponent
         stateListenerCaptured.onStateChanged(
             RtPointerCaptureComponent.PointerCaptureState.POINTER_CAPTURE_STATE_ACTIVE
         )
@@ -133,13 +134,14 @@ class PointerCaptureComponentTest {
 
     @Test
     fun inputEventListener_propagatesFromRuntime() {
-        val entity = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
+        val rtEntity = (entity as BaseEntity<*>).rtEntity
         val pointerCaptureComponent =
             PointerCaptureComponent.create(session, directExecutor(), stateListener, inputListener)
 
         assertThat(entity.addComponent(pointerCaptureComponent)).isTrue()
-        assertThat(entity.rtEntity?.getComponents()).hasSize(1)
-        assertThat(entity.rtEntity?.getComponents()[0])
+        assertThat(rtEntity?.getComponents()).hasSize(1)
+        assertThat(rtEntity?.getComponents()[0])
             .isInstanceOf(FakePointerCaptureComponent::class.java)
 
         val inputEvent =
@@ -175,17 +177,18 @@ class PointerCaptureComponentTest {
 
     @Test
     fun removeComponent_removesRuntimeComponent() {
-        val entity = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
+        val rtEntity = (entity as BaseEntity<*>).rtEntity
         assertThat(entity).isNotNull()
 
         val pointerCaptureComponent =
             PointerCaptureComponent.create(session, directExecutor(), stateListener, inputListener)
         assertThat(entity.addComponent(pointerCaptureComponent)).isTrue()
-        assertThat(entity.rtEntity?.getComponents()).hasSize(1)
-        assertThat(entity.rtEntity?.getComponents()[0])
+        assertThat(rtEntity?.getComponents()).hasSize(1)
+        assertThat(rtEntity?.getComponents()[0])
             .isInstanceOf(FakePointerCaptureComponent::class.java)
 
         entity.removeComponent(pointerCaptureComponent)
-        assertThat(entity.rtEntity?.getComponents()).hasSize(0)
+        assertThat(rtEntity?.getComponents()).hasSize(0)
     }
 }

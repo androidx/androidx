@@ -92,8 +92,8 @@ import kotlinx.coroutines.flow.flowOn
  * @param contentPadding The spacing values between the container and the content.
  * @param content The content of the [TimeText] - displays the current time by default. This lambda
  *   receives the current time as a String and should display it using curvedText. Note that if long
- *   curved text is included here, it should specify [CurvedModifier.weight] on it so that the space
- *   available is suitably allocated.
+ *   curved text is included here, it should specify [androidx.wear.compose.foundation.weight] on it
+ *   so that the space available is suitably allocated.
  */
 @Composable
 public fun TimeText(

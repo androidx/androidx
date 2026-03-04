@@ -41,7 +41,7 @@ import androidx.xr.arcore.apps.whitebox.mobile.anchorsplaneshittest.AnchorsPlane
 import androidx.xr.arcore.apps.whitebox.mobile.depthmaps.DepthMapsActivity
 import androidx.xr.arcore.apps.whitebox.mobile.facemeshing.FaceMeshActivity
 import androidx.xr.arcore.apps.whitebox.mobile.geospatial.GeospatialActivity
-import androidx.xr.runtime.Log
+import androidx.xr.runtime.XrLog
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -51,8 +51,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        Log.enabled = true
-        Log.level = Log.Level.VERBOSE
+        XrLog.isEnabled = true
+        XrLog.level = XrLog.Level.VERBOSE
 
         setContent { WhiteboxHomeScreen() }
     }

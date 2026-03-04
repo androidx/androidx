@@ -266,7 +266,7 @@ public final class CameraSelector {
      * @throws IllegalArgumentException if no identifiers are provided.
      */
     @NonNull
-    public static CameraSelector of(@NonNull CameraIdentifier... cameraIdentifiers) {
+    public static CameraSelector of(@NonNull CameraIdentifier @NonNull ... cameraIdentifiers) {
         if (cameraIdentifiers == null || cameraIdentifiers.length == 0) {
             throw new IllegalArgumentException("At least one CameraIdentifier must be provided.");
         }

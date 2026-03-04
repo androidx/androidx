@@ -19,14 +19,14 @@ package androidx.room3
 import kotlin.reflect.KClass
 
 /**
- * Marks a method in a [Dao] annotated class as a raw query method where you can pass the query as a
- * [androidx.room3.RoomRawQuery] or [androidx.sqlite.db.SupportSQLiteQuery].
+ * Marks a function in a [Dao] annotated class as a raw query function where the query is pass as a
+ * parameter of types [androidx.room3.RoomRawQuery] or [androidx.sqlite.db.SupportSQLiteQuery].
  *
  * ```
  * @Dao
  * interface RawDao {
  *     @RawQuery
- *     fun getSongViaQuery(query: RoomRawQuery): Song
+ *     suspend fun getSongViaQuery(query: RoomRawQuery): Song
  * }
  *
  * // Usage of RawDao
@@ -48,16 +48,27 @@ import kotlin.reflect.KClass
  * On the other hand, `@RawQuery` serves as an escape hatch where you can build your own SQL query
  * at runtime but still use Room to convert it into objects.
  *
- * `@RawQuery` methods must return a non-void type. If you want to execute a raw query that does not
- * return any value, use [androidx.room3.RoomDatabase.query] methods.
+ * `@RawQuery` functions must return a value and their return type should be a non-void / non-[Unit]
+ * type.
  *
- * `@RawQuery` methods can only be used for read queries. For write queries, use
- * [androidx.room3.RoomDatabase.openHelper].
+ * `@RawQuery` functions can only be used for read queries, using a write query will lead to
+ * undefined behavior. For write queries, use [androidx.room3.RoomDatabase.useWriterConnection]:
+ * ```
+ * suspend fun executeRawQuery(query: RoomRawQuery) {
+ *     db.useWriterConnection { connection ->
+ *         connection.usePrepared(query.sql) { statement ->
+ *             query.getBindingFunction().invoke(statement)
+ *             statement.step()
+ *         }
+ *     }
+ * }
+ * ```
  *
  * **Observable Queries:**
  *
- * `@RawQuery` methods can return observable types but you need to specify which tables are accessed
- * in the query using the [observedEntities] field in the annotation.
+ * `@RawQuery` functions can return observable types such as [kotlinx.coroutines.flow.Flow] but you
+ * need to specify which tables are accessed in the query using the [observedEntities] annotation
+ * value.
  *
  * ```
  * @Dao
@@ -72,9 +83,9 @@ import kotlin.reflect.KClass
  * )
  * ```
  *
- * **Returning POJOs:**
+ * **Returning Data Objects:**
  *
- * `@RawQuery` can also return plain old java objects, similar to [Query] methods.
+ * `@RawQuery` can also return data objects, similar to [Query] methods.
  *
  * ```
  * data class NameAndReleaseYear (
@@ -86,7 +97,7 @@ import kotlin.reflect.KClass
  * @Dao
  * interface RawDao {
  *     @RawQuery
- *     fun getNameAndReleaseYear(query: RoomRawQuery): NameAndReleaseYear
+ *     suspend fun getNameAndReleaseYear(query: RoomRawQuery): NameAndReleaseYear
  * }
  *
  * // Usage of RawDao
@@ -98,9 +109,9 @@ import kotlin.reflect.KClass
  * )
  * ```
  *
- * **POJOs with Embedded Fields:**
+ * **Data Objects with Embedded Properties:**
  *
- * `@RawQuery` methods can return POJOs that include [Embedded] fields as well.
+ * `@RawQuery` methods can return data objects that include [Embedded] properties as well.
  *
  * ```
  * data class SongAndArtist (
@@ -113,7 +124,7 @@ import kotlin.reflect.KClass
  * @Dao
  * interface RawDao {
  *     @RawQuery
- *     fun getSongAndArtist(query: RoomRawQuery): SongAndArtist
+ *     suspend fun getSongAndArtist(query: RoomRawQuery): SongAndArtist
  * }
  *
  * // Usage of RawDao
@@ -137,7 +148,7 @@ import kotlin.reflect.KClass
  * @Dao
  * interface RawDao {
  *     @RawQuery
- *     fun getAlbumAndSongs(query: RoomRawQuery): List<AlbumAndSongs>
+ *     suspend fun getAlbumAndSongs(query: RoomRawQuery): List<AlbumAndSongs>
  * }
  *
  * // Usage of RawDao
@@ -153,16 +164,16 @@ public annotation class RawQuery(
      * Denotes the list of entities which are accessed in the provided query and should be observed
      * for invalidation if the query is observable.
      *
-     * The listed classes should either be annotated with [Entity] or they should reference to at
-     * least 1 [Entity] (via [Embedded] or [Relation]).
+     * The listed classes should either be annotated with [Entity] or they should reference at least
+     * one [Entity] (via [Embedded] or [Relation]).
      *
-     * Providing this field in a non-observable query has no impact.
+     * Providing this value in a non-observable query has no impact.
      *
      * ```
      * @Dao
      * interface RawDao {
-     *   @RawQuery(observedEntities = Song::class)
-     *   fun getSongs(query: RoomRawQuery): Flow<List<Song>>
+     *     @RawQuery(observedEntities = Song::class)
+     *     suspend fun getSongs(query: RoomRawQuery): Flow<List<Song>>
      * }
      * val liveSongs: = rawDao.getSongs(
      *     RoomRawQuery("SELECT * FROM song ORDER BY name DESC")

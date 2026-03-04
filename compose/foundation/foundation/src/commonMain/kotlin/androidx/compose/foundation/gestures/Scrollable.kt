@@ -1048,7 +1048,7 @@ private val FlingBehavior.shouldBeTriggeredByMouseWheel
  * This method returns [ScrollableDefaultFlingBehavior] whose density will be managed by the
  * [ScrollableElement] because it's not created inside [Composable] context. This is different from
  * [rememberPlatformDefaultFlingBehavior] which creates [FlingBehavior] whose density depends on
- * [LocalDensity] and is automatically resolved.
+ * [androidx.compose.ui.platform.LocalDensity] and is automatically resolved.
  */
 internal expect fun platformScrollableDefaultFlingBehavior(): ScrollableDefaultFlingBehavior
 

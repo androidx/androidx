@@ -16,41 +16,42 @@
 
 package androidx.xr.runtime
 
-/** Result of a [Geospatial.checkVpsAvailability] call. */
+/** Result of a [androidx.xr.arcore.Geospatial.checkVpsAvailability] call. */
 public sealed class VpsAvailabilityResult
 
 /**
- * Result of a successful [Geospatial.checkVpsAvailability] call. VPS is available at the requested
- * location.
+ * Result of a successful [androidx.xr.arcore.Geospatial.checkVpsAvailability] call. VPS is
+ * available at the requested location.
  */
 public class VpsAvailabilityAvailable() : VpsAvailabilityResult()
 
 /**
- * Result of an unsuccessful [Geospatial.checkVpsAvailability] call. An internal error occurred
- * while determining availability. The app should not attempt to recover from this error. Please see
- * the Android logs for additional information.
+ * Result of an unsuccessful [androidx.xr.arcore.Geospatial.checkVpsAvailability] call. An internal
+ * error occurred while determining availability. The app should not attempt to recover from this
+ * error. Please see the Android logs for additional information.
  */
 public class VpsAvailabilityErrorInternal() : VpsAvailabilityResult()
 
 /**
- * Result of an unsuccessful [Geospatial.checkVpsAvailability] call. The external service could not
- * be reached due to a network connection error.
+ * Result of an unsuccessful [androidx.xr.arcore.Geospatial.checkVpsAvailability] call. The external
+ * service could not be reached due to a network connection error.
  */
 public class VpsAvailabilityNetworkError() : VpsAvailabilityResult()
 
 /**
- * Result of an unsuccessful [Geospatial.checkVpsAvailability] call. An authorization error occurred
- * when communicating with the Google Cloud ARCore API.
+ * Result of an unsuccessful [androidx.xr.arcore.Geospatial.checkVpsAvailability] call. An
+ * authorization error occurred when communicating with the Google Cloud ARCore API.
  */
 public class VpsAvailabilityNotAuthorized() : VpsAvailabilityResult()
 
 /**
- * Result of an unsuccessful [Geospatial.checkVpsAvailability] call. Too many requests were sent.
+ * Result of an unsuccessful [androidx.xr.arcore.Geospatial.checkVpsAvailability] call. Too many
+ * requests were sent.
  */
 public class VpsAvailabilityResourceExhausted() : VpsAvailabilityResult()
 
 /**
- * Result of a successful [Geospatial.checkVpsAvailability] call. VPS is not available at the
- * requested location.
+ * Result of a successful [androidx.xr.arcore.Geospatial.checkVpsAvailability] call. VPS is not
+ * available at the requested location.
  */
 public class VpsAvailabilityUnavailable() : VpsAvailabilityResult()

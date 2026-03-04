@@ -2310,6 +2310,8 @@ final object androidx.compose.material3.pulltorefresh/PullToRefreshDefaults { //
 }
 
 final object androidx.compose.material3/AlertDialogDefaults { // androidx.compose.material3/AlertDialogDefaults|null[0]
+    final val IconSize // androidx.compose.material3/AlertDialogDefaults.IconSize|{}IconSize[0]
+        final fun <get-IconSize>(): androidx.compose.ui.unit/Dp // androidx.compose.material3/AlertDialogDefaults.IconSize.<get-IconSize>|<get-IconSize>(){}[0]
     final val TonalElevation // androidx.compose.material3/AlertDialogDefaults.TonalElevation|{}TonalElevation[0]
         final fun <get-TonalElevation>(): androidx.compose.ui.unit/Dp // androidx.compose.material3/AlertDialogDefaults.TonalElevation.<get-TonalElevation>|<get-TonalElevation>(){}[0]
     final val containerColor // androidx.compose.material3/AlertDialogDefaults.containerColor|{}containerColor[0]

@@ -160,14 +160,15 @@ public class Rgb
  * @param min The minimum valid value in this color space's RGB range
  * @param max The maximum valid value in this color space's RGB range
  * @param transferParameters Parameters for the transfer functions
- * @param id ID of this color space as an integer between [ColorSpace.MinId] and [ColorSpace.MaxId]
+ * @param id ID of this color space as an integer between [ColorSpace.MIN_ID] and
+ *   [ColorSpace.MAX_ID]
  * @throws IllegalArgumentException If any of the following conditions is met:
  *     * The name is null or has a length of 0.
  *     * The primaries array is null or has a length that is neither 6 or 9.
  *     * The white point array is null or has a length that is neither 2 or 3.
  *     * The OETF is null or the EOTF is null.
  *     * The minimum valid value is >= the maximum valid value.
- *     * The ID is not between [ColorSpace.MinId] and [ColorSpace.MaxId].
+ *     * The ID is not between [ColorSpace.MIN_ID] and [ColorSpace.MAX_ID].
  */
 public constructor(
     name: String,
@@ -472,13 +473,13 @@ public constructor(
      * @param primaries RGB primaries as an array of 6 (xy) or 9 (XYZ) floats
      * @param whitePoint Reference white as an array of 2 (xy) or 3 (XYZ) floats
      * @param function Parameters for the transfer functions
-     * @param id ID of this color space as an integer between [ColorSpace.MinId] and
-     *   [ColorSpace.MaxId]
+     * @param id ID of this color space as an integer between [ColorSpace.MIN_ID] and
+     *   [ColorSpace.MAX_ID]
      * @throws IllegalArgumentException If any of the following conditions is met:
      *     * The name is null or has a length of 0.
      *     * The primaries array is null or has a length that is neither 6 or 9.
      *     * The white point array is null or has a length that is neither 2 or 3.
-     *     * The ID is not between [ColorSpace.MinId] and [ColorSpace.MaxId].
+     *     * The ID is not between [ColorSpace.MIN_ID] and [ColorSpace.MAX_ID].
      *     * The transfer parameters are invalid.
      *
      * @see get
@@ -579,14 +580,14 @@ public constructor(
      * @param gamma Gamma to use as the transfer function
      * @param min The minimum valid value in this color space's RGB range
      * @param max The maximum valid value in this color space's RGB range
-     * @param id ID of this color space as an integer between [ColorSpace.MinId] and
-     *   [ColorSpace.MaxId]
+     * @param id ID of this color space as an integer between [ColorSpace.MIN_ID] and
+     *   [ColorSpace.MAX_ID]
      * @throws IllegalArgumentException If any of the following conditions is met:
      *     * The name is null or has a length of 0.
      *     * The primaries array is null or has a length that is neither 6 or 9.
      *     * The white point array is null or has a length that is neither 2 or 3.
      *     * The minimum valid value is >= the maximum valid value.
-     *     * The ID is not between [ColorSpace.MinId] and [ColorSpace.MaxId].
+     *     * The ID is not between [ColorSpace.MIN_ID] and [ColorSpace.MAX_ID].
      *     * Gamma is negative.
      *
      * @see get

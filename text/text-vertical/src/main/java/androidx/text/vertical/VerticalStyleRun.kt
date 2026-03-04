@@ -16,8 +16,11 @@
 
 package androidx.text.vertical
 
+import android.graphics.Canvas
+import android.graphics.Paint
 import android.text.TextPaint
 import android.text.style.MetricAffectingSpan
+import android.text.style.ReplacementSpan
 import androidx.annotation.IntDef
 import androidx.text.vertical.FontShearSpan.Companion.DEFAULT_FONT_SHEAR
 
@@ -78,7 +81,15 @@ public class EmphasisSpan(
     @EmphasisStyleType public val style: Int = DEFAULT_EMPHASIS_STYLE,
     public val isFilled: Boolean = DEFAULT_EMPHASIS_FILL,
     public val scale: Float = DEFAULT_SCALE,
-) : MetricAffectingSpan() {
+) : ReplacementSpan() {
+    private val impl by lazy {
+        HorizontalSpanImpl(
+            { paint, text, start, end -> LayoutKey(start, end, text) },
+            { paint, text, start, end ->
+                HorizontalEmphasisSpanLayout(text, start, end, letter, paint, scale)
+            },
+        )
+    }
 
     internal val letter =
         when (style) {
@@ -89,10 +100,6 @@ public class EmphasisSpan(
             STYLE_SESAME -> if (isFilled) "\uFE45" else "\uFE46"
             else -> throw RuntimeException("Unknown emphasis style: $style")
         }
-
-    override fun updateMeasureState(p0: TextPaint) {}
-
-    override fun updateDrawState(p0: TextPaint?) {}
 
     public companion object {
         /** Emphasis mark is a small circle. The filled dot is U+2022, open dot is U+25E6. */
@@ -118,5 +125,27 @@ public class EmphasisSpan(
         public const val DEFAULT_EMPHASIS_STYLE: Int = STYLE_DOT
         /** The default value for whether the emphasis mark should be filled. */
         public const val DEFAULT_EMPHASIS_FILL: Boolean = true
+    }
+
+    override fun getSize(
+        paint: Paint,
+        text: CharSequence?,
+        start: Int,
+        end: Int,
+        fm: Paint.FontMetricsInt?,
+    ): Int = impl.getSize(paint, text, start, end, fm)
+
+    override fun draw(
+        canvas: Canvas,
+        text: CharSequence?,
+        start: Int,
+        end: Int,
+        x: Float,
+        top: Int,
+        y: Int,
+        bottom: Int,
+        paint: Paint,
+    ) {
+        impl.draw(canvas, text, start, end, x, top, y, bottom, paint)
     }
 }

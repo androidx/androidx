@@ -25,7 +25,7 @@ import androidx.collection.MutableObjectIntMap
 import androidx.collection.mutableIntListOf
 import androidx.collection.mutableIntObjectMapOf
 import androidx.collection.mutableObjectIntMapOf
-import androidx.xr.runtime.Log
+import androidx.xr.runtime.XrLog
 import java.io.Closeable
 import java.io.InputStream
 import java.io.InputStreamReader
@@ -99,7 +99,7 @@ public class Shader(
             if (linkStatus[0] == GLES30.GL_FALSE) {
                 val infoLog: String = GLES30.glGetProgramInfoLog(programId)
                 maybeLogGLError(
-                    Log.Level.WARN,
+                    XrLog.Level.WARN,
                     "Failed to retrieve shader program info log",
                     "glGetProgramInfoLog",
                 )
@@ -112,11 +112,15 @@ public class Shader(
             // Shader objects can be flagged for deletion immediately after program creation.
             if (vertexShaderId != 0) {
                 GLES30.glDeleteShader(vertexShaderId)
-                maybeLogGLError(Log.Level.WARN, "Failed to free vertex shader", "glDeleteShader")
+                maybeLogGLError(XrLog.Level.WARN, "Failed to free vertex shader", "glDeleteShader")
             }
             if (fragmentShaderId != 0) {
                 GLES30.glDeleteShader(fragmentShaderId)
-                maybeLogGLError(Log.Level.WARN, "Failed to free fragment shader", "glDeleteShader")
+                maybeLogGLError(
+                    XrLog.Level.WARN,
+                    "Failed to free fragment shader",
+                    "glDeleteShader",
+                )
             }
         }
     }
@@ -438,7 +442,7 @@ public class Shader(
             obsoleteEntries.forEach { obsoleteEntry -> uniforms.remove(obsoleteEntry) }
         } finally {
             GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
-            maybeLogGLError(Log.Level.WARN, "Failed to set active texture", "glActiveTexture")
+            maybeLogGLError(XrLog.Level.WARN, "Failed to set active texture", "glActiveTexture")
         }
     }
 
@@ -607,12 +611,12 @@ public class Shader(
             if (compileStatus[0] == GLES30.GL_FALSE) {
                 val infoLog: String = GLES30.glGetShaderInfoLog(shaderId)
                 maybeLogGLError(
-                    Log.Level.WARN,
+                    XrLog.Level.WARN,
                     "Failed to retrieve shader info log",
                     "glGetShaderInfoLog",
                 )
                 GLES30.glDeleteShader(shaderId)
-                maybeLogGLError(Log.Level.WARN, "Failed to free shader", "glDeleteShader")
+                maybeLogGLError(XrLog.Level.WARN, "Failed to free shader", "glDeleteShader")
                 throw GLException(0, "Shader compilation failed: " + infoLog)
             }
 

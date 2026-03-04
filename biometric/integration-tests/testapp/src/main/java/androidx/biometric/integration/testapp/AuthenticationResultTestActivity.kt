@@ -54,6 +54,9 @@ class AuthenticationResultTestActivity : FragmentActivity() {
     private val secondAuthResultLauncher = getAuthResultLauncher(2)
     private val thirdAuthResultLauncher = getAuthResultLauncher(3)
 
+    private val fallbackOptionText1 = "Reset Button 1"
+    private val fallbackOptionText2 = "Account Button 2"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = AuthenticationResultTestActivityBinding.inflate(layoutInflater)
@@ -122,15 +125,30 @@ class AuthenticationResultTestActivity : FragmentActivity() {
                     null
                 }
             } else {
-                biometricRequest(
-                    title = title,
-                    authFallback =
-                        if (binding.credentialFallback.isChecked) {
-                            Biometric.Fallback.DeviceCredential
-                        } else {
-                            Biometric.Fallback.NegativeButton("Cancel button")
-                        },
-                ) {
+                val authFallbacks: Array<Biometric.Fallback> =
+                    when {
+                        binding.credentialFallback.isChecked -> {
+                            arrayOf(Biometric.Fallback.DeviceCredential)
+                        }
+                        binding.negativeButtonFallback.isChecked -> {
+                            arrayOf(Biometric.Fallback.CustomOption(fallbackOptionText1))
+                        }
+                        binding.multipleFallbackOptions.isChecked -> {
+                            arrayOf(
+                                Biometric.Fallback.CustomOption(
+                                    fallbackOptionText1,
+                                    Biometric.Fallback.ICON_TYPE_PASSWORD,
+                                ),
+                                Biometric.Fallback.CustomOption(
+                                    fallbackOptionText2,
+                                    Biometric.Fallback.ICON_TYPE_GENERIC,
+                                ),
+                                Biometric.Fallback.DeviceCredential,
+                            )
+                        }
+                        else -> emptyArray()
+                    }
+                biometricRequest(title, *authFallbacks) {
                     setSubtitle(subtitle)
                     setContent(bodyContent)
                     setMinStrength(
@@ -146,12 +164,10 @@ class AuthenticationResultTestActivity : FragmentActivity() {
 
         try {
             authRequest?.let {
-                if (buttonNumber == 1) {
-                    authResultLauncher.launch(it)
-                } else if (buttonNumber == 2) {
-                    secondAuthResultLauncher.launch(it)
-                } else if (buttonNumber == 3) {
-                    thirdAuthResultLauncher.launch(it)
+                when (buttonNumber) {
+                    1 -> authResultLauncher.launch(it)
+                    2 -> secondAuthResultLauncher.launch(it)
+                    3 -> thirdAuthResultLauncher.launch(it)
                 }
             }
         } catch (e: Exception) {
@@ -255,29 +271,41 @@ class AuthenticationResultTestActivity : FragmentActivity() {
                 override fun onAuthResult(result: AuthenticationResult) {
                     when (result) {
                         is AuthenticationResult.Success -> {
-                            onAuthenticationSucceeded(result)
-                            log("button$id")
+                            onAuthenticationSucceeded(id, result)
                         }
                         is AuthenticationResult.Error -> {
-                            onAuthenticationError(result)
-                            log("button$id")
+                            onAuthenticationError(id, result)
+                        }
+
+                        is AuthenticationResult.CustomFallbackSelected -> {
+                            onFallbackOptionSelected(id, result.fallback)
                         }
                     }
                 }
 
                 override fun onAuthAttemptFailed() {
-                    onAuthenticationFailed()
-                    log("button$id")
+                    onAuthenticationFailed(id)
                 }
             }
         )
 
-    private fun onAuthenticationError(result: AuthenticationResult.Error) {
-        log("onAuthenticationError " + result.errorCode + " " + result.errString)
+    private fun onAuthenticationError(id: Int, result: AuthenticationResult.Error) {
+        log("button$id - authentication error: " + result.errorCode + " " + result.errString)
     }
 
-    private fun onAuthenticationSucceeded(result: AuthenticationResult.Success) {
-        log("onAuthenticationSucceeded with type " + result.authType)
+    private fun onFallbackOptionSelected(
+        id: Int,
+        fallback: AuthenticationRequest.Biometric.Fallback.CustomOption,
+    ) {
+        if (fallback.text == fallbackOptionText1) {
+            log("button$id - authentication fallback option: $fallbackOptionText1 resetting...")
+        } else if (fallback.text == fallbackOptionText2) {
+            log("button$id - authentication fallback option: $fallbackOptionText2 account...")
+        }
+    }
+
+    private fun onAuthenticationSucceeded(id: Int, result: AuthenticationResult.Success) {
+        log("button$id - authentication success with type " + result.authType)
         // Encrypt a test payload using the result of crypto-based auth.
         if (binding.common.useCryptoAuthCheckbox.isChecked) {
             val encryptedPayload =
@@ -286,8 +314,8 @@ class AuthenticationResultTestActivity : FragmentActivity() {
         }
     }
 
-    private fun onAuthenticationFailed() {
-        log("onAuthenticationFailed, try again")
+    private fun onAuthenticationFailed(id: Int) {
+        log("button$id - onAuthenticationFailed, try again")
     }
 
     /** Returns a new crypto object for authentication or `null`, based on the selected options. */

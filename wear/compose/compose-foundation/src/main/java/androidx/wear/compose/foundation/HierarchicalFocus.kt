@@ -84,8 +84,9 @@ public fun Modifier.hierarchicalFocusGroup(active: Boolean): Modifier {
 /**
  * This Modifier is used in conjunction with [hierarchicalFocusGroup] and will request focus on the
  * following focusable element when needed (i.e. this needs to be before that element in the
- * Modifier chain). The focusable element is usually a [Modifier.rotaryScrollable] (or, in some
- * rarer cases a [Modifier.focusable] or [Modifier.focusTarget])
+ * Modifier chain). The focusable element is usually a
+ * [androidx.wear.compose.foundation.rotary.rotaryScrollable] (or, in some rarer cases a
+ * [androidx.compose.foundation.focusable] or [androidx.compose.ui.focus.focusTarget])
  *
  * Multiple [requestFocusOnHierarchyActive] Modifiers shouldn't be siblings, in those cases they
  * need to surround each with a [hierarchicalFocusGroup], and at most one of them should have active

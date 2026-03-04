@@ -17,7 +17,7 @@
 package androidx.xr.arcore.apps.whitebox.mobile.samplerender
 
 import android.opengl.GLES30
-import androidx.xr.runtime.Log
+import androidx.xr.runtime.XrLog
 import java.nio.Buffer
 
 internal class GpuBuffer(
@@ -119,7 +119,7 @@ internal class GpuBuffer(
     fun free() {
         if (bufferId[0] != 0) {
             GLES30.glDeleteBuffers(1, bufferId, 0)
-            maybeLogGLError(Log.Level.WARN, "Failed to free buffer object", "glDeleteBuffers")
+            maybeLogGLError(XrLog.Level.WARN, "Failed to free buffer object", "glDeleteBuffers")
             bufferId[0] = 0
         }
     }

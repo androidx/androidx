@@ -294,10 +294,10 @@ public class EmbeddingBounds(
              *   picture-in-picture mode)
              * - The device has a hinge or separating fold reported by [FoldingFeature.isSeparating]
              * - The hinge or separating fold orientation matches [EmbeddingBounds.alignment]:
-             *     - The hinge or fold orientation is vertical, and the position is [POSITION_LEFT]
-             *       or [POSITION_RIGHT]
-             *     - The hinge or fold orientation is horizontal, and the position is [POSITION_TOP]
-             *       or [POSITION_BOTTOM]
+             *     - The hinge or fold orientation is vertical, and the position is [ALIGN_LEFT] or
+             *       [ALIGN_RIGHT]
+             *     - The hinge or fold orientation is horizontal, and the position is [ALIGN_TOP] or
+             *       [ALIGN_BOTTOM]
              */
             @JvmField public val DIMENSION_HINGE: Dimension = object : Dimension("hinge") {}
 

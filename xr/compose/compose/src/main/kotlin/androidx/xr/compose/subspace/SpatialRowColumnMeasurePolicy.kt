@@ -17,6 +17,7 @@
 package androidx.xr.compose.subspace
 
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastMap
@@ -88,7 +89,11 @@ internal abstract class SpatialRowColumnMeasurePolicy {
      * @param containerSize The total size of the container.
      * @return The offset along the main axis.
      */
-    abstract fun getMainAxisOffset(contentSize: IntVolumeSize, containerSize: IntVolumeSize): Int
+    abstract fun getMainAxisOffset(
+        contentSize: IntVolumeSize,
+        containerSize: IntVolumeSize,
+        layoutDirection: LayoutDirection,
+    ): Int
 
     /**
      * Creates [VolumeConstraints] for a child, given specific constraints for main axis, cross
@@ -426,7 +431,8 @@ internal abstract class SpatialRowColumnMeasurePolicy {
         resolvedMeasurables: List<ResolvedMeasurable>,
         subspaceMeasureScope: SubspaceMeasureScope,
     ): SubspaceMeasureResult {
-        val mainAxisOffset = getMainAxisOffset(contentSize, containerSize)
+        val mainAxisOffset =
+            getMainAxisOffset(contentSize, containerSize, subspaceMeasureScope.layoutDirection)
 
         return with(subspaceMeasureScope) {
             layout(containerSize.width, containerSize.height, containerSize.depth) {
@@ -435,7 +441,14 @@ internal abstract class SpatialRowColumnMeasurePolicy {
                         checkNotNull(resolvedMeasurable.placeable) {
                             "Placeable cannot be null during placement. Measurement pass might have failed."
                         }
-                    placeable.place(getPose(resolvedMeasurable, containerSize, mainAxisOffset))
+                    placeable.place(
+                        getPose(
+                            resolvedMeasurable,
+                            containerSize,
+                            mainAxisOffset,
+                            subspaceMeasureScope.layoutDirection,
+                        )
+                    )
                 }
             }
         }
@@ -459,6 +472,7 @@ internal abstract class SpatialRowColumnMeasurePolicy {
         resolvedMeasurable: ResolvedMeasurable,
         containerSize: IntVolumeSize,
         mainAxisOffset: Int,
+        layoutDirection: LayoutDirection,
     ): Pose
 }
 
@@ -488,9 +502,14 @@ internal class ResolvedMeasurable(val measurable: SubspaceMeasurable) {
      * Calculates the horizontal offset, considering local alignment override or falling back to
      * parent alignment.
      */
-    fun horizontalOffset(width: Int, space: Int, parentSpatialAlignment: SpatialAlignment): Int =
-        alignment.horizontalSpatialAlignment?.offset(width, space)
-            ?: parentSpatialAlignment.horizontalOffset(width, space)
+    fun horizontalOffset(
+        width: Int,
+        space: Int,
+        parentSpatialAlignment: SpatialAlignment,
+        layoutDirection: LayoutDirection,
+    ): Int =
+        alignment.horizontalSpatialAlignment?.offset(width, space, layoutDirection)
+            ?: parentSpatialAlignment.horizontalOffset(width, space, layoutDirection)
 
     /**
      * Calculates the vertical offset, considering local alignment override or falling back to

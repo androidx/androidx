@@ -21,7 +21,6 @@ import androidx.room3.Dao
 import androidx.room3.Database
 import androidx.room3.Embedded
 import androidx.room3.Entity
-import androidx.room3.ExperimentalRoomApi
 import androidx.room3.Insert
 import androidx.room3.PrimaryKey
 import androidx.room3.Query
@@ -324,7 +323,6 @@ class PoKoTest {
     }
 
     @Test
-    @OptIn(ExperimentalRoomApi::class)
     fun relationshipLarge() = runTest {
         db.withWriteTransaction {
             dao.insert(SampleEntity(1, 5, null))

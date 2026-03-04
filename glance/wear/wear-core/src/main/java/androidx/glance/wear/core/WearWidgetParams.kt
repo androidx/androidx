@@ -20,6 +20,7 @@ import androidx.annotation.Dimension
 import androidx.annotation.RestrictTo
 import androidx.glance.wear.parcel.WearWidgetRequestParcel
 import androidx.glance.wear.proto.WearWidgetRequestProto
+import java.util.Objects
 
 /**
  * The parameters used for providing data for a Wear Widget.
@@ -87,6 +88,31 @@ public constructor(
             )
         return WearWidgetRequestParcel().apply { payload = requestProto.encode() }
     }
+
+    override fun equals(other: Any?): Boolean =
+        when {
+            this === other -> true
+            other !is WearWidgetParams -> false
+            else ->
+                instanceId == other.instanceId &&
+                    containerType == other.containerType &&
+                    widthDp == other.widthDp &&
+                    heightDp == other.heightDp &&
+                    horizontalPaddingDp == other.horizontalPaddingDp &&
+                    verticalPaddingDp == other.verticalPaddingDp &&
+                    cornerRadiusDp == other.cornerRadiusDp
+        }
+
+    override fun hashCode(): Int =
+        Objects.hash(
+            instanceId,
+            containerType,
+            widthDp,
+            heightDp,
+            horizontalPaddingDp,
+            verticalPaddingDp,
+            cornerRadiusDp,
+        )
 
     public companion object {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

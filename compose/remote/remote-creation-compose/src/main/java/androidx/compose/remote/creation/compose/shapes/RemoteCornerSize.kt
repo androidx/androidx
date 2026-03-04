@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.shapes
 
@@ -28,7 +27,6 @@ import androidx.compose.runtime.Immutable
 
 /** Defines size of a corner in pixels. For example for rounded shape it can be a corner radius. */
 @Immutable
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface RemoteCornerSize {
 
     /** Converts the [RemoteCornerSize] to pixels in RemoteFloat. */
@@ -40,10 +38,9 @@ public interface RemoteCornerSize {
  *
  * @param size the corner size defined in [RemoteDp].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteCornerSize(size: RemoteDp): RemoteCornerSize = RemoteDpCornerSize(size)
 
-private data class RemoteDpCornerSize(private val size: RemoteDp) : RemoteCornerSize {
+internal data class RemoteDpCornerSize(val size: RemoteDp) : RemoteCornerSize {
     override fun toString(): String = "CornerSize(size = ${size.value}.dp)"
 
     override fun toPx(shapeSize: RemoteSize, density: RemoteDensity): RemoteFloat {
@@ -59,7 +56,7 @@ private data class RemoteDpCornerSize(private val size: RemoteDp) : RemoteCorner
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteCornerSize(size: RemoteFloat): RemoteCornerSize = PxCornerSize(size)
 
-private data class PxCornerSize(private val size: RemoteFloat) : RemoteCornerSize {
+internal data class PxCornerSize(val size: RemoteFloat) : RemoteCornerSize {
     override fun toString(): String = "CornerSize(size = $size.px)"
 
     override fun toPx(shapeSize: RemoteSize, density: RemoteDensity): RemoteFloat {
@@ -73,7 +70,6 @@ private data class PxCornerSize(private val size: RemoteFloat) : RemoteCornerSiz
  * @param percent the corner size defined in percents of the shape's smaller side. Can't be negative
  *   or larger then 100 percents.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteCornerSize(@IntRange(from = 0, to = 100) percent: Int): RemoteCornerSize =
     RemotePercentCornerSize(percent)
 
@@ -83,8 +79,7 @@ public fun RemoteCornerSize(@IntRange(from = 0, to = 100) percent: Int): RemoteC
  * @param percent the corner size defined in float percents of the shape's smaller side. Can't be
  *   negative or larger then 100 percents.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public data class RemotePercentCornerSize(public val percent: Int) : RemoteCornerSize {
+internal data class RemotePercentCornerSize(val percent: Int) : RemoteCornerSize {
     override fun toString(): String = "CornerSize(size = $percent%)"
 
     override fun toPx(shapeSize: RemoteSize, density: RemoteDensity): RemoteFloat {

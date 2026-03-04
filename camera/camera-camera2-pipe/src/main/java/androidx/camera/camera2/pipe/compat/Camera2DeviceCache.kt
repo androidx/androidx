@@ -279,7 +279,6 @@ constructor(
     }
 
     private fun ProducerScope<List<CameraId>>.sendCameraIdList(cameraIds: List<CameraId>) {
-        Log.debug { "Emitting camera ID list: $cameraIds" }
         trySendBlocking(cameraIds).onFailure {
             Log.error { "Failed to send camera ID list: $cameraIds!" }
         }

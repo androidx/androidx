@@ -47,8 +47,8 @@ import java.util.List;
 public class RootLayoutComponent extends Component {
     private int mCurrentId = -1;
     private boolean mHasTouchListeners = false;
-    protected float mLastReportedOriginX;
-    protected float mLastReportedOriginY;
+    protected float mLastReportedOriginX = Float.NaN;
+    protected float mLastReportedOriginY = Float.NaN;
 
     public RootLayoutComponent(
             int componentId,
@@ -182,8 +182,6 @@ public class RootLayoutComponent extends Component {
         self.setH(newHeight);
 
         layout(context, measurePass);
-        mLastReportedOriginX = context.getDocument().getOriginX();
-        mLastReportedOriginY = context.getDocument().getOriginY();
         if (context.isLayoutDebug()) {
             DebugLog.display();
         }
@@ -231,8 +229,6 @@ public class RootLayoutComponent extends Component {
         self.setH(mHeight);
 
         layout(context, measurePass);
-        mLastReportedOriginX = context.getDocument().getOriginX();
-        mLastReportedOriginY = context.getDocument().getOriginY();
     }
 
     @Override
@@ -241,6 +237,8 @@ public class RootLayoutComponent extends Component {
         if (mFirstLayout) {
             mX = 0f;
             mY = 0f;
+            mLastReportedOriginX = context.getDocument().getOriginX();
+            mLastReportedOriginY = context.getDocument().getOriginY();
         }
         if (!mFirstLayout
                 && context.isAnimationEnabled()
@@ -261,10 +259,11 @@ public class RootLayoutComponent extends Component {
                 float targetOriginY = context.getDocument().getOriginY();
                 float lastOriginX = mLastReportedOriginX;
                 float lastOriginY = mLastReportedOriginY;
-                boolean originChanged =
-                        lastOriginX != targetOriginX || lastOriginY != targetOriginY;
+                boolean sizeChanged = mWidth != m.getW() || mHeight != m.getH();
+                boolean originChanged = !Float.isNaN(lastOriginX)
+                        && (lastOriginX != targetOriginX || lastOriginY != targetOriginY);
 
-                if (originChanged && context.useFeature(Header.FEATURE_LT_RESIZE)) {
+                if (sizeChanged && originChanged && context.useFeature(Header.FEATURE_LT_RESIZE)) {
                     mAnimateMeasure =
                             new RootAnimateMeasure(
                                     context.currentTime,
@@ -281,6 +280,9 @@ public class RootLayoutComponent extends Component {
                                     mAnimationSpec.getExitAnimation(),
                                     mAnimationSpec.getMotionEasingType(),
                                     mAnimationSpec.getVisibilityEasingType());
+                } else {
+                    mLastReportedOriginX = targetOriginX;
+                    mLastReportedOriginY = targetOriginY;
                 }
             }
         }
@@ -289,7 +291,11 @@ public class RootLayoutComponent extends Component {
 
     @Override
     public void paint(@NonNull PaintContext context) {
+        float originX = context.getContext().getDocument().getOriginX();
+        float originY = context.getContext().getDocument().getOriginY();
         if (applyAnimationAsNeeded(context)) {
+            mLastReportedOriginX = originX;
+            mLastReportedOriginY = originY;
             return;
         }
         if (isGone() || isInvisible()) {
@@ -317,6 +323,8 @@ public class RootLayoutComponent extends Component {
         }
 
         context.restore();
+        mLastReportedOriginX = originX;
+        mLastReportedOriginY = originY;
     }
 
     /**

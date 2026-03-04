@@ -28,6 +28,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.completeWith
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.dropWhile
@@ -58,15 +59,20 @@ internal class DataStoreImpl<T>(
      * simply throws the exception and does not produce new data.
      */
     private val corruptionHandler: CorruptionHandler<T> = ReThrowCorruptionHandler(),
-    private val scope: CoroutineScope = CoroutineScope(ioDispatcher() + SupervisorJob()),
+    private val context: CoroutineContext = ioDispatcher() + SupervisorJob(),
     private val tracer: DataStoreTracer? = null,
 ) : CurrentDataProviderStore<T> {
+
+    private val scope: CoroutineScope =
+        CoroutineScope(context + SupervisorJob(parent = context[Job]))
 
     /**
      * The actual values of DataStore. This is exposed in the API via [data] to be able to combine
      * its lifetime with IPC update collection ([updateCollection]).
      */
     override val data: Flow<T> = flow {
+        // Ensure the DataStore's context hasn't been cancelled before starting
+        context.ensureActive()
         // Get new token to pass the trace along to the child spans in `
         // readAndInitOrPropagateAndThrowFailure` and `readAndUpdateCache`.
         val token = captureTraceToken(tracer)
@@ -122,6 +128,7 @@ internal class DataStoreImpl<T>(
     }
 
     override suspend fun currentData(): T {
+        context.ensureActive()
         val token = captureTraceToken(tracer)
         when (val startState = readState(requireLock = false, token = token)) {
             is Data<T> -> return startState.value
@@ -170,6 +177,7 @@ internal class DataStoreImpl<T>(
     }
 
     override suspend fun updateData(transform: suspend (t: T) -> T): T {
+        context.ensureActive()
         return trace(tracer = tracer, name = "DataStore.updateData") {
             // Get new token as we will have a new span under `JDS.updateData` after `withContext`
             val token = captureTraceToken(tracer)

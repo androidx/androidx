@@ -19,7 +19,6 @@ package androidx.datastore.preferences.core
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataMigration
 import androidx.datastore.core.DataStore
-import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.FileStorage
 import androidx.datastore.core.Storage
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
@@ -97,12 +96,10 @@ public actual object PreferenceDataStoreFactory {
         scope: CoroutineScope,
     ): DataStore<Preferences> {
         return PreferenceDataStore(
-            DataStoreFactory.create(
-                storage = storage,
-                corruptionHandler = corruptionHandler,
-                migrations = migrations,
-                scope = scope,
-            )
+            DataStore.Builder(storage = storage, context = scope.coroutineContext)
+                .apply { corruptionHandler?.let { setCorruptionHandler(it) } }
+                .addMigrations(migrations)
+                .build()
         )
     }
 

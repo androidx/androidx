@@ -19,82 +19,87 @@ package androidx.room3
 import kotlin.reflect.KClass
 
 /**
- * Marks a method in a [Dao] annotated class as an insert method.
+ * Marks a function in a [Dao] annotated class as an insert function.
  *
- * The implementation of the method will insert its parameters into the database.
+ * The implementation of the function will insert its parameters into the database.
  *
- * All of the parameters of the Insert method must either be classes annotated with [Entity] or
- * collections/array of it.
+ * All the parameters of the insert function must either be classes annotated with [Entity] or
+ * collections / array of it.
  *
  * Example:
  * ```
  * @Dao
  * interface MusicDao {
- *   @Insert(onConflict = OnConflictStrategy.REPLACE)
- *   fun insertSongs(varargs songs: Song)
+ *     @Insert(onConflict = OnConflictStrategy.REPLACE)
+ *     suspend fun insertSongs(varargs songs: Song)
  *
- *   @Insert
- *   fun insertBoth(song1: Song, song2: Song)
+ *     @Insert
+ *     suspend fun insertBoth(song1: Song, song2: Song)
  *
- *   @Insert
- *   fun insertAlbumWithSongs(album: Album, songs: List<Song>)
+ *     @Insert
+ *     suspend fun insertAlbumWithSongs(album: Album, songs: List<Song>)
  * }
  * ```
  *
- * If the target entity is specified via [entity] then the parameters can be of arbitrary POJO types
- * that will be interpreted as partial entities. For example:
+ * If a target entity is specified via [entity] value then the parameters can be of arbitrary data
+ * object types that will be interpreted as partial entities. For example:
  * ```
  * @Entity
  * data class Playlist (
- *   @PrimaryKey(autoGenerate = true)
- *   val playlistId: Long,
- *   val name: String,
- *   val description: String?,
- *
- *   @ColumnInfo(defaultValue = "normal")
- *   val category: String,
- *
- *   @ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
- *   val createdTime: String,
- *
- *   @ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
- *   val lastModifiedTime: String
+ *     @PrimaryKey(autoGenerate = true)
+ *     val playlistId: Long,
+ *     val name: String,
+ *     val description: String?,
+ *     @ColumnInfo(defaultValue = "normal")
+ *     val category: String,
+ *     @ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
+ *     val createdTime: String,
+ *     @ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
+ *     val lastModifiedTime: String
  * )
  *
  * data class NameAndDescription (
- *   val name: String,
- *   val description: String
+ *     val name: String,
+ *     val description: String
  * )
  *
  * @Dao
  * interface PlaylistDao {
- *   @Insert(entity = Playlist::class)
- *   fun insertNewPlaylist(nameDescription: NameAndDescription)
+ *     @Insert(entity = Playlist::class)
+ *     suspend fun insertNewPlaylist(nameDescription: NameAndDescription)
  * }
  * ```
  *
- * @see [Update]
+ * Note that in the example above the partial entity `NameAndDescription` contains the required
+ * properties to fulfill the insert, specifically `name` and `description` while other properties
+ * can be left out, such as `category`, `createdTime` and `lastModifiedTime` because they have a
+ * [ColumnInfo.defaultValue] in the target entity. Similarly `playlistId` can be left out because it
+ * has [PrimaryKey.autoGenerate] set to `true`.
+ *
  * @see [Delete]
+ * @see [Update]
+ * @see [Upsert]
  */
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.BINARY)
 public annotation class Insert(
 
     /**
-     * The target entity of the insert method.
+     * The target entity of the insert function.
      *
-     * When this is declared, the insert method parameters are interpreted as partial entities when
-     * the type of the parameter differs from the target. The POJO class that represents the entity
-     * must contain all of the non-null fields without default values of the target entity.
+     * When this is declared, the insert function parameters are interpreted as partial entities
+     * when the type of the parameter differs from the target. The data object class that represents
+     * the entity must contain all the non-null properties without default values of the target
+     * entity.
      *
-     * If the target entity contains a [PrimaryKey] that is auto generated, then the POJO class
-     * doesn't need an equal primary key field, otherwise primary keys must also be present in the
-     * POJO.
+     * If the target entity contains a [PrimaryKey] that is auto generated, then the data object
+     * class doesn't need an equal primary key property, otherwise primary keys must also be present
+     * in the data object class.
      *
-     * By default the target entity is interpreted by the method parameters.
+     * By default, the target entity is interpreted by the function parameters.
      *
-     * @return the target entity of the insert method or none if the method should use the parameter
-     *   type entities.
+     * @return the target entity of the insert function or none if the function should use the
+     *   parameter type entities.
      */
     val entity: KClass<*> = Any::class,
 

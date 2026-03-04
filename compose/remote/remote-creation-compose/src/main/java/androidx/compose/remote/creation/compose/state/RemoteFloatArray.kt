@@ -28,6 +28,16 @@ import androidx.compose.ui.util.fastMap
 public class RemoteFloatArray(public override val constantValueOrNull: List<RemoteFloat>?) :
     BaseRemoteState<List<RemoteFloat>>() {
 
+    internal enum class OperationKey {
+        Create,
+        Get,
+    }
+
+    internal override val cacheKey: RemoteStateCacheKey =
+        constantValueOrNull?.let { values ->
+            RemoteOperationCacheKey.create(OperationKey.Create, *values.toTypedArray())
+        } ?: RemoteStateInstanceKey()
+
     override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
         val asFloat =
             with(creationState) { constantValueOrNull!!.fastMap { it.floatId }.toFloatArray() }
@@ -42,7 +52,10 @@ public class RemoteFloatArray(public override val constantValueOrNull: List<Remo
         v.constantValueOrNull?.let {
             return constantValueOrNull!![it.toInt()]
         }
-        return RemoteFloatExpression(constantValueOrNull = null) { creationState ->
+        return RemoteFloatExpression(
+            constantValueOrNull = null,
+            cacheKey = RemoteOperationCacheKey.create(OperationKey.Get, this, v),
+        ) { creationState ->
             floatArrayOf(
                 *arrayForCreationState(creationState),
                 *v.arrayForCreationState(creationState),
@@ -65,7 +78,10 @@ public class RemoteFloatArray(public override val constantValueOrNull: List<Remo
         v.constantValueOrNull?.let {
             return constantValueOrNull!![it]
         }
-        return RemoteFloatExpression(constantValueOrNull = null) { creationState ->
+        return RemoteFloatExpression(
+            constantValueOrNull = null,
+            cacheKey = RemoteOperationCacheKey.create(OperationKey.Get, this, v),
+        ) { creationState ->
             floatArrayOf(
                 *arrayForCreationState(creationState),
                 v.getFloatIdForCreationState(creationState),
@@ -75,12 +91,8 @@ public class RemoteFloatArray(public override val constantValueOrNull: List<Remo
     }
 
     private fun arrayForCreationState(creationState: RemoteComposeCreationState): FloatArray {
-        val cachedArray = creationState.floatArrayCache.get(this)
-        if (cachedArray != null) {
-            return cachedArray
+        return creationState.getOrPutFloatArray(cacheKey) {
+            floatArrayOf(getFloatIdForCreationState(creationState))
         }
-        val array = floatArrayOf(getFloatIdForCreationState(creationState))
-        creationState.floatArrayCache.put(this, array)
-        return array
     }
 }

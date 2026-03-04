@@ -33,7 +33,7 @@ import androidx.compose.runtime.Composable
 /**
  * Layout component to implement an expressive group of buttons in a row.
  *
- * Example of 3 buttons, the middle one bigger [RemoteButtonGroupThreeButtonSample]:
+ * Example of 3 buttons, the middle one bigger:
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteButtonGroupThreeButtonSample
  * @param modifier Modifier to be applied to the button group

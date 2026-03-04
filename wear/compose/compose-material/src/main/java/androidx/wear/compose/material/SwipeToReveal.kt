@@ -132,8 +132,8 @@ import kotlinx.coroutines.launch
  * @param shape The shape of primary and secondary action composables. Recommended shape for chips
  *   is [Shapes.small].
  * @param content The initial content shown prior to the swipe-to-reveal gesture. Custom
- *   accessibility actions should always be added to the content using [Modifier.semantics] -
- *   examples are shown in the code samples.
+ *   accessibility actions should always be added to the content using
+ *   [androidx.compose.ui.semantics.semantics] - examples are shown in the code samples.
  * @see [SwipeToReveal]
  */
 @ExperimentalWearMaterialApi
@@ -196,8 +196,8 @@ public fun SwipeToRevealChip(
  * @param shape The shape of primary and secondary action composables. Recommended shape for cards
  *   is [SwipeToRevealDefaults.CardActionShape].
  * @param content The initial content shown prior to the swipe-to-reveal gesture. Custom
- *   accessibility actions should always be added to the content using [Modifier.semantics] -
- *   examples are shown in the code samples.
+ *   accessibility actions should always be added to the content using
+ *   [androidx.compose.ui.semantics.semantics] - examples are shown in the code samples.
  * @see [SwipeToReveal]
  */
 @ExperimentalWearMaterialApi

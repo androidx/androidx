@@ -294,9 +294,4 @@ public abstract class Viewer extends Fragment {
     protected void saveToArguments(@NonNull DisplayData data) {
         getArguments().putBundle(KEY_DATA, data.asBundle());
     }
-
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-    }
 }

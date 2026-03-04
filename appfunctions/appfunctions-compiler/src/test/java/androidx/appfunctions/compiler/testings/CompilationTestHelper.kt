@@ -95,6 +95,7 @@ class CompilationTestHelper(
                     sources = sources,
                     symbolProcessorProviders = symbolProcessorProviders,
                     processorOptions = processorOptions,
+                    kotlincArguments = listOf("-jvm-target", "11"),
                 ),
             )
 

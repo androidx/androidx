@@ -23,6 +23,7 @@ import androidx.annotation.RestrictTo
 import androidx.room3.PooledConnection
 import androidx.room3.RoomDatabase
 import androidx.room3.Transactor
+import androidx.room3.coroutines.RawConnectionAccessor
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteException
 import androidx.sqlite.SQLiteStatement
@@ -32,15 +33,23 @@ import androidx.sqlite.step
 import kotlin.coroutines.CoroutineContext
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
+import kotlinx.coroutines.withContext
 
 /** Performs a database operation. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
-public expect suspend fun <R> performSuspending(
+public suspend fun <R> performSuspending(
     db: RoomDatabase,
     isReadOnly: Boolean,
     inTransaction: Boolean,
     block: suspend (SQLiteConnection) -> R,
-): R
+): R =
+    withContext(db.getCoroutineContext(inTransaction)) {
+        db.internalPerform(isReadOnly, inTransaction) { connection ->
+            (connection as RawConnectionAccessor).useRawConnection { rawConnection ->
+                block.invoke(rawConnection)
+            }
+        }
+    }
 
 internal suspend inline fun <R> RoomDatabase.internalPerform(
     isReadOnly: Boolean,
@@ -85,10 +94,10 @@ internal expect suspend fun RoomDatabase.getCoroutineContext(
  */
 // TODO(b/309996304): Replace with proper suspending transaction API for common.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
-public expect suspend fun <R> performInTransactionSuspending(
-    db: RoomDatabase,
-    block: suspend () -> R,
-): R
+public suspend fun <R> performInTransactionSuspending(db: RoomDatabase, block: suspend () -> R): R =
+    withContext(db.getCoroutineContext(inTransaction = true)) {
+        db.internalPerform(isReadOnly = false, inTransaction = true) { block.invoke() }
+    }
 
 /**
  * Drops all FTS content sync triggers created by Room.

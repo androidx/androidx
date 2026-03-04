@@ -37,8 +37,10 @@ public class SpatialPointerComponent private constructor(private val sceneRuntim
      * icon should be used.
      */
     public var spatialPointerIcon: SpatialPointerIcon
-        get() = rtComponent.getSpatialPointerIcon().toSpatialPointerIcon()
-        set(value) = rtComponent.setSpatialPointerIcon(value.toRtSpatialPointerIcon())
+        get() = rtComponent.spatialPointerIcon.toSpatialPointerIcon()
+        set(value) {
+            rtComponent.spatialPointerIcon = value.toRtSpatialPointerIcon()
+        }
 
     override fun onAttach(entity: Entity): Boolean {
         if (this.entity != null) {

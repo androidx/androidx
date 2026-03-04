@@ -96,10 +96,11 @@ public fun <T : Any> rememberSupportingPaneSceneStrategy(
 
 /**
  * A [SupportingPaneSceneStrategy] supports arranging [NavEntry]s into an adaptive
- * [SupportingPaneScaffold]. By using [mainPane], [supportingPane], or [extraPane] in a NavEntry's
- * metadata, entries can be assigned as belonging to a main pane, supporting pane, or extra pane.
- * These panes will be displayed together if the window size is sufficiently large, and will
- * automatically adapt if the window size changes, for example, on a foldable device.
+ * [androidx.compose.material3.adaptive.layout.SupportingPaneScaffold]. By using [mainPane],
+ * [supportingPane], or [extraPane] in a NavEntry's metadata, entries can be assigned as belonging
+ * to a main pane, supporting pane, or extra pane. These panes will be displayed together if the
+ * window size is sufficiently large, and will automatically adapt if the window size changes, for
+ * example, on a foldable device.
  *
  * @param shouldHandleSinglePaneLayout whether [SupportingPaneSceneStrategy] should apply when only
  *   a single pane is displayed. By default, this is false and instead yields to the next
@@ -208,7 +209,8 @@ public class SupportingPaneSceneStrategy<T : Any>(
 
         /**
          * Constructs metadata to mark a [NavEntry] as belonging to a
-         * [main pane][SupportingPaneScaffoldRole.Main] within a [SupportingPaneScaffold].
+         * [main pane][SupportingPaneScaffoldRole.Main] within a
+         * [androidx.compose.material3.adaptive.layout.SupportingPaneScaffold].
          *
          * @param sceneKey the key to distinguish the scene of the supporting-pane scaffold, in case
          *   multiple supporting-pane scaffolds are used within the same NavDisplay.
@@ -219,7 +221,7 @@ public class SupportingPaneSceneStrategy<T : Any>(
         /**
          * Constructs metadata to mark a [NavEntry] as belonging to a
          * [supporting pane][SupportingPaneScaffoldRole.Supporting] within a
-         * [SupportingPaneScaffold].
+         * [androidx.compose.material3.adaptive.layout.SupportingPaneScaffold].
          *
          * @param sceneKey the key to distinguish the scene of the supporting-pane scaffold, in case
          *   multiple supporting-pane scaffolds are used within the same NavDisplay.
@@ -229,7 +231,8 @@ public class SupportingPaneSceneStrategy<T : Any>(
 
         /**
          * Constructs metadata to mark a [NavEntry] as belonging to an
-         * [extra pane][SupportingPaneScaffoldRole.Extra] within a [SupportingPaneScaffold].
+         * [extra pane][SupportingPaneScaffoldRole.Extra] within a
+         * [androidx.compose.material3.adaptive.layout.SupportingPaneScaffold].
          *
          * @param sceneKey the key to distinguish the scene of the supporting-pane scaffold, in case
          *   multiple supporting-pane scaffolds are used within the same NavDisplay.

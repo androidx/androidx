@@ -26,6 +26,7 @@ plugins {
 dependencies {
     implementation(project(":benchmark:benchmark-macro-junit4"))
     implementation(project(":compose:foundation:foundation"))
+    androidTestImplementation(project(":compose:animation:animation-graphics"))
     androidTestImplementation(project(":compose:animation:animation"))
     androidTestImplementation(project(":compose:animation:animation-core"))
     androidTestImplementation(project(":benchmark:benchmark-junit4"))

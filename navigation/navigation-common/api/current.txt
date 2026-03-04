@@ -423,7 +423,7 @@ package androidx.navigation {
     method public androidx.navigation.NavOptions.Builder setPopEnterAnim(@AnimRes @AnimatorRes int popEnterAnim);
     method public androidx.navigation.NavOptions.Builder setPopExitAnim(@AnimRes @AnimatorRes int popExitAnim);
     method @BytecodeOnly public <T> androidx.navigation.NavOptions.Builder! setPopUpTo(boolean);
-    method @KotlinOnly public inline <reified T> androidx.navigation.NavOptions.Builder setPopUpTo(boolean inclusive, boolean saveState);
+    method @KotlinOnly public inline <reified T> androidx.navigation.NavOptions.Builder setPopUpTo(boolean inclusive, optional boolean saveState);
     method public androidx.navigation.NavOptions.Builder setPopUpTo(@IdRes int destinationId, boolean inclusive);
     method public androidx.navigation.NavOptions.Builder setPopUpTo(@IdRes int destinationId, boolean inclusive, optional boolean saveState);
     method public androidx.navigation.NavOptions.Builder setPopUpTo(String? route, boolean inclusive);
@@ -451,7 +451,7 @@ package androidx.navigation {
     method @InaccessibleFromKotlin public boolean getRestoreState();
     method public void popUpTo(@IdRes int id, optional kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit> popUpToBuilder);
     method public void popUpTo(String route, optional kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit> popUpToBuilder);
-    method @KotlinOnly public inline <reified T> void popUpTo(kotlin.jvm.functions.Function1<androidx.navigation.PopUpToBuilder,kotlin.Unit> popUpToBuilder);
+    method @KotlinOnly public inline <reified T> void popUpTo(optional kotlin.jvm.functions.Function1<androidx.navigation.PopUpToBuilder,kotlin.Unit> popUpToBuilder);
     method public <T> void popUpTo(kotlin.reflect.KClass<T> route, kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit> popUpToBuilder);
     method public <T> void popUpTo(T route, optional kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit> popUpToBuilder);
     method @BytecodeOnly public static void popUpTo$default(androidx.navigation.NavOptionsBuilder!, int, kotlin.jvm.functions.Function1!, int, Object!);

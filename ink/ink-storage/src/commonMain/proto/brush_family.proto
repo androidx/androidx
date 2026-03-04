@@ -407,12 +407,7 @@ message BrushPaint {
     // axes.
     optional float rotation_in_radians = 8;
 
-    reserved 9 to 13;
-
-    // Overall texture layer opacity.
-    optional float opacity = 14 [default = 1];
-
-    reserved 15;
+    reserved 9 to 15;
 
     // The rule by which the texture layers up to and including this one are
     // combined with the subsequent layer.
@@ -618,9 +613,9 @@ message BrushBehavior {
     SOURCE_TIME_OF_INPUT_IN_SECONDS = 13;
 
     // The time elapsed (in milliseconds) from when the stroke started to when
-    // this part of the stroke was drawn. The value remains fixed for any given
-    // part of the stroke once drawn.
-    SOURCE_TIME_OF_INPUT_IN_MILLIS = 14;
+    // this part of the stroke was drawn. This is deprecated; use
+    // SOURCE_TIME_OF_INPUT_IN_SECONDS instead.
+    SOURCE_TIME_OF_INPUT_IN_MILLIS = 14 [deprecated = true];
 
     // Distance traveled by the inputs of the current prediction, starting at 0
     // at the last non-predicted input, in multiples of the brush size. Zero for
@@ -632,10 +627,9 @@ message BrushBehavior {
     // stroke.
     SOURCE_PREDICTED_TIME_ELAPSED_IN_SECONDS = 16;
 
-    // Elapsed time (in milliseconds) of the prediction, starting at 0 at the
-    // last non-predicted input. Zero for inputs before the predicted portion of
-    // the stroke.
-    SOURCE_PREDICTED_TIME_ELAPSED_IN_MILLIS = 17;
+    // Elapsed time (in milliseconds) of the prediction. This is deprecated; use
+    // SOURCE_PREDICTED_TIME_ELAPSED_IN_SECONDS instead.
+    SOURCE_PREDICTED_TIME_ELAPSED_IN_MILLIS = 17 [deprecated = true];
 
     // The distance left to be traveled from a given modeled input to the
     // current last modeled input of the stroke in multiples of the brush size.
@@ -644,17 +638,14 @@ message BrushBehavior {
 
     // Time elapsed (in seconds) since the modeled stroke input. This continues
     // to increase even after all stroke inputs have completed, and can be used
-    // to drive stroke animations. These enumerators are only compatible with a
-    // `source_out_of_range_behavior` of `OUT_OF_RANGE_CLAMP`, to ensure that
+    // to drive wet-layer stroke animations. This source is only compatible with
+    // a `source_out_of_range_behavior` of `OUT_OF_RANGE_CLAMP`, to ensure that
     // the animation will eventually end.
     SOURCE_TIME_SINCE_INPUT_IN_SECONDS = 19;
 
     // Time elapsed (in milliseconds) since the modeled stroke input. This
-    // continues to increase even after all stroke inputs have completed, and
-    // can be used to drive stroke animations. These enumerators are only
-    // compatible with a `source_out_of_range_behavior` of
-    // `OUT_OF_RANGE_CLAMP`, to ensure that the animation will eventually end.
-    SOURCE_TIME_SINCE_INPUT_IN_MILLIS = 20;
+    // is deprecated; use SOURCE_TIME_SINCE_INPUT_IN_SECONDS instead.
+    SOURCE_TIME_SINCE_INPUT_IN_MILLIS = 20 [deprecated = true];
 
     // Angle of the modeled stroke input's current direction of travel in stroke
     // coordinate space, normalized to the range [0, 2π). A value of 0 indicates
@@ -751,6 +742,13 @@ message BrushBehavior {
     // the input path, as a fraction of the current total length of the stroke.
     // This value changes for each input as inputs are added.
     SOURCE_DISTANCE_REMAINING_AS_FRACTION_OF_STROKE_LENGTH = 39;
+
+    // Time elapsed (in seconds) since the final input of the stroke, or zero if
+    // the final input hasn't arrived yet. This can be used to drive wet-layer
+    // stroke animations that should occur after the final input. This source is
+    // only compatible with a `source_out_of_range_behavior` of
+    // `OUT_OF_RANGE_CLAMP`, to ensure that the animation will eventually end.
+    SOURCE_TIME_SINCE_STROKE_END_IN_SECONDS = 40;
   }
 
 
@@ -903,8 +901,10 @@ message BrushBehavior {
     OUT_OF_RANGE_MIRROR = 3;
   }
 
-
   // List of input properties that might not be reported by `StrokeInput`.
+  //
+  // This enum is deprecated, and exists only to support the deprecated
+  // `FallbackFilterNode` type.
   enum OptionalInputProperty {
     OPTIONAL_INPUT_UNSPECIFIED = 0;
     OPTIONAL_INPUT_PRESSURE = 1;
@@ -925,6 +925,21 @@ message BrushBehavior {
 
     // A + B, or null if either is null
     BINARY_OP_SUM = 2;
+
+    // min(A, B), or null if either is null
+    BINARY_OP_MIN = 3;
+
+    // max(A, B), or null if either is null
+    BINARY_OP_MAX = 4;
+
+    // null if A is null, or B otherwise
+    BINARY_OP_AND_THEN = 5;
+
+    // A if A isn't null, or B otherwise
+    BINARY_OP_OR_ELSE = 6;
+
+    // A if B is null, or B if A is null, or null if neither is null
+    BINARY_OP_XOR_ELSE = 7;
   }
 
 
@@ -973,7 +988,7 @@ message BrushBehavior {
     oneof node {
       SourceNode source_node = 1;
       ConstantNode constant_node = 2;
-      FallbackFilterNode fallback_filter_node = 3;
+      FallbackFilterNode fallback_filter_node = 3 [deprecated = true];
       ToolTypeFilterNode tool_type_filter_node = 4;
       DampingNode damping_node = 5;
       ResponseNode response_node = 6;
@@ -1052,6 +1067,21 @@ message BrushBehavior {
 
   // Value node for filtering out a branch of a behavior graph unless a
   // particular stroke input property is missing.
+  //
+  // This node type is deprecated. Using BINARY_OP_OR_ELSE is usually a better
+  // option for fallback calculations, but if necessary a FallbackFilterNode can
+  // be directly emulated by the sequence of nodes:
+  //
+  //   * SourceNode { source = <equivalent source for is_fallback_for>, ... }
+  //   * ConstantNode { value = 0 }
+  //   * BinaryOpNode { operation = BINARY_OP_XOR_ELSE }
+  //   * <any nodes that form the input to the FallbackFilterNode go here>
+  //   * BinaryOpNode { operation = BINARY_OP_AND_THEN }
+  //
+  // This works because the XOR_ELSE node in this setup will emit null if and
+  // only if the optional input property is available, in which case the
+  // AND_THEN node will filter out the fallback subtree, just like a
+  // `FallbackFilterNode would`
   //
   // Inputs: 1
   //

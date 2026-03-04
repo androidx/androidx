@@ -165,6 +165,49 @@ class AnchorEntityTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
+    fun createViaSemantic_twice_doesNotReanchor() {
+        runTest(testDispatcher) {
+            activityController.create().start().resume()
+            val plane1 =
+                FakeRuntimePlane(
+                    type = Plane.Type.HORIZONTAL_DOWNWARD_FACING,
+                    label = Plane.Label.CEILING,
+                    extents = FloatSize2d(1.0f, 1.0f),
+                )
+            mFakePerceptionManager.addTrackable(plane1)
+
+            val anchorEntity =
+                AnchorEntity.create(
+                    session,
+                    FloatSize2d(1.0f, 1.0f),
+                    PlaneOrientation.HORIZONTAL,
+                    PlaneSemanticType.CEILING,
+                    timeout = 0.toDuration(DurationUnit.SECONDS).toJavaDuration(),
+                )
+            advanceUntilIdle()
+
+            assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ANCHORED)
+            val anchor1 = anchorEntity.getAnchor()
+            assertThat(anchor1).isNotNull()
+
+            // Add another matching plane
+            val plane2 =
+                FakeRuntimePlane(
+                    type = Plane.Type.HORIZONTAL_DOWNWARD_FACING,
+                    label = Plane.Label.CEILING,
+                    extents = FloatSize2d(1.0f, 1.0f),
+                )
+            mFakePerceptionManager.addTrackable(plane2)
+            advanceUntilIdle()
+
+            // Should still be anchored to the first one
+            assertThat(anchorEntity.state).isEqualTo(AnchorEntity.State.ANCHORED)
+            assertThat(anchorEntity.getAnchor()).isEqualTo(anchor1)
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
     fun createViaSemantic_pastTimeout_returnsTimedOutAnchorEntity() {
         runTest(testDispatcher) {
             activityController.create().start().resume()

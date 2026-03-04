@@ -30,13 +30,14 @@ import androidx.room3.vo.ShortcutQueryParameter
  * alternatives implementations can be implemented using this interface (e.g. RxJava, coroutines
  * etc).
  */
-abstract class DeleteOrUpdateFunctionBinder(val adapter: DeleteOrUpdateFunctionAdapter?) {
+interface DeleteOrUpdateFunctionBinder {
+    val adapter: DeleteOrUpdateFunctionAdapter?
 
     /**
      * Received the delete/update method parameters, the adapters and generates the code that runs
      * the delete/update and returns the result.
      */
-    abstract fun convertAndReturn(
+    fun convertAndReturn(
         parameters: List<ShortcutQueryParameter>,
         adapters: Map<String, Pair<XPropertySpec, XTypeSpec>>,
         dbProperty: XPropertySpec,

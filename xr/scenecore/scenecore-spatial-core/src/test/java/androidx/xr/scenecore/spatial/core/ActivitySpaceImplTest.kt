@@ -115,7 +115,7 @@ class ActivitySpaceImplTest : SystemSpaceEntityImplTest() {
         get() = fakeExecutor
 
     override fun createChildAndroidXrEntity(): AndroidXrEntity {
-        return testRuntime.createGroupEntity(Pose(), "child", activitySpace) as AndroidXrEntity
+        return testRuntime.createEntity(Pose(), "child", activitySpace) as AndroidXrEntity
     }
 
     override val activitySpaceEntity: ActivitySpaceImpl

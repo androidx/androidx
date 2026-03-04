@@ -445,8 +445,8 @@ private object BrushFamilyNative {
     @UsedByNative external fun newCopyOfBrushCoat(nativePointer: Long, index: Int): Long
 
     /**
-     * Returns a new, unowned native pointer to a copy of the [InputModel] for the pointed-at native
-     * [BrushFamily].
+     * Returns a new, unowned native pointer to a copy of the [BrushFamily.InputModel] for the
+     * pointed-at native [BrushFamily].
      */
     @UsedByNative external fun newCopyOfInputModel(nativePointer: Long): Long
 }

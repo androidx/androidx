@@ -27,8 +27,10 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.os.Build
 import android.os.Trace
+import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 
 /** Internal debug utilities, constants, and checks. */
@@ -91,6 +93,12 @@ public object Debug {
                 }
             }
         }
+    }
+
+    public fun formatSurfaceMap(surfaceMap: Map<StreamId, Surface>): String {
+        return surfaceMap
+            .map { "${it.key}".padStart(10, ' ') + " -> ${it.value}" }
+            .joinToString(separator = "\n")
     }
 
     /**

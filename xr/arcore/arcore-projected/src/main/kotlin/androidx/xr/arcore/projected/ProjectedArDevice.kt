@@ -34,8 +34,11 @@ public class ProjectedArDevice() : RuntimeArDevice {
     public var deviceTrackingState: TrackingState = TrackingState.STOPPED
         private set
 
-    internal fun update(trackingState: TrackingState, pose: Pose) {
+    internal fun update(trackingState: TrackingState, pose: Pose?) {
         deviceTrackingState = trackingState
-        devicePose = pose
+
+        if (pose != null) {
+            devicePose = pose
+        }
     }
 }

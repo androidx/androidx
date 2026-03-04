@@ -62,7 +62,7 @@ class SpatialPointerComponentTest {
 
     @Test
     fun addSpatialPointerComponent_failsForNonPanelEntity() {
-        val entity = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
         assertThat(entity).isNotNull()
         val pointerComponent = SpatialPointerComponent.create(session)
 

@@ -206,7 +206,7 @@ internal class VirtualCameraState(
             }
             closed = true
 
-            Log.info { "Disconnecting $this" }
+            Log.debug { "Disconnecting $this" }
 
             currentVirtualAndroidCamera?.disconnect()
             job?.cancel()

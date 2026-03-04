@@ -43,7 +43,6 @@ public fun ProvideRemoteTextStyle(
     CompositionLocalProvider(LocalRemoteTextStyle provides mergedStyle, content = content)
 }
 
-@Suppress("RestrictedApiAndroidX")
 internal fun provideScopeContent(
     contentColor: RemoteColor,
     textStyle: RemoteTextStyle,
@@ -56,7 +55,6 @@ internal fun provideScopeContent(
     )
 }
 
-@Suppress("RestrictedApiAndroidX")
 internal fun <T> provideScopeContent(
     contentColor: RemoteColor,
     textStyle: RemoteTextStyle,
@@ -70,7 +68,6 @@ internal fun <T> provideScopeContent(
     }
 }
 
-@Suppress("RestrictedApiAndroidX")
 internal fun <T> provideScopeContent(
     contentColor: RemoteColor,
     textStyle: RemoteTextStyle,
@@ -86,7 +83,6 @@ internal fun <T> provideScopeContent(
     }
 }
 
-@Suppress("RestrictedApiAndroidX")
 internal fun <T> provideNullableScopeContent(
     contentColor: RemoteColor,
     textStyle: RemoteTextStyle,

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.shapes
 
@@ -35,8 +34,9 @@ import androidx.compose.ui.unit.LayoutDirection
  * @param bottomEnd a size of the bottom end corner
  * @param bottomStart a size of the bottom start corner
  */
+public class RemoteRoundedCornerShape
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteRoundedCornerShape(
+constructor(
     topStart: RemoteCornerSize,
     topEnd: RemoteCornerSize,
     bottomEnd: RemoteCornerSize,
@@ -48,6 +48,7 @@ public class RemoteRoundedCornerShape(
         bottomEnd = bottomEnd,
         bottomStart = bottomStart,
     ) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun createOutline(
         topStart: RemoteFloat,
         topEnd: RemoteFloat,
@@ -58,8 +59,10 @@ public class RemoteRoundedCornerShape(
     }
 }
 
+/** Circular shape with all the corners sized as the 50% of the shape size. */
 public val RemoteCircleShape: RemoteRoundedCornerShape = RemoteRoundedCornerShape(50)
 
+/** A rectangular [RemoteRoundedCornerShape] with no rounded corners. */
 public val RemoteRectangleShape: RemoteRoundedCornerShape = RemoteRoundedCornerShape(0.rf)
 
 /**
@@ -76,7 +79,6 @@ public fun RemoteRoundedCornerShape(corner: RemoteCornerSize): RemoteRoundedCorn
  *
  * @param size Size in [RemoteDp] to apply.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteRoundedCornerShape(size: RemoteDp): RemoteRoundedCornerShape =
     RemoteRoundedCornerShape(RemoteCornerSize(size))
 

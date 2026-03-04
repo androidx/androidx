@@ -55,7 +55,10 @@ import kotlinx.coroutines.withTimeout
 internal open class FakePdfDocument(
     internal val pages: List<Point?> = listOf(),
     override val formType: Int = PDF_FORM_TYPE_NONE,
-    @Deprecated("Deprecated in Java, Use getLinearizationStatus() instead")
+    @Deprecated(
+        "Deprecated, Use linearizationStatus instead",
+        replaceWith = ReplaceWith("linearizationStatus"),
+    )
     override val isLinearized: Boolean = false,
     override val renderParams: RenderParams = RenderParams(RenderParams.RENDER_MODE_FOR_DISPLAY),
     private val searchResults: SparseArray<List<PageMatchBounds>> = SparseArray(),

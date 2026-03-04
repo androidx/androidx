@@ -17,6 +17,7 @@
 package androidx.room3.guava
 
 import androidx.room3.DaoReturnTypeConverter
+import androidx.room3.OperationType
 import androidx.room3.RoomDatabase
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.guava.future
@@ -27,15 +28,19 @@ import kotlinx.coroutines.guava.future
  */
 public class GuavaDaoReturnTypeConverter {
     /**
-     * This [convert] function will be called from Room generated code to convert a Room query
+     * This [convertAsync] function will be called from Room generated code to convert a Room query
      * result to the return type of this function.
+     *
+     * This converter can be used for both [OperationType.READ] and [OperationType.WRITE]. Note that
+     * Room shortcut methods (@Insert, @Update, @Delete) are always treated as
+     * [OperationType.WRITE].
      *
      * @param database RoomDatabase instance
      * @param inTransaction True if the DAO is to be executed in a database transaction
      * @param executeAndConvert A suspend lambda function that invokes the part of the generated
      *   code that executes the query.
      */
-    @DaoReturnTypeConverter
+    @DaoReturnTypeConverter(operations = [OperationType.READ, OperationType.WRITE])
     public fun <T> convertAsync(
         database: RoomDatabase,
         inTransaction: Boolean,

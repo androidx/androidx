@@ -46,8 +46,9 @@ import kotlin.math.min
  *
  * A `Color` always defines a color using 4 components packed in a single 64 bit long value. One of
  * these components is always alpha while the other three components depend on the color space's
- * [color model][ColorModel]. The most common color model is the [RGB][ColorModel.Rgb] model in
- * which the components represent red, green, and blue values.
+ * [color model][androidx.ink.brush.color.colorspace.ColorModel]. The most common color model is the
+ * [RGB][androidx.ink.brush.color.colorspace.ColorModel.Rgb] model in which the components represent
+ * red, green, and blue values.
  *
  * **Component ranges:** the ranges defined in the tables below indicate the ranges that can be
  * encoded in a color long. They do not represent the actual ranges as they may differ per color
@@ -132,8 +133,8 @@ public value class Color(public val value: ULong) {
      * Returns the value of the red component in the range defined by this color's color space (see
      * [ColorSpace.getMinValue] and [ColorSpace.getMaxValue]).
      *
-     * If this color's color model is not [RGB][ColorModel.Rgb], calling this is the first component
-     * of the ColorSpace.
+     * If this color's color model is not [RGB][androidx.ink.brush.color.colorspace.ColorModel.Rgb],
+     * calling this is the first component of the ColorSpace.
      *
      * @see alpha
      * @see blue
@@ -152,8 +153,8 @@ public value class Color(public val value: ULong) {
      * Returns the value of the green component in the range defined by this color's color space
      * (see [ColorSpace.getMinValue] and [ColorSpace.getMaxValue]).
      *
-     * If this color's color model is not [RGB][ColorModel.Rgb], calling this is the second
-     * component of the ColorSpace.
+     * If this color's color model is not [RGB][androidx.ink.brush.color.colorspace.ColorModel.Rgb],
+     * calling this is the second component of the ColorSpace.
      *
      * @see alpha
      * @see red
@@ -172,8 +173,8 @@ public value class Color(public val value: ULong) {
      * Returns the value of the blue component in the range defined by this color's color space (see
      * [ColorSpace.getMinValue] and [ColorSpace.getMaxValue]).
      *
-     * If this color's color model is not [RGB][ColorModel.Rgb], calling this is the third component
-     * of the ColorSpace.
+     * If this color's color model is not [RGB][androidx.ink.brush.color.colorspace.ColorModel.Rgb],
+     * calling this is the third component of the ColorSpace.
      *
      * @see alpha
      * @see red
@@ -290,7 +291,7 @@ public value class Color(public val value: ULong) {
  * @throws IllegalArgumentException If [colorSpace] does not have [ColorSpace.componentCount] equal
  *   to 3.
  * @throws IllegalArgumentException If [colorSpace] has an [ColorSpace.id] set to
- *   [ColorSpace.MinId].
+ *   [ColorSpace.MIN_ID].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
 public fun Color(

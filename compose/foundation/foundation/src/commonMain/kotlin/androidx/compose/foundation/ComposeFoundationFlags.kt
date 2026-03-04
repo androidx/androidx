@@ -84,7 +84,7 @@ object ComposeFoundationFlags {
      * and then continue composing the rest of it in the next frames.
      */
     // TODO: b/455589928
-    @field:Suppress("MutableBareField") @JvmField var isPausableCompositionInPrefetchEnabled = true
+    @field:Suppress("MutableBareField") @JvmField var isPausableCompositionInPrefetchEnabled = false
 
     /**
      * With this flag on, Pager will use Cache Window as the default prefetching strategy, instead
@@ -176,5 +176,5 @@ object ComposeFoundationFlags {
     // TODO: Remove this flag once it has soaked (b/487251541)
     @field:Suppress("MutableBareField")
     @JvmField
-    var isBasicTextFieldMinSizeOptimizationEnabled = true
+    var isBasicTextFieldMinSizeOptimizationEnabled = false
 }

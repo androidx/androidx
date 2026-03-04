@@ -34,14 +34,14 @@ android {
 }
 
 dependencies {
-    implementation project(":benchmark:benchmark-junit4")
-    implementation project(":benchmark:benchmark-macro-junit4")
-    implementation libs.testRules
-    implementation libs.testExtJunit
-    implementation libs.testCore
-    implementation libs.testRunner
-    implementation libs.testUiautomator
-    implementation libs.testExtTruth
+    implementation(androidx.projectOrArtifact(":benchmark:benchmark-junit4"))
+    implementation(androidx.projectOrArtifact(":benchmark:benchmark-macro-junit4"))
+    implementation(libs.testRules)
+    implementation(libs.testExtJunit)
+    implementation(libs.testCore)
+    implementation(libs.testRunner)
+    implementation(libs.testUiautomator)
+    implementation(libs.testExtTruth)
 }
 
 baselineProfile {

@@ -51,7 +51,10 @@ abstract class InsertOrUpsertShortcutFunctionProcessorTest<out T : InsertOrUpser
                 package foo.bar;
                 import androidx.room3.*;
                 import java.util.*;
+                import androidx.room3.guava.GuavaDaoReturnTypeConverter;
+                import androidx.room3.rxjava3.RxDaoReturnTypeConverters;
                 @Dao
+                @DaoReturnTypeConverters({GuavaDaoReturnTypeConverter.class, RxDaoReturnTypeConverters.class})
                 abstract class MyClass {
                 """
         const val DAO_PREFIX_KT =
@@ -65,8 +68,11 @@ abstract class InsertOrUpsertShortcutFunctionProcessorTest<out T : InsertOrUpser
                 import com.google.common.util.concurrent.*
                 import org.reactivestreams.*
                 import kotlinx.coroutines.flow.*
+                import androidx.room3.guava.GuavaDaoReturnTypeConverter
+                import androidx.room3.rxjava3.RxDaoReturnTypeConverters
 
                 @Dao
+                @DaoReturnTypeConverters(GuavaDaoReturnTypeConverter::class, RxDaoReturnTypeConverters::class)
                 abstract class MyClass {
                 """
         const val DAO_SUFFIX = "}"
@@ -1118,6 +1124,14 @@ abstract class InsertOrUpsertShortcutFunctionProcessorTest<out T : InsertOrUpser
                 COMMON.RX3_COMPLETABLE,
                 COMMON.RX3_MAYBE,
                 COMMON.RX3_SINGLE,
+                COMMON.RX3_FLOWABLE,
+                COMMON.RX3_OBSERVABLE,
+                COMMON.LISTENABLE_FUTURE,
+                COMMON.LIVE_DATA,
+                COMMON.COMPUTABLE_LIVE_DATA,
+                COMMON.PUBLISHER,
+                COMMON.FLOW,
+                COMMON.GUAVA_ROOM,
             )
 
         runKspTest(sources = commonSources + additionalSources + inputSource) { invocation ->
@@ -1134,7 +1148,7 @@ abstract class InsertOrUpsertShortcutFunctionProcessorTest<out T : InsertOrUpser
                     .first { it.second.isNotEmpty() }
             val processed =
                 process(
-                    baseContext = invocation.context,
+                    baseContext = invocation.context.fork(owner),
                     containing = owner.type,
                     executableElement = methods.first(),
                 )
@@ -1181,7 +1195,7 @@ abstract class InsertOrUpsertShortcutFunctionProcessorTest<out T : InsertOrUpser
                     .first { it.second.isNotEmpty() }
             val processed =
                 process(
-                    baseContext = invocation.context,
+                    baseContext = invocation.context.fork(owner),
                     containing = owner.type,
                     executableElement = functions.first(),
                 )

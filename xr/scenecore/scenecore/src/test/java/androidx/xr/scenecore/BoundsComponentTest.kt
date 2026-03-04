@@ -120,7 +120,7 @@ class BoundsComponentTest {
                 10.seconds.toJavaDuration(),
             )
         val activityPanelEntity = ActivityPanelEntity.create(session, IntSize2d(640, 480), "test")
-        val groupEntity = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
         val surfaceEntity =
             SurfaceEntity.create(
                 session,
@@ -133,7 +133,7 @@ class BoundsComponentTest {
         assertThat(panelEntity.addComponent(boundsComponent)).isFalse()
         assertThat(anchorEntity.addComponent(boundsComponent)).isFalse()
         assertThat(activityPanelEntity.addComponent(boundsComponent)).isFalse()
-        assertThat(groupEntity.addComponent(boundsComponent)).isFalse()
+        assertThat(entity.addComponent(boundsComponent)).isFalse()
         assertThat(surfaceEntity.addComponent(boundsComponent)).isFalse()
     }
 

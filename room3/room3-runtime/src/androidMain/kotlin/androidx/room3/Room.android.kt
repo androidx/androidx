@@ -27,9 +27,9 @@ public actual object Room {
     public actual const val MASTER_TABLE_NAME: String = RoomMasterTable.TABLE_NAME
 
     /**
-     * Creates a RoomDatabase.Builder for an in memory database. Information stored in an in memory
-     * database disappears when the process is killed. Once a database is built, you should keep a
-     * reference to it and re-use it.
+     * Creates a [RoomDatabase.Builder] for an in memory database. Information stored in an
+     * in-memory database disappears when the database is closed or the process is killed. Once a
+     * database is built, you should keep a reference to it and re-use it.
      *
      * @param context The context for the database. This is usually the Application context.
      * @param klass The abstract class which is annotated with [Database] and extends
@@ -46,9 +46,9 @@ public actual object Room {
     }
 
     /**
-     * Creates a RoomDatabase.Builder for an in memory database. Information stored in an in memory
-     * database disappears when the process is killed. Once a database is built, you should keep a
-     * reference to it and re-use it.
+     * Creates a [RoomDatabase.Builder] for an in memory database. Information stored in an in
+     * memory database disappears when the process is killed. Once a database is built, you should
+     * keep a reference to it and re-use it.
      *
      * @param context The context for the database. This is usually the Application context.
      * @param factory An optional lambda calling [RoomDatabaseConstructor.initialize] corresponding

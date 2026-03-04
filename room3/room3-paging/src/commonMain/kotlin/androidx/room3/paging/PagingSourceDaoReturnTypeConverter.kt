@@ -18,14 +18,15 @@ package androidx.room3.paging
 
 import androidx.paging.PagingSource
 import androidx.room3.DaoReturnTypeConverter
+import androidx.room3.OperationType
 import androidx.room3.RoomDatabase
 import androidx.room3.RoomRawQuery
 
 /**
  * A [DaoReturnTypeConverter] that allows Room to return [PagingSource] types from `@Dao` functions.
  *
- * You can register this converter via annotating a [Database] or [Dao] using the annotation
- * [DaoReturnTypeConverters]:
+ * You can register this converter via annotating a [androidx.room3.Database] or
+ * [androidx.room3.Dao] using the annotation [androidx.room3.DaoReturnTypeConverters]:
  * ```
  * @DaoReturnTypeConverters(
  *     PagingSourceDaoReturnTypeConverter::class
@@ -37,6 +38,10 @@ public class PagingSourceDaoReturnTypeConverter {
     /**
      * Converts a Room query into a [PagingSource].
      *
+     * This converter can be used for both [OperationType.READ] and [OperationType.WRITE]. Note that
+     * Room shortcut methods (@Insert, @Update, @Delete) are always treated as
+     * [OperationType.WRITE].
+     *
      * @param database RoomDatabase instance.
      * @param tableNames List of names of the tables of the RoomDatabase to observe for
      *   invalidation.
@@ -47,7 +52,7 @@ public class PagingSourceDaoReturnTypeConverter {
      *   expected list of items.
      * @return A [PagingSource] that emits pages of type [T].
      */
-    @DaoReturnTypeConverter
+    @DaoReturnTypeConverter(operations = [OperationType.READ, OperationType.WRITE])
     public fun <T : Any> convert(
         database: RoomDatabase,
         tableNames: Array<String>,

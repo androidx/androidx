@@ -19,7 +19,7 @@ package androidx.room3
 import androidx.annotation.IntDef
 
 /**
- * Allows specific customization about the column associated with this property.
+ * Allows specific customization about the column associated with the annotated property.
  *
  * For example, you can specify a column name for the property or change the column's type affinity.
  */
@@ -37,19 +37,19 @@ public annotation class ColumnInfo(
      * The type affinity for the column, which will be used when constructing the database.
      *
      * If it is not specified, the value defaults to [UNDEFINED] and Room resolves it based on the
-     * property's type and available TypeConverters.
+     * property's type and available [TypeConverters].
      *
      * See [SQLite types documentation](https://www.sqlite.org/datatype3.html) for details.
      *
      * @return The type affinity of the column. This is either [UNDEFINED], [TEXT], [INTEGER],
      *   [REAL], or [BLOB].
      */
-    @Suppress("unused") @get:SQLiteTypeAffinity val typeAffinity: Int = UNDEFINED,
+    @get:SQLiteTypeAffinity val typeAffinity: Int = UNDEFINED,
 
     /**
-     * Convenience method to index the property.
+     * Convenience value to index the property.
      *
-     * If you would like to create a composite index instead, see: [Index].
+     * If you would like to create a composite index instead use the [Index] annotation.
      *
      * @return True if this property should be indexed, false otherwise. Defaults to false.
      */
@@ -78,12 +78,14 @@ public annotation class ColumnInfo(
      * ```
      *
      * Note that the default value you specify here will _NOT_ be used if you simply insert the
-     * [Entity] with [Insert]. In that case, any value assigned in Java/Kotlin will be used. Use
-     * [Query] with an `INSERT` statement and skip this column there in order to use this default
-     * value.
+     * [Entity] with [Insert]. In that case, the value of the object at runtime will be used. Use
+     * [Query] with an `INSERT` statement and skip this column in the statement in order to use this
+     * default value. Alternative, if a 'partial entity' is used as parameter of the [Insert] along
+     * with specifying the target entity via [Insert.entity], the default value will be used if the
+     * data object class of the parameter does not define a property for this column.
      *
-     * NULL, CURRENT_TIMESTAMP and other SQLite constant values are interpreted as such. If you want
-     * to use them as strings for some reason, surround them with single-quotes.
+     * `NULL`, `CURRENT_TIMESTAMP` and other SQLite constant values are interpreted as such. If you
+     * want to use them as strings for some reason, surround them with single-quotes.
      *
      * ```
      * @ColumnInfo(defaultValue = "NULL")
@@ -105,7 +107,7 @@ public annotation class ColumnInfo(
      */
     val defaultValue: String = VALUE_UNSPECIFIED,
 ) {
-    /** The SQLite column type constants that can be used in [typeAffinity()] */
+    /** The SQLite column type constants that can be used in [ColumnInfo.typeAffinity] */
     @IntDef(UNDEFINED, TEXT, INTEGER, REAL, BLOB)
     @Retention(AnnotationRetention.BINARY)
     public annotation class SQLiteTypeAffinity
@@ -124,7 +126,7 @@ public annotation class ColumnInfo(
         /**
          * Undefined type affinity. Will be resolved based on the type.
          *
-         * @see typeAffinity()
+         * @see ColumnInfo.typeAffinity
          */
         public const val UNDEFINED: Int = 1
 
@@ -138,42 +140,42 @@ public annotation class ColumnInfo(
         /**
          * Column affinity constant for integers or booleans.
          *
-         * @see typeAffinity()
+         * @see ColumnInfo.typeAffinity
          */
         public const val INTEGER: Int = 3
 
         /**
          * Column affinity constant for floats or doubles.
          *
-         * @see typeAffinity()
+         * @see ColumnInfo.typeAffinity
          */
         public const val REAL: Int = 4
 
         /**
          * Column affinity constant for binary data.
          *
-         * @see typeAffinity()
+         * @see ColumnInfo.typeAffinity
          */
         public const val BLOB: Int = 5
 
         /**
          * Collation sequence is not specified. The match will behave like [BINARY].
          *
-         * @see collate()
+         * @see ColumnInfo.collate
          */
         public const val UNSPECIFIED: Int = 1
 
         /**
          * Collation sequence for case-sensitive match.
          *
-         * @see collate()
+         * @see ColumnInfo.collate
          */
         public const val BINARY: Int = 2
 
         /**
          * Collation sequence for case-insensitive match.
          *
-         * @see collate()
+         * @see ColumnInfo.collate
          */
         public const val NOCASE: Int = 3
 
@@ -181,25 +183,27 @@ public annotation class ColumnInfo(
          * Collation sequence for case-sensitive match except that trailing space characters are
          * ignored.
          *
-         * @see collate()
+         * @see ColumnInfo.collate
          */
         public const val RTRIM: Int = 4
 
         /**
          * Collation sequence that uses system's current locale.
          *
-         * @see collate()
+         * @see ColumnInfo.collate
          */
         public const val LOCALIZED: Int = 5
 
         /**
          * Collation sequence that uses Unicode Collation Algorithm.
          *
-         * @see collate()
+         * @see ColumnInfo.collate
          */
         public const val UNICODE: Int = 6
 
-        /** A constant for [defaultValue()] that makes the column to have no default value. */
+        /**
+         * A constant for [ColumnInfo.defaultValue] that makes the column to have no default value.
+         */
         public const val VALUE_UNSPECIFIED: String = "[value-unspecified]"
     }
 }

@@ -23,7 +23,7 @@ import java.lang.reflect.Modifier
 import kotlin.math.ceil
 
 /** A utility object to invoke composable function by its name and containing class. */
-@Deprecated("Use androidx.compose.runtime.reflect.ComposableMethodInvoker instead")
+@Deprecated("Use androidx.compose.runtime.reflect.ComposableMethod instead")
 object ComposableInvoker {
 
     /**

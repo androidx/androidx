@@ -23,12 +23,11 @@ import androidx.annotation.RestrictTo
 public open class LifecycleException(message: String, cause: Throwable? = null) :
     Exception(message, cause)
 
-/** The Google Play Services Location Library is not linked. */
-@Suppress("MentionsGoogle")
+/** A required library is not linked. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class GooglePlayServicesLocationLibraryNotLinkedException(cause: Throwable? = null) :
+public class LibraryNotLinkedException(public val libraryName: String, cause: Throwable? = null) :
     LifecycleException(
-        "Failed to configure session, Google Play Services Location Library is not linked.",
+        "Failed to configure Session, required library \"$libraryName\" is not linked.",
         cause,
     )
 

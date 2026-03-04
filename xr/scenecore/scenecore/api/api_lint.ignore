@@ -3,6 +3,28 @@ HiddenSuperclass: androidx.xr.scenecore.Scene:
     Public class androidx.xr.scenecore.Scene stripped of unavailable superclass androidx.xr.runtime.SessionConnector
 
 
+MissingJvmstatic: androidx.xr.scenecore.ActivitySpace#getPose(androidx.xr.scenecore.Space):
+    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
+MissingJvmstatic: androidx.xr.scenecore.ActivitySpace#getScale(androidx.xr.scenecore.Space):
+    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
+MissingJvmstatic: androidx.xr.scenecore.AnchorEntity#getPose(androidx.xr.scenecore.Space):
+    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
+MissingJvmstatic: androidx.xr.scenecore.AnchorEntity#getScale(androidx.xr.scenecore.Space):
+    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
+MissingJvmstatic: androidx.xr.scenecore.BaseEntity#getAlpha(androidx.xr.scenecore.Space):
+    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
+MissingJvmstatic: androidx.xr.scenecore.BaseEntity#getPose(androidx.xr.scenecore.Space):
+    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
+MissingJvmstatic: androidx.xr.scenecore.BaseEntity#getScale(androidx.xr.scenecore.Space):
+    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
+MissingJvmstatic: androidx.xr.scenecore.BaseEntity#isEnabled(boolean):
+    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
+MissingJvmstatic: androidx.xr.scenecore.BaseEntity#setPose(androidx.xr.runtime.math.Pose, androidx.xr.scenecore.Space):
+    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
+MissingJvmstatic: androidx.xr.scenecore.BaseEntity#setScale(float, androidx.xr.scenecore.Space):
+    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
+
+
 TypeParameterName: androidx.xr.scenecore.BaseEntity:
     Invalid type parameter name "RtEntityType". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
 TypeParameterName: androidx.xr.scenecore.BaseScenePose:

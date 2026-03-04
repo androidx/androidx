@@ -19,31 +19,11 @@
 
 package androidx.room3.util
 
-import androidx.annotation.RestrictTo
 import androidx.room3.RoomDatabase
-import androidx.room3.coroutines.RawConnectionAccessor
-import androidx.sqlite.SQLiteConnection
 import kotlin.coroutines.CoroutineContext
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.withContext
-
-/** Performs a database operation. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
-public actual suspend fun <R> performSuspending(
-    db: RoomDatabase,
-    isReadOnly: Boolean,
-    inTransaction: Boolean,
-    block: suspend (SQLiteConnection) -> R,
-): R =
-    withContext(db.getCoroutineContext(inTransaction)) {
-        db.internalPerform(isReadOnly, inTransaction) { connection ->
-            (connection as RawConnectionAccessor).useRawConnection { rawConnection ->
-                block.invoke(rawConnection)
-            }
-        }
-    }
 
 /**
  * Gets the database [CoroutineContext] to perform database operation on utility functions. Prefer
@@ -53,18 +33,3 @@ public actual suspend fun <R> performSuspending(
 internal actual suspend fun RoomDatabase.getCoroutineContext(
     inTransaction: Boolean
 ): CoroutineContext = getCoroutineScope().coroutineContext.minusKey(Job)
-
-/**
- * Utility function to wrap a suspend block in Room's transaction coroutine.
- *
- * This function should only be invoked from generated code and is needed to support `@Transaction`
- * delegates in Java and Kotlin. It is preferred to use the other 'perform' functions.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
-public actual suspend fun <R> performInTransactionSuspending(
-    db: RoomDatabase,
-    block: suspend () -> R,
-): R =
-    withContext(db.getCoroutineContext(inTransaction = true)) {
-        db.internalPerform(isReadOnly = false, inTransaction = true) { block.invoke() }
-    }

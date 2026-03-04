@@ -1,15 +1,15 @@
 // Signature format: 4.0
 package androidx.text.vertical {
 
-  public final class EmphasisSpan extends android.text.style.MetricAffectingSpan {
+  public final class EmphasisSpan extends android.text.style.ReplacementSpan {
     ctor public EmphasisSpan();
     ctor public EmphasisSpan(optional int style, optional boolean isFilled, optional float scale);
     ctor @BytecodeOnly public EmphasisSpan(int, boolean, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public void draw(android.graphics.Canvas canvas, CharSequence? text, int start, int end, float x, int top, int y, int bottom, android.graphics.Paint paint);
     method @InaccessibleFromKotlin public float getScale();
+    method public int getSize(android.graphics.Paint paint, CharSequence? text, int start, int end, android.graphics.Paint.FontMetricsInt? fm);
     method @InaccessibleFromKotlin public int getStyle();
     method @InaccessibleFromKotlin public boolean isFilled();
-    method public void updateDrawState(android.text.TextPaint? p0);
-    method public void updateMeasureState(android.text.TextPaint p0);
     property public boolean isFilled;
     property public float scale;
     property public int style;
@@ -51,8 +51,10 @@ package androidx.text.vertical {
     property public static float DEFAULT_FONT_SHEAR;
   }
 
-  public final class RubySpan {
+  public final class RubySpan extends android.text.style.ReplacementSpan {
+    method public void draw(android.graphics.Canvas canvas, CharSequence? text, int start, int end, float x, int top, int y, int bottom, android.graphics.Paint paint);
     method @InaccessibleFromKotlin public int getOrientation();
+    method public int getSize(android.graphics.Paint paint, CharSequence? text, int start, int end, android.graphics.Paint.FontMetricsInt? fm);
     method @InaccessibleFromKotlin public CharSequence getText();
     method @InaccessibleFromKotlin public float getTextScale();
     property public int orientation;

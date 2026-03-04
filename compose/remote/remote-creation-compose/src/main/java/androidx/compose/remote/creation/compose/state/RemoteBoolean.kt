@@ -22,6 +22,7 @@ import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.state.RemoteBoolean.OperationKey
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 
@@ -34,6 +35,16 @@ import androidx.compose.runtime.remember
  */
 public open class RemoteBoolean internal constructor(internal val intValue: RemoteInt) :
     BaseRemoteState<Boolean>() {
+    internal override val cacheKey: RemoteStateCacheKey
+        get() = intValue.cacheKey
+
+    internal enum class OperationKey {
+        SelectString,
+        SelectFloat,
+        SelectInt,
+        SelectBoolean,
+    }
+
     @get:Suppress("AutoBoxing")
     public override val constantValueOrNull: Boolean?
         get() = intValue.constantValueOrNull?.let { it != 0 }
@@ -98,6 +109,8 @@ public open class RemoteBoolean internal constructor(internal val intValue: Remo
 
         return MutableRemoteString(
             constantValueOrNull = null,
+            cacheKey =
+                RemoteOperationCacheKey.create(OperationKey.SelectString, this, ifTrue, ifFalse),
             object : LazyRemoteString {
                 override fun reserveTextId(creationState: RemoteComposeCreationState): Int {
                     return creationState.document.textLookup(
@@ -138,7 +151,9 @@ public open class RemoteBoolean internal constructor(internal val intValue: Remo
         }
         return RemoteFloatExpression(
             constantValueOrNull = null,
-            { creationState ->
+            cacheKey =
+                RemoteOperationCacheKey.create(OperationKey.SelectFloat, this, ifTrue, ifFalse),
+            arrayProvider = { creationState ->
                 combineToFloatArray(
                     creationState,
                     arrayOf(ifFalse, ifTrue, intValue.toRemoteFloat()),
@@ -166,7 +181,9 @@ public open class RemoteBoolean internal constructor(internal val intValue: Remo
         }
         return RemoteIntExpression(
             constantValueOrNull = null,
-            { creationState ->
+            cacheKey =
+                RemoteOperationCacheKey.create(OperationKey.SelectInt, this, ifTrue, ifFalse),
+            arrayProvider = { creationState ->
                 combineToLongArray(
                     creationState,
                     arrayOf(ifFalse, ifTrue, intValue),
@@ -196,7 +213,14 @@ public open class RemoteBoolean internal constructor(internal val intValue: Remo
         return RemoteBoolean(
             RemoteIntExpression(
                 constantValueOrNull = null,
-                { creationState ->
+                cacheKey =
+                    RemoteOperationCacheKey.create(
+                        OperationKey.SelectBoolean,
+                        this,
+                        ifTrue,
+                        ifFalse,
+                    ),
+                arrayProvider = { creationState ->
                     combineToLongArray(
                         creationState,
                         arrayOf(ifFalse.intValue, ifTrue.intValue, intValue),
@@ -238,7 +262,6 @@ public open class RemoteBoolean internal constructor(internal val intValue: Remo
      * @param ifFalse The [RemoteColor] to be selected if this boolean is `false`.
      * @return A new [RemoteColor] representing the conditionally selected color.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun select(ifTrue: RemoteColor, ifFalse: RemoteColor): RemoteColor {
         intValue.constantValueOrNull?.let {
             return if (it != 0) {

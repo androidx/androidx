@@ -32,8 +32,7 @@ import androidx.xr.scenecore.runtime.AnchorEntity as RtAnchorEntity
 import java.time.Duration
 import java.util.concurrent.Executor
 import java.util.function.Consumer
-import kotlinx.coroutines.CompletableJob
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 /**
@@ -53,7 +52,7 @@ private constructor(rtEntity: RtAnchorEntity, entityManager: EntityManager) :
     @VisibleForTesting internal var onStateChangedListener: Consumer<State>? = null
     private var onStateChangedExecutor: Executor = HandlerExecutor.mainThreadExecutor
     /** Asynchronous job responsible for finding a suitable plane to anchor this entity to. */
-    private var planeFindingJob: CompletableJob? = null
+    private var planeFindingJob: Job? = null
     /** Plane [Anchor] this anchor entity represents. */
     private var planeAnchor: Anchor? = null
 
@@ -125,7 +124,7 @@ private constructor(rtEntity: RtAnchorEntity, entityManager: EntityManager) :
             when (state) {
                 State.ANCHORED,
                 State.TIMEDOUT -> {
-                    planeFindingJob?.complete()
+                    planeFindingJob?.cancel()
                     planeFindingJob = null
                 }
                 State.ERROR -> {
@@ -151,44 +150,41 @@ private constructor(rtEntity: RtAnchorEntity, entityManager: EntityManager) :
             entity: AnchorEntity,
         ) {
             entity.planeFindingJob =
-                SupervisorJob(
-                    session.coroutineScope.launch {
-                        Plane.subscribe(session).collect {
-                            val timeNow = SystemClock.uptimeMillis()
-                            if (info.searchDeadline != null && timeNow > info.searchDeadline) {
-                                entity.updateState(State.TIMEDOUT)
-                                return@collect
+                session.coroutineScope.launch {
+                    Plane.subscribe(session).collect {
+                        val timeNow = SystemClock.uptimeMillis()
+                        if (info.searchDeadline != null && timeNow > info.searchDeadline) {
+                            entity.updateState(State.TIMEDOUT)
+                            return@collect
+                        }
+
+                        val plane =
+                            it.firstOrNull {
+                                val planeState = it.state.value
+                                val planeOrientation = it.type.toSceneCoreOrientation()
+                                val planeSemanticType = planeState.label.toSceneCoreSemanticType()
+                                (info.orientation == planeOrientation ||
+                                    info.orientation == PlaneOrientation.ANY) &&
+                                    (info.semanticType == planeSemanticType ||
+                                        info.semanticType == PlaneSemanticType.ANY) &&
+                                    info.dimensions.width <= planeState.extents.width &&
+                                    info.dimensions.height <= planeState.extents.height
                             }
 
-                            val plane =
-                                it.firstOrNull {
-                                    val planeState = it.state.value
-                                    val planeOrientation = it.type.toSceneCoreOrientation()
-                                    val planeSemanticType =
-                                        planeState.label.toSceneCoreSemanticType()
-                                    (info.orientation == planeOrientation ||
-                                        info.orientation == PlaneOrientation.ANY) &&
-                                        (info.semanticType == planeSemanticType ||
-                                            info.semanticType == PlaneSemanticType.ANY) &&
-                                        info.dimensions.width <= planeState.extents.width &&
-                                        info.dimensions.height <= planeState.extents.height
-                                }
-
-                            if (plane != null) {
-                                val anchorCreateResult = plane.createAnchor(Pose.Identity)
-                                if (anchorCreateResult is AnchorCreateSuccess) {
-                                    val anchor = anchorCreateResult.anchor
-                                    if (entity.rtEntity!!.setAnchor(anchor)) {
-                                        entity.planeAnchor = anchor
-                                        entity.updateState(State.ANCHORED)
-                                    } else {
-                                        anchor.detach()
-                                    }
+                        if (plane != null && entity.state != State.ANCHORED) {
+                            val anchorCreateResult = plane.createAnchor(Pose.Identity)
+                            if (anchorCreateResult is AnchorCreateSuccess) {
+                                val anchor = anchorCreateResult.anchor
+                                if (entity.rtEntity!!.setAnchor(anchor)) {
+                                    entity.planeAnchor = anchor
+                                    entity.updateState(State.ANCHORED)
+                                } else {
+                                    anchor.detach()
                                 }
                             }
                         }
                     }
-                )
+                }
         }
 
         /**

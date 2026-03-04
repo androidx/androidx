@@ -323,33 +323,36 @@ constructor(
                     val result =
                         select<OpenCameraResult?> {
                             cameraOpenDeferred?.onAwait {
-                                Log.debug { "tryOpenCamera: openCamera() for $cameraId returned" }
+                                // openCamera() returned
                                 cameraOpenDeferred = null
                                 it
                             }
 
                             resultDeferred?.onAwait {
-                                Log.debug { "tryOpenCamera: $cameraId opened" }
+                                // Camera opening completed. We have an opened camera, or we
+                                // received an error.
                                 resultDeferred = null
                                 it
                             }
 
                             timeoutJob?.onJoin {
-                                Log.debug { "tryOpenCamera: ${CAMERA_OPEN_TIMEOUT_MS}ms elapsed" }
+                                // Camera opening timeout job completes.
                                 timeoutJob = null
                                 if (cameraOpenDeferred != null) {
-                                    Log.error { "tryOpenCamera: openCamera() timed out" }
+                                    // We hit our timeout, but openCamera() hasn't returned. This
+                                    // indicates that the camera framework is likely blocked.
                                     cameraState.close()
                                     OpenCameraResult(
                                         errorCode = CameraError.ERROR_CAMERA_OPEN_TIMEOUT
                                     )
                                 } else {
+                                    // openCamera() did return, wait for the state callback.
                                     null
                                 }
                             }
 
                             cameraOpenCancelJob?.onJoin {
-                                Log.debug { "tryOpenCamera: Camera open cancelled" }
+                                // Camera opening was canceled explicitly from shutdown procedures.
                                 cameraOpenCancelJob = null
                                 OpenCameraResult(errorCode = CameraError.ERROR_CAMERA_OPEN_TIMEOUT)
                             }

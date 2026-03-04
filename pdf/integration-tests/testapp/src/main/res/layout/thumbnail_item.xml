@@ -17,8 +17,8 @@
 
 <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/thumbnail_image"
-    android:layout_width="70dp"
-    android:layout_height="90dp"
+    android:layout_width="@dimen/thumbnail_width"
+    android:layout_height="@dimen/thumbnail_height"
     android:scaleType="centerInside"
     android:padding="4dp"
     android:contentDescription="@string/thumbnail_content_description"

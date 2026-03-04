@@ -21,6 +21,8 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.util.fastRoundToInt
+import androidx.compose.ui.util.fastSumBy
 
 internal class GlimmerListMeasureResult(
     /** The new first visible item. */
@@ -64,4 +66,27 @@ internal class GlimmerListMeasureResult(
 
     override val beforeContentPadding: Int
         get() = -viewportStartOffset
+
+    /**
+     * Because lists are lazy, we only know the size of items that are currently in the viewport.
+     *
+     * This value is the average size of one item along the main axis, in pixels. This includes the
+     * spacing between items, which should be equal to [mainAxisItemSpacing].
+     */
+    internal val visibleItemsAverageSize: Int
+        get() {
+            if (_visibleItemsAverageSize == -1) {
+                _visibleItemsAverageSize = calculateVisibleItemsAverageSize()
+            }
+            return _visibleItemsAverageSize
+        }
+
+    private var _visibleItemsAverageSize: Int = -1
+
+    private fun calculateVisibleItemsAverageSize(): Int {
+        val visibleItems = visibleItemsInfo
+        if (visibleItems.isEmpty()) return 0
+        val itemsSum = visibleItems.fastSumBy { it.size }
+        return (itemsSum.toFloat() / visibleItems.size).fastRoundToInt() + mainAxisItemSpacing
+    }
 }

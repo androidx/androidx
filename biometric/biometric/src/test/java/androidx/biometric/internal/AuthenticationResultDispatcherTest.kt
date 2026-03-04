@@ -17,6 +17,7 @@
 package androidx.biometric.internal
 
 import android.app.Application
+import androidx.biometric.AuthenticationRequest
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.R
 import androidx.biometric.internal.data.FakeAuthenticationStateRepository
@@ -44,6 +45,7 @@ class AuthenticationResultDispatcherTest {
     private var authErrorCode: Int = -1
     private var authErrorString: CharSequence = ""
     private var authResult: BiometricPrompt.AuthenticationResult? = null
+    private var authFallback: AuthenticationRequest.Biometric.Fallback.CustomOption? = null
     private var authFailed: Boolean = false
     private val clientAuthenticationCallback =
         object : BiometricPrompt.AuthenticationCallback() {
@@ -54,6 +56,12 @@ class AuthenticationResultDispatcherTest {
 
             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                 this@AuthenticationResultDispatcherTest.authResult = result
+            }
+
+            override fun onFallbackSelected(
+                fallback: AuthenticationRequest.Biometric.Fallback.CustomOption
+            ) {
+                this@AuthenticationResultDispatcherTest.authFallback = fallback
             }
 
             override fun onAuthenticationFailed() {
@@ -86,6 +94,17 @@ class AuthenticationResultDispatcherTest {
         dispatcher.onAuthenticationSucceeded(result)
 
         assertThat(authResult).isEqualTo(result)
+        assertThat(isDismissed).isTrue()
+        assertThat(viewModel.isAwaitingResult).isFalse()
+    }
+
+    @Test
+    fun testSendFallbackOptionAndDismiss_sendsFallbackAndDismisses() {
+        viewModel.isAwaitingResult = true
+        val fallback = AuthenticationRequest.Biometric.Fallback.CustomOption("test")
+        dispatcher.sendFallbackOptionAndDismiss(fallback)
+
+        assertThat(authFallback).isEqualTo(fallback)
         assertThat(isDismissed).isTrue()
         assertThat(viewModel.isAwaitingResult).isFalse()
     }

@@ -394,7 +394,7 @@ private object BoxAccumulatorNative {
     )
 
     /**
-     * Helper method to construct a native C++ [Envelope] using [this], add the optional box to the
+     * Helper method to construct a native C++ [Envelope] using `this`, add the optional box to the
      * native [Envelope], and update [output] using the result.
      */
     @UsedByNative

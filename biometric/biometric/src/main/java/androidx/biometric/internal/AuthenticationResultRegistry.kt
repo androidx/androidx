@@ -19,9 +19,11 @@ package androidx.biometric.internal
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
+import android.os.Build
 import androidx.annotation.RestrictTo
 import androidx.biometric.AuthenticationRequest
 import androidx.biometric.AuthenticationRequest.Biometric
+import androidx.biometric.AuthenticationRequest.Credential
 import androidx.biometric.AuthenticationResult
 import androidx.biometric.AuthenticationResultCallback
 import androidx.biometric.AuthenticationResultLauncher
@@ -33,6 +35,7 @@ import androidx.biometric.BiometricPrompt.LifecycleContainer
 import androidx.biometric.BiometricPrompt.PromptInfo
 import androidx.biometric.PromptContentViewWithMoreOptionsButton
 import androidx.biometric.PromptVerticalListContentView
+import androidx.biometric.R
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -87,7 +90,7 @@ public class AuthenticationResultRegistry {
 
         return object : AuthenticationResultLauncher {
             override fun launch(input: AuthenticationRequest) {
-                biometricPrompt?.let { onLaunch(input, it) }
+                biometricPrompt?.onLaunch(context, input)
             }
 
             override fun cancel() {
@@ -97,10 +100,11 @@ public class AuthenticationResultRegistry {
     }
 }
 
-private fun onLaunch(input: AuthenticationRequest, biometricPrompt: BiometricPrompt) {
+private fun BiometricPrompt.onLaunch(context: Context, input: AuthenticationRequest) {
     when (input) {
         is Biometric ->
-            biometricPrompt.authInternal(
+            authInternal(
+                context = context,
                 title = input.title,
                 subtitle = input.subtitle,
                 content = input.content,
@@ -109,10 +113,11 @@ private fun onLaunch(input: AuthenticationRequest, biometricPrompt: BiometricPro
                 logoDescription = input.logoDescription,
                 minBiometricStrength = input.minStrength,
                 isConfirmationRequired = input.isConfirmationRequired,
-                authFallback = input.authFallback,
+                authFallbacks = input.authFallbacks,
             )
-        is AuthenticationRequest.Credential ->
-            biometricPrompt.authInternal(
+        is Credential ->
+            authInternal(
+                context = context,
                 title = input.title,
                 subtitle = input.subtitle,
                 content = input.content,
@@ -138,12 +143,17 @@ private fun createAuthenticationCallback(
         override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
             resultCallback.onAuthResult(AuthenticationResult.Error(errorCode, errString))
         }
+
+        override fun onFallbackSelected(fallback: Biometric.Fallback.CustomOption) {
+            resultCallback.onAuthResult(AuthenticationResult.CustomFallbackSelected(fallback))
+        }
     }
 }
 
 /** Shows the authentication prompt to the user with biometric and/or device credential. */
 @SuppressLint("MissingPermission")
 private fun BiometricPrompt.authInternal(
+    context: Context,
     title: String,
     subtitle: String? = null,
     content: AuthenticationRequest.BodyContent? = null,
@@ -153,20 +163,35 @@ private fun BiometricPrompt.authInternal(
     minBiometricStrength: Biometric.Strength? = null,
     isConfirmationRequired: Boolean = true,
     cryptoObjectForCredentialOnly: CryptoObject? = null,
-    authFallback: Biometric.Fallback? = null,
+    authFallbacks: List<Biometric.Fallback>? = null,
 ) {
-
     PromptInfo.Builder().apply {
         // Set authenticators and fallbacks
         var authType =
             minBiometricStrength?.toAuthenticationType()
                 ?: BiometricManager.Authenticators.DEVICE_CREDENTIAL
-        when (authFallback) {
-            is Biometric.Fallback.DeviceCredential ->
-                authType = authType or BiometricManager.Authenticators.DEVICE_CREDENTIAL
-            is Biometric.Fallback.NegativeButton ->
-                setNegativeButtonText(authFallback.negativeButtonText)
+
+        minBiometricStrength?.toAuthenticationType()?.let {
+            fun defaultCancelButton(): Biometric.Fallback =
+                Biometric.Fallback.DefaultCancel(context.getString(android.R.string.cancel))
+
+            val fallbacksToProcess =
+                when {
+                    authFallbacks.multipleFallbackOptionsValid() -> authFallbacks!!
+                    !authFallbacks.isNullOrEmpty() -> listOf(authFallbacks.first())
+                    else -> listOf(defaultCancelButton())
+                }
+
+            fallbacksToProcess.forEach { fallback ->
+                when (fallback) {
+                    is Biometric.Fallback.DeviceCredential -> {
+                        authType = authType or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+                    }
+                    else -> addFallbackOption(fallback)
+                }
+            }
         }
+
         setAllowedAuthenticators(authType)
 
         // Set body content
@@ -216,3 +241,9 @@ private fun BiometricPrompt.authInternal(
         }
     }
 }
+
+internal fun List<Biometric.Fallback>?.multipleFallbackOptionsValid(): Boolean =
+    Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA &&
+        Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1 &&
+        this != null &&
+        this.size > 1

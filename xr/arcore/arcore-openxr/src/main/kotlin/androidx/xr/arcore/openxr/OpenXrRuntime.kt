@@ -89,7 +89,7 @@ internal constructor(
                 HandTrackingMode.DISABLED,
                 HandTrackingMode.BOTH,
                 DeviceTrackingMode.DISABLED,
-                DeviceTrackingMode.LAST_KNOWN,
+                DeviceTrackingMode.SPATIAL_LAST_KNOWN,
                 DepthEstimationMode.DISABLED,
                 DepthEstimationMode.RAW_ONLY,
                 DepthEstimationMode.SMOOTH_ONLY,

@@ -2202,6 +2202,17 @@ final class androidx.compose.ui.semantics/CustomAccessibilityAction { // android
     final fun toString(): kotlin/String // androidx.compose.ui.semantics/CustomAccessibilityAction.toString|toString(){}[0]
 }
 
+final class androidx.compose.ui.semantics/InputTextSuggestionState { // androidx.compose.ui.semantics/InputTextSuggestionState|null[0]
+    constructor <init>(kotlin/Boolean = ...) // androidx.compose.ui.semantics/InputTextSuggestionState.<init>|<init>(kotlin.Boolean){}[0]
+
+    final val isCommittedByInputMethodEditor // androidx.compose.ui.semantics/InputTextSuggestionState.isCommittedByInputMethodEditor|{}isCommittedByInputMethodEditor[0]
+        final fun <get-isCommittedByInputMethodEditor>(): kotlin/Boolean // androidx.compose.ui.semantics/InputTextSuggestionState.isCommittedByInputMethodEditor.<get-isCommittedByInputMethodEditor>|<get-isCommittedByInputMethodEditor>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.semantics/InputTextSuggestionState.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.ui.semantics/InputTextSuggestionState.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.ui.semantics/InputTextSuggestionState.toString|toString(){}[0]
+}
+
 final class androidx.compose.ui.semantics/ProgressBarRangeInfo { // androidx.compose.ui.semantics/ProgressBarRangeInfo|null[0]
     constructor <init>(kotlin/Float, kotlin.ranges/ClosedFloatingPointRange<kotlin/Float>, kotlin/Int = ...) // androidx.compose.ui.semantics/ProgressBarRangeInfo.<init>|<init>(kotlin.Float;kotlin.ranges.ClosedFloatingPointRange<kotlin.Float>;kotlin.Int){}[0]
 
@@ -3614,6 +3625,8 @@ final object androidx.compose.ui.semantics/SemanticsProperties { // androidx.com
         final fun <get-IndexForKey>(): androidx.compose.ui.semantics/SemanticsPropertyKey<kotlin/Function1<kotlin/Any, kotlin/Int>> // androidx.compose.ui.semantics/SemanticsProperties.IndexForKey.<get-IndexForKey>|<get-IndexForKey>(){}[0]
     final val InputText // androidx.compose.ui.semantics/SemanticsProperties.InputText|{}InputText[0]
         final fun <get-InputText>(): androidx.compose.ui.semantics/SemanticsPropertyKey<androidx.compose.ui.text/AnnotatedString> // androidx.compose.ui.semantics/SemanticsProperties.InputText.<get-InputText>|<get-InputText>(){}[0]
+    final val InputTextSuggestionState // androidx.compose.ui.semantics/SemanticsProperties.InputTextSuggestionState|{}InputTextSuggestionState[0]
+        final fun <get-InputTextSuggestionState>(): androidx.compose.ui.semantics/SemanticsPropertyKey<androidx.compose.ui.semantics/InputTextSuggestionState> // androidx.compose.ui.semantics/SemanticsProperties.InputTextSuggestionState.<get-InputTextSuggestionState>|<get-InputTextSuggestionState>(){}[0]
     final val InvisibleToUser // androidx.compose.ui.semantics/SemanticsProperties.InvisibleToUser|{}InvisibleToUser[0]
         final fun <get-InvisibleToUser>(): androidx.compose.ui.semantics/SemanticsPropertyKey<kotlin/Unit> // androidx.compose.ui.semantics/SemanticsProperties.InvisibleToUser.<get-InvisibleToUser>|<get-InvisibleToUser>(){}[0]
     final val IsContainer // androidx.compose.ui.semantics/SemanticsProperties.IsContainer|{}IsContainer[0]
@@ -3656,6 +3669,8 @@ final object androidx.compose.ui.semantics/SemanticsProperties { // androidx.com
         final fun <get-TestTag>(): androidx.compose.ui.semantics/SemanticsPropertyKey<kotlin/String> // androidx.compose.ui.semantics/SemanticsProperties.TestTag.<get-TestTag>|<get-TestTag>(){}[0]
     final val Text // androidx.compose.ui.semantics/SemanticsProperties.Text|{}Text[0]
         final fun <get-Text>(): androidx.compose.ui.semantics/SemanticsPropertyKey<kotlin.collections/List<androidx.compose.ui.text/AnnotatedString>> // androidx.compose.ui.semantics/SemanticsProperties.Text.<get-Text>|<get-Text>(){}[0]
+    final val TextCompositionRange // androidx.compose.ui.semantics/SemanticsProperties.TextCompositionRange|{}TextCompositionRange[0]
+        final fun <get-TextCompositionRange>(): androidx.compose.ui.semantics/SemanticsPropertyKey<androidx.compose.ui.text/TextRange?> // androidx.compose.ui.semantics/SemanticsProperties.TextCompositionRange.<get-TextCompositionRange>|<get-TextCompositionRange>(){}[0]
     final val TextEntryKey // androidx.compose.ui.semantics/SemanticsProperties.TextEntryKey|{}TextEntryKey[0]
         final fun <get-TextEntryKey>(): androidx.compose.ui.semantics/SemanticsPropertyKey<kotlin/Unit> // androidx.compose.ui.semantics/SemanticsProperties.TextEntryKey.<get-TextEntryKey>|<get-TextEntryKey>(){}[0]
     final val TextSelectionRange // androidx.compose.ui.semantics/SemanticsProperties.TextSelectionRange|{}TextSelectionRange[0]
@@ -3933,6 +3948,7 @@ final val androidx.compose.ui.semantics/androidx_compose_ui_semantics_Accessibil
 final val androidx.compose.ui.semantics/androidx_compose_ui_semantics_CollectionInfo$stableprop // androidx.compose.ui.semantics/androidx_compose_ui_semantics_CollectionInfo$stableprop|#static{}androidx_compose_ui_semantics_CollectionInfo$stableprop[0]
 final val androidx.compose.ui.semantics/androidx_compose_ui_semantics_CollectionItemInfo$stableprop // androidx.compose.ui.semantics/androidx_compose_ui_semantics_CollectionItemInfo$stableprop|#static{}androidx_compose_ui_semantics_CollectionItemInfo$stableprop[0]
 final val androidx.compose.ui.semantics/androidx_compose_ui_semantics_CustomAccessibilityAction$stableprop // androidx.compose.ui.semantics/androidx_compose_ui_semantics_CustomAccessibilityAction$stableprop|#static{}androidx_compose_ui_semantics_CustomAccessibilityAction$stableprop[0]
+final val androidx.compose.ui.semantics/androidx_compose_ui_semantics_InputTextSuggestionState$stableprop // androidx.compose.ui.semantics/androidx_compose_ui_semantics_InputTextSuggestionState$stableprop|#static{}androidx_compose_ui_semantics_InputTextSuggestionState$stableprop[0]
 final val androidx.compose.ui.semantics/androidx_compose_ui_semantics_ProgressBarRangeInfo$stableprop // androidx.compose.ui.semantics/androidx_compose_ui_semantics_ProgressBarRangeInfo$stableprop|#static{}androidx_compose_ui_semantics_ProgressBarRangeInfo$stableprop[0]
 final val androidx.compose.ui.semantics/androidx_compose_ui_semantics_ScrollAxisRange$stableprop // androidx.compose.ui.semantics/androidx_compose_ui_semantics_ScrollAxisRange$stableprop|#static{}androidx_compose_ui_semantics_ScrollAxisRange$stableprop[0]
 final val androidx.compose.ui.semantics/androidx_compose_ui_semantics_SemanticsActions$stableprop // androidx.compose.ui.semantics/androidx_compose_ui_semantics_SemanticsActions$stableprop|#static{}androidx_compose_ui_semantics_SemanticsActions$stableprop[0]
@@ -3995,6 +4011,9 @@ final var androidx.compose.ui.semantics/imeAction // androidx.compose.ui.semanti
 final var androidx.compose.ui.semantics/inputText // androidx.compose.ui.semantics/inputText|@androidx.compose.ui.semantics.SemanticsPropertyReceiver{}inputText[0]
     final fun (androidx.compose.ui.semantics/SemanticsPropertyReceiver).<get-inputText>(): androidx.compose.ui.text/AnnotatedString // androidx.compose.ui.semantics/inputText.<get-inputText>|<get-inputText>@androidx.compose.ui.semantics.SemanticsPropertyReceiver(){}[0]
     final fun (androidx.compose.ui.semantics/SemanticsPropertyReceiver).<set-inputText>(androidx.compose.ui.text/AnnotatedString) // androidx.compose.ui.semantics/inputText.<set-inputText>|<set-inputText>@androidx.compose.ui.semantics.SemanticsPropertyReceiver(androidx.compose.ui.text.AnnotatedString){}[0]
+final var androidx.compose.ui.semantics/inputTextSuggestionState // androidx.compose.ui.semantics/inputTextSuggestionState|@androidx.compose.ui.semantics.SemanticsPropertyReceiver{}inputTextSuggestionState[0]
+    final fun (androidx.compose.ui.semantics/SemanticsPropertyReceiver).<get-inputTextSuggestionState>(): androidx.compose.ui.semantics/InputTextSuggestionState // androidx.compose.ui.semantics/inputTextSuggestionState.<get-inputTextSuggestionState>|<get-inputTextSuggestionState>@androidx.compose.ui.semantics.SemanticsPropertyReceiver(){}[0]
+    final fun (androidx.compose.ui.semantics/SemanticsPropertyReceiver).<set-inputTextSuggestionState>(androidx.compose.ui.semantics/InputTextSuggestionState) // androidx.compose.ui.semantics/inputTextSuggestionState.<set-inputTextSuggestionState>|<set-inputTextSuggestionState>@androidx.compose.ui.semantics.SemanticsPropertyReceiver(androidx.compose.ui.semantics.InputTextSuggestionState){}[0]
 final var androidx.compose.ui.semantics/isContainer // androidx.compose.ui.semantics/isContainer|@androidx.compose.ui.semantics.SemanticsPropertyReceiver{}isContainer[0]
     final fun (androidx.compose.ui.semantics/SemanticsPropertyReceiver).<get-isContainer>(): kotlin/Boolean // androidx.compose.ui.semantics/isContainer.<get-isContainer>|<get-isContainer>@androidx.compose.ui.semantics.SemanticsPropertyReceiver(){}[0]
     final fun (androidx.compose.ui.semantics/SemanticsPropertyReceiver).<set-isContainer>(kotlin/Boolean) // androidx.compose.ui.semantics/isContainer.<set-isContainer>|<set-isContainer>@androidx.compose.ui.semantics.SemanticsPropertyReceiver(kotlin.Boolean){}[0]
@@ -4040,6 +4059,9 @@ final var androidx.compose.ui.semantics/testTag // androidx.compose.ui.semantics
 final var androidx.compose.ui.semantics/text // androidx.compose.ui.semantics/text|@androidx.compose.ui.semantics.SemanticsPropertyReceiver{}text[0]
     final fun (androidx.compose.ui.semantics/SemanticsPropertyReceiver).<get-text>(): androidx.compose.ui.text/AnnotatedString // androidx.compose.ui.semantics/text.<get-text>|<get-text>@androidx.compose.ui.semantics.SemanticsPropertyReceiver(){}[0]
     final fun (androidx.compose.ui.semantics/SemanticsPropertyReceiver).<set-text>(androidx.compose.ui.text/AnnotatedString) // androidx.compose.ui.semantics/text.<set-text>|<set-text>@androidx.compose.ui.semantics.SemanticsPropertyReceiver(androidx.compose.ui.text.AnnotatedString){}[0]
+final var androidx.compose.ui.semantics/textCompositionRange // androidx.compose.ui.semantics/textCompositionRange|@androidx.compose.ui.semantics.SemanticsPropertyReceiver{}textCompositionRange[0]
+    final fun (androidx.compose.ui.semantics/SemanticsPropertyReceiver).<get-textCompositionRange>(): androidx.compose.ui.text/TextRange? // androidx.compose.ui.semantics/textCompositionRange.<get-textCompositionRange>|<get-textCompositionRange>@androidx.compose.ui.semantics.SemanticsPropertyReceiver(){}[0]
+    final fun (androidx.compose.ui.semantics/SemanticsPropertyReceiver).<set-textCompositionRange>(androidx.compose.ui.text/TextRange?) // androidx.compose.ui.semantics/textCompositionRange.<set-textCompositionRange>|<set-textCompositionRange>@androidx.compose.ui.semantics.SemanticsPropertyReceiver(androidx.compose.ui.text.TextRange?){}[0]
 final var androidx.compose.ui.semantics/textSelectionRange // androidx.compose.ui.semantics/textSelectionRange|@androidx.compose.ui.semantics.SemanticsPropertyReceiver{}textSelectionRange[0]
     final fun (androidx.compose.ui.semantics/SemanticsPropertyReceiver).<get-textSelectionRange>(): androidx.compose.ui.text/TextRange // androidx.compose.ui.semantics/textSelectionRange.<get-textSelectionRange>|<get-textSelectionRange>@androidx.compose.ui.semantics.SemanticsPropertyReceiver(){}[0]
     final fun (androidx.compose.ui.semantics/SemanticsPropertyReceiver).<set-textSelectionRange>(androidx.compose.ui.text/TextRange) // androidx.compose.ui.semantics/textSelectionRange.<set-textSelectionRange>|<set-textSelectionRange>@androidx.compose.ui.semantics.SemanticsPropertyReceiver(androidx.compose.ui.text.TextRange){}[0]
@@ -4385,6 +4407,7 @@ final fun androidx.compose.ui.semantics/androidx_compose_ui_semantics_Accessibil
 final fun androidx.compose.ui.semantics/androidx_compose_ui_semantics_CollectionInfo$stableprop_getter(): kotlin/Int // androidx.compose.ui.semantics/androidx_compose_ui_semantics_CollectionInfo$stableprop_getter|androidx_compose_ui_semantics_CollectionInfo$stableprop_getter(){}[0]
 final fun androidx.compose.ui.semantics/androidx_compose_ui_semantics_CollectionItemInfo$stableprop_getter(): kotlin/Int // androidx.compose.ui.semantics/androidx_compose_ui_semantics_CollectionItemInfo$stableprop_getter|androidx_compose_ui_semantics_CollectionItemInfo$stableprop_getter(){}[0]
 final fun androidx.compose.ui.semantics/androidx_compose_ui_semantics_CustomAccessibilityAction$stableprop_getter(): kotlin/Int // androidx.compose.ui.semantics/androidx_compose_ui_semantics_CustomAccessibilityAction$stableprop_getter|androidx_compose_ui_semantics_CustomAccessibilityAction$stableprop_getter(){}[0]
+final fun androidx.compose.ui.semantics/androidx_compose_ui_semantics_InputTextSuggestionState$stableprop_getter(): kotlin/Int // androidx.compose.ui.semantics/androidx_compose_ui_semantics_InputTextSuggestionState$stableprop_getter|androidx_compose_ui_semantics_InputTextSuggestionState$stableprop_getter(){}[0]
 final fun androidx.compose.ui.semantics/androidx_compose_ui_semantics_ProgressBarRangeInfo$stableprop_getter(): kotlin/Int // androidx.compose.ui.semantics/androidx_compose_ui_semantics_ProgressBarRangeInfo$stableprop_getter|androidx_compose_ui_semantics_ProgressBarRangeInfo$stableprop_getter(){}[0]
 final fun androidx.compose.ui.semantics/androidx_compose_ui_semantics_ScrollAxisRange$stableprop_getter(): kotlin/Int // androidx.compose.ui.semantics/androidx_compose_ui_semantics_ScrollAxisRange$stableprop_getter|androidx_compose_ui_semantics_ScrollAxisRange$stableprop_getter(){}[0]
 final fun androidx.compose.ui.semantics/androidx_compose_ui_semantics_SemanticsActions$stableprop_getter(): kotlin/Int // androidx.compose.ui.semantics/androidx_compose_ui_semantics_SemanticsActions$stableprop_getter|androidx_compose_ui_semantics_SemanticsActions$stableprop_getter(){}[0]

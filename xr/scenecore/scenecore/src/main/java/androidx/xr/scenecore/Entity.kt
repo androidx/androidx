@@ -20,10 +20,13 @@ package androidx.xr.scenecore
 
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.Session
+import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.Entity as RtEntity
 import androidx.xr.scenecore.runtime.ScenePose as RtScenePose
+import androidx.xr.scenecore.runtime.SceneRuntime
 
 /**
  * Interface for a spatial Entity. An Entity's [Pose]s are represented as being relative to their
@@ -236,6 +239,28 @@ public interface Entity : ScenePose {
 
     /** Remove all components from this Entity. */
     public fun removeAllComponents()
+
+    public companion object {
+        /**
+         * Public factory method for creating a [Entity].
+         *
+         * @param session Session to create the Entity in.
+         * @param name Name of the entity. This is unset by default.
+         * @param pose Initial pose of the entity. The default value is [Pose.Identity].
+         * @param parent Parent entity. If `null`, the entity is created but not attached to the
+         *   scene graph and will not be visible until a parent is set. The default value is
+         *   [Scene]'s [ActivitySpace].
+         */
+        @JvmOverloads
+        @JvmStatic
+        public fun create(
+            session: Session,
+            name: String? = null,
+            pose: Pose = Pose.Identity,
+            parent: Entity? = session.scene.activitySpace,
+        ): Entity =
+            EntityImpl.create(session.sceneRuntime, session.scene.entityManager, name, pose, parent)
+    }
 }
 
 /** The BaseEntity is an implementation of Entity interface that wraps a platform entity. */
@@ -413,5 +438,35 @@ internal constructor(rtEntity: RtEntityType, private val entityManager: EntityMa
         checkNotDisposed()
         componentList.forEach { it.onDetach(this) }
         componentList.clear()
+    }
+}
+
+internal class EntityImpl private constructor(rtEntity: RtEntity, entityManager: EntityManager) :
+    BaseEntity<RtEntity>(rtEntity, entityManager) {
+    public companion object {
+        /** Factory method to create EntityImpl entities. */
+        internal fun create(
+            sceneRuntime: SceneRuntime,
+            entityManager: EntityManager,
+            name: String? = null,
+            pose: Pose = Pose.Identity,
+            parent: Entity? = entityManager.getEntityForRtEntity(sceneRuntime.activitySpace),
+        ): EntityImpl =
+            EntityImpl(
+                sceneRuntime.createEntity(
+                    pose,
+                    name,
+                    if (parent != null && parent !is BaseEntity<*>) {
+                        XrLog.warn(
+                            "The provided parent is not a BaseEntity. The Entity will " +
+                                "be created without a parent."
+                        )
+                        null
+                    } else {
+                        parent?.rtEntity
+                    },
+                ),
+                entityManager,
+            )
     }
 }

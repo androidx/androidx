@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.room3 {
 
-  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface AutoMigration {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={}) public @interface AutoMigration {
     ctor @KotlinOnly public AutoMigration(int from, int to, optional kotlin.reflect.KClass<? extends java.lang.Object?> spec);
     method @InaccessibleFromKotlin public abstract int from();
     method @InaccessibleFromKotlin public abstract Class<? extends java.lang.Object?> spec() default Any::class;
@@ -100,7 +100,7 @@ package androidx.room3 {
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface DaoReturnTypeConverter {
-    ctor @KotlinOnly public DaoReturnTypeConverter(androidx.room3.OperationType... operations);
+    ctor @KotlinOnly public DaoReturnTypeConverter(androidx.room3.OperationType[] operations);
     method @InaccessibleFromKotlin public abstract androidx.room3.OperationType[] operations();
     property public abstract androidx.room3.OperationType[] operations;
   }
@@ -422,35 +422,9 @@ package androidx.room3 {
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.CLASS}) public @interface RewriteQueriesToDropUnusedColumns {
   }
 
-  public class RoomWarnings {
-    ctor @Deprecated public RoomWarnings();
-    field public static final String AMBIGUOUS_COLUMN_IN_RESULT = "ROOM_AMBIGUOUS_COLUMN_IN_RESULT";
-    field public static final String CANNOT_CREATE_VERIFICATION_DATABASE = "ROOM_CANNOT_CREATE_VERIFICATION_DATABASE";
-    field @Deprecated public static final String CURSOR_MISMATCH = "ROOM_CURSOR_MISMATCH";
-    field public static final androidx.room3.RoomWarnings.Companion Companion;
-    field public static final String DEFAULT_CONSTRUCTOR = "ROOM_DEFAULT_CONSTRUCTOR";
-    field public static final String DOES_NOT_IMPLEMENT_EQUALS_HASHCODE = "ROOM_TYPE_DOES_NOT_IMPLEMENT_EQUALS_HASHCODE";
-    field public static final String INDEX_FROM_EMBEDDED_ENTITY_IS_DROPPED = "ROOM_EMBEDDED_ENTITY_INDEX_IS_DROPPED";
-    field public static final String INDEX_FROM_EMBEDDED_FIELD_IS_DROPPED = "ROOM_EMBEDDED_INDEX_IS_DROPPED";
-    field public static final String INDEX_FROM_PARENT_FIELD_IS_DROPPED = "ROOM_PARENT_FIELD_INDEX_IS_DROPPED";
-    field public static final String INDEX_FROM_PARENT_IS_DROPPED = "ROOM_PARENT_INDEX_IS_DROPPED";
-    field public static final String MISMATCHED_GETTER = "ROOM_MISMATCHED_GETTER_TYPE";
-    field public static final String MISMATCHED_SETTER = "ROOM_MISMATCHED_SETTER_TYPE";
-    field public static final String MISSING_INDEX_ON_FOREIGN_KEY_CHILD = "ROOM_MISSING_FOREIGN_KEY_CHILD_INDEX";
-    field public static final String MISSING_INDEX_ON_JUNCTION = "MISSING_INDEX_ON_JUNCTION";
-    field public static final String MISSING_JAVA_TMP_DIR = "ROOM_MISSING_JAVA_TMP_DIR";
-    field public static final String MISSING_SCHEMA_LOCATION = "ROOM_MISSING_SCHEMA_LOCATION";
-    field public static final String PRIMARY_KEY_FROM_EMBEDDED_IS_DROPPED = "ROOM_EMBEDDED_PRIMARY_KEY_IS_DROPPED";
-    field public static final String QUERY_MISMATCH = "ROOM_QUERY_MISMATCH";
-    field public static final String RELATION_QUERY_WITHOUT_TRANSACTION = "ROOM_RELATION_QUERY_WITHOUT_TRANSACTION";
-    field public static final String RELATION_TYPE_MISMATCH = "ROOM_RELATION_TYPE_MISMATCH";
-    field public static final String UNNECESSARY_NULLABILITY_IN_DAO_RETURN_TYPE = "ROOM_UNNECESSARY_NULLABILITY_IN_DAO_RETURN_TYPE";
-  }
-
-  public static final class RoomWarnings.Companion {
+  public final class RoomWarnings {
     property public static String AMBIGUOUS_COLUMN_IN_RESULT;
     property public static String CANNOT_CREATE_VERIFICATION_DATABASE;
-    property @Deprecated public static String CURSOR_MISMATCH;
     property public static String DEFAULT_CONSTRUCTOR;
     property public static String DOES_NOT_IMPLEMENT_EQUALS_HASHCODE;
     property public static String INDEX_FROM_EMBEDDED_ENTITY_IS_DROPPED;
@@ -468,6 +442,26 @@ package androidx.room3 {
     property public static String RELATION_QUERY_WITHOUT_TRANSACTION;
     property public static String RELATION_TYPE_MISMATCH;
     property public static String UNNECESSARY_NULLABILITY_IN_DAO_RETURN_TYPE;
+    field public static final String AMBIGUOUS_COLUMN_IN_RESULT = "ROOM_AMBIGUOUS_COLUMN_IN_RESULT";
+    field public static final String CANNOT_CREATE_VERIFICATION_DATABASE = "ROOM_CANNOT_CREATE_VERIFICATION_DATABASE";
+    field public static final String DEFAULT_CONSTRUCTOR = "ROOM_DEFAULT_CONSTRUCTOR";
+    field public static final String DOES_NOT_IMPLEMENT_EQUALS_HASHCODE = "ROOM_TYPE_DOES_NOT_IMPLEMENT_EQUALS_HASHCODE";
+    field public static final String INDEX_FROM_EMBEDDED_ENTITY_IS_DROPPED = "ROOM_EMBEDDED_ENTITY_INDEX_IS_DROPPED";
+    field public static final String INDEX_FROM_EMBEDDED_FIELD_IS_DROPPED = "ROOM_EMBEDDED_INDEX_IS_DROPPED";
+    field public static final String INDEX_FROM_PARENT_FIELD_IS_DROPPED = "ROOM_PARENT_FIELD_INDEX_IS_DROPPED";
+    field public static final String INDEX_FROM_PARENT_IS_DROPPED = "ROOM_PARENT_INDEX_IS_DROPPED";
+    field public static final androidx.room3.RoomWarnings INSTANCE;
+    field public static final String MISMATCHED_GETTER = "ROOM_MISMATCHED_GETTER_TYPE";
+    field public static final String MISMATCHED_SETTER = "ROOM_MISMATCHED_SETTER_TYPE";
+    field public static final String MISSING_INDEX_ON_FOREIGN_KEY_CHILD = "ROOM_MISSING_FOREIGN_KEY_CHILD_INDEX";
+    field public static final String MISSING_INDEX_ON_JUNCTION = "MISSING_INDEX_ON_JUNCTION";
+    field public static final String MISSING_JAVA_TMP_DIR = "ROOM_MISSING_JAVA_TMP_DIR";
+    field public static final String MISSING_SCHEMA_LOCATION = "ROOM_MISSING_SCHEMA_LOCATION";
+    field public static final String PRIMARY_KEY_FROM_EMBEDDED_IS_DROPPED = "ROOM_EMBEDDED_PRIMARY_KEY_IS_DROPPED";
+    field public static final String QUERY_MISMATCH = "ROOM_QUERY_MISMATCH";
+    field public static final String RELATION_QUERY_WITHOUT_TRANSACTION = "ROOM_RELATION_QUERY_WITHOUT_TRANSACTION";
+    field public static final String RELATION_TYPE_MISMATCH = "ROOM_RELATION_TYPE_MISMATCH";
+    field public static final String UNNECESSARY_NULLABILITY_IN_DAO_RETURN_TYPE = "ROOM_UNNECESSARY_NULLABILITY_IN_DAO_RETURN_TYPE";
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.CLASS}) public @interface SkipQueryVerification {

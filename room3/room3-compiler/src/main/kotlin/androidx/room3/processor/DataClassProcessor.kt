@@ -19,7 +19,6 @@ package androidx.room3.processor
 import androidx.room3.ColumnInfo
 import androidx.room3.Embedded
 import androidx.room3.Ignore
-import androidx.room3.Junction
 import androidx.room3.PrimaryKey
 import androidx.room3.Relation
 import androidx.room3.compiler.processing.XExecutableElement
@@ -32,7 +31,6 @@ import androidx.room3.ext.isCollection
 import androidx.room3.ext.isNotVoid
 import androidx.room3.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_PROPERTY
 import androidx.room3.processor.ProcessorErrors.CANNOT_FIND_SETTER_FOR_PROPERTY
-import androidx.room3.processor.ProcessorErrors.DATA_CLASS_PROPERTY_HAS_DUPLICATE_COLUMN_NAME
 import androidx.room3.processor.autovalue.AutoValueDataClassProcessorDelegate
 import androidx.room3.processor.cache.Cache
 import androidx.room3.vo.CallType
@@ -227,9 +225,6 @@ private constructor(
                         it.value.map(Property::getPath),
                     ),
                 )
-                it.value.forEach {
-                    context.logger.e(it.element, DATA_CLASS_PROPERTY_HAS_DUPLICATE_COLUMN_NAME)
-                }
             }
 
         val methods =

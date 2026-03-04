@@ -534,7 +534,7 @@ internal class UprightLayoutRun(text: CharSequence, start: Int, end: Int, paint:
  * @param basePaint The base paint to use for drawing.
  * @param isVertical If true, sets the vertical text flag; otherwise, clears it.
  */
-private inline fun CharSequence.forStyleRuns(
+internal inline fun CharSequence.forStyleRuns(
     start: Int,
     end: Int,
     basePaint: TextPaint,
@@ -656,8 +656,11 @@ private inline fun <reified T> CharSequence.getSpans(start: Int, end: Int): Arra
         emptyArray()
     }
 
-@RequiresApi(Build.VERSION_CODES.N)
-private fun isEmphasisTarget(cp: Int): Boolean {
+internal fun isEmphasisTarget(cp: Int): Boolean {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+        // Treat all letters as a emphasis target on API25 or below.
+        return true
+    }
     val type = UCharacter.getType(cp).toByte()
     if (
         type == UCharacterCategory.CONTROL ||

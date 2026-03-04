@@ -100,10 +100,11 @@ public fun <T : Any> rememberListDetailSceneStrategy(
 
 /**
  * A [ListDetailSceneStrategy] supports arranging [NavEntry]s into an adaptive
- * [ListDetailPaneScaffold]. By using [listPane], [detailPane], or [extraPane] in a NavEntry's
- * metadata, entries can be assigned as belonging to a list pane, detail pane, or extra pane. These
- * panes will be displayed together if the window size is sufficiently large, and will automatically
- * adapt if the window size changes, for example, on a foldable device.
+ * [androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold]. By using [listPane],
+ * [detailPane], or [extraPane] in a NavEntry's metadata, entries can be assigned as belonging to a
+ * list pane, detail pane, or extra pane. These panes will be displayed together if the window size
+ * is sufficiently large, and will automatically adapt if the window size changes, for example, on a
+ * foldable device.
  *
  * @param shouldHandleSinglePaneLayout whether [ListDetailSceneStrategy] should apply when only a
  *   single pane is displayed. By default, this is false and instead yields to the next
@@ -222,7 +223,8 @@ public class ListDetailSceneStrategy<T : Any>(
 
         /**
          * Constructs metadata to mark a [NavEntry] as belonging to a
-         * [list pane][ListDetailPaneScaffoldRole.List] within a [ListDetailPaneScaffold].
+         * [list pane][ListDetailPaneScaffoldRole.List] within a
+         * [androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold].
          *
          * @param sceneKey the key to distinguish the scene of the list-detail scaffold, in case
          *   multiple list-detail scaffolds are supported within the same NavDisplay.
@@ -237,7 +239,8 @@ public class ListDetailSceneStrategy<T : Any>(
 
         /**
          * Constructs metadata to mark a [NavEntry] as belonging to a
-         * [detail pane][ListDetailPaneScaffoldRole.Detail] within a [ListDetailPaneScaffold].
+         * [detail pane][ListDetailPaneScaffoldRole.Detail] within a
+         * [androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold].
          *
          * @param sceneKey the key to distinguish the scene of the list-detail scaffold, in case
          *   multiple list-detail scaffolds are supported within the same NavDisplay.
@@ -247,7 +250,8 @@ public class ListDetailSceneStrategy<T : Any>(
 
         /**
          * Constructs metadata to mark a [NavEntry] as belonging to an
-         * [extra pane][ListDetailPaneScaffoldRole.Extra] within a [ListDetailPaneScaffold].
+         * [extra pane][ListDetailPaneScaffoldRole.Extra] within a
+         * [androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold].
          *
          * @param sceneKey the key to distinguish the scene of the list-detail scaffold, in case
          *   multiple list-detail scaffolds are supported within the same NavDisplay.

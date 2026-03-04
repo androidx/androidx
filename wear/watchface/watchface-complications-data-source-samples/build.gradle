@@ -46,10 +46,5 @@ android {
             applicationIdSuffix ".debug"
         }
     }
-
-    compileOptions {
-        sourceCompatibility 1.8
-        targetCompatibility 1.8
-    }
     namespace = "androidx.wear.watchface.complications.datasource.samples"
 }

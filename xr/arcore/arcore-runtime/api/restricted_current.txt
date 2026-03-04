@@ -124,7 +124,7 @@ package androidx.xr.arcore.runtime {
     property public androidx.xr.arcore.runtime.EyeStatus SHUT;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface Face extends androidx.xr.arcore.runtime.Anchorable {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface Face extends androidx.xr.arcore.runtime.Trackable {
     method @InaccessibleFromKotlin public float[]? getBlendShapeValues();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose? getCenterPose();
     method @InaccessibleFromKotlin public float[]? getConfidenceValues();

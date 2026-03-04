@@ -24,7 +24,6 @@ import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.unit.LayoutDirection
 
 /** Defines a generic remote shape. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface RemoteShape {
     /**
      * Creates [RemoteOutline] of this shape for the given [size].

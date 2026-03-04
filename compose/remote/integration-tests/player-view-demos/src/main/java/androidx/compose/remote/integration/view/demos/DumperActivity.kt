@@ -77,6 +77,7 @@ fun DumperScreen(context: Context, initialMode: RenderMode) {
     var resolution by remember { mutableStateOf(Resolution.RES_480X480) }
     var duration by remember { mutableStateOf(Duration.SEC_30) }
     var fps by remember { mutableStateOf(Fps.FPS_30) }
+    var bitrate by remember { mutableStateOf(Bitrate.BITRATE_200K) }
     var selectedSample by remember { mutableStateOf(AllSamples.first()) }
     var isRunning by remember { mutableStateOf(false) }
     var outputInfo by remember { mutableStateOf("") }
@@ -108,6 +109,8 @@ fun DumperScreen(context: Context, initialMode: RenderMode) {
                 onDurationChange = { duration = it },
                 fps = fps,
                 onFpsChange = { fps = it },
+                bitrate = bitrate,
+                onBitrateChange = { bitrate = it },
                 samples = AllSamples,
                 selectedSample = selectedSample,
                 onSampleChange = { selectedSample = it },
@@ -124,6 +127,7 @@ fun DumperScreen(context: Context, initialMode: RenderMode) {
                 resolution = resolution,
                 duration = duration,
                 fps = fps,
+                bitrate = bitrate,
                 onOutputReady = {
                     outputInfo = it
                     isRunning = false
@@ -143,6 +147,8 @@ fun DumperControlPanel(
     onDurationChange: (Duration) -> Unit,
     fps: Fps,
     onFpsChange: (Fps) -> Unit,
+    bitrate: Bitrate,
+    onBitrateChange: (Bitrate) -> Unit,
     samples: List<DumperSample>,
     selectedSample: DumperSample,
     onSampleChange: (DumperSample) -> Unit,
@@ -157,6 +163,7 @@ fun DumperControlPanel(
         ResolutionSelector(resolution, onResolutionChange)
         DurationSelector(duration, onDurationChange)
         FpsSelector(fps, onFpsChange)
+        BitrateSelector(bitrate, onBitrateChange)
         SampleSelector(samples, selectedSample.name, onSampleChange)
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -173,6 +180,7 @@ fun DumperPreviewSection(
     resolution: Resolution,
     duration: Duration,
     fps: Fps,
+    bitrate: Bitrate,
     onOutputReady: (String) -> Unit,
 ) {
     Box(modifier = Modifier.background(Color.Black).padding(4.dp)) {
@@ -194,6 +202,7 @@ fun DumperPreviewSection(
                         height = resolution.height,
                         durationMillis = duration.millis,
                         fps = fps.value,
+                        bitrate = bitrate.bps,
                     )
                 LaunchedEffect(result) { result?.let { onOutputReady(it.filePath) } }
             }

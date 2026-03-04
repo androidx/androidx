@@ -27,15 +27,10 @@ dependencies {
 }
 
 android {
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
     defaultConfig {
         // This disables the builds tools automatic vector -> PNG generation
         generatedDensities = []
     }
-
     aaptOptions {
         additionalParameters("--no-version-vectors")
     }

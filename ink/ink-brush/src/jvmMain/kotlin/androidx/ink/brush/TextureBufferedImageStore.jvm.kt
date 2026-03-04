@@ -21,8 +21,8 @@ import androidx.ink.nativeloader.UsedByNative
 import java.awt.image.BufferedImage
 
 /**
- * Interface for a callback to allow the client to provide a particular [Bitmap] corresponding to a
- * client-provided texture ID.
+ * Interface for a callback to allow the client to provide a particular [BufferedImage]
+ * corresponding to a client-provided texture ID.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @UsedByNative

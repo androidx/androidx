@@ -73,10 +73,10 @@ import androidx.xr.arcore.playservices.ArCoreRuntime
 import androidx.xr.arcore.playservices.UnsupportedArCoreCompatApi
 import androidx.xr.arcore.playservices.cameraState
 import androidx.xr.runtime.Config
-import androidx.xr.runtime.Log
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.TrackingState
+import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Ray
@@ -213,7 +213,7 @@ class AnchorsPlanesHitTestActivity :
                     )
                     .setTexture("u_AlbedoTexture", virtualObjectAlbedoTexture)
         } catch (e: IOException) {
-            Log.error(e) { "Failed to create background renderer" }
+            XrLog.error(e) { "Failed to create background renderer" }
             return
         }
     }
@@ -229,7 +229,7 @@ class AnchorsPlanesHitTestActivity :
             backgroundRenderer.setUseDepthVisualization(render, false)
             backgroundRenderer.setUseOcclusion(render, false)
         } catch (e: IOException) {
-            Log.error(e) { "Failed to read a required asset file" }
+            XrLog.error(e) { "Failed to read a required asset file" }
             return
         }
 
@@ -382,11 +382,11 @@ class AnchorsPlanesHitTestActivity :
             try {
                 Anchor.create(session, anchorPose)
             } catch (e: IllegalStateException) {
-                Log.error(e) { "Failed to create anchor: ${e.message}" }
+                XrLog.error(e) { "Failed to create anchor: ${e.message}" }
                 return
             }
         if (anchorResult !is AnchorCreateSuccess) {
-            Log.error { "Failed to create anchor: ${anchorResult::class.simpleName}" }
+            XrLog.error { "Failed to create anchor: ${anchorResult::class.simpleName}" }
             return
         }
         anchors.add(anchorResult.anchor)

@@ -36,6 +36,8 @@ import kotlin.reflect.KClass
  * `@UsesReflectionToConstruct()` is a convenience for `@UsesReflectionToAccessMethod(methodName =
  * "<init>")`
  *
+ * @sample androidx.annotation.keep.samples.usesReflectionToConstructSample_default
+ * @sample androidx.annotation.keep.samples.usesReflectionToConstructSample_parameters
  * @see UsesReflectionToAccessMethod
  * @see UsesReflectionToAccessField
  */

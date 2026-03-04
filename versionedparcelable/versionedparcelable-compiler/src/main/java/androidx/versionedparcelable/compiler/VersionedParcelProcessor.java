@@ -62,7 +62,7 @@ import javax.tools.Diagnostic;
         VersionedParcelProcessor.PARCEL_FIELD,
         VersionedParcelProcessor.NON_PARCEL_FIELD
 })
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
+@SupportedSourceVersion(SourceVersion.RELEASE_11)
 public class VersionedParcelProcessor extends AbstractProcessor {
 
     static final String VERSIONED_PARCELIZE = "androidx.versionedparcelable.VersionedParcelize";

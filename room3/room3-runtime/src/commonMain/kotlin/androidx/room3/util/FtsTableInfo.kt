@@ -18,24 +18,56 @@ package androidx.room3.util
 
 import androidx.annotation.RestrictTo
 import androidx.sqlite.SQLiteConnection
+import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
 
 /** A data class that holds the information about an FTS table. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
-public expect class FtsTableInfo {
+public class FtsTableInfo(
     /** The table name */
-    public val name: String
+    @JvmField public val name: String,
 
     /** The column names */
-    public val columns: Set<String>
+    @JvmField public val columns: Set<String>,
 
     /**
      * The set of options. Each value in the set contains the option in the following format: <key,
      * value>.
      */
-    public val options: Set<String>
+    @JvmField public val options: Set<String>,
+) {
+    public constructor(
+        name: String,
+        columns: Set<String>,
+        createSql: String,
+    ) : this(name, columns, parseFtsOptions(createSql))
 
-    public constructor(name: String, columns: Set<String>, createSql: String)
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is FtsTableInfo) return false
+        val that = other
+        if (name != that.name) return false
+        if (columns != that.columns) return false
+        return options == that.options
+    }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + (columns.hashCode())
+        result = 31 * result + (options.hashCode())
+        return result
+    }
+
+    override fun toString(): String {
+        return ("""
+            |FtsTableInfo {
+            |   name = '$name',
+            |   columns = {${formatString(columns.sorted())}
+            |   options = {${formatString(options.sorted())}
+            |}
+        """
+            .trimMargin())
+    }
 
     public companion object {
         /**
@@ -46,33 +78,10 @@ public expect class FtsTableInfo {
          * @return A FtsTableInfo containing the columns and options for the provided table name.
          */
         @JvmStatic
-        public suspend fun read(connection: SQLiteConnection, tableName: String): FtsTableInfo
+        public suspend fun read(connection: SQLiteConnection, tableName: String): FtsTableInfo {
+            val columns = readFtsColumns(connection, tableName)
+            val options = readFtsOptions(connection, tableName)
+            return FtsTableInfo(tableName, columns, options)
+        }
     }
-}
-
-internal fun FtsTableInfo.equalsCommon(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is FtsTableInfo) return false
-    val that = other
-    if (name != that.name) return false
-    if (columns != that.columns) return false
-    return options == that.options
-}
-
-internal fun FtsTableInfo.hashCodeCommon(): Int {
-    var result = name.hashCode()
-    result = 31 * result + (columns.hashCode())
-    result = 31 * result + (options.hashCode())
-    return result
-}
-
-internal fun FtsTableInfo.toStringCommon(): String {
-    return ("""
-            |FtsTableInfo {
-            |   name = '$name',
-            |   columns = {${formatString(columns.sorted())}
-            |   options = {${formatString(options.sorted())}
-            |}
-        """
-        .trimMargin())
 }

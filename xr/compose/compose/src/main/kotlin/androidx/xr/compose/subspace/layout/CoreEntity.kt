@@ -44,7 +44,6 @@ import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.GltfAnimation
 import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.GltfModelNode
-import androidx.xr.scenecore.GroupEntity
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.scene
@@ -228,14 +227,8 @@ internal sealed class CoreEntity(initialEntity: Entity? = null) : OpaqueEntity {
     }
 }
 
-/** Wrapper class for group entities from SceneCore. */
-internal class CoreGroupEntity(entity: Entity) : CoreEntity(entity) {
-    init {
-        require(entity is GroupEntity) {
-            "Entity passed to CoreGroupEntity should be a GroupEntity."
-        }
-    }
-}
+/** Wrapper class for Entity interfaces from SceneCore. */
+internal class CoreGroupEntity(entity: Entity) : CoreEntity(entity)
 
 /**
  * Wrapper class for [PanelEntity] to provide convenience methods for working with panel entities

@@ -26,15 +26,16 @@ internal object BrushSerializationNative {
         NativeLoader.load()
     }
 
-    /**
-     * Internal callback for decoding a BrushFamily proto. The PNG bytes are kept as an
-     * implementation detail and are not exposed.
-     *
-     * @param clientTextureId The client-provided texture ID.
-     * @param pngBytes The PNG bytes of the texture bitmap, or null if none was encoded.
-     * @return The texture ID to use in the decoded BrushFamily.
-     */
+    /** @see [TextureDecodeCallback.onDecodeTexture] */
     fun interface TextureDecodeCallback {
+        /**
+         * Internal callback for decoding a BrushFamily proto. The PNG bytes are kept as an
+         * implementation detail and are not exposed.
+         *
+         * @param clientTextureId The client-provided texture ID.
+         * @param pngBytes The PNG bytes of the texture bitmap, or null if none was encoded.
+         * @return The texture ID to use in the decoded BrushFamily.
+         */
         @UsedByNative fun onDecodeTexture(clientTextureId: String, pngBytes: ByteArray?): String
     }
 

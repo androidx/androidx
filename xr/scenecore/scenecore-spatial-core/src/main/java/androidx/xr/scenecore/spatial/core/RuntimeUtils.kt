@@ -53,10 +53,16 @@ internal object RuntimeUtils {
             return null
         }
         // TODO: b/377541143 - Replace instance equality check in EntityManager.
+        val sceneParentScale =
+            entityManager
+                .getSystemSpaceActivityPoseOfType(ActivitySpaceImpl::class.java)
+                .firstOrNull()
+                ?.sceneParentScaleAbs ?: Vector3.One
         val hitEntity = entityManager.getEntityForNode(xrHitInfo.inputNode) ?: return null
         return InputEvent.HitInfo(
             hitEntity,
-            if (xrHitInfo.hitPosition == null) null else getVector3(xrHitInfo.hitPosition),
+            if (xrHitInfo.hitPosition == null) null
+            else getVector3(xrHitInfo.hitPosition).scale(sceneParentScale),
             getMatrix(xrHitInfo.transform),
         )
     }
@@ -72,8 +78,13 @@ internal object RuntimeUtils {
         xrInputEvent: ExtensionsInputEvent,
         entityManager: EntityManager,
     ): InputEvent {
-        val origin = getVector3(xrInputEvent.origin)
-        val direction = getVector3(xrInputEvent.direction)
+        val sceneParentScale =
+            entityManager
+                .getSystemSpaceActivityPoseOfType(ActivitySpaceImpl::class.java)
+                .firstOrNull()
+                ?.sceneParentScaleAbs ?: Vector3.One
+        val origin = getVector3(xrInputEvent.origin).scale(sceneParentScale)
+        val direction = getVector3(xrInputEvent.direction).scale(sceneParentScale)
         // TODO: b/431250469 - Handle unregistered hitInfo nodes.
         val hitInfo = getHitInfo(xrInputEvent.hitInfo, entityManager)
         val secondaryHitInfo = getHitInfo(xrInputEvent.secondaryHitInfo, entityManager)

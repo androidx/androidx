@@ -449,7 +449,7 @@ public class ScalingLazyListState(
 
     /**
      * Instantly brings the item at [index] to the center of the viewport and positions it based on
-     * the [anchorType] and applies the [scrollOffset] pixels.
+     * the [Configuration.anchorType] and applies the [scrollOffset] pixels.
      *
      * @param index the index to which to scroll. Must be non-negative.
      * @param scrollOffset the offset that the item should end up after the scroll. Note that
@@ -467,7 +467,7 @@ public class ScalingLazyListState(
 
     /**
      * Brings the item at [index] to the center of the viewport and positions it based on the
-     * [anchorType] and applies the [scrollOffset] pixels.
+     * [Configuration.anchorType] and applies the [scrollOffset] pixels.
      *
      * @param animated whether to animate the scroll
      * @param index the index to which to scroll. Must be non-negative.
@@ -549,7 +549,7 @@ public class ScalingLazyListState(
 
     /**
      * Animate (smooth scroll) the given item at [index] to the center of the viewport and position
-     * it based on the [anchorType] and applies the [scrollOffset] pixels.
+     * it based on the [Configuration.anchorType] and applies the [scrollOffset] pixels.
      *
      * @param index the index to which to scroll. Must be non-negative.
      * @param scrollOffset the offset that the item should end up after the scroll (same as

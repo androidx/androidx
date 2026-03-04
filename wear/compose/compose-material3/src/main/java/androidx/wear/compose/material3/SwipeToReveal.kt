@@ -173,19 +173,20 @@ import kotlinx.coroutines.launch
  *
  * @sample androidx.wear.compose.material3.samples.SwipeToRevealSingleActionCardSample
  *
- * Example of [SwipeToReveal] with a [TransformingLazyColumn], including resetting the [RevealState]
- * to [RevealValue.Covered] when scrolling:
+ * Example of [SwipeToReveal] with a [androidx.wear.compose.foundation.lazy.TransformingLazyColumn],
+ * including resetting the [RevealState] to [RevealValue.Covered] when scrolling:
  *
  * @sample androidx.wear.compose.material3.samples.SwipeToRevealWithTransformingLazyColumnSample
  *
- * Example of [SwipeToReveal] with a [ScalingLazyColumn], including resetting the [RevealState] to
- * [RevealValue.Covered] when scrolling:
+ * Example of [SwipeToReveal] with a [androidx.wear.compose.foundation.lazy.ScalingLazyColumn],
+ * including resetting the [RevealState] to [RevealValue.Covered] when scrolling:
  *
  * @sample androidx.wear.compose.material3.samples.SwipeToRevealWithScalingLazyColumnSample
  *
- * Example of [SwipeToReveal] with a [ScalingLazyColumn] that only executes the primary action when
- * fully swiped (and does not settle after partially revealing the action) by setting
- * [hasPartiallyRevealedState] = false (so [RevealState] does not need to be reset when scrolling):
+ * Example of [SwipeToReveal] with a [androidx.wear.compose.foundation.lazy.ScalingLazyColumn] that
+ * only executes the primary action when fully swiped (and does not settle after partially revealing
+ * the action) by setting [hasPartiallyRevealedState] = false (so [RevealState] does not need to be
+ * reset when scrolling):
  *
  * @sample androidx.wear.compose.material3.samples.SwipeToRevealNoPartialRevealWithScalingLazyColumnSample
  * @param primaryAction The primary action of this component.

@@ -33,6 +33,7 @@ import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.SpaceValue
 import androidx.xr.scenecore.runtime.SpatialModeChangeListener
 import com.android.extensions.xr.XrExtensions
+import com.android.extensions.xr.function.Consumer
 import com.android.extensions.xr.node.Node
 import com.android.extensions.xr.node.Vec3
 import com.android.extensions.xr.space.Bounds
@@ -43,7 +44,6 @@ import java.util.concurrent.atomic.AtomicReference
 import java.util.function.Supplier
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import kotlin.math.abs
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
@@ -175,6 +175,8 @@ public class ActivitySpaceImpl(
         super.dispose()
     }
 
+    internal var sceneParentScaleAbs: Vector3 = Vector3.One
+
     /**
      * Handles the updates to scene core root transform.
      * <pre>
@@ -201,14 +203,10 @@ public class ActivitySpaceImpl(
      */
     public fun handleOriginUpdate(newTransform: Matrix4) {
         openXrReferenceSpaceTransform.set(newTransform)
-        var transformScaleAbsolute = Vector3(1.0f, 1.0f, 1.0f)
-        var activitySpaceRotation = Quaternion.Identity
-
-        val transformScale = newTransform.scale
-        transformScaleAbsolute =
-            Vector3(abs(transformScale.x), abs(transformScale.y), abs(transformScale.z))
+        sceneParentScaleAbs = Vector3.abs(newTransform.scale)
+        val sceneParentScaleInv = sceneParentScaleAbs.inverse()
         // Get the unscaled rotation of the activity space.
-        activitySpaceRotation = newTransform.unscaled().rotation
+        var activitySpaceRotation = newTransform.unscaled().rotation
         val yaw = activitySpaceRotation.eulerAngles.y
         val yawRotation = Quaternion.fromEulerAngles(0.0f, yaw, 0.0f)
         val gravityAlignedRotation = activitySpaceRotation.inverse * yawRotation
@@ -216,9 +214,9 @@ public class ActivitySpaceImpl(
             transaction
                 .setScale(
                     getNode(),
-                    1.0f / transformScaleAbsolute.x,
-                    1.0f / transformScaleAbsolute.y,
-                    1.0f / transformScaleAbsolute.z,
+                    sceneParentScaleInv.x,
+                    sceneParentScaleInv.y,
+                    sceneParentScaleInv.z,
                 )
                 .setOrientation(
                     getNode(),
@@ -239,7 +237,7 @@ public class ActivitySpaceImpl(
         // inherited if it was in HOME_SPACE mode for continuity in FULL_SPACE_MANAGED mode.
         spatialModeChangeListener?.onSpatialModeChanged(
             Pose(Vector3.Zero, activitySpaceRotation),
-            transformScaleAbsolute,
+            sceneParentScaleAbs,
         )
     }
 
@@ -282,9 +280,7 @@ public class ActivitySpaceImpl(
         @ScenePose.HitTestFilterValue hitTestFilter: Int,
     ): HitTestResult = suspendCancellableCoroutine { continuation ->
         val consumer =
-            com.android.extensions.xr.function.Consumer<
-                com.android.extensions.xr.space.HitTestResult
-            > { result ->
+            Consumer<com.android.extensions.xr.space.HitTestResult> { result ->
                 if (continuation.isActive) {
                     continuation.resume(RuntimeUtils.getHitTestResult(result))
                 }

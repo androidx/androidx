@@ -17,9 +17,9 @@
 package androidx.room3
 
 /**
- * Flags to turn on/off extra type converters provided by Room.
+ * Flags to turn on / off extra type converters provided by Room.
  *
- * For certain commonly used types (enums, UUID), Room provides automatic type converters. By
+ * For certain commonly used types (Enum classes, UUID), Room provides automatic type converters. By
  * default, these type converters are enabled but have lower priority than user provided type
  * converters.
  *
@@ -39,8 +39,8 @@ public annotation class BuiltInTypeConverters(
     val enums: State = State.INHERITED,
 
     /**
-     * Controls whether Room can generate a TypeConverter for [java.util.UUID] and use its `byte[]`
-     * representation while saving it into database.
+     * Controls whether Room can generate a TypeConverter for [java.util.UUID] and use its
+     * [ByteArray] representation while saving it into database.
      *
      * By default, it is set to [State.INHERITED] (on by default unless set to another value in a
      * higher scope).
@@ -56,11 +56,11 @@ public annotation class BuiltInTypeConverters(
      */
     val byteBuffer: State = State.INHERITED,
 ) {
-    /** Control flags for built in converters. */
+    /** Control flags for built-in converters. */
     public enum class State {
-        /** Room can use the built in converter. */
+        /** Room can use the built-in converter. */
         ENABLED,
-        /** Room cannot use the built in converter. */
+        /** Room cannot use the built-in converter. */
         DISABLED,
         /**
          * The value is inherited from the higher scope. See [TypeConverters] documentation to learn

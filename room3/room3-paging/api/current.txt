@@ -3,7 +3,7 @@ package androidx.room3.paging {
 
   public final class PagingSourceDaoReturnTypeConverter {
     ctor public PagingSourceDaoReturnTypeConverter();
-    method @androidx.room3.DaoReturnTypeConverter public <T> androidx.paging.PagingSource<java.lang.Integer,T> convert(androidx.room3.RoomDatabase database, String[] tableNames, androidx.room3.RoomRawQuery roomRawQuery, kotlin.jvm.functions.Function2<? super androidx.room3.RoomRawQuery,? super kotlin.coroutines.Continuation<? super java.util.List<? extends T>>,? extends java.lang.Object?> executeAndConvert);
+    method @androidx.room3.DaoReturnTypeConverter(operations={androidx.room3.OperationType.READ, androidx.room3.OperationType.WRITE}) public <T> androidx.paging.PagingSource<java.lang.Integer,T> convert(androidx.room3.RoomDatabase database, String[] tableNames, androidx.room3.RoomRawQuery roomRawQuery, kotlin.jvm.functions.Function2<? super androidx.room3.RoomRawQuery,? super kotlin.coroutines.Continuation<? super java.util.List<? extends T>>,? extends java.lang.Object?> executeAndConvert);
   }
 
 }

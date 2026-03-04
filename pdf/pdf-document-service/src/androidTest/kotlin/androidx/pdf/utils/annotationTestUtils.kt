@@ -17,13 +17,10 @@
 package androidx.pdf.utils
 
 import android.graphics.RectF
-import androidx.pdf.annotation.models.EditId
 import androidx.pdf.annotation.models.PathPdfObject
 import androidx.pdf.annotation.models.PathPdfObject.PathInput
-import androidx.pdf.annotation.models.PdfAnnotationData
 import androidx.pdf.annotation.models.StampAnnotation
 import com.google.common.truth.Truth.assertThat
-import java.util.UUID
 import kotlin.Float.Companion.MAX_VALUE
 import kotlin.Float.Companion.MIN_VALUE
 import kotlin.math.abs
@@ -91,28 +88,6 @@ fun assertStampAnnotationEquals(
         }
     }
 }
-
-fun createPdfAnnotationDataList(
-    numAnnots: Int,
-    pathLength: Int,
-    invalidRatio: Float = 0f,
-): List<PdfAnnotationData> {
-    require(invalidRatio >= 0 && invalidRatio <= 1) { "Ratio should be between 0 and 1" }
-
-    val invalidCount = (numAnnots * invalidRatio).toInt()
-    return List(numAnnots) { index ->
-        val isInvalid = index < invalidCount
-        val pageNum = if (isInvalid) -1 else 0
-
-        createPdfAnnotationData(pageNum, pathLength)
-    }
-}
-
-fun createPdfAnnotationData(pageNum: Int, pathLength: Int): PdfAnnotationData =
-    PdfAnnotationData(
-        editId = EditId(pageNum, value = UUID.randomUUID().toString()),
-        annotation = createStampAnnotationWithPath(pageNum, pathLength),
-    )
 
 fun createStampAnnotationWithPath(pageNum: Int, pathSize: Int): StampAnnotation {
     val randomPathInputs = createPathPdfObjectList(pathSize)

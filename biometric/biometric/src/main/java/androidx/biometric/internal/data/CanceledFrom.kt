@@ -35,6 +35,12 @@ internal enum class CanceledFrom {
     NEGATIVE_BUTTON,
 
     /**
+     * Authentication was canceled by the user by pressing the fallback option on the prompt
+     * fallback option page.
+     */
+    FALLBACK_OPTION,
+
+    /**
      * Authentication was canceled by the user by pressing the "more options" button on the prompt
      * content.
      */

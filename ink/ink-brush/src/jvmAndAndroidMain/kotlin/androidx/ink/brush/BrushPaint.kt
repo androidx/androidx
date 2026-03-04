@@ -232,19 +232,10 @@ private constructor(
 
             /** As multiples of brush size. */
             @JvmField public val BRUSH_SIZE: TextureSizeUnit = TextureSizeUnit(0, "BRUSH_SIZE")
-            /**
-             * As multiples of the stroke "size". This has different meanings depending on the value
-             * of [TextureMapping] for the given texture. For [TextureMapping.TILING] textures, the
-             * stroke size is equal to the dimensions of the XY bounding rectangle of the mesh. For
-             * [TextureMapping.WINDING] textures, the stroke size components are given by x: stroke
-             * width, which may change over the course of the stroke if behaviors affect the tip
-             * geometry. y: the total distance traveled by the stroke.
-             */
-            @JvmField public val STROKE_SIZE: TextureSizeUnit = TextureSizeUnit(1, "STROKE_SIZE")
             /** In the same units as the stroke's input positions and stored geometry. */
             @JvmField
             public val STROKE_COORDINATES: TextureSizeUnit =
-                TextureSizeUnit(2, "STROKE_COORDINATES")
+                TextureSizeUnit(1, "STROKE_COORDINATES")
         }
     }
 
@@ -461,6 +452,8 @@ private constructor(
         /**
          * Creates a new [TextureLayer] with the specified parameters.
          *
+         * Java callers should use the [Builder] class instead.
+         *
          * @param clientTextureId A string identifier of an image that provides the color for a
          *   particular pixel for this layer. The coordinates within this image that will be used
          *   are determined by the other parameters.
@@ -473,8 +466,6 @@ private constructor(
          * @param rotationDegrees Angle in degrees specifying the rotation of the texture. The
          *   rotation is carried out about the center of the texture's first repetition along both
          *   axes.
-         * @param opacity Overall layer opacity in the range [0,1], where 0 is transparent and 1 is
-         *   opaque.
          * @param animationFrames The number of animation frames in this texture, or 1 for no
          *   animation. If greater than 1, then the texture image is treated as a grid of animation
          *   frame images, with dimensions of [animationRows] by [animationColumns] frames. The
@@ -511,7 +502,6 @@ private constructor(
             offsetX: Float = 0f,
             offsetY: Float = 0f,
             @AngleDegreesFloat rotationDegrees: Float = 0F,
-            @FloatRange(from = 0.0, to = 1.0) opacity: Float = 1f,
             @IntRange(from = 1, to = 1 shl 24) animationFrames: Int = 1,
             @IntRange(from = 1, to = 1 shl 12) animationRows: Int = 1,
             @IntRange(from = 1, to = 1 shl 12) animationColumns: Int = 1,
@@ -530,7 +520,6 @@ private constructor(
                 offsetX = offsetX,
                 offsetY = offsetY,
                 rotationDegrees = rotationDegrees,
-                opacity = opacity,
                 animationFrames = animationFrames,
                 animationRows = animationRows,
                 animationColumns = animationColumns,
@@ -562,9 +551,6 @@ private constructor(
 
         @AngleDegreesFloat
         public val rotationDegrees: Float = TextureLayerNative.getRotationDegrees(nativePointer)
-
-        @FloatRange(from = 0.0, to = 1.0)
-        public val opacity: Float = TextureLayerNative.getOpacity(nativePointer)
 
         @IntRange(from = 1, to = 1 shl 24)
         public val animationFrames: Int = TextureLayerNative.getAnimationFrames(nativePointer)
@@ -612,7 +598,6 @@ private constructor(
             offsetX: Float = this.offsetX,
             offsetY: Float = this.offsetY,
             @AngleDegreesFloat rotationDegrees: Float = this.rotationDegrees,
-            @FloatRange(from = 0.0, to = 1.0) opacity: Float = this.opacity,
             @IntRange(from = 1, to = 1 shl 24) animationFrames: Int = this.animationFrames,
             @IntRange(from = 1, to = 1 shl 12) animationRows: Int = this.animationRows,
             @IntRange(from = 1, to = 1 shl 12) animationColumns: Int = this.animationColumns,
@@ -632,7 +617,6 @@ private constructor(
                     offsetX == this.offsetX &&
                     offsetY == this.offsetY &&
                     rotationDegrees == this.rotationDegrees &&
-                    opacity == this.opacity &&
                     animationFrames == this.animationFrames &&
                     animationRows == this.animationRows &&
                     animationColumns == this.animationColumns &&
@@ -653,7 +637,6 @@ private constructor(
                 offsetX = offsetX,
                 offsetY = offsetY,
                 rotationDegrees = rotationDegrees,
-                opacity = opacity,
                 animationFrames = animationFrames,
                 animationRows = animationRows,
                 animationColumns = animationColumns,
@@ -679,7 +662,6 @@ private constructor(
                 offsetX = this.offsetX,
                 offsetY = this.offsetY,
                 rotationDegrees = this.rotationDegrees,
-                opacity = this.opacity,
                 animationFrames = this.animationFrames,
                 animationRows = this.animationRows,
                 animationColumns = this.animationColumns,
@@ -700,7 +682,6 @@ private constructor(
                 offsetX == other.offsetX &&
                 offsetY == other.offsetY &&
                 rotationDegrees == other.rotationDegrees &&
-                opacity == other.opacity &&
                 animationFrames == other.animationFrames &&
                 animationRows == other.animationRows &&
                 animationColumns == other.animationColumns &&
@@ -716,7 +697,7 @@ private constructor(
         override fun toString(): String =
             "BrushPaint.TextureLayer(clientTextureId=$clientTextureId, sizeX=$sizeX, " +
                 "sizeY=$sizeY, offset=[$offsetX, $offsetY], rotationDegrees=$rotationDegrees, " +
-                "opacity=$opacity, animationFrames=$animationFrames, animationRows=$animationRows, " +
+                "animationFrames=$animationFrames, animationRows=$animationRows, " +
                 "animationColumns=$animationColumns, animationDurationMillis=$animationDurationMillis, " +
                 "sizeUnit=$sizeUnit, origin=$origin, mapping=$mapping, wrapX=$wrapX, wrapY=$wrapY, " +
                 "blendMode=$blendMode)"
@@ -728,7 +709,6 @@ private constructor(
             result = 31 * result + offsetX.hashCode()
             result = 31 * result + offsetY.hashCode()
             result = 31 * result + rotationDegrees.hashCode()
-            result = 31 * result + opacity.hashCode()
             result = 31 * result + animationFrames.hashCode()
             result = 31 * result + animationRows.hashCode()
             result = 31 * result + animationColumns.hashCode()
@@ -764,15 +744,12 @@ private constructor(
         ) // Builder pattern supported for Java clients, despite being an anti-pattern in Kotlin.
         public class Builder
         internal constructor(
-            private var clientTextureId: String,
-            @FloatRange(from = 0.0, fromInclusive = false, toInclusive = false)
-            private var sizeX: Float,
-            @FloatRange(from = 0.0, fromInclusive = false, toInclusive = false)
-            private var sizeY: Float,
+            private var clientTextureId: String? = null,
+            private var sizeX: Float = -1f,
+            private var sizeY: Float = -1f,
             private var offsetX: Float = 0f,
             private var offsetY: Float = 0f,
             @AngleDegreesFloat private var rotationDegrees: Float = 0F,
-            @FloatRange(from = 0.0, to = 1.0) private var opacity: Float = 1f,
             @IntRange(from = 1, to = 1 shl 24) private var animationFrames: Int = 1,
             @IntRange(from = 1, to = 1 shl 12) private var animationRows: Int = 1,
             @IntRange(from = 1, to = 1 shl 12) private var animationColumns: Int = 1,
@@ -803,11 +780,6 @@ private constructor(
             public fun setRotationDegrees(@AngleDegreesFloat degrees: Float): Builder = apply {
                 rotationDegrees = degrees
             }
-
-            public fun setOpacity(@FloatRange(from = 0.0, to = 1.0) opacity: Float): Builder =
-                apply {
-                    this.opacity = opacity
-                }
 
             public fun setAnimationFrames(
                 @IntRange(from = 1, to = 1 shl 24) animationFrames: Int
@@ -843,15 +815,21 @@ private constructor(
                 this.blendMode = blendMode
             }
 
-            public fun build(): TextureLayer =
-                TextureLayer(
+            @Suppress("Range") // we check() before passing floats
+            public fun build(): TextureLayer {
+                val clientTextureId =
+                    checkNotNull(this.clientTextureId) {
+                        "must set clientTextureId before calling build()"
+                    }
+                check(sizeX > 0f) { "must set sizeX before calling build()" }
+                check(sizeY > 0f) { "must set sizeY before calling build()" }
+                return TextureLayer(
                     clientTextureId = clientTextureId,
                     sizeX = sizeX,
                     sizeY = sizeY,
                     offsetX = offsetX,
                     offsetY = offsetY,
                     rotationDegrees = rotationDegrees,
-                    opacity = opacity,
                     animationFrames = animationFrames,
                     animationRows = animationRows,
                     animationColumns = animationColumns,
@@ -863,24 +841,13 @@ private constructor(
                     wrapY = wrapY,
                     blendMode = blendMode,
                 )
+            }
         }
 
         // To be extended by extension methods.
         public companion object {
-            /**
-             * Returns a [Builder] with the required fields set.
-             *
-             * @param clientTextureId The texture ID of the texture to be used for the texture
-             *   layer.
-             * @param sizeX The size of the texture in the x-direction.
-             * @param sizeY The size of the texture in the y-direction.
-             */
-            @JvmStatic
-            public fun builder(
-                clientTextureId: String,
-                @FloatRange(from = 0.0, fromInclusive = false, toInclusive = false) sizeX: Float,
-                @FloatRange(from = 0.0, fromInclusive = false, toInclusive = false) sizeY: Float,
-            ): Builder = Builder(clientTextureId, sizeX, sizeY)
+            /** Returns a new [BrushPaint.Builder]. */
+            @JvmStatic public fun builder(): Builder = Builder()
 
             /**
              * Construct a [TextureLayer] from an unowned heap-allocated native pointer to a C++
@@ -982,7 +949,6 @@ private object TextureLayerNative {
         offsetX: Float,
         offsetY: Float,
         @AngleDegreesFloat rotationDegrees: Float,
-        opacity: Float,
         animationFrames: Int,
         animationRows: Int,
         animationColumns: Int,
@@ -1006,8 +972,6 @@ private object TextureLayerNative {
     @UsedByNative external fun getOffsetY(nativePointer: Long): Float
 
     @AngleDegreesFloat @UsedByNative external fun getRotationDegrees(nativePointer: Long): Float
-
-    @UsedByNative external fun getOpacity(nativePointer: Long): Float
 
     @UsedByNative external fun getAnimationFrames(nativePointer: Long): Int
 

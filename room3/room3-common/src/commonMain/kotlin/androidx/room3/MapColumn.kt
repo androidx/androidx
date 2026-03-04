@@ -17,32 +17,32 @@
 package androidx.room3
 
 /**
- * Declares which column is used to build a map or multimap return value in a [Dao] query method.
+ * Declares which column is used to build a map or multimap return value in a [Dao] query function.
  *
- * This annotation is required when the key or value of a Map (or nested map) is a single column of
- * one of the built in types (primitives, boxed primitives, enum, String, byte[], ByteBuffer) or a
- * type with a converter (e.g. Date, UUID, etc).
+ * This annotation is required when the key or value of a `Map` (or nested map) is a single column
+ * of one of the built-in types (primitives, enums, `String`, `ByteArray`) or a type with a
+ * [TypeConverter] (e.g. `Date`, UUID, etc).
  *
  * The use of this annotation provides clarity on which column should be used in retrieving
- * information required by the return type.
+ * information required by the DAO function return type.
  *
  * Example:
  * ```
- *   @Query("SELECT * FROM Artist JOIN Song ON Artist.artistName = Song.artist")
- *   fun getArtistNameToSongNames():
- *     Map<@MapColumn(columnName = "artistName") String,
- *         @MapColumn(columnName = "songName") List<String>>
+ * @Query("SELECT * FROM Artist JOIN Song ON Artist.artistName = Song.artist")
+ * suspend fun getArtistNameToSongNames():
+ *     Map<@MapColumn("artistName") String, @MapColumn("songName") List<String>>
  *
- *   @Query(
+ * @Query(
  *     """
  *     SELECT *, COUNT(mSongId) as songCount
  *     FROM Artist JOIN Song ON  Artist.artistName = Song.artist GROUP BY artistName
  *     """
- *   )
- *   fun getArtistAndSongCounts(): Map<Artist, @MapColumn(columnName = "songCount") Integer>
+ * )
+ * suspend fun getArtistAndSongCounts():
+ *     Map<Artist, @MapColumn(columnName = "songCount") Integer>
  * ```
  *
- * Column(s) specified in the provided @MapColumn annotation must be present in the query result.
+ * Column(s) specified in this `@MapColumn`'s annotation values must be present in the query result.
  */
 @Target(AnnotationTarget.TYPE)
 @Retention(AnnotationRetention.BINARY)
@@ -59,8 +59,8 @@ public annotation class MapColumn(
      *
      * Providing this value is optional. Useful for disambiguating between duplicate column names.
      * For example, consider the following query: `SELECT * FROM Artist AS a JOIN Song AS s ON a.id
-     * == s.artistId`, then the `@MapColumn` for a return type `Map<String, List<Song>>` would be
-     * `Map<@MapColumn(columnName = "id", tableName = "a") String, List<Song>>`.
+     * == s.artistId`, then the `@MapColumn` usage for a return type `Map<String, List<Song>>` would
+     * be `Map<@MapColumn(columnName = "id", tableName = "a") String, List<Song>>`.
      *
      * @return The column table name.
      */

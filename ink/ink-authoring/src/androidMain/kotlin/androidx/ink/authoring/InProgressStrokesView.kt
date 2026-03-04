@@ -35,6 +35,7 @@ import androidx.ink.strokes.Stroke
 import androidx.ink.strokes.StrokeInput
 import androidx.ink.strokes.StrokeInputBatch
 import androidx.test.espresso.idling.CountingIdlingResource
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 /**
@@ -48,6 +49,7 @@ import java.util.concurrent.TimeUnit
  * more detailed programmatic logic is necessary, consider using [InProgressShapesView] instead.
  */
 @OptIn(ExperimentalLatencyDataApi::class, ExperimentalCustomShapeWorkflowApi::class)
+@UiThread
 public class InProgressStrokesView
 @JvmOverloads
 constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr: Int = 0) :
@@ -67,8 +69,7 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
 
     init {
         inProgressShapesView.customShapeWorkflowFactory = {
-            @Suppress("DEPRECATION") // Still in use for debug overlays
-            InkShapeWorkflow(rendererFactory)
+            InkShapeWorkflow { CanvasStrokeRenderer.create(textureBitmapStore) }
         }
         inProgressShapesView.addCompletedShapesListener(shapesCompletedListener)
     }
@@ -116,30 +117,6 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
         }
 
     /**
-     * A function that creates a [CanvasStrokeRenderer] when invoked. The default implementation of
-     * this will automatically account for the Android OS version of the device. If you choose to
-     * replace the default with an alternate implementation, then you must set this variable before
-     * the first call to [startStroke] or [eagerInit]. If this is set to a non-default value, the
-     * value of [textureBitmapStore] is ignored.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-    @Deprecated(
-        "For a non-self-overlapping highlighter, pass SelfOverlap.DISCARD to the selfOverlap " +
-            "parameter of StockBrushes.highlighter."
-    )
-    public var rendererFactory: () -> CanvasStrokeRenderer = {
-        CanvasStrokeRenderer.create(textureBitmapStore)
-    }
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        set(value) {
-            check(inProgressShapesView.customShapeWorkflow == null) {
-                "Cannot set rendererFactory after initialization."
-            }
-            field = value
-        }
-
-    /**
      * Denote an area of this [InProgressStrokesView] where no ink should be visible. A value of
      * `null` indicates that strokes will be visible anywhere they are drawn. This is useful for UI
      * elements that float on top of (in Z order) the drawing surface - without this, a user would
@@ -178,6 +155,14 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
     @VisibleForTesting
     public var inProgressStrokeCounter: CountingIdlingResource? by
         inProgressShapesView::inProgressShapeCounter
+
+    @VisibleForTesting
+    internal var countDownWhenFlushInProgressTestLatch: CountDownLatch? by
+        inProgressShapesView::countDownWhenFlushInProgressTestLatch
+
+    @VisibleForTesting
+    internal var awaitAfterStartOfHandoffTestLatch: CountDownLatch? by
+        inProgressShapesView::awaitAfterStartOfHandoffTestLatch
 
     /**
      * An optional callback for reporting latency of the processing of input events for in-progress
@@ -502,17 +487,21 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public fun requestHandoff(): Unit = inProgressShapesView.requestHandoff()
 
+    internal fun canSynchronouslyWaitForFlush(): Boolean =
+        inProgressShapesView.canSynchronouslyWaitForFlush()
+
     /**
      * Make a best effort to end all currently in progress strokes, which will include a callback to
      * [InProgressStrokesFinishedListener.onStrokesFinished] during this function's execution if
-     * there are any strokes to hand off. In normal operation, prefer to call [finishStroke] or
-     * [cancelStroke] for each of your in progress strokes and wait for the callback to
-     * [InProgressStrokesFinishedListener.onStrokesFinished], possibly accelerated by
+     * there are any strokes to hand off and it is possible for the implementation to complete that
+     * within the provided timeout while waiting on the UI thread. In normal operation, prefer to
+     * call [finishStroke] or [cancelStroke] for each of your in progress strokes and wait for the
+     * callback to [InProgressStrokesFinishedListener.onStrokesFinished], possibly accelerated by
      * [requestHandoff] if you have set a non-zero value for [handoffDebounceTimeMs]. This function
      * is for situations where an immediate shutdown is necessary, such as
      * [android.app.Activity.onPause]. This must be called on the UI thread, and will block it for
-     * up to [timeoutMillis] milliseconds. Note that if this is called when the app is still visible
-     * on screen, then the visual behavior is undefined - the stroke content may flicker.
+     * up to [timeout] [timeoutUnit]s. Note that if this is called when the app is still visible on
+     * screen, then the visual behavior is undefined - the stroke content may flicker.
      *
      * @param cancelAllInProgress If `true`, treat any unfinished strokes as if you called
      *   [cancelStroke] with their [InProgressStrokeId], so they will not be visible and not
@@ -522,9 +511,10 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * @param timeout The maximum time that will be spent waiting before returning. If this is not
      *   positive, then this will not wait at all.
      * @param timeoutUnit The [TimeUnit] for [timeout].
-     * @return `true` if and only if the flush completed successfully. Note that not all
-     *   configurations support flushing, and flushing is best effort, so this is not guaranteed to
-     *   return `true`.
+     * @return Whether the flush completed. Flushing is best effort, and finishing in-progress
+     *   shapes synchronously is not supported for all Android versions, so this is not guaranteed
+     *   to return `true`. Note that all strokes will be canceled or finished regardless of the
+     *   return value.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @JvmOverloads
@@ -569,7 +559,6 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * either a visual gap where the stroke is not drawn during a frame, or a double draw where the
      * stroke is drawn twice and translucent strokes appear more opaque than they should.
      */
-    @UiThread
     public fun removeFinishedStrokes(strokeIds: Set<InProgressStrokeId>) {
         inProgressShapesView.removeCompletedShapes(strokeIds)
     }

@@ -25,24 +25,26 @@ internal class CheckerException(message: String) : Exception(message)
 
 /**
  * Checker for a Tile's TimelineEntries. Instances of this interface should check for a certain
- * condition on the given [TimelineEntry], and throw an instance of [CheckerException] if there is a
- * problem with that [TimelineEntry].
+ * condition on the given [TimelineBuilders.TimelineEntry], and throw an instance of
+ * [CheckerException] if there is a problem with that [TimelineBuilders.TimelineEntry].
  */
 internal interface TimelineEntryChecker {
     /** The name of this TimelineEntryChecker. This will be printed in any error output. */
     val name: String
 
     /**
-     * Check a given [TimelineEntry].
+     * Check a given [TimelineBuilders.TimelineEntry].
      *
-     * @throws CheckerException if there was an issue while checking the [TimelineEntry]
+     * @throws CheckerException if there was an issue while checking the
+     *   [TimelineBuilders.TimelineEntry]
      */
     @Throws(CheckerException::class) fun check(entry: TimelineBuilders.TimelineEntry)
 }
 
 /**
- * Checker for a given [Timeline]. This will run all provided [TimelineEntryChecker]s on the given
- * [Timeline], and if any fail, log an error to logcat.
+ * Checker for a given [TimelineBuilders.Timeline]. This will run all provided
+ * [TimelineEntryChecker]s on the given [TimelineBuilders.Timeline], and if any fail, log an error
+ * to logcat.
  *
  * @param entryCheckers The list of checkers to use. Defaults to all built in checks.
  */
@@ -53,7 +55,7 @@ internal class TimelineChecker(
         private const val TAG = "TileChecker"
     }
 
-    /** Check a given [Timeline] against all registered [TimelineEntryChecker]s. */
+    /** Check a given [TimelineBuilders.Timeline] against all registered [TimelineEntryChecker]s. */
     fun doCheck(timeline: TimelineBuilders.Timeline) {
         timeline.timelineEntries.forEach { entry ->
             entryCheckers.forEach {

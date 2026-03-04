@@ -415,6 +415,16 @@ public class BiometricPrompt implements BiometricConstants {
         }
 
         /**
+         * The prompt was dismissed because the user clicked a custom fallback option.
+         *
+         * @param fallback The clicked {@link AuthenticationRequest.Biometric.Fallback.CustomOption}
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        public void onFallbackSelected(
+                AuthenticationRequest.Biometric.Fallback.@NonNull CustomOption fallback) {
+        }
+
+        /**
          * Called when a biometric (e.g. fingerprint, face, etc.) is recognized, indicating that the
          * user has successfully authenticated.
          *
@@ -452,6 +462,8 @@ public class BiometricPrompt implements BiometricConstants {
             private @Nullable CharSequence mDescription = null;
             private @Nullable PromptContentView mPromptContentView = null;
             private @Nullable CharSequence mNegativeButtonText = null;
+            private @Nullable List<AuthenticationRequest.Biometric.Fallback> mFallbackOptionList =
+                    null;
             private boolean mIsConfirmationRequired = true;
             private boolean mIsDeviceCredentialAllowed = false;
             @BiometricManager.AuthenticatorTypes
@@ -584,6 +596,20 @@ public class BiometricPrompt implements BiometricConstants {
             }
 
             /**
+             * Optional: Sets the text, icon, executor, and click listener for a fallback option in
+             * biometric prompt.
+             */
+            @RestrictTo(RestrictTo.Scope.LIBRARY)
+            public @NonNull Builder addFallbackOption(
+                    AuthenticationRequest.Biometric.@NonNull Fallback fallbackOptionList) {
+                if (mFallbackOptionList == null) {
+                    mFallbackOptionList = new ArrayList<>();
+                }
+                mFallbackOptionList.add(fallbackOptionList);
+                return this;
+            }
+
+            /**
              * Optional: Sets a system hint for whether to require explicit user confirmation after
              * a passive biometric (e.g. iris or face) has been recognized but before
              * {@link AuthenticationCallback#onAuthenticationSucceeded(AuthenticationResult)} is
@@ -689,17 +715,6 @@ public class BiometricPrompt implements BiometricConstants {
                             + AuthenticatorUtils.convertToString(mAllowedAuthenticators));
                 }
 
-                final boolean isDeviceCredentialAllowed = mAllowedAuthenticators != 0
-                        ? AuthenticatorUtils.isDeviceCredentialAllowed(mAllowedAuthenticators)
-                        : mIsDeviceCredentialAllowed;
-                if (TextUtils.isEmpty(mNegativeButtonText) && !isDeviceCredentialAllowed) {
-                    throw new IllegalArgumentException("Negative text must be set and non-empty.");
-                }
-                if (!TextUtils.isEmpty(mNegativeButtonText) && isDeviceCredentialAllowed) {
-                    throw new IllegalArgumentException("Negative text must not be set if device "
-                            + "credential authentication is allowed.");
-                }
-
                 return new PromptInfo(
                         mLogoRes,
                         mLogoBitmap,
@@ -709,6 +724,7 @@ public class BiometricPrompt implements BiometricConstants {
                         mDescription,
                         mPromptContentView,
                         mNegativeButtonText,
+                        mFallbackOptionList,
                         mIsConfirmationRequired,
                         mIsDeviceCredentialAllowed,
                         mAllowedAuthenticators);
@@ -725,6 +741,7 @@ public class BiometricPrompt implements BiometricConstants {
         private final @Nullable CharSequence mDescription;
         private final @Nullable PromptContentView mPromptContentView;
         private final @Nullable CharSequence mNegativeButtonText;
+        private final @Nullable List<AuthenticationRequest.Biometric.Fallback> mFallbackOptionList;
         private final boolean mIsConfirmationRequired;
         private final boolean mIsDeviceCredentialAllowed;
         @BiometricManager.AuthenticatorTypes
@@ -741,6 +758,7 @@ public class BiometricPrompt implements BiometricConstants {
                 @Nullable CharSequence description,
                 @Nullable PromptContentView promptContentView,
                 @Nullable CharSequence negativeButtonText,
+                @Nullable List<AuthenticationRequest.Biometric.Fallback> fallbackOptionList,
                 boolean confirmationRequired,
                 boolean deviceCredentialAllowed,
                 @BiometricManager.AuthenticatorTypes int allowedAuthenticators) {
@@ -752,6 +770,7 @@ public class BiometricPrompt implements BiometricConstants {
             mDescription = description;
             mPromptContentView = promptContentView;
             mNegativeButtonText = negativeButtonText;
+            mFallbackOptionList = fallbackOptionList;
             mIsConfirmationRequired = confirmationRequired;
             mIsDeviceCredentialAllowed = deviceCredentialAllowed;
             mAllowedAuthenticators = allowedAuthenticators;
@@ -842,6 +861,12 @@ public class BiometricPrompt implements BiometricConstants {
          */
         public @NonNull CharSequence getNegativeButtonText() {
             return mNegativeButtonText != null ? mNegativeButtonText : "";
+        }
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        public @Nullable
+        List<AuthenticationRequest.Biometric.Fallback> getFallbackOptionList() {
+            return mFallbackOptionList != null ? new ArrayList<>(mFallbackOptionList) : null;
         }
 
         /**

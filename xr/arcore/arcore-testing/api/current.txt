@@ -169,8 +169,6 @@ package androidx.xr.arcore.testing {
     ctor public FakeRuntimeFace();
     ctor public FakeRuntimeFace(optional androidx.xr.runtime.TrackingState trackingState, optional boolean isValid, optional float[] blendShapeValues, optional float[] confidenceValues);
     ctor @BytecodeOnly public FakeRuntimeFace(androidx.xr.runtime.TrackingState!, boolean, float[]!, float[]!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    method @InaccessibleFromKotlin public boolean canCreateAnchors();
-    method public androidx.xr.arcore.runtime.Anchor createAnchor(androidx.xr.runtime.math.Pose pose);
     method @InaccessibleFromKotlin public float[] getBlendShapeValues();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getCenterPose();
     method @InaccessibleFromKotlin public float[] getConfidenceValues();
@@ -181,7 +179,6 @@ package androidx.xr.arcore.testing {
     method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
     method @InaccessibleFromKotlin public boolean isValid();
     method @InaccessibleFromKotlin public void setBlendShapeValues(float[]);
-    method @InaccessibleFromKotlin public void setCanCreateAnchors(boolean);
     method @InaccessibleFromKotlin public void setCenterPose(androidx.xr.runtime.math.Pose);
     method @InaccessibleFromKotlin public void setConfidenceValues(float[]);
     method @InaccessibleFromKotlin public void setForeheadLeftPose(androidx.xr.runtime.math.Pose);
@@ -191,7 +188,6 @@ package androidx.xr.arcore.testing {
     method @InaccessibleFromKotlin public void setTrackingState(androidx.xr.runtime.TrackingState);
     method @InaccessibleFromKotlin public void setValid(boolean);
     property public float[] blendShapeValues;
-    property public boolean canCreateAnchors;
     property public androidx.xr.runtime.math.Pose centerPose;
     property public float[] confidenceValues;
     property public androidx.xr.runtime.math.Pose foreheadLeftPose;

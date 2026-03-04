@@ -40,6 +40,20 @@ package androidx.compose.remote.creation.compose.capture {
     property public androidx.collection.IntObjectMap<android.app.PendingIntent> pendingIntents;
   }
 
+  public final class RemoteDensity {
+    ctor public RemoteDensity(androidx.compose.remote.creation.compose.state.RemoteFloat density, androidx.compose.remote.creation.compose.state.RemoteFloat fontScale);
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getDensity();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getFontScale();
+    property public androidx.compose.remote.creation.compose.state.RemoteFloat density;
+    property public androidx.compose.remote.creation.compose.state.RemoteFloat fontScale;
+    field public static final androidx.compose.remote.creation.compose.capture.RemoteDensity.Companion Companion;
+  }
+
+  public static final class RemoteDensity.Companion {
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.capture.RemoteDensity getHost();
+    property public androidx.compose.remote.creation.compose.capture.RemoteDensity Host;
+  }
+
 }
 
 package androidx.compose.remote.creation.compose.layout {
@@ -192,6 +206,11 @@ package androidx.compose.remote.creation.compose.layout {
     property public androidx.compose.remote.creation.compose.layout.RemoteSize Zero;
   }
 
+  public final class RemoteTextKt {
+    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteText(androidx.compose.remote.creation.compose.state.RemoteString text, optional androidx.compose.remote.creation.compose.modifier.RemoteModifier modifier, optional androidx.compose.remote.creation.compose.state.RemoteColor? color, optional androidx.compose.remote.creation.compose.state.RemoteTextUnit? fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional androidx.compose.ui.text.style.TextOverflow overflow, optional int maxLines, optional androidx.compose.remote.creation.compose.text.RemoteTextStyle style, optional androidx.compose.ui.text.font.FontVariation.Settings? fontVariationSettings);
+    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteText-yT6CtNU(androidx.compose.remote.creation.compose.state.RemoteString, androidx.compose.remote.creation.compose.modifier.RemoteModifier?, androidx.compose.remote.creation.compose.state.RemoteColor?, androidx.compose.remote.creation.compose.state.RemoteTextUnit?, androidx.compose.ui.text.font.FontStyle?, androidx.compose.ui.text.font.FontWeight?, androidx.compose.ui.text.font.FontFamily?, androidx.compose.ui.text.style.TextAlign?, int, int, androidx.compose.remote.creation.compose.text.RemoteTextStyle?, androidx.compose.ui.text.font.FontVariation.Settings?, androidx.compose.runtime.Composer?, int, int, int);
+  }
+
 }
 
 package androidx.compose.remote.creation.compose.modifier {
@@ -201,7 +220,13 @@ package androidx.compose.remote.creation.compose.modifier {
   }
 
   public final class BackgroundModifierKt {
+    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier background(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.painter.RemotePainter remotePainter);
     method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier background(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteColor color);
+  }
+
+  public final class BorderModifierKt {
+    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier border(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.remote.creation.compose.state.RemoteDp width, androidx.compose.remote.creation.compose.state.RemoteColor color, optional androidx.compose.remote.creation.compose.shapes.RemoteShape shape);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! border$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteColor!, androidx.compose.remote.creation.compose.shapes.RemoteShape!, int, Object!);
   }
 
   public final class ClickActionModifierKt {
@@ -214,7 +239,9 @@ package androidx.compose.remote.creation.compose.modifier {
   }
 
   public final class ClipModifierKt {
+    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clip(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.remote.creation.compose.shapes.RemoteShape shape);
     method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clip(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.ui.graphics.Shape shape, optional androidx.compose.ui.unit.DpSize size);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! clip$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, androidx.compose.remote.creation.compose.shapes.RemoteShape!, int, Object!);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clip-USBMPiE(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.ui.graphics.Shape, long, androidx.compose.runtime.Composer?, int, int);
   }
 
@@ -310,6 +337,61 @@ package androidx.compose.remote.creation.compose.modifier {
 
 }
 
+package androidx.compose.remote.creation.compose.painter {
+
+  public final class RemoteBitmapPainterKt {
+    method public static androidx.compose.remote.creation.compose.painter.RemotePainter painterRemoteBitmap(androidx.compose.remote.creation.compose.state.RemoteBitmap image);
+  }
+
+  public final class RemoteColorPainterKt {
+    method public static androidx.compose.remote.creation.compose.painter.RemotePainter painterRemoteColor(androidx.compose.remote.creation.compose.state.RemoteColor color);
+  }
+
+  public abstract class RemotePainter {
+    method @InaccessibleFromKotlin public abstract androidx.compose.remote.creation.compose.layout.RemoteSize? getIntrinsicSize();
+    property public abstract androidx.compose.remote.creation.compose.layout.RemoteSize? intrinsicSize;
+  }
+
+}
+
+package androidx.compose.remote.creation.compose.shapes {
+
+  public abstract class RemoteCornerBasedShape implements androidx.compose.remote.creation.compose.shapes.RemoteShape {
+    method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.shapes.RemoteCornerSize getBottomEnd();
+    method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.shapes.RemoteCornerSize getBottomStart();
+    method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.shapes.RemoteCornerSize getTopEnd();
+    method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.shapes.RemoteCornerSize getTopStart();
+    property public final androidx.compose.remote.creation.compose.shapes.RemoteCornerSize bottomEnd;
+    property public final androidx.compose.remote.creation.compose.shapes.RemoteCornerSize bottomStart;
+    property public final androidx.compose.remote.creation.compose.shapes.RemoteCornerSize topEnd;
+    property public final androidx.compose.remote.creation.compose.shapes.RemoteCornerSize topStart;
+  }
+
+  @androidx.compose.runtime.Immutable public interface RemoteCornerSize {
+    method public androidx.compose.remote.creation.compose.state.RemoteFloat toPx(androidx.compose.remote.creation.compose.layout.RemoteSize shapeSize, androidx.compose.remote.creation.compose.capture.RemoteDensity density);
+  }
+
+  public final class RemoteCornerSizeKt {
+    method public static androidx.compose.remote.creation.compose.shapes.RemoteCornerSize RemoteCornerSize(androidx.compose.remote.creation.compose.state.RemoteDp size);
+    method public static androidx.compose.remote.creation.compose.shapes.RemoteCornerSize RemoteCornerSize(@IntRange(from=0L, to=100L) int percent);
+  }
+
+  public final class RemoteRoundedCornerShape extends androidx.compose.remote.creation.compose.shapes.RemoteCornerBasedShape {
+  }
+
+  public final class RemoteRoundedCornerShapeKt {
+    method public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape RemoteRoundedCornerShape(androidx.compose.remote.creation.compose.state.RemoteDp size);
+    method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape getRemoteCircleShape();
+    method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape getRemoteRectangleShape();
+    property public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape RemoteCircleShape;
+    property public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape RemoteRectangleShape;
+  }
+
+  public interface RemoteShape {
+  }
+
+}
+
 package androidx.compose.remote.creation.compose.state {
 
   public abstract class BaseRemoteState<T> implements androidx.compose.remote.creation.compose.state.RemoteState<T> {
@@ -400,6 +482,7 @@ package androidx.compose.remote.creation.compose.state {
     method public final operator androidx.compose.remote.creation.compose.state.RemoteBoolean not();
     method public final infix androidx.compose.remote.creation.compose.state.RemoteBoolean or(androidx.compose.remote.creation.compose.state.RemoteBoolean b);
     method public final androidx.compose.remote.creation.compose.state.RemoteBoolean select(androidx.compose.remote.creation.compose.state.RemoteBoolean ifTrue, androidx.compose.remote.creation.compose.state.RemoteBoolean ifFalse);
+    method public final androidx.compose.remote.creation.compose.state.RemoteColor select(androidx.compose.remote.creation.compose.state.RemoteColor ifTrue, androidx.compose.remote.creation.compose.state.RemoteColor ifFalse);
     method public final androidx.compose.remote.creation.compose.state.RemoteFloat select(androidx.compose.remote.creation.compose.state.RemoteFloat ifTrue, androidx.compose.remote.creation.compose.state.RemoteFloat ifFalse);
     method public final androidx.compose.remote.creation.compose.state.RemoteInt select(androidx.compose.remote.creation.compose.state.RemoteInt ifTrue, androidx.compose.remote.creation.compose.state.RemoteInt ifFalse);
     method public final androidx.compose.remote.creation.compose.state.RemoteString select(androidx.compose.remote.creation.compose.state.RemoteString ifTrue, androidx.compose.remote.creation.compose.state.RemoteString ifFalse);
@@ -418,15 +501,45 @@ package androidx.compose.remote.creation.compose.state {
   }
 
   @androidx.compose.runtime.Stable public class RemoteColor extends androidx.compose.remote.creation.compose.state.BaseRemoteState<androidx.compose.ui.graphics.Color> {
+    method public final androidx.compose.remote.creation.compose.state.RemoteColor copy(optional androidx.compose.remote.creation.compose.state.RemoteFloat? alpha, optional androidx.compose.remote.creation.compose.state.RemoteFloat? red, optional androidx.compose.remote.creation.compose.state.RemoteFloat? green, optional androidx.compose.remote.creation.compose.state.RemoteFloat? blue);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteColor! copy$default(androidx.compose.remote.creation.compose.state.RemoteColor!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, Object!);
     method @BytecodeOnly public static final androidx.compose.remote.creation.compose.state.RemoteColor createNamedRemoteColor-bw27NRU(String, long, androidx.compose.remote.creation.compose.state.RemoteState.Domain);
+    method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.state.RemoteFloat getAlpha();
+    method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.state.RemoteFloat getBlue();
+    method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.state.RemoteFloat getBrightness();
     method @BytecodeOnly public androidx.compose.ui.graphics.Color? getConstantValueOrNull-QN2ZGVo();
+    method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.state.RemoteFloat getGreen();
+    method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.state.RemoteFloat getHue();
+    method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.state.RemoteFloat getRed();
+    method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.state.RemoteFloat getSaturation();
+    property public final androidx.compose.remote.creation.compose.state.RemoteFloat alpha;
+    property public final androidx.compose.remote.creation.compose.state.RemoteFloat blue;
+    property public final androidx.compose.remote.creation.compose.state.RemoteFloat brightness;
     property public androidx.compose.ui.graphics.Color? constantValueOrNull;
+    property public final androidx.compose.remote.creation.compose.state.RemoteFloat green;
+    property public final androidx.compose.remote.creation.compose.state.RemoteFloat hue;
+    property public final androidx.compose.remote.creation.compose.state.RemoteFloat red;
+    property public final androidx.compose.remote.creation.compose.state.RemoteFloat saturation;
+    field public static final androidx.compose.remote.creation.compose.state.RemoteColor.Companion Companion;
+  }
+
+  public static final class RemoteColor.Companion {
+    method @KotlinOnly public androidx.compose.remote.creation.compose.state.RemoteColor createNamedRemoteColor(String name, androidx.compose.ui.graphics.Color defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
+    method @BytecodeOnly public androidx.compose.remote.creation.compose.state.RemoteColor createNamedRemoteColor-bw27NRU(String, long, androidx.compose.remote.creation.compose.state.RemoteState.Domain);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteColor! createNamedRemoteColor-bw27NRU$default(androidx.compose.remote.creation.compose.state.RemoteColor.Companion!, String!, long, androidx.compose.remote.creation.compose.state.RemoteState.Domain!, int, Object!);
+    method public androidx.compose.remote.creation.compose.state.RemoteColor hsv(androidx.compose.remote.creation.compose.state.RemoteFloat hue, androidx.compose.remote.creation.compose.state.RemoteFloat saturation, androidx.compose.remote.creation.compose.state.RemoteFloat value, optional androidx.compose.remote.creation.compose.state.RemoteFloat alpha);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteColor! hsv$default(androidx.compose.remote.creation.compose.state.RemoteColor.Companion!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, Object!);
+    method @KotlinOnly public operator androidx.compose.remote.creation.compose.state.RemoteColor invoke(androidx.compose.ui.graphics.Color value);
+    method @BytecodeOnly public androidx.compose.remote.creation.compose.state.RemoteColor invoke-8_81llA(long);
+    method public androidx.compose.remote.creation.compose.state.RemoteColor rgb(androidx.compose.remote.creation.compose.state.RemoteFloat red, androidx.compose.remote.creation.compose.state.RemoteFloat green, androidx.compose.remote.creation.compose.state.RemoteFloat blue, optional androidx.compose.remote.creation.compose.state.RemoteFloat alpha);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteColor! rgb$default(androidx.compose.remote.creation.compose.state.RemoteColor.Companion!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, Object!);
   }
 
   public final class RemoteColorKt {
     method @BytecodeOnly public static androidx.compose.remote.creation.compose.state.RemoteColor getRc-8_81llA(long);
     method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteColor rememberNamedRemoteColor(String name, androidx.compose.ui.graphics.Color initialValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
     method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteColor rememberNamedRemoteColor-3IgeMak(String, long, androidx.compose.remote.creation.compose.state.RemoteState.Domain?, androidx.compose.runtime.Composer?, int, int);
+    method public static androidx.compose.remote.creation.compose.state.RemoteColor tween(androidx.compose.remote.creation.compose.state.RemoteColor from, androidx.compose.remote.creation.compose.state.RemoteColor to, androidx.compose.remote.creation.compose.state.RemoteFloat tween);
     property public static androidx.compose.remote.creation.compose.state.RemoteColor androidx.compose.ui.graphics.Color.rc;
   }
 
@@ -467,6 +580,7 @@ package androidx.compose.remote.creation.compose.state {
     method public final infix androidx.compose.remote.creation.compose.state.RemoteBoolean ne(androidx.compose.remote.creation.compose.state.RemoteFloat b);
     method public final operator androidx.compose.remote.creation.compose.state.RemoteFloat plus(androidx.compose.remote.creation.compose.state.RemoteFloat v);
     method public final operator androidx.compose.remote.creation.compose.state.RemoteFloat rem(androidx.compose.remote.creation.compose.state.RemoteFloat v);
+    method public final operator androidx.compose.remote.creation.compose.state.RemoteFloat times(androidx.compose.remote.creation.compose.state.RemoteFloat v);
     method public final androidx.compose.remote.creation.compose.state.RemoteInt toRemoteInt();
     method public final androidx.compose.remote.creation.compose.state.RemoteString toRemoteString(int before, optional int after, optional int flags);
     method public final androidx.compose.remote.creation.compose.state.RemoteString toRemoteString(java.text.DecimalFormat format);
@@ -552,6 +666,58 @@ package androidx.compose.remote.creation.compose.state {
     method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.state.RemoteString rememberNamedRemoteString(String name, String defaultValue, optional androidx.compose.remote.creation.compose.state.RemoteState.Domain domain);
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.remote.creation.compose.layout.RemoteComposable") public static androidx.compose.remote.creation.compose.state.RemoteString rememberNamedRemoteString(String, String, androidx.compose.remote.creation.compose.state.RemoteState.Domain?, androidx.compose.runtime.Composer?, int, int);
     property public static androidx.compose.remote.creation.compose.state.RemoteString String.rs;
+  }
+
+  public final class RemoteTextUnit extends androidx.compose.remote.creation.compose.state.BaseRemoteState<androidx.compose.ui.unit.TextUnit> {
+    method @BytecodeOnly public long getType-UIouoOA();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getValue();
+    method public androidx.compose.remote.creation.compose.state.RemoteFloat toPx();
+    property public androidx.compose.ui.unit.TextUnit? constantValueOrNull;
+    property public androidx.compose.ui.unit.TextUnitType type;
+    property public androidx.compose.remote.creation.compose.state.RemoteFloat value;
+  }
+
+  public final class RemoteTextUnitKt {
+    method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.state.RemoteTextUnit getRsp(int);
+    property public static androidx.compose.remote.creation.compose.state.RemoteTextUnit int.rsp;
+  }
+
+}
+
+package androidx.compose.remote.creation.compose.text {
+
+  public final class RemoteTextStyle {
+    ctor @BytecodeOnly public RemoteTextStyle(androidx.compose.remote.creation.compose.state.RemoteColor!, androidx.compose.remote.creation.compose.state.RemoteTextUnit!, androidx.compose.ui.text.font.FontWeight!, androidx.compose.ui.text.font.FontStyle!, androidx.compose.ui.text.font.FontFamily!, androidx.compose.remote.creation.compose.state.RemoteTextUnit!, androidx.compose.remote.creation.compose.state.RemoteColor!, androidx.compose.ui.text.style.TextAlign!, androidx.compose.remote.creation.compose.state.RemoteTextUnit!, androidx.compose.ui.text.style.TextDecoration!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @KotlinOnly public androidx.compose.remote.creation.compose.text.RemoteTextStyle copy(optional androidx.compose.remote.creation.compose.state.RemoteColor? color, optional androidx.compose.remote.creation.compose.state.RemoteTextUnit? fontSize, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional androidx.compose.remote.creation.compose.state.RemoteTextUnit? letterSpacing, optional androidx.compose.remote.creation.compose.state.RemoteColor? background, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional androidx.compose.remote.creation.compose.state.RemoteTextUnit? lineHeight, optional androidx.compose.ui.text.style.TextDecoration? textDecoration);
+    method @BytecodeOnly public androidx.compose.remote.creation.compose.text.RemoteTextStyle copy-eECs4dY(androidx.compose.remote.creation.compose.state.RemoteColor?, androidx.compose.remote.creation.compose.state.RemoteTextUnit?, androidx.compose.ui.text.font.FontWeight?, androidx.compose.ui.text.font.FontStyle?, androidx.compose.ui.text.font.FontFamily?, androidx.compose.remote.creation.compose.state.RemoteTextUnit?, androidx.compose.remote.creation.compose.state.RemoteColor?, androidx.compose.ui.text.style.TextAlign?, androidx.compose.remote.creation.compose.state.RemoteTextUnit?, androidx.compose.ui.text.style.TextDecoration?);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.text.RemoteTextStyle! copy-eECs4dY$default(androidx.compose.remote.creation.compose.text.RemoteTextStyle!, androidx.compose.remote.creation.compose.state.RemoteColor!, androidx.compose.remote.creation.compose.state.RemoteTextUnit!, androidx.compose.ui.text.font.FontWeight!, androidx.compose.ui.text.font.FontStyle!, androidx.compose.ui.text.font.FontFamily!, androidx.compose.remote.creation.compose.state.RemoteTextUnit!, androidx.compose.remote.creation.compose.state.RemoteColor!, androidx.compose.ui.text.style.TextAlign!, androidx.compose.remote.creation.compose.state.RemoteTextUnit!, androidx.compose.ui.text.style.TextDecoration!, int, Object!);
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteColor? getBackground();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteColor? getColor();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.font.FontFamily? getFontFamily();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteTextUnit? getFontSize();
+    method @BytecodeOnly public androidx.compose.ui.text.font.FontStyle? getFontStyle-4Lr2A7w();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.font.FontWeight? getFontWeight();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteTextUnit? getLetterSpacing();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteTextUnit? getLineHeight();
+    method @BytecodeOnly public androidx.compose.ui.text.style.TextAlign? getTextAlign-buA522U();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.style.TextDecoration? getTextDecoration();
+    method public androidx.compose.remote.creation.compose.text.RemoteTextStyle merge(androidx.compose.remote.creation.compose.text.RemoteTextStyle? other);
+    property public androidx.compose.remote.creation.compose.state.RemoteColor? background;
+    property public androidx.compose.remote.creation.compose.state.RemoteColor? color;
+    property public androidx.compose.ui.text.font.FontFamily? fontFamily;
+    property public androidx.compose.remote.creation.compose.state.RemoteTextUnit? fontSize;
+    property public androidx.compose.ui.text.font.FontStyle? fontStyle;
+    property public androidx.compose.ui.text.font.FontWeight? fontWeight;
+    property public androidx.compose.remote.creation.compose.state.RemoteTextUnit? letterSpacing;
+    property public androidx.compose.remote.creation.compose.state.RemoteTextUnit? lineHeight;
+    property public androidx.compose.ui.text.style.TextAlign? textAlign;
+    property public androidx.compose.ui.text.style.TextDecoration? textDecoration;
+    field public static final androidx.compose.remote.creation.compose.text.RemoteTextStyle.Companion Companion;
+  }
+
+  public static final class RemoteTextStyle.Companion {
+    method public androidx.compose.remote.creation.compose.text.RemoteTextStyle fromTextStyle(androidx.compose.ui.text.TextStyle style);
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.text.RemoteTextStyle getDefault();
   }
 
 }

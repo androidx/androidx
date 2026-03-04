@@ -17,7 +17,6 @@
 package androidx.xr.arcore.openxr
 
 import androidx.annotation.RestrictTo
-import androidx.xr.arcore.runtime.Anchor
 import androidx.xr.arcore.runtime.Face
 import androidx.xr.arcore.runtime.Mesh
 import androidx.xr.runtime.TrackingState
@@ -40,8 +39,6 @@ import androidx.xr.runtime.math.Pose
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class OpenXrFace : Updatable, Face {
-
-    public override fun createAnchor(pose: Pose): Anchor = throw UnsupportedOperationException()
 
     public override var trackingState: TrackingState = TrackingState.PAUSED
         private set

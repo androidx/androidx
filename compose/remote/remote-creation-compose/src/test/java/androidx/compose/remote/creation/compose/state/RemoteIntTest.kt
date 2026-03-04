@@ -29,6 +29,7 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 fun RemoteInt.computeValue(creationState: RemoteComposeCreationState): Int? {
     val array = arrayForCreationState(creationState)
@@ -44,7 +45,7 @@ fun RemoteInt.computeValue(creationState: RemoteComposeCreationState): Int? {
 }
 
 @RunWith(RobolectricTestRunner::class)
-@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
+@Config(sdk = [Config.TARGET_SDK])
 class RemoteIntTest {
     val context =
         AndroidRemoteContext().apply {
@@ -447,6 +448,20 @@ class RemoteIntTest {
     fun extensionFunctionMatches() {
         assertThat(10.ri.constantValue).isEqualTo(10)
         assertThat((-10).ri.constantValue).isEqualTo(-10)
+    }
+
+    @Test
+    fun cacheKeys() {
+        val constant = RemoteInt(10)
+        assertThat(constant.cacheKey).isEqualTo(RemoteConstantCacheKey(10))
+
+        val named = RemoteInt.createNamedRemoteInt("test", 5)
+        assertThat(named.cacheKey).isEqualTo(RemoteNamedCacheKey(RemoteState.Domain.User, "test"))
+
+        val op = constant + named
+        // flipped because of peephole optimisation
+        assertThat(op.cacheKey)
+            .isEqualTo(RemoteOperationCacheKey.create(RemoteInt.OperationKey.Add, named, constant))
     }
 
     @Test

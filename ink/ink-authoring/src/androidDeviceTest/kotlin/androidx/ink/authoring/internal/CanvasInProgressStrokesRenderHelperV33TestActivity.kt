@@ -18,8 +18,6 @@ package androidx.ink.authoring.internal
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.graphics.Canvas
-import android.graphics.Matrix
 import android.os.Build
 import android.os.Bundle
 import android.view.ViewGroup
@@ -27,17 +25,14 @@ import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import androidx.ink.authoring.ExperimentalCustomShapeWorkflowApi
 import androidx.ink.authoring.ExperimentalLatencyDataApi
-import androidx.ink.authoring.InProgressStrokeId
 import androidx.ink.authoring.InkInProgressShape
 import androidx.ink.authoring.InkInProgressShapeRenderer
-import androidx.ink.authoring.latency.LatencyData
 import androidx.ink.brush.Brush
 import androidx.ink.brush.ExperimentalInkCustomBrushApi
-import androidx.ink.geometry.AffineTransform
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
-import androidx.ink.strokes.InProgressStroke
 import androidx.ink.strokes.Stroke
 import java.util.concurrent.TimeUnit
+import org.mockito.kotlin.mock
 
 /** An [Activity] to support [CanvasInProgressStrokesRenderHelperV33]. */
 @OptIn(
@@ -56,94 +51,8 @@ class CanvasInProgressStrokesRenderHelperV33TestActivity : Activity() {
 
     internal var fakeThreads = FakeThreads()
 
-    internal var callback: InProgressStrokesRenderHelper.Callback<Stroke>? = null
-    var renderer: CanvasStrokeRenderer? = null
-
-    private val delegatingCallback =
-        object : InProgressStrokesRenderHelper.Callback<Stroke> {
-            override fun onDraw() {
-                callback?.onDraw()
-            }
-
-            override fun onDrawComplete() {
-                callback?.onDrawComplete()
-            }
-
-            override fun reportEstimatedPixelPresentationTime(timeNanos: Long) {
-                callback?.reportEstimatedPixelPresentationTime(timeNanos)
-            }
-
-            override fun setCustomLatencyDataField(setter: (LatencyData, Long) -> Unit) {
-                callback?.setCustomLatencyDataField(setter)
-            }
-
-            override fun handOffAllLatencyData() {
-                callback?.handOffAllLatencyData()
-            }
-
-            override fun setPauseStrokeCohortHandoffs(paused: Boolean) {
-                callback?.setPauseStrokeCohortHandoffs(paused)
-            }
-
-            override fun onStrokeCohortHandoffToHwui(
-                strokeCohort: Map<InProgressStrokeId, FinishedStroke<Stroke>>
-            ) {
-                callback?.onStrokeCohortHandoffToHwui(strokeCohort)
-            }
-
-            override fun onStrokeCohortHandoffToHwuiComplete() {
-                callback?.onStrokeCohortHandoffToHwuiComplete()
-            }
-        }
-
-    private val delegatingRenderer =
-        object : CanvasStrokeRenderer {
-            override fun draw(
-                canvas: Canvas,
-                stroke: Stroke,
-                strokeToScreenTransform: AffineTransform,
-                textureAnimationProgress: Float,
-            ) {
-                renderer?.draw(canvas, stroke, strokeToScreenTransform, textureAnimationProgress)
-            }
-
-            override fun draw(
-                canvas: Canvas,
-                stroke: Stroke,
-                strokeToScreenTransform: Matrix,
-                textureAnimationProgress: Float,
-            ) {
-                renderer?.draw(canvas, stroke, strokeToScreenTransform, textureAnimationProgress)
-            }
-
-            override fun draw(
-                canvas: Canvas,
-                inProgressStroke: InProgressStroke,
-                strokeToScreenTransform: AffineTransform,
-                textureAnimationProgress: Float,
-            ) {
-                renderer?.draw(
-                    canvas,
-                    inProgressStroke,
-                    strokeToScreenTransform,
-                    textureAnimationProgress,
-                )
-            }
-
-            override fun draw(
-                canvas: Canvas,
-                inProgressStroke: InProgressStroke,
-                strokeToScreenTransform: Matrix,
-                textureAnimationProgress: Float,
-            ) {
-                renderer?.draw(
-                    canvas,
-                    inProgressStroke,
-                    strokeToScreenTransform,
-                    textureAnimationProgress,
-                )
-            }
-        }
+    internal val mockRenderer = mock<CanvasStrokeRenderer> {}
+    internal val mockCallback = mock<InProgressStrokesRenderHelper.Callback<Stroke>> {}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -156,11 +65,11 @@ class CanvasInProgressStrokesRenderHelperV33TestActivity : Activity() {
         renderHelper =
             CanvasInProgressStrokesRenderHelperV33(
                 mainView,
-                delegatingCallback,
-                InkInProgressShapeRenderer(delegatingRenderer),
+                InkInProgressShapeRenderer(mockRenderer),
                 fakeThreads.uiThreadExecutors,
                 fakeThreads.renderThreadExecutors,
             )
+        renderHelper.callback = mockCallback
     }
 
     internal class FakeThreads {

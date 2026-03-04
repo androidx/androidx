@@ -86,7 +86,7 @@ class HeadLockedUiActivity : AppCompatActivity() {
         session!!.configure(
             Config(
                 planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                deviceTracking = DeviceTrackingMode.LAST_KNOWN,
+                deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
             )
         )
         session?.scene?.keyEntity = session?.scene?.mainPanelEntity

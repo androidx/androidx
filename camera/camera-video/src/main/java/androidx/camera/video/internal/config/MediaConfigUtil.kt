@@ -185,6 +185,30 @@ public object MediaConfigUtil {
             .also { Logger.d(TAG, "Resolved MediaInfo by FormatCombo: $it") }
     }
 
+    /**
+     * Returns whether the output video format supports orientation metadata.
+     *
+     * According to [android.media.MediaMuxer.setOrientationHint] documentation, orientation hints
+     * (composition matrices) are only supported for the MPEG-4 output format. CameraX can record
+     * the video in the camera's native orientation and simply add a metadata tag to tell the player
+     * to rotate the frames during playback.
+     *
+     * If the format does not support this metadata (e.g., WebM), the video frames must be
+     * physically rotated in the buffer before reaching the encoder to ensure the output has the
+     * correct orientation.
+     *
+     * @param outputFormat The video output format as defined in [MediaSpec].
+     * @return true if the format supports orientation tags in its header/metadata.
+     */
+    @JvmStatic
+    public fun canWriteOrientationMetadata(@OutputFormat outputFormat: Int): Boolean {
+        return when (outputFormat) {
+            OUTPUT_FORMAT_MPEG_4 -> true
+            OUTPUT_FORMAT_WEBM -> false
+            else -> false
+        }
+    }
+
     private fun resolveFormatCombo(
         @OutputFormat outputFormat: Int,
         videoMime: String,

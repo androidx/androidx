@@ -157,7 +157,7 @@ class OpenXrManagerTest {
         check(underTest.config.deviceTracking == DeviceTrackingMode.DISABLED)
         check(perceptionManager.xrResources.updatables.isEmpty())
 
-        underTest.configure(Config(deviceTracking = DeviceTrackingMode.LAST_KNOWN))
+        underTest.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN))
 
         assertThat(perceptionManager.xrResources.updatables)
             .containsExactly(perceptionManager.xrResources.arDevice)
@@ -166,7 +166,7 @@ class OpenXrManagerTest {
     @Test
     fun configure_deviceTrackingDisabled_removesDeviceToUpdatables() = initOpenXrManagerAndRunTest {
         underTest.create()
-        underTest.configure(Config(deviceTracking = DeviceTrackingMode.LAST_KNOWN))
+        underTest.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN))
         check(
             perceptionManager.xrResources.updatables.contains(
                 perceptionManager.xrResources.arDevice

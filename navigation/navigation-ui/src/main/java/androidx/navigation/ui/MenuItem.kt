@@ -22,9 +22,9 @@ import android.view.MenuItem
 import androidx.navigation.NavController
 
 /**
- * Attempt to navigate to the [NavDestination] associated with this [MenuItem].
+ * Attempt to navigate to the [androidx.navigation.NavDestination] associated with this [MenuItem].
  *
- * Importantly, it assumes the [menu item id][getItemId] matches a valid
+ * Importantly, it assumes the [menu item id][MenuItem.getItemId] matches a valid
  * [action id][androidx.navigation.NavDestination.getAction] or
  * [destination id][androidx.navigation.NavDestination.id] to be navigated to.
  *

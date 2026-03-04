@@ -430,7 +430,7 @@ package androidx.wear.compose.material {
     method @InaccessibleFromKotlin public boolean getRepeatItems();
     method @InaccessibleFromKotlin public int getSelectedOption();
     method @InaccessibleFromKotlin public boolean isScrollInProgress();
-    method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? scroll(optional androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? scrollToOption(int index, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @InaccessibleFromKotlin public void setNumberOfOptions(int);
     property public boolean canScrollBackward;
@@ -794,7 +794,7 @@ package androidx.wear.compose.material {
     method @InaccessibleFromKotlin @Deprecated public int getCenterItemScrollOffset();
     method @InaccessibleFromKotlin @Deprecated public androidx.wear.compose.material.ScalingLazyListLayoutInfo getLayoutInfo();
     method @InaccessibleFromKotlin @Deprecated public boolean isScrollInProgress();
-    method @Deprecated public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @Deprecated public suspend Object? scroll(optional androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @Deprecated public suspend Object? scrollToItem(int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @BytecodeOnly @Deprecated public static Object! scrollToItem$default(androidx.wear.compose.material.ScalingLazyListState!, int, int, kotlin.coroutines.Continuation!, int, Object!);
     property @Deprecated public boolean canScrollBackward;

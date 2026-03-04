@@ -461,7 +461,7 @@ public fun SubspaceModifier.requiredDepthIn(
  * [maximum width][VolumeConstraints.maxWidth] to be equal to the
  * [maximum width][VolumeConstraints.maxWidth] multiplied by [fraction]. Note that, by default, the
  * [fraction] is 1, so the modifier will make the content fill the whole available width. If the
- * incoming maximum width is [VolumeConstraints.Infinity] this modifier will have no effect.
+ * incoming maximum width is [VolumeConstraints.INFINITY] this modifier will have no effect.
  *
  * @param fraction The fraction of the maximum width to use, between `0` and `1`, inclusive.
  */
@@ -478,7 +478,7 @@ private val FillWholeMaxWidth = FillElement.width(1f)
  * [maximum height][VolumeConstraints.maxHeight] to be equal to the
  * [maximum height][VolumeConstraints.maxHeight] multiplied by [fraction]. Note that, by default,
  * the [fraction] is 1, so the modifier will make the content fill the whole available height. If
- * the incoming maximum height is [VolumeConstraints.Infinity] this modifier will have no effect.
+ * the incoming maximum height is [VolumeConstraints.INFINITY] this modifier will have no effect.
  *
  * @param fraction The fraction of the maximum height to use, between `0` and `1`, inclusive.
  */
@@ -495,7 +495,7 @@ private val FillWholeMaxHeight = FillElement.height(1f)
  * [maximum depth][VolumeConstraints.maxDepth] to be equal to the
  * [maximum depth][VolumeConstraints.maxDepth] multiplied by [fraction]. Note that, by default, the
  * [fraction] is 1, so the modifier will make the content fill the whole available depth. If the
- * incoming maximum depth is [VolumeConstraints.Infinity] this modifier will have no effect.
+ * incoming maximum depth is [VolumeConstraints.INFINITY] this modifier will have no effect.
  *
  * @param fraction The fraction of the maximum height to use, between `0` and `1`, inclusive.
  */
@@ -512,7 +512,7 @@ private val FillWholeMaxDepth = FillElement.depth(1f)
  * constraints. See [SubspaceModifier.fillMaxWidth], [SubspaceModifier.fillMaxHeight], and
  * [SubspaceModifier.fillMaxDepth] for details. Note that, by default, the [fraction] is 1, so the
  * modifier will make the content fill the whole available space. If the incoming maximum width or
- * height or depth is [VolumeConstraints.Infinity] this modifier will have no effect in that
+ * height or depth is [VolumeConstraints.INFINITY] this modifier will have no effect in that
  * dimension.
  *
  * @param fraction The fraction of the maximum size to use, between `0` and `1`, inclusive.

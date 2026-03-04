@@ -34,6 +34,7 @@ import androidx.core.os.BundleCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentTransaction
 import androidx.pdf.testapp.ui.FeatureFlagListener
 import androidx.pdf.testapp.ui.FeaturePreferencesDialog
@@ -41,6 +42,7 @@ import androidx.pdf.testapp.ui.v2.EditablePdfHostFragment
 import androidx.pdf.testapp.ui.v2.PdfViewerFragmentExtended
 import androidx.pdf.testapp.ui.v2.StyledPdfViewerFragment
 import androidx.pdf.viewer.fragment.PdfViewerFragment
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 
 // TODO(b/386721657): Remove this activity once the switch to V2 completes
@@ -54,6 +56,7 @@ internal class MainActivityV2 : AppCompatActivity(), EditablePdfHostFragment.Fra
     private lateinit var searchButton: MaterialButton
     private lateinit var openPdfButton: MaterialButton
     private lateinit var preferenceButton: ImageButton
+    private lateinit var editToolbar: MaterialToolbar
 
     private var currentFileName: String = SAMPLE_PDF_NAME
 
@@ -61,7 +64,6 @@ internal class MainActivityV2 : AppCompatActivity(), EditablePdfHostFragment.Fra
         FeaturePreferencesDialog(this, listener = pdfViewerFragment as? FeatureFlagListener)
     }
 
-    // TODO(b/461991220) : Add the save button in toolbar for EditablePdfViewerFragment.
     private lateinit var savePdfButton: MaterialButton
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
@@ -145,13 +147,16 @@ internal class MainActivityV2 : AppCompatActivity(), EditablePdfHostFragment.Fra
         searchButton = findViewById(R.id.search_pdf_button)
         preferenceButton = findViewById(R.id.preference_button)
         savePdfButton = findViewById(R.id.save_pdf_button)
+        editToolbar = findViewById(R.id.pdf_edit_toolbar)
 
         openPdfButton.setOnClickListener { filePicker.launch(MIME_TYPE_PDF) }
-
         searchButton.setOnClickListener { pdfViewerFragment.isTextSearchActive = true }
+        preferenceButton.setOnClickListener { _ -> settingsDialog.show() }
 
-        preferenceButton.setOnClickListener { view -> settingsDialog.show() }
         savePdfButton.setOnClickListener { createDocumentLauncher.launch(currentFileName) }
+        editToolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
+
+        updateToolbarVisibility(pdfViewerFragment)
     }
 
     private fun setPdfView() {
@@ -178,6 +183,10 @@ internal class MainActivityV2 : AppCompatActivity(), EditablePdfHostFragment.Fra
                 EditablePdfHostFragment()
             }
         }
+    }
+
+    private fun updateToolbarVisibility(fragment: PdfViewerFragment) {
+        editToolbar.isVisible = fragment is EditablePdfHostFragment
     }
 
     private fun getFragmentTypeFromIntent(): FragmentType {

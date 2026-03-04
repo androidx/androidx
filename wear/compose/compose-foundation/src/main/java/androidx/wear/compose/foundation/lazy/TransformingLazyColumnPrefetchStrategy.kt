@@ -31,7 +31,7 @@ internal interface TransformingLazyColumnPrefetchScope {
      * scroll direction), the request should be canceled via
      * [LazyLayoutPrefetchState.PrefetchHandle.cancel].
      *
-     * See [PrefetchScheduler].
+     * See [androidx.compose.foundation.lazy.layout.PrefetchScheduler].
      *
      * @param index the index of the child to prefetch
      */

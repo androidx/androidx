@@ -233,12 +233,16 @@ package androidx.xr.runtime {
     property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int mode;
     field public static final androidx.xr.runtime.DeviceTrackingMode.Companion Companion;
     field public static final androidx.xr.runtime.DeviceTrackingMode DISABLED;
-    field public static final androidx.xr.runtime.DeviceTrackingMode LAST_KNOWN;
+    field public static final androidx.xr.runtime.DeviceTrackingMode INERTIAL_LAST_KNOWN;
+    field @Deprecated public static final androidx.xr.runtime.DeviceTrackingMode LAST_KNOWN;
+    field public static final androidx.xr.runtime.DeviceTrackingMode SPATIAL_LAST_KNOWN;
   }
 
   public static final class DeviceTrackingMode.Companion {
     property public androidx.xr.runtime.DeviceTrackingMode DISABLED;
-    property public androidx.xr.runtime.DeviceTrackingMode LAST_KNOWN;
+    property public androidx.xr.runtime.DeviceTrackingMode INERTIAL_LAST_KNOWN;
+    property @Deprecated public androidx.xr.runtime.DeviceTrackingMode LAST_KNOWN;
+    property public androidx.xr.runtime.DeviceTrackingMode SPATIAL_LAST_KNOWN;
   }
 
   public final class DisplayBlendMode {
@@ -332,47 +336,47 @@ package androidx.xr.runtime {
     property public androidx.xr.runtime.HandTrackingMode DISABLED;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class Log {
-    method public void debug(String message);
-    method public void debug(optional Throwable? throwable, kotlin.jvm.functions.Function0<java.lang.String> message);
-    method @BytecodeOnly public static void debug$default(androidx.xr.runtime.Log!, Throwable!, kotlin.jvm.functions.Function0!, int, Object!);
-    method public void error(String message);
-    method public void error(optional Throwable? throwable, kotlin.jvm.functions.Function0<java.lang.String> message);
-    method @BytecodeOnly public static void error$default(androidx.xr.runtime.Log!, Throwable!, kotlin.jvm.functions.Function0!, int, Object!);
-    method @InaccessibleFromKotlin public boolean getEnabled();
-    method @InaccessibleFromKotlin public androidx.xr.runtime.Log.Level getLevel();
-    method public void info(String message);
-    method public void info(optional Throwable? throwable, kotlin.jvm.functions.Function0<java.lang.String> message);
-    method @BytecodeOnly public static void info$default(androidx.xr.runtime.Log!, Throwable!, kotlin.jvm.functions.Function0!, int, Object!);
-    method @InaccessibleFromKotlin public void setEnabled(boolean);
-    method @InaccessibleFromKotlin public void setLevel(androidx.xr.runtime.Log.Level);
-    method public void verbose(String message);
-    method public void verbose(optional Throwable? throwable, kotlin.jvm.functions.Function0<java.lang.String> message);
-    method @BytecodeOnly public static void verbose$default(androidx.xr.runtime.Log!, Throwable!, kotlin.jvm.functions.Function0!, int, Object!);
-    method public void warn(String message);
-    method public void warn(optional Throwable? throwable, kotlin.jvm.functions.Function0<java.lang.String> message);
-    method @BytecodeOnly public static void warn$default(androidx.xr.runtime.Log!, Throwable!, kotlin.jvm.functions.Function0!, int, Object!);
-    property public boolean enabled;
-    property public androidx.xr.runtime.Log.Level level;
-    field public static final androidx.xr.runtime.Log INSTANCE;
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class Log {
+    method @Deprecated public void debug(String message);
+    method @Deprecated public void debug(optional Throwable? throwable, kotlin.jvm.functions.Function0<java.lang.String> message);
+    method @BytecodeOnly @Deprecated public static void debug$default(androidx.xr.runtime.Log!, Throwable!, kotlin.jvm.functions.Function0!, int, Object!);
+    method @Deprecated public void error(String message);
+    method @Deprecated public void error(optional Throwable? throwable, kotlin.jvm.functions.Function0<java.lang.String> message);
+    method @BytecodeOnly @Deprecated public static void error$default(androidx.xr.runtime.Log!, Throwable!, kotlin.jvm.functions.Function0!, int, Object!);
+    method @InaccessibleFromKotlin @Deprecated public boolean getEnabled();
+    method @InaccessibleFromKotlin @Deprecated public androidx.xr.runtime.Log.Level getLevel();
+    method @Deprecated public void info(String message);
+    method @Deprecated public void info(optional Throwable? throwable, kotlin.jvm.functions.Function0<java.lang.String> message);
+    method @BytecodeOnly @Deprecated public static void info$default(androidx.xr.runtime.Log!, Throwable!, kotlin.jvm.functions.Function0!, int, Object!);
+    method @InaccessibleFromKotlin @Deprecated public void setEnabled(boolean);
+    method @InaccessibleFromKotlin @Deprecated public void setLevel(androidx.xr.runtime.Log.Level);
+    method @Deprecated public void verbose(String message);
+    method @Deprecated public void verbose(optional Throwable? throwable, kotlin.jvm.functions.Function0<java.lang.String> message);
+    method @BytecodeOnly @Deprecated public static void verbose$default(androidx.xr.runtime.Log!, Throwable!, kotlin.jvm.functions.Function0!, int, Object!);
+    method @Deprecated public void warn(String message);
+    method @Deprecated public void warn(optional Throwable? throwable, kotlin.jvm.functions.Function0<java.lang.String> message);
+    method @BytecodeOnly @Deprecated public static void warn$default(androidx.xr.runtime.Log!, Throwable!, kotlin.jvm.functions.Function0!, int, Object!);
+    property @Deprecated public boolean enabled;
+    property @Deprecated public androidx.xr.runtime.Log.Level level;
+    field @Deprecated public static final androidx.xr.runtime.Log INSTANCE;
   }
 
-  public static final class Log.Level implements java.lang.Comparable<androidx.xr.runtime.Log.Level> {
-    method public int compareTo(androidx.xr.runtime.Log.Level other);
-    field public static final androidx.xr.runtime.Log.Level.Companion Companion;
-    field public static final androidx.xr.runtime.Log.Level DEBUG;
-    field public static final androidx.xr.runtime.Log.Level ERROR;
-    field public static final androidx.xr.runtime.Log.Level INFO;
-    field public static final androidx.xr.runtime.Log.Level VERBOSE;
-    field public static final androidx.xr.runtime.Log.Level WARN;
+  @Deprecated public static final class Log.Level implements java.lang.Comparable<androidx.xr.runtime.Log.Level> {
+    method @Deprecated public int compareTo(androidx.xr.runtime.Log.Level other);
+    field @Deprecated public static final androidx.xr.runtime.Log.Level.Companion Companion;
+    field @Deprecated public static final androidx.xr.runtime.Log.Level DEBUG;
+    field @Deprecated public static final androidx.xr.runtime.Log.Level ERROR;
+    field @Deprecated public static final androidx.xr.runtime.Log.Level INFO;
+    field @Deprecated public static final androidx.xr.runtime.Log.Level VERBOSE;
+    field @Deprecated public static final androidx.xr.runtime.Log.Level WARN;
   }
 
-  public static final class Log.Level.Companion {
-    property public androidx.xr.runtime.Log.Level DEBUG;
-    property public androidx.xr.runtime.Log.Level ERROR;
-    property public androidx.xr.runtime.Log.Level INFO;
-    property public androidx.xr.runtime.Log.Level VERBOSE;
-    property public androidx.xr.runtime.Log.Level WARN;
+  @Deprecated public static final class Log.Level.Companion {
+    property @Deprecated public androidx.xr.runtime.Log.Level DEBUG;
+    property @Deprecated public androidx.xr.runtime.Log.Level ERROR;
+    property @Deprecated public androidx.xr.runtime.Log.Level INFO;
+    property @Deprecated public androidx.xr.runtime.Log.Level VERBOSE;
+    property @Deprecated public androidx.xr.runtime.Log.Level WARN;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class NodeHolder<T> extends androidx.xr.runtime.TypeHolder<T> {
@@ -560,12 +564,14 @@ package androidx.xr.runtime {
     field public static final androidx.xr.runtime.TrackingState PAUSED;
     field public static final androidx.xr.runtime.TrackingState STOPPED;
     field public static final androidx.xr.runtime.TrackingState TRACKING;
+    field public static final androidx.xr.runtime.TrackingState TRACKING_DEGRADED;
   }
 
   public static final class TrackingState.Companion {
     property public androidx.xr.runtime.TrackingState PAUSED;
     property public androidx.xr.runtime.TrackingState STOPPED;
     property public androidx.xr.runtime.TrackingState TRACKING;
+    property public androidx.xr.runtime.TrackingState TRACKING_DEGRADED;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract sealed exhaustive class TypeHolder<T> {
@@ -641,6 +647,54 @@ package androidx.xr.runtime {
     property @Deprecated public androidx.xr.runtime.XrDevice.DisplayBlendMode NO_DISPLAY;
   }
 
+  public final class XrLog {
+    method public void debug(String message);
+    method public void debug(optional Throwable? throwable, kotlin.jvm.functions.Function0<java.lang.String> message);
+    method public void debug(kotlin.jvm.functions.Function0<java.lang.String> message);
+    method @BytecodeOnly public static void debug$default(androidx.xr.runtime.XrLog!, Throwable!, kotlin.jvm.functions.Function0!, int, Object!);
+    method public void error(String message);
+    method public void error(optional Throwable? throwable, kotlin.jvm.functions.Function0<java.lang.String> message);
+    method public void error(kotlin.jvm.functions.Function0<java.lang.String> message);
+    method @BytecodeOnly public static void error$default(androidx.xr.runtime.XrLog!, Throwable!, kotlin.jvm.functions.Function0!, int, Object!);
+    method @InaccessibleFromKotlin public androidx.xr.runtime.XrLog.Level getLevel();
+    method public void info(String message);
+    method public void info(optional Throwable? throwable, kotlin.jvm.functions.Function0<java.lang.String> message);
+    method public void info(kotlin.jvm.functions.Function0<java.lang.String> message);
+    method @BytecodeOnly public static void info$default(androidx.xr.runtime.XrLog!, Throwable!, kotlin.jvm.functions.Function0!, int, Object!);
+    method @InaccessibleFromKotlin public boolean isEnabled();
+    method @InaccessibleFromKotlin public void setEnabled(boolean);
+    method @InaccessibleFromKotlin public void setLevel(androidx.xr.runtime.XrLog.Level);
+    method public void verbose(String message);
+    method public void verbose(optional Throwable? throwable, kotlin.jvm.functions.Function0<java.lang.String> message);
+    method public void verbose(kotlin.jvm.functions.Function0<java.lang.String> message);
+    method @BytecodeOnly public static void verbose$default(androidx.xr.runtime.XrLog!, Throwable!, kotlin.jvm.functions.Function0!, int, Object!);
+    method public void warn(String message);
+    method public void warn(optional Throwable? throwable, kotlin.jvm.functions.Function0<java.lang.String> message);
+    method public void warn(kotlin.jvm.functions.Function0<java.lang.String> message);
+    method @BytecodeOnly public static void warn$default(androidx.xr.runtime.XrLog!, Throwable!, kotlin.jvm.functions.Function0!, int, Object!);
+    property public boolean isEnabled;
+    property public androidx.xr.runtime.XrLog.Level level;
+    field public static final androidx.xr.runtime.XrLog INSTANCE;
+  }
+
+  public static final class XrLog.Level implements java.lang.Comparable<androidx.xr.runtime.XrLog.Level> {
+    method public int compareTo(androidx.xr.runtime.XrLog.Level other);
+    field public static final androidx.xr.runtime.XrLog.Level.Companion Companion;
+    field public static final androidx.xr.runtime.XrLog.Level DEBUG;
+    field public static final androidx.xr.runtime.XrLog.Level ERROR;
+    field public static final androidx.xr.runtime.XrLog.Level INFO;
+    field public static final androidx.xr.runtime.XrLog.Level VERBOSE;
+    field public static final androidx.xr.runtime.XrLog.Level WARN;
+  }
+
+  public static final class XrLog.Level.Companion {
+    property public androidx.xr.runtime.XrLog.Level DEBUG;
+    property public androidx.xr.runtime.XrLog.Level ERROR;
+    property public androidx.xr.runtime.XrLog.Level INFO;
+    property public androidx.xr.runtime.XrLog.Level VERBOSE;
+    property public androidx.xr.runtime.XrLog.Level WARN;
+  }
+
 }
 
 package androidx.xr.runtime.internal {
@@ -667,12 +721,6 @@ package androidx.xr.runtime.internal {
     ctor public FaceTrackingNotCalibratedException();
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class GooglePlayServicesLocationLibraryNotLinkedException extends androidx.xr.runtime.internal.LifecycleException {
-    ctor public GooglePlayServicesLocationLibraryNotLinkedException();
-    ctor public GooglePlayServicesLocationLibraryNotLinkedException(optional Throwable? cause);
-    ctor @BytecodeOnly public GooglePlayServicesLocationLibraryNotLinkedException(Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-  }
-
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface JxrRuntime {
     method public default void configure(androidx.xr.runtime.Config config);
     method public default void destroy();
@@ -682,6 +730,13 @@ package androidx.xr.runtime.internal {
     method public default void pause();
     method public default void resume();
     method public default suspend Object? update(kotlin.coroutines.Continuation<? super kotlin.time.ComparableTimeMark?>);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class LibraryNotLinkedException extends androidx.xr.runtime.internal.LifecycleException {
+    ctor public LibraryNotLinkedException(String libraryName, optional Throwable? cause);
+    ctor @BytecodeOnly public LibraryNotLinkedException(String!, Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public String getLibraryName();
+    property public String libraryName;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class LifecycleException extends java.lang.Exception {

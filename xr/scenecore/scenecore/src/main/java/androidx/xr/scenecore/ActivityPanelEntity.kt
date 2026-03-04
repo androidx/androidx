@@ -19,8 +19,8 @@ package androidx.xr.scenecore
 import android.app.Activity
 import android.content.Intent
 import androidx.annotation.RestrictTo
-import androidx.xr.runtime.Log
 import androidx.xr.runtime.Session
+import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.internal.LifecycleManager
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
@@ -84,7 +84,7 @@ private constructor(
                     name,
                     hostActivity,
                     if (parent != null && parent !is BaseEntity<*>) {
-                        Log.warn(
+                        XrLog.warn(
                             "The provided parent is not a BaseEntity. The ActivityPanelEntity " +
                                 "will be created without a parent."
                         )

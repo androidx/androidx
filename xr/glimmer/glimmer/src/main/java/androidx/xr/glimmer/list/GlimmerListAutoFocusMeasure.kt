@@ -270,7 +270,7 @@ private fun calculateAutoFocusProperties(
     val viewportSize = layoutProperties.mainAxisAvailableSize.toDouble()
     val scrollThreshold = viewportSize * ProportionalThresholdFactor
     val contentLength =
-        measureResult.visibleItemsAverageSize() * measureResult.totalItemsCount -
+        measureResult.visibleItemsAverageSize * measureResult.totalItemsCount -
             measureResult.mainAxisItemSpacing.toDouble()
 
     val contentScroll = getTotalContentScrollDistance(measureResult).toDouble()
@@ -302,7 +302,7 @@ private fun calculateAutoFocusProperties(
 private fun getTotalContentScrollDistance(measureResult: GlimmerListMeasureResult): Int {
     val firstVisibleItem = measureResult.visibleItemsInfo.first()
     val nonRenderedItemSizes =
-        safeMultiply(measureResult.visibleItemsAverageSize(), firstVisibleItem.index)
+        safeMultiply(measureResult.visibleItemsAverageSize, firstVisibleItem.index)
     return nonRenderedItemSizes - firstVisibleItem.offset
 }
 

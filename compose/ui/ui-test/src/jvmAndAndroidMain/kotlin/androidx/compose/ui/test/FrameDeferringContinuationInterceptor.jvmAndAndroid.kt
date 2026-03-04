@@ -94,9 +94,9 @@ internal class FrameDeferringContinuationInterceptor(parentInterceptor: Continua
 
     /**
      * Dequeues every [toRunTrampolined] task and passes it to [block], then sets
-     * [runningFrameCallbacks] to false. Does the proper synchronization to ensure that no
+     * [isDeferringContinuations] to false. Does the proper synchronization to ensure that no
      * trampolined tasks will be enqueued but not processed by this call until
-     * [runningFrameCallbacks] is explicitly set to true again.
+     * [isDeferringContinuations] is explicitly set to true again.
      */
     private inline fun finishFrameTasks(block: (TrampolinedTask<*>) -> Unit) {
         do {
@@ -137,14 +137,14 @@ internal class FrameDeferringContinuationInterceptor(parentInterceptor: Continua
          * If this method is being called, it means the [runWithoutResumingCoroutines]' block failed
          * somehow after executing individual `withFrameNanos` callbacks. That failure is
          * significant and should be reported as at least part of the test failure, by cancelling
-         * the root test job. If all the frame callbacks have a success result, then [performFrame]
-         * will throw its exception and cancel the test job, failing the test. However, if a
-         * `withFrameNanos` callback failed, and the underlying dispatcher is unconfined and the
-         * coroutine call stack doesn't block the exception, resuming the continuation with the
-         * exception result may end up bubbling up to the test job first and cancelling it and
-         * failing the test before the more general frame failure has a chance to. If that happens,
-         * we still want to report the frame failure somewhere, so we add it to the suppressed list
-         * of the individual failure's exception.
+         * the root test job. If all the frame callbacks have a success result, then
+         * [TestMonotonicFrameClock.performFrame] will throw its exception and cancel the test job,
+         * failing the test. However, if a `withFrameNanos` callback failed, and the underlying
+         * dispatcher is unconfined and the coroutine call stack doesn't block the exception,
+         * resuming the continuation with the exception result may end up bubbling up to the test
+         * job first and cancelling it and failing the test before the more general frame failure
+         * has a chance to. If that happens, we still want to report the frame failure somewhere, so
+         * we add it to the suppressed list of the individual failure's exception.
          *
          * TODO(b/255802670): It's still possible for a coroutine that is resumed successfully and
          *   dispatched synchronously to immediately throw _after_ returning, and thus still beat us

@@ -899,9 +899,9 @@ internal class CanvasMeshRenderer(
             OBJECT_TO_CANVAS_LINEAR_COMPONENT(0),
 
             /**
-             * The [Color] of the Stroke's brush, which will be combined with per-vertex color
-             * shifts in the shaders. Set it with [AndroidMesh.setColorUniform]. Must be specified
-             * for every format.
+             * The [android.graphics.Color] of the Stroke's brush, which will be combined with
+             * per-vertex color shifts in the shaders. Set it with [AndroidMesh.setColorUniform].
+             * Must be specified for every format.
              */
             BRUSH_COLOR(1),
 
@@ -1093,25 +1093,26 @@ internal object CanvasMeshRendererNative {
      * @param meshFormatNativePointer The pointer address of a [MeshFormat].
      * @param isPacked Whether to fill the mesh spec with properties describing a packed format (as
      *   in ink::Mesh) or an unpacked format (as in ink::MutableMesh).
-     * @param attributeTypesOut An array that can hold at least [MAX_ATTRIBUTES] values. It will
-     *   contain the resulting attribute types aligning with [Type.nativeValue]. The number of
-     *   attributes will be determined by the first index of this array with an invalid value, and
-     *   that attribute count will determine the number of entries to look at in
-     *   [attributeOffsetsBytesOut] and [attributeNamesOut]. See
+     * @param attributeTypesOut An array that can hold at least [CanvasMeshRenderer.MAX_ATTRIBUTES]
+     *   values. It will contain the resulting attribute types aligning with
+     *   [CanvasMeshRenderer.Type.nativeValue]. The number of attributes will be determined by the
+     *   first index of this array with an invalid value, and that attribute count will determine
+     *   the number of entries to look at in [attributeOffsetsBytesOut] and [attributeNamesOut]. See
      *   [MeshSpecification.Attribute.getType].
-     * @param attributeOffsetsBytesOut An array that can hold at least [MAX_ATTRIBUTES] values.
-     *   Specifies the layout of each vertex of the raw data for a mesh, where each vertex is a
-     *   contiguous chunk of memory and each attribute is located at a particular number of bytes
-     *   (offset) from the beginning of that vertex's chunk of memory.
+     * @param attributeOffsetsBytesOut An array that can hold at least
+     *   [CanvasMeshRenderer.MAX_ATTRIBUTES] values. Specifies the layout of each vertex of the raw
+     *   data for a mesh, where each vertex is a contiguous chunk of memory and each attribute is
+     *   located at a particular number of bytes (offset) from the beginning of that vertex's chunk
+     *   of memory.
      * @param attributeNamesOut The names of each attribute, referenced in the shader code.
      * @param vertexStrideBytesOut In the raw data of the mesh vertices, the number of bytes between
      *   the start of each vertex. See [attributeOffsetsBytesOut] for how each attribute is laid
      *   out.
-     * @param varyingTypesOut An array that can hold at least [MAX_VARYINGS] values. It will contain
-     *   the resulting varying types aligning with [Type.nativeValue]. The number of varyings will
-     *   be determined by the first index of this array with an invalid value, and that varying
-     *   count will determine the number of entries to look at in [varyingNamesOut]. See
-     *   [MeshSpecification.Varying.getType].
+     * @param varyingTypesOut An array that can hold at least [CanvasMeshRenderer.MAX_VARYINGS]
+     *   values. It will contain the resulting varying types aligning with
+     *   [CanvasMeshRenderer.Type.nativeValue]. The number of varyings will be determined by the
+     *   first index of this array with an invalid value, and that varying count will determine the
+     *   number of entries to look at in [varyingNamesOut]. See [MeshSpecification.Varying.getType].
      * @param varyingNamesOut The names of each varying, referenced in the shader code.
      * @param vertexShaderOut An array with at least one element that will be filled in by the
      *   string vertex shader code.

@@ -14,6 +14,7 @@ package androidx.ink.authoring {
     method public void forceCompletion();
     method public CompletedShapeT? getCompletedShape();
     method public androidx.ink.geometry.Box? getUpdatedRegion();
+    method public boolean isCanceled();
     method public default void prepareToRecycle();
     method public void resetUpdatedRegion();
     method public void start(ShapeSpecT shapeSpec, long systemElapsedTimeMillis);
@@ -28,7 +29,7 @@ package androidx.ink.authoring {
     method public default void onShapesCompleted(java.util.Map<androidx.ink.authoring.InProgressStrokeId,? extends CompletedShapeT> shapes);
   }
 
-  @SuppressCompatibility public final class InProgressShapesView<ShapeSpecT, InProgressShapeT extends androidx.ink.authoring.InProgressShape<? super ShapeSpecT, ? extends CompletedShapeT>, CompletedShapeT> extends android.widget.FrameLayout {
+  @SuppressCompatibility @UiThread public final class InProgressShapesView<ShapeSpecT, InProgressShapeT extends androidx.ink.authoring.InProgressShape<? super ShapeSpecT, ? extends CompletedShapeT>, CompletedShapeT> extends android.widget.FrameLayout {
     ctor public InProgressShapesView(android.content.Context context);
     ctor public InProgressShapesView(android.content.Context context, optional android.util.AttributeSet? attrs);
     ctor public InProgressShapesView(android.content.Context context, optional android.util.AttributeSet? attrs, optional @AttrRes int defStyleAttr);
@@ -59,7 +60,7 @@ package androidx.ink.authoring {
     method @InaccessibleFromKotlin public android.graphics.Path? getMaskPath();
     method @InaccessibleFromKotlin public android.graphics.Matrix getMotionEventToViewTransform();
     method public boolean hasUnfinishedShapes();
-    method @UiThread public void removeCompletedShapes(java.util.Set<androidx.ink.authoring.InProgressStrokeId> strokeIds);
+    method public void removeCompletedShapes(java.util.Set<androidx.ink.authoring.InProgressStrokeId> strokeIds);
     method public void removeCompletedShapesListener(androidx.ink.authoring.InProgressShapesCompletedListener<CompletedShapeT> listener);
     method @InaccessibleFromKotlin public void setCustomShapeWorkflow(androidx.ink.authoring.ShapeWorkflow<? super ShapeSpecT,InProgressShapeT,CompletedShapeT>?);
     method @InaccessibleFromKotlin public void setInProgressShapeCounter(androidx.test.espresso.idling.CountingIdlingResource?);
@@ -86,7 +87,7 @@ package androidx.ink.authoring {
     method public default void onStrokesFinished(java.util.Map<androidx.ink.authoring.InProgressStrokeId,androidx.ink.strokes.Stroke> strokes);
   }
 
-  public final class InProgressStrokesView extends android.widget.FrameLayout {
+  @UiThread public final class InProgressStrokesView extends android.widget.FrameLayout {
     ctor public InProgressStrokesView(android.content.Context context);
     ctor public InProgressStrokesView(android.content.Context context, optional android.util.AttributeSet? attrs);
     ctor public InProgressStrokesView(android.content.Context context, optional android.util.AttributeSet? attrs, optional @AttrRes int defStyleAttr);
@@ -117,7 +118,7 @@ package androidx.ink.authoring {
     method @InaccessibleFromKotlin public android.graphics.Matrix getMotionEventToViewTransform();
     method @InaccessibleFromKotlin public androidx.ink.brush.TextureBitmapStore getTextureBitmapStore();
     method public boolean hasUnfinishedStrokes();
-    method @UiThread public void removeFinishedStrokes(java.util.Set<androidx.ink.authoring.InProgressStrokeId> strokeIds);
+    method public void removeFinishedStrokes(java.util.Set<androidx.ink.authoring.InProgressStrokeId> strokeIds);
     method public void removeFinishedStrokesListener(androidx.ink.authoring.InProgressStrokesFinishedListener listener);
     method @InaccessibleFromKotlin public void setInProgressStrokeCounter(androidx.test.espresso.idling.CountingIdlingResource?);
     method @InaccessibleFromKotlin public void setMaskPath(android.graphics.Path?);

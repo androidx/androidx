@@ -70,8 +70,8 @@ public class ComposeNavigator constructor() : Navigator<Destination>(NAME) {
     /**
      * Function to prepare the entry for transition.
      *
-     * This should be called when the entry needs to move the [Lifecycle.State] in preparation for a
-     * transition such as when using predictive back.
+     * This should be called when the entry needs to move the [androidx.lifecycle.Lifecycle.State]
+     * in preparation for a transition such as when using predictive back.
      */
     public fun prepareForTransition(entry: NavBackStackEntry) {
         state.prepareForTransition(entry)
@@ -85,7 +85,7 @@ public class ComposeNavigator constructor() : Navigator<Destination>(NAME) {
      * complete by calling this method.
      *
      * Failing to call this method could result in entries being prevented from reaching their final
-     * [Lifecycle.State].
+     * [androidx.lifecycle.Lifecycle.State].
      */
     public fun onTransitionComplete(entry: NavBackStackEntry) {
         state.markTransitionComplete(entry)

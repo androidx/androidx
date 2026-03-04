@@ -29,8 +29,8 @@ import androidx.room3.solver.CodeGenScope
 import androidx.room3.solver.prepared.result.PreparedQueryResultAdapter
 
 /** Default binder for prepared queries. */
-class InstantPreparedQueryResultBinder(adapter: PreparedQueryResultAdapter?) :
-    PreparedQueryResultBinder(adapter) {
+class InstantPreparedQueryResultBinder(override val adapter: PreparedQueryResultAdapter?) :
+    PreparedQueryResultBinder {
 
     override fun executeAndReturn(
         sqlQueryVar: String,

@@ -47,9 +47,9 @@ import androidx.compose.ui.unit.dp
  * increase and decrease buttons. Buttons can have custom icons - [decreaseIcon] and [increaseIcon].
  * Step value is calculated as the difference between min and max values divided by [steps]+1.
  * Stepper itself doesn't show the current value but can be displayed via the content slot or
- * [PositionIndicator] if required. If [value] is not equal to any step value, then it will be
- * coerced to the closest step value. However, the [value] itself will not be changed and
- * [onValueChange] in this case will not be triggered.
+ * [androidx.wear.compose.material.PositionIndicator] if required. If [value] is not equal to any
+ * step value, then it will be coerced to the closest step value. However, the [value] itself will
+ * not be changed and [onValueChange] in this case will not be triggered.
  *
  * @param value Current value of the Stepper. If outside of [valueRange] provided, value will be
  *   coerced to this range.

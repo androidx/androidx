@@ -98,7 +98,10 @@ public class SandboxedPdfDocument(
     override val linearizationStatus: Int,
     override val formType: Int,
     override val renderParams: RenderParams,
-    @Deprecated("Deprecated in Java, Use getLinearizationStatus() instead")
+    @Deprecated(
+        "Deprecated, Use linearizationStatus instead",
+        replaceWith = ReplaceWith("linearizationStatus"),
+    )
     override val isLinearized: Boolean,
 ) : EditablePdfDocument() {
 

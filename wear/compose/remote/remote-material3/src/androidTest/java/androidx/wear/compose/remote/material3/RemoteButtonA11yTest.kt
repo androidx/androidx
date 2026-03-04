@@ -18,9 +18,11 @@ package androidx.wear.compose.remote.material3
 import androidx.compose.remote.creation.compose.action.HostAction
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.uiAutomator
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -45,6 +47,7 @@ class RemoteButtonA11yTest {
             val button = onElement { text == "text" }
             assertThat(button.isFocusable).isTrue()
             assertThat(button.isClickable).isTrue()
+            assertHasButtonRole(button)
         }
     }
 
@@ -58,6 +61,7 @@ class RemoteButtonA11yTest {
             val button = onElement { text == "text" }
             assertThat(button.isFocusable).isTrue()
             assertThat(button.isClickable).isTrue()
+            assertHasButtonRole(button)
         }
     }
 
@@ -75,6 +79,7 @@ class RemoteButtonA11yTest {
             val button = onElement { text == "text" }
             assertThat(button.isFocusable).isTrue()
             assertThat(button.isClickable).isTrue()
+            assertHasButtonRole(button)
         }
     }
 
@@ -90,6 +95,7 @@ class RemoteButtonA11yTest {
             val button = onElement { contentDescription == "Add" }
             assertThat(button.isFocusable).isTrue()
             assertThat(button.isClickable).isTrue()
+            assertHasButtonRole(button)
         }
     }
 
@@ -103,6 +109,12 @@ class RemoteButtonA11yTest {
             val button = onElement { text == "text" }
             assertThat(button.isFocusable).isTrue()
             assertThat(button.isClickable).isTrue()
+            assertHasButtonRole(button)
         }
+    }
+
+    private fun assertHasButtonRole(button: UiObject2) {
+        val role = AccessibilityNodeInfoCompat.wrap(button.accessibilityNodeInfo).roleDescription
+        assertThat(role).isEqualTo("Button")
     }
 }

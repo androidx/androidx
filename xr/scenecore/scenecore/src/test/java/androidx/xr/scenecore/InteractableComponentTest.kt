@@ -44,7 +44,7 @@ class InteractableComponentTest {
     private lateinit var sceneRuntime: SceneRuntime
 
     private lateinit var session: Session
-    private val entity by lazy { GroupEntity.create(session, "test") }
+    private val entity by lazy { Entity.create(session, "test") }
 
     @Before
     fun setUp() {
@@ -65,9 +65,10 @@ class InteractableComponentTest {
         val executor = directExecutor()
         val interactableComponent =
             InteractableComponent.create(session, executor, inputEventListener)
+        val rtEntity = (entity as BaseEntity<*>).rtEntity
 
         assertThat(entity.addComponent(interactableComponent)).isTrue()
-        assertThat(entity.rtEntity?.getComponents()?.toList()[0])
+        assertThat(rtEntity?.getComponents()?.toList()[0])
             .isInstanceOf(FakeInteractableComponent::class.java)
     }
 
@@ -79,17 +80,18 @@ class InteractableComponentTest {
         val executor = directExecutor()
         val interactableComponent =
             InteractableComponent.create(session, executor, inputEventListener)
+        val rtEntity = (entity as BaseEntity<*>).rtEntity
 
         assertThat(entity.addComponent(interactableComponent)).isTrue()
 
         entity.removeComponent(interactableComponent)
 
-        assertThat(entity.rtEntity?.getComponents()).hasSize(0)
+        assertThat(rtEntity?.getComponents()).hasSize(0)
     }
 
     @Test
     fun interactableComponent_canAttachOnlyOnce() {
-        val entity2 = GroupEntity.create(session, "test")
+        val entity2 = Entity.create(session, "test")
         assertThat(entity).isNotNull()
 
         val inputEventListener = Consumer<InputEvent> {}
@@ -121,6 +123,7 @@ class InteractableComponentTest {
         val inputEventListener = Consumer<InputEvent> { event -> inputEvent = event }
         val interactableComponent =
             InteractableComponent.create(session, directExecutor(), inputEventListener)
+        val rtEntity = (entity as BaseEntity<*>).rtEntity
 
         assertThat(entity.addComponent(interactableComponent)).isTrue()
 
@@ -132,12 +135,10 @@ class InteractableComponentTest {
                 Vector3.Zero,
                 Vector3.One,
                 RtInputEvent.Action.DOWN,
-                listOf(RtInputEvent.HitInfo(entity.rtEntity!!, Vector3.One, Matrix4.Identity)),
+                listOf(RtInputEvent.HitInfo(rtEntity!!, Vector3.One, Matrix4.Identity)),
             )
         // Simulates an input event from runtime.
-        (entity.rtEntity?.getComponents()[0] as FakeInteractableComponent).onInputEvent(
-            rtInputEvent
-        )
+        (rtEntity.getComponents()[0] as FakeInteractableComponent).onInputEvent(rtInputEvent)
 
         assertThat(inputEvent).isNotNull()
         assertThat(inputEvent!!.source).isEqualTo(InputEvent.Source.HANDS)

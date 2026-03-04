@@ -25,9 +25,9 @@ public actual object Room {
     public actual const val MASTER_TABLE_NAME: String = RoomMasterTable.TABLE_NAME
 
     /**
-     * Creates a RoomDatabase.Builder for an in memory database. Information stored in an in memory
-     * database disappears when the process is killed. Once a database is built, you should keep a
-     * reference to it and re-use it.
+     * Creates a [RoomDatabase.Builder] for an in memory database. Information stored in an
+     * in-memory database disappears when the database is closed or the process is killed. Once a
+     * database is built, you should keep a reference to it and re-use it.
      *
      * @param T The type of the database class.
      * @param factory An optional lambda calling [RoomDatabaseConstructor.initialize] corresponding
@@ -43,7 +43,7 @@ public actual object Room {
     }
 
     /**
-     * Creates a RoomDatabase.Builder for a persistent database. Once a database is built, you
+     * Creates a [RoomDatabase.Builder] for a persistent database. Once a database is built, you
      * should keep a reference to it and re-use it.
      *
      * @param T The type of the database class.

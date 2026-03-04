@@ -2,8 +2,8 @@ import androidx.room3.EntityDeleteOrUpdateAdapter
 import androidx.room3.EntityInsertAdapter
 import androidx.room3.EntityUpsertAdapter
 import androidx.room3.RoomDatabase
-import androidx.room3.rxjava3.createCompletable
-import androidx.room3.rxjava3.createSingle
+import androidx.room3.rxjava3.RxDaoReturnTypeConverters
+import androidx.room3.util.performSuspending
 import androidx.sqlite.SQLiteStatement
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
@@ -23,6 +23,8 @@ internal class MyDao_Impl(
   private val __db: RoomDatabase
 
   private val __insertAdapterOfMyEntity: EntityInsertAdapter<MyEntity>
+
+  private val __rxDaoReturnTypeConverters: RxDaoReturnTypeConverters = RxDaoReturnTypeConverters()
 
   private val __deleteAdapterOfMyEntity: EntityDeleteOrUpdateAdapter<MyEntity>
 
@@ -73,42 +75,62 @@ internal class MyDao_Impl(
     })
   }
 
-  public override fun insertSingle(vararg entities: MyEntity): Single<List<Long>> = createSingle(__db, false, true) { _connection ->
-    val _result: List<Long>? = __insertAdapterOfMyEntity.insertAndReturnIdsList(_connection, entities)
-    _result
+  public override fun insertSingle(vararg entities: MyEntity): Single<List<Long>> = __rxDaoReturnTypeConverters.convertSingle(__db) {
+    performSuspending(__db, false, true) { _connection ->
+      val _result: List<Long> = __insertAdapterOfMyEntity.insertAndReturnIdsList(_connection, entities)
+      _result
+    }
   }
 
-  public override fun insertCompletable(vararg entities: MyEntity): Completable = createCompletable(__db, false, true) { _connection ->
-    __insertAdapterOfMyEntity.insert(_connection, entities)
+  public override fun insertCompletable(vararg entities: MyEntity): Completable = __rxDaoReturnTypeConverters.convertCompletable(__db) {
+    performSuspending(__db, false, true) { _connection ->
+      __insertAdapterOfMyEntity.insert(_connection, entities)
+      kotlin.Unit
+    }
   }
 
-  public override fun deleteSingle(entity: MyEntity): Single<Int> = createSingle(__db, false, true) { _connection ->
-    var _result: Int = 0
-    _result += __deleteAdapterOfMyEntity.handle(_connection, entity)
-    _result
+  public override fun deleteSingle(entity: MyEntity): Single<Int> = __rxDaoReturnTypeConverters.convertSingle(__db) {
+    performSuspending(__db, false, true) { _connection ->
+      var _result: Int = 0
+      _result += __deleteAdapterOfMyEntity.handle(_connection, entity)
+      _result
+    }
   }
 
-  public override fun deleteCompletable(entity: MyEntity): Completable = createCompletable(__db, false, true) { _connection ->
-    __deleteAdapterOfMyEntity.handle(_connection, entity)
+  public override fun deleteCompletable(entity: MyEntity): Completable = __rxDaoReturnTypeConverters.convertCompletable(__db) {
+    performSuspending(__db, false, true) { _connection ->
+      __deleteAdapterOfMyEntity.handle(_connection, entity)
+      kotlin.Unit
+    }
   }
 
-  public override fun updateSingle(entity: MyEntity): Single<Int> = createSingle(__db, false, true) { _connection ->
-    var _result: Int = 0
-    _result += __updateAdapterOfMyEntity.handle(_connection, entity)
-    _result
+  public override fun updateSingle(entity: MyEntity): Single<Int> = __rxDaoReturnTypeConverters.convertSingle(__db) {
+    performSuspending(__db, false, true) { _connection ->
+      var _result: Int = 0
+      _result += __updateAdapterOfMyEntity.handle(_connection, entity)
+      _result
+    }
   }
 
-  public override fun updateCompletable(entity: MyEntity): Completable = createCompletable(__db, false, true) { _connection ->
-    __updateAdapterOfMyEntity.handle(_connection, entity)
+  public override fun updateCompletable(entity: MyEntity): Completable = __rxDaoReturnTypeConverters.convertCompletable(__db) {
+    performSuspending(__db, false, true) { _connection ->
+      __updateAdapterOfMyEntity.handle(_connection, entity)
+      kotlin.Unit
+    }
   }
 
-  public override fun upsertSingle(vararg entities: MyEntity): Single<List<Long>> = createSingle(__db, false, true) { _connection ->
-    val _result: List<Long>? = __upsertAdapterOfMyEntity.upsertAndReturnIdsList(_connection, entities)
-    _result
+  public override fun upsertSingle(vararg entities: MyEntity): Single<List<Long>> = __rxDaoReturnTypeConverters.convertSingle(__db) {
+    performSuspending(__db, false, true) { _connection ->
+      val _result: List<Long> = __upsertAdapterOfMyEntity.upsertAndReturnIdsList(_connection, entities)
+      _result
+    }
   }
 
-  public override fun upsertCompletable(vararg entities: MyEntity): Completable = createCompletable(__db, false, true) { _connection ->
-    __upsertAdapterOfMyEntity.upsert(_connection, entities)
+  public override fun upsertCompletable(vararg entities: MyEntity): Completable = __rxDaoReturnTypeConverters.convertCompletable(__db) {
+    performSuspending(__db, false, true) { _connection ->
+      __upsertAdapterOfMyEntity.upsert(_connection, entities)
+      kotlin.Unit
+    }
   }
 
   public companion object {

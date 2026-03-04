@@ -40,7 +40,8 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
- * A [CompositionLocal] that provides the current [AmbientModeManager] interface.
+ * A [androidx.compose.runtime.CompositionLocal] that provides the current [AmbientModeManager]
+ * interface.
  *
  * This local is the primary way for any composable in the hierarchy to access the manager
  * responsible for tracking the ambient (low-power) mode state.
@@ -127,8 +128,9 @@ public interface AmbientModeManager {
  * in [AmbientMode.Ambient].
  *
  * This extension handles the boilerplate for ambient tick synchronization: it automatically
- * launches and manages a [LaunchedEffect] that repeatedly suspends using [withAmbientTick] to align
- * state updates with the system's infrequent ambient tick schedule.
+ * launches and manages a [LaunchedEffect] that repeatedly suspends using
+ * [AmbientModeManager.withAmbientTick] to align state updates with the system's infrequent ambient
+ * tick schedule.
  *
  * The internal loop automatically terminates when the device returns to [AmbientMode.Interactive].
  *

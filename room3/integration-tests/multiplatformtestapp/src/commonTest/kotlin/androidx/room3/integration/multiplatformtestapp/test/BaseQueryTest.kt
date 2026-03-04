@@ -21,8 +21,10 @@ import androidx.kruth.assertThrows
 import androidx.room3.RoomRawQuery
 import androidx.room3.executeSQL
 import androidx.room3.immediateTransaction
+import androidx.room3.integration.multiplatformtestapp.library.LibraryEntity
 import androidx.room3.useReaderConnection
 import androidx.room3.useWriterConnection
+import androidx.room3.withWriteTransaction
 import androidx.sqlite.step
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -443,5 +445,13 @@ abstract class BaseQueryTest {
         assertThrows<IllegalStateException> { db.dao().getSingleItemRaw(query) }
             .hasMessageThat()
             .contains("Only bind*() calls are allowed")
+    }
+
+    @Test
+    fun libraryEntityAndDao() = runTest {
+        val items = List(10) { LibraryEntity(it.toLong(), "test$it") }
+        db.withWriteTransaction { items.forEach { db.libraryDao().insert(it) } }
+        val result = db.libraryDao().getAll()
+        assertThat(result).containsExactlyElementsIn(items)
     }
 }

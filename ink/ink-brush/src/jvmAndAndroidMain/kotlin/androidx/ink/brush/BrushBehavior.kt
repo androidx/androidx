@@ -24,15 +24,15 @@ import java.util.Collections.unmodifiableList
 import java.util.Collections.unmodifiableSet
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
-import kotlin.jvm.JvmStatic
 
 /**
  * A behavior describing how stroke input properties should affect the shape and color of the brush
  * tip.
  *
- * The behavior is conceptually a graph made from the various node types defined below. Each edge of
- * the graph represents passing a nullable floating point value between nodes, and each node in the
- * graph fits into one of the following categories:
+ * The behavior is conceptually a tree made from the various node types defined below. Each edge of
+ * the tree graph represents passing a nullable finite floating point value (with "null"
+ * representing an undefined value) from a node to its parent, and each node in the tree fits into
+ * one of the following categories:
  * 1. Leaf nodes generate an output value without graph inputs. For example, they can create a value
  *    from properties of stroke input.
  * 2. Filter nodes can conditionally toggle branches of the graph "on" by outputting their input
@@ -75,7 +75,7 @@ private constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     public val developerComment: String = BrushBehaviorNative.getDeveloperComment(nativePointer)
 
-    /** Constructs a [BrushBehavior] from a list of [TerminalNode]s. */
+    /** Constructs a [BrushBehavior] with a list of [TerminalNode]s. */
     @JvmOverloads
     public constructor(
         // The [terminalNodes] val above is a defensive copy of this parameter.
@@ -86,154 +86,12 @@ private constructor(
         terminalNodes,
     )
 
-    /**
-     * Constructs a simple [BrushBehavior] using whatever [Node]s are necessary for the specified
-     * fields.
-     */
+    /** Constructs a [BrushBehavior] with a single [TerminalNode]. */
+    @JvmOverloads
     public constructor(
-        source: Source,
-        target: Target,
-        sourceValueRangeStart: Float,
-        sourceValueRangeEnd: Float,
-        targetModifierRangeStart: Float,
-        targetModifierRangeEnd: Float,
-        sourceOutOfRangeBehavior: OutOfRange = OutOfRange.CLAMP,
-        responseCurve: EasingFunction = EasingFunction.Predefined.LINEAR,
-        responseTimeMillis: Long = 0L,
-        enabledToolTypes: Set<InputToolType> = ALL_TOOL_TYPES,
-        isFallbackFor: OptionalInputProperty? = null,
-    ) : this(
-        run<List<TerminalNode>> {
-            var node: ValueNode =
-                SourceNode(
-                    source,
-                    sourceValueRangeStart,
-                    sourceValueRangeEnd,
-                    sourceOutOfRangeBehavior,
-                )
-            if (enabledToolTypes != ALL_TOOL_TYPES) {
-                node = ToolTypeFilterNode(enabledToolTypes, node)
-            }
-            if (isFallbackFor != null) {
-                node = FallbackFilterNode(isFallbackFor, node)
-            }
-            // [EasingFunction.Predefined.LINEAR] is the identity function, so no need to add a
-            // [ResponseNode] with that function.
-            if (responseCurve != EasingFunction.Predefined.LINEAR) {
-                node = ResponseNode(responseCurve, node)
-            }
-            if (responseTimeMillis != 0L) {
-                node =
-                    DampingNode(
-                        ProgressDomain.TIME_IN_SECONDS,
-                        responseTimeMillis.toFloat() / 1000.0f,
-                        node,
-                    )
-            }
-            listOf(TargetNode(target, targetModifierRangeStart, targetModifierRangeEnd, node))
-        }
-    )
-
-    /**
-     * Builder for [BrushBehavior].
-     *
-     * For Java developers, use BrushBehavior.Builder to construct a [BrushBehavior] with default
-     * values, overriding only as needed. For example:
-     * ```
-     * BrushBehavior behavior = new BrushBehavior.Builder()
-     *   .setSource(...)
-     *   .setTarget(...)
-     *   .setSourceOutOfRangeBehavior(...)
-     *   .setSourceValueRangeStart(...)
-     *   .build();
-     * ```
-     */
-    @Suppress("ScopeReceiverThis")
-    public class Builder {
-        private var source: Source = Source.NORMALIZED_PRESSURE
-        private var target: Target = Target.SIZE_MULTIPLIER
-        private var sourceOutOfRangeBehavior: OutOfRange = OutOfRange.CLAMP
-        private var sourceValueRangeStart: Float = 0f
-        private var sourceValueRangeEnd: Float = 1f
-        private var targetModifierRangeStart: Float = 0f
-        private var targetModifierRangeEnd: Float = 1f
-        private var responseCurve: EasingFunction = EasingFunction.Predefined.LINEAR
-        private var responseTimeMillis: Long = 0L
-        private var enabledToolTypes: Set<InputToolType> = ALL_TOOL_TYPES
-        private var isFallbackFor: OptionalInputProperty? = null
-
-        // These setters fall afoul of lint because there aren't corresponding fields on the
-        // BrushBehavior object. That's because this, like the brush behavior constructor that takes
-        // these parameters, provides a simplified interface over the more complicated constructor
-        // interface which takes a list of terminal nodes.
-
-        @Suppress("MissingGetterMatchingBuilder")
-        public fun setSource(source: Source): Builder = apply { this.source = source }
-
-        @Suppress("MissingGetterMatchingBuilder")
-        public fun setTarget(target: Target): Builder = apply { this.target = target }
-
-        @Suppress("MissingGetterMatchingBuilder")
-        public fun setSourceOutOfRangeBehavior(sourceOutOfRangeBehavior: OutOfRange): Builder =
-            apply {
-                this.sourceOutOfRangeBehavior = sourceOutOfRangeBehavior
-            }
-
-        @Suppress("MissingGetterMatchingBuilder")
-        public fun setSourceValueRangeStart(sourceValueRangeStart: Float): Builder = apply {
-            this.sourceValueRangeStart = sourceValueRangeStart
-        }
-
-        @Suppress("MissingGetterMatchingBuilder")
-        public fun setSourceValueRangeEnd(sourceValueRangeEnd: Float): Builder = apply {
-            this.sourceValueRangeEnd = sourceValueRangeEnd
-        }
-
-        @Suppress("MissingGetterMatchingBuilder")
-        public fun setTargetModifierRangeStart(targetModifierRangeStart: Float): Builder = apply {
-            this.targetModifierRangeStart = targetModifierRangeStart
-        }
-
-        @Suppress("MissingGetterMatchingBuilder")
-        public fun setTargetModifierRangeEnd(targetModifierRangeEnd: Float): Builder = apply {
-            this.targetModifierRangeEnd = targetModifierRangeEnd
-        }
-
-        @Suppress("MissingGetterMatchingBuilder")
-        public fun setResponseCurve(responseCurve: EasingFunction): Builder = apply {
-            this.responseCurve = responseCurve
-        }
-
-        @Suppress("MissingGetterMatchingBuilder")
-        public fun setResponseTimeMillis(responseTimeMillis: Long): Builder = apply {
-            this.responseTimeMillis = responseTimeMillis
-        }
-
-        @Suppress("MissingGetterMatchingBuilder")
-        public fun setEnabledToolTypes(enabledToolTypes: Set<InputToolType>): Builder = apply {
-            this.enabledToolTypes = enabledToolTypes.toSet()
-        }
-
-        @Suppress("MissingGetterMatchingBuilder")
-        public fun setIsFallbackFor(isFallbackFor: OptionalInputProperty?): Builder = apply {
-            this.isFallbackFor = isFallbackFor
-        }
-
-        public fun build(): BrushBehavior =
-            BrushBehavior(
-                source,
-                target,
-                sourceValueRangeStart,
-                sourceValueRangeEnd,
-                targetModifierRangeStart,
-                targetModifierRangeEnd,
-                sourceOutOfRangeBehavior,
-                responseCurve,
-                responseTimeMillis,
-                enabledToolTypes,
-                isFallbackFor,
-            )
-    }
+        terminalNode: TerminalNode,
+        developerComment: String = "",
+    ) : this(listOf(terminalNode), developerComment)
 
     override fun equals(other: Any?): Boolean {
         if (other == null || other !is BrushBehavior) return false
@@ -263,9 +121,6 @@ private constructor(
     }
 
     public companion object {
-        /** Returns a new [BrushBehavior.Builder]. */
-        @JvmStatic public fun builder(): Builder = Builder()
-
         @JvmField
         public val ALL_TOOL_TYPES: Set<InputToolType> =
             setOf(
@@ -422,33 +277,20 @@ private constructor(
             @JvmField
             public val TIME_OF_INPUT_IN_SECONDS: Source = Source(14, "TIME_OF_INPUT_IN_SECONDS")
             /**
-             * Time elapsed in millis from when the stroke started to when this part of the stroke
-             * was drawn. The value remains fixed for any given part of the stroke once drawn.
-             */
-            @JvmField
-            public val TIME_OF_INPUT_IN_MILLIS: Source = Source(15, "TIME_OF_INPUT_IN_MILLIS")
-            /**
              * Distance traveled by the inputs of the current prediction, starting at 0 at the last
              * non-predicted input, in multiples of the brush size. Zero for inputs before the
              * predicted portion of the stroke.
              */
             @JvmField
             public val PREDICTED_DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE: Source =
-                Source(16, "PREDICTED_DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE")
+                Source(15, "PREDICTED_DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE")
             /**
              * Elapsed time of the prediction in seconds, starting at 0 at the last non-predicted
              * input. Zero for inputs before the predicted portion of the stroke.
              */
             @JvmField
             public val PREDICTED_TIME_ELAPSED_IN_SECONDS: Source =
-                Source(17, "PREDICTED_TIME_ELAPSED_IN_SECONDS")
-            /**
-             * Elapsed time of the prediction in milliseconds, starting at 0 at the last
-             * non-predicted input. Zero for inputs before the predicted portion of the stroke.
-             */
-            @JvmField
-            public val PREDICTED_TIME_ELAPSED_IN_MILLIS: Source =
-                Source(18, "PREDICTED_TIME_ELAPSED_IN_MILLIS")
+                Source(16, "PREDICTED_TIME_ELAPSED_IN_SECONDS")
             /**
              * The distance left to be traveled from a given modeled input to the current last
              * modeled input of the stroke in multiples of the brush size. This value changes for
@@ -456,24 +298,27 @@ private constructor(
              */
             @JvmField
             public val DISTANCE_REMAINING_IN_MULTIPLES_OF_BRUSH_SIZE: Source =
-                Source(19, "DISTANCE_REMAINING_IN_MULTIPLES_OF_BRUSH_SIZE")
+                Source(17, "DISTANCE_REMAINING_IN_MULTIPLES_OF_BRUSH_SIZE")
             /**
              * Time elapsed in seconds since the modeled stroke input. This continues to increase
              * even after all stroke inputs have completed, and can be used to drive stroke
-             * animations. This enumerators are only compatible with a [sourceOutOfRangeBehavior] of
-             * [OutOfRange.CLAMP], to ensure that the animation will eventually end.
+             * animations. This enumerators are only compatible with a
+             * [SourceNode.sourceOutOfRangeBehavior] of [OutOfRange.CLAMP], to ensure that the
+             * animation will eventually end.
              */
             @JvmField
             public val TIME_SINCE_INPUT_IN_SECONDS: Source =
-                Source(20, "TIME_SINCE_INPUT_IN_SECONDS")
+                Source(18, "TIME_SINCE_INPUT_IN_SECONDS")
             /**
-             * Time elapsed in milliseconds since the modeled stroke input. This continues to
-             * increase even after all stroke inputs have completed, and can be used to drive stroke
-             * animations. This enumerators are only compatible with a [sourceOutOfRangeBehavior] of
-             * [OutOfRange.CLAMP], to ensure that the animation will eventually end.
+             * Time elapsed since the final input of the stroke, or zero if the final input hasn't
+             * arrived yet. This can be used to drive wet-layer stroke animations that should occur
+             * after the final input. This source is only compatible with a
+             * [SourceNode.sourceOutOfRangeBehavior] of [OutOfRange.CLAMP], to ensure that the
+             * animation will eventually end.
              */
             @JvmField
-            public val TIME_SINCE_INPUT_IN_MILLIS: Source = Source(21, "TIME_SINCE_INPUT_IN_MILLIS")
+            public val TIME_SINCE_STROKE_END_IN_SECONDS: Source =
+                Source(19, "TIME_SINCE_STROKE_END_IN_SECONDS")
             /**
              * Absolute acceleration of the modeled stroke input in multiples of the brush size per
              * second squared. Note that this value doesn't take into account brush behaviors that
@@ -481,7 +326,7 @@ private constructor(
              */
             @JvmField
             public val ACCELERATION_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED: Source =
-                Source(22, "ACCELERATION_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED")
+                Source(20, "ACCELERATION_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED")
             /**
              * Signed x component of the acceleration of the modeled stroke input in multiples of
              * the brush size per second squared. Note that this value doesn't take into account
@@ -489,7 +334,7 @@ private constructor(
              */
             @JvmField
             public val ACCELERATION_X_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED: Source =
-                Source(23, "ACCELERATION_X_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED")
+                Source(21, "ACCELERATION_X_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED")
             /**
              * Signed y component of the acceleration of the modeled stroke input in multiples of
              * the brush size per second squared. Note that this value doesn't take into account
@@ -497,7 +342,7 @@ private constructor(
              */
             @JvmField
             public val ACCELERATION_Y_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED: Source =
-                Source(24, "ACCELERATION_Y_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED")
+                Source(22, "ACCELERATION_Y_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED")
             /**
              * Signed component of acceleration of the modeled stroke input in the direction of its
              * velocity in multiples of the brush size per second squared. Note that this value
@@ -506,7 +351,7 @@ private constructor(
              */
             @JvmField
             public val ACCELERATION_FORWARD_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED: Source =
-                Source(25, "ACCELERATION_FORWARD_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED")
+                Source(23, "ACCELERATION_FORWARD_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED")
             /**
              * Signed component of acceleration of the modeled stroke input perpendicular to its
              * velocity, rotated 90 degrees in the direction from the positive x-axis towards the
@@ -516,67 +361,67 @@ private constructor(
              */
             @JvmField
             public val ACCELERATION_LATERAL_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED: Source =
-                Source(26, "ACCELERATION_LATERAL_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED")
+                Source(24, "ACCELERATION_LATERAL_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED")
             /** Absolute speed of the modeled stroke input pointer in centimeters per second. */
             @JvmField
             public val INPUT_SPEED_IN_CENTIMETERS_PER_SECOND: Source =
-                Source(27, "INPUT_SPEED_IN_CENTIMETERS_PER_SECOND")
+                Source(25, "INPUT_SPEED_IN_CENTIMETERS_PER_SECOND")
             /**
              * Signed x component of the modeled stroke input pointer's velocity in centimeters per
              * second.
              */
             @JvmField
             public val INPUT_VELOCITY_X_IN_CENTIMETERS_PER_SECOND: Source =
-                Source(28, "INPUT_VELOCITY_X_IN_CENTIMETERS_PER_SECOND")
+                Source(26, "INPUT_VELOCITY_X_IN_CENTIMETERS_PER_SECOND")
             /**
              * Signed y component of the modeled stroke input pointer's velocity in centimeters per
              * second.
              */
             @JvmField
             public val INPUT_VELOCITY_Y_IN_CENTIMETERS_PER_SECOND: Source =
-                Source(29, "INPUT_VELOCITY_Y_IN_CENTIMETERS_PER_SECOND")
+                Source(27, "INPUT_VELOCITY_Y_IN_CENTIMETERS_PER_SECOND")
             /**
              * Distance in centimeters traveled by the modeled stroke input pointer along the input
              * path from the start of the stroke.
              */
             @JvmField
             public val INPUT_DISTANCE_TRAVELED_IN_CENTIMETERS: Source =
-                Source(30, "INPUT_DISTANCE_TRAVELED_IN_CENTIMETERS")
+                Source(28, "INPUT_DISTANCE_TRAVELED_IN_CENTIMETERS")
             /**
              * Distance in centimeters alonge the input path from the real portion of the modeled
              * stroke to this input. Zero for inputs before the predicted portion of the stroke.
              */
             @JvmField
             public val PREDICTED_INPUT_DISTANCE_TRAVELED_IN_CENTIMETERS: Source =
-                Source(31, "PREDICTED_INPUT_DISTANCE_TRAVELED_IN_CENTIMETERS")
+                Source(29, "PREDICTED_INPUT_DISTANCE_TRAVELED_IN_CENTIMETERS")
             /**
              * Absolute acceleration of the modeled stroke input pointer in centimeters per second
              * squared.
              */
             @JvmField
             public val INPUT_ACCELERATION_IN_CENTIMETERS_PER_SECOND_SQUARED: Source =
-                Source(32, "INPUT_ACCELERATION_IN_CENTIMETERS_PER_SECOND_SQUARED")
+                Source(30, "INPUT_ACCELERATION_IN_CENTIMETERS_PER_SECOND_SQUARED")
             /**
              * Signed x component of the acceleration of the modeled stroke input pointer in
              * centimeters per second squared.
              */
             @JvmField
             public val INPUT_ACCELERATION_X_IN_CENTIMETERS_PER_SECOND_SQUARED: Source =
-                Source(33, "INPUT_ACCELERATION_X_IN_CENTIMETERS_PER_SECOND_SQUARED")
+                Source(31, "INPUT_ACCELERATION_X_IN_CENTIMETERS_PER_SECOND_SQUARED")
             /**
              * Signed y component of the acceleration of the modeled stroke input pointer in
              * centimeters per second squared.
              */
             @JvmField
             public val INPUT_ACCELERATION_Y_IN_CENTIMETERS_PER_SECOND_SQUARED: Source =
-                Source(34, "INPUT_ACCELERATION_Y_IN_CENTIMETERS_PER_SECOND_SQUARED")
+                Source(32, "INPUT_ACCELERATION_Y_IN_CENTIMETERS_PER_SECOND_SQUARED")
             /**
              * Signed component acceleration of the modeled stroke input pointer in the direction of
              * its velocity in centimeters per second squared.
              */
             @JvmField
             public val INPUT_ACCELERATION_FORWARD_IN_CENTIMETERS_PER_SECOND_SQUARED: Source =
-                Source(35, "INPUT_ACCELERATION_FORWARD_IN_CENTIMETERS_PER_SECOND_SQUARED")
+                Source(33, "INPUT_ACCELERATION_FORWARD_IN_CENTIMETERS_PER_SECOND_SQUARED")
             /**
              * Signed component of acceleration of the modeled stroke input pointer perpendicular to
              * its velocity, rotated 90 degrees in the direction from the positive x-axis towards
@@ -584,7 +429,7 @@ private constructor(
              */
             @JvmField
             public val INPUT_ACCELERATION_LATERAL_IN_CENTIMETERS_PER_SECOND_SQUARED: Source =
-                Source(36, "INPUT_ACCELERATION_LATERAL_IN_CENTIMETERS_PER_SECOND_SQUARED")
+                Source(34, "INPUT_ACCELERATION_LATERAL_IN_CENTIMETERS_PER_SECOND_SQUARED")
             /**
              * Distance from the current modeled input to the end of the stroke along the input
              * path, as a fraction of the current total length of the stroke. This value changes for
@@ -592,7 +437,7 @@ private constructor(
              */
             @JvmField
             public val DISTANCE_REMAINING_AS_FRACTION_OF_STROKE_LENGTH: Source =
-                Source(37, "DISTANCE_REMAINING_AS_FRACTION_OF_STROKE_LENGTH")
+                Source(35, "DISTANCE_REMAINING_AS_FRACTION_OF_STROKE_LENGTH")
         }
     }
 
@@ -631,8 +476,9 @@ private constructor(
             /** Convenience enumerator to target both [WIDTH_MULTIPLIER] and [HEIGHT_MULTIPLIER]. */
             @JvmField public val SIZE_MULTIPLIER: Target = Target(2, "SIZE_MULTIPLIER")
             /**
-             * Adds the target modifier to [BrushTip.slant]. The final brush slant value is clamped
-             * to [-π/2, π/2]. If multiple behaviors have this target, they stack additively.
+             * Adds the target modifier to [BrushTip.slantDegrees]. The final brush slant value is
+             * clamped to [-π/2, π/2]. If multiple behaviors have this target, they stack
+             * additively.
              */
             @JvmField
             public val SLANT_OFFSET_IN_RADIANS: Target = Target(3, "SLANT_OFFSET_IN_RADIANS")
@@ -642,9 +488,9 @@ private constructor(
              */
             @JvmField public val PINCH_OFFSET: Target = Target(4, "PINCH_OFFSET")
             /**
-             * Adds the target modifier to [BrushTip.rotation]. The final brush rotation angle is
-             * effectively normalized (mod 2π). If multiple behaviors have this target, they stack
-             * additively.
+             * Adds the target modifier to [BrushTip.rotationDegrees]. The final brush rotation
+             * angle is effectively normalized (mod 2π). If multiple behaviors have this target,
+             * they stack additively.
              */
             @JvmField
             public val ROTATION_OFFSET_IN_RADIANS: Target = Target(5, "ROTATION_OFFSET_IN_RADIANS")
@@ -777,7 +623,7 @@ private constructor(
 
     /**
      * The desired behavior when an input value is outside the range defined by
-     * [sourceValueRangeStart] and [sourceValueRangeEnd].
+     * [SourceNode.sourceValueRangeStart] and [SourceNode.sourceValueRangeEnd].
      */
     public class OutOfRange
     private constructor(@JvmField internal val value: Int, private val name: String) {
@@ -804,52 +650,25 @@ private constructor(
              * within the bounds.
              *
              * In this case, the range will be treated as a half-open interval, with a value exactly
-             * at [sourceValueRangeEnd] being treated as though it was [sourceValueRangeStart].
+             * at [SourceNode.sourceValueRangeEnd] being treated as though it was
+             * [SourceNode.sourceValueRangeStart].
              */
             @JvmField public val REPEAT: OutOfRange = OutOfRange(1, "REPEAT")
             /**
-             * Similar to [Repeat], but every other repetition of the bounds will be mirrored, as
-             * though the two elements [sourceValueRangeStart] and [sourceValueRangeEnd] were
+             * Similar to [REPEAT], but every other repetition of the bounds will be mirrored, as
+             * though [SourceNode.sourceValueRangeStart] and [SourceNode.sourceValueRangeEnd] were
              * swapped. This means the range does not need to be treated as a half-open interval
-             * like in the case of [Repeat].
+             * like in the case of [REPEAT].
              */
             @JvmField public val MIRROR: OutOfRange = OutOfRange(2, "MIRROR")
         }
     }
 
-    /** List of input properties that might not be reported by inputs. */
-    public class OptionalInputProperty
-    private constructor(@JvmField internal val value: Int, private val name: String) {
-        init {
-            check(value !in VALUE_TO_INSTANCE) { "Duplicate OptionalInputProperty value: $value." }
-            VALUE_TO_INSTANCE[value] = this
-        }
-
-        internal fun toSimpleString(): String = name
-
-        override fun toString(): String = "BrushBehavior.OptionalInputProperty.$name"
-
-        public companion object {
-            private val VALUE_TO_INSTANCE = MutableIntObjectMap<OptionalInputProperty>()
-
-            internal fun fromInt(value: Int): OptionalInputProperty =
-                checkNotNull(VALUE_TO_INSTANCE.get(value)) {
-                    "Invalid OptionalInputProperty value: $value"
-                }
-
-            @JvmField
-            public val PRESSURE: OptionalInputProperty = OptionalInputProperty(0, "PRESSURE")
-            @JvmField public val TILT: OptionalInputProperty = OptionalInputProperty(1, "TILT")
-            @JvmField
-            public val ORIENTATION: OptionalInputProperty = OptionalInputProperty(2, "ORIENTATION")
-            /** Tilt-x and tilt-y require both tilt and orientation to be reported. */
-            @JvmField
-            public val TILT_X_AND_Y: OptionalInputProperty =
-                OptionalInputProperty(3, "TILT_X_AND_Y")
-        }
-    }
-
-    /** A binary operation for combining two values in a [BinaryOpNode]. */
+    /**
+     * A binary operation for combining two values in a [BinaryOpNode]. Unless otherwise specified
+     * for a particular operator, the result will be null (i.e. undefined) if either input value is
+     * null.
+     */
     public class BinaryOp
     private constructor(@JvmField internal val value: Int, private val name: String) {
         init {
@@ -867,10 +686,27 @@ private constructor(
             internal fun fromInt(value: Int): BinaryOp =
                 checkNotNull(VALUE_TO_INSTANCE.get(value)) { "Invalid BinaryOp value: $value" }
 
-            /** Evaluates to the product of the two input values, or null if either is null. */
+            /** Evaluates to the product of the two input values. */
             @JvmField public val PRODUCT: BinaryOp = BinaryOp(0, "PRODUCT")
-            /** Evaluates to the sum of the two input values, or null if either is null. */
+            /** Evaluates to the sum of the two input values. */
             @JvmField public val SUM: BinaryOp = BinaryOp(1, "SUM")
+            /** Evaluates to the min of the two input values. */
+            @JvmField public val MIN: BinaryOp = BinaryOp(2, "MIN")
+            /** Evaluates to the max of the two input values. */
+            @JvmField public val MAX: BinaryOp = BinaryOp(3, "MAX")
+            /**
+             * Evaluates to null if the first input is null, otherwise evaluates to the second
+             * input.
+             */
+            @JvmField public val AND_THEN: BinaryOp = BinaryOp(4, "AND_THEN")
+            /**
+             * Evaluates to first input if it's not null, otherwise evaluates to the second input.
+             */
+            @JvmField public val OR_ELSE: BinaryOp = BinaryOp(5, "OR_ELSE")
+            /**
+             * If exactly one input isn't null, evaluates to that one, otherwise evaluates to null.
+             */
+            @JvmField public val XOR_ELSE: BinaryOp = BinaryOp(6, "XOR_ELSE")
         }
     }
 
@@ -984,15 +820,14 @@ private constructor(
                     0 -> SourceNode.wrapNative(unownedNativePointer)
                     1 -> ConstantNode.wrapNative(unownedNativePointer)
                     2 -> NoiseNode.wrapNative(unownedNativePointer)
-                    3 -> FallbackFilterNode.wrapNative(unownedNativePointer, inputStack)
-                    4 -> ToolTypeFilterNode.wrapNative(unownedNativePointer, inputStack)
-                    5 -> DampingNode.wrapNative(unownedNativePointer, inputStack)
-                    6 -> ResponseNode.wrapNative(unownedNativePointer, inputStack)
-                    7 -> IntegralNode.wrapNative(unownedNativePointer, inputStack)
-                    8 -> BinaryOpNode.wrapNative(unownedNativePointer, inputStack)
-                    9 -> InterpolationNode.wrapNative(unownedNativePointer, inputStack)
-                    10 -> TargetNode.wrapNative(unownedNativePointer, inputStack)
-                    11 -> PolarTargetNode.wrapNative(unownedNativePointer, inputStack)
+                    3 -> ToolTypeFilterNode.wrapNative(unownedNativePointer, inputStack)
+                    4 -> DampingNode.wrapNative(unownedNativePointer, inputStack)
+                    5 -> ResponseNode.wrapNative(unownedNativePointer, inputStack)
+                    6 -> IntegralNode.wrapNative(unownedNativePointer, inputStack)
+                    7 -> BinaryOpNode.wrapNative(unownedNativePointer, inputStack)
+                    8 -> InterpolationNode.wrapNative(unownedNativePointer, inputStack)
+                    9 -> TargetNode.wrapNative(unownedNativePointer, inputStack)
+                    10 -> PolarTargetNode.wrapNative(unownedNativePointer, inputStack)
                     else ->
                         throw IllegalArgumentException(
                             "Unknown node type: ${BrushBehaviorNodeNative.getNodeType(unownedNativePointer)}"
@@ -1142,54 +977,6 @@ private constructor(
             var result = seed.hashCode()
             result = 31 * result + varyOver.hashCode()
             result = 31 * result + basePeriod.hashCode()
-            return result
-        }
-    }
-
-    /**
-     * A [ValueNode] for filtering out a branch of a behavior graph unless a particular stroke input
-     * property is missing.
-     */
-    public class FallbackFilterNode
-    private constructor(nativePointer: Long, public val input: ValueNode) :
-        ValueNode(nativePointer, listOf(input)) {
-
-        /**
-         * Creates a [FallbackFilterNode] that filters out a branch of a behavior graph unless a
-         * particular stroke input property is missing.
-         *
-         * @param isFallbackFor the input property that must be missing for this node to not be
-         *   filtered
-         * @param input input node whose value is filtered if the input proerty is present
-         */
-        public constructor(
-            isFallbackFor: OptionalInputProperty,
-            input: ValueNode,
-        ) : this(BrushBehaviorNodeNative.createFallbackFilter(isFallbackFor.value), input)
-
-        internal companion object {
-            internal fun wrapNative(
-                unownedNativePointer: Long,
-                inputStack: ArrayDeque<ValueNode>,
-            ): FallbackFilterNode =
-                FallbackFilterNode(unownedNativePointer, inputStack.removeLast())
-        }
-
-        public val isFallbackFor: OptionalInputProperty =
-            BrushBehaviorNodeNative.getFallbackFilterIsFallbackFor(nativePointer)
-
-        override fun toString(): String =
-            "FallbackFilterNode(${isFallbackFor.toSimpleString()}, $input)"
-
-        override fun equals(other: Any?): Boolean {
-            if (other == null || other !is FallbackFilterNode) return false
-            if (other === this) return true
-            return isFallbackFor == other.isFallbackFor && input == other.input
-        }
-
-        override fun hashCode(): Int {
-            var result = isFallbackFor.hashCode()
-            result = 31 * result + input.hashCode()
             return result
         }
     }
@@ -1826,8 +1613,6 @@ private object BrushBehaviorNodeNative {
 
     @UsedByNative external fun createNoise(seed: Int, varyOver: Int, basePeriod: Float): Long
 
-    @UsedByNative external fun createFallbackFilter(isFallbackFor: Int): Long
-
     @UsedByNative
     external fun createToolTypeFilter(
         mouseEnabled: Boolean,
@@ -1902,15 +1687,6 @@ private object BrushBehaviorNodeNative {
     @UsedByNative private external fun getNoiseVaryOverInt(nativePointer: Long): Int
 
     @UsedByNative external fun getNoiseBasePeriod(nativePointer: Long): Float
-
-    // FallbackFilterNode accessors:
-
-    fun getFallbackFilterIsFallbackFor(nativePointer: Long): BrushBehavior.OptionalInputProperty =
-        BrushBehavior.OptionalInputProperty.fromInt(
-            getFallbackFilterIsFallbackForInt(nativePointer)
-        )
-
-    @UsedByNative private external fun getFallbackFilterIsFallbackForInt(nativePointer: Long): Int
 
     // ToolTypeFilterNode accessors:
 

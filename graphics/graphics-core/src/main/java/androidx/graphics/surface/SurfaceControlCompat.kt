@@ -621,7 +621,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
          * **NOTE** it is strongly recommended to verify that the display supports the corresponding
          * [DataSpace] in advance before configuring the data space. For example, if
          * [DataSpace.DATASPACE_DISPLAY_P3] is desired, consumers should verify that
-         * [Window.isWideGamut] returns true before proceeding.
+         * [Window.isWideColorGamut] returns true before proceeding.
          *
          * @param surfaceControl The SurfaceControl to update
          * @param dataSpace The [DataSpace] to set it to. Must be one of named

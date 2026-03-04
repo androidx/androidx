@@ -585,7 +585,8 @@ internal class CaptureSessionState(
         // Create the capture session and return a Map of StreamId -> OutputConfiguration for any
         // outputs that were not initially available. These will be configured later.
         Log.info {
-            "Creating CameraCaptureSession from ${device?.cameraId} using $this with $surfaces"
+            "Creating CameraCaptureSession from ${device?.cameraId} using $this with: \n" +
+                Debug.formatSurfaceMap(surfaces!!)
         }
         val result =
             Debug.trace("CameraDevice-${device?.cameraId?.value}#createCaptureSession") {

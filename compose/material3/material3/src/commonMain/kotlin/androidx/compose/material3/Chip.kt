@@ -40,6 +40,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.SuggestionChipDefaults.defaultElevatedSuggestionChipColors
 import androidx.compose.material3.internal.animateElevation
 import androidx.compose.material3.tokens.AssistChipTokens
@@ -2888,7 +2889,7 @@ private fun AnimatingChipContent(
 
         Row(
             modifier =
-                Modifier.width(IntrinsicSize.Max)
+                Modifier.widthIn(max = maxChipWidth)
                     .defaultMinSize(minHeight = minHeight)
                     .padding(paddingValues),
             verticalAlignment = Alignment.CenterVertically,
@@ -2922,7 +2923,7 @@ private fun AnimatingChipContent(
                 }
 
                 Row(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f, fill = false),
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically,
                     content = { label() },
@@ -3653,3 +3654,9 @@ private fun inputChipPadding(
 private val HorizontalElementsPadding = 8.dp
 
 private val DefaultHorizontalArrangement = ChipArrangement(SuggestionChipDefaults.HorizontalSpacing)
+
+/**
+ * Max width for a chip. This is required to allow animations with Row and have expected behavior in
+ * the case where the chip is within a scrolling container.
+ */
+private val maxChipWidth = 1000.dp

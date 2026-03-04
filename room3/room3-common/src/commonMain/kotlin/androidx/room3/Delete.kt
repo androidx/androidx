@@ -19,27 +19,27 @@ package androidx.room3
 import kotlin.reflect.KClass
 
 /**
- * Marks a method in a [Dao] annotated class as a delete method.
+ * Marks a function in a [Dao] annotated class as a delete function.
  *
- * The implementation of the method will delete its parameters from the database.
+ * The implementation of the function will delete its parameters from the database.
  *
- * All of the parameters of the Delete method must either be classes annotated with [Entity] or
- * collections/array of it.
+ * All the parameters of the delete function must either be classes annotated with [Entity] or
+ * collections / array of it.
  *
  * Example:
  * ```
  * @Dao
- * public interface MusicDao {
+ * interface MusicDao {
  *     @Delete
- *     public fun deleteSongs(vararg songs: Song)
+ *     suspend fun deleteSongs(vararg songs: Song)
  *
  *     @Delete
- *     public fun deleteAlbumAndSongs(album: Album, songs: List<Song>)
+ *     suspend fun deleteAlbumAndSongs(album: Album, songs: List<Song>)
  * }
  * ```
  *
- * If the target entity is specified via [entity] then the parameters can be of arbitrary POJO types
- * that will be interpreted as partial entities. For example:
+ * If a target entity is specified via [entity] value then the parameters can be of arbitrary data
+ * object types that will be interpreted as partial entities. For example:
  * ```
  * @Entity
  * data class Playlist (
@@ -57,31 +57,32 @@ import kotlin.reflect.KClass
  * )
  *
  * @Dao
- * public interface PlaylistDao {
+ * interface PlaylistDao {
  *     @Delete(entity = Playlist::class)
- *     fun deleteByOwnerIdAndCategory(varargs idCategory: OwnerIdAndCategory)
+ *     suspend fun deleteByOwnerIdAndCategory(varargs idCategory: OwnerIdAndCategory)
  * }
  * ```
  *
  * @see Insert
  * @see Update
+ * @see Upsert
  */
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.BINARY)
 public annotation class Delete(
 
     /**
-     * The target entity of the delete method.
+     * The target entity of the delete function.
      *
-     * When this is declared, the delete method parameters are interpreted as partial entities when
-     * the type of the parameter differs from the target. The POJO class that represents the entity
-     * must contain a subset of the fields of the target entity. The fields value will be used to
-     * find matching entities to delete.
+     * When this is declared, the delete function parameters are interpreted as partial entities
+     * when the type of the parameter differs from the target. The data object class that represents
+     * the entity must contain a subset of the properties of the target entity. The properties value
+     * will be used to find matching entities to delete.
      *
-     * By default the target entity is interpreted by the method parameters.
+     * By default, the target entity is interpreted by the function parameters.
      *
-     * @return the target entity of the delete method or none if the method should use the parameter
-     *   type entities.
+     * @return the target entity of the delete function or none if the function should use the
+     *   parameter type entities.
      */
     val entity: KClass<*> = Any::class
 )

@@ -96,6 +96,9 @@ class ProjectedManagerTest {
         expectedUpdateResult.devicePose = projectedPose
         `when`(mockPerceptionService.update()).thenReturn(expectedUpdateResult)
         underTest.create()
+        val config = Config(deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN)
+
+        underTest.configure(config)
         underTest.running.set(true)
 
         underTest.update()
@@ -114,7 +117,7 @@ class ProjectedManagerTest {
         underTest.create()
         val config =
             Config(
-                deviceTracking = DeviceTrackingMode.LAST_KNOWN,
+                deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
                 geospatial = GeospatialMode.VPS_AND_GPS,
             )
 
@@ -132,7 +135,7 @@ class ProjectedManagerTest {
             )
         val config =
             Config(
-                deviceTracking = DeviceTrackingMode.LAST_KNOWN,
+                deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
                 geospatial = GeospatialMode.VPS_AND_GPS,
             )
 
@@ -165,36 +168,83 @@ class ProjectedManagerTest {
     }
 
     @Test
-    fun configure_withValidConfigs_sendsCorrectAidlConfig() {
+    fun configure_spatialLastKnownWithGeo_sends6DofAndGeoEnabled() {
         underTest.create()
         underTest.running.set(true)
-        val configWithGeospatial =
+        val config =
             Config(
-                deviceTracking = DeviceTrackingMode.LAST_KNOWN,
+                deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
                 geospatial = GeospatialMode.VPS_AND_GPS,
             )
 
-        underTest.configure(configWithGeospatial)
+        underTest.configure(config)
 
         verify(mockPerceptionService).startWithConfiguration(projectedConfigCaptor.capture())
         assertThat(projectedConfigCaptor.value.geospatialMode)
             .isEqualTo(ProjectedGeospatialMode.ENABLED)
         assertThat(projectedConfigCaptor.value.trackingMode)
             .isEqualTo(ProjectedTrackingMode.PROJECTED_TRACKING_6DOF)
+    }
 
-        val configWithoutGeospatial =
+    @Test
+    fun configure_spatialLastKnownWithoutGeo_sends6DofAndGeoDisabled() {
+        underTest.create()
+        underTest.running.set(true)
+        val config =
             Config(
-                deviceTracking = DeviceTrackingMode.LAST_KNOWN,
+                deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
                 geospatial = GeospatialMode.DISABLED,
             )
 
-        underTest.configure(configWithoutGeospatial)
-        verify(mockPerceptionService, times(2))
+        underTest.configure(config)
+
+        verify(mockPerceptionService, times(1))
+            .startWithConfiguration(projectedConfigCaptor.capture())
+        assertThat(projectedConfigCaptor.value.geospatialMode)
+            .isEqualTo(ProjectedGeospatialMode.DISABLED)
+        assertThat(projectedConfigCaptor.value.trackingMode)
+            .isEqualTo(ProjectedTrackingMode.PROJECTED_TRACKING_6DOF)
+    }
+
+    @Test
+    fun configure_inertialLastKnownWithoutGeo_sends3DofAndGeoDisabled() {
+        underTest.create()
+        underTest.running.set(true)
+        val config =
+            Config(
+                deviceTracking = DeviceTrackingMode.INERTIAL_LAST_KNOWN,
+                geospatial = GeospatialMode.DISABLED,
+            )
+
+        underTest.configure(config)
+
+        verify(mockPerceptionService, times(1))
             .startWithConfiguration(projectedConfigCaptor.capture())
         assertThat(projectedConfigCaptor.value.geospatialMode)
             .isEqualTo(ProjectedGeospatialMode.DISABLED)
         assertThat(projectedConfigCaptor.value.trackingMode)
             .isEqualTo(ProjectedTrackingMode.PROJECTED_TRACKING_3DOF)
+    }
+
+    @Test
+    fun configure_inertialLastKnownWithGeo_sendsExpectedConfig() {
+        underTest.create()
+        underTest.running.set(true)
+        val config =
+            Config(
+                deviceTracking = DeviceTrackingMode.INERTIAL_LAST_KNOWN,
+                geospatial = GeospatialMode.VPS_AND_GPS,
+            )
+
+        underTest.configure(config)
+
+        verify(mockPerceptionService, times(1))
+            .startWithConfiguration(projectedConfigCaptor.capture())
+        assertThat(projectedConfigCaptor.value.geospatialMode)
+            .isEqualTo(ProjectedGeospatialMode.ENABLED)
+        // Geo is not compatible with 3DoF, so it forces 6DoF
+        assertThat(projectedConfigCaptor.value.trackingMode)
+            .isEqualTo(ProjectedTrackingMode.PROJECTED_TRACKING_6DOF)
     }
 
     @Test

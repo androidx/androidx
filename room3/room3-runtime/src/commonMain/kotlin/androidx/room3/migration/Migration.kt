@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
+@file:JvmName("MigrationKt")
+
 package androidx.room3.migration
 
 import androidx.sqlite.SQLiteConnection
+import kotlin.jvm.JvmField
+import kotlin.jvm.JvmName
 
 /**
  * Base class for a database migration.
@@ -33,10 +37,10 @@ import androidx.sqlite.SQLiteConnection
  *
  * @constructor Creates a new migration between [startVersion] and [endVersion] inclusive.
  */
-public expect abstract class Migration(startVersion: Int, endVersion: Int) {
-    public val startVersion: Int
-    public val endVersion: Int
-
+public abstract class Migration(
+    @JvmField public val startVersion: Int,
+    @JvmField public val endVersion: Int,
+) {
     /**
      * Should run the necessary migrations.
      *
@@ -46,4 +50,36 @@ public expect abstract class Migration(startVersion: Int, endVersion: Int) {
      * @param connection The database connection
      */
     public abstract suspend fun migrate(connection: SQLiteConnection)
+}
+
+/**
+ * Creates [Migration] from [startVersion] to [endVersion] that runs [migrate] to perform the
+ * necessary migrations.
+ *
+ * A migration can handle more than 1 version (e.g. if you have a faster path to choose when going
+ * version 3 to 5 without going to version 4). If Room opens a database at version 3 and latest
+ * version is < 5, Room will use the migration object that can migrate from 3 to 5 instead of 3 to 4
+ * and 4 to 5.
+ *
+ * If there are not enough migrations provided to move from the current version to the latest
+ * version, Room will clear the database and recreate so even if you have no changes between 2
+ * versions, you should still provide a Migration object to the builder.
+ *
+ * [migrate] cannot access any generated Dao in this method.
+ *
+ * [migrate] is already called inside a transaction and that transaction might actually be a
+ * composite transaction of all necessary `Migration`s.
+ */
+public fun Migration(
+    startVersion: Int,
+    endVersion: Int,
+    migrate: suspend (SQLiteConnection) -> Unit,
+): Migration = MigrationImpl(startVersion, endVersion, migrate)
+
+private class MigrationImpl(
+    startVersion: Int,
+    endVersion: Int,
+    val migrateCallback: suspend (SQLiteConnection) -> Unit,
+) : Migration(startVersion, endVersion) {
+    override suspend fun migrate(connection: SQLiteConnection) = migrateCallback(connection)
 }

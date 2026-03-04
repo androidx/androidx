@@ -25,8 +25,8 @@ import androidx.xr.compose.subspace.node.SubspaceModifierNodeElement
 /**
  * Scale the contents of the composable by the scale factor along horizontal, vertical, and depth
  * axes. Scaling does not change the measured size of the composable content during layout. Measured
- * size of [SubspaceComposable] elements can be controlled using size Modifiers. Scale factor should
- * be a positive number.
+ * size of [androidx.xr.compose.subspace.SubspaceComposable] elements can be controlled using size
+ * Modifiers. Scale factor should be a positive number.
  *
  * @param scale Multiplier to scale content along vertical, horizontal, depth axes.
  */

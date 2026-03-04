@@ -17,7 +17,7 @@
 package androidx.xr.arcore.apps.whitebox.mobile.samplerender
 
 import android.opengl.GLES30
-import androidx.xr.runtime.Log
+import androidx.xr.runtime.XrLog
 import java.io.Closeable
 
 /**
@@ -128,7 +128,7 @@ class Framebuffer(val render: SampleRender, width: Int, height: Int) : Closeable
     override fun close() {
         if (framebufferId[0] != 0) {
             GLES30.glDeleteFramebuffers(1, framebufferId, 0)
-            maybeLogGLError(Log.Level.WARN, "Failed to free framebuffer", "glDeleteFramebuffers")
+            maybeLogGLError(XrLog.Level.WARN, "Failed to free framebuffer", "glDeleteFramebuffers")
             framebufferId[0] = 0
         }
         colorTexture.close()

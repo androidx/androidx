@@ -29,10 +29,11 @@ import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 
 @SdkSuppress(minSdkVersion = 29)
 @RunWith(TestParameterInjector::class)
-@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
+@Config(sdk = [Config.TARGET_SDK])
 class RemoteFloatOperationTest {
     val context =
         AndroidRemoteContext().apply {
@@ -46,39 +47,182 @@ class RemoteFloatOperationTest {
         val a: Float,
         val b: Float,
         val expected: Float,
-        val supportsDirect: Boolean = true,
+        val opCode: Enum<*>,
+        val isUnary: Boolean = false,
+        val customArgs: ((RemoteFloat, RemoteFloat) -> Array<Any>)? = null,
     ) {
-        ADD("+", { a, b -> a + b }, 10f, 5f, 15f),
-        SUB("-", { a, b -> a - b }, 10f, 5f, 5f),
-        MUL("*", { a, b -> a * b }, 10f, 5f, 50f),
-        DIV("/", { a, b -> a / b }, 10f, 5f, 2f),
-        REM("%", { a, b -> a % b }, 10f, 3f, 1f),
-        MAX("max", { a, b -> max(a, b) }, 10f, 20f, 20f),
-        MIN("min", { a, b -> min(a, b) }, 10f, 20f, 10f),
-        POW("pow", { a, b -> pow(a, b) }, 2f, 3f, 8f),
-        SQRT("sqrt", { a, _ -> sqrt(a) }, 9f, 0f, 3f),
-        ABS("abs", { a, _ -> abs(a) }, -10f, 0f, 10f),
-        SIGN("sign", { a, _ -> sign(a) }, -10f, 0f, -1f),
-        COPYSIGN("copySign", { a, b -> copySign(a, b) }, 10f, -1f, -10f),
-        EXP("exp", { a, _ -> exp(a) }, 1f, 0f, Math.exp(1.0).toFloat()),
-        CEIL("ceil", { a, _ -> ceil(a) }, 10.1f, 0f, 11f),
-        FLOOR("floor", { a, _ -> floor(a) }, 10.9f, 0f, 10f),
-        LOG("log", { a, _ -> log(a) }, 100f, 0f, 2f),
-        LN("ln", { a, _ -> ln(a) }, Math.E.toFloat(), 0f, 1f),
-        ROUND("round", { a, _ -> round(a) }, 10.5f, 0f, 11f),
-        SIN("sin", { a, _ -> sin(a) }, 0f, 0f, 0f),
-        COS("cos", { a, _ -> cos(a) }, 0f, 0f, 1f),
-        TAN("tan", { a, _ -> tan(a) }, 0f, 0f, 0f),
-        ASIN("asin", { a, _ -> asin(a) }, 0f, 0f, 0f),
-        ACOS("acos", { a, _ -> acos(a) }, 1f, 0f, 0f),
-        ATAN("atan", { a, _ -> atan(a) }, 0f, 0f, 0f),
-        ATAN2("atan2", { a, b -> atan2(a, b) }, 0f, 1f, 0f),
-        CBRT("cbrt", { a, _ -> cbrt(a) }, 27f, 0f, 3f),
-        DEG("toDeg", { a, _ -> toDeg(a) }, Math.PI.toFloat(), 0f, 180f),
-        RAD("toRad", { a, _ -> toRad(a) }, 180f, 0f, Math.PI.toFloat()),
-        LERP("lerp", { a, b -> lerp(a, b, 0.5f.rf) }, 100f, 200f, 150f),
-        MAD("mad", { a, b -> mad(a, b, 5f.rf) }, 10f, 2f, 25f, supportsDirect = false),
-        CLAMP("clamp", { a, _ -> clamp(10f.rf, 20f.rf, a) }, 5f, 0f, 10f),
+        ADD("+", { a, b -> a + b }, 10f, 5f, 15f, RemoteFloat.OperationKey.Plus),
+        SUB("-", { a, b -> a - b }, 10f, 5f, 5f, RemoteFloat.OperationKey.Minus),
+        MUL("*", { a, b -> a * b }, 10f, 5f, 50f, RemoteFloat.OperationKey.Times),
+        DIV("/", { a, b -> a / b }, 10f, 5f, 2f, RemoteFloat.OperationKey.Div),
+        REM("%", { a, b -> a % b }, 10f, 3f, 1f, RemoteFloat.OperationKey.Rem),
+        MAX("max", { a, b -> max(a, b) }, 10f, 20f, 20f, RemoteFloat.OperationKey.Max),
+        MIN("min", { a, b -> min(a, b) }, 10f, 20f, 10f, RemoteFloat.OperationKey.Min),
+        POW("pow", { a, b -> pow(a, b) }, 2f, 3f, 8f, RemoteFloat.OperationKey.Pow),
+        SQRT(
+            "sqrt",
+            { a, _ -> sqrt(a) },
+            9f,
+            0f,
+            3f,
+            RemoteFloat.OperationKey.Sqrt,
+            isUnary = true,
+        ),
+        ABS("abs", { a, _ -> abs(a) }, -10f, 0f, 10f, RemoteFloat.OperationKey.Abs, isUnary = true),
+        SIGN(
+            "sign",
+            { a, _ -> sign(a) },
+            -10f,
+            0f,
+            -1f,
+            RemoteFloat.OperationKey.Sign,
+            isUnary = true,
+        ),
+        COPYSIGN(
+            "copySign",
+            { a, b -> copySign(a, b) },
+            10f,
+            -1f,
+            -10f,
+            RemoteFloat.OperationKey.CopySign,
+        ),
+        EXP(
+            "exp",
+            { a, _ -> exp(a) },
+            1f,
+            0f,
+            Math.exp(1.0).toFloat(),
+            RemoteFloat.OperationKey.Exp,
+            isUnary = true,
+        ),
+        CEIL(
+            "ceil",
+            { a, _ -> ceil(a) },
+            10.1f,
+            0f,
+            11f,
+            RemoteFloat.OperationKey.Ceil,
+            isUnary = true,
+        ),
+        FLOOR(
+            "floor",
+            { a, _ -> floor(a) },
+            10.9f,
+            0f,
+            10f,
+            RemoteFloat.OperationKey.Floor,
+            isUnary = true,
+        ),
+        LOG("log", { a, _ -> log(a) }, 100f, 0f, 2f, RemoteFloat.OperationKey.Log, isUnary = true),
+        LN(
+            "ln",
+            { a, _ -> ln(a) },
+            Math.E.toFloat(),
+            0f,
+            0.99999994f,
+            RemoteFloat.OperationKey.Ln,
+            isUnary = true,
+        ),
+        ROUND(
+            "round",
+            { a, _ -> round(a) },
+            10.5f,
+            0f,
+            11f,
+            RemoteFloat.OperationKey.Round,
+            isUnary = true,
+        ),
+        SIN("sin", { a, _ -> sin(a) }, 0f, 0f, 0f, RemoteFloat.OperationKey.Sin, isUnary = true),
+        COS("cos", { a, _ -> cos(a) }, 0f, 0f, 1f, RemoteFloat.OperationKey.Cos, isUnary = true),
+        TAN("tan", { a, _ -> tan(a) }, 0f, 0f, 0f, RemoteFloat.OperationKey.Tan, isUnary = true),
+        ASIN(
+            "asin",
+            { a, _ -> asin(a) },
+            0f,
+            0f,
+            0f,
+            RemoteFloat.OperationKey.Asin,
+            isUnary = true,
+        ),
+        ACOS(
+            "acos",
+            { a, _ -> acos(a) },
+            1f,
+            0f,
+            0f,
+            RemoteFloat.OperationKey.Acos,
+            isUnary = true,
+        ),
+        ATAN(
+            "atan",
+            { a, _ -> atan(a) },
+            0f,
+            0f,
+            0f,
+            RemoteFloat.OperationKey.Atan,
+            isUnary = true,
+        ),
+        ATAN2("atan2", { a, b -> atan2(a, b) }, 0f, 1f, 0f, RemoteFloat.OperationKey.Atan2),
+        CBRT(
+            "cbrt",
+            { a, _ -> cbrt(a) },
+            27f,
+            0f,
+            3f,
+            RemoteFloat.OperationKey.Cbrt,
+            isUnary = true,
+        ),
+        DEG(
+            "toDeg",
+            { a, _ -> toDeg(a) },
+            Math.PI.toFloat(),
+            0f,
+            180f,
+            RemoteFloat.OperationKey.ToDeg,
+            isUnary = true,
+        ),
+        RAD(
+            "toRad",
+            { a, _ -> toRad(a) },
+            180f,
+            0f,
+            Math.PI.toFloat(),
+            RemoteFloat.OperationKey.ToRad,
+            isUnary = true,
+        ),
+        LERP(
+            "lerp",
+            { a, b -> lerp(a, b, 0.5f.rf) },
+            100f,
+            200f,
+            150f,
+            RemoteFloat.OperationKey.Lerp,
+            customArgs = { a, b -> arrayOf(a, b, 0.5f.rf) },
+        ),
+        MAD(
+            "mad",
+            { a, b -> mad(a, b, 5f.rf) },
+            10f,
+            2f,
+            25f,
+            RemoteFloat.OperationKey.Mad,
+            customArgs = { a, b -> arrayOf(a, b, 5f.rf) },
+        ),
+        CLAMP(
+            "clamp",
+            { a, _ -> clamp(10f.rf, 20f.rf, a) },
+            5f,
+            0f,
+            10f,
+            RemoteFloat.OperationKey.Clamp,
+            isUnary = true,
+            customArgs = { a, _ -> arrayOf(10f.rf, 20f.rf, a) },
+        );
+
+        internal fun getExpectedKey(a: RemoteFloat, b: RemoteFloat): RemoteStateCacheKey {
+            val args = customArgs?.invoke(a, b) ?: if (isUnary) arrayOf(a) else arrayOf(a, b)
+            return RemoteOperationCacheKey.create(this.opCode, *args)
+        }
     }
 
     enum class ExpressionMode {
@@ -104,10 +248,34 @@ class RemoteFloatOperationTest {
             .isWithin(0.001f)
             .of(op.expected)
         val floatId = result.getFloatIdForCreationState(creationState)
-        if (op.supportsDirect && mode != ExpressionMode.Forced) {
+        if (mode != ExpressionMode.Forced) {
             assertThat(floatId).isWithin(0.001f).of(op.expected)
         } else {
             assertThat(result.getFloatIdForCreationState(creationState)).isNaN()
+        }
+
+        val cacheKey = result.cacheKey
+        assertThat(cacheKey).isNotNull()
+        if (result.hasConstantValue) {
+            assertThat(cacheKey).isEqualTo(RemoteConstantCacheKey(op.expected))
+        } else {
+            val a =
+                when (mode) {
+                    ExpressionMode.Constant -> op.a.rf
+                    ExpressionMode.Reference -> op.a.rf.createReference(false)
+                    ExpressionMode.Forced -> op.a.rf.createReference(true)
+                }
+            val b =
+                when (mode) {
+                    ExpressionMode.Constant -> op.b.rf
+                    ExpressionMode.Reference -> op.b.rf.createReference(false)
+                    ExpressionMode.Forced -> op.b.rf.createReference(true)
+                }
+
+            val expectedKey = op.getExpectedKey(a, b)
+            assertWithMessage("Cache key mismatch for operation ${op.opName} in mode $mode")
+                .that(cacheKey)
+                .isEqualTo(expectedKey)
         }
     }
 

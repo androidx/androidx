@@ -49,10 +49,12 @@ import androidx.compose.ui.graphics.Shader
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.invalidateDraw
+import androidx.compose.ui.node.requireGraphicsContext
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -315,6 +317,16 @@ private class SurfaceNode(
     var shader: Shader? = null
     var shaderBrush: Brush? = null
 
+    // Graphics Layer
+    private var unfocusedBorderLayer: GraphicsLayer? = null
+    private var unfocusedGraphicsLayerProvider: (() -> GraphicsLayer)? = null
+
+    private var focusedBorderLayer: GraphicsLayer? = null
+    private var focusedGraphicsLayerProvider: (() -> GraphicsLayer)? = null
+
+    private var focusedHighlightBorderLayer: GraphicsLayer? = null
+    private var focusedHighlightGraphicsLayerProvider: (() -> GraphicsLayer)? = null
+
     private var interactionCollectionJob: Job? = null
 
     // Enter / exit animation progress for the width and fade effect applied to the highlight
@@ -462,6 +474,7 @@ private class SurfaceNode(
         drawRect(color = pressedOverlayColor)
         if (border != null) {
             val progress = focusedHighlightProgress
+            val gContext = requireGraphicsContext()
             if (progress > 0f) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     val rotationProgressRadians =
@@ -498,18 +511,52 @@ private class SurfaceNode(
                                 0.dp
                             }
                         }
-                focusedBorderLogic!!.drawBorder(this, focusedBorderWidth!!, border!!.brush, outline)
+                focusedBorderLogic!!.drawBorder(
+                    this,
+                    focusedBorderWidth!!,
+                    border!!.brush,
+                    focusedGraphicsLayerProvider
+                        ?: {
+                                focusedBorderLayer
+                                    ?: gContext.createGraphicsLayer().also {
+                                        focusedBorderLayer = it
+                                    }
+                            }
+                            .also { focusedGraphicsLayerProvider = it },
+                    outline,
+                )
 
                 shaderBrush?.let {
                     focusedHighlightBorderLogic!!.drawBorder(
                         this,
                         focusedBorderWidth!!,
                         it,
+                        focusedHighlightGraphicsLayerProvider
+                            ?: {
+                                    focusedHighlightBorderLayer
+                                        ?: gContext.createGraphicsLayer().also {
+                                            focusedHighlightBorderLayer = it
+                                        }
+                                }
+                                .also { focusedHighlightGraphicsLayerProvider = it },
                         outline,
                     )
                 }
             } else {
-                unfocusedBorderLogic.drawBorder(this, unfocusedBorderWidth, border!!.brush, outline)
+                unfocusedBorderLogic.drawBorder(
+                    this,
+                    unfocusedBorderWidth,
+                    border!!.brush,
+                    unfocusedGraphicsLayerProvider
+                        ?: {
+                                unfocusedBorderLayer
+                                    ?: gContext.createGraphicsLayer().also {
+                                        unfocusedBorderLayer = it
+                                    }
+                            }
+                            .also { unfocusedGraphicsLayerProvider = it },
+                    outline,
+                )
             }
         }
     }
@@ -518,6 +565,25 @@ private class SurfaceNode(
         _focusedHighlightProgress = null
         _focusedHighlightRotationProgress = null
         pressedOverlayAlpha = null
+
+        unfocusedGraphicsLayerProvider = null
+        val gContext = requireGraphicsContext()
+        unfocusedBorderLayer?.let {
+            gContext.releaseGraphicsLayer(it)
+            unfocusedBorderLayer = null
+        }
+
+        focusedGraphicsLayerProvider = null
+        focusedBorderLayer?.let {
+            gContext.releaseGraphicsLayer(it)
+            focusedBorderLayer = null
+        }
+
+        focusedHighlightGraphicsLayerProvider = null
+        focusedHighlightBorderLayer?.let {
+            gContext.releaseGraphicsLayer(it)
+            focusedHighlightBorderLayer = null
+        }
     }
 }
 

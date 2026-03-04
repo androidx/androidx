@@ -35,6 +35,10 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.mockitoCore)
+    androidTestImplementation(libs.dexmakerMockito)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation(libs.mockitoKotlin4)
 }
 
 android {

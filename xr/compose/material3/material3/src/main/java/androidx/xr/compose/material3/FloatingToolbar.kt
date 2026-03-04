@@ -169,7 +169,7 @@ public fun HorizontalFloatingToolbar(
  *   [FloatingToolbarDefaults.StandardFloatingActionButton] that is styled to match the [colors].
  *   Note that the provided FAB's size is controlled by the floating toolbar and animates according
  *   to its state. In case a custom FAB is provided, make sure it's set with a
- *   [Modifier.fillMaxSize] to be sized correctly.
+ *   [androidx.compose.foundation.layout.fillMaxSize] to be sized correctly.
  * @param modifier the [Modifier] to be applied to this floating toolbar.
  * @param colors the colors used for this floating toolbar. There are two predefined
  *   [FloatingToolbarColors] at [FloatingToolbarDefaults.standardFloatingToolbarColors] and
@@ -357,7 +357,7 @@ public fun VerticalFloatingToolbar(
  *   [FloatingToolbarDefaults.StandardFloatingActionButton] that is styled to match the [colors].
  *   Note that the provided FAB's size is controlled by the floating toolbar and animates according
  *   to its state. In case a custom FAB is provided, make sure it's set with a
- *   [Modifier.fillMaxSize] to be sized correctly.
+ *   [androidx.compose.foundation.layout.fillMaxSize] to be sized correctly.
  * @param modifier the [Modifier] to be applied to this floating toolbar.
  * @param colors the colors used for this floating toolbar. There are two predefined
  *   [FloatingToolbarColors] at [FloatingToolbarDefaults.standardFloatingToolbarColors] and

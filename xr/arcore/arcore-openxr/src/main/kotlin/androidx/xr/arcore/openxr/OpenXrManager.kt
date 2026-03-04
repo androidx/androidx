@@ -29,8 +29,8 @@ import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.FaceTrackingMode
 import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.HandTrackingMode
-import androidx.xr.runtime.Log
 import androidx.xr.runtime.PlaneTrackingMode
+import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.internal.FaceTrackingNotCalibratedException
 import androidx.xr.runtime.internal.LifecycleManager
 import androidx.xr.runtime.manifest.HAND_TRACKING
@@ -171,7 +171,7 @@ internal constructor(
         }
 
         if (config.deviceTracking != this.config.deviceTracking) {
-            if (config.deviceTracking == DeviceTrackingMode.LAST_KNOWN) {
+            if (config.deviceTracking == DeviceTrackingMode.SPATIAL_LAST_KNOWN) {
                 perceptionManager.xrResources.addUpdatable(perceptionManager.xrResources.arDevice)
             } else {
                 perceptionManager.xrResources.removeUpdatable(
@@ -299,10 +299,10 @@ internal constructor(
         }
 
         if (apiKey == null) {
-            Log.verbose("No API Key provided, using keyless authentication.")
+            XrLog.verbose("No API Key provided, using keyless authentication.")
             nativeSetKeylessAuth()
         } else {
-            Log.verbose("Using provided API Key.")
+            XrLog.verbose("Using provided API Key.")
             nativeSetApiKeyAuth(apiKey)
         }
     }

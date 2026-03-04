@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.shapes
 
@@ -32,13 +31,15 @@ import androidx.compose.ui.unit.LayoutDirection
  * @param bottomStart a size of the bottom start corner
  * @see RemoteRoundedCornerShape for an example of the usage.
  */
+public abstract class RemoteCornerBasedShape
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class RemoteCornerBasedShape(
+public constructor(
     public val topStart: RemoteCornerSize,
     public val topEnd: RemoteCornerSize,
     public val bottomEnd: RemoteCornerSize,
     public val bottomStart: RemoteCornerSize,
 ) : RemoteShape {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     final override fun createOutline(
         size: RemoteSize,
         density: RemoteDensity,
@@ -77,6 +78,7 @@ public abstract class RemoteCornerBasedShape(
      * @param bottomEnd the resolved size for the bottom end corner
      * @param bottomStart the resolved size for the bottom start corner
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public abstract fun createOutline(
         topStart: RemoteFloat,
         topEnd: RemoteFloat,

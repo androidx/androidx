@@ -64,7 +64,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:checkedButton="@+id/negative_button_fallback">
+            android:checkedButton="@+id/multiple_fallback_options">
+            <RadioButton
+                style="@style/LabelText"
+                android:id="@+id/no_fallback_options"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/no_fallback_options"/>
             <RadioButton
                 style="@style/LabelText"
                 android:id="@+id/negative_button_fallback"
@@ -77,6 +83,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/device_credential_fallback"/>
+            <RadioButton
+                style="@style/LabelText"
+                android:id="@+id/multiple_fallback_options"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/multiple_fallback_options"/>
         </RadioGroup>
         <include android:id="@+id/common" layout="@layout/common_section" />
     </LinearLayout>

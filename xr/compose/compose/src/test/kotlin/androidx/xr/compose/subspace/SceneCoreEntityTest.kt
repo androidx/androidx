@@ -42,7 +42,7 @@ import androidx.xr.compose.testing.assertWidthIsEqualTo
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.runtime.math.IntSize2d
-import androidx.xr.scenecore.GroupEntity
+import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.PanelEntity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Ignore
@@ -220,7 +220,7 @@ class SceneCoreEntityTest {
         composeTestRule.setContent {
             Subspace {
                 val session = checkNotNull(LocalSession.current)
-                SceneCoreEntity(factory = { GroupEntity.create(session, "TestEntity") }) {
+                SceneCoreEntity(factory = { Entity.create(session, "TestEntity") }) {
                     SpatialPanel(SubspaceModifier.testTag("panel1").size(50.dp)) {
                         Text(text = "Panel 1")
                     }
@@ -249,7 +249,7 @@ class SceneCoreEntityTest {
         composeTestRule.setContent {
             Subspace {
                 val session = checkNotNull(LocalSession.current)
-                SceneCoreEntity(factory = { GroupEntity.create(session, "TestEntity") }) {
+                SceneCoreEntity(factory = { Entity.create(session, "TestEntity") }) {
                     SpatialPanel(SubspaceModifier.testTag("panel1").size(50.dp)) {
                         Text(text = "Panel 1")
                     }

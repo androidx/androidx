@@ -4167,7 +4167,12 @@ public final class AppSearchImpl implements Closeable {
             String namespace = null;
             if (deletedIds != null) {
                 namespace = removePrefix(group.getNamespace());
-                deletedIds.put(namespace, new ArraySet<>(group.getUrisList()));
+                Set<String> deletedIdSet = deletedIds.get(namespace);
+                if (deletedIdSet == null) {
+                    deletedIds.put(namespace, new ArraySet<>(group.getUrisList()));
+                } else {
+                    deletedIdSet.addAll(group.getUrisList());
+                }
             }
             // 2. If this schema type is observed, then notify the observer
             if (prefixedObservedSchemas != null

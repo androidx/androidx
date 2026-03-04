@@ -42,6 +42,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -157,7 +158,7 @@ class SpatialEnvironmentImplTest {
     }
 
     @Test
-    fun setPreferredSpatialEnv_throwsWhenRenderingFeatureNotReady() {
+    fun setPreferredSpatialEnv_featureNotReady_throwsError_whenPreferenceIsNonNullAndHasContent() {
         Assert.assertThrows(UnsupportedOperationException::class.java) {
             spatialEnvironmentImpl.preferredSpatialEnvironment =
                 (SpatialEnvironment.SpatialEnvironmentPreference(
@@ -165,6 +166,15 @@ class SpatialEnvironmentImplTest {
                     object : GltfModelResource {},
                 ))
         }
+    }
+
+    @Test
+    fun setPreferredSpatialEnv_featureNotReady_setsAndGetsEmptyPrefCorrectly() {
+        val emptyPref = SpatialEnvironment.SpatialEnvironmentPreference(null, null)
+
+        spatialEnvironmentImpl.preferredSpatialEnvironment = emptyPref
+
+        assertThat(spatialEnvironmentImpl.preferredSpatialEnvironment).isEqualTo(emptyPref)
     }
 
     @Test
@@ -179,6 +189,20 @@ class SpatialEnvironmentImplTest {
 
         verify(mockSpatialEnvironmentFeature).preferredSpatialEnvironment =
             any<SpatialEnvironment.SpatialEnvironmentPreference>()
+    }
+
+    @Test
+    fun getPreferredSpatialEnv_featureReady_featureIsCalled() {
+        onRenderingFeatureReady()
+
+        val mockPref = SpatialEnvironment.SpatialEnvironmentPreference(null, null)
+        whenever(mockSpatialEnvironmentFeature.preferredSpatialEnvironment).thenReturn(mockPref)
+
+        val result = spatialEnvironmentImpl.preferredSpatialEnvironment
+
+        assertThat(result).isEqualTo(mockPref)
+
+        verify(mockSpatialEnvironmentFeature).preferredSpatialEnvironment
     }
 
     @Test

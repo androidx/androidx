@@ -17,7 +17,7 @@
 package androidx.xr.scenecore.spatial.core
 
 import android.content.Context
-import androidx.xr.runtime.Log
+import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.Entity
@@ -34,28 +34,28 @@ import java.util.concurrent.Executor
 internal class LoggingEntityImpl(context: Context) : BaseEntity(context), LoggingEntity {
 
     init {
-        Log.info { "Creating LoggingEntity." }
+        XrLog.info { "Creating LoggingEntity." }
     }
 
     override fun getPose(@SpaceValue relativeTo: Int): Pose {
         val pose = super<BaseEntity>.getPose(relativeTo)
-        Log.info { "Getting Logging Entity pose: $pose relativeTo: $relativeTo" }
+        XrLog.info { "Getting Logging Entity pose: $pose relativeTo: $relativeTo" }
         return pose
     }
 
     override fun setPose(pose: Pose, @SpaceValue relativeTo: Int) {
-        Log.info { "Setting Logging Entity pose to: $pose relativeTo: $relativeTo" }
+        XrLog.info { "Setting Logging Entity pose to: $pose relativeTo: $relativeTo" }
         super<BaseEntity>.setPose(pose, relativeTo)
     }
 
     override val activitySpacePose: Pose
         get() {
-            Log.info { "Getting Logging Entity activitySpacePose." }
+            XrLog.info { "Getting Logging Entity activitySpacePose." }
             return Pose()
         }
 
     override fun transformPoseTo(pose: Pose, destination: ScenePose): Pose {
-        Log.info {
+        XrLog.info {
             "Transforming pose $pose to be relative to the destination ScenePose: $destination"
         }
         return Pose()
@@ -70,7 +70,7 @@ internal class LoggingEntityImpl(context: Context) : BaseEntity(context), Loggin
         direction: Vector3,
         @ScenePose.HitTestFilterValue hitTestFilter: Int,
     ): HitTestResult {
-        Log.info {
+        XrLog.info {
             "Hit testing Logging Entity with origin: $origin direction: $direction hitTestFilter: $hitTestFilter"
         }
         return HitTestResult(
@@ -82,44 +82,44 @@ internal class LoggingEntityImpl(context: Context) : BaseEntity(context), Loggin
     }
 
     override fun addChild(child: Entity) {
-        Log.info { "Adding child Entity: $child" }
+        XrLog.info { "Adding child Entity: $child" }
         super.addChild(child)
     }
 
     override fun addChildren(children: List<Entity>) {
-        Log.info { "Adding child Entities: $children" }
+        XrLog.info { "Adding child Entities: $children" }
         super.addChildren(children)
     }
 
     override var parent: Entity?
         get() {
-            Log.info { "Getting Logging Entity parent: ${super.parent}" }
+            XrLog.info { "Getting Logging Entity parent: ${super.parent}" }
             return super.parent
         }
         set(value) {
             if (value !is LoggingEntityImpl) {
-                Log.error { "Parent of a LoggingEntity must be a Logging entity" }
+                XrLog.error { "Parent of a LoggingEntity must be a Logging entity" }
                 return
             }
-            Log.info { "Setting Logging Entity parent to: $value" }
+            XrLog.info { "Setting Logging Entity parent to: $value" }
             super.parent = value
         }
 
     override val children: List<Entity>
         get() {
-            Log.info { "Getting Logging Entity children: ${super.children}" }
+            XrLog.info { "Getting Logging Entity children: ${super.children}" }
             return super.children
         }
 
     override fun addInputEventListener(executor: Executor?, listener: InputEventListener) {
-        Log.info { "Add input consumer $listener executor $executor" }
+        XrLog.info { "Add input consumer $listener executor $executor" }
     }
 
     override fun removeInputEventListener(listener: InputEventListener) {
-        Log.info { "Remove input consumer $listener" }
+        XrLog.info { "Remove input consumer $listener" }
     }
 
     override fun dispose() {
-        Log.info { "dispose" }
+        XrLog.info { "dispose" }
     }
 }

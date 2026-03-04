@@ -94,7 +94,7 @@ abstract class MultiProcessDataStoreSingleProcessTest<F : TestFile<F>>(
                 ) {
                     file
                 },
-            scope = scope,
+            context = scope.coroutineContext,
             initTasksList = initTasksList,
             corruptionHandler = corruptionHandler,
         )
@@ -924,7 +924,7 @@ abstract class MultiProcessDataStoreSingleProcessTest<F : TestFile<F>>(
                         { MultiProcessCoordinator(localContext, getJavaFile(createFile())) },
                         createFile,
                     ),
-                scope = CoroutineScope(localContext),
+                context = localContext,
                 corruptionHandler = ReThrowCorruptionHandler<Byte>(),
             )
         assertThat(dataStore.data.first()).isEqualTo(0)

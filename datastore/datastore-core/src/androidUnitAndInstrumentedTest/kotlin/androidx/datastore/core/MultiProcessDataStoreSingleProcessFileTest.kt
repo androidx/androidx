@@ -90,7 +90,7 @@ class MultiProcessDataStoreSingleProcessFileTest :
                     ) {
                         testFile.file
                     },
-                scope = dataStoreScope,
+                context = dataStoreScope.coroutineContext,
             )
 
         assertThrows<IllegalStateException> {
@@ -133,7 +133,7 @@ class MultiProcessDataStoreSingleProcessFileTest :
                         },
                         produceFile = { stressTestFile },
                     ),
-                scope = testScope,
+                context = testScope.coroutineContext,
                 initTasksList = emptyList(),
             )
         val limit = 1_000

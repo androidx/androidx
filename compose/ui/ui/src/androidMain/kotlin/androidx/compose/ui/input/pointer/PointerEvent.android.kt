@@ -78,7 +78,7 @@ internal actual constructor(
      *     * The [PointerEvent] was fabricated within Compose (i.e., not directly from a system
      *       input event).
      *     * The [PointerEvent] has already been dispatched within the Compose input system. (See
-     *       [androidx.compose.ui.samples.PointerEventMotionEventSample] for details).
+     *       the sample code for details).
      *
      * @sample androidx.compose.ui.samples.PointerEventMotionEventSample
      */

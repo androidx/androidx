@@ -35,7 +35,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.ExperimentalIndirectPointerApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
@@ -544,7 +543,6 @@ internal abstract class DragGestureNode(
         }
     }
 
-    @OptIn(ExperimentalIndirectPointerApi::class)
     override fun isInterested(event: IndirectPointerInputChange): Boolean {
         // for now, if this is a down event it may become a drag so we're
         // interested.

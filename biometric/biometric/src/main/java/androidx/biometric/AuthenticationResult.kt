@@ -30,9 +30,7 @@ public sealed interface AuthenticationResult {
         public val crypto: BiometricPrompt.CryptoObject?,
         @param:BiometricPrompt.AuthenticationResultType public val authType: Int,
     ) : AuthenticationResult {
-        override fun success(): Success {
-            return this
-        }
+        override fun success(): Success = this
     }
 
     /**
@@ -46,28 +44,34 @@ public sealed interface AuthenticationResult {
         @param:BiometricPrompt.AuthenticationError public val errorCode: Int,
         public val errString: CharSequence,
     ) : AuthenticationResult {
-        override fun error(): Error {
-            return this
-        }
+        override fun error(): Error = this
+    }
+
+    /** The prompt was dismissed because the user clicked a custom fallback option. */
+    public class CustomFallbackSelected(
+        public val fallback: AuthenticationRequest.Biometric.Fallback.CustomOption
+    ) : AuthenticationResult {
+        override fun customFallbackSelected(): CustomFallbackSelected = this
     }
 
     /** Whether this [AuthenticationResult] is a [Success]. */
-    public fun isSuccess(): Boolean {
-        return this is Success
-    }
+    public fun isSuccess(): Boolean = this is Success
 
-    /** Returns a [Success] only if it's a [Success], throws otherwise. */
-    public fun success(): Success? {
-        throw IllegalArgumentException("This is not a Success result.")
-    }
+    /** Returns a [Success] only if it's a [Success], returns null otherwise. */
+    public fun success(): Success? = null
 
     /** Whether this [AuthenticationResult] is an [Error]. */
-    public fun isError(): Boolean {
-        return this is Error
-    }
+    public fun isError(): Boolean = this is Error
 
-    /** Returns a [Error] only if it's a [Error], throws otherwise. */
-    public fun error(): Error? {
-        throw IllegalArgumentException("This is not a Error result.")
-    }
+    /** Returns a [Error] only if it's a [Error], returns null otherwise. */
+    public fun error(): Error? = null
+
+    /** Whether this [AuthenticationResult] is a [CustomFallbackSelected]. */
+    public fun isCustomFallbackSelected(): Boolean = this is CustomFallbackSelected
+
+    /**
+     * Returns a [CustomFallbackSelected] only if it's a [CustomFallbackSelected], returns null
+     * otherwise.
+     */
+    public fun customFallbackSelected(): CustomFallbackSelected? = null
 }

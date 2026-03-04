@@ -70,8 +70,8 @@ import androidx.compose.ui.unit.TextUnit
  *   [TextStyle.textDecoration].
  * @param textAlign The alignment of the text within the lines of the paragraph. See
  *   [TextStyle.textAlign].
- * @param lineHeight Line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM. See
- *   [TextStyle.lineHeight].
+ * @param lineHeight Line height for the [androidx.compose.ui.text.Paragraph] in [TextUnit] unit,
+ *   e.g. SP or EM. See [TextStyle.lineHeight].
  * @param softWrap Whether the text should break at soft line breaks. If false, the glyphs in the
  *   text will be positioned as if there was unlimited horizontal space. If [softWrap] is false,
  *   TextAlign may have unexpected effects.

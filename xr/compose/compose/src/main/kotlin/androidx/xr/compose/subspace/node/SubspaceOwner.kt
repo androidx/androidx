@@ -65,4 +65,10 @@ internal interface SubspaceOwner {
      * trigger a recomposition.
      */
     public fun requestLayout(node: SubspaceLayoutNode, forceRequest: Boolean = false)
+
+    /**
+     * Called by [SubspaceLayoutNode] when it needs its
+     * [androidx.xr.compose.subspace.layout.CoreEntity] updated.
+     */
+    fun requestEntityUpdate(node: SubspaceLayoutNode, forceRequest: Boolean = false)
 }

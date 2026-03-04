@@ -27,10 +27,10 @@ internal object StrokeInputBatchSerializationNative {
     }
 
     /**
-     * Constructs a StrokeInputBatch from a serialized [CodedStrokeInputBatch], which can be passed
-     * in as either a direct [ByteBuffer] or as an array of bytes. This returns the address of a
-     * new-allocated StrokeInputBatch, which can be passed to and managed by
-     * [ImmutableStrokeInputBatch].
+     * Constructs a StrokeInputBatch from a serialized gzip-compressed
+     * `ink.proto.CodedStrokeInputBatch`, which can be passed in as either a direct [ByteBuffer] or
+     * as an array of bytes. This returns the address of a new-allocated native `StrokeInputBatch`,
+     * which can be passed to and managed by [androidx.ink.strokes.ImmutableStrokeInputBatch].
      */
     @UsedByNative
     external fun newFromProto(

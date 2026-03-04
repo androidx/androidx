@@ -27,7 +27,7 @@ import androidx.xr.compose.subspace.node.SubspaceSemanticsInfo
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class SubspaceTestContext(private val testRule: AndroidComposeTestRule<*, *>) {
     /**
-     * Collects all [SubspaceSemanticsNode]s from all compose hierarchies.
+     * Collects all [SubspaceSemanticsInfo]s from all compose hierarchies.
      *
      * Can crash in case it hits time out. This is not supposed to be handled as it surfaces only in
      * incorrect tests.

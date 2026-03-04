@@ -267,4 +267,23 @@ internal class PageStore<T : Any>(
                 INITIAL as PageStore<T>
             }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (other == null) return false
+        if (other !is PageStore<T>) return false
+
+        return this.originalPageOffsetFirst == other.originalPageOffsetFirst &&
+            this.originalPageOffsetLast == other.originalPageOffsetLast &&
+            this.placeholdersBefore == other.placeholdersBefore &&
+            this.placeholdersAfter == other.placeholdersAfter &&
+            this.pages == other.pages
+    }
+
+    override fun hashCode(): Int {
+        return originalPageOffsetFirst * 31 +
+            originalPageOffsetLast * 31 +
+            placeholdersBefore * 31 +
+            placeholdersAfter * 31 +
+            pages.hashCode() * 31
+    }
 }

@@ -55,7 +55,7 @@ import kotlinx.coroutines.withContext
  * will dispatch new PagedLists, as well as their updates to that scheduler.
  *
  * @param Key Type of input valued used to load data from the [DataSource]. Must be integer if
- *   you're using [PositionalDataSource].
+ *   you're using [androidx.paging.PositionalDataSource].
  * @param Value Item type being presented.
  */
 @Deprecated("PagedList is deprecated and has been replaced by PagingData")

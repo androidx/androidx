@@ -19,21 +19,23 @@ package androidx.room3
 import kotlin.reflect.KClass
 
 /**
- * Specifies additional type converters that Room can use. The TypeConverter is added to the scope
- * of the element so if you put it on a class / interface, all methods / fields in that class will
- * be able to use the converters.
+ * Specifies additional type converters that Room can use. The [TypeConverter] functions are added
+ * to the scope of the element so if you put it on a class / interface, all functions / properties
+ * in that class will be able to use the converters.
  *
- * TypeConverters can only be used to convert columns / fields, hence cannot be used by a method
- * with a row return value such as DAO methods that query rows.
- * * If you put it on a [Database], all Daos and Entities in that database will be able to use it.
- * * If you put it on a [Dao], all methods in the Dao will be able to use it.
- * * If you put it on an [Entity], all fields of the Entity will be able to use it.
- * * If you put it on a POJO, all fields of the POJO will be able to use it.
- * * If you put it on an [Entity] field, only that field will be able to use it.
- * * If you put it on a [Dao] method, all parameters of the method will be able to use it.
- * * If you put it on a [Dao] method parameter, just that field will be able to use it.
+ * `@TypeConverters` can only be used to convert columns / properties, hence cannot be used by a
+ * function to convert a row return value such as DAO function that query rows, for such cases use
+ * [DaoReturnTypeConverters].
+ * * If you put it on a [Database], all DAOs and entities in that database will be able to use it.
+ * * If you put it on a [Dao], all functions in the DAO will be able to use it.
+ * * If you put it on an [Entity], all properties of the entity will be able to use it.
+ * * If you put it on a data object class, all properties of the data class will be able to use it.
+ * * If you put it on an [Entity] property, only that property will be able to use it.
+ * * If you put it on a [Dao] function, all parameters of the function will be able to use it.
+ * * If you put it on a [Dao] function parameter, just that property will be able to use it.
  *
  * @see [TypeConverter]
+ * @see [ProvidedTypeConverter]
  */
 @Target(
     AnnotationTarget.FUNCTION,
@@ -44,10 +46,10 @@ import kotlin.reflect.KClass
 @Retention(AnnotationRetention.BINARY)
 public annotation class TypeConverters(
     /**
-     * The list of type converter classes. If converter methods are not static, Room will create an
+     * The list of type converter classes. If converter class is not an `object` Room will create an
      * instance of these classes.
      *
-     * @return The list of classes that contains the converter methods.
+     * @return The list of classes that contains the converter functions.
      */
     vararg val value: KClass<*> = [],
 

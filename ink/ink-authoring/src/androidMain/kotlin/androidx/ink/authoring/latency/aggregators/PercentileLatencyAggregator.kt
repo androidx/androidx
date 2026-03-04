@@ -68,13 +68,13 @@ private constructor(private val implementationHelper: ImplementationHelper) : La
 
     public fun interface Callback {
         /**
-         * Callback invoked at most once per [window] in the [CoroutineScope] (or, for Java clients,
-         * the [Executor]) passed to [create].
+         * Callback invoked at most once per [ImplementationHelper.window] in the [CoroutineScope]
+         * (or, for Java clients, the [Executor]) passed to [create].
          *
-         * @param latencyPercentileNanos Nanosecond latency durations for each of the [percentiles],
-         *   computed over the last aggregation window. Do not hold a reference to this [List] after
-         *   returning from the callback; it will be recycled (overwritten in place) immediately for
-         *   use in a future callback.
+         * @param latencyPercentileNanos Nanosecond latency durations for each of the
+         *   [ImplementationHelper.percentilesToReport], computed over the last aggregation window.
+         *   Do not hold a reference to this [List] after returning from the callback; it will be
+         *   recycled (overwritten in place) immediately for use in a future callback.
          * @param sampleCount Count of samples in this window. Will always be positive; if there are
          *   no samples, the callback does not get called.
          */
@@ -103,7 +103,7 @@ private constructor(private val implementationHelper: ImplementationHelper) : La
     public companion object {
         /**
          * Returns a new [PercentileLatencyAggregator]. For use by Kotlin clients. [callback] will
-         * be called in the given [scope], using its default [CoroutineContext].
+         * be called in the given [scope], using its default [kotlin.coroutines.CoroutineContext].
          *
          * @param window The length of the consecutive time windows in which to compute and report
          *   percentiles.

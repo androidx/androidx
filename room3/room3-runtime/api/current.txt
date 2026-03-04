@@ -136,8 +136,8 @@ package androidx.room3 {
   public final class RoomDatabaseKt {
     method public static suspend <R> Object? useReaderConnection(androidx.room3.RoomDatabase, kotlin.jvm.functions.Function2<? super androidx.room3.Transactor,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
     method public static suspend <R> Object? useWriterConnection(androidx.room3.RoomDatabase, kotlin.jvm.functions.Function2<? super androidx.room3.Transactor,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
-    method @SuppressCompatibility @androidx.room3.ExperimentalRoomApi public static suspend <R> Object? withReadTransaction(androidx.room3.RoomDatabase, kotlin.jvm.functions.Function2<? super androidx.room3.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
-    method @SuppressCompatibility @androidx.room3.ExperimentalRoomApi public static suspend <R> Object? withWriteTransaction(androidx.room3.RoomDatabase, kotlin.jvm.functions.Function2<? super androidx.room3.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
+    method public static suspend <R> Object? withReadTransaction(androidx.room3.RoomDatabase, kotlin.jvm.functions.Function2<? super androidx.room3.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
+    method public static suspend <R> Object? withWriteTransaction(androidx.room3.RoomDatabase, kotlin.jvm.functions.Function2<? super androidx.room3.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
   }
 
   public interface RoomOpenDelegateMarker {
@@ -203,7 +203,7 @@ package androidx.room3.migration {
   }
 
   public final class MigrationKt {
-    method public static androidx.room3.migration.Migration Migration(int startVersion, int endVersion, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteConnection,kotlin.Unit> migrate);
+    method public static androidx.room3.migration.Migration Migration(int startVersion, int endVersion, kotlin.jvm.functions.Function2<? super androidx.sqlite.SQLiteConnection,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> migrate);
   }
 
 }

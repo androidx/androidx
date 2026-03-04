@@ -444,7 +444,7 @@ class OpenXrPerceptionManagerTest {
             openXrManager.resume()
             openXrManager.configure(
                 Config(
-                    deviceTracking = DeviceTrackingMode.LAST_KNOWN,
+                    deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN,
                     planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
                     //                    handTracking = Config.HandTrackingMode.BOTH,
                 )

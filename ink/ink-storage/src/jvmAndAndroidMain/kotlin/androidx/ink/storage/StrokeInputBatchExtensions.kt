@@ -36,9 +36,9 @@ public fun StrokeInputBatch.encode(output: OutputStream) {
 }
 
 /**
- * Read a serialized [CodedStrokeInputBatch] from the given [InputStream] and parse it into a
- * [ImmutableStrokeInputBatch], throwing an exception if parsing or validation was not successful.
- * Java callers should use [StrokeInputBatchSerialization.decode] instead.
+ * Read a serialized gzip-compressed `ink.proto.CodedStrokeInputBatch` from the given [InputStream]
+ * and parse it into a [ImmutableStrokeInputBatch], throwing an exception if parsing or validation
+ * was not successful. Java callers should use [StrokeInputBatchSerialization.decode] instead.
  *
  * @param input [InputStream] providing gzip-compressed `ink.proto.CodedStrokeInputBatch` binary
  *   proto messages, the same as written to [OutputStream] by [encode].
@@ -77,9 +77,10 @@ public object StrokeInputBatchSerialization {
         strokeInputBatch.encode(output)
 
     /**
-     * Read a serialized [CodedStrokeInputBatch] from the given [InputStream] and parse it into a
-     * [ImmutableStrokeInputBatch], throwing an exception if parsing or validation was not
-     * successful. Kotlin callers should use [StrokeInputBatch.Companion.decode] instead.
+     * Read a serialized gzip-compressed `ink.proto.CodedStrokeInputBatch` from the given
+     * [InputStream] and parse it into a [ImmutableStrokeInputBatch], throwing an exception if
+     * parsing or validation was not successful. Kotlin callers should use
+     * [StrokeInputBatch.Companion.decode] instead.
      *
      * @param input [InputStream] providing gzip-compressed `ink.proto.CodedStrokeInputBatch` binary
      *   proto messages, the same as written to [OutputStream] by [encode].

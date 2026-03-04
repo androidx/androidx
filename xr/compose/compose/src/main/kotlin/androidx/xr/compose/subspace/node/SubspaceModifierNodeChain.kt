@@ -254,8 +254,7 @@ internal class SubspaceModifierNodeChain(private val subspaceLayoutNode: Subspac
         }
 
         if (node is CoreEntityNode) {
-            // TODO(mrw): Instead of a full relayout, we might be able to only update the entity.
-            subspaceLayoutNode.requestLayout()
+            subspaceLayoutNode.requestEntityUpdate()
         }
 
         if (node is SubspaceLayoutAwareModifierNode) {

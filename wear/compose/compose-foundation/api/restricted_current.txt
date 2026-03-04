@@ -707,7 +707,7 @@ package androidx.wear.compose.foundation.lazy {
     method @InaccessibleFromKotlin public int getCenterItemScrollOffset();
     method @InaccessibleFromKotlin public androidx.wear.compose.foundation.lazy.ScalingLazyListLayoutInfo getLayoutInfo();
     method @InaccessibleFromKotlin public boolean isScrollInProgress();
-    method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? scroll(optional androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? scrollToItem(int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @BytecodeOnly public static Object! scrollToItem$default(androidx.wear.compose.foundation.lazy.ScalingLazyListState!, int, int, kotlin.coroutines.Continuation!, int, Object!);
     property public boolean canScrollBackward;
@@ -849,7 +849,7 @@ package androidx.wear.compose.foundation.lazy {
     method @InaccessibleFromKotlin public boolean isScrollInProgress();
     method public void requestScrollToItem(@IntRange(from=0L) int index, optional int scrollOffset);
     method @BytecodeOnly public static void requestScrollToItem$default(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState!, int, int, int, Object!);
-    method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? scroll(optional androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? scrollToItem(@IntRange(from=0L) int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @BytecodeOnly public static Object! scrollToItem$default(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState!, int, int, kotlin.coroutines.Continuation!, int, Object!);
     property public int anchorItemIndex;
@@ -933,7 +933,7 @@ package androidx.wear.compose.foundation.pager {
     method @InaccessibleFromKotlin public int getSettledPage();
     method @InaccessibleFromKotlin public int getTargetPage();
     method @InaccessibleFromKotlin public boolean isScrollInProgress();
-    method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? scroll(optional androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? scrollToPage(int page, optional @FloatRange(from=-0.5, to=0.5) float pageOffsetFraction, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @BytecodeOnly public static Object! scrollToPage$default(androidx.wear.compose.foundation.pager.PagerState!, int, float, kotlin.coroutines.Continuation!, int, Object!);
     property public int currentPage;

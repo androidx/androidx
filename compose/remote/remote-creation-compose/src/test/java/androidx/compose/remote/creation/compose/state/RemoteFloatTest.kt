@@ -15,22 +15,33 @@
  */
 package androidx.compose.remote.creation.compose.state
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.RemoteContext
+import androidx.compose.remote.core.RemoteContext.ID_CONTINUOUS_SEC
 import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.operations.TextFromFloat
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
+import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.layout.RemoteBox
+import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.v2.captureSingleRemoteDocumentV2
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import java.io.ByteArrayInputStream
 import java.text.DecimalFormat
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -44,6 +55,7 @@ class RemoteFloatTest {
         AndroidRemoteContext().apply {
             useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
         }
+    val applicationContext = ApplicationProvider.getApplicationContext<Context>()
     val creationState = RemoteComposeCreationState(AndroidxRcPlatformServices(), Size(1f, 1f))
     val time = RemoteFloat.createNamedRemoteFloat("time", 100f).createReference()
 
@@ -776,6 +788,22 @@ class RemoteFloatTest {
     }
 
     @Test
+    fun cacheKeys() {
+        val constant = RemoteFloat(10f)
+        assertThat(constant.cacheKey).isEqualTo(RemoteConstantCacheKey(10f))
+
+        val named = RemoteFloat.createNamedRemoteFloat("test", 1f)
+        assertThat(named.cacheKey).isEqualTo(RemoteNamedCacheKey(RemoteState.Domain.User, "test"))
+
+        val op = constant + named
+        // flipped because peephole
+        assertThat(op.cacheKey)
+            .isEqualTo(
+                RemoteOperationCacheKey.create(RemoteFloat.OperationKey.Plus, named, constant)
+            )
+    }
+
+    @Test
     fun peepholeOptimization_plus() {
         val expr = (time + 10f) + 1f
 
@@ -944,6 +972,54 @@ class RemoteFloatTest {
             .isEqualTo(time.getIdForCreationState(creationState))
     }
 
+    @Test
+    fun rememberNamedRemoteFloatConstant() = runTest {
+        val displayInfo = CreationDisplayInfo(500, 500, 1)
+        val document =
+            captureSingleRemoteDocumentV2(
+                creationDisplayInfo = displayInfo,
+                context = applicationContext,
+            ) {
+                val myFloatFromConstant = rememberNamedRemoteFloat("C") { 5.rf }
+                RemoteBox(modifier = RemoteModifier.size(myFloatFromConstant.asRemoteDp()))
+            }
+
+        makeAndUpdateCoreDocument(
+            RemoteComposeBuffer.fromInputStream(ByteArrayInputStream(document.bytes))
+        )
+
+        val floatId = context.getVariableId("USER:C")
+        assertThat(context.getFloat(floatId)).isEqualTo(5f)
+        context.setNamedFloatOverride("USER:C", 20f)
+        assertThat(context.getFloat(floatId)).isEqualTo(20f)
+    }
+
+    @Test
+    fun rememberNamedRemoteFloatExpression() = runTest {
+        val displayInfo = CreationDisplayInfo(500, 500, 1)
+        val document =
+            captureSingleRemoteDocumentV2(
+                creationDisplayInfo = displayInfo,
+                context = applicationContext,
+            ) {
+                val myFloatFromConstant =
+                    rememberNamedRemoteFloat("E") {
+                        RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
+                    }
+                RemoteBox(modifier = RemoteModifier.size(myFloatFromConstant.asRemoteDp()))
+            }
+
+        makeAndUpdateCoreDocument(
+            RemoteComposeBuffer.fromInputStream(ByteArrayInputStream(document.bytes))
+        )
+
+        val floatId = context.getVariableId("USER:E")
+        assertThat(context.getFloat(floatId)).isEqualTo(context.getFloat(ID_CONTINUOUS_SEC))
+
+        context.setNamedFloatOverride("USER:E", 20f)
+        assertThat(context.getFloat(floatId)).isEqualTo(20f)
+    }
+
     private fun getOperationsStrings(expr: RemoteFloat): List<String> =
         CoreDocument().run {
             expr.getIdForCreationState(creationState)
@@ -968,14 +1044,25 @@ class RemoteFloatTest {
             paint(context, 0)
         }
 
-    private fun makeAndUpdateCoreDocument(runAfterInit: () -> Unit) =
+    private fun makeAndPaintCoreDocument(document: CoreDocument) =
         CoreDocument().apply {
-            val buffer = creationState.document.buffer
+            val buffer = document.buffer
+            buffer.buffer.index = 0
+            initFromBuffer(buffer)
+            paint(context, 0)
+        }
+
+    private fun makeAndUpdateCoreDocument(
+        buffer: RemoteComposeBuffer? = null,
+        runAfterInit: (CoreDocument) -> Unit = {},
+    ) =
+        CoreDocument().apply {
+            val buffer = buffer ?: creationState.document.buffer
             buffer.buffer.index = 0
             initFromBuffer(buffer)
             initializeContext(context)
 
-            runAfterInit()
+            runAfterInit(this)
 
             for (op in operations) {
                 if (op is VariableSupport) {

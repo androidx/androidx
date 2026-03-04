@@ -19,6 +19,7 @@ package androidx.compose.foundation.text.input
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.input.internal.DefaultImeEditCommandScope
 import androidx.compose.foundation.text.input.internal.TransformedTextFieldState
+import androidx.compose.foundation.text.input.internal.commitText
 import androidx.compose.foundation.text.input.internal.setComposingText
 import androidx.compose.foundation.text.input.internal.withImeScope
 import androidx.compose.runtime.snapshotFlow
@@ -705,6 +706,38 @@ class TextFieldStateTest {
         assertThat(state.text).isEqualTo("")
         assertThat(state.selection).isEqualTo(TextRange.Zero)
         assertThat(state.composition).isNull()
+    }
+
+    @Test
+    fun programmaticEditAndCompositionDoesNotSetUserCommit() {
+        val state = TextFieldState("hello")
+        assertThat(state.composition).isNull()
+
+        state.editAsUser(null) { setComposition(0, 5) }
+        assertThat(state.composition).isEqualTo(TextRange(0, 5))
+
+        state.edit { append(" World") }
+        assertThat(state.userCommit).isFalse()
+    }
+
+    @Test
+    fun userCommitTextAndCompositionSetUserCommit() {
+        val state = TextFieldState("hello")
+        assertThat(state.composition).isNull()
+
+        state.editAsUser(null) { setComposition(0, 5) }
+        assertThat(state.composition).isEqualTo(TextRange(0, 5))
+
+        DefaultImeEditCommandScope(TransformedTextFieldState(state)).commitText(" World", 6)
+        assertThat(state.userCommit).isTrue()
+    }
+
+    @Test
+    fun userComposingTextAndCompositionSetUserCommit() {
+        assertThat(state.composition).isNull()
+        DefaultImeEditCommandScope(TransformedTextFieldState(state)).setComposingText("Hello", 1)
+        assertThat(state.composition).isEqualTo(TextRange(0, 5))
+        assertThat(state.userCommit).isTrue()
     }
 
     @Test

@@ -78,7 +78,7 @@ class FieldOfViewVisibilityActivity : AppCompatActivity() {
 
         session = SessionManager(this).createSession()
         if (session == null) this.finish()
-        session!!.configure(Config(deviceTracking = DeviceTrackingMode.LAST_KNOWN))
+        session!!.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN))
         session?.scene?.keyEntity = session?.scene?.mainPanelEntity
 
         session!!.scene.activitySpace.addOnBoundsChangedListener { dimensions ->

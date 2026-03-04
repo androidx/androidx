@@ -55,6 +55,7 @@ import androidx.compose.material3.internal.getString
 import androidx.compose.material3.tokens.ScrimTokens
 import androidx.compose.material3.tokens.SheetBottomTokens
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -74,6 +75,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.semantics.collapse
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.dismiss
@@ -157,6 +159,15 @@ fun BottomSheet(
     shadowElevation: Dp = 0.dp,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    val showMotion = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
+    val hideMotion = MaterialTheme.motionScheme.fastEffectsSpec<Float>()
+    val anchoredDraggableMotion = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
+    SideEffect {
+        state.showMotionSpec = showMotion
+        state.hideMotionSpec = hideMotion
+        state.anchoredDraggableMotionSpec = anchoredDraggableMotion
+    }
+
     val predictiveBackProgress = remember { Animatable(initialValue = 0f) }
     val scope = rememberCoroutineScope()
     val settleToDismiss: () -> Unit = {
@@ -220,20 +231,46 @@ internal fun BottomSheetImpl(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val bottomSheetPaneTitle = getString(string = Strings.BottomSheetPaneTitle)
+    val spatialFlingSpec = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
+    val viewConfiguration = LocalViewConfiguration.current
+
     val anchoredDraggableFlingBehavior =
         AnchoredDraggableDefaults.flingBehavior(
             state = state.anchoredDraggableState,
             positionalThreshold = { _ -> state.positionalThreshold.invoke() },
-            animationSpec = BottomSheetAnimationSpec,
+            animationSpec = spatialFlingSpec,
         )
     val modalBottomSheetFlingBehavior =
         remember(anchoredDraggableFlingBehavior) {
             object : FlingBehavior {
                 override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
+                    // We clamp this to the device's physical maximum (usually ~8,000 px/s)
+                    // to prevent the math from breaking bounds. This prevents potential overshoot
+                    // bugs caused by migrating the sheet from stiff tween animations.
+                    val maxSystemVelocity = viewConfiguration.maximumFlingVelocity
+                    var safeVelocity =
+                        initialVelocity.coerceIn(-maxSystemVelocity, maxSystemVelocity)
+
+                    if (
+                        safeVelocity > 0f &&
+                            state.anchoredDraggableState.anchors.hasPositionFor(Hidden)
+                    ) {
+                        val hiddenAnchor = state.anchoredDraggableState.anchors.positionOf(Hidden)
+                        val currentOffset = state.requireOffset()
+                        val distanceToFloor = max(0f, hiddenAnchor - currentOffset)
+
+                        // Apply a friction zone to the bottom 400 pixels
+                        val dampeningZone = 400f
+                        if (distanceToFloor < dampeningZone) {
+                            val factor = distanceToFloor / dampeningZone
+                            safeVelocity *= factor
+                        }
+                    }
+
                     var remainingVelocity = 0f
                     try {
                         remainingVelocity =
-                            with(anchoredDraggableFlingBehavior) { performFling(initialVelocity) }
+                            with(anchoredDraggableFlingBehavior) { performFling(safeVelocity) }
                     } finally {
                         if (!state.isVisible) onDismissRequest()
                     }

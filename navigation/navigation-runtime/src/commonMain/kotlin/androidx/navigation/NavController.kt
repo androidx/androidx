@@ -432,8 +432,8 @@ public expect open class NavController {
      * Navigate to a route in the current NavGraph. If an invalid route is given, an
      * [IllegalArgumentException] will be thrown.
      *
-     * If given [NavOptions] pass in [NavOptions.restoreState] `true`, any args passed here as part
-     * of the route will be overridden by the restored args.
+     * If [NavOptions.shouldRestoreState] is `true` for the given [NavOptions], any args passed here
+     * as part of the route will be overridden by the restored args.
      *
      * @param route route for the destination
      * @param builder DSL for constructing a new [NavOptions]
@@ -445,8 +445,8 @@ public expect open class NavController {
      * Navigate to a route in the current NavGraph. If an invalid route is given, an
      * [IllegalArgumentException] will be thrown.
      *
-     * If given [NavOptions] pass in [NavOptions.restoreState] `true`, any args passed here as part
-     * of the route will be overridden by the restored args.
+     * If [NavOptions.shouldRestoreState] is `true` for the given [NavOptions], any args passed here
+     * as part of the route will be overridden by the restored args.
      *
      * @param route route for the destination
      * @param navOptions special options for this navigation operation
@@ -467,8 +467,8 @@ public expect open class NavController {
      *
      * The target NavDestination must have been created with route from a [KClass]
      *
-     * If given [NavOptions] pass in [NavOptions.restoreState] `true`, any args passed here as part
-     * of the route will be overridden by the restored args.
+     * If given [NavOptions] pass in [NavOptions.shouldRestoreState] `true`, any args passed here as
+     * part of the route will be overridden by the restored args.
      *
      * @param route route from an Object for the destination
      * @param builder DSL for constructing a new [NavOptions]
@@ -482,8 +482,8 @@ public expect open class NavController {
      *
      * The target NavDestination must have been created with route from a [KClass]
      *
-     * If given [NavOptions] pass in [NavOptions.restoreState] `true`, any args passed here as part
-     * of the route will be overridden by the restored args.
+     * If given [NavOptions] pass in [NavOptions.shouldRestoreState] `true`, any args passed here as
+     * part of the route will be overridden by the restored args.
      *
      * @param route route from an Object for the destination
      * @param navOptions special options for this navigation operation

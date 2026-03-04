@@ -183,6 +183,38 @@ class PausableCompositionTests {
         )
     }
 
+    // regression test for b/488433633
+    @OptIn(ExperimentalComposeApi::class, ExperimentalCoroutinesApi::class)
+    @Test
+    fun reuseFromRoot_preventsGroupIndexCollisionWithRootKey() = compositionTest {
+        // TODO: assumeFalse
+        if (ComposeRuntimeFlags.isLinkBufferComposerEnabled) return@compositionTest
+
+        val awaiter = Awaiter()
+        val workflow = workflow {
+            setContentWithReuse()
+            resumeTillComplete { false }
+            apply()
+
+            setContentWithReuse()
+            resumeTillComplete { false }
+            apply()
+
+            awaiter.done()
+        }
+
+        compose {
+            // 94 is a magic number here to force 100th group to collide with rootKey.
+            val offset = 94
+            PausableContent(workflow) {
+                repeat(offset) { i -> key(i) {} }
+                key(offset) { ReusableContent(key = offset) {} }
+            }
+        }
+
+        awaiter.await()
+    }
+
     @Test
     fun applierOnlyCalledInApply() = compositionTest {
         val awaiter = Awaiter()

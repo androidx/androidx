@@ -41,9 +41,9 @@ import androidx.wear.protolayout.types.LayoutString
  * This text, when added to the `titleSlot`, `bottomSlot` and `labelForBottomSlot` in
  * [primaryLayout], is considered as important for accessibility automatically and gets read out by
  * the screen reader even without content description provided in the [modifier]. This behavior can
- * be removed with [LayoutModifier.clearSemantics] if not desired. In all other places, this text is
- * considered as not important for accessibility by default unless content description is
- * specifically provided in the [modifier].
+ * be removed with [androidx.wear.protolayout.modifiers.clearSemantics] if not desired. In all other
+ * places, this text is considered as not important for accessibility by default unless content
+ * description is specifically provided in the [modifier].
  *
  * @param text The text content for this component.
  * @param modifier Modifiers to set to this element.
@@ -155,9 +155,9 @@ public fun MaterialScope.text(
  * This text, when added to the `titleSlot`, `bottomSlot` and `labelForBottomSlot` in
  * [primaryLayout], is considered as important for accessibility automatically and gets read out by
  * the screen reader even without content description provided in the [modifier]. This behavior can
- * be removed with [LayoutModifier.clearSemantics] if not desired. In all other places, this text is
- * considered as not important for accessibility by default unless content description is
- * specifically provided in the [modifier].
+ * be removed with [androidx.wear.protolayout.modifiers.clearSemantics] if not desired. In all other
+ * places, this text is considered as not important for accessibility by default unless content
+ * description is specifically provided in the [modifier].
  *
  * @param text The text content for this component.
  * @param modifier Modifiers to set to this element.

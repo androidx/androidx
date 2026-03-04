@@ -27,12 +27,12 @@ import kotlin.reflect.KClass
  * full-text searches to be performed on a set of documents.
  *
  * An FTS entity table always has a column named `rowid` that is the equivalent of an `INTEGER
- * PRIMARY KEY` index. Therefore, an FTS entity can only have a single field annotated with
- * [PrimaryKey], it must be named `rowid` and must be of `INTEGER` affinity. The field can be
+ * PRIMARY KEY`. Therefore, an FTS entity can only have a single property annotated with
+ * [PrimaryKey], it must be named `rowid` and must be of `INTEGER` affinity. The property can be
  * optionally omitted in the class but can still be used in queries.
  *
- * All fields in an FTS entity are of `TEXT` affinity, except the for the 'rowid' and 'languageid'
- * fields.
+ * All properties in an FTS entity are of `TEXT` affinity, except the for the 'rowid' and
+ * 'languageid' properties.
  *
  * Example:
  * ```
@@ -119,8 +119,8 @@ public annotation class Fts4(
      * The column name to be used as 'languageid'.
      *
      * Allows the FTS4 extension to use the defined column name to specify the language stored in
-     * each row. When this is defined a field of type `INTEGER` with the same name must exist in the
-     * class.
+     * each row. When this is defined a property of type `INTEGER` with the same name must exist in
+     * the class.
      *
      * FTS queries are affected by defining this option, see
      * [the languageid= option documentation](https://www.sqlite.org/fts3.html#the_languageid_option)
@@ -133,12 +133,13 @@ public annotation class Fts4(
     /**
      * The FTS version used to store text matching information.
      *
-     * The default value is [MatchInfo.FTS4]. Disk space consumption can be reduced by setting this
-     * option to FTS3, see
+     * The default value is [FtsOptions.MatchInfo.FTS4]. Disk space consumption can be reduced by
+     * setting this option to FTS3, see
      * [the matchinfo= option documentation](https://www.sqlite.org/fts3.html#the_matchinfo_option)
      * for details.
      *
-     * @return The match info version, either [MatchInfo.FTS4] or [MatchInfo.FTS3].
+     * @return The match info version, either [FtsOptions.MatchInfo.FTS4] or
+     *   [FtsOptions.MatchInfo.FTS3].
      */
     val matchInfo: FtsOptions.MatchInfo = FtsOptions.MatchInfo.FTS4,
 
@@ -165,12 +166,12 @@ public annotation class Fts4(
     /**
      * The preferred 'rowid' order of the FTS table.
      *
-     * The default value is [Order.ASC]. If many queries are run against the FTS table use `ORDER BY
-     * row DESC` then it may improve performance to set this option to [Order.DESC], enabling the
-     * FTS module to store its data in a way that optimizes returning results in descending order by
-     * `rowid`.
+     * The default value is [FtsOptions.Order.ASC]. If many queries run against the FTS table use
+     * `ORDER BY row DESC` then it may improve performance to set this option to
+     * [FtsOptions.Order.DESC], enabling the FTS module to store its data in a way that optimizes
+     * returning results in descending order by `rowid`.
      *
-     * @return The preferred order, either [Order.ASC] or [Order.DESC].
+     * @return The preferred order, either [FtsOptions.Order.ASC] or [FtsOptions.Order.DESC].
      */
     val order: FtsOptions.Order = FtsOptions.Order.ASC,
 )

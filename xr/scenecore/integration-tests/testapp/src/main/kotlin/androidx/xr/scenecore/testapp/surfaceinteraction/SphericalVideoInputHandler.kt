@@ -20,13 +20,13 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.GroupEntity
+import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.InputEvent
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.sqrt
 
-class SphericalVideoInputHandler(val parent: GroupEntity, val radius: Float, player: ExoPlayer) :
+class SphericalVideoInputHandler(val parent: Entity, val radius: Float, player: ExoPlayer) :
     ClickVideoInputHandler(player) {
     private var draggingPointer: InputEvent.Pointer? = null
     private var dragStartHitRot = Quaternion.Identity

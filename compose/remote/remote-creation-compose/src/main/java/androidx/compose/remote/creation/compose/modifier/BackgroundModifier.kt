@@ -66,7 +66,11 @@ public fun RemoteModifier.background(brush: RemoteBrush): RemoteModifier =
         drawContent()
     }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/**
+ * Draws a [remotePainter] behind the content.
+ *
+ * @param remotePainter The [RemotePainter] to use for the background.
+ */
 public fun RemoteModifier.background(remotePainter: RemotePainter): RemoteModifier =
     this.drawWithContent {
         with(remotePainter) { onDraw() }

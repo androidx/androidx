@@ -27,7 +27,7 @@
     <!-- Thumbnails RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/pdf_thumbnail_recycler_view"
-        android:layout_width="wrap_content"
+        android:layout_width="@dimen/thumbnail_width"
         android:layout_height="0dp"
         android:layout_marginStart="0dp"
         android:background="?attr/colorSurfaceContainer"

@@ -18,6 +18,7 @@ package androidx.biometric.internal.viewmodel
 
 import android.content.DialogInterface
 import android.graphics.Bitmap
+import androidx.biometric.AuthenticationRequest.Biometric.Fallback
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.PromptContentView
@@ -169,9 +170,30 @@ internal class AuthenticationViewModel(
     val isConfirmationRequired: Boolean
         get() = promptInfo?.isConfirmationRequired ?: true
 
-    /** The text that should be shown for the negative button on the biometric prompt. */
-    val negativeButtonText: CharSequence?
-        get() = promptConfigRepository.negativeButtonText
+    private val fallbackOptions: List<Fallback>
+        get() = promptConfigRepository.fallbackOptionList
+
+    /** List of options if multiple exist; otherwise null. */
+    val multipleFallbackOptionList: List<Fallback>?
+        get() = fallbackOptions.takeIf { it.size > 1 }
+
+    /** The single fallback option if exactly one exists. */
+    val singleFallbackOption: Fallback?
+        get() = fallbackOptions.singleOrNull()
+
+    /** Checks if the single option is a device credential override. */
+    val isOverriddenDeviceCredential: Boolean
+        get() = singleFallbackOption is Fallback.OverriddenDeviceCredential
+
+    /** The display text for the single fallback option. */
+    val singleFallbackOptionText: CharSequence?
+        get() =
+            when (val option = singleFallbackOption) {
+                is Fallback.OverriddenDeviceCredential -> option.text
+                is Fallback.CustomOption -> option.text
+                is Fallback.DefaultCancel -> option.text
+                else -> null
+            }
 
     /** A provider for cross-platform compatible cancellation signal objects. */
     val cancellationSignalProvider: CancellationSignalProvider
@@ -185,6 +207,14 @@ internal class AuthenticationViewModel(
     /** A dialog listener for the negative button shown on the prompt. */
     val negativeButtonListener: DialogInterface.OnClickListener by lazy {
         NegativeButtonListener(this)
+    }
+
+    /**
+     * A dialog listener for the fallback option shown on the biometric prompt separate fallback
+     * options page.
+     */
+    fun fallbackOptionListener(fallback: Fallback.CustomOption): DialogInterface.OnClickListener {
+        return FallbackOptionListener(this, fallback)
     }
 
     /** A dialog listener for the more options button shown on the prompt content. */
@@ -211,6 +241,10 @@ internal class AuthenticationViewModel(
     /** A flow that emits when the negative button is pressed. */
     val isNegativeButtonPressPending: Flow<Unit>
         get() = authenticationStateRepository.isNegativeButtonPressPending
+
+    /** A flow that emits when the fallback option is pressed. */
+    val isFallbackOptionPressPending: Flow<Fallback.CustomOption>
+        get() = authenticationStateRepository.isFallbackOptionPressPending
 
     /** A flow that emits when the more options button is pressed. */
     val isMoreOptionsButtonPressPending: Flow<Unit>
@@ -337,6 +371,12 @@ internal class AuthenticationViewModel(
         viewModelScope.launch { authenticationStateRepository.setNegativeButtonPressPending() }
     }
 
+    fun setFallbackOptionPressPending(fallbackOption: Fallback.CustomOption) {
+        viewModelScope.launch {
+            authenticationStateRepository.setFallbackOptionPressPending(fallbackOption)
+        }
+    }
+
     /** Emits an event for a more options button press. */
     fun setMoreOptionsButtonPressPending() {
         viewModelScope.launch { authenticationStateRepository.setMoreOptionsButtonPressPending() }
@@ -399,6 +439,18 @@ internal class AuthenticationViewModel(
 
         override fun onClick(dialogInterface: DialogInterface?, which: Int) {
             viewModelRef.get()?.setNegativeButtonPressPending()
+        }
+    }
+
+    /** The dialog listener that is returned by [fallbackOptionListener]. */
+    private class FallbackOptionListener(
+        viewModel: AuthenticationViewModel?,
+        val fallbackOption: Fallback.CustomOption,
+    ) : DialogInterface.OnClickListener {
+        private val viewModelRef: WeakReference<AuthenticationViewModel> = WeakReference(viewModel)
+
+        override fun onClick(dialogInterface: DialogInterface?, which: Int) {
+            viewModelRef.get()?.setFallbackOptionPressPending(fallbackOption)
         }
     }
 

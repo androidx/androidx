@@ -195,8 +195,8 @@ package androidx.room3 {
   public final class RoomDatabaseKt {
     method public static suspend <R> Object? useReaderConnection(androidx.room3.RoomDatabase, kotlin.jvm.functions.Function2<? super androidx.room3.Transactor,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
     method public static suspend <R> Object? useWriterConnection(androidx.room3.RoomDatabase, kotlin.jvm.functions.Function2<? super androidx.room3.Transactor,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
-    method @SuppressCompatibility @androidx.room3.ExperimentalRoomApi public static suspend <R> Object? withReadTransaction(androidx.room3.RoomDatabase, kotlin.jvm.functions.Function2<? super androidx.room3.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
-    method @SuppressCompatibility @androidx.room3.ExperimentalRoomApi public static suspend <R> Object? withWriteTransaction(androidx.room3.RoomDatabase, kotlin.jvm.functions.Function2<? super androidx.room3.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
+    method public static suspend <R> Object? withReadTransaction(androidx.room3.RoomDatabase, kotlin.jvm.functions.Function2<? super androidx.room3.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
+    method public static suspend <R> Object? withWriteTransaction(androidx.room3.RoomDatabase, kotlin.jvm.functions.Function2<? super androidx.room3.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class RoomOpenDelegate implements androidx.room3.RoomOpenDelegateMarker {
@@ -295,7 +295,7 @@ package androidx.room3.migration {
   }
 
   public final class MigrationKt {
-    method public static androidx.room3.migration.Migration Migration(int startVersion, int endVersion, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteConnection,kotlin.Unit> migrate);
+    method public static androidx.room3.migration.Migration Migration(int startVersion, int endVersion, kotlin.jvm.functions.Function2<? super androidx.sqlite.SQLiteConnection,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> migrate);
   }
 
 }
@@ -387,7 +387,6 @@ package androidx.room3.util {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final class TableInfo.Column {
     ctor public TableInfo.Column(String name, String type, boolean notNull, int primaryKeyPosition, String? defaultValue, int createdFrom);
-    method public static boolean defaultValueEquals(String current, String? other);
     method @InaccessibleFromKotlin public boolean isPrimaryKey();
     property @androidx.room3.ColumnInfo.SQLiteTypeAffinity public int affinity;
     property public int createdFrom;
@@ -397,7 +396,6 @@ package androidx.room3.util {
     property public boolean notNull;
     property public int primaryKeyPosition;
     property public String type;
-    field public static final androidx.room3.util.TableInfo.Column.Companion Companion;
     field public final int affinity;
     field public final int createdFrom;
     field public final String? defaultValue;
@@ -405,10 +403,6 @@ package androidx.room3.util {
     field public final boolean notNull;
     field public final int primaryKeyPosition;
     field public final String type;
-  }
-
-  public static final class TableInfo.Column.Companion {
-    method public boolean defaultValueEquals(String current, String? other);
   }
 
   public static final class TableInfo.Companion {
@@ -438,16 +432,11 @@ package androidx.room3.util {
     property public String name;
     property public java.util.List<java.lang.String> orders;
     property public boolean unique;
-    field public static final androidx.room3.util.TableInfo.Index.Companion Companion;
     field public static final String DEFAULT_PREFIX = "index_";
     field public final java.util.List<java.lang.String> columns;
     field public final String name;
     field public java.util.List<java.lang.String> orders;
     field public final boolean unique;
-  }
-
-  public static final class TableInfo.Index.Companion {
-    property public static String DEFAULT_PREFIX;
   }
 
   @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class UUIDUtil {

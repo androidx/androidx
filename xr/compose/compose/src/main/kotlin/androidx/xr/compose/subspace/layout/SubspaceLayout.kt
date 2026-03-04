@@ -33,7 +33,6 @@ import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetMeasur
 import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetModifier
 import androidx.xr.runtime.Session
 import androidx.xr.scenecore.Entity
-import androidx.xr.scenecore.GroupEntity
 
 /**
  * [SubspaceLayout] is the main component for laying out leaf nodes with zero children.
@@ -79,10 +78,10 @@ public inline fun SubspaceLayout(
  * @sample androidx.xr.compose.samples.SubspaceLayoutWithCoreEntityNameSample
  * @param modifier SubspaceModifier to apply during layout
  * @param content the child composables to be laid out.
- * @param coreEntityName A name for the underlying [androidx.xr.scenecore.GroupEntity] that is
- *   created to host the content of this layout. This name is used for debugging and identification
- *   purposes; it will appear in scene graph inspectors, making it easier to correlate this
- *   composable with its corresponding node in the 3D scene.
+ * @param coreEntityName A name for the underlying [androidx.xr.scenecore.Entity] that is created to
+ *   host the content of this layout. This name is used for debugging and identification purposes;
+ *   it will appear in scene graph inspectors, making it easier to correlate this composable with
+ *   its corresponding node in the 3D scene.
  * @param measurePolicy a policy defining the measurement and positioning of the layout.
  */
 @Suppress("ComposableLambdaParameterPosition", "NOTHING_TO_INLINE")
@@ -100,9 +99,7 @@ public inline fun SubspaceLayout(
             " is a child of another SubspaceComposable."
     }
 
-    val coreEntity = rememberOpaqueEntity {
-        GroupEntity.create(session = this, name = coreEntityName)
-    }
+    val coreEntity = rememberOpaqueEntity { Entity.create(session = this, name = coreEntityName) }
     val compositionLocalMap = currentComposer.currentCompositionLocalMap
     CompositionLocalProvider(LocalOpaqueEntity provides coreEntity) {
         ComposeNode<ComposeSubspaceNode, Applier<Any>>(

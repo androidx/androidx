@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
+import androidx.xr.glimmer.edgeScrim
 import androidx.xr.glimmer.list.VerticalListDefaults.VerticalArrangement
 import kotlin.math.max
 
@@ -352,7 +353,7 @@ internal fun List(
                 )
                 .then(beyondBoundsModifier)
                 .edgeScrim(
-                    state = state,
+                    state = state.scrollIndicatorState,
                     orientation = orientation,
                     maxScrimSize = VerticalListDefaults.ScrimMaxHeight,
                 )

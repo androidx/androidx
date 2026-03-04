@@ -27,7 +27,6 @@ import javax.inject.Inject
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 import org.gradle.api.provider.ListProperty
-import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import org.gradle.process.ExecOperations
 import org.gradle.workers.WorkAction
@@ -40,7 +39,6 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 fun runMetalavaWithArgs(
     metalavaClasspath: FileCollection,
     args: List<String>,
-    k2UastEnabled: Boolean,
     kotlinSourceLevel: KotlinVersion,
     workerExecutor: WorkerExecutor,
 ) {
@@ -89,14 +87,12 @@ fun runMetalavaWithArgs(
     workQueue.submit(MetalavaWorkAction::class.java) { parameters ->
         parameters.args.set(allArgs)
         parameters.metalavaClasspath.set(metalavaClasspath.files)
-        parameters.k2UastEnabled.set(k2UastEnabled)
     }
 }
 
 interface MetalavaParams : WorkParameters {
     val args: ListProperty<String>
     val metalavaClasspath: SetProperty<File>
-    val k2UastEnabled: Property<Boolean>
 }
 
 abstract class MetalavaWorkAction @Inject constructor(private val execOperations: ExecOperations) :
@@ -104,14 +100,6 @@ abstract class MetalavaWorkAction @Inject constructor(private val execOperations
     override fun execute() {
         val outputStream = ByteArrayOutputStream()
         var successful = false
-        // Enable Android Lint infrastructure used by Metalava to use K2 or K1 UAST (K1 support will
-        // be deprecated once all projects are switched to K2 b/385140979).
-        val k2UastArg =
-            if (parameters.k2UastEnabled.get()) {
-                "--Xuse-k2-uast"
-            } else {
-                "--Xuse-k1-uast"
-            }
         try {
             execOperations.javaexec {
                 // Intellij core reflects into java.util.ResourceBundle
@@ -119,7 +107,7 @@ abstract class MetalavaWorkAction @Inject constructor(private val execOperations
                 it.systemProperty("java.awt.headless", "true")
                 it.classpath(parameters.metalavaClasspath.get())
                 it.mainClass.set("com.android.tools.metalava.Driver")
-                it.args = parameters.args.get() + k2UastArg
+                it.args = parameters.args.get()
                 it.setStandardOutput(outputStream)
                 it.setErrorOutput(outputStream)
             }
@@ -270,7 +258,6 @@ internal fun generateApi(
     apiLintMode: ApiLintMode,
     includeRestrictToLibraryGroupApis: Boolean,
     apiLevelsArgs: List<String>,
-    k2UastEnabled: Boolean,
     kotlinSourceLevel: KotlinVersion,
     workerExecutor: WorkerExecutor,
     pathToManifest: String? = null,
@@ -296,7 +283,6 @@ internal fun generateApi(
             generateApiMode,
             apiLintMode,
             apiLevelsArgs,
-            k2UastEnabled,
             kotlinSourceLevel,
             workerExecutor,
             pathToManifest,
@@ -318,7 +304,6 @@ private fun generateApi(
     generateApiMode: GenerateApiMode,
     apiLintMode: ApiLintMode,
     apiLevelsArgs: List<String>,
-    k2UastEnabled: Boolean,
     kotlinSourceLevel: KotlinVersion,
     workerExecutor: WorkerExecutor,
     pathToManifest: String? = null,
@@ -336,7 +321,7 @@ private fun generateApi(
             pathToManifest,
             multiplatform,
         )
-    runMetalavaWithArgs(metalavaClasspath, args, k2UastEnabled, kotlinSourceLevel, workerExecutor)
+    runMetalavaWithArgs(metalavaClasspath, args, kotlinSourceLevel, workerExecutor)
 }
 
 /**
@@ -368,7 +353,7 @@ fun getGenerateApiArgs(
         args += listOf("--compiled-sources", compiledSources.absolutePath)
     }
 
-    args += listOf("--format=v4", "--warnings-as-errors")
+    args += listOf("--format=4.0", "--warnings-as-errors")
 
     pathToManifest?.let { args += listOf("--manifest", pathToManifest) }
 

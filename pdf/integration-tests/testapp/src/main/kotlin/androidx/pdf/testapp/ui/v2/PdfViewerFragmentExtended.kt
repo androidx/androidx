@@ -87,7 +87,9 @@ class PdfViewerFragmentExtended : PdfViewerFragment(), FeatureFlagListener {
         pdfThumbnailToggleButton = hostView.findViewById(R.id.pdf_thumbnail_toggle_button)
         pdfThumbnailRecyclerView = hostView.findViewById(R.id.pdf_thumbnail_recycler_view)
 
-        setupThumbnailView()
+        val initialVisibility =
+            savedInstanceState?.getInt(KEY_THUMBNAIL_VISIBILITY, View.GONE) ?: View.GONE
+        setupThumbnailView(initialVisibility)
 
         searchFAB?.setOnClickListener { isTextSearchActive = true }
         twoPageLayoutFAB?.setOnClickListener {
@@ -105,6 +107,8 @@ class PdfViewerFragmentExtended : PdfViewerFragment(), FeatureFlagListener {
         super.onViewCreated(view, savedInstanceState)
         lastClickedLinkUri = savedInstanceState?.getString(LAST_CLICKED_LINK_URI)
         lastClickedLinkUri?.let { showCustomLinkHandlerDialog(it) }
+        lastScrolledThumbnailIndex =
+            savedInstanceState?.getInt(KEY_LAST_SCROLLED_THUMBNAIL_INDEX) ?: -1
     }
 
     override fun onDestroyView() {
@@ -115,9 +119,11 @@ class PdfViewerFragmentExtended : PdfViewerFragment(), FeatureFlagListener {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         lastClickedLinkUri?.let { outState.putString(LAST_CLICKED_LINK_URI, it) }
+        outState.putInt(KEY_THUMBNAIL_VISIBILITY, pdfThumbnailRecyclerView.visibility)
+        outState.putInt(KEY_LAST_SCROLLED_THUMBNAIL_INDEX, lastScrolledThumbnailIndex)
     }
 
-    private fun setupThumbnailView() {
+    private fun setupThumbnailView(initialVisibility: Int = View.GONE) {
         if (!::thumbnailAdapter.isInitialized) {
             thumbnailAdapter = ThumbnailAdapter { goToPage(it) }
             pdfThumbnailRecyclerView.adapter = thumbnailAdapter
@@ -131,9 +137,9 @@ class PdfViewerFragmentExtended : PdfViewerFragment(), FeatureFlagListener {
         }
 
         // Start hidden if feature flag is off
-        val enabled = PdfFeatureFlags.isThumbnailPreviewEnabled
-        pdfThumbnailToggleButton.visibility = if (enabled) View.VISIBLE else View.GONE
-        pdfThumbnailRecyclerView.visibility = View.GONE
+        val isFeatureEnabled = PdfFeatureFlags.isThumbnailPreviewEnabled
+        pdfThumbnailToggleButton.visibility = if (isFeatureEnabled) View.VISIBLE else View.GONE
+        pdfThumbnailRecyclerView.visibility = if (isFeatureEnabled) initialVisibility else View.GONE
     }
 
     override fun onLoadDocumentSuccess(document: PdfDocument) {
@@ -209,7 +215,13 @@ class PdfViewerFragmentExtended : PdfViewerFragment(), FeatureFlagListener {
             }
 
             withContext(Dispatchers.Main) {
-                if (::thumbnailAdapter.isInitialized) thumbnailAdapter.submitList(thumbnails)
+                if (::thumbnailAdapter.isInitialized) {
+                    thumbnailAdapter.submitList(thumbnails)
+                    if (lastScrolledThumbnailIndex != -1) {
+                        thumbnailAdapter.updateSelectedPage(lastScrolledThumbnailIndex)
+                        scrollThumbnailToVisible(lastScrolledThumbnailIndex)
+                    }
+                }
             }
         }
     }
@@ -278,11 +290,13 @@ class PdfViewerFragmentExtended : PdfViewerFragment(), FeatureFlagListener {
 
     private fun getDynamicThumbnailSize(): Size {
         val width = resources.getDimensionPixelSize(R.dimen.thumbnail_width)
-        val height = (width * 1.5f).toInt()
+        val height = resources.getDimensionPixelSize(R.dimen.thumbnail_height)
         return Size(width, height)
     }
 
     companion object {
         private const val LAST_CLICKED_LINK_URI = "last_clicked_link_uri"
+        private const val KEY_THUMBNAIL_VISIBILITY = "thumbnail_visibility"
+        private const val KEY_LAST_SCROLLED_THUMBNAIL_INDEX = "last_scrolled_thumbnail_index"
     }
 }

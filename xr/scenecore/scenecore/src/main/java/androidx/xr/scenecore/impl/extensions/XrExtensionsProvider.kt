@@ -17,7 +17,7 @@ package androidx.xr.scenecore.impl.extensions
 
 import android.annotation.SuppressLint
 import androidx.annotation.RestrictTo
-import androidx.xr.runtime.Log
+import androidx.xr.runtime.XrLog
 import com.android.extensions.xr.XrExtensions
 import java.lang.reflect.InvocationTargetException
 
@@ -34,7 +34,7 @@ public object XrExtensionsProvider {
         return try {
             XrExtensionsInstance.instance
         } catch (e: NoClassDefFoundError) {
-            Log.warn(e) { "XrExtensionsProvider: No XrExtensions implementation found." }
+            XrLog.warn(e) { "XrExtensionsProvider: No XrExtensions implementation found." }
             null
         }
     }
@@ -65,7 +65,7 @@ public object XrExtensionsProvider {
                     is InvocationTargetException,
                     is IllegalAccessException,
                     is SecurityException ->
-                        Log.debug(
+                        XrLog.debug(
                             "XrExtensions.setCurrentExtensions method could not be called: $e"
                         )
                     else -> throw e

@@ -38,7 +38,7 @@ dependencies {
     api(project(":xr:scenecore:scenecore-spatial-core"))
 
     implementation("androidx.annotation:annotation:1.8.1")
-    implementation("com.google.ar:impress:0.0.12")
+    implementation("com.google.ar:impress:0.0.13")
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinTest)

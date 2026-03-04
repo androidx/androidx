@@ -159,6 +159,7 @@ package androidx.tracing {
 
   @SuppressCompatibility @androidx.tracing.DelicateTracingApi public final class TraceEvent {
     ctor public TraceEvent();
+    method public void copyFrom(androidx.tracing.TraceEvent src);
     method public void reset();
     method @kotlin.PublishedApi internal inline void setBeginSection(long trackUuid, String name);
     method @kotlin.PublishedApi internal inline void setBeginSectionWithFlows(long trackUuid, String name, java.util.List<java.lang.Long> flowIds);

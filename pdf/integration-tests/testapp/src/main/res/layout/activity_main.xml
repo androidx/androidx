@@ -25,6 +25,26 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/pdf_edit_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/save_pdf_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginEnd="16dp"
+            android:text="@string/save_string"
+            android:visibility="gone"
+            app:strokeWidth="1dp"/>
+
+    </com.google.android.material.appbar.MaterialToolbar>
+
     <FrameLayout
         android:id="@+id/fragment_container_view"
         android:layout_width="0dp"
@@ -33,7 +53,7 @@
         app:layout_constraintBottom_toTopOf="@+id/launch_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/pdf_edit_toolbar" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/launch_button"
@@ -54,21 +74,8 @@
         android:layout_marginStart="8dp"
         android:text="@string/search_string"
         app:layout_constraintBottom_toBottomOf="@+id/launch_button"
-        app:layout_constraintEnd_toStartOf="@+id/save_pdf_button"
-        app:layout_constraintStart_toEndOf="@+id/launch_button"
-        app:layout_constraintTop_toTopOf="@+id/launch_button"
-        app:strokeWidth="1dp" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/save_pdf_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:text="@string/save_string"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/launch_button"
         app:layout_constraintEnd_toStartOf="@+id/preference_button"
-        app:layout_constraintStart_toEndOf="@+id/search_pdf_button"
+        app:layout_constraintStart_toEndOf="@+id/launch_button"
         app:layout_constraintTop_toTopOf="@+id/launch_button"
         app:strokeWidth="1dp" />
 
@@ -82,7 +89,7 @@
         android:src="@drawable/ic_settings"
         app:layout_constraintBottom_toBottomOf="@+id/launch_button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/save_pdf_button"
+        app:layout_constraintStart_toEndOf="@+id/search_pdf_button"
         app:layout_constraintTop_toTopOf="@+id/launch_button"
         app:tint="?attr/colorOnSurface" />
 

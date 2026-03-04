@@ -234,14 +234,26 @@ internal class SpatialEnvironmentImpl(
     override var preferredSpatialEnvironment: SpatialEnvironment.SpatialEnvironmentPreference?
         get() {
             if (spatialEnvironmentFeature == null) {
-                throw UnsupportedOperationException(
-                    "Did you forget to add scenecore-spatial-rendering in dependencies?"
-                )
+                return spatialEnvironmentPreference.get()
             }
             return spatialEnvironmentFeature!!.preferredSpatialEnvironment
         }
         set(value) {
             if (spatialEnvironmentFeature == null) {
+                val hasContent = value != null && (value.skybox != null || value.geometry != null)
+
+                if (hasContent) {
+                    throw UnsupportedOperationException(
+                        "Did you forget to add scenecore-spatial-rendering in dependencies?"
+                    )
+                }
+
+                val oldPreference = spatialEnvironmentPreference.getAndSet(value)
+
+                if (oldPreference == value) {
+                    return
+                }
+
                 if (value == null) {
                     // Detaching the app environment to go back to the system environment.
                     xrExtensions.detachSpatialEnvironment(
@@ -249,7 +261,8 @@ internal class SpatialEnvironmentImpl(
                         { it.run() },
                         { _: XrExtensionResult -> },
                     )
-                } else if (value.skybox == null && value.geometry == null) {
+                } else {
+                    // value is non-null but has no content, so attach an empty environment.
                     val currentRootEnvironmentNode = xrExtensions.createNode()
                     val skyboxMode = XrExtensions.NO_SKYBOX
                     xrExtensions.attachSpatialEnvironment(
@@ -258,10 +271,6 @@ internal class SpatialEnvironmentImpl(
                         skyboxMode,
                         { it.run() },
                         { _: XrExtensionResult -> },
-                    )
-                } else {
-                    throw UnsupportedOperationException(
-                        "Did you forget to add scenecore-spatial-rendering in dependencies?"
                     )
                 }
             } else {

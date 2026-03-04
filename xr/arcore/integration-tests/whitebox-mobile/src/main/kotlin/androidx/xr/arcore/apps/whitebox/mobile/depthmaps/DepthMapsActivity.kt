@@ -61,9 +61,9 @@ import androidx.xr.arcore.playservices.ArCoreRuntime
 import androidx.xr.arcore.playservices.cameraState
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DepthEstimationMode
-import androidx.xr.runtime.Log
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.TrackingState
+import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.math.Matrix4
 import com.google.ar.core.exceptions.DeadlineExceededException
 import com.google.ar.core.exceptions.NotYetAvailableException
@@ -139,7 +139,7 @@ class DepthMapsActivity :
             backgroundRenderer = BackgroundRenderer(render)
             virtualSceneFramebuffer = Framebuffer(render, width = 1, height = 1)
         } catch (e: IOException) {
-            Log.error(e) { "Failed to create background renderer" }
+            XrLog.error(e) { "Failed to create background renderer" }
             return
         }
     }
@@ -182,13 +182,13 @@ class DepthMapsActivity :
                     }
                     depthImageNotAvailable = false
                 } catch (e: IOException) {
-                    Log.error(e) { "Failed to read a required asset file" }
+                    XrLog.error(e) { "Failed to read a required asset file" }
                 } catch (e: NotYetAvailableException) {
-                    Log.error(e) {
+                    XrLog.error(e) {
                         "Depth image is not yet available, unable to retrieve depth map buffers."
                     }
                 } catch (e: DeadlineExceededException) {
-                    Log.error(e) {
+                    XrLog.error(e) {
                         "Depth image DeadlineExceededException, unable to retrieve depth map buffers."
                     }
                 }

@@ -139,7 +139,12 @@ internal class PageFetcher<Key : Any, Value : Any>(
 
                         val (refreshKey: Key?, refreshSize: Int) =
                             when {
-                                loadRequest.type == RefreshType.Anchor ->
+                                loadRequest.type == RefreshType.Anchor ||
+                                    // Case where initial refresh failed, and instead of retrying,
+                                    // the
+                                    // presenter called refresh.
+                                    (currentPagingState.pages.isEmpty() &&
+                                        currentPagingState.anchorPosition == null) ->
                                     newPagingSource.getRefreshKey(currentPagingState).also {
                                         log(DEBUG) {
                                             "Refresh key $it returned from PagingSource $newPagingSource"
@@ -246,6 +251,10 @@ internal class PageFetcher<Key : Any, Value : Any>(
     fun refresh(item: Value? = null) {
         val refreshType = if (item == null) RefreshType.Anchor else RefreshType.Item(item)
         loadRequests.send(LoadRequest.Refresh(triggerRemoteRefresh = true, type = refreshType))
+    }
+
+    fun retry() {
+        retryEvents.send(Unit)
     }
 
     private fun invalidate() {

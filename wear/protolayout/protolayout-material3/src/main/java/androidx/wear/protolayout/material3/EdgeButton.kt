@@ -332,10 +332,11 @@ internal constructor(
          * Style variation for fallback implementation with text content, when there is no
          * asymmetrical corners support.
          *
-         * Without the edge hugging shape, the [topCornerRadius] value is a full cornered value and
-         * is applied to all four corners. To avoid being clipped by the screen edge, the visible
-         * button box is pushed upwards with a bigger bottom margin of [BOTTOM_MARGIN_FALLBACK_DP].
-         * Also the box height shrinks to [EDGE_BUTTON_HEIGHT_FALLBACK_DP].
+         * Without the edge hugging shape, the [topCornerRadiusDp] value is a full cornered value
+         * and is applied to all four corners. To avoid being clipped by the screen edge, the
+         * visible button box is pushed upwards with a bigger bottom margin of
+         * [BOTTOM_MARGIN_FALLBACK_DP]. Also the box height shrinks to
+         * [EDGE_BUTTON_HEIGHT_FALLBACK_DP].
          *
          * Its text content is center placed with a increased horizontal padding of
          * [TEXT_SIDE_PADDING_FALLBACK_DP].
@@ -357,10 +358,10 @@ internal constructor(
          * Style variation for fallback implementation with icon content, when there is no
          * asymmetrical corners support.
          *
-         * Without the edge hugging shape, the [topCornerRadius] value is a full cornered value and
-         * is applied to all four corners. To avoid being clipped by the screen, the visible button
-         * box is pushed upwards with a bigger bottom margin of [BOTTOM_MARGIN_FALLBACK_DP]. Also
-         * the box height shrinks to [EDGE_BUTTON_HEIGHT_FALLBACK_DP]
+         * Without the edge hugging shape, the [topCornerRadiusDp] value is a full cornered value
+         * and is applied to all four corners. To avoid being clipped by the screen, the visible
+         * button box is pushed upwards with a bigger bottom margin of [BOTTOM_MARGIN_FALLBACK_DP].
+         * Also the box height shrinks to [EDGE_BUTTON_HEIGHT_FALLBACK_DP]
          *
          * Its icon content center placed with increased horizontal padding
          * [ICON_SIDE_PADDING_FALLBACK_DP]. Also, the icon size is also increased to

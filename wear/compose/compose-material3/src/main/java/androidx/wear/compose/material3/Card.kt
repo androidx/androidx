@@ -812,10 +812,12 @@ public object CardDefaults {
 
     /**
      * The minimum vertical content padding for the list when a [Card] is placed at the top or
-     * bottom edge. Recommended for use with [TransformingLazyColumnItemScope]'s
-     * [Modifier.minimumVerticalContentPadding], which allows items to choose a preferred content
-     * padding for the list. [TransformingLazyColumn] takes its contentPadding as the maximum of the
-     * preferred content padding values and its own contentPadding parameter.
+     * bottom edge. Recommended for use with
+     * [androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope]'s
+     * [androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScope.minimumVerticalContentPadding],
+     * which allows items to choose a preferred content padding for the list.
+     * [TransformingLazyColumn] takes its contentPadding as the maximum of the preferred content
+     * padding values and its own contentPadding parameter.
      *
      * @sample androidx.wear.compose.material3.samples.TransformingLazyColumnMinimumVerticalContentPaddingSample
      */

@@ -96,7 +96,7 @@ public class FakeLifecycleManager(
         Config(
             PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
             HandTrackingMode.BOTH,
-            DeviceTrackingMode.LAST_KNOWN,
+            DeviceTrackingMode.SPATIAL_LAST_KNOWN,
             DepthEstimationMode.SMOOTH_AND_RAW,
             AnchorPersistenceMode.LOCAL,
             augmentedObjectCategories = AugmentedObjectCategory.allSupported(),

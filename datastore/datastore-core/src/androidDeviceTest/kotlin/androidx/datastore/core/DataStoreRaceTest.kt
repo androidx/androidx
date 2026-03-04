@@ -51,7 +51,7 @@ class DataStoreRaceTest {
     fun testCacheRaceCondition() = runTest {
         val serializer = TestingSerializer()
 
-        val store = createDataStore(serializer = serializer, scope = this)
+        val store = createDataStore(serializer = serializer, scope = backgroundScope)
 
         val firstValue = 1.toByte()
         val secondValue = 2.toByte()

@@ -72,8 +72,12 @@ class QueryFunctionProcessorTest(private val enableVerification: Boolean) {
                 import com.google.common.collect.*;
                 import androidx.room3.livedata.LiveDataDaoReturnTypeConverter;
                 import androidx.room3.rxjava3.RxDaoReturnTypeConverters;
+                import androidx.room3.paging.guava.ListenableFuturePagingSourceDaoReturnTypeConverter;
+                import androidx.room3.guava.GuavaDaoReturnTypeConverter;
                 @DaoReturnTypeConverters(
                     { LiveDataDaoReturnTypeConverter.class,
+                    ListenableFuturePagingSourceDaoReturnTypeConverter.class,
+                    GuavaDaoReturnTypeConverter.class,
                     RxDaoReturnTypeConverters.class }
                 )
                 @Dao
@@ -85,6 +89,8 @@ class QueryFunctionProcessorTest(private val enableVerification: Boolean) {
                 import androidx.room3.*
                 import androidx.room3.livedata.LiveDataDaoReturnTypeConverter
                 import androidx.room3.rxjava3.RxDaoReturnTypeConverters
+                import androidx.room3.paging.guava.ListenableFuturePagingSourceDaoReturnTypeConverter
+                import androidx.room3.guava.GuavaDaoReturnTypeConverter
                 import java.util.*
                 import io.reactivex.*         
                 import io.reactivex.rxjava3.core.*
@@ -94,6 +100,8 @@ class QueryFunctionProcessorTest(private val enableVerification: Boolean) {
                 import kotlinx.coroutines.flow.*
                 @DaoReturnTypeConverters(
                     LiveDataDaoReturnTypeConverter::class,
+                    GuavaDaoReturnTypeConverter::class,
+                    ListenableFuturePagingSourceDaoReturnTypeConverter::class,
                     RxDaoReturnTypeConverters::class,
                 )
                 @Dao
@@ -1128,6 +1136,11 @@ class QueryFunctionProcessorTest(private val enableVerification: Boolean) {
                 COMMON.RX3_FLOWABLE,
                 COMMON.PUBLISHER,
                 COMMON.RX3_OBSERVABLE,
+                COMMON.LIMIT_OFFSET_PAGING_SOURCE,
+                COMMON.LIMIT_OFFSET_RX3_PAGING_SOURCE,
+                COMMON.RX3_PAGING_SOURCE,
+                COMMON.LIMIT_OFFSET_LISTENABLE_FUTURE_PAGING_SOURCE,
+                COMMON.LISTENABLE_FUTURE_PAGING_SOURCE,
             )
         runKspTest(sources = additionalSources + commonSources + inputSource, options = options) {
             invocation ->
@@ -1175,21 +1188,28 @@ class QueryFunctionProcessorTest(private val enableVerification: Boolean) {
             Source.kotlin("MyClass.kt", DAO_PREFIX_KT + input.joinToString("\n") + DAO_SUFFIX)
         val commonSources =
             listOf(
+                COMMON.LIVE_DATA,
+                COMMON.COMPUTABLE_LIVE_DATA,
                 COMMON.USER,
                 COMMON.BOOK,
+                COMMON.PAGE,
                 COMMON.NOT_AN_ENTITY,
+                COMMON.ARTIST,
+                COMMON.SONG,
+                COMMON.IMAGE,
+                COMMON.IMAGE_FORMAT,
+                COMMON.CONVERTER,
                 COMMON.RX3_COMPLETABLE,
                 COMMON.RX3_MAYBE,
                 COMMON.RX3_SINGLE,
                 COMMON.RX3_FLOWABLE,
-                COMMON.RX3_OBSERVABLE,
-                COMMON.LISTENABLE_FUTURE,
-                COMMON.LIVE_DATA,
-                COMMON.COMPUTABLE_LIVE_DATA,
                 COMMON.PUBLISHER,
-                COMMON.FLOW,
-                COMMON.GUAVA_ROOM,
-                COMMON.RX3_ROOM,
+                COMMON.RX3_OBSERVABLE,
+                COMMON.LIMIT_OFFSET_PAGING_SOURCE,
+                COMMON.LIMIT_OFFSET_RX3_PAGING_SOURCE,
+                COMMON.RX3_PAGING_SOURCE,
+                COMMON.LIMIT_OFFSET_LISTENABLE_FUTURE_PAGING_SOURCE,
+                COMMON.LISTENABLE_FUTURE_PAGING_SOURCE,
             )
 
         runKspTest(sources = additionalSources + commonSources + inputSource, options = options) {
@@ -1335,8 +1355,8 @@ class QueryFunctionProcessorTest(private val enableVerification: Boolean) {
         ) { _, invocation ->
             invocation.assertCompilationResult {
                 hasErrorContaining(
-                    "Column specified in the provided @MapColumn " +
-                        "annotation must be present in the query."
+                    "Column specified in the declared @MapColumn " +
+                        "annotation must be present in the query result."
                 )
             }
         }
@@ -1559,12 +1579,12 @@ class QueryFunctionProcessorTest(private val enableVerification: Boolean) {
                 )
                 hasErrorCount(2)
                 hasErrorContaining(
-                    "Column specified in the provided @MapColumn annotation must " +
-                        "be present in the query. Provided: cat."
+                    "Column specified in the declared @MapColumn annotation must " +
+                        "be present in the query result. Declared column name: cat."
                 )
                 hasErrorContaining(
-                    "Column specified in the provided @MapColumn annotation must " +
-                        "be present in the query. Provided: dog."
+                    "Column specified in the declared @MapColumn annotation must " +
+                        "be present in the query result. Declared column name: dog."
                 )
             }
         }

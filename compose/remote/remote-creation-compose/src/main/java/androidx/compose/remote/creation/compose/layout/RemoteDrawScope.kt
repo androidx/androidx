@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.ContentScale
+import androidx.graphics.shapes.RoundedPolygon
 
 /**
  * A remote-compatible drawing scope for RemoteCompose. Unlike [DrawScope], this class uses remote
@@ -205,6 +206,24 @@ public open class RemoteDrawScope internal constructor(public val remoteCanvas: 
     /** Draws a path. */
     public fun drawPath(path: androidx.compose.ui.graphics.Path, paint: RemotePaint) {
         remoteCanvas.drawPath(path.asAndroidPath(), paint)
+    }
+
+    /** Draws a rounded polygon. */
+    public fun drawRoundedPolygon(
+        roundedPolygon: RoundedPolygon,
+        paint: androidx.compose.ui.graphics.Paint,
+    ) {
+        remoteCanvas.drawRoundedPolygon(roundedPolygon, paint)
+    }
+
+    /** Draws a morph between two rounded polygons. */
+    public fun drawRoundedPolygonMorph(
+        from: RoundedPolygon,
+        to: RoundedPolygon,
+        progress: RemoteFloat,
+        paint: androidx.compose.ui.graphics.Paint,
+    ) {
+        remoteCanvas.drawRoundedPolygonMorph(from, to, progress, paint)
     }
 
     public fun drawTweenPath(

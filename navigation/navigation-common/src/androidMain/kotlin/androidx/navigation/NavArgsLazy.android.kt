@@ -27,7 +27,7 @@ internal val methodMap = ArrayMap<KClass<out NavArgs>, Method>()
 
 /**
  * An implementation of [Lazy] used by [android.app.Activity.navArgs] and
- * [androidx.fragment.app.Fragment.navArgs].
+ * [androidx.navigation.fragment.navArgs].
  *
  * [argumentProducer] is a lambda that will be called during initialization to provide arguments to
  * construct an [Args] instance via reflection.

@@ -104,10 +104,6 @@
             android:name=".AssetLoaderInternalStorageActivity"
             android:exported="true" />
         <activity
-            android:name=".ForceDarkActivity"
-            android:theme="@style/AppDayNightTheme"
-            android:exported="true" />
-        <activity
             android:name=".TracingControllerActivity"
             android:exported="true" />
         <activity
@@ -130,9 +126,6 @@
             android:exported="true" />
         <activity
             android:name=".DocumentStartJavaScriptActivity"
-            android:exported="true" />
-        <activity
-            android:name=".ForceDarkStrategyActivity"
             android:exported="true" />
         <activity
             android:name=".GetVariationsHeaderActivity"

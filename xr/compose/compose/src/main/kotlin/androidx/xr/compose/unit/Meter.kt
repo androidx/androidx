@@ -206,7 +206,7 @@ public value class Meter(public val value: Float) : Comparable<Meter> {
         /**
          * Attempts to retrieve an instance of [XrExtensions].
          *
-         * @return an instance of [XrExtensions] if available, or [null] otherwise.
+         * @return an instance of [XrExtensions] if available, or `null` otherwise.
          */
         private fun getXrExtensions(): XrExtensions? = XrExtensionsProvider.getXrExtensions()
 

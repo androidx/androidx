@@ -118,7 +118,8 @@ private constructor(
     public companion object {
         /**
          * Returns a new [FixedProbabilityLatencyAggregator]. For use by Kotlin clients. [callback]
-         * will be called in the given [scope], using its default [CoroutineContext].
+         * will be called in the given [scope], using its default
+         * [kotlin.coroutines.CoroutineContext].
          *
          * [callback] runs immediately when a sample is selected for reporting. See the
          * documentation on the [FixedProbabilityLatencyAggregator] class itself for cautions about

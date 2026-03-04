@@ -164,8 +164,7 @@ public class SpatialSceneRuntimeTest {
         ShadowXrExtensions.extract(mXrExtensions)
                 .setOpenXrWorldSpaceType(OPEN_XR_REFERENCE_SPACE_TYPE);
         mRuntime =
-                SpatialSceneRuntime.create(
-                        mActivity, mFakeExecutor, mXrExtensions, mEntityManager);
+                SpatialSceneRuntime.create(mActivity, mFakeExecutor, mXrExtensions, mEntityManager);
     }
 
     @After
@@ -196,8 +195,7 @@ public class SpatialSceneRuntimeTest {
     }
 
     private SpatialSceneRuntime createRuntime() {
-        return SpatialSceneRuntime.create(
-                mActivity, mFakeExecutor, mXrExtensions, mEntityManager);
+        return SpatialSceneRuntime.create(mActivity, mFakeExecutor, mXrExtensions, mEntityManager);
     }
 
     @Test
@@ -491,30 +489,30 @@ public class SpatialSceneRuntimeTest {
                 mRuntime.getActivitySpace());
     }
 
-    private Entity createGroupEntity() {
-        return createGroupEntity(new Pose());
+    private Entity createEntity() {
+        return createEntity(new Pose());
     }
 
-    private Entity createGroupEntity(Pose pose) {
-        return mRuntime.createGroupEntity(pose, "test", mRuntime.getActivitySpace());
-    }
-
-    @Test
-    public void createGroupEntity_returnsEntity() throws Exception {
-        assertThat(createGroupEntity()).isNotNull();
+    private Entity createEntity(Pose pose) {
+        return mRuntime.createEntity(pose, "test", mRuntime.getActivitySpace());
     }
 
     @Test
-    public void groupEntity_hasActivitySpaceRootImplAsParentByDefault() throws Exception {
-        Entity entity = createGroupEntity();
+    public void createEntity_returnsEntity() throws Exception {
+        assertThat(createEntity()).isNotNull();
+    }
+
+    @Test
+    public void entity_hasActivitySpaceRootImplAsParentByDefault() throws Exception {
+        Entity entity = createEntity();
         assertThat(entity.getParent()).isEqualTo(mRuntime.getActivitySpace());
     }
 
     @Test
-    public void groupEntityAddChildren_addsChildren() throws Exception {
-        Entity childEntity1 = createGroupEntity();
-        Entity childEntity2 = createGroupEntity();
-        Entity parentEntity = createGroupEntity();
+    public void entityAddChildren_addsChildren() throws Exception {
+        Entity childEntity1 = createEntity();
+        Entity childEntity2 = createEntity();
+        Entity parentEntity = createEntity();
 
         parentEntity.addChild(childEntity1);
 
@@ -626,7 +624,8 @@ public class SpatialSceneRuntimeTest {
         mRuntime.setSpatialModeChangeListener(mockSpatialModeChangeListener);
         ShadowSpatialState.extract(spatialState)
                 .setSpatialCapabilities(ShadowSpatialCapabilities.createAll());
-        ShadowSpatialState.extract(spatialState).setSceneParentTransform(new Mat4f(new float[16]));
+        ShadowSpatialState.extract(spatialState)
+                .setSceneParentTransform(new Mat4f(Matrix4.Identity.getData()));
         mRuntime.onSpatialStateChanged(spatialState);
 
         verify(mockSpatialModeChangeListener).onSpatialModeChanged(any(), any());
@@ -1227,22 +1226,22 @@ public class SpatialSceneRuntimeTest {
         PanelEntity panelEntity = createPanelEntity();
         GltfEntity gltfEntity = createGltfEntity();
         LoggingEntity loggingEntity = mRuntime.createLoggingEntity(identityPose);
-        Entity groupEntity = createGroupEntity();
+        Entity entity = createEntity();
 
         assertPose(panelEntity.getPose(), identityPose);
         assertPose(gltfEntity.getPose(), identityPose);
         assertPose(loggingEntity.getPose(), identityPose);
-        assertPose(groupEntity.getPose(), identityPose);
+        assertPose(entity.getPose(), identityPose);
 
         panelEntity.setPose(pose);
         gltfEntity.setPose(pose);
         loggingEntity.setPose(pose);
-        groupEntity.setPose(pose);
+        entity.setPose(pose);
 
         assertPose(panelEntity.getPose(), pose);
         assertPose(gltfEntity.getPose(), pose);
         assertPose(loggingEntity.getPose(), pose);
-        assertPose(groupEntity.getPose(), pose);
+        assertPose(entity.getPose(), pose);
     }
 
     @Test
@@ -1251,12 +1250,12 @@ public class SpatialSceneRuntimeTest {
         PanelEntity panelEntity = createPanelEntity(pose);
         GltfEntity gltfEntity = createGltfEntity(pose);
         LoggingEntity loggingEntity = mRuntime.createLoggingEntity(pose);
-        Entity groupEntity = createGroupEntity(pose);
+        Entity entity = createEntity(pose);
 
         assertPose(panelEntity.getPose(), pose);
         assertPose(gltfEntity.getPose(), pose);
         assertPose(loggingEntity.getPose(), pose);
-        assertPose(groupEntity.getPose(), pose);
+        assertPose(entity.getPose(), pose);
     }
 
     @Test
@@ -1267,11 +1266,11 @@ public class SpatialSceneRuntimeTest {
         // Set the activity space as the root of this entity hierarchy..
         AndroidXrEntity parentEntity =
                 (AndroidXrEntity)
-                        mRuntime.createGroupEntity(pose, "parent", mRuntime.getActivitySpace());
+                        mRuntime.createEntity(pose, "parent", mRuntime.getActivitySpace());
         AndroidXrEntity childEntity1 =
-                (AndroidXrEntity) mRuntime.createGroupEntity(pose, "child1", parentEntity);
+                (AndroidXrEntity) mRuntime.createEntity(pose, "child1", parentEntity);
         AndroidXrEntity childEntity2 =
-                (AndroidXrEntity) mRuntime.createGroupEntity(pose, "child2", childEntity1);
+                (AndroidXrEntity) mRuntime.createEntity(pose, "child2", childEntity1);
 
         assertVector3(
                 parentEntity.getPoseInActivitySpace().getTranslation(), new Vector3(1f, 2f, 3f));
@@ -1292,14 +1291,14 @@ public class SpatialSceneRuntimeTest {
         // The parent has a translation and no rotation.
         AndroidXrEntity parentEntity =
                 (AndroidXrEntity)
-                        mRuntime.createGroupEntity(
+                        mRuntime.createEntity(
                                 translatedPose, "parent", mRuntime.getActivitySpace());
 
         // Each child adds a rotation, but no translation.
         AndroidXrEntity childEntity1 =
-                (AndroidXrEntity) mRuntime.createGroupEntity(rotatedPose, "child1", parentEntity);
+                (AndroidXrEntity) mRuntime.createEntity(rotatedPose, "child1", parentEntity);
         AndroidXrEntity childEntity2 =
-                (AndroidXrEntity) mRuntime.createGroupEntity(rotatedPose, "child2", childEntity1);
+                (AndroidXrEntity) mRuntime.createEntity(rotatedPose, "child2", childEntity1);
 
         // There should be no translation offset from the root, only changes in rotation.
         assertPose(parentEntity.getPoseInActivitySpace(), translatedPose);
@@ -1321,11 +1320,11 @@ public class SpatialSceneRuntimeTest {
         // Each entity adds a translation and a rotation.
         AndroidXrEntity parentEntity =
                 (AndroidXrEntity)
-                        mRuntime.createGroupEntity(pose, "parent", mRuntime.getActivitySpace());
+                        mRuntime.createEntity(pose, "parent", mRuntime.getActivitySpace());
         AndroidXrEntity childEntity1 =
-                (AndroidXrEntity) mRuntime.createGroupEntity(pose, "child1", parentEntity);
+                (AndroidXrEntity) mRuntime.createEntity(pose, "child1", parentEntity);
         AndroidXrEntity childEntity2 =
-                (AndroidXrEntity) mRuntime.createGroupEntity(pose, "child2", childEntity1);
+                (AndroidXrEntity) mRuntime.createEntity(pose, "child2", childEntity1);
 
         // Local pose of ActivitySpace's direct child must be the same as child's ActivitySpace
         // pose.
@@ -1359,7 +1358,7 @@ public class SpatialSceneRuntimeTest {
         // scale/position/rotation.
         PanelEntityImpl panelEntity = (PanelEntityImpl) createPanelEntity(pose);
         GltfEntityImpl gltfEntity = (GltfEntityImpl) createGltfEntity(pose);
-        AndroidXrEntity groupEntity = (AndroidXrEntity) createGroupEntity(pose);
+        AndroidXrEntity entity = (AndroidXrEntity) createEntity(pose);
         ActivitySpace activitySpace = mRuntime.getActivitySpace();
         ((ActivitySpaceImpl) activitySpace)
                 .setOpenXrReferenceSpaceTransform(
@@ -1369,11 +1368,11 @@ public class SpatialSceneRuntimeTest {
                                 new Vector3(2f, 2f, 2f)));
         panelEntity.setParent(activitySpace);
         gltfEntity.setParent(activitySpace);
-        groupEntity.setParent(activitySpace);
+        entity.setParent(activitySpace);
 
         assertPose(panelEntity.getPoseInActivitySpace(), pose);
         assertPose(gltfEntity.getPoseInActivitySpace(), pose);
-        assertPose(groupEntity.getPoseInActivitySpace(), pose);
+        assertPose(entity.getPoseInActivitySpace(), pose);
     }
 
     @Test
@@ -1436,9 +1435,9 @@ public class SpatialSceneRuntimeTest {
 
         // Set the ActivitySpace as the root of this entity hierarchy.
         Entity parentEntity =
-                mRuntime.createGroupEntity(pose, "parent", mRuntime.getActivitySpace());
-        Entity childEntity1 = mRuntime.createGroupEntity(pose, "child1", parentEntity);
-        Entity childEntity2 = mRuntime.createGroupEntity(pose, "child2", childEntity1);
+                mRuntime.createEntity(pose, "parent", mRuntime.getActivitySpace());
+        Entity childEntity1 = mRuntime.createEntity(pose, "child1", parentEntity);
+        Entity childEntity2 = mRuntime.createEntity(pose, "child2", childEntity1);
 
         // The translations should accumulate with each child, but there should be no rotation.
         assertVector3(
@@ -1460,9 +1459,9 @@ public class SpatialSceneRuntimeTest {
 
         // The parent has a translation and no rotation and each child adds a rotation.
         Entity parentEntity =
-                mRuntime.createGroupEntity(translatedPose, "parent", mRuntime.getActivitySpace());
-        Entity childEntity1 = mRuntime.createGroupEntity(rotatedPose, "child1", parentEntity);
-        Entity childEntity2 = mRuntime.createGroupEntity(rotatedPose, "child2", childEntity1);
+                mRuntime.createEntity(translatedPose, "parent", mRuntime.getActivitySpace());
+        Entity childEntity1 = mRuntime.createEntity(rotatedPose, "child1", parentEntity);
+        Entity childEntity2 = mRuntime.createEntity(rotatedPose, "child2", childEntity1);
 
         // There should be no translation offset from the parent, but rotations should accumulate.
         assertPose(parentEntity.getActivitySpacePose(), translatedPose);
@@ -1483,9 +1482,9 @@ public class SpatialSceneRuntimeTest {
 
         // Each entity adds a translation and a rotation.
         Entity parentEntity =
-                mRuntime.createGroupEntity(pose, "parent", mRuntime.getActivitySpace());
-        Entity childEntity1 = mRuntime.createGroupEntity(pose, "child1", parentEntity);
-        Entity childEntity2 = mRuntime.createGroupEntity(pose, "child2", childEntity1);
+                mRuntime.createEntity(pose, "parent", mRuntime.getActivitySpace());
+        Entity childEntity1 = mRuntime.createEntity(pose, "child1", parentEntity);
+        Entity childEntity2 = mRuntime.createEntity(pose, "child2", childEntity1);
 
         // Local pose of ActivitySpace's direct child must be the same as child's ActivitySpace
         // pose.
@@ -1515,11 +1514,11 @@ public class SpatialSceneRuntimeTest {
         // All these entities should have the ActivitySpaceRootImpl as their parent by default.
         PanelEntity panelEntity = createPanelEntity(pose);
         GltfEntity gltfEntity = createGltfEntity(pose);
-        Entity groupEntity = createGroupEntity(pose);
+        Entity entity = createEntity(pose);
 
         assertPose(panelEntity.getActivitySpacePose(), pose);
         assertPose(gltfEntity.getActivitySpacePose(), pose);
-        assertPose(groupEntity.getActivitySpacePose(), pose);
+        assertPose(entity.getActivitySpacePose(), pose);
     }
 
     @Test
@@ -1566,14 +1565,14 @@ public class SpatialSceneRuntimeTest {
 
         PanelEntity panelEntity = createPanelEntity(pose);
         GltfEntity gltfEntity = createGltfEntity(pose);
-        Entity groupEntity = createGroupEntity(pose);
+        Entity entity = createEntity(pose);
 
         assertPose(panelEntity.transformPoseTo(pose, panelEntity), pose);
         assertPose(gltfEntity.transformPoseTo(pose, gltfEntity), pose);
-        assertPose(groupEntity.transformPoseTo(pose, groupEntity), pose);
+        assertPose(entity.transformPoseTo(pose, entity), pose);
         assertPose(panelEntity.transformPoseTo(identity, panelEntity), identity);
         assertPose(gltfEntity.transformPoseTo(identity, gltfEntity), identity);
-        assertPose(groupEntity.transformPoseTo(identity, groupEntity), identity);
+        assertPose(entity.transformPoseTo(identity, entity), identity);
     }
 
     @Test
@@ -1633,10 +1632,10 @@ public class SpatialSceneRuntimeTest {
         Pose identity = new Pose();
 
         AndroidXrEntity sourceEntity =
-                (AndroidXrEntity) createGroupEntity(new Pose(sourceVector, sourceQuaternion));
+                (AndroidXrEntity) createEntity(new Pose(sourceVector, sourceQuaternion));
         AndroidXrEntity destinationEntity =
                 (AndroidXrEntity)
-                        createGroupEntity(new Pose(destinationVector, destinationQuaternion));
+                        createEntity(new Pose(destinationVector, destinationQuaternion));
 
         //// Transform an identity pose from the source to the destination space. ////
         Pose sourceToDestinationPose = sourceEntity.transformPoseTo(identity, destinationEntity);
@@ -1690,19 +1689,19 @@ public class SpatialSceneRuntimeTest {
     public void getAlpha_returnsSetAlpha() {
         PanelEntity panelEntity = createPanelEntity();
         GltfEntity gltfEntity = createGltfEntity();
-        Entity groupEntity = createGroupEntity();
+        Entity entity = createEntity();
 
         assertThat(panelEntity.getAlpha()).isEqualTo(1.0f);
         assertThat(gltfEntity.getAlpha()).isEqualTo(1.0f);
-        assertThat(groupEntity.getAlpha()).isEqualTo(1.0f);
+        assertThat(entity.getAlpha()).isEqualTo(1.0f);
 
         panelEntity.setAlpha(0.5f);
         gltfEntity.setAlpha(0.5f);
-        groupEntity.setAlpha(0.5f);
+        entity.setAlpha(0.5f);
 
         assertThat(panelEntity.getAlpha()).isEqualTo(0.5f);
         assertThat(gltfEntity.getAlpha()).isEqualTo(0.5f);
-        assertThat(groupEntity.getAlpha()).isEqualTo(0.5f);
+        assertThat(entity.getAlpha()).isEqualTo(0.5f);
         assertThat(mNodeRepository.map(NodeRepository.NodeMetadata::getAlpha))
                 .containsAtLeast(0.5f, 0.5f, 0.5f);
     }
@@ -1711,7 +1710,7 @@ public class SpatialSceneRuntimeTest {
     public void getActivitySpaceAlpha_returnsTotalAncestorAlpha() {
         PanelEntity grandparent = createPanelEntity();
         GltfEntity parent = createGltfEntity();
-        Entity entity = createGroupEntity();
+        Entity entity = createEntity();
 
         assertThat(grandparent.getAlpha(Space.ACTIVITY)).isEqualTo(1.0f);
         assertThat(parent.getAlpha(Space.ACTIVITY)).isEqualTo(1.0f);
@@ -2413,7 +2412,7 @@ public class SpatialSceneRuntimeTest {
 
     @Test
     public void dispose_clearsReformOptions() {
-        AndroidXrEntity entity = (AndroidXrEntity) createGroupEntity();
+        AndroidXrEntity entity = (AndroidXrEntity) createEntity();
         ReformOptions reformOptions = entity.getReformOptions();
 
         assertThat(reformOptions).isNotNull();
@@ -2426,7 +2425,7 @@ public class SpatialSceneRuntimeTest {
 
     @Test
     public void dispose_clearsParents() {
-        AndroidXrEntity entity = (AndroidXrEntity) createGroupEntity();
+        AndroidXrEntity entity = (AndroidXrEntity) createEntity();
         entity.setParent(mRuntime.getActivitySpace());
 
         assertThat(entity.getParent()).isNotNull();
@@ -2438,7 +2437,7 @@ public class SpatialSceneRuntimeTest {
 
     @Test
     public void destroy_clearsResources() {
-        AndroidXrEntity entity = (AndroidXrEntity) createGroupEntity();
+        AndroidXrEntity entity = (AndroidXrEntity) createEntity();
         assertThat(entity.getNode()).isNotNull();
         assertThat(mNodeRepository.getParent(entity.getNode())).isNotNull();
 
@@ -2453,7 +2452,7 @@ public class SpatialSceneRuntimeTest {
 
     @Test
     public void destroy_disposeInvoked() {
-        AndroidXrEntity entity = (AndroidXrEntity) createGroupEntity();
+        AndroidXrEntity entity = (AndroidXrEntity) createEntity();
         assertThat(entity.getNode()).isNotNull();
         assertThat(mNodeRepository.getParent(entity.getNode())).isNotNull();
 
@@ -2468,7 +2467,7 @@ public class SpatialSceneRuntimeTest {
 
     @Test
     public void setKeyEntity_setsKeyEntity() {
-        Entity entity = createGroupEntity();
+        Entity entity = createEntity();
         mRuntime.setKeyEntity(entity);
         assertThat(mRuntime.getKeyEntity()).isEqualTo(entity);
     }
@@ -2479,7 +2478,7 @@ public class SpatialSceneRuntimeTest {
         ShadowXrExtensions.extract(mXrExtensions).setApiVersion(1);
         mRuntime = createRuntime();
 
-        Entity entity = createGroupEntity();
+        Entity entity = createEntity();
         ShadowNode node = ShadowNode.extract(((AndroidXrEntity) entity).getNode());
 
         mRuntime.setKeyEntity(entity);
@@ -2494,7 +2493,7 @@ public class SpatialSceneRuntimeTest {
         ShadowXrExtensions.extract(mXrExtensions).setApiVersion(2);
         mRuntime = createRuntime();
 
-        Entity entity = createGroupEntity();
+        Entity entity = createEntity();
         ShadowNode node = ShadowNode.extract(((AndroidXrEntity) entity).getNode());
 
         mRuntime.setKeyEntity(entity);
@@ -2523,7 +2522,7 @@ public class SpatialSceneRuntimeTest {
         ShadowXrExtensions.extract(mXrExtensions).setApiVersion(2);
         mRuntime = createRuntime();
 
-        Entity entity = createGroupEntity();
+        Entity entity = createEntity();
         ShadowNode node = ShadowNode.extract(((AndroidXrEntity) entity).getNode());
 
         mRuntime.setKeyEntity(entity);
@@ -2550,7 +2549,7 @@ public class SpatialSceneRuntimeTest {
         ShadowXrExtensions.extract(mXrExtensions).setApiVersion(2);
         mRuntime = createRuntime();
 
-        Entity entity = createGroupEntity();
+        Entity entity = createEntity();
         mRuntime.setKeyEntity(entity);
         Closeable closeable1 = mRuntime.mKeyEntityTransformCloseable;
 
@@ -2566,8 +2565,8 @@ public class SpatialSceneRuntimeTest {
         ShadowXrExtensions.extract(mXrExtensions).setApiVersion(2);
         mRuntime = createRuntime();
 
-        Entity entity1 = createGroupEntity();
-        Entity entity2 = createGroupEntity();
+        Entity entity1 = createEntity();
+        Entity entity2 = createEntity();
         ShadowNode node1 = ShadowNode.extract(((AndroidXrEntity) entity1).getNode());
         ShadowNode node2 = ShadowNode.extract(((AndroidXrEntity) entity2).getNode());
 
@@ -2599,7 +2598,7 @@ public class SpatialSceneRuntimeTest {
         ShadowXrExtensions.extract(mXrExtensions).setApiVersion(2);
         mRuntime = createRuntime();
 
-        Entity entity = createGroupEntity();
+        Entity entity = createEntity();
         mRuntime.setKeyEntity(entity);
         FakeCloseable closeable = (FakeCloseable) mRuntime.mKeyEntityTransformCloseable;
         assertThat(closeable.isClosed()).isFalse();

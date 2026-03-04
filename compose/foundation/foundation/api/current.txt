@@ -383,7 +383,7 @@ package androidx.compose.foundation {
     method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public int getValue();
     method @InaccessibleFromKotlin public int getViewportSize();
     method @InaccessibleFromKotlin public boolean isScrollInProgress();
-    method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? scroll(optional androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? scrollTo(int value, kotlin.coroutines.Continuation<? super java.lang.Float>);
     property public boolean canScrollBackward;
     property public boolean canScrollForward;
@@ -1232,7 +1232,7 @@ package androidx.compose.foundation.lazy {
     method @InaccessibleFromKotlin public boolean isScrollInProgress();
     method public void requestScrollToItem(@IntRange(from=0L) int index, optional int scrollOffset);
     method @BytecodeOnly public static void requestScrollToItem$default(androidx.compose.foundation.lazy.LazyListState!, int, int, int, Object!);
-    method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? scroll(optional androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? scrollToItem(@IntRange(from=0L) int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @BytecodeOnly public static Object! scrollToItem$default(androidx.compose.foundation.lazy.LazyListState!, int, int, kotlin.coroutines.Continuation!, int, Object!);
     property public boolean canScrollBackward;
@@ -1452,7 +1452,7 @@ package androidx.compose.foundation.lazy.grid {
     method @InaccessibleFromKotlin public boolean isScrollInProgress();
     method public void requestScrollToItem(@IntRange(from=0L) int index, optional int scrollOffset);
     method @BytecodeOnly public static void requestScrollToItem$default(androidx.compose.foundation.lazy.grid.LazyGridState!, int, int, int, Object!);
-    method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? scroll(optional androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? scrollToItem(@IntRange(from=0L) int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @BytecodeOnly public static Object! scrollToItem$default(androidx.compose.foundation.lazy.grid.LazyGridState!, int, int, kotlin.coroutines.Continuation!, int, Object!);
     property public boolean canScrollBackward;
@@ -1668,7 +1668,7 @@ package androidx.compose.foundation.lazy.layout {
   public final class MutableIntervalList<T> implements androidx.compose.foundation.lazy.layout.IntervalList<T> {
     ctor public MutableIntervalList();
     method public void addInterval(int size, T value);
-    method public void forEach(int fromIndex, int toIndex, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.lazy.layout.IntervalList.Interval<? extends T>,kotlin.Unit> block);
+    method public void forEach(optional int fromIndex, optional int toIndex, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.lazy.layout.IntervalList.Interval<? extends T>,kotlin.Unit> block);
     method public androidx.compose.foundation.lazy.layout.IntervalList.Interval<T> get(int index);
     method @InaccessibleFromKotlin public int getSize();
     property public int size;
@@ -1789,7 +1789,7 @@ package androidx.compose.foundation.lazy.staggeredgrid {
     method @InaccessibleFromKotlin public boolean isScrollInProgress();
     method public void requestScrollToItem(@IntRange(from=0L) int index, optional int scrollOffset);
     method @BytecodeOnly public static void requestScrollToItem$default(androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState!, int, int, int, Object!);
-    method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? scroll(optional androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? scrollToItem(int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @BytecodeOnly public static Object! scrollToItem$default(androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState!, int, int, kotlin.coroutines.Continuation!, int, Object!);
     property public boolean canScrollBackward;
@@ -1958,7 +1958,7 @@ package androidx.compose.foundation.pager {
     method @InaccessibleFromKotlin public boolean isScrollInProgress();
     method public final void requestScrollToPage(@IntRange(from=0L) int page, optional @FloatRange(from=-0.5, to=0.5) float pageOffsetFraction);
     method @BytecodeOnly public static void requestScrollToPage$default(androidx.compose.foundation.pager.PagerState!, int, float, int, Object!);
-    method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? scroll(optional androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public final suspend Object? scrollToPage(int page, optional @FloatRange(from=-0.5, to=0.5) float pageOffsetFraction, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @BytecodeOnly public static Object! scrollToPage$default(androidx.compose.foundation.pager.PagerState!, int, float, kotlin.coroutines.Continuation!, int, Object!);
     method public final void updateCurrentPage(androidx.compose.foundation.gestures.ScrollScope, int page, optional @FloatRange(from=-0.5, to=0.5) float pageOffsetFraction);
@@ -2050,7 +2050,7 @@ package androidx.compose.foundation.shape {
 
   public final class AbsoluteCutCornerShape extends androidx.compose.foundation.shape.CornerBasedShape {
     ctor public AbsoluteCutCornerShape(androidx.compose.foundation.shape.CornerSize topLeft, androidx.compose.foundation.shape.CornerSize topRight, androidx.compose.foundation.shape.CornerSize bottomRight, androidx.compose.foundation.shape.CornerSize bottomLeft);
-    method public androidx.compose.foundation.shape.AbsoluteCutCornerShape copy(androidx.compose.foundation.shape.CornerSize topStart, androidx.compose.foundation.shape.CornerSize topEnd, androidx.compose.foundation.shape.CornerSize bottomEnd, androidx.compose.foundation.shape.CornerSize bottomStart);
+    method public androidx.compose.foundation.shape.AbsoluteCutCornerShape copy(optional androidx.compose.foundation.shape.CornerSize topStart, optional androidx.compose.foundation.shape.CornerSize topEnd, optional androidx.compose.foundation.shape.CornerSize bottomEnd, optional androidx.compose.foundation.shape.CornerSize bottomStart);
     method @KotlinOnly public androidx.compose.ui.graphics.Outline createOutline(androidx.compose.ui.geometry.Size size, float topStart, float topEnd, float bottomEnd, float bottomStart, androidx.compose.ui.unit.LayoutDirection layoutDirection);
     method @BytecodeOnly public androidx.compose.ui.graphics.Outline createOutline-LjSzlW0(long, float, float, float, float, androidx.compose.ui.unit.LayoutDirection);
   }
@@ -2072,7 +2072,7 @@ package androidx.compose.foundation.shape {
 
   public final class AbsoluteRoundedCornerShape extends androidx.compose.foundation.shape.CornerBasedShape {
     ctor public AbsoluteRoundedCornerShape(androidx.compose.foundation.shape.CornerSize topLeft, androidx.compose.foundation.shape.CornerSize topRight, androidx.compose.foundation.shape.CornerSize bottomRight, androidx.compose.foundation.shape.CornerSize bottomLeft);
-    method public androidx.compose.foundation.shape.AbsoluteRoundedCornerShape copy(androidx.compose.foundation.shape.CornerSize topStart, androidx.compose.foundation.shape.CornerSize topEnd, androidx.compose.foundation.shape.CornerSize bottomEnd, androidx.compose.foundation.shape.CornerSize bottomStart);
+    method public androidx.compose.foundation.shape.AbsoluteRoundedCornerShape copy(optional androidx.compose.foundation.shape.CornerSize topStart, optional androidx.compose.foundation.shape.CornerSize topEnd, optional androidx.compose.foundation.shape.CornerSize bottomEnd, optional androidx.compose.foundation.shape.CornerSize bottomStart);
     method @KotlinOnly public androidx.compose.ui.graphics.Outline createOutline(androidx.compose.ui.geometry.Size size, float topStart, float topEnd, float bottomEnd, float bottomStart, androidx.compose.ui.unit.LayoutDirection layoutDirection);
     method @BytecodeOnly public androidx.compose.ui.graphics.Outline createOutline-LjSzlW0(long, float, float, float, float, androidx.compose.ui.unit.LayoutDirection);
   }
@@ -2128,7 +2128,7 @@ package androidx.compose.foundation.shape {
 
   public final class CutCornerShape extends androidx.compose.foundation.shape.CornerBasedShape {
     ctor public CutCornerShape(androidx.compose.foundation.shape.CornerSize topStart, androidx.compose.foundation.shape.CornerSize topEnd, androidx.compose.foundation.shape.CornerSize bottomEnd, androidx.compose.foundation.shape.CornerSize bottomStart);
-    method public androidx.compose.foundation.shape.CutCornerShape copy(androidx.compose.foundation.shape.CornerSize topStart, androidx.compose.foundation.shape.CornerSize topEnd, androidx.compose.foundation.shape.CornerSize bottomEnd, androidx.compose.foundation.shape.CornerSize bottomStart);
+    method public androidx.compose.foundation.shape.CutCornerShape copy(optional androidx.compose.foundation.shape.CornerSize topStart, optional androidx.compose.foundation.shape.CornerSize topEnd, optional androidx.compose.foundation.shape.CornerSize bottomEnd, optional androidx.compose.foundation.shape.CornerSize bottomStart);
     method @KotlinOnly public androidx.compose.ui.graphics.Outline createOutline(androidx.compose.ui.geometry.Size size, float topStart, float topEnd, float bottomEnd, float bottomStart, androidx.compose.ui.unit.LayoutDirection layoutDirection);
     method @BytecodeOnly public androidx.compose.ui.graphics.Outline createOutline-LjSzlW0(long, float, float, float, float, androidx.compose.ui.unit.LayoutDirection);
   }
@@ -2156,7 +2156,7 @@ package androidx.compose.foundation.shape {
 
   public final class RoundedCornerShape extends androidx.compose.foundation.shape.CornerBasedShape {
     ctor public RoundedCornerShape(androidx.compose.foundation.shape.CornerSize topStart, androidx.compose.foundation.shape.CornerSize topEnd, androidx.compose.foundation.shape.CornerSize bottomEnd, androidx.compose.foundation.shape.CornerSize bottomStart);
-    method public androidx.compose.foundation.shape.RoundedCornerShape copy(androidx.compose.foundation.shape.CornerSize topStart, androidx.compose.foundation.shape.CornerSize topEnd, androidx.compose.foundation.shape.CornerSize bottomEnd, androidx.compose.foundation.shape.CornerSize bottomStart);
+    method public androidx.compose.foundation.shape.RoundedCornerShape copy(optional androidx.compose.foundation.shape.CornerSize topStart, optional androidx.compose.foundation.shape.CornerSize topEnd, optional androidx.compose.foundation.shape.CornerSize bottomEnd, optional androidx.compose.foundation.shape.CornerSize bottomStart);
     method @KotlinOnly public androidx.compose.ui.graphics.Outline createOutline(androidx.compose.ui.geometry.Size size, float topStart, float topEnd, float bottomEnd, float bottomStart, androidx.compose.ui.unit.LayoutDirection layoutDirection);
     method @BytecodeOnly public androidx.compose.ui.graphics.Outline createOutline-LjSzlW0(long, float, float, float, float, androidx.compose.ui.unit.LayoutDirection);
   }

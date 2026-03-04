@@ -397,17 +397,39 @@ class BrushTest {
                         behaviors =
                             listOf(
                                 BrushBehavior(
-                                    source = BrushBehavior.Source.TILT_IN_RADIANS,
-                                    target = BrushBehavior.Target.HEIGHT_MULTIPLIER,
-                                    sourceValueRangeStart = 0.2f,
-                                    sourceValueRangeEnd = .8f,
-                                    targetModifierRangeStart = 1.1f,
-                                    targetModifierRangeEnd = 1.7f,
-                                    sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.MIRROR,
-                                    responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
-                                    responseTimeMillis = 1L,
-                                    enabledToolTypes = setOf(InputToolType.STYLUS),
-                                    isFallbackFor = BrushBehavior.OptionalInputProperty.TILT_X_AND_Y,
+                                    BrushBehavior.TargetNode(
+                                        target = BrushBehavior.Target.HEIGHT_MULTIPLIER,
+                                        targetModifierRangeStart = 1.1f,
+                                        targetModifierRangeEnd = 1.7f,
+                                        input =
+                                            BrushBehavior.DampingNode(
+                                                dampingSource =
+                                                    BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
+                                                dampingGap = 0.001f,
+                                                input =
+                                                    BrushBehavior.ResponseNode(
+                                                        responseCurve =
+                                                            EasingFunction.Predefined.EASE_IN_OUT,
+                                                        input =
+                                                            BrushBehavior.ToolTypeFilterNode(
+                                                                enabledToolTypes =
+                                                                    setOf(InputToolType.STYLUS),
+                                                                input =
+                                                                    BrushBehavior.SourceNode(
+                                                                        source =
+                                                                            BrushBehavior.Source
+                                                                                .TILT_IN_RADIANS,
+                                                                        sourceValueRangeStart =
+                                                                            0.2f,
+                                                                        sourceValueRangeEnd = .8f,
+                                                                        sourceOutOfRangeBehavior =
+                                                                            BrushBehavior.OutOfRange
+                                                                                .MIRROR,
+                                                                    ),
+                                                            ),
+                                                    ),
+                                            ),
+                                    )
                                 )
                             ),
                     ),

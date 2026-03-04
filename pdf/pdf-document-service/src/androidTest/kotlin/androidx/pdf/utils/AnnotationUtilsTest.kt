@@ -16,7 +16,6 @@
 
 package androidx.pdf.utils
 
-import android.content.Context
 import android.graphics.Path
 import android.graphics.pdf.component.PdfPagePathObject
 import android.os.Build
@@ -24,27 +23,15 @@ import android.os.ext.SdkExtensions
 import androidx.annotation.RequiresExtension
 import androidx.pdf.annotation.models.PathPdfObject
 import androidx.pdf.annotation.models.PathPdfObject.PathInput
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM, codeName = "VanillaIceCream")
 class AnnotationUtilsTest {
-
-    @Test
-    fun readAnnotationsFromPfd_emptyFile() = runTest {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val pfd = createPfd(context, TEST_ANNOTATIONS_FILE, "rwt")
-
-        val annotations = readAnnotationsFromPfd(pfd)
-        assertThat(annotations).isEmpty()
-        pfd.close()
-    }
 
     @Test
     fun getPathFromPathInputs_emptyList_returnsEmptyPath() {

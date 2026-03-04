@@ -19,8 +19,8 @@ package androidx.room3
 /**
  * Ignores the marked element from Room's processing logic.
  *
- * This annotation can be used in multiple places where Room processor runs. For instance, you can
- * add it to a field of an [Entity] and Room will not persist that field.
+ * This annotation can be used in multiple places where Room processor runs. For example, you can
+ * add it to a property of an [Entity] and Room will not persist that property in the mapping table.
  */
 @Target(
     AnnotationTarget.FUNCTION,

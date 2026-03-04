@@ -154,6 +154,7 @@ public class CoreDocument implements Serializable {
     private @Nullable IntMap<Object> mDocProperties;
 
     boolean mFirstPaint = true;
+
     private boolean mIsUpdateDoc = false;
     private int mHostExceptionID = 0;
     private int mBitmapMemory = 0;

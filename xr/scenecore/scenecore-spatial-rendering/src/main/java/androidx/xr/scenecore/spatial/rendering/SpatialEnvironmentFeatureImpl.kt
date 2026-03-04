@@ -18,7 +18,7 @@ package androidx.xr.scenecore.spatial.rendering
 
 import android.app.Activity
 import android.os.Looper
-import androidx.xr.runtime.Log
+import androidx.xr.runtime.XrLog
 import androidx.xr.scenecore.impl.impress.ExrImage
 import androidx.xr.scenecore.impl.impress.GltfModel
 import androidx.xr.scenecore.impl.impress.ImpressApi
@@ -96,7 +96,7 @@ internal class SpatialEnvironmentFeatureImpl(
         if (geometryEntity != null) {
             targetSubspaceNode = geometryEntity.extractedFeature?.subspace?.subspaceNode
             if (targetSubspaceNode == null) {
-                Log.error(
+                XrLog.error(
                     "GltfModelEntity does not have a valid subspace, can't use it for the" +
                         " environment geometry."
                 )

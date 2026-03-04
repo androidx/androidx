@@ -146,7 +146,7 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
      * described in [Float16].
      *
      * Unlike [toRawBits], this method collapses all possible Not-a-Number values to a single
-     * canonical Not-a-Number value defined by [NaN].
+     * canonical Not-a-Number value defined by [NAN].
      *
      * @return The bits that represent the half-precision float value
      */
@@ -176,9 +176,9 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
     /**
      * Compares to another half-precision float value. The following conditions apply during the
      * comparison:
-     * * [NaN] is considered by this method to be equal to itself and greater than all other
-     *   half-precision float values (including [PositiveInfinity])
-     * * [PositiveZero] is considered by this method to be greater than [NegativeZero].
+     * * [NAN] is considered by this method to be equal to itself and greater than all other
+     *   half-precision float values (including [POSITIVE_INFINITY])
+     * * [POSITIVE_ZERO] is considered by this method to be greater than [NEGATIVE_ZERO].
      *
      * @param other The half-precision float value to compare to the half-precision value
      *   represented by this `Float16` object
@@ -202,7 +202,7 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
      * * `1.0` if the value is positive
      *
      * Special case:
-     * * `NaN.sign` is `NaN`
+     * * `NAN.sign` is `NAN`
      */
     val sign: Float16
         get() =
@@ -223,11 +223,11 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
     /**
      * Returns the absolute value of the half-precision float. Special values are handled in the
      * following ways:
-     * * If the specified half-precision float is [NaN], the result is [NaN]
+     * * If the specified half-precision float is [NAN], the result is [NAN]
      * * If the specified half-precision float is zero (negative or positive), the result is
-     *   positive zero (see [PositiveZero])
+     *   positive zero (see [POSITIVE_ZERO])
      * * If the specified half-precision float is infinity (negative or positive), the result is
-     *   positive infinity (see [PositiveInfinity])
+     *   positive infinity (see [POSITIVE_INFINITY])
      */
     fun absoluteValue(): Float16 {
         return Float16((halfValue.toInt() and FP16_COMBINED).toShort())
@@ -236,7 +236,7 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
     /**
      * Returns the closest integral half-precision float value to the this half-precision float
      * value. Special values are handled in the following ways:
-     * * If the specified half-precision float is [NaN], the result is [NaN]
+     * * If the specified half-precision float is [NAN], the result is [NAN]
      * * If the specified half-precision float is infinity (negative or positive), the result is
      *   infinity (with the same sign)
      * * If the specified half-precision float is zero (negative or positive), the result is zero
@@ -266,7 +266,7 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
     /**
      * Returns the smallest half-precision float value toward negative infinity greater than or
      * equal to this half-precision float value. Special values are handled in the following ways:
-     * * If the specified half-precision float is [NaN], the result is [NaN]
+     * * If the specified half-precision float is [NAN], the result is [NAN]
      * * If the specified half-precision float is infinity (negative or positive), the result is
      *   infinity (with the same sign)
      * * If the specified half-precision float is zero (negative or positive), the result is zero
@@ -296,7 +296,7 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
     /**
      * Returns the largest half-precision float value toward positive infinity less than or equal to
      * this half-precision float value. Special values are handled in the following ways:
-     * * If the specified half-precision float is [NaN], the result is [NaN]
+     * * If the specified half-precision float is [NAN], the result is [NAN]
      * * If the specified half-precision float is infinity (negative or positive), the result is
      *   infinity (with the same sign)
      * * If the specified half-precision float is zero (negative or positive), the result is zero
@@ -352,8 +352,8 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
 
     /**
      * The unbiased exponent used in the representation of the specified half-precision float value.
-     * if the value is NaN or infinite, this* method returns [MaxExponent] + 1. If the argument is 0
-     * or a subnormal representation, this method returns [MinExponent] - 1.
+     * if the value is NaN or infinite, this* method returns [MAX_EXPONENT] + 1. If the argument is
+     * 0 or a subnormal representation, this method returns [MIN_EXPONENT] - 1.
      */
     val exponent: Int
         get() =
@@ -389,8 +389,8 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
 
     /**
      * Returns true if the half-precision float value is normalized (does not have a subnormal
-     * representation). If the specified value is [PositiveInfinity], [NegativeInfinity],
-     * [PositiveZero], [NegativeZero], [NaN] or any subnormal number, this method returns false.
+     * representation). If the specified value is [POSITIVE_INFINITY], [NEGATIVE_INFINITY],
+     * [POSITIVE_ZERO], [NEGATIVE_ZERO], [NAN] or any subnormal number, this method returns false.
      *
      * @return True if the value is normalized, false otherwise
      */
@@ -606,8 +606,8 @@ internal inline fun halfToFloat(h: Short): Float {
 /**
  * Returns the smaller of two half-precision float values (the value closest to negative infinity).
  * Special values are handled in the following ways:
- * * If either value is [Float16.NaN], the result is [Float16.NaN]
- * * [Float16.NegativeZero] is smaller than [Float16.PositiveZero]
+ * * If either value is [Float16.NAN], the result is [Float16.NAN]
+ * * [Float16.NEGATIVE_ZERO] is smaller than [Float16.POSITIVE_ZERO]
  *
  * @param x The first half-precision value
  * @param y The second half-precision value
@@ -623,8 +623,8 @@ internal fun min(x: Float16, y: Float16): Float16 {
 /**
  * Returns the larger of two half-precision float values (the value closest to positive infinity).
  * Special values are handled in the following ways:
- * * If either value is [Float16.NaN], the result is [Float16.NaN]
- * * [Float16.PositiveZero] is greater than [Float16.NegativeZero]
+ * * If either value is [Float16.NAN], the result is [Float16.NAN]
+ * * [Float16.POSITIVE_ZERO] is greater than [Float16.NEGATIVE_ZERO]
  *
  * @param x The first half-precision value
  * @param y The second half-precision value

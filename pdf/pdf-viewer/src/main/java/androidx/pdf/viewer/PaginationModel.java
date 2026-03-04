@@ -418,6 +418,7 @@ public class PaginationModel implements Parcelable {
     }
 
     /** Just makes sure to clear any observers that have been set. */
+    @SuppressWarnings("removal")
     @Override
     protected void finalize() throws Throwable {
         mObservers.clear();

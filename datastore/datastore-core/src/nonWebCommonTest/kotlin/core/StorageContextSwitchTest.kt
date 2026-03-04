@@ -19,7 +19,6 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.currentCoroutineContext
@@ -32,10 +31,7 @@ class StorageContextSwitchTest {
     private val callerCtx = TestElement1("caller_key_1") + TestElement3("caller_key_3")
     private val testStorage = TestStorage()
     private val store =
-        androidx.datastore.core.DataStoreImpl(
-            testStorage,
-            scope = CoroutineScope(Dispatchers.IO + datastoreCtx),
-        )
+        androidx.datastore.core.DataStoreImpl(testStorage, context = Dispatchers.IO + datastoreCtx)
 
     @Test
     fun testContextSandwich() =

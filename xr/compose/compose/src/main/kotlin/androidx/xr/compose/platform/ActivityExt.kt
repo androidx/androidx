@@ -20,6 +20,7 @@ import android.app.Activity
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.window.embedding.ActivityEmbeddingController
 import androidx.xr.compose.R
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.FloatSize3d
@@ -147,6 +148,10 @@ private suspend fun ActivitySpace.awaitSpaceUpdated(expectedSpace: Space) {
 /** The main content view of the `Activity`. */
 internal val Activity.contentView: View
     get() = window.decorView
+
+/** Returns true if this activity is embedded in another activity */
+internal fun Activity.isEmbedded(): Boolean =
+    ActivityEmbeddingController.getInstance(this).isActivityEmbedded(this)
 
 /**
  * Create a coroutineScope that will automatically be cancelled when the ComponentActivity is

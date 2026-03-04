@@ -346,9 +346,6 @@ abstract class AndroidXExtension(
 
     var bypassCoordinateValidation = false
 
-    /** Whether Metalava should use K2 Kotlin front-end for source analysis */
-    val metalavaK2UastEnabled = project.objects.property(Boolean::class.java).convention(true)
-
     /** Whether the project has not yet been migrated to use JSpecify annotations. */
     var optOutJSpecify = false
 

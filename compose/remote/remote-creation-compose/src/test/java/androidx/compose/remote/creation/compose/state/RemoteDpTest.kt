@@ -159,4 +159,12 @@ class RemoteDpTest {
 
         assertThat(resultFloat).isEqualTo(304f)
     }
+
+    @Test
+    fun remoteDp_cacheKey() {
+        val dp1 = 10.rdp
+        val dp2 = 10.rdp
+        assertThat(dp1.cacheKey).isNotNull()
+        assertThat(dp1.cacheKey).isEqualTo(dp2.cacheKey)
+    }
 }

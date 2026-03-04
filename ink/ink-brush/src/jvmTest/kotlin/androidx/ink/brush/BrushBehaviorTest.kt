@@ -60,8 +60,6 @@ class BrushBehaviorTest {
             .isEqualTo("BrushBehavior.Source.DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE")
         assertThat(BrushBehavior.Source.TIME_OF_INPUT_IN_SECONDS.toString())
             .isEqualTo("BrushBehavior.Source.TIME_OF_INPUT_IN_SECONDS")
-        assertThat(BrushBehavior.Source.TIME_OF_INPUT_IN_MILLIS.toString())
-            .isEqualTo("BrushBehavior.Source.TIME_OF_INPUT_IN_MILLIS")
         assertThat(
                 BrushBehavior.Source.PREDICTED_DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE
                     .toString()
@@ -71,14 +69,12 @@ class BrushBehaviorTest {
             )
         assertThat(BrushBehavior.Source.PREDICTED_TIME_ELAPSED_IN_SECONDS.toString())
             .isEqualTo("BrushBehavior.Source.PREDICTED_TIME_ELAPSED_IN_SECONDS")
-        assertThat(BrushBehavior.Source.PREDICTED_TIME_ELAPSED_IN_MILLIS.toString())
-            .isEqualTo("BrushBehavior.Source.PREDICTED_TIME_ELAPSED_IN_MILLIS")
         assertThat(BrushBehavior.Source.DISTANCE_REMAINING_IN_MULTIPLES_OF_BRUSH_SIZE.toString())
             .isEqualTo("BrushBehavior.Source.DISTANCE_REMAINING_IN_MULTIPLES_OF_BRUSH_SIZE")
         assertThat(BrushBehavior.Source.TIME_SINCE_INPUT_IN_SECONDS.toString())
             .isEqualTo("BrushBehavior.Source.TIME_SINCE_INPUT_IN_SECONDS")
-        assertThat(BrushBehavior.Source.TIME_SINCE_INPUT_IN_MILLIS.toString())
-            .isEqualTo("BrushBehavior.Source.TIME_SINCE_INPUT_IN_MILLIS")
+        assertThat(BrushBehavior.Source.TIME_SINCE_STROKE_END_IN_SECONDS.toString())
+            .isEqualTo("BrushBehavior.Source.TIME_SINCE_STROKE_END_IN_SECONDS")
         assertThat(
                 BrushBehavior.Source.ACCELERATION_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED
                     .toString()
@@ -233,22 +229,18 @@ class BrushBehaviorTest {
     }
 
     @Test
-    fun optionalInputPropertyToString_returnsCorrectString() {
-        assertThat(BrushBehavior.OptionalInputProperty.PRESSURE.toString())
-            .isEqualTo("BrushBehavior.OptionalInputProperty.PRESSURE")
-        assertThat(BrushBehavior.OptionalInputProperty.TILT.toString())
-            .isEqualTo("BrushBehavior.OptionalInputProperty.TILT")
-        assertThat(BrushBehavior.OptionalInputProperty.ORIENTATION.toString())
-            .isEqualTo("BrushBehavior.OptionalInputProperty.ORIENTATION")
-        assertThat(BrushBehavior.OptionalInputProperty.TILT_X_AND_Y.toString())
-            .isEqualTo("BrushBehavior.OptionalInputProperty.TILT_X_AND_Y")
-    }
-
-    @Test
     fun binaryOpToString_returnsCorrectString() {
         assertThat(BrushBehavior.BinaryOp.PRODUCT.toString())
             .isEqualTo("BrushBehavior.BinaryOp.PRODUCT")
         assertThat(BrushBehavior.BinaryOp.SUM.toString()).isEqualTo("BrushBehavior.BinaryOp.SUM")
+        assertThat(BrushBehavior.BinaryOp.MIN.toString()).isEqualTo("BrushBehavior.BinaryOp.MIN")
+        assertThat(BrushBehavior.BinaryOp.MAX.toString()).isEqualTo("BrushBehavior.BinaryOp.MAX")
+        assertThat(BrushBehavior.BinaryOp.AND_THEN.toString())
+            .isEqualTo("BrushBehavior.BinaryOp.AND_THEN")
+        assertThat(BrushBehavior.BinaryOp.OR_ELSE.toString())
+            .isEqualTo("BrushBehavior.BinaryOp.OR_ELSE")
+        assertThat(BrushBehavior.BinaryOp.XOR_ELSE.toString())
+            .isEqualTo("BrushBehavior.BinaryOp.XOR_ELSE")
     }
 
     @Test
@@ -413,64 +405,6 @@ class BrushBehaviorTest {
         val node1 = BrushBehavior.NoiseNode(12345, BrushBehavior.ProgressDomain.TIME_IN_SECONDS, 1f)
         val node2 = BrushBehavior.NoiseNode(12345, BrushBehavior.ProgressDomain.TIME_IN_SECONDS, 1f)
         assertThat(node1.hashCode()).isEqualTo(node2.hashCode())
-    }
-
-    @Test
-    fun fallbackFilterNodeInputs_containsInput() {
-        val input = BrushBehavior.ConstantNode(0f)
-        val node =
-            BrushBehavior.FallbackFilterNode(BrushBehavior.OptionalInputProperty.PRESSURE, input)
-        assertThat(node.inputs).containsExactly(input)
-    }
-
-    @Test
-    fun fallbackFilterNodeToString() {
-        val input = BrushBehavior.ConstantNode(0f)
-        val node =
-            BrushBehavior.FallbackFilterNode(BrushBehavior.OptionalInputProperty.PRESSURE, input)
-        assertThat(node.toString()).isEqualTo("FallbackFilterNode(PRESSURE, ConstantNode(0.0))")
-    }
-
-    @Test
-    fun fallbackFilterNodeEquals_checksEqualityOfValues() {
-        val node1 =
-            BrushBehavior.FallbackFilterNode(
-                BrushBehavior.OptionalInputProperty.PRESSURE,
-                BrushBehavior.ConstantNode(1f),
-            )
-        val node2 =
-            BrushBehavior.FallbackFilterNode(
-                BrushBehavior.OptionalInputProperty.PRESSURE,
-                BrushBehavior.ConstantNode(1f),
-            )
-        val node3 =
-            BrushBehavior.FallbackFilterNode(
-                BrushBehavior.OptionalInputProperty.PRESSURE,
-                BrushBehavior.ConstantNode(2f),
-            )
-        assertThat(node1).isEqualTo(node2)
-        assertThat(node1).isNotEqualTo(node3)
-    }
-
-    @Test
-    fun fallbackFilterNodeHashCode_withIdenticalValues_match() {
-        val node1 =
-            BrushBehavior.FallbackFilterNode(
-                BrushBehavior.OptionalInputProperty.PRESSURE,
-                BrushBehavior.ConstantNode(1f),
-            )
-        val node2 =
-            BrushBehavior.FallbackFilterNode(
-                BrushBehavior.OptionalInputProperty.PRESSURE,
-                BrushBehavior.ConstantNode(1f),
-            )
-        val node3 =
-            BrushBehavior.FallbackFilterNode(
-                BrushBehavior.OptionalInputProperty.PRESSURE,
-                BrushBehavior.ConstantNode(2f),
-            )
-        assertThat(node1.hashCode()).isEqualTo(node2.hashCode())
-        assertThat(node1.hashCode()).isNotEqualTo(node3.hashCode())
     }
 
     @Test
@@ -1253,21 +1187,14 @@ class BrushBehaviorTest {
     }
 
     @Test
-    fun brushBehaviorConstructor_withInvalidArguments_throws() {
+    fun brushBehaviorSourceNodeConstructor_withInvalidArguments_throws() {
         // sourceValueRangeStart not finite
         val sourceValueRangeStartError =
             assertFailsWith<IllegalArgumentException> {
-                BrushBehavior(
+                BrushBehavior.SourceNode(
                     source = BrushBehavior.Source.NORMALIZED_PRESSURE,
-                    target = BrushBehavior.Target.WIDTH_MULTIPLIER,
                     sourceValueRangeStart = Float.NaN, // Not finite.
                     sourceValueRangeEnd = 1.0f,
-                    targetModifierRangeStart = 1.0f,
-                    targetModifierRangeEnd = 1.75f,
-                    sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.CLAMP,
-                    responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
-                    responseTimeMillis = 1L,
-                    enabledToolTypes = setOf(InputToolType.STYLUS),
                 )
             }
         assertThat(sourceValueRangeStartError.message).contains("source")
@@ -1276,55 +1203,51 @@ class BrushBehaviorTest {
         // sourceValueRangeEnd not finite
         val sourceValueRangeEndError =
             assertFailsWith<IllegalArgumentException> {
-                BrushBehavior(
+                BrushBehavior.SourceNode(
                     source = BrushBehavior.Source.NORMALIZED_PRESSURE,
-                    target = BrushBehavior.Target.WIDTH_MULTIPLIER,
                     sourceValueRangeStart = 1.0f,
                     sourceValueRangeEnd = Float.NaN, // Not finite.
-                    targetModifierRangeStart = 1.0f,
-                    targetModifierRangeEnd = 1.75f,
-                    sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.CLAMP,
-                    responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
-                    responseTimeMillis = 1L,
-                    enabledToolTypes = setOf(InputToolType.STYLUS),
                 )
             }
-        assertThat(sourceValueRangeEndError.message).contains("source")
-        assertThat(sourceValueRangeEndError.message).contains("finite")
+        assertThat(sourceValueRangeStartError.message).contains("source")
+        assertThat(sourceValueRangeStartError.message).contains("finite")
 
         // sourceValueRangeEnd == sourceValueRangeEnd
         val sourceValueRangeError =
             assertFailsWith<IllegalArgumentException> {
-                BrushBehavior(
+                BrushBehavior.SourceNode(
                     source = BrushBehavior.Source.NORMALIZED_PRESSURE,
-                    target = BrushBehavior.Target.WIDTH_MULTIPLIER,
                     sourceValueRangeStart = 0.5f, // same as upper bound.
                     sourceValueRangeEnd = 0.5f, // same as lower bound.
-                    targetModifierRangeStart = 1.0f,
-                    targetModifierRangeEnd = 1.75f,
-                    sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.CLAMP,
-                    responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
-                    responseTimeMillis = 1L,
-                    enabledToolTypes = setOf(InputToolType.STYLUS),
                 )
             }
         assertThat(sourceValueRangeError.message).contains("source")
         assertThat(sourceValueRangeError.message).contains("distinct")
 
+        // source and outOfRangeBehavior combination is invalid (TIME_SINCE_INPUT must use CLAMP)
+        val sourceOutOfRangeBehaviorError =
+            assertFailsWith<IllegalArgumentException> {
+                BrushBehavior.SourceNode(
+                    source = BrushBehavior.Source.TIME_SINCE_INPUT_IN_SECONDS,
+                    sourceValueRangeStart = 0.2f,
+                    sourceValueRangeEnd = .8f,
+                    sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.REPEAT,
+                )
+            }
+        assertThat(sourceOutOfRangeBehaviorError.message).contains("TimeSince")
+        assertThat(sourceOutOfRangeBehaviorError.message).contains("kClamp")
+    }
+
+    @Test
+    fun brushBehaviorTargetNodeConstructor_withInvalidArguments_throws() {
         // targetModifierRangeStart not finite
         val targetModifierRangeStartError =
             assertFailsWith<IllegalArgumentException> {
-                BrushBehavior(
-                    source = BrushBehavior.Source.NORMALIZED_PRESSURE,
+                BrushBehavior.TargetNode(
                     target = BrushBehavior.Target.WIDTH_MULTIPLIER,
-                    sourceValueRangeStart = 0.2f,
-                    sourceValueRangeEnd = .8f,
                     targetModifierRangeStart = Float.NaN, // Not finite.
                     targetModifierRangeEnd = 1.75f,
-                    sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.CLAMP,
-                    responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
-                    responseTimeMillis = 1L,
-                    enabledToolTypes = setOf(InputToolType.STYLUS),
+                    input = BrushBehavior.ConstantNode(0f),
                 )
             }
         assertThat(targetModifierRangeStartError.message).contains("target")
@@ -1333,96 +1256,60 @@ class BrushBehaviorTest {
         // targetModifierRangeEnd not finite
         val targetModifierRangeEndError =
             assertFailsWith<IllegalArgumentException> {
-                BrushBehavior(
-                    source = BrushBehavior.Source.NORMALIZED_PRESSURE,
+                BrushBehavior.TargetNode(
                     target = BrushBehavior.Target.WIDTH_MULTIPLIER,
-                    sourceValueRangeStart = 0.2f,
-                    sourceValueRangeEnd = .8f,
                     targetModifierRangeStart = 1.0f,
                     targetModifierRangeEnd = Float.NaN, // Not finite.
-                    sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.CLAMP,
-                    responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
-                    responseTimeMillis = 1L,
-                    enabledToolTypes = setOf(InputToolType.STYLUS),
+                    input = BrushBehavior.ConstantNode(0f),
                 )
             }
         assertThat(targetModifierRangeEndError.message).contains("target")
         assertThat(targetModifierRangeEndError.message).contains("finite")
+    }
 
+    @Test
+    fun brushBehaviorDampingNodeConstructor_withInvalidArguments_throws() {
         // responseTimeMillis less than 0L
         val responseTimeMillisError =
             assertFailsWith<IllegalArgumentException> {
-                BrushBehavior(
-                    source = BrushBehavior.Source.NORMALIZED_PRESSURE,
-                    target = BrushBehavior.Target.WIDTH_MULTIPLIER,
-                    sourceValueRangeStart = 0.2f,
-                    sourceValueRangeEnd = .8f,
-                    targetModifierRangeStart = 1.0f,
-                    targetModifierRangeEnd = 1.75f,
-                    sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.CLAMP,
-                    responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
-                    responseTimeMillis = -1L, // Less than 0.
-                    enabledToolTypes = setOf(InputToolType.STYLUS),
+                BrushBehavior.DampingNode(
+                    dampingSource = BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
+                    dampingGap = -0.001f, // Less than 0.
+                    input = BrushBehavior.ConstantNode(0f),
                 )
             }
         assertThat(responseTimeMillisError.message).contains("damping_gap")
         assertThat(responseTimeMillisError.message).contains("non-negative")
+    }
 
+    @Test
+    fun brushBehaviorToolTypeFilterNodeConstructor_withInvalidArguments_throws() {
         // enabledToolType contains empty set.
         val enabledToolTypeError =
             assertFailsWith<IllegalArgumentException> {
-                BrushBehavior(
-                    source = BrushBehavior.Source.NORMALIZED_PRESSURE,
-                    target = BrushBehavior.Target.WIDTH_MULTIPLIER,
-                    sourceValueRangeStart = 0.2f,
-                    sourceValueRangeEnd = .8f,
-                    targetModifierRangeStart = 1.0f,
-                    targetModifierRangeEnd = 1.75f,
-                    sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.CLAMP,
-                    responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
-                    responseTimeMillis = 1L,
+                BrushBehavior.ToolTypeFilterNode(
                     enabledToolTypes = setOf(),
+                    input = BrushBehavior.ConstantNode(0f),
                 )
             }
         assertThat(enabledToolTypeError.message).contains("enabled_tool_types")
         assertThat(enabledToolTypeError.message).contains("must enable at least one")
-
-        // source and outOfRangeBehavior combination is invalid (TIME_SINCE_INPUT must use CLAMP)
-        val sourceOutOfRangeBehaviorError =
-            assertFailsWith<IllegalArgumentException> {
-                BrushBehavior(
-                    source = BrushBehavior.Source.TIME_SINCE_INPUT_IN_SECONDS,
-                    target = BrushBehavior.Target.WIDTH_MULTIPLIER,
-                    sourceValueRangeStart = 0.2f,
-                    sourceValueRangeEnd = .8f,
-                    targetModifierRangeStart = 1.0f,
-                    targetModifierRangeEnd = 1.75f,
-                    sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.REPEAT,
-                    responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
-                    responseTimeMillis = 1L,
-                    enabledToolTypes = setOf(InputToolType.STYLUS),
-                )
-            }
-        assertThat(sourceOutOfRangeBehaviorError.message).contains("TimeSince")
-        assertThat(sourceOutOfRangeBehaviorError.message).contains("kClamp")
     }
 
     @Test
     fun brushBehaviorToString_returnsReasonableString() {
         assertThat(
                 BrushBehavior(
-                        listOf(
-                            BrushBehavior.TargetNode(
-                                target = BrushBehavior.Target.WIDTH_MULTIPLIER,
-                                targetModifierRangeStart = 1.0f,
-                                targetModifierRangeEnd = 1.75f,
-                                input =
-                                    BrushBehavior.SourceNode(
-                                        source = BrushBehavior.Source.NORMALIZED_PRESSURE,
-                                        sourceValueRangeStart = 0.0f,
-                                        sourceValueRangeEnd = 1.0f,
-                                    ),
-                            )
+                        BrushBehavior.TargetNode(
+                            target = BrushBehavior.Target.WIDTH_MULTIPLIER,
+                            targetModifierRangeStart = 1.0f,
+                            targetModifierRangeEnd = 1.75f,
+                            input =
+                                BrushBehavior.SourceNode(
+                                    source = BrushBehavior.Source.NORMALIZED_PRESSURE,
+                                    sourceValueRangeStart = 0.0f,
+                                    sourceValueRangeEnd = 1.0f,
+                                ),
                         ),
                         developerComment = "foobar",
                     )
@@ -1438,218 +1325,268 @@ class BrushBehaviorTest {
     fun brushBehaviorEquals_withIdenticalValues_returnsTrue() {
         val original =
             BrushBehavior(
-                source = BrushBehavior.Source.NORMALIZED_PRESSURE,
-                target = BrushBehavior.Target.WIDTH_MULTIPLIER,
-                sourceValueRangeStart = 0.0f,
-                sourceValueRangeEnd = 1.0f,
-                targetModifierRangeStart = 1.0f,
-                targetModifierRangeEnd = 1.75f,
-                sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.CLAMP,
-                responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
-                responseTimeMillis = 1L,
-                enabledToolTypes = setOf(InputToolType.STYLUS),
+                BrushBehavior.TargetNode(
+                    target = BrushBehavior.Target.WIDTH_MULTIPLIER,
+                    targetModifierRangeStart = 1.0f,
+                    targetModifierRangeEnd = 1.75f,
+                    input =
+                        BrushBehavior.DampingNode(
+                            dampingSource = BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
+                            dampingGap = 0.001f,
+                            input =
+                                BrushBehavior.ResponseNode(
+                                    responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
+                                    input =
+                                        BrushBehavior.ToolTypeFilterNode(
+                                            enabledToolTypes = setOf(InputToolType.STYLUS),
+                                            input =
+                                                BrushBehavior.SourceNode(
+                                                    source =
+                                                        BrushBehavior.Source.NORMALIZED_PRESSURE,
+                                                    sourceValueRangeStart = 0.0f,
+                                                    sourceValueRangeEnd = 1.0f,
+                                                    sourceOutOfRangeBehavior =
+                                                        BrushBehavior.OutOfRange.CLAMP,
+                                                ),
+                                        ),
+                                ),
+                        ),
+                )
             )
 
         val exact =
             BrushBehavior(
-                source = BrushBehavior.Source.NORMALIZED_PRESSURE,
-                target = BrushBehavior.Target.WIDTH_MULTIPLIER,
-                sourceValueRangeStart = 0.0f,
-                sourceValueRangeEnd = 1.0f,
-                targetModifierRangeStart = 1.0f,
-                targetModifierRangeEnd = 1.75f,
-                sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.CLAMP,
-                responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
-                responseTimeMillis = 1L,
-                enabledToolTypes = setOf(InputToolType.STYLUS),
+                BrushBehavior.TargetNode(
+                    target = BrushBehavior.Target.WIDTH_MULTIPLIER,
+                    targetModifierRangeStart = 1.0f,
+                    targetModifierRangeEnd = 1.75f,
+                    input =
+                        BrushBehavior.DampingNode(
+                            dampingSource = BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
+                            dampingGap = 0.001f,
+                            input =
+                                BrushBehavior.ResponseNode(
+                                    responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
+                                    input =
+                                        BrushBehavior.ToolTypeFilterNode(
+                                            enabledToolTypes = setOf(InputToolType.STYLUS),
+                                            input =
+                                                BrushBehavior.SourceNode(
+                                                    source =
+                                                        BrushBehavior.Source.NORMALIZED_PRESSURE,
+                                                    sourceValueRangeStart = 0.0f,
+                                                    sourceValueRangeEnd = 1.0f,
+                                                    sourceOutOfRangeBehavior =
+                                                        BrushBehavior.OutOfRange.CLAMP,
+                                                ),
+                                        ),
+                                ),
+                        ),
+                )
             )
 
         assertThat(original.equals(exact)).isTrue()
     }
 
     @Test
-    fun brushBehaviorEquals_withDifferentValues_returnsFalse() {
+    fun brushBehaviorSourceNodeEquals_withDifferentValues_returnsFalse() {
         val original =
-            BrushBehavior(
+            BrushBehavior.SourceNode(
                 source = BrushBehavior.Source.NORMALIZED_PRESSURE,
-                target = BrushBehavior.Target.WIDTH_MULTIPLIER,
                 sourceValueRangeStart = 0.0f,
                 sourceValueRangeEnd = 1.0f,
-                targetModifierRangeStart = 1.0f,
-                targetModifierRangeEnd = 1.75f,
                 sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.CLAMP,
-                responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
-                responseTimeMillis = 1L,
-                enabledToolTypes = setOf(InputToolType.STYLUS),
             )
-
         assertThat(
                 original.equals(
-                    BrushBehavior(
+                    BrushBehavior.SourceNode(
                         source = BrushBehavior.Source.TILT_IN_RADIANS, // different
-                        target = BrushBehavior.Target.WIDTH_MULTIPLIER,
                         sourceValueRangeStart = 0.0f,
                         sourceValueRangeEnd = 1.0f,
-                        targetModifierRangeStart = 1.0f,
-                        targetModifierRangeEnd = 1.75f,
                         sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.CLAMP,
-                        responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
-                        responseTimeMillis = 1L,
-                        enabledToolTypes = setOf(InputToolType.STYLUS),
                     )
                 )
             )
             .isFalse()
         assertThat(
                 original.equals(
-                    BrushBehavior(
+                    BrushBehavior.SourceNode(
                         source = BrushBehavior.Source.NORMALIZED_PRESSURE,
-                        target = BrushBehavior.Target.HEIGHT_MULTIPLIER, // different
                         sourceValueRangeStart = 0.0f,
                         sourceValueRangeEnd = 1.0f,
-                        targetModifierRangeStart = 1.0f,
-                        targetModifierRangeEnd = 1.75f,
-                        sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.CLAMP,
-                        responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
-                        responseTimeMillis = 1L,
-                        enabledToolTypes = setOf(InputToolType.STYLUS),
-                    )
-                )
-            )
-            .isFalse()
-
-        assertThat(
-                original.equals(
-                    BrushBehavior(
-                        source = BrushBehavior.Source.NORMALIZED_PRESSURE,
-                        target = BrushBehavior.Target.WIDTH_MULTIPLIER,
-                        sourceValueRangeStart = 0.0f,
-                        sourceValueRangeEnd = 1.0f,
-                        targetModifierRangeStart = 1.0f,
-                        targetModifierRangeEnd = 1.75f,
                         sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.REPEAT, // different
-                        responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
-                        responseTimeMillis = 1L,
-                        enabledToolTypes = setOf(InputToolType.STYLUS),
                     )
                 )
             )
             .isFalse()
         assertThat(
                 original.equals(
-                    BrushBehavior(
+                    BrushBehavior.SourceNode(
                         source = BrushBehavior.Source.NORMALIZED_PRESSURE,
-                        target = BrushBehavior.Target.WIDTH_MULTIPLIER,
                         sourceValueRangeStart = 0.3f, // different
                         sourceValueRangeEnd = 1.0f,
-                        targetModifierRangeStart = 1.0f,
-                        targetModifierRangeEnd = 1.75f,
                         sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.CLAMP,
-                        responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
-                        responseTimeMillis = 1L,
-                        enabledToolTypes = setOf(InputToolType.STYLUS),
                     )
                 )
             )
             .isFalse()
         assertThat(
                 original.equals(
-                    BrushBehavior(
+                    BrushBehavior.SourceNode(
                         source = BrushBehavior.Source.NORMALIZED_PRESSURE,
-                        target = BrushBehavior.Target.WIDTH_MULTIPLIER,
                         sourceValueRangeStart = 0.0f,
                         sourceValueRangeEnd = 0.8f, // different
+                        sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.CLAMP,
+                    )
+                )
+            )
+            .isFalse()
+    }
+
+    @Test
+    fun brushBehaviorTargetNodeEquals_withDifferentValues_returnsFalse() {
+        val original =
+            BrushBehavior.TargetNode(
+                target = BrushBehavior.Target.WIDTH_MULTIPLIER,
+                targetModifierRangeStart = 1.0f,
+                targetModifierRangeEnd = 1.75f,
+                input = BrushBehavior.ConstantNode(0f),
+            )
+        assertThat(
+                original.equals(
+                    BrushBehavior.TargetNode(
+                        target = BrushBehavior.Target.HEIGHT_MULTIPLIER, // different
                         targetModifierRangeStart = 1.0f,
                         targetModifierRangeEnd = 1.75f,
-                        sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.CLAMP,
-                        responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
-                        responseTimeMillis = 1L,
-                        enabledToolTypes = setOf(InputToolType.STYLUS),
+                        input = BrushBehavior.ConstantNode(0f),
                     )
                 )
             )
             .isFalse()
         assertThat(
                 original.equals(
-                    BrushBehavior(
-                        source = BrushBehavior.Source.NORMALIZED_PRESSURE,
+                    BrushBehavior.TargetNode(
                         target = BrushBehavior.Target.WIDTH_MULTIPLIER,
-                        sourceValueRangeStart = 0.0f,
-                        sourceValueRangeEnd = 1.0f,
                         targetModifierRangeStart = 1.56f, // different
                         targetModifierRangeEnd = 1.75f,
-                        sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.CLAMP,
-                        responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
-                        responseTimeMillis = 1L,
-                        enabledToolTypes = setOf(InputToolType.STYLUS),
+                        input = BrushBehavior.ConstantNode(0f),
                     )
                 )
             )
             .isFalse()
         assertThat(
                 original.equals(
-                    BrushBehavior(
-                        source = BrushBehavior.Source.NORMALIZED_PRESSURE,
+                    BrushBehavior.TargetNode(
                         target = BrushBehavior.Target.WIDTH_MULTIPLIER,
-                        sourceValueRangeStart = 0.0f,
-                        sourceValueRangeEnd = 1.0f,
                         targetModifierRangeStart = 1.0f,
                         targetModifierRangeEnd = 1.99f, // different
-                        sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.CLAMP,
-                        responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
-                        responseTimeMillis = 1L,
-                        enabledToolTypes = setOf(InputToolType.STYLUS),
+                        input = BrushBehavior.ConstantNode(0f),
                     )
                 )
             )
             .isFalse()
         assertThat(
                 original.equals(
-                    BrushBehavior(
-                        source = BrushBehavior.Source.NORMALIZED_PRESSURE,
+                    BrushBehavior.TargetNode(
                         target = BrushBehavior.Target.WIDTH_MULTIPLIER,
-                        sourceValueRangeStart = 0.0f,
-                        sourceValueRangeEnd = 1.0f,
                         targetModifierRangeStart = 1.0f,
                         targetModifierRangeEnd = 1.75f,
-                        sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.CLAMP,
+                        input = BrushBehavior.ConstantNode(1f), // different
+                    )
+                )
+            )
+            .isFalse()
+    }
+
+    @Test
+    fun brushBehaviorResponseNodeEquals_withDifferentValues_returnsFalse() {
+        val original =
+            BrushBehavior.ResponseNode(
+                responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
+                input = BrushBehavior.ConstantNode(0f),
+            )
+        assertThat(
+                original.equals(
+                    BrushBehavior.ResponseNode(
                         responseCurve = EasingFunction.Predefined.LINEAR, // different
-                        responseTimeMillis = 1L,
-                        enabledToolTypes = setOf(InputToolType.STYLUS),
+                        input = BrushBehavior.ConstantNode(0f),
                     )
                 )
             )
             .isFalse()
         assertThat(
                 original.equals(
-                    BrushBehavior(
-                        source = BrushBehavior.Source.NORMALIZED_PRESSURE,
-                        target = BrushBehavior.Target.WIDTH_MULTIPLIER,
-                        sourceValueRangeStart = 0.0f,
-                        sourceValueRangeEnd = 1.0f,
-                        targetModifierRangeStart = 1.0f,
-                        targetModifierRangeEnd = 1.75f,
-                        sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.CLAMP,
+                    BrushBehavior.ResponseNode(
                         responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
-                        responseTimeMillis = 35L, // different
-                        enabledToolTypes = setOf(InputToolType.STYLUS),
+                        input = BrushBehavior.ConstantNode(1f), // different
+                    )
+                )
+            )
+            .isFalse()
+    }
+
+    @Test
+    fun brushBehaviorDampingNodeEquals_withDifferentValues_returnsFalse() {
+        val original =
+            BrushBehavior.DampingNode(
+                dampingSource = BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
+                dampingGap = 0.001f,
+                input = BrushBehavior.ConstantNode(0f),
+            )
+        assertThat(
+                original.equals(
+                    BrushBehavior.DampingNode(
+                        dampingSource =
+                            BrushBehavior.ProgressDomain.DISTANCE_IN_CENTIMETERS, // different
+                        dampingGap = 0.001f,
+                        input = BrushBehavior.ConstantNode(0f),
                     )
                 )
             )
             .isFalse()
         assertThat(
                 original.equals(
-                    BrushBehavior(
-                        source = BrushBehavior.Source.NORMALIZED_PRESSURE,
-                        target = BrushBehavior.Target.WIDTH_MULTIPLIER,
-                        sourceValueRangeStart = 0.0f,
-                        sourceValueRangeEnd = 1.0f,
-                        targetModifierRangeStart = 1.0f,
-                        targetModifierRangeEnd = 1.75f,
-                        sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.CLAMP,
-                        responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
-                        responseTimeMillis = 1L,
+                    BrushBehavior.DampingNode(
+                        dampingSource = BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
+                        dampingGap = 0.035f, // different
+                        input = BrushBehavior.ConstantNode(0f),
+                    )
+                )
+            )
+            .isFalse()
+        assertThat(
+                original.equals(
+                    BrushBehavior.DampingNode(
+                        dampingSource = BrushBehavior.ProgressDomain.TIME_IN_SECONDS,
+                        dampingGap = 0.001f,
+                        input = BrushBehavior.ConstantNode(1f), // different
+                    )
+                )
+            )
+            .isFalse()
+    }
+
+    @Test
+    fun brushBehaviorToolTypeFilterNodeEquals_withDifferentValues_returnsFalse() {
+        val original =
+            BrushBehavior.ToolTypeFilterNode(
+                enabledToolTypes = setOf(InputToolType.STYLUS),
+                input = BrushBehavior.ConstantNode(0f),
+            )
+        assertThat(
+                original.equals(
+                    BrushBehavior.ToolTypeFilterNode(
                         enabledToolTypes = setOf(InputToolType.TOUCH), // different
+                        input = BrushBehavior.ConstantNode(0f),
+                    )
+                )
+            )
+            .isFalse()
+        assertThat(
+                original.equals(
+                    BrushBehavior.ToolTypeFilterNode(
+                        enabledToolTypes = setOf(InputToolType.STYLUS),
+                        input = BrushBehavior.ConstantNode(1f), // different
                     )
                 )
             )

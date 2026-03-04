@@ -71,4 +71,60 @@ class LayoutAnimationOriginTest : BaseLayoutTest() {
             true,
         )
     }
+
+    @Test
+    fun testInitialOriginNoAnimation() {
+        val ops =
+            arrayListOf<TestOperation>(
+                TestLayout {
+                    column(Modifier.fillMaxSize()) {
+                        box(Modifier.size(100, 100).background(Color.RED)) { text("Box") }
+                    }
+                },
+                // 1. Initial state: width 500, height 500, origin (100, 100)
+                // This simulates the view starting at some screen position.
+                ResizeWithOrigin(500, 500, 100f, 100f),
+                // Validate that position is (0,0) (no initial jump to animate back)
+                validatePosition(0f, 0f),
+            )
+        checkLayout(
+            500,
+            500,
+            7,
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            "InitialOriginNoAnimation",
+            ops,
+            TestClock(1234),
+            true,
+        )
+    }
+
+    @Test
+    fun testMoveOnlyNoAnimation() {
+        val ops =
+            arrayListOf<TestOperation>(
+                TestLayout {
+                    column(Modifier.fillMaxSize()) {
+                        box(Modifier.size(100, 100).background(Color.RED)) { text("Box") }
+                    }
+                },
+                // 1. Initial state: width 500, height 500, origin (0,0)
+
+                // 2. Move only: origin (100, 100), same size (500, 500)
+                ResizeWithOrigin(500, 500, 100f, 100f),
+
+                // Validate that no animation is triggered (mAnimateMeasure is null)
+                validateNoAnimation(),
+            )
+        checkLayout(
+            500,
+            500,
+            7,
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            "MoveOnlyNoAnimation",
+            ops,
+            TestClock(1234),
+            true,
+        )
+    }
 }

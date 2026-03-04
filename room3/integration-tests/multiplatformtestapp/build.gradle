@@ -49,6 +49,7 @@ androidXMultiplatform {
     sourceSets {
         commonTest {
             dependencies {
+                implementation(project(":room3:integration-tests:room-testapp-multiplatform-library"))
                 implementation(project(":room3:room3-runtime"))
                 implementation(project(":room3:room3-testing"))
                 implementation(project(":kruth:kruth"))
@@ -129,7 +130,7 @@ dependencies {
         add("kspWatchosArm64Test", roomCompilerDependency)
         add("kspWatchosSimulatorArm64Test", roomCompilerDependency)
     }
-    if (!androidx.isIsolatedProjectsEnabled()) {
+    if (!androidx.isIsolatedProjectsEnabled()) { // KT-80311
         add("kspJsTest", roomCompilerDependency)
         add("kspWasmJsTest", roomCompilerDependency)
     }

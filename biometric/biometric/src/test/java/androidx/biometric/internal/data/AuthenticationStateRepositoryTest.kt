@@ -16,6 +16,7 @@
 
 package androidx.biometric.internal.data
 
+import androidx.biometric.AuthenticationRequest
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.utils.BiometricErrorData
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -110,6 +111,22 @@ class AuthenticationStateRepositoryTest {
             runCurrent()
 
             assertThat(negativeButtonPressPending).isTrue()
+            job.cancel()
+        }
+
+    @Test
+    fun testSetFallbackOptionPressPending() =
+        runTest(UnconfinedTestDispatcher()) {
+            var actualFallback: AuthenticationRequest.Biometric.Fallback.CustomOption? = null
+            val job = launch {
+                repository.isFallbackOptionPressPending.collect { actualFallback = it }
+            }
+
+            val expectedFallback = AuthenticationRequest.Biometric.Fallback.CustomOption("test")
+            repository.setFallbackOptionPressPending(expectedFallback)
+            runCurrent()
+
+            assertThat(actualFallback).isEqualTo(expectedFallback)
             job.cancel()
         }
 

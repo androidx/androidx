@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import androidx.compose.foundation.text.input.delete
+import androidx.compose.foundation.text.input.insert
 import androidx.compose.ui.text.TextRange
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -95,8 +97,32 @@ internal class SetComposingRegionCommandTest : ImeEditCommandTest() {
     }
 
     @Test
+    fun test_set_too_small_with_output_transformation() {
+        initialize("ABCDE", TextRange.Zero, outputTransformation = { insert(0, "F") })
+
+        imeScope.setComposingRegion(-1000, -1000)
+
+        assertThat(state.text.toString()).isEqualTo("ABCDE")
+        assertThat(state.selection.start).isEqualTo(0)
+        assertThat(state.selection.end).isEqualTo(0)
+        assertThat(state.composition).isNull()
+    }
+
+    @Test
     fun test_set_too_large() {
         initialize("ABCDE", TextRange.Zero)
+
+        imeScope.setComposingRegion(1000, 1000)
+
+        assertThat(state.text.toString()).isEqualTo("ABCDE")
+        assertThat(state.selection.start).isEqualTo(0)
+        assertThat(state.selection.end).isEqualTo(0)
+        assertThat(state.composition).isNull()
+    }
+
+    @Test
+    fun test_set_too_large_with_output_transformation() {
+        initialize("ABCDE", TextRange.Zero, outputTransformation = { insert(0, "F") })
 
         imeScope.setComposingRegion(1000, 1000)
 
@@ -121,6 +147,34 @@ internal class SetComposingRegionCommandTest : ImeEditCommandTest() {
     }
 
     @Test
+    fun test_set_too_small_and_too_large_with_output_transformation() {
+        initialize("ABCDE", TextRange.Zero, outputTransformation = { insert(0, "F") })
+
+        imeScope.setComposingRegion(-1000, 1000)
+
+        assertThat(state.text.toString()).isEqualTo("ABCDE")
+        assertThat(state.selection.start).isEqualTo(0)
+        assertThat(state.selection.end).isEqualTo(0)
+        assertThat(state.composition).isNotNull()
+        assertThat(state.composition?.start).isEqualTo(0)
+        assertThat(state.composition?.end).isEqualTo(5)
+    }
+
+    @Test
+    fun test_set_too_small_and_too_large_with_reductive_output_transformation() {
+        initialize("ABCDE", TextRange.Zero, outputTransformation = { delete(0, 3) })
+
+        imeScope.setComposingRegion(-1000, 1000)
+
+        assertThat(state.text.toString()).isEqualTo("ABCDE")
+        assertThat(state.selection.start).isEqualTo(0)
+        assertThat(state.selection.end).isEqualTo(0)
+        assertThat(state.composition).isNotNull()
+        assertThat(state.composition?.start).isEqualTo(0)
+        assertThat(state.composition?.end).isEqualTo(5)
+    }
+
+    @Test
     fun test_set_too_small_and_too_large_reversed() {
         initialize("ABCDE", TextRange.Zero)
 
@@ -132,5 +186,47 @@ internal class SetComposingRegionCommandTest : ImeEditCommandTest() {
         assertThat(state.composition).isNotNull()
         assertThat(state.composition?.start).isEqualTo(0)
         assertThat(state.composition?.end).isEqualTo(5)
+    }
+
+    @Test
+    fun test_set_too_small_and_too_large_reversed_with_output_transformation() {
+        initialize("ABCDE", TextRange.Zero, outputTransformation = { insert(0, "F") })
+
+        imeScope.setComposingRegion(1000, -1000)
+
+        assertThat(state.text.toString()).isEqualTo("ABCDE")
+        assertThat(state.selection.start).isEqualTo(0)
+        assertThat(state.selection.end).isEqualTo(0)
+        assertThat(state.composition).isNotNull()
+        assertThat(state.composition?.start).isEqualTo(0)
+        assertThat(state.composition?.end).isEqualTo(5)
+    }
+
+    @Test
+    fun test_output_transformation_additive_untransform_given_range() {
+        initialize("A", TextRange.Zero, outputTransformation = { insert(0, "F") })
+
+        imeScope.setComposingRegion(1, 2)
+
+        assertThat(state.text.toString()).isEqualTo("A")
+        assertThat(state.selection.start).isEqualTo(0)
+        assertThat(state.selection.end).isEqualTo(0)
+        assertThat(state.composition).isNotNull()
+        assertThat(state.composition?.start).isEqualTo(0)
+        assertThat(state.composition?.end).isEqualTo(1)
+    }
+
+    @Test
+    fun test_output_transformation_reductive_untransform_given_range() {
+        initialize("AB", TextRange.Zero, outputTransformation = { delete(0, 1) })
+
+        imeScope.setComposingRegion(0, 1)
+
+        assertThat(state.text.toString()).isEqualTo("AB")
+        assertThat(state.selection.start).isEqualTo(0)
+        assertThat(state.selection.end).isEqualTo(0)
+        assertThat(state.composition).isNotNull()
+        assertThat(state.composition?.start).isEqualTo(0)
+        assertThat(state.composition?.end).isEqualTo(2)
     }
 }

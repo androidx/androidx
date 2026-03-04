@@ -113,7 +113,7 @@ private fun createDatastore(
             ?: ReThrowCorruptionHandler()
     return DataStoreImpl(
         storage = storage,
-        scope = datastoreScope,
+        context = datastoreScope.coroutineContext,
         corruptionHandler = corruptionHandlerInstance,
     )
 }

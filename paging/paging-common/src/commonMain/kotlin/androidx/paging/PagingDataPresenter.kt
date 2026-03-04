@@ -51,7 +51,7 @@ import kotlinx.coroutines.yield
  * [PagingData] for custom logic on how to present Loads, Drops, and other Paging events.
  *
  * For implementation examples, refer to [AsyncPagingDataDiffer] for RecyclerView, or
- * [LazyPagingItems] for Compose.
+ * [androidx.paging.compose.LazyPagingItems] for Compose.
  *
  * @param [mainContext] The coroutine context that core Paging operations will run on. Defaults to
  *   [Dispatchers.Main]. Main operations executed within this context include but are not limited

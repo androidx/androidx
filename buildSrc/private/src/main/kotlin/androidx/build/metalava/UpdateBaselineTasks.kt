@@ -120,6 +120,6 @@ private fun getCommonBaselineUpdateArgs(baselineFile: File): List<String> {
         baselineFile.toString(),
         "--pass-baseline-updates",
         "--delete-empty-baselines",
-        "--format=v4",
+        "--format=4.0",
     )
 }

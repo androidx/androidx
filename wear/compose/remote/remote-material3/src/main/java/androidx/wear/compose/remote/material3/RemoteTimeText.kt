@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 @file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@file:Suppress("RestrictedApiAndroidX")
 
 package androidx.wear.compose.remote.material3
 
+import android.annotation.SuppressLint
 import android.graphics.Typeface
 import android.text.format.DateFormat
 import androidx.annotation.RestrictTo
@@ -63,6 +63,7 @@ import androidx.compose.ui.text.font.GenericFontFamily
  * @param color The color of the text. Defaults to the `onBackground` color from the current
  *   `RemoteMaterialTheme`.
  */
+@SuppressLint("RestrictedApiAndroidX")
 @RemoteComposable
 @Composable
 public fun RemoteTimeText(
@@ -108,6 +109,7 @@ private fun buildTimeTextString(
     return leadingWithSeparator + time + trailingWithSeparator
 }
 
+@SuppressLint("RestrictedApiAndroidX")
 private fun RemoteDrawScope.drawTimeText(
     text: RemoteString,
     textColor: RemoteColor,
@@ -151,6 +153,7 @@ private fun RemoteDrawScope.drawTimeText(
     )
 }
 
+@SuppressLint("RestrictedApiAndroidX")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object RemoteTimeTextDefaults {
 

@@ -45,6 +45,13 @@ public class RemoteBitmapFont(
     public val glyphs: List<Glyph>,
     @Suppress("PrimitiveInCollection") public val kerningTable: Map<String, Short> = emptyMap(),
 ) : BaseRemoteState<Any>() {
+    internal enum class OperationKey {
+        MeasureWidth,
+        MeasureHeight,
+    }
+
+    internal override val cacheKey: RemoteStateCacheKey = RemoteStateInstanceKey()
+
     /** A Glyph from a [RemoteBitmapFont] which may represent one or more characters. */
     public class Glyph(
         /** The character(s) this glyph represents. */
@@ -105,7 +112,10 @@ public class RemoteBitmapFont(
      * @return A [RemoteFloat] representing the calculated width in pixels.
      */
     public fun measureWidth(text: RemoteString, glyphSpacing: RemoteFloat): RemoteFloat {
-        return RemoteFloatExpression(constantValueOrNull = null) { creationState ->
+        return RemoteFloatExpression(
+            constantValueOrNull = null,
+            cacheKey = RemoteOperationCacheKey.create(OperationKey.MeasureWidth, this, text),
+        ) { creationState ->
             floatArrayOf(
                 creationState.document.bitmapTextMeasure(
                     text.getIdForCreationState(creationState),
@@ -125,7 +135,10 @@ public class RemoteBitmapFont(
      * @return A [RemoteFloat] representing the calculated height in pixels.
      */
     public fun measureHeight(text: RemoteString): RemoteFloat {
-        return RemoteFloatExpression(constantValueOrNull = null) { creationState ->
+        return RemoteFloatExpression(
+            constantValueOrNull = null,
+            cacheKey = RemoteOperationCacheKey.create(OperationKey.MeasureHeight, this, text),
+        ) { creationState ->
             floatArrayOf(
                 creationState.document.bitmapTextMeasure(
                     text.getIdForCreationState(creationState),

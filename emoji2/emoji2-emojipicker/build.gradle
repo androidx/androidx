@@ -21,6 +21,7 @@
  * modifying its settings.
  */
 import androidx.build.SoftwareType
+import com.android.build.gradle.internal.tasks.MergeJavaResourceTask
 
 plugins {
     id("AndroidXPlugin")
@@ -62,4 +63,11 @@ androidx {
             "emoji in current and older devices"
     legacyDisableKotlinStrictApiMode = true
     addGoldenImageAssets()
+}
+
+// Workaround for b/488424384
+tasks.withType(MergeJavaResourceTask).configureEach {
+    it.doFirst {
+        it.incrementalStateFile.get().asFile.delete()
+    }
 }

@@ -203,8 +203,9 @@ interface TrackpadInjectionScope : InjectionScope {
     fun exit(position: Offset = currentPosition, delayMillis: Long = eventPeriodMillis)
 
     /**
-     * Starts a pan gesture. The [PointerEventType.PanStart] will be sent at the current event time.
-     * This should be followed by any number of calls to [panMoveBy], followed by [panEnd].
+     * Starts a pan gesture. The [androidx.compose.ui.input.pointer.PointerEventType.PanStart] will
+     * be sent at the current event time. This should be followed by any number of calls to
+     * [panMoveBy], followed by [panEnd].
      *
      * The helper function [pan] allows combining these calls into a single call, to pan by a given
      * offset sending the appropriate event in sequence.
@@ -215,7 +216,8 @@ interface TrackpadInjectionScope : InjectionScope {
 
     /**
      * Updates the ongoing pan gesture, by applying the given [delta] as part of the pan. The
-     * [PointerEventType.PanMove] will be sent at the current event time.
+     * [androidx.compose.ui.input.pointer.PointerEventType.PanMove] will be sent at the current
+     * event time.
      *
      * The helper function [pan] allows combining these calls into a single call, to pan by a given
      * offset sending the appropriate event in sequence.
@@ -227,7 +229,8 @@ interface TrackpadInjectionScope : InjectionScope {
     fun panMoveBy(delta: Offset)
 
     /**
-     * Ends a pan gesture. The [PointerEventType.PanEnd] will be sent at the current event time.
+     * Ends a pan gesture. The [androidx.compose.ui.input.pointer.PointerEventType.PanEnd] will be
+     * sent at the current event time.
      *
      * The helper function [pan] allows combining these calls into a single call, to pan by a given
      * offset sending the appropriate event in sequence.
@@ -238,9 +241,9 @@ interface TrackpadInjectionScope : InjectionScope {
     fun panEnd()
 
     /**
-     * Starts a scale gesture. The [PointerEventType.ScaleStart] will be sent at the current event
-     * time. This should be followed by any number of calls to [scaleChangeBy], followed by
-     * [scaleEnd].
+     * Starts a scale gesture. The [androidx.compose.ui.input.pointer.PointerEventType.ScaleStart]
+     * will be sent at the current event time. This should be followed by any number of calls to
+     * [scaleChangeBy], followed by [scaleEnd].
      *
      * The helper function [scale] allows combining these calls into a single call, to scale by a
      * given factor sending the appropriate events in sequence.
@@ -251,7 +254,8 @@ interface TrackpadInjectionScope : InjectionScope {
 
     /**
      * Updates the ongoing scale gesture, by applying the given multiplicative [scaleFactor] as part
-     * of the gesture. The [PointerEventType.ScaleChange] will be sent at the current event time.
+     * of the gesture. The [androidx.compose.ui.input.pointer.PointerEventType.ScaleChange] will be
+     * sent at the current event time.
      *
      * The helper function [scale] allows combining these calls into a single call, to scale by a
      * given factor sending the appropriate events in sequence.
@@ -263,7 +267,8 @@ interface TrackpadInjectionScope : InjectionScope {
     fun scaleChangeBy(@FloatRange(from = 0.0, fromInclusive = false) scaleFactor: Float)
 
     /**
-     * Ends a scale gesture. The [PointerEventType.ScaleEnd] will be sent at the current event time.
+     * Ends a scale gesture. The [androidx.compose.ui.input.pointer.PointerEventType.ScaleEnd] will
+     * be sent at the current event time.
      *
      * The helper function [scale] allows combining these calls into a single call, to scale by a
      * given factor sending the appropriate events in sequence.

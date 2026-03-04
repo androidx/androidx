@@ -31,9 +31,9 @@ import androidx.room3.vo.ShortcutQueryParameter
 /** Binder for suspending insert or upsert methods. */
 class CoroutineInsertOrUpsertFunctionBinder(
     val typeArg: XType,
-    adapter: InsertOrUpsertFunctionAdapter?,
+    override val adapter: InsertOrUpsertFunctionAdapter?,
     private val continuationParamName: String,
-) : InsertOrUpsertFunctionBinder(adapter) {
+) : InsertOrUpsertFunctionBinder {
 
     override fun convertAndReturn(
         parameters: List<ShortcutQueryParameter>,

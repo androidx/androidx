@@ -74,8 +74,8 @@ abstract class RxRemoteMediator<Key : Any, Value : Any> : RemoteMediator<Key, Va
      * @return [InitializeAction] indicating the action to take after initialization:
      *     * [LAUNCH_INITIAL_REFRESH] to immediately dispatch a [load] asynchronously with load type
      *       [LoadType.REFRESH], to update paginated content when the stream is initialized. Note:
-     *       This also prevents [RemoteMediator] from triggering [PREPEND] or [APPEND] until
-     *       [REFRESH] succeeds.
+     *       This also prevents [RemoteMediator] from triggering [LoadType.PREPEND] or
+     *       [LoadType.APPEND] until [LoadType.REFRESH] succeeds.
      *     * [SKIP_INITIAL_REFRESH][InitializeAction.SKIP_INITIAL_REFRESH] to wait for a refresh
      *       request from the UI before dispatching a [load] with load type [LoadType.REFRESH].
      */

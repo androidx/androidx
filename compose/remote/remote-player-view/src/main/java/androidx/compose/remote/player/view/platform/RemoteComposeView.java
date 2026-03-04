@@ -110,11 +110,12 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
                 }
             };
 
+    int[] mLocationCache = new int[2];
+
     private void updateOrigin() {
         if (mDocument != null) {
-            int[] location = new int[2];
-            getLocationOnScreen(location);
-            mDocument.getDocument().setOrigin(location[0], location[1]);
+            getLocationOnScreen(mLocationCache);
+            mDocument.getDocument().setOrigin(mLocationCache[0], mLocationCache[1]);
         }
     }
 

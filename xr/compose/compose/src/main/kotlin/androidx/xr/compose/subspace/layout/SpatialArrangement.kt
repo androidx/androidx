@@ -27,19 +27,22 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 
 /**
- * Used to specify the arrangement of the layout's children in layouts like [SpatialRow] or
- * [SpatialColumn] in the main axis direction (horizontal and vertical, respectively).
+ * Used to specify the arrangement of the layout's children in layouts like
+ * [androidx.xr.compose.subspace.SpatialRow] or [androidx.xr.compose.subspace.SpatialColumn] in the
+ * main axis direction (horizontal and vertical, respectively).
  *
- * [SpatialRow] supports horizontal arrangements similar to [Row]: ![Row
+ * [androidx.xr.compose.subspace.SpatialRow] supports horizontal arrangements similar to
+ * [androidx.compose.foundation.layout.Row]: ![Row
  * arrangements](https://developer.android.com/images/reference/androidx/compose/foundation/layout/row_arrangement_visualization.gif)
  *
- * [SpatialColumn] supports horizontal arrangements similar to [Column]: ![Column
+ * [androidx.xr.compose.subspace.SpatialColumn] supports horizontal arrangements similar to
+ * [androidx.compose.foundation.layout.Column]: ![Column
  * arrangements](https://developer.android.com/images/reference/androidx/compose/foundation/layout/column_arrangement_visualization.gif)
  */
 public object SpatialArrangement {
     /**
      * Used to specify the horizontal arrangement of the layout's children in layouts like
-     * [SpatialRow].
+     * [androidx.xr.compose.subspace.SpatialRow].
      */
     @Stable
     @JvmDefaultWithCompatibility
@@ -69,7 +72,7 @@ public object SpatialArrangement {
 
     /**
      * Used to specify the vertical arrangement of the layout's children in layouts like
-     * [SpatialColumn].
+     * [androidx.xr.compose.subspace.SpatialColumn].
      */
     @Stable
     @JvmDefaultWithCompatibility
@@ -92,8 +95,8 @@ public object SpatialArrangement {
 
     /**
      * Used to specify the horizontal arrangement of the layout's children in horizontal layouts
-     * like [SpatialRow], or the vertical arrangement of the layout's children in vertical layouts
-     * like [SpatialColumn].
+     * like [androidx.xr.compose.subspace.SpatialRow], or the vertical arrangement of the layout's
+     * children in vertical layouts like [androidx.xr.compose.subspace.SpatialColumn].
      */
     @Stable
     @JvmDefaultWithCompatibility
@@ -436,9 +439,9 @@ public object SpatialArrangement {
     @Immutable
     public object Absolute {
         /**
-         * All children should be arranged at the left of the [SpatialRow]. Unlike
-         * [SpatialArrangement.Start], when layout direction is RTL, children will not be mirrored.
-         * Visually: 123####
+         * All children should be arranged at the left of the
+         * [androidx.xr.compose.subspace.SpatialRow]. Unlike [SpatialArrangement.Start], when layout
+         * direction is RTL, children will not be mirrored. Visually: 123####
          */
         public val Left: Horizontal =
             object : Horizontal {
@@ -455,9 +458,9 @@ public object SpatialArrangement {
             }
 
         /**
-         * All children should be arranged at the center of the [SpatialRow]. Unlike
-         * [SpatialArrangement.Center], when layout direction is RTL, children will not be mirrored.
-         * Visually: ##123##
+         * All children should be arranged at the center of the
+         * [androidx.xr.compose.subspace.SpatialRow]. Unlike [SpatialArrangement.Center], when
+         * layout direction is RTL, children will not be mirrored. Visually: ##123##
          */
         public val Center: Horizontal =
             object : Horizontal {
@@ -479,9 +482,9 @@ public object SpatialArrangement {
             }
 
         /**
-         * All children should be arranged at the right of the [SpatialRow]. Unlike
-         * [SpatialArrangement.End], when layout direction is RTL, children will not be mirrored.
-         * Visually: ####123
+         * All children should be arranged at the right of the
+         * [androidx.xr.compose.subspace.SpatialRow]. Unlike [SpatialArrangement.End], when layout
+         * direction is RTL, children will not be mirrored. Visually: ####123
          */
         public val Right: Horizontal =
             object : Horizontal {

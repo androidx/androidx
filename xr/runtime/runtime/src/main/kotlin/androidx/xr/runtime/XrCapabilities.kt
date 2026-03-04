@@ -128,6 +128,21 @@ private constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) publi
          */
         @JvmField public val DISABLED: DeviceTrackingMode = DeviceTrackingMode(0)
         /**
+         * The device pose will be tracked and the last known pose (6dof, including position &
+         * orientation) from the system at the time of runtime update will be provided. Note that
+         * there is generally a delay between the actual device pose and the pose provided by the
+         * system by the time of the update.
+         *
+         * Supported runtimes:
+         * - OpenXR
+         * - Play Services
+         *
+         * Required permissions:
+         * - [CAMERA][android.Manifest.permission.CAMERA] (Play Services runtimes only)
+         */
+        @JvmField public val SPATIAL_LAST_KNOWN: DeviceTrackingMode = DeviceTrackingMode(1)
+
+        /**
          * The device pose will be tracked and the last known pose from the system at the time of
          * runtime update will be provided. Note that there is generally a delay between the actual
          * device pose and the pose provided by the system by the time of the update.
@@ -139,7 +154,24 @@ private constructor(@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) publi
          * Required permissions:
          * - [CAMERA][android.Manifest.permission.CAMERA] (Play Services runtimes only)
          */
-        @JvmField public val LAST_KNOWN: DeviceTrackingMode = DeviceTrackingMode(1)
+        // TODO: remove this once we've migrated all 1P apps.
+        @Deprecated(
+            "Use SPATIAL_LAST_KNOWN instead.",
+            replaceWith = ReplaceWith("SPATIAL_LAST_KNOWN"),
+        )
+        @JvmField
+        public val LAST_KNOWN: DeviceTrackingMode = SPATIAL_LAST_KNOWN
+
+        /**
+         * The device pose will be tracked with 3DoF (rotation only) and the last known pose from
+         * the system at the time of runtime update will be provided. Note that there is generally a
+         * delay between the actual device pose and the pose provided by the system by the time of
+         * the update.
+         *
+         * Supported runtimes:
+         * - Projected
+         */
+        @JvmField public val INERTIAL_LAST_KNOWN: DeviceTrackingMode = DeviceTrackingMode(2)
     }
 }
 

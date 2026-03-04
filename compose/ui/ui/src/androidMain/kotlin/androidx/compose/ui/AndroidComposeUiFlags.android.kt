@@ -109,4 +109,8 @@ object AndroidComposeUiFlags {
     @JvmField
     // TODO remove me b/486998514
     var isViewBasedSemanticsHandlerEnabled: Boolean = true
+
+    /** This moves Font-related instances into the shared ComposeViewContext. */
+    // TODO remove me b/479898293
+    @field:Suppress("MutableBareField") @JvmField var isSharedFontEnabled: Boolean = true
 }

@@ -72,7 +72,7 @@ class StandardGrid extends Grid {
 
     private int getSpanSize(int index) {
         if (mSpanSupport != null) {
-            return mSpanSupport.getSpanSize(index);
+            return mSpanSupport.getSpanSize(index, mNumRows);
         }
         return 1;
     }

@@ -38,8 +38,10 @@
     <string name="credential_label">Credential only</string>
 
     <string name="biometric_fallback_type_label">Biometric Fallback type</string>
+    <string name="no_fallback_options">No fallback option</string>
     <string name="device_credential_fallback">Device credential fallback</string>
     <string name="negative_button_fallback">Negative button fallback</string>
+    <string name="multiple_fallback_options">Multiple fallback options</string>
 
     <string name="body_content_type_label">Body content type</string>
     <string name="plain_text">Plain text</string>

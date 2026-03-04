@@ -17,9 +17,11 @@
 package androidx.text.vertical
 
 import android.graphics.Canvas
+import android.graphics.Paint
 import android.os.Build
 import android.text.Spanned
 import android.text.TextPaint
+import android.text.style.ReplacementSpan
 import androidx.annotation.RequiresApi
 import kotlin.math.max
 
@@ -41,7 +43,16 @@ private constructor(
     public val text: CharSequence,
     @OrientationMode public val orientation: Int,
     public val textScale: Float,
-) {
+) : ReplacementSpan() {
+    private val impl by lazy {
+        HorizontalSpanImpl(
+            { paint, text, start, end -> LayoutKey(start, end, text) },
+            { paint, bodyText, start, end ->
+                HorizontalRubySpanLayout(bodyText, start, end, text, paint, textScale)
+            },
+        )
+    }
+
     /**
      * Builder class for creating [RubySpan] instances.
      *
@@ -79,6 +90,28 @@ private constructor(
          * @return A new [RubySpan] instance.
          */
         public fun build(): RubySpan = RubySpan(text, _orientation, _textScale)
+    }
+
+    override fun getSize(
+        paint: Paint,
+        text: CharSequence?,
+        start: Int,
+        end: Int,
+        fm: Paint.FontMetricsInt?,
+    ): Int = impl.getSize(paint, text, start, end, fm)
+
+    override fun draw(
+        canvas: Canvas,
+        text: CharSequence?,
+        start: Int,
+        end: Int,
+        x: Float,
+        top: Int,
+        y: Int,
+        bottom: Int,
+        paint: Paint,
+    ) {
+        impl.draw(canvas, text, start, end, x, top, y, bottom, paint)
     }
 }
 

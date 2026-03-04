@@ -32,9 +32,9 @@ import androidx.room3.vo.ShortcutQueryParameter
 /** Binder for suspending delete and update methods. */
 class CoroutineDeleteOrUpdateFunctionBinder(
     val typeArg: XType,
-    adapter: DeleteOrUpdateFunctionAdapter?,
+    override val adapter: DeleteOrUpdateFunctionAdapter?,
     private val continuationParamName: String,
-) : DeleteOrUpdateFunctionBinder(adapter) {
+) : DeleteOrUpdateFunctionBinder {
 
     override fun convertAndReturn(
         parameters: List<ShortcutQueryParameter>,

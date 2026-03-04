@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 
 import androidx.annotation.ReplaceWith;
 
+@SuppressWarnings("dep-ann")
 @SuppressLint({"UnknownNullness", "DeprecationMismatch"})
 public class ObsoleteCompatMethodMissingDeprecated {
     private ObsoleteCompatMethodMissingDeprecated() {

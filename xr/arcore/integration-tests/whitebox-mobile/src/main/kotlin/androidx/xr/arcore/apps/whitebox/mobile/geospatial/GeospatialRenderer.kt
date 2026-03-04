@@ -35,9 +35,9 @@ import androidx.xr.arcore.apps.whitebox.mobile.samplerender.renderers.Background
 import androidx.xr.arcore.apps.whitebox.mobile.samplerender.renderers.PlaneRenderer
 import androidx.xr.arcore.playservices.ArCoreRuntime
 import androidx.xr.arcore.playservices.cameraState
-import androidx.xr.runtime.Log
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.TrackingState
+import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Pose
 import java.io.IOException
@@ -88,7 +88,7 @@ class GeospatialRenderer(private val session: Session, private val anchors: List
                     )
                     .setTexture("u_Texture", virtualObjectTexture)
         } catch (e: IOException) {
-            Log.error(e) { "Failed to create background renderer" }
+            XrLog.error(e) { "Failed to create background renderer" }
             return
         }
     }
@@ -104,7 +104,7 @@ class GeospatialRenderer(private val session: Session, private val anchors: List
             backgroundRenderer.setUseDepthVisualization(render, false)
             backgroundRenderer.setUseOcclusion(render, false)
         } catch (e: IOException) {
-            Log.error(e) { "Failed to read a required asset file" }
+            XrLog.error(e) { "Failed to read a required asset file" }
             return
         }
 

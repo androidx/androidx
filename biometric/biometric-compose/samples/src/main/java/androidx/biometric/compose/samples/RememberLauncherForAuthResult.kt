@@ -40,7 +40,7 @@ private fun RememberLauncherForAuthResult() {
                 launcher.launch(
                     biometricRequest(
                         title = "test",
-                        authFallback = AuthenticationRequest.Biometric.Fallback.DeviceCredential,
+                        AuthenticationRequest.Biometric.Fallback.DeviceCredential,
                     ) {
                         // Optionally set the other configurations. setSubtitle(), setContent(), etc
                     }
@@ -59,5 +59,7 @@ private fun AuthenticationResult.toText(): String {
             "AuthenticationResult Success, auth type: $authType, crypto object: $crypto"
         is AuthenticationResult.Error ->
             "AuthenticationResult Error, error code: $errorCode, err string: $errString"
+        is AuthenticationResult.CustomFallbackSelected ->
+            "Fallback selected, text: ${fallback.text}"
     }
 }

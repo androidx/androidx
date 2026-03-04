@@ -229,8 +229,8 @@ internal fun getPerceivedResolutionOfPanel(
 /**
  * Returns the resolution of the display in pixels for each eye.
  *
- * @param context The [Context] that provides the default [Display] for determining the display
- *   resolution.
+ * @param context The [Context] that provides the default [android.view.Display] for determining the
+ *   display resolution.
  * @return The [PixelDimensions]s of the resolution for a single eye.
  */
 // Suppress warnings: windowManager's getDefaultDisplay and getRealMetrics.

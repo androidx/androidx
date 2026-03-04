@@ -26,7 +26,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 
-@Suppress("DEPRECATION")
+@Suppress("DEPRECATION", "KmpDeprecationMismatch")
 @Deprecated(
     "Font.ResourceLoader is deprecated, instead pass FontFamily.Resolver",
     replaceWith =

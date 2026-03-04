@@ -42,4 +42,5 @@ androidx {
     mavenVersion = LibraryVersions.ANNOTATION_KEEP_QUARANTINE
     inceptionYear = "2025"
     description = "Provides annotations to guide optimizers / code shrinkers."
+    samples(project(":annotation:annotation-keep:annotation-keep-samples"))
 }

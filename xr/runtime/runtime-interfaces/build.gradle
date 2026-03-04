@@ -39,7 +39,7 @@ dependencies {
 
 
 android {
-    namespace = "xr.runtime.interfaces"
+    namespace = "androidx.xr.runtime.interfaces"
 }
 
 

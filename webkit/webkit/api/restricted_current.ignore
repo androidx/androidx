@@ -1,11 +1,15 @@
 // Baseline format: 1.0
-AddedAbstractMethod: androidx.webkit.Profile#clearAllOriginMatchedHeaders():
-    Binary breaking change: Added method androidx.webkit.Profile.clearAllOriginMatchedHeaders()
-AddedAbstractMethod: androidx.webkit.Profile#clearOriginMatchedHeader(String):
-    Binary breaking change: Added method androidx.webkit.Profile.clearOriginMatchedHeader(String)
-AddedAbstractMethod: androidx.webkit.Profile#hasOriginMatchedHeader(String):
-    Binary breaking change: Added method androidx.webkit.Profile.hasOriginMatchedHeader(String)
-AddedAbstractMethod: androidx.webkit.Profile#setOriginMatchedHeader(String, String, java.util.Set<java.lang.String>):
-    Binary breaking change: Added method androidx.webkit.Profile.setOriginMatchedHeader(String,String,java.util.Set<java.lang.String>)
-AddedAbstractMethod: androidx.webkit.Profile#warmUpRendererProcess():
-    Binary breaking change: Added method androidx.webkit.Profile.warmUpRendererProcess()
+AddedAbstractMethod: androidx.webkit.Profile#clearPrefetchAsync(String, java.util.concurrent.Executor, androidx.webkit.WebViewOutcomeReceiver<java.lang.Void,androidx.webkit.PrefetchException>):
+    Binary breaking change: Added method androidx.webkit.Profile.clearPrefetchAsync(String,java.util.concurrent.Executor,androidx.webkit.WebViewOutcomeReceiver<java.lang.Void,androidx.webkit.PrefetchException>)
+AddedAbstractMethod: androidx.webkit.Profile#prefetchUrlAsync(String, android.os.CancellationSignal, java.util.concurrent.Executor, androidx.webkit.SpeculativeLoadingParameters, androidx.webkit.WebViewOutcomeReceiver<java.lang.Void,androidx.webkit.PrefetchException>):
+    Binary breaking change: Added method androidx.webkit.Profile.prefetchUrlAsync(String,android.os.CancellationSignal,java.util.concurrent.Executor,androidx.webkit.SpeculativeLoadingParameters,androidx.webkit.WebViewOutcomeReceiver<java.lang.Void,androidx.webkit.PrefetchException>)
+AddedAbstractMethod: androidx.webkit.Profile#prefetchUrlAsync(String, android.os.CancellationSignal, java.util.concurrent.Executor, androidx.webkit.WebViewOutcomeReceiver<java.lang.Void,androidx.webkit.PrefetchException>):
+    Binary breaking change: Added method androidx.webkit.Profile.prefetchUrlAsync(String,android.os.CancellationSignal,java.util.concurrent.Executor,androidx.webkit.WebViewOutcomeReceiver<java.lang.Void,androidx.webkit.PrefetchException>)
+
+
+RemovedMethod: androidx.webkit.Profile#clearPrefetchAsync(String, java.util.concurrent.Executor, androidx.webkit.OutcomeReceiverCompat<java.lang.Void,androidx.webkit.PrefetchException>):
+    Binary breaking change: Removed method androidx.webkit.Profile.clearPrefetchAsync(String,java.util.concurrent.Executor,androidx.webkit.OutcomeReceiverCompat<java.lang.Void,androidx.webkit.PrefetchException>)
+RemovedMethod: androidx.webkit.Profile#prefetchUrlAsync(String, android.os.CancellationSignal, java.util.concurrent.Executor, androidx.webkit.OutcomeReceiverCompat<java.lang.Void,androidx.webkit.PrefetchException>):
+    Binary breaking change: Removed method androidx.webkit.Profile.prefetchUrlAsync(String,android.os.CancellationSignal,java.util.concurrent.Executor,androidx.webkit.OutcomeReceiverCompat<java.lang.Void,androidx.webkit.PrefetchException>)
+RemovedMethod: androidx.webkit.Profile#prefetchUrlAsync(String, android.os.CancellationSignal, java.util.concurrent.Executor, androidx.webkit.SpeculativeLoadingParameters, androidx.webkit.OutcomeReceiverCompat<java.lang.Void,androidx.webkit.PrefetchException>):
+    Binary breaking change: Removed method androidx.webkit.Profile.prefetchUrlAsync(String,android.os.CancellationSignal,java.util.concurrent.Executor,androidx.webkit.SpeculativeLoadingParameters,androidx.webkit.OutcomeReceiverCompat<java.lang.Void,androidx.webkit.PrefetchException>)

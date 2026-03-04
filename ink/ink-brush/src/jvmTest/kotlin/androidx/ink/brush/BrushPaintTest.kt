@@ -42,16 +42,15 @@ class BrushPaintTest {
                                 offsetX = 0.1f,
                                 offsetY = 0.2f,
                                 rotationDegrees = Angle.QUARTER_TURN_DEGREES,
-                                opacity = 0.3f,
                                 animationFrames = 2,
                                 animationRows = 3,
                                 animationColumns = 4,
                                 animationDurationMillis = 5000,
-                                BrushPaint.TextureSizeUnit.STROKE_COORDINATES,
-                                BrushPaint.TextureOrigin.STROKE_SPACE_ORIGIN,
-                                BrushPaint.TextureMapping.TILING,
-                                BrushPaint.TextureWrap.MIRROR,
-                                BrushPaint.TextureWrap.REPEAT,
+                                sizeUnit = BrushPaint.TextureSizeUnit.STROKE_COORDINATES,
+                                origin = BrushPaint.TextureOrigin.STROKE_SPACE_ORIGIN,
+                                mapping = BrushPaint.TextureMapping.TILING,
+                                wrapX = BrushPaint.TextureWrap.MIRROR,
+                                wrapY = BrushPaint.TextureWrap.REPEAT,
                             ),
                             BrushPaint.TextureLayer(
                                 clientTextureId = TEST_TEXTURE_ID,
@@ -60,16 +59,15 @@ class BrushPaintTest {
                                 offsetX = 0.8f,
                                 offsetY = 0.9f,
                                 rotationDegrees = Angle.HALF_TURN_DEGREES,
-                                opacity = 0.7f,
                                 animationFrames = 2,
                                 animationRows = 3,
                                 animationColumns = 4,
                                 animationDurationMillis = 5000,
-                                BrushPaint.TextureSizeUnit.STROKE_COORDINATES,
-                                BrushPaint.TextureOrigin.FIRST_STROKE_INPUT,
-                                BrushPaint.TextureMapping.TILING,
-                                BrushPaint.TextureWrap.CLAMP,
-                                BrushPaint.TextureWrap.MIRROR,
+                                sizeUnit = BrushPaint.TextureSizeUnit.STROKE_COORDINATES,
+                                origin = BrushPaint.TextureOrigin.FIRST_STROKE_INPUT,
+                                mapping = BrushPaint.TextureMapping.TILING,
+                                wrapX = BrushPaint.TextureWrap.CLAMP,
+                                wrapY = BrushPaint.TextureWrap.MIRROR,
                             ),
                         ),
                     colorFunctions = listOf<ColorFunction>(ColorFunction.OpacityMultiplier(0.75f)),
@@ -228,20 +226,6 @@ class BrushPaintTest {
 
     @Test
     @Suppress("Range") // Testing error cases.
-    fun textureLayerConstructor_withInvalidOpacity_throwsIllegalArgumentException() {
-        assertFailsWith<IllegalArgumentException> {
-            BrushPaint.TextureLayer(TEST_TEXTURE_ID, sizeX = 1f, sizeY = 1f, opacity = Float.NaN)
-        }
-        assertFailsWith<IllegalArgumentException> {
-            BrushPaint.TextureLayer(TEST_TEXTURE_ID, sizeX = 1f, sizeY = 1f, opacity = -0.001f)
-        }
-        assertFailsWith<IllegalArgumentException> {
-            BrushPaint.TextureLayer(TEST_TEXTURE_ID, sizeX = 1f, sizeY = 1f, opacity = 1.001f)
-        }
-    }
-
-    @Test
-    @Suppress("Range") // Testing error cases.
     fun textureLayerConstructor_withInvalidAnimationFrames_throwsIllegalArgumentException() {
         assertFailsWith<IllegalArgumentException> {
             BrushPaint.TextureLayer(TEST_TEXTURE_ID, sizeX = 1f, sizeY = 1f, animationFrames = -1)
@@ -338,17 +322,16 @@ class BrushPaintTest {
                 offsetX = 0.1f,
                 offsetY = 0.2f,
                 rotationDegrees = Angle.QUARTER_TURN_DEGREES,
-                opacity = 0.3f,
                 animationFrames = 2,
                 animationRows = 3,
                 animationColumns = 4,
                 animationDurationMillis = 5000,
-                BrushPaint.TextureSizeUnit.BRUSH_SIZE,
-                BrushPaint.TextureOrigin.LAST_STROKE_INPUT,
-                BrushPaint.TextureMapping.STAMPING,
-                BrushPaint.TextureWrap.MIRROR,
-                BrushPaint.TextureWrap.CLAMP,
-                BrushPaint.BlendMode.SRC_IN,
+                sizeUnit = BrushPaint.TextureSizeUnit.BRUSH_SIZE,
+                origin = BrushPaint.TextureOrigin.LAST_STROKE_INPUT,
+                mapping = BrushPaint.TextureMapping.STAMPING,
+                wrapX = BrushPaint.TextureWrap.MIRROR,
+                wrapY = BrushPaint.TextureWrap.CLAMP,
+                blendMode = BrushPaint.BlendMode.SRC_IN,
             )
 
         // same values.
@@ -361,17 +344,16 @@ class BrushPaintTest {
                     offsetX = 0.1f,
                     offsetY = 0.2f,
                     rotationDegrees = Angle.QUARTER_TURN_DEGREES,
-                    opacity = 0.3f,
                     animationFrames = 2,
                     animationRows = 3,
                     animationColumns = 4,
                     animationDurationMillis = 5000,
-                    BrushPaint.TextureSizeUnit.BRUSH_SIZE,
-                    BrushPaint.TextureOrigin.LAST_STROKE_INPUT,
-                    BrushPaint.TextureMapping.STAMPING,
-                    BrushPaint.TextureWrap.MIRROR,
-                    BrushPaint.TextureWrap.CLAMP,
-                    BrushPaint.BlendMode.SRC_IN,
+                    sizeUnit = BrushPaint.TextureSizeUnit.BRUSH_SIZE,
+                    origin = BrushPaint.TextureOrigin.LAST_STROKE_INPUT,
+                    mapping = BrushPaint.TextureMapping.STAMPING,
+                    wrapX = BrushPaint.TextureWrap.MIRROR,
+                    wrapY = BrushPaint.TextureWrap.CLAMP,
+                    blendMode = BrushPaint.BlendMode.SRC_IN,
                 )
             )
 
@@ -384,7 +366,6 @@ class BrushPaintTest {
         assertThat(layer).isNotEqualTo(layer.copy(offsetX = 0.999F))
         assertThat(layer).isNotEqualTo(layer.copy(offsetY = 0.999F))
         assertThat(layer).isNotEqualTo(layer.copy(rotationDegrees = Angle.HALF_TURN_DEGREES))
-        assertThat(layer).isNotEqualTo(layer.copy(opacity = 0.999f))
         assertThat(layer).isNotEqualTo(layer.copy(animationFrames = 5))
         assertThat(layer).isNotEqualTo(layer.copy(animationRows = 6))
         assertThat(layer).isNotEqualTo(layer.copy(animationColumns = 7))
@@ -418,17 +399,16 @@ class BrushPaintTest {
                 offsetX = 0.1f,
                 offsetY = 0.2f,
                 rotationDegrees = Angle.QUARTER_TURN_DEGREES,
-                opacity = 0.3f,
                 animationFrames = 2,
                 animationRows = 3,
                 animationColumns = 4,
                 animationDurationMillis = 5000,
-                BrushPaint.TextureSizeUnit.BRUSH_SIZE,
-                BrushPaint.TextureOrigin.FIRST_STROKE_INPUT,
-                BrushPaint.TextureMapping.STAMPING,
-                BrushPaint.TextureWrap.MIRROR,
-                BrushPaint.TextureWrap.CLAMP,
-                BrushPaint.BlendMode.SRC_IN,
+                sizeUnit = BrushPaint.TextureSizeUnit.BRUSH_SIZE,
+                origin = BrushPaint.TextureOrigin.FIRST_STROKE_INPUT,
+                mapping = BrushPaint.TextureMapping.STAMPING,
+                wrapX = BrushPaint.TextureWrap.MIRROR,
+                wrapY = BrushPaint.TextureWrap.CLAMP,
+                blendMode = BrushPaint.BlendMode.SRC_IN,
             )
         val changedSizeX = originalLayer.copy(sizeX = 999F)
 
@@ -445,17 +425,16 @@ class BrushPaintTest {
                     offsetX = 0.1f,
                     offsetY = 0.2f,
                     rotationDegrees = Angle.QUARTER_TURN_DEGREES,
-                    opacity = 0.3f,
                     animationFrames = 2,
                     animationRows = 3,
                     animationColumns = 4,
                     animationDurationMillis = 5000,
-                    BrushPaint.TextureSizeUnit.BRUSH_SIZE,
-                    BrushPaint.TextureOrigin.FIRST_STROKE_INPUT,
-                    BrushPaint.TextureMapping.STAMPING,
-                    BrushPaint.TextureWrap.MIRROR,
-                    BrushPaint.TextureWrap.CLAMP,
-                    BrushPaint.BlendMode.SRC_IN,
+                    sizeUnit = BrushPaint.TextureSizeUnit.BRUSH_SIZE,
+                    origin = BrushPaint.TextureOrigin.FIRST_STROKE_INPUT,
+                    mapping = BrushPaint.TextureMapping.STAMPING,
+                    wrapX = BrushPaint.TextureWrap.MIRROR,
+                    wrapY = BrushPaint.TextureWrap.CLAMP,
+                    blendMode = BrushPaint.BlendMode.SRC_IN,
                 )
             )
     }
@@ -468,7 +447,6 @@ class BrushPaintTest {
         assertThat(string).contains("size")
         assertThat(string).contains("offset")
         assertThat(string).contains("rotation")
-        assertThat(string).contains("opacity")
         assertThat(string).contains("animationFrames")
         assertThat(string).contains("animationRows")
         assertThat(string).contains("animationColumns")
@@ -489,8 +467,6 @@ class BrushPaintTest {
     fun sizeUnitToString_returnsCorrectString() {
         assertThat(BrushPaint.TextureSizeUnit.BRUSH_SIZE.toString())
             .isEqualTo("BrushPaint.TextureSizeUnit.BRUSH_SIZE")
-        assertThat(BrushPaint.TextureSizeUnit.STROKE_SIZE.toString())
-            .isEqualTo("BrushPaint.TextureSizeUnit.STROKE_SIZE")
         assertThat(BrushPaint.TextureSizeUnit.STROKE_COORDINATES.toString())
             .isEqualTo("BrushPaint.TextureSizeUnit.STROKE_COORDINATES")
     }
@@ -589,17 +565,16 @@ class BrushPaintTest {
             offsetX = 0.1f,
             offsetY = 0.2f,
             rotationDegrees = Angle.QUARTER_TURN_DEGREES,
-            opacity = 0.3f,
             animationFrames = 2,
             animationRows = 3,
             animationColumns = 4,
             animationDurationMillis = 5000,
-            BrushPaint.TextureSizeUnit.BRUSH_SIZE,
-            BrushPaint.TextureOrigin.FIRST_STROKE_INPUT,
-            BrushPaint.TextureMapping.STAMPING,
-            BrushPaint.TextureWrap.REPEAT,
-            BrushPaint.TextureWrap.REPEAT,
-            BrushPaint.BlendMode.SRC_IN,
+            sizeUnit = BrushPaint.TextureSizeUnit.BRUSH_SIZE,
+            origin = BrushPaint.TextureOrigin.FIRST_STROKE_INPUT,
+            mapping = BrushPaint.TextureMapping.STAMPING,
+            wrapX = BrushPaint.TextureWrap.REPEAT,
+            wrapY = BrushPaint.TextureWrap.REPEAT,
+            blendMode = BrushPaint.BlendMode.SRC_IN,
         )
 
     private fun makeTestPaint() =

@@ -17,11 +17,8 @@
 package androidx.compose.material3.internal
 
 import androidx.compose.animation.animateColor
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.updateTransition
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
@@ -46,7 +43,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -151,7 +147,6 @@ internal fun CommonDecorationBox(
 
         // Transparent components interfere with Talkback (b/261061240), so if any components below
         // have alpha == 0, we set the component to null instead.
-
         val placeholderColor = colors.placeholderColor(enabled, isError, isFocused)
         val showPlaceholder by remember {
             derivedStateOf(structuralEqualityPolicy()) { placeholderAlpha.value > 0f }
@@ -460,37 +455,6 @@ private inline fun TextFieldTransitionScope(
         placeholderOpacity,
         prefixSuffixOpacity,
     )
-}
-
-@Composable
-internal fun animateBorderStrokeAsState(
-    enabled: Boolean,
-    isError: Boolean,
-    focused: Boolean,
-    colors: TextFieldColors,
-    focusedBorderThickness: Dp,
-    unfocusedBorderThickness: Dp,
-): State<BorderStroke> {
-    // TODO Load the motionScheme tokens from the component tokens file
-    val targetColor = colors.indicatorColor(enabled, isError, focused)
-    val colorAnimationSpec = MotionSchemeKeyTokens.FastEffects.value<Color>()
-    val indicatorColor =
-        if (enabled) {
-            animateColorAsState(targetColor, colorAnimationSpec)
-        } else {
-            rememberUpdatedState(targetColor)
-        }
-
-    val thicknessAnimationSpec = MotionSchemeKeyTokens.FastSpatial.value<Dp>()
-    val thickness =
-        if (enabled) {
-            val targetThickness = if (focused) focusedBorderThickness else unfocusedBorderThickness
-            animateDpAsState(targetThickness, thicknessAnimationSpec)
-        } else {
-            rememberUpdatedState(unfocusedBorderThickness)
-        }
-
-    return rememberUpdatedState(BorderStroke(thickness.value, indicatorColor.value))
 }
 
 /** An internal state used to animate a label and an indicator. */

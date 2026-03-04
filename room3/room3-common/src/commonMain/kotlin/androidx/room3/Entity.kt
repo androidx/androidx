@@ -19,20 +19,22 @@ package androidx.room3
 /**
  * Marks a class as an entity. This class will have a mapping SQLite table in the database.
  *
- * Each entity must have at least 1 field annotated with [PrimaryKey]. You can also use
- * [primaryKeys] attribute to define the primary key.
+ * Each entity must have at least 1 property annotated with [PrimaryKey]. You can also use
+ * [primaryKeys] attribute to define the primary keys.
  *
- * Each entity must either have a no-arg constructor or a constructor whose parameters match
- * properties (based on type and name). Constructor does not have to receive all properties as
- * parameters but if a field is not passed into the constructor, it should either be public or have
- * a public setter. If a matching constructor is available, Room will always use it. If you don't
- * want it to use a constructor, you can annotate it with [Ignore].
+ * Each entity must either have a no-arg constructor or a constructor whose parameters match the
+ * properties (based on type and name). The constructor does not have to receive all properties as
+ * parameters but if a property is not passed into the constructor, it should either be non-private
+ * mutable property or have a non-private setter. If a matching constructor is available, Room will
+ * prefer using it. If you don't want Room to use a constructor, you can annotate it with [Ignore].
  *
  * When a class is marked as an [Entity], all of its properties are persisted. If you would like to
- * exclude some of its properties, you can mark them with [Ignore].
+ * exclude some of its properties, you can mark them with [Ignore] or named the ignored columns in
+ * [ignoredColumns].
  *
- * If a property is `transient`, it is automatically ignored **unless** it is annotated with
- * `ColumnInfo`, `Embedded` or `Relation`.
+ * The persisted properties types define the column type affinity of the mapping SQLite table.
+ * Supported types are primitives, [String], [ByteArray] and enums. Additional types can be
+ * supported via [TypeConverter] functions.
  *
  * Example:
  * ```
@@ -46,7 +48,9 @@ package androidx.room3
  * )
  * ```
  *
- * @see Dao
+ * If a property is [kotlin.jvm.Transient], it is automatically ignored **unless** it is annotated
+ * with [ColumnInfo], [Embedded] or [Relation].
+ *
  * @see Database
  * @see PrimaryKey
  * @see ColumnInfo
@@ -70,14 +74,13 @@ public annotation class Entity(
     val indices: Array<Index> = [],
 
     /**
-     * If set to `true`, any Index defined in parent classes of this class will be carried over to
-     * the current `Entity`. Note that if you set this to `true`, even if the `Entity` has a parent
-     * which sets this value to `false`, the `Entity` will still inherit indices from it and its
-     * parents.
+     * If set to `true`, any [Index] defined in parent classes will be carried over to this entity.
+     * Note that if you set this to `true`, even if the entity has a parent which sets this value to
+     * `false`, the entity will still inherit indices from it and its parents.
      *
-     * When the `Entity` inherits an index from the parent, it is **always** renamed with the
-     * default naming schema since SQLite **does not** allow using the same index name in multiple
-     * tables. See [Index] for the details of the default name.
+     * When the entity inherits an index from the parent, it is **always** renamed with the default
+     * naming schema since SQLite **does not** allow using the same index name in multiple tables.
+     * See [Index] for the details of the default name.
      *
      * By default, indices defined in parent classes are dropped to avoid unexpected indices. When
      * this happens, you will receive a [RoomWarnings.INDEX_FROM_PARENT_FIELD_IS_DROPPED] or

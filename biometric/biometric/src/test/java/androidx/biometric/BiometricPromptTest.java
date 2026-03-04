@@ -148,6 +148,84 @@ public class BiometricPromptTest {
                         .getDescription()).isEqualTo(contentDescription);
     }
 
+    @Test
+    public void testPromptInfo_CanSetAndGetOptions_fallbackOptions() {
+        final String title = "Title";
+        final String negativeButtonText = "Negative";
+        final AuthenticationRequest.Biometric.Fallback.CustomOption fallback =
+                new AuthenticationRequest.Biometric.Fallback.CustomOption("fallback",
+                        BiometricPrompt.ICON_TYPE_ACCOUNT);
+
+        final BiometricPrompt.PromptInfo info = new BiometricPrompt.PromptInfo.Builder()
+                .setTitle(title)
+                .setNegativeButtonText(negativeButtonText)
+                .addFallbackOption(fallback)
+                .build();
+
+        assertThat(info.getFallbackOptionList()).containsExactly(fallback);
+    }
+
+    @Test
+    public void testPromptInfo_CanSetAndGetOptions_multipleFallbackOptions() {
+        final String title = "Title";
+        final AuthenticationRequest.Biometric.Fallback.CustomOption fallback1 =
+                new AuthenticationRequest.Biometric.Fallback.CustomOption("fallback 1",
+                        BiometricPrompt.ICON_TYPE_PASSWORD);
+        final AuthenticationRequest.Biometric.Fallback.CustomOption fallback2 =
+                new AuthenticationRequest.Biometric.Fallback.CustomOption("fallback 2",
+                        BiometricPrompt.ICON_TYPE_ACCOUNT);
+
+        final BiometricPrompt.PromptInfo info = new BiometricPrompt.PromptInfo.Builder()
+                .setTitle(title)
+                .addFallbackOption(fallback1)
+                .addFallbackOption(fallback2)
+                .build();
+
+        assertThat(info.getFallbackOptionList()).containsExactly(fallback1, fallback2);
+    }
+
+    @Test
+    public void testPromptInfo_CanSetAndGetOptions_iconTypes() {
+        final AuthenticationRequest.Biometric.Fallback.CustomOption fallback =
+                new AuthenticationRequest.Biometric.Fallback.CustomOption("fallback",
+                        BiometricPrompt.ICON_TYPE_QR_CODE);
+
+        final BiometricPrompt.PromptInfo info = new BiometricPrompt.PromptInfo.Builder()
+                .setTitle("Title")
+                .addFallbackOption(fallback)
+                .build();
+
+        assertThat(((AuthenticationRequest.Biometric.Fallback.CustomOption)
+                info.getFallbackOptionList().get(0)).getIconType())
+                .isEqualTo(BiometricPrompt.ICON_TYPE_QR_CODE);
+    }
+
+    @Test
+    public void testPromptInfo_DefaultFallbackOptionListIsNull() {
+        final BiometricPrompt.PromptInfo info = new BiometricPrompt.PromptInfo.Builder()
+                .setTitle("Title")
+                .setNegativeButtonText("Negative")
+                .build();
+
+        assertThat(info.getFallbackOptionList()).isNull();
+    }
+
+    @Test
+    public void testPromptInfo_CanBuildWithMixedFallbackOptions() {
+        final AuthenticationRequest.Biometric.Fallback.CustomOption fallback1 =
+                new AuthenticationRequest.Biometric.Fallback.CustomOption("fallback 1");
+        final AuthenticationRequest.Biometric.Fallback.DeviceCredential fallback2 =
+                AuthenticationRequest.Biometric.Fallback.DeviceCredential.INSTANCE;
+
+        final BiometricPrompt.PromptInfo info = new BiometricPrompt.PromptInfo.Builder()
+                .setTitle("Title")
+                .addFallbackOption(fallback1)
+                .addFallbackOption(fallback2)
+                .build();
+
+        assertThat(info.getFallbackOptionList()).containsExactly(fallback1, fallback2);
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testPromptInfo_FailsToBuild_WithNoTitle() {
         new BiometricPrompt.PromptInfo.Builder().setNegativeButtonText("Cancel").build();
@@ -158,29 +236,6 @@ public class BiometricPromptTest {
         new BiometricPrompt.PromptInfo.Builder()
                 .setTitle("")
                 .setNegativeButtonText("Cancel")
-                .build();
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testPromptInfo_FailsToBuild_WithNoNegativeText() {
-        new BiometricPrompt.PromptInfo.Builder().setTitle("Title").build();
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testPromptInfo_FailsToBuild_WithEmptyNegativeText() {
-        new BiometricPrompt.PromptInfo.Builder()
-                .setTitle("Title")
-                .setNegativeButtonText("")
-                .build();
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testPromptInfo_FailsToBuild_WithNegativeTextAndDeviceCredential() {
-        new BiometricPrompt.PromptInfo.Builder()
-                .setTitle("Title")
-                .setNegativeButtonText("Cancel")
-                .setAllowedAuthenticators(
-                        Authenticators.BIOMETRIC_WEAK | Authenticators.DEVICE_CREDENTIAL)
                 .build();
     }
 

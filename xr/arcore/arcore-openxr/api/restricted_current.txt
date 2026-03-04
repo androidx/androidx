@@ -100,7 +100,6 @@ package androidx.xr.arcore.openxr {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class OpenXrFace implements androidx.xr.arcore.runtime.Face {
     ctor public OpenXrFace();
-    method public androidx.xr.arcore.runtime.Anchor createAnchor(androidx.xr.runtime.math.Pose pose);
     method @InaccessibleFromKotlin public float[] getBlendShapeValues();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose? getCenterPose();
     method @InaccessibleFromKotlin public float[] getConfidenceValues();

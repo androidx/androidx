@@ -712,7 +712,8 @@ package androidx.xr.scenecore.runtime {
     method public androidx.xr.scenecore.runtime.AnchorEntity createAnchorEntity();
     method public androidx.xr.scenecore.runtime.AnchorPlacement createAnchorPlacementForPlanes(java.util.Set<androidx.xr.scenecore.runtime.PlaneType> planeTypeFilter, java.util.Set<androidx.xr.scenecore.runtime.PlaneSemantic> planeSemanticFilter);
     method public androidx.xr.scenecore.runtime.BoundsComponent createBoundsComponent();
-    method public androidx.xr.scenecore.runtime.Entity createGroupEntity(androidx.xr.runtime.math.Pose pose, String name, androidx.xr.scenecore.runtime.Entity? parent);
+    method public androidx.xr.scenecore.runtime.Entity createEntity(androidx.xr.runtime.math.Pose pose, String? name, androidx.xr.scenecore.runtime.Entity? parent);
+    method @Deprecated public androidx.xr.scenecore.runtime.Entity createGroupEntity(androidx.xr.runtime.math.Pose pose, String name, androidx.xr.scenecore.runtime.Entity? parent);
     method public androidx.xr.scenecore.runtime.InteractableComponent createInteractableComponent(java.util.concurrent.Executor executor, androidx.xr.scenecore.runtime.InputEventListener listener);
     method public androidx.xr.scenecore.runtime.LoggingEntity createLoggingEntity(androidx.xr.runtime.math.Pose pose);
     method public androidx.xr.scenecore.runtime.MovableComponent createMovableComponent(boolean systemMovable, boolean scaleInZ, boolean userAnchorable);
@@ -858,8 +859,9 @@ package androidx.xr.scenecore.runtime {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface SpatialPointerComponent extends androidx.xr.scenecore.runtime.Component {
-    method @androidx.xr.scenecore.runtime.SpatialPointerIconType public int getSpatialPointerIcon();
-    method public void setSpatialPointerIcon(@androidx.xr.scenecore.runtime.SpatialPointerIconType int iconType);
+    method @InaccessibleFromKotlin public int getSpatialPointerIcon();
+    method @InaccessibleFromKotlin public void setSpatialPointerIcon(int);
+    property @androidx.xr.scenecore.runtime.SpatialPointerIconType public abstract int spatialPointerIcon;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class SpatialPointerIcon {

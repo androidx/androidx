@@ -34,16 +34,20 @@ import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isSimple
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Outline.Rounded
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.shadow.DropShadowPainter
 import androidx.compose.ui.graphics.shadow.InnerShadowPainter
@@ -442,6 +446,12 @@ internal class StyleOuterNode(styleState: StyleState?, style: Style) :
     private var lastStrokeWidth: Float = Float.NaN
     private var lastStroke: Stroke? = null
 
+    // Border path caching
+    private var lastBorderPathWidth: Float = Float.NaN
+    private var lastBorderPathOutline: Outline? = null
+    private var cachedBorderPath: Path? = null
+    private var lastBrush: Brush? = null
+
     private fun getStroke(strokeWidth: Float): Stroke {
         if (lastStrokeWidth != strokeWidth) {
             lastStrokeWidth = strokeWidth
@@ -801,24 +811,47 @@ internal class StyleOuterNode(styleState: StyleState?, style: Style) :
         }
 
         if (hasBorder) {
-            val stroke = getStroke(borderWidth)
-            // TODO: there is a clipRect optimization. see Border.kt
-            if (borderBrush != null)
-                drawRoundRect(
-                    brush = borderBrush,
-                    topLeft = outerTopLeft,
-                    size = outlineSize,
-                    cornerRadius = cornerRadius,
-                    style = stroke,
-                )
-            else
-                drawRoundRect(
-                    color = borderColor,
-                    topLeft = outerTopLeft,
-                    size = outlineSize,
-                    cornerRadius = cornerRadius,
-                    style = stroke,
-                )
+            val halfStroke = borderWidth / 2f
+            val fillArea = (borderWidth * 2) >= size.minDimension
+            when {
+                fillArea -> {
+                    if (borderBrush != null)
+                        drawRoundRect(brush = borderBrush, cornerRadius = cornerRadius)
+                    else drawRoundRect(color = borderColor, cornerRadius = cornerRadius)
+                }
+                cornerRadius.x < halfStroke -> {
+                    clipRect(
+                        borderWidth,
+                        borderWidth,
+                        size.width - borderWidth,
+                        size.height - borderWidth,
+                        clipOp = ClipOp.Difference,
+                    ) {
+                        if (borderBrush != null)
+                            drawRoundRect(brush = borderBrush, cornerRadius = cornerRadius)
+                        else drawRoundRect(color = borderColor, cornerRadius = cornerRadius)
+                    }
+                }
+                else -> {
+                    val stroke = getStroke(borderWidth)
+                    if (borderBrush != null)
+                        drawRoundRect(
+                            brush = borderBrush,
+                            topLeft = outerTopLeft,
+                            size = outlineSize,
+                            cornerRadius = cornerRadius.shrink(halfStroke),
+                            style = stroke,
+                        )
+                    else
+                        drawRoundRect(
+                            color = borderColor,
+                            topLeft = outerTopLeft,
+                            size = outlineSize,
+                            cornerRadius = cornerRadius.shrink(halfStroke),
+                            style = stroke,
+                        )
+                }
+            }
         }
     }
 
@@ -836,12 +869,6 @@ internal class StyleOuterNode(styleState: StyleState?, style: Style) :
         borderWidth: Float,
     ) {
         val halfStrokeWidth = borderWidth / 2f
-        val offset = Offset.Zero + halfStrokeWidth
-        val borderOutline =
-            if (hasBorder)
-            // TODO: consider caching
-            outline.translate(offset)
-            else outline
         val innerOutline =
             if (hasBorder)
             // TODO: consider caching
@@ -871,10 +898,26 @@ internal class StyleOuterNode(styleState: StyleState?, style: Style) :
 
         // border
         if (hasBorder) {
-            val stroke = getStroke(borderWidth)
-            if (borderBrush != null)
-                drawOutline(brush = borderBrush, outline = borderOutline, style = stroke)
-            else drawOutline(color = borderColor, outline = borderOutline, style = stroke)
+            val fillArea = (borderWidth * 2) > size.minDimension
+            if (lastBorderPathWidth != borderWidth || lastBorderPathOutline != outline) {
+                val path = cachedBorderPath ?: Path().also { cachedBorderPath = it }
+                val outerRoundRect =
+                    RoundRect(
+                        left = 0f,
+                        top = 0f,
+                        right = size.width,
+                        bottom = size.height,
+                        topLeftCornerRadius = outline.roundRect.topLeftCornerRadius,
+                        topRightCornerRadius = outline.roundRect.topRightCornerRadius,
+                        bottomRightCornerRadius = outline.roundRect.bottomRightCornerRadius,
+                        bottomLeftCornerRadius = outline.roundRect.bottomLeftCornerRadius,
+                    )
+                createRoundRectPath(path, outerRoundRect, borderWidth, fillArea)
+                lastBorderPathWidth = borderWidth
+                lastBorderPathOutline = outline
+            }
+            if (borderBrush != null) drawPath(cachedBorderPath!!, brush = borderBrush)
+            else drawPath(cachedBorderPath!!, color = borderColor)
         }
     }
 
@@ -1234,10 +1277,6 @@ private fun Rounded.inset(inset: Float): Rounded {
     return Rounded(roundRect.insetBy(inset))
 }
 
-private fun Rounded.translate(offset: Offset): Rounded {
-    return Rounded(roundRect.offsetBy(offset))
-}
-
 private operator fun CornerRadius.minus(value: Float): CornerRadius =
     CornerRadius(max(0f, x - value), max(0f, y - value))
 
@@ -1247,3 +1286,41 @@ private fun StylePhase.toFlags(): Int =
         StylePhase.Draw -> TextDrawFlag
         else -> InheritedFlags
     }
+
+/**
+ * Helper method that creates a round rect with the inner region removed by the given stroke width
+ */
+private fun createRoundRectPath(
+    targetPath: Path,
+    roundedRect: RoundRect,
+    strokeWidth: Float,
+    fillArea: Boolean,
+): Path =
+    targetPath.apply {
+        reset()
+        addRoundRect(roundedRect)
+        if (!fillArea) {
+            val insetPath =
+                Path().apply { addRoundRect(createInsetRoundedRect(strokeWidth, roundedRect)) }
+            op(this, insetPath, PathOperation.Difference)
+        }
+    }
+
+private fun createInsetRoundedRect(widthPx: Float, roundedRect: RoundRect) =
+    RoundRect(
+        left = widthPx,
+        top = widthPx,
+        right = roundedRect.width - widthPx,
+        bottom = roundedRect.height - widthPx,
+        topLeftCornerRadius = roundedRect.topLeftCornerRadius.shrink(widthPx),
+        topRightCornerRadius = roundedRect.topRightCornerRadius.shrink(widthPx),
+        bottomLeftCornerRadius = roundedRect.bottomLeftCornerRadius.shrink(widthPx),
+        bottomRightCornerRadius = roundedRect.bottomRightCornerRadius.shrink(widthPx),
+    )
+
+/**
+ * Helper method to shrink the corner radius by the given value, clamping to 0 if the resultant
+ * corner radius would be negative
+ */
+private fun CornerRadius.shrink(value: Float): CornerRadius =
+    CornerRadius(max(0f, this.x - value), max(0f, this.y - value))

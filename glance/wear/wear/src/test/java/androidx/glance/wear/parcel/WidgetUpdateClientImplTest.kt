@@ -24,6 +24,7 @@ import android.content.IntentFilter
 import android.os.Build
 import android.os.Looper
 import android.provider.Settings
+import androidx.core.content.IntentCompat
 import androidx.glance.wear.parcel.legacy.TileUpdateRequestData
 import androidx.glance.wear.parcel.legacy.TileUpdateRequesterService
 import androidx.glance.wear.proto.legacy.TileUpdateRequest
@@ -147,6 +148,24 @@ class WidgetUpdateClientImplTest {
 
         Truth.assertThat(standardSysUiFakeReceiver.requestedComponents).isEmpty()
         Truth.assertThat(otherSysUiFakeReceiver.requestedComponents).hasSize(1)
+    }
+
+    @Test
+    fun sendUpdateBroadcast_sendsBroadcast() {
+        updateClient.sendUpdateBroadcast(appContext, TEST_PROVIDER_COMPONENT)
+
+        val broadcasts = Shadows.shadowOf(appContext as Application?).broadcastIntents
+        Truth.assertThat(broadcasts).hasSize(1)
+        val intent = broadcasts.first()
+        Truth.assertThat(intent.action).isEqualTo(WidgetUpdateClientImpl.ACTION_REQUEST_TILE_UPDATE)
+        Truth.assertThat(
+                IntentCompat.getParcelableExtra(
+                    intent,
+                    Intent.EXTRA_COMPONENT_NAME,
+                    ComponentName::class.java,
+                )
+            )
+            .isEqualTo(TEST_PROVIDER_COMPONENT)
     }
 
     @Test

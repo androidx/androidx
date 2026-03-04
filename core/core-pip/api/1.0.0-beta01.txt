@@ -1,0 +1,50 @@
+// Signature format: 4.0
+package androidx.core.pip {
+
+  public class BasicPictureInPicture extends androidx.core.pip.PictureInPictureDelegate {
+    ctor public BasicPictureInPicture(androidx.core.app.PictureInPictureProvider pictureInPictureProvider);
+    method @InaccessibleFromKotlin protected final androidx.core.app.PictureInPictureParamsCompat.Builder getPictureInPictureParamsBuilder();
+    method public final androidx.core.pip.BasicPictureInPicture setActions(java.util.List<android.app.RemoteAction> actions);
+    method public final androidx.core.pip.BasicPictureInPicture setAspectRatio(android.util.Rational aspectRatio);
+    method public final androidx.core.pip.BasicPictureInPicture setEnabled(boolean enabled);
+    property protected final androidx.core.app.PictureInPictureParamsCompat.Builder pictureInPictureParamsBuilder;
+  }
+
+  public class PictureInPictureDelegate {
+    ctor public PictureInPictureDelegate(androidx.core.app.PictureInPictureProvider pictureInPictureProvider);
+    method public final void addOnPictureInPictureEventListener(java.util.concurrent.Executor executor, androidx.core.pip.PictureInPictureDelegate.OnPictureInPictureEventListener listener);
+    method public final void removeOnPictureInPictureEventListener(androidx.core.pip.PictureInPictureDelegate.OnPictureInPictureEventListener listener);
+    method public final void setPictureInPictureParams(androidx.core.app.PictureInPictureParamsCompat pictureInPictureParamsCompat);
+  }
+
+  public static final class PictureInPictureDelegate.Event {
+    field public static final androidx.core.pip.PictureInPictureDelegate.Event.Companion Companion;
+    field public static final androidx.core.pip.PictureInPictureDelegate.Event ENTERED;
+    field public static final androidx.core.pip.PictureInPictureDelegate.Event ENTER_ANIMATION_END;
+    field public static final androidx.core.pip.PictureInPictureDelegate.Event ENTER_ANIMATION_START;
+    field public static final androidx.core.pip.PictureInPictureDelegate.Event EXITED;
+    field public static final androidx.core.pip.PictureInPictureDelegate.Event STASHED;
+    field public static final androidx.core.pip.PictureInPictureDelegate.Event UNSTASHED;
+  }
+
+  public static final class PictureInPictureDelegate.Event.Companion {
+    property public androidx.core.pip.PictureInPictureDelegate.Event ENTERED;
+    property public androidx.core.pip.PictureInPictureDelegate.Event ENTER_ANIMATION_END;
+    property public androidx.core.pip.PictureInPictureDelegate.Event ENTER_ANIMATION_START;
+    property public androidx.core.pip.PictureInPictureDelegate.Event EXITED;
+    property public androidx.core.pip.PictureInPictureDelegate.Event STASHED;
+    property public androidx.core.pip.PictureInPictureDelegate.Event UNSTASHED;
+  }
+
+  public static interface PictureInPictureDelegate.OnPictureInPictureEventListener {
+    method public void onPictureInPictureEvent(androidx.core.pip.PictureInPictureDelegate.Event event, android.content.res.Configuration? config);
+  }
+
+  public final class VideoPlaybackPictureInPicture extends androidx.core.pip.BasicPictureInPicture implements java.lang.AutoCloseable {
+    ctor public VideoPlaybackPictureInPicture(androidx.core.app.PictureInPictureProvider provider);
+    method public void close();
+    method public androidx.core.pip.VideoPlaybackPictureInPicture setPlayerView(android.view.View? view);
+  }
+
+}
+

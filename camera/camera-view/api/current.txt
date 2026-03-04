@@ -56,6 +56,7 @@ package androidx.camera.view {
     method @MainThread public void setPinchToZoomEnabled(boolean);
     method @MainThread public void setPreviewResolutionSelector(androidx.camera.core.resolutionselector.ResolutionSelector?);
     method @Deprecated @MainThread public void setPreviewTargetSize(androidx.camera.view.CameraController.OutputSize?);
+    method @MainThread public void setSessionConfig(androidx.camera.core.SessionConfig, androidx.camera.core.CameraSelector);
     method @MainThread public void setTapToFocusAutoCancelDuration(@IntRange(from=0) long, java.util.concurrent.TimeUnit);
     method @MainThread public void setTapToFocusEnabled(boolean);
     method @MainThread public void setVideoCaptureDynamicRange(androidx.camera.core.DynamicRange);

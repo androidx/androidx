@@ -60,6 +60,13 @@ enum class Fps(val value: Int) {
     FPS_30(30),
 }
 
+enum class Bitrate(val label: String, val bps: Int) {
+    BITRATE_100K("100 kbps", 100_000),
+    BITRATE_200K("200 kbps", 200_000),
+    BITRATE_300K("300 kbps", 300_000),
+    BITRATE_400K("400 kbps", 400_000),
+}
+
 @Composable
 private fun <T> DropdownSelector(
     label: String,
@@ -128,6 +135,17 @@ fun FpsSelector(selectedFps: Fps, onFpsSelected: (Fps) -> Unit) {
         items = Fps.values().toList(),
         itemToName = { it.value.toString() },
         onItemSelected = onFpsSelected,
+    )
+}
+
+@Composable
+fun BitrateSelector(selectedBitrate: Bitrate, onBitrateSelected: (Bitrate) -> Unit) {
+    DropdownSelector(
+        label = "Bitrate",
+        currentValueName = selectedBitrate.label,
+        items = Bitrate.values().toList(),
+        itemToName = { it.label },
+        onItemSelected = onBitrateSelected,
     )
 }
 

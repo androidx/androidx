@@ -16,6 +16,7 @@
 
 package androidx.room3.vo
 
+import androidx.room3.OperationType
 import androidx.room3.compiler.codegen.CodeLanguage
 import androidx.room3.compiler.codegen.XClassName
 import androidx.room3.compiler.processing.XMethodElement
@@ -25,6 +26,7 @@ import androidx.room3.compiler.processing.XTypeElement
 /** Holds info on the `convert()` function of a [DaoReturnTypeConverter]. */
 data class CustomDaoReturnTypeConverter(
     val to: XType,
+    val operationTypes: List<OperationType>,
     val enclosingClass: XTypeElement,
     val isEnclosingClassKotlinObject: Boolean,
     val function: XMethodElement,

@@ -103,8 +103,9 @@ object ComposeUiFlags {
     var isGraphicsLayerShapeSemanticsEnabled: Boolean = true
 
     /**
-     * Enables a fix where [TraversableNode] traversal method [findNearestAncestor] will take into
-     * consideration any delegates that might also be traversable.
+     * Enables a fix where [androidx.compose.ui.node.TraversableNode] traversal method
+     * [findNearestAncestor] will take into consideration any delegates that might also be
+     * traversable.
      */
     // TODO: b/485962494
     @field:Suppress("MutableBareField")

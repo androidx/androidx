@@ -37,7 +37,6 @@ import androidx.pdf.annotation.history.AnnotationRecordsHistoryManager
 import androidx.pdf.annotation.manager.PdfAnnotationsManager
 import androidx.pdf.annotation.models.AnnotationsDisplayState
 import androidx.pdf.annotation.models.PdfAnnotation
-import androidx.pdf.annotation.models.PdfEdits
 import androidx.pdf.annotation.models.VisiblePdfAnnotations
 import androidx.pdf.ink.model.ApplyEditsState
 import androidx.pdf.ink.state.AnnotationDrawingMode
@@ -368,7 +367,6 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
                     )
                 _annotationDisplayStateFlow.value =
                     AnnotationsDisplayState(
-                        edits = PdfEdits(editsByPage = emptyMap()),
                         transformationMatrices = initialMatrices,
                         visiblePageAnnotations = visiblePdfAnnotations,
                     )

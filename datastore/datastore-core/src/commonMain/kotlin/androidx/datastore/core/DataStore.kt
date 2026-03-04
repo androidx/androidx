@@ -16,6 +16,8 @@
 
 package androidx.datastore.core
 
+import androidx.datastore.core.handlers.ReThrowCorruptionHandler
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -34,7 +36,7 @@ import kotlinx.coroutines.flow.Flow
  * 6. Throws runtime exception on parsing errors
  * 7. Exposes mutable references to its internal state
  */
-public interface DataStore<T> {
+public expect interface DataStore<T> {
     /**
      * Provides efficient, cached (when possible) access to the latest durably persisted state. The
      * flow will always either emit a value or throw an exception encountered when attempting to
@@ -63,4 +65,58 @@ public interface DataStore<T> {
      * @throws Exception when thrown by the transform function
      */
     public suspend fun updateData(transform: suspend (t: T) -> T): T
+
+    /**
+     * Builder for creating a [DataStore] instance.
+     *
+     * This API provides a scalable alternative to `DataStoreFactory`.
+     *
+     * Example:
+     * ```kotlin
+     * val dataStore = Builder<Settings>(MyStorage(), Dispatchers.IO + SupervisorJob())
+     * .setCorruptionHandler(MyCorruptionHandler())
+     * .build()
+     * ```
+     *
+     * @param context the [CoroutineContext] in which IO operations and data transformations will
+     *   execute.
+     *
+     * **Warning:** The [Job] within this context dictates the lifecycle of the DataStore's internal
+     * operations.
+     * - If the context includes a [Job], ensure it is an application-scoped context that is not
+     *   canceled by UI lifecycle events (e.g., do not use `viewModelScope`).
+     * - If the context **does not** include a [Job], DataStore will implicitly create a new one. In
+     *   this case, the DataStore will not be bound by structured concurrency to any parent scope
+     *   and must be managed manually.
+     */
+    /** Builder for [DataStore]. */
+    class Builder<T>(storage: Storage<T>, context: CoroutineContext) {
+        /**
+         * Sets the [CorruptionHandler] for the DataStore.
+         *
+         * This handler is invoked if the [Storage] layer throws a [CorruptionException]. Defaults
+         * to [ReThrowCorruptionHandler].
+         *
+         * @param handler the corruption handler.
+         * @return this [Builder] instance.
+         */
+        fun setCorruptionHandler(handler: CorruptionHandler<T>): Builder<T>
+
+        /**
+         * Adds [DataMigration]s to the DataStore.
+         *
+         * Migrations are run in the order they are added before any data is returned to the user.
+         *
+         * @param migrations the list of migrations.
+         * @return this [Builder] instance.
+         */
+        fun addMigrations(migrations: List<DataMigration<T>>): Builder<T>
+
+        /**
+         * Validates the configuration and builds the [Builder] instance.
+         *
+         * @return a new DataStore instance.
+         */
+        fun build(): DataStore<T>
+    }
 }

@@ -39,6 +39,12 @@ internal class WidgetUpdateClientImpl() : WidgetUpdateClient {
     @GuardedBy("lock") private val pendingUpdates = mutableSetOf<ComponentName>()
     @GuardedBy("lock") private var bindingInProgress = false
 
+    override fun sendUpdateBroadcast(context: Context, provider: ComponentName) {
+        val intent = Intent(ACTION_REQUEST_TILE_UPDATE)
+        intent.putExtra(Intent.EXTRA_COMPONENT_NAME, provider)
+        context.sendBroadcast(intent)
+    }
+
     override fun requestUpdate(context: Context, provider: ComponentName) {
         synchronized(lock) {
             pendingUpdates.add(provider)
@@ -90,6 +96,9 @@ internal class WidgetUpdateClientImpl() : WidgetUpdateClient {
     }
 
     companion object {
+        internal const val ACTION_REQUEST_TILE_UPDATE =
+            "androidx.wear.tiles.action.REQUEST_TILE_UPDATE"
+
         internal const val ACTION_BIND_UPDATE_REQUESTER =
             "androidx.wear.tiles.action.BIND_UPDATE_REQUESTER"
         internal const val CATEGORY_HOME_MAIN = "${CATEGORY_HOME}_MAIN"

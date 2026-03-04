@@ -256,6 +256,67 @@ internal constructor(
         repeat(lastMetadataEntryIndex + 1) { block(metadataEntries[it]) }
     }
 
+    public fun copyFrom(src: TraceEvent) {
+        type = src.type
+        trackUuid = src.trackUuid
+        timestamp = src.timestamp
+        name = src.name
+        counterDoubleValue = src.counterDoubleValue
+        counterLongValue = src.counterLongValue
+        correlationId = src.correlationId
+        correlationIdString = src.correlationIdString
+        flowIds = src.flowIds
+        trackDescriptor = src.trackDescriptor
+        primaryCategory = src.primaryCategory
+
+        // Metadata
+        lastMetadataEntryIndex = src.lastMetadataEntryIndex
+        while (metadataEntries.size <= lastMetadataEntryIndex) {
+            metadataEntries.add(MetadataEntry())
+        }
+        for (i in 0..lastMetadataEntryIndex) {
+            val s = src.metadataEntries[i]
+            val d = metadataEntries[i]
+            d.name = s.name
+            d.type = s.type
+            d.booleanValue = s.booleanValue
+            d.longValue = s.longValue
+            d.doubleValue = s.doubleValue
+            d.stringValue = s.stringValue
+        }
+        for (i in (lastMetadataEntryIndex + 1) until metadataEntries.size) {
+            metadataEntries[i].reset()
+        }
+
+        // Categories
+        lastCategoryIndex = src.lastCategoryIndex
+        while (categories.size <= lastCategoryIndex) {
+            categories.add(DEFAULT_STRING)
+        }
+        for (i in 0..lastCategoryIndex) {
+            categories[i] = src.categories[i]
+        }
+        for (i in (lastCategoryIndex + 1) until categories.size) {
+            categories[i] = DEFAULT_STRING
+        }
+
+        // Frames
+        lastFrameIndex = src.lastFrameIndex
+        while (frames.size <= lastFrameIndex) {
+            frames.add(Frame())
+        }
+        for (i in 0..lastFrameIndex) {
+            val s = src.frames[i]
+            val d = frames[i]
+            d.name = s.name
+            d.sourceFile = s.sourceFile
+            d.lineNumber = s.lineNumber
+        }
+        for (i in (lastFrameIndex + 1) until frames.size) {
+            frames[i].reset()
+        }
+    }
+
     public fun reset() {
         type = DEFAULT_INT
         trackUuid = DEFAULT_LONG

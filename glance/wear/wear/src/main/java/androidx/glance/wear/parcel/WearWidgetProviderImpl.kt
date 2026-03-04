@@ -23,7 +23,6 @@ import android.util.Log
 import androidx.glance.wear.ActiveWidgetStore
 import androidx.glance.wear.GlanceWearWidget
 import androidx.glance.wear.cache.WearWidgetCache
-import androidx.glance.wear.cache.WidgetContainerSpec
 import androidx.glance.wear.core.ActiveWearWidgetHandle
 import androidx.glance.wear.core.ContainerInfo
 import androidx.glance.wear.core.WearWidgetEventBatch
@@ -80,10 +79,7 @@ internal class WearWidgetProviderImpl(
                 activeWidgetStore?.markWidgetAsActive(providerName, params.instanceId.id)
                 widgetCache.update {
                     setInstanceType(params.instanceId, params.containerType)
-                    setContainerSpec(
-                        params.containerType,
-                        WidgetContainerSpec(params.widthDp, params.heightDp),
-                    )
+                    setWidgetParams(params)
                 }
             }
 

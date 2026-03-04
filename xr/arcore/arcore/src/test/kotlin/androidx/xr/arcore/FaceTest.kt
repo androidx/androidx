@@ -191,64 +191,6 @@ class FaceTest {
     }
 
     @Test
-    fun createAnchor_unsupported_throws_UnsupportedOperationException() {
-        session.configure(Config(faceTracking = FaceTrackingMode.MESHES))
-        val runtimeFace = FakeRuntimeFace()
-        runtime.perceptionManager.addTrackable(runtimeFace)
-        xrResourcesManager.syncTrackables(listOf(runtimeFace))
-        val underTest = xrResourcesManager.trackablesMap.values.first() as Face
-        runtimeFace.canCreateAnchors = false
-
-        assertFailsWith<UnsupportedOperationException> { underTest.createAnchor(Pose()) }
-    }
-
-    @Test
-    fun createAnchor_usesGivenPose() {
-        session.configure(Config(faceTracking = FaceTrackingMode.MESHES))
-        val runtimeFace = FakeRuntimeFace()
-        runtime.perceptionManager.addTrackable(runtimeFace)
-        xrResourcesManager.syncTrackables(listOf(runtimeFace))
-        val underTest = xrResourcesManager.trackablesMap.values.first() as Face
-        val pose = Pose(Vector3(1.0f, 2.0f, 3.0f), Quaternion(1.0f, 2.0f, 3.0f, 4.0f))
-
-        val anchorResult = underTest.createAnchor(pose)
-
-        assertThat(anchorResult).isInstanceOf(AnchorCreateSuccess::class.java)
-        val anchor = (anchorResult as AnchorCreateSuccess).anchor
-        assertThat(anchor.state.value.pose).isEqualTo(pose)
-    }
-
-    @Test
-    fun createAnchor_anchorLimitReached_returnsAnchorResourcesExhaustedResult() {
-        session.configure(Config(faceTracking = FaceTrackingMode.MESHES))
-        val runtimeFace = FakeRuntimeFace()
-        runtime.perceptionManager.addTrackable(runtimeFace)
-        xrResourcesManager.syncTrackables(listOf(runtimeFace))
-        val underTest = xrResourcesManager.trackablesMap.values.first() as Face
-
-        repeat(FakeRuntimeAnchor.anchorResourceLimit) {
-            val result = underTest.createAnchor(Pose())
-        }
-
-        assertThat(underTest.createAnchor(Pose()))
-            .isInstanceOf(AnchorCreateResourcesExhausted::class.java)
-    }
-
-    @Test
-    fun createAnchor_anchorLimitReached_returns_AnchorCreateResourcesExhausted() {
-        session.configure(Config(faceTracking = FaceTrackingMode.MESHES))
-        val runtimeFace = FakeRuntimeFace()
-        runtime.perceptionManager.addTrackable(runtimeFace)
-        xrResourcesManager.syncTrackables(listOf(runtimeFace))
-        val underTest = xrResourcesManager.trackablesMap.values.first() as Face
-
-        repeat(FakeRuntimeAnchor.anchorResourceLimit) { underTest.createAnchor(Pose()) }
-
-        assertThat(underTest.createAnchor(Pose()))
-            .isInstanceOf(AnchorCreateResourcesExhausted::class.java)
-    }
-
-    @Test
     fun update_trackingStateMatchesRuntime() = runBlocking {
         session.configure(Config(faceTracking = FaceTrackingMode.BLEND_SHAPES))
         val runtimeFace = FakeRuntimeFace()
@@ -335,9 +277,5 @@ class FaceTest {
 
         assertThat(underTest.state.value.mesh?.triangleIndices)
             .isEqualTo(runtimeFace.mesh.triangleIndices)
-    }
-
-    private fun getFakePerceptionManager(): FakePerceptionManager {
-        return session.perceptionRuntime.perceptionManager as FakePerceptionManager
     }
 }

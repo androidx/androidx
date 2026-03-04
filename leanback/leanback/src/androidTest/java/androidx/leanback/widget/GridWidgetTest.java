@@ -973,7 +973,6 @@ public class GridWidgetTest {
         assertTrue("2nd item start from a new line", left0 == left1);
         assertTrue("top aligned on 2nd line", top1 == top2);
         assertTrue("top aligned on 2nd line", top1 == top3);
-
     }
 
     @Test
@@ -984,6 +983,73 @@ public class GridWidgetTest {
         intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
         intent.putExtra(GridActivity.EXTRA_SPAN_SIZES, new int[]{
                 0, 3, // 0th item span size is 3
+                99, 3, // 99th item span size is 3
+        });
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 3;
+
+        int columnWidth = mGridView.mLayoutManager.mRowSizeSecondaryRequested;
+        int horizontalSpacing = mGridView.getHorizontalSpacing();
+        int expectedMultiSpanViewWidth = 3 * columnWidth + horizontalSpacing * 2;
+        assertSpansThreeAt(0, expectedMultiSpanViewWidth);
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.smoothScrollToPosition(99);
+            }
+        });
+        PollingCheck.waitFor(10000, new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return mGridView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE
+                        && mGridView.findViewHolderForAdapterPosition(99) != null;
+            }
+        });
+        assertSpansThreeAt(99, expectedMultiSpanViewWidth);
+
+        scrollToEnd(mVerifyLayout);
+
+        scrollToBegin(mVerifyLayout);
+
+        assertSpansThreeAt(0, expectedMultiSpanViewWidth);
+    }
+
+    @Test
+    public void testFillAllSpansAndPaddings() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_grid);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 150);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        intent.putExtra(GridActivity.EXTRA_SPAN_SIZES, new int[]{
+                0, -1, // 0th item span size is -1
+                99, 3, // 99th item span size is 3
+        });
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 3;
+
+        View itemView = mGridView.findViewHolderForAdapterPosition(0).itemView;
+        assertEquals(0, itemView.getLeft());
+        assertEquals(mGridView.getWidth(), itemView.getRight());
+
+        scrollToEnd(mVerifyLayout);
+
+        scrollToBegin(mVerifyLayout);
+
+        itemView = mGridView.findViewHolderForAdapterPosition(0).itemView;
+        assertEquals(0, itemView.getLeft());
+        assertEquals(mGridView.getWidth(), itemView.getRight());
+    }
+
+    @Test
+    public void testFillAllSpans() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_grid);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 150);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        intent.putExtra(GridActivity.EXTRA_SPAN_SIZES, new int[]{
+                0, -2, // 0th item span size is -2
                 99, 3, // 99th item span size is 3
         });
         initActivity(intent);

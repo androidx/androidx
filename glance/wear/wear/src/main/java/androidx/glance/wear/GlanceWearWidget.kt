@@ -18,6 +18,7 @@ package androidx.glance.wear
 
 import android.content.ComponentName
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import androidx.annotation.MainThread
 import androidx.glance.wear.core.ActiveWearWidgetHandle
 import androidx.glance.wear.core.WearWidgetEvent
@@ -107,5 +108,9 @@ internal constructor(private val updateClient: WidgetUpdateClient) {
      */
     public fun triggerUpdate(context: Context, provider: ComponentName) {
         updateClient.requestUpdate(context, provider)
+        val isDebuggable = (context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
+        if (isDebuggable) {
+            updateClient.sendUpdateBroadcast(context, provider)
+        }
     }
 }

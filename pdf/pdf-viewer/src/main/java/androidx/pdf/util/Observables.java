@@ -79,11 +79,6 @@ public class Observables {
         }
 
         @Override
-        protected void finalize() throws Throwable {
-            super.finalize();
-        }
-
-        @Override
         public @NonNull Iterator<O> iterator() {
             Iterator<O> iterator;
             synchronized (mObservers) {

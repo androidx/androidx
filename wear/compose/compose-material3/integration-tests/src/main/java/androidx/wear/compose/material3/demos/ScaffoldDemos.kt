@@ -17,7 +17,6 @@
 package androidx.wear.compose.material3.demos
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -261,9 +260,26 @@ fun NestedPagers() {
     HorizontalPagerScaffold(pagerState = horizontalPagerState, modifier = Modifier.fillMaxSize()) {
         HorizontalPager(state = horizontalPagerState) { pageIndex ->
             VerticalPagerScaffold(pagerState = verticalPagerStates[pageIndex]) {
-                VerticalPager(state = verticalPagerStates[pageIndex]) { innerPage ->
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("Page #$pageIndex-$innerPage")
+                VerticalPager(
+                    state = verticalPagerStates[pageIndex],
+                    flingBehavior =
+                        PagerScaffoldDefaults.snapWithSpringFlingBehavior(
+                            state = verticalPagerStates[pageIndex]
+                        ),
+                ) { innerPage ->
+                    AnimatedPage(
+                        pageIndex = innerPage,
+                        pagerState = verticalPagerStates[pageIndex],
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Text("Page #$pageIndex-$innerPage")
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Button(onClick = {}) { Text("Button #$pageIndex-$innerPage") }
+                        }
                     }
                 }
             }

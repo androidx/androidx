@@ -29,7 +29,6 @@ import androidx.xr.runtime.EyeTrackingMode
 import androidx.xr.runtime.FaceTrackingMode
 import androidx.xr.runtime.GeospatialMode
 import androidx.xr.runtime.HandTrackingMode
-import androidx.xr.runtime.Log
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.RequiredCalibrationType
 import androidx.xr.runtime.Session
@@ -43,6 +42,7 @@ import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.SessionCreateTimedOut
 import androidx.xr.runtime.SessionCreateUnknownError
 import androidx.xr.runtime.SessionCreateUnsupportedDevice
+import androidx.xr.runtime.XrLog
 import androidx.xr.runtime.manifest.EYE_TRACKING_COARSE
 import androidx.xr.runtime.manifest.EYE_TRACKING_FINE
 import androidx.xr.runtime.manifest.FACE_TRACKING
@@ -181,7 +181,7 @@ class SessionLifecycleHelper(
 
     internal fun tryUpdateConfig(config: Config) {
         if (!::session.isInitialized) {
-            Log.error { "Can't update config, session has not been initialized" }
+            XrLog.error { "Can't update config, session has not been initialized" }
             return
         }
         try {
@@ -215,7 +215,7 @@ class SessionLifecycleHelper(
     }
 
     private fun <F> showErrorMessage(error: F) {
-        Log.error { error.toString() }
+        XrLog.error { error.toString() }
         Toast.makeText(activity, error.toString(), Toast.LENGTH_LONG).show()
     }
 }

@@ -17,6 +17,7 @@
 package androidx.camera.integration.view
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,6 +27,7 @@ import androidx.camera.core.CameraSelector.DEFAULT_BACK_CAMERA
 import androidx.camera.core.CameraSelector.DEFAULT_FRONT_CAMERA
 import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
+import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.SessionConfig
@@ -34,6 +36,8 @@ import androidx.camera.integration.view.MainActivity.CAMERA_DIRECTION_BACK
 import androidx.camera.integration.view.MainActivity.CAMERA_DIRECTION_FRONT
 import androidx.camera.integration.view.MainActivity.INTENT_EXTRA_CAMERA_DIRECTION
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.video.Recorder
+import androidx.camera.video.VideoCapture
 import androidx.camera.viewfinder.core.ImplementationMode
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -164,11 +168,17 @@ private fun CameraScreen(
     val alignment = SCALE_OPTIONS[selectedScaleIndex].third
 
     var hasEffect by rememberSaveable { mutableStateOf(false) }
+    var isStreamSharingEnabled by rememberSaveable { mutableStateOf(false) }
     var surfaceRequest by remember { mutableStateOf<SurfaceRequest?>(null) }
     var cameraProvider by remember { mutableStateOf<ProcessCameraProvider?>(null) }
 
     val preview = remember { Preview.Builder().build() }
     val imageCapture = remember { ImageCapture.Builder().build() }
+    val imageAnalysis = remember { ImageAnalysis.Builder().build() }
+    val videoCapture = remember {
+        val recorder = Recorder.Builder().build()
+        VideoCapture.Builder(recorder).build()
+    }
 
     val toneMappingEffect = remember {
         ToneMappingSurfaceEffect(CameraEffect.PREVIEW or CameraEffect.VIDEO_CAPTURE)
@@ -180,7 +190,12 @@ private fun CameraScreen(
 
     LaunchedEffect(Unit) { cameraProvider = ProcessCameraProvider.getInstance(context).await() }
 
-    LaunchedEffect(lensFacing, hasEffect, cameraProvider) {
+    LaunchedEffect(lensFacing, hasEffect, isStreamSharingEnabled, cameraProvider) {
+        Log.d(
+            "ComposeUiFragment",
+            "implementationMode: $implementationMode, isStreamSharingEnabled: $isStreamSharingEnabled",
+        )
+
         val provider = cameraProvider ?: return@LaunchedEffect
 
         val cameraSelector =
@@ -190,15 +205,20 @@ private fun CameraScreen(
                 DEFAULT_FRONT_CAMERA
             }
 
+        val useCases = mutableListOf(preview, imageCapture, imageAnalysis)
+        if (isStreamSharingEnabled) {
+            useCases.add(videoCapture)
+        }
+
         val sessionConfig =
             SessionConfig(
-                useCases = listOf(preview, imageCapture),
+                useCases = useCases,
                 effects = if (hasEffect) listOf(toneMappingEffect) else emptyList(),
             )
         provider.bindToLifecycle(lifecycleOwner, cameraSelector, sessionConfig)
     }
 
-    var showImplementationMenu by remember { mutableStateOf(false) }
+    var showImplementationMode by remember { mutableStateOf(false) }
     var showScaleMenu by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -215,10 +235,26 @@ private fun CameraScreen(
             modifier = Modifier.align(Alignment.CenterEnd).padding(end = 5.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
+            // Stream Sharing Toggle
+            Button(
+                onClick = { isStreamSharingEnabled = !isStreamSharingEnabled },
+                shape = CircleShape,
+                modifier = Modifier.size(46.dp),
+                colors =
+                    ButtonDefaults.buttonColors(
+                        backgroundColor =
+                            if (isStreamSharingEnabled) Color.Green else Color(0xAA2255FF),
+                        contentColor = Color.White,
+                    ),
+                contentPadding = PaddingValues(0.dp),
+            ) {
+                Text(text = "SS", fontSize = 14.sp)
+            }
+
             // Implementation Mode Selector
             Box {
                 Button(
-                    onClick = { showImplementationMenu = true },
+                    onClick = { showImplementationMode = true },
                     shape = CircleShape,
                     modifier = Modifier.size(46.dp),
                     colors =
@@ -245,14 +281,14 @@ private fun CameraScreen(
                     )
                 }
                 DropdownMenu(
-                    expanded = showImplementationMenu,
-                    onDismissRequest = { showImplementationMenu = false },
+                    expanded = showImplementationMode,
+                    onDismissRequest = { showImplementationMode = false },
                 ) {
                     ImplementationMode.values().forEach { mode ->
                         DropdownMenuItem(
                             onClick = {
                                 implementationMode = mode
-                                showImplementationMenu = false
+                                showImplementationMode = false
                             }
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {

@@ -16,14 +16,11 @@
 
 package androidx.ink.authoring.internal
 
-import android.annotation.SuppressLint
 import android.graphics.BlendMode
 import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.ColorSpace
 import android.graphics.Matrix
 import android.graphics.Paint
-import android.graphics.Path
 import android.graphics.PixelFormat
 import android.graphics.PorterDuff
 import android.graphics.Rect
@@ -44,9 +41,9 @@ import androidx.ink.authoring.ExperimentalCustomShapeWorkflowApi
 import androidx.ink.authoring.ExperimentalLatencyDataApi
 import androidx.ink.authoring.InProgressShape
 import androidx.ink.authoring.InProgressShapeRenderer
-import androidx.ink.authoring.InProgressStrokeId
 import androidx.ink.authoring.latency.LatencyData
 import androidx.ink.geometry.MutableBox
+import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.math.ceil
 import kotlin.math.floor
 
@@ -58,7 +55,8 @@ import kotlin.math.floor
  * @param mainView The [View] within which the front buffer should be constructed.
  * @param callback How to render the desired content within the front buffer.
  * @param renderer Draws individual stroke objects using [Canvas].
- * @param canvasFrontBufferedRendererWrapper Override the default only for testing.
+ * @param canvasFrontBufferedRendererAdapter Override the default only for testing.
+ * @param frontBufferToHwuiHandoffFactory Override the default only for testing.
  */
 @Suppress("ObsoleteSdkInt") // TODO(b/262911421): Should not need to suppress.
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -69,20 +67,12 @@ internal class CanvasInProgressStrokesRenderHelperV29<
     CompletedShapeT : Any,
 >(
     private val mainView: ViewGroup,
-    private val callback: InProgressStrokesRenderHelper.Callback<CompletedShapeT>,
     private val renderer: InProgressShapeRenderer<InProgressShapeT>,
-    private val canvasFrontBufferedRendererWrapper: CanvasFrontBufferedRendererWrapper =
-        CanvasFrontBufferedRendererWrapperImpl(),
-    frontBufferToHwuiHandoffFactory: (SurfaceView) -> FrontBufferToHwuiHandoff<CompletedShapeT> =
-        { surfaceView ->
-            FrontBufferToHwuiHandoff.create(
-                mainView,
-                surfaceView,
-                callback::onStrokeCohortHandoffToHwui,
-                callback::onStrokeCohortHandoffToHwuiComplete,
-            )
-        },
-) : InProgressStrokesRenderHelper<ShapeSpecT, InProgressShapeT, CompletedShapeT> {
+    private val canvasFrontBufferedRendererAdapter: CanvasFrontBufferedRendererAdapter =
+        CanvasFrontBufferedRendererWrapper(),
+    frontBufferToHwuiHandoffFactory: ((SurfaceView) -> FrontBufferToHwuiHandoff<CompletedShapeT>)? =
+        null,
+) : InProgressStrokesRenderHelper<ShapeSpecT, InProgressShapeT, CompletedShapeT>() {
 
     // The front buffer is updated each time rather than cleared and completely redrawn every time
     // as
@@ -91,9 +81,7 @@ internal class CanvasInProgressStrokesRenderHelperV29<
 
     override val supportsDebounce = true
 
-    override val supportsFlush = true
-
-    override var maskPath: Path? = null
+    override val canSynchronouslyWaitForFlush = true
 
     private val maskPaint =
         Paint().apply {
@@ -117,10 +105,12 @@ internal class CanvasInProgressStrokesRenderHelperV29<
             @UiThread
             override fun onViewDetachedFromWindow(v: View) {
                 frontBufferToHwuiHandoff.cleanup()
-                canvasFrontBufferedRendererWrapper.release()
+                canvasFrontBufferedRendererAdapter.release()
                 mainView.removeView(surfaceView)
             }
         }
+
+    private val beforeDrawRunnables = ConcurrentLinkedQueue<Runnable>()
 
     /** Valid only during active drawing (when `duringDraw` is `true`). */
     private val onDrawState =
@@ -135,8 +125,8 @@ internal class CanvasInProgressStrokesRenderHelperV29<
             return field
         }
 
-    private val canvasFrontBufferedRendererCallback =
-        object : CanvasFrontBufferedRendererWrapper.Callback {
+    private val callbackAdapter =
+        object : CanvasFrontBufferedRendererAdapter.CallbackAdapter {
 
             @WorkerThread
             override fun onDrawFrontBufferedLayer(
@@ -144,6 +134,10 @@ internal class CanvasInProgressStrokesRenderHelperV29<
                 bufferWidth: Int,
                 bufferHeight: Int,
             ) {
+                while (beforeDrawRunnables.isNotEmpty()) {
+                    beforeDrawRunnables.poll()?.run()
+                }
+
                 ensureOffScreenFrameBuffer(bufferWidth, bufferHeight)
 
                 // Just in case save/restores get imbalanced among callbacks
@@ -156,7 +150,7 @@ internal class CanvasInProgressStrokesRenderHelperV29<
                 onDrawState.duringDraw = false
 
                 // NOMUTANTS -- Defensive programming to avoid bad state being used later.
-                run { onDrawState.frontBufferCanvas = null }
+                onDrawState.frontBufferCanvas = null
 
                 // Clear the client-defined masked area.
                 maskPath?.let { canvas.drawPath(it, maskPaint) }
@@ -168,9 +162,7 @@ internal class CanvasInProgressStrokesRenderHelperV29<
             }
 
             @WorkerThread
-            override fun onFrontBufferedLayerRenderComplete(
-                frontBufferedLayerSurfaceControl: SurfaceControlCompat
-            ) {
+            override fun onFrontBufferedLayerRenderComplete() {
                 callback.setCustomLatencyDataField(finishesDrawCallsSetter)
                 callback.handOffAllLatencyData()
             }
@@ -185,7 +177,16 @@ internal class CanvasInProgressStrokesRenderHelperV29<
         data.canvasFrontBufferStrokesRenderHelperData.finishesDrawCalls = timeNanos
     }
 
-    private val frontBufferToHwuiHandoff = frontBufferToHwuiHandoffFactory(surfaceView)
+    private val frontBufferToHwuiHandoff =
+        frontBufferToHwuiHandoffFactory?.invoke(surfaceView)
+            ?: FrontBufferToHwuiHandoff.create(
+                mainView,
+                surfaceView,
+                // Lambdas instead of function references because we can't actually get the late-set
+                // callback during init.
+                { callback.onStrokeCohortHandoffToHwui(it) },
+                { callback.onStrokeCohortHandoffToHwuiComplete() },
+            )
 
     private var offScreenFrameBuffer: RenderNode? = null
 
@@ -214,7 +215,7 @@ internal class CanvasInProgressStrokesRenderHelperV29<
 
     @UiThread
     override fun requestDraw() {
-        canvasFrontBufferedRendererWrapper.renderFrontBufferedLayer()
+        canvasFrontBufferedRendererAdapter.renderFrontBufferedLayer()
     }
 
     @WorkerThread
@@ -322,19 +323,16 @@ internal class CanvasInProgressStrokesRenderHelperV29<
     }
 
     @WorkerThread
-    override fun clear() {
+    override fun startCohort() {
         assertOnRenderThread()
         check(onDrawState.duringDraw) { "Can only clear during Callback.onDraw." }
-
         checkNotNull(onDrawState.frontBufferCanvas)
             .drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
     }
 
     @UiThread
-    override fun requestStrokeCohortHandoffToHwui(
-        handingOff: Map<InProgressStrokeId, FinishedStroke<CompletedShapeT>>
-    ) {
-        frontBufferToHwuiHandoff.requestCohortHandoff(handingOff)
+    override fun requestStrokeCohortHandoffToHwui(cohort: List<FinishedStroke<CompletedShapeT>>) {
+        frontBufferToHwuiHandoff.requestCohortHandoff(cohort)
     }
 
     @WorkerThread
@@ -354,6 +352,19 @@ internal class CanvasInProgressStrokesRenderHelperV29<
         check(Looper.myLooper() != Looper.getMainLooper()) {
             "Should not be running on the UI thread."
         }
+    }
+
+    @UiThread
+    override fun executeOnRenderThread(runnable: Runnable) {
+        assertOnUiThread()
+        // TODO: b/486935851 - Unfortunately, CanvasFrontBufferedRenderer doesn't provide access to
+        // its
+        // Handler, so there's no way to run arbitrary callbacks on the render thread interleaved
+        // with
+        // draws. However, we can queue a runnable to execute before the next draw and request a
+        // draw.
+        beforeDrawRunnables.offer(runnable)
+        requestDraw()
     }
 
     @WorkerThread
@@ -392,7 +403,10 @@ internal class CanvasInProgressStrokesRenderHelperV29<
                 ViewGroup.LayoutParams.MATCH_PARENT,
             ),
         )
-        canvasFrontBufferedRendererWrapper.init(surfaceView, canvasFrontBufferedRendererCallback)
+        canvasFrontBufferedRendererAdapter.init(surfaceView, callbackAdapter)
+        if (beforeDrawRunnables.isNotEmpty()) {
+            requestDraw()
+        }
         frontBufferToHwuiHandoff.setup()
     }
 
@@ -401,45 +415,41 @@ internal class CanvasInProgressStrokesRenderHelperV29<
      *
      * @see CanvasFrontBufferedRenderer
      */
-    internal interface CanvasFrontBufferedRendererWrapper {
+    internal interface CanvasFrontBufferedRendererAdapter {
 
         /** @see CanvasFrontBufferedRenderer */
-        @UiThread fun init(surfaceView: SurfaceView, callback: Callback)
-
-        @UiThread fun setColorSpace(colorSpace: ColorSpace)
+        @UiThread fun init(surfaceView: SurfaceView, callbackAdapter: CallbackAdapter)
 
         /** @see CanvasFrontBufferedRenderer.renderFrontBufferedLayer */
         @UiThread fun renderFrontBufferedLayer()
 
         /** @see CanvasFrontBufferedRenderer.release */
-        @UiThread fun release(onReleaseComplete: (() -> Unit)? = null)
+        @UiThread fun release()
 
         /** @see CanvasFrontBufferedRenderer.Callback */
-        interface Callback {
+        interface CallbackAdapter {
 
             /** @see CanvasFrontBufferedRenderer.Callback.onDrawFrontBufferedLayer */
             @WorkerThread
             fun onDrawFrontBufferedLayer(canvas: Canvas, bufferWidth: Int, bufferHeight: Int)
 
             /** @see CanvasFrontBufferedRenderer.Callback.onFrontBufferedLayerRenderComplete */
-            @WorkerThread
-            fun onFrontBufferedLayerRenderComplete(
-                frontBufferedLayerSurfaceControl: SurfaceControlCompat
-            )
+            @WorkerThread fun onFrontBufferedLayerRenderComplete()
         }
     }
 
     /**
      * The real implementation based on [CanvasFrontBufferedRenderer], which is not intended to be
-     * unit testable.
+     * unit testable. Since this is faked out in tests, minimize the amount of logic put in this
+     * wrapper.
      */
-    private class CanvasFrontBufferedRendererWrapperImpl : CanvasFrontBufferedRendererWrapper {
+    private class CanvasFrontBufferedRendererWrapper : CanvasFrontBufferedRendererAdapter {
         private var delegate: CanvasFrontBufferedRenderer<Unit>? = null
 
         @UiThread
         override fun init(
             surfaceView: SurfaceView,
-            callback: CanvasFrontBufferedRendererWrapper.Callback,
+            callbackAdapter: CanvasFrontBufferedRendererAdapter.CallbackAdapter,
         ) {
             delegate =
                 CanvasFrontBufferedRenderer(
@@ -452,23 +462,19 @@ internal class CanvasInProgressStrokesRenderHelperV29<
                             bufferHeight: Int,
                             param: Unit,
                         ) {
-                            callback.onDrawFrontBufferedLayer(canvas, bufferWidth, bufferHeight)
+                            callbackAdapter.onDrawFrontBufferedLayer(
+                                canvas,
+                                bufferWidth,
+                                bufferHeight,
+                            )
                         }
 
-                        // NewApi suppress: SurfaceControlCompat.Transaction already handles
-                        // delegating to
-                        // version-specific implementations for setDataSpace, so it doesn't need a
-                        // compile-time RequiresApi check. We only execute setDataSpace on the
-                        // high enough API versions where it does what we want.
-                        @SuppressLint("NewApi")
                         @WorkerThread
                         override fun onFrontBufferedLayerRenderComplete(
                             frontBufferedLayerSurfaceControl: SurfaceControlCompat,
                             transaction: SurfaceControlCompat.Transaction,
                         ) {
-                            callback.onFrontBufferedLayerRenderComplete(
-                                frontBufferedLayerSurfaceControl
-                            )
+                            callbackAdapter.onFrontBufferedLayerRenderComplete()
                         }
 
                         @WorkerThread
@@ -484,18 +490,14 @@ internal class CanvasInProgressStrokesRenderHelperV29<
                 )
         }
 
-        override fun setColorSpace(colorSpace: ColorSpace) {
-            delegate?.colorSpace = colorSpace
-        }
-
         @UiThread
         override fun renderFrontBufferedLayer() {
             delegate?.renderFrontBufferedLayer(Unit)
         }
 
         @UiThread
-        override fun release(onReleaseComplete: (() -> Unit)?) {
-            delegate?.release(cancelPending = true, onReleaseComplete)
+        override fun release() {
+            delegate?.release(cancelPending = true)
             delegate = null
         }
     }

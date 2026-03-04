@@ -102,23 +102,23 @@ package androidx.xr.scenecore {
     method public void addChild(androidx.xr.scenecore.Entity child);
     method public boolean addComponent(androidx.xr.scenecore.Component component);
     method public void dispose();
-    method public float getAlpha(androidx.xr.scenecore.Space relativeTo);
+    method public float getAlpha(optional androidx.xr.scenecore.Space relativeTo);
     method @InaccessibleFromKotlin public java.util.List<androidx.xr.scenecore.Entity> getChildren();
     method public java.util.List<androidx.xr.scenecore.Component> getComponents();
     method public <T extends androidx.xr.scenecore.Component> java.util.List<T> getComponentsOfType(Class<? extends T> type);
     method @InaccessibleFromKotlin public CharSequence getContentDescription();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.Entity? getParent();
-    method public androidx.xr.runtime.math.Pose getPose(androidx.xr.scenecore.Space relativeTo);
-    method public float getScale(androidx.xr.scenecore.Space relativeTo);
-    method public boolean isEnabled(boolean includeParents);
+    method public androidx.xr.runtime.math.Pose getPose(optional androidx.xr.scenecore.Space relativeTo);
+    method public float getScale(optional androidx.xr.scenecore.Space relativeTo);
+    method public boolean isEnabled(optional boolean includeParents);
     method public void removeAllComponents();
     method public void removeComponent(androidx.xr.scenecore.Component component);
     method public void setAlpha(float alpha);
     method @InaccessibleFromKotlin public void setContentDescription(CharSequence);
     method public void setEnabled(boolean enabled);
     method @InaccessibleFromKotlin public void setParent(androidx.xr.scenecore.Entity?);
-    method public void setPose(androidx.xr.runtime.math.Pose pose, androidx.xr.scenecore.Space relativeTo);
-    method public void setScale(float scale, androidx.xr.scenecore.Space relativeTo);
+    method public void setPose(androidx.xr.runtime.math.Pose pose, optional androidx.xr.scenecore.Space relativeTo);
+    method public void setScale(float scale, optional androidx.xr.scenecore.Space relativeTo);
     property public java.util.List<androidx.xr.scenecore.Entity> children;
     property public CharSequence contentDescription;
     property public androidx.xr.scenecore.Entity? parent;
@@ -156,6 +156,10 @@ package androidx.xr.scenecore {
   public interface Entity extends androidx.xr.scenecore.ScenePose {
     method public void addChild(androidx.xr.scenecore.Entity child);
     method public boolean addComponent(androidx.xr.scenecore.Component component);
+    method public static androidx.xr.scenecore.Entity create(androidx.xr.runtime.Session session);
+    method public static androidx.xr.scenecore.Entity create(androidx.xr.runtime.Session session, optional String? name);
+    method public static androidx.xr.scenecore.Entity create(androidx.xr.runtime.Session session, optional String? name, optional androidx.xr.runtime.math.Pose pose);
+    method public static androidx.xr.scenecore.Entity create(androidx.xr.runtime.Session session, optional String? name, optional androidx.xr.runtime.math.Pose pose, optional androidx.xr.scenecore.Entity? parent);
     method public void dispose();
     method @FloatRange(from=0.0, to=1.0) public default float getAlpha();
     method @FloatRange(from=0.0, to=1.0) public float getAlpha(optional androidx.xr.scenecore.Space relativeTo);
@@ -188,6 +192,15 @@ package androidx.xr.scenecore {
     property public abstract java.util.List<androidx.xr.scenecore.Entity> children;
     property public abstract CharSequence contentDescription;
     property public abstract androidx.xr.scenecore.Entity? parent;
+    field public static final androidx.xr.scenecore.Entity.Companion Companion;
+  }
+
+  public static final class Entity.Companion {
+    method public androidx.xr.scenecore.Entity create(androidx.xr.runtime.Session session);
+    method public androidx.xr.scenecore.Entity create(androidx.xr.runtime.Session session, optional String? name);
+    method public androidx.xr.scenecore.Entity create(androidx.xr.runtime.Session session, optional String? name, optional androidx.xr.runtime.math.Pose pose);
+    method public androidx.xr.scenecore.Entity create(androidx.xr.runtime.Session session, optional String? name, optional androidx.xr.runtime.math.Pose pose, optional androidx.xr.scenecore.Entity? parent);
+    method @BytecodeOnly public static androidx.xr.scenecore.Entity! create$default(androidx.xr.scenecore.Entity.Companion!, androidx.xr.runtime.Session!, String!, androidx.xr.runtime.math.Pose!, androidx.xr.scenecore.Entity!, int, Object!);
   }
 
   public interface EntityMoveListener {
@@ -278,29 +291,11 @@ package androidx.xr.scenecore {
   public final class GltfModelEntity extends androidx.xr.scenecore.BaseEntity<androidx.xr.scenecore.runtime.GltfEntity> {
     method @MainThread public static androidx.xr.scenecore.GltfModelEntity create(androidx.xr.runtime.Session session, androidx.xr.scenecore.GltfModel model);
     method @MainThread public static androidx.xr.scenecore.GltfModelEntity create(androidx.xr.runtime.Session session, androidx.xr.scenecore.GltfModel model, optional androidx.xr.runtime.math.Pose pose);
-    method @InaccessibleFromKotlin @Deprecated public androidx.xr.scenecore.GltfModelEntity.AnimationState getAnimationState();
     method @InaccessibleFromKotlin @MainThread @RequiresApi(android.os.Build.VERSION_CODES.O) public java.util.List<androidx.xr.scenecore.GltfAnimation> getAnimations();
     method @InaccessibleFromKotlin @MainThread public java.util.List<androidx.xr.scenecore.GltfModelNode> getNodes();
-    method @Deprecated @MainThread public void startAnimation();
-    method @Deprecated @MainThread public void startAnimation(optional boolean loop);
-    method @Deprecated @MainThread public void startAnimation(boolean loop, String animationName);
-    method @BytecodeOnly @Deprecated @MainThread public static void startAnimation$default(androidx.xr.scenecore.GltfModelEntity!, boolean, int, Object!);
-    method @Deprecated @MainThread public void stopAnimation();
-    property @Deprecated public androidx.xr.scenecore.GltfModelEntity.AnimationState animationState;
     property @MainThread @RequiresApi(android.os.Build.VERSION_CODES.O) public java.util.List<androidx.xr.scenecore.GltfAnimation> animations;
     property @MainThread public java.util.List<androidx.xr.scenecore.GltfModelNode> nodes;
     field public static final androidx.xr.scenecore.GltfModelEntity.Companion Companion;
-  }
-
-  @Deprecated public static final class GltfModelEntity.AnimationState {
-    field @Deprecated public static final androidx.xr.scenecore.GltfModelEntity.AnimationState.Companion Companion;
-    field @Deprecated public static final androidx.xr.scenecore.GltfModelEntity.AnimationState PLAYING;
-    field @Deprecated public static final androidx.xr.scenecore.GltfModelEntity.AnimationState STOPPED;
-  }
-
-  @Deprecated public static final class GltfModelEntity.AnimationState.Companion {
-    property @Deprecated public androidx.xr.scenecore.GltfModelEntity.AnimationState PLAYING;
-    property @Deprecated public androidx.xr.scenecore.GltfModelEntity.AnimationState STOPPED;
   }
 
   public static final class GltfModelEntity.Companion {
@@ -335,15 +330,15 @@ package androidx.xr.scenecore {
   }
 
   public final class GroupEntity extends androidx.xr.scenecore.BaseEntity<androidx.xr.scenecore.runtime.Entity> {
-    method public static androidx.xr.scenecore.GroupEntity create(androidx.xr.runtime.Session session, String name);
-    method public static androidx.xr.scenecore.GroupEntity create(androidx.xr.runtime.Session session, String name, optional androidx.xr.runtime.math.Pose pose);
+    method @Deprecated public static androidx.xr.scenecore.GroupEntity create(androidx.xr.runtime.Session session, String name);
+    method @Deprecated public static androidx.xr.scenecore.GroupEntity create(androidx.xr.runtime.Session session, String name, optional androidx.xr.runtime.math.Pose pose);
     field public static final androidx.xr.scenecore.GroupEntity.Companion Companion;
   }
 
   public static final class GroupEntity.Companion {
-    method public androidx.xr.scenecore.GroupEntity create(androidx.xr.runtime.Session session, String name);
-    method public androidx.xr.scenecore.GroupEntity create(androidx.xr.runtime.Session session, String name, optional androidx.xr.runtime.math.Pose pose);
-    method @BytecodeOnly public static androidx.xr.scenecore.GroupEntity! create$default(androidx.xr.scenecore.GroupEntity.Companion!, androidx.xr.runtime.Session!, String!, androidx.xr.runtime.math.Pose!, int, Object!);
+    method @Deprecated public androidx.xr.scenecore.GroupEntity create(androidx.xr.runtime.Session session, String name);
+    method @Deprecated public androidx.xr.scenecore.GroupEntity create(androidx.xr.runtime.Session session, String name, optional androidx.xr.runtime.math.Pose pose);
+    method @BytecodeOnly @Deprecated public static androidx.xr.scenecore.GroupEntity! create$default(androidx.xr.scenecore.GroupEntity.Companion!, androidx.xr.runtime.Session!, String!, androidx.xr.runtime.math.Pose!, int, Object!);
   }
 
   public final class HitTestResult {

@@ -16,6 +16,7 @@
 
 package androidx.biometric.internal.viewmodel
 
+import androidx.biometric.AuthenticationRequest
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.internal.data.FakeAuthenticationStateRepository
 import androidx.biometric.internal.data.FakePromptConfigRepository
@@ -110,6 +111,22 @@ class AuthenticationViewModelTest {
             runCurrent()
 
             assertThat(negativeButtonPressPending).isTrue()
+            job.cancel()
+        }
+
+    @Test
+    fun testFallbackOptionPressPending() =
+        runTest(UnconfinedTestDispatcher()) {
+            var actualFallback: AuthenticationRequest.Biometric.Fallback.CustomOption? = null
+            val job = launch {
+                viewModel.isFallbackOptionPressPending.collect { actualFallback = it }
+            }
+
+            val expectedFallback = AuthenticationRequest.Biometric.Fallback.CustomOption("test")
+            authRepository.setFallbackOptionPressPending(expectedFallback)
+            runCurrent()
+
+            assertThat(actualFallback).isEqualTo(expectedFallback)
             job.cancel()
         }
 

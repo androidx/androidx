@@ -205,7 +205,11 @@ abstract class DataMigrationInitializerTest<F : TestFile<F>, IOE : Throwable>(
                 { testFile },
             ),
     ): DataStore<Byte> {
-        return DataStoreImpl(storage, scope = dataStoreScope, initTasksList = initTasksList)
+        return DataStoreImpl(
+            storage,
+            context = dataStoreScope.coroutineContext,
+            initTasksList = initTasksList,
+        )
     }
 
     class TestingDataMigration(

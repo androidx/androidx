@@ -82,6 +82,8 @@ internal class SubspaceLayoutNode : ComposeSubspaceNode {
 
     internal var layoutPending: Boolean = false
 
+    internal var entityUpdatePending: Boolean = false
+
     /**
      * The children of this [SubspaceLayoutNode], controlled by [insertAt], [move], and [removeAt].
      */
@@ -326,6 +328,18 @@ internal class SubspaceLayoutNode : ComposeSubspaceNode {
         owner?.requestLayout(this)
     }
 
+    internal fun requestEntityUpdate() {
+        owner?.requestEntityUpdate(this)
+    }
+
+    internal fun updateCoreEntityProperties() {
+        if (!isAttached) return
+
+        coreEntity?.applyCoreEntityNodes(nodes.getAll<CoreEntityNode>())
+
+        entityUpdatePending = false
+    }
+
     /**
      * Measures this layout node using the most recently provided constraints.
      *
@@ -501,7 +515,8 @@ internal class SubspaceLayoutNode : ComposeSubspaceNode {
 
             owner?.logger?.nodePlaced(this, pose)
 
-            coreEntity?.applyCoreEntityNodes(nodes.getAll<CoreEntityNode>())
+            // TODO(agustinbarreto): Figure out how we can remove this call to requestEntityUpdate.
+            this@SubspaceLayoutNode.requestEntityUpdate()
             coreEntity?.updatePoseFromLayout()
             coreEntity?.size = IntVolumeSize(measuredWidth, measuredHeight, measuredDepth)
 

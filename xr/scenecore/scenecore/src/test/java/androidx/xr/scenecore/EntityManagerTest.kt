@@ -56,7 +56,7 @@ class EntityManagerTest {
     private lateinit var panelEntity: PanelEntity
     private lateinit var anchorEntity: AnchorEntity
     private lateinit var activityPanelEntity: ActivityPanelEntity
-    private lateinit var groupEntity: Entity
+    private lateinit var entity: Entity
 
     @Before
     fun setUp() {
@@ -75,7 +75,7 @@ class EntityManagerTest {
 
     @Test
     fun creatingEntity_addsEntityToEntityManager() {
-        createGroupEntity()
+        createEntity()
         createPanelEntity()
         createAnchorEntity()
         createActivityPanelEntity()
@@ -85,7 +85,7 @@ class EntityManagerTest {
         assertThat(entityManager.getAllEntities().size).isAtLeast(5)
         assertThat(entityManager.getAllEntities())
             .containsAtLeast(
-                groupEntity,
+                entity,
                 panelEntity,
                 anchorEntity,
                 activityPanelEntity,
@@ -95,7 +95,7 @@ class EntityManagerTest {
 
     @Test
     fun getEntityByType_returnsEntityOfType() {
-        createGroupEntity()
+        createEntity()
         createPanelEntity()
         createAnchorEntity()
         createActivityPanelEntity()
@@ -103,13 +103,12 @@ class EntityManagerTest {
 
         assertThat(entityManager.getEntities<Entity>())
             .containsAtLeast(
-                groupEntity,
+                entity,
                 panelEntity,
                 anchorEntity,
                 activityPanelEntity,
                 gltfModelEntity,
             )
-        assertThat(entityManager.getEntities<GroupEntity>()).containsExactly(groupEntity)
         assertThat(entityManager.getEntities<PanelEntity>()).contains(panelEntity)
         assertThat(entityManager.getEntities<AnchorEntity>()).containsExactly(anchorEntity)
         assertThat(entityManager.getEntities<ActivityPanelEntity>())
@@ -119,7 +118,7 @@ class EntityManagerTest {
 
     @Test
     fun disposeEntity_removesEntityFromEntityManager() {
-        createGroupEntity()
+        createEntity()
         createPanelEntity()
         createAnchorEntity()
         createActivityPanelEntity()
@@ -127,22 +126,22 @@ class EntityManagerTest {
         assertThat(entityManager.getAllEntities().size).isAtLeast(5)
         assertThat(entityManager.getAllEntities())
             .containsAtLeast(
-                groupEntity,
+                entity,
                 panelEntity,
                 anchorEntity,
                 activityPanelEntity,
                 gltfModelEntity,
             )
 
-        groupEntity.dispose()
+        entity.dispose()
 
         assertThat(entityManager.getAllEntities().size).isAtLeast(4)
-        assertThat(entityManager.getAllEntities()).doesNotContain(groupEntity)
+        assertThat(entityManager.getAllEntities()).doesNotContain(entity)
     }
 
     @Test
     fun clearEntityManager_removesAllEntityFromEntityManager() {
-        createGroupEntity()
+        createEntity()
         createPanelEntity()
         createAnchorEntity()
         createActivityPanelEntity()
@@ -150,7 +149,7 @@ class EntityManagerTest {
         assertThat(entityManager.getAllEntities().size).isAtLeast(5)
         assertThat(entityManager.getAllEntities())
             .containsAtLeast(
-                groupEntity,
+                entity,
                 panelEntity,
                 anchorEntity,
                 activityPanelEntity,
@@ -164,7 +163,7 @@ class EntityManagerTest {
 
     @Test
     fun removeRtEntity_removesEntityFromEntityManager() {
-        createGroupEntity()
+        createEntity()
         createPanelEntity()
         createAnchorEntity()
         createActivityPanelEntity()
@@ -172,7 +171,7 @@ class EntityManagerTest {
         assertThat(entityManager.getAllEntities().size).isAtLeast(5)
         assertThat(entityManager.getAllEntities())
             .containsAtLeast(
-                groupEntity,
+                entity,
                 panelEntity,
                 anchorEntity,
                 activityPanelEntity,
@@ -231,7 +230,7 @@ class EntityManagerTest {
             )
     }
 
-    private fun createGroupEntity() {
-        groupEntity = GroupEntity.create(sceneRuntime, entityManager, "test")
+    private fun createEntity() {
+        entity = EntityImpl.create(sceneRuntime, entityManager, "test")
     }
 }

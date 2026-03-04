@@ -23,6 +23,7 @@ import androidx.datastore.core.CurrentDataProviderStore
 import androidx.datastore.core.DataMigration
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
+import androidx.datastore.core.FileStorage
 import androidx.datastore.core.MultiProcessDataStoreFactory
 import androidx.datastore.core.Serializer
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
@@ -187,6 +188,8 @@ internal constructor(
         public fun build(): GuavaDataStore<T> =
             GuavaDataStore(
                 if (this.enableMultiProcess) {
+                    // Keep MultiProcessDataStoreFactory so we don't have to expose the
+                    // internal `MultiProcessCoordinator`. The factory method uses the Builder.
                     MultiProcessDataStoreFactory.create(
                         produceFile = produceFile::call,
                         serializer = serializer,
@@ -195,13 +198,19 @@ internal constructor(
                         scope = CoroutineScope(coroutineDispatcher + SupervisorJob()),
                     )
                 } else {
-                    DataStoreFactory.create(
-                        produceFile = produceFile::call,
-                        serializer = serializer,
-                        corruptionHandler = corruptionHandler,
-                        migrations = dataMigrations,
-                        scope = CoroutineScope(coroutineDispatcher + SupervisorJob()),
-                    )
+                    DataStore.Builder(
+                            storage =
+                                FileStorage(
+                                    serializer = serializer,
+                                    produceFile = produceFile::call,
+                                ),
+                            context =
+                                CoroutineScope(coroutineDispatcher + SupervisorJob())
+                                    .coroutineContext,
+                        )
+                        .apply { corruptionHandler?.let { setCorruptionHandler(it) } }
+                        .addMigrations(dataMigrations)
+                        .build()
                 }
                     as? CurrentDataProviderStore
                     ?: error(

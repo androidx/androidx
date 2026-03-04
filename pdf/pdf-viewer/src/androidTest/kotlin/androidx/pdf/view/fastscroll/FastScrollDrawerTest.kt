@@ -24,6 +24,7 @@ import androidx.core.content.ContextCompat
 import androidx.pdf.PdfDocument
 import androidx.pdf.R
 import androidx.pdf.view.FakePdfDocument
+import androidx.pdf.view.fastscroll.FastScrollDrawer.Companion.VISIBLE_ALPHA
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -78,6 +79,7 @@ class FastScrollDrawerTest {
         val yOffset = 100
         val visiblePages = Range(1, 5)
 
+        fastScrollDrawer.alpha = VISIBLE_ALPHA
         fastScrollDrawer.draw(spyCanvas, xOffset, yOffset, visiblePages)
 
         val leftCaptor = ArgumentCaptor.forClass(Int::class.java)
@@ -125,6 +127,7 @@ class FastScrollDrawerTest {
         val yOffset = 100
         val visiblePages = Range(1, 5)
 
+        fastScrollDrawer.alpha = VISIBLE_ALPHA
         fastScrollDrawer.draw(spyCanvas, xOffset, yOffset, visiblePages)
 
         val expectedThumbLeftRange = Range(400, 600)
@@ -144,6 +147,7 @@ class FastScrollDrawerTest {
         val yOffset = 100
         val visiblePages = Range(1, 5)
 
+        fastScrollDrawer.alpha = VISIBLE_ALPHA
         fastScrollDrawer.draw(spyCanvas, xOffset, yOffset, visiblePages)
 
         val expectedIndicatorLeftRange = Range(150, 450)

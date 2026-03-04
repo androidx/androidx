@@ -151,13 +151,16 @@ public interface SceneRuntime : JxrRuntime {
     public fun createAnchorEntity(): AnchorEntity
 
     /**
-     * A factory function to create a group entity. This entity is used as a connection point for
+     * A factory function to create a basic entity. This entity is used as a connection point for
      * attaching children entities and managing them (i.e. setPose()) as a group.
      *
      * @param pose Initial pose of the entity.
      * @param name Name of the entity.
      * @param parent Parent entity.
      */
+    public fun createEntity(pose: Pose, name: String?, parent: Entity?): Entity
+
+    @Deprecated(message = "Use createEntity instead.")
     public fun createGroupEntity(pose: Pose, name: String, parent: Entity?): Entity
 
     /** A function to create a XR Runtime Entity. */

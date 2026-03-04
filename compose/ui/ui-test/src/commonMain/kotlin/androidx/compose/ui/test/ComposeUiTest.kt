@@ -31,11 +31,11 @@ import kotlinx.coroutines.test.TestResult
  * environment. Use the methods on [ComposeUiTest] in the test to find Compose content and make
  * assertions on it. If you need access to platform specific elements (such as the Activity on
  * Android), use one of the platform specific variants of this method, e.g.
- * [runAndroidComposeUiTest] on Android.
+ * `runAndroidComposeUiTest` on Android.
  *
  * Implementations of this method will launch a Compose host (such as an Activity on Android) for
  * you. If your test needs to launch its own host, use a platform specific variant that doesn't
- * launch anything for you (if available), e.g. [runEmptyComposeUiTest] on Android. Always make sure
+ * launch anything for you (if available), e.g. `runEmptyComposeUiTest` on Android. Always make sure
  * that the Compose content is set during execution of the [test lambda][block] so the test
  * framework is aware of the content. Whether you need to launch the host from within the test
  * lambda as well depends on the platform.

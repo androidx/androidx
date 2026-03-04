@@ -57,10 +57,10 @@ internal class GlimmerListScrollScope(private val state: ListState, scrollScope:
     }
 
     override fun calculateDistanceTo(targetIndex: Int, targetOffset: Int): Int {
-        val layoutInfo = state.layoutInfo
+        val layoutInfo = state.layoutInfoState.value
         if (layoutInfo.visibleItemsInfo.isEmpty()) return 0
         return if (targetIndex !in firstVisibleItemIndex..lastVisibleItemIndex) {
-            val averageSize = layoutInfo.visibleItemsAverageSize()
+            val averageSize = layoutInfo.visibleItemsAverageSize
             val indexesDiff = targetIndex - firstVisibleItemIndex
             (averageSize * indexesDiff) - firstVisibleItemScrollOffset
         } else {

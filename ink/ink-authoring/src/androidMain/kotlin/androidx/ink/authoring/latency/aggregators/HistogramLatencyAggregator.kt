@@ -78,14 +78,14 @@ private constructor(private val implementationHelper: ImplementationHelper) : La
 
     public fun interface Callback {
         /**
-         * Callback invoked at most once per [window] in the [CoroutineScope] (or, for Java clients,
-         * on the [Executor]) passed to [create].
+         * Callback invoked at most once per [ImplementationHelper.window] in the [CoroutineScope]
+         * (or, for Java clients, on the [Executor]) passed to [create].
          *
          * @param bucketCounts An array of counts for each bucket (one more than the size of
-         *   [inclusiveLowerBoundsNanos]), giving the number of latency samples that fell in each
-         *   bucket in the last reporting window. Do not hold a reference to this array after
-         *   returning from the callback; it will be recycled (overwritten in place) immediately for
-         *   use in a future callback.
+         *   [ImplementationHelper.inclusiveLowerBoundsNanos]), giving the number of latency samples
+         *   that fell in each bucket in the last reporting window. Do not hold a reference to this
+         *   array after returning from the callback; it will be recycled (overwritten in place)
+         *   immediately for use in a future callback.
          */
         public suspend fun onLatencyBuckets(bucketCounts: IntArray): Unit
     }
@@ -105,7 +105,7 @@ private constructor(private val implementationHelper: ImplementationHelper) : La
     public companion object {
         /**
          * Returns a new [HistogramLatencyAggregator]. For use by Kotlin clients. [callback] will be
-         * called in the given [scope], using its default [CoroutineContext].
+         * called in the given [scope], using its default [kotlin.coroutines.CoroutineContext].
          *
          * @param window The length of the consecutive time windows in which to compute and report a
          *   histogram.

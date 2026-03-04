@@ -21,35 +21,37 @@ import kotlin.reflect.KClass
 /**
  * Declares a junction to be used for joining a relationship.
  *
- * If a [Relation] should use an associative table (also know as junction table or join table) then
+ * If a [Relation] should use an associative table (also known as junction table or join table) then
  * you can use this annotation to reference such table. This is useful for fetching many-to-many
  * relations.
  *
  * ```
- * @Entity(primaryKeys = {"pId", "sId"})
- * public class PlaylistSongXRef {
+ * @Entity(primaryKeys = ["pId", "sId"])
+ * data class PlaylistSongXRef(
  *     val pId: Int,
  *     val sId: Int
- * }
- * public class PlaylistWithSongs {
+ * )
+ *
+ * data class PlaylistWithSongs(
  *     @Embedded
- *     val playlist: Playlist
+ *     val playlist: Playlist,
  *     @Relation(
- *             parentColumn = "playlistId",
- *             entity = Song::class,
- *             entityColumn = "songId",
- *             associateBy = Junction(
- *                     value = PlaylistSongXRef::class,
- *                     parentColumn = "pId",
- *                     entityColumn = "sId")
+ *         parentColumn = "playlistId",
+ *         entity = Song::class,
+ *         entityColumn = "songId",
+ *         associateBy = Junction(
+ *             value = PlaylistSongXRef::class,
+ *             parentColumn = "pId",
+ *             entityColumn = "sId"
+ *         )
  *     )
  *     val songs: List<String>
- * }
+ * )
  *
  * @Dao
- * public interface MusicDao {
+ * interface MusicDao {
  *     @Query("SELECT * FROM Playlist")
- *     val getAllPlaylistsWithSongs(): List<PlaylistWithSongs>
+ *     suspend fun getAllPlaylistsWithSongs(): List<PlaylistWithSongs>
  * }
  * ```
  *

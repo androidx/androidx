@@ -39,7 +39,9 @@ public abstract class RemoteLong internal constructor() : BaseRemoteState<Long>(
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public operator fun invoke(v: Long): RemoteLong {
-            return MutableRemoteLong(v) { creationState -> creationState.document.addLong(v) }
+            return MutableRemoteLong(v, cacheKey = RemoteConstantCacheKey(v)) { creationState ->
+                creationState.document.addLong(v)
+            }
         }
 
         /**
@@ -56,6 +58,7 @@ public abstract class RemoteLong internal constructor() : BaseRemoteState<Long>(
          *
          * @param name The unique name for this remote long.
          * @param defaultValue The initial [Long] value for the named remote long.
+         * @param domain The domain of the named long (defaults to [RemoteState.Domain.User]).
          * @return A [RemoteLong] representing the named long.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -65,17 +68,25 @@ public abstract class RemoteLong internal constructor() : BaseRemoteState<Long>(
             defaultValue: Long,
             domain: RemoteState.Domain = RemoteState.Domain.User,
         ): RemoteLong {
-            return MutableRemoteLong(constantValueOrNull = null) { creationState ->
-                creationState.document.addNamedLong("$domain:$name", defaultValue)
+            return MutableRemoteLong(
+                constantValueOrNull = null,
+                cacheKey = RemoteNamedCacheKey(domain, name),
+            ) { creationState ->
+                creationState.document.addNamedLong(domain.prefixed(name), defaultValue)
             }
         }
     }
 }
 
-/** A mutable implementation of [RemoteLong]. */
+/**
+ * A mutable implementation of [RemoteLong].
+ *
+ * @param constantValueOrNull A nullable value if this [MutableRemoteLong] is constant.
+ */
 public class MutableRemoteLong
 internal constructor(
     @get:Suppress("AutoBoxing") public override val constantValueOrNull: Long?,
+    internal override val cacheKey: RemoteStateCacheKey,
     private val idProvider: (creationState: RemoteComposeCreationState) -> Int,
 ) : RemoteLong(), MutableRemoteState<Long> {
 
@@ -85,8 +96,9 @@ internal constructor(
      *
      * @param id An optional explicit ID for this mutable long. If `null`, a new ID is reserved.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public constructor(id: Int) : this(constantValueOrNull = null, { _ -> id })
+    internal constructor(
+        id: Int
+    ) : this(constantValueOrNull = null, cacheKey = RemoteStateIdKey(id), { id })
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
@@ -104,7 +116,10 @@ internal constructor(
          * @return A new [MutableRemoteLong] instance.
          */
         public fun createMutable(initialValue: Long): MutableRemoteLong {
-            return MutableRemoteLong(constantValueOrNull = null) { creationState ->
+            return MutableRemoteLong(
+                constantValueOrNull = null,
+                cacheKey = RemoteStateInstanceKey(),
+            ) { creationState ->
                 creationState.document.addLong(initialValue)
             }
         }
@@ -131,6 +146,7 @@ public fun rememberMutableRemoteLong(initialValue: Long): MutableRemoteLong {
     return remember {
         MutableRemoteLong(
             constantValueOrNull = null,
+            cacheKey = RemoteStateInstanceKey(),
             idProvider = { creationState -> creationState.document.addLong(initialValue) },
         )
     }
@@ -158,15 +174,18 @@ public fun rememberNamedRemoteLong(
     domain: RemoteState.Domain = RemoteState.Domain.User,
 ): RemoteLong {
     return rememberNamedState(name, domain) {
-        MutableRemoteLong(constantValueOrNull = null) { creationState ->
-            creationState.document.addNamedLong("$domain:$name", defaultValue)
+        MutableRemoteLong(
+            constantValueOrNull = null,
+            cacheKey = RemoteNamedCacheKey(domain, name),
+        ) { creationState ->
+            creationState.document.addNamedLong(domain.prefixed(name), defaultValue)
         }
     }
 }
 
 /** A Composable function to remember and provide a **named** mutable remote long value. */
 @Composable
-@Deprecated("Use rememberNamedRemoteLong(name, domain, content = { RemoteLong(value()) })")
+@Deprecated("Use rememberNamedRemoteLong(name, domain, defaultValue = content)")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun rememberRemoteLongValue(
     name: String,
@@ -175,8 +194,12 @@ public fun rememberRemoteLongValue(
 ): RemoteLong {
     return rememberNamedState(name, domain) {
         val initial = value()
-        MutableRemoteLong(constantValueOrNull = null) { creationState ->
-            val id = creationState.document.addNamedLong("$domain:$name", initial)
+        MutableRemoteLong(
+            constantValueOrNull = null,
+            cacheKey = RemoteNamedCacheKey(domain, name),
+        ) { creationState ->
+            val id = creationState.document.addNamedLong(domain.prefixed(name), initial)
+            creationState.document.setStringName(id, domain.prefixed(name))
             id
         }
     }

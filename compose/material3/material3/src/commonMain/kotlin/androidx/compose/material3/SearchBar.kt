@@ -1451,8 +1451,9 @@ interface SearchBarScrollBehavior {
     @get:FrequentlyChangingValue var contentOffset: Float
 
     /**
-     * A [NestedScrollConnection] that should be attached to a [Modifier.nestedScroll] in order to
-     * keep track of scroll events.
+     * A [NestedScrollConnection] that should be attached to a
+     * [androidx.compose.ui.input.nestedscroll.nestedScroll] in order to keep track of scroll
+     * events.
      */
     val nestedScrollConnection: NestedScrollConnection
 

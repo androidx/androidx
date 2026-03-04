@@ -16,6 +16,7 @@
 
 package androidx.biometric.internal.data
 
+import androidx.biometric.AuthenticationRequest
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.utils.BiometricErrorData
 import androidx.biometric.utils.CancellationSignalProvider
@@ -57,6 +58,12 @@ internal class FakeAuthenticationStateRepository : AuthenticationStateRepository
     override val isNegativeButtonPressPending: SharedFlow<Unit> =
         _isNegativeButtonPressPending.asSharedFlow()
 
+    private val _isFallbackOptionPressPending =
+        MutableSharedFlow<AuthenticationRequest.Biometric.Fallback.CustomOption>()
+    override val isFallbackOptionPressPending:
+        SharedFlow<AuthenticationRequest.Biometric.Fallback.CustomOption> =
+        _isFallbackOptionPressPending.asSharedFlow()
+
     private val _isMoreOptionsButtonPressPending = MutableSharedFlow<Unit>()
     override val isMoreOptionsButtonPressPending: SharedFlow<Unit> =
         _isMoreOptionsButtonPressPending.asSharedFlow()
@@ -85,6 +92,12 @@ internal class FakeAuthenticationStateRepository : AuthenticationStateRepository
 
     override suspend fun setNegativeButtonPressPending() {
         _isNegativeButtonPressPending.emit(Unit)
+    }
+
+    override suspend fun setFallbackOptionPressPending(
+        fallbackOption: AuthenticationRequest.Biometric.Fallback.CustomOption
+    ) {
+        _isFallbackOptionPressPending.emit(fallbackOption)
     }
 
     override suspend fun setMoreOptionsButtonPressPending() {

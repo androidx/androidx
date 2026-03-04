@@ -34,13 +34,12 @@ import androidx.compose.ui.graphics.DefaultAlpha
  * [RemotePainter] are responsible for implementing the [onDraw] method, which defines the drawing
  * operations.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class RemotePainter {
+public abstract class RemotePainter @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
 
     private var paint: RemotePaint? = null
 
     /** Defines the drawing operations within [RemoteDrawScope]. */
-    public abstract fun RemoteDrawScope.onDraw()
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public abstract fun RemoteDrawScope.onDraw()
 
     /**
      * The intrinsic size of the painter. This is the size of the painter before any scaling or

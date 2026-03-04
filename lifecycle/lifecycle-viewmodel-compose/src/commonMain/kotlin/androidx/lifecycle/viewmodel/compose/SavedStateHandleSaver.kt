@@ -40,7 +40,8 @@ import kotlin.reflect.KProperty
 
 /**
  * Inter-opt between [SavedStateHandle] and [Saver] so that any state holder that is being saved via
- * [rememberSaveable] with a custom [Saver] can also be saved with [SavedStateHandle].
+ * [androidx.compose.runtime.saveable.rememberSaveable] with a custom [Saver] can also be saved with
+ * [SavedStateHandle].
  *
  * The returned state [T] should be the only way that a value is saved or restored from the
  * [SavedStateHandle] with the given [key].
@@ -70,7 +71,8 @@ public fun <T : Any> SavedStateHandle.saveable(
 
 /**
  * Inter-opt between [SavedStateHandle] and [Saver] so that any state holder that is being saved via
- * [rememberSaveable] with a custom [Saver] can also be saved with [SavedStateHandle].
+ * [androidx.compose.runtime.saveable.rememberSaveable] with a custom [Saver] can also be saved with
+ * [SavedStateHandle].
  *
  * The returned [MutableState] should be the only way that a value is saved or restored from the
  * [SavedStateHandle] with the given [key].
@@ -92,7 +94,8 @@ public fun <T> SavedStateHandle.saveable(
 
 /**
  * Inter-opt between [SavedStateHandle] and [Saver] so that any state holder that is being saved via
- * [rememberSaveable] with a custom [Saver] can also be saved with [SavedStateHandle].
+ * [androidx.compose.runtime.saveable.rememberSaveable] with a custom [Saver] can also be saved with
+ * [SavedStateHandle].
  *
  * The key is automatically retrieved as the name of the property this delegate is being used to
  * create.
@@ -123,7 +126,8 @@ public fun <T : Any> SavedStateHandle.saveable(
 
 /**
  * Inter-opt between [SavedStateHandle] and [Saver] so that any state holder that is being saved via
- * [rememberSaveable] with a custom [Saver] can also be saved with [SavedStateHandle].
+ * [androidx.compose.runtime.saveable.rememberSaveable] with a custom [Saver] can also be saved with
+ * [SavedStateHandle].
  *
  * The key is automatically retrieved as the name of the property this delegate is being used to
  * create.

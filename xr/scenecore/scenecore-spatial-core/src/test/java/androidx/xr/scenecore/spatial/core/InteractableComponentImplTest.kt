@@ -64,7 +64,7 @@ class InteractableComponentImplTest {
     }
 
     private fun createTestEntity(): Entity {
-        return fakeRuntime.createGroupEntity(Pose(), "test", fakeRuntime.activitySpace)
+        return fakeRuntime.createEntity(Pose(), "test", fakeRuntime.activitySpace)
     }
 
     private fun sendInputEvent(node: ShadowNode, inputEvent: InputEvent?) {

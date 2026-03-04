@@ -17,6 +17,7 @@ package androidx.room3.util
 
 import androidx.annotation.RestrictTo
 import androidx.sqlite.SQLiteConnection
+import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
 
 /**
@@ -27,17 +28,33 @@ import kotlin.jvm.JvmStatic
  * Even though SQLite column names are case insensitive, this class uses case sensitive matching.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
-public expect class ViewInfo(name: String, sql: String?) {
+public class ViewInfo(
     /** The view name */
-    public val name: String
+    @JvmField public val name: String,
     /** The SQL of CREATE VIEW. */
-    public val sql: String?
+    @JvmField public val sql: String?,
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ViewInfo) return false
+        return ((name == other.name) && if (sql != null) sql == other.sql else other.sql == null)
+    }
 
-    override fun equals(other: Any?): Boolean
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + (sql?.hashCode() ?: 0)
+        return result
+    }
 
-    override fun hashCode(): Int
-
-    override fun toString(): String
+    override fun toString(): String {
+        return ("""
+            |ViewInfo {
+            |   name = '$name',
+            |   sql = '$sql'
+            |}
+        """
+            .trimMargin())
+    }
 
     public companion object {
         /**
@@ -47,28 +64,9 @@ public expect class ViewInfo(name: String, sql: String?) {
          * @param viewName The view name.
          * @return A ViewInfo containing the schema information for the provided view name.
          */
-        @JvmStatic public suspend fun read(connection: SQLiteConnection, viewName: String): ViewInfo
+        @JvmStatic
+        public suspend fun read(connection: SQLiteConnection, viewName: String): ViewInfo {
+            return readViewInfo(connection, viewName)
+        }
     }
-}
-
-internal fun ViewInfo.equalsCommon(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is ViewInfo) return false
-    return ((name == other.name) && if (sql != null) sql == other.sql else other.sql == null)
-}
-
-internal fun ViewInfo.hashCodeCommon(): Int {
-    var result = name.hashCode()
-    result = 31 * result + (sql?.hashCode() ?: 0)
-    return result
-}
-
-internal fun ViewInfo.toStringCommon(): String {
-    return ("""
-            |ViewInfo {
-            |   name = '$name',
-            |   sql = '$sql'
-            |}
-        """
-        .trimMargin())
 }

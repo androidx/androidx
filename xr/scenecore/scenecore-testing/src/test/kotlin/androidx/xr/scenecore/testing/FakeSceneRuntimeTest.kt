@@ -199,16 +199,28 @@ class FakeSceneRuntimeTest {
     }
 
     @Test
-    fun createGroupEntity_returnsInitialValue() {
+    fun createEntity_returnsInitialValue() {
         val pose = Pose.Identity
         val name = "test_entity"
         val parent = FakeEntity()
-        val groupEntity = fakeSceneRuntime.createGroupEntity(pose, name, parent)
+        val entity = fakeSceneRuntime.createEntity(pose, name, parent)
 
-        assertThat(groupEntity).isInstanceOf(FakeEntity::class.java)
-        assertThat(groupEntity.getPose()).isEqualTo(pose)
-        assertThat(groupEntity.parent).isEqualTo(parent)
-        assertThat((groupEntity as FakeEntity).name).isEqualTo(name)
+        assertThat(entity).isInstanceOf(FakeEntity::class.java)
+        assertThat(entity.getPose()).isEqualTo(pose)
+        assertThat(entity.parent).isEqualTo(parent)
+        assertThat((entity as FakeEntity).name).isEqualTo(name)
+    }
+
+    @Test
+    fun createEntity_withNoName_returnsEmptyName() {
+        val pose = Pose.Identity
+        val parent = FakeEntity()
+        val entity = fakeSceneRuntime.createEntity(pose, null, parent)
+
+        assertThat(entity).isInstanceOf(FakeEntity::class.java)
+        assertThat(entity.getPose()).isEqualTo(pose)
+        assertThat(entity.parent).isEqualTo(parent)
+        assertThat((entity as FakeEntity).name).isEmpty()
     }
 
     @Test

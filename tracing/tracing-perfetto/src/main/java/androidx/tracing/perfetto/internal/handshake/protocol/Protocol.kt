@@ -129,8 +129,8 @@ internal object ResponseResultCodes {
      * Indicates that the broadcast resulted in `result=0`, which is an equivalent of
      * [android.app.Activity.RESULT_CANCELED].
      *
-     * This most likely means that the app does not expose a [PerfettoSdkHandshake] compatible
-     * receiver.
+     * This most likely means that the app does not expose a
+     * [androidx.tracing.perfetto.handshake.PerfettoSdkHandshake] compatible receiver.
      */
     @Suppress("KDocUnresolvedReference") public const val RESULT_CODE_CANCELLED: Int = 0
 

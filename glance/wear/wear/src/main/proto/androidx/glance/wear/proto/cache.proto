@@ -26,6 +26,15 @@ message WidgetContainerSpecProto {
 
   // The height of the content area in dp.
   float height_dp = 2;
+
+  // The horizontal inner padding of the container in dp.
+  float horizontal_padding_dp = 3;
+
+  // The vertical inner padding of the container in dp.
+  float vertical_padding_dp = 4;
+
+  // The corner radius of the container in dp
+  float corner_radius_dp = 5;
 }
 
 // A cache of widget container specs, keyed by container type.

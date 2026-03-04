@@ -203,7 +203,6 @@ abstract class MultimapQueryResultAdapter(
                         ProcessorErrors.cannotMapSpecifiedColumn(
                             errorColumn,
                             resultColumns.map { it.name },
-                            MapColumn::class.java.simpleName,
                         )
                     )
                 }

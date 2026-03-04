@@ -29,7 +29,11 @@ import java.util.Locale
 /** Wraps a type converter specified by the developer and forwards calls to it. */
 class DaoReturnTypeConverterWrapper(
     val customDaoReturnTypeConverter: CustomDaoReturnTypeConverter
-) : DaoReturnTypeConverter(to = customDaoReturnTypeConverter.to) {
+) :
+    DaoReturnTypeConverter(
+        to = customDaoReturnTypeConverter.to,
+        operationTypes = customDaoReturnTypeConverter.operationTypes,
+    ) {
     override val isSuspend = customDaoReturnTypeConverter.function.isSuspendFunction()
     override val requiredFunctionParamTypes =
         customDaoReturnTypeConverter.requiredFunctionParamTypes

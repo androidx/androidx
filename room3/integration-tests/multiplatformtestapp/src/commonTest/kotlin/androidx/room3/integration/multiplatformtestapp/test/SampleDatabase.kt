@@ -40,6 +40,8 @@ import androidx.room3.SkipQueryVerification
 import androidx.room3.Transaction
 import androidx.room3.Update
 import androidx.room3.Upsert
+import androidx.room3.integration.multiplatformtestapp.library.LibraryDao
+import androidx.room3.integration.multiplatformtestapp.library.LibraryEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -282,6 +284,7 @@ interface SampleDao {
             StringSampleEntity1::class,
             StringSampleEntity2::class,
             Sample1Sample2XRef::class,
+            LibraryEntity::class,
         ],
     version = 1,
     exportSchema = false,
@@ -289,6 +292,8 @@ interface SampleDao {
 @ConstructedBy(SampleDatabaseConstructor::class)
 abstract class SampleDatabase : RoomDatabase() {
     abstract fun dao(): SampleDao
+
+    abstract fun libraryDao(): LibraryDao
 }
 
 expect object SampleDatabaseConstructor : RoomDatabaseConstructor<SampleDatabase>

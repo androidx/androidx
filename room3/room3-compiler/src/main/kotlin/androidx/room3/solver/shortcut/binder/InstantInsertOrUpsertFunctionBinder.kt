@@ -28,8 +28,8 @@ import androidx.room3.solver.shortcut.result.InsertOrUpsertFunctionAdapter
 import androidx.room3.vo.ShortcutQueryParameter
 
 /** Binder that knows how to write instant (blocking) insert or upsert methods. */
-class InstantInsertOrUpsertFunctionBinder(adapter: InsertOrUpsertFunctionAdapter?) :
-    InsertOrUpsertFunctionBinder(adapter) {
+class InstantInsertOrUpsertFunctionBinder(override val adapter: InsertOrUpsertFunctionAdapter?) :
+    InsertOrUpsertFunctionBinder {
 
     override fun convertAndReturn(
         parameters: List<ShortcutQueryParameter>,

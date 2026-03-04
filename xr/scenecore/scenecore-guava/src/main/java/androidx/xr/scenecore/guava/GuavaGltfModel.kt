@@ -38,8 +38,8 @@ import java.nio.file.Path
  *   `assets/` folder.
  * @return a ListenableFuture<GltfModel>. Listeners will be called on the main thread if
  *   Runnable::run is supplied when adding a listener to the [ListenableFuture].
- * @throws IllegalArgumentException if [path.isAbsolute] is true, as this method requires a relative
- *   path.
+ * @throws IllegalArgumentException if [Path.isAbsolute] is true for [path], as this method requires
+ *   a relative path.
  */
 @MainThread
 public fun createGltfModelAsync(session: Session, path: Path): ListenableFuture<GltfModel> =

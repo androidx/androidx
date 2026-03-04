@@ -47,9 +47,10 @@ internal class GlimmerListBeyondBoundsState(val state: ListState) : LazyLayoutBe
         get() = state.layoutInfo.visibleItemsInfo.last().index
 
     override fun itemsPerViewport(): Int {
-        if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0
-        val viewportSize = state.layoutInfo.singleAxisViewportSize
-        val averageItemSize = state.layoutInfo.visibleItemsAverageSize()
+        val layoutInfo = state.layoutInfoState.value
+        if (layoutInfo.visibleItemsInfo.isEmpty()) return 0
+        val viewportSize = layoutInfo.mainAxisViewportSize
+        val averageItemSize = layoutInfo.visibleItemsAverageSize
         if (averageItemSize == 0) return 1
         return (viewportSize / averageItemSize).coerceAtLeast(1)
     }

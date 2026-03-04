@@ -45,7 +45,6 @@ public class RemoteColorPainter(private val color: RemoteColor) : RemotePainter(
  *
  * @param color The [RemoteColor] to create the painter for.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun painterRemoteColor(color: RemoteColor): RemotePainter = RemoteColorPainter(color = color)
 
 /**

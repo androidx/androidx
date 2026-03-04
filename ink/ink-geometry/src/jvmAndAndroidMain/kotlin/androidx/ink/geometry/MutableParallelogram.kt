@@ -23,7 +23,7 @@ import kotlin.math.atan2
 
 /**
  * Mutable parallelogram (i.e. a quadrilateral with parallel sides), defined by its [center],
- * [width], [height], [rotation], and [skew].
+ * [width], [height], [rotationDegrees], and [skew].
  */
 @UsedByNative
 public class MutableParallelogram
@@ -132,8 +132,8 @@ private constructor(
 
     /**
      * Populates a [MutableParallelogram] to have a given [center], [width] and [height]. The
-     * resulting [Parallelogram] has zero [rotation] and [skew]. If the [width] is less than zero,
-     * the [Parallelogram] will be normalized.
+     * resulting [Parallelogram] has zero [rotationDegrees] and [skew]. If the [width] is less than
+     * zero, the [Parallelogram] will be normalized.
      *
      * See the corresponding fields on [Parallelogram] for details about these parameters.
      *

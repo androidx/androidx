@@ -32,7 +32,7 @@ internal class ConcurrentIntervalQueue(val numPreallocatedIntervals: Int) {
     /** Pool of recycled Interval instances for populating the active queue. */
     private val intervalPool = ConcurrentLinkedQueue<Interval>()
 
-    /** Number of times [obtainInterval] had to allocate a new [Interval]. */
+    /** Number of times [record] had to allocate a new [Interval]. */
     @VisibleForTesting
     internal var numLateAllocations = 0
         private set

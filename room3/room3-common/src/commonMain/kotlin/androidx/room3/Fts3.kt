@@ -26,11 +26,11 @@ import androidx.room3.FtsOptions.TOKENIZER_SIMPLE
  * full-text searches to be performed on a set of documents.
  *
  * An FTS entity table always has a column named `rowid` that is the equivalent of an `INTEGER
- * PRIMARY KEY` index. Therefore, an FTS entity can only have a single field annotated with
- * [PrimaryKey], it must be named `rowid` and must be of `INTEGER` affinity. The field can be
+ * PRIMARY KEY`. Therefore, an FTS entity can only have a single property annotated with
+ * [PrimaryKey], it must be named `rowid` and must be of `INTEGER` affinity. The property can be
  * optionally omitted in the class but can still be used in queries.
  *
- * All fields in an FTS entity are of `TEXT` affinity, except the for the 'rowid' field.
+ * All properties in an FTS entity are of `TEXT` affinity, except the for the 'rowid' property.
  *
  * Example:
  * ```
@@ -77,14 +77,12 @@ public annotation class Fts3(
     /**
      * Optional arguments to configure the defined tokenizer.
      *
-     * <p>
      * Tokenizer arguments consist of an argument name, followed by an "=" character, followed by
-     * the option value. For example, <code>separators=.</code> defines the dot character as an
-     * additional separator when using the {@link FtsOptions#TOKENIZER_UNICODE61} tokenizer.
+     * the option value. For example, `separators=.` defines the dot character as an additional
+     * separator when using the [FtsOptions.TOKENIZER_UNICODE61] tokenizer.
      *
-     * <p>
      * The available arguments that can be defined depend on the tokenizer defined, see the
-     * [SQLite tokernizers documentation](https://www.sqlite.org/fts3.html#tokenizer) for details.
+     * [SQLite tokenizers documentation](https://www.sqlite.org/fts3.html#tokenizer) for details.
      *
      * @return A list of tokenizer arguments strings.
      */

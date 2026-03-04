@@ -15,9 +15,11 @@
  */
 package androidx.room3.util
 
+import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.room3.ColumnInfo.SQLiteTypeAffinity
 import androidx.sqlite.SQLiteConnection
+import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
 
 /**
@@ -30,39 +32,39 @@ import kotlin.jvm.JvmStatic
  * Even though SQLite column names are case insensitive, this class uses case sensitive matching.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
-public expect class TableInfo(
-    name: String,
-    columns: Map<String, Column>,
-    foreignKeys: Set<ForeignKey>,
-    indices: Set<Index>? = null,
-) {
+public class TableInfo(
     /** The table name. */
-    public val name: String
-    public val columns: Map<String, Column>
-    public val foreignKeys: Set<ForeignKey>
-    public val indices: Set<Index>?
+    @JvmField public val name: String,
+    @JvmField public val columns: Map<String, Column>,
+    @JvmField public val foreignKeys: Set<ForeignKey>,
+    @JvmField public val indices: Set<Index>? = null,
+) {
+    /** Identifies from where the info object was created. */
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(value = [CREATED_FROM_UNKNOWN, CREATED_FROM_ENTITY, CREATED_FROM_DATABASE])
+    internal annotation class CreatedFrom
 
-    override fun equals(other: Any?): Boolean
+    override fun equals(other: Any?): Boolean = equalsCommon(other)
 
-    override fun hashCode(): Int
+    override fun hashCode(): Int = hashCodeCommon()
 
-    override fun toString(): String
+    override fun toString(): String = toStringCommon()
 
     public companion object {
         /** Identifier for when the info is created from an unknown source. */
-        public val CREATED_FROM_UNKNOWN: Int
+        public const val CREATED_FROM_UNKNOWN: Int = 0
 
         /**
          * Identifier for when the info is created from an entity definition, such as generated code
          * by the compiler or at runtime from a schema bundle, parsed from a schema JSON file.
          */
-        public val CREATED_FROM_ENTITY: Int
+        public const val CREATED_FROM_ENTITY: Int = 1
 
         /**
          * Identifier for when the info is created from the database itself, reading information
          * from a PRAGMA, such as table_info.
          */
-        public val CREATED_FROM_DATABASE: Int
+        public const val CREATED_FROM_DATABASE: Int = 2
 
         /**
          * Reads the table information from the given database.
@@ -72,36 +74,31 @@ public expect class TableInfo(
          * @return A TableInfo containing the schema information for the provided table name.
          */
         @JvmStatic
-        public suspend fun read(connection: SQLiteConnection, tableName: String): TableInfo
+        public suspend fun read(connection: SQLiteConnection, tableName: String): TableInfo {
+            return readTableInfo(connection, tableName)
+        }
     }
 
     /** Holds the information about a database column. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
     public class Column(
-        name: String,
-        type: String,
-        notNull: Boolean,
-        primaryKeyPosition: Int,
-        defaultValue: String?,
-        createdFrom: Int,
-    ) {
         /** The column name. */
-        public val name: String
+        @JvmField public val name: String,
         /** The column type affinity. */
-        public val type: String
+        @JvmField public val type: String,
         /** Whether or not the column can be NULL. */
-        public val notNull: Boolean
-        public val primaryKeyPosition: Int
-        public val defaultValue: String?
-        public val createdFrom: Int
-
+        @JvmField public val notNull: Boolean,
+        @JvmField public val primaryKeyPosition: Int,
+        @JvmField public val defaultValue: String?,
+        @param:CreatedFrom @JvmField public val createdFrom: Int,
+    ) {
         /**
          * The column type after it is normalized to one of the basic types according to
          * https://www.sqlite.org/datatype3.html Section 3.1.
          *
          * This is the value Room uses for equality check.
          */
-        @SQLiteTypeAffinity public val affinity: Int
+        @SQLiteTypeAffinity @JvmField public val affinity: Int = findAffinity(type)
 
         /**
          * Returns whether this column is part of the primary key or not.
@@ -109,55 +106,179 @@ public expect class TableInfo(
          * @return True if this column is part of the primary key, false otherwise.
          */
         public val isPrimaryKey: Boolean
+            get() = primaryKeyPosition > 0
 
-        override fun equals(other: Any?): Boolean
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Column) return false
+            if (isPrimaryKey != other.isPrimaryKey) return false
+            if (name != other.name) return false
+            if (notNull != other.notNull) return false
+            // Only validate default value if it was defined in an entity, i.e. if the info
+            // from the compiler itself has it. b/136019383
+            val defaultValue = this.defaultValue
+            val otherDefaultValue = other.defaultValue
+            if (
+                createdFrom == CREATED_FROM_ENTITY &&
+                    other.createdFrom == CREATED_FROM_DATABASE &&
+                    defaultValue != null &&
+                    !defaultValueEqualsCommon(defaultValue, other.defaultValue)
+            ) {
+                return false
+            } else if (
+                createdFrom == CREATED_FROM_DATABASE &&
+                    other.createdFrom == CREATED_FROM_ENTITY &&
+                    otherDefaultValue != null &&
+                    !defaultValueEqualsCommon(otherDefaultValue, defaultValue)
+            ) {
+                return false
+            } else if (
+                createdFrom != CREATED_FROM_UNKNOWN &&
+                    createdFrom == other.createdFrom &&
+                    (if (defaultValue != null)
+                        !defaultValueEqualsCommon(defaultValue, otherDefaultValue)
+                    else otherDefaultValue != null)
+            ) {
+                return false
+            }
+            return affinity == other.affinity
+        }
 
-        override fun hashCode(): Int
+        override fun hashCode(): Int {
+            var result = name.hashCode()
+            result = 31 * result + affinity
+            result = 31 * result + if (notNull) 1231 else 1237
+            result = 31 * result + primaryKeyPosition
+            return result
+            // result = 31 * result + (defaultValue != null ? defaultValue.hashCode() : 0);
+            // equality which would break the equals + hashcode contract.
+            // Default value is not part of the hashcode since we conditionally check it for
+        }
 
-        override fun toString(): String
+        override fun toString(): String =
+            ("""
+                |Column {
+                |   name = '${name}',
+                |   type = '${type}',
+                |   affinity = '${affinity}',
+                |   notNull = '${notNull}',
+                |   primaryKeyPosition = '${primaryKeyPosition}',
+                |   defaultValue = '${defaultValue ?: "undefined"}'
+                |}
+            """
+                .trimMargin()
+                .prependIndent())
+
+        internal companion object {
+            fun defaultValueEquals(current: String, other: String?): Boolean =
+                defaultValueEqualsCommon(current, other)
+        }
     }
 
     /** Holds the information about an SQLite foreign key */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
     public class ForeignKey(
-        referenceTable: String,
-        onDelete: String,
-        onUpdate: String,
-        columnNames: List<String>,
-        referenceColumnNames: List<String>,
+        @JvmField public val referenceTable: String,
+        @JvmField public val onDelete: String,
+        @JvmField public val onUpdate: String,
+        @JvmField public val columnNames: List<String>,
+        @JvmField public val referenceColumnNames: List<String>,
     ) {
-        public val referenceTable: String
-        public val onDelete: String
-        public val onUpdate: String
-        public val columnNames: List<String>
-        public val referenceColumnNames: List<String>
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is ForeignKey) return false
+            if (referenceTable != other.referenceTable) return false
+            if (onDelete != other.onDelete) return false
+            if (onUpdate != other.onUpdate) return false
+            return if (columnNames != other.columnNames) false
+            else referenceColumnNames == other.referenceColumnNames
+        }
 
-        override fun equals(other: Any?): Boolean
+        override fun hashCode(): Int {
+            var result = referenceTable.hashCode()
+            result = 31 * result + onDelete.hashCode()
+            result = 31 * result + onUpdate.hashCode()
+            result = 31 * result + columnNames.hashCode()
+            result = 31 * result + referenceColumnNames.hashCode()
+            return result
+        }
 
-        override fun hashCode(): Int
-
-        override fun toString(): String
+        override fun toString(): String =
+            ("""
+                |ForeignKey {
+                |   referenceTable = '${referenceTable}',
+                |   onDelete = '${onDelete}',
+                |   onUpdate = '${onUpdate}',
+                |   columnNames = {${columnNames.sorted().joinToStringMiddleWithIndent()}
+                |   referenceColumnNames = {${
+            referenceColumnNames.sorted().joinToStringEndWithIndent()
+        }
+                |}
+            """
+                .trimMargin()
+                .prependIndent())
     }
 
     /** Holds the information about an SQLite index */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
-    public class Index(name: String, unique: Boolean, columns: List<String>, orders: List<String>) {
-
-        public val name: String
-        public val unique: Boolean
-        public val columns: List<String>
-        public var orders: List<String>
-
-        public companion object {
-            // should match the value in Index.kt
-            public val DEFAULT_PREFIX: String
+    public class Index(
+        @JvmField public val name: String,
+        @JvmField public val unique: Boolean,
+        @JvmField public val columns: List<String>,
+        @JvmField public var orders: List<String>,
+    ) {
+        init {
+            orders = orders.ifEmpty { List(columns.size) { androidx.room3.Index.Order.ASC.name } }
         }
 
-        override fun equals(other: Any?): Boolean
+        internal companion object {
+            // should match the value in Index.kt
+            const val DEFAULT_PREFIX: String = "index_"
+        }
 
-        override fun hashCode(): Int
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Index) return false
+            if (unique != other.unique) {
+                return false
+            }
+            if (columns != other.columns) {
+                return false
+            }
+            if (orders != other.orders) {
+                return false
+            }
+            return if (name.startsWith(DEFAULT_PREFIX)) {
+                other.name.startsWith(DEFAULT_PREFIX)
+            } else {
+                name == other.name
+            }
+        }
 
-        public override fun toString(): String
+        override fun hashCode(): Int {
+            var result =
+                if (name.startsWith(DEFAULT_PREFIX)) {
+                    DEFAULT_PREFIX.hashCode()
+                } else {
+                    name.hashCode()
+                }
+            result = 31 * result + if (unique) 1 else 0
+            result = 31 * result + columns.hashCode()
+            result = 31 * result + orders.hashCode()
+            return result
+        }
+
+        override fun toString(): String =
+            ("""
+                |Index {
+                |   name = '${name}',
+                |   unique = '${unique}',
+                |   columns = {${columns.joinToStringMiddleWithIndent()}
+                |   orders = {${orders.joinToStringEndWithIndent()}
+                |}
+            """
+                .trimMargin()
+                .prependIndent())
     }
 }
 
@@ -196,41 +317,6 @@ internal fun TableInfo.toStringCommon(): String {
             |}
         """
         .trimMargin())
-}
-
-internal fun TableInfo.Column.equalsCommon(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is TableInfo.Column) return false
-    if (isPrimaryKey != other.isPrimaryKey) return false
-    if (name != other.name) return false
-    if (notNull != other.notNull) return false
-    // Only validate default value if it was defined in an entity, i.e. if the info
-    // from the compiler itself has it. b/136019383
-    val defaultValue = this.defaultValue
-    val otherDefaultValue = other.defaultValue
-    if (
-        createdFrom == TableInfo.CREATED_FROM_ENTITY &&
-            other.createdFrom == TableInfo.CREATED_FROM_DATABASE &&
-            defaultValue != null &&
-            !defaultValueEqualsCommon(defaultValue, other.defaultValue)
-    ) {
-        return false
-    } else if (
-        createdFrom == TableInfo.CREATED_FROM_DATABASE &&
-            other.createdFrom == TableInfo.CREATED_FROM_ENTITY &&
-            otherDefaultValue != null &&
-            !defaultValueEqualsCommon(otherDefaultValue, defaultValue)
-    ) {
-        return false
-    } else if (
-        createdFrom != TableInfo.CREATED_FROM_UNKNOWN &&
-            createdFrom == other.createdFrom &&
-            (if (defaultValue != null) !defaultValueEqualsCommon(defaultValue, otherDefaultValue)
-            else otherDefaultValue != null)
-    ) {
-        return false
-    }
-    return affinity == other.affinity
 }
 
 /**
@@ -273,110 +359,6 @@ private fun containsSurroundingParenthesis(current: String): Boolean {
         }
     }
     return surroundingParenthesis == 0
-}
-
-internal fun TableInfo.Column.hashCodeCommon(): Int {
-    var result = name.hashCode()
-    result = 31 * result + affinity
-    result = 31 * result + if (notNull) 1231 else 1237
-    result = 31 * result + primaryKeyPosition
-    // Default value is not part of the hashcode since we conditionally check it for
-    // equality which would break the equals + hashcode contract.
-    // result = 31 * result + (defaultValue != null ? defaultValue.hashCode() : 0);
-    return result
-}
-
-internal fun TableInfo.Column.toStringCommon(): String {
-    return ("""
-            |Column {
-            |   name = '$name',
-            |   type = '$type',
-            |   affinity = '$affinity',
-            |   notNull = '$notNull',
-            |   primaryKeyPosition = '$primaryKeyPosition',
-            |   defaultValue = '${defaultValue ?: "undefined"}'
-            |}
-        """
-        .trimMargin()
-        .prependIndent())
-}
-
-internal fun TableInfo.ForeignKey.equalsCommon(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is TableInfo.ForeignKey) return false
-    if (referenceTable != other.referenceTable) return false
-    if (onDelete != other.onDelete) return false
-    if (onUpdate != other.onUpdate) return false
-    return if (columnNames != other.columnNames) false
-    else referenceColumnNames == other.referenceColumnNames
-}
-
-internal fun TableInfo.ForeignKey.hashCodeCommon(): Int {
-    var result = referenceTable.hashCode()
-    result = 31 * result + onDelete.hashCode()
-    result = 31 * result + onUpdate.hashCode()
-    result = 31 * result + columnNames.hashCode()
-    result = 31 * result + referenceColumnNames.hashCode()
-    return result
-}
-
-internal fun TableInfo.ForeignKey.toStringCommon(): String {
-    return ("""
-            |ForeignKey {
-            |   referenceTable = '$referenceTable',
-            |   onDelete = '$onDelete',
-            |   onUpdate = '$onUpdate',
-            |   columnNames = {${columnNames.sorted().joinToStringMiddleWithIndent()}
-            |   referenceColumnNames = {${referenceColumnNames.sorted().joinToStringEndWithIndent()}
-            |}
-        """
-        .trimMargin()
-        .prependIndent())
-}
-
-internal fun TableInfo.Index.equalsCommon(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is TableInfo.Index) return false
-    if (unique != other.unique) {
-        return false
-    }
-    if (columns != other.columns) {
-        return false
-    }
-    if (orders != other.orders) {
-        return false
-    }
-    return if (name.startsWith(TableInfo.Index.DEFAULT_PREFIX)) {
-        other.name.startsWith(TableInfo.Index.DEFAULT_PREFIX)
-    } else {
-        name == other.name
-    }
-}
-
-internal fun TableInfo.Index.hashCodeCommon(): Int {
-    var result =
-        if (name.startsWith(TableInfo.Index.DEFAULT_PREFIX)) {
-            TableInfo.Index.DEFAULT_PREFIX.hashCode()
-        } else {
-            name.hashCode()
-        }
-    result = 31 * result + if (unique) 1 else 0
-    result = 31 * result + columns.hashCode()
-    result = 31 * result + orders.hashCode()
-    return result
-}
-
-internal fun TableInfo.Index.toStringCommon(): String {
-    return ("""
-            |Index {
-            |   name = '$name',
-            |   unique = '$unique',
-            |   columns = {${columns.joinToStringMiddleWithIndent()}
-            |   orders = {${orders.joinToStringEndWithIndent()}
-            |}
-        """
-        .trimMargin()
-        .prependIndent())
 }
 
 internal fun formatString(collection: Collection<*>): String {

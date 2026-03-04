@@ -239,9 +239,8 @@ actual constructor(public actual val navigatorName: String) {
     }
 
     /**
-     * Returns the [NavAction] for the given action ID. This will recursively check the
-     * [parent][getParent] of this destination if the action destination is not found in this
-     * destination.
+     * Returns the [NavAction] for the given action ID. This will recursively check the [parent] of
+     * this destination if the action destination is not found in this destination.
      *
      * @param id action ID to fetch
      * @return the [NavAction] mapped to the given action id, or null if one has not been set

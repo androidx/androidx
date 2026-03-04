@@ -3,7 +3,7 @@ package androidx.room3.paging.guava {
 
   public final class ListenableFuturePagingSourceDaoReturnTypeConverter {
     ctor public ListenableFuturePagingSourceDaoReturnTypeConverter();
-    method @androidx.room3.DaoReturnTypeConverter public <T> androidx.paging.ListenableFuturePagingSource<java.lang.Integer,T> convert(androidx.room3.RoomDatabase database, String[] tableNames, androidx.room3.RoomRawQuery roomRawQuery, kotlin.jvm.functions.Function2<? super androidx.room3.RoomRawQuery,? super kotlin.coroutines.Continuation<? super java.util.List<? extends T>>,? extends java.lang.Object?> executeAndConvert);
+    method @androidx.room3.DaoReturnTypeConverter(operations={androidx.room3.OperationType.READ}) public <T> androidx.paging.ListenableFuturePagingSource<java.lang.Integer,T> convert(androidx.room3.RoomDatabase database, String[] tableNames, androidx.room3.RoomRawQuery roomRawQuery, kotlin.jvm.functions.Function2<? super androidx.room3.RoomRawQuery,? super kotlin.coroutines.Continuation<? super java.util.List<? extends T>>,? extends java.lang.Object?> executeAndConvert);
   }
 
 }

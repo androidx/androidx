@@ -46,7 +46,5 @@ public object SpatialPointerIcon {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface SpatialPointerComponent : Component {
 
-    public fun setSpatialPointerIcon(@SpatialPointerIconType iconType: Int)
-
-    @SpatialPointerIconType public fun getSpatialPointerIcon(): Int
+    @SpatialPointerIconType public var spatialPointerIcon: Int
 }

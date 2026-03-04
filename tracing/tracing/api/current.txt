@@ -126,6 +126,7 @@ package androidx.tracing {
 
   @SuppressCompatibility @androidx.tracing.DelicateTracingApi public final class TraceEvent {
     ctor public TraceEvent();
+    method public void copyFrom(androidx.tracing.TraceEvent src);
     method public void reset();
     property public java.util.List<java.lang.String> categories;
     property public Long? correlationId;

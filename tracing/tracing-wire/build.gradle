@@ -73,6 +73,7 @@ tasks.named("multiplatformSourceJar").configure {
 kotlin {
     compilerOptions {
         optIn.add("androidx.tracing.DelicateTracingApi")
+        optIn.add("androidx.tracing.wire.ExperimentalRingBufferApi")
     }
 }
 

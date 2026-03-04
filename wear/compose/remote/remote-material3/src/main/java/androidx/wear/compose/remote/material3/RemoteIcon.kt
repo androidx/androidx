@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 @file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@file:Suppress("RestrictedApiAndroidX")
 
 package androidx.wear.compose.remote.material3
 
+import android.annotation.SuppressLint
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteImageVector
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -50,6 +50,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
  * @param tint The color to apply to the icon. Defaults to the current content color provided by
  *   [DefaultTint].
  */
+@SuppressLint("RestrictedApiAndroidX")
 @RemoteComposable
 @Composable
 public fun RemoteIcon(
@@ -79,6 +80,7 @@ public fun RemoteIcon(
  * @param tint The color to apply to the icon. Defaults to the current content color provided by
  *   [DefaultTint].
  */
+@SuppressLint("RestrictedApiAndroidX")
 @RemoteComposable
 @Composable
 public fun RemoteIcon(

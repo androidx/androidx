@@ -68,7 +68,7 @@ class SessionManager(private val activity: AppCompatActivity) {
                 }
 
                 else -> {
-                    androidx.xr.runtime.Log.error {
+                    androidx.xr.runtime.XrLog.error {
                         "Unexpected ${sessionCreateResult::class.simpleName}"
                     }
                 }

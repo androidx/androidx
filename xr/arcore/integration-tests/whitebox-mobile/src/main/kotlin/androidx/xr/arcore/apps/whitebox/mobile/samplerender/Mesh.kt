@@ -17,7 +17,7 @@
 package androidx.xr.arcore.apps.whitebox.mobile.samplerender
 
 import android.opengl.GLES30
-import androidx.xr.runtime.Log
+import androidx.xr.runtime.XrLog
 import de.javagl.obj.ObjData
 import de.javagl.obj.ObjReader
 import de.javagl.obj.ObjUtils
@@ -113,7 +113,7 @@ class Mesh(
         if (vertexArrayId[0] != 0) {
             GLES30.glDeleteVertexArrays(1, vertexArrayId, 0)
             maybeLogGLError(
-                Log.Level.WARN,
+                XrLog.Level.WARN,
                 "Failed to free vertex array object",
                 "glDeleteVertexArrays",
             )

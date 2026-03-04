@@ -22,6 +22,7 @@ import androidx.compose.runtime.ExperimentalComposeRuntimeApi
 import androidx.compose.runtime.SnapshotFlowManager
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.snapshots.MutableSnapshot
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.test.filters.LargeTest
@@ -98,10 +99,14 @@ class SnapshotFlowBenchmark(
                     Snapshot.notifyObjectsInitialized()
                 }
 
+                lateinit var snapshot: MutableSnapshot
                 stateObjects.forEach {
-                    runWithMeasurementDisabled { it.value = true }
+                    runWithMeasurementDisabled {
+                        snapshot = Snapshot.takeMutableSnapshot()
+                        snapshot.enter { it.value = true }
+                    }
 
-                    Snapshot.sendApplyNotifications()
+                    snapshot.apply()
                 }
 
                 testScheduler.advanceUntilIdle()
@@ -158,10 +163,14 @@ class SnapshotFlowBenchmark(
                     assertEquals(n, count)
                 }
 
+                lateinit var snapshot: MutableSnapshot
                 stateObjects.forEach {
-                    runWithMeasurementDisabled { it.value = true }
+                    runWithMeasurementDisabled {
+                        snapshot = Snapshot.takeMutableSnapshot()
+                        snapshot.enter { it.value = true }
+                    }
 
-                    Snapshot.sendApplyNotifications()
+                    snapshot.apply()
                 }
 
                 testScheduler.advanceUntilIdle()

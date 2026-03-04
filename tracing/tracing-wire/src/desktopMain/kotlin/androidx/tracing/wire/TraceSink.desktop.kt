@@ -35,6 +35,9 @@ private fun File.perfettoTraceFile(): File {
     return traceFile
 }
 
+// StreamFiles is not relevant because the provided File represents a directory
+// in which new trace files are dynamically created, rather than a specific file to read/write.
+@Suppress("StreamFiles")
 @JvmOverloads
 public fun TraceSink(
     directory: File,

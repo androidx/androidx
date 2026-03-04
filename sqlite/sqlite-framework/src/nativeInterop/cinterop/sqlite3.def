@@ -1,7 +1,12 @@
 package = sqlite3
 headers = sqlite3.h
 
-linkerOpts.linux_x64 = -lpthread -ldl
-linkerOpts.macos_x64 = -lpthread -ldl
+linkerOpts.linux = -lpthread -ldl
+linkerOpts.osx = -lpthread -ldl
 
 noStringConversion = sqlite3_prepare_v2 sqlite3_prepare_v3
+
+excludedFunctions.osx = sqlite3_win32_set_directory sqlite3_win32_set_directory8 sqlite3_win32_set_directory16 sqlite3_mutex_held sqlite3_mutex_notheld
+excludedFunctions.ios = sqlite3_win32_set_directory sqlite3_win32_set_directory8 sqlite3_win32_set_directory16 sqlite3_mutex_held sqlite3_mutex_notheld
+excludedFunctions.watchos = sqlite3_win32_set_directory sqlite3_win32_set_directory8 sqlite3_win32_set_directory16 sqlite3_mutex_held sqlite3_mutex_notheld
+excludedFunctions.tvos = sqlite3_win32_set_directory sqlite3_win32_set_directory8 sqlite3_win32_set_directory16 sqlite3_mutex_held sqlite3_mutex_notheld

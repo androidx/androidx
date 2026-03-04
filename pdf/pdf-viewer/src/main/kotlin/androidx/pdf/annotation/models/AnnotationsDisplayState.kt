@@ -22,21 +22,19 @@ import androidx.annotation.RestrictTo
 /**
  * Represents the complete display state for annotations on a PDF document.
  *
- * @property edits The immutable snapshot of the current annotation edits.
  * @property transformationMatrices A map where the key is the page number (0-indexed) and the value
  *   is the [Matrix] required to transform the annotations for that page from PDF coordinates to
  *   screen coordinates, accounting for zoom and pan.
+ * @property visiblePageAnnotations map of annotations currently visible on screen by page.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public data class AnnotationsDisplayState(
-    val edits: PdfEdits,
     val transformationMatrices: Map<Int, Matrix>,
     val visiblePageAnnotations: VisiblePdfAnnotations = VisiblePdfAnnotations.EMPTY,
 ) {
     public companion object {
         public val EMPTY: AnnotationsDisplayState =
             AnnotationsDisplayState(
-                edits = PdfEdits(editsByPage = emptyMap()),
                 transformationMatrices = emptyMap(),
                 visiblePageAnnotations = VisiblePdfAnnotations.EMPTY,
             )

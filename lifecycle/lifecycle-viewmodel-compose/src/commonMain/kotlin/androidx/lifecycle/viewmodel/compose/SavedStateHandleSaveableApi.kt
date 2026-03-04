@@ -16,7 +16,7 @@
 
 package androidx.lifecycle.viewmodel.compose
 
-/** @see SavedStateHandle */
+/** @see androidx.lifecycle.SavedStateHandle */
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.FUNCTION)
 @RequiresOptIn(level = RequiresOptIn.Level.WARNING)

@@ -275,7 +275,8 @@ internal constructor(private val timeSource: ArCoreTimeSource) : PerceptionManag
     }
 
     /**
-     * Sets the Depth Estimation Mode for the Perception Manager and the [xrResources.depthMap]
+     * Sets the Depth Estimation Mode for the Perception Manager and the [XrResources.depthMap] of
+     * [xrResources]
      *
      * @param depthMode the desired [DepthEstimationMode]
      */

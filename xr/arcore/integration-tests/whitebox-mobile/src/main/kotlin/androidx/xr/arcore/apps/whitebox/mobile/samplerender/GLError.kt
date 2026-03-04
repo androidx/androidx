@@ -22,7 +22,7 @@ import android.opengl.GLU
 import androidx.collection.IntList
 import androidx.collection.MutableIntList
 import androidx.collection.mutableIntListOf
-import androidx.xr.runtime.Log
+import androidx.xr.runtime.XrLog
 import java.util.Locale
 
 /** Methods for handling OpenGL errors. */
@@ -36,15 +36,15 @@ public fun maybeThrowGLException(reason: String, api: String) {
 }
 
 /** Logs a message with the given logcat priority if a GL error occurred. */
-public fun maybeLogGLError(level: Log.Level, reason: String, api: String) {
+public fun maybeLogGLError(level: XrLog.Level, reason: String, api: String) {
     val errorCodes: IntList? = getGlErrors()
     if (errorCodes != null) {
         when (level) {
-            Log.Level.VERBOSE -> Log.verbose { formatErrorMessage(reason, api, errorCodes) }
-            Log.Level.DEBUG -> Log.debug { formatErrorMessage(reason, api, errorCodes) }
-            Log.Level.INFO -> Log.info { formatErrorMessage(reason, api, errorCodes) }
-            Log.Level.WARN -> Log.warn { formatErrorMessage(reason, api, errorCodes) }
-            Log.Level.ERROR -> Log.error { formatErrorMessage(reason, api, errorCodes) }
+            XrLog.Level.VERBOSE -> XrLog.verbose { formatErrorMessage(reason, api, errorCodes) }
+            XrLog.Level.DEBUG -> XrLog.debug { formatErrorMessage(reason, api, errorCodes) }
+            XrLog.Level.INFO -> XrLog.info { formatErrorMessage(reason, api, errorCodes) }
+            XrLog.Level.WARN -> XrLog.warn { formatErrorMessage(reason, api, errorCodes) }
+            XrLog.Level.ERROR -> XrLog.error { formatErrorMessage(reason, api, errorCodes) }
         }
     }
 }

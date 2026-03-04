@@ -137,10 +137,10 @@ public suspend fun <T> Lifecycle.whenResumed(block: suspend CoroutineScope.() ->
  * which will also cancel any child coroutine launched inside the [block].
  *
  * If you have a `try finally` block in your code, the `finally` might run after the [Lifecycle]
- * moves outside the desired state. It is recommended to check the [Lifecycle.getCurrentState]
- * before accessing the UI. Similarly, if you have a `catch` statement that might catch
- * `CancellationException`, you should check the [Lifecycle.getCurrentState] before accessing the
- * UI. See the sample below for more details.
+ * moves outside the desired state. It is recommended to check the [Lifecycle.currentState] before
+ * accessing the UI. Similarly, if you have a `catch` statement that might catch
+ * `CancellationException`, you should check the [Lifecycle.currentState] before accessing the UI.
+ * See the sample below for more details.
  *
  * ```
  * // running a block of code only if lifecycle is STARTED

@@ -145,7 +145,7 @@ class ObsoleteCompatDetectorTest :
 
         val expected =
             """
-            src/androidx/ObsoleteCompatMethodMissingDeprecated.java:37: Error: Obsolete compat method should provide replacement [ObsoleteCompatMethod]
+            src/androidx/ObsoleteCompatMethodMissingDeprecated.java:38: Error: Obsolete compat method should provide replacement [ObsoleteCompatMethod]
                 public static long hashCode(Object obj) {
                                    ~~~~~~~~
             1 errors, 0 warnings
@@ -154,8 +154,8 @@ class ObsoleteCompatDetectorTest :
 
         val expectedAutoFix =
             """
-            Autofix for src/androidx/ObsoleteCompatMethodMissingDeprecated.java line 37: Replace obsolete compat method:
-            @@ -36 +36
+            Autofix for src/androidx/ObsoleteCompatMethodMissingDeprecated.java line 38: Replace obsolete compat method:
+            @@ -37 +37
             +     @Deprecated
             """
                 .trimIndent()

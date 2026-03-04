@@ -86,7 +86,6 @@ import androidx.xr.runtime.math.Ray
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.EntityMoveListener
-import androidx.xr.scenecore.GroupEntity
 import androidx.xr.scenecore.MovableComponent
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.SurfaceEntity
@@ -124,7 +123,7 @@ class SurfaceEntityCustomMeshActivity : ComponentActivity() {
     private var videoPlaying by mutableStateOf<Boolean>(false)
     private var controlPanelEntity: PanelEntity? = null
     private var alphaMaskTexture: Texture? = null
-    private var movieParent: GroupEntity? = null
+    private var movieParent: Entity? = null
     // This is a custom move listener which moves the movieParent instead of the surfaceEntity
     // directly. This allows for the SurfaceEntity to be independently rotated without impacting
     // the player controls which are attached to the movieParent.
@@ -391,7 +390,7 @@ class SurfaceEntityCustomMeshActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val session = (Session.create(this) as SessionCreateSuccess).session
-        session.configure(Config(deviceTracking = DeviceTrackingMode.LAST_KNOWN))
+        session.configure(Config(deviceTracking = DeviceTrackingMode.SPATIAL_LAST_KNOWN))
         session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
 
         checkExternalStoragePermission()
@@ -404,7 +403,7 @@ class SurfaceEntityCustomMeshActivity : ComponentActivity() {
         }
 
         // This will be re-used throughout the life of the Activity.
-        movieParent = GroupEntity.create(session, "movieParent")
+        movieParent = Entity.create(session, "movieParent")
 
         lifecycleScope.launch {
             alphaMaskTexture = Texture.create(session, Paths.get("textures", "alpha_mask.png"))

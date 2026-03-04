@@ -38,6 +38,12 @@ public class RemoteDp
 internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val value: RemoteFloat
 ) : BaseRemoteState<Dp>() {
+    internal override val cacheKey: RemoteStateCacheKey
+        get() = toPx().cacheKey
+
+    internal enum class OperationKey {
+        ToPx
+    }
 
     override val constantValueOrNull: Dp?
         get() = value.constantValueOrNull?.dp
@@ -58,7 +64,10 @@ internal constructor(
 
     /** Converts a RemoteDp to a RemoteFloat Px using the [RemoteDensity]. */
     public fun toPx(): RemoteFloat {
-        return RemoteFloatExpression(constantValueOrNull = null) { creationState ->
+        return RemoteFloatExpression(
+            constantValueOrNull = null,
+            cacheKey = RemoteOperationCacheKey.create(OperationKey.ToPx, value),
+        ) { creationState ->
             val density = creationState.remoteDensity
             (value * density.density).arrayForCreationState(creationState)
         }
@@ -150,10 +159,14 @@ public fun rememberNamedRemoteDp(
     return rememberNamedState(name, domain) {
         val remoteDp = content()
         RemoteDp(
-            RemoteFloatExpression(constantValueOrNull = null) { creationState ->
+            RemoteFloatExpression(
+                constantValueOrNull = null,
+                cacheKey = RemoteNamedCacheKey(domain, name),
+            ) { creationState ->
                 val px = remoteDp.toPx()
                 val initialValueId = px.getFloatIdForCreationState(creationState)
-                val floatId = creationState.document.addNamedFloat("$domain:$name", initialValueId)
+                val floatId =
+                    creationState.document.addNamedFloat(domain.prefixed(name), initialValueId)
                 floatArrayOf(floatId)
             }
         )

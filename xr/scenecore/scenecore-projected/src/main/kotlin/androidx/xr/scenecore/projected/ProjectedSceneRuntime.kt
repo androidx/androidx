@@ -135,8 +135,13 @@ internal constructor(
         TODO("Not yet implemented")
     }
 
-    override fun createGroupEntity(pose: Pose, name: String, parent: Entity?): Entity {
+    override fun createEntity(pose: Pose, name: String?, parent: Entity?): Entity {
         TODO("Not yet implemented")
+    }
+
+    @Deprecated(message = "Use createEntity instead.")
+    override fun createGroupEntity(pose: Pose, name: String, parent: Entity?): Entity {
+        return createEntity(pose, name, parent)
     }
 
     override fun createLoggingEntity(pose: Pose): LoggingEntity {

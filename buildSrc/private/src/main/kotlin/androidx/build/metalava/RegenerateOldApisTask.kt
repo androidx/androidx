@@ -186,7 +186,6 @@ constructor(private val workerExecutor: WorkerExecutor) : DefaultTask() {
                 ApiLintMode.Skip,
                 generateRestrictToLibraryGroupAPIs,
                 emptyList(),
-                false,
                 kotlinSourceLevel.get(),
                 workerExecutor,
                 multiplatform = false,

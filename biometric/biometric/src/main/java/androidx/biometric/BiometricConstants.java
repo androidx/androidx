@@ -109,7 +109,11 @@ interface BiometricConstants {
     int ERROR_HW_NOT_PRESENT = 12;
 
     /**
-     * The user pressed the negative button.
+     * Indicates that the user pressed the negative button.
+     *
+     * **Note:** This constant is not used for results of type [AuthenticationResult.Error]
+     * in the new API. Instead, negative button clicks are delivered via
+     * [AuthenticationResult.CustomFallbackSelected].
      */
     int ERROR_NEGATIVE_BUTTON = 13;
 
@@ -177,4 +181,36 @@ interface BiometricConstants {
      */
     int AUTHENTICATION_RESULT_TYPE_BIOMETRIC = 2;
 
+    /**
+     * An icon representing a password. Added in
+     * {@link android.os.Build.VERSION_CODES_FULL#BAKLAVA_1}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    int ICON_TYPE_PASSWORD = 0;
+
+    /**
+     * An icon representing a QR code. Added in
+     * {@link android.os.Build.VERSION_CODES_FULL#BAKLAVA_1}
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    int ICON_TYPE_QR_CODE = 1;
+
+    /**
+     * An icon representing a user account. Added in
+     * {@link android.os.Build.VERSION_CODES_FULL#BAKLAVA_1}
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    int ICON_TYPE_ACCOUNT = 2;
+
+    /**
+     * A generic icon.Added in {@link android.os.Build.VERSION_CODES_FULL#BAKLAVA_1}
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    int ICON_TYPE_GENERIC = 3;
+
+    /**
+     * The maximum amount of fallback options that can be added to the prompt
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    int MAX_FALLBACK_OPTIONS = 4;
 }

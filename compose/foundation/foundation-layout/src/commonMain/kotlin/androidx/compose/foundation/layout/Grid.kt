@@ -628,7 +628,8 @@ private class GridItemElement(
  * @property columnSpan The number of columns the item should occupy.
  * @property alignment The alignment of the content within the grid cell.
  * @throws IllegalArgumentException if [rows] or [columns] ranges are empty, or if the derived
- *   row/column indices or spans do not meet the requirements of the primary [gridItem] function.
+ *   row/column indices or spans do not meet the requirements of the primary [GridScope.gridItem]
+ *   function.
  * @see GridScope.gridItem for the public API and input validation.
  */
 private class GridItemNode(
@@ -1114,8 +1115,8 @@ private fun resolveToZeroBasedIndex(index: Int, maxCount: Int): Int {
  * beyond the spec list sizes) are treated as `GridTrackSize.Auto`.
  *
  * **Spanning Items:** The function accounts for items spanning multiple tracks, potentially
- * increasing the sizes of growable tracks ([Auto], [MinContent], [MaxContent], [Flex]) to
- * accommodate them.
+ * increasing the sizes of growable tracks ([GridTrackSize.Auto], [GridTrackSize.MinContent],
+ * [GridTrackSize.MaxContent], [GridTrackSize.Flex]) to accommodate them.
  *
  * @param density The current screen density, used for converting Dp to pixels.
  * @param gridItems The list of all grid items, including their placement and spans.

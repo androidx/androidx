@@ -30,29 +30,6 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 
 /**
- * Apply additional space along each edge of the content in [Dp]: [left], [right]. Padding is
- * applied before content measurement and takes precedence; content may only be as large as the
- * remaining space.
- *
- * Negative padding is not permitted — it will cause [IllegalArgumentException].
- */
-@Deprecated(
-    message = "Use padding with start and end instead",
-    replaceWith = ReplaceWith("padding(start, top, end, bottom, front, bottom)"),
-)
-public fun SubspaceModifier.padding(left: Dp = 0.dp, right: Dp = 0.dp): SubspaceModifier =
-    this then
-        SubspacePaddingElement(
-            start = left,
-            top = 0.dp,
-            end = right,
-            bottom = 0.dp,
-            front = 0.dp,
-            back = 0.dp,
-            rtlAware = false,
-        )
-
-/**
  * Apply additional space along each edge of the content in [Dp]: [start], [top], [end], [bottom],
  * [front] and [back]. The start and end edges will be determined by the current [LayoutDirection].
  * Padding is applied before content measurement and takes precedence; content may only be as large

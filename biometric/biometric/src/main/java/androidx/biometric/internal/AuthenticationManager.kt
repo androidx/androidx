@@ -19,6 +19,7 @@ package androidx.biometric.internal
 import android.app.Activity
 import android.content.Context
 import android.os.Build
+import androidx.biometric.AuthenticationRequest.Biometric.Fallback
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.BiometricPrompt.AuthenticationCallback
@@ -103,10 +104,21 @@ internal class AuthenticationManager(
      */
     val isNegativeButtonPressPendingObserver = {
         if (viewModel.isPromptShowing) {
-            if (context.isManagingDeviceCredentialButton(viewModel.allowedAuthenticators)) {
-                resultDispatcher.showKMAsFallback()
-            } else {
-                onCancelButtonPressed()
+            when (viewModel.singleFallbackOption) {
+                is Fallback.OverriddenDeviceCredential -> resultDispatcher.showKMAsFallback()
+                is Fallback.DefaultCancel -> {
+                    resultDispatcher.onAuthenticationError(
+                        BiometricPrompt.ERROR_CANCELED,
+                        context.getString(R.string.generic_error_user_canceled),
+                    )
+                    cancelAuthentication(CanceledFrom.USER)
+                }
+                is Fallback.CustomOption -> {
+                    resultDispatcher.sendFallbackOptionAndDismiss(
+                        viewModel.singleFallbackOption as Fallback.CustomOption
+                    )
+                    cancelAuthentication(CanceledFrom.NEGATIVE_BUTTON)
+                }
             }
         }
     }
@@ -312,21 +324,6 @@ internal class AuthenticationManager(
     private fun disconnectCallbackObservers() {
         callbackObserverJob?.cancel()
         callbackObserverJob = null
-    }
-
-    /**
-     * Callback that is run when the view model reports that the cancel button has been pressed on
-     * the prompt.
-     */
-    private fun onCancelButtonPressed() {
-        val negativeButtonText: CharSequence? = viewModel.negativeButtonText
-
-        resultDispatcher.sendErrorAndDismiss(
-            BiometricPrompt.ERROR_NEGATIVE_BUTTON,
-            negativeButtonText ?: context.getString(R.string.default_error_msg),
-        )
-
-        cancelAuthentication(CanceledFrom.NEGATIVE_BUTTON)
     }
 
     /**

@@ -37,14 +37,13 @@ import java.nio.ShortBuffer
  * To use an [InProgressStroke], you would typically:
  * 1. Begin a stroke by calling [start] with a chosen [Brush].
  * 2. Repeatedly update the stroke:
- *     1. Call [enqueueInputs] with any new real and predicted stroke inputs.
- *     2. Call [updateShape] when [isUpdateNeeded] is `true` and new geometry is needed for
- *        rendering.
+ *     1. Call [enqueueInputs] with any new real and predicted stroke inputs as they arrive.
+ *     2. Call [updateShape] each draw.
  *     3. Render the current stroke mesh or outlines, either via a provided renderer that accepts an
  *        [InProgressStroke] or by using the various getters on this type with a custom renderer.
  * 3. Call [finishInput] once there are no more inputs for this stroke (e.g. the user lifts the
  *    stylus from the screen).
- * 4. Continue to call [updateShape] and render after [finishInput] until [isUpdateNeeded] returns
+ * 4. Continue to call [updateShape] and render after [finishInput] until [changesWithTime] returns
  *    false (to allow any lingering brush shape animations to complete).
  * 5. Extract the completed stroke by calling [toImmutable].
  * 6. For best performance, reuse this object and go back to step 1 rather than allocating a new
@@ -148,7 +147,7 @@ public class InProgressStroke {
      * method is idempotent; it has no effect if [start] was never called, or if this method has
      * already been called since the last call to [start]. This method is synchronous, but the
      * stroke may not be fully finished changing shape due to brush shape animations until
-     * [isUpdateNeeded] returns false. Until that condition is met, keep calling [updateShape]
+     * [changesWithTime] returns false. Until that condition is met, keep calling [updateShape]
      * periodically and rendering the result.
      */
     public fun finishInput(): Unit =
@@ -194,11 +193,16 @@ public class InProgressStroke {
      * be called before the next render), or `false` if no calls to [updateShape] are currently
      * needed. Specifically:
      * * If the brush has one or more timed shape animation behavior that are still active (which
-     *   can be true even after inputs are finished), returns `true`.
+     *   can be true even after inputs are finished), returns `true` (that is, when
+     *   [changesWithTime] returns `true`).
      * * If there are no active shape animation behaviors, but there are pending inputs from an
      *   [enqueueInputs] call that have not yet been consumed by a call to [updateShape], returns
      *   `true`.
      * * Otherwise, returns `false`.
+     *
+     * [updateShape] efficiently does nothing if no update is needed, so there is no need to check
+     * this before calling update. Only check this if you need to condition some other piece of work
+     * on whether the stroke will change on update.
      *
      * Once [isInputFinished] returns `true` and this method returns `false`, the stroke is
      * considered "dry", and will not change any further until the next call to [start].
@@ -305,8 +309,8 @@ public class InProgressStroke {
         InProgressStrokeNative.getBrushCoatCount(nativePointer).also { check(it >= 0) }
 
     /**
-     * Writes to [outBoxAccumulator] the bounding box of the vertex positions of the mesh for brush
-     * coat [coatIndex].
+     * Writes to [outMeshBounds] the bounding box of the vertex positions of the mesh for brush coat
+     * [coatIndex].
      *
      * Returns the passed in [BoxAccumulator] to make it easier to chain calls.
      *
@@ -328,6 +332,9 @@ public class InProgressStroke {
     /**
      * Returns the bounding rectangle of mesh positions added, modified, or removed by calls to
      * [updateShape] since the most recent call to [start] or [resetUpdatedRegion].
+     *
+     * Expected to be called on each stroke before each draw. Does nothing quickly if no update is
+     * needed.
      *
      * Returns the passed in [BoxAccumulator] to make it easier to chain calls.
      *
@@ -711,6 +718,6 @@ private object InProgressStrokeNative {
         outPosition: MutableVec,
     )
 
-    /** Release the underlying memory allocated in [nativeCreateInProgressStroke]. */
+    /** Release the underlying memory allocated in [create]. */
     @UsedByNative external fun free(nativePointer: Long)
 }

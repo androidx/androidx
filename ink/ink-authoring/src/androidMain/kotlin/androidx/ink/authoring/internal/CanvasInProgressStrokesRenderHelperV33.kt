@@ -21,7 +21,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.Paint
-import android.graphics.Path
 import android.graphics.PixelFormat
 import android.graphics.Rect
 import android.graphics.RenderNode
@@ -48,9 +47,9 @@ import androidx.ink.authoring.ExperimentalCustomShapeWorkflowApi
 import androidx.ink.authoring.ExperimentalLatencyDataApi
 import androidx.ink.authoring.InProgressShape
 import androidx.ink.authoring.InProgressShapeRenderer
-import androidx.ink.authoring.InProgressStrokeId
 import androidx.ink.authoring.latency.LatencyData
 import androidx.ink.geometry.MutableBox
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
 import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.TimeUnit
@@ -82,7 +81,6 @@ internal class CanvasInProgressStrokesRenderHelperV33<
     CompletedShapeT : Any,
 >(
     private val mainView: ViewGroup,
-    private val callback: InProgressStrokesRenderHelper.Callback<CompletedShapeT>,
     private val renderer: InProgressShapeRenderer<InProgressShapeT>,
     private val uiThreadExecutor: ScheduledExecutor =
         Looper.getMainLooper().let { looper ->
@@ -94,15 +92,15 @@ internal class CanvasInProgressStrokesRenderHelperV33<
                 it.start()
                 ScheduledExecutorImpl(it, Handler(it.looper))
             },
-) : InProgressStrokesRenderHelper<ShapeSpecT, InProgressShapeT, CompletedShapeT> {
+) : InProgressStrokesRenderHelper<ShapeSpecT, InProgressShapeT, CompletedShapeT>() {
 
     override val contentsPreservedBetweenDraws = true
 
     override val supportsDebounce = true
 
-    override val supportsFlush = true
+    override val canSynchronouslyWaitForFlush = true
 
-    override var maskPath: Path? = null
+    @VisibleForTesting internal var countDownAfterHandoffsResumedTestLatch: CountDownLatch? = null
 
     private val surfaceView =
         SurfaceView(mainView.context).apply {
@@ -112,11 +110,12 @@ internal class CanvasInProgressStrokesRenderHelperV33<
 
     private var currentViewport: Viewport? = null
 
-    /**
-     * The amount of calls to [requestDraw] that occurred while [currentViewport] was null. Owned by
-     * the render thread.
-     */
-    private var pendingDrawCalls = 0
+    /** Counts deferred calls to [requestDraw]. */
+    private val deferredDrawCalls = AtomicInteger(0)
+
+    private fun AtomicInteger.getAndDecrementIfPositive() = getAndUpdate {
+        if (it > 0) it - 1 else 0
+    }
 
     private val viewListener =
         object : View.OnAttachStateChangeListener {
@@ -154,24 +153,6 @@ internal class CanvasInProgressStrokesRenderHelperV33<
 
             override fun surfaceRedrawNeeded(holder: SurfaceHolder) = Unit
         }
-
-    private val processPendingDrawCallsRenderThreadRunnable = Runnable {
-        assertOnRenderThread()
-        // If we don't actually have a viewport yet, don't do anything.
-        val viewport = currentViewport ?: return@Runnable
-        repeat(pendingDrawCalls) { viewport.handleDraw() }
-        pendingDrawCalls = 0
-    }
-
-    private val requestDrawRenderThreadRunnable = Runnable {
-        assertOnRenderThread()
-        val viewport = currentViewport
-        if (viewport == null) {
-            pendingDrawCalls++
-        } else {
-            viewport.handleDraw()
-        }
-    }
 
     /**
      * Defined as a lambda instead of a member function or companion object function to ensure that
@@ -213,8 +194,14 @@ internal class CanvasInProgressStrokesRenderHelperV33<
     }
 
     @UiThread
+    override fun executeOnRenderThread(runnable: Runnable) {
+        assertOnUiThread()
+        renderThreadExecutor.execute(runnable)
+    }
+
+    @UiThread
     override fun requestDraw() {
-        renderThreadExecutor.execute(requestDrawRenderThreadRunnable)
+        currentViewport?.requestDraw() ?: deferredDrawCalls.getAndIncrement()
     }
 
     @WorkerThread
@@ -236,15 +223,13 @@ internal class CanvasInProgressStrokesRenderHelperV33<
     }
 
     @UiThread
-    override fun requestStrokeCohortHandoffToHwui(
-        handingOff: Map<InProgressStrokeId, FinishedStroke<CompletedShapeT>>
-    ) {
-        currentViewport?.requestHandoff(handingOff)
+    override fun requestStrokeCohortHandoffToHwui(cohort: List<FinishedStroke<CompletedShapeT>>) {
+        currentViewport?.requestHandoff(cohort)
     }
 
     @WorkerThread
-    override fun clear() {
-        currentViewport?.clear()
+    override fun startCohort() {
+        // Nothing to be done here, we've swapped in the already-cleared inactive buffer already.
     }
 
     @UiThread
@@ -263,17 +248,14 @@ internal class CanvasInProgressStrokesRenderHelperV33<
     private fun onViewVisibleWithBounds(width: Int, height: Int) {
         assertOnUiThread()
         val oldViewport = currentViewport
-        val newBounds = getNewBounds(oldViewport?.bounds, width, height)
-        if (newBounds == oldViewport?.bounds) {
-            return
-        }
+        val newBounds = getNewBoundsIfChanged(oldViewport?.bounds, width, height) ?: return
         oldViewport?.discard()
         val newViewport = Viewport(newBounds)
         currentViewport = newViewport
-        newViewport.init()
-        if (oldViewport == null) {
-            // If any calls to requestDraw came in before there was a viewport, process them now.
-            renderThreadExecutor.execute(processPendingDrawCallsRenderThreadRunnable)
+        // If any calls to requestDraw came in before there was a viewport, process them now.
+        if (deferredDrawCalls.getAndDecrementIfPositive() > 0) {
+            // Just kick off one, it will chain another if there is more than one.
+            newViewport.requestDraw()
         }
     }
 
@@ -284,7 +266,7 @@ internal class CanvasInProgressStrokesRenderHelperV33<
         currentViewport = null
     }
 
-    private fun getNewBounds(oldBounds: Bounds?, newWidth: Int, newHeight: Int): Bounds {
+    private fun getNewBoundsIfChanged(oldBounds: Bounds?, newWidth: Int, newHeight: Int): Bounds? {
         assertOnUiThread()
         val transformHint = checkNotNull(mainView.rootSurfaceControl).bufferTransformHint
         if (
@@ -293,15 +275,9 @@ internal class CanvasInProgressStrokesRenderHelperV33<
                 oldBounds.mainViewHeight == newHeight &&
                 oldBounds.mainViewTransformHint == transformHint
         ) {
-            return oldBounds
+            return null
         }
         return Bounds(newWidth, newHeight, transformHint)
-    }
-
-    private fun assertOnUiThread() {
-        check(Looper.myLooper() == Looper.getMainLooper()) {
-            "Should be running on the UI thread, but instead running on ${Thread.currentThread()}."
-        }
     }
 
     private inner class Viewport(val bounds: Bounds) {
@@ -312,14 +288,12 @@ internal class CanvasInProgressStrokesRenderHelperV33<
          */
         private val discarded = AtomicBoolean(false)
 
-        /** Enforces that the current [BuffersState] is only modified from the UI thread. */
         private val buffersState =
             object {
                 private val stateInternal = AtomicReference<BuffersState?>()
 
-                @UiThread
+                @AnyThread
                 fun checkAndSet(expectedValue: BuffersState?, newValue: BuffersState?) {
-                    assertOnUiThread()
                     check(stateInternal.compareAndSet(expectedValue, newValue)) {
                         "buffersState: expected $expectedValue, but current value is ${stateInternal.get()}"
                     }
@@ -355,7 +329,6 @@ internal class CanvasInProgressStrokesRenderHelperV33<
         private val renderThreadState =
             object {
                 var drawingTo: BufferData? = null
-                var drawsPending = 0
                 var frontBufferCanvas: Canvas? = null
                 val scratchRect = Rect()
                 /**
@@ -372,72 +345,67 @@ internal class CanvasInProgressStrokesRenderHelperV33<
                 }
             }
 
-        private val inactiveBufferIsHiddenCallback = Runnable {
+        init {
             assertOnUiThread()
-            if (discarded.get()) return@Runnable
-            onInactiveBufferHidden()
-        }
-
-        private val processPendingDraws = Runnable {
-            assertOnRenderThread()
-            if (discarded.get()) return@Runnable
-            if (renderThreadState.drawsPending > 0) {
-                // Just kick off one handleDraw, and it will trigger the rest.
-                renderThreadState.drawsPending--
-                handleDraw()
-            }
-        }
-
-        @UiThread
-        fun init() {
-            assertOnUiThread()
-            if (discarded.get()) return
-            val bufferData1 = createBufferData(bufferNumber = 1)
-            bufferData1.renderer
+            val initialState =
+                BuffersState(
+                    active = createBufferData(bufferNumber = 1),
+                    inactive = createBufferData(bufferNumber = 2),
+                    inactiveIsReady = false,
+                )
+            val active = initialState.active
+            callback.pauseStrokeCohortHandoffs()
+            active.renderer
                 .obtainRenderRequest()
                 .preserveContents(true)
                 .setTransformFromBounds(bounds)
-                .drawAsync(uiThreadExecutor) { renderResult1 ->
-                    if (!discarded.get()) {
-                        check(renderResult1.status == CanvasBufferedRenderer.RenderResult.SUCCESS)
-                        val buffer1 = renderResult1.hardwareBuffer
-                        val initialRenderFence1 = renderResult1.fence
-                        val bufferData2 = createBufferData(bufferNumber = 2)
-                        bufferData2.renderer
-                            .obtainRenderRequest()
-                            .preserveContents(true)
-                            .setTransformFromBounds(bounds)
-                            .drawAsync(uiThreadExecutor) { renderResult2 ->
-                                if (!discarded.get()) {
-                                    check(
-                                        renderResult2.status ==
-                                            CanvasBufferedRenderer.RenderResult.SUCCESS
-                                    )
-                                    val buffer2 = renderResult2.hardwareBuffer
-                                    val initialRenderFence2 = renderResult2.fence
-                                    val newState =
-                                        BuffersState(
-                                            active = bufferData1,
-                                            inactive = bufferData2,
-                                            inactiveIsReady = true,
-                                        )
-                                    buffersState.checkAndSet(expectedValue = null, newState)
+                .drawAsync(renderThreadExecutor) { renderResult ->
+                    if (discarded.get()) return@drawAsync
+                    buffersState.checkAndSet(expectedValue = null, initialState)
+                    SurfaceControlCompat.Transaction()
+                        .setAndShow(active, renderResult.hardwareBuffer, renderResult.fence)
+                        .addTransactionCommittedListener(
+                            renderThreadExecutor,
+                            object : SurfaceControlCompat.TransactionCommittedListener {
+                                override fun onTransactionCommitted() {
+                                    if (discarded.get()) return
                                     // Some draws might have been interrupted by buffersState not
                                     // being set yet, so
-                                    // give them a chance to kick off if pending. That state is
-                                    // managed by the render
+                                    // give a chance to kick off if pending. That state is managed
+                                    // by the render
                                     // thread.
-                                    renderThreadExecutor.execute(processPendingDraws)
-                                    SurfaceControlCompat.Transaction()
-                                        .setAndShow(newState.active, buffer1, initialRenderFence1)
-                                        .setAndShow(newState.inactive, buffer2, initialRenderFence2)
-                                        .commit()
+                                    if (deferredDrawCalls.getAndDecrementIfPositive() > 0) {
+                                        // Just kick off one, it will chain another if needed.
+                                        handleDraw()
+                                    }
+                                    // This clears the inactive buffer to transparent and moves it
+                                    // on screen on top of
+                                    // the active buffer, ready for a seamless handoff. The same
+                                    // logic is used here
+                                    // for initial setup as is used when a handoff happens and the
+                                    // new inactive buffer
+                                    // (the previous active buffer) is made ready for use again.
+                                    onInactiveBufferHidden()
+                                }
+                            },
+                        )
+                        .addTransactionCommittedListener(
+                            uiThreadExecutor,
+                            object : SurfaceControlCompat.TransactionCommittedListener {
+                                override fun onTransactionCommitted() {
+                                    if (discarded.get()) return
                                     mainView.invalidate()
                                 }
-                            }
-                    }
+                            },
+                        )
+                        .commit()
                 }
         }
+
+        // This runnable is used per-frame (not just per-handoff), so caching to avoid allocation of
+        // a
+        // method reference each time.
+        private val handleDrawRunnable = Runnable { handleDraw() }
 
         fun createBufferData(bufferNumber: Int): BufferData {
             val renderer = createRenderer()
@@ -538,12 +506,22 @@ internal class CanvasInProgressStrokesRenderHelperV33<
                 bounds.rendererTransform?.let { setBufferTransform(it) }
             }
 
+        /* Dispatches a draw request to the render thread. */
+        @UiThread
+        fun requestDraw() {
+            assertOnUiThread()
+            // This instead of ::handleDraw because this instance is cached and method refs
+            // allocate.
+            renderThreadExecutor.execute(handleDrawRunnable)
+        }
+
+        /** Handles a draw request on the render thread. */
         @WorkerThread
         fun handleDraw() {
             assertOnRenderThread()
             val state = buffersState.get()
-            if (state == null || renderThreadState.drawingTo != null) {
-                renderThreadState.drawsPending++
+            if (discarded.get() || state == null || renderThreadState.drawingTo != null) {
+                deferredDrawCalls.getAndIncrement()
                 return
             }
             val activeBuffer = state.active
@@ -562,8 +540,12 @@ internal class CanvasInProgressStrokesRenderHelperV33<
             maskPath?.let { frontBufferCanvas.drawPath(it, maskPaint) }
 
             callback.onDrawComplete()
-            check(frontBufferCanvas.saveCount == originalSaveCount) {
-                "Unbalanced saves and restores. Expected save count of $originalSaveCount, got ${frontBufferCanvas.saveCount}."
+            // Check that the save/restore count is balanced, if we haven't bailed out of the draw
+            // early
+            // due to the view being discarded.
+            check(discarded.get() || frontBufferCanvas.saveCount == originalSaveCount) {
+                "Unbalanced saves and restores. Expected save count of $originalSaveCount, " +
+                    "got ${frontBufferCanvas.saveCount}."
             }
 
             frontBufferRenderNode.endRecording()
@@ -610,8 +592,7 @@ internal class CanvasInProgressStrokesRenderHelperV33<
             callback.setCustomLatencyDataField(finishesDrawCallsSetter)
             callback.handOffAllLatencyData()
             renderThreadState.drawingTo = null
-            if (renderThreadState.drawsPending > 0) {
-                renderThreadState.drawsPending--
+            if (deferredDrawCalls.getAndDecrementIfPositive() > 0) {
                 handleDraw()
             }
         }
@@ -714,7 +695,7 @@ internal class CanvasInProgressStrokesRenderHelperV33<
         }
 
         @UiThread
-        fun requestHandoff(strokeCohort: Map<InProgressStrokeId, FinishedStroke<CompletedShapeT>>) {
+        fun requestHandoff(cohort: List<FinishedStroke<CompletedShapeT>>) {
             assertOnUiThread()
             val state = buffersState.get() ?: return
             check(state.inactiveIsReady) {
@@ -727,49 +708,18 @@ internal class CanvasInProgressStrokesRenderHelperV33<
             // contents of the next buffer also need to be handed off then there will be no buffer
             // to
             // draw new inputs.
-            callback.setPauseStrokeCohortHandoffs(true)
+            callback.pauseStrokeCohortHandoffs()
 
-            val sc = state.active.surfaceControl
-            SurfaceControlCompat.Transaction()
-                .setVisibility(sc, false)
-                .setBuffer(sc, null)
-                .commitTransactionOnDraw(rootSurfaceControl)
-            mainView.invalidate()
-            callback.onStrokeCohortHandoffToHwui(strokeCohort)
-            val newState =
-                BuffersState(
-                    active = state.inactive,
-                    inactive = state.active,
-                    inactiveIsReady = false,
-                )
-            buffersState.checkAndSet(state, newState)
-            // Allow input to be resumed right away, because there is another buffer that is visible
-            // to
-            // be able to show new inputs. This will process an already-queued clear action which
-            // will
-            // lead to deactivateCurrentBuffer below.
-            callback.onStrokeCohortHandoffToHwuiComplete()
-        }
-
-        @WorkerThread
-        fun clear() {
-            // The buffer is in the process of being moved off screen, but wait for that to finish
-            // to
-            // actually clear the buffer. We don't have to wait for that in order to start rendering
-            // new
-            // inputs to the other buffer. By swapping the inactive (clear) buffer in for the active
-            // buffer, we end up with a clear active buffer sooner.
-            deactivateCurrentBuffer()
-        }
-
-        /**
-         * Swap the active and inactive buffers. The formerly active buffer is still transitioning
-         * off screen
-         */
-        @WorkerThread
-        private fun deactivateCurrentBuffer() {
-            assertOnRenderThread()
-            // This delay time is practically guaranteed to be long enough for the previously active
+            // The inactive buffer can't be cleared immediately in addTransactionCommittedListener
+            // because
+            // that's called when the transaction is committed, not when the result is actually
+            // displayed.
+            //
+            // TODO: b/474652729 - Use
+            // SurfaceControlCompat.Transaction.addTransactionCompletedListener
+            // instead once that is implemented.
+            //
+            // The delay time is practically guaranteed to be long enough for the previously active
             // buffer to be hidden, so that it can be safely cleared and moved back on screen. This
             // should
             // only take about 1-5 vsync periods to get through the HWUI pipeline, which with a 60Hz
@@ -781,41 +731,65 @@ internal class CanvasInProgressStrokesRenderHelperV33<
             // occurring until this timer fires to consider the current handoff to be completed. If
             // Android offered a callback/fence to indicate when a particular transaction has been
             // presented to the display, then this delay could be based on that for tighter timing.
-            uiThreadExecutor.executeDelayed(
-                inactiveBufferIsHiddenCallback,
-                500,
-                TimeUnit.MILLISECONDS,
-            )
-            // This will lead to onInactiveBufferHidden below.
+            val sc = state.active.surfaceControl
+            SurfaceControlCompat.Transaction()
+                .setVisibility(sc, false)
+                .setBuffer(sc, null)
+                .addTransactionCommittedListener(
+                    renderThreadExecutor,
+                    object : SurfaceControlCompat.TransactionCommittedListener {
+                        override fun onTransactionCommitted() {
+                            if (discarded.get()) return
+                            renderThreadExecutor.executeDelayed(
+                                { onInactiveBufferHidden() },
+                                500,
+                                TimeUnit.MILLISECONDS,
+                            )
+                        }
+                    },
+                )
+                .commitTransactionOnDraw(rootSurfaceControl)
+            // Since the inactive buffer is ready for drawing right away, we can start drawing on it
+            // immediately. So swap the active and inactive buffers in the state, hand off the
+            // cohort, and
+            // allow drawing to resume right away.
+            val newState =
+                BuffersState(
+                    active = state.inactive,
+                    inactive = state.active,
+                    inactiveIsReady = false,
+                )
+            buffersState.checkAndSet(state, newState)
+            mainView.invalidate()
+            callback.onStrokeCohortHandoffToHwui(cohort)
+            callback.onStrokeCohortHandoffToHwuiComplete()
         }
 
-        @UiThread
+        @WorkerThread
         fun onInactiveBufferHidden() {
+            // This must be done on the render thread to allow a handoff to be completed and a new
+            // handoff to be done synchronously during flush.
+            assertOnRenderThread()
             val state = buffersState.get() ?: return
-            check(!state.inactiveIsReady)
+            check(!state.inactiveIsReady) {
+                "This should only be called once, after the inactive buffer has been hidden."
+            }
             // Clear the inactive layer now that it's safely off screen. Do this manually rather
             // than with
             // a simple render request with preserveContents(false), as the lack of a recorded
             // drawing
             // operation prevents the clear from completing fully.
-            val toClear = state.inactive
-            toClear.frontBufferRenderNode
-                .beginRecording()
-                .drawColor(Color.TRANSPARENT, BlendMode.CLEAR)
-            toClear.frontBufferRenderNode.endRecording()
-            toClear.renderer
+            state.inactive.frontBufferRenderNode.apply {
+                beginRecording().drawColor(Color.TRANSPARENT, BlendMode.CLEAR)
+                endRecording()
+            }
+            state.inactive.renderer
                 .obtainRenderRequest()
                 .preserveContents(true) // Clearing manually above.
                 .setTransformFromBounds(bounds)
-                .drawAsync(uiThreadExecutor) { clearRenderResult ->
+                .drawAsync(renderThreadExecutor) { renderResult ->
                     if (discarded.get()) return@drawAsync
-                    val oldState = buffersState.get() ?: return@drawAsync
-                    check(oldState == state)
-                    val newInactiveBuffer = clearRenderResult.hardwareBuffer
-                    val clearRenderFence = clearRenderResult.fence
-                    clearRenderFence?.awaitForever()
-                    val sc = oldState.inactive.surfaceControl
-                    // Passing clearRenderFence to setBuffer in this transaction makes sure the
+                    // Passing renderResult.fence to setBuffer in this transaction makes sure the
                     // inactive
                     // buffer can't show again until the clear operation has fully completed. If it
                     // shows too
@@ -823,20 +797,25 @@ internal class CanvasInProgressStrokesRenderHelperV33<
                     // double-draw
                     // flicker.
                     SurfaceControlCompat.Transaction()
-                        .setVisibility(sc, true)
-                        .setBuffer(sc, newInactiveBuffer, clearRenderFence)
-                        .setLayer(sc, nextBufferLayer.getAndIncrement())
-                        .setTransformFromBounds(sc, bounds)
-                        .commit()
-                    mainView.invalidate()
-                    val newState =
-                        BuffersState(
-                            active = oldState.active,
-                            inactive = oldState.inactive,
-                            inactiveIsReady = true,
+                        .setAndShow(state.inactive, renderResult.hardwareBuffer, renderResult.fence)
+                        .addTransactionCommittedListener(
+                            renderThreadExecutor,
+                            object : SurfaceControlCompat.TransactionCommittedListener {
+                                override fun onTransactionCommitted() {
+                                    if (discarded.get()) return
+                                    val newState =
+                                        BuffersState(
+                                            active = state.active,
+                                            inactive = state.inactive,
+                                            inactiveIsReady = true,
+                                        )
+                                    buffersState.checkAndSet(state, newState)
+                                    callback.resumeStrokeCohortHandoffs()
+                                    countDownAfterHandoffsResumedTestLatch?.countDown()
+                                }
+                            },
                         )
-                    buffersState.checkAndSet(oldState, newState)
-                    callback.setPauseStrokeCohortHandoffs(false)
+                        .commit()
                 }
         }
 
@@ -848,10 +827,17 @@ internal class CanvasInProgressStrokesRenderHelperV33<
             SurfaceControlCompat.Transaction()
                 .unsetAndHide(state.active)
                 .unsetAndHide(state.inactive)
+                .addTransactionCommittedListener(
+                    renderThreadExecutor,
+                    object : SurfaceControlCompat.TransactionCommittedListener {
+                        override fun onTransactionCommitted() {
+                            mainView.invalidate()
+                            state.active.cleanup()
+                            state.inactive.cleanup()
+                        }
+                    },
+                )
                 .commit()
-            mainView.invalidate()
-            state.active.cleanup()
-            state.inactive.cleanup()
         }
 
         private fun SurfaceControlCompat.Transaction.unsetAndHide(

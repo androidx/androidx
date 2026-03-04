@@ -56,7 +56,7 @@ class SpatialMediaPlayerTest {
     fun setWithPointSource_callsRuntimeMediaPlayerSetPointSource() {
         val mediaPlayer = MediaPlayer()
 
-        val entity = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
         val pointSourceAttributes = PointSourceParams(entity)
 
         SpatialMediaPlayer.setPointSourceParams(session, mediaPlayer, pointSourceAttributes)

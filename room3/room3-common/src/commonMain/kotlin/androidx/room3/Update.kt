@@ -18,32 +18,32 @@ package androidx.room3
 import kotlin.reflect.KClass
 
 /**
- * Marks a method in a [Dao] annotated class as an update method.
+ * Marks a function in a [Dao] annotated class as an update function.
  *
- * The implementation of the method will update its parameters in the database if they already
- * exists (checked by primary keys). If they don't already exists, this option will not change the
+ * The implementation of the function will update its parameters in the database if they already
+ * exists (checked by primary keys). If they don't already exist, this option will not change the
  * database.
  *
- * All of the parameters of the Update method must either be classes annotated with [Entity] or
- * collections/array of it.
+ * All the parameters of the update function must either be classes annotated with [Entity] or
+ * collections / array of it.
  *
  * Example:
  * ```
  * @Dao
- * public interface MusicDao {
+ * interface MusicDao {
  *     @Update
- *     fun updateSong(song: Song)
+ *     suspend fun updateSong(song: Song)
  *
  *     @Update
- *     fun updateSongs(songs: List<Song>): Int
+ *     suspend fun updateSongs(songs: List<Song>): Int
  * }
  * ```
  *
- * If the target entity is specified via [entity] then the parameters can be of arbitrary POJO types
- * that will be interpreted as partial entities. For example:
+ * If a target entity is specified via [entity] value then the parameters can be of arbitrary data
+ * object types that will be interpreted as partial entities. For example:
  * ```
  * @Entity
- * data class Playlist (
+ * data class Playlist(
  *     @PrimaryKey(autoGenerate = true)
  *     val playlistId: Long,
  *     val name: String,
@@ -57,40 +57,42 @@ import kotlin.reflect.KClass
  *     val lastModifiedTime: String
  * )
  *
- * data class PlaylistCategory (
- *   val playlistId: Long,
- *   val category: String,
- *   val lastModifiedTime: String
+ * data class PlaylistCategory(
+ *     val playlistId: Long,
+ *     val category: String,
+ *     val lastModifiedTime: String
  * )
  *
  * @Dao
- * public interface PlaylistDao {
- *   @Update(entity = Playlist::class)
- *   fun updateCategory(varargs category: Category)
+ * interface PlaylistDao {
+ *     @Update(entity = Playlist::class)
+ *     suspend fun updateCategory(varargs category: Category)
  * }
  * ```
  *
- * @see [Insert]
  * @see [Delete]
+ * @see [Insert]
+ * @see [Upsert]
  */
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.BINARY)
 public annotation class Update(
 
     /**
-     * The target entity of the update method.
+     * The target entity of the update function.
      *
-     * When this is declared, the update method parameters are interpreted as partial entities when
-     * the type of the parameter differs from the target. The POJO class that represents the entity
-     * must contain a subset of the fields of the target entity along with its primary keys.
+     * When this is declared, the update function parameters are interpreted as partial entities
+     * when the type of the parameter differs from the target. The data object class that represents
+     * the entity must contain a subset of the properties of the target entity along with its
+     * primary keys.
      *
-     * Only the columns represented by the partial entity fields will be updated if an entity with
-     * equal primary key is found.
+     * Only the columns represented by the partial entity properties will be updated if an entity
+     * with equal primary key is found.
      *
-     * By default the target entity is interpreted by the method parameters.
+     * By default, the target entity is interpreted by the function parameters.
      *
-     * @return the target entity of the update method or none if the method should use the parameter
-     *   type entities.
+     * @return the target entity of the update function or none if the function should use the
+     *   parameter type entities.
      */
     val entity: KClass<*> = Any::class,
 

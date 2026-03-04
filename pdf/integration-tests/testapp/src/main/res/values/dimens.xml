@@ -18,4 +18,5 @@
     <dimen name="fab_margin_bottom">16dp</dimen>
     <dimen name="fab_margin_right">16dp</dimen>
     <dimen name="thumbnail_width">100dp</dimen>
+    <dimen name="thumbnail_height">150dp</dimen>
 </resources>

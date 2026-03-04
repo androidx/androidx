@@ -1712,8 +1712,8 @@ sealed interface FlexBoxConfigScope : Density {
     /**
      * Aligns all items to a custom baseline computed from each measured item.
      *
-     * Use this when you need custom baseline calculation logic. This is same as using [alignBy] in
-     * [Row] and [Column]
+     * Use this when you need custom baseline calculation logic. This is same as using
+     * [RowScope.alignBy] and [ColumnScope.alignBy]
      *
      * @sample androidx.compose.foundation.layout.samples.FlexBoxAlignItemsCustomBaselineSample
      * @param alignmentLineBlock A function that computes the baseline position from a [Measured]

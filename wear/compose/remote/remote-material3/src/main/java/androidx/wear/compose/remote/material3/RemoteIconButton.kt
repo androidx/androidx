@@ -70,7 +70,6 @@ import androidx.compose.ui.graphics.Color
 @Composable
 @RemoteComposable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Suppress("RestrictedApiAndroidX")
 public fun RemoteIconButton(
     onClick: Action,
     modifier: RemoteModifier = RemoteModifier,
@@ -102,7 +101,6 @@ public fun RemoteIconButton(
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object RemoteIconButtonDefaults {
     /** Recommended [RemoteShape] for [RemoteIconButton]. */
-    @Suppress("RestrictedApiAndroidX")
     public val shape: RemoteRoundedCornerShape
         get() = RemoteCircleShape
 
@@ -220,13 +218,11 @@ public class RemoteIconButtonColors(
     public val disabledContentColor: RemoteColor,
 ) {
     @Stable
-    @SuppressLint("RestrictedApiAndroidX")
     internal fun contentColor(enabled: RemoteBoolean = true.rb): RemoteColor {
         return enabled.select(ifTrue = contentColor, ifFalse = disabledContentColor)
     }
 
     @Stable
-    @SuppressLint("RestrictedApiAndroidX")
     internal fun containerColor(enabled: RemoteBoolean = true.rb): RemoteColor {
         return enabled.select(ifTrue = containerColor, ifFalse = disabledContainerColor)
     }

@@ -32,8 +32,8 @@ import androidx.xr.runtime.internal.ApkCheckAvailabilityErrorException
 import androidx.xr.runtime.internal.ApkCheckAvailabilityInProgressException
 import androidx.xr.runtime.internal.ApkNotInstalledException
 import androidx.xr.runtime.internal.FaceTrackingNotCalibratedException
-import androidx.xr.runtime.internal.GooglePlayServicesLocationLibraryNotLinkedException
 import androidx.xr.runtime.internal.JxrRuntime
+import androidx.xr.runtime.internal.LibraryNotLinkedException
 import androidx.xr.runtime.internal.PerceptionRuntimeFactory
 import androidx.xr.runtime.internal.RenderingRuntimeFactory
 import androidx.xr.runtime.internal.SceneRuntimeFactory
@@ -388,12 +388,8 @@ public constructor(
                     return@withLock SessionConfigureCalibrationRequired(
                         RequiredCalibrationType.REQUIRED_CALIBRATION_TYPE_FACE_TRACKING
                     )
-                } catch (e: GooglePlayServicesLocationLibraryNotLinkedException) {
-                    // TODO b/486249372 use a new Exception type that includes the correct library
-                    // name provided by the runtime
-                    return@withLock SessionConfigureLibraryNotLinked(
-                        "com.google.android.gms:play-services-location"
-                    )
+                } catch (e: LibraryNotLinkedException) {
+                    return@withLock SessionConfigureLibraryNotLinked(e.libraryName)
                 }
                 this@Session.config = config
                 SessionConfigureSuccess()

@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.text.font
 
-@Suppress("DEPRECATION")
+@Suppress("DEPRECATION", "KmpDeprecationMismatch")
 @Deprecated(
     "This exists to bridge existing Font.ResourceLoader APIs, and should be " + "removed with them",
     replaceWith = ReplaceWith("createFontFamilyResolver()"),

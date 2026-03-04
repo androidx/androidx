@@ -28,7 +28,6 @@ import androidx.xr.compose.subspace.layout.CoreMainPanelEntity
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.scenecore.Entity
-import androidx.xr.scenecore.GroupEntity
 import androidx.xr.scenecore.scene
 
 /**
@@ -110,7 +109,7 @@ private fun Activity.createXrOwnerLocals(): ComposeXrOwnerLocals? {
             spatialCapabilities = SessionSpatialCapabilities(session),
             coreMainPanelEntity = CoreMainPanelEntity(session),
             subspaceRootNode =
-                GroupEntity.create(session, "SubspaceRootContainer").apply {
+                Entity.create(session, "SubspaceRootContainer").apply {
                     session.scene.keyEntity = this
                 },
             dialogManager = DefaultDialogManager(),

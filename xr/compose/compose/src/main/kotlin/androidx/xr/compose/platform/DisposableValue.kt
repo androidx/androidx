@@ -20,7 +20,7 @@ import androidx.compose.runtime.RememberObserver
 import kotlin.reflect.KProperty
 
 /**
- * A [value] holder that will automatically call [value.close] when exiting the composition.
+ * A [value] holder that will automatically call `close` on [value] when exiting the composition.
  *
  * This should be used in a remember block.
  */

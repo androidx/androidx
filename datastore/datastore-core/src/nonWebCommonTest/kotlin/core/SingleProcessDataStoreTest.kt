@@ -1113,7 +1113,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
             testIO.getStorage(serializerConfig, { createSingleProcessCoordinator(file.path()) }) {
                 file
             },
-            scope = scope,
+            context = scope.coroutineContext,
             initTasksList = initTasksList,
             corruptionHandler = corruptionHandler,
         )

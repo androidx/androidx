@@ -41,12 +41,12 @@ import androidx.ink.authoring.internal.CanvasInProgressStrokesRenderHelperV33
 import androidx.ink.authoring.internal.FinishedStroke
 import androidx.ink.authoring.internal.InProgressStrokesManager
 import androidx.ink.authoring.internal.InProgressStrokesRenderHelper
-import androidx.ink.authoring.latency.LatencyData
 import androidx.ink.authoring.latency.LatencyDataCallback
 import androidx.ink.strokes.ImmutableStrokeInputBatch
 import androidx.ink.strokes.StrokeInput
 import androidx.ink.strokes.StrokeInputBatch
 import androidx.test.espresso.idling.CountingIdlingResource
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.hypot
 
@@ -62,6 +62,7 @@ private const val CM_PER_INCH = 2.54f
  */
 @ExperimentalCustomShapeWorkflowApi
 @OptIn(ExperimentalLatencyDataApi::class)
+@UiThread
 public class InProgressShapesView<
     ShapeSpecT : Any,
     InProgressShapeT : InProgressShape<ShapeSpecT, CompletedShapeT>,
@@ -90,7 +91,6 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * If handoff is ever needed as soon as safely possible, call [requestHandoff].
      */
     internal var handoffDebounceTimeMs: Long = 0L
-        @UiThread
         set(value) {
             require(value >= 0L) { "Debounce time must not be negative, received $value" }
             field = value
@@ -184,6 +184,25 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
     // experimental to Java clients. There are public accessors for this property below.
     @ExperimentalLatencyDataApi private var latencyDataCallback: LatencyDataCallback? = null
 
+    @get:VisibleForTesting
+    @set:VisibleForTesting
+    internal var countDownWhenFlushInProgressTestLatch: CountDownLatch?
+        get() = ensureInit().inProgressStrokesManager.countDownWhenFlushInProgressTestLatch
+        set(value) {
+            ensureInit().inProgressStrokesManager.countDownWhenFlushInProgressTestLatch = value
+        }
+
+    @get:VisibleForTesting
+    @set:VisibleForTesting
+    internal var awaitAfterStartOfHandoffTestLatch: CountDownLatch?
+        get() = ensureInit().inProgressStrokesManager.awaitAfterStartOfHandoffTestLatch
+        set(value) {
+            ensureInit().inProgressStrokesManager.awaitAfterStartOfHandoffTestLatch = value
+        }
+
+    internal fun canSynchronouslyWaitForFlush(): Boolean =
+        ensureInit().inProgressStrokesManager.canSynchronouslyWaitForFlush()
+
     /**
      * An optional callback for reporting latency of the processing of input events for in-progress
      * shapes. Clients may implement the [LatencyDataCallback] interface and set this field to
@@ -223,22 +242,20 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
     /**
      * Force initialization to happen and get the resulting initialized value. Initialization is
      * publicly documented to only occur on [startShape] and [eagerInit], so don't add it anywhere
-     * else.
+     * else in the non-test API.
      */
     @OptIn(ExperimentalCustomShapeWorkflowApi::class)
     private fun ensureInit(): InitializedState {
         return initializedState
             ?: InitializedState(
                     customShapeWorkflow
-                        ?: run {
-                            val adapterFactory =
-                                checkNotNull(customShapeWorkflowFactory) {
-                                    "Must set `InProgressShapesView.customShapeAdapter` before calling " +
-                                        "`startShape` or `eagerInit`. Consider using `InProgressStrokesView` instead " +
-                                        "for easier initialization and recommended behavior."
-                                }
-                            adapterFactory().also { customShapeWorkflow = it }
-                        }
+                        ?: checkNotNull(customShapeWorkflowFactory) {
+                                "Must set `InProgressShapesView.customShapeWorkflowFactory` before calling " +
+                                    "`startShape` or `eagerInit`. Consider using `InProgressStrokesView` instead " +
+                                    "for easier initialization and recommended behavior."
+                            }
+                            .invoke()
+                            .also { customShapeWorkflow = it }
                 )
                 .also {
                     initializedState = it
@@ -257,13 +274,11 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
 
         private val inProgressStrokesManagerListener =
             object : InProgressStrokesManager.Listener<CompletedShapeT> {
-                override fun onAllStrokesFinished(
-                    strokes: Map<InProgressStrokeId, FinishedStroke<CompletedShapeT>>
-                ) {
+                override fun onAllStrokesFinished(strokes: List<FinishedStroke<CompletedShapeT>>) {
                     finishedStrokesView.addStrokes(strokes)
                     val newlyFinishedStrokes = mutableMapOf<InProgressStrokeId, CompletedShapeT>()
-                    for ((strokeId, finishedStroke) in strokes) {
-                        newlyFinishedStrokes[strokeId] = finishedStroke.stroke
+                    for (finishedStroke in strokes) {
+                        newlyFinishedStrokes[finishedStroke.strokeId] = finishedStroke.stroke
                     }
                     finishedStrokes.putAll(newlyFinishedStrokes)
                     for (listener in finishedStrokesListeners) {
@@ -271,34 +286,6 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
                     }
                 }
             }
-
-        val renderHelperCallback =
-            object : InProgressStrokesRenderHelper.Callback<CompletedShapeT> {
-
-                override fun onDraw() = inProgressStrokesManager.onDraw()
-
-                override fun onDrawComplete() = inProgressStrokesManager.onDrawComplete()
-
-                override fun reportEstimatedPixelPresentationTime(timeNanos: Long) =
-                    inProgressStrokesManager.reportEstimatedPixelPresentationTime(timeNanos)
-
-                override fun setCustomLatencyDataField(setter: (LatencyData, Long) -> Unit) =
-                    inProgressStrokesManager.setCustomLatencyDataField(setter)
-
-                override fun handOffAllLatencyData() =
-                    inProgressStrokesManager.handOffAllLatencyData()
-
-                override fun setPauseStrokeCohortHandoffs(paused: Boolean) =
-                    inProgressStrokesManager.setPauseStrokeCohortHandoffs(paused)
-
-                override fun onStrokeCohortHandoffToHwui(
-                    strokeCohort: Map<InProgressStrokeId, FinishedStroke<CompletedShapeT>>
-                ) = inProgressStrokesManager.onStrokeCohortHandoffToHwui(strokeCohort)
-
-                override fun onStrokeCohortHandoffToHwuiComplete() =
-                    inProgressStrokesManager.onStrokeCohortHandoffToHwuiComplete()
-            }
-
         val renderHelper:
             InProgressStrokesRenderHelper<ShapeSpecT, InProgressShapeT, CompletedShapeT> =
             shapeWorkflow.inProgressShapeRenderer
@@ -308,29 +295,13 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
                         "DEPRECATION",
                     ) // TODO(b/262911421): Should not need to suppress.
                     if (useHighLatencyRenderHelper) {
-                        CanvasInProgressStrokesRenderHelperV21(
-                            this@InProgressShapesView,
-                            renderHelperCallback,
-                            renderer,
-                        )
+                        CanvasInProgressStrokesRenderHelperV21(this@InProgressShapesView, renderer)
                     } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        CanvasInProgressStrokesRenderHelperV33(
-                            this@InProgressShapesView,
-                            renderHelperCallback,
-                            renderer,
-                        )
+                        CanvasInProgressStrokesRenderHelperV33(this@InProgressShapesView, renderer)
                     } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        CanvasInProgressStrokesRenderHelperV29(
-                            this@InProgressShapesView,
-                            renderHelperCallback,
-                            renderer,
-                        )
+                        CanvasInProgressStrokesRenderHelperV29(this@InProgressShapesView, renderer)
                     } else {
-                        CanvasInProgressStrokesRenderHelperV21(
-                            this@InProgressShapesView,
-                            renderHelperCallback,
-                            renderer,
-                        )
+                        CanvasInProgressStrokesRenderHelperV21(this@InProgressShapesView, renderer)
                     }
                 }
                 .also { it.maskPath = maskPath }
@@ -354,6 +325,7 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
                     it.motionEventToViewTransform = motionEventToViewTransform
                     it.inProgressStrokeCounter = inProgressShapeCounter
                     it.setHandoffDebounceDurationMs(handoffDebounceTimeMs)
+                    renderHelper.callback = it
                 }
 
         fun addFinishedShapesView() {
@@ -783,13 +755,14 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
     /**
      * Make a best effort to end all currently in progress shapes, which will include a callback to
      * [InProgressShapesCompletedListener.onShapesCompleted] during this function's execution if
-     * there are any shapes to hand off. In normal operation, prefer to call [finishShape] or
-     * [cancelShape] for each of your in progress shapes and wait for the callback to
-     * [InProgressStrokesFinishedListener.onStrokesFinished], possibly accelerated by
+     * there are any shapes to hand off and it is possible for the implementation to complete that
+     * within the provided timeout while waiting on the UI thread. In normal operation, prefer to
+     * call [finishShape] or [cancelShape] for each of your in progress shapes and wait for the
+     * callback to [InProgressStrokesFinishedListener.onStrokesFinished], possibly accelerated by
      * [requestHandoff] if you have set a non-zero value for [handoffDebounceTimeMs]. This function
      * is for situations where an immediate shutdown is necessary, such as
-     * [android.app.Activity.onPause]. This must be called on the UI thread, and will block it for
-     * up to a given timeout duration. Note that if this is called when the app is still visible on
+     * [android.app.Activity.onPause]. This must be called on the UI thread, and may block it for up
+     * to the specified timeout. Note that if this is called when the app is still visible on
      * screen, then the visual behavior is undefined - the shape content may flicker.
      *
      * @param cancelAllInProgress If `true`, treat any unfinished shapes as if you called
@@ -800,9 +773,10 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * @param timeout The maximum time that will be spent waiting before returning. If this is not
      *   positive, then this will not wait at all.
      * @param timeoutUnit The [TimeUnit] for [timeout].
-     * @return `true` if and only if the flush completed successfully. Note that not all
-     *   configurations support flushing, and flushing is best effort, so this is not guaranteed to
-     *   return `true`.
+     * @return Whether the flush completed. Flushing is best effort, and finishing in-progress
+     *   shapes synchronously is not supported for all Android versions, so this is not guaranteed
+     *   to return `true`. Note that all strokes will be canceled or finished regardless of the
+     *   return value.
      */
     @JvmOverloads
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
@@ -854,7 +828,6 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * either a visual gap where the shape is not drawn during a frame, or a double draw where the
      * shape is drawn twice and translucent shapes appear more opaque than they should.
      */
-    @UiThread
     public fun removeCompletedShapes(strokeIds: Set<InProgressStrokeId>) {
         for (id in strokeIds) finishedStrokes.remove(id)
         initializedState?.finishedStrokesView?.removeStrokes(strokeIds)
@@ -881,6 +854,7 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
  */
 @OptIn(ExperimentalCustomShapeWorkflowApi::class)
 @SuppressLint("ViewConstructor") // Not inflated through XML
+@UiThread
 private class FinishedShapesView<CompletedShapeT : Any>(
     context: Context,
     private val shapeWorkflow: ShapeWorkflow<*, *, CompletedShapeT>,
@@ -912,8 +886,8 @@ private class FinishedShapesView<CompletedShapeT : Any>(
      * @param strokes The strokes to add, with map iteration order in stroke z-order from back to
      *   front.
      */
-    fun addStrokes(strokes: Map<InProgressStrokeId, FinishedStroke<CompletedShapeT>>) {
-        finishedStrokes.putAll(strokes)
+    fun addStrokes(strokes: List<FinishedStroke<CompletedShapeT>>) {
+        strokes.associateByTo(finishedStrokes) { it.strokeId }
         invalidate()
     }
 

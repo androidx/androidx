@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import androidx.compose.foundation.text.input.insert
 import androidx.compose.ui.text.TextRange
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
@@ -362,5 +363,31 @@ internal class DeleteSurroundingTextInCodePointsCommandTest : ImeEditCommandTest
         assertThat(state.text.toString()).isEqualTo("bcde")
         assertThat(state.selection.start).isEqualTo(0)
         assertThat(state.selection.end).isEqualTo(0)
+    }
+
+    @Test
+    fun delete_before_cursor_with_additive_output_transformation() {
+        val text = "abcde"
+        val selection = TextRange(1)
+        initialize(text, selection) { insert(0, "f") }
+
+        imeScope.deleteSurroundingTextInCodePoints(lengthBeforeCursor = 2, lengthAfterCursor = 0)
+
+        assertThat(state.text.toString()).isEqualTo("bcde")
+        assertThat(state.selection.start).isEqualTo(0)
+        assertThat(state.selection.end).isEqualTo(0)
+    }
+
+    @Test
+    fun delete_after_cursor_with_additive_output_transformation() {
+        val text = "abcde"
+        val selection = TextRange(4)
+        initialize(text, selection) { insert(length, "f") }
+
+        imeScope.deleteSurroundingTextInCodePoints(lengthBeforeCursor = 0, lengthAfterCursor = 2)
+
+        assertThat(state.text.toString()).isEqualTo("abcd")
+        assertThat(state.selection.start).isEqualTo(4)
+        assertThat(state.selection.end).isEqualTo(4)
     }
 }

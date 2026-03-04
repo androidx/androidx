@@ -23,7 +23,7 @@ import androidx.xr.compose.subspace.layout.CoreGroupEntity
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.configureFakeSession
 import androidx.xr.runtime.Session
-import androidx.xr.scenecore.GroupEntity
+import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.runtime.SceneRuntime
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -86,7 +86,7 @@ class SpatialComposeSceneTest {
         val session = composeTestRule.configureFakeSession()
 
         var currentSession: Session? = null
-        val entity = GroupEntity.create(session, "test")
+        val entity = Entity.create(session, "test")
         val coreEntity = CoreGroupEntity(entity)
 
         lateinit var scene: SpatialComposeScene

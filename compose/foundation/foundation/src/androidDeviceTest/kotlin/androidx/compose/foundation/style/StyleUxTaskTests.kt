@@ -34,11 +34,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
@@ -53,26 +50,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorProducer
-import androidx.compose.ui.graphics.GraphicsLayerScope
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -377,14 +367,11 @@ class StyleUxTaskTests {
             Box(
                 modifier =
                     Modifier.clickable(interactionSource = interactionSource, indication = null) {}
-                        .styleable(
-                            styleState,
-                            {
-                                size(100.dp)
-                                background(Color.Blue)
-                                pressed { animate { translationY(100.dp.toPx()) } }
-                            },
-                        )
+                        .styleable(styleState) {
+                            size(100.dp)
+                            background(Color.Blue)
+                            pressed { animate { translationY(100.dp.toPx()) } }
+                        }
             )
         }
     }
@@ -629,119 +616,6 @@ private val styledSwitchBaseStyle = Style {
 
     checked { animate { background(Color.Yellow) } }
     disabled { animate { background(Color.LightGray) } }
-}
-
-@ExperimentalFoundationStyleApi
-@Composable
-private fun BaseStyleableButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    style: Style = Style,
-    enabled: Boolean = true,
-    interactionSource: MutableInteractionSource? = null,
-    content: @Composable RowScope.() -> Unit,
-) {
-    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
-    val styleState = rememberUpdatedStyleState(interactionSource) { it.isEnabled = enabled }
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center,
-        modifier =
-            modifier
-                .clickable(
-                    onClick = onClick,
-                    enabled = enabled,
-                    interactionSource = interactionSource,
-                    indication = null,
-                )
-                .focusable(enabled, interactionSource)
-                .styleable(styleState, style),
-        content = content,
-    )
-}
-
-@Composable
-private fun BaseModifierButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    interactionSource: MutableInteractionSource? = null,
-    externalPadding: PaddingValues? = null,
-    border: BorderStroke? = null,
-    background: Brush? = null,
-    backgroundAlpha: Float = 1f,
-    contentPadding: PaddingValues? = null,
-    size: DpSize = DpSize.Unspecified,
-    minSize: DpSize = DpSize.Unspecified,
-    maxSize: DpSize = DpSize.Unspecified,
-    layerSpec: (GraphicsLayerScope.() -> Unit)? = null,
-    fill: Fill? = null,
-    clip: Boolean = false,
-    shape: Shape = RectangleShape,
-    content: @Composable RowScope.() -> Unit,
-) {
-    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center,
-        modifier =
-            modifier
-                .clickable(
-                    onClick = onClick,
-                    enabled = enabled,
-                    interactionSource = interactionSource,
-                )
-                .ifTrue(clip) { clip(shape) }
-                .ifNonNull(layerSpec) { graphicsLayer(it) }
-                .ifNonNull(externalPadding) { padding(it) }
-                .ifSpecified(size) { size(it) }
-                .ifNonNull(fill) {
-                    when {
-                        it.width.isNaN() && it.height.isNaN() -> this
-                        it.width.isNaN() -> fillMaxWidth(it.height)
-                        else -> fillMaxWidth(it.width)
-                    }
-                }
-                .ifEitherSpecified(minSize, maxSize) { min, max ->
-                    sizeIn(
-                        minWidth = min.width,
-                        minHeight = min.height,
-                        maxWidth = max.width,
-                        maxHeight = max.height,
-                    )
-                }
-                .ifNonNull(border) { border(it, shape) }
-                .ifNonNull(background) { background(it, shape, backgroundAlpha) }
-                .ifNonNull(contentPadding) { padding(it) },
-        content = content,
-    )
-}
-
-inline fun <T : Any> Modifier.ifNonNull(
-    value: T?,
-    block: Modifier.(value: T) -> Modifier,
-): Modifier = if (value != null) block(value) else this
-
-inline fun Modifier.ifSpecified(
-    value: DpSize,
-    block: Modifier.(value: DpSize) -> Modifier,
-): Modifier = if (value.isSpecified) block(value) else this
-
-inline fun Modifier.ifEitherSpecified(
-    a: DpSize,
-    b: DpSize,
-    block: Modifier.(a: DpSize, b: DpSize) -> Modifier,
-): Modifier = if (a.isSpecified || b.isSpecified) block(a, b) else this
-
-inline fun Modifier.ifTrue(value: Boolean, block: Modifier.() -> Modifier): Modifier =
-    if (value) block() else this
-
-private class Fill(val width: Float, val height: Float) {
-    companion object {
-        fun width(width: Float) = Fill(width, Float.NaN)
-
-        fun height(height: Float) = Fill(Float.NaN, height)
-    }
 }
 
 private val whiteText = TextStyle(color = Color.White)

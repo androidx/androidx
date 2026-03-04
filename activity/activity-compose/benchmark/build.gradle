@@ -10,7 +10,7 @@ plugins {
 
 dependencies {
 
-    androidTestImplementation(project(":benchmark:benchmark-junit4"))
+    androidTestImplementation(androidx.projectOrArtifact(":benchmark:benchmark-junit4"))
     androidTestImplementation(project(":compose:benchmark-utils"))
     androidTestImplementation(project(":activity:activity-compose"))
 

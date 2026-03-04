@@ -23,7 +23,6 @@ import androidx.collection.MutableIntObjectMap
 import androidx.collection.MutableObjectIntMap
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcPlatformServices
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
@@ -32,6 +31,7 @@ import androidx.compose.remote.creation.compose.state.AnimatedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteState
+import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
@@ -57,15 +57,38 @@ public open class RemoteComposeCreationState : RemoteStateScope {
     public val expressionCache: MutableIntObjectMap<RemoteFloat> = MutableIntObjectMap()
     public val intExpressionCache: MutableIntObjectMap<RemoteInt> = MutableIntObjectMap()
     public var ready: Boolean = true
-    override lateinit var document: RemoteComposeWriter
-    public val remoteVariableToId: MutableObjectIntMap<RemoteState<*>> = MutableObjectIntMap()
-    public val floatArrayCache: HashMap<RemoteState<*>, FloatArray> = HashMap()
-    public val longArrayCache: HashMap<RemoteState<*>, LongArray> = HashMap()
+    public override lateinit var document: RemoteComposeWriter
+    internal val remoteVariableToId: MutableObjectIntMap<RemoteStateCacheKey> =
+        MutableObjectIntMap()
+    internal val floatArrayCache: HashMap<RemoteStateCacheKey, FloatArray> = HashMap()
+    internal val longArrayCache: HashMap<RemoteStateCacheKey, LongArray> = HashMap()
+
+    internal inline fun getOrPutFloatArray(
+        key: RemoteStateCacheKey,
+        crossinline compute: () -> FloatArray,
+    ): FloatArray = floatArrayCache.getOrPut(key) { compute() }
+
+    internal inline fun getOrPutLongArray(
+        key: RemoteStateCacheKey,
+        crossinline compute: () -> LongArray,
+    ): LongArray = longArrayCache.getOrPut(key) { compute() }
+
+    internal inline fun getOrPutVariableId(
+        key: RemoteStateCacheKey,
+        crossinline compute: () -> Int,
+    ): Int {
+        val id = remoteVariableToId.getOrDefault(key, -1)
+        if (id == -1) {
+            val nextId = compute()
+            remoteVariableToId.put(key, nextId)
+            return nextId
+        }
+        return id
+    }
 
     public val namedState: HashMap<String, RemoteState<*>> = HashMap()
 
     public val time: MutableState<Long> = mutableLongStateOf(0L)
-    private val textFromFloatCache = MutableObjectIntMap<TextFromFloatParams>()
 
     public val platform: RcPlatformServices
         get() = profile.platform
@@ -164,30 +187,11 @@ public open class RemoteComposeCreationState : RemoteStateScope {
     internal open fun <T : RemoteState<*>> getOrCreateNamedState(
         type: Class<T>,
         name: String,
-        domain: String?,
+        domain: RemoteState.Domain,
         function: (RemoteComposeCreationState) -> T,
     ): T {
-        return type.cast(
-            namedState.getOrPut(if (domain != null) "$domain:$name" else name, { function(this) })
-        )!!
+        return type.cast(namedState.getOrPut(domain.prefixed(name), { function(this) }))!!
     }
-
-    internal data class TextFromFloatParams(
-        val id: Int,
-        val before: Int,
-        val after: Int,
-        val flags: Int,
-    )
-
-    internal fun createTextFromFloat(params: TextFromFloatParams): Int =
-        textFromFloatCache.getOrPut(params) {
-            document.createTextFromFloat(
-                Utils.asNan(params.id),
-                params.before,
-                params.after,
-                params.flags,
-            )
-        }
 }
 
 // Density and Size should be taken from Compose in this mode
@@ -197,7 +201,7 @@ public class NoRemoteCompose :
     override fun <T : RemoteState<*>> getOrCreateNamedState(
         type: Class<T>,
         name: String,
-        domain: String?,
+        domain: RemoteState.Domain,
         function: (RemoteComposeCreationState) -> T,
     ): T {
         // no need to cache here

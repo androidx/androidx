@@ -104,10 +104,10 @@ import kotlinx.coroutines.launch
  *   fade out as the user scrolls up.
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
- *   received by the [content] and should be consumed by using [Modifier.padding] or contentPadding
- *   parameter of the lazy lists. The bottom padding value is always ignored because we instead use
- *   [edgeButtonSpacing] to specify the gap between edge button and content - and the [EdgeButton]
- *   hugs the bottom of the screen.
+ *   received by the [content] and should be consumed by using
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. The
+ *   bottom padding value is always ignored because we instead use [edgeButtonSpacing] to specify
+ *   the gap between edge button and content - and the [EdgeButton] hugs the bottom of the screen.
  * @param timeText Time text (both time and potentially status message) for this screen, if
  *   different to the time text at the [AppScaffold] level. When null, the time text from the
  *   [AppScaffold] is displayed for this screen.
@@ -120,8 +120,8 @@ import kotlinx.coroutines.launch
  *   such as [edgeButton] and [scrollIndicator] through [LocalOverscrollFactory]. If necessary, this
  *   behaviour can be disabled by passing overscrollEffect = null.
  * @param content The body content for this screen. The lambda receives a [PaddingValues] that
- *   should be applied to the content root via [Modifier.padding] or contentPadding parameter when
- *   used with lists to properly offset the [EdgeButton].
+ *   should be applied to the content root via [androidx.compose.foundation.layout.padding] or
+ *   contentPadding parameter when used with lists to properly offset the [EdgeButton].
  */
 @Composable
 public fun ScreenScaffold(
@@ -167,8 +167,8 @@ public fun ScreenScaffold(
  *   such as [TimeText] scroll away and showing/hiding [ScrollIndicator].
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
- *   received by the [content] and should be consumed by using [Modifier.padding] or contentPadding
- *   parameter of the lazy lists.
+ *   received by the [content] and should be consumed by using
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists.
  * @param timeText Time text (both time and potentially status message) for this screen, if
  *   different to the time text at the [AppScaffold] level. When null, the time text from the
  *   [AppScaffold] is displayed for this screen.
@@ -180,8 +180,8 @@ public fun ScreenScaffold(
  *   such as [scrollIndicator] through [LocalOverscrollFactory]. If necessary, this behaviour can be
  *   disabled by passing overscrollEffect = null.
  * @param content The body content for this screen. The lambda receives a [PaddingValues] that
- *   should be applied to the content root via [Modifier.padding] or contentPadding parameter when
- *   used with lists to properly offset the [EdgeButton].
+ *   should be applied to the content root via [androidx.compose.foundation.layout.padding] or
+ *   contentPadding parameter when used with lists to properly offset the [EdgeButton].
  */
 @Composable
 public fun ScreenScaffold(
@@ -233,10 +233,10 @@ public fun ScreenScaffold(
  *   fade out as the user scrolls up.
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
- *   received by the [content] and should be consumed by using [Modifier.padding] or contentPadding
- *   parameter of the lazy lists. The bottom padding value is always ignored because we instead use
- *   [edgeButtonSpacing] to specify the gap between edge button and content - and the [EdgeButton]
- *   hugs the bottom of the screen.
+ *   received by the [content] and should be consumed by using
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. The
+ *   bottom padding value is always ignored because we instead use [edgeButtonSpacing] to specify
+ *   the gap between edge button and content - and the [EdgeButton] hugs the bottom of the screen.
  * @param timeText Time text (both time and potentially status message) for this screen, if
  *   different to the time text at the [AppScaffold] level. When null, the time text from the
  *   [AppScaffold] is displayed for this screen.
@@ -249,8 +249,8 @@ public fun ScreenScaffold(
  *   such as [edgeButton] and [scrollIndicator] through [LocalOverscrollFactory]. If necessary, this
  *   behaviour can be disabled by passing overscrollEffect = null.
  * @param content The body content for this screen. The lambda receives a [PaddingValues] that
- *   should be applied to the content root via [Modifier.padding] or contentPadding parameter when
- *   used with lists to properly offset the [EdgeButton].
+ *   should be applied to the content root via [androidx.compose.foundation.layout.padding] or
+ *   contentPadding parameter when used with lists to properly offset the [EdgeButton].
  */
 @Composable
 public fun ScreenScaffold(
@@ -296,8 +296,8 @@ public fun ScreenScaffold(
  *   transitions such as [TimeText] scroll away and showing/hiding [ScrollIndicator].
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
- *   received by the [content] and should be consumed by using [Modifier.padding] or contentPadding
- *   parameter of the lazy lists.
+ *   received by the [content] and should be consumed by using
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists.
  * @param timeText Time text (both time and potentially status message) for this screen, if
  *   different to the time text at the [AppScaffold] level. When null, the time text from the
  *   [AppScaffold] is displayed for this screen.
@@ -309,8 +309,8 @@ public fun ScreenScaffold(
  *   such as [scrollIndicator] through [LocalOverscrollFactory]. If necessary, this behaviour can be
  *   disabled by passing overscrollEffect = null.
  * @param content The body content for this screen. The lambda receives a [PaddingValues] that
- *   should be applied to the content root via [Modifier.padding] or contentPadding parameter when
- *   used with lists.
+ *   should be applied to the content root via [androidx.compose.foundation.layout.padding] or
+ *   contentPadding parameter when used with lists.
  */
 @Composable
 public fun ScreenScaffold(
@@ -358,10 +358,10 @@ public fun ScreenScaffold(
  *   fade out as the user scrolls up.
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
- *   received by the [content] and should be consumed by using [Modifier.padding] or contentPadding
- *   parameter of the lazy lists. The bottom padding value is always ignored because we instead use
- *   [edgeButtonSpacing] to specify the gap between edge button and content - and the [EdgeButton]
- *   hugs the bottom of the screen.
+ *   received by the [content] and should be consumed by using
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. The
+ *   bottom padding value is always ignored because we instead use [edgeButtonSpacing] to specify
+ *   the gap between edge button and content - and the [EdgeButton] hugs the bottom of the screen.
  * @param timeText Time text (both time and potentially status message) for this screen, if
  *   different to the time text at the [AppScaffold] level. When null, the time text from the
  *   [AppScaffold] is displayed for this screen.
@@ -374,8 +374,8 @@ public fun ScreenScaffold(
  *   such as [edgeButton] and [scrollIndicator] through [LocalOverscrollFactory]. If necessary, this
  *   behaviour can be disabled by passing overscrollEffect = null.
  * @param content The body content for this screen. The lambda receives a [PaddingValues] that
- *   should be applied to the content root via [Modifier.padding] or contentPadding parameter when
- *   used with lists to properly offset the [EdgeButton].
+ *   should be applied to the content root via [androidx.compose.foundation.layout.padding] or
+ *   contentPadding parameter when used with lists to properly offset the [EdgeButton].
  */
 @Composable
 public fun ScreenScaffold(
@@ -421,8 +421,8 @@ public fun ScreenScaffold(
  *   drive screen transitions such as [TimeText] scroll away and showing/hiding [ScrollIndicator].
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
- *   received by the [content] and should be consumed by using [Modifier.padding] or contentPadding
- *   parameter of the lazy lists.
+ *   received by the [content] and should be consumed by using
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists.
  * @param timeText Time text (both time and potentially status message) for this screen, if
  *   different to the time text at the [AppScaffold] level. When null, the time text from the
  *   [AppScaffold] is displayed for this screen.
@@ -434,8 +434,8 @@ public fun ScreenScaffold(
  *   such as [scrollIndicator] through [LocalOverscrollFactory]. If necessary, this behaviour can be
  *   disabled by passing overscrollEffect = null.
  * @param content The body content for this screen. The lambda receives a [PaddingValues] that
- *   should be applied to the content root via [Modifier.padding] or contentPadding parameter when
- *   used with lists.
+ *   should be applied to the content root via [androidx.compose.foundation.layout.padding] or
+ *   contentPadding parameter when used with lists.
  */
 @Composable
 public fun ScreenScaffold(
@@ -479,8 +479,8 @@ public fun ScreenScaffold(
  *   [TimeText] scroll away and showing/hiding [ScrollIndicator].
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
- *   received by the [content] and should be consumed by using [Modifier.padding] or contentPadding
- *   parameter of the lazy lists.
+ *   received by the [content] and should be consumed by using
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists.
  * @param timeText Time text (both time and potentially status message) for this screen, if
  *   different to the time text at the [AppScaffold] level. When null, the time text from the
  *   [AppScaffold] is displayed for this screen.
@@ -492,8 +492,8 @@ public fun ScreenScaffold(
  *   such as [scrollIndicator] through [LocalOverscrollFactory]. If necessary, this behaviour can be
  *   disabled by passing overscrollEffect = null.
  * @param content The body content for this screen. The lambda receives a [PaddingValues] that
- *   should be applied to the content root via [Modifier.padding] or contentPadding parameter when
- *   used with lists.
+ *   should be applied to the content root via [androidx.compose.foundation.layout.padding] or
+ *   contentPadding parameter when used with lists.
  */
 @Composable
 public fun ScreenScaffold(
@@ -541,10 +541,10 @@ public fun ScreenScaffold(
  *   fade out as the user scrolls up.
  * @param modifier The modifier for the screen scaffold.
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
- *   received by the [content] and should be consumed by using [Modifier.padding] or contentPadding
- *   parameter of the lazy lists. The bottom padding value is always ignored because we instead use
- *   [edgeButtonSpacing] to specify the gap between edge button and content - and the [EdgeButton]
- *   hugs the bottom of the screen.
+ *   received by the [content] and should be consumed by using
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists. The
+ *   bottom padding value is always ignored because we instead use [edgeButtonSpacing] to specify
+ *   the gap between edge button and content - and the [EdgeButton] hugs the bottom of the screen.
  * @param timeText Time text (both time and potentially status message) for this screen, if
  *   different to the time text at the [AppScaffold] level. When null, the time text from the
  *   [AppScaffold] is displayed for this screen.
@@ -558,8 +558,8 @@ public fun ScreenScaffold(
  *   such as [edgeButton] and [scrollIndicator] through [LocalOverscrollFactory]. If necessary, this
  *   behaviour can be disabled by passing overscrollEffect = null.
  * @param content The body content for this screen. The lambda receives a [PaddingValues] that
- *   should be applied to the content root via [Modifier.padding] or contentPadding parameter when
- *   used with lists to properly offset the [EdgeButton].
+ *   should be applied to the content root via [androidx.compose.foundation.layout.padding] or
+ *   contentPadding parameter when used with lists to properly offset the [EdgeButton].
  */
 @Composable
 public fun ScreenScaffold(
@@ -722,8 +722,8 @@ private enum class SlotsEnum {
  * @param scrollInfoProvider Provider for scroll information used to scroll away screen elements
  *   such as [TimeText] and coordinate showing/hiding the [ScrollIndicator].
  * @param contentPadding The padding to apply around the entire content. This contentPadding is then
- *   received by the [content] and should be consumed by using [Modifier.padding] or contentPadding
- *   parameter of the lazy lists.
+ *   received by the [content] and should be consumed by using
+ *   [androidx.compose.foundation.layout.padding] or contentPadding parameter of the lazy lists.
  * @param timeText Time text (both time and potentially status message) for this screen, if
  *   different to the time text at the [AppScaffold] level. When null, the time text from the
  *   [AppScaffold] is displayed for this screen.
@@ -735,8 +735,8 @@ private enum class SlotsEnum {
  *   such as [scrollIndicator] through [LocalOverscrollFactory]. If necessary, this behaviour can be
  *   disabled by passing overscrollEffect = null.
  * @param content The body content for this screen. The lambda receives a [PaddingValues] that
- *   should be applied to the content root via [Modifier.padding] or contentPadding parameter when
- *   used with lists.
+ *   should be applied to the content root via [androidx.compose.foundation.layout.padding] or
+ *   contentPadding parameter when used with lists.
  */
 @Composable
 public fun ScreenScaffold(

@@ -70,7 +70,8 @@ import kotlin.math.absoluteValue
  *   conflicts with the page indicator. By default this is null, so the page indicator will be
  *   visible at all times, setting this to [PagerScaffoldDefaults.FadeOutAnimationSpec] ensures the
  *   indicator only shows during paging, and fades out when the Pager is idle.
- * @param content A composable function where a [HorizontalPager] can be added.
+ * @param content A composable function where a [androidx.compose.foundation.pager.HorizontalPager]
+ *   can be added.
  */
 @Composable
 public fun HorizontalPagerScaffold(
@@ -111,7 +112,8 @@ public fun HorizontalPagerScaffold(
  * @sample androidx.wear.compose.material3.samples.VerticalPagerScaffoldSample
  *
  * Example of using [AppScaffold] and [VerticalPagerScaffold] with [PagerSensitivity.Low] and
- * [RotarySnapSensitivity.Default], for screens where gross motor control is limited:
+ * [androidx.wear.compose.foundation.rotary.RotarySnapSensitivityValues.Default], for screens where
+ * gross motor control is limited:
  *
  * @sample androidx.wear.compose.material3.samples.VerticalPagerScaffoldWithLowSensitivitySample
  * @param pagerState The state of the pager controlling the page content.
@@ -123,7 +125,8 @@ public fun HorizontalPagerScaffold(
  *   conflicts with the page indicator. By default this is null, so the page indicator will be
  *   visible at all times, setting this to [PagerScaffoldDefaults.FadeOutAnimationSpec] ensures the
  *   indicator only shows during paging, and fades out when the Pager is idle.
- * @param content A composable function where a [VerticalPager] can be added.
+ * @param content A composable function where a [androidx.compose.foundation.pager.VerticalPager]
+ *   can be added.
  */
 @Composable
 public fun VerticalPagerScaffold(
@@ -145,14 +148,16 @@ public fun VerticalPagerScaffold(
     )
 
 /**
- * Animates a page within a [Pager] with a scaling and scrim effect based on its position.
+ * Animates a page within a [androidx.compose.foundation.pager.Pager] with a scaling and scrim
+ * effect based on its position.
  *
  * This composable applies a scaling animation and a scrim overlay to the page content, creating a
  * visual cue for page transitions. The animation is responsive to the page's position within the
- * [Pager] and adapts to the device's reduce motion settings and layout direction.
+ * [androidx.compose.foundation.pager.Pager] and adapts to the device's reduce motion settings and
+ * layout direction.
  *
  * @param pageIndex The index of the page being animated.
- * @param pagerState The [PagerState] of the [Pager].
+ * @param pagerState The [PagerState] of the [androidx.compose.foundation.pager.Pager].
  * @param contentScrimColor The color of the scrim overlay applied during page transitions. Defaults
  *   to the background color of the [MaterialTheme]. Set this to transparent to have no scrim
  *   applied during page transitions.
@@ -245,11 +250,13 @@ public object PagerScaffoldDefaults {
      * Recommended `SnapPositionalThreshold` value for screens used when the user is moving or there
      * are a low number of screens (i.e., fewer than 10).
      *
-     * Example of a [VerticalPager] with a small number of pages and low sensitivity:
+     * Example of a [androidx.compose.foundation.pager.VerticalPager] with a small number of pages
+     * and low sensitivity:
      *
      * @sample androidx.wear.compose.material3.samples.VerticalPagerScaffoldWithLowSensitivitySample
      *
-     * Example of a [HorizontalPager] with a small number of pages and low sensitivity:
+     * Example of a [androidx.compose.foundation.pager.HorizontalPager] with a small number of pages
+     * and low sensitivity:
      *
      * @sample androidx.wear.compose.material3.samples.HorizontalPagerScaffoldWithLowSensitivitySample
      */
@@ -260,15 +267,17 @@ public object PagerScaffoldDefaults {
      * a time. This behavior is tailored for a smooth, spring-like snapping effect, enhancing the
      * user experience with a more fluid transition between pages.
      *
-     * Example of using [HorizontalPager] and [snapWithSpringFlingBehavior]:
+     * Example of using [androidx.compose.foundation.pager.HorizontalPager] and
+     * [snapWithSpringFlingBehavior]:
      *
      * @sample androidx.wear.compose.material3.samples.HorizontalPagerScaffoldSample
      *
-     * Example of using [VerticalPager] and [snapWithSpringFlingBehavior]:
+     * Example of using [androidx.compose.foundation.pager.VerticalPager] and
+     * [snapWithSpringFlingBehavior]:
      *
      * @sample androidx.wear.compose.material3.samples.VerticalPagerScaffoldSample
-     * @param state The [PagerState] that controls the [Pager] to which this FlingBehavior will be
-     *   applied to.
+     * @param state The [PagerState] that controls the [androidx.compose.foundation.pager.Pager] to
+     *   which this FlingBehavior will be applied to.
      */
     @Composable
     public fun snapWithSpringFlingBehavior(state: PagerState): TargetedFlingBehavior {

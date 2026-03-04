@@ -21,10 +21,10 @@ package androidx.credentials.registry.provider.digitalcredentials
  *
  * This entry contains information that serves two major purposes:
  * 1. Credential metadata for filtering / request matching purpose. When another app makes a
- *    [CredentialManager.getCredential] request, it will specify the specific credential properties
- *    it is looking for. The Credential Manager will use the info stored for the given entry and the
- *    registry matcher you registered to determine whether this entry can fulfill an incoming
- *    request.
+ *    [androidx.credentials.CredentialManager.getCredential] request, it will specify the specific
+ *    credential properties it is looking for. The Credential Manager will use the info stored for
+ *    the given entry and the registry matcher you registered to determine whether this entry can
+ *    fulfill an incoming request.
  * 2. Display metadata that will be rendered as part of the Credential Manager selector UI. The
  *    selector UI, post filtering, will display to the user their qualified, available credential
  *    candidates, in order for the user to make an informed choice.

@@ -521,8 +521,8 @@ public fun rememberRevealState(
  *   not. By default, [gestureInclusion] allows gestures everywhere except a zone on the left edge,
  *   which is used for swipe-to-dismiss (see [SwipeToRevealDefaults.gestureInclusion]).
  * @param content The content that will be initially displayed over the other actions provided.
- *   Custom accessibility actions should always be added to the content using [Modifier.semantics] -
- *   examples are shown in the code samples.
+ *   Custom accessibility actions should always be added to the content using
+ *   [androidx.compose.ui.semantics.semantics] - examples are shown in the code samples.
  */
 @Deprecated(
     message =

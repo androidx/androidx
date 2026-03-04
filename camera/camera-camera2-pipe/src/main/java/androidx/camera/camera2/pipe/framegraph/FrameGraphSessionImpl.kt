@@ -20,6 +20,7 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.FrameGraph
 import androidx.camera.camera2.pipe.config.FrameGraphScope
 import androidx.camera.camera2.pipe.graph.Controller3A
+import kotlinx.atomicfu.atomic
 
 @FrameGraphScope
 internal class FrameGraphSessionImpl(
@@ -28,14 +29,17 @@ internal class FrameGraphSessionImpl(
     private val controller3A: Controller3A,
 ) : FrameGraph.Session, CameraGraph.Session by cameraGraphSession {
     private val state3ASnapshot = controller3A.state3ASnapshot()
+    private val closed = atomic(false)
 
     /**
      * Closes and invalidates the session, reverting it to the state it was before the session was
      * acquired.
      */
     override fun close() {
-        controller3A.reset3A(state3ASnapshot)
-        frameGraphBuffers.flush(cameraGraphSession)
-        cameraGraphSession.close()
+        if (closed.compareAndSet(expect = false, update = true)) {
+            controller3A.reset3A(state3ASnapshot)
+            frameGraphBuffers.flush(cameraGraphSession)
+            cameraGraphSession.close()
+        }
     }
 }

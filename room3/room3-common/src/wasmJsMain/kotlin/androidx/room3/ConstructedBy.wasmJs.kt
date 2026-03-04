@@ -33,7 +33,7 @@ import kotlin.reflect.KClass
  * ```
  * @Database(version = 1, entities = [Song::class, Album::class])
  * @ConstructedBy(MusicDatabaseConstructor::class)
- * abstract class MusicDatabase : RoomDatabase
+ * abstract class MusicDatabase : RoomDatabase()
  *
  * expect object MusicDatabaseConstructor : RoomDatabaseConstructor<MusicDatabase>
  * ```

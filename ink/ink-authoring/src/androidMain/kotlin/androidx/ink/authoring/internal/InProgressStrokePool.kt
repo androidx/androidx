@@ -96,8 +96,8 @@ internal class InProgressStrokePoolImpl<
         private var currentCohortSize = 0
 
         /**
-         * The N most recent values for how many [IPS] instances have been needed at once. Start
-         * with all zeroes because so far none have been needed.
+         * The N most recent values for how many [InProgressShapeT] instances have been needed at
+         * once. Start with all zeroes because so far none have been needed.
          */
         private val recentCohortSizes = IntArray(10)
 

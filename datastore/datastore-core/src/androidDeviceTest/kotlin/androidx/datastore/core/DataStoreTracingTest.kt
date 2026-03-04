@@ -72,15 +72,16 @@ class DataStoreTracingTest {
     @Test
     fun testWriteTrace() = runTest {
         val store =
-            DataStoreFactory.createWithTracing(
-                storage =
-                    FileStorage(
-                        serializer = TestingSerializer(),
-                        produceFile = { testDataStoreFile },
-                    ),
-                tracer = tracer,
-                scope = dataStoreScope,
-            )
+            DataStore.Builder(
+                    storage =
+                        FileStorage(
+                            serializer = TestingSerializer(),
+                            produceFile = { testDataStoreFile },
+                        ),
+                    context = dataStoreScope.coroutineContext,
+                )
+                .setTracer(tracer)
+                .build()
 
         // Collect initial trace file size so we can confirm it was written to during this test.
         val initialTraceSize = traceFile.length()

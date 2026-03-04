@@ -33,6 +33,7 @@ import androidx.compose.ui.R
 import androidx.compose.ui.UiComposable
 import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.Owner
+import androidx.compose.ui.util.trace
 import androidx.core.view.isEmpty
 import androidx.core.view.isNotEmpty
 import androidx.core.viewtree.getParentOrViewTreeDisjointParent
@@ -135,7 +136,15 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
                     disposeComposition()
                 } else if (isNotEmpty()) {
                     val child = getChildAt(0) as? AndroidComposeView
-                    child?.composeViewContext = value
+                    if (child != null) {
+                        if (
+                            child.coroutineContext !==
+                                value.compositionContext.effectCoroutineContext
+                        ) {
+                            disposeComposition()
+                        }
+                        child.composeViewContext = value
+                    }
                 }
                 field = value
             }
@@ -313,57 +322,58 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
             ?: cachedViewTreeCompositionContext?.get()?.takeIf { it.isAlive }
             ?: windowRecomposer.cacheIfAlive()
 
-    @OptIn(ExperimentalStdlibApi::class)
-    @Suppress("DEPRECATION") // Still using ViewGroup.setContent for now
     private fun ensureCompositionCreated() {
         if (composition == null) {
             try {
                 creatingComposition = true
-                val composeViewContext = composeViewContext
-                val effectiveComposeViewContext =
-                    if (composeViewContext == null) {
-                        val existingContext =
-                            if (isEmpty()) null
-                            else (getChildAt(0) as? AndroidComposeView)?.composeViewContext
-                        val contextView = findViewTreeComposeViewRoot()
-                        val foundComposeViewContext = contextView.composeViewContext
-                        if (foundComposeViewContext == null) {
-                            // Create one and store it for future create calls
-                            val createdContext =
-                                ComposeViewContext(
-                                    compositionContext = resolveParentCompositionContext(),
-                                    lifecycleOwner =
-                                        contextView.findViewTreeLifecycleOwner()
-                                            ?: existingContext?.lifecycleOwner
-                                            ?: throw IllegalStateException(
-                                                "Composed into the View which doesn't propagate ViewTreeLifecycleOwner!"
-                                            ),
-                                    savedStateRegistryOwner =
-                                        contextView.findViewTreeSavedStateRegistryOwner()
-                                            ?: existingContext?.savedStateRegistryOwner
-                                            ?: throw IllegalStateException(
-                                                "Composed into the View which doesn't propagate ViewTreeSavedStateRegistryOwner!"
-                                            ),
-                                    viewModelStoreOwner =
-                                        contextView.findViewTreeViewModelStoreOwner()
-                                            ?: existingContext?.viewModelStoreOwner,
-                                    view = contextView,
-                                )
-                            contextView.composeViewContext = createdContext
-                            createdContext
-                        } else {
-                            updateAutoCreatedComposeViewContext(
-                                contextView,
-                                foundComposeViewContext,
-                            )
-                        }
-                    } else {
-                        composeViewContext
-                    }
-                composition = setContent(effectiveComposeViewContext) { Content() }
+                initializeComposition()
             } finally {
                 creatingComposition = false
             }
+        }
+    }
+
+    private fun initializeComposition() {
+        trace("Compose:initializeView") {
+            val composeViewContext = composeViewContext
+            val effectiveComposeViewContext =
+                if (composeViewContext == null) {
+                    val existingContext =
+                        if (isEmpty()) null
+                        else (getChildAt(0) as? AndroidComposeView)?.composeViewContext
+                    val contextView = findViewTreeComposeViewRoot()
+                    val foundComposeViewContext = contextView.composeViewContext
+                    if (foundComposeViewContext == null) {
+                        // Create one and store it for future create calls
+                        val createdContext =
+                            ComposeViewContext(
+                                compositionContext = resolveParentCompositionContext(),
+                                lifecycleOwner =
+                                    contextView.findViewTreeLifecycleOwner()
+                                        ?: existingContext?.lifecycleOwner
+                                        ?: throw IllegalStateException(
+                                            "Composed into the View which doesn't propagate ViewTreeLifecycleOwner!"
+                                        ),
+                                savedStateRegistryOwner =
+                                    contextView.findViewTreeSavedStateRegistryOwner()
+                                        ?: existingContext?.savedStateRegistryOwner
+                                        ?: throw IllegalStateException(
+                                            "Composed into the View which doesn't propagate ViewTreeSavedStateRegistryOwner!"
+                                        ),
+                                viewModelStoreOwner =
+                                    contextView.findViewTreeViewModelStoreOwner()
+                                        ?: existingContext?.viewModelStoreOwner,
+                                view = contextView,
+                            )
+                        contextView.composeViewContext = createdContext
+                        createdContext
+                    } else {
+                        updateAutoCreatedComposeViewContext(contextView, foundComposeViewContext)
+                    }
+                } else {
+                    composeViewContext
+                }
+            composition = setContent(effectiveComposeViewContext) { Content() }
         }
     }
 
@@ -383,6 +393,12 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
         ) {
             // No changes
             return existingContext
+        }
+        if (
+            newContext.effectCoroutineContext !==
+                existingContext.compositionContext.effectCoroutineContext
+        ) {
+            disposeComposition()
         }
         val createdContext =
             ComposeViewContext(

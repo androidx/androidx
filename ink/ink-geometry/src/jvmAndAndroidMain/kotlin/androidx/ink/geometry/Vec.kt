@@ -69,10 +69,10 @@ public abstract class Vec internal constructor() {
     public fun computeUnitVec(): ImmutableVec = VecNative.unitVec(this.x, this.y)
 
     /**
-     * Modifies [outVec], which may be [this], into a vector with the same direction as this one,
+     * Modifies [outVec], which may be `this`, into a vector with the same direction as this one,
      * but with a magnitude of `1`. Returns [outVec]. This is equivalent to (but faster than)
-     * calling [MutableVec.fromDirectionInDegreesAndMagnitude] with [computeDirectionDegrees] and
-     * `1`.
+     * calling [MutableVec.populateFromDirectionInDegreesAndMagnitude] with
+     * [computeDirectionDegrees] and `1`.
      *
      * In keeping with the above equivalence, this will return <±1, ±0> for the zero vector,
      * depending on the signs of the zeros.
@@ -90,7 +90,7 @@ public abstract class Vec internal constructor() {
     public fun computeOrthogonal(): ImmutableVec = ImmutableVec(-y, x)
 
     /**
-     * Modifies [outVec], which may be [this], into a vector with the same magnitude as this one,
+     * Modifies [outVec], which may be `this`, into a vector with the same magnitude as this one,
      * but rotated by (positive) 90 degrees. Returns [outVec].
      */
     public fun computeOrthogonal(outVec: MutableVec): MutableVec {
@@ -108,7 +108,7 @@ public abstract class Vec internal constructor() {
     public fun computeNegation(): ImmutableVec = ImmutableVec(-x, -y)
 
     /**
-     * Modifies [outVec], which may be [this], into a vector with the same magnitude, but pointing
+     * Modifies [outVec], which may be `this`, into a vector with the same magnitude, but pointing
      * in the opposite direction. Returns [outVec].
      */
     public fun computeNegation(outVec: MutableVec): MutableVec {
@@ -147,8 +147,8 @@ public abstract class Vec internal constructor() {
     }
 
     /**
-     * Compares this [Vec] with [other], and returns true if the difference between [x] and
-     * [other.x] is less than [tolerance], and likewise for [y].
+     * Compares this [Vec] with [other], and returns true if the difference between [x] from `this`
+     * and [x] from [other] is less than [tolerance], and likewise for [y].
      */
     @JvmOverloads
     public fun isAlmostEqual(
