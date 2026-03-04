@@ -41,7 +41,47 @@ internal fun createMacosDefaultKeyMapping(): KeyMapping {
     val common = commonKeyMapping(KeyModifiers.Meta)
     return object : KeyMapping {
         override fun map(event: KeyEvent): KeyCommand? {
-            return when (event.modifiers) {
+            val keyModifiers = event.modifiers
+            when (event.key) {
+                Key.Delete, Key.NumPadDelete -> {
+                    when (keyModifiers) {
+                        KeyModifiers.None,
+                        KeyModifiers.Shift,
+                        KeyModifiers.Ctrl,
+                        KeyModifiers.CtrlShift -> KeyCommand.DELETE_NEXT_CHAR
+                        KeyModifiers.Alt,
+                        KeyModifiers.AltShift -> KeyCommand.DELETE_NEXT_WORD
+                        else -> null
+                    }
+                }
+                Key.Backspace -> {
+                    when (keyModifiers) {
+                        KeyModifiers.None,
+                        KeyModifiers.Shift,
+                        KeyModifiers.Ctrl,
+                        KeyModifiers.CtrlShift -> KeyCommand.DELETE_PREV_CHAR
+                        KeyModifiers.Meta,
+                        KeyModifiers.ShiftMeta -> KeyCommand.DELETE_FROM_LINE_START
+                        KeyModifiers.Alt,
+                        KeyModifiers.AltShift -> KeyCommand.DELETE_PREV_WORD
+                        else -> null
+                    }
+                }
+                Key.Enter, Key.NumPadEnter -> {
+                    when (keyModifiers) {
+                        KeyModifiers.None,
+                        KeyModifiers.Alt,
+                        KeyModifiers.Shift,
+                        KeyModifiers.AltShift -> KeyCommand.NEW_LINE
+                        else -> null
+                    }
+                }
+                else -> null
+            }?.let {
+                return it
+            }
+
+            return when (keyModifiers) {
                 KeyModifiers.CtrlMeta -> {
                     when (event.key) {
                         Key.Spacebar -> KeyCommand.CHARACTER_PALETTE
@@ -87,7 +127,6 @@ internal fun createMacosDefaultKeyMapping(): KeyMapping {
                         Key.NumPadDirectionUp -> KeyCommand.HOME
                         Key.DirectionDown,
                         Key.NumPadDirectionDown -> KeyCommand.END
-                        Key.Backspace -> KeyCommand.DELETE_FROM_LINE_START
                         else -> null
                     }
                 }
@@ -157,9 +196,6 @@ internal fun createMacosDefaultKeyMapping(): KeyMapping {
                         Key.NumPadDirectionUp -> KeyCommand.PREV_PARAGRAPH
                         Key.DirectionDown,
                         Key.NumPadDirectionDown -> KeyCommand.NEXT_PARAGRAPH
-                        Key.Delete,
-                        Key.NumPadDelete -> KeyCommand.DELETE_NEXT_WORD
-                        Key.Backspace -> KeyCommand.DELETE_PREV_WORD
                         else -> null
                     }
 
