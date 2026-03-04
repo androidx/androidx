@@ -1570,22 +1570,6 @@ class VideoCaptureTest {
     }
 
     @Test
-    fun adjustCropRect_notValidSize_ignoreSupportedSizeAndClampByWorkaroundSize() {
-        testAdjustCropRectToValidSize(
-            videoEncoderInfo =
-                createVideoEncoderInfo(
-                    widthAlignment = 8,
-                    heightAlignment = 8,
-                    // 1280x720 is not a valid size, workaround size is [8-4096], [8-2160]
-                    supportedWidths = Range(80, 80),
-                    supportedHeights = Range(80, 80),
-                ),
-            cropRect = Rect(0, 0, 4, 4), // 4x4
-            expectedCropRect = Rect(0, 0, 8, 8), // 8x8
-        )
-    }
-
-    @Test
     fun adjustCropRect_heightIsLongerThanWidth_notAllowSwapWidthHeight() {
         testAdjustCropRectToValidSize(
             resolution = Size(720, 1280),

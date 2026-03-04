@@ -26,7 +26,8 @@ import android.media.MediaCodecInfo
  */
 public abstract class EncoderInfoImpl
 @Throws(InvalidConfigException::class)
-constructor(private val mediaCodecInfo: MediaCodecInfo, mime: String) : EncoderInfo {
+constructor(private val mediaCodecInfo: MediaCodecInfo, public override val mime: String) :
+    EncoderInfo {
     protected val codecCapabilities: MediaCodecInfo.CodecCapabilities
 
     init {

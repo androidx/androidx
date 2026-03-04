@@ -17,7 +17,11 @@
 package androidx.camera.video.internal.encoder
 
 /** EncoderInfo provides encoder related information and capabilities. */
-public fun interface EncoderInfo {
+public interface EncoderInfo {
+
+    /** Returns the associated MIME type of the encoder info. */
+    public val mime: String
+
     /** Returns the name of the encoder. */
     public fun getName(): String
 }

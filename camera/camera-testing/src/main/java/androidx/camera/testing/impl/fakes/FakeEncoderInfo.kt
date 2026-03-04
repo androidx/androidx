@@ -18,6 +18,9 @@ package androidx.camera.testing.impl.fakes
 
 import androidx.camera.video.internal.encoder.EncoderInfo
 
-public open class FakeEncoderInfo(private var _name: String = "fake.encoder") : EncoderInfo {
+public open class FakeEncoderInfo(
+    private var _name: String = "fake.encoder",
+    public override val mime: String = "fake/mime",
+) : EncoderInfo {
     override fun getName(): String = _name
 }
