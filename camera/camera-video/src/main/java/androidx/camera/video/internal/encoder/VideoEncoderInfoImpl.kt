@@ -19,7 +19,7 @@ import android.media.MediaCodecInfo
 import android.util.Range
 import androidx.camera.core.Logger
 import androidx.camera.video.internal.utils.CodecUtil.findCodecAndGetCodecInfo
-import androidx.camera.video.internal.workaround.VideoEncoderInfoWrapper
+import androidx.camera.video.internal.workaround.ProfileAwareVideoEncoderInfo
 
 /**
  * VideoEncoderInfoImpl provides video encoder related information and capabilities.
@@ -100,7 +100,7 @@ internal constructor(codecInfo: MediaCodecInfo, mime: String) :
                 try {
                     val videoEncoderInfo =
                         VideoEncoderInfoImpl(findCodecAndGetCodecInfo(mimeType), mimeType)
-                    return@Finder VideoEncoderInfoWrapper.from(videoEncoderInfo, null)
+                    return@Finder ProfileAwareVideoEncoderInfo.from(videoEncoderInfo)
                 } catch (e: InvalidConfigException) {
                     Logger.w(TAG, "Unable to find a VideoEncoderInfoImpl", e)
                     return@Finder null
