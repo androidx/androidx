@@ -51,12 +51,12 @@ androidXMultiplatform {
         commonMain.dependencies {
             implementation(project(":collection:collection"))
             api(project(":compose:material3:adaptive:adaptive"))
-            api(project(":compose:animation:animation-core"))
-            api(project(":compose:ui:ui"))
-            implementation(project(":compose:animation:animation"))
-            implementation(project(":compose:foundation:foundation"))
-            implementation(project(":compose:foundation:foundation-layout"))
-            implementation(project(":compose:ui:ui-geometry"))
+            api("org.jetbrains.compose.animation:animation-core:1.10.0")
+            api("org.jetbrains.compose.ui:ui:1.10.0")
+            implementation("org.jetbrains.compose.animation:animation:1.10.0")
+            implementation("org.jetbrains.compose.foundation:foundation:1.10.0")
+            implementation("org.jetbrains.compose.foundation:foundation-layout:1.10.0")
+            implementation("org.jetbrains.compose.ui:ui-geometry:1.10.0")
             implementation("org.jetbrains.androidx.window:window-core:1.5.0")
         }
 
