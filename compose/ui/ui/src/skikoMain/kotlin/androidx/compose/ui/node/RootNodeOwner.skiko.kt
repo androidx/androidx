@@ -723,8 +723,7 @@ internal class RootNodeOwner(
         }
 
         override fun invalidateRootLayer() {
-            // TODO: https://youtrack.jetbrains.com/issue/CMP-9533/Implement-SkikoOwner.invalidateRootLayer
-            super.invalidateRootLayer()
+            ownedLayerManager.invalidate()
         }
     }
 
