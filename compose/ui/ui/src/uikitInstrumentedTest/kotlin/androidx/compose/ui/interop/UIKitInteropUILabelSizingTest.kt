@@ -16,19 +16,27 @@
 
 package androidx.compose.ui.interop
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.Text
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.background
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.test.utils.DpRectZero
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.asDpRect
+import androidx.compose.ui.unit.asDpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.size
@@ -37,15 +45,17 @@ import androidx.compose.ui.unit.toDpSize
 import androidx.compose.ui.unit.width
 import androidx.compose.ui.viewinterop.UIKitInteropProperties
 import androidx.compose.ui.viewinterop.UIKitView
+import androidx.compose.ui.viewinterop.measureFittingSize
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.useContents
+import platform.UIKit.UIColor
 import platform.UIKit.UILabel
 
-class InteropUIKitViewSizingWithUILabelTest {
+class UIKitInteropUILabelSizingTest {
     private val SHORT_TEXT: String = "TEXT"
     private val LONG_TEXT: String = List(100) { "TEXT" }.joinToString(" ")
 
@@ -457,4 +467,344 @@ class InteropUIKitViewSizingWithUILabelTest {
         assertEquals(uiKitRect.right, screenSize.width)
         assertTrue(uiKitRect.bottom > composeRect.bottom)
     }
+
+    @OptIn(ExperimentalForeignApi::class)
+    @Test
+    fun testUIKitLabelInInteropWithFillMaxSize() = runUIKitInstrumentedTestWithInterop { overlay ->
+        val uiKitView = UILabel().apply {
+            text = LONG_TEXT
+            numberOfLines = 0
+            backgroundColor = UIColor.blueColor
+        }
+        var composeRect = DpRectZero()
+
+        setContent {
+            Box(
+                Modifier
+                    .background(Color.Red)
+                    .fillMaxSize()
+            ) {
+                UIKitView(
+                    factory = { uiKitView },
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay),
+                    modifier = Modifier
+                        .onGloballyPositioned { composeRect = it.boundsInRoot().toDpRect(density) }
+                        .fillMaxSize()
+                )
+            }
+        }
+
+        assertEquals(composeRect, uiKitView.frame.useContents { asDpRect() })
+    }
+
+    @Test
+    fun testLongTextInInteropWithFixedWidthUnsetHeight() =
+        runUIKitInstrumentedTestWithInterop { overlay ->
+            var composeInteropSize = DpSize.Zero
+            val boxSize = DpSize(width = 300.dp, height = 300.dp)
+
+            val fixedWidth = 50.dp
+            val uiKitViewFactory = {
+                UILabel().apply {
+                    text = LONG_TEXT
+                    numberOfLines = 0
+                    backgroundColor = UIColor.blueColor
+                }
+            }
+
+            setContent {
+                Box(
+                    Modifier
+                        .background(Color.Red)
+                        .size(boxSize),
+                    contentAlignment = Alignment.Center
+                ) {
+                    UIKitView(
+                        factory = uiKitViewFactory,
+                        properties = UIKitInteropProperties(placedAsOverlay = overlay),
+                        modifier = Modifier
+                            .onGloballyPositioned {
+                                composeInteropSize = it.boundsInRoot().size.toDpSize(density)
+                            }
+                            .width(fixedWidth)
+                    )
+                }
+            }
+
+            val expectedSize = uiKitViewFactory()
+                .also { it.translatesAutoresizingMaskIntoConstraints = false }
+                .measureFittingSize(
+                    fixedWidth = fixedWidth,
+                    maxWidth = fixedWidth,
+                    maxHeight = boxSize.height,
+                    minWidth = fixedWidth
+                )
+
+            assertEquals(expectedSize, composeInteropSize)
+        }
+
+    @Test
+    fun testLongTextInInteropWithFixedHeightUnsetWidth() =
+        runUIKitInstrumentedTestWithInterop { overlay ->
+            var composeInteropSize = DpSize.Zero
+            val boxSize = DpSize(width = 300.dp, height = 300.dp)
+
+            val fixedHeight = 80.dp
+            val uiKitViewFactory = {
+                UILabel().apply {
+                    text = LONG_TEXT
+                    numberOfLines = 0
+                    backgroundColor = UIColor.blueColor
+                }
+            }
+
+            setContent {
+                Box(
+                    Modifier
+                        .background(Color.Red)
+                        .size(boxSize),
+                    contentAlignment = Alignment.Center
+                ) {
+                    UIKitView(
+                        factory = uiKitViewFactory,
+                        properties = UIKitInteropProperties(placedAsOverlay = overlay),
+                        modifier = Modifier
+                            .onGloballyPositioned {
+                                composeInteropSize = it.boundsInRoot().size.toDpSize(density)
+                            }
+                            .height(fixedHeight)
+                    )
+                }
+            }
+
+            val expectedSize = uiKitViewFactory()
+                .also { it.translatesAutoresizingMaskIntoConstraints = false }
+                .measureFittingSize(
+                    fixedHeight = fixedHeight,
+                    maxWidth = boxSize.width,
+                    maxHeight = boxSize.height,
+                    minHeight = fixedHeight
+                )
+
+            assertEquals(expectedSize, composeInteropSize)
+        }
+
+    @Test
+    fun testLongTextInInteropWithFixedSize() = runUIKitInstrumentedTestWithInterop { overlay ->
+        var composeInteropSize = DpSize.Zero
+        val boxSize = DpSize(width = 300.dp, height = 300.dp)
+
+        val fixedWidth = 120.dp
+        val fixedHeight = 80.dp
+        val uiKitViewFactory = {
+            UILabel().apply {
+                text = LONG_TEXT
+                numberOfLines = 0
+                backgroundColor = UIColor.blueColor
+            }
+        }
+
+        setContent {
+            Box(
+                Modifier
+                    .background(Color.Red)
+                    .size(boxSize),
+                contentAlignment = Alignment.Center
+            ) {
+                UIKitView(
+                    factory = uiKitViewFactory,
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay),
+                    modifier = Modifier
+                        .onGloballyPositioned {
+                            composeInteropSize = it.boundsInRoot().size.toDpSize(density)
+                        }
+                        .size(fixedWidth, fixedHeight)
+                )
+            }
+        }
+
+        assertEquals(DpSize(fixedWidth, fixedHeight), composeInteropSize)
+    }
+
+    @Test
+    fun testUIKitLabelInInteropWithNoSize() = runUIKitInstrumentedTestWithInterop { overlay ->
+        var composeInteropSize = DpSize.Zero
+        val boxSize = DpSize(width = 300.dp, height = 300.dp)
+
+        val uiKitViewFactory = {
+            UILabel().apply {
+                text = LONG_TEXT
+                numberOfLines = 0
+                backgroundColor = UIColor.blueColor
+            }
+        }
+
+        setContent {
+            Box(
+                Modifier
+                    .background(Color.Red)
+                    .size(boxSize),
+                contentAlignment = Alignment.Center
+            ) {
+                UIKitView(
+                    factory = uiKitViewFactory,
+                    properties = UIKitInteropProperties(placedAsOverlay = overlay),
+                    modifier = Modifier
+                        .onGloballyPositioned {
+                            composeInteropSize = it.boundsInRoot().size.toDpSize(density)
+                        }
+                )
+            }
+        }
+
+        val expectedSize = uiKitViewFactory()
+            .also { it.translatesAutoresizingMaskIntoConstraints = false }
+            .measureFittingSize(
+                maxWidth = boxSize.width,
+                maxHeight = boxSize.height
+            )
+
+        assertEquals(expectedSize, composeInteropSize)
+    }
+
+    @OptIn(ExperimentalForeignApi::class)
+    @Test
+    fun testUIKitLabelShortTextInInteropWithFixedSize() =
+        runUIKitInstrumentedTestWithInterop { overlay ->
+            var composeInteropSize = DpSize.Zero
+            val boxSize = DpSize(width = 300.dp, height = 300.dp)
+
+            val fixedWidth = 120.dp
+            val fixedHeight = 120.dp
+            val label = UILabel().apply {
+                text = SHORT_TEXT
+                numberOfLines = 0
+                backgroundColor = UIColor.blueColor
+            }
+
+            setContent {
+                Box(
+                    Modifier
+                        .background(Color.Red)
+                        .size(boxSize),
+                    contentAlignment = Alignment.Center
+                ) {
+                    UIKitView(
+                        factory = { label },
+                        properties = UIKitInteropProperties(placedAsOverlay = overlay),
+                        modifier = Modifier
+                            .onGloballyPositioned {
+                                composeInteropSize = it.boundsInRoot().size.toDpSize(density)
+                            }
+                            .size(fixedWidth, fixedHeight)
+                    )
+                }
+            }
+
+            assertEquals(DpSize(fixedWidth, fixedHeight), composeInteropSize)
+            assertEquals(DpSize(fixedWidth, fixedHeight), label.frame.useContents { size.asDpSize() })
+        }
+
+    @Test
+    fun testLongTextInInteropNoSizeAndModifyComposeLayout() =
+        runUIKitInstrumentedTestWithInterop { overlay ->
+            var composeInteropSize = DpSize.Zero
+
+            val rowSize = DpSize(width = minOf(screenSize.width, 400.dp), height = 200.dp)
+            val boxWidth = mutableStateOf(0.dp)
+            val uiKitViewFactory = {
+                UILabel().apply {
+                    text = LONG_TEXT
+                    numberOfLines = 0
+                }
+            }
+
+            setContent {
+                Row(modifier = Modifier.size(rowSize)) {
+                    Box(
+                        modifier = Modifier
+                            .background(Color.Green)
+                            .width(boxWidth.value)
+                            .fillMaxHeight()
+                    )
+                    UIKitView(
+                        factory = uiKitViewFactory,
+                        properties = UIKitInteropProperties(placedAsOverlay = overlay),
+                        modifier = Modifier
+                            .background(Color.Cyan)
+                            .onGloballyPositioned {
+                                composeInteropSize = it.boundsInRoot().size.toDpSize(density)
+                            }
+                    )
+                }
+            }
+
+            for (i in 0..10) {
+                boxWidth.value = (i * 10).dp
+
+                waitForIdle()
+
+                val expectedSize = uiKitViewFactory()
+                    .also { it.translatesAutoresizingMaskIntoConstraints = false }
+                    .measureFittingSize(
+                        maxWidth = (rowSize.width - boxWidth.value).coerceAtLeast(0.dp),
+                        maxHeight = rowSize.height
+                    )
+
+                assertEquals(expectedSize, composeInteropSize)
+            }
+        }
+
+    @Test
+    fun testUIKitLabelLongTextInInteropMaxSizeModifyLayout() =
+        runUIKitInstrumentedTestWithInterop { overlay ->
+            var composeInteropSize = DpSize.Zero
+
+            val rowSize = DpSize(width = minOf(screenSize.width, 400.dp), height = 200.dp)
+            val boxWidth = mutableStateOf(10.dp)
+            val uiKitViewFactory = {
+                UILabel().apply {
+                    text = LONG_TEXT
+                    numberOfLines = 0
+                }
+            }
+
+            setContent {
+                Row(modifier = Modifier.background(Color.Black).size(rowSize)) {
+                    Box(
+                        modifier = Modifier
+                            .background(Color.Green)
+                            .width(boxWidth.value)
+                            .fillMaxHeight()
+                    )
+                    UIKitView(
+                        factory = uiKitViewFactory,
+                        properties = UIKitInteropProperties(placedAsOverlay = overlay),
+                        modifier = Modifier
+                            .background(Color.Cyan)
+                            .fillMaxSize()
+                            .onGloballyPositioned {
+                                composeInteropSize = it.boundsInRoot().size.toDpSize(density)
+                            }
+                    )
+                }
+            }
+
+            for (i in 0..10) {
+                boxWidth.value = (i * 10).dp
+
+                val expectedSize = uiKitViewFactory()
+                    .also { it.translatesAutoresizingMaskIntoConstraints = false }
+                    .measureFittingSize(
+                        fixedWidth = (rowSize.width - boxWidth.value).coerceAtLeast(0.dp),
+                        fixedHeight = rowSize.height,
+                        maxWidth = rowSize.width,
+                        maxHeight = rowSize.height
+                    )
+
+                waitForIdle()
+
+                assertEquals(expectedSize, composeInteropSize)
+            }
+        }
 }

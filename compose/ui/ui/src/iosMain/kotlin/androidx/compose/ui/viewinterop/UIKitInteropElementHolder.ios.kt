@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.asCGRect
@@ -43,11 +44,12 @@ internal abstract class UIKitInteropElementHolder<T : InteropView>(
     properties: UIKitInteropProperties,
     compositeKeyHashCode: CompositeKeyHashCode,
 ) : TypedInteropViewHolder<T>(
-    factory = factory,
-    interopContainer = interopContainer,
-    group = interopWrappingView,
-    compositeKeyHashCode = compositeKeyHashCode,
-) {
+        factory = factory,
+        interopContainer = interopContainer,
+        group = interopWrappingView,
+        compositeKeyHashCode = compositeKeyHashCode,
+    ),
+    UIKitInteropLayoutNodeHolder {
     constructor(
         factory: () -> T,
         interopContainer: InteropContainer,
@@ -63,9 +65,17 @@ internal abstract class UIKitInteropElementHolder<T : InteropView>(
         compositeKeyHashCode = compositeKeyHashCode
     )
 
+    /**
+     * The UIView to be embedded in the wrapping view.
+     */
+    protected abstract val userComponentView: UIView
+
     private var currentUnclippedRect: IntRect? = null
     private var currentClippedRect: IntRect? = null
     private var currentUserComponentRect: IntRect? = null
+
+    private val layout = UIKitInteropElementLayout(group = group, userComponent = userComponentView)
+    override val measurePolicy: MeasurePolicy get() = layout.measurePolicy
 
     val placedAsOverlay: Boolean get() = properties.placedAsOverlay
 
@@ -77,13 +87,8 @@ internal abstract class UIKitInteropElementHolder<T : InteropView>(
             }
         }
 
-    /**
-     * Immediate frame of underlying user component. Can be different from
-     * [currentUserComponentRect] due to scheduling.
-     */
-    protected abstract var userComponentCGRect: CValue<CGRect>
-
     init {
+        layout.attachUserComponent()
         onPropertiesChanged()
     }
 
@@ -120,7 +125,7 @@ internal abstract class UIKitInteropElementHolder<T : InteropView>(
 
             container.scheduleUpdate {
                 UIView.performWithoutAnimation {
-                    group.setFrame(groupFrame)
+                    layout.updateGroupFrame(groupFrame)
                     group.accessibilityFrame = groupAccessibilityFrame
                 }
             }
@@ -140,16 +145,14 @@ internal abstract class UIKitInteropElementHolder<T : InteropView>(
 
             // update the user component frame only if it changes
             if (userComponentRect != currentUserComponentRect) {
-                // Schedule frame update
-                val newUserComponentCGRect =
-                    userComponentRect
-                        .toRect()
-                        .toDpRect(density)
-                        .asCGRect()
+                val userComponentCGRect = userComponentRect
+                    .toRect()
+                    .toDpRect(density)
+                    .asCGRect()
 
                 container.scheduleUpdate {
                     UIView.performWithoutAnimation {
-                        userComponentCGRect = newUserComponentCGRect
+                        layout.updateUserComponentFrame(userComponentCGRect)
                     }
                 }
 

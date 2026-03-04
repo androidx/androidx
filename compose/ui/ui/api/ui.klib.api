@@ -4650,6 +4650,9 @@ final val androidx.compose.ui.viewinterop/androidx_compose_ui_viewinterop_UIKitI
 final val androidx.compose.ui.viewinterop/androidx_compose_ui_viewinterop_UIKitInteropProperties$stableprop // androidx.compose.ui.viewinterop/androidx_compose_ui_viewinterop_UIKitInteropProperties$stableprop|#static{}androidx_compose_ui_viewinterop_UIKitInteropProperties$stableprop[0]
 
 // Targets: [ios]
+final val androidx.compose.ui.viewinterop/androidx_compose_ui_viewinterop_UIKitInteropRemeasureRequester$stableprop // androidx.compose.ui.viewinterop/androidx_compose_ui_viewinterop_UIKitInteropRemeasureRequester$stableprop|#static{}androidx_compose_ui_viewinterop_UIKitInteropRemeasureRequester$stableprop[0]
+
+// Targets: [ios]
 final fun <#A: platform.UIKit/UIView> androidx.compose.ui.interop/UIKitView(kotlin/Function0<#A>, androidx.compose.ui/Modifier, kotlin/Function1<#A, kotlin/Unit>?, androidx.compose.ui.graphics/Color, kotlin/Function1<#A, kotlin/Unit>?, kotlin/Function2<#A, kotlinx.cinterop/CValue<platform.CoreGraphics/CGRect>, kotlin/Unit>?, kotlin/Boolean, kotlin/Boolean, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) // androidx.compose.ui.interop/UIKitView|UIKitView(kotlin.Function0<0:0>;androidx.compose.ui.Modifier;kotlin.Function1<0:0,kotlin.Unit>?;androidx.compose.ui.graphics.Color;kotlin.Function1<0:0,kotlin.Unit>?;kotlin.Function2<0:0,kotlinx.cinterop.CValue<platform.CoreGraphics.CGRect>,kotlin.Unit>?;kotlin.Boolean;kotlin.Boolean;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){0§<platform.UIKit.UIView>}[0]
 
 // Targets: [ios]
@@ -4726,6 +4729,9 @@ final fun androidx.compose.ui.viewinterop/androidx_compose_ui_viewinterop_UIKitI
 
 // Targets: [ios]
 final fun androidx.compose.ui.viewinterop/androidx_compose_ui_viewinterop_UIKitInteropProperties$stableprop_getter(): kotlin/Int // androidx.compose.ui.viewinterop/androidx_compose_ui_viewinterop_UIKitInteropProperties$stableprop_getter|androidx_compose_ui_viewinterop_UIKitInteropProperties$stableprop_getter(){}[0]
+
+// Targets: [ios]
+final fun androidx.compose.ui.viewinterop/androidx_compose_ui_viewinterop_UIKitInteropRemeasureRequester$stableprop_getter(): kotlin/Int // androidx.compose.ui.viewinterop/androidx_compose_ui_viewinterop_UIKitInteropRemeasureRequester$stableprop_getter|androidx_compose_ui_viewinterop_UIKitInteropRemeasureRequester$stableprop_getter(){}[0]
 
 // Targets: [ios]
 final fun androidx.compose.ui.window/ComposeUIViewController(kotlin/Function1<androidx.compose.ui.uikit/ComposeUIViewControllerConfiguration, kotlin/Unit> = ..., kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>): platform.UIKit/UIViewController // androidx.compose.ui.window/ComposeUIViewController|ComposeUIViewController(kotlin.Function1<androidx.compose.ui.uikit.ComposeUIViewControllerConfiguration,kotlin.Unit>;kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>){}[0]
