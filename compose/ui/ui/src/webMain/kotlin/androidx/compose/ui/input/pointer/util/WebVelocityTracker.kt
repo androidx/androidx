@@ -28,19 +28,16 @@ import kotlin.math.abs
 import kotlin.math.sign
 import kotlin.math.sqrt
 
-/*
-
- !!! Temporary solution while a PR in AOSP is not merged and not applied to CMP:
- https://android-review.googlesource.com/c/platform/frameworks/support/+/3950262
-
- TODO: https://youtrack.jetbrains.com/issue/CMP-9763
-
+/**
+ * This is a copy of the DefaultVelocityTracker from the framework.
+ * The only difference is that we use the WebVelocityTracker1D instead of the Android one.
+ * It is required for better fling gesture handling because Browsers send touch events
+ * not so often than other targets.
  */
-
 @OptIn(ExperimentalVelocityTrackerApi::class)
-internal class TempWebVelocityTracker : PlatformVelocityTracker {
-    private val xVelocityTracker = TempWebVelocityTracker1D()
-    private val yVelocityTracker = TempWebVelocityTracker1D()
+internal class WebVelocityTracker : PlatformVelocityTracker {
+    private val xVelocityTracker = WebVelocityTracker1D()
+    private val yVelocityTracker = WebVelocityTracker1D()
 
     internal var currentPointerPositionAccumulator = Offset.Zero
     internal var lastMoveEventTimeStamp = 0L
@@ -147,7 +144,7 @@ private const val AssumePointerMoveStoppedMilliseconds: Int = 40
 private const val HistorySize: Int = 20
 private const val HorizonMilliseconds: Int = 100
 
-private class TempWebVelocityTracker1D(
+private class WebVelocityTracker1D(
     // whether the data points added to the tracker represent differential values
     // (i.e. change in the  tracked object's displacement since the previous data point).
     // If false, it means that the data points added to the tracker will be considered as absolute
@@ -184,7 +181,11 @@ private class TempWebVelocityTracker1D(
      */
     constructor(isDataDifferential: Boolean) : this(isDataDifferential, Strategy.Impulse)
 
-    private val minSampleSize: Int = 2
+    private val minSampleSize: Int =
+        when (strategy) {
+            Strategy.Impulse -> 2
+            Strategy.Lsq2 -> 3
+        }
 
     /**
      * A strategy used for velocity calculation. Each strategy has a different philosophy that could
@@ -275,6 +276,8 @@ private class TempWebVelocityTracker1D(
             sampleCount += 1
         } while (sampleCount < HistorySize)
 
+        sampleCount = adjustDataPointsIfNeeded(sampleCount)
+
         if (sampleCount >= minSampleSize) {
             // Choose computation logic based on strategy.
             return when (strategy) {
@@ -282,17 +285,7 @@ private class TempWebVelocityTracker1D(
                     calculateImpulseVelocity(dataPoints, time, sampleCount, isDataDifferential)
                 }
                 Strategy.Lsq2 -> {
-                    // in some cases, the LSQ2 velocity calculation
-                    // may not match the expected direction,
-                    // then we need to use a different strategy
-                    val expDirection = dataPoints[sampleCount - 1] > dataPoints[sampleCount - 2]
-                    val result = calculateLeastSquaresVelocity(dataPoints, time, sampleCount)
-                    val actDirection = result < 0
-                    if (expDirection == actDirection) {
-                        result
-                    } else {
-                        calculateImpulseVelocity(dataPoints, time, sampleCount, isDataDifferential)
-                    }
+                    calculateLeastSquaresVelocity(dataPoints, time, sampleCount)
                 }
             } * 1000 // Multiply by "1000" to convert from units/ms to units/s
         }
@@ -300,6 +293,39 @@ private class TempWebVelocityTracker1D(
         // We're unable to make a velocity estimate but we did have at least one
         // valid pointer position.
         return 0f
+    }
+
+    /**
+     * Adjusts the data points in the reusable arrays if needed, based on a particular strategy and
+     * the provided sample count. This is primarily used to fix cases when the Lsq2 returns an opposite
+     * direction of velocity for a small sample count.
+     *
+     * If the selected strategy is not `Strategy.Lsq2`, the method returns the original sample
+     * count without any modification. For `Strategy.Lsq2`, it ensures that there are at least
+     * three data points by modifying the reusable arrays as necessary.
+     *
+     * @param sampleCount The number of data points currently available for velocity calculation.
+     * @return The updated sample count after adjustments, if performed. If no adjustments are
+     *         needed, the original sample count is returned.
+     */
+    private fun adjustDataPointsIfNeeded(sampleCount: Int): Int {
+        if (strategy != Strategy.Lsq2) return sampleCount
+        if (sampleCount > 3) return sampleCount
+        if (sampleCount < 2) return sampleCount
+
+        val firstPoint = reusableDataPointsArray[0]
+        val firstTime = reusableTimeArray[0]
+
+        val lastPoint = reusableDataPointsArray[sampleCount - 1]
+        val lastTime = reusableTimeArray[sampleCount - 1]
+
+        reusableDataPointsArray[1] = (firstPoint + 2 * lastPoint) / 3f
+        reusableTimeArray[1] = (2 * firstTime + lastTime) / 3f
+
+        reusableDataPointsArray[2] = lastPoint
+        reusableTimeArray[2] = lastTime
+
+        return 3
     }
 
     /**
