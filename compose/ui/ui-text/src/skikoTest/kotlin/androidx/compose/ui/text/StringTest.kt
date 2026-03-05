@@ -58,8 +58,6 @@ class StringTest {
         assertEquals(uppercase.decapitalize(serbianLocale), lowercase)
     }
 
-    @IgnoreJsTarget // FIXME https://youtrack.jetbrains.com/issue/CMP-8955
-    @IgnoreWasmTarget
     @Test
     fun directionality() {
         assertEquals(StrongDirectionType.None, '0'.code.strongDirectionType()) // Number

@@ -346,7 +346,6 @@ class LazyGridSlotsReuseTest {
         onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(id3)
     }
 
-    @IgnoreJsTarget // TODO https://youtrack.jetbrains.com/issue/CMP-8955
     @Test
     fun differentContentTypes() = runSkikoComposeUiTest {
         lateinit var state: LazyGridState
