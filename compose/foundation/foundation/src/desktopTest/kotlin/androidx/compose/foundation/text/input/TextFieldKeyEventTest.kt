@@ -47,6 +47,7 @@ import androidx.compose.ui.test.runInternalSkikoComposeUiTest
 import androidx.compose.ui.test.withKeysDown
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -319,6 +320,7 @@ class TextFieldKeyEventTest {
         )
 
     @Test
+    @Ignore("https://youtrack.jetbrains.com/issue/CMP-9864")
     fun textField_shiftInsert() =
         singleKeyStrokeTest(
             initSelection = TextRange(0),
@@ -328,6 +330,7 @@ class TextFieldKeyEventTest {
         )
 
     @Test
+    @Ignore("https://youtrack.jetbrains.com/issue/CMP-9864")
     fun textField_shiftNumPadInsert() =
         singleKeyStrokeTest(
             initSelection = TextRange(0),
