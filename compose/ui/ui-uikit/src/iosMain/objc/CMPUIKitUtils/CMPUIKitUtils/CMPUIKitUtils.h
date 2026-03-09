@@ -30,7 +30,7 @@ FOUNDATION_EXPORT const unsigned char CMPUIKitUtilsVersionString[];
 #import "CMPEditMenuCustomAction.h"
 #import "CMPEditMenuView.h"
 #import "CMPGestureRecognizer.h"
-#import "CMPHoverGestureHandler.h"
+#import "CMPHoverGestureRecognizer.h"
 #import "CMPLayoutRegion.h"
 #import "CMPMetalDrawablesHandler.h"
 #import "CMPMetalLayer.h"
