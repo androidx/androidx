@@ -17,12 +17,15 @@
 package androidx.compose.ui.layers
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material3.TextField
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.background
@@ -36,6 +39,7 @@ import androidx.compose.ui.test.findNodeWithLabel
 import androidx.compose.ui.test.findNodeWithLabelOrNull
 import androidx.compose.ui.test.findNodeWithTag
 import androidx.compose.ui.test.runUIKitInstrumentedTest
+import androidx.compose.ui.test.utils.center
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
@@ -336,6 +340,107 @@ class PopupInteractionTest {
         waitForIdle()
         assertNotNull(findFocusedUITextInput())
         assertNotEquals(0.dp, keyboardHeight)
+    }
+
+    @Test
+    fun testPopupDismissByClickingOnAnotherPopup() = runUIKitInstrumentedTest {
+        var showPopup1 by mutableStateOf(true)
+        var showPopup2 by mutableStateOf(false)
+        setContent {
+            if (showPopup1) {
+                Popup(
+                    onDismissRequest = { showPopup1 = false }, properties = PopupProperties(
+                        focusable = true,
+                        dismissOnClickOutside = true
+                    )
+                ) {
+                    Column(modifier = Modifier.background(Color.Blue).size(100.dp)) {
+                        androidx.compose.material3.Text(
+                            text = "Popup 1",
+                            modifier = Modifier.testTag("Popup 1")
+                        )
+                    }
+
+                    if (showPopup2) {
+                        Popup(
+                            alignment = Alignment.BottomCenter,
+                            onDismissRequest = { showPopup2 = false },
+                            properties = PopupProperties(
+                                focusable = true,
+                                dismissOnClickOutside = true
+                            )
+                        ) {
+                            Column(modifier = Modifier.background(Color.Red)) {
+                                androidx.compose.material3.Text(
+                                    text = "Popup 2",
+                                    modifier = Modifier.testTag("Popup 2")
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        val popupCenter = findNodeWithTag("Popup 1").frame?.center()
+            ?: error("Popup 1 does not have a valid frame")
+
+        showPopup2 = true
+        waitForIdle()
+        findNodeWithTag("Popup 2") // Ensure the second popup is opened
+
+        tap(popupCenter)
+        waitForIdle()
+
+        assertFalse(showPopup2)
+        assertTrue(showPopup1)
+    }
+
+    @Test
+    fun testTapInsidePopupDoesNotDismiss() = runUIKitInstrumentedTest {
+        var dismissTriggered = false
+        setContent {
+            Popup(
+                alignment = Alignment.Center,
+                onDismissRequest = { dismissTriggered = true },
+                properties = PopupProperties(dismissOnClickOutside = true)
+            ) {
+                Text("Popup Content", modifier = Modifier.testTag("PopupContent"))
+            }
+        }
+
+        findNodeWithTag("PopupContent").tap()
+        waitForIdle()
+
+        assertFalse(dismissTriggered)
+    }
+
+    @Test
+    fun testNonFocusablePopupDoesNotBlockFocusablePopupDismiss() = runUIKitInstrumentedTest {
+        var dismissFocusableTriggered = false
+        var dismissNonFocusableTriggered = false
+        setContent {
+            Popup(
+                alignment = Alignment.TopStart,
+                onDismissRequest = { dismissFocusableTriggered = true },
+                properties = PopupProperties(dismissOnClickOutside = true, focusable = true)
+            ) {
+                Text("Focusable Popup")
+            }
+            Popup(
+                alignment = Alignment.TopStart,
+                onDismissRequest = { dismissNonFocusableTriggered = true },
+                properties = PopupProperties(dismissOnClickOutside = false, focusable = false)
+            ) {
+                Text("Non-Focusable Popup")
+            }
+        }
+
+        tap(outOfPopupBoundsPoint)
+        waitForIdle()
+
+        assertTrue(dismissFocusableTriggered)
+        assertFalse(dismissNonFocusableTriggered)
     }
 
     private val UIKitInstrumentedTest.outOfPopupBoundsPoint: DpOffset

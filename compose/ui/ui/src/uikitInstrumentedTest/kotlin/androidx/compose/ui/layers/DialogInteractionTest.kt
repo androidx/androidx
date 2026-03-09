@@ -17,11 +17,15 @@
 package androidx.compose.ui.layers
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material3.TextField
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.background
 import androidx.compose.ui.focus.FocusRequester
@@ -36,6 +40,8 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -171,6 +177,69 @@ class DialogInteractionTest {
         showDialog.value = false
         waitForIdle()
         assertNotEquals(0.dp, keyboardHeight)
+    }
+
+    @Test
+    fun testDialogWithPopupCoexistence() = runUIKitInstrumentedTest {
+        var showPopup by mutableStateOf(true)
+        var showDialog by mutableStateOf(true)
+        setContent {
+            if (showPopup) {
+                Popup(
+                    alignment = Alignment.Center,
+                    onDismissRequest = { showPopup = false },
+                    properties = PopupProperties(dismissOnClickOutside = true, focusable = true)
+                ) {
+                    Text("Popup")
+                }
+            }
+            if (showDialog) {
+                // Dialog is added after popup, so it sits above the popup in Z-order
+                Dialog(
+                    onDismissRequest = { showDialog = false },
+                    properties = DialogProperties(dismissOnClickOutside = true)
+                ) {
+                    Text("Dialog")
+                }
+            }
+        }
+
+        // First tap: dialog is topmost, absorbs touch and dismisses; popup is shielded
+        tap(outOfDialogBoundsPoint)
+        waitForIdle()
+
+        assertFalse(showDialog)
+        assertTrue(showPopup)
+
+        // Second tap: only the popup layer remains, it absorbs touch and dismisses
+        tap(outOfDialogBoundsPoint)
+        waitForIdle()
+
+        assertFalse(showPopup)
+    }
+
+    @Test
+    fun testDialogAbsorbsTouchesWhenDismissDisabled() = runUIKitInstrumentedTest {
+        var backgroundButtonClicked = false
+        setContent {
+            Button(
+                onClick = { backgroundButtonClicked = true },
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Text("Background Button")
+            }
+            Dialog(
+                onDismissRequest = {},
+                properties = DialogProperties(dismissOnClickOutside = false)
+            ) {
+                Box(modifier = Modifier.size(100.dp))
+            }
+        }
+
+        tap(outOfDialogBoundsPoint)
+        waitForIdle()
+
+        assertFalse(backgroundButtonClicked)
     }
 
     private val UIKitInstrumentedTest.outOfDialogBoundsPoint: DpOffset

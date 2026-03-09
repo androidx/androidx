@@ -37,17 +37,12 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.asDpOffset
 import androidx.compose.ui.unit.asDpRect
-import androidx.compose.ui.unit.round
-import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.toRect
 import androidx.compose.ui.window.FocusedViewsList
 import androidx.navigationevent.NavigationEventDispatcher
 import kotlin.coroutines.CoroutineContext
-import kotlinx.cinterop.CValue
 import kotlinx.coroutines.Job
-import platform.CoreGraphics.CGPoint
 import platform.UIKit.UIView
 import platform.UIKit.UIWindow
 
@@ -74,14 +69,13 @@ internal class UIKitComposeSceneLayer(
         set(value) {
             if (field != value) {
                 field = value
+                mediator.isInterceptingOutsideEvents = value
                 onAccessibilityChanged()
             }
         }
 
     val interactionView = UIKitComposeSceneLayerView(
         ::onDidMoveToWindow,
-        ::isInsideInteractionBounds,
-        isInterceptingOutsideEvents = { focusable }
     )
 
     val overlayView: UIView get() = mediator.overlayView
@@ -108,10 +102,8 @@ internal class UIKitComposeSceneLayer(
         interfaceOrientationState = interfaceOrientationState
     ).also {
         interactionView.embedSubview(it.backgroundView)
+        it.isInterceptingOutsideEvents = focusable
     }
-
-    private fun isInsideInteractionBounds(point: CValue<CGPoint>): Boolean =
-        boundsInWindow.contains(point.asDpOffset().toOffset(interactionView.density).round())
 
     private fun createComposeScene(
         invalidate: () -> Unit,
@@ -219,7 +211,7 @@ internal class UIKitComposeSceneLayer(
     override fun setOutsidePointerEventListener(
         onOutsidePointerEvent: ((eventType: PointerEventType, button: PointerButton?) -> Unit)?
     ) {
-        interactionView.onOutsidePointerEvent = {
+        mediator.onOutsidePointerEvent = {
             onOutsidePointerEvent?.invoke(it, null)
         }
     }
