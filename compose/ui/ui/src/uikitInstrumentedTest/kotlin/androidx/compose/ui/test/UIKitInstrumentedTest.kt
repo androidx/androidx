@@ -21,7 +21,7 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.platform.InfiniteAnimationPolicy
 import androidx.compose.ui.scene.ComposeHostingView
 import androidx.compose.ui.scene.ComposeHostingViewController
-import androidx.compose.ui.scene.LayersWindow
+import androidx.compose.ui.scene.ComposeLayersViewController
 import androidx.compose.ui.test.utils.center
 import androidx.compose.ui.test.utils.getTouchesEvent
 import androidx.compose.ui.test.utils.mouseDown
@@ -66,7 +66,6 @@ import platform.UIKit.UIGraphicsBeginImageContextWithOptions
 import platform.UIKit.UIGraphicsEndImageContext
 import platform.UIKit.UIGraphicsGetCurrentContext
 import platform.UIKit.UIGraphicsGetImageFromCurrentImageContext
-import platform.UIKit.UIGraphicsImageRenderer
 import platform.UIKit.UIImage
 import platform.UIKit.UIInterfaceOrientationLandscapeLeft
 import platform.UIKit.UIInterfaceOrientationLandscapeRight
@@ -86,6 +85,7 @@ import platform.UIKit.UIViewController
 import platform.UIKit.UIWindow
 import platform.UIKit.UIWindowScene
 import platform.UIKit.attemptRotationToDeviceOrientation
+import platform.UIKit.childViewControllers
 import platform.UIKit.endEditing
 import platform.UIKit.systemBackgroundColor
 import platform.darwin.NSObject
@@ -116,6 +116,37 @@ internal fun runUIKitInstrumentedTest(testBlock: UIKitInstrumentedTest.() -> Uni
             testBlock()
         } finally {
             tearDown()
+        }
+    }
+}
+
+/**
+ * Sets up the test environment for iOS instrumented tests, runs the given [test][testBlock] against
+ * UIView- and UIViewController-based Compose Container, passing provided parameters to each test.
+ * Then tears down the test environment.
+ * Use the methods on [UIKitInstrumentedTest] in the test to find compose content and make
+ * assertions on it.
+ * @param [params] The parameters to configure the test run.
+ * @param [testBlock] The test function.
+ */
+internal fun <T> runUIKitInstrumentedTest(
+    params: List<T>, testBlock: UIKitInstrumentedTest.(T) -> Unit
+) {
+    for (param in params) {
+        with(UIKitInstrumentedTest(useHostingView = true)) {
+            try {
+                testBlock(param)
+            } finally {
+                tearDown()
+            }
+        }
+
+        with(UIKitInstrumentedTest(useHostingView = false)) {
+            try {
+                testBlock(param)
+            } finally {
+                tearDown()
+            }
         }
     }
 }
@@ -524,13 +555,23 @@ internal class MockAppDelegate: NSObject(), UIApplicationDelegateProtocol {
     }
 }
 
-internal fun MockAppDelegate.findLayersWindow(): LayersWindow {
-    val window = this@findLayersWindow.window?.windowScene?.windows?.mapNotNull {
-        it as? LayersWindow
-    }?.single { !it.isHidden() }
+internal fun MockAppDelegate.findLayersViewController(): ComposeLayersViewController {
+    fun UIView.layersViewController(): ComposeLayersViewController? {
+        (nextResponder as? ComposeLayersViewController)?.let {
+            return it
+        }
+        for (subview in subviews) {
+            subview as UIView
+            subview.layersViewController()?.let {
+                return it
+            }
+        }
+        return null
+    }
+    val controller = window?.layersViewController()
 
-    assertNotNull(window, "${LayersWindow::class} not found in scene")
-    return window
+    assertNotNull(controller, "${ComposeLayersViewController::class} not found in scene")
+    return controller
 }
 
 internal fun UIKitInstrumentedTest.findFocusedUITextInput(): UITextInputProtocol? {

@@ -16,10 +16,10 @@
 
 package androidx.compose.ui.platform
 
-import androidx.compose.ui.animation.withAnimationProgress
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.uikit.density
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.asCGPoint
 import androidx.compose.ui.unit.asDpOffset
 import androidx.compose.ui.unit.asDpRect
@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.toDpOffset
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.window.SceneActiveStateListener
-import kotlin.time.Duration
 import kotlinx.cinterop.useContents
 import platform.UIKit.UIView
 import platform.UIKit.UIWindow
@@ -59,25 +58,27 @@ internal class PlatformWindowContext {
         }
 
     private var isAnimating = false
-    fun prepareAndGetSizeTransitionAnimation(): suspend (Duration) -> Unit {
-        isAnimating = true
-        val initialSize = _windowInfo.containerSize
-        val initialDpSize = _windowInfo.containerDpSize
+    fun prepareAndGetSizeTransitionAnimation(
+        initialDpSize: DpSize,
+        withProgress: suspend ((Float) -> Unit) -> Unit
+    ): suspend () -> Unit {
+        val windowContainer = window ?: return {}
 
-        return Animation@ { duration ->
+        isAnimating = true
+        val initialSize = initialDpSize.toSize(windowContainer.density).roundToIntSize()
+
+        return Animation@{
             try {
-                val windowContainer = window ?: return@Animation
-                val size = windowContainer.bounds.asDpRect().size
-                val sizeInPx = size.toSize(windowContainer.density).roundToIntSize()
-                if (initialSize == sizeInPx) {
-                    return@Animation
-                }
-                withAnimationProgress(duration) { progress ->
+                withProgress { progress ->
                     val windowContainer = window
                     if (windowContainer != null) {
                         val currentSize = windowContainer.bounds.asDpRect().size
-                        val currentSizeInPx = size.toSize(windowContainer.density).roundToIntSize()
-                        _windowInfo.containerSize = lerp(initialSize.toSize(), currentSizeInPx.toSize(), progress).roundToIntSize()
+                        val currentSizeInPx = currentSize.toSize(windowContainer.density).roundToIntSize()
+                        _windowInfo.containerSize = lerp(
+                            initialSize.toSize(),
+                            currentSizeInPx.toSize(),
+                            progress
+                        ).roundToIntSize()
                         _windowInfo.containerDpSize = lerp(initialDpSize, currentSize, progress)
                     } else {
                         _windowInfo.containerSize = initialSize

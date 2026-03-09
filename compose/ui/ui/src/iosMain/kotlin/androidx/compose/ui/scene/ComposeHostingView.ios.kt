@@ -35,6 +35,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import platform.CoreGraphics.CGSize
+import platform.UIKit.UIView
 
 @OptIn(BetaInteropApi::class)
 @ExportObjCClass
@@ -138,29 +139,11 @@ internal class ComposeHostingView(
         val sizeTransitionScope = container.nestedCoroutineScope(displayLinkListener.frameClock)
         displayLinkListener.start()
 
-        fun progress(): Float {
-            var progress: Float
-            val targetSize = bounds.dpSize()
-            val currentSize = layer.presentationLayer()?.bounds?.dpSize() ?: return 1.0f
-            progress = when {
-                targetSize.width != initialSize.width ->
-                    abs(initialSize.width.value - currentSize.width.value) /
-                        abs(targetSize.width.value - initialSize.width.value)
-
-                targetSize.height != initialSize.height ->
-                    abs(initialSize.height.value - currentSize.height.value) /
-                        abs(targetSize.height.value - initialSize.height.value)
-
-                else -> 1f
-            }
-            return progress.coerceIn(0.0f, 1.0f)
-        }
-
         val animations = container.prepareAndGetSizeTransitionAnimation { onFrame ->
             onFrame(0.0f)
             while (isAnimating) {
                 withFrameNanos {
-                    val progress = progress()
+                    val progress = transitionProgress(initialSize)
                     onFrame(progress)
                     if (progress >= 1.0f) {
                         container.view.clipsToBounds = true
@@ -176,4 +159,22 @@ internal class ComposeHostingView(
         container.view.clipsToBounds = false
         container.view.setFrame(bounds)
     }
+}
+
+internal fun UIView.transitionProgress(initialSize: DpSize): Float {
+    var progress: Float
+    val targetSize = bounds.dpSize()
+    val currentSize = layer.presentationLayer()?.bounds?.dpSize() ?: return 1.0f
+    progress = when {
+        targetSize.width != initialSize.width ->
+            abs(initialSize.width.value - currentSize.width.value) /
+                abs(targetSize.width.value - initialSize.width.value)
+
+        targetSize.height != initialSize.height ->
+            abs(initialSize.height.value - currentSize.height.value) /
+                abs(targetSize.height.value - initialSize.height.value)
+
+        else -> 1f
+    }
+    return progress.coerceIn(0.0f, 1.0f)
 }

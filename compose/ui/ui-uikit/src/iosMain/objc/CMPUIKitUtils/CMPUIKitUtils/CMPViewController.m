@@ -182,25 +182,6 @@
     CMP_ABSTRACT_FUNCTION_CALLED
 }
 
-- (BOOL)shouldAutorotate {
-    return [super shouldAutorotate];
-}
-
-- (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation {
-    return [super preferredInterfaceOrientationForPresentation];
-}
-
-- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
-    return [super supportedInterfaceOrientations];
-}
-
-- (UIViewController *)childViewControllerForStatusBarStyle {
-    return [super childViewControllerForStatusBarStyle];
-}
-
-- (UIViewController *)childViewControllerForStatusBarHidden {
-    return [super childViewControllerForStatusBarHidden];
-}
 
 - (void)dealloc {
     if (_lifecycleState == CMPComposeContainerLifecycleStateStarted) {

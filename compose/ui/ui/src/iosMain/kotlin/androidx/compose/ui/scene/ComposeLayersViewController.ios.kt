@@ -16,13 +16,14 @@
 
 package androidx.compose.ui.scene
 
-import androidx.compose.ui.animation.withAnimationProgress
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.graphics.asComposeCanvas
 import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.uikit.addLayoutConstraintsToMatch
 import androidx.compose.ui.uikit.embedSubview
-import androidx.compose.ui.uikit.utils.CMPComposeContainerLifecycleDelegateProtocol
-import androidx.compose.ui.uikit.utils.CMPViewController
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.dpSize
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.viewinterop.UIKitInteropTransaction
 import androidx.compose.ui.window.ComposeContainerView
@@ -30,46 +31,33 @@ import androidx.compose.ui.window.DisplayLinkListener
 import androidx.compose.ui.window.MetalView
 import androidx.compose.ui.window.MetalViewHolder
 import kotlin.coroutines.CoroutineContext
-import kotlin.time.Duration
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
 import kotlinx.cinterop.CValue
+import kotlinx.cinterop.readValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.job
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import org.jetbrains.skia.Canvas
 import platform.CoreGraphics.CGPoint
-import platform.CoreGraphics.CGSize
+import platform.CoreGraphics.CGRectZero
 import platform.UIKit.UIEvent
-import platform.UIKit.UIInterfaceOrientation
-import platform.UIKit.UIInterfaceOrientationMask
-import platform.UIKit.UIScreen
 import platform.UIKit.UIView
 import platform.UIKit.UIViewController
-import platform.UIKit.UIViewControllerTransitionCoordinatorProtocol
 import platform.UIKit.UIWindow
-import platform.UIKit.UIWindowLevelAlert
-import platform.UIKit.UIWindowLevelNormal
-import platform.UIKit.childViewControllerForStatusBarHidden
-import platform.UIKit.childViewControllerForStatusBarStyle
-import platform.UIKit.preferredInterfaceOrientationForPresentation
-import platform.UIKit.shouldAutorotate
-import platform.UIKit.supportedInterfaceOrientations
-import platform.darwin.NSObject
+import platform.UIKit.beginAppearanceTransition
+import platform.UIKit.endAppearanceTransition
 
 /**
  * A class responsible for managing and rendering [UIKitComposeSceneLayer]s.
  */
 internal class ComposeLayersViewController(
     useSeparateRenderThreadWhenPossible: Boolean,
-    private val coroutineContext: CoroutineContext
-): CMPViewController(lifecycleDelegate = EmptyComposeContainerLifecycleDelegate()) {
+    private val coroutineContext: CoroutineContext,
+    private val hostingComposeView: ComposeContainerView
+): UIViewController(nibName = null, bundle = null) {
     val windowContext = PlatformWindowContext()
 
-    private val window = LayersWindow()
     private var hasViewAppeared = false
 
     val metalView: MetalViewHolder = MetalView(
@@ -80,24 +68,95 @@ internal class ComposeLayersViewController(
         canBeOpaque = false
     }
 
-    private val rootView = ComposeContainerView(
+    enum class AppearanceTransitionState {
+        Appearing,
+        Appeared,
+        Disappearing,
+        Disappeared
+    }
+
+    private var transitionState: AppearanceTransitionState = AppearanceTransitionState.Disappeared
+
+    private val composeContainerView = ComposeContainerView(
         useOpaqueConfiguration = false,
         transparentForTouches = true
-    ).also {
-        it.updateMetalView(
+    ).apply {
+        updateMetalView(
             metalView = metalView,
-            onLayoutSubviews = { windowContext.updateWindowContainerSize() }
+            onWillMoveToWindow = { beginAppearanceTransition(it != null, animated = false) },
+            onDidMoveToWindow = { endAppearanceTransition() }
         )
     }
 
     init {
-        coroutineContext.job.invokeOnCompletion { dispose() }
+        coroutineContext.job.invokeOnCompletion {
+            dispose()
+        }
+    }
+
+    override fun viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        val initialSize = view.layer.presentationLayer()?.bounds?.dpSize()
+        if (initialSize != null &&
+            initialSize != DpSize.Zero &&
+            initialSize != view.bounds.dpSize() &&
+            !hasInteropViews
+        ) {
+            animateSizeTransition(initialSize = initialSize)
+        }
+        composeContainerView.setFrame(view.bounds)
+        windowContext.updateWindowContainerSize()
+    }
+
+    private var isAnimating = false
+    private fun animateSizeTransition(initialSize: DpSize) {
+        if (isAnimating || layers.isEmpty()) {
+            return
+        }
+        isAnimating = true
+
+        val displayLinkListener = DisplayLinkListener()
+        val job = Job()
+        val sizeTransitionScope = CoroutineScope(coroutineContext + displayLinkListener.frameClock + job)
+        displayLinkListener.start()
+
+        val animationProgress: suspend ((Float) -> Unit) -> Unit = { onFrame ->
+            onFrame(0f)
+            while (isAnimating) {
+                withFrameNanos {
+                    val progress = view.transitionProgress(initialSize)
+                    onFrame(progress)
+                    if (progress >= 1.0f && isAnimating) {
+                        job.cancel()
+                        displayLinkListener.invalidate()
+                        isAnimating = false
+                    }
+                }
+            }
+        }
+
+        val animations = listOf(
+            windowContext.prepareAndGetSizeTransitionAnimation(
+                initialDpSize = initialSize,
+                withProgress = animationProgress
+            )
+        ) + layers.map {
+            it.prepareAndGetSizeTransitionAnimation(animationProgress)
+        }
+
+        composeContainerView.animateSizeTransition(sizeTransitionScope) {
+            animations.map { animation ->
+                sizeTransitionScope.launch { animation.invoke() }
+            }.joinAll()
+        }
     }
 
     fun withLayers(block: (List<UIKitComposeSceneLayer>) -> Unit) = layersCache.withCopy(block)
 
     override fun loadView() {
-        this.view = rootView
+        this.view = ComposeLayersView()
+        this.view.addSubview(composeContainerView)
     }
 
     val hasInvalidations: Boolean get() = this.layers.any { it.hasInvalidations }
@@ -113,23 +172,33 @@ internal class ComposeLayersViewController(
      */
     private var removedLayersTransactions = mutableListOf<UIKitInteropTransaction>()
 
-    var referenceWindow: UIWindow? = null
-        set(value) {
-            field = value
-            window.windowScene = value?.windowScene
-            window.windowLevel = value?.windowLevel ?: UIWindowLevelNormal
+    var containerWindow: UIWindow? by windowContext::window
+
+    // The Layers view is a full screen overlay of the current content. To do this, the layers
+    // container view should be placed as close as possible to the current UIWindow.
+    // If another view controller is presented modally, UIWindow changes accessibility elements,
+    // so the layers view can't be accessed by the iOS accessibility engine.
+    // Find the next view in the hierarchy. This view is unique to the root and each modal
+    // view controller.
+    private fun layersContainerView(): UIView? {
+        val window = containerWindow ?: return null
+        var iteratingView = hostingComposeView.superview
+        while (iteratingView != null && iteratingView.superview != window) {
+            iteratingView = iteratingView.superview
         }
+        return iteratingView
+    }
 
     private fun show() {
-        windowContext.window = window
-        window.rootViewController = this
-        window.windowLevel = UIWindowLevelAlert + 1
-        window.setHidden(false)
+        hide()
+
+        val transitionView = layersContainerView() ?: return
+        transitionView.embedSubview(view)
+        transitionView.layoutIfNeeded()
     }
 
     private fun hide() {
-        window.rootViewController = null
-        window.setHidden(true)
+        view.removeFromSuperview()
     }
 
     private fun dispose() {
@@ -146,17 +215,18 @@ internal class ComposeLayersViewController(
         }
 
         hide()
-        rootView.updateMetalView(metalView = null)
-        referenceWindow = null
+        composeContainerView.updateMetalView(metalView = null)
+        composeContainerView.removeFromSuperview()
+        containerWindow = null
         windowContext.dispose()
     }
 
     fun attach(layer: UIKitComposeSceneLayer) {
         val isFirstLayer = layers.isEmpty()
         layers.add(layer)
-        view.insertSubview(layer.interactionView, belowSubview = metalView.view)
-        layer.interactionView.addLayoutConstraintsToMatch(view)
-        view.embedSubview(layer.overlayView)
+        composeContainerView.insertSubview(layer.interactionView, belowSubview = metalView.view)
+        layer.interactionView.addLayoutConstraintsToMatch(composeContainerView)
+        composeContainerView.embedSubview(layer.overlayView)
 
         if (isFirstLayer) {
             show()
@@ -248,146 +318,10 @@ internal class ComposeLayersViewController(
             }
         }
     }
-
-    override fun viewWillTransitionToSize(
-        size: CValue<CGSize>,
-        withTransitionCoordinator: UIViewControllerTransitionCoordinatorProtocol
-    ) {
-        super.viewWillTransitionToSize(size, withTransitionCoordinator)
-
-        if (layers.isEmpty()) {
-            return
-        }
-
-        val duration = withTransitionCoordinator.transitionDuration.toDuration(DurationUnit.SECONDS)
-        if (duration == Duration.ZERO) return
-
-        if (hasInteropViews) {
-            // Heavy interop views may slow down the animation of per-frame screen rotation.
-            // For these cases, a cross-fade transition will be used instead.
-            crossFadeSizeTransition(withTransitionCoordinator)
-        } else {
-            animateSizeTransition(withTransitionCoordinator, duration)
-        }
-    }
-
-    override fun viewControllerDidEnterWindowHierarchy() {}
-
-    override fun viewControllerDidLeaveWindowHierarchy() {}
-
-    override fun userInterfaceStyleDidChange() {}
-
-    override fun preferredInterfaceOrientationForPresentation(): UIInterfaceOrientation {
-        return referenceWindow?.rootViewController?.preferredInterfaceOrientationForPresentation()
-            ?: super.preferredInterfaceOrientationForPresentation()
-    }
-
-    override fun supportedInterfaceOrientations(): UIInterfaceOrientationMask {
-        return referenceWindow?.rootViewController?.supportedInterfaceOrientations()
-            ?: super.supportedInterfaceOrientations()
-    }
-
-    override fun shouldAutorotate(): Boolean {
-        return referenceWindow?.rootViewController?.shouldAutorotate() ?: super.shouldAutorotate()
-    }
-
-    override fun childViewControllerForStatusBarStyle(): UIViewController? {
-        return referenceWindow?.rootViewController?.childViewControllerForStatusBarStyle()
-            ?: referenceWindow?.rootViewController
-            ?: super.childViewControllerForStatusBarStyle()
-    }
-
-    override fun childViewControllerForStatusBarHidden(): UIViewController? {
-        return referenceWindow?.rootViewController?.childViewControllerForStatusBarHidden()
-            ?: referenceWindow?.rootViewController
-            ?: super.childViewControllerForStatusBarHidden()
-    }
-
-    /**
-     * Animates the layout transition of layers.
-     * See [androidx.compose.ui.scene.ComposeHostingViewController.animateSizeTransition]
-     */
-    private fun animateSizeTransition(
-        transitionCoordinator: UIViewControllerTransitionCoordinatorProtocol,
-        duration: Duration,
-    ) {
-        val displayLinkListener = DisplayLinkListener()
-        val sizeTransitionScope =
-            CoroutineScope(coroutineContext + displayLinkListener.frameClock + Job())
-        displayLinkListener.start()
-
-        animateSizeTransition(sizeTransitionScope, duration)
-
-        transitionCoordinator.animateAlongsideTransition(
-            animation = {},
-            completion = {
-                sizeTransitionScope.cancel()
-                displayLinkListener.invalidate()
-            }
-        )
-    }
-
-    private fun crossFadeSizeTransition(
-        transitionCoordinator: UIViewControllerTransitionCoordinatorProtocol
-    ) {
-        val transitionScope = CoroutineScope(coroutineContext + Job())
-        val layersAnimationClosure = rootView.animateCrossFadeTransition(transitionScope)
-
-        transitionCoordinator.animateAlongsideTransition(
-            animation = {
-                layersAnimationClosure.invoke()
-            },
-            completion = {
-                transitionScope.cancel()
-            }
-        )
-    }
-
-    fun animateSizeTransition(scope: CoroutineScope, duration: Duration) {
-        if (this.layers.isEmpty()) {
-            return
-        }
-        val animations = listOf(
-            windowContext.prepareAndGetSizeTransitionAnimation()
-        ) + this.layers.map {
-            { duration ->
-                it.prepareAndGetSizeTransitionAnimation { onFrame ->
-                    withAnimationProgress(duration) { progress ->
-                        onFrame(progress)
-                    }
-                }
-            }
-        }
-
-        rootView.animateSizeTransition(scope) {
-            animations.map {
-                scope.launch { it.invoke(duration) }
-            }.joinAll()
-        }
-    }
 }
 
-internal class LayersWindow: UIWindow(frame = UIScreen.mainScreen.bounds) {
+private class ComposeLayersView: UIView(frame = CGRectZero.readValue()) {
     override fun hitTest(point: CValue<CGPoint>, withEvent: UIEvent?): UIView? {
-        // Hit-testing only the Compose view or any view that is located on top of it.
-        for (subview in subviews.reversed()) {
-            subview as UIView
-            val isDescendantOfComposeView = rootViewController?.view?.isDescendantOfView(subview)
-            if (isDescendantOfComposeView == true) {
-                return rootViewController?.view?.hitTest(point, withEvent)
-            } else {
-                subview.hitTest(point, withEvent)?.let {
-                    return it
-                }
-            }
-        }
-        return null
+        return super.hitTest(point, withEvent).takeUnless { it == this }
     }
-}
-
-private class EmptyComposeContainerLifecycleDelegate: NSObject(),
-    CMPComposeContainerLifecycleDelegateProtocol {
-    override fun composeContainerWillDealloc() {}
-    override fun composeContainerWillAppear() {}
-    override fun composeContainerDidDisappear() {}
 }

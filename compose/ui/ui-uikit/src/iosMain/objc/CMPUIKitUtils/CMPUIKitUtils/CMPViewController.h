@@ -33,15 +33,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// Indicates that trait interface style trait changed
 - (void)userInterfaceStyleDidChange CMP_ABSTRACT_FUNCTION;
 
-// Overrides of the UIViewController (UIViewControllerRotation) extension
-- (BOOL)shouldAutorotate;
-- (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation;
-- (UIInterfaceOrientationMask)supportedInterfaceOrientations;
-
-// Overrides of the UIViewController (UIContainerViewControllerProtectedMethods) extension
-- (nullable UIViewController *)childViewControllerForStatusBarStyle;
-- (nullable UIViewController *)childViewControllerForStatusBarHidden;
-
 @end
 
 NS_ASSUME_NONNULL_END

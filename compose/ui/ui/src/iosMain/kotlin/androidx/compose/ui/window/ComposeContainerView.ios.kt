@@ -51,6 +51,7 @@ internal class ComposeContainerView(
 
     private var metalView: MetalViewHolder? = null
     private var onDidMoveToWindow: (UIWindow?) -> Unit = {}
+    private var onWillMoveToWindow: (UIWindow?) -> Unit = {}
     private var onLayoutSubviews: () -> Unit = {}
     private var foregroundStateListener: SceneForegroundStateListener? = null
 
@@ -80,6 +81,7 @@ internal class ComposeContainerView(
 
     fun updateMetalView(
         metalView: MetalViewHolder?,
+        onWillMoveToWindow: (UIWindow?) -> Unit = {},
         onDidMoveToWindow: (UIWindow?) -> Unit = {},
         onLayoutSubviews: () -> Unit = {}
     ) {
@@ -88,12 +90,14 @@ internal class ComposeContainerView(
         this.metalView = metalView
 
         this.onDidMoveToWindow = onDidMoveToWindow
+        this.onWillMoveToWindow = onWillMoveToWindow
         this.onLayoutSubviews = onLayoutSubviews
 
         metalView?.let {
             addSubview(metalView.view)
         }
         updateLayout()
+        window?.let(onWillMoveToWindow)
         window?.let(onDidMoveToWindow)
 
         if (metalView == null) {
@@ -107,6 +111,12 @@ internal class ComposeContainerView(
             }
         }
         updateRedrawerState()
+    }
+
+    override fun willMoveToWindow(newWindow: UIWindow?) {
+        super.willMoveToWindow(newWindow)
+
+        onWillMoveToWindow(newWindow)
     }
 
     override fun didMoveToWindow() {

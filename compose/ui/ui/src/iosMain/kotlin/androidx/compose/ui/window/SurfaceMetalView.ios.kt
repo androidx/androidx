@@ -20,11 +20,13 @@ import androidx.compose.ui.uikit.toNanoSeconds
 import androidx.compose.ui.uikit.utils.CMPMetalLayer
 import androidx.compose.ui.viewinterop.UIKitInteropTransaction
 import kotlinx.cinterop.BetaInteropApi
+import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ObjCClass
 import kotlinx.cinterop.readValue
 import kotlinx.cinterop.useContents
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skia.Color
+import platform.CoreGraphics.CGRect
 import platform.CoreGraphics.CGRectIsEmpty
 import platform.CoreGraphics.CGRectZero
 import platform.CoreGraphics.CGSizeMake
@@ -111,8 +113,14 @@ internal class SurfaceMetalView(
         updateMetalLayerSize()
     }
 
+    override fun setFrame(frame: CValue<CGRect>) {
+        super.setFrame(frame)
+
+        updateMetalLayerSize()
+    }
+
     private fun updateMetalLayerSize() {
-        if (window == null || CGRectIsEmpty(bounds)) {
+        if (CGRectIsEmpty(bounds)) {
             return
         }
 

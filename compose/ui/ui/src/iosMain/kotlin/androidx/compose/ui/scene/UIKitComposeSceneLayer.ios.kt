@@ -147,7 +147,7 @@ internal class UIKitComposeSceneLayer(
 
     private fun onDidMoveToWindow(window: UIWindow?) {
         if (window != null) {
-            focusedViewsList?.addAndFocus(mediator.backgroundView)
+            focusedViewsList?.addAndFocus(mediator.overlayView)
         }
         navigationEventInput.onDidMoveToWindow(window, interactionView)
     }

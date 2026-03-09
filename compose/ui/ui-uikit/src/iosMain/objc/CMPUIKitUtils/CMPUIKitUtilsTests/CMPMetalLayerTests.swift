@@ -390,6 +390,52 @@ final class CMPMetalLayerTests: XCTestCase {
         XCTAssert(true, "Should not crash when returning drawable multiple times")
     }
 
+    // MARK: - Frame Ordering Tests
+
+    func testOlderFrameIsDroppedWhenNewerFrameAlreadyPresented() {
+        layer.drawableSize = CGSize(width: 100, height: 100)
+
+        let drawable1 = layer.nextDrawable()!
+        let drawable2 = layer.nextDrawable()!
+
+        let backgroundPresented = DispatchSemaphore(value: 0)
+        var drawable1CompletionCalled = false
+        var drawable2CompletionCalled = false
+
+        // Schedule frame from background queue. presentDrawable sets drawable1.presentedTime = t1
+        // and then dispatches the actual on-screen presentation to the main thread asynchronously.
+        DispatchQueue.global().async {
+            self.layer.present(drawable1) {
+                drawable1CompletionCalled = true
+            }
+            // Signal only after presentDrawable has set presentedTime and queued the main-thread block.
+            backgroundPresented.signal()
+        }
+
+        // Block main thread until t1 is fixed and drawable1's presentation block is in the main queue.
+        backgroundPresented.wait()
+
+        // Present drawable2 synchronously from main thread: sets presentedTime = t2 > t1
+        // and calls presentOnMainThread immediately (before drawable1's queued block can run).
+        layer.present(drawable2) {
+            drawable2CompletionCalled = true
+        }
+
+        XCTAssertTrue(drawable2CompletionCalled, "Newer frame should be presented immediately")
+        XCTAssertFalse(drawable1CompletionCalled, "Older frame should not have been presented yet")
+
+        // Drain the main queue so drawable1's pending block executes.
+        let expectation = self.expectation(description: "Main run loop processes queued block")
+        DispatchQueue.main.async {
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+
+        // drawable1's block should have been dropped: its presentedTime (t1) is older than
+        // the already-presented drawable2's time (t2), so completion must not be called.
+        XCTAssertFalse(drawable1CompletionCalled, "Frame scheduled before a newer presented frame must be dropped")
+    }
+
     // MARK: - Stress Test
 
     func testConcurrentAcquireReturnAcquirePattern() {
@@ -405,15 +451,13 @@ final class CMPMetalLayerTests: XCTestCase {
                 if let drawable {
                     if i % 2 == 0 {
                         self.layer.release(drawable)
-                        expectation.fulfill()
                     } else {
-                        self.layer.present(drawable) {
-                            expectation.fulfill()
-                        }
+                        self.layer.present(drawable) {}
                     }
-                } else {
-                    expectation.fulfill()
                 }
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                expectation.fulfill()
             }
         }
         

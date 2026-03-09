@@ -33,7 +33,7 @@ import androidx.compose.ui.scene.ComposeHostingView
 import androidx.compose.ui.scene.ComposeHostingViewController
 import androidx.compose.ui.window.ComposeUIView
 import androidx.compose.ui.test.MockAppDelegate
-import androidx.compose.ui.test.findLayersWindow
+import androidx.compose.ui.test.findLayersViewController
 import androidx.compose.ui.test.waitForIdle
 import androidx.compose.ui.uikit.embedSubview
 import androidx.compose.ui.window.ComposeUIViewController
@@ -450,8 +450,8 @@ class MemoryLeaksTest {
 
             controller.waitForIdle()
 
-            val layersWindow = appDelegate.findLayersWindow()
-            layersViewControllerRef = WeakReference(layersWindow.rootViewController!!)
+            val layersViewController = appDelegate.findLayersViewController()
+            layersViewControllerRef = WeakReference(layersViewController)
         }
 
         assertTrue(dialogLoaded)
@@ -482,16 +482,16 @@ class MemoryLeaksTest {
                 controller.waitForIdle()
             }
 
-            val layersWindow = appDelegate.findLayersWindow()
+            val layersViewController = appDelegate.findLayersViewController()
             collectComposeSubviewsRecursively(
-                layersWindow.rootViewController?.view!!,
+                layersViewController.view,
                 subviewsReferences
             )
 
             assertEquals(
-                expected = 5,
+                expected = 6,
                 actual = subviewsReferences.count(),
-                message = "Expected 5 subviews: [ComposeContainerView, UIKitComposeSceneLayerView, BackgroundInputView, MetalView, OverlayInputView]" +
+                message = "Expected 6 subviews: [ComposeLayersView, ComposeContainerView, UIKitComposeSceneLayerView, BackgroundInputView, MetalView, OverlayInputView]" +
                     ", but given: ${
                         subviewsReferences.mapNotNull { ref ->
                             ref.get()?.let { it::class.simpleName }

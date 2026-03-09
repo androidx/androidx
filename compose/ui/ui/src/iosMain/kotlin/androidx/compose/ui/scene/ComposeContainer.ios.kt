@@ -172,7 +172,7 @@ internal class ComposeContainer(
 
         updateInterfaceOrientationState()
 
-        layersHolder?.layersViewController?.referenceWindow = view.window
+        layersHolder?.layersViewController?.containerWindow = view.window
         windowContext.window = window
         updateMotionSpeed()
         lifecycleDelegate.windowScene = window.windowScene
@@ -221,7 +221,7 @@ internal class ComposeContainer(
         val holder = ComposeLayersHolder(
             useSeparateRenderThreadWhenPossible = configuration.parallelRendering,
             coroutineContext = sceneCoroutineContext,
-            getWindow = { view.window }
+            view = view
         ).also {
             layersHolder = it
         }
@@ -415,7 +415,7 @@ private fun getApplicationLayoutDirection() =
 private class ComposeLayersHolder(
     private val useSeparateRenderThreadWhenPossible: Boolean,
     private val coroutineContext: CoroutineContext,
-    private val getWindow: () -> UIWindow?
+    private val view: ComposeContainerView
 ) {
     var layersViewController: ComposeLayersViewController? = null
         private set
@@ -424,9 +424,10 @@ private class ComposeLayersHolder(
         return layersViewController ?: run {
             val layers = ComposeLayersViewController(
                 useSeparateRenderThreadWhenPossible = useSeparateRenderThreadWhenPossible,
-                coroutineContext = coroutineContext
+                coroutineContext = coroutineContext,
+                hostingComposeView = view
             )
-            layers.referenceWindow = getWindow()
+            layers.containerWindow = view.window
             layersViewController = layers
             layers
         }
