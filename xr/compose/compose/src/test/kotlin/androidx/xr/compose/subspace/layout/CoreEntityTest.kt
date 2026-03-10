@@ -36,6 +36,7 @@ import androidx.xr.compose.subspace.SpatialActivityPanel
 import androidx.xr.compose.subspace.SpatialAndroidViewPanel
 import androidx.xr.compose.subspace.SpatialMainPanel
 import androidx.xr.compose.subspace.SpatialPanel
+import androidx.xr.compose.subspace.rememberSpatialActivityPanelController
 import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.configureFakeSession
@@ -193,10 +194,14 @@ class CoreEntityTest {
     @Test
     fun coreBasePanelEntity_activityPanel_enabledStateFollowsSizeChanges() {
         var size by mutableStateOf(100.dp)
+
         composeTestRule.setContent {
             Subspace {
                 SpatialActivityPanel(
-                    intent = Intent(composeTestRule.activity, SpatialPanelActivity::class.java),
+                    controller =
+                        rememberSpatialActivityPanelController(
+                            Intent(composeTestRule.activity, SpatialPanelActivity::class.java)
+                        ),
                     SubspaceModifier.width(size).height(size).testTag("panel"),
                 )
             }

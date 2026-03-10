@@ -353,7 +353,10 @@ class SpatialPanelTest {
             Subspace {
                 if (showPanel.value) {
                     SpatialActivityPanel(
-                        intent = Intent(composeTestRule.activity, SpatialPanelActivity::class.java),
+                        controller =
+                            rememberSpatialActivityPanelController(
+                                Intent(composeTestRule.activity, SpatialPanelActivity::class.java)
+                            ),
                         modifier = SubspaceModifier.testTag(panelTag).size(100.dp),
                     )
                 }
@@ -496,7 +499,10 @@ class SpatialPanelTest {
         composeTestRule.setContent {
             Subspace {
                 SpatialActivityPanel(
-                    intent = Intent(composeTestRule.activity, SpatialPanelActivity::class.java),
+                    controller =
+                        rememberSpatialActivityPanelController(
+                            Intent(composeTestRule.activity, SpatialPanelActivity::class.java)
+                        ),
                     modifier = SubspaceModifier.width(200.dp).height(300.dp),
                     shape = SpatialRoundedCornerShape(CornerSize(50)),
                 )
@@ -525,8 +531,13 @@ class SpatialPanelTest {
                 content = {
                     Subspace {
                         SpatialActivityPanel(
-                            intent =
-                                Intent(composeTestRule.activity, SpatialPanelActivity::class.java),
+                            controller =
+                                rememberSpatialActivityPanelController(
+                                    Intent(
+                                        composeTestRule.activity,
+                                        SpatialPanelActivity::class.java,
+                                    )
+                                ),
                             modifier = SubspaceModifier.width(200.dp).height(300.dp),
                             shape = SpatialRoundedCornerShape(CornerSize(50)),
                         )
@@ -568,8 +579,13 @@ class SpatialPanelTest {
                 content = {
                     Subspace {
                         SpatialActivityPanel(
-                            intent =
-                                Intent(composeTestRule.activity, SpatialPanelActivity::class.java),
+                            controller =
+                                rememberSpatialActivityPanelController(
+                                    Intent(
+                                        composeTestRule.activity,
+                                        SpatialPanelActivity::class.java,
+                                    )
+                                ),
                             modifier = SubspaceModifier.width(200.dp).height(300.dp),
                             shape = SpatialRoundedCornerShape(CornerSize(50)),
                         )
@@ -584,6 +600,8 @@ class SpatialPanelTest {
             )
         }
         val session = checkNotNull(composeTestRule.session) { "session must be initialized" }
+
+        composeTestRule.waitForIdle()
 
         // Verify the set of PanelEntities before the SpatialDialog is dismissed:
         // SpatialDialog
