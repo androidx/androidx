@@ -297,11 +297,11 @@ public fun <T : Any> NavDisplay(
  * no [Scene] is calculated, the fallback will be to a [SinglePaneSceneStrategy].
  *
  * It is allowable for different [Scene]s to render the same [NavEntry]s, perhaps on some conditions
- * as determined by the [sceneStrategy] based on window size, form factor, other arbitrary logic.
+ * as determined by the [sceneStrategies] based on window size, form factor, other arbitrary logic.
  *
  * If this happens, and these [Scene]s are rendered at the same time due to animation or predictive
  * back, then the content for the [NavEntry] will only be rendered in the most recent [Scene] that
- * is the target for being the current scene as determined by [sceneStrategy]. This enforces a
+ * is the target for being the current scene as determined by [sceneStrategies]. This enforces a
  * unique invocation of each [NavEntry], even if it is displayable by two different [Scene]s.
  *
  * By default, AnimatedContent transitions are prioritized in this order:
@@ -475,11 +475,11 @@ public fun <T : Any> NavDisplay(
  * no [Scene] is calculated, the fallback will be to a [SinglePaneSceneStrategy].
  *
  * It is allowable for different [Scene]s to render the same [NavEntry]s, perhaps on some conditions
- * as determined by the [sceneStrategy] based on window size, form factor, other arbitrary logic.
+ * as determined by the [sceneStrategies] based on window size, form factor, other arbitrary logic.
  *
  * If this happens, and these [Scene]s are rendered at the same time due to animation or predictive
  * back, then the content for the [NavEntry] will only be rendered in the most recent [Scene] that
- * is the target for being the current scene as determined by [sceneStrategy]. This enforces a
+ * is the target for being the current scene as determined by [sceneStrategies]. This enforces a
  * unique invocation of each [NavEntry], even if it is displayable by two different [Scene]s.
  *
  * By default, AnimatedContent transitions are prioritized in this order:
