@@ -44,7 +44,7 @@ class TestPointerInputEventData(
             PointerType.Mouse,
             historical = listOf(),
             originalEventPosition = position,
-            scaleGestureFactor = 1f, // TODO https://youtrack.jetbrains.com/issue/CMP-9506/Investigate-and-support-Trackpad-API
-            panGestureOffset = Offset.Zero, // TODO https://youtrack.jetbrains.com/issue/CMP-9506/Investigate-and-support-Trackpad-API
+            scaleGestureFactor = 1f,
+            panGestureOffset = Offset.Zero,
         )
 }

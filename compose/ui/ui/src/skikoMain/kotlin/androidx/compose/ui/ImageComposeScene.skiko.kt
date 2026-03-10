@@ -315,7 +315,7 @@ class ImageComposeScene @ExperimentalComposeUiApi constructor(
         buttons: PointerButtons? = null,
         keyboardModifiers: PointerKeyboardModifiers? = null,
         nativeEvent: Any? = null,
-        button: PointerButton? = null
+        button: PointerButton? = null,
     ) {
         scene.sendPointerEvent(
             eventType,
@@ -343,12 +343,14 @@ class ImageComposeScene @ExperimentalComposeUiApi constructor(
      * @param buttons Contains the state of pointer buttons (e.g. mouse and stylus buttons) after the event.
      * @param keyboardModifiers Contains the state of modifier keys, such as Shift, Control,
      * and Alt, as well as the state of the lock keys, such as Caps Lock and Num Lock.
-     * @param scrollDelta scroll delta for the PointerEventType.Scroll event
+     * @param scrollDelta scroll delta for the PointerEventType.Scroll event.
      * @param timeMillis The time of the current pointer event, in milliseconds. The start (`0`) time
      * is platform-dependent.
      * @param nativeEvent The original native event.
      * @param button Represents the index of a button which state changed in this event. It's null
      * when there was no change of the buttons state or when button is not applicable (e.g. touch event).
+     * @param scaleGestureFactor The scale gesture factor for PointerEventType.Scale event.
+     * @param panGestureOffset The pan gesture offset for PointerEventType.Pan event.
      */
     @ExperimentalComposeUiApi
     fun sendPointerEvent(
@@ -360,6 +362,8 @@ class ImageComposeScene @ExperimentalComposeUiApi constructor(
         timeMillis: Long = (currentNanoTime() / 1E6).toLong(),
         nativeEvent: Any? = null,
         button: PointerButton? = null,
+        scaleGestureFactor: Float = 1f,
+        panGestureOffset: Offset = Offset.Zero,
     ) {
         scene.sendPointerEvent(
             eventType,
@@ -369,7 +373,9 @@ class ImageComposeScene @ExperimentalComposeUiApi constructor(
             scrollDelta,
             timeMillis,
             nativeEvent,
-            button
+            button,
+            scaleGestureFactor,
+            panGestureOffset,
         )
     }
 

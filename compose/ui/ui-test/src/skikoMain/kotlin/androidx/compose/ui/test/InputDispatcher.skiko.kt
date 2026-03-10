@@ -225,37 +225,62 @@ internal class SkikoInputDispatcher(
         }
     }
 
-    // TODO: https://youtrack.jetbrains.com/issue/CMP-9457
     override fun CursorInputState.enqueueTrackpadPress(buttonId: Int) {
-        TODO("No yet implemented - CMP-9457")
+        // Except for special gestures, trackpad input works exactly the same as mouse input.
+        this.enqueueMousePress(buttonId)
     }
 
     override fun CursorInputState.enqueueTrackpadMove() {
-        TODO("No yet implemented - CMP-9457")
+        // Except for special gestures, trackpad input works exactly the same as mouse input.
+        this.enqueueMouseMove()
     }
 
     override fun CursorInputState.enqueueTrackpadRelease(buttonId: Int) {
-        TODO("No yet implemented - CMP-9457")
+        // Except for special gestures, trackpad input works exactly the same as mouse input.
+        this.enqueueMouseRelease(buttonId)
     }
 
     override fun CursorInputState.enqueueTrackpadEnter() {
-        TODO("No yet implemented - CMP-9457")
+        // Except for special gestures, trackpad input works exactly the same as mouse input.
+        this.enqueueMouseEnter()
     }
 
     override fun CursorInputState.enqueueTrackpadExit() {
-        TODO("No yet implemented - CMP-9457")
+        // Except for special gestures, trackpad input works exactly the same as mouse input.
+        this.enqueueMouseExit()
     }
 
     override fun CursorInputState.enqueueTrackpadCancel() {
-        TODO("No yet implemented - CMP-9457")
+        // Except for special gestures, trackpad input works exactly the same as mouse input.
+        this.enqueueMouseCancel()
     }
 
     override fun CursorInputState.enqueueTrackpadScroll(offset: Offset) {
-        TODO("No yet implemented - CMP-9457")
+        val position = lastPosition
+        val timeMillis = currentTime
+        enqueue(timeMillis) {
+            root.sendPointerEvent(
+                PointerEventType.Pan,
+                position = position,
+                type = PointerType.Mouse,
+                timeMillis = timeMillis,
+                panGestureOffset = offset
+            )
+        }
     }
 
     override fun CursorInputState.enqueueTrackpadPinch(scaleFactor: Float) {
-        TODO("No yet implemented - CMP-9457")
+        val position = lastPosition
+        val timeMillis = currentTime
+        enqueue(timeMillis) {
+            root.sendPointerEvent(
+                PointerEventType.Scale,
+                position = position,
+                type = PointerType.Mouse,
+                timeMillis = timeMillis,
+                scaleGestureFactor = scaleFactor
+            )
+        }
     }
 
     override fun KeyInputState.enqueueDown(key: Key) {

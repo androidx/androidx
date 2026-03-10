@@ -64,7 +64,9 @@ interface PlatformRootForTest : RootForTest {
         buttons: PointerButtons? = null,
         keyboardModifiers: PointerKeyboardModifiers? = null,
         nativeEvent: Any? = null,
-        button: PointerButton? = null
+        button: PointerButton? = null,
+        scaleGestureFactor: Float = 1f,
+        panGestureOffset: Offset = Offset.Zero,
     )
 
     /**
@@ -82,5 +84,7 @@ interface PlatformRootForTest : RootForTest {
         timeMillis: Long = (currentNanoTime() / 1E6).toLong(),
         nativeEvent: Any? = null,
         button: PointerButton? = null,
+        scaleGestureFactor: Float = 1f,
+        panGestureOffset: Offset = Offset.Zero,
     )
 }

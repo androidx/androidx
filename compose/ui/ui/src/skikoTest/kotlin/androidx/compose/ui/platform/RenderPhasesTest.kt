@@ -395,6 +395,58 @@ class RenderPhasesTest {
     }
 
     @Test
+    fun panPointerEventHandlesScrollUpdatesSynchronously() = runInternalSkikoComposeUiTest(
+        coroutineDispatcher = StandardTestDispatcher()
+    ) {
+        val scrollState = ScrollState(0)
+        setContent {
+            Box(modifier = Modifier.size(100.dp).verticalScroll(scrollState)) {
+                Box(Modifier.size(200.dp))
+            }
+        }
+
+        assertFalse(scene.hasInvalidations())
+        assertEquals(0, scrollState.value)
+
+        scene.sendPointerEvent(
+            eventType = PointerEventType.Pan,
+            position = Offset(50f, 50f),
+            panGestureOffset = Offset(0f, 40f)
+        )
+
+        assertTrue(scene.hasInvalidations())
+        assertNotEquals(0, scrollState.value)
+    }
+
+    @Test
+    fun scalePointerEventHandlesScrollUpdatesSynchronously() = runInternalSkikoComposeUiTest(
+        coroutineDispatcher = StandardTestDispatcher()
+    ) {
+        var scale = 1f
+        setContent {
+            Box(modifier = Modifier.size(100.dp).onPointerEvent(PointerEventType.Scale) {
+                it.changes.forEach { change ->
+                    scale *= change.scaleGestureFactor
+                }
+            }) {
+                Box(Modifier.size(200.dp))
+            }
+        }
+
+        assertFalse(scene.hasInvalidations())
+        assertEquals(1f, scale)
+
+        scene.sendPointerEvent(
+            eventType = PointerEventType.Scale,
+            position = Offset(50f, 50f),
+            scaleGestureFactor = 2.0f
+        )
+
+        assertTrue(scene.hasInvalidations())
+        assertNotEquals(1f, scale)
+    }
+
+    @Test
     fun pointerPressEventProcessesScheduledCoroutines() = runInternalSkikoComposeUiTest(
         coroutineDispatcher = StandardTestDispatcher()
     ) {
@@ -472,7 +524,7 @@ class RenderPhasesTest {
                 modifier = Modifier
                     .focusRequester(focusRequester)
                     .focusable(interactionSource = interactionSource)
-                    .onKeyEvent { keyEvent: KeyEvent ->
+                    .onKeyEvent {
                         coroutineScope.launch {
                             keyHandledAfterDelay = true
                         }
@@ -512,7 +564,7 @@ class RenderPhasesTest {
             val interactionSource = remember { MutableInteractionSource() }
             Box(
                 modifier = Modifier
-                    .onRotaryScrollEvent { event ->
+                    .onRotaryScrollEvent {
                         coroutineScope.launch {
                             eventHandledAfterDelay = true
                         }

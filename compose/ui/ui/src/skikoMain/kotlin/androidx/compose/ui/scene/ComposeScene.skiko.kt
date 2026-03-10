@@ -216,7 +216,9 @@ sealed interface ComposeScene : AutoCloseable {
         buttons: PointerButtons? = null,
         keyboardModifiers: PointerKeyboardModifiers? = null,
         nativeEvent: Any? = null,
-        button: PointerButton? = null
+        button: PointerButton? = null,
+        scaleGestureFactor: Float = 1f,
+        panGestureOffset: Offset = Offset.Zero,
     ): PointerEventResult
 
     /**
@@ -249,6 +251,8 @@ sealed interface ComposeScene : AutoCloseable {
         timeMillis: Long = currentTimeMillis(),
         nativeEvent: Any? = null,
         button: PointerButton? = null,
+        scaleGestureFactor: Float = 1f,
+        panGestureOffset: Offset = Offset.Zero,
     ): PointerEventResult
 
     /**

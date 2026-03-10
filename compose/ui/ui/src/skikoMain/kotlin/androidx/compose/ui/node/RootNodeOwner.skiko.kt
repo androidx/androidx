@@ -755,7 +755,9 @@ internal class RootNodeOwner(
             buttons: PointerButtons?,
             keyboardModifiers: PointerKeyboardModifiers?,
             nativeEvent: Any?,
-            button: PointerButton?
+            button: PointerButton?,
+            scaleGestureFactor: Float,
+            panGestureOffset: Offset,
         ) {
             inputHandler.onPointerEvent(
                 eventType = eventType,
@@ -766,7 +768,9 @@ internal class RootNodeOwner(
                 buttons = buttons,
                 keyboardModifiers = keyboardModifiers,
                 nativeEvent = nativeEvent,
-                button = button
+                button = button,
+                scaleGestureFactor = scaleGestureFactor,
+                panGestureOffset = panGestureOffset,
             )
         }
 
@@ -782,6 +786,8 @@ internal class RootNodeOwner(
             timeMillis: Long,
             nativeEvent: Any?,
             button: PointerButton?,
+            scaleGestureFactor: Float,
+            panGestureOffset: Offset,
         ) {
             inputHandler.onPointerEvent(
                 eventType = eventType,
@@ -791,7 +797,9 @@ internal class RootNodeOwner(
                 scrollDelta = scrollDelta,
                 timeMillis = timeMillis,
                 nativeEvent = nativeEvent,
-                button = button
+                button = button,
+                scaleGestureFactor = scaleGestureFactor,
+                panGestureOffset = panGestureOffset,
             )
         }
 

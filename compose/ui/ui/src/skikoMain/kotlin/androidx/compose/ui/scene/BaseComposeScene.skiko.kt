@@ -207,7 +207,9 @@ internal abstract class BaseComposeScene(
         buttons: PointerButtons?,
         keyboardModifiers: PointerKeyboardModifiers?,
         nativeEvent: Any?,
-        button: PointerButton?
+        button: PointerButton?,
+        scaleGestureFactor: Float,
+        panGestureOffset: Offset
     ): PointerEventResult = postponeInvalidation(
         "BaseComposeScene:sendPointerEvent"
     ) {
@@ -220,7 +222,9 @@ internal abstract class BaseComposeScene(
             buttons = buttons,
             keyboardModifiers = keyboardModifiers,
             nativeEvent = nativeEvent,
-            button = button
+            button = button,
+            scaleGestureFactor = scaleGestureFactor,
+            panGestureOffset = panGestureOffset,
         ).also {
             recomposer.performScheduledEffects()
         }
@@ -236,6 +240,8 @@ internal abstract class BaseComposeScene(
         timeMillis: Long,
         nativeEvent: Any?,
         button: PointerButton?,
+        scaleGestureFactor: Float,
+        panGestureOffset: Offset,
     ): PointerEventResult = postponeInvalidation(
         "BaseComposeScene:sendPointerEvent"
     ) {
@@ -247,7 +253,9 @@ internal abstract class BaseComposeScene(
             scrollDelta = scrollDelta,
             timeMillis = timeMillis,
             nativeEvent = nativeEvent,
-            button = button
+            button = button,
+            scaleGestureFactor = scaleGestureFactor,
+            panGestureOffset = panGestureOffset,
         ).also {
             recomposer.performScheduledEffects()
         }

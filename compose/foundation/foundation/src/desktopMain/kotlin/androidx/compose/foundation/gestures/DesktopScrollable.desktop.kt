@@ -21,6 +21,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.awt.awtEventOrNull
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEvent
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.unit.Density
@@ -57,6 +58,11 @@ internal abstract class DesktopScrollConfig : ScrollConfig {
 internal object LinuxGnomeConfig : DesktopScrollConfig() {
     // the formula was determined experimentally based on Ubuntu Nautilus behaviour
     override fun Density.calculateMouseWheelScroll(event: PointerEvent, bounds: IntSize): Offset {
+        // TODO: https://youtrack.jetbrains.com/issue/CMP-1610
+        if (event.type == PointerEventType.Pan) {
+            return event.totalPanGestureOffset
+        }
+
         return if (event.shouldScrollByPage) {
             calculateOffsetByPage(event, bounds)
         } else {
@@ -71,6 +77,11 @@ internal object LinuxGnomeConfig : DesktopScrollConfig() {
 internal object WindowsWinUIConfig : DesktopScrollConfig() {
     // the formula was determined experimentally based on Windows Start behaviour
     override fun Density.calculateMouseWheelScroll(event: PointerEvent, bounds: IntSize): Offset {
+        // TODO: https://youtrack.jetbrains.com/issue/CMP-1610
+        if (event.type == PointerEventType.Pan) {
+            return event.totalPanGestureOffset
+        }
+
         return if (event.shouldScrollByPage) {
             calculateOffsetByPage(event, bounds)
         } else {
@@ -86,6 +97,11 @@ internal object MacOSCocoaConfig : DesktopScrollConfig() {
     // the formula was determined experimentally based on MacOS Finder behaviour
     // MacOS driver will send events with accelerating delta
     override fun Density.calculateMouseWheelScroll(event: PointerEvent, bounds: IntSize): Offset {
+        // TODO: https://youtrack.jetbrains.com/issue/CMP-1610
+        if (event.type == PointerEventType.Pan) {
+            return event.totalPanGestureOffset
+        }
+
         return if (event.shouldScrollByPage) {
             calculateOffsetByPage(event, bounds)
         } else {
@@ -113,6 +129,9 @@ private val PointerEvent.shouldScrollByPage
 
 private val PointerEvent.totalScrollDelta
     get() = this.changes.fastFold(Offset.Zero) { acc, c -> acc + c.scrollDelta }
+
+private val PointerEvent.totalPanGestureOffset
+    get() = -this.changes.fastFold(Offset.Zero) { acc, c -> acc + c.panGestureOffset }
 
 private val PointerEvent.isPreciseWheelRotation
     get() = (awtEventOrNull as? MouseWheelEvent)?.isPreciseWheelRotation ?: false

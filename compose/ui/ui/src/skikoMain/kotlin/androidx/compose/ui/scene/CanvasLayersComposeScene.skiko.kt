@@ -240,7 +240,9 @@ private class CanvasLayersComposeSceneImpl(
             PointerEventType.Move -> processMove(event)
             PointerEventType.Enter -> processMove(event)
             PointerEventType.Exit -> processMove(event)
-            PointerEventType.Scroll -> processScroll(event)
+            PointerEventType.Scroll -> processHoveredEvent(event)
+            PointerEventType.Pan -> processHoveredEvent(event)
+            PointerEventType.Scale -> processHoveredEvent(event)
             else -> PointerEventResult(anyMovementConsumed = false)
         }
 
@@ -416,7 +418,7 @@ private class CanvasLayersComposeSceneImpl(
         return lastHoverOwnerResult.merging(ownerResult)
     }
 
-    private fun processScroll(event: PointerInputEvent): PointerEventResult {
+    private fun processHoveredEvent(event: PointerInputEvent): PointerEventResult {
         val owner = hoveredOwner(event)
         return if (isInteractive(owner)) {
             owner.onPointerInput(event)

@@ -102,6 +102,8 @@ internal class SyntheticEventSender(
             PointerEventType.Move,
             PointerEventType.Press,
             PointerEventType.Scroll,
+            PointerEventType.Scale,
+            PointerEventType.Pan
                 -> isMousePointerInside = true
             PointerEventType.Exit
                 -> isMousePointerInside = false
@@ -265,18 +267,18 @@ internal class SyntheticEventSender(
         position: Offset = this.position,
         down: Boolean = this.down
     ) = PointerInputEventData(
-        id,
-        uptime,
-        position,
-        position,
-        down,
-        pressure,
-        type,
-        activeHover,
-        scrollDelta = Offset(0f, 0f),
+        id = id,
+        uptime = uptime,
+        positionOnScreen = position,
+        position = position,
+        down = down,
+        pressure = pressure,
+        type = type,
+        activeHover = activeHover,
+        scrollDelta = Offset.Zero,
         historical = emptyList(), // we don't copy historical for synthetic
+        scaleGestureFactor = 1.0f,
+        panGestureOffset = Offset.Zero,
         originalEventPosition = position,
-        scaleGestureFactor = 1f, // TODO https://youtrack.jetbrains.com/issue/CMP-9506/Investigate-and-support-Trackpad-API
-        panGestureOffset = Offset.Zero, // TODO https://youtrack.jetbrains.com/issue/CMP-9506/Investigate-and-support-Trackpad-API
     )
 }

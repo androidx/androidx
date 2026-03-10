@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.scene
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.HistoricalChange
@@ -36,7 +35,7 @@ import kotlin.jvm.JvmInline
  * Represents pointer such as mouse cursor, or touch/stylus press.
  * There can be multiple pointers on the screen at the same time.
  */
-@ExperimentalComposeUiApi
+@InternalComposeUiApi
 class ComposeScenePointer(
     /**
      * Unique id associated with the pointer. Used to distinguish between multiple pointers that can exist
@@ -107,16 +106,6 @@ class ComposeScenePointer(
     }
 }
 
-internal fun PointerInputEventData.toComposeScenePointer() = ComposeScenePointer(
-    id = id,
-    position = position,
-    pressed = down,
-    type = type,
-    pressure = pressure,
-    historical = historical
-)
-
-@OptIn(ExperimentalComposeUiApi::class)
 internal fun PointerInputEvent(
     eventType: PointerEventType,
     pointers: List<ComposeScenePointer>,
@@ -125,7 +114,9 @@ internal fun PointerInputEvent(
     scrollDelta: Offset,
     buttons: PointerButtons,
     keyboardModifiers: PointerKeyboardModifiers,
-    changedButton: PointerButton?
+    changedButton: PointerButton?,
+    scaleGestureFactor: Float,
+    panGestureOffset: Offset,
 ) = PointerInputEvent(
     eventType = eventType,
     uptime = timeMillis,
@@ -142,8 +133,8 @@ internal fun PointerInputEvent(
             historical = it.historical,
             scrollDelta = scrollDelta,
             originalEventPosition = it.position,
-            scaleGestureFactor = 1f, // TODO https://youtrack.jetbrains.com/issue/CMP-9506/Investigate-and-support-Trackpad-API
-            panGestureOffset = Offset.Zero, // TODO https://youtrack.jetbrains.com/issue/CMP-9506/Investigate-and-support-Trackpad-API
+            scaleGestureFactor = scaleGestureFactor,
+            panGestureOffset = panGestureOffset,
         )
     },
     buttons = buttons,

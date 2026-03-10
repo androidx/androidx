@@ -16,15 +16,18 @@
 
 package androidx.compose.ui
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Enter
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Exit
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Move
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Press
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Release
+import androidx.compose.ui.input.pointer.PointerEventType.Companion.Scroll
 import androidx.compose.ui.input.pointer.PointerInputEvent
 import androidx.compose.ui.input.pointer.SyntheticEventSender
 import androidx.compose.ui.scene.PointerEventResult
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -474,6 +477,81 @@ class SyntheticEventSenderTest {
             mouseEvent(Move, 10f, 20f, pressed = false),
             mouseEvent(Exit, 10f, 20f, pressed = false)
         )
+    }
+
+    @Test
+    fun `synthetic events should not duplicate scrollDelta`() {
+        val received = mutableListOf<PointerInputEvent>()
+        val sender = SyntheticEventSender {
+            PointerEventResult(received.add(it))
+        }
+
+        sender.send(
+            mouseEvent(
+                Scroll,
+                10f,
+                20f,
+                pressed = false,
+                scrollDelta = Offset(0f, 5f)
+            )
+        )
+        sender.send(mouseEvent(Press, 10f, 30f, pressed = true))
+
+        assertEquals(3, received.size)
+        val totalScroll = received.fold(Offset.Zero) { acc, event ->
+            acc + event.pointers.fold(Offset.Zero) { a, p -> a + p.scrollDelta }
+        }
+        assertEquals(Offset(0f, 5f), totalScroll)
+    }
+
+    @Test
+    fun `synthetic events should not duplicate panGestureOffset`() {
+        val received = mutableListOf<PointerInputEvent>()
+        val sender = SyntheticEventSender {
+            PointerEventResult(received.add(it))
+        }
+
+        sender.send(
+            mouseEvent(
+                Scroll,
+                10f,
+                20f,
+                pressed = false,
+                panGestureOffset = Offset(0f, 5f)
+            )
+        )
+        sender.send(mouseEvent(Press, 10f, 30f, pressed = true))
+
+        assertEquals(3, received.size)
+        val totalScroll = received.fold(Offset.Zero) { acc, event ->
+            acc + event.pointers.fold(Offset.Zero) { a, p -> a + p.panGestureOffset }
+        }
+        assertEquals(Offset(0f, 5f), totalScroll)
+    }
+
+    @Test
+    fun `synthetic events should not duplicate scaleGestureFactor`() {
+        val received = mutableListOf<PointerInputEvent>()
+        val sender = SyntheticEventSender {
+            PointerEventResult(received.add(it))
+        }
+
+        sender.send(
+            mouseEvent(
+                Scroll,
+                10f,
+                20f,
+                pressed = false,
+                scaleGestureFactor = 2.0f
+            )
+        )
+        sender.send(mouseEvent(Press, 10f, 30f, pressed = true))
+
+        assertEquals(3, received.size)
+        val totalScaleFactor = received.fold(1f) { acc, event ->
+            acc * event.pointers.fold(1f) { a, p -> a * p.scaleGestureFactor }
+        }
+        assertEquals(2f, totalScaleFactor)
     }
 
     private fun eventsSentBy(

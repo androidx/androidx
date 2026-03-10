@@ -847,8 +847,8 @@ private fun UIEvent.historicalChangesForTouch(
                 uptimeMillis = (historicalTouch.timestamp * 1e3).toLong(),
                 position = position,
                 originalEventPosition = position,
-                scaleGestureFactor = 1f, // TODO https://youtrack.jetbrains.com/issue/CMP-9506/Investigate-and-support-Trackpad-API
-                panGestureOffset = Offset.Zero, // TODO https://youtrack.jetbrains.com/issue/CMP-9506/Investigate-and-support-Trackpad-API
+                scaleGestureFactor = 1f,
+                panGestureOffset = Offset.Zero,
             )
         }
     } else {

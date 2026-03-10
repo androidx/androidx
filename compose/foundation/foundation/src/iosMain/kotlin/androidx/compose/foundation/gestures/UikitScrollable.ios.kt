@@ -18,6 +18,7 @@ package androidx.compose.foundation.gestures
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEvent
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
@@ -27,11 +28,12 @@ import androidx.compose.ui.util.fastFold
 internal actual fun CompositionLocalConsumerModifierNode.platformScrollConfig(): ScrollConfig = UiKitScrollConfig
 
 internal object UiKitScrollConfig : ScrollConfig {
-    /*
-     * There are no scroll events produced on iOS,
-     * so in reality this function should not be ever called.
-     * The implementation is copied from androidMain just for testing purposes.
-     */
     override fun Density.calculateMouseWheelScroll(event: PointerEvent, bounds: IntSize): Offset =
-        event.changes.fastFold(Offset.Zero) { acc, c -> acc + c.scrollDelta } * -64.dp.toPx()
+        event.changes.fastFold(Offset.Zero) { acc, c ->
+            if (event.type == PointerEventType.Pan) {
+                acc + c.panGestureOffset
+            } else {
+                acc + c.scrollDelta
+            }
+        } * -64.dp.toPx()
 }
