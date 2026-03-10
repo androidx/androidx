@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-package androidx.savedstate.internal
+package androidx.savedstate
 
-import kotlin.reflect.KClass
-
-internal actual val KClass<*>?.canonicalName: String?
-    get() = this?.qualifiedName
+internal actual annotation class IgnoreAndroidHostTarget actual constructor()

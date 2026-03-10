@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.savedstate
+@file:JvmName("SynchronizedObject_jvmKt")
 
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
+package androidx.savedstate.internal
 
-@RunWith(RobolectricTestRunner::class)
-@Config(manifest = Config.NONE, sdk = [Config.TARGET_SDK])
-internal actual abstract class RobolectricTest actual constructor()
+internal actual class SynchronizedObject actual constructor()
+
+internal actual inline fun <T> synchronizedImpl(
+    lock: SynchronizedObject,
+    crossinline action: () -> T,
+): T = kotlin.synchronized(lock, action)
