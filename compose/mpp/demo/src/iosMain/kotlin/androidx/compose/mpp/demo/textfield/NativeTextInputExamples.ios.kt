@@ -182,12 +182,13 @@ private fun Btf1NativeTextInputComparison() {
             state = state4,
             modifier = modifier,
             keyboardOptions = KeyboardOptions(platformImeOptions = enabledNativeTextInputOptions),
-            decorator = { inner ->
-                Box {
-                    if (state4.text.isEmpty()) Text("BTF2 with two lines with Native Text Input", color = Color.Gray)
-                    inner()
-                }
-            }
+            //TODO: v.mazunin: uncomment after compile compose with Kotlin later than 2.3.20-RC1
+//            decorator = { inner ->
+//                Box {
+//                    if (state4.text.isEmpty()) Text("BTF2 with two lines with Native Text Input", color = Color.Gray)
+//                    inner()
+//                }
+//            }
         )
     }
 }
@@ -204,12 +205,13 @@ private fun Btf2NativeTextInputComparison() {
         BasicTextField(
             state = state1,
             modifier = modifier,
-            decorator = { inner ->
-                Box {
-                    if (state1.text.isEmpty()) Text("BTF2 without Native Text Input", color = Color.Gray)
-                    inner()
-                }
-            }
+            //TODO: v.mazunin: uncomment after compile compose with Kotlin later than 2.3.20-RC1
+//            decorator = { inner ->
+//                Box {
+//                    if (state1.text.isEmpty()) Text("BTF2 without Native Text Input", color = Color.Gray)
+//                    inner()
+//                }
+//            }
         )
         Spacer(Modifier.height(16.dp))
 
@@ -218,12 +220,13 @@ private fun Btf2NativeTextInputComparison() {
             state = state2,
             modifier = modifier,
             keyboardOptions = KeyboardOptions(platformImeOptions = enabledNativeTextInputOptions),
-            decorator = { inner ->
-                Box {
-                    if (state2.text.isEmpty()) Text("BTF2 with Native Text Input", color = Color.Gray)
-                    inner()
-                }
-            }
+            //TODO: v.mazunin: uncomment after compile compose with Kotlin later than 2.3.20-RC1
+//            decorator = { inner ->
+//                Box {
+//                    if (state2.text.isEmpty()) Text("BTF2 with Native Text Input", color = Color.Gray)
+//                    inner()
+//                }
+//            }
         )
         Spacer(Modifier.height(16.dp))
 
@@ -231,12 +234,13 @@ private fun Btf2NativeTextInputComparison() {
         BasicTextField(
             state = state3,
             modifier = modifier,
-            decorator = { inner ->
-                Box {
-                    if (state3.text.isEmpty()) Text("BTF2 with two lines without Native Text Input", color = Color.Gray)
-                    inner()
-                }
-            }
+            //TODO: v.mazunin: uncomment after compile compose with Kotlin later than 2.3.20-RC1
+//            decorator = { inner ->
+//                Box {
+//                    if (state3.text.isEmpty()) Text("BTF2 with two lines without Native Text Input", color = Color.Gray)
+//                    inner()
+//                }
+//            }
         )
         Spacer(Modifier.height(16.dp))
 
@@ -245,12 +249,13 @@ private fun Btf2NativeTextInputComparison() {
             state = state4,
             modifier = modifier,
             keyboardOptions = KeyboardOptions(platformImeOptions = enabledNativeTextInputOptions),
-            decorator = { inner ->
-                Box {
-                    if (state4.text.isEmpty()) Text("BTF2 with two lines with Native Text Input", color = Color.Gray)
-                    inner()
-                }
-            }
+            //TODO: v.mazunin: uncomment after compile compose with Kotlin later than 2.3.20-RC1
+//            decorator = { inner ->
+//                Box {
+//                    if (state4.text.isEmpty()) Text("BTF2 with two lines with Native Text Input", color = Color.Gray)
+//                    inner()
+//                }
+//            }
         )
     }
 }
@@ -326,13 +331,14 @@ private fun TextFieldDecoratorDecorationBox() {
             BasicTextField(
                 value = text,
                 onValueChange = { text = it },
-                modifier = Modifier.fillMaxWidth().height(56.dp),
+                modifier = Modifier.fillMaxWidth()
+                    .height(56.dp)
+                    .border(1.dp, Color.LightGray, RoundedCornerShape(4.dp))
+                    .padding(4.dp),
                 keyboardOptions = KeyboardOptions(platformImeOptions = enabledNativeTextInputOptions),
-                textStyle = TextStyle(color = Color.White, fontSize = 16.sp),
                 decorationBox = { inner ->
                     Row(
                         Modifier
-                            .background(Color(0xFF121212), RoundedCornerShape(10.dp))
                             .padding(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -352,25 +358,28 @@ private fun TextFieldDecoratorDecorationBox() {
             val state2 = rememberTextFieldState("Native Text Input BasicTextField 2 with a long text")
             BasicTextField(
                 state = state2,
-                modifier = Modifier.fillMaxWidth().height(56.dp),
+                modifier = Modifier.fillMaxWidth()
+                    .height(56.dp)
+                    .border(1.dp, Color.LightGray, RoundedCornerShape(4.dp))
+                    .padding(4.dp),
                 keyboardOptions = KeyboardOptions(platformImeOptions = enabledNativeTextInputOptions),
-                textStyle = TextStyle(color = Color.White, fontSize = 16.sp),
-                decorator = { inner ->
-                    Row(
-                        Modifier
-                            .background(Color(0xFF121212), RoundedCornerShape(10.dp))
-                            .padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray)
-                        Spacer(Modifier.width(8.dp))
-                        Box(Modifier.weight(1f)) {
-                            if (state2.text.isEmpty()) Text("Search…", color = Color.Gray)
-                            inner()
-                        }
-                        Text("${state2.text.length}", color = Color.Gray)
-                    }
-                }
+                //TODO: v.mazunin: uncomment after compile compose with Kotlin later than 2.3.20-RC1
+//                decorator = { inner ->
+//                    Row(
+//                        Modifier
+//                            .background(Color(0xFF121212), RoundedCornerShape(10.dp))
+//                            .padding(8.dp),
+//                        verticalAlignment = Alignment.CenterVertically
+//                    ) {
+//                        Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray)
+//                        Spacer(Modifier.width(8.dp))
+//                        Box(Modifier.weight(1f)) {
+//                            if (state2.text.isEmpty()) Text("Search…", color = Color.Gray)
+//                            inner()
+//                        }
+//                        Text("${state2.text.length}", color = Color.Gray)
+//                    }
+//                }
             )
         }
     }
