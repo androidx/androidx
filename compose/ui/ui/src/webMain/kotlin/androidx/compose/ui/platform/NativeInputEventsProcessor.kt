@@ -46,8 +46,12 @@ internal abstract class NativeInputEventsProcessor(
 ) {
 
     private val collectedEvents = mutableListOf<UIEvent>()
-    private var isCheckpointScheduled = false
-    private var lastCompositionEndTimestamp = 0.0 // Double because of k/wasm where Number.toLong() leads to a compilation error
+
+    @get:TestOnly
+    @set:TestOnly
+    internal var isCheckpointScheduled = false
+
+    internal var lastCompositionEndTimestamp = 0.0 // Double because of k/wasm where Number.toLong() leads to a compilation error
     var lastProcessedEventIsBackspace: Boolean = false
 
     /**
@@ -63,6 +67,7 @@ internal abstract class NativeInputEventsProcessor(
     private fun internalScheduleCheckpoint() {
         if (!isCheckpointScheduled) {
             scheduleCheckpoint()
+            isCheckpointScheduled = true
         }
     }
 

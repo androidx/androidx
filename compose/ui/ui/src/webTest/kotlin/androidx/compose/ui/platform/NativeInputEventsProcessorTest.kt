@@ -84,14 +84,13 @@ class NativeInputEventsProcessorTest {
     private class TestNativeInputEventsProcessor(
         composeSender: ComposeCommandCommunicator
     ) : NativeInputEventsProcessor(composeSender) {
-        var checkpointScheduled = false
 
         override fun scheduleCheckpoint() {
-            checkpointScheduled = true
+            isCheckpointScheduled = true
         }
 
         fun manuallyRunCheckpoint(currentTextFieldValue: TextFieldValue) {
-            checkpointScheduled = false
+            isCheckpointScheduled = false
             runCheckpoint(currentTextFieldValue)
         }
     }
@@ -100,19 +99,19 @@ class NativeInputEventsProcessorTest {
     fun testCheckpointScheduling() {
         val communicator = MockComposeCommandCommunicator()
         val processor = TestNativeInputEventsProcessor(communicator)
-        assertFalse(processor.checkpointScheduled)
+        assertFalse(processor.isCheckpointScheduled)
 
         processor.registerEvent(keyEvent("a"))
-        assertTrue(processor.checkpointScheduled)
+        assertTrue(processor.isCheckpointScheduled)
 
-        processor.checkpointScheduled = false
+        processor.isCheckpointScheduled = false
         val compositionEvent = compositionStart()
         processor.registerEvent(compositionEvent)
-        assertTrue(processor.checkpointScheduled)
+        assertTrue(processor.isCheckpointScheduled)
 
-        processor.checkpointScheduled = false
+        processor.isCheckpointScheduled = false
         processor.registerEvent(beforeInput("insertText", "") as InputEvent)
-        assertTrue(processor.checkpointScheduled)
+        assertTrue(processor.isCheckpointScheduled)
 
         assertEquals(3, processor.getCollectedEvents().size)
         processor.manuallyRunCheckpoint(communicator.currentTextFieldValue())
