@@ -27,7 +27,7 @@ import kotlin.math.max
  *
  * This makes sure that Espresso is able to wait for any pending changes in Compose. This resource
  * is automatically registered when any compose testing APIs are used including
- * [createAndroidComposeRule].
+ * [androidx.compose.ui.test.junit4.v2.createAndroidComposeRule].
  */
 internal class ComposeIdlingResource(
     private val composeRootRegistry: ComposeRootRegistry,

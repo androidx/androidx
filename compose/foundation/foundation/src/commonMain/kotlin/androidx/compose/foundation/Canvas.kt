@@ -27,9 +27,10 @@ import androidx.compose.ui.semantics.semantics
 
 /**
  * Component that allow you to specify an area on the screen and perform canvas drawing on this
- * area. You MUST specify size with modifier, whether with exact sizes via [Modifier.size] modifier,
- * or relative to parent, via [Modifier.fillMaxSize], [ColumnScope.weight], etc. If parent wraps
- * this child, only exact sizes must be specified.
+ * area. You MUST specify size with modifier, whether with exact sizes via
+ * [androidx.compose.foundation.layout.size] modifier, or relative to parent, via
+ * [androidx.compose.foundation.layout.fillMaxSize], [ColumnScope.weight], etc. If parent wraps this
+ * child, only exact sizes must be specified.
  *
  * @sample androidx.compose.foundation.samples.CanvasSample
  * @param modifier mandatory modifier to specify size strategy for this composable
@@ -42,9 +43,10 @@ fun Canvas(modifier: Modifier, onDraw: DrawScope.() -> Unit) = Spacer(modifier.d
 
 /**
  * Component that allow you to specify an area on the screen and perform canvas drawing on this
- * area. You MUST specify size with modifier, whether with exact sizes via [Modifier.size] modifier,
- * or relative to parent, via [Modifier.fillMaxSize], [ColumnScope.weight], etc. If parent wraps
- * this child, only exact sizes must be specified.
+ * area. You MUST specify size with modifier, whether with exact sizes via
+ * [androidx.compose.foundation.layout.size] modifier, or relative to parent, via
+ * [androidx.compose.foundation.layout.fillMaxSize], [ColumnScope.weight], etc. If parent wraps this
+ * child, only exact sizes must be specified.
  *
  * @sample androidx.compose.foundation.samples.CanvasPieChartSample
  * @param modifier mandatory modifier to specify size strategy for this composable

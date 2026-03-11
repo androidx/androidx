@@ -40,7 +40,9 @@ import androidx.compose.ui.unit.Constraints
  * This is similar to the `View.INVISIBLE` visibility in the classic Android View system.
  *
  * Note that [Modifier.visible] is not suitable for managing the visibility of a composable involved
- * in a [Modifier.sharedElement]/[Modifier.sharedBounds] transition because it prevents placement.
+ * in a
+ * [androidx.compose.animation.SharedTransitionScope.sharedElement]/[androidx.compose.animation.SharedTransitionScope.sharedBounds]
+ * transition because it prevents placement.
  *
  * @sample androidx.compose.foundation.layout.samples.VisibleModifierSample
  * @param visible `true` to make the component visible, `false` to hide it.

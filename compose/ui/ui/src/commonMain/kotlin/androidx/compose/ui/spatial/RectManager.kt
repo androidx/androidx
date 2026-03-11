@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.spatial
 
+import androidx.annotation.VisibleForTesting
 import androidx.collection.IntObjectMap
 import androidx.collection.intObjectMapOf
 import androidx.collection.mutableObjectListOf
@@ -43,11 +44,12 @@ import kotlin.math.max
 
 internal class RectManager(
     /** [LayoutNode.semanticsId] to [LayoutNode] mapping, maintained by Owner. */
-    private val layoutNodes: IntObjectMap<LayoutNode> = intObjectMapOf()
+    private val layoutNodes: IntObjectMap<LayoutNode> = intObjectMapOf(),
+    private val executeDelayed: ExecuteDelayed = ExecuteDelayUsingPostAndRemove,
 ) {
     val rects: RectList = RectList()
 
-    private val throttledCallbacks = ThrottledCallbacks()
+    @VisibleForTesting internal val throttledCallbacks = ThrottledCallbacks()
     private val callbacks = mutableObjectListOf<() -> Unit>()
     private var isDirty = false
     private var isScreenOrWindowDirty = false
@@ -79,6 +81,17 @@ internal class RectManager(
                 windowWidth,
                 windowHeight,
             ) || isScreenOrWindowDirty
+    }
+
+    fun resetOffsets() {
+        isScreenOrWindowDirty =
+            throttledCallbacks.updateOffsets(
+                screen = IntOffset.Zero,
+                window = IntOffset.Zero,
+                matrix = null,
+                windowWidth = 0,
+                windowHeight = 0,
+            )
     }
 
     // TODO: we need to make sure these are dispatched after draw if needed
@@ -139,20 +152,18 @@ internal class RectManager(
         if (currentScheduledDeadline == nextDeadline && canExitEarly) {
             return
         }
-        if (dispatchToken != null) {
-            removePost(dispatchToken)
-        }
+        dispatchToken?.let { executeDelayed.removeDelayedExecution(it) }
         val currentTime = currentTimeMillis()
         val nextFrameIsh = currentTime + 16
         val deadline = max(nextDeadline, nextFrameIsh)
         scheduledDispatchDeadline = deadline
         val delay = deadline - currentTime
-        dispatchToken = postDelayed(delay, dispatchLambda)
+        dispatchToken = executeDelayed.executeDelayed(delay, dispatchLambda)
     }
 
     fun removeScheduledCallback() {
-        if (dispatchToken != null) {
-            removePost(dispatchToken)
+        dispatchToken?.let {
+            executeDelayed.removeDelayedExecution(it)
             dispatchToken = null
         }
     }
@@ -690,3 +701,29 @@ private inline val Int.hasNonTranslationComponents: Boolean
     get() = this and 0b10 == 0
 
 @Suppress("NOTHING_TO_INLINE") internal inline fun Boolean.toInt(): Int = if (this) 1 else 0
+
+/**
+ * An interface that allows implementations of [postDelayed] and [removePost] for a specific owner.
+ * On Android, this means that we don't have to use the main thread for executing the lambda, and it
+ * can be executed on the real UI thread.
+ */
+internal interface ExecuteDelayed {
+    /**
+     * Execute [block] after [delayMillis] milliseconds have passed. A token is returned that can be
+     * used by [removeDelayedExecution] to cancel the execution.
+     */
+    fun executeDelayed(delayMillis: Long, block: () -> Unit): Any
+
+    /**
+     * Removes the execution of a block that has previously been executed by [executeDelayed]. If
+     * the block has already been executed, nothing happens.
+     */
+    fun removeDelayedExecution(token: Any)
+}
+
+private object ExecuteDelayUsingPostAndRemove : ExecuteDelayed {
+    override fun executeDelayed(delayMillis: Long, block: () -> Unit): Any =
+        postDelayed(delayMillis, block)
+
+    override fun removeDelayedExecution(token: Any) = removePost(token)
+}

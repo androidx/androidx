@@ -40,7 +40,7 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinCoroutinesCore)
-                implementation(project(":annotation:annotation"))
+                implementation("androidx.annotation:annotation:1.9.1")
                 implementation(project(":compose:runtime:runtime"))
                 implementation(project(":compose:ui:ui-util"))
             }

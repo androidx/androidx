@@ -28,7 +28,9 @@ import androidx.compose.ui.input.pointer.PointerEventType.Companion.Enter
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Move
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Press
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Release
-import androidx.compose.ui.input.pointer.PointerEventType.Companion.Scale
+import androidx.compose.ui.input.pointer.PointerEventType.Companion.ScaleChange
+import androidx.compose.ui.input.pointer.PointerEventType.Companion.ScaleEnd
+import androidx.compose.ui.input.pointer.PointerEventType.Companion.ScaleStart
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.InputDispatcher
@@ -36,6 +38,7 @@ import androidx.compose.ui.test.injectionscope.trackpad.Common.verifyTrackpadEve
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTrackpadInput
+import androidx.compose.ui.test.scale
 import androidx.compose.ui.test.util.ClickableTestBox
 import androidx.compose.ui.test.util.MultiPointerInputRecorder
 import androidx.compose.ui.test.util.assertTimestampsAreIncreasing
@@ -50,10 +53,10 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
-class PinchTest {
+class ScaleTest {
     companion object {
         private val T = InputDispatcher.eventPeriodMillis
-        private const val TAG = "PINCH"
+        private const val TAG = "SCALE"
     }
 
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
@@ -70,7 +73,7 @@ class PinchTest {
 
         rule.onNodeWithTag(TAG).performTrackpadInput {
             moveTo(center)
-            pinch(0.9f)
+            scale(0.9f)
         }
 
         rule.runOnIdle {
@@ -97,7 +100,7 @@ class PinchTest {
                                     ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
                                         Build.VERSION.SDK_INT >= 34
                                 ) {
-                                    Scale
+                                    ScaleStart
                                 } else {
                                     Press
                                 },
@@ -124,7 +127,7 @@ class PinchTest {
                                     ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
                                         Build.VERSION.SDK_INT >= 34
                                 ) {
-                                    Scale
+                                    ScaleChange
                                 } else {
                                     Press
                                 },
@@ -148,7 +151,7 @@ class PinchTest {
                                     ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
                                         Build.VERSION.SDK_INT >= 34
                                 ) {
-                                    Scale
+                                    ScaleChange
                                 } else {
                                     Press
                                 },
@@ -167,7 +170,7 @@ class PinchTest {
                                     ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
                                         Build.VERSION.SDK_INT >= 34
                                 ) {
-                                    Scale
+                                    ScaleChange
                                 } else {
                                     Move
                                 },
@@ -191,7 +194,7 @@ class PinchTest {
                                     ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
                                         Build.VERSION.SDK_INT >= 34
                                 ) {
-                                    Scale
+                                    ScaleChange
                                 } else {
                                     Move
                                 },
@@ -210,7 +213,7 @@ class PinchTest {
                                     ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
                                         Build.VERSION.SDK_INT >= 34
                                 ) {
-                                    Scale
+                                    ScaleChange
                                 } else {
                                     Release
                                 },
@@ -234,7 +237,7 @@ class PinchTest {
                                     ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
                                         Build.VERSION.SDK_INT >= 34
                                 ) {
-                                    Scale
+                                    ScaleChange
                                 } else {
                                     Release
                                 },
@@ -253,7 +256,7 @@ class PinchTest {
                                     ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
                                         Build.VERSION.SDK_INT >= 34
                                 ) {
-                                    Scale
+                                    ScaleEnd
                                 } else {
                                     Release
                                 },
@@ -291,7 +294,7 @@ class PinchTest {
 
         rule.onNodeWithTag(TAG).performTrackpadInput {
             moveTo(center)
-            pinch(1.1f)
+            scale(1.1f)
         }
 
         rule.runOnIdle {
@@ -318,7 +321,7 @@ class PinchTest {
                                     ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
                                         Build.VERSION.SDK_INT >= 34
                                 ) {
-                                    Scale
+                                    ScaleStart
                                 } else {
                                     Press
                                 },
@@ -344,7 +347,7 @@ class PinchTest {
                                     ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
                                         Build.VERSION.SDK_INT >= 34
                                 ) {
-                                    Scale
+                                    ScaleChange
                                 } else {
                                     Press
                                 },
@@ -368,7 +371,7 @@ class PinchTest {
                                     ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
                                         Build.VERSION.SDK_INT >= 34
                                 ) {
-                                    Scale
+                                    ScaleChange
                                 } else {
                                     Press
                                 },
@@ -387,7 +390,7 @@ class PinchTest {
                                     ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
                                         Build.VERSION.SDK_INT >= 34
                                 ) {
-                                    Scale
+                                    ScaleChange
                                 } else {
                                     Move
                                 },
@@ -411,7 +414,7 @@ class PinchTest {
                                     ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
                                         Build.VERSION.SDK_INT >= 34
                                 ) {
-                                    Scale
+                                    ScaleChange
                                 } else {
                                     Move
                                 },
@@ -430,7 +433,7 @@ class PinchTest {
                                     ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
                                         Build.VERSION.SDK_INT >= 34
                                 ) {
-                                    Scale
+                                    ScaleChange
                                 } else {
                                     Release
                                 },
@@ -454,7 +457,7 @@ class PinchTest {
                                     ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
                                         Build.VERSION.SDK_INT >= 34
                                 ) {
-                                    Scale
+                                    ScaleChange
                                 } else {
                                     Release
                                 },
@@ -473,7 +476,7 @@ class PinchTest {
                                     ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
                                         Build.VERSION.SDK_INT >= 34
                                 ) {
-                                    Scale
+                                    ScaleEnd
                                 } else {
                                     Release
                                 },

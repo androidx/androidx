@@ -250,6 +250,42 @@ private const val UNFOLDED_TRACE_ITEM_UPDATE_LIST_STATE =
     at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:10)
     """
 
+@DoNotChangeMayRequireChangesInAndroidStudio
+private const val TRACE_ANOTHER_ITEM =
+    """
+    at androidx.compose.runtime.CompositionImpl.recordReadOf(Composition.kt:1015)
+    at androidx.compose.runtime.Recomposer.readObserverOf<any>(Recomposer.kt:1519)
+    ...
+    at androidx.compose.runtime.Recomposer<any>.invoke(<any>:0)
+    at androidx.compose.runtime.snapshots.SnapshotKt.readable(Snapshot.kt:2081)
+    at androidx.compose.runtime.SnapshotMutableStateImpl.getValue(SnapshotState.kt:142)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:61)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:61)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity.AnotherItem(RecompositionTestActivity.kt:71)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity.Item(RecompositionTestActivity.kt:61)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:12)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:10)
+    at androidx.compose.runtime.RecomposeScopeImpl.compose(RecomposeScopeImpl.kt:196)
+    at androidx.compose.runtime.<composer>.recomposeToGroupEnd(<composer>.kt:1709)
+    at androidx.compose.runtime.<composer>.skipCurrentGroup(<composer>.kt:2045)
+    at androidx.compose.runtime.<composer>.doCompose<any>(<composer>.kt:2676)
+    at androidx.compose.runtime.<composer>.recompose<any>(<composer>.kt:2600)
+    at androidx.compose.runtime.CompositionImpl.recompose(Composition.kt:1076)
+    at androidx.compose.runtime.Recomposer.performRecompose(Recomposer.kt:1400)
+    ...
+    """
+
+@DoNotChangeMayRequireChangesInAndroidStudio
+private const val UNFOLDED_TRACE_ANOTHER_ITEM =
+    """
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:61)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:61)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity.AnotherItem(RecompositionTestActivity.kt:71)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity.Item(RecompositionTestActivity.kt:61)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:12)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:10)
+    """
+
 @LargeTest
 class RecompositionTest {
     private val rule = createAndroidComposeRule<RecompositionTestActivity>(StandardTestDispatcher())
@@ -624,6 +660,12 @@ class RecompositionTest {
                     trace(TRACE_ITEM_UPDATE_LIST_STATE)
                     folding(UNFOLDED_TRACE_ITEM_UPDATE_LIST_STATE)
                 }
+                read {
+                    value(Type.INT32, 2)
+                    invalidated(true)
+                    trace(TRACE_ITEM_UPDATE_COUNT_STATE)
+                    folding(UNFOLDED_TRACE_ITEM_UPDATE_COUNT_STATE)
+                }
             }
             recomposition(3) {
                 read {
@@ -642,6 +684,12 @@ class RecompositionTest {
                     }
                     trace(TRACE_ITEM_UPDATE_LIST_STATE)
                     folding(UNFOLDED_TRACE_ITEM_UPDATE_LIST_STATE)
+                }
+                read {
+                    value(Type.INT32, 3)
+                    invalidated(true)
+                    trace(TRACE_ITEM_UPDATE_COUNT_STATE)
+                    folding(UNFOLDED_TRACE_ITEM_UPDATE_COUNT_STATE)
                 }
             }
         }
@@ -777,6 +825,69 @@ class RecompositionTest {
         assertThat(reads.readList.single().recompositionNumber).isEqualTo(6)
     }
 
+    @Test
+    fun testEmptyStateReads(): Unit = runBlocking {
+        inspectorTester.sendCommand(
+            GetUpdateSettingsCommand(
+                includeRecomposeCounts = true,
+                keepRecomposeCounts = false,
+                stateReadKind = StateReadSettings.Kind.ALL,
+            )
+        )
+
+        rule.onNodeWithText("Click row 1").performClick()
+        rule.onNodeWithText("Click row 1").performClick()
+        rule.onNodeWithText("Click row 1").performClick()
+        rule.onNodeWithText("Click row 1").performClick()
+        rule.onNodeWithText("Click row 1").performClick()
+        rule.waitForIdle()
+
+        val rootId = WindowInspector.getGlobalWindowViews().map { it.uniqueDrawingId }.single()
+        val composables =
+            inspectorTester
+                .sendCommand(GetComposablesCommand(rootId, skipSystemComposables = false))
+                .getComposablesResponse
+        val parameters =
+            inspectorTester
+                .sendCommand(GetAllParametersCommand(rootId, skipSystemComposables = false))
+                .getAllParametersResponse
+        val nodes = Nodes(composables, parameters)
+
+        val reads =
+            inspectorTester.getStateReads(
+                anchorHash = nodes.anotherItem1.anchorHash,
+                recompositionNumberStart = 1,
+                recompositionNumberEnd = 5,
+                includeExtra = true,
+            )
+
+        validate(reads, nodes.anotherItem1.anchorHash) {
+            recomposition(1) {
+                read {
+                    value(Type.INT32, 1)
+                    trace(TRACE_ANOTHER_ITEM)
+                    folding(UNFOLDED_TRACE_ANOTHER_ITEM)
+                }
+            }
+            recomposition(2) {}
+            recomposition(3) {
+                read {
+                    value(Type.INT32, 3)
+                    trace(TRACE_ANOTHER_ITEM)
+                    folding(UNFOLDED_TRACE_ANOTHER_ITEM)
+                }
+            }
+            recomposition(4) {}
+            recomposition(5) {
+                read {
+                    value(Type.INT32, 5)
+                    trace(TRACE_ANOTHER_ITEM)
+                    folding(UNFOLDED_TRACE_ANOTHER_ITEM)
+                }
+            }
+        }
+    }
+
     private suspend fun InspectorTester.getStateReads(
         anchorHash: Int,
         recompositionNumberStart: Int,
@@ -803,6 +914,8 @@ class RecompositionTest {
         private val items = composables.filter("Item")
         val item1 = items[0]
         val item2 = items[1]
+        private val anotherItems = composables.filter("AnotherItem")
+        val anotherItem1 = anotherItems[0]
 
         private fun nodeWithText(
             name: String,

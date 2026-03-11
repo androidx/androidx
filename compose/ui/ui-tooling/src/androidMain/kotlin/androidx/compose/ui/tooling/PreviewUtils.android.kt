@@ -19,6 +19,7 @@ package androidx.compose.ui.tooling
 import androidx.compose.ui.tooling.data.Group
 import androidx.compose.ui.tooling.data.UiToolingDataApi
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.tooling.preview.PreviewWrapper
 import kotlin.collections.removeLast as removeLastKt
 
 /** Tries to find the [Class] of the [PreviewParameterProvider] corresponding to the given FQN. */
@@ -28,6 +29,17 @@ internal fun String.asPreviewProviderClass(): Class<out PreviewParameterProvider
         return Class.forName(this) as? Class<out PreviewParameterProvider<*>>
     } catch (e: ClassNotFoundException) {
         PreviewLogger.logError("Unable to find PreviewProvider '$this'", e)
+        return null
+    }
+}
+
+/** Tries to find the [Class] of the [PreviewWrapper] corresponding to the given FQN. */
+internal fun String.asPreviewWrapperClass(): Class<out PreviewWrapper>? {
+    try {
+        @Suppress("UNCHECKED_CAST")
+        return Class.forName(this) as? Class<out PreviewWrapper>
+    } catch (e: ClassNotFoundException) {
+        PreviewLogger.logError("Unable to find PreviewWrapper '$this'", e)
         return null
     }
 }
@@ -72,6 +84,28 @@ internal fun getPreviewProviderParameters(
     } else {
         return emptyArray()
     }
+}
+
+/**
+ * Instantiates a [PreviewWrapper] from the provided [Class].
+ *
+ * This method attempts to find a no-argument constructor on the given class and use it to creates a
+ * new instance.
+ *
+ * @param previewWrapper The [Class] of the [PreviewWrapper] to instantiate.
+ * @return A new instance of the [PreviewWrapper].
+ * @throws IllegalArgumentException If the class does not have a public, no-argument constructor.
+ */
+internal fun instantiatePreviewWrapper(previewWrapper: Class<out PreviewWrapper>?): PreviewWrapper {
+    val constructor =
+        previewWrapper
+            ?.constructors
+            ?.singleOrNull { it.parameterTypes.isEmpty() }
+            ?.apply { isAccessible = true }
+            ?: throw IllegalArgumentException(
+                "PreviewWrapper constructor can not" + " have parameters"
+            )
+    return constructor.newInstance() as PreviewWrapper
 }
 
 /**

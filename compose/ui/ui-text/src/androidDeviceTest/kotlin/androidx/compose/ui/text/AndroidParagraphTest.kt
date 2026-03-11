@@ -66,6 +66,7 @@ import androidx.compose.ui.text.platform.style.ShaderBrushSpan
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.style.TextMotion
@@ -2214,6 +2215,57 @@ class AndroidParagraphTest {
 
             assertThat(paragraph.placeholderRects).hasSize(1)
             assertThat(paragraph.placeholderRects[0]).isNotNull()
+        }
+    }
+
+    // Regression test for 441829208
+    @Test
+    fun placeholder_correctPosition_rtlLayout() {
+        with(defaultDensity) {
+            val fontSize = 10.sp
+            val textBefore = "Hello "
+            val textAfter = " World Hello World Hello World"
+            val inlineContentId = "inline"
+            val annotatedString = buildAnnotatedString {
+                append(textBefore)
+                appendInlineContent(inlineContentId)
+                append(textAfter)
+            }
+            val placeholder =
+                Placeholder(fontSize, fontSize, PlaceholderVerticalAlign.AboveBaseline)
+
+            val placeholderRange =
+                AnnotatedString.Range(
+                    placeholder,
+                    start = textBefore.length,
+                    end = textBefore.length + 1,
+                )
+
+            val paragraph =
+                AndroidParagraph(
+                    text = annotatedString.text,
+                    style =
+                        TextStyle(
+                            fontSize = fontSize,
+                            fontFamily = basicFontFamily,
+                            textDirection = TextDirection.Rtl,
+                        ),
+                    annotations = annotatedString.spanStyles,
+                    placeholders = listOf(placeholderRange),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    constraints = Constraints(maxWidth = (6 * fontSize.toPx()).roundToInt()),
+                    fontFamilyResolver = UncachedFontFamilyResolver(context),
+                    density = defaultDensity,
+                )
+
+            // assert that the placeholder appears on the second line
+            assertThat(paragraph.placeholderRects).hasSize(1)
+            assertThat(paragraph.placeholderRects[0]).isNotNull()
+            assertThat(paragraph.placeholderRects[0]?.left).isEqualTo(0f)
+            assertThat(paragraph.placeholderRects[0]?.top).isEqualTo(10f)
+            assertThat(paragraph.placeholderRects[0]?.right).isEqualTo(10f)
+            assertThat(paragraph.placeholderRects[0]?.bottom).isEqualTo(20)
         }
     }
 

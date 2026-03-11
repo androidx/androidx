@@ -37,10 +37,10 @@ val ModifierLocalBeyondBoundsLayout: ProvidableModifierLocal<BeyondBoundsLayout?
 
 /**
  * Provides a [BeyondBoundsLayout] through Modifier.Node APIs. To access the nearest
- * [BeyondBoundsLayout] parent use [DelegatableNode.findNearestBeyondBoundsLayoutAncestor]. You
- * should use this node when implementing Layouts that do not create all items at once (e.g. Lazy
- * Layouts). The focus system will use the [BeyondBoundsLayout] to create items during focus search
- * in order to move focus between items that are not yet laid out.
+ * [BeyondBoundsLayout] parent use [androidx.compose.ui.node.findNearestBeyondBoundsLayoutAncestor].
+ * You should use this node when implementing Layouts that do not create all items at once (e.g.
+ * Lazy Layouts). The focus system will use the [BeyondBoundsLayout] to create items during focus
+ * search in order to move focus between items that are not yet laid out.
  */
 interface BeyondBoundsLayoutProviderModifierNode : DelegatableNode {
     /** The [BeyondBoundsLayout] that this node will provide. */

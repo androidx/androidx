@@ -30,8 +30,12 @@ import androidx.compose.testutils.first
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.AtLeastSize
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.shadow.Shadow
@@ -43,7 +47,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -205,6 +211,38 @@ class InnerShadowTest {
             assertEquals("Inner shadow color should reset to default (black)", green, blue)
         }
         assertEquals("Inner shadow radius should be 4f", 4f, capturedRadius)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun shadowRedrawnWhenShapeChanges() {
+        val emptyShape =
+            object : Shape {
+                override fun createOutline(
+                    size: Size,
+                    layoutDirection: LayoutDirection,
+                    density: Density,
+                ) = Outline.Generic(Path())
+            }
+        var shapeState: Shape by mutableStateOf(RectangleShape)
+
+        rule.setContent {
+            with(LocalDensity.current) {
+                Box(modifier = wrapperModifier.size(12.toDp()).background(Color.White)) {
+                    Box(
+                        Modifier.align(Alignment.Center).size(8.toDp()).innerShadow(shapeState) {
+                            radius = 2f
+                        }
+                    )
+                }
+            }
+        }
+
+        takeScreenShot().apply { hasShadow() }
+        rule.runOnUiThread { shapeState = emptyShape }
+        takeScreenShot().apply { hasNoShadow() }
+        rule.runOnUiThread { shapeState = RectangleShape }
+        takeScreenShot().apply { hasShadow() }
     }
 
     @Test

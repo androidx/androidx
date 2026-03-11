@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -74,14 +73,13 @@ androidXMultiplatform {
         def composeVersion = project.findProperty('artifactRedirection.version.androidx.compose')
         def savedstateVersion =
                 project.findProperty('artifactRedirection.version.androidx.savedstate')
-
         commonMain.dependencies {
             implementation(libs.kotlinCoroutinesCore)
-            api(project(":annotation:annotation"))
-            implementation(project(":collection:collection"))
+            api("androidx.annotation:annotation:1.9.1")
+            implementation("androidx.collection:collection:1.5.0")
             // when updating the runtime version please also update the runtime-saveable version
             implementation(project(":compose:runtime:runtime"))
-            api("androidx.compose.runtime:runtime-retain:$composeVersion")
+			api("androidx.compose.runtime:runtime-retain:$composeVersion")
             api(project(":compose:runtime:runtime-saveable"))
 
             api(project(":compose:ui:ui-geometry"))
@@ -90,18 +88,18 @@ androidXMultiplatform {
             api(project(":compose:ui:ui-unit"))
             api(project(":compose:ui:ui-util"))
 
-            api("org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.6")
-            api("androidx.savedstate:savedstate-compose:$savedstateVersion")
+            api(project(":lifecycle:lifecycle-runtime-compose"))
+            api(project(":savedstate:savedstate-compose"))
 
-            implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.9.6")
-            implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.6")
+            implementation(project(":lifecycle:lifecycle-viewmodel"))
+            implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
         }
 
         commonTest.dependencies {
             implementation(libs.kotlinTest)
             implementation(libs.kotlinCoroutinesTest)
             implementation(libs.kotlinReflect)
-            api(project(":compose:ui:ui-util"))
+            implementation(project(":compose:ui:ui-util"))
             implementation(project(":compose:ui:ui-test"))
         }
 
@@ -142,7 +140,6 @@ androidXMultiplatform {
             // See https://github.com/gradle/gradle/issues/14220 for details.
             compileOnly("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.2")
         }
-
 
         androidDeviceTest.dependencies {
             implementation("androidx.fragment:fragment:1.3.0")
@@ -206,15 +203,15 @@ androidXMultiplatform {
         skikoMain {
             dependsOn(commonMain)
             dependencies {
-                api(project(":compose:ui:ui-graphics"))
+				api(project(":compose:ui:ui-graphics"))
                 api(project(":compose:ui:ui-text"))
                 api(libs.skiko)
                 implementation(libs.atomicFu)
 
                 // Keep this dependency for compatibility due to https://youtrack.jetbrains.com/issue/KT-60874
                 implementation(project(":compose:ui:ui-backhandler"))
-
-                // Use direct dependency to AOSP's artifact instead of using project reference
+				
+				// Use direct dependency to AOSP's artifact instead of using project reference
                 // because this module supports all KMP platforms from the beginning.
                 // Project dependency (commented out version) is required for `integration` branch setup
                 // implementation(project(":navigationevent:navigationevent"))
@@ -229,6 +226,7 @@ androidXMultiplatform {
                 // TODO: Move to commonTest?
                 implementation(project(":compose:material:material"))
                 implementation(project(":compose:foundation:foundation"))
+                implementation(project(":navigationevent:navigationevent-compose"))
                 implementation(project(":compose:ui:ui-test"))
                 implementation("org.jetbrains.androidx.navigationevent:navigationevent-compose:1.0.1")
             }
@@ -301,6 +299,27 @@ androidXMultiplatform {
         configureEach {
             languageSettings.optIn("androidx.compose.ui.ExperimentalComposeUiApi")
             languageSettings.optIn("androidx.compose.ui.InternalComposeUiApi")
+        }
+    }
+}
+
+dependencies {
+
+    constraints {
+        // In 1.4.0-alpha02 there was a change made in :compose:ui:ui which fixed an issue where
+        // we were over-invalidating layout. This change caused a corresponding regression in
+        // foundation's CoreText, where it was expecting a layout to happen but with this change
+        // it would not. A corresponding fix for this was added in 1.4.0-alpha02 of
+        // :compose:foundation:foundation. By adding this constraint, we are ensuring that the
+        // if an app has this ui module _and_ the foundation module as a dependency, then the
+        // version of foundation will be at least this version. This will prevent the bug in
+        // foundation from occurring. This does _NOT_ require that the app have foundation as
+        // a dependency.
+        // A separate issue exists when foundation 1.6 is used with ui 1.7: overscroll stops
+        // showing due to a behavior change in NestedScrollSource. This constraint ensures that
+        // a version of foundation compatible with the new NestedScrollSource is used.
+        commonMainImplementation("androidx.compose.foundation:foundation:1.7.0") {
+            because 'prevents a regression in Overscroll'
         }
     }
 }

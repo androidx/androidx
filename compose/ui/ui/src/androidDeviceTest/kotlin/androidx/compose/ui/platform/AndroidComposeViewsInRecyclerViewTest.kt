@@ -22,8 +22,13 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onVisibilityChanged
+import androidx.core.view.children
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -463,6 +468,39 @@ class AndroidComposeViewsRecyclerViewTest {
             assertThat(adapter.compositions).isEqualTo(100)
         }
     }
+
+    @Test
+    fun visibilityChangedAfterScrollingOutOfTheView() = runBlocking {
+        lateinit var adapter: PoolingContainerTestAdapter
+        activityRule.scenario.onActivity { activity ->
+            adapter = PoolingContainerTestAdapter(activity, 100, itemHeightPx = 50)
+            recyclerView.adapter = adapter
+        }
+        awaitFrame()
+
+        withContext(Dispatchers.Main) {
+            val initialChildren = recyclerView.children.toList()
+
+            recyclerView.scrollBy(0, 100)
+
+            awaitFrame()
+            val visibleChildren =
+                recyclerView.children.count { (it as DisposalCountingComposeView).visible }
+            val initialNotVisible =
+                initialChildren.all { !(it as DisposalCountingComposeView).visible }
+            assertThat(visibleChildren).isEqualTo(2)
+            assertThat(initialNotVisible).isTrue()
+
+            recyclerView.scrollBy(0, -100)
+            awaitFrame()
+
+            val reusedVisible =
+                initialChildren.all {
+                    it.parent == recyclerView && (it as DisposalCountingComposeView).visible
+                }
+            assertThat(reusedVisible).isTrue()
+        }
+    }
 }
 
 class PoolingContainerTestAdapter(
@@ -486,7 +524,7 @@ class PoolingContainerTestAdapter(
     var releases = 0
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = DisposalCountingComposeView(context, this)
+        val view = DisposalCountingComposeView(context, this, itemHeightPx)
         view.layoutParams =
             RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, itemHeightPx)
 
@@ -509,9 +547,17 @@ class PoolingContainerTestAdapter(
 class DisposalCountingComposeView(
     context: Context,
     private val adapter: PoolingContainerTestAdapter,
+    private val itemHeightPx: Int,
 ) : AbstractComposeView(context) {
+    var visible = false
+
     @Composable
     override fun Content() {
+        Box(
+            Modifier.onVisibilityChanged { visible = it }
+                .size(with(LocalDensity.current) { itemHeightPx.toDp() })
+        )
+
         DisposableEffect(true) {
             adapter.compositions++
             onDispose { adapter.releases++ }

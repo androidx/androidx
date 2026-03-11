@@ -1,5 +1,5 @@
-# Bug component: 378604
+# Bug component: 1972982
 bentrengrove@google.com
 ccraik@google.com
-ashikov@google.com
-jossiwolf@google.com
+
+include /compose/PERF_OWNERS

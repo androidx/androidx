@@ -68,8 +68,12 @@ internal expect fun createInputDispatcher(
  * * [updateTrackpadPosition]
  * * [enqueueTrackpadRelease]
  * * [enqueueTrackpadCancel]
- * * [enqueueTrackpadScroll]
- * * [enqueueTrackpadPinch]
+ * * [enqueueTrackpadPanStart]
+ * * [enqueueTrackpadPanMove]
+ * * [enqueueTrackpadPanEnd]
+ * * [enqueueTrackpadScaleStart]
+ * * [enqueueTrackpadScaleChange]
+ * * [enqueueTrackpadScaleEnd]
  *
  * Chaining methods:
  * * [advanceEventTime]
@@ -609,18 +613,18 @@ internal abstract class InputDispatcher(
     }
 
     /**
-     * Generates a mouse button pressed event for the given [buttonId]. This will generate all
+     * Generates a trackpad button pressed event for the given [buttonId]. This will generate all
      * required associated events as well, such as a down event if it is the first button being
      * pressed and an optional hover exit event.
      *
-     * @param buttonId The id of the mouse button. This is platform dependent, use the values
-     *   defined by [MouseButton.buttonId].
+     * @param buttonId The id of the trackpad button. This is platform dependent, use the values
+     *   defined by [TrackpadButton.buttonId].
      */
     fun enqueueTrackpadPress(buttonId: Int) {
         val cursor = cursorInputState
 
         check(!cursor.isButtonPressed(buttonId)) {
-            "Cannot send mouse button down event, button $buttonId is already pressed"
+            "Cannot send trackpad button down event, button $buttonId is already pressed"
         }
         check(isWithinRootBounds(currentCursorPosition) || cursor.hasAnyButtonPressed) {
             "Cannot start a trackpad gesture outside the Compose root bounds, trackpad position " +
@@ -651,10 +655,10 @@ internal abstract class InputDispatcher(
     }
 
     /**
-     * Generates a mouse move or hover event to the given [position]. If buttons are pressed, a move
-     * event is generated, otherwise generates a hover event.
+     * Generates a trackpad move or hover event to the given [position]. If buttons are pressed, a
+     * move event is generated, otherwise generates a hover event.
      *
-     * @param position The new mouse position
+     * @param position The new trackpad position
      */
     fun enqueueTrackpadMove(position: Offset) {
         val cursor = cursorInputState
@@ -694,21 +698,21 @@ internal abstract class InputDispatcher(
     }
 
     /**
-     * Generates a mouse button released event for the given [buttonId]. This will generate all
+     * Generates a trackpad button released event for the given [buttonId]. This will generate all
      * required associated events as well, such as an up and hover enter event if it is the last
      * button being released.
      *
-     * @param buttonId The id of the mouse button. This is platform dependent, use the values
-     *   defined by [MouseButton.buttonId].
+     * @param buttonId The id of the trackpad button. This is platform dependent, use the values
+     *   defined by [TrackpadButton.buttonId].
      */
     fun enqueueTrackpadRelease(buttonId: Int) {
         val cursor = cursorInputState
 
         check(cursor.isButtonPressed(buttonId)) {
-            "Cannot send mouse button up event, button $buttonId is not pressed"
+            "Cannot send trackpad button up event, button $buttonId is not pressed"
         }
         check(partialGesture == null) {
-            "Touch gesture can't be in progress, mouse buttons are down"
+            "Touch gesture can't be in progress, trackpad buttons are down"
         }
 
         cursor.unsetButtonBit(buttonId)
@@ -740,7 +744,7 @@ internal abstract class InputDispatcher(
             "Cannot send trackpad hover enter event, trackpad is already hovering"
         }
         check(cursor.hasNoButtonsPressed) {
-            "Cannot send trackpad hover enter event, mouse buttons are down"
+            "Cannot send trackpad hover enter event, trackpad buttons are down"
         }
         check(isWithinRootBounds(position)) {
             "Cannot send trackpad hover enter event, $position is out of bounds"
@@ -771,13 +775,13 @@ internal abstract class InputDispatcher(
     }
 
     /**
-     * Generates a trackpad cancel event. Can only be done if no mouse buttons are currently
-     * pressed. Sent automatically if a touch event is sent while mouse buttons are down.
+     * Generates a trackpad cancel event. Can only be done if no trackpad buttons are currently
+     * pressed. Sent automatically if a touch event is sent while trackpad buttons are down.
      */
     fun enqueueTrackpadCancel() {
         val cursor = cursorInputState
         check(cursor.hasAnyButtonPressed) {
-            "Cannot send trackpad cancel event, no mouse buttons are pressed"
+            "Cannot send trackpad cancel event, no trackpad buttons are pressed"
         }
         check(cursor.currentCursorInputSource == CursorInputSource.Trackpad) {
             "Cannot send trackpad cancel event, since the current cursor input isn't a trackpad"
@@ -789,22 +793,77 @@ internal abstract class InputDispatcher(
         cursor.currentCursorInputSource = null
     }
 
-    fun enqueueTrackpadScroll(offset: Offset) {
+    fun enqueueTrackpadPanStart() {
         val cursor = cursorInputState
         cursor.currentCursorInputSource = CursorInputSource.Trackpad
+        check(!cursor.isInPanGesture) {
+            "Cannot send trackpad pan start event, a pan gesture is already in progress"
+        }
+        cursor.panAccumulatedOffset = Offset.Zero
 
         if (isWithinRootBounds(currentCursorPosition)) {
-            cursor.enqueueTrackpadScroll(offset)
+            cursor.enqueueTrackpadPanStart()
         }
     }
 
-    fun enqueueTrackpadPinch(scaleFactor: Float) {
+    fun enqueueTrackpadPanMove(delta: Offset) {
         val cursor = cursorInputState
         cursor.currentCursorInputSource = CursorInputSource.Trackpad
-
-        if (isWithinRootBounds(currentCursorPosition)) {
-            cursor.enqueueTrackpadPinch(scaleFactor)
+        check(cursor.isInPanGesture) {
+            "Cannot send trackpad pan move event, no pan gesture is in progress"
         }
+        cursor.panAccumulatedOffset = cursor.panAccumulatedOffset!! + delta
+        if (isWithinRootBounds(currentCursorPosition)) {
+            cursor.enqueueTrackpadPanMove(delta)
+        }
+    }
+
+    fun enqueueTrackpadPanEnd() {
+        val cursor = cursorInputState
+        cursor.currentCursorInputSource = CursorInputSource.Trackpad
+        check(cursor.isInPanGesture) {
+            "Cannot send trackpad pan end event, no pan gesture is in progress"
+        }
+        if (isWithinRootBounds(currentCursorPosition)) {
+            cursor.enqueueTrackpadPanEnd()
+        }
+        cursor.panAccumulatedOffset = null
+    }
+
+    fun enqueueTrackpadScaleStart() {
+        val cursor = cursorInputState
+        cursor.currentCursorInputSource = CursorInputSource.Trackpad
+        check(!cursor.isInScaleGesture) {
+            "Cannot send trackpad scale start event, a scale gesture is already in progress"
+        }
+        cursor.scaleAccumulatedFactor = 1f
+        if (isWithinRootBounds(currentCursorPosition)) {
+            cursor.enqueueTrackpadScaleStart()
+        }
+    }
+
+    fun enqueueTrackpadScaleChange(scaleFactor: Float) {
+        val cursor = cursorInputState
+        cursor.currentCursorInputSource = CursorInputSource.Trackpad
+        check(cursor.isInScaleGesture) {
+            "Cannot send trackpad scale change event, no pan gesture is in progress"
+        }
+        cursor.scaleAccumulatedFactor = cursor.scaleAccumulatedFactor!! * scaleFactor
+        if (isWithinRootBounds(currentCursorPosition)) {
+            cursor.enqueueTrackpadScaleChange(scaleFactor)
+        }
+    }
+
+    fun enqueueTrackpadScaleEnd() {
+        val cursor = cursorInputState
+        cursor.currentCursorInputSource = CursorInputSource.Trackpad
+        check(cursor.isInScaleGesture) {
+            "Cannot send trackpad scale end event, no scale gesture is in progress"
+        }
+        if (isWithinRootBounds(currentCursorPosition)) {
+            cursor.enqueueTrackpadScaleEnd()
+        }
+        cursor.scaleAccumulatedFactor = null
     }
 
     /**
@@ -1006,9 +1065,17 @@ internal abstract class InputDispatcher(
 
     protected abstract fun CursorInputState.enqueueMouseScroll(offset: Offset)
 
-    protected abstract fun CursorInputState.enqueueTrackpadScroll(offset: Offset)
+    protected abstract fun CursorInputState.enqueueTrackpadPanStart()
 
-    protected abstract fun CursorInputState.enqueueTrackpadPinch(scaleFactor: Float)
+    protected abstract fun CursorInputState.enqueueTrackpadPanMove(delta: Offset)
+
+    protected abstract fun CursorInputState.enqueueTrackpadPanEnd()
+
+    protected abstract fun CursorInputState.enqueueTrackpadScaleStart()
+
+    protected abstract fun CursorInputState.enqueueTrackpadScaleChange(delta: Float)
+
+    protected abstract fun CursorInputState.enqueueTrackpadScaleEnd()
 
     protected abstract fun RotaryInputState.enqueueRotaryScrollHorizontally(
         horizontalScrollPixels: Float
@@ -1059,6 +1126,8 @@ internal class CursorInputState {
     var lastPosition: Offset = Offset.Zero
     var isEntered: Boolean = false
     var currentCursorInputSource: CursorInputSource? = null
+    var panAccumulatedOffset: Offset? = null
+    var scaleAccumulatedFactor: Float? = null
 
     val hasAnyButtonPressed
         get() = pressedButtons.isNotEmpty()
@@ -1072,6 +1141,12 @@ internal class CursorInputState {
     fun isButtonPressed(buttonId: Int): Boolean {
         return pressedButtons.contains(buttonId)
     }
+
+    val isInPanGesture
+        get() = panAccumulatedOffset != null
+
+    val isInScaleGesture
+        get() = scaleAccumulatedFactor != null
 
     fun setButtonBit(buttonId: Int) {
         pressedButtons.add(buttonId)

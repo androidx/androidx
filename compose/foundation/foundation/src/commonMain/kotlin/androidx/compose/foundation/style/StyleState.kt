@@ -28,10 +28,12 @@ import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.selection.triStateToggleable
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.state.ToggleableState
 
@@ -166,7 +168,7 @@ open class StyleStateKey<T>(internal val defaultValue: T) {
 /**
  * A utility function used to update boolean values of the predefined state of a [StyleState].
  *
- * @param predefinedState the value of [StyleStateImpl.predefinedState] to update
+ * @param predefinedState the value of [MutableStyleState.predefinedState] to update
  * @param mask the value mask of the state to update.
  * @param include whether to include the state or exclude it.
  * @see FocusedStateMask
@@ -626,6 +628,25 @@ constructor(override val interactionSource: InteractionSource?) : StyleState() {
             }
         }
     }
+}
+
+/**
+ * Create, remember and update a [StyleState] for use as a parameter of a
+ * [androidx.compose.ui.Modifier.styleable] modifier.
+ *
+ * @param interactionSource the interaction source to observe for the style state.
+ * @param block a lambda that will initializes or updates the style state.
+ * @sample androidx.compose.foundation.samples.StyleStateSample
+ */
+@ExperimentalFoundationStyleApi
+@Composable
+inline fun rememberUpdatedStyleState(
+    interactionSource: InteractionSource?,
+    block: @Composable (MutableStyleState) -> Unit = {},
+): StyleState {
+    val mutableStyleState = remember(interactionSource) { MutableStyleState(interactionSource) }
+    block(mutableStyleState)
+    return mutableStyleState
 }
 
 @Suppress("UNCHECKED_CAST")

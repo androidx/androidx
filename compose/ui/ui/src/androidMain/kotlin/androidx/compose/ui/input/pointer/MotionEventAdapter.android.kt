@@ -553,14 +553,14 @@ internal class MotionEventAdapter {
                         HistoricalChange(
                             uptimeMillis = getHistoricalEventTime(pos),
                             position = originalEventPosition,
-                            scaleGestureFactor =
+                            scaleFactor =
                                 getHistoricalAxisValue(
                                         MotionEvent.AXIS_GESTURE_PINCH_SCALE_FACTOR,
                                         index,
                                         pos,
                                     )
                                     .takeIf { it > 0 } ?: 1f,
-                            panGestureOffset =
+                            panOffset =
                                 if (
                                     Build.VERSION.SDK_INT >= 29 &&
                                         motionEvent.classification ==

@@ -23,6 +23,7 @@ import androidx.compose.runtime.internal.ComposableLambda
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shadow
@@ -46,29 +47,20 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
-import java.lang.reflect.Field
-import java.lang.reflect.Modifier as JavaModifier
 import kotlin.jvm.internal.FunctionReference
 import kotlin.math.abs
-import kotlin.reflect.KClass
-import kotlin.reflect.KProperty
-import kotlin.reflect.KProperty1
-import kotlin.reflect.full.allSuperclasses
-import kotlin.reflect.full.declaredMemberProperties
-import kotlin.reflect.jvm.isAccessible
-import kotlin.reflect.jvm.javaField
-import kotlin.reflect.jvm.javaGetter
-
-private val reflectionScope: ReflectionScope = ReflectionScope()
 
 /**
  * Factory of [NodeParameter]s.
  *
  * Each parameter value is converted to a user readable value.
  */
-internal class ParameterFactory(private val inlineClassConverter: InlineClassConverter) {
+internal class ParameterFactory(inlineClassConverter: InlineClassConverter) {
+    /** Reflection support to retrieve property values from classes and packages. */
+    private val support = ReflectionSupport(inlineClassConverter)
+
     /** A map from known values to a user readable string representation. */
-    private val valueLookup = mutableMapOf<Any, String>()
+    private val valueLookup = firstInMutableMapOf<Any, String>()
 
     /** The classes we have loaded constants from. */
     private val valuesLoaded = mutableSetOf<Class<*>>()
@@ -103,9 +95,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
 
         // AbsoluteAlignment is not found from an instance of BiasAbsoluteAlignment,
         // because Alignment has no file level class.
-        reflectionScope.withReflectiveAccess {
-            loadConstantsFromEnclosedClasses(AbsoluteAlignment::class.java)
-        }
+        loadConstantsFromEnclosedClasses(AbsoluteAlignment::class.java)
     }
 
     /**
@@ -127,19 +117,17 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
     ): NodeParameter {
         val creator = creatorCache ?: ParameterCreator()
         try {
-            return reflectionScope.withReflectiveAccess {
-                creator.create(
-                    rootId,
-                    nodeId,
-                    anchorId,
-                    name,
-                    value,
-                    kind,
-                    parameterIndex,
-                    maxRecursions,
-                    maxInitialIterableSize,
-                )
-            }
+            return creator.create(
+                rootId,
+                nodeId,
+                anchorId,
+                name,
+                value,
+                kind,
+                parameterIndex,
+                maxRecursions,
+                maxInitialIterableSize,
+            )
         } finally {
             creatorCache = creator
         }
@@ -172,20 +160,18 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
     ): NodeParameter? {
         val creator = creatorCache ?: ParameterCreator()
         try {
-            return reflectionScope.withReflectiveAccess {
-                creator.expand(
-                    rootId,
-                    nodeId,
-                    anchorId,
-                    name,
-                    value,
-                    reference,
-                    startIndex,
-                    maxElements,
-                    maxRecursions,
-                    maxInitialIterableSize,
-                )
-            }
+            return creator.expand(
+                rootId,
+                nodeId,
+                anchorId,
+                name,
+                value,
+                reference,
+                startIndex,
+                maxElements,
+                maxRecursions,
+                maxInitialIterableSize,
+            )
         } finally {
             creatorCache = creator
         }
@@ -202,7 +188,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
         related.forEach { aClass ->
             val topClass = generateSequence(aClass) { safeEnclosingClass(it) }.last()
             loadConstantsFromEnclosedClasses(topClass)
-            findPackageLevelClass(topClass)?.let { loadConstantsFromStaticFinal(it) }
+            loadPackageLevelConstantsFromFile(topClass)
         }
     }
 
@@ -226,8 +212,8 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
         if (valuesLoaded.contains(javaClass)) {
             return
         }
-        loadConstantsFromObjectInstance(javaClass.kotlin)
-        loadConstantsFromStaticFinal(javaClass)
+        loadConstantsFromObjectInstance(javaClass)
+        loadPackageLevelConstantsFromFile(javaClass)
         valuesLoaded.add(javaClass)
         javaClass.declaredClasses.forEach { loadConstantsFromEnclosedClasses(it) }
     }
@@ -237,14 +223,14 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
      *
      * Exclude: primary types and types of ignoredClasses, open and lateinit vals.
      */
-    private fun loadConstantsFromObjectInstance(kClass: KClass<*>) {
+    private fun loadConstantsFromObjectInstance(javaClass: Class<*>) {
         try {
-            val instance = kClass.objectInstance ?: return
-            kClass.declaredMemberProperties
-                .asSequence()
-                .filter { it.isFinal && !it.isLateinit }
-                .mapNotNull { constantValueOf(it, instance)?.let { key -> Pair(key, it.name) } }
-                .filter { !ignoredValue(it.first) }
+            val instance = support.objectInstance(javaClass) ?: return
+            support
+                .declaredMemberProperties(instance.javaClass)
+                .filter { it.isFinal && !it.isLateInit && it.hasNoParameters && !it.isVar }
+                .mapNotNull { support.valueOf(it, instance)?.let { key -> Pair(key, it.name) } }
+                .filter { !ignoredValue(it.first) && !valueLookup.contains(it.first) }
                 .toMap(valueLookup)
         } catch (_: Throwable) {
             // KT-16479 :  kotlin reflection does currently not support packages and files.
@@ -253,64 +239,21 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
         }
     }
 
-    /**
-     * Load all constants from top level values from Java.
-     *
-     * Exclude: primary types and types of ignoredClasses. Since this is Java, inline types will
-     * also (unfortunately) be excluded.
-     */
-    private fun loadConstantsFromStaticFinal(javaClass: Class<*>) {
+    /** Load the package level constants fof the specified class. */
+    private fun loadPackageLevelConstantsFromFile(javaClass: Class<*>) {
         try {
-            javaClass.declaredMethods
-                .asSequence()
-                .filter {
-                    it.returnType != Void.TYPE &&
-                        JavaModifier.isStatic(it.modifiers) &&
-                        JavaModifier.isFinal(it.modifiers) &&
-                        !it.returnType.isPrimitive &&
-                        it.parameterTypes.isEmpty() &&
-                        it.name.startsWith("get")
-                }
-                .mapNotNull { javaClass.getDeclaredField(it.name.substring(3)) }
-                .mapNotNull { constantValueOf(it)?.let { key -> Pair(key, it.name) } }
-                .filter { !ignoredValue(it.first) }
+            val packageJavaClass = findPackageLevelClass(javaClass) ?: return
+            support
+                .declaredPackageProperties(packageJavaClass)
+                .filter { it.isFinal && !it.isLateInit && it.hasNoParameters && !it.isVar }
+                .mapNotNull { support.valueOf(it, null)?.let { key -> Pair(key, it.name) } }
+                .filter { !ignoredValue(it.first) && !valueLookup.contains(it.first) }
                 .toMap(valueLookup)
         } catch (_: ReflectiveOperationException) {
             // ignore reflection errors
         } catch (_: NoClassDefFoundError) {
             // ignore missing classes on lower level SDKs
         }
-    }
-
-    private fun constantValueOf(field: Field?): Any? =
-        try {
-            field?.isAccessible = true
-            field?.get(null)
-        } catch (_: ReflectiveOperationException) {
-            // ignore reflection errors
-            null
-        }
-
-    private fun constantValueOf(property: KProperty1<out Any, *>, instance: Any): Any? =
-        try {
-            val field = property.javaField
-            field?.isAccessible = true
-            inlineClassConverter.castParameterValue(
-                inlineResultClass(property),
-                field?.get(instance),
-            )
-        } catch (_: ReflectiveOperationException) {
-            // ignore reflection errors
-            null
-        }
-
-    private fun inlineResultClass(property: KProperty1<out Any, *>): String? {
-        // The Java getter name will be mangled if it contains parameters of an inline class.
-        // The mangled part starts with a '-'.
-        if (property.javaGetter?.name?.contains('-') == true) {
-            return property.returnType.toString()
-        }
-        return null
     }
 
     private fun ignoredValue(value: Any?): Boolean =
@@ -493,6 +436,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
                     createFromSequence(name, value, value.asSequence(), startIndex, maxElements)
                 value.javaClass.isArray -> createFromArray(name, value, startIndex, maxElements)
                 value is Offset -> createFromOffset(name, value)
+                value is Size -> createFromSize(name, value)
                 value is Shadow -> createFromShadow(name, value)
                 value is TextStyle -> createFromTextStyle(name, value)
                 else -> createFromKotlinReflection(name, value)
@@ -509,6 +453,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
                 value is Iterable<*> -> findFromSequence(value.asSequence(), index)
                 value.javaClass.isArray -> findFromArray(value, index)
                 value is Offset -> findFromOffset(value, index)
+                value is Size -> findFromSize(value, index)
                 value is Shadow -> findFromShadow(value, index)
                 value is TextStyle -> findFromTextStyle(value, index)
                 else -> findFromKotlinReflection(value, index)
@@ -635,7 +580,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
                 else -> {
                     val elements = parameter.elements
                     properties.values.mapIndexedNotNullTo(elements) { index, part ->
-                        createRecursively(part.name, valueOf(part, value), value, index)
+                        createRecursively(part.name, support.valueOf(part, value), value, index)
                     }
                     parameter
                 }
@@ -643,15 +588,15 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
         }
 
         private fun findFromKotlinReflection(value: Any, index: Int): Pair<String, Any?>? {
-            val properties = lookup(value)?.entries?.iterator()?.asSequence() ?: return null
-            val element = properties.elementAtOrNull(index)?.value ?: return null
-            return Pair(element.name, valueOf(element, value))
+            val properties = lookup(value)?.values ?: return null
+            val element = properties.elementAtOrNull(index) ?: return null
+            return Pair(element.name, support.valueOf(element, value))
         }
 
-        private fun lookup(value: Any): Map<String, KProperty<*>>? {
-            val kClass = value::class
-            val simpleName = kClass.simpleName
-            val qualifiedName = kClass.qualifiedName
+        private fun lookup(value: Any): Map<String, KotlinProperty>? {
+            val javaClass = value::class.java
+            val simpleName = javaClass.simpleName
+            val qualifiedName = javaClass.name
             if (
                 simpleName == null ||
                     qualifiedName == null ||
@@ -663,27 +608,14 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
                 return null
             }
             return try {
-                sequenceOf(kClass)
-                    .plus(kClass.allSuperclasses.asSequence())
-                    .flatMap { it.declaredMemberProperties.asSequence() }
+                javaClass.allSuperclasses
+                    .flatMap { support.declaredMemberProperties(it) }
                     .associateBy { it.name }
-            } catch (_: Throwable) {
-                Log.w(SPAM_LOG_TAG, "Could not decompose ${kClass.simpleName}")
+            } catch (t: Throwable) {
+                Log.w(SPAM_LOG_TAG, "Could not decompose ${javaClass.simpleName}", t)
                 null
             }
         }
-
-        private fun valueOf(property: KProperty<*>, instance: Any): Any? =
-            try {
-                property.isAccessible = true
-                // Bug in kotlin reflection API: if the type is a nullable inline type with a null
-                // value, we get an IllegalArgumentException in this line:
-                property.getter.call(instance)
-            } catch (_: Throwable) {
-                // TODO: Remove this warning since this is expected with nullable inline types
-                Log.w(SPAM_LOG_TAG, "Could not get value of ${property.name}")
-                null
-            }
 
         private fun createFromInspectableValue(
             name: String,
@@ -695,11 +627,12 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
             val parameter =
                 createFromSimpleValue(parameterName, parameterValue)
                     ?: NodeParameter(parameterName, ParameterType.String, "")
-            if (!shouldRecurseDeeper()) {
+            val valueElements = value.inspectableElements.toList()
+            if (valueElements.isNotEmpty() && !shouldRecurseDeeper()) {
                 return parameter.withChildReference()
             }
             val elements = parameter.elements
-            value.inspectableElements.mapIndexedNotNullTo(elements) { index, element ->
+            valueElements.mapIndexedNotNullTo(elements) { index, element ->
                 createRecursively(element.name, element.value, value, index)
             }
             return parameter
@@ -856,6 +789,23 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
                 else -> null
             }
 
+        private fun createFromSize(name: String, value: Size): NodeParameter {
+            val parameter = NodeParameter(name, ParameterType.String, Size::class.java.simpleName)
+            val elements = parameter.elements
+            val width = with(density) { value.width.toDp().value }
+            val height = with(density) { value.height.toDp().value }
+            elements.add(NodeParameter("width", DimensionDp, width))
+            elements.add(NodeParameter("height", DimensionDp, height).apply { index = 1 })
+            return parameter
+        }
+
+        private fun findFromSize(value: Size, index: Int): Pair<String, Any?>? =
+            when (index) {
+                0 -> Pair("width", with(density) { value.width.toDp() })
+                1 -> Pair("height", with(density) { value.height.toDp() })
+                else -> null
+            }
+
         // Special handling of blurRadius: convert to dp:
         private fun createFromShadow(name: String, value: Shadow): NodeParameter? {
             val parameter = createFromKotlinReflection(name, value) ?: return null
@@ -880,7 +830,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
 
         // Temporary handling of TextStyle: remove when TextStyle implements InspectableValue
         // Hide: paragraphStyle, spanStyle, platformStyle, lineHeightStyle
-        private fun createFromTextStyle(name: String, value: TextStyle): NodeParameter? {
+        private fun createFromTextStyle(name: String, value: TextStyle): NodeParameter {
             val parameter =
                 NodeParameter(name, ParameterType.String, TextStyle::class.java.simpleName)
             val elements = parameter.elements
@@ -967,5 +917,20 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
                     start = element as? androidx.compose.ui.platform.InspectableModifier
                 }
             }
+    }
+
+    private fun <K, V> firstInMutableMapOf() = FirstInMutableMap<K, V>()
+
+    /**
+     * A MutableMap that ignores duplicated keys by keeping the 1st value stored for each key. This
+     * is done to avoid overriding the (W100, W200, W500, W700, ...) constants from FontWeight with
+     * their aliases: (Thin, ExtraLight, Normal, Bold, ...) to be backwards compatible with older
+     * versions of the compose inspector.
+     */
+    private class FirstInMutableMap<K, V>(private val delegate: MutableMap<K, V> = mutableMapOf()) :
+        MutableMap<K, V> by delegate {
+        override fun put(key: K, value: V): V? {
+            return delegate.putIfAbsent(key, value)
+        }
     }
 }

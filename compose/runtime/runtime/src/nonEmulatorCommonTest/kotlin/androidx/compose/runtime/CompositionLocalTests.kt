@@ -27,9 +27,9 @@ import androidx.compose.runtime.mock.expectChanges
 import androidx.compose.runtime.mock.expectNoChanges
 import androidx.compose.runtime.mock.revalidate
 import androidx.compose.runtime.mock.validate
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -932,37 +932,33 @@ class CompositionLocalTests {
         }
     }
 
-    @Ignore // b/478445536
     @Test
     fun hostDefault_throwsForMissingNonNullableKey() = compositionTest {
-        // Key expects a non-null String
-        val key = TestHostDefaultKey<Int>()
+        // We use String (reference type) because Kotlin/Native's LLVM backend may 'segfault' when
+        // attempting to unbox a null 'Any' into a primitive (like Int). Using a reference type
+        // ensures we get a catchable runtime exception instead of a process crash.
+        val key = TestHostDefaultKey<String>()
         val local = compositionLocalWithHostDefaultOf(key)
         val provider = TestHostDefaultProvider(emptyMap())
 
-        var exception: Throwable? = null
-        try {
-            compose {
-                CompositionLocalProvider(LocalHostDefaultProvider provides provider) {
-                    // Platform behavior varies for unprovided CompositionLocals.
-                    // On JS/Native, a null value might be successfully assigned to 'unused'
-                    // unless forced via !!. On JVM, unboxing null to a primitive (Int)
-                    // typically throws a NullPointerException or ClassCastException immediately.
-                    @Suppress("UnusedVariable", "unused", "UNNECESSARY_NOT_NULL_ASSERTION")
-                    val unused: Int = local.current!!
+        val exception =
+            assertFailsWith<Throwable> {
+                compose {
+                    CompositionLocalProvider(LocalHostDefaultProvider provides provider) {
+                        // We force access with !! because some platforms (e.g., JS) are more
+                        // "relaxed" about nullability at runtime. The assertion ensures the
+                        // failure happens here rather than leaking into later code.
+                        @Suppress("UnusedVariable", "unused", "UNNECESSARY_NOT_NULL_ASSERTION")
+                        val unused: String = local.current!!
+                    }
                 }
             }
-        } catch (e: NullPointerException) {
-            exception = e
-        } catch (e: ClassCastException) {
-            // Depending on K/N or K/JVM internals, unboxing null to non-null
-            // might throw CCE or NPE. We accept either for "failure to provide".
-            exception = e
-        }
 
+        // Different Kotlin backends report "null-to-non-null" failures differently.
+        // JVM usually throws NPE on unboxing; Native/JS may throw ClassCastException.
         assertTrue(
             exception is NullPointerException || exception is ClassCastException,
-            "Expected NPE or CCE when accessing missing non-null host default",
+            "Expected NPE or CCE due to missing provider, but got: ${exception::class.simpleName}",
         )
     }
 

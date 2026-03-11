@@ -81,6 +81,7 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.establishTextInputSession
+import androidx.compose.ui.semantics.InputTextSuggestionState
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.contentDataType
 import androidx.compose.ui.semantics.contentType
@@ -91,6 +92,7 @@ import androidx.compose.ui.semantics.editableText
 import androidx.compose.ui.semantics.fillableData
 import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.inputText
+import androidx.compose.ui.semantics.inputTextSuggestionState
 import androidx.compose.ui.semantics.insertTextAtCursor
 import androidx.compose.ui.semantics.isEditable
 import androidx.compose.ui.semantics.onClick
@@ -101,6 +103,7 @@ import androidx.compose.ui.semantics.password
 import androidx.compose.ui.semantics.pasteText
 import androidx.compose.ui.semantics.setSelection
 import androidx.compose.ui.semantics.setText
+import androidx.compose.ui.semantics.textCompositionRange
 import androidx.compose.ui.semantics.textSelectionRange
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
@@ -539,6 +542,9 @@ internal class TextFieldDecoratorModifierNode(
         inputText = AnnotatedString(textFieldState.untransformedText.toString())
         editableText = AnnotatedString(text.toString())
         textSelectionRange = selection
+        textCompositionRange = textFieldState.untransformedComposition
+
+        inputTextSuggestionState = InputTextSuggestionState(textFieldState.userCommit)
 
         if (!enabled) disabled()
         if (isPassword) password()

@@ -241,8 +241,12 @@ private class CanvasLayersComposeSceneImpl(
             PointerEventType.Enter -> processMove(event)
             PointerEventType.Exit -> processMove(event)
             PointerEventType.Scroll -> processHoveredEvent(event)
-            PointerEventType.Pan -> processHoveredEvent(event)
-            PointerEventType.Scale -> processHoveredEvent(event)
+            PointerEventType.PanStart,
+            PointerEventType.PanMove,
+            PointerEventType.PanEnd -> processHoveredEvent(event)
+            PointerEventType.ScaleStart,
+            PointerEventType.ScaleChange,
+            PointerEventType.ScaleEnd -> processHoveredEvent(event)
             else -> PointerEventResult(anyMovementConsumed = false)
         }
 

@@ -35,6 +35,8 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
+import androidx.compose.ui.tooling.preview.PreviewWrapper
+import androidx.compose.ui.tooling.preview.PreviewWrapperProvider
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.currentStateAsState
@@ -173,4 +175,27 @@ fun TestCornerRadius(
     @PreviewParameter(TestContentParameterProviderCornerRadius::class) radius: CornerRadius
 ) {
     Text(radius.toString())
+}
+
+@Preview
+@PreviewWrapperProvider(wrapper = TestWrapper::class)
+@Composable
+fun TestWrapperPreview() {
+    Text(text = "test")
+}
+
+class TestWrapper : PreviewWrapper {
+    @Composable
+    override fun Wrap(content: @Composable (() -> Unit)) {
+        WrapperContainer { content() }
+    }
+}
+
+@Composable
+fun WrapperContainer(content: @Composable () -> Unit) {
+    Column {
+        Text("Header")
+        content()
+        Text("Footer")
+    }
 }

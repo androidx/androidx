@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -56,12 +55,12 @@ androidXMultiplatform {
 
     sourceSets {
         commonMain.dependencies {
-            api(project(":annotation:annotation"))
+            api(libs.androidx.annotation)
 
             api(project(":compose:ui:ui-unit"))
             implementation(project(":compose:runtime:runtime"))
             implementation(project(":compose:ui:ui-util"))
-            implementation(project(":collection:collection"))
+            implementation("androidx.collection:collection:1.5.0")
         }
 
         commonTest.dependencies {
@@ -174,7 +173,6 @@ androidx {
     inceptionYear = "2020"
     description = "Compose graphics"
     legacyDisableKotlinStrictApiMode = true
-    metalavaK2UastEnabled = false
     enableRobolectric()
     samples(project(":compose:ui:ui-graphics:ui-graphics-samples"))
 }

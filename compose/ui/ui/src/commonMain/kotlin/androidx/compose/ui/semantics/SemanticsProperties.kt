@@ -96,7 +96,7 @@ object SemanticsProperties {
     /** @see SemanticsPropertyReceiver.isTraversalGroup */
     val IsTraversalGroup = SemanticsPropertyKey<Boolean>("IsTraversalGroup")
 
-    /** @see SemanticsPropertyReceiver.IsSensitiveData */
+    /** @see isSensitiveData */
     val IsSensitiveData = SemanticsPropertyKey<Boolean>("IsSensitiveData")
 
     /** @see SemanticsPropertyReceiver.invisibleToUser */
@@ -246,6 +246,9 @@ object SemanticsProperties {
     /** @see SemanticsPropertyReceiver.textSelectionRange */
     val TextSelectionRange = AccessibilityKey<TextRange>("TextSelectionRange")
 
+    /** @see SemanticsPropertyReceiver.textCompositionRange */
+    val TextCompositionRange = AccessibilityKey<TextRange?>("TextCompositionRange")
+
     /** @see SemanticsPropertyReceiver.onImeAction */
     val ImeAction = AccessibilityKey<ImeAction>("ImeAction")
 
@@ -254,6 +257,10 @@ object SemanticsProperties {
 
     /** @see SemanticsPropertyReceiver.toggleableState */
     val ToggleableState = AccessibilityKey<ToggleableState>("ToggleableState")
+
+    /** @see SemanticsPropertyReceiver.inputTextSuggestionState */
+    val InputTextSuggestionState =
+        AccessibilityKey<InputTextSuggestionState>("InputTextSuggestionState")
 
     /** @see SemanticsPropertyReceiver.password */
     val Password = AccessibilityKey<Unit>("Password")
@@ -699,6 +706,35 @@ class ScrollAxisRange(
     override fun toString(): String =
         "ScrollAxisRange(value=${value()}, maxValue=${maxValue()}, " +
             "reverseScrolling=$reverseScrolling)"
+}
+
+/**
+ * The state of an input text when suggestions are shown. This property specifies the different
+ * available states the input text can be in when there are text suggestions available, typically
+ * shown as a dialog window and when a user inputs a transliteration language such as Chinese,
+ * Japanese, Korean, etc.
+ *
+ * @param isCommittedByInputMethodEditor whether the current text was committed by an input method
+ *   editor done by the user, will stay false if the committed text was done programmatically, e.g.
+ *   via Accessibility service.
+ */
+class InputTextSuggestionState(val isCommittedByInputMethodEditor: Boolean = false) {
+    override fun toString(): String =
+        "InputTextSuggestionState(isCommittedByInputMethodEditor=${isCommittedByInputMethodEditor}"
+
+    override fun hashCode(): Int {
+        val result = isCommittedByInputMethodEditor.hashCode()
+        return 31 * result
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is InputTextSuggestionState) return false
+
+        if (isCommittedByInputMethodEditor != other.isCommittedByInputMethodEditor) return false
+
+        return true
+    }
 }
 
 /**
@@ -1154,6 +1190,9 @@ var SemanticsPropertyReceiver.editableText by SemanticsProperties.EditableText
 /** Text selection range for the text field. */
 var SemanticsPropertyReceiver.textSelectionRange by SemanticsProperties.TextSelectionRange
 
+/** Text composition range for the text field. */
+var SemanticsPropertyReceiver.textCompositionRange by SemanticsProperties.TextCompositionRange
+
 /**
  * Contains the IME action provided by the node.
  *
@@ -1195,6 +1234,18 @@ var SemanticsPropertyReceiver.collectionItemInfo by SemanticsProperties.Collecti
  * The presence of this property indicates that the element is toggleable.
  */
 var SemanticsPropertyReceiver.toggleableState by SemanticsProperties.ToggleableState
+
+/**
+ * This semantics provides the state of a text that has active suggestions. Text with suggestions
+ * are typically associated with typing transliteration languages such as Chinese, Japanese, Korean
+ * where multiple text replacement suggestions appear.
+ *
+ * It is used by accessibility services to determine what speech feedback should be announced as the
+ * user is typing a transliteration text. For example, whether to announce that a replacement text
+ * is selected.
+ */
+var SemanticsPropertyReceiver.inputTextSuggestionState by
+    SemanticsProperties.InputTextSuggestionState
 
 /** Whether this semantics node is editable, e.g. an editable text field. */
 var SemanticsPropertyReceiver.isEditable by SemanticsProperties.IsEditable

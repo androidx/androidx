@@ -126,6 +126,7 @@ class SnapshotFlowTests {
         collector2.cancel()
     }
 
+    @OptIn(ExperimentalComposeRuntimeApi::class)
     @Test
     fun sharingOneSnapshotFlowManager_watchingSameStateObject() = runTest {
         val state = mutableStateOf(false)
@@ -165,6 +166,7 @@ class SnapshotFlowTests {
         collector2.cancel()
     }
 
+    @OptIn(ExperimentalComposeRuntimeApi::class)
     @Test
     fun sharingOneSnapshotFlowManager_watchingDifferentStateObjects() = runTest {
         var state1 by mutableIntStateOf(0)

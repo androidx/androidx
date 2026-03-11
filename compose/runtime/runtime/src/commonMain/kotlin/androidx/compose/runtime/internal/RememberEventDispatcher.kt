@@ -22,6 +22,10 @@ import androidx.collection.ScatterSet
 import androidx.collection.mutableScatterMapOf
 import androidx.collection.mutableScatterSetOf
 import androidx.compose.runtime.ComposeNodeLifecycleCallback
+import androidx.compose.runtime.ComposeRuntimeFlags
+import androidx.compose.runtime.ExperimentalComposeApi
+import androidx.compose.runtime.GapRememberObserverHolder
+import androidx.compose.runtime.LinkRememberObserverHolder
 import androidx.compose.runtime.RecomposeScopeImpl
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.RememberObserverHolder
@@ -29,6 +33,7 @@ import androidx.compose.runtime.Stack
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.composer.RememberManager
+import androidx.compose.runtime.composer.linkbuffer.NullAnchor
 import androidx.compose.runtime.debugRuntimeCheck
 import androidx.compose.runtime.tooling.CompositionErrorContext
 
@@ -167,7 +172,14 @@ internal class RememberEventDispatcher() : RememberManager {
                 pausedPlaceholders = it
             })[scope] = pausedPlaceholder
         this.currentRememberingList.add(
-            RememberObserverHolder(pausedPlaceholder, afterGroupIndex = -1)
+            if (
+                @OptIn(ExperimentalComposeApi::class)
+                ComposeRuntimeFlags.isLinkBufferComposerEnabled
+            ) {
+                LinkRememberObserverHolder(pausedPlaceholder, NullAnchor)
+            } else {
+                GapRememberObserverHolder(pausedPlaceholder, afterGroupIndex = -1)
+            }
         )
     }
 

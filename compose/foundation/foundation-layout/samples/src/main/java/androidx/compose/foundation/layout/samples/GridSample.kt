@@ -179,3 +179,34 @@ fun GridConfigurationDslSample() {
         }
     }
 }
+
+@Sampled
+@Composable
+@OptIn(ExperimentalGridApi::class)
+fun GridWithConstraints() {
+    Grid(
+        modifier = Modifier.fillMaxSize().padding(16.dp),
+        config = {
+            val maxWidthDp = constraints.maxWidth.toDp()
+            if (maxWidthDp < 600.dp) {
+                // Compact Layout: 2 Columns
+                repeat(2) { column(1.fr) }
+            } else {
+                // Expanded Layout: 4 Columns
+                repeat(4) { column(1.fr) }
+            }
+
+            // Rows are auto-generated based on content
+            gap(8.dp)
+        },
+    ) {
+        repeat(8) { index ->
+            Box(
+                modifier = Modifier.background(Color.Cyan).padding(24.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text("Item $index")
+            }
+        }
+    }
+}

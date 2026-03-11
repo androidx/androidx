@@ -69,14 +69,15 @@ import kotlin.math.min
  * image](https://developer.android.com/images/reference/androidx/compose/material/menus.png)
  *
  * A [DropdownMenu] behaves similarly to a [Popup], and will use the position of the parent layout
- * to position itself on screen. Commonly a [DropdownMenu] will be placed in a [Box] with a sibling
- * that will be used as the 'anchor'. Note that a [DropdownMenu] by itself will not take up any
- * space in a layout, as the menu is displayed in a separate window, on top of other content.
+ * to position itself on screen. Commonly a [DropdownMenu] will be placed in a
+ * [androidx.compose.foundation.layout.Box] with a sibling that will be used as the 'anchor'. Note
+ * that a [DropdownMenu] by itself will not take up any space in a layout, as the menu is displayed
+ * in a separate window, on top of other content.
  *
  * The [content] of a [DropdownMenu] will typically be [DropdownMenuItem]s, as well as custom
  * content. Using [DropdownMenuItem]s will result in a menu that matches the Material specification
  * for menus. Also note that the [content] is placed inside a scrollable [Column], so using a
- * [LazyColumn] as the root layout inside [content] is unsupported.
+ * [androidx.compose.foundation.lazy.LazyColumn] as the root layout inside [content] is unsupported.
  *
  * [onDismissRequest] will be called when the menu should close - for example when there is a tap
  * outside the menu, or when the back key is pressed.

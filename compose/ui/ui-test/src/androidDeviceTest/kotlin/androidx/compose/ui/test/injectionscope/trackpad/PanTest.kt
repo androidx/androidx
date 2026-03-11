@@ -26,17 +26,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Enter
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Move
-import androidx.compose.ui.input.pointer.PointerEventType.Companion.Pan
+import androidx.compose.ui.input.pointer.PointerEventType.Companion.PanEnd
+import androidx.compose.ui.input.pointer.PointerEventType.Companion.PanMove
+import androidx.compose.ui.input.pointer.PointerEventType.Companion.PanStart
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Press
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Release
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.InputDispatcher
-import androidx.compose.ui.test.MouseButton
+import androidx.compose.ui.test.TrackpadButton
 import androidx.compose.ui.test.injectionscope.trackpad.Common.PrimaryButton
 import androidx.compose.ui.test.injectionscope.trackpad.Common.verifyTrackpadEvent
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.pan
 import androidx.compose.ui.test.performTrackpadInput
 import androidx.compose.ui.test.util.ClickableTestBox
 import androidx.compose.ui.test.util.SinglePointerInputRecorder
@@ -52,10 +55,10 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalTestApi::class)
-class ScrollTest {
+class PanTest {
     companion object {
         private val T = InputDispatcher.eventPeriodMillis
-        private const val TAG = "SCROLL"
+        private const val TAG = "PAN"
     }
 
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
@@ -73,7 +76,7 @@ class ScrollTest {
         rule.onNodeWithTag(TAG).performTrackpadInput {
             enter()
             // scroll vertically
-            scroll(Offset(0f, 10f))
+            pan(Offset(0f, 10f))
         }
 
         rule.runOnIdle {
@@ -101,7 +104,7 @@ class ScrollTest {
                         ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
                             Build.VERSION.SDK_INT >= 34
                     ) {
-                        event.verifyTrackpadEvent(T, Pan, false, Offset.Zero)
+                        event.verifyTrackpadEvent(T, PanStart, false, Offset.Zero)
                         assertThat(event.classification)
                             .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
                         assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
@@ -132,7 +135,7 @@ class ScrollTest {
                         ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
                             Build.VERSION.SDK_INT >= 34
                     ) {
-                        event.verifyTrackpadEvent(T * 2, Pan, false, Offset.Zero)
+                        event.verifyTrackpadEvent(T * 2, PanMove, false, Offset.Zero)
                         assertThat(event.classification)
                             .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
                         assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
@@ -163,7 +166,7 @@ class ScrollTest {
                         ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
                             Build.VERSION.SDK_INT >= 34
                     ) {
-                        event.verifyTrackpadEvent(T * 3, Pan, false, Offset.Zero)
+                        event.verifyTrackpadEvent(T * 3, PanEnd, false, Offset.Zero)
                         assertThat(event.classification)
                             .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
                         assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
@@ -213,7 +216,7 @@ class ScrollTest {
         rule.onNodeWithTag(TAG).performTrackpadInput {
             enter()
             // scroll horizontally
-            scroll(Offset(10f, 0f))
+            pan(Offset(10f, 0f))
         }
 
         rule.runOnIdle {
@@ -241,7 +244,7 @@ class ScrollTest {
                         ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
                             Build.VERSION.SDK_INT >= 34
                     ) {
-                        event.verifyTrackpadEvent(T, Pan, false, Offset.Zero)
+                        event.verifyTrackpadEvent(T, PanStart, false, Offset.Zero)
                         assertThat(event.classification)
                             .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
                         assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
@@ -272,7 +275,7 @@ class ScrollTest {
                         ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
                             Build.VERSION.SDK_INT >= 34
                     ) {
-                        event.verifyTrackpadEvent(T * 2, Pan, false, Offset.Zero)
+                        event.verifyTrackpadEvent(T * 2, PanMove, false, Offset.Zero)
                         assertThat(event.classification)
                             .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
                         assertThat(event.axisGestureScrollXDistance).isEqualTo(-10f)
@@ -303,7 +306,7 @@ class ScrollTest {
                         ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
                             Build.VERSION.SDK_INT >= 34
                     ) {
-                        event.verifyTrackpadEvent(T * 3, Pan, false, Offset.Zero)
+                        event.verifyTrackpadEvent(T * 3, PanEnd, false, Offset.Zero)
                         assertThat(event.classification)
                             .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
                         assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
@@ -353,9 +356,9 @@ class ScrollTest {
         rule.onNodeWithTag(TAG).performTrackpadInput {
             enter()
             // press primary button
-            press(MouseButton.Primary)
+            press(TrackpadButton.Primary)
             // scroll
-            scroll(Offset(10f, 0f))
+            pan(Offset(10f, 0f))
         }
 
         rule.runOnIdle {
@@ -385,7 +388,7 @@ class ScrollTest {
                         ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
                             Build.VERSION.SDK_INT >= 34
                     ) {
-                        event.verifyTrackpadEvent(T, Pan, false, Offset.Zero)
+                        event.verifyTrackpadEvent(T, PanStart, false, Offset.Zero)
                         assertThat(event.classification)
                             .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
                         assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
@@ -416,7 +419,7 @@ class ScrollTest {
                         ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
                             Build.VERSION.SDK_INT >= 34
                     ) {
-                        event.verifyTrackpadEvent(T * 2, Pan, false, Offset.Zero)
+                        event.verifyTrackpadEvent(T * 2, PanMove, false, Offset.Zero)
                         assertThat(event.classification)
                             .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
                         assertThat(event.axisGestureScrollXDistance).isEqualTo(-10f)
@@ -447,7 +450,7 @@ class ScrollTest {
                         ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
                             Build.VERSION.SDK_INT >= 34
                     ) {
-                        event.verifyTrackpadEvent(T * 3, Pan, false, Offset.Zero)
+                        event.verifyTrackpadEvent(T * 3, PanEnd, false, Offset.Zero)
                         assertThat(event.classification)
                             .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
                         assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)

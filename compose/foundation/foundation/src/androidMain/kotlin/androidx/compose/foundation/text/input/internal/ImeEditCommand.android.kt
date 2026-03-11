@@ -25,6 +25,7 @@ import androidx.compose.foundation.text.input.adjustTextRange
 import androidx.compose.foundation.text.input.delete
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.util.fastCoerceAtLeast
 import androidx.compose.ui.util.fastCoerceIn
 
 /**
@@ -188,9 +189,15 @@ internal fun ImeEditCommandScope.setComposingRegion(start: Int, end: Int) = edit
         commitComposition()
     }
 
+    val clampedTransformedStart = start.fastCoerceAtLeast(0)
+    val clampedTransformedEnd = end.fastCoerceAtLeast(0)
+
+    // First, untransform the given range because IME works in the transformed space.
+    val range = mapFromTransformed(TextRange(clampedTransformedStart, clampedTransformedEnd))
+
     // Sanitize the input: reverse if reversed, clamped into valid range, ignore empty range.
-    val clampedStart = start.coerceIn(0, length)
-    val clampedEnd = end.coerceIn(0, length)
+    val clampedStart = range.min.coerceIn(0, length)
+    val clampedEnd = range.max.coerceIn(0, length)
     if (clampedStart == clampedEnd) {
         // do nothing. empty composition range is not allowed.
     } else if (clampedStart < clampedEnd) {

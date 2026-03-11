@@ -271,10 +271,10 @@ object WindowRecomposerPolicy {
  * with the lifecycle of the host activity, we want that recomposer to shut down and create a new
  * one for the new activity instance.
  */
-private val View.contentChild: View
+internal val View.contentChild: View
     get() {
         var self: View = this
-        var parent: ViewParent? = self.parent
+        var parent: ViewParent? = self.getParentOrViewTreeDisjointParent()
         while (parent is View) {
             if (parent.id == android.R.id.content) return self
             self = parent

@@ -135,7 +135,15 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
                     disposeComposition()
                 } else if (isNotEmpty()) {
                     val child = getChildAt(0) as? AndroidComposeView
-                    child?.composeViewContext = value
+                    if (child != null) {
+                        if (
+                            child.coroutineContext !==
+                                value.compositionContext.effectCoroutineContext
+                        ) {
+                            disposeComposition()
+                        }
+                        child.composeViewContext = value
+                    }
                 }
                 field = value
             }
@@ -384,6 +392,12 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
             // No changes
             return existingContext
         }
+        if (
+            newContext.effectCoroutineContext !==
+                existingContext.compositionContext.effectCoroutineContext
+        ) {
+            disposeComposition()
+        }
         val createdContext =
             ComposeViewContext(
                 compositionContext = newContext,
@@ -419,6 +433,18 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
 
+        // When the ComposeView is in an overlay, due to a transition, it won't have had
+        // setParentOrViewTreeDisjointParent() called yet. It has to wait until after the attach
+        // finishes, so we have to post to delay the attachedToWindow() logic. contentChild.parent
+        // is false when it is part of the ViewOverlay
+        if (this.contentChild.parent == null) {
+            handler.postAtFrontOfQueue { attachedToWindow() }
+        } else {
+            attachedToWindow()
+        }
+    }
+
+    private fun attachedToWindow() {
         previousAttachedWindowToken = windowToken
         if (composeViewContext == null) {
             val child = if (isEmpty()) null else getChildAt(0) as? AndroidComposeView

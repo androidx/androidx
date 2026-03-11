@@ -183,6 +183,35 @@ class PausableCompositionTests {
         )
     }
 
+    // regression test for b/488433633
+    @OptIn(ExperimentalComposeApi::class, ExperimentalCoroutinesApi::class)
+    @Test
+    fun reuseFromRoot_preventsGroupIndexCollisionWithRootKey() = compositionTest {
+        val awaiter = Awaiter()
+        val workflow = workflow {
+            setContentWithReuse()
+            resumeTillComplete { false }
+            apply()
+
+            setContentWithReuse()
+            resumeTillComplete { false }
+            apply()
+
+            awaiter.done()
+        }
+
+        compose {
+            // 94 is a magic number here to force 100th group to collide with rootKey.
+            val offset = 94
+            PausableContent(workflow) {
+                repeat(offset) { i -> key(i) {} }
+                key(offset) { ReusableContent(key = offset) {} }
+            }
+        }
+
+        awaiter.await()
+    }
+
     @Test
     fun applierOnlyCalledInApply() = compositionTest {
         val awaiter = Awaiter()
@@ -800,6 +829,37 @@ class PausableCompositionTests {
         assertEquals("Remember(B)", events[0])
         assertEquals(2, events.count { it == "Abandon(A)" })
         assertEquals(1, events.count { it == "Abandon(B)" })
+    }
+
+    @Test
+    fun pausableComposition_reusableContent() = compositionTest {
+        var key by mutableStateOf(0)
+
+        val awaiter = Awaiter()
+        val workflow = workflow {
+            setContent() // Pausable content is not used yet for movable
+            resumeTillComplete { false }
+            apply()
+
+            composition.deactivate()
+            key++
+
+            setContentWithReuse()
+            resumeOnce { true }
+            resumeTillComplete { false }
+            apply()
+
+            awaiter.done()
+        }
+        compose {
+            PausableContent(workflow) {
+                Linear {
+                    ReusableContent(key) {}
+                    Text("After $key")
+                }
+            }
+        }
+        awaiter.await()
     }
 }
 

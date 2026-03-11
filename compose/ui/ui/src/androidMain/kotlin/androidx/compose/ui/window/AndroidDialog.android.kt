@@ -20,6 +20,7 @@ import android.content.Context
 import android.graphics.Outline
 import android.graphics.Rect
 import android.os.Build
+import android.os.IBinder
 import android.util.DisplayMetrics
 import android.view.ContextThemeWrapper
 import android.view.Gravity
@@ -102,6 +103,15 @@ import kotlin.math.roundToInt
  *   [WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING] on [Build.VERSION_CODES.S] and above.
  *   [Window.isFloating] will be `false` when `decorFitsSystemWindows` is `false`.
  * @property windowTitle Title to be set on the dialog's window.
+ * @property windowType The specific window type to apply to the dialog's underlying [Window]. This
+ *   directly sets [WindowManager.LayoutParams.type]. The default value is
+ *   [WindowManager.LayoutParams.TYPE_APPLICATION], which is the platform's standard dialog window
+ *   type. Setting a custom window type is particularly useful when displaying a dialog from a
+ *   [android.app.Service] or outside the scope of an Activity context (e.g.,
+ *   [WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY]).
+ * @property windowToken An optional [android.os.IBinder] for [WindowManager.LayoutParams.token] for
+ *   the dialog window. If null, the dialog will automatically use the token from the parent Compose
+ *   view.
  */
 @Immutable
 actual class DialogProperties(
@@ -111,6 +121,8 @@ actual class DialogProperties(
     actual val usePlatformDefaultWidth: Boolean = true,
     val decorFitsSystemWindows: Boolean = true,
     val windowTitle: String = "",
+    val windowType: Int = WindowManager.LayoutParams.TYPE_APPLICATION,
+    val windowToken: IBinder? = null,
 ) {
     actual constructor(
         dismissOnBackPress: Boolean,
@@ -122,6 +134,25 @@ actual class DialogProperties(
         securePolicy = SecureFlagPolicy.Inherit,
         usePlatformDefaultWidth = usePlatformDefaultWidth,
         decorFitsSystemWindows = true,
+    )
+
+    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
+    constructor(
+        dismissOnBackPress: Boolean = true,
+        dismissOnClickOutside: Boolean = true,
+        securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
+        usePlatformDefaultWidth: Boolean = true,
+        decorFitsSystemWindows: Boolean = true,
+        windowTitle: String = "",
+    ) : this(
+        dismissOnBackPress = dismissOnBackPress,
+        dismissOnClickOutside = dismissOnClickOutside,
+        securePolicy = securePolicy,
+        usePlatformDefaultWidth = usePlatformDefaultWidth,
+        decorFitsSystemWindows = decorFitsSystemWindows,
+        windowTitle = windowTitle,
+        windowType = WindowManager.LayoutParams.TYPE_APPLICATION,
+        windowToken = null,
     )
 
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
@@ -162,7 +193,8 @@ actual class DialogProperties(
         if (securePolicy != other.securePolicy) return false
         if (usePlatformDefaultWidth != other.usePlatformDefaultWidth) return false
         if (decorFitsSystemWindows != other.decorFitsSystemWindows) return false
-
+        if (windowType != other.windowType) return false
+        if (windowToken != other.windowToken) return false
         return true
     }
 
@@ -172,6 +204,8 @@ actual class DialogProperties(
         result = 31 * result + securePolicy.hashCode()
         result = 31 * result + usePlatformDefaultWidth.hashCode()
         result = 31 * result + decorFitsSystemWindows.hashCode()
+        result = 31 * result + windowType
+        result = 31 * result + (windowToken?.hashCode() ?: 0)
         return result
     }
 }
@@ -206,8 +240,12 @@ actual fun Dialog(
     val composition = rememberCompositionContext()
     val currentContent by rememberUpdatedState(content)
     val dialogId = rememberSaveable { UUID.randomUUID() }
+    // The window type cannot be changed dynamically after the window is added to the
+    // WindowManager (it throws an exception on older APIs like API 30 and below). Therefore, we
+    // add properties.windowType as a remember key to force the DialogWrapper to be
+    // completely recreated from scratch when the type changes.
     val dialog =
-        remember(view, density) {
+        remember(view, density, properties.windowType, properties.windowToken) {
             DialogWrapper(onDismissRequest, properties, view, layoutDirection, density, dialogId)
                 .apply {
                     setContent(composition) {
@@ -494,6 +532,9 @@ private class DialogWrapper(
 
     init {
         val window = window ?: error("Dialog has no window")
+
+        applyWindowTypeAndToken(properties)
+
         window.requestFeature(Window.FEATURE_NO_TITLE)
         window.setBackgroundDrawableResource(android.R.color.transparent)
         WindowCompat.setDecorFitsSystemWindows(window, properties.decorFitsSystemWindows)
@@ -591,6 +632,16 @@ private class DialogWrapper(
             return true
         }
         return super.onKeyUp(keyCode, event)
+    }
+
+    private fun applyWindowTypeAndToken(properties: DialogProperties) {
+        window?.let { window ->
+            val attrs = window.attributes
+            attrs.type = properties.windowType
+            // Use windowToken if provided else let the framework handle it.
+            properties.windowToken?.let { token -> attrs.token = token }
+            window.attributes = attrs
+        }
     }
 
     private fun setLayoutDirection(layoutDirection: LayoutDirection) {

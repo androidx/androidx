@@ -21,6 +21,7 @@ import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.ControlledComposition
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.LinkComposer
+import androidx.compose.runtime.LinkRememberObserverHolder
 import androidx.compose.runtime.MovableContentState
 import androidx.compose.runtime.MovableContentStateReference
 import androidx.compose.runtime.RecomposeScopeImpl
@@ -28,6 +29,7 @@ import androidx.compose.runtime.RememberObserverHolder
 import androidx.compose.runtime.Stack
 import androidx.compose.runtime.composer.linkbuffer.GroupAddress
 import androidx.compose.runtime.composer.linkbuffer.GroupHandle
+import androidx.compose.runtime.composer.linkbuffer.LinkAnchor
 import androidx.compose.runtime.composer.linkbuffer.NULL_ADDRESS
 import androidx.compose.runtime.composer.linkbuffer.NULL_GROUP_HANDLE
 import androidx.compose.runtime.composer.linkbuffer.SlotTable
@@ -225,8 +227,8 @@ internal class ComposerChangeListWriter(
         changeList.pushEndResumingScope(scope)
     }
 
-    fun updateRememberOrdering(holder: RememberObserverHolder, after: GroupAddress) {
-        if (holder.afterGroupIndex != after) {
+    fun updateRememberOrdering(holder: LinkRememberObserverHolder, after: LinkAnchor) {
+        if (holder.after != after) {
             changeList.pushUpdateRememberObserverHolderOrdering(holder, after)
         }
     }

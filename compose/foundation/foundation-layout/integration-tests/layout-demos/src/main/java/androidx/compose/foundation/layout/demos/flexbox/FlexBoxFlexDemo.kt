@@ -91,7 +91,7 @@ private fun FlexBoxRowFlexGrowSample() {
                     .background(color = randomColor())
                     .border(1.dp, color = Color.Black)
                     .flex {
-                        grow = 1f
+                        grow(1f)
                         basis(50.dp)
                     }
         ) {
@@ -128,7 +128,7 @@ private fun FlexBoxRowFlexShrinkSample() {
                     .height(50.dp)
                     .background(color = randomColor())
                     .border(1.dp, color = Color.Black)
-                    .flex { shrink = 0f }
+                    .flex { shrink(0f) }
         ) {
             Text(text = "shrink=0", modifier = Modifier.align(Alignment.Center))
         }
@@ -164,7 +164,7 @@ private fun FlexBoxRowFlexBasisSample() {
                     .border(1.dp, color = Color.Black)
                     .flex {
                         basis(50.dp)
-                        grow = 1f
+                        grow(1f)
                     }
         ) {
             Text(text = "basis=50dp, grow=1", modifier = Modifier.align(Alignment.Center))
@@ -176,7 +176,7 @@ private fun FlexBoxRowFlexBasisSample() {
 @OptIn(ExperimentalFlexBoxApi::class)
 private fun FlexBoxColumnFlexGrowSample() {
     FlexBox(
-        config = { direction = FlexDirection.Column },
+        config = { direction(FlexDirection.Column) },
         modifier = Modifier.height(300.dp).border(1.dp, Color.Black),
     ) {
         Box(
@@ -194,7 +194,7 @@ private fun FlexBoxColumnFlexGrowSample() {
                     .fillMaxWidth()
                     .background(color = randomColor())
                     .border(1.dp, color = Color.Black)
-                    .flex { grow = 1f }
+                    .flex { grow(1f) }
         ) {
             Text(text = "grow=1", modifier = Modifier.align(Alignment.Center))
         }
@@ -215,8 +215,8 @@ private fun FlexBoxColumnFlexGrowSample() {
 private fun FlexBoxColumnFlexShrinkSample() {
     FlexBox(
         config = {
-            direction = FlexDirection.Column
-            wrap = FlexWrap.Wrap
+            direction(FlexDirection.Column)
+            wrap(FlexWrap.Wrap)
         },
         modifier = Modifier.height(300.dp).border(1.dp, Color.Black),
     ) {
@@ -235,7 +235,7 @@ private fun FlexBoxColumnFlexShrinkSample() {
                     .fillMaxWidth()
                     .background(color = randomColor())
                     .border(1.dp, color = Color.Black)
-                    .flex { shrink = 0f }
+                    .flex { shrink(0f) }
         ) {
             Text(text = "shrink=0", modifier = Modifier.align(Alignment.Center))
         }
@@ -255,7 +255,7 @@ private fun FlexBoxColumnFlexShrinkSample() {
 @OptIn(ExperimentalFlexBoxApi::class)
 private fun FlexBoxColumnFlexBasisSample() {
     FlexBox(
-        config = { direction = FlexDirection.Column },
+        config = { direction(FlexDirection.Column) },
         modifier = Modifier.height(300.dp).border(1.dp, Color.Black),
     ) {
         Box(
@@ -263,7 +263,7 @@ private fun FlexBoxColumnFlexBasisSample() {
                 Modifier.width(100.dp)
                     .background(color = randomColor())
                     .border(1.dp, color = Color.Black)
-                    .flex { basis = FlexBasis.Dp(100.dp) }
+                    .flex { basis(FlexBasis.Dp(100.dp)) }
         ) {
             Text(text = "basis=100dp", modifier = Modifier.align(Alignment.Center))
         }
@@ -274,7 +274,7 @@ private fun FlexBoxColumnFlexBasisSample() {
                     .border(1.dp, color = Color.Black)
                     .flex {
                         basis(50.dp)
-                        grow = 1f
+                        grow(1f)
                     }
         ) {
             Text(text = "basis=50dp, grow=1", modifier = Modifier.align(Alignment.Center))

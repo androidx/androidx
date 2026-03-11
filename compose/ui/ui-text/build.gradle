@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -65,8 +64,9 @@ androidXMultiplatform {
 
             implementation(project(":compose:ui:ui-util"))
 
-            api(project(":annotation:annotation"))
-            implementation(project(":collection:collection"))
+            // TODO: Pin androidx.collection when SieveCache is available
+            api("androidx.annotation:annotation:1.9.1")
+            implementation("androidx.collection:collection:1.5.0")
         }
 
         commonTest.dependencies {
@@ -212,7 +212,6 @@ androidx {
     inceptionYear = "2019"
     description = "Compose Text primitives and utilities"
     legacyDisableKotlinStrictApiMode = true
-    metalavaK2UastEnabled = false
     samples(project(":compose:ui:ui-text:ui-text-samples"))
 }
 

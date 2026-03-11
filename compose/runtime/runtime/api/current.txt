@@ -714,7 +714,7 @@ package androidx.compose.runtime {
     method public static inline operator void setValue(androidx.compose.runtime.MutableDoubleState, Object? thisObj, kotlin.reflect.KProperty<? extends java.lang.Object?> property, double value);
   }
 
-  public final class SnapshotFlowManager {
+  @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public final class SnapshotFlowManager {
     ctor public SnapshotFlowManager();
     method public void dispose();
   }
@@ -774,7 +774,7 @@ package androidx.compose.runtime {
     method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> rememberUpdatedState(T newValue);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> rememberUpdatedState(T, androidx.compose.runtime.Composer?, int);
     method public static inline operator <T> void setValue(androidx.compose.runtime.MutableState<T>, Object? thisObj, kotlin.reflect.KProperty<? extends java.lang.Object?> property, T value);
-    method public static <T> kotlinx.coroutines.flow.Flow<T> snapshotFlow(androidx.compose.runtime.SnapshotFlowManager manager, kotlin.jvm.functions.Function0<? extends T> block);
+    method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public static <T> kotlinx.coroutines.flow.Flow<T> snapshotFlow(androidx.compose.runtime.SnapshotFlowManager manager, kotlin.jvm.functions.Function0<? extends T> block);
     method public static <T> kotlinx.coroutines.flow.Flow<T> snapshotFlow(kotlin.jvm.functions.Function0<? extends T> block);
     method public static <T> androidx.compose.runtime.SnapshotMutationPolicy<T> structuralEqualityPolicy();
     method public static <T> androidx.compose.runtime.snapshots.SnapshotStateList<T> toMutableStateList(java.util.Collection<? extends T>);
@@ -1022,7 +1022,7 @@ package androidx.compose.runtime.snapshots {
     method public boolean hasPendingChanges();
     method public androidx.compose.runtime.snapshots.MutableSnapshot takeNestedMutableSnapshot(optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver, optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? writeObserver);
     method @BytecodeOnly public static androidx.compose.runtime.snapshots.MutableSnapshot! takeNestedMutableSnapshot$default(androidx.compose.runtime.snapshots.MutableSnapshot!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, int, Object!);
-    method public androidx.compose.runtime.snapshots.Snapshot takeNestedSnapshot(kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver);
+    method public androidx.compose.runtime.snapshots.Snapshot takeNestedSnapshot(optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver);
     property public boolean readOnly;
     property public androidx.compose.runtime.snapshots.Snapshot root;
   }

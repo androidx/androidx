@@ -18,6 +18,7 @@ package androidx.compose.runtime.benchmark
 
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
+import androidx.compose.runtime.ExperimentalComposeRuntimeApi
 import androidx.compose.runtime.SnapshotFlowManager
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshotFlow
@@ -55,6 +56,7 @@ class SnapshotFlowLockContentionBenchmark(private val n: Int) {
      * A test in which there are [n] [snapshotFlow]s managed by a single [SnapshotFlowManager], and
      * each [snapshotFlow] watch one of [n] distinct state objects.
      */
+    @OptIn(ExperimentalComposeRuntimeApi::class)
     @Test
     fun eachSnapshotFlowWatchesOneStateObject() {
         val stateObjects = List(n) { mutableStateOf(false) }
