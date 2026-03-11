@@ -186,7 +186,7 @@ static const NSUInteger kBGRA32ColorFormatBytesPerPixel = 4;
 }
 
 - (void)presentDrawable:(CMPDrawable *)drawable
-             completion:(void (^)(void))completion {
+              onDisplay:(void (^)(void))displayHandler {
     [_drawablesLock lock];
 
     if (drawable.texture.width != (NSUInteger)_drawableSize.width ||
@@ -206,15 +206,16 @@ static const NSUInteger kBGRA32ColorFormatBytesPerPixel = 4;
     [_drawablesLock unlock];
 
     if ([NSThread isMainThread]) {
-        [self presentOnMainThread:drawable completion: completion];
+        [self presentOnMainThread:drawable onDisplay: displayHandler];
     } else {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self presentOnMainThread:drawable completion: completion];
+            [self presentOnMainThread:drawable onDisplay: displayHandler];
         });
     }
 }
 
-- (void)presentOnMainThread:(CMPDrawable *)drawable completion:(void (^)(void))completion {
+- (void)presentOnMainThread:(CMPDrawable *)drawable
+                  onDisplay:(void (^)(void))displayHandler {
     NSAssert([NSThread isMainThread], @"presentOnMainThread - must be called on main thread");
 
     if (_lastDrawablePresentedTime > drawable.presentedTime) {
@@ -233,8 +234,8 @@ static const NSUInteger kBGRA32ColorFormatBytesPerPixel = 4;
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
     self.contents = (__bridge id)drawable.surface;
-    if (completion != nil) {
-        completion();
+    if (displayHandler != nil) {
+        displayHandler();
     }
     [CATransaction commit];
 }

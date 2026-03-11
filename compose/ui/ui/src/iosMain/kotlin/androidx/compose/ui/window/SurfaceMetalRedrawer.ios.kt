@@ -119,6 +119,7 @@ internal class SurfaceMetalRedrawer(
     private val context = DirectContext.makeMetal(device.objcPtr(), queue.objcPtr())
     private var lastRenderTimestamp: NSTimeInterval = CACurrentMediaTime()
     private val pictureRecorder = PictureRecorder()
+    private val transactionQueue = InteropTransactionQueue()
 
     private val inflightCommandBuffersGroup = dispatch_group_create()
     // A guard flag to have proper assertion when draw() method is called recursively.
@@ -376,13 +377,14 @@ internal class SurfaceMetalRedrawer(
                     currentFrameRate = Float.NaN
                 }
 
-                val transactions = retrieveInteropTransaction()
-                isInteropActive = transactions.isInteropActive
+                val transaction = retrieveInteropTransaction()
+                isInteropActive = transaction.isInteropActive
+                val index = transactionQueue.scheduleTransaction(transaction)
 
                 val frame = Frame(
                     picture = picture,
-                    waitUntilCompletion = waitUntilCompletion,
-                    interopTransaction = transactions
+                    onDisplay = { transactionQueue.performScheduledTransactions(index) },
+                    waitUntilCompletion = waitUntilCompletion
                 )
 
                 if (waitUntilCompletion) {
@@ -403,7 +405,7 @@ internal class SurfaceMetalRedrawer(
     private class Frame(
         val picture: Picture,
         val waitUntilCompletion: Boolean,
-        val interopTransaction: UIKitInteropTransaction,
+        val onDisplay: () -> Unit,
     ) {
         fun dispose() {
             picture.close()
@@ -548,18 +550,14 @@ internal class SurfaceMetalRedrawer(
         }
         if (!frame.waitUntilCompletion) {
             commandBuffer.addScheduledHandler {
-                metalLayer.presentDrawable(drawable) {
-                    frame.interopTransaction.performTransaction()
-                }
+                metalLayer.presentDrawable(drawable, onDisplay = frame.onDisplay)
             }
         }
         commandBuffer.commit()
 
         if (frame.waitUntilCompletion) {
             commandBuffer.waitUntilScheduled()
-            metalLayer.presentDrawable(drawable) {
-                frame.interopTransaction.performTransaction()
-            }
+            metalLayer.presentDrawable(drawable, onDisplay = frame.onDisplay)
             commandBuffer.waitUntilCompleted()
         }
     }
@@ -604,6 +602,46 @@ internal class SurfaceMetalRedrawer(
                 if (cached.refCount == 0) {
                     cachedCommandQueue = null
                 }
+            }
+        }
+    }
+
+    /**
+     * A ring-buffer queue that preserves the order of [UIKitInteropTransaction.performTransaction]
+     * calls relative to the draw order, even when GPU frames are presented out of order or dropped.
+     *
+     * When a frame is presented, [performScheduledTransactions] executes all transactions scheduled
+     * up to and including that frame's index, in the original schedule order.
+     *
+     * If a newer frame is presented before an older one, its completion drains all pending
+     * transactions including the older one, so each transaction is executed exactly once.
+     */
+    internal class InteropTransactionQueue {
+        private val bufferLength = 16
+        private var firstScheduledIndex: Long = 0
+        private var lastScheduledIndex: Long = 0
+        private val scheduledInteropTransactions = Array<UIKitInteropTransaction?>(bufferLength) { null }
+
+        fun scheduleTransaction(transaction: UIKitInteropTransaction): Long {
+            if (transaction.actions.isEmpty()) {
+                return lastScheduledIndex - 1
+            }
+            val index = lastScheduledIndex
+            lastScheduledIndex++
+            if (index - firstScheduledIndex >= bufferLength) {
+                // Overflow detected. Perform old transactions anyway
+                performScheduledTransactions(firstScheduledIndex)
+            }
+            scheduledInteropTransactions[(index % bufferLength).toInt()] = transaction
+            return index
+        }
+
+        fun performScheduledTransactions(index: Long) {
+            while (firstScheduledIndex <= index && firstScheduledIndex < lastScheduledIndex) {
+                val arrayIndex = (firstScheduledIndex % bufferLength).toInt()
+                firstScheduledIndex++
+                scheduledInteropTransactions[arrayIndex]?.performTransaction()
+                scheduledInteropTransactions[arrayIndex] = null
             }
         }
     }
