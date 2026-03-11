@@ -1548,23 +1548,25 @@ internal class AccessibilityMediator(
                     traverseChildren(it, isBeyondBounds = true, flatten = flattenChildren, container = node)
                 }
 
+                val allElements = beforeElements + visibleElements + afterElements
                 if (node.isTraversalGroup || node.id == rootNode.id) {
-                    val containerElements = if (node.isImportantForAccessibility() ||
+                    val hasSemanticsNode = node.isImportantForAccessibility() ||
                         node.config.contains(SemanticsProperties.TestTag)
-                    ) {
-                        listOf(makeSemanticsNode(emptyList()))
+
+                    val containerChildren = if (hasSemanticsNode) {
+                        listOf(makeSemanticsNode(allElements))
                     } else {
-                        emptyList()
+                        allElements
                     }
 
                     createOrUpdateAccessibilityElement(
                         node = AccessibilityNode.Container(semanticsNode = node),
                         container = container,
-                        children = beforeElements + containerElements + visibleElements + afterElements,
+                        children = containerChildren,
                         frame = frame
                     )
                 } else {
-                    makeSemanticsNode(beforeElements + visibleElements + afterElements)
+                    makeSemanticsNode(allElements)
                 }
             } else {
                 makeSemanticsNode(emptyList())

@@ -612,10 +612,8 @@ class ComponentsAccessibilitySemanticTest {
 
         assertAccessibilityTree {
             node {
-                node {
-                    identifier = "Container"
-                    isAccessibilityElement = false
-                }
+                identifier = "Container"
+                isAccessibilityElement = false
                 node {
                     label = "Text 1"
                     isAccessibilityElement = true
@@ -1112,6 +1110,83 @@ class ComponentsAccessibilitySemanticTest {
     }
 
     @Test
+    fun testTestTagsHierarchy() = runUIKitInstrumentedTest {
+        setContent {
+            Column(
+                modifier = Modifier.semantics {
+                    testTag = "column"
+                    isTraversalGroup = true // Should add a new tree level
+                }
+            ) {
+                Button(
+                    onClick = {},
+                    modifier = Modifier.semantics {
+                        testTag = "button"
+                    }
+                ) {
+                    Text("Button text", modifier = Modifier.semantics { testTag = "button text" })
+                }
+            }
+        }
+        assertAccessibilityTree {
+            identifier = "column"
+            node {
+                identifier = "button"
+                node {
+                    identifier = "button text"
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testMergeDescendantsWithButton() = runUIKitInstrumentedTest {
+        setContent {
+            Column(
+                modifier = Modifier
+                    .semantics(mergeDescendants = true) {},
+            ) {
+                Text(
+                    text = "Hello",
+                )
+                Text(
+                    text = "World",
+                )
+
+                Button(
+                    onClick = {},
+                    modifier = Modifier,
+                ) {
+                    Text("Button")
+                }
+            }
+        }
+
+        assertAccessibilityTree {
+            node {
+                isAccessibilityElement = true
+                node {
+                    label = "Hello"
+                    isAccessibilityElement = false
+                }
+                node {
+                    label = "World"
+                    isAccessibilityElement = false
+                }
+            }
+            node {
+                label = "Button"
+                isAccessibilityElement = true
+                traits(UIAccessibilityTraitButton)
+                node {
+                    label = "Button"
+                    isAccessibilityElement = false
+                }
+            }
+        }
+    }
+
+    @Test
     fun testTextLinks() = runUIKitInstrumentedTest {
         setContent {
             Text(text = buildAnnotatedString {
@@ -1126,9 +1201,7 @@ class ComponentsAccessibilitySemanticTest {
                 withLink(
                     link = LinkAnnotation.Clickable(
                         tag = "clickable tag",
-                        linkInteractionListener = object : LinkInteractionListener {
-                            override fun onClick(link: LinkAnnotation) {}
-                        }
+                        linkInteractionListener = LinkInteractionListener { }
                     )
                 ) {
                     append("clickable")
@@ -1137,9 +1210,7 @@ class ComponentsAccessibilitySemanticTest {
                 withLink(
                     link = LinkAnnotation.Url(
                         url = "https://example.com",
-                        linkInteractionListener = object : LinkInteractionListener {
-                            override fun onClick(link: LinkAnnotation) {}
-                        }
+                        linkInteractionListener = LinkInteractionListener { }
                     )
                 ) {
                     append("link")
