@@ -33,6 +33,11 @@ import kotlinx.coroutines.test.runTest
 import org.w3c.dom.pointerevents.PointerEvent
 import org.w3c.dom.pointerevents.PointerEventInit
 import androidx.compose.ui.input.pointer.PointerEvent as ComposePointerEvent
+import androidx.compose.ui.input.pointer.isPrimaryPressed
+import androidx.compose.ui.input.pointer.isSecondaryPressed
+import org.w3c.dom.events.WheelEvent
+import org.w3c.dom.events.WheelEventInit
+
 
 class MouseEventsTest : OnCanvasTests {
 
@@ -147,5 +152,88 @@ class MouseEventsTest : OnCanvasTests {
         dispatchEvents(PointerEvent("pointerleave", PointerEventInit(clientX = 0, clientY = 0, pointerType = "mouse")))
         assertEquals(PointerEventType.Exit, event.type)
         assertEquals(null, event.button)
+    }
+
+    @Test
+    fun testWheelEventButtonsResolvedOnPointerDown() = runTest {
+        // CMP-9900 [web] Wheel event resolves buttons state incorrectly in Safari and Firefox
+        val pointerEvents = mutableListOf<ComposePointerEvent>()
+
+        createComposeWindow {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .pointerInput(Unit) {
+                        awaitPointerEventScope {
+                            while (isActive) {
+                                pointerEvents.add(awaitPointerEvent())
+                            }
+                        }
+                    }
+            ) {}
+        }
+
+        dispatchEvents(
+            PointerEvent("pointerenter", PointerEventInit(clientX = 100, clientY = 100, pointerType = "mouse")),
+            PointerEvent("pointerdown", PointerEventInit(clientX = 100, clientY = 100, button = 0, buttons = 1, pointerType = "mouse")),
+        )
+
+        dispatchEvents(WheelEvent("wheel", WheelEventInit(clientX = 100, clientY = 100, buttons = 0)))
+
+        assertEquals(3, pointerEvents.size)
+        assertEquals(PointerEventType.Enter, pointerEvents[0].type)
+        assertEquals(PointerEventType.Press, pointerEvents[1].type)
+        assertEquals(PointerEventType.Scroll, pointerEvents[2].type)
+        assertEquals(true, pointerEvents[2].buttons.isPrimaryPressed)
+
+        dispatchEvents(
+            PointerEvent("pointerdown", PointerEventInit(clientX = 100, clientY = 100, button = 2, buttons = 3, pointerType = "mouse")),
+        )
+        dispatchEvents(WheelEvent("wheel", WheelEventInit(clientX = 100, clientY = 100, buttons = 0)))
+
+        assertEquals(5, pointerEvents.size)
+        assertEquals(PointerEventType.Press, pointerEvents[3].type)
+        assertEquals(PointerEventType.Scroll, pointerEvents[4].type)
+        assertEquals(true, pointerEvents[4].buttons.isPrimaryPressed)
+        assertEquals(true, pointerEvents[4].buttons.isSecondaryPressed)
+    }
+
+    @Test
+    fun testPointerReleaseIsNotCorruptedByMouseWheel() = runTest {
+        // CMP-9891 [Web] Mouse. Incorrect click detectionCMP-9891 [Web] Mouse. Incorrect click detection
+        val pointerEvents = mutableListOf<ComposePointerEvent>()
+
+        createComposeWindow {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .pointerInput(Unit) {
+                        awaitPointerEventScope {
+                            while (isActive) {
+                                pointerEvents.add(awaitPointerEvent())
+                            }
+                        }
+                    }
+            ) {}
+        }
+
+        dispatchEvents(
+            PointerEvent("pointerenter", PointerEventInit(clientX = 100, clientY = 100, pointerType = "mouse")),
+            PointerEvent("pointerdown", PointerEventInit(clientX = 100, clientY = 100, button = 0, buttons = 1, pointerType = "mouse")),
+        )
+
+        dispatchEvents(WheelEvent("wheel", WheelEventInit(clientX = 100, clientY = 100, buttons = 0)))
+
+        dispatchEvents(
+            PointerEvent("pointermove", PointerEventInit(clientX = 101, clientY = 101, buttons = 1, pointerType = "mouse")),
+            PointerEvent("pointerup", PointerEventInit(clientX = 101, clientY = 101, button = 0, buttons = 0, pointerType = "mouse"))
+        )
+
+        assertEquals(5, pointerEvents.size)
+        assertEquals(PointerEventType.Enter, pointerEvents[0].type)
+        assertEquals(PointerEventType.Press, pointerEvents[1].type)
+        assertEquals(PointerEventType.Scroll, pointerEvents[2].type)
+        assertEquals(PointerEventType.Move, pointerEvents[3].type)
+        assertEquals(PointerEventType.Release, pointerEvents[4].type)
     }
 }

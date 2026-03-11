@@ -704,6 +704,10 @@ internal class ComposeWindow(
 
         val verticalScroll = if (horizontalScroll == 0f) event.deltaY else 0f
 
+        // wheels event own buttons property is unreliable in Safari and Firefox
+        // see CMP-9900 [web] Wheel event resolves buttons state incorrectly in Safari and Firefox
+        val buttons = actualActivePointerButtons ?: event.composeButtons
+
         val result = scene.sendPointerEvent(
             eventType = PointerEventType.Scroll,
             position = event.offset,
@@ -711,7 +715,7 @@ internal class ComposeWindow(
                 x = horizontalScroll.toFloat(),
                 y = verticalScroll.toFloat()
             ),
-            buttons = event.composeButtons,
+            buttons = buttons,
             keyboardModifiers = PointerKeyboardModifiers(
                 isCtrlPressed = event.ctrlKey,
                 isMetaPressed = event.metaKey,
