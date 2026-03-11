@@ -34,13 +34,13 @@ import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.UIKitInstrumentedTest
 import androidx.compose.ui.test.findNodeWithTag
 import androidx.compose.ui.test.runUIKitInstrumentedTest
 import androidx.compose.ui.test.utils.hold
 import androidx.compose.ui.test.utils.up
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -122,12 +122,10 @@ class HapticFeedbackSelectionTest {
         hapticFeedback.assertLongPressHapticPerformed()
     }
 
-    // TODO: https://youtrack.jetbrains.com/issue/CMP-9857
-    @Ignore
     @Test
     fun testBasicTextFieldValue_DoubleTap_DoesNotTriggerHaptic() = runUIKitInstrumentedTest {
         val hapticFeedback = TestHapticFeedback()
-        var textFieldValue by mutableStateOf(TextFieldValue("Hello World"))
+        var textFieldValue by mutableStateOf(TextFieldValue("Hello-LongLongLongLongLongLong-text"))
 
         setContent {
             WithTestHapticFeedback(hapticFeedback) {
@@ -145,7 +143,7 @@ class HapticFeedbackSelectionTest {
         }
 
         // Perform double tap
-        findNodeWithTag("TextField").doubleTap()
+        selectWithDoubleTap("TextField")
 
         waitForIdle()
 
@@ -188,12 +186,10 @@ class HapticFeedbackSelectionTest {
         hapticFeedback.assertLongPressHapticPerformed()
     }
 
-    // TODO: https://youtrack.jetbrains.com/issue/CMP-9857
-    @Ignore
     @Test
     fun testBasicTextFieldState_DoubleTap_DoesNotTriggerHaptic() = runUIKitInstrumentedTest {
         val hapticFeedback = TestHapticFeedback()
-        val textFieldState = TextFieldState("Hello World")
+        val textFieldState = TextFieldState("Hello-LongLongLongLongLongLong-text")
 
         setContent {
             WithTestHapticFeedback(hapticFeedback) {
@@ -209,7 +205,7 @@ class HapticFeedbackSelectionTest {
             }
         }
 
-        findNodeWithTag("TextField").doubleTap()
+        selectWithDoubleTap("TextField")
 
         waitForIdle()
 
@@ -281,5 +277,12 @@ class HapticFeedbackSelectionTest {
 
         // Verify that haptic feedback was NOT triggered
         hapticFeedback.assertNoHaptic()
+    }
+
+    private fun UIKitInstrumentedTest.selectWithDoubleTap(textFieldTag: String) {
+        findNodeWithTag(textFieldTag).tap()
+        delay(500)
+        findNodeWithTag(textFieldTag).doubleTap()
+        waitForIdle()
     }
 }
