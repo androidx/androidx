@@ -123,6 +123,14 @@ public final class androidx/compose/ui/tooling/preview/PreviewParameterProvider$
 public abstract interface annotation class androidx/compose/ui/tooling/preview/PreviewScreenSizes : java/lang/annotation/Annotation {
 }
 
+public abstract interface class androidx/compose/ui/tooling/preview/PreviewWrapper {
+	public abstract fun Wrap (Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;I)V
+}
+
+public abstract interface annotation class androidx/compose/ui/tooling/preview/PreviewWrapperProvider : java/lang/annotation/Annotation {
+	public abstract fun wrapper ()Ljava/lang/Class;
+}
+
 public final class androidx/compose/ui/tooling/preview/Wallpapers {
 	public static final field $stable I
 	public static final field BLUE_DOMINATED_EXAMPLE I

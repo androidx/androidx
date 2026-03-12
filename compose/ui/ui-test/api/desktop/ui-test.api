@@ -693,6 +693,27 @@ public final class androidx/compose/ui/test/TouchInjectionScopeKt {
 	public static synthetic fun swipeWithVelocity-5iVPX68$default (Landroidx/compose/ui/test/TouchInjectionScope;JJFJILjava/lang/Object;)V
 }
 
+public final class androidx/compose/ui/test/TrackpadButton {
+	public static final field Companion Landroidx/compose/ui/test/TrackpadButton$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/ui/test/TrackpadButton;
+	public static fun constructor-impl (I)I
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public final fun getButtonId ()I
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
+}
+
+public final class androidx/compose/ui/test/TrackpadButton$Companion {
+	public final fun getPrimary-q-z5Jm4 ()I
+	public final fun getSecondary-q-z5Jm4 ()I
+	public final fun getTertiary-q-z5Jm4 ()I
+}
+
 public abstract interface class androidx/compose/ui/test/TrackpadInjectionScope : androidx/compose/ui/test/InjectionScope {
 	public abstract fun cancel (J)V
 	public static synthetic fun cancel$default (Landroidx/compose/ui/test/TrackpadInjectionScope;JILjava/lang/Object;)V
@@ -705,12 +726,18 @@ public abstract interface class androidx/compose/ui/test/TrackpadInjectionScope 
 	public static synthetic fun moveBy-3MmeM6k$default (Landroidx/compose/ui/test/TrackpadInjectionScope;JJILjava/lang/Object;)V
 	public abstract fun moveTo-3MmeM6k (JJ)V
 	public static synthetic fun moveTo-3MmeM6k$default (Landroidx/compose/ui/test/TrackpadInjectionScope;JJILjava/lang/Object;)V
-	public abstract fun pinch (F)V
-	public abstract fun press-SMKQcqU (I)V
-	public static synthetic fun press-SMKQcqU$default (Landroidx/compose/ui/test/TrackpadInjectionScope;IILjava/lang/Object;)V
-	public abstract fun release-SMKQcqU (I)V
-	public static synthetic fun release-SMKQcqU$default (Landroidx/compose/ui/test/TrackpadInjectionScope;IILjava/lang/Object;)V
-	public abstract fun scroll-k-4lQ0M (J)V
+	public abstract fun panEnd ()V
+	public abstract fun panMoveBy-3MmeM6k (JJ)V
+	public static synthetic fun panMoveBy-3MmeM6k$default (Landroidx/compose/ui/test/TrackpadInjectionScope;JJILjava/lang/Object;)V
+	public abstract fun panStart ()V
+	public abstract fun press-QiXdzRk (I)V
+	public static synthetic fun press-QiXdzRk$default (Landroidx/compose/ui/test/TrackpadInjectionScope;IILjava/lang/Object;)V
+	public abstract fun release-QiXdzRk (I)V
+	public static synthetic fun release-QiXdzRk$default (Landroidx/compose/ui/test/TrackpadInjectionScope;IILjava/lang/Object;)V
+	public abstract fun scaleChangeBy (FJ)V
+	public static synthetic fun scaleChangeBy$default (Landroidx/compose/ui/test/TrackpadInjectionScope;FJILjava/lang/Object;)V
+	public abstract fun scaleEnd ()V
+	public abstract fun scaleStart ()V
 	public fun updatePointerBy-k-4lQ0M (J)V
 	public abstract fun updatePointerTo-k-4lQ0M (J)V
 }
@@ -722,17 +749,23 @@ public final class androidx/compose/ui/test/TrackpadInjectionScopeKt {
 	public static synthetic fun animateMoveBy-d-4ec7I$default (Landroidx/compose/ui/test/TrackpadInjectionScope;JJILjava/lang/Object;)V
 	public static final fun animateMoveTo-d-4ec7I (Landroidx/compose/ui/test/TrackpadInjectionScope;JJ)V
 	public static synthetic fun animateMoveTo-d-4ec7I$default (Landroidx/compose/ui/test/TrackpadInjectionScope;JJILjava/lang/Object;)V
-	public static final fun click-xhG_qxo (Landroidx/compose/ui/test/TrackpadInjectionScope;JI)V
-	public static synthetic fun click-xhG_qxo$default (Landroidx/compose/ui/test/TrackpadInjectionScope;JIILjava/lang/Object;)V
-	public static final fun doubleClick-xhG_qxo (Landroidx/compose/ui/test/TrackpadInjectionScope;JI)V
-	public static synthetic fun doubleClick-xhG_qxo$default (Landroidx/compose/ui/test/TrackpadInjectionScope;JIILjava/lang/Object;)V
-	public static final fun dragAndDrop-cI4L0Fs (Landroidx/compose/ui/test/TrackpadInjectionScope;JJIJ)V
-	public static synthetic fun dragAndDrop-cI4L0Fs$default (Landroidx/compose/ui/test/TrackpadInjectionScope;JJIJILjava/lang/Object;)V
-	public static final fun longClick-xhG_qxo (Landroidx/compose/ui/test/TrackpadInjectionScope;JI)V
-	public static synthetic fun longClick-xhG_qxo$default (Landroidx/compose/ui/test/TrackpadInjectionScope;JIILjava/lang/Object;)V
+	public static final fun click-8c717Hs (Landroidx/compose/ui/test/TrackpadInjectionScope;JI)V
+	public static synthetic fun click-8c717Hs$default (Landroidx/compose/ui/test/TrackpadInjectionScope;JIILjava/lang/Object;)V
+	public static final fun doubleClick-8c717Hs (Landroidx/compose/ui/test/TrackpadInjectionScope;JI)V
+	public static synthetic fun doubleClick-8c717Hs$default (Landroidx/compose/ui/test/TrackpadInjectionScope;JIILjava/lang/Object;)V
+	public static final fun dragAndDrop-LQbrBU4 (Landroidx/compose/ui/test/TrackpadInjectionScope;JJIJ)V
+	public static synthetic fun dragAndDrop-LQbrBU4$default (Landroidx/compose/ui/test/TrackpadInjectionScope;JJIJILjava/lang/Object;)V
+	public static final fun longClick-8c717Hs (Landroidx/compose/ui/test/TrackpadInjectionScope;JI)V
+	public static synthetic fun longClick-8c717Hs$default (Landroidx/compose/ui/test/TrackpadInjectionScope;JIILjava/lang/Object;)V
+	public static final fun pan (Landroidx/compose/ui/test/TrackpadInjectionScope;Lkotlin/jvm/functions/Function1;JLjava/util/List;)V
+	public static synthetic fun pan$default (Landroidx/compose/ui/test/TrackpadInjectionScope;Lkotlin/jvm/functions/Function1;JLjava/util/List;ILjava/lang/Object;)V
+	public static final fun pan-Uv8p0NA (Landroidx/compose/ui/test/TrackpadInjectionScope;J)V
+	public static final fun panWithVelocity-ubNVwUQ (Landroidx/compose/ui/test/TrackpadInjectionScope;JFJ)V
+	public static synthetic fun panWithVelocity-ubNVwUQ$default (Landroidx/compose/ui/test/TrackpadInjectionScope;JFJILjava/lang/Object;)V
 	public static final fun rightClick-Uv8p0NA (Landroidx/compose/ui/test/TrackpadInjectionScope;J)V
 	public static synthetic fun rightClick-Uv8p0NA$default (Landroidx/compose/ui/test/TrackpadInjectionScope;JILjava/lang/Object;)V
-	public static final fun tripleClick-xhG_qxo (Landroidx/compose/ui/test/TrackpadInjectionScope;JI)V
-	public static synthetic fun tripleClick-xhG_qxo$default (Landroidx/compose/ui/test/TrackpadInjectionScope;JIILjava/lang/Object;)V
+	public static final fun scale (Landroidx/compose/ui/test/TrackpadInjectionScope;F)V
+	public static final fun tripleClick-8c717Hs (Landroidx/compose/ui/test/TrackpadInjectionScope;JI)V
+	public static synthetic fun tripleClick-8c717Hs$default (Landroidx/compose/ui/test/TrackpadInjectionScope;JIILjava/lang/Object;)V
 }
 
