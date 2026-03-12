@@ -65,7 +65,7 @@ androidXMultiplatform {
             implementation(project(":compose:ui:ui-util"))
 
             // TODO: Pin androidx.collection when SieveCache is available
-            api("androidx.annotation:annotation:1.9.1")
+            // implementation("androidx.collection:collection:1.4.2")
             implementation("androidx.collection:collection:1.5.0")
         }
 
@@ -149,6 +149,10 @@ androidXMultiplatform {
 
         nonJvmMain {
             dependsOn(skikoMain)
+            dependencies {
+                // To comply with Klib resolver until https://youtrack.jetbrains.com/issue/KT-61096 is fixed
+                implementation("org.jetbrains.compose.collection-internal:collection:1.10.0")
+            }
         }
 
         nonJvmTest {
