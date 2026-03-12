@@ -44,9 +44,6 @@ actual constructor(coroutineDispatcher: CoroutineDispatcher) : NavigatorState() 
     private val savedStates = mutableMapOf<String, SavedState>()
     private val entrySavedState = mutableMapOf<NavBackStackEntry, Boolean>()
 
-    private val savedStates = mutableMapOf<String, SavedState>()
-    private val entrySavedState = mutableMapOf<NavBackStackEntry, Boolean>()
-
     public actual override fun createBackStackEntry(
         destination: NavDestination,
         arguments: SavedState?,

@@ -17,10 +17,6 @@
 package androidx.navigation.serialization
 
 import androidx.kruth.assertThat
-<<<<<<<< HEAD:navigation/navigation-common/src/commonTest/kotlin/androidx/navigation/serialization/NavArgumentGeneratorTest.kt
-import androidx.navigation.CollectionNavType
-========
->>>>>>>> integration-aosp/1.11.0-alpha04:navigation/navigation-common/src/androidTest/kotlin/androidx/navigation/serialization/NavArgumentGeneratorTest.kt
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavArgument
 import androidx.navigation.NavType
@@ -652,36 +648,6 @@ class NavArgumentGeneratorTest {
     }
 
     @Test
-<<<<<<<< HEAD:navigation/navigation-common/src/commonTest/kotlin/androidx/navigation/serialization/NavArgumentGeneratorTest.kt
-    fun convertToEnumArray() {
-        @Serializable class TestClass(val arg: Array<TestEnum>)
-        val navType =
-            object : CollectionNavType<Array<TestEnum>>(false) {
-                override fun put(bundle: SavedState, key: String, value: Array<TestEnum>) {}
-
-                override fun serializeAsValues(value: Array<TestEnum>) = emptyList<String>()
-
-                override fun emptyCollection(): Array<TestEnum> = emptyArray()
-
-                override fun get(bundle: SavedState, key: String) = null
-
-                override fun parseValue(value: String) = emptyArray<TestEnum>()
-            }
-        val converted =
-            serializer<TestClass>()
-                .generateNavArguments(mapOf(typeOf<Array<TestEnum>>() to navType))
-        val expected =
-            navArgument("arg") {
-                type = navType
-                nullable = false
-            }
-        assertThat(converted).containsExactlyInOrder(expected)
-        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
-    }
-
-    @Test
-========
->>>>>>>> integration-aosp/1.11.0-alpha04:navigation/navigation-common/src/androidTest/kotlin/androidx/navigation/serialization/NavArgumentGeneratorTest.kt
     fun convertValueClass() {
         // test value class as destination route
         val converted = serializer<TestValueClass>().generateNavArguments()
@@ -1165,50 +1131,6 @@ class NavArgumentGeneratorTest {
     // and hashcode which will need to be public api.
     private fun assertThat(actual: List<NamedNavArgument>) = actual
 
-<<<<<<<< HEAD:navigation/navigation-common/src/commonTest/kotlin/androidx/navigation/serialization/NavArgumentGeneratorTest.kt
-    private fun List<NamedNavArgument>.containsExactlyInOrder(
-        vararg expectedArgs: NamedNavArgument
-    ) {
-        if (expectedArgs.size != this.size) {
-            fail("expected list has size ${expectedArgs.size} and actual list has size $size}")
-        }
-        for (i in indices) {
-            val actual = this[i]
-            val expected = expectedArgs[i]
-            if (expected.name != actual.name) {
-                fail("expected name ${expected.name}, was actually ${actual.name}")
-            }
-
-            if (!expected.argument.isEqual(actual.argument)) {
-                fail(
-                    """expected ${expected.name} to be:
-                |   ${expected.argument}
-                |   but was:
-                |   ${actual.argument}
-                """
-                        .trimMargin()
-                )
-            }
-        }
-    }
-
-    private fun NavArgument.isEqual(other: NavArgument): Boolean {
-        if (this === other) return true
-        if (this::class != other::class) return false
-        if (isNullable != other.isNullable) return false
-        if (isDefaultValuePresent != other.isDefaultValuePresent) return false
-        if (isDefaultValueUnknown != other.isDefaultValueUnknown) return false
-        if (type != other.type) return false
-        // In context of serialization, we can only tell if defaultValue is present but don't know
-        // actual value, so we cannot compare it to the generated defaultValue. But if
-        // there is no defaultValue, we expect them both to be null.
-        return if (!isDefaultValuePresent) {
-            defaultValue == null && other.defaultValue == null
-        } else true
-    }
-
-========
->>>>>>>> integration-aosp/1.11.0-alpha04:navigation/navigation-common/src/androidTest/kotlin/androidx/navigation/serialization/NavArgumentGeneratorTest.kt
     enum class TestEnum {
         TEST
     }
