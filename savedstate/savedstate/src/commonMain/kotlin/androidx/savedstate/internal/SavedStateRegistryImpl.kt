@@ -17,6 +17,7 @@
 package androidx.savedstate.internal
 
 import androidx.annotation.MainThread
+import androidx.collection.mutableScatterMapOf
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.savedstate.SavedState
@@ -33,7 +34,7 @@ internal class SavedStateRegistryImpl(
 ) {
 
     private val lock = SynchronizedObject()
-    private val keyToProviders = mutableMapOf<String, SavedStateProvider>()
+    private val keyToProviders = mutableScatterMapOf<String, SavedStateProvider>()
     private var attached = false
     private var restoredState: SavedState? = null
 
@@ -72,11 +73,7 @@ internal class SavedStateRegistryImpl(
     }
 
     fun getSavedStateProvider(key: String): SavedStateProvider? {
-        return synchronized(lock) {
-            keyToProviders.firstNotNullOfOrNull { (k, provider) ->
-                if (k == key) provider else null
-            }
-        }
+        return synchronized(lock) { keyToProviders[key] }
     }
 
     @MainThread
@@ -135,9 +132,7 @@ internal class SavedStateRegistryImpl(
         val inState = savedState {
             restoredState?.let { putAll(it) }
             synchronized(lock) {
-                for ((key, provider) in keyToProviders) {
-                    putSavedState(key, provider.saveState())
-                }
+                keyToProviders.forEach { key, provider -> putSavedState(key, provider.saveState()) }
             }
         }
 

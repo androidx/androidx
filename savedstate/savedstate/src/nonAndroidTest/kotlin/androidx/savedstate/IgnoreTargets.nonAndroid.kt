@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.savedstate.internal
 
-internal actual class SynchronizedObject actual constructor()
+package androidx.savedstate
 
-internal actual inline fun <T> synchronizedImpl(
-    lock: SynchronizedObject,
-    crossinline action: () -> T,
-): T = kotlin.synchronized(lock, action)
+internal actual annotation class IgnoreAndroidHostTarget actual constructor()
