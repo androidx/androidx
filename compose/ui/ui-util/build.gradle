@@ -71,6 +71,13 @@ androidXMultiplatform {
             implementation(libs.truth)
         }
 
+        nonJvmMain {
+            dependencies {
+                // To comply with Klib resolver until https://youtrack.jetbrains.com/issue/KT-61096 is fixed
+                implementation("org.jetbrains.compose.collection-internal:collection:1.10.0")
+            }
+        }
+
         nativeMain {
             dependsOn(nonJvmMain)
         }
