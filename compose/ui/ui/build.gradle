@@ -79,7 +79,7 @@ androidXMultiplatform {
             implementation("androidx.collection:collection:1.5.0")
             // when updating the runtime version please also update the runtime-saveable version
             implementation(project(":compose:runtime:runtime"))
-			api("androidx.compose.runtime:runtime-retain:$composeVersion")
+            api("androidx.compose.runtime:runtime-retain:$composeVersion")
             api(project(":compose:runtime:runtime-saveable"))
 
             api(project(":compose:ui:ui-geometry"))
@@ -88,11 +88,11 @@ androidXMultiplatform {
             api(project(":compose:ui:ui-unit"))
             api(project(":compose:ui:ui-util"))
 
-            api(project(":lifecycle:lifecycle-runtime-compose"))
-            api(project(":savedstate:savedstate-compose"))
+            api("org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.6")
+            api("androidx.savedstate:savedstate-compose:$savedstateVersion")
 
-            implementation(project(":lifecycle:lifecycle-viewmodel"))
-            implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
+            implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.9.6")
+            implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.6")
         }
 
         commonTest.dependencies {
@@ -203,15 +203,15 @@ androidXMultiplatform {
         skikoMain {
             dependsOn(commonMain)
             dependencies {
-				api(project(":compose:ui:ui-graphics"))
+                api(project(":compose:ui:ui-graphics"))
                 api(project(":compose:ui:ui-text"))
                 api(libs.skiko)
                 implementation(libs.atomicFu)
 
                 // Keep this dependency for compatibility due to https://youtrack.jetbrains.com/issue/KT-60874
                 implementation(project(":compose:ui:ui-backhandler"))
-				
-				// Use direct dependency to AOSP's artifact instead of using project reference
+
+                // Use direct dependency to AOSP's artifact instead of using project reference
                 // because this module supports all KMP platforms from the beginning.
                 // Project dependency (commented out version) is required for `integration` branch setup
                 // implementation(project(":navigationevent:navigationevent"))
@@ -226,7 +226,6 @@ androidXMultiplatform {
                 // TODO: Move to commonTest?
                 implementation(project(":compose:material:material"))
                 implementation(project(":compose:foundation:foundation"))
-                implementation(project(":navigationevent:navigationevent-compose"))
                 implementation(project(":compose:ui:ui-test"))
                 implementation("org.jetbrains.androidx.navigationevent:navigationevent-compose:1.0.1")
             }
