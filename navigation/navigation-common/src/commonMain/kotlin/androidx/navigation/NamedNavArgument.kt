@@ -34,7 +34,7 @@ internal constructor(
     public val name: String,
 
     /** The [NavArgument] associated with the name */
-    public val argument: NavArgument
+    public val argument: NavArgument,
 ) {
     /** Provides destructuring access to this [NamedNavArgument]'s [name] */
     public operator fun component1(): String = name

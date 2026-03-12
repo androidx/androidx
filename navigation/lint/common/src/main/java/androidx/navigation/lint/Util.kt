@@ -34,7 +34,7 @@ import org.jetbrains.uast.USimpleNameReferenceExpression
 fun UExpression.isClassReference(
     checkClass: Boolean = true,
     checkInterface: Boolean = true,
-    checkCompanion: Boolean = true
+    checkCompanion: Boolean = true,
 ): Pair<Boolean, String?> {
     /**
      * True if:

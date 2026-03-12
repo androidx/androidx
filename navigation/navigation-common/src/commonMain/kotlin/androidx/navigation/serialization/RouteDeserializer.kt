@@ -26,12 +26,12 @@ import kotlinx.serialization.KSerializer
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun <T> KSerializer<T>.decodeArguments(
     bundle: SavedState,
-    typeMap: Map<String, NavType<*>>
+    typeMap: Map<String, NavType<*>>,
 ): T = RouteDecoder(bundle, typeMap).decodeRouteWithArgs(this)
 
 // public due to reified toRoute()
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun <T> KSerializer<T>.decodeArguments(
     handle: SavedStateHandle,
-    typeMap: Map<String, NavType<*>>
+    typeMap: Map<String, NavType<*>>,
 ): T = RouteDecoder(handle, typeMap).decodeRouteWithArgs(this)

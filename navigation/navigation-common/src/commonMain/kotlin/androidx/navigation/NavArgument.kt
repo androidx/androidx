@@ -202,7 +202,7 @@ internal constructor(
                 isNullable,
                 defaultValue,
                 defaultValuePresent,
-                unknownDefaultValuePresent
+                unknownDefaultValuePresent,
             )
         }
     }

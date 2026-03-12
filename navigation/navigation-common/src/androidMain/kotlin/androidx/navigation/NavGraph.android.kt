@@ -57,7 +57,7 @@ public actual open class NavGraph actual constructor(navGraphNavigator: Navigato
         route: String,
         searchChildren: Boolean,
         searchParent: Boolean,
-        lastVisited: NavDestination
+        lastVisited: NavDestination,
     ): DeepLinkMatch? {
         return impl.matchRouteComprehensive(route, searchChildren, searchParent, lastVisited)
     }
@@ -67,7 +67,7 @@ public actual open class NavGraph actual constructor(navGraphNavigator: Navigato
         navDeepLinkRequest: NavDeepLinkRequest,
         searchChildren: Boolean,
         searchParent: Boolean,
-        lastVisited: NavDestination
+        lastVisited: NavDestination,
     ): DeepLinkMatch? {
         // First search through any deep links directly added to this NavGraph
         val bestMatch = super.matchDeepLink(navDeepLinkRequest)
@@ -76,7 +76,7 @@ public actual open class NavGraph actual constructor(navGraphNavigator: Navigato
             navDeepLinkRequest,
             searchChildren,
             searchParent,
-            lastVisited
+            lastVisited,
         )
     }
 
@@ -105,6 +105,8 @@ public actual open class NavGraph actual constructor(navGraphNavigator: Navigato
      * @param resId ID to locate
      * @return the node with ID resId
      */
+    // not expect/actual, nonAndroid has RestrictTo
+    @Suppress("KmpHideShowAnnotationMismatch")
     public fun findNode(@IdRes resId: Int): NavDestination? = impl.findNode(resId)
 
     /**

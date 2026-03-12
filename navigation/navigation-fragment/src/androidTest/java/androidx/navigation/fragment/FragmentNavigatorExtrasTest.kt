@@ -44,7 +44,7 @@ class FragmentNavigatorExtrasTest {
         val map =
             mapOf(
                 View(InstrumentationRegistry.getInstrumentation().targetContext) to "test1",
-                View(InstrumentationRegistry.getInstrumentation().targetContext) to "test2"
+                View(InstrumentationRegistry.getInstrumentation().targetContext) to "test2",
             )
         val extras = FragmentNavigator.Extras.Builder().addSharedElements(map).build()
         val sharedElements = extras.sharedElements

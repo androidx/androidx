@@ -16,25 +16,34 @@
 
 package androidx.navigation.testing
 
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavigatorState
 import androidx.savedstate.SavedState
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 
 /**
- * An implementation of [NavigatorState] that allows testing a
- * [androidx.navigation.Navigator] in isolation (i.e., without requiring a
- * [androidx.navigation.NavController]).
+ * An implementation of [NavigatorState] that allows testing a [androidx.navigation.Navigator] in
+ * isolation (i.e., without requiring a [androidx.navigation.NavController]).
+ *
+ * The [Lifecycle] of all [NavBackStackEntry] instances added to this TestNavigatorState will be
+ * updated as they are added and removed from the state. This work is kicked off on the
+ * [coroutineDispatcher].
  */
-public expect class TestNavigatorState() : NavigatorState {
-    public override fun createBackStackEntry(
-        destination: NavDestination,
-        arguments: SavedState?
-    ): NavBackStackEntry
+public expect class TestNavigatorState(
+    coroutineDispatcher: CoroutineDispatcher = Dispatchers.Main.immediate
+) : NavigatorState {
 
     /**
-     * Restore a previously saved [NavBackStackEntry]. You must have previously called
-     * [pop] with [previouslySavedEntry] and `true`.
+     * Restore a previously saved [NavBackStackEntry]. You must have previously called [pop] with
+     * [previouslySavedEntry] and `true`.
      */
     public fun restoreBackStackEntry(previouslySavedEntry: NavBackStackEntry): NavBackStackEntry
+
+    public override fun createBackStackEntry(
+        destination: NavDestination,
+        arguments: SavedState?,
+    ): NavBackStackEntry
 }

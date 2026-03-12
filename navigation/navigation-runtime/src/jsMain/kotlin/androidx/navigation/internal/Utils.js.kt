@@ -20,10 +20,12 @@ private var nextHash = 1
 
 private external interface WeakMap {
     fun set(key: Any, value: Int)
+
     fun get(key: Any): Int?
 }
 
 private val weakMap: WeakMap = js("new WeakMap()")
+
 private fun memoizeIdentityHashCode(instance: Any): Int {
     val value = nextHash++
 

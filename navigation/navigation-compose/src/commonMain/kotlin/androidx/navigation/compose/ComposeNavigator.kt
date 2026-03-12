@@ -52,7 +52,7 @@ public class ComposeNavigator constructor() : Navigator<Destination>(NAME) {
     override fun navigate(
         entries: List<NavBackStackEntry>,
         navOptions: NavOptions?,
-        navigatorExtras: Extras?
+        navigatorExtras: Extras?,
     ) {
         entries.forEach { entry -> state.pushWithTransition(entry) }
         isPop.value = false
@@ -70,8 +70,8 @@ public class ComposeNavigator constructor() : Navigator<Destination>(NAME) {
     /**
      * Function to prepare the entry for transition.
      *
-     * This should be called when the entry needs to move the [Lifecycle.State] in preparation for a
-     * transition such as when using predictive back.
+     * This should be called when the entry needs to move the [androidx.lifecycle.Lifecycle.State]
+     * in preparation for a transition such as when using predictive back.
      */
     public fun prepareForTransition(entry: NavBackStackEntry) {
         state.prepareForTransition(entry)
@@ -85,7 +85,7 @@ public class ComposeNavigator constructor() : Navigator<Destination>(NAME) {
      * complete by calling this method.
      *
      * Failing to call this method could result in entries being prevented from reaching their final
-     * [Lifecycle.State].
+     * [androidx.lifecycle.Lifecycle.State].
      */
     public fun onTransitionComplete(entry: NavBackStackEntry) {
         state.markTransitionComplete(entry)
@@ -97,7 +97,7 @@ public class ComposeNavigator constructor() : Navigator<Destination>(NAME) {
         navigator: ComposeNavigator,
         internal val content:
             @Composable
-            AnimatedContentScope.(@JvmSuppressWildcards NavBackStackEntry) -> Unit
+            AnimatedContentScope.(@JvmSuppressWildcards NavBackStackEntry) -> Unit,
     ) : NavDestination(navigator) {
 
         @Deprecated(
@@ -106,7 +106,7 @@ public class ComposeNavigator constructor() : Navigator<Destination>(NAME) {
         )
         public constructor(
             navigator: ComposeNavigator,
-            content: @Composable (NavBackStackEntry) -> @JvmSuppressWildcards Unit
+            content: @Composable (NavBackStackEntry) -> @JvmSuppressWildcards Unit,
         ) : this(navigator, content = { entry -> content(entry) })
 
         internal var enterTransition:
@@ -127,6 +127,16 @@ public class ComposeNavigator constructor() : Navigator<Destination>(NAME) {
         internal var popExitTransition:
             (@JvmSuppressWildcards
             AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? =
+            null
+
+        internal var predictivePopEnterTransition:
+            (@JvmSuppressWildcards
+            AnimatedContentTransitionScope<NavBackStackEntry>.(Int) -> EnterTransition?)? =
+            null
+
+        internal var predictivePopExitTransition:
+            (@JvmSuppressWildcards
+            AnimatedContentTransitionScope<NavBackStackEntry>.(Int) -> ExitTransition?)? =
             null
 
         internal var sizeTransform:

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,10 @@ import kotlinx.atomicfu.atomic
 
 internal actual class AtomicInt actual constructor(initial: Int) {
     private val delegate = atomic(initial)
+
     actual fun incrementAndGet(): Int = delegate.incrementAndGet()
+
     actual fun decrementAndGet(): Int = delegate.decrementAndGet()
+
     actual fun get(): Int = delegate.value
 }

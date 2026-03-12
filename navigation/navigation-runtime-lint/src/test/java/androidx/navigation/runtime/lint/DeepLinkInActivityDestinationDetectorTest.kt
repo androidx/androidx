@@ -58,7 +58,7 @@ class DeepLinkInActivityDestinationDetectorTest : LintDetectorTest() {
         />
 
 </navigation>
-            """
+            """,
                 )
             )
             .run()
@@ -91,7 +91,7 @@ class DeepLinkInActivityDestinationDetectorTest : LintDetectorTest() {
     </activity>
 
 </navigation>
-            """
+            """,
                 )
             )
             .skipTestModes(TestMode.SUPPRESSIBLE) // b/257336973
@@ -133,7 +133,7 @@ res/navigation/nav_main.xml:17: Warning: Do not attach a <deeplink> to an <activ
     </activity>
 
 </navigation>
-            """
+            """,
                 )
             )
             .run()

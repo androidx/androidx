@@ -53,7 +53,7 @@ private enum class InternalType {
     LIST,
     ENUM,
     ENUM_NULLABLE,
-    UNKNOWN
+    UNKNOWN,
 }
 
 /**
@@ -336,7 +336,7 @@ internal object InternalNavType {
 
             override fun parseValue(
                 value: String,
-                previousValue: Array<String?>?
+                previousValue: Array<String?>?,
             ): Array<String?>? = previousValue?.plus(parseValue(value)) ?: parseValue(value)
 
             override fun valueEquals(value: Array<String?>?, other: Array<String?>?): Boolean =

@@ -39,7 +39,7 @@ actual constructor(public actual open val isNullableAllowed: Boolean) {
         bundle: SavedState,
         key: String,
         value: String?,
-        previousValue: T
+        previousValue: T,
     ): T = navTypeParseAndPut(bundle, key, value, previousValue)
 
     public actual open fun serializeAsValue(value: T): String = value.toString()

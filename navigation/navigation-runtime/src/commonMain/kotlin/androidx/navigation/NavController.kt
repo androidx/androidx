@@ -121,7 +121,7 @@ public expect open class NavController {
         public fun onDestinationChanged(
             controller: NavController,
             destination: NavDestination,
-            arguments: SavedState?
+            arguments: SavedState?,
         )
     }
 
@@ -202,7 +202,7 @@ public expect open class NavController {
     @JvmOverloads
     public inline fun <reified T : Any> popBackStack(
         inclusive: Boolean,
-        saveState: Boolean = false
+        saveState: Boolean = false,
     ): Boolean
 
     /**
@@ -223,7 +223,7 @@ public expect open class NavController {
     public fun <T : Any> popBackStack(
         route: KClass<T>,
         inclusive: Boolean,
-        saveState: Boolean = false
+        saveState: Boolean = false,
     ): Boolean
 
     /**
@@ -244,7 +244,7 @@ public expect open class NavController {
     public fun <T : Any> popBackStack(
         route: T,
         inclusive: Boolean,
-        saveState: Boolean = false
+        saveState: Boolean = false,
     ): Boolean
 
     /**
@@ -382,7 +382,7 @@ public expect open class NavController {
     public open fun navigate(
         deepLink: NavUri,
         navOptions: NavOptions?,
-        navigatorExtras: Navigator.Extras?
+        navigatorExtras: Navigator.Extras?,
     )
 
     /**
@@ -423,7 +423,7 @@ public expect open class NavController {
     public open fun navigate(
         request: NavDeepLinkRequest,
         navOptions: NavOptions?,
-        navigatorExtras: Navigator.Extras?
+        navigatorExtras: Navigator.Extras?,
     )
 
     internal fun writeIntent(request: NavDeepLinkRequest, args: SavedState)
@@ -432,8 +432,8 @@ public expect open class NavController {
      * Navigate to a route in the current NavGraph. If an invalid route is given, an
      * [IllegalArgumentException] will be thrown.
      *
-     * If given [NavOptions] pass in [NavOptions.restoreState] `true`, any args passed here as part
-     * of the route will be overridden by the restored args.
+     * If [NavOptions.shouldRestoreState] is `true` for the given [NavOptions], any args passed here
+     * as part of the route will be overridden by the restored args.
      *
      * @param route route for the destination
      * @param builder DSL for constructing a new [NavOptions]
@@ -445,8 +445,8 @@ public expect open class NavController {
      * Navigate to a route in the current NavGraph. If an invalid route is given, an
      * [IllegalArgumentException] will be thrown.
      *
-     * If given [NavOptions] pass in [NavOptions.restoreState] `true`, any args passed here as part
-     * of the route will be overridden by the restored args.
+     * If [NavOptions.shouldRestoreState] is `true` for the given [NavOptions], any args passed here
+     * as part of the route will be overridden by the restored args.
      *
      * @param route route for the destination
      * @param navOptions special options for this navigation operation
@@ -458,7 +458,7 @@ public expect open class NavController {
     public fun navigate(
         route: String,
         navOptions: NavOptions? = null,
-        navigatorExtras: Navigator.Extras? = null
+        navigatorExtras: Navigator.Extras? = null,
     )
 
     /**
@@ -467,8 +467,8 @@ public expect open class NavController {
      *
      * The target NavDestination must have been created with route from a [KClass]
      *
-     * If given [NavOptions] pass in [NavOptions.restoreState] `true`, any args passed here as part
-     * of the route will be overridden by the restored args.
+     * If given [NavOptions] pass in [NavOptions.shouldRestoreState] `true`, any args passed here as
+     * part of the route will be overridden by the restored args.
      *
      * @param route route from an Object for the destination
      * @param builder DSL for constructing a new [NavOptions]
@@ -482,8 +482,8 @@ public expect open class NavController {
      *
      * The target NavDestination must have been created with route from a [KClass]
      *
-     * If given [NavOptions] pass in [NavOptions.restoreState] `true`, any args passed here as part
-     * of the route will be overridden by the restored args.
+     * If given [NavOptions] pass in [NavOptions.shouldRestoreState] `true`, any args passed here as
+     * part of the route will be overridden by the restored args.
      *
      * @param route route from an Object for the destination
      * @param navOptions special options for this navigation operation
@@ -495,7 +495,7 @@ public expect open class NavController {
     public fun <T : Any> navigate(
         route: T,
         navOptions: NavOptions? = null,
-        navigatorExtras: Navigator.Extras? = null
+        navigatorExtras: Navigator.Extras? = null,
     )
 
     /**
@@ -617,7 +617,7 @@ public expect open class NavController {
 
         override fun createBackStackEntry(
             destination: NavDestination,
-            arguments: SavedState?
+            arguments: SavedState?,
         ): NavBackStackEntry
 
         override fun prepareForTransition(entry: NavBackStackEntry)
@@ -654,7 +654,7 @@ public expect open class NavController {
 public inline fun NavController.createGraph(
     startDestination: String,
     route: String? = null,
-    builder: NavGraphBuilder.() -> Unit
+    builder: NavGraphBuilder.() -> Unit,
 ): NavGraph = navigatorProvider.navigation(startDestination, route, builder)
 
 /**
@@ -671,7 +671,7 @@ public inline fun NavController.createGraph(
     startDestination: KClass<*>,
     route: KClass<*>? = null,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
-    builder: NavGraphBuilder.() -> Unit
+    builder: NavGraphBuilder.() -> Unit,
 ): NavGraph = navigatorProvider.navigation(startDestination, route, typeMap, builder)
 
 /**
@@ -688,5 +688,5 @@ public inline fun NavController.createGraph(
     startDestination: Any,
     route: KClass<*>? = null,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
-    builder: NavGraphBuilder.() -> Unit
+    builder: NavGraphBuilder.() -> Unit,
 ): NavGraph = navigatorProvider.navigation(startDestination, route, typeMap, builder)

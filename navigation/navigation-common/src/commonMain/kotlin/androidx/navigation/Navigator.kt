@@ -131,7 +131,7 @@ public abstract class Navigator<D : NavDestination> {
     public open fun navigate(
         entries: List<NavBackStackEntry>,
         navOptions: NavOptions?,
-        navigatorExtras: Extras?
+        navigatorExtras: Extras?,
     ) {
         entries
             .asSequence()
@@ -145,7 +145,7 @@ public abstract class Navigator<D : NavDestination> {
                     else -> {
                         state.createBackStackEntry(
                             navigatedToDestination,
-                            navigatedToDestination.addInDefaultArgs(backStackEntry.arguments)
+                            navigatedToDestination.addInDefaultArgs(backStackEntry.arguments),
                         )
                     }
                 }
@@ -187,7 +187,7 @@ public abstract class Navigator<D : NavDestination> {
         destination: D,
         args: SavedState?,
         navOptions: NavOptions?,
-        navigatorExtras: Extras?
+        navigatorExtras: Extras?,
     ): NavDestination? = destination
 
     /**

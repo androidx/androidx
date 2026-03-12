@@ -48,7 +48,7 @@ class EmptyNavDeepLinkDetector : Detector(), SourceCodeScanner {
                 category = Category.CORRECTNESS,
                 severity = Severity.ERROR,
                 implementation =
-                    Implementation(EmptyNavDeepLinkDetector::class.java, Scope.JAVA_FILE_SCOPE)
+                    Implementation(EmptyNavDeepLinkDetector::class.java, Scope.JAVA_FILE_SCOPE),
             )
     }
 
@@ -66,7 +66,7 @@ class EmptyNavDeepLinkDetector : Detector(), SourceCodeScanner {
                     EmptyNavDeepLink,
                     node,
                     context.getNameLocation(node),
-                    "Creation of empty NavDeepLink"
+                    "Creation of empty NavDeepLink",
                 )
             }
         }

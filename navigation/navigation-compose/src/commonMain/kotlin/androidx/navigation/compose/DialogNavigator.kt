@@ -50,7 +50,7 @@ public class DialogNavigator() : Navigator<Destination>(NAME) {
     override fun navigate(
         entries: List<NavBackStackEntry>,
         navOptions: NavOptions?,
-        navigatorExtras: Extras?
+        navigatorExtras: Extras?,
     ) {
         entries.forEach { entry -> state.push(entry) }
     }
@@ -79,7 +79,7 @@ public class DialogNavigator() : Navigator<Destination>(NAME) {
     public class Destination(
         navigator: DialogNavigator,
         internal val dialogProperties: DialogProperties = DialogProperties(),
-        internal val content: @Composable (NavBackStackEntry) -> Unit
+        internal val content: @Composable (NavBackStackEntry) -> Unit,
     ) : NavDestination(navigator), FloatingWindow
 
     internal companion object {

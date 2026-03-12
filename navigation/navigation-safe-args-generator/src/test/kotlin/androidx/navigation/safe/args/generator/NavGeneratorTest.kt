@@ -43,7 +43,7 @@ class NavGeneratorTest(private val generateKotlin: Boolean) {
         rFilePackage: String,
         applicationId: String,
         navigationXml: File,
-        outputDir: File
+        outputDir: File,
     ) =
         SafeArgsGenerator(
                 rFilePackage = rFilePackage,
@@ -51,7 +51,7 @@ class NavGeneratorTest(private val generateKotlin: Boolean) {
                 navigationXml = navigationXml,
                 outputDir = outputDir,
                 useAndroidX = true,
-                generateKotlin = generateKotlin
+                generateKotlin = generateKotlin,
             )
             .generate()
 
@@ -62,13 +62,13 @@ class NavGeneratorTest(private val generateKotlin: Boolean) {
                     loadSourceFile(
                         fullClassName,
                         "expected/nav_generator_test/java/$folder",
-                        "java"
+                        "java",
                     )
                 is KotlinCodeFile ->
                     loadSourceFile(
                         fullClassName,
                         "expected/nav_generator_test/kotlin/$folder",
-                        "kt"
+                        "kt",
                     )
                 else -> throw IllegalStateException("Unknown CodeFile type.")
             }
@@ -80,7 +80,7 @@ class NavGeneratorTest(private val generateKotlin: Boolean) {
                     .parsesAs(
                         JavaFileObjects.forSourceString(
                             fullClassName,
-                            goldenFile.readText(Charset.defaultCharset())
+                            goldenFile.readText(Charset.defaultCharset()),
                         )
                     )
             }
@@ -105,7 +105,7 @@ class NavGeneratorTest(private val generateKotlin: Boolean) {
                 "androidx.navigation.testapp.MainFragmentArgs",
                 "foo.flavor.NextFragmentArgs",
                 "com.example.HomeScreenKt_HomeScreenDirections",
-                "com.example.HomeScreenKt_HomeScreenArgs"
+                "com.example.HomeScreenKt_HomeScreenArgs",
             )
         assertThat(output.errors.isEmpty(), `is`(true))
         assertThat(fileNames.toSet(), `is`(expectedSet))
@@ -123,7 +123,7 @@ class NavGeneratorTest(private val generateKotlin: Boolean) {
                 "foo",
                 "foo.flavor",
                 testData("nested_login_test.xml"),
-                workingDir.root
+                workingDir.root,
             )
         val fileNames = output.fileNames
         val expectedSet =
@@ -131,7 +131,7 @@ class NavGeneratorTest(private val generateKotlin: Boolean) {
                 "foo.flavor.MainFragmentDirections",
                 "foo.LoginDirections",
                 "foo.flavor.account.LoginFragmentDirections",
-                "foo.flavor.account.RegisterFragmentDirections"
+                "foo.flavor.account.RegisterFragmentDirections",
             )
         assertThat(output.errors.isEmpty(), `is`(true))
         assertThat(fileNames.toSet(), `is`(expectedSet))
@@ -153,14 +153,14 @@ class NavGeneratorTest(private val generateKotlin: Boolean) {
                 "foo",
                 "foo.flavor",
                 testData("nested_same_action_test.xml"),
-                workingDir.root
+                workingDir.root,
             )
         val fileNames = output.fileNames
         val expectedSet =
             setOf(
                 "foo.flavor.MainFragmentDirections",
                 "foo.SettingsDirections",
-                "foo.flavor.SettingsFragmentDirections"
+                "foo.flavor.SettingsFragmentDirections",
             )
         assertThat(output.errors.isEmpty(), `is`(true))
         assertThat(fileNames.toSet(), `is`(expectedSet))
@@ -182,7 +182,7 @@ class NavGeneratorTest(private val generateKotlin: Boolean) {
                 "foo",
                 "foo.flavor",
                 testData("nested_overridden_action_test.xml"),
-                workingDir.root
+                workingDir.root,
             )
         val fileNames = output.fileNames
         val expectedSet =
@@ -191,7 +191,7 @@ class NavGeneratorTest(private val generateKotlin: Boolean) {
                 "foo.SettingsDirections",
                 "foo.flavor.SettingsFragmentDirections",
                 "foo.InnerSettingsDirections",
-                "foo.flavor.InnerSettingsFragmentDirections"
+                "foo.flavor.InnerSettingsFragmentDirections",
             )
         assertThat(output.errors.isEmpty(), `is`(true))
         assertThat(fileNames.toSet(), `is`(expectedSet))

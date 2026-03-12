@@ -35,7 +35,7 @@ import java.lang.ref.WeakReference
  */
 internal abstract class AbstractAppBarOnDestinationChangedListener(
     private val context: Context,
-    private val configuration: AppBarConfiguration
+    private val configuration: AppBarConfiguration,
 ) : NavController.OnDestinationChangedListener {
     private val openableLayoutWeakReference =
         configuration.openableLayout?.run { WeakReference(this) }
@@ -49,7 +49,7 @@ internal abstract class AbstractAppBarOnDestinationChangedListener(
     override fun onDestinationChanged(
         controller: NavController,
         destination: NavDestination,
-        arguments: Bundle?
+        arguments: Bundle?,
     ) {
         if (destination is FloatingWindow) {
             return
@@ -82,7 +82,7 @@ internal abstract class AbstractAppBarOnDestinationChangedListener(
         setNavigationIcon(
             arrow,
             if (showAsDrawerIndicator) R.string.nav_app_bar_open_drawer_description
-            else R.string.nav_app_bar_navigate_up_description
+            else R.string.nav_app_bar_navigate_up_description,
         )
 
         val endValue = if (showAsDrawerIndicator) 0f else 1f

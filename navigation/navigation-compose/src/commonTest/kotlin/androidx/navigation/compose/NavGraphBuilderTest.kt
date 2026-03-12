@@ -135,7 +135,7 @@ class NavGraphBuilderTest {
                 composable(firstRoute) {}
                 composable(
                     secondRoute,
-                    arguments = listOf(navArgument(key) { defaultValue = defaultArg })
+                    arguments = listOf(navArgument(key) { defaultValue = defaultArg }),
                 ) {}
             }
         }
@@ -205,7 +205,7 @@ class NavGraphBuilderTest {
                 navigation(
                     startDestination = thirdRoute,
                     route = secondRoute,
-                    arguments = listOf(navArgument(key) { defaultValue = defaultArg })
+                    arguments = listOf(navArgument(key) { defaultValue = defaultArg }),
                 ) {
                     composable(thirdRoute) {}
                 }
@@ -556,10 +556,7 @@ class NavGraphBuilderTest {
 
             NavHost(navController, startDestination = firstRoute) {
                 composable(firstRoute) {}
-                navigation(
-                    startDestination = TEST_CLASS_ARG_ROUTE,
-                    route = secondRoute,
-                ) {
+                navigation(startDestination = TEST_CLASS_ARG_ROUTE, route = secondRoute) {
                     composable<TestClassArg> {}
                 }
             }
@@ -673,10 +670,7 @@ class NavGraphBuilderTest {
 
             NavHost(navController, startDestination = firstRoute) {
                 composable(firstRoute) {}
-                navigation(
-                    startDestination = TEST_CLASS_ARG_ROUTE,
-                    route = secondRoute,
-                ) {
+                navigation(startDestination = TEST_CLASS_ARG_ROUTE, route = secondRoute) {
                     dialog<TestClassArg> {}
                 }
             }

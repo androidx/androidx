@@ -66,7 +66,7 @@ import kotlinx.serialization.serializer
 
 internal class NavControllerImpl(
     val navController: NavController,
-    var updateOnBackPressedCallbackEnabledCallback: () -> Unit
+    var updateOnBackPressedCallbackEnabledCallback: () -> Unit,
 ) {
     val navContext: NavContext
         get() = navController.navContext
@@ -181,7 +181,7 @@ internal class NavControllerImpl(
         entries: List<NavBackStackEntry>,
         navOptions: NavOptions?,
         navigatorExtras: Navigator.Extras?,
-        handler: (backStackEntry: NavBackStackEntry) -> Unit = {}
+        handler: (backStackEntry: NavBackStackEntry) -> Unit = {},
     ) {
         addToBackStackHandler = handler
         navigator.navigate(entries, navOptions, navigatorExtras)
@@ -196,7 +196,7 @@ internal class NavControllerImpl(
         navigator: Navigator<out NavDestination>,
         popUpTo: NavBackStackEntry,
         saveState: Boolean,
-        handler: (popUpTo: NavBackStackEntry) -> Unit = {}
+        handler: (popUpTo: NavBackStackEntry) -> Unit = {},
     ) {
         popFromBackStackHandler = handler
         navigator.popBackStack(popUpTo, saveState)
@@ -216,7 +216,7 @@ internal class NavControllerImpl(
                 Log.i(
                     TAG,
                     "Ignoring add of destination ${backStackEntry.destination} " +
-                        "outside of the call to navigate(). "
+                        "outside of the call to navigate(). ",
                 )
             }
         } else {
@@ -236,7 +236,7 @@ internal class NavControllerImpl(
         state: NavControllerNavigatorState,
         popUpTo: NavBackStackEntry,
         saveState: Boolean,
-        superCallback: () -> Unit
+        superCallback: () -> Unit,
     ) {
         val destinationNavigator: Navigator<out NavDestination> =
             _navigatorProvider[popUpTo.destination.navigatorName]
@@ -257,7 +257,7 @@ internal class NavControllerImpl(
     internal fun markTransitionComplete(
         state: NavControllerNavigatorState,
         entry: NavBackStackEntry,
-        superCallback: () -> Unit
+        superCallback: () -> Unit,
     ) {
         val savedState = entrySavedState[entry] == true
         superCallback()
@@ -303,7 +303,7 @@ internal class NavControllerImpl(
             listener.onDestinationChanged(
                 navController,
                 backStackEntry.destination,
-                backStackEntry.arguments
+                backStackEntry.arguments,
             )
         }
     }
@@ -343,7 +343,7 @@ internal class NavControllerImpl(
     internal fun <T : Any> popBackStack(
         route: KClass<T>,
         inclusive: Boolean,
-        saveState: Boolean
+        saveState: Boolean,
     ): Boolean {
         val id = route.serializer().generateHashCode()
         requireNotNull(findDestinationComprehensive(graph, id, true)) {
@@ -375,7 +375,7 @@ internal class NavControllerImpl(
     internal fun popBackStackInternal(
         destinationId: Int,
         inclusive: Boolean,
-        saveState: Boolean = false
+        saveState: Boolean = false,
     ): Boolean {
         if (backQueue.isEmpty()) {
             // Nothing to pop if the back stack is empty
@@ -402,7 +402,7 @@ internal class NavControllerImpl(
             Log.i(
                 TAG,
                 "Ignoring popBackStack to destination $destinationName as it was not found " +
-                    "on the current back stack"
+                    "on the current back stack",
             )
             return false
         }
@@ -412,7 +412,7 @@ internal class NavControllerImpl(
     internal fun <T : Any> popBackStackInternal(
         route: T,
         inclusive: Boolean,
-        saveState: Boolean = false
+        saveState: Boolean = false,
     ): Boolean {
         // route contains arguments so we need to generate and pop with the populated route
         // rather than popping based on route pattern
@@ -465,7 +465,7 @@ internal class NavControllerImpl(
             Log.i(
                 TAG,
                 "Ignoring popBackStack to route $route as it was not found " +
-                    "on the current back stack"
+                    "on the current back stack",
             )
             return false
         }
@@ -565,7 +565,7 @@ internal class NavControllerImpl(
             popBackStackInternal(
                 backQueue[popIndex + 1].destination.id,
                 inclusive = true,
-                saveState = false
+                saveState = false,
             )
         }
         // Now record the pop of the actual entry - we don't use popBackStackInternal
@@ -579,7 +579,7 @@ internal class NavControllerImpl(
     internal fun popEntryFromBackStack(
         popUpTo: NavBackStackEntry,
         saveState: Boolean = false,
-        savedState: ArrayDeque<NavBackStackEntryState> = ArrayDeque()
+        savedState: ArrayDeque<NavBackStackEntryState> = ArrayDeque(),
     ) {
         val entry = backQueue.last()
         check(entry == popUpTo) {
@@ -693,11 +693,11 @@ internal class NavControllerImpl(
             backStackEntriesToDispatch.clear()
             for (backStackEntry in dispatchList) {
                 // Now call all registered OnDestinationChangedListener instances
-                for (listener in onDestinationChangedListeners) {
+                for (listener in onDestinationChangedListeners.toList()) {
                     listener.onDestinationChanged(
                         navController,
                         backStackEntry.destination,
-                        backStackEntry.arguments
+                        backStackEntry.arguments,
                     )
                 }
                 _currentBackStackEntryFlow.tryEmit(backStackEntry)
@@ -1053,7 +1053,7 @@ internal class NavControllerImpl(
             destinationId,
             currentGraph,
             searchChildren,
-            matchingDest
+            matchingDest,
         )
     }
 
@@ -1090,7 +1090,7 @@ internal class NavControllerImpl(
         return generateRouteWithArgs(
             route,
             // get argument typeMap
-            destination.arguments.mapValues { it.value.type }
+            destination.arguments.mapValues { it.value.type },
         )
     }
 
@@ -1105,7 +1105,7 @@ internal class NavControllerImpl(
     internal fun navigate(
         deepLink: NavUri,
         navOptions: NavOptions?,
-        navigatorExtras: Navigator.Extras?
+        navigatorExtras: Navigator.Extras?,
     ) {
         navigate(NavDeepLinkRequest(deepLink, null, null), navOptions, navigatorExtras)
     }
@@ -1121,7 +1121,7 @@ internal class NavControllerImpl(
     internal fun navigate(
         request: NavDeepLinkRequest,
         navOptions: NavOptions?,
-        navigatorExtras: Navigator.Extras?
+        navigatorExtras: Navigator.Extras?,
     ) {
         requireNotNull(_graph) {
             "Cannot navigate to $request. Navigation graph has not been set for " +
@@ -1133,7 +1133,7 @@ internal class NavControllerImpl(
                 navDeepLinkRequest = request,
                 searchChildren = true,
                 searchParent = true,
-                lastVisited = currGraph
+                lastVisited = currGraph,
             )
         if (deepLinkMatch != null) {
             val destination = deepLinkMatch.destination
@@ -1154,7 +1154,7 @@ internal class NavControllerImpl(
         node: NavDestination,
         args: SavedState?,
         navOptions: NavOptions?,
-        navigatorExtras: Navigator.Extras?
+        navigatorExtras: Navigator.Extras?,
     ) {
         navigatorState.values.forEach { state -> state.isNavigating = true }
         var popped = false
@@ -1167,28 +1167,28 @@ internal class NavControllerImpl(
                         popBackStackInternal(
                             navOptions.popUpToRoute!!,
                             navOptions.isPopUpToInclusive(),
-                            navOptions.shouldPopUpToSaveState()
+                            navOptions.shouldPopUpToSaveState(),
                         )
                 navOptions.popUpToRouteClass != null ->
                     popped =
                         popBackStackInternal(
                             navOptions.popUpToRouteClass!!.serializer().generateHashCode(),
                             navOptions.isPopUpToInclusive(),
-                            navOptions.shouldPopUpToSaveState()
+                            navOptions.shouldPopUpToSaveState(),
                         )
                 navOptions.popUpToRouteObject != null ->
                     popped =
                         popBackStackInternal(
                             navOptions.popUpToRouteObject!!,
                             navOptions.isPopUpToInclusive(),
-                            navOptions.shouldPopUpToSaveState()
+                            navOptions.shouldPopUpToSaveState(),
                         )
                 navOptions.popUpToId != -1 ->
                     popped =
                         popBackStackInternal(
                             navOptions.popUpToId,
                             navOptions.isPopUpToInclusive(),
-                            navOptions.shouldPopUpToSaveState()
+                            navOptions.shouldPopUpToSaveState(),
                         )
             }
         }
@@ -1208,7 +1208,7 @@ internal class NavControllerImpl(
                         node,
                         finalArgs,
                         hostLifecycleState,
-                        viewModel
+                        viewModel,
                     )
                 val navigator =
                     _navigatorProvider.getNavigator<Navigator<NavDestination>>(node.navigatorName)
@@ -1278,7 +1278,7 @@ internal class NavControllerImpl(
         id: Int,
         args: SavedState?,
         navOptions: NavOptions?,
-        navigatorExtras: Navigator.Extras?
+        navigatorExtras: Navigator.Extras?,
     ): Boolean {
         if (!backStackMap.containsKey(id)) {
             return false
@@ -1327,7 +1327,7 @@ internal class NavControllerImpl(
         entries: List<NavBackStackEntry>,
         args: SavedState?,
         navOptions: NavOptions?,
-        navigatorExtras: Navigator.Extras?
+        navigatorExtras: Navigator.Extras?,
     ): Boolean {
         // Split up the entries by Navigator so we can restore them as an atomic operation
         val entriesGroupedByNavigator = mutableListOf<MutableList<NavBackStackEntry>>()
@@ -1397,7 +1397,7 @@ internal class NavControllerImpl(
         node: NavDestination,
         finalArgs: SavedState?,
         backStackEntry: NavBackStackEntry,
-        restoredEntries: List<NavBackStackEntry> = emptyList()
+        restoredEntries: List<NavBackStackEntry> = emptyList(),
     ) {
         val newDest = backStackEntry.destination
         if (newDest !is FloatingWindow) {
@@ -1430,7 +1430,7 @@ internal class NavControllerImpl(
                                 parent,
                                 finalArgs,
                                 hostLifecycleState,
-                                viewModel
+                                viewModel,
                             )
                     hierarchy.addFirst(entry)
                     // Pop any orphaned copy of that navigation graph off the back stack
@@ -1462,7 +1462,7 @@ internal class NavControllerImpl(
                             parent,
                             parent.addInDefaultArgs(args),
                             hostLifecycleState,
-                            viewModel
+                            viewModel,
                         )
                 hierarchy.addFirst(entry)
             }
@@ -1491,7 +1491,7 @@ internal class NavControllerImpl(
                         _graph!!,
                         _graph!!.addInDefaultArgs(finalArgs),
                         hostLifecycleState,
-                        viewModel
+                        viewModel,
                     )
             hierarchy.addFirst(entry)
         }
@@ -1528,7 +1528,7 @@ internal class NavControllerImpl(
     internal fun navigate(
         route: String,
         navOptions: NavOptions?,
-        navigatorExtras: Navigator.Extras? = null
+        navigatorExtras: Navigator.Extras? = null,
     ) {
         requireNotNull(_graph) {
             "Cannot navigate to $route. Navigation graph has not been set for " +
@@ -1540,7 +1540,7 @@ internal class NavControllerImpl(
                 route,
                 searchChildren = true,
                 searchParent = true,
-                lastVisited = currGraph
+                lastVisited = currGraph,
             )
         if (deepLinkMatch != null) {
             val destination = deepLinkMatch.destination
@@ -1565,7 +1565,7 @@ internal class NavControllerImpl(
     internal fun <T : Any> navigate(
         route: T,
         navOptions: NavOptions?,
-        navigatorExtras: Navigator.Extras? = null
+        navigatorExtras: Navigator.Extras? = null,
     ) {
         navigate(generateRouteFilled(route), navOptions, navigatorExtras)
     }

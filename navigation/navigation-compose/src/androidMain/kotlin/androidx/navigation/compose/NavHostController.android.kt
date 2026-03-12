@@ -54,5 +54,5 @@ private fun createNavController(context: Context) =
 private fun NavControllerSaver(context: Context): Saver<NavHostController, *> =
     Saver(
         save = { it.saveState() },
-        restore = { createNavController(context).apply { restoreState(it) } }
+        restore = { createNavController(context).apply { restoreState(it) } },
     )

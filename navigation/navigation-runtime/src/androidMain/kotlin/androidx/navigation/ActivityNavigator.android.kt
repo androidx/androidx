@@ -78,7 +78,7 @@ public open class ActivityNavigator(
         destination: Destination,
         args: SavedState?,
         navOptions: NavOptions?,
-        navigatorExtras: Navigator.Extras?
+        navigatorExtras: Navigator.Extras?,
     ): NavDestination? {
         checkNotNull(destination.intent) {
             ("Destination ${destination.id} does not have an Intent set.")
@@ -145,7 +145,7 @@ public open class ActivityNavigator(
                     "Activity destinations do not support Animator resource. Ignoring " +
                         "popEnter resource ${resources.getResourceName(popEnterAnim)} and " +
                         "popExit resource ${resources.getResourceName(popExitAnim)} when " +
-                        "launching $destination"
+                        "launching $destination",
                 )
             } else {
                 // For use in applyPopAnimationsToPendingTransition()
@@ -180,7 +180,7 @@ public open class ActivityNavigator(
                         resources.getResourceName(exitAnim) +
                         "when " +
                         "launching " +
-                        destination
+                        destination,
                 )
             } else if (enterAnim >= 0 || exitAnim >= 0) {
                 enterAnim = enterAnim.coerceAtLeast(0)
@@ -262,7 +262,7 @@ public open class ActivityNavigator(
                 var targetPackage =
                     parseApplicationId(
                         context,
-                        array.getString(R.styleable.ActivityNavigator_targetPackage)
+                        array.getString(R.styleable.ActivityNavigator_targetPackage),
                     )
                 setTargetPackage(targetPackage)
                 var className = array.getString(R.styleable.ActivityNavigator_android_name)
@@ -281,7 +281,7 @@ public open class ActivityNavigator(
                 val dataPattern =
                     parseApplicationId(
                         context,
-                        array.getString(R.styleable.ActivityNavigator_dataPattern)
+                        array.getString(R.styleable.ActivityNavigator_dataPattern),
                     )
                 setDataPattern(dataPattern)
             }
@@ -425,7 +425,7 @@ public open class ActivityNavigator(
         /** The `Intent.FLAG_ACTIVITY_` flags that should be added to the Intent. */
         public val flags: Int,
         /** The [ActivityOptionsCompat] that should be used with [ActivityCompat.startActivity]. */
-        public val activityOptions: ActivityOptionsCompat?
+        public val activityOptions: ActivityOptionsCompat?,
     ) : Navigator.Extras {
 
         /**

@@ -773,7 +773,7 @@ class NavTypeConverterTest {
     @Serializable
     enum class TestEnum {
         First,
-        Second
+        Second,
     }
 
     @Serializable class ParamDerivedTwo : Param()

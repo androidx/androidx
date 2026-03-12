@@ -44,7 +44,7 @@ class KotlinNavWriterTest {
     private fun generateDirectionsCodeFile(
         destination: Destination,
         parentDirectionsFileList: List<KotlinCodeFile>,
-        useAndroidX: Boolean
+        useAndroidX: Boolean,
     ) =
         KotlinNavWriter(useAndroidX)
             .generateDirectionsCodeFile(destination, parentDirectionsFileList)
@@ -81,12 +81,12 @@ class KotlinNavWriterTest {
                                     loadSourceString(
                                         "$packageName.R",
                                         packageName.replace(".", "/"),
-                                        "java"
-                                    )
+                                        "java",
+                                    ),
                                 ),
-                                Source.kotlin(codeFile.fileName() + ".kt", codeFile.toString())
+                                Source.kotlin(codeFile.fileName() + ".kt", codeFile.toString()),
                             )
-                    )
+                    ),
             )
         assertThat(compilation.success).isTrue()
     }
@@ -106,14 +106,14 @@ class KotlinNavWriterTest {
                         "optionalParcelable",
                         ObjectType("android.content.pm.ActivityInfo"),
                         NullValue,
-                        true
+                        true,
                     ),
                     Argument("parcelable", ObjectType("android.content.pm.ActivityInfo")),
                     Argument(
                         "innerData",
-                        ObjectType("android.content.pm.ActivityInfo\$WindowLayout")
-                    )
-                )
+                        ObjectType("android.content.pm.ActivityInfo\$WindowLayout"),
+                    ),
+                ),
             )
         val actual = generateDirectionsTypeSpec(action, false)
         assertGeneratedCode(wrappedInnerClass(actual).toString(), "a.b.Next")
@@ -128,8 +128,8 @@ class KotlinNavWriterTest {
                 id("destA"),
                 listOf(
                     Argument("main", StringType),
-                    Argument("optional", StringType, StringValue("bla"))
-                )
+                    Argument("optional", StringType, StringValue("bla")),
+                ),
             )
 
         val prevAction = Action(id("previous"), id("destB"), emptyList())
@@ -140,7 +140,7 @@ class KotlinNavWriterTest {
                 ClassName.get("a.b", "MainFragment"),
                 "fragment",
                 listOf(),
-                listOf(prevAction, nextAction)
+                listOf(prevAction, nextAction),
             )
 
         val actual = generateDirectionsCodeFile(dest, emptyList(), false)
@@ -158,8 +158,8 @@ class KotlinNavWriterTest {
                     Argument("optional", StringType, StringValue("bla")),
                     Argument("optionalFloat", FloatType, FloatValue("0.1")),
                     Argument("main", StringType),
-                    Argument("optionalInt", IntType, IntValue("1"))
-                )
+                    Argument("optionalInt", IntType, IntValue("1")),
+                ),
             )
 
         val prevAction = Action(id("previous"), id("destB"), emptyList())
@@ -170,7 +170,7 @@ class KotlinNavWriterTest {
                 ClassName.get("a.b", "MainFragmentDefaultParam"),
                 "fragment",
                 listOf(),
-                listOf(prevAction, nextAction)
+                listOf(prevAction, nextAction),
             )
 
         val actual = generateDirectionsCodeFile(dest, emptyList(), false)
@@ -187,7 +187,7 @@ class KotlinNavWriterTest {
                 ClassName.get("a.b", "FunFragment"),
                 "fragment",
                 listOf(),
-                listOf(funAction)
+                listOf(funAction),
             )
 
         val actual = generateDirectionsCodeFile(dest, emptyList(), false)
@@ -204,10 +204,10 @@ class KotlinNavWriterTest {
                         "reallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreally" +
                         "longpackage",
                     "id",
-                    "next"
+                    "next",
                 ),
                 id("destA"),
-                listOf()
+                listOf(),
             )
 
         val dest =
@@ -217,11 +217,11 @@ class KotlinNavWriterTest {
                     "a.b.reallyreallyreallyreally" +
                         "reallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreally" +
                         "longpackage",
-                    "LongPackageFragment"
+                    "LongPackageFragment",
                 ),
                 "fragment",
                 listOf(),
-                listOf(funAction)
+                listOf(funAction),
             )
 
         val actual = generateDirectionsCodeFile(dest, emptyList(), false)
@@ -229,12 +229,12 @@ class KotlinNavWriterTest {
             actual.toString(),
             "a.b.reallyreallyreallyreallyreally" +
                 "reallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreally" +
-                "longpackage.LongPackageFragmentDirections"
+                "longpackage.LongPackageFragmentDirections",
         )
         assertCompilesWithoutError(
             actual,
             "a.b.secondreallyreallyreallyreallyreallyreally" +
-                "reallyreallyreallyreallyreallyreallyreallyreallyreallyreallylongpackage"
+                "reallyreallyreallyreallyreallyreallyreallyreallyreallyreallylongpackage",
         )
     }
 
@@ -251,30 +251,30 @@ class KotlinNavWriterTest {
                     Argument(
                         "reference",
                         ReferenceType,
-                        ReferenceValue(ResReference("a.b", "drawable", "background"))
+                        ReferenceValue(ResReference("a.b", "drawable", "background")),
                     ),
                     Argument("referenceZeroDefaultValue", ReferenceType, IntValue("0")),
                     Argument("floatArg", FloatType, FloatValue("1")),
                     Argument("floatArrayArg", FloatArrayType),
                     Argument(
                         "objectArrayArgument",
-                        ObjectArrayType("android.content.pm.ActivityInfo")
+                        ObjectArrayType("android.content.pm.ActivityInfo"),
                     ),
                     Argument("boolArg", BoolType, BooleanValue("true")),
                     Argument(
                         "optionalParcelable",
                         ObjectType("android.content.pm.ActivityInfo"),
                         NullValue,
-                        true
+                        true,
                     ),
                     Argument(
                         "enumArg",
                         ObjectType("java.nio.file.AccessMode"),
                         EnumValue(ObjectType("java.nio.file.AccessMode"), "READ"),
-                        false
-                    )
+                        false,
+                    ),
                 ),
-                listOf()
+                listOf(),
             )
 
         val actual = generateArgsCodeFile(dest, false)
@@ -290,23 +290,23 @@ class KotlinNavWriterTest {
                 ClassName.get(
                     "a.b",
                     "ReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReallyReally" +
-                        "ReallyLongNameFragment"
+                        "ReallyLongNameFragment",
                 ),
                 "fragment",
                 listOf(Argument("main", StringType)),
-                listOf()
+                listOf(),
             )
 
         val actual = generateArgsCodeFile(dest, false)
         assertGeneratedCode(
             actual.toString(),
             "a.b.ReallyReallyReallyReallyReally" +
-                "ReallyReallyReallyReallyReallyReallyReallyReallyReallyLongNameMainFragmentArgs"
+                "ReallyReallyReallyReallyReallyReallyReallyReallyReallyLongNameMainFragmentArgs",
         )
         assertCompilesWithoutError(
             actual,
             "a.b.secondreallyreallyreallyreallyreallyreally" +
-                "reallyreallyreallyreallyreallyreallyreallyreallyreallyreallylongpackage"
+                "reallyreallyreallyreallyreallyreallyreallyreallyreallyreallylongpackage",
         )
     }
 }

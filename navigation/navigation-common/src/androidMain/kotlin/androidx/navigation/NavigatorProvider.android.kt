@@ -70,7 +70,7 @@ public actual open class NavigatorProvider actual constructor() {
     @CallSuper
     public actual open fun addNavigator(
         name: String,
-        navigator: Navigator<out NavDestination>
+        navigator: Navigator<out NavDestination>,
     ): Navigator<out NavDestination>? {
         require(validateName(name)) { "navigator name cannot be an empty string" }
         val previousNavigator = _navigators[name]
@@ -86,10 +86,10 @@ public actual open class NavigatorProvider actual constructor() {
         return _navigators.put(name, navigator)
     }
 
-    internal companion object {
+    internal actual companion object {
         private val annotationNames = mutableMapOf<Class<*>, String?>()
 
-        internal fun validateName(name: String?): Boolean {
+        internal actual fun validateName(name: String?): Boolean {
             return name != null && name.isNotEmpty()
         }
 

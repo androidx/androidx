@@ -43,7 +43,7 @@ class JavaNavWriterTest {
     private fun generateDirectionsCodeFile(
         destination: Destination,
         parentDirectionsFileList: List<JavaCodeFile>,
-        useAndroidX: Boolean
+        useAndroidX: Boolean,
     ) = JavaNavWriter(useAndroidX).generateDirectionsCodeFile(destination, parentDirectionsFileList)
 
     private fun generateDirectionsTypeSpec(action: Action, useAndroidX: Boolean) =
@@ -71,17 +71,17 @@ class JavaNavWriterTest {
                         "longpackage.R",
                     "a/b/secondreallyreallyreallyreallyreallyreally" +
                         "reallyreallyreallyreallyreallyreallyreallyreallyreallyreally" +
-                        "longpackage"
+                        "longpackage",
                 ),
                 JavaFileObjects.forSourceString(
                     "androidx.annotation.NonNull",
-                    "package androidx.annotation; public @interface NonNull {}"
+                    "package androidx.annotation; public @interface NonNull {}",
                 ),
                 JavaFileObjects.forSourceString(
                     "androidx.annotation.Nullable",
-                    "package androidx.annotation; public @interface Nullable {}"
+                    "package androidx.annotation; public @interface Nullable {}",
                 ),
-                javaFileObject
+                javaFileObject,
             )
             .compilesWithoutError()
     }
@@ -95,13 +95,13 @@ class JavaNavWriterTest {
                 loadSourceFileObject("a.b.R", "a/b"),
                 JavaFileObjects.forSourceString(
                     "androidx.annotation.NonNull",
-                    "package androidx.annotation; public @interface NonNull {}"
+                    "package androidx.annotation; public @interface NonNull {}",
                 ),
                 JavaFileObjects.forSourceString(
                     "androidx.annotation.Nullable",
-                    "package androidx.annotation; public @interface Nullable {}"
+                    "package androidx.annotation; public @interface Nullable {}",
                 ),
-                *javaFileObject
+                *javaFileObject,
             )
 
     @Test
@@ -120,16 +120,16 @@ class JavaNavWriterTest {
                             "optionalParcelable",
                             ObjectType("android.content.pm.ActivityInfo"),
                             NullValue,
-                            true
+                            true,
                         ),
                         Argument("parcelable", ObjectType("android.content.pm.ActivityInfo")),
                         Argument(
                             "innerData",
-                            ObjectType("android.content.pm.ActivityInfo\$WindowLayout")
-                        )
-                    )
+                            ObjectType("android.content.pm.ActivityInfo\$WindowLayout"),
+                        ),
+                    ),
                 ),
-                true
+                true,
             )
         val actual = toJavaFileObject(actionSpec)
         JavaSourcesSubject.assertThat(actual).parsesAs("a.b.Next")
@@ -154,15 +154,15 @@ class JavaNavWriterTest {
                 id("destA"),
                 listOf(
                     Argument("main", StringType),
-                    Argument("optional", StringType, StringValue("bla"))
-                )
+                    Argument("optional", StringType, StringValue("bla")),
+                ),
             )
 
         val prevAction =
             Action(
                 id("previous"),
                 id("destB"),
-                listOf(Argument("arg1", StringType), Argument("arg2", StringType))
+                listOf(Argument("arg1", StringType), Argument("arg2", StringType)),
             )
 
         val dest =
@@ -171,7 +171,7 @@ class JavaNavWriterTest {
                 ClassName.get("a.b", "MainFragment"),
                 "fragment",
                 listOf(),
-                listOf(prevAction, nextAction)
+                listOf(prevAction, nextAction),
             )
 
         val actual = generateDirectionsCodeFile(dest, emptyList(), true).toJavaFileObject()
@@ -188,10 +188,10 @@ class JavaNavWriterTest {
                         "reallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreally" +
                         "longpackage",
                     "id",
-                    "next"
+                    "next",
                 ),
                 id("destA"),
-                listOf()
+                listOf(),
             )
 
         val dest =
@@ -201,11 +201,11 @@ class JavaNavWriterTest {
                     "a.b.reallyreallyreallyreally" +
                         "reallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreallyreally" +
                         "longpackage",
-                    "LongPackageFragment"
+                    "LongPackageFragment",
                 ),
                 "fragment",
                 listOf(),
-                listOf(funAction)
+                listOf(funAction),
             )
 
         val actual = generateDirectionsCodeFile(dest, emptyList(), true).toJavaFileObject()
@@ -226,15 +226,15 @@ class JavaNavWriterTest {
                 id("destA"),
                 listOf(
                     Argument("main_arg", StringType),
-                    Argument("optional.arg", StringType, StringValue("bla"))
-                )
+                    Argument("optional.arg", StringType, StringValue("bla")),
+                ),
             )
 
         val prevAction =
             Action(
                 id("previous_action"),
                 id("destB"),
-                listOf(Argument("arg_1", StringType), Argument("arg.2", StringType))
+                listOf(Argument("arg_1", StringType), Argument("arg.2", StringType)),
             )
 
         val dest =
@@ -243,7 +243,7 @@ class JavaNavWriterTest {
                 ClassName.get("a.b", "SanitizedMainFragment"),
                 "fragment",
                 listOf(),
-                listOf(prevAction, nextAction)
+                listOf(prevAction, nextAction),
             )
 
         val actual = generateDirectionsCodeFile(dest, emptyList(), true).toJavaFileObject()
@@ -264,7 +264,7 @@ class JavaNavWriterTest {
                     Argument(
                         "reference",
                         ReferenceType,
-                        ReferenceValue(ResReference("a.b", "drawable", "background"))
+                        ReferenceValue(ResReference("a.b", "drawable", "background")),
                     ),
                     Argument("referenceZeroDefaultValue", ReferenceType, IntValue("0")),
                     Argument("floatArg", FloatType, FloatValue("1")),
@@ -275,16 +275,16 @@ class JavaNavWriterTest {
                         "optionalParcelable",
                         ObjectType("android.content.pm.ActivityInfo"),
                         NullValue,
-                        true
+                        true,
                     ),
                     Argument(
                         "enumArg",
                         ObjectType("java.nio.file.AccessMode"),
                         EnumValue(ObjectType("java.nio.file.AccessMode"), "READ"),
-                        false
-                    )
+                        false,
+                    ),
                 ),
-                listOf()
+                listOf(),
             )
 
         val actual = generateArgsCodeFile(dest, true).toJavaFileObject()
@@ -302,9 +302,9 @@ class JavaNavWriterTest {
                 listOf(
                     Argument("name.with.dot", IntType),
                     Argument("name_with_underscore", IntType),
-                    Argument("name with spaces", IntType)
+                    Argument("name with spaces", IntType),
                 ),
-                listOf()
+                listOf(),
             )
 
         val actual = generateArgsCodeFile(dest, true).toJavaFileObject()
@@ -320,7 +320,7 @@ class JavaNavWriterTest {
                 ClassName.get("a.b", "MainFragment\$InnerFragment"),
                 "fragment",
                 listOf(Argument("mainArg", StringType)),
-                listOf()
+                listOf(),
             )
 
         val actual = generateArgsCodeFile(dest, true).toJavaFileObject()
@@ -337,7 +337,7 @@ class JavaNavWriterTest {
                 ClassName.get("a.b", "MainFragment"),
                 "fragment",
                 listOf(),
-                listOf(nextAction)
+                listOf(nextAction),
             )
 
         val actual = generateDirectionsCodeFile(dest, emptyList(), true).toJavaFileObject()
@@ -368,7 +368,7 @@ class JavaNavWriterTest {
                 ClassName.get("a.b", "MainFragment"),
                 "fragment",
                 listOf(),
-                listOf(nextAction)
+                listOf(nextAction),
             )
 
         val actual = generateDirectionsCodeFile(dest, emptyList(), true).toJavaFileObject()

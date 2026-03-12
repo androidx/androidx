@@ -311,7 +311,7 @@ internal fun <T> NavType<T>.navTypeParseAndPut(
     bundle: SavedState,
     key: String,
     value: String?,
-    previousValue: T
+    previousValue: T,
 ): T {
     if (!bundle.read { contains(key) }) {
         throw IllegalArgumentException("There is no previous value in this savedState.")
@@ -870,4 +870,27 @@ internal class StringListNavType : CollectionNavType<List<String>?>(true) {
         value?.map { NavUriUtils.encode(it) } ?: emptyList()
 
     override fun emptyCollection(): List<String> = emptyList()
+}
+
+/**
+ * Enables other navigation modules to internally access [NavUriUtils], which is package internal
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun <T> NavType<T>.parseAndPutFromUri(bundle: SavedState, key: String, value: String): T {
+    val decoded = NavUriUtils.decode(value)
+    return parseAndPut(bundle, key, decoded)
+}
+
+/**
+ * Enables other navigation modules to internally access [NavUriUtils], which is package internal
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun <T> NavType<T>.parseAndPutFromUri(
+    bundle: SavedState,
+    key: String,
+    value: String,
+    previousValue: T,
+): T {
+    val decoded = NavUriUtils.decode(value)
+    return parseAndPut(bundle, key, decoded, previousValue)
 }

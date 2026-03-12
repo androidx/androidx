@@ -102,7 +102,7 @@ public expect class NavOptions {
     public fun shouldPopUpToSaveState(): Boolean
 
     /** Builder for constructing new instances of NavOptions. */
-    public class Builder {
+    public class Builder() {
 
         /**
          * Launch a navigation target as single-top if you are making a lateral navigation between
@@ -139,7 +139,7 @@ public expect class NavOptions {
         public fun setPopUpTo(
             route: String?,
             inclusive: Boolean,
-            saveState: Boolean = false
+            saveState: Boolean = false,
         ): Builder
 
         /**
@@ -163,7 +163,7 @@ public expect class NavOptions {
         @Suppress("MissingGetterMatchingBuilder") // no need for getter
         public inline fun <reified T : Any> setPopUpTo(
             inclusive: Boolean,
-            saveState: Boolean = false
+            saveState: Boolean = false,
         ): Builder
 
         /**
@@ -187,7 +187,7 @@ public expect class NavOptions {
         public fun <T : Any> setPopUpTo(
             route: KClass<T>,
             inclusive: Boolean,
-            saveState: Boolean = false
+            saveState: Boolean = false,
         ): Builder
 
         /**
@@ -213,7 +213,7 @@ public expect class NavOptions {
         public fun <T : Any> setPopUpTo(
             route: T,
             inclusive: Boolean,
-            saveState: Boolean = false
+            saveState: Boolean = false,
         ): Builder
 
         /** @return a constructed NavOptions */

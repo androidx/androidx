@@ -54,7 +54,7 @@ actual constructor(public actual val navigatorName: String) {
         private val isExactDeepLink: Boolean,
         private val matchingPathSegments: Int,
         private val hasMatchingAction: Boolean,
-        private val mimeTypeMatchLevel: Int
+        private val mimeTypeMatchLevel: Int,
     ) : Comparable<DeepLinkMatch> {
         public actual override fun compareTo(other: DeepLinkMatch): Int {
             // Prefer exact deep links
@@ -239,9 +239,8 @@ actual constructor(public actual val navigatorName: String) {
     }
 
     /**
-     * Returns the [NavAction] for the given action ID. This will recursively check the
-     * [parent][getParent] of this destination if the action destination is not found in this
-     * destination.
+     * Returns the [NavAction] for the given action ID. This will recursively check the [parent] of
+     * this destination if the action destination is not found in this destination.
      *
      * @param id action ID to fetch
      * @return the [NavAction] mapped to the given action id, or null if one has not been set
@@ -442,7 +441,7 @@ actual constructor(public actual val navigatorName: String) {
         protected fun <C> parseClassFromName(
             context: Context,
             name: String,
-            expectedClassType: Class<out C?>
+            expectedClassType: Class<out C?>,
         ): Class<out C?> {
             var innerName = name
             if (innerName[0] == '.') {
@@ -469,7 +468,7 @@ actual constructor(public actual val navigatorName: String) {
         public fun <C> parseClassFromNameInternal(
             context: Context,
             name: String,
-            expectedClassType: Class<out C?>
+            expectedClassType: Class<out C?>,
         ): Class<out C?> {
             return parseClassFromName(context, name, expectedClassType)
         }

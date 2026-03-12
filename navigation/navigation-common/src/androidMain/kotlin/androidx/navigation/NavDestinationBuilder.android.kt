@@ -33,7 +33,7 @@ internal constructor(
     protected actual val navigator: Navigator<out D>,
     /** The destination's unique ID. */
     @IdRes public val id: Int,
-    public actual val route: String?
+    public actual val route: String?,
 ) {
 
     /**
@@ -47,13 +47,13 @@ internal constructor(
      */
     @Deprecated(
         "Use routes to build your NavDestination instead",
-        ReplaceWith("NavDestinationBuilder(navigator, route = id.toString())")
+        ReplaceWith("NavDestinationBuilder(navigator, route = id.toString())"),
     )
     public constructor(navigator: Navigator<out D>, @IdRes id: Int) : this(navigator, id, null)
 
     public actual constructor(
         navigator: Navigator<out D>,
-        route: String?
+        route: String?,
     ) : this(navigator, -1, route)
 
     @OptIn(InternalSerializationApi::class)
@@ -64,7 +64,7 @@ internal constructor(
     ) : this(
         navigator,
         route?.serializer()?.generateHashCode() ?: -1,
-        route?.serializer()?.generateRoutePattern(typeMap)
+        route?.serializer()?.generateRoutePattern(typeMap),
     ) {
         route?.apply {
             serializer().generateNavArguments(typeMap).forEach { arguments[it.name] = it.argument }
@@ -95,9 +95,7 @@ internal constructor(
 
     @Suppress("BuilderSetStyle")
     @JvmName("deepLinkSafeArgs")
-    public actual inline fun <reified T : Any> deepLink(
-        basePath: String,
-    ) {
+    public actual inline fun <reified T : Any> deepLink(basePath: String) {
         deepLink(T::class, basePath) {}
     }
 
@@ -108,7 +106,7 @@ internal constructor(
     @Suppress("BuilderSetStyle")
     public actual inline fun <reified T : Any> deepLink(
         basePath: String,
-        noinline navDeepLink: NavDeepLinkDslBuilder.() -> Unit
+        noinline navDeepLink: NavDeepLinkDslBuilder.() -> Unit,
     ) {
         deepLink(T::class, basePath, navDeepLink)
     }
@@ -118,7 +116,7 @@ internal constructor(
     public actual fun <T : Any> deepLink(
         route: KClass<T>,
         basePath: String,
-        navDeepLink: NavDeepLinkDslBuilder.() -> Unit
+        navDeepLink: NavDeepLinkDslBuilder.() -> Unit,
     ) {
         // make sure they used the safe args constructors which automatically adds
         // argument to the destination
@@ -215,6 +213,6 @@ public class NavActionBuilder {
         NavAction(
             destinationId,
             navOptions,
-            if (defaultArguments.isEmpty()) null else savedState(defaultArguments)
+            if (defaultArguments.isEmpty()) null else savedState(defaultArguments),
         )
 }

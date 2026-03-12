@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -63,8 +62,6 @@ androidXMultiplatform {
             implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
         }
 
-        nonAndroidMain.dependsOn(commonMain)
-
         commonTest.dependencies {
             implementation(libs.kotlinTest)
             implementation(libs.kotlinCoroutinesTest)
@@ -75,20 +72,6 @@ androidXMultiplatform {
             runtimeOnly(libs.kotlinTestJunit)
             implementation(libs.junit)
         }
-
-        jbMain.dependsOn(nonAndroidMain)
-        jbTest.dependsOn(nonAndroidTest)
-        nativeMain.dependsOn(jbMain)
-        nativeTest.dependsOn(jbTest)
-        webMain.dependsOn(jbMain)
-        webTest.dependsOn(jbTest)
-        desktopMain.dependsOn(jbMain)
-        desktopTest.dependsOn(jbTest)
-
-        jvmCommonMain.dependsOn(jvmAndAndroidMain)
-        jvmCommonTest.dependsOn(jvmAndAndroidTest)
-        desktopMain.dependsOn(jvmCommonMain)
-        desktopTest.dependsOn(jvmCommonTest)
 
         androidMain.dependencies {
             api(project(":lifecycle:lifecycle-runtime"))
@@ -118,37 +101,17 @@ androidXMultiplatform {
             implementation(libs.testRunner)
         }
 
-        nonAndroidMain {
-            dependsOn(commonMain)
-        }
+        create("nonAndroidMain").dependsOn(commonMain)
+        desktopMain.dependsOn(nonAndroidMain)
+        nativeMain.dependsOn(nonAndroidMain)
+        webMain.dependsOn(nonAndroidMain)
 
-        nonAndroidTest {
-            dependsOn(commonTest)
-        }
+        create("nonAndroidTest").dependsOn(commonTest)
+        desktopTest.dependsOn(nonAndroidTest)
+        nativeTest.dependsOn(nonAndroidTest)
+        webTest.dependsOn(nonAndroidTest)
 
-        desktopMain {
-            dependsOn(nonAndroidMain)
-        }
-
-        desktopTest {
-            dependsOn(nonAndroidTest)
-        }
-
-        nativeMain {
-            dependsOn(nonAndroidMain)
-        }
-
-        nativeTest {
-            dependsOn(nonAndroidTest)
-        }
-
-        webMain {
-            dependsOn(nonAndroidMain)
-        }
-
-        webTest {
-            dependsOn(nonAndroidTest)
-        }
+        desktopTest.dependsOn(jvmAndAndroidTest)
     }
 }
 

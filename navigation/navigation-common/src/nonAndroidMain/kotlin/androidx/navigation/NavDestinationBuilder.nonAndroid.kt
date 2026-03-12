@@ -31,12 +31,13 @@ import kotlinx.serialization.serializer
 public actual open class NavDestinationBuilder<out D : NavDestination>
 internal constructor(
     protected actual val navigator: Navigator<out D>,
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val id: Int,
-    public actual val route: String?
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val id: Int,
+    public actual val route: String?,
 ) {
-    public actual constructor(navigator: Navigator<out D>, route: String?) :
-        this(navigator, -1, route)
+    public actual constructor(
+        navigator: Navigator<out D>,
+        route: String?,
+    ) : this(navigator, -1, route)
 
     @OptIn(InternalSerializationApi::class)
     public actual constructor(
@@ -46,7 +47,7 @@ internal constructor(
     ) : this(
         navigator,
         route?.serializer()?.generateHashCode() ?: -1,
-        route?.serializer()?.generateRoutePattern(typeMap)
+        route?.serializer()?.generateRoutePattern(typeMap),
     ) {
         route?.apply {
             serializer().generateNavArguments(typeMap).forEach { arguments[it.name] = it.argument }
@@ -76,9 +77,7 @@ internal constructor(
     }
 
     @JvmName("deepLinkSafeArgs")
-    public actual inline fun <reified T : Any> deepLink(
-        basePath: String,
-    ) {
+    public actual inline fun <reified T : Any> deepLink(basePath: String) {
         deepLink(T::class, basePath) {}
     }
 
@@ -89,7 +88,7 @@ internal constructor(
     @Suppress("BuilderSetStyle")
     public actual inline fun <reified T : Any> deepLink(
         basePath: String,
-        noinline navDeepLink: NavDeepLinkDslBuilder.() -> Unit
+        noinline navDeepLink: NavDeepLinkDslBuilder.() -> Unit,
     ) {
         deepLink(T::class, basePath, navDeepLink)
     }
@@ -99,7 +98,7 @@ internal constructor(
     public actual fun <T : Any> deepLink(
         route: KClass<T>,
         basePath: String,
-        navDeepLink: NavDeepLinkDslBuilder.() -> Unit
+        navDeepLink: NavDeepLinkDslBuilder.() -> Unit,
     ) {
         // make sure they used the safe args constructors which automatically adds
         // argument to the destination

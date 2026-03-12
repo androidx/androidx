@@ -112,7 +112,7 @@ public actual class NavOptionsBuilder actual constructor() {
     @Suppress("BuilderSetStyle")
     public actual fun <T : Any> popUpTo(
         route: KClass<T>,
-        popUpToBuilder: PopUpToBuilder.() -> Unit
+        popUpToBuilder: PopUpToBuilder.() -> Unit,
     ) {
         popUpToRouteClass = route
         popUpToId = -1

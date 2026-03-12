@@ -33,8 +33,8 @@ class TypeSafeDestinationMissingAnnotationDetector :
         constructorNames =
             listOf(
                 "androidx.navigation.compose.ComposeNavigatorDestinationBuilder",
-                "androidx.navigation.compose.DialogNavigatorDestinationBuilder"
-            )
+                "androidx.navigation.compose.DialogNavigatorDestinationBuilder",
+            ),
     ) {
 
     companion object {

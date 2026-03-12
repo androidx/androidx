@@ -59,7 +59,7 @@ internal class NavBackStackEntryStateImpl {
         destination: NavDestination,
         args: SavedState?,
         hostLifecycleState: Lifecycle.State,
-        viewModel: NavControllerViewModel?
+        viewModel: NavControllerViewModel?,
     ): NavBackStackEntry {
         return NavBackStackEntry.create(
             context,
@@ -68,7 +68,7 @@ internal class NavBackStackEntryStateImpl {
             hostLifecycleState,
             viewModel,
             id,
-            savedState
+            savedState,
         )
     }
 

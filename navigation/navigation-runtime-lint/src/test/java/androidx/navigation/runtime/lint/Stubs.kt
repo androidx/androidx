@@ -26,23 +26,23 @@ internal val ACTIVITY_NAVIGATION_DESTINATION_BUILDER =
         "androidx/navigation",
         0x2a71d14,
         """
-package androidx.navigation
+        package androidx.navigation
 
-import kotlin.reflect.KClass
+        import kotlin.reflect.KClass
 
-public abstract class Navigator<D : NavDestination>
+        public abstract class Navigator<D : NavDestination>
 
-public open class ActivityNavigator : Navigator<ActivityNavigator.Destination>() {
-    public open class Destination: NavDestination()
-}
+        public open class ActivityNavigator : Navigator<ActivityNavigator.Destination>() {
+            public open class Destination: NavDestination()
+        }
 
-public class ActivityNavigatorDestinationBuilder :
-    NavDestinationBuilder<ActivityNavigator.Destination> {
-        public constructor(route: KClass<out Any>)
-    }
+        public class ActivityNavigatorDestinationBuilder :
+            NavDestinationBuilder<ActivityNavigator.Destination> {
+                public constructor(route: KClass<out Any>)
+            }
 
-public inline fun <reified T : Any> NavGraphBuilder.activity() {}
-            """
+        public inline fun <reified T : Any> NavGraphBuilder.activity() {}
+        """
             .trimIndent(),
         """
                 META-INF/main.kotlin_module:
@@ -123,7 +123,7 @@ public inline fun <reified T : Any> NavGraphBuilder.activity() {}
                 VzThHlnK3L1KsnQcvaH8YPd9pi3NogEZ4uS51oktZpnSISTvd72RfN2Mj1n5
                 hQbKra+of2Ei8YSxsjKxx9hYcxcbXB08LVIO9ov6CAdcu5xpcObOEE4fd/vY
                 7MPDFlNs97GDe0MIg/t4METZYMPgoUHTYNeg+hsUN/EQjAIAAA==
-                """
+                """,
     )
 
 val STUBS = arrayOf(*NAVIGATION_STUBS, TEST_CLASS).map { it.toTestBytecodeStub() }.toTypedArray()

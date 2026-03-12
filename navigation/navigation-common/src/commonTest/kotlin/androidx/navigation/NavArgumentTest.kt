@@ -21,6 +21,7 @@ import androidx.savedstate.read
 import androidx.savedstate.savedState
 import kotlin.test.Test
 
+@IgnoreAndroidHostTestTarget
 class NavArgumentTest {
     @Test
     @Suppress("DEPRECATION")
@@ -35,10 +36,10 @@ class NavArgumentTest {
     @Test
     fun verify() {
         val bundle = savedState {
-                putString("stringArg", "abc")
-                putInt("intArg", 123)
-                putNull("intArrayArg")
-            }
+            putString("stringArg", "abc")
+            putInt("intArg", 123)
+            putNull("intArrayArg")
+        }
 
         val stringArgument = NavArgument.Builder().setType(NavType.StringType).build()
         val intArgument = NavArgument.Builder().setType(NavType.IntType).build()

@@ -20,6 +20,7 @@ import androidx.savedstate.SavedState
 
 /** A [Navigator] that only supports creating destinations. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Suppress("RUNTIME_ANNOTATION_NOT_SUPPORTED") // the annotation is used on android only
 @Navigator.Name("NoOp")
 public class NoOpNavigator() : Navigator<NavDestination>("NoOp") {
     override fun createDestination(): NavDestination = NavDestination(this)
@@ -28,7 +29,7 @@ public class NoOpNavigator() : Navigator<NavDestination>("NoOp") {
         destination: NavDestination,
         args: SavedState?,
         navOptions: NavOptions?,
-        navigatorExtras: Extras?
+        navigatorExtras: Extras?,
     ): NavDestination = destination
 
     override fun popBackStack(): Boolean = true

@@ -44,13 +44,13 @@ androidXMultiplatform {
         commonMain.dependencies {
             api(project(":navigation:navigation-runtime"))
             api(project(":navigation:navigation-common"))
-            api("org.jetbrains.compose.animation:animation:1.8.2")
-            api("org.jetbrains.compose.runtime:runtime:1.8.2")
-            api("org.jetbrains.compose.runtime:runtime-saveable:1.8.2")
-            api("org.jetbrains.compose.ui:ui:1.8.2")
-            api("org.jetbrains.compose.animation:animation:1.8.2")
-            implementation("org.jetbrains.compose.animation:animation-core:1.8.2")
-            implementation("org.jetbrains.compose.foundation:foundation-layout:1.8.2")
+            api(project(":compose:animation:animation"))
+            api(project(":compose:runtime:runtime"))
+            api(project(":compose:runtime:runtime-saveable"))
+            api(project(":compose:ui:ui"))
+            api(project(":compose:animation:animation"))
+            implementation(project(":compose:animation:animation-core"))
+            implementation(project(":compose:foundation:foundation-layout"))
             implementation("androidx.collection:collection:1.5.0")
             implementation(project(":lifecycle:lifecycle-common"))
             implementation(project(":lifecycle:lifecycle-runtime-compose"))
@@ -66,11 +66,11 @@ androidXMultiplatform {
             implementation(libs.kotlinTest)
             implementation(project(":compose:ui:ui-test"))
         }
-        nonAndroidMain {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(project(":compose:ui:ui-backhandler"))
-            }
+        create("nonAndroidMain").dependsOn(commonMain)
+        create("nonAndroidTest").dependsOn(commonTest)
+
+        nonAndroidMain.dependencies {
+            implementation(project(":compose:ui:ui-backhandler"))
         }
 
         nonAndroidTest {

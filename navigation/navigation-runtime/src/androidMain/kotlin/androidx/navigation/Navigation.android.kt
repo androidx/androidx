@@ -77,7 +77,7 @@ public actual object Navigation {
     @JvmOverloads
     public fun createNavigateOnClickListener(
         @IdRes resId: Int,
-        args: SavedState? = null
+        args: SavedState? = null,
     ): View.OnClickListener {
         return View.OnClickListener { view -> findNavController(view).navigate(resId, args) }
     }

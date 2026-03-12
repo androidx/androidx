@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
+@file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released
+
 package androidx.navigation.testing
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.CollectionNavType
 import androidx.navigation.NavArgument
 import androidx.navigation.NavType
+import androidx.navigation.parseAndPutFromUri
 import androidx.navigation.serialization.RouteEncoder
 import androidx.navigation.serialization.generateNavArguments
 import androidx.savedstate.read
@@ -46,7 +49,7 @@ import kotlinx.serialization.serializer
 @Suppress("UNCHECKED_CAST", "DEPRECATION")
 public operator fun SavedStateHandle.Companion.invoke(
     route: Any,
-    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap()
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
 ): SavedStateHandle {
     val serializer = route::class.serializer()
     // generate type maps
@@ -75,10 +78,10 @@ public operator fun SavedStateHandle.Companion.invoke(
         entry.value.forEach { value ->
             try {
                 if (!tempSavedState.read { contains(argName) }) {
-                    type.parseAndPut(tempSavedState, argName, value)
+                    type.parseAndPutFromUri(tempSavedState, argName, value)
                 } else {
                     val previousValue = type[tempSavedState, argName]
-                    type.parseAndPut(tempSavedState, argName, value, previousValue)
+                    type.parseAndPutFromUri(tempSavedState, argName, value, previousValue)
                 }
             } catch (e: IllegalArgumentException) {
                 // parse failed, ignored
@@ -89,5 +92,6 @@ public operator fun SavedStateHandle.Companion.invoke(
     // convert arg bundle to arg map
     val finalMap = savedState.read { toMap() }
     // populate handle with arg map
-    return SavedStateHandle(finalMap)
+    @Suppress("VisibleForTests") // Safe to use here as this is a test utilities module.
+    return SavedStateHandle(initialState = finalMap)
 }

@@ -106,7 +106,7 @@ internal class NavDestinationImpl(val destination: NavDestination) {
             routeDeepLink.isExactDeepLink,
             matchingPathSegments,
             false,
-            -1
+            -1,
         )
     }
 
@@ -141,7 +141,7 @@ internal class NavDestinationImpl(val destination: NavDestination) {
                         deepLink.isExactDeepLink,
                         matchingPathSegments,
                         matchingAction,
-                        mimeTypeMatchLevel
+                        mimeTypeMatchLevel,
                     )
                 if (bestMatch == null || newMatch > bestMatch) {
                     bestMatch = newMatch
@@ -154,7 +154,7 @@ internal class NavDestinationImpl(val destination: NavDestination) {
     private fun hasRequiredArguments(
         deepLink: NavDeepLink,
         uri: NavUri?,
-        arguments: Map<String, NavArgument>
+        arguments: Map<String, NavArgument>,
     ): Boolean {
         val matchingArgs = deepLink.getMatchingPathAndQueryArgs(uri, arguments)
         val missingRequiredArguments =

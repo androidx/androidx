@@ -56,7 +56,7 @@ public interface NavHost {
 public inline fun NavHost.createGraph(
     startDestination: String,
     route: String? = null,
-    builder: NavGraphBuilder.() -> Unit
+    builder: NavGraphBuilder.() -> Unit,
 ): NavGraph = navController.createGraph(startDestination, route, builder)
 
 /**
@@ -73,7 +73,7 @@ public inline fun NavHost.createGraph(
     startDestination: KClass<*>,
     route: KClass<*>? = null,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
-    builder: NavGraphBuilder.() -> Unit
+    builder: NavGraphBuilder.() -> Unit,
 ): NavGraph = navController.createGraph(startDestination, route, typeMap, builder)
 
 /**
@@ -90,5 +90,5 @@ public inline fun NavHost.createGraph(
     startDestination: Any,
     route: KClass<*>? = null,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
-    builder: NavGraphBuilder.() -> Unit
+    builder: NavGraphBuilder.() -> Unit,
 ): NavGraph = navController.createGraph(startDestination, route, typeMap, builder)

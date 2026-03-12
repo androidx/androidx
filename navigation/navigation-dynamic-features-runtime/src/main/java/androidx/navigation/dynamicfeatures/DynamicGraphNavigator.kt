@@ -40,7 +40,7 @@ import androidx.navigation.NavigatorProvider
 @Navigator.Name("navigation")
 public class DynamicGraphNavigator(
     private val navigatorProvider: NavigatorProvider,
-    private val installManager: DynamicInstallManager
+    private val installManager: DynamicInstallManager,
 ) : NavGraphNavigator(navigatorProvider) {
 
     /** @return The progress destination supplier if any is set. */
@@ -59,7 +59,7 @@ public class DynamicGraphNavigator(
     override fun navigate(
         entries: List<NavBackStackEntry>,
         navOptions: NavOptions?,
-        navigatorExtras: Extras?
+        navigatorExtras: Extras?,
     ) {
         for (entry in entries) {
             navigate(entry, navOptions, navigatorExtras)
@@ -69,7 +69,7 @@ public class DynamicGraphNavigator(
     private fun navigate(
         entry: NavBackStackEntry,
         navOptions: NavOptions?,
-        navigatorExtras: Extras?
+        navigatorExtras: Extras?,
     ) {
         val destination = entry.destination
         val extras = if (navigatorExtras is DynamicExtras) navigatorExtras else null
@@ -83,7 +83,7 @@ public class DynamicGraphNavigator(
         super.navigate(
             listOf(entry),
             navOptions,
-            if (extras != null) extras.destinationExtras else navigatorExtras
+            if (extras != null) extras.destinationExtras else navigatorExtras,
         )
     }
 
@@ -119,7 +119,7 @@ public class DynamicGraphNavigator(
      */
     internal fun navigateToProgressDestination(
         dynamicNavGraph: DynamicNavGraph,
-        progressArgs: Bundle?
+        progressArgs: Bundle?,
     ) {
         var progressDestinationId = dynamicNavGraph.progressDestination
         if (progressDestinationId == 0) {
@@ -181,7 +181,7 @@ public class DynamicGraphNavigator(
         @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         internal val navGraphNavigator: DynamicGraphNavigator,
         @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        internal val navigatorProvider: NavigatorProvider
+        internal val navigatorProvider: NavigatorProvider,
     ) : NavGraph(navGraphNavigator) {
 
         internal companion object {

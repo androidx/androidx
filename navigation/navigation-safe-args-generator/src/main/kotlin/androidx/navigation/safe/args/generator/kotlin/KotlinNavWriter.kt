@@ -38,7 +38,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
 
     override fun generateDirectionsCodeFile(
         destination: Destination,
-        parentDirectionsFileList: List<KotlinCodeFile>
+        parentDirectionsFileList: List<KotlinCodeFile>,
     ): KotlinCodeFile {
         val destName =
             destination.name
@@ -56,7 +56,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                         .map { arg ->
                             ParameterSpec.builder(
                                     name = arg.sanitizedName,
-                                    type = arg.type.typeName().copy(nullable = arg.isNullable)
+                                    type = arg.type.typeName().copy(nullable = arg.isNullable),
                                 )
                                 .apply { arg.defaultValue?.let { defaultValue(it.write()) } }
                                 .build()
@@ -71,12 +71,12 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                             addStatement(
                                 "return %T(%L)",
                                 ACTION_ONLY_NAV_DIRECTION_CLASSNAME,
-                                action.id.accessor()
+                                action.id.accessor(),
                             )
                         } else {
                             addStatement(
                                 "return %T(${parameters.joinToString(", ") { it.name }})",
-                                typeName
+                                typeName,
                             )
                         }
                     }
@@ -107,7 +107,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                             .addStatement(
                                 "return %T.%L($params)",
                                 ClassName(parentPackageName, parentTypeSpec.name!!),
-                                functionSpec.name
+                                functionSpec.name,
                             )
                             .build()
                     parentActionsFunSpec.add(methodSpec)
@@ -150,7 +150,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                     "arguments",
                     BUNDLE_CLASSNAME,
                     KModifier.PUBLIC,
-                    KModifier.OVERRIDE
+                    KModifier.OVERRIDE,
                 )
                 .getter(
                     FunSpec.getterBuilder()
@@ -165,7 +165,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                                     this,
                                     arg,
                                     resultVal,
-                                    "this.${arg.sanitizedName}"
+                                    "this.${arg.sanitizedName}",
                                 )
                             }
                             addStatement("return %L", resultVal)
@@ -181,7 +181,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                         .map { arg ->
                             ParameterSpec.builder(
                                     name = arg.sanitizedName,
-                                    type = arg.type.typeName().copy(nullable = arg.isNullable)
+                                    type = arg.type.typeName().copy(nullable = arg.isNullable),
                                 )
                                 .apply { arg.defaultValue?.let { defaultValue(it.write()) } }
                                 .build()
@@ -200,7 +200,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                         action.args.map { arg ->
                             PropertySpec.builder(
                                     arg.sanitizedName,
-                                    arg.type.typeName().copy(nullable = arg.isNullable)
+                                    arg.type.typeName().copy(nullable = arg.isNullable),
                                 )
                                 .initializer(arg.sanitizedName)
                                 .build()
@@ -227,7 +227,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                         .map { arg ->
                             ParameterSpec.builder(
                                     name = arg.sanitizedName,
-                                    type = arg.type.typeName().copy(nullable = arg.isNullable)
+                                    type = arg.type.typeName().copy(nullable = arg.isNullable),
                                 )
                                 .apply { arg.defaultValue?.let { defaultValue(it.write()) } }
                                 .build()
@@ -250,7 +250,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                             this,
                             arg,
                             resultVal,
-                            "this.${arg.sanitizedName}"
+                            "this.${arg.sanitizedName}",
                         )
                     }
                     addStatement("return %L", resultVal)
@@ -280,7 +280,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                     addStatement(
                         "%L.setClassLoader(%T::class.java.classLoader)",
                         bundleParamName,
-                        className
+                        className,
                     )
                     val tempVariables =
                         destination.args
@@ -289,12 +289,12 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                                 addStatement(
                                     "val %L : %T",
                                     tempVal,
-                                    arg.type.typeName().copy(nullable = arg.type.allowsNullable())
+                                    arg.type.typeName().copy(nullable = arg.type.allowsNullable()),
                                 )
                                 beginControlFlow(
                                     "if (%L.containsKey(%S))",
                                     bundleParamName,
-                                    arg.name
+                                    arg.name,
                                 )
                                 arg.type.addBundleGetStatement(this, arg, tempVal, bundleParamName)
                                 if (arg.type.allowsNullable() && !arg.isNullable) {
@@ -303,7 +303,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                                             "throw·%T(%S)",
                                             IllegalArgumentException::class.asTypeName(),
                                             "Argument \"${arg.name}\" is marked as non-null but was passed a " +
-                                                "null value."
+                                                "null value.",
                                         )
                                     }
                                     endControlFlow()
@@ -317,7 +317,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                                         "throw·%T(%S)",
                                         IllegalArgumentException::class.asTypeName(),
                                         "Required argument \"${arg.name}\" is missing and does not have an " +
-                                            "android:defaultValue"
+                                            "android:defaultValue",
                                     )
                                 }
                                 endControlFlow()
@@ -326,7 +326,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                             .sortedBy { it.defaultValue != null }
                     addStatement(
                         "return·%T(${tempVariables.joinToString(", ") { "__${it.sanitizedName}" }})",
-                        className
+                        className,
                     )
                 }
                 .build()
@@ -345,7 +345,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                             this,
                             arg,
                             resultVal,
-                            "this.${arg.sanitizedName}"
+                            "this.${arg.sanitizedName}",
                         )
                     }
                     addStatement("return %L", resultVal)
@@ -366,18 +366,18 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                                 addStatement(
                                     "val %L : %T",
                                     tempVal,
-                                    arg.type.typeName().copy(nullable = true)
+                                    arg.type.typeName().copy(nullable = true),
                                 )
                                 beginControlFlow(
                                     "if (%L.contains(%S))",
                                     savedStateParamName,
-                                    arg.name
+                                    arg.name,
                                 )
                                 arg.type.addSavedStateGetStatement(
                                     this,
                                     arg,
                                     tempVal,
-                                    savedStateParamName
+                                    savedStateParamName,
                                 )
                                 if (!arg.isNullable) {
                                     beginControlFlow("if (%L == null)", tempVal)
@@ -390,7 +390,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                                     addStatement(
                                         "throw·%T(%S)",
                                         IllegalArgumentException::class.asTypeName(),
-                                        errorMessage
+                                        errorMessage,
                                     )
                                     endControlFlow()
                                 }
@@ -403,7 +403,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                                         "throw·%T(%S)",
                                         IllegalArgumentException::class.asTypeName(),
                                         "Required argument \"${arg.name}\" is missing and does not have an " +
-                                            "android:defaultValue"
+                                            "android:defaultValue",
                                     )
                                 }
                                 endControlFlow()
@@ -412,7 +412,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                             .sortedBy { it.defaultValue != null }
                     addStatement(
                         "return·%T(${tempVariables.joinToString(", ") { "__${it.sanitizedName}" }})",
-                        className
+                        className,
                     )
                 }
                 .build()
@@ -426,7 +426,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                     destination.args.map { arg ->
                         PropertySpec.builder(
                                 arg.sanitizedName,
-                                arg.type.typeName().copy(nullable = arg.isNullable)
+                                arg.type.typeName().copy(nullable = arg.isNullable),
                             )
                             .initializer(arg.sanitizedName)
                             .build()

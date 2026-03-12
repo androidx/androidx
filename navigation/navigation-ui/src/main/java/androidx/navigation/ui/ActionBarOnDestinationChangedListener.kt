@@ -26,14 +26,14 @@ import androidx.appcompat.app.AppCompatActivity
  */
 internal class ActionBarOnDestinationChangedListener(
     private val activity: AppCompatActivity,
-    configuration: AppBarConfiguration
+    configuration: AppBarConfiguration,
 ) :
     AbstractAppBarOnDestinationChangedListener(
         checkNotNull(activity.drawerToggleDelegate) {
                 "Activity $activity does not have a DrawerToggleDelegate set"
             }
             .actionBarThemedContext,
-        configuration
+        configuration,
     ) {
     override fun setTitle(title: CharSequence?) {
         val actionBar =

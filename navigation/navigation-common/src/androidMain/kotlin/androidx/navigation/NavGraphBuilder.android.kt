@@ -39,12 +39,12 @@ import kotlinx.serialization.serializer
     ReplaceWith(
         "navigation(startDestination = startDestination.toString(), route = id.toString()) " +
             "{ builder.invoke() }"
-    )
+    ),
 )
 public inline fun NavigatorProvider.navigation(
     @IdRes id: Int = 0,
     @IdRes startDestination: Int,
-    builder: NavGraphBuilder.() -> Unit
+    builder: NavGraphBuilder.() -> Unit,
 ): NavGraph = NavGraphBuilder(this, id, startDestination).apply(builder).build()
 
 /**
@@ -61,12 +61,12 @@ public inline fun NavigatorProvider.navigation(
     ReplaceWith(
         "navigation(startDestination = startDestination.toString(), route = id.toString()) " +
             "{ builder.invoke() }"
-    )
+    ),
 )
 public inline fun NavGraphBuilder.navigation(
     @IdRes id: Int,
     @IdRes startDestination: Int,
-    builder: NavGraphBuilder.() -> Unit
+    builder: NavGraphBuilder.() -> Unit,
 ): Unit = destination(NavGraphBuilder(provider, id, startDestination).apply(builder))
 
 @NavDestinationDsl
@@ -91,12 +91,12 @@ public actual open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
         ReplaceWith(
             "NavGraphBuilder(provider, startDestination = startDestination.toString(), " +
                 "route = id.toString())"
-        )
+        ),
     )
     public constructor(
         provider: NavigatorProvider,
         @IdRes id: Int,
-        @IdRes startDestination: Int
+        @IdRes startDestination: Int,
     ) : super(provider[NavGraphNavigator::class], id) {
         this.provider = provider
         this.startDestinationId = startDestination
@@ -105,7 +105,7 @@ public actual open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
     public actual constructor(
         provider: NavigatorProvider,
         startDestination: String,
-        route: String?
+        route: String?,
     ) : super(provider[NavGraphNavigator::class], route) {
         this.provider = provider
         this.startDestinationRoute = startDestination
@@ -115,7 +115,7 @@ public actual open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
         provider: NavigatorProvider,
         startDestination: KClass<*>,
         route: KClass<*>?,
-        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>
+        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
     ) : super(provider[NavGraphNavigator::class], route, typeMap) {
         this.provider = provider
         this.startDestinationClass = startDestination
@@ -125,7 +125,7 @@ public actual open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
         provider: NavigatorProvider,
         startDestination: Any,
         route: KClass<*>?,
-        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>
+        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
     ) : super(provider[NavGraphNavigator::class], route, typeMap) {
         this.provider = provider
         this.startDestinationObject = startDestination

@@ -49,8 +49,8 @@ class NavigationActivity : AppCompatActivity(R.layout.navigation_activity) {
             AppBarConfiguration(
                 setOf(R.id.main, R.id.android_main),
                 drawerLayout,
-                ::onSupportNavigateUp
-            )
+                ::onSupportNavigateUp,
+            ),
         )
 
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
@@ -71,9 +71,9 @@ class NavigationActivity : AppCompatActivity(R.layout.navigation_activity) {
                                 ActivityOptionsCompat.makeSceneTransitionAnimation(
                                     this,
                                     toolbar,
-                                    "toolbar"
+                                    "toolbar",
                                 )
-                            )
+                            ),
                         )
                         true
                     }

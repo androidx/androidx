@@ -1,3 +1,7 @@
 // Baseline format: 1.0
-DocumentExceptions: androidx.navigation.fragment.FragmentNavArgsLazyKt#navArgs(androidx.fragment.app.Fragment):
-    Method FragmentNavArgsLazyKt.navArgs appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+TypeParameterName: androidx.navigation.NavGraphViewModelLazyKt#navGraphViewModels(androidx.fragment.app.Fragment, String, kotlin.jvm.functions.Function0<androidx.lifecycle.viewmodel.CreationExtras>, kotlin.jvm.functions.Function0<androidx.lifecycle.ViewModelProvider.Factory>):
+    Invalid type parameter name "VM". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.navigation.NavGraphViewModelLazyKt#navGraphViewModels(androidx.fragment.app.Fragment, int, kotlin.jvm.functions.Function0<androidx.lifecycle.viewmodel.CreationExtras>, kotlin.jvm.functions.Function0<androidx.lifecycle.ViewModelProvider.Factory>):
+    Invalid type parameter name "VM". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names
+TypeParameterName: androidx.navigation.fragment.FragmentNavArgsLazyKt#navArgs(androidx.fragment.app.Fragment):
+    Invalid type parameter name "Args". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names

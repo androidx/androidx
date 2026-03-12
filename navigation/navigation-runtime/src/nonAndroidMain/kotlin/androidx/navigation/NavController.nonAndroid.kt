@@ -72,7 +72,7 @@ public actual open class NavController {
         public actual fun onDestinationChanged(
             controller: NavController,
             destination: NavDestination,
-            arguments: SavedState?
+            arguments: SavedState?,
         )
     }
 
@@ -95,7 +95,7 @@ public actual open class NavController {
 
         actual override fun createBackStackEntry(
             destination: NavDestination,
-            arguments: SavedState?
+            arguments: SavedState?,
         ) = impl.createBackStackEntry(destination, arguments)
 
         actual override fun pop(popUpTo: NavBackStackEntry, saveState: Boolean) {
@@ -147,7 +147,7 @@ public actual open class NavController {
     public open fun popBackStack(
         destinationId: Int,
         inclusive: Boolean,
-        saveState: Boolean
+        saveState: Boolean,
     ): Boolean {
         return impl.popBackStack(destinationId, inclusive, saveState)
     }
@@ -162,7 +162,7 @@ public actual open class NavController {
     @JvmOverloads
     public actual inline fun <reified T : Any> popBackStack(
         inclusive: Boolean,
-        saveState: Boolean
+        saveState: Boolean,
     ): Boolean = popBackStack(T::class, inclusive, saveState)
 
     @MainThread
@@ -171,7 +171,7 @@ public actual open class NavController {
     public actual fun <T : Any> popBackStack(
         route: KClass<T>,
         inclusive: Boolean,
-        saveState: Boolean
+        saveState: Boolean,
     ): Boolean = impl.popBackStack(route, inclusive, saveState)
 
     @MainThread
@@ -179,14 +179,14 @@ public actual open class NavController {
     public actual fun <T : Any> popBackStack(
         route: T,
         inclusive: Boolean,
-        saveState: Boolean
+        saveState: Boolean,
     ): Boolean = impl.popBackStack(route, inclusive, saveState)
 
     @MainThread
     private fun popBackStackInternal(
         destinationId: Int,
         inclusive: Boolean,
-        saveState: Boolean = false
+        saveState: Boolean = false,
     ): Boolean = impl.popBackStackInternal(destinationId, inclusive, saveState)
 
     @MainThread
@@ -234,7 +234,7 @@ public actual open class NavController {
                 navDeepLinkRequest = request,
                 searchChildren = true,
                 searchParent = true,
-                lastVisited = currGraph
+                lastVisited = currGraph,
             )
 
         if (matchingDeepLink != null) {
@@ -273,7 +273,7 @@ public actual open class NavController {
                             // same graph in a row
                         }
                     },
-                    null
+                    null,
                 )
             }
             deepLinkHandled = true
@@ -298,7 +298,7 @@ public actual open class NavController {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun NavDestination.findDestinationComprehensive(
         destinationId: Int,
-        searchChildren: Boolean
+        searchChildren: Boolean,
     ): NavDestination? {
         return impl.findDestinationComprehensive(this, destinationId, searchChildren, null)
     }
@@ -322,7 +322,7 @@ public actual open class NavController {
     public actual open fun navigate(
         deepLink: NavUri,
         navOptions: NavOptions?,
-        navigatorExtras: Navigator.Extras?
+        navigatorExtras: Navigator.Extras?,
     ) {
         impl.navigate(NavDeepLinkRequest(deepLink, null, null), navOptions)
     }
@@ -341,7 +341,7 @@ public actual open class NavController {
     public actual open fun navigate(
         request: NavDeepLinkRequest,
         navOptions: NavOptions?,
-        navigatorExtras: Navigator.Extras?
+        navigatorExtras: Navigator.Extras?,
     ) {
         impl.navigate(request, navOptions, navigatorExtras)
     }
@@ -353,7 +353,7 @@ public actual open class NavController {
         node: NavDestination,
         args: SavedState?,
         navOptions: NavOptions?,
-        navigatorExtras: Navigator.Extras?
+        navigatorExtras: Navigator.Extras?,
     ) {
         impl.navigate(node, args, navOptions, navigatorExtras)
     }
@@ -368,7 +368,7 @@ public actual open class NavController {
     public actual fun navigate(
         route: String,
         navOptions: NavOptions?,
-        navigatorExtras: Navigator.Extras?
+        navigatorExtras: Navigator.Extras?,
     ) {
         impl.navigate(route, navOptions, navigatorExtras)
     }
@@ -383,7 +383,7 @@ public actual open class NavController {
     public actual fun <T : Any> navigate(
         route: T,
         navOptions: NavOptions?,
-        navigatorExtras: Navigator.Extras?
+        navigatorExtras: Navigator.Extras?,
     ) {
         impl.navigate(route, navOptions, navigatorExtras)
     }

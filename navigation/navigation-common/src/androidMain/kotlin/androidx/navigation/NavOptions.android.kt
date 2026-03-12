@@ -65,7 +65,7 @@ internal constructor(
      *
      * @return the resource id of a Animation or Animator or -1 if none.
      */
-    @get:AnimatorRes @get:AnimRes @param:AnimRes @param:AnimatorRes public val popExitAnim: Int
+    @get:AnimatorRes @get:AnimRes @param:AnimRes @param:AnimatorRes public val popExitAnim: Int,
 ) {
     /**
      * The destination to pop up to before navigating. When set, all non-matching destinations
@@ -99,7 +99,7 @@ internal constructor(
         enterAnim: Int,
         exitAnim: Int,
         popEnterAnim: Int,
-        popExitAnim: Int
+        popExitAnim: Int,
     ) : this(
         singleTop,
         restoreState,
@@ -109,7 +109,7 @@ internal constructor(
         enterAnim,
         exitAnim,
         popEnterAnim,
-        popExitAnim
+        popExitAnim,
     ) {
         this.popUpToRoute = popUpToRoute
     }
@@ -125,7 +125,7 @@ internal constructor(
         enterAnim: Int,
         exitAnim: Int,
         popEnterAnim: Int,
-        popExitAnim: Int
+        popExitAnim: Int,
     ) : this(
         singleTop,
         restoreState,
@@ -135,7 +135,7 @@ internal constructor(
         enterAnim,
         exitAnim,
         popEnterAnim,
-        popExitAnim
+        popExitAnim,
     ) {
         this.popUpToRouteClass = popUpToRouteClass
     }
@@ -151,7 +151,7 @@ internal constructor(
         enterAnim: Int,
         exitAnim: Int,
         popEnterAnim: Int,
-        popExitAnim: Int
+        popExitAnim: Int,
     ) : this(
         singleTop,
         restoreState,
@@ -161,7 +161,7 @@ internal constructor(
         enterAnim,
         exitAnim,
         popEnterAnim,
-        popExitAnim
+        popExitAnim,
     ) {
         this.popUpToRouteObject = popUpToRouteObject
     }
@@ -260,7 +260,7 @@ internal constructor(
         return sb.toString()
     }
 
-    public actual class Builder {
+    public actual class Builder actual constructor() {
         private var singleTop = false
         private var restoreState = false
 
@@ -309,7 +309,7 @@ internal constructor(
         public fun setPopUpTo(
             @IdRes destinationId: Int,
             inclusive: Boolean,
-            saveState: Boolean = false
+            saveState: Boolean = false,
         ): Builder {
             popUpToId = destinationId
             popUpToRoute = null
@@ -322,7 +322,7 @@ internal constructor(
         public actual fun setPopUpTo(
             route: String?,
             inclusive: Boolean,
-            saveState: Boolean
+            saveState: Boolean,
         ): Builder {
             popUpToRoute = route
             popUpToId = -1
@@ -335,7 +335,7 @@ internal constructor(
         @Suppress("MissingGetterMatchingBuilder") // no need for getter
         public actual inline fun <reified T : Any> setPopUpTo(
             inclusive: Boolean,
-            saveState: Boolean
+            saveState: Boolean,
         ): Builder {
             setPopUpTo(T::class, inclusive, saveState)
             return this
@@ -345,7 +345,7 @@ internal constructor(
         public actual fun <T : Any> setPopUpTo(
             route: KClass<T>,
             inclusive: Boolean,
-            saveState: Boolean
+            saveState: Boolean,
         ): Builder {
             popUpToRouteClass = route
             popUpToId = -1
@@ -360,7 +360,7 @@ internal constructor(
         public actual fun <T : Any> setPopUpTo(
             route: T,
             inclusive: Boolean,
-            saveState: Boolean
+            saveState: Boolean,
         ): Builder {
             popUpToRouteObject = route
             setPopUpTo(route::class.serializer().generateHashCode(), inclusive, saveState)
@@ -436,7 +436,7 @@ internal constructor(
                     enterAnim,
                     exitAnim,
                     popEnterAnim,
-                    popExitAnim
+                    popExitAnim,
                 )
             } else if (popUpToRouteClass != null) {
                 NavOptions(
@@ -448,7 +448,7 @@ internal constructor(
                     enterAnim,
                     exitAnim,
                     popEnterAnim,
-                    popExitAnim
+                    popExitAnim,
                 )
             } else if (popUpToRouteObject != null) {
                 NavOptions(
@@ -460,7 +460,7 @@ internal constructor(
                     enterAnim,
                     exitAnim,
                     popEnterAnim,
-                    popExitAnim
+                    popExitAnim,
                 )
             } else {
                 NavOptions(
@@ -472,7 +472,7 @@ internal constructor(
                     enterAnim,
                     exitAnim,
                     popEnterAnim,
-                    popExitAnim
+                    popExitAnim,
                 )
             }
         }

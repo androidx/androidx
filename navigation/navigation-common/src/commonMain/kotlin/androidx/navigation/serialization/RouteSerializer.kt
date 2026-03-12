@@ -111,7 +111,7 @@ public fun <T> KSerializer<T>.generateNavArguments(
                             name,
                             element.serialName,
                             this@generateNavArguments.descriptor.serialName,
-                            typeMap.toString()
+                            typeMap.toString(),
                         )
                     )
             nullable = isNullable
@@ -180,7 +180,7 @@ public fun <T> KSerializer<T>.generateHashCode(): Int {
 @JvmName("forEachIndexedKType")
 private fun <T> KSerializer<T>.forEachIndexed(
     typeMap: Map<KType, NavType<*>> = emptyMap(),
-    operation: (index: Int, argName: String, navType: NavType<Any?>) -> Unit
+    operation: (index: Int, argName: String, navType: NavType<Any?>) -> Unit,
 ) {
     for (i in 0 until descriptor.elementsCount) {
         val argName = descriptor.getElementName(i)
@@ -192,7 +192,7 @@ private fun <T> KSerializer<T>.forEachIndexed(
                         argName,
                         descriptor.getElementDescriptor(i).serialName,
                         descriptor.serialName,
-                        typeMap.toString()
+                        typeMap.toString(),
                     )
                 )
         operation(i, argName, navType)
@@ -202,7 +202,7 @@ private fun <T> KSerializer<T>.forEachIndexed(
 @JvmName("forEachIndexedName")
 private fun <T> KSerializer<T>.forEachIndexed(
     typeMap: Map<String, NavType<Any?>>,
-    operation: (index: Int, argName: String, navType: NavType<Any?>) -> Unit
+    operation: (index: Int, argName: String, navType: NavType<Any?>) -> Unit,
 ) {
     for (i in 0 until descriptor.elementsCount) {
         val argName = descriptor.getElementName(i)
@@ -216,7 +216,7 @@ private fun unknownNavTypeErrorMessage(
     fieldName: String,
     fieldType: String,
     className: String,
-    typeMap: String
+    typeMap: String,
 ) =
     "Route $className could not find any NavType for argument $fieldName " +
         "of type $fieldType - typeMap received was $typeMap"

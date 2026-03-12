@@ -17,7 +17,10 @@
 package androidx.navigation.serialization
 
 import androidx.kruth.assertThat
+<<<<<<<< HEAD:navigation/navigation-common/src/commonTest/kotlin/androidx/navigation/serialization/NavArgumentGeneratorTest.kt
 import androidx.navigation.CollectionNavType
+========
+>>>>>>>> integration-aosp/1.11.0-alpha04:navigation/navigation-common/src/androidTest/kotlin/androidx/navigation/serialization/NavArgumentGeneratorTest.kt
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavArgument
 import androidx.navigation.NavType
@@ -649,6 +652,7 @@ class NavArgumentGeneratorTest {
     }
 
     @Test
+<<<<<<<< HEAD:navigation/navigation-common/src/commonTest/kotlin/androidx/navigation/serialization/NavArgumentGeneratorTest.kt
     fun convertToEnumArray() {
         @Serializable class TestClass(val arg: Array<TestEnum>)
         val navType =
@@ -676,6 +680,8 @@ class NavArgumentGeneratorTest {
     }
 
     @Test
+========
+>>>>>>>> integration-aosp/1.11.0-alpha04:navigation/navigation-common/src/androidTest/kotlin/androidx/navigation/serialization/NavArgumentGeneratorTest.kt
     fun convertValueClass() {
         // test value class as destination route
         val converted = serializer<TestValueClass>().generateNavArguments()
@@ -912,7 +918,7 @@ class NavArgumentGeneratorTest {
                 .generateNavArguments(
                     mapOf(
                         typeOf<ArrayList<String>?>() to CustomStringList,
-                        typeOf<ArrayList<Int>>() to CustomIntList
+                        typeOf<ArrayList<Int>>() to CustomIntList,
                     )
                 )
         val expectedStringList =
@@ -935,7 +941,7 @@ class NavArgumentGeneratorTest {
         @Serializable
         class TestClass(
             val arg: ArrayList<String>? = arrayListOf(),
-            val arg2: ArrayList<Int> = arrayListOf()
+            val arg2: ArrayList<Int> = arrayListOf(),
         )
 
         val CustomStringList =
@@ -961,7 +967,7 @@ class NavArgumentGeneratorTest {
                 .generateNavArguments(
                     mapOf(
                         typeOf<ArrayList<String>?>() to CustomStringList,
-                        typeOf<ArrayList<Int>>() to CustomIntList
+                        typeOf<ArrayList<Int>>() to CustomIntList,
                     )
                 )
         val expectedStringList =
@@ -1113,12 +1119,8 @@ class NavArgumentGeneratorTest {
             assertFailsWith<IllegalArgumentException> { serializer.generateNavArguments() }
         assertThat(exception.message)
             .isEqualTo(
-                "Cannot generate NavArguments for polymorphic serializer " +
-                    "kotlinx.serialization.PolymorphicSerializer(baseClass: " +
-                    "class androidx.navigation.serialization." +
-                    "NavArgumentGeneratorTest\$abstractClassInvalid\$TestClass (Kotlin reflection " +
-                    "is not available)). Arguments can only be generated from concrete classes " +
-                    "or objects."
+                "Cannot generate NavArguments for polymorphic serializer $serializer. " +
+                    "Arguments can only be generated from concrete classes or objects."
             )
     }
 
@@ -1163,6 +1165,7 @@ class NavArgumentGeneratorTest {
     // and hashcode which will need to be public api.
     private fun assertThat(actual: List<NamedNavArgument>) = actual
 
+<<<<<<<< HEAD:navigation/navigation-common/src/commonTest/kotlin/androidx/navigation/serialization/NavArgumentGeneratorTest.kt
     private fun List<NamedNavArgument>.containsExactlyInOrder(
         vararg expectedArgs: NamedNavArgument
     ) {
@@ -1204,6 +1207,8 @@ class NavArgumentGeneratorTest {
         } else true
     }
 
+========
+>>>>>>>> integration-aosp/1.11.0-alpha04:navigation/navigation-common/src/androidTest/kotlin/androidx/navigation/serialization/NavArgumentGeneratorTest.kt
     enum class TestEnum {
         TEST
     }
@@ -1217,9 +1222,48 @@ class NavArgumentGeneratorTest {
     private class EnumWrapper {
         enum class NestedEnum {
             ONE,
-            TWO
+            TWO,
         }
     }
+}
+
+internal fun List<NamedNavArgument>.containsExactlyInOrder(vararg expectedArgs: NamedNavArgument) {
+    if (expectedArgs.size != this.size) {
+        fail("expected list has size ${expectedArgs.size} and actual list has size $size}")
+    }
+    for (i in indices) {
+        val actual = this[i]
+        val expected = expectedArgs[i]
+        if (expected.name != actual.name) {
+            fail("expected name ${expected.name}, was actually ${actual.name}")
+        }
+
+        if (!expected.argument.isEqual(actual.argument)) {
+            fail(
+                """expected ${expected.name} to be:
+                |   ${expected.argument}
+                |   but was:
+                |   ${actual.argument}
+                """
+                    .trimMargin()
+            )
+        }
+    }
+}
+
+internal fun NavArgument.isEqual(other: NavArgument): Boolean {
+    if (this === other) return true
+    if (this::class != this::class) return false
+    if (isNullable != other.isNullable) return false
+    if (isDefaultValuePresent != other.isDefaultValuePresent) return false
+    if (isDefaultValueUnknown != other.isDefaultValueUnknown) return false
+    if (type != other.type) return false
+    // In context of serialization, we can only tell if defaultValue is present but don't know
+    // actual value, so we cannot compare it to the generated defaultValue. But if
+    // there is no defaultValue, we expect them both to be null.
+    return if (!isDefaultValuePresent) {
+        defaultValue == null && other.defaultValue == null
+    } else true
 }
 
 enum class TestTopLevelEnum {

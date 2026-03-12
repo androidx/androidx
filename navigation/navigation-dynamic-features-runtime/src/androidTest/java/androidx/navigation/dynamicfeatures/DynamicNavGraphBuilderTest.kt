@@ -43,7 +43,7 @@ public class DynamicNavGraphBuilderTest {
             addNavigator(
                 DynamicGraphNavigator(
                     this,
-                    AndroidTestDynamicInstallManager(ApplicationProvider.getApplicationContext())
+                    AndroidTestDynamicInstallManager(ApplicationProvider.getApplicationContext()),
                 )
             )
             addNavigator(NoOpNavigator())
@@ -71,6 +71,7 @@ public class DynamicNavGraphBuilderTest {
         val graph = provider.navigation(startDestination = DESTINATION_ID) {}
         assertWithMessage("Without a moduleName the graph should be a NavGraph")
             .that(graph !is DynamicGraphNavigator.DynamicNavGraph)
+            .isTrue()
     }
 
     @Suppress("DEPRECATION")
@@ -209,6 +210,7 @@ public class DynamicNavGraphBuilderTest {
         val graph = provider.navigation(startDestination = DESTINATION_ROUTE) {}
         assertWithMessage("Without a moduleName the graph should be a NavGraph")
             .that(graph !is DynamicGraphNavigator.DynamicNavGraph)
+            .isTrue()
     }
 
     @Test
@@ -254,7 +256,7 @@ private const val MODULE_NAME = "myModule"
 @Suppress("DEPRECATION")
 public fun DynamicNavGraphBuilder.navDestination(
     @IdRes id: Int,
-    builder: NavDestinationBuilder<NavDestination>.() -> Unit
+    builder: NavDestinationBuilder<NavDestination>.() -> Unit,
 ): Unit = destination(NavDestinationBuilder(provider[NoOpNavigator::class], id).apply(builder))
 
 /**
@@ -263,7 +265,7 @@ public fun DynamicNavGraphBuilder.navDestination(
  */
 public fun DynamicNavGraphBuilder.navDestination(
     route: String,
-    builder: NavDestinationBuilder<NavDestination>.() -> Unit
+    builder: NavDestinationBuilder<NavDestination>.() -> Unit,
 ): Unit = destination(NavDestinationBuilder(provider[NoOpNavigator::class], route).apply(builder))
 
 /**
