@@ -27,7 +27,7 @@ import kotlin.jvm.JvmInline
  * annotation, it will be automatically wrapped into this holder class.
  *
  * @see withAnnotation
- * @see getStringAnnotations
+ * @see AnnotatedString.getStringAnnotations
  */
 @JvmInline value class StringAnnotation(val value: String) : AnnotatedString.Annotation
 

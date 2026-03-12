@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.ControlledComposition
 import androidx.compose.runtime.InternalComposeApi
+import androidx.compose.runtime.LinkRememberObserverHolder
 import androidx.compose.runtime.MovableContentState
 import androidx.compose.runtime.MovableContentStateReference
 import androidx.compose.runtime.RecomposeScopeImpl
@@ -33,6 +34,7 @@ import androidx.compose.runtime.composer.RememberManager
 import androidx.compose.runtime.composer.gapbuffer.changelist.OperationErrorContext
 import androidx.compose.runtime.composer.linkbuffer.GroupAddress
 import androidx.compose.runtime.composer.linkbuffer.GroupHandle
+import androidx.compose.runtime.composer.linkbuffer.LinkAnchor
 import androidx.compose.runtime.composer.linkbuffer.SlotAddress
 import androidx.compose.runtime.composer.linkbuffer.SlotTable
 import androidx.compose.runtime.composer.linkbuffer.SlotTableAddressSpace
@@ -131,12 +133,12 @@ internal class ChangeList : Changes() {
     }
 
     fun pushUpdateRememberObserverHolderOrdering(
-        holder: RememberObserverHolder,
-        after: GroupAddress,
+        holder: LinkRememberObserverHolder,
+        after: LinkAnchor,
     ) {
         operations.push(UpdateRememberObserverHolderOrdering) {
             setObject(UpdateRememberObserverHolderOrdering.Holder, holder)
-            setInt(UpdateRememberObserverHolderOrdering.After, after)
+            setObject(UpdateRememberObserverHolderOrdering.After, after)
         }
     }
 

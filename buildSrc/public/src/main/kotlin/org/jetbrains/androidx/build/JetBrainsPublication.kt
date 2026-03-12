@@ -25,6 +25,11 @@ import org.gradle.api.Project
  * building the JetBrains fork of AOSP.
  */
 object JetBrainsPublication {
+    private const val COMPATIBILITY_STUB_PROJECT_SUFFIX = "-compatibility-stub"
+    private const val ANDROIDX_GROUP_PREFIX = "androidx."
+    private const val JETBRAINS_COMPOSE_GROUP_PREFIX = "org.jetbrains.compose."
+    private const val JETBRAINS_FORK_GROUP_PREFIX = "org.jetbrains.androidx."
+
     val libraryToComponents = mapOf(
         "COMPOSE" to listOf(
             // publish for compatibility
@@ -131,22 +136,9 @@ object JetBrainsPublication {
         ),
     )
 
-    fun mavenGroupFor(projectPath: String, androidxGroup: String?): String {
-        return when {
-            projectPath == ":annotation:annotation" ->
-                "org.jetbrains.compose.annotation-internal"
-            projectPath == ":collection:collection" ->
-                "org.jetbrains.compose.collection-internal"
-            projectPath == ":compose:desktop:desktop" ->
-                "org.jetbrains.compose.desktop"
-            androidxGroup?.startsWith("androidx.compose") == true->
-                androidxGroup.replace("androidx.compose", "org.jetbrains.compose")
-            androidxGroup?.startsWith("androidx") == true ->
-                androidxGroup.replace("androidx", "org.jetbrains.androidx")
-            else -> error("Unknown group replacement for " +
-                "(projectPath=$projectPath, androidxGroup=$androidxGroup)")
-        }
-    }
+    private val jetBrainsProjectsWithAndroidTarget = setOf(
+        ":compose:ui:ui-backhandler",
+    )
 
     init {
         val allPaths = libraryToComponents.flatMap { it.value }.map { it.path }
@@ -156,6 +148,46 @@ object JetBrainsPublication {
         }
     }
 
+    fun mavenGroupFor(projectPath: String): String = when {
+        projectPath == ":annotation:annotation" ->
+            "org.jetbrains.compose.annotation-internal"
+        projectPath == ":collection:collection" ->
+            "org.jetbrains.compose.collection-internal"
+        projectPath.startsWith(":compose:") ->
+            JETBRAINS_COMPOSE_GROUP_PREFIX + projectPath
+                .removePrefix(":compose:")
+                .substringBeforeLast(":")
+                .replace(":", ".")
+        projectPath.startsWith(":") ->
+            JETBRAINS_FORK_GROUP_PREFIX + projectPath
+                .removePrefix(":")
+                .substringBeforeLast(":")
+                .replace(":", ".")
+        else -> error("Unknown group replacement for projectPath=$projectPath")
+    }
+
+    fun projectPathForCoordinates(group: String, name: String): String? = when {
+        isAndroidXGroup(group) ->
+            ":${group.removePrefix(ANDROIDX_GROUP_PREFIX).replace(".", ":")}:$name"
+        group == "org.jetbrains.compose.annotation-internal" ->
+            ":annotation:annotation"
+        group == "org.jetbrains.compose.collection-internal" ->
+            ":collection:collection"
+        group.startsWith(JETBRAINS_COMPOSE_GROUP_PREFIX) ->
+            ":compose:${group.removePrefix(JETBRAINS_COMPOSE_GROUP_PREFIX).replace(".", ":")}:$name"
+        group.startsWith(JETBRAINS_FORK_GROUP_PREFIX) ->
+            ":${group.removePrefix(JETBRAINS_FORK_GROUP_PREFIX).replace(".", ":")}:$name"
+        else -> null
+    }
+
+    fun isAndroidXGroup(group: String): Boolean = group.startsWith(ANDROIDX_GROUP_PREFIX)
+
+    fun isJetBrainsForkGroup(group: String): Boolean =
+        group.startsWith(JETBRAINS_FORK_GROUP_PREFIX) || group.startsWith(JETBRAINS_COMPOSE_GROUP_PREFIX)
+
+    fun isCompatibilityStubProject(project: Project): Boolean =
+        project.projectDir.name.endsWith(COMPATIBILITY_STUB_PROJECT_SUFFIX)
+
     val projectPathToComponent: Map<String, ComposeComponent> = libraryToComponents.values
         .flatten().associateBy { it.path }
 
@@ -163,10 +195,14 @@ object JetBrainsPublication {
         .flatMap { entry -> entry.value.map { entry.key to it  } }
         .associate { it.second.path to it.first }
 
-    fun shouldPublish(project: Project): Boolean = projectPathToComponent.containsKey(project.path)
+    fun shouldPublish(project: Project): Boolean = shouldPublish(project.path)
+    fun shouldPublish(projectPath: String): Boolean = projectPathToComponent.containsKey(projectPath)
 
     fun isLibraryRegistered(libraryName: String) =
         libraryToComponents.containsKey(libraryName)
+
+    fun isJetBrainsProjectWithAndroidTarget(project: Project) =
+        jetBrainsProjectsWithAndroidTarget.contains(project.path)
 }
 
 /**

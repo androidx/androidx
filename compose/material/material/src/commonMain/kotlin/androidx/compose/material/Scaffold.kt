@@ -169,9 +169,10 @@ value class FabPosition internal constructor(@Suppress("unused") private val val
  *   content color for [backgroundColor], or, if it is not a color from the theme, this will keep
  *   the same value set above this Surface.
  * @param content content of your screen. The lambda receives an [PaddingValues] that should be
- *   applied to the content root via [Modifier.padding] and [Modifier.consumeWindowInsets] to
- *   properly offset top and bottom bars. If using [Modifier.verticalScroll], apply this modifier to
- *   the child of the scroll, and not on the scroll itself.
+ *   applied to the content root via [androidx.compose.foundation.layout.padding] and
+ *   [androidx.compose.foundation.layout.consumeWindowInsets] to properly offset top and bottom
+ *   bars. If using [androidx.compose.foundation.verticalScroll], apply this modifier to the child
+ *   of the scroll, and not on the scroll itself.
  */
 @Composable
 fun Scaffold(
@@ -295,9 +296,10 @@ fun Scaffold(
  *   content color for [backgroundColor], or, if it is not a color from the theme, this will keep
  *   the same value set above this Surface.
  * @param content content of your screen. The lambda receives an [PaddingValues] that should be
- *   applied to the content root via [Modifier.padding] and [Modifier.consumeWindowInsets] to
- *   properly offset top and bottom bars. If using [Modifier.verticalScroll], apply this modifier to
- *   the child of the scroll, and not on the scroll itself.
+ *   applied to the content root via [androidx.compose.foundation.layout.padding] and
+ *   [androidx.compose.foundation.layout.consumeWindowInsets] to properly offset top and bottom
+ *   bars. If using [androidx.compose.foundation.verticalScroll], apply this modifier to the child
+ *   of the scroll, and not on the scroll itself.
  */
 @Composable
 fun Scaffold(

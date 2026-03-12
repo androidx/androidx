@@ -847,8 +847,8 @@ private fun UIEvent.historicalChangesForTouch(
                 uptimeMillis = (historicalTouch.timestamp * 1e3).toLong(),
                 position = position,
                 originalEventPosition = position,
-                scaleGestureFactor = 1f,
-                panGestureOffset = Offset.Zero,
+                scaleFactor = 1f,
+                panOffset = Offset.Zero,
             )
         }
     } else {

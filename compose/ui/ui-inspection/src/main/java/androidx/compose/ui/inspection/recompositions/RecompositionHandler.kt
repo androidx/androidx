@@ -82,7 +82,7 @@ open class RecompositionHandler<T : RecompositionData>(
     // Increment the recomposition count.
     // Adjust the state reads based on the max number of recompositions with state reads
     // the agent is supposed to maintain.
-    fun incrementRecompositionCount(anchor: Any): T? {
+    open fun incrementRecompositionCount(anchor: Any): T? {
         synchronized(lock) {
             if (collectingRecompositionCounts) {
                 val data = counts.getOrPut(anchor, createRecompositionData)

@@ -220,8 +220,8 @@ private class PointerInputChangeEventProducer {
                     type = it.type,
                     historical = it.historical,
                     scrollDelta = it.scrollDelta,
-                    scaleGestureFactor = it.scaleGestureFactor,
-                    panGestureOffset = it.panGestureOffset,
+                    scaleFactor = it.scaleGestureFactor,
+                    panOffset = it.panGestureOffset,
                     originalEventPosition = it.originalEventPosition,
                 ),
             )

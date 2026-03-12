@@ -23,6 +23,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -41,9 +42,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.TruthJUnit.assume
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -546,5 +549,76 @@ class ComposeViewTest {
         childView.setContent { isComposed = true }
         rule.waitForIdle()
         assertThat(isComposed).isTrue()
+    }
+
+    @Test
+    fun changedCoroutineContextThrows() {
+        lateinit var composeView: AndroidComposeView
+        rule.setContent {
+            AndroidView(
+                factory = {
+                    ComposeView(rule.activity).also {
+                        it.setContent {
+                            composeView = LocalView.current as AndroidComposeView
+                            Box(Modifier.fillMaxSize())
+                        }
+                    }
+                }
+            )
+        }
+        val coroutineContext = runBlocking { coroutineContext }
+        rule.runOnIdle {
+            val oldCVC = composeView.composeViewContext
+            try {
+                composeView.composeViewContext =
+                    ComposeViewContext(
+                        oldCVC.view,
+                        Recomposer(coroutineContext),
+                        oldCVC.lifecycleOwner,
+                        oldCVC.savedStateRegistryOwner,
+                        oldCVC.viewModelStoreOwner,
+                    )
+                fail("IllegalArgumentException is expected")
+            } catch (_: IllegalArgumentException) {
+                // expected result
+            }
+        }
+    }
+
+    @Test
+    fun changedCoroutineContextAfterDispose() {
+        lateinit var androidComposeView: AndroidComposeView
+        lateinit var composeView: ComposeView
+        var isComposed by mutableStateOf(false)
+        rule.setContent {
+            AndroidView(
+                factory = {
+                    ComposeView(rule.activity).also {
+                        composeView = it
+                        it.setContent {
+                            androidComposeView = LocalView.current as AndroidComposeView
+                            Box(Modifier.fillMaxSize())
+                            isComposed = true
+                        }
+                    }
+                }
+            )
+        }
+        val coroutineContext = runBlocking { coroutineContext }
+        rule.runOnIdle {
+            val oldCVC = androidComposeView.composeViewContext
+            composeView.disposeComposition()
+            isComposed = false
+            androidComposeView.composeViewContext =
+                ComposeViewContext(
+                    oldCVC.view,
+                    Recomposer(coroutineContext),
+                    oldCVC.lifecycleOwner,
+                    oldCVC.savedStateRegistryOwner,
+                    oldCVC.viewModelStoreOwner,
+                )
+        }
+
+        rule.runOnIdle { assertThat(isComposed).isTrue() }
     }
 }

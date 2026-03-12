@@ -341,6 +341,7 @@ internal class ScrollableNode(
     private var scrollByOffsetAction: (suspend (Offset) -> Offset)? = null
 
     private var mouseWheelScrollingLogic: MouseWheelScrollingLogic? = null
+    private var trackpadScrollingLogic: TrackpadScrollingLogic? = null
 
     private var scrollableContainerNode: ScrollableContainerNode? = null
 
@@ -403,11 +404,17 @@ internal class ScrollableNode(
         }
     }
 
+    private fun onTrackpadScrollStopped(velocity: Velocity) {
+        nestedScrollDispatcher.coroutineScope.launch {
+            scrollingLogic.onScrollStopped(velocity, isMouseWheel = false)
+        }
+    }
+
     override fun startDragImmediately(): Boolean {
         return scrollingLogic.shouldScrollImmediately()
     }
 
-    private fun ensureMouseWheelScrollNodeInitialized() {
+    private fun ensureMouseWheelScrollingLogicInitialized() {
         if (mouseWheelScrollingLogic == null) {
             mouseWheelScrollingLogic =
                 MouseWheelScrollingLogic(
@@ -418,7 +425,20 @@ internal class ScrollableNode(
                 )
         }
 
-        mouseWheelScrollingLogic?.startReceivingMouseWheelEvents(coroutineScope)
+        mouseWheelScrollingLogic?.startReceivingEvents(coroutineScope)
+    }
+
+    private fun ensureTrackpadScrollingLogicInitialized() {
+        if (trackpadScrollingLogic == null) {
+            trackpadScrollingLogic =
+                TrackpadScrollingLogic(
+                    scrollingLogic = scrollingLogic,
+                    onScrollStopped = ::onTrackpadScrollStopped,
+                    density = requireDensity(),
+                )
+        }
+
+        trackpadScrollingLogic?.startReceivingEvents(coroutineScope)
     }
 
     fun update(
@@ -472,6 +492,7 @@ internal class ScrollableNode(
     override fun onAttach() {
         updateDefaultFlingBehavior()
         mouseWheelScrollingLogic?.updateDensity(requireDensity())
+        trackpadScrollingLogic?.updateDensity(requireDensity())
     }
 
     private fun updateDefaultFlingBehavior() {
@@ -484,6 +505,7 @@ internal class ScrollableNode(
         onCancelPointerInput()
         updateDefaultFlingBehavior()
         mouseWheelScrollingLogic?.updateDensity(requireDensity())
+        trackpadScrollingLogic?.updateDensity(requireDensity())
     }
 
     // Key handler for Page up/down scrolling behavior.
@@ -552,14 +574,20 @@ internal class ScrollableNode(
         }
         initializeGestureCoordination()
         if (enabled) {
-            if (
-                pass == PointerEventPass.Initial &&
-                    (pointerEvent.type == PointerEventType.Scroll ||
-                        pointerEvent.type == PointerEventType.Pan)
-            ) {
-                ensureMouseWheelScrollNodeInitialized()
+            if (pass == PointerEventPass.Initial && pointerEvent.type == PointerEventType.Scroll) {
+                ensureMouseWheelScrollingLogicInitialized()
             }
             mouseWheelScrollingLogic?.onPointerEvent(pointerEvent, pass, bounds)
+
+            if (
+                pass == PointerEventPass.Initial &&
+                    (pointerEvent.type == PointerEventType.PanStart ||
+                        pointerEvent.type == PointerEventType.PanMove ||
+                        pointerEvent.type == PointerEventType.PanEnd)
+            ) {
+                ensureTrackpadScrollingLogicInitialized()
+            }
+            trackpadScrollingLogic?.onPointerEvent(pointerEvent, pass, bounds)
         }
     }
 
@@ -598,7 +626,7 @@ object ScrollableDefaults {
      * Returns a remembered [OverscrollEffect] created from the current value of
      * [LocalOverscrollFactory].
      *
-     * This API has been deprpecated, and replaced with [rememberOverscrollEffect]
+     * This API has been deprecated, and replaced with [rememberOverscrollEffect]
      */
     @Deprecated(
         "This API has been replaced with rememberOverscrollEffect, which queries theme provided OverscrollFactory values instead of the 'platform default' without customization.",
@@ -1020,7 +1048,7 @@ private val FlingBehavior.shouldBeTriggeredByMouseWheel
  * This method returns [ScrollableDefaultFlingBehavior] whose density will be managed by the
  * [ScrollableElement] because it's not created inside [Composable] context. This is different from
  * [rememberPlatformDefaultFlingBehavior] which creates [FlingBehavior] whose density depends on
- * [LocalDensity] and is automatically resolved.
+ * [androidx.compose.ui.platform.LocalDensity] and is automatically resolved.
  */
 internal expect fun platformScrollableDefaultFlingBehavior(): ScrollableDefaultFlingBehavior
 

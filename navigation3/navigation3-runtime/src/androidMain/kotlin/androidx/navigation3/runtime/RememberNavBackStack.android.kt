@@ -46,7 +46,7 @@ import androidx.savedstate.serialization.SavedStateConfiguration
  * - For **open polymorphism** (interfaces or non-sealed hierarchies):
  *     - On Android, the reflection path can handle subtypes without manual registration.
  *     - On non-Android, this overload is **unsupported**; use the configuration overload and
- *       register all subtypes of [NavKey] in a [SerializersModule].
+ *       register all subtypes of [NavKey] in a [kotlinx.serialization.modules.SerializersModule].
  *
  * @sample androidx.navigation3.runtime.samples.rememberNavBackStack_withReflection
  * @param elements The initial keys of this back stack.

@@ -225,6 +225,30 @@ internal class SkikoInputDispatcher(
         }
     }
 
+    override fun CursorInputState.enqueueTrackpadPanStart() {
+        TODO("Not yet implemented - CMP-9905")
+    }
+
+    override fun CursorInputState.enqueueTrackpadPanMove(delta: Offset) {
+        TODO("Not yet implemented - CMP-9905")
+    }
+
+    override fun CursorInputState.enqueueTrackpadPanEnd() {
+        TODO("Not yet implemented - CMP-9905")
+    }
+
+    override fun CursorInputState.enqueueTrackpadScaleStart() {
+        TODO("Not yet implemented - CMP-9905")
+    }
+
+    override fun CursorInputState.enqueueTrackpadScaleChange(delta: Float) {
+        TODO("Not yet implemented - CMP-9905")
+    }
+
+    override fun CursorInputState.enqueueTrackpadScaleEnd() {
+        TODO("Not yet implemented - CMP-9905")
+    }
+
     override fun CursorInputState.enqueueTrackpadPress(buttonId: Int) {
         // Except for special gestures, trackpad input works exactly the same as mouse input.
         this.enqueueMousePress(buttonId)
@@ -253,34 +277,6 @@ internal class SkikoInputDispatcher(
     override fun CursorInputState.enqueueTrackpadCancel() {
         // Except for special gestures, trackpad input works exactly the same as mouse input.
         this.enqueueMouseCancel()
-    }
-
-    override fun CursorInputState.enqueueTrackpadScroll(offset: Offset) {
-        val position = lastPosition
-        val timeMillis = currentTime
-        enqueue(timeMillis) {
-            root.sendPointerEvent(
-                PointerEventType.Pan,
-                position = position,
-                type = PointerType.Mouse,
-                timeMillis = timeMillis,
-                panGestureOffset = offset
-            )
-        }
-    }
-
-    override fun CursorInputState.enqueueTrackpadPinch(scaleFactor: Float) {
-        val position = lastPosition
-        val timeMillis = currentTime
-        enqueue(timeMillis) {
-            root.sendPointerEvent(
-                PointerEventType.Scale,
-                position = position,
-                type = PointerType.Mouse,
-                timeMillis = timeMillis,
-                scaleGestureFactor = scaleFactor
-            )
-        }
     }
 
     override fun KeyInputState.enqueueDown(key: Key) {

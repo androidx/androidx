@@ -22,12 +22,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.ReusableContent
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.MultiMeasureLayout
+import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -43,18 +46,7 @@ import org.junit.runner.RunWith
 class CompositeKeyHashTest {
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
-    @Test
-    fun nonZeroCompositeKeyHash() {
-        // Arrange.
-        val node = object : Modifier.Node() {}
-        rule.setContent { Box(Modifier.elementOf(node)) }
-
-        // Act.
-        val compositeKeyHash = rule.runOnIdle { node.requireLayoutNode().compositeKeyHash }
-
-        // Assert.
-        assertThat(compositeKeyHash).isNotEqualTo(0)
-    }
+    @Test fun nonZeroCompositeKeyHash() = compositeKeyHashTest { Box(modifier = it) }
 
     @Test
     fun parentAndChildLayoutNodesHaveDifferentCompositeKeyHashes() {
@@ -190,163 +182,114 @@ class CompositeKeyHashTest {
 
     @Test
     fun text() {
-        // Arrange.
-        val node = object : Modifier.Node() {}
-        rule.setContent { BasicText(text = "text", modifier = Modifier.elementOf(node)) }
-
-        // Act.
-        val compositeKeyHash = rule.runOnIdle { node.requireLayoutNode().compositeKeyHash }
-
-        // Assert.
-        assertThat(compositeKeyHash).isNotEqualTo(0)
+        compositeKeyHashTest { BasicText(text = "text", modifier = it) }
     }
 
     @Test
     fun androidView() {
         // Arrange.
-        val node = object : Modifier.Node() {}
-        rule.setContent {
-            AndroidView(factory = { TextView(it) }, modifier = Modifier.elementOf(node))
-        }
-
-        // Act.
-        val compositeKeyHash = rule.runOnIdle { node.requireLayoutNode().compositeKeyHash }
-
-        // Assert.
-        assertThat(compositeKeyHash).isNotEqualTo(0)
+        compositeKeyHashTest { AndroidView(factory = { TextView(it) }, modifier = it) }
     }
 
     @Test
     fun androidView_noOnReset() {
         // Arrange.
-        val node = object : Modifier.Node() {}
-        rule.setContent {
-            AndroidView(
-                factory = { TextView(it) },
-                modifier = Modifier.elementOf(node),
-                onReset = null,
-            )
+        compositeKeyHashTest {
+            AndroidView(factory = { TextView(it) }, modifier = it, onReset = null)
         }
-
-        // Act.
-        val compositeKeyHash = rule.runOnIdle { node.requireLayoutNode().compositeKeyHash }
-
-        // Assert.
-        assertThat(compositeKeyHash).isNotEqualTo(0)
     }
 
     @Test
     fun androidView_withOnReset() {
         // Arrange.
-        val node = object : Modifier.Node() {}
-        rule.setContent {
-            AndroidView(
-                factory = { TextView(it) },
-                modifier = Modifier.elementOf(node),
-                onReset = {},
-            )
+        compositeKeyHashTest {
+            AndroidView(factory = { TextView(it) }, modifier = it, onReset = {})
         }
-
-        // Act.
-        val compositeKeyHash = rule.runOnIdle { node.requireLayoutNode().compositeKeyHash }
-
-        // Assert.
-        assertThat(compositeKeyHash).isNotEqualTo(0)
     }
 
     @Test
     fun Layout1() {
-        // Arrange.
-        var compositeKeyHash = 0
-        rule.setContent { Layout1 { compositeKeyHash = it } }
-
-        // Assert.
-        assertThat(compositeKeyHash).isNotEqualTo(0)
+        compositeKeyHashTest {
+            Layout(
+                measurePolicy = { measurables, constraints ->
+                    measurables.forEach { it.measure(constraints) }
+                    layout(0, 0) {}
+                },
+                modifier = it,
+            )
+        }
     }
 
     @Test
     fun Layout2() { // Add other overloads of Layout here.
-        // Arrange.
-        var compositeKeyHash = 0
-        rule.setContent { Layout2 { compositeKeyHash = it } }
-
-        // Assert.
-        assertThat(compositeKeyHash).isNotEqualTo(0)
+        compositeKeyHashTest {
+            Layout(
+                contents = listOf({}, {}),
+                measurePolicy = { measurables, constraints ->
+                    measurables.forEach {
+                        it.forEach { measurable -> measurable.measure(constraints) }
+                    }
+                    layout(0, 0) {}
+                },
+                modifier = it,
+            )
+        }
     }
 
     @Test
     fun Layout3() { // Add other overloads of Layout here.
-        // Arrange.
-        var compositeKeyHash = 0
-        rule.setContent { Layout3 { compositeKeyHash = it } }
-
-        // Assert.
-        assertThat(compositeKeyHash).isNotEqualTo(0)
+        compositeKeyHashTest {
+            Layout(
+                content = {},
+                measurePolicy = { measurables, constraints ->
+                    measurables.forEach { it.measure(constraints) }
+                    layout(0, 0) {}
+                },
+                modifier = it,
+            )
+        }
     }
 
     @Test
     fun Layout4() { // Add other overloads of Layout here.
-        // Arrange.
+        compositeKeyHashTest {
+            @Suppress("DEPRECATION")
+            MultiMeasureLayout(
+                content = {},
+                measurePolicy = { measurables, constraints ->
+                    measurables.forEach { it.measure(constraints) }
+                    layout(0, 0) {}
+                },
+                modifier = it,
+            )
+        }
+    }
+
+    @Test
+    fun SubcomposeLayout_Content() {
+        compositeKeyHashTest { SubcomposeLayout(modifier = it) { _ -> layout(0, 0) {} } }
+    }
+
+    fun compositeKeyHashTest(content: @Composable (Modifier) -> Unit) {
+        val node = object : Modifier.Node() {}
+        var key by mutableStateOf(false)
+        var modifier by mutableStateOf(Modifier.elementOf(node))
+        rule.setContent { ReusableContent(key) { content(modifier) } }
         var compositeKeyHash = 0
-        rule.setContent { Layout4 { compositeKeyHash = it } }
+        rule.runOnIdle {
+            compositeKeyHash = node.requireLayoutNode().compositeKeyHash
+            assertThat(compositeKeyHash).isNotEqualTo(0)
+        }
 
-        // Assert.
-        assertThat(compositeKeyHash).isNotEqualTo(0)
-    }
+        // detach modifier in case the layout node is recreated on reuse (e.g. AndroidView)
+        modifier = Modifier
+        rule.waitForIdle()
 
-    @Composable
-    private fun Layout1(onSetCompositionKeyHash: (Int) -> Unit) {
-        val node = remember { object : Modifier.Node() {} }
-        Layout(
-            measurePolicy = { measurables, constraints ->
-                measurables.forEach { it.measure(constraints) }
-                layout(0, 0) {}
-            },
-            modifier = Modifier.elementOf(node),
-        )
-        SideEffect { onSetCompositionKeyHash(node.requireLayoutNode().compositeKeyHash) }
-    }
-
-    @Composable
-    private fun Layout2(onSetCompositionKeyHash: (Int) -> Unit) {
-        val node = remember { object : Modifier.Node() {} }
-        Layout(
-            contents = listOf({}, {}),
-            measurePolicy = { measurables, constraints ->
-                measurables.forEach { it.forEach { measurable -> measurable.measure(constraints) } }
-                layout(0, 0) {}
-            },
-            modifier = Modifier.elementOf(node),
-        )
-        SideEffect { onSetCompositionKeyHash.invoke(node.requireLayoutNode().compositeKeyHash) }
-    }
-
-    @Composable
-    private fun Layout3(onSetCompositionKeyHash: (Int) -> Unit) {
-        val node = remember { object : Modifier.Node() {} }
-        Layout(
-            content = {},
-            measurePolicy = { measurables, constraints ->
-                measurables.forEach { it.measure(constraints) }
-                layout(0, 0) {}
-            },
-            modifier = Modifier.elementOf(node),
-        )
-        SideEffect { onSetCompositionKeyHash.invoke(node.requireLayoutNode().compositeKeyHash) }
-    }
-
-    @Composable
-    private fun Layout4(onSetCompositionKeyHash: (Int) -> Unit) {
-        val node = remember { object : Modifier.Node() {} }
-        @Suppress("DEPRECATION")
-        MultiMeasureLayout(
-            content = {},
-            measurePolicy = { measurables, constraints ->
-                measurables.forEach { it.measure(constraints) }
-                layout(0, 0) {}
-            },
-            modifier = Modifier.elementOf(node),
-        )
-        SideEffect { onSetCompositionKeyHash.invoke(node.requireLayoutNode().compositeKeyHash) }
+        key = !key
+        modifier = Modifier.elementOf(node)
+        rule.runOnIdle {
+            val newCompositeKeyHash = node.requireLayoutNode().compositeKeyHash
+            assertThat(newCompositeKeyHash).isNotEqualTo(compositeKeyHash)
+        }
     }
 }

@@ -59,7 +59,7 @@ data class DataPoint(
         change.uptimeMillis,
         change.position,
         change.scrollDelta,
-        change.panGestureOffset,
+        change.panOffset,
         change.pressed,
         change.type,
         event.type,

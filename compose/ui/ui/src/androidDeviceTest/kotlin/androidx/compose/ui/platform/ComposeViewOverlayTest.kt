@@ -16,14 +16,18 @@
 
 package androidx.compose.ui.platform
 
+import android.content.Context
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewParent
 import android.widget.FrameLayout
 import android.widget.LinearLayout
-import androidx.activity.ComponentActivity
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.Text
 import androidx.compose.runtime.Recomposer
@@ -33,7 +37,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.InternalComposeUiApi
+import androidx.compose.ui.Modifier
 import androidx.core.view.ViewCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.test.ext.junit.rules.activityScenarioRule
@@ -41,7 +48,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.transition.Fade
 import androidx.transition.Scene
+import androidx.transition.Transition
+import androidx.transition.TransitionListenerAdapter
 import androidx.transition.TransitionManager
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -58,7 +69,7 @@ class ComposeViewOverlayTest {
      * Note: this test does not use the compose rule to ensure default behavior of window-scoped
      * Recomposer installation.
      */
-    @get:Rule val rule = activityScenarioRule<ComponentActivity>()
+    @get:Rule val rule = activityScenarioRule<FragmentActivity>()
 
     /**
      * Moving a ComposeView to an [android.view.ViewOverlay] means it won't have a correct parent
@@ -186,6 +197,64 @@ class ComposeViewOverlayTest {
                 composeView.assertInOverlay()
             }
         }
+    }
+
+    /**
+     * Fragments can add a ComposeView to the overlay during transitions before
+     * setParentOrViewTreeDisjointParent() is called. This ensures the transition doesn't cause
+     * ComposeView to throw an exception when it is added.
+     */
+    @LargeTest
+    @Test
+    fun testFragmentTransition() {
+        val fade = Fade()
+        val latch = CountDownLatch(1)
+        fade.addListener(
+            object : TransitionListenerAdapter() {
+                override fun onTransitionEnd(transition: Transition) {
+                    super.onTransitionEnd(transition)
+                    latch.countDown()
+                }
+            }
+        )
+        fade.duration = 10L
+        rule.scenario.onActivity { activity ->
+            activity.setContentView(FrameLayout(activity))
+            val fragment = SimpleComposeFragment(fade)
+            activity.supportFragmentManager
+                .beginTransaction()
+                .add(android.R.id.content, fragment)
+                .addToBackStack("Test")
+                .commit()
+            activity.supportFragmentManager.executePendingTransactions()
+        }
+
+        rule.scenario.onActivity { activity -> activity.supportFragmentManager.popBackStack() }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        rule.scenario.onActivity { activity ->
+            assertTrue(activity.supportFragmentManager.fragments.isEmpty())
+        }
+    }
+
+    class SimpleComposeFragment(val transition: Transition) : Fragment() {
+        override fun onAttach(context: Context) {
+            super.onAttach(context)
+
+            enterTransition = transition
+            exitTransition = transition
+            reenterTransition = transition
+            returnTransition = transition
+        }
+
+        override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?,
+        ) =
+            ComposeView(requireContext()).apply {
+                setContent { Box(Modifier.fillMaxSize()) }
+                compositionContext = container?.findViewTreeCompositionContext()
+            }
     }
 
     private fun View.assertInOverlay() {

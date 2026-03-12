@@ -140,7 +140,7 @@ fun SubcomposeLayout(
             set(localMap, SetResolvedCompositionLocals)
             reconcile(ApplyOnDeactivatedNodeAssertion)
             set(materialized, SetModifier)
-            init(compositeKeyHash, SetCompositeKeyHash)
+            set(compositeKeyHash, SetCompositeKeyHash)
         },
     )
     if (!currentComposer.skipping) {

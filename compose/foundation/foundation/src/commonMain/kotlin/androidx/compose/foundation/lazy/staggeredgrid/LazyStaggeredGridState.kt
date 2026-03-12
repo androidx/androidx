@@ -55,6 +55,7 @@ import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.layout.Remeasurement
 import androidx.compose.ui.layout.RemeasurementModifier
 import androidx.compose.ui.unit.Constraints
@@ -578,6 +579,22 @@ internal constructor(
         if (!isLookingAhead && hasLookaheadOccurred) {
             // If there was already a lookahead pass, record this result as Approach result
             approachLayoutInfo = result
+            Snapshot.withoutReadObservation {
+                // Check whether backscroll animation (from _lazyLayoutScrollDeltaBetweenPasses) is
+                // necessary. This animation handles cases where lookahead and approach passes
+                // have different maximum scroll bounds due to measurement differences (e.g.,
+                // when scrolling past the last item). If both passes already have the same
+                // scroll position, the animation is unnecessary and can be stopped.
+                if (
+                    _lazyLayoutScrollDeltaBetweenPasses.isActive &&
+                        result.firstVisibleItemIndices.contentEquals(scrollPosition.indices) &&
+                        result.firstVisibleItemScrollOffsets.contentEquals(
+                            scrollPosition.scrollOffsets
+                        )
+                ) {
+                    _lazyLayoutScrollDeltaBetweenPasses.stop()
+                }
+            }
         } else {
             if (isLookingAhead) {
                 hasLookaheadOccurred = true

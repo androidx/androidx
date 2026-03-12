@@ -75,7 +75,7 @@ package androidx.compose.ui.text {
     method public int pushTtsAnnotation(androidx.compose.ui.text.TtsAnnotation ttsAnnotation);
     method @Deprecated @SuppressCompatibility @androidx.compose.ui.text.ExperimentalTextApi public int pushUrlAnnotation(androidx.compose.ui.text.UrlAnnotation urlAnnotation);
     method public androidx.compose.ui.text.AnnotatedString toAnnotatedString();
-    method @KotlinOnly public <R> R withBulletList(optional androidx.compose.ui.unit.TextUnit indentation, optional androidx.compose.ui.text.Bullet bullet, kotlin.jvm.functions.Function1<androidx.compose.ui.text.AnnotatedString.Builder.AnnotatedString.BulletScope,R> block);
+    method @KotlinOnly public <R> R withBulletList(optional androidx.compose.ui.unit.TextUnit indentation, optional androidx.compose.ui.text.Bullet bullet, kotlin.jvm.functions.Function1<androidx.compose.ui.text.AnnotatedString.Builder.BulletScope,R> block);
     method @BytecodeOnly public <R> R withBulletList-o2QH7mI(long, androidx.compose.ui.text.Bullet, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Builder.BulletScope!,? extends R>);
     method @BytecodeOnly public static Object! withBulletList-o2QH7mI$default(androidx.compose.ui.text.AnnotatedString.Builder!, long, androidx.compose.ui.text.Bullet!, kotlin.jvm.functions.Function1!, int, Object!);
     method public <R> R withBulletListItem(androidx.compose.ui.text.AnnotatedString.Builder.BulletScope, optional androidx.compose.ui.text.Bullet? bullet, kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Builder,? extends R> block);
@@ -420,7 +420,6 @@ package androidx.compose.ui.text {
   }
 
   @androidx.compose.runtime.Immutable public final class ParagraphStyle implements androidx.compose.ui.text.AnnotatedString.Annotation {
-    ctor public ParagraphStyle();
     ctor @KotlinOnly public ParagraphStyle(optional androidx.compose.ui.text.style.TextAlign textAlign, optional androidx.compose.ui.text.style.TextDirection textDirection, optional androidx.compose.ui.unit.TextUnit lineHeight, optional androidx.compose.ui.text.style.TextIndent? textIndent, optional androidx.compose.ui.text.PlatformParagraphStyle? platformStyle, optional androidx.compose.ui.text.style.LineHeightStyle? lineHeightStyle, optional androidx.compose.ui.text.style.LineBreak lineBreak, optional androidx.compose.ui.text.style.Hyphens hyphens, optional androidx.compose.ui.text.style.TextMotion? textMotion);
     ctor @BytecodeOnly public ParagraphStyle(androidx.compose.ui.text.style.TextAlign!, androidx.compose.ui.text.style.TextDirection!, long, androidx.compose.ui.text.style.TextIndent!, androidx.compose.ui.text.PlatformParagraphStyle!, androidx.compose.ui.text.style.LineHeightStyle!, androidx.compose.ui.text.style.LineBreak!, androidx.compose.ui.text.style.Hyphens!, androidx.compose.ui.text.style.TextMotion!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly @Deprecated public ParagraphStyle(androidx.compose.ui.text.style.TextAlign!, androidx.compose.ui.text.style.TextDirection!, long, androidx.compose.ui.text.style.TextIndent!, androidx.compose.ui.text.PlatformParagraphStyle!, androidx.compose.ui.text.style.LineHeightStyle!, androidx.compose.ui.text.style.LineBreak!, androidx.compose.ui.text.style.Hyphens!, androidx.compose.ui.text.style.TextMotion!, kotlin.jvm.internal.DefaultConstructorMarker!);
@@ -804,7 +803,7 @@ package androidx.compose.ui.text {
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class TextRange {
     method @BytecodeOnly public static androidx.compose.ui.text.TextRange! box-impl(long);
     method @KotlinOnly public operator boolean contains(androidx.compose.ui.text.TextRange other);
-    method public operator boolean contains(int offset);
+    method @KotlinOnly public operator boolean contains(int offset);
     method @BytecodeOnly public static boolean contains-5zc-tL8(long, long);
     method @BytecodeOnly public static boolean contains-impl(long, int);
     method @BytecodeOnly public static boolean getCollapsed-impl(long);
@@ -1137,20 +1136,20 @@ package androidx.compose.ui.text.font {
     method @BytecodeOnly public void addFirst(androidx.compose.ui.text.font.Font!);
     method @BytecodeOnly public void addLast(androidx.compose.ui.text.font.Font!);
     method @BytecodeOnly public void clear();
-    method @BytecodeOnly public boolean contains(androidx.compose.ui.text.font.Font);
+    method public operator boolean contains(androidx.compose.ui.text.font.Font element);
     method @BytecodeOnly public boolean contains(Object!);
-    method @BytecodeOnly public boolean containsAll(java.util.Collection<? extends java.lang.Object!>);
-    method @BytecodeOnly public androidx.compose.ui.text.font.Font get(int);
+    method public boolean containsAll(java.util.Collection<androidx.compose.ui.text.font.Font> elements);
+    method public operator androidx.compose.ui.text.font.Font get(int index);
     method @InaccessibleFromKotlin public java.util.List<androidx.compose.ui.text.font.Font> getFonts();
-    method @BytecodeOnly public int getSize();
-    method @BytecodeOnly public int indexOf(androidx.compose.ui.text.font.Font);
+    method public int getSize();
+    method public int indexOf(androidx.compose.ui.text.font.Font element);
     method @BytecodeOnly public int indexOf(Object!);
-    method @BytecodeOnly public boolean isEmpty();
-    method @BytecodeOnly public java.util.Iterator<androidx.compose.ui.text.font.Font!> iterator();
-    method @BytecodeOnly public int lastIndexOf(androidx.compose.ui.text.font.Font);
+    method public boolean isEmpty();
+    method public operator java.util.Iterator<androidx.compose.ui.text.font.Font> iterator();
+    method public int lastIndexOf(androidx.compose.ui.text.font.Font element);
     method @BytecodeOnly public int lastIndexOf(Object!);
-    method @BytecodeOnly public java.util.ListIterator<androidx.compose.ui.text.font.Font!> listIterator();
-    method @BytecodeOnly public java.util.ListIterator<androidx.compose.ui.text.font.Font!> listIterator(int);
+    method public java.util.ListIterator<androidx.compose.ui.text.font.Font> listIterator();
+    method public java.util.ListIterator<androidx.compose.ui.text.font.Font> listIterator(int index);
     method @BytecodeOnly public androidx.compose.ui.text.font.Font! remove(int);
     method @BytecodeOnly public boolean remove(Object!);
     method @BytecodeOnly public boolean removeAll(java.util.Collection<? extends java.lang.Object!>!);
@@ -1161,10 +1160,11 @@ package androidx.compose.ui.text.font {
     method @BytecodeOnly public androidx.compose.ui.text.font.Font! set(int, androidx.compose.ui.text.font.Font!);
     method @BytecodeOnly public int size();
     method @BytecodeOnly public void sort(java.util.Comparator<? super androidx.compose.ui.text.font.Font!>!);
-    method @BytecodeOnly public java.util.List<androidx.compose.ui.text.font.Font!> subList(int, int);
+    method public java.util.List<androidx.compose.ui.text.font.Font> subList(int fromIndex, int toIndex);
     method @BytecodeOnly public Object![]! toArray();
     method @BytecodeOnly public <T> T[]! toArray(T[]!);
     property public java.util.List<androidx.compose.ui.text.font.Font> fonts;
+    property public int size;
   }
 
   @kotlin.jvm.JvmInline public final value class FontLoadingStrategy {
@@ -1432,7 +1432,6 @@ package androidx.compose.ui.text.input {
   }
 
   @androidx.compose.runtime.Immutable public final class ImeOptions {
-    ctor public ImeOptions();
     ctor @KotlinOnly public ImeOptions(optional boolean singleLine, optional androidx.compose.ui.text.input.KeyboardCapitalization capitalization, optional boolean autoCorrect, optional androidx.compose.ui.text.input.KeyboardType keyboardType, optional androidx.compose.ui.text.input.ImeAction imeAction, optional androidx.compose.ui.text.input.PlatformImeOptions? platformImeOptions, optional androidx.compose.ui.text.intl.LocaleList hintLocales);
     ctor @BytecodeOnly public ImeOptions(boolean, int, boolean, int, int, androidx.compose.ui.text.input.PlatformImeOptions!, androidx.compose.ui.text.intl.LocaleList!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public ImeOptions(boolean, int, boolean, int, int, androidx.compose.ui.text.input.PlatformImeOptions!, androidx.compose.ui.text.intl.LocaleList!, kotlin.jvm.internal.DefaultConstructorMarker!);
@@ -1706,7 +1705,7 @@ package androidx.compose.ui.text.intl {
     method @BytecodeOnly public void clear();
     method public operator boolean contains(androidx.compose.ui.text.intl.Locale element);
     method @BytecodeOnly public boolean contains(Object!);
-    method public boolean containsAll(java.util.Collection<? extends androidx.compose.ui.text.intl.Locale> elements);
+    method public boolean containsAll(java.util.Collection<androidx.compose.ui.text.intl.Locale> elements);
     method public operator androidx.compose.ui.text.intl.Locale get(int i);
     method @InaccessibleFromKotlin public java.util.List<androidx.compose.ui.text.intl.Locale> getLocaleList();
     method @InaccessibleFromKotlin public int getSize();
@@ -2082,7 +2081,6 @@ package androidx.compose.ui.text.style {
   }
 
   @androidx.compose.runtime.Immutable public final class TextIndent {
-    ctor public TextIndent();
     ctor @KotlinOnly public TextIndent(optional androidx.compose.ui.unit.TextUnit firstLine, optional androidx.compose.ui.unit.TextUnit restLine);
     ctor @BytecodeOnly public TextIndent(long, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public TextIndent(long, long, kotlin.jvm.internal.DefaultConstructorMarker!);

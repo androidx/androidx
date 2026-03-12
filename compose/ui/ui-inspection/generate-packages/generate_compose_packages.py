@@ -36,6 +36,7 @@ TARGET_DIRECTORIES = map(
         'wear/compose',
         'lifecycle/lifecycle-runtime-compose',
         'xr/compose',
+        'xr/glimmer',
         'navigation3',
     ]
 )

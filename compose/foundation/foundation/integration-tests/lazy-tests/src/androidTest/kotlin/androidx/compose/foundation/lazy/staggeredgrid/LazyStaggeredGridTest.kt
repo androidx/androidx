@@ -19,6 +19,7 @@
 package androidx.compose.foundation.lazy.staggeredgrid
 
 import androidx.compose.foundation.AutoTestFrameClock
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollBy
@@ -26,12 +27,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.list.assertIsNotPlaced
 import androidx.compose.foundation.lazy.list.assertIsPlaced
 import androidx.compose.foundation.lazy.list.setContentWithTestViewConfiguration
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -42,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LookaheadScope
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
@@ -54,6 +58,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeRight
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpSize
@@ -63,6 +68,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -2151,5 +2157,77 @@ class LazyStaggeredGridTest(
         rule.onNodeWithTag("0").assertCrossAxisStartPositionInRootIsEqualTo(0.dp)
         rule.onNodeWithTag("1").assertCrossAxisStartPositionInRootIsEqualTo(itemSizeDp)
         rule.onNodeWithTag("2").assertCrossAxisStartPositionInRootIsEqualTo(itemSizeDp * 2)
+    }
+
+    @Test
+    fun triggerBackScrollAndVerifyNoScrollDeltaBetweenTwoPasses() {
+        state = LazyStaggeredGridState()
+        rule.setContent {
+            val list = (0..20).toList()
+            LookaheadScope {
+                CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                    LazyStaggeredGrid(
+                        lanes = 1,
+                        state = state,
+                        modifier = Modifier.mainAxisSize(500.dp),
+                    ) {
+                        items(list) {
+                            val color = if (it % 2 == 0) Color.Red else Color.Blue
+                            Box(
+                                modifier =
+                                    Modifier.padding(vertical = 6.dp)
+                                        .mainAxisSize(100.dp)
+                                        .crossAxisSize(100.dp)
+                                        .background(color = color)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+        state.scrollTo(20)
+        repeat(5) {
+            rule.mainClock.advanceTimeByFrame()
+            assertEquals(0f, state.scrollDeltaBetweenPasses)
+            rule.waitForIdle()
+        }
+    }
+
+    @Test
+    fun triggerBackScrollAndVerifyNoScrollDeltaBetweenTwoPassesMultiLane() {
+        state = LazyStaggeredGridState()
+        rule.setContent {
+            val list = (0..20).toList()
+            LookaheadScope {
+                CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                    LazyStaggeredGrid(
+                        lanes = 2,
+                        state = state,
+                        modifier = Modifier.mainAxisSize(500.dp),
+                    ) {
+                        items(list) {
+                            val color = if (it % 2 == 0) Color.Red else Color.Blue
+                            Box(
+                                modifier =
+                                    Modifier.padding(vertical = 6.dp)
+                                        .mainAxisSize(100.dp)
+                                        .crossAxisSize(100.dp)
+                                        .background(color = color)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+        state.scrollTo(20)
+        repeat(5) {
+            rule.mainClock.advanceTimeByFrame()
+            assertEquals(0f, state.scrollDeltaBetweenPasses)
+            rule.waitForIdle()
+        }
     }
 }

@@ -20,7 +20,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("com.android.experimental.built-in-kotlin")
+    id("org.jetbrains.kotlin.android")
     id("androidx.benchmark")
 }
 

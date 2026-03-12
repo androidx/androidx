@@ -23,7 +23,12 @@ import androidx.savedstate.benchmark.utils.CharArrayData
 import androidx.savedstate.benchmark.utils.DoubleArrayData
 import androidx.savedstate.benchmark.utils.FloatArrayData
 import androidx.savedstate.benchmark.utils.IntArrayData
+import androidx.savedstate.benchmark.utils.ListBooleanData
+import androidx.savedstate.benchmark.utils.ListCharData
+import androidx.savedstate.benchmark.utils.ListDoubleData
+import androidx.savedstate.benchmark.utils.ListFloatData
 import androidx.savedstate.benchmark.utils.ListIntData
+import androidx.savedstate.benchmark.utils.ListLongData
 import androidx.savedstate.benchmark.utils.ListStringData
 import androidx.savedstate.benchmark.utils.LongArrayData
 import androidx.savedstate.benchmark.utils.StringArrayData
@@ -55,6 +60,51 @@ class SavedStateSerializableCollectionsDecodeBenchmark {
         val encodedData = encodeToSavedState(data, savedStateConfiguration)
         benchmarkRule.measureRepeated {
             decodeFromSavedState<ListStringData>(encodedData, savedStateConfiguration)
+        }
+    }
+
+    @Test
+    fun testDecodeListBooleanData() {
+        val data = ListBooleanData(List(sampleSize) { it % 2 == 0 })
+        val encodedData = encodeToSavedState(data, savedStateConfiguration)
+        benchmarkRule.measureRepeated {
+            decodeFromSavedState<ListBooleanData>(encodedData, savedStateConfiguration)
+        }
+    }
+
+    @Test
+    fun testDecodeListLongData() {
+        val data = ListLongData(List(sampleSize) { it.toLong() })
+        val encodedData = encodeToSavedState(data, savedStateConfiguration)
+        benchmarkRule.measureRepeated {
+            decodeFromSavedState<ListLongData>(encodedData, savedStateConfiguration)
+        }
+    }
+
+    @Test
+    fun testDecodeListFloatData() {
+        val data = ListFloatData(List(sampleSize) { it.toFloat() })
+        val encodedData = encodeToSavedState(data, savedStateConfiguration)
+        benchmarkRule.measureRepeated {
+            decodeFromSavedState<ListFloatData>(encodedData, savedStateConfiguration)
+        }
+    }
+
+    @Test
+    fun testDecodeListDoubleData() {
+        val data = ListDoubleData(List(sampleSize) { it.toDouble() })
+        val encodedData = encodeToSavedState(data, savedStateConfiguration)
+        benchmarkRule.measureRepeated {
+            decodeFromSavedState<ListDoubleData>(encodedData, savedStateConfiguration)
+        }
+    }
+
+    @Test
+    fun testDecodeListCharData() {
+        val data = ListCharData(List(sampleSize) { (it % 26 + 'a'.code).toChar() })
+        val encodedData = encodeToSavedState(data, savedStateConfiguration)
+        benchmarkRule.measureRepeated {
+            decodeFromSavedState<ListCharData>(encodedData, savedStateConfiguration)
         }
     }
 

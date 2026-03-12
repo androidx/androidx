@@ -154,9 +154,9 @@ fun <A : ComponentActivity> AndroidComposeUiTestEnvironmentNoSuspendingLambda(
  * lambda as well depends on the platform.
  *
  * Keeping a reference to the [ComposeUiTest] outside of this function is an error. Also avoid using
- * [ComposeTestRule] (e.g., createComposeRule) inside [runComposeUiTest][block] or any of their
- * respective variants. Since these APIs independently manage the test environment, mixing them may
- * lead to unexpected behavior.
+ * [androidx.compose.ui.test.junit4.ComposeTestRule] (e.g., createComposeRule) inside
+ * [runComposeUiTest][block] or any of their respective variants. Since these APIs independently
+ * manage the test environment, mixing them may lead to unexpected behavior.
  *
  * @sample androidx.compose.ui.test.samples.RunComposeUiTestSample
  * @param effectContext The [CoroutineContext] used to run the composition. The context for
@@ -201,9 +201,9 @@ actual fun runComposeUiTest(
  * launch, you cannot use [setContent][ComposeUiTest.setContent] on the ComposeUiTest anymore as
  * this would override the content and can lead to subtle bugs.
  *
- * Avoid using [ComposeTestRule] (e.g., createComposeRule) inside [runAndroidComposeUiTest][block]
- * or any of their respective variants. Since these APIs independently manage the test environment,
- * mixing them may lead to unexpected behavior.
+ * Avoid using [androidx.compose.ui.test.junit4.ComposeTestRule] (e.g., createComposeRule) inside
+ * [runAndroidComposeUiTest][block] or any of their respective variants. Since these APIs
+ * independently manage the test environment, mixing them may lead to unexpected behavior.
  *
  * @param A The Activity type to be launched, which typically (but not necessarily) hosts the
  *   Compose content
@@ -243,9 +243,9 @@ inline fun <reified A : ComponentActivity> runAndroidComposeUiTest(
  * launch, you cannot use [setContent][ComposeUiTest.setContent] on the ComposeUiTest anymore as
  * this would override the content and can lead to subtle bugs.
  *
- * Avoid using [ComposeTestRule] (e.g., createComposeRule) inside [runAndroidComposeUiTest][block]
- * or any of their respective variants. Since these APIs independently manage the test environment,
- * mixing them may lead to unexpected behavior.
+ * Avoid using [androidx.compose.ui.test.junit4.ComposeTestRule] (e.g., createComposeRule) inside
+ * [runAndroidComposeUiTest][block] or any of their respective variants. Since these APIs
+ * independently manage the test environment, mixing them may lead to unexpected behavior.
  *
  * @param A The Activity type to be launched, which typically (but not necessarily) hosts the
  *   Compose content
@@ -334,9 +334,9 @@ fun <A : ComponentActivity> runAndroidComposeUiTest(
  * need to do this from within the [test lambda][block], or the test framework will not be able to
  * find the content.
  *
- * Avoid using [ComposeTestRule] (e.g., createComposeRule) inside [runEmptyComposeUiTest][block] or
- * any of their respective variants. Since these APIs independently manage the test environment,
- * mixing them may lead to unexpected behavior.
+ * Avoid using [androidx.compose.ui.test.junit4.ComposeTestRule] (e.g., createComposeRule) inside
+ * [runEmptyComposeUiTest][block] or any of their respective variants. Since these APIs
+ * independently manage the test environment, mixing them may lead to unexpected behavior.
  */
 @Deprecated(
     message =

@@ -4,6 +4,9 @@ public abstract interface annotation class androidx/compose/ui/ExperimentalCompo
 public abstract interface annotation class androidx/compose/ui/ExperimentalIndirectPointerApi : java/lang/annotation/Annotation {
 }
 
+public abstract interface annotation class androidx/compose/ui/ExperimentalMediaQueryApi : java/lang/annotation/Annotation {
+}
+
 public abstract interface annotation class androidx/compose/ui/InternalComposeUiApi : java/lang/annotation/Annotation {
 }
 

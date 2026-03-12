@@ -88,7 +88,7 @@ inline fun Canvas.withSave(block: () -> Unit) {
  * See also:
  * * [Canvas.save], which saves the current state, but does not create a new layer for subsequent
  *   commands.
- * * [BlendMode], which discusses the use of [Paint.blendMode] with [saveLayer].
+ * * [BlendMode], which discusses the use of [Paint.blendMode] with [Canvas.saveLayer].
  */
 @Suppress("DEPRECATION")
 inline fun Canvas.withSaveLayer(bounds: Rect, paint: Paint, block: () -> Unit) {

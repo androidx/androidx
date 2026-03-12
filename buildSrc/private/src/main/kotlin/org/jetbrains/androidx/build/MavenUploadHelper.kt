@@ -152,6 +152,11 @@ private fun Project.configureComponentPublishing(
             }
         }
         publications.withType(MavenPublication::class.java).all { publication ->
+            if (artifactRedirection() != null && !JetBrainsPublication.isCompatibilityStubProject(project)) {
+                // Gradle cannot map variant capabilities into POM metadata, so redirected
+                // publications emit warning noise for their published component variants.
+                publication.suppressRedirectionPomMetadataWarnings()
+            }
             publication.pom { pom ->
                 addInformativeMetadata(extension, pom)
                 tweakDependenciesMetadata(
@@ -161,15 +166,18 @@ private fun Project.configureComponentPublishing(
         }
     }
 
-    // Workarounds for https://github.com/gradle/gradle/issues/20011
     project.tasks.withType(GenerateModuleMetadata::class.java).configureEach { task ->
+        val capabilitiesToRemove = publishedRedirectionCapabilities()
         task.doLast {
             val metadataFile = task.outputFile.asFile.get()
-            val metadata = metadataFile.readText()
-            val sortedMetadata = sortGradleMetadataDependencies(metadata)
+            val metadataString = metadataFile.readText()
+            val modifiedMetadataString = modifyGradleMetadata(metadataString) { metadata ->
+                filterGradleMetadataCapabilities(metadata, capabilitiesToRemove)
+                sortGradleMetadataDependencies(metadata)
+            }
 
-            if (metadata != sortedMetadata) {
-                metadataFile.writeText(sortedMetadata)
+            if (metadataString != modifiedMetadataString) {
+                metadataFile.writeText(modifiedMetadataString)
             }
         }
     }
@@ -320,19 +328,50 @@ private fun getEncoding(text: String): String? {
 }
 
 /**
+ * Workaround for https://github.com/gradle/gradle/issues/20011.
  * Looks for a dependencies JSON element within [metadata] and sorts its contents.
  */
-fun sortGradleMetadataDependencies(metadata: String): String {
-    val gson = GsonBuilder().create()
-    val jsonObj = gson.fromJson(metadata, JsonObject::class.java)!!
-    jsonObj.getAsJsonArray("variants").forEach { entry ->
+private fun sortGradleMetadataDependencies(metadata: JsonObject) {
+    metadata.getAsJsonArray("variants").forEach { entry ->
         (entry as? JsonObject)?.getAsJsonArray("dependencies")?.let { jsonArray ->
             val sortedSet = jsonArray.toSortedSet(compareBy { it.toString() })
             jsonArray.removeAll { true }
             sortedSet.forEach { element -> jsonArray.add(element) }
         }
     }
+}
 
+/**
+ * Removes only the capability declarations introduced by [Project.configureRedirectionCapability].
+ * These capabilities are needed for local resolution inside the current build, but they should not
+ * leak into published module metadata.
+ */
+private fun filterGradleMetadataCapabilities(
+    metadata: JsonObject,
+    capabilitiesToRemove: Set<String>,
+) {
+    if (capabilitiesToRemove.isEmpty()) return
+
+    metadata.getAsJsonArray("variants").forEach { entry ->
+        val variant = entry as? JsonObject ?: return@forEach
+        val capabilities = variant.getAsJsonArray("capabilities") ?: return@forEach
+        capabilities.removeAll { capabilityElement ->
+            val capability = capabilityElement as? JsonObject ?: return@removeAll false
+            capability.notation() in capabilitiesToRemove
+        }
+        if (capabilities.isEmpty) {
+            variant.remove("capabilities")
+        }
+    }
+}
+
+private fun modifyGradleMetadata(
+    metadata: String,
+    block: (JsonObject) -> Unit,
+): String {
+    val gson = GsonBuilder().create()
+    val jsonObj = gson.fromJson(metadata, JsonObject::class.java)!!
+    block(jsonObj)
     val stringWriter = StringWriter()
     val jsonWriter = JsonWriter(stringWriter)
     jsonWriter.setIndent("  ")
@@ -340,15 +379,20 @@ fun sortGradleMetadataDependencies(metadata: String): String {
     return stringWriter.toString()
 }
 
+private fun MavenPublication.suppressRedirectionPomMetadataWarnings() {
+    listOf("ApiElements", "RuntimeElements", "SourcesElements", "MetadataElements").forEach { suffix ->
+        suppressPomMetadataWarningsFor("${name}$suffix-published")
+    }
+}
+
+private fun JsonObject.notation(): String = "${get("group").asString}:${get("name").asString}:${get("version").asString}"
+
 private fun Project.isMultiplatformPublicationEnabled(): Boolean {
     return extensions.findByType<KotlinMultiplatformExtension>() != null
 }
 
-private val jetBrainsLibrariesWithAndroidTarget = setOf(
-    ":compose:ui:ui-backhandler",
-)
 private fun Project.configureMultiplatformPublication(componentFactory: SoftwareComponentFactory) {
-    if (project.path !in jetBrainsLibrariesWithAndroidTarget) return
+    if (!JetBrainsPublication.isJetBrainsProjectWithAndroidTarget(this)) return
     replaceBaseMultiplatformPublication(componentFactory)
 }
 

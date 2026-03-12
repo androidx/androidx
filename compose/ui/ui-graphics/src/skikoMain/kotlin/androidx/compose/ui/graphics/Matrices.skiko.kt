@@ -26,19 +26,38 @@ internal fun identityMatrix33() = Matrix33(
     0f, 0f, 1f
 )
 
-internal fun Matrix33.setFrom(matrix: Matrix) {
-    require(
-        matrix[0, 2] == 0f &&
-            matrix[1, 2] == 0f &&
-            matrix[2, 2] == 1f &&
-            matrix[3, 2] == 0f &&
-            matrix[2, 0] == 0f &&
-            matrix[2, 1] == 0f &&
-            matrix[2, 3] == 0f
-    ) {
-        "Matrix33 does not support arbitrary transforms"
-    }
+internal fun Matrix.setFrom(matrix: Matrix33) {
+    val v = values
+    val m = matrix.mat
+    val scaleX = m[0] // MSCALE_X
+    val skewX = m[1] // MSKEW_X
+    val translateX = m[2] // MTRANS_X
+    val skewY = m[3] // MSKEW_Y
+    val scaleY = m[4] // MSCALE_Y
+    val translateY = m[5] // MTRANS_Y
+    val persp0 = m[6] // MPERSP_0
+    val persp1 = m[7] // MPERSP_1
+    val persp2 = m[8] // MPERSP_2
 
+    v[Matrix.ScaleX] = scaleX // 0
+    v[Matrix.SkewY] = skewY // 1
+    v[2] = 0f // 2
+    v[Matrix.Perspective0] = persp0 // 3
+    v[Matrix.SkewX] = skewX // 4
+    v[Matrix.ScaleY] = scaleY // 5
+    v[6] = 0f // 6
+    v[Matrix.Perspective1] = persp1 // 7
+    v[8] = 0f // 8
+    v[9] = 0f // 9
+    v[Matrix.ScaleZ] = 1.0f // 10
+    v[11] = 0f // 11
+    v[Matrix.TranslateX] = translateX // 12
+    v[Matrix.TranslateY] = translateY // 13
+    v[14] = 0f // 14
+    v[Matrix.Perspective2] = persp2 // 15
+}
+
+internal fun Matrix33.setFrom(matrix: Matrix) {
     // We'll reuse the array used in Matrix to avoid allocation by temporarily
     // setting it to the 3x3 matrix used by android.graphics.Matrix
     // Store the values of the 4 x 4 matrix into temporary variables

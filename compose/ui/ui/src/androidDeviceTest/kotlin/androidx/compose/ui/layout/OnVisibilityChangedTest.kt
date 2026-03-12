@@ -28,9 +28,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -546,6 +548,36 @@ class OnVisibilityChangedTest(private val useDelegation: Boolean) {
             parentSize = 50.dp
         }
         rule.runOnIdle { assertEquals(0, called) }
+    }
+
+    @Test
+    fun visibilityTriggeredOnViewDetach() {
+        var called = 0
+        var present by mutableStateOf(true)
+        val callback: (Boolean) -> Unit = { visible: Boolean -> called++ }
+        val view =
+            ComposeView(rule.activity).apply {
+                setContent {
+                    Box(
+                        Modifier.requiredSize(100.dp)
+                            .onVisibilityChangedTestImpl(callback = callback)
+                    )
+                }
+            }
+        rule.setContent {
+            Column {
+                if (present) {
+                    AndroidView(factory = { view })
+                }
+            }
+        }
+        assertEquals(1, called)
+
+        present = false
+        rule.runOnIdle { assertEquals(2, called) }
+
+        present = true
+        rule.runOnIdle { assertEquals(3, called) }
     }
 
     fun Modifier.onVisibilityChangedTestImpl(

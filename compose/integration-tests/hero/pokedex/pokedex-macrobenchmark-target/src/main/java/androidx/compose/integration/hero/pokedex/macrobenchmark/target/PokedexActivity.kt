@@ -31,7 +31,7 @@ import com.skydoves.pokedex.compose.ui.PokedexMain
 import okhttp3.HttpUrl.Companion.toHttpUrl
 
 /**
- * Entry point for benchmarks against poxedex-compose.
+ * Entry point for benchmarks against pokedex-compose.
  *
  * See the manifest entry for the activity's registered name to use when launching benchmarks.
  */

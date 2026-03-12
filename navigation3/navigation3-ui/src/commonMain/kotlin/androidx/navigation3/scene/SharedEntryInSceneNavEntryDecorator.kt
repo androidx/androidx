@@ -34,8 +34,9 @@ internal fun <T : Any> rememberSharedEntryInSceneNavEntryDecorator(
     remember(sharedTransitionScope) { SharedEntryInSceneNavEntryDecorator(sharedTransitionScope) }
 
 /**
- * A [NavEntryDecorator] that wraps each entry in a [Modifier.sharedElement] to allow nav displays
- * to animate arbitrarily place entries in different places in the composable call hierarchy.
+ * A [NavEntryDecorator] that wraps each entry in a
+ * [androidx.compose.animation.SharedTransitionScope.sharedElement] to allow nav displays to animate
+ * arbitrarily place entries in different places in the composable call hierarchy.
  *
  * This should be wrapped around the [SceneSetupNavEntryDecorator].
  */

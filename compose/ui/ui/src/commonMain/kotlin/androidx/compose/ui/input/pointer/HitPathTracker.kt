@@ -538,8 +538,8 @@ internal class Node(val modifierNode: Modifier.Node) : NodeParent() {
                                             parentCoordinates,
                                             historicalPosition,
                                         ),
-                                    scaleGestureFactor = it.scaleGestureFactor,
-                                    panGestureOffset = it.panGestureOffset,
+                                    scaleFactor = it.scaleFactor,
+                                    panOffset = it.panOffset,
                                     originalEventPosition = it.originalEventPosition,
                                 )
                             )

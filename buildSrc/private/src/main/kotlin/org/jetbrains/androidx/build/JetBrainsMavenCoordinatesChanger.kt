@@ -16,7 +16,6 @@
 
 package org.jetbrains.androidx.build
 
-import androidx.build.AndroidXExtension
 import androidx.build.Version
 import org.gradle.api.Project
 
@@ -24,9 +23,8 @@ fun Project.changeMavenCoordinatesToJetBrains() {
     // we are interested in changing coordinates only for what we publish
     val component = JetBrainsPublication.projectPathToComponent[path] ?: return
     val versions = JetBrainsVersionsService.versions(project)
-    val androidxExtension = project.extensions.getByType(AndroidXExtension::class.java)
 
-    val group = JetBrainsPublication.mavenGroupFor(path, androidxExtension.mavenGroup?.group)
+    val group = JetBrainsPublication.mavenGroupFor(path)
     val version = Version(versions.versionOf(component.library()))
     this.group = group
     this.version = version

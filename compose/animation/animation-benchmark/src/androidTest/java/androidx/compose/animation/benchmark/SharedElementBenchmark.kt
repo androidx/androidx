@@ -314,7 +314,7 @@ private class SharedElementCallerManagedVisibilityTestCase(val modifierCount: In
             Box(
                 Modifier.offset(100.dp, 100.dp)
                     .size(200.dp)
-                    .sharedElements(this@SharedTransitionLayout, isExpanded, modifierCount)
+                    .sharedElements(this@SharedTransitionLayout, !isExpanded, modifierCount)
                     .background(Color.Red)
             )
         }

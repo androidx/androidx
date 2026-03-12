@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalIndirectPointerApi::class)
+
 package androidx.compose.foundation
 
 import android.os.SystemClock
@@ -27,7 +29,6 @@ import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.core.view.InputDeviceCompat.SOURCE_TOUCH_NAVIGATION
 
 /** Synthetically range the x movements from 1000 to 0 */
-@OptIn(ExperimentalIndirectPointerApi::class)
 internal fun SemanticsNodeInteraction.sendIndirectSwipeEvent(
     rule: ComposeTestRule,
     from: Offset = Offset(TouchPadStart, 0f),
@@ -77,7 +78,6 @@ internal fun SemanticsNodeInteraction.sendIndirectSwipeEvent(
     }
 }
 
-@OptIn(ExperimentalIndirectPointerApi::class)
 internal fun SemanticsNodeInteraction.sendIndirectPointerMoveEvents(
     rule: ComposeTestRule,
     stepCount: Int,
@@ -115,7 +115,6 @@ internal fun SemanticsNodeInteraction.sendIndirectPointerMoveEvents(
     return Triple(currentTime1, currentValue1, prevEvent)
 }
 
-@OptIn(ExperimentalIndirectPointerApi::class)
 internal fun SemanticsNodeInteraction.sendIndirectPointerReleaseEvent(
     rule: ComposeTestRule,
     currentTime: Long = SystemClock.uptimeMillis(),
@@ -137,7 +136,6 @@ internal fun SemanticsNodeInteraction.sendIndirectPointerReleaseEvent(
     performIndirectPointerEvent(rule, IndirectPointerEvent(up, primaryAxis, previousEvent))
 }
 
-@OptIn(ExperimentalIndirectPointerApi::class)
 internal fun SemanticsNodeInteraction.sendIndirectPointerPressEvent(
     rule: ComposeTestRule,
     currentTime: Long = SystemClock.uptimeMillis(),
@@ -160,18 +158,15 @@ internal fun SemanticsNodeInteraction.sendIndirectPointerPressEvent(
 }
 
 /** Swiping away from the start of the touchpad. */
-@OptIn(ExperimentalIndirectPointerApi::class)
 internal fun SemanticsNodeInteraction.sendIndirectSwipeBackward(rule: ComposeTestRule) {
     sendIndirectSwipeEvent(rule, Offset(TouchPadEnd, 0f), Offset(TouchPadStart, 0f))
 }
 
 /** Swiping towards the start of the touchpad. */
-@OptIn(ExperimentalIndirectPointerApi::class)
 internal fun SemanticsNodeInteraction.sendIndirectSwipeForward(rule: ComposeTestRule) {
     sendIndirectSwipeEvent(rule, Offset(TouchPadStart, 0f), Offset(TouchPadEnd, 0f))
 }
 
-@OptIn(ExperimentalIndirectPointerApi::class)
 internal fun SemanticsNodeInteraction.sendIndirectPointerCancelEvent(
     rule: ComposeTestRule,
     sendMoveEvents: Boolean = true,
@@ -206,7 +201,6 @@ internal fun SemanticsNodeInteraction.sendIndirectPointerCancelEvent(
     performIndirectPointerEvent(rule, IndirectPointerEvent(cancel, previousMotionEvent = prevEvent))
 }
 
-@OptIn(ExperimentalIndirectPointerApi::class)
 internal fun SemanticsNodeInteraction.sendIndirectPressReleaseEvent(
     rule: ComposeTestRule,
     time: Long = SystemClock.uptimeMillis(),
@@ -232,7 +226,6 @@ internal fun SemanticsNodeInteraction.sendIndirectPressReleaseEvent(
  *
  * @return true if the event was consumed. False otherwise.
  */
-@ExperimentalIndirectPointerApi
 internal fun SemanticsNodeInteraction.performIndirectPointerEvent(
     rule: ComposeTestRule,
     indirectPointerEvent: IndirectPointerEvent,

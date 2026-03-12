@@ -381,6 +381,10 @@ sealed interface StyleScope : CompositionLocalAccessorScope, Density {
      * layout size (width/height); it is rendered within the component's bounds This method only
      * sets the width; color or brush must be set separately.
      *
+     * Specifying a [Dp.Unspecified] value will remove the border.
+     *
+     * Specifying a [Dp.Hairline] or 0.dp value will create 1 pixel border regardless of density.
+     *
      * This property is *not* inherited
      *
      * @param value The width of the border.
@@ -427,6 +431,10 @@ sealed interface StyleScope : CompositionLocalAccessorScope, Density {
      * on top of the background and the padded content. The border itself does not contribute to the
      * component's layout size (width/height).
      *
+     * Specifying a [Dp.Unspecified] width will remove the border.
+     *
+     * Specifying a [Dp.Hairline] or 0.dp width will create 1 pixel border regardless of density.
+     *
      * This property is *not* inherited
      *
      * @param width The width of the border.
@@ -442,6 +450,10 @@ sealed interface StyleScope : CompositionLocalAccessorScope, Density {
      * Sets a border for the component with the specified width and brush. The border is drawn on
      * top of the background and the padded content. The border itself does not contribute to the
      * component's layout size (width/height).
+     *
+     * Specifying a [Dp.Unspecified] width will remove the border.
+     *
+     * Specifying a [Dp.Hairline] or 0.dp width will create 1 pixel border regardless of density.
      *
      * This property is *not* inherited
      *

@@ -47,7 +47,7 @@ class FlexBoxColumnTestCase(
 
     private val states = mutableListOf<MutableState<Color>>()
 
-    private val Column = FlexBoxConfig { direction = FlexDirection.Column }
+    private val Column = FlexBoxConfig { direction(FlexDirection.Column) }
 
     @Composable
     override fun MeasuredContent() {

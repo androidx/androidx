@@ -47,6 +47,7 @@ import kotlin.jvm.JvmField
  *          public static int SomeFeatureEnabled return true
  *      }
  */
+@Suppress("FeatureFlagSetup") // These are not normal, temporary feature flags, so exempt them
 @ComposeToolingApi
 public object ComposeToolingFlags {
 

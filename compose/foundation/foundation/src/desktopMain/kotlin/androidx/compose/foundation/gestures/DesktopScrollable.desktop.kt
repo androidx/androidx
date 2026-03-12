@@ -59,7 +59,7 @@ internal object LinuxGnomeConfig : DesktopScrollConfig() {
     // the formula was determined experimentally based on Ubuntu Nautilus behaviour
     override fun Density.calculateMouseWheelScroll(event: PointerEvent, bounds: IntSize): Offset {
         // TODO: https://youtrack.jetbrains.com/issue/CMP-1610
-        if (event.type == PointerEventType.Pan) {
+        if (event.type == PointerEventType.PanMove) {
             return event.totalPanGestureOffset
         }
 
@@ -78,7 +78,7 @@ internal object WindowsWinUIConfig : DesktopScrollConfig() {
     // the formula was determined experimentally based on Windows Start behaviour
     override fun Density.calculateMouseWheelScroll(event: PointerEvent, bounds: IntSize): Offset {
         // TODO: https://youtrack.jetbrains.com/issue/CMP-1610
-        if (event.type == PointerEventType.Pan) {
+        if (event.type == PointerEventType.PanMove) {
             return event.totalPanGestureOffset
         }
 
@@ -98,7 +98,7 @@ internal object MacOSCocoaConfig : DesktopScrollConfig() {
     // MacOS driver will send events with accelerating delta
     override fun Density.calculateMouseWheelScroll(event: PointerEvent, bounds: IntSize): Offset {
         // TODO: https://youtrack.jetbrains.com/issue/CMP-1610
-        if (event.type == PointerEventType.Pan) {
+        if (event.type == PointerEventType.PanMove) {
             return event.totalPanGestureOffset
         }
 
@@ -131,7 +131,7 @@ private val PointerEvent.totalScrollDelta
     get() = this.changes.fastFold(Offset.Zero) { acc, c -> acc + c.scrollDelta }
 
 private val PointerEvent.totalPanGestureOffset
-    get() = -this.changes.fastFold(Offset.Zero) { acc, c -> acc + c.panGestureOffset }
+    get() = -this.changes.fastFold(Offset.Zero) { acc, c -> acc + c.panOffset }
 
 private val PointerEvent.isPreciseWheelRotation
     get() = (awtEventOrNull as? MouseWheelEvent)?.isPreciseWheelRotation ?: false

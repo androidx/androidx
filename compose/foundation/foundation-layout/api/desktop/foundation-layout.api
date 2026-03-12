@@ -238,24 +238,18 @@ public final class androidx/compose/foundation/layout/FlexBoxConfig$Companion : 
 }
 
 public abstract interface class androidx/compose/foundation/layout/FlexBoxConfigScope : androidx/compose/ui/unit/Density {
-	public abstract fun alignItemsToBaseline (Landroidx/compose/ui/layout/AlignmentLine;)V
-	public abstract fun alignItemsToBaseline (Lkotlin/jvm/functions/Function1;)V
+	public abstract fun alignContent-RVFKNBI (I)V
+	public abstract fun alignItems (Landroidx/compose/ui/layout/AlignmentLine;)V
+	public abstract fun alignItems (Lkotlin/jvm/functions/Function1;)V
+	public abstract fun alignItems-yvIbNKY (I)V
+	public abstract fun columnGap-0680j_4 (F)V
+	public abstract fun direction-d5Yd7B0 (I)V
 	public abstract fun gap-0680j_4 (F)V
-	public abstract fun getAlignContent-d9B3MrI ()I
-	public abstract fun getAlignItems-20X20zU ()I
-	public abstract fun getColumnGap-D9Ej5fM ()F
+	public abstract fun gap-YgX7TsA (FF)V
 	public abstract fun getConstraints-msEJaDk ()J
-	public abstract fun getDirection-T4wFHC8 ()I
-	public abstract fun getJustifyContent-GomtQF4 ()I
-	public abstract fun getRowGap-D9Ej5fM ()F
-	public abstract fun getWrap-7ziDAWk ()I
-	public abstract fun setAlignContent-RVFKNBI (I)V
-	public abstract fun setAlignItems-yvIbNKY (I)V
-	public abstract fun setColumnGap-0680j_4 (F)V
-	public abstract fun setDirection-d5Yd7B0 (I)V
-	public abstract fun setJustifyContent-q3qUS_E (I)V
-	public abstract fun setRowGap-0680j_4 (F)V
-	public abstract fun setWrap-CLQ35Ag (I)V
+	public abstract fun justifyContent-q3qUS_E (I)V
+	public abstract fun rowGap-0680j_4 (F)V
+	public abstract fun wrap-CLQ35Ag (I)V
 }
 
 public final class androidx/compose/foundation/layout/FlexBoxKt {
@@ -283,24 +277,19 @@ public abstract interface class androidx/compose/foundation/layout/FlexConfig {
 }
 
 public abstract interface class androidx/compose/foundation/layout/FlexConfigScope : androidx/compose/ui/unit/Density {
-	public abstract fun alignSelfToBaseline (Landroidx/compose/ui/layout/AlignmentLine;)V
-	public abstract fun alignSelfToBaseline (Lkotlin/jvm/functions/Function1;)V
+	public abstract fun alignSelf (Landroidx/compose/ui/layout/AlignmentLine;)V
+	public abstract fun alignSelf (Lkotlin/jvm/functions/Function1;)V
+	public abstract fun alignSelf-aKVMlHY (I)V
 	public abstract fun basis (F)V
 	public abstract fun basis-0680j_4 (F)V
-	public abstract fun getAlignSelf-_ov7Qcc ()I
-	public abstract fun getBasis-d-lZNVs ()J
+	public abstract fun basis-MFoeH6Y (J)V
 	public abstract fun getFlexBoxCrossAxisMax ()I
 	public abstract fun getFlexBoxCrossAxisMin ()I
 	public abstract fun getFlexBoxMainAxisMax ()I
 	public abstract fun getFlexBoxMainAxisMin ()I
-	public abstract fun getGrow ()F
-	public abstract fun getOrder ()I
-	public abstract fun getShrink ()F
-	public abstract fun setAlignSelf-aKVMlHY (I)V
-	public abstract fun setBasis-MFoeH6Y (J)V
-	public abstract fun setGrow (F)V
-	public abstract fun setOrder (I)V
-	public abstract fun setShrink (F)V
+	public abstract fun grow (F)V
+	public abstract fun order (I)V
+	public abstract fun shrink (F)V
 }
 
 public final class androidx/compose/foundation/layout/FlexDirection {
@@ -405,6 +394,7 @@ public abstract interface class androidx/compose/foundation/layout/GridConfigura
 	public abstract fun columnGap-0680j_4 (F)V
 	public abstract fun gap-0680j_4 (F)V
 	public abstract fun gap-YgX7TsA (FF)V
+	public abstract fun getConstraints-msEJaDk ()J
 	public abstract fun getFlow-ITJdzs4 ()I
 	public fun getFr-9P9H2UQ (D)F
 	public fun getFr-9P9H2UQ (F)F

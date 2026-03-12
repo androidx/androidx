@@ -940,6 +940,35 @@ class RectListTest {
         assertRectWithIdEquals(r, 2, 10, -1, 20, 9)
     }
 
+    @Test
+    fun testCallingExecuteDelayed() {
+        var executeDelayedCalled = false
+        var removeDelayedExecutionCalled = false
+
+        val executeDelayed =
+            object : ExecuteDelayed {
+                override fun executeDelayed(delayMillis: Long, block: () -> Unit): Any {
+                    executeDelayedCalled = true
+                    return Any()
+                }
+
+                override fun removeDelayedExecution(token: Any) {
+                    removeDelayedExecutionCalled = true
+                }
+            }
+
+        val rectManager = RectManager(executeDelayed = executeDelayed)
+
+        rectManager.scheduleDebounceCallback(true)
+        assertTrue(executeDelayedCalled)
+
+        // The removal won't be called if minDebounceDeadline remains as -1
+        rectManager.throttledCallbacks.minDebounceDeadline = 10
+        rectManager.scheduleDebounceCallback(true)
+
+        assertTrue(removeDelayedExecutionCalled)
+    }
+
     // TODO: test update scrollable behavior
     // TODO: test point intersection
 

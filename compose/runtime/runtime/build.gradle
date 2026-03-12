@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -69,8 +68,8 @@ androidXMultiplatform {
             implementation(project(":compose:runtime:runtime-test-utils"))
         }
 
-        nonEmulatorCommonTest.dependsOn(commonTest)
-        nonEmulatorJvmTest.dependsOn(nonEmulatorCommonTest)
+        create("nonEmulatorCommonTest").dependsOn(commonTest)
+        create("nonEmulatorJvmTest").dependsOn(nonEmulatorCommonTest)
 
         androidMain.dependencies {
             api(libs.kotlinCoroutinesAndroid)
@@ -87,8 +86,8 @@ androidXMultiplatform {
 
         androidHostTest.dependsOn(nonEmulatorJvmTest)
 
-        nonAndroidMain.dependsOn(commonMain)
-        nonAndroidTest.dependsOn(commonTest)
+        create("nonAndroidMain").dependsOn(commonMain)
+        create("nonAndroidTest").dependsOn(commonTest)
 
         desktopMain.dependsOn(nonAndroidMain)
 
@@ -116,12 +115,6 @@ androidXMultiplatform {
         wasmJsMain.dependencies {
             implementation(libs.kotlinXw3c)
         }
-
-        unixMain.dependsOn(nativeMain)
-
-        appleMain.dependsOn(unixMain)
-
-        linuxMain.dependsOn(unixMain)
     }
 }
 

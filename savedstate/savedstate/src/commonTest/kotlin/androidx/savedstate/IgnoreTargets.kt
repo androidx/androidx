@@ -26,3 +26,5 @@ package androidx.savedstate
  * TODO(mgalhardo): Refactor the annotated tests to be platform-agnostic and remove this annotation.
  */
 internal expect annotation class IgnoreWebTarget()
+
+internal expect annotation class IgnoreAndroidHostTarget()

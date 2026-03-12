@@ -1722,8 +1722,8 @@ private const val ResetAnimationSnapCurrent = -4f
 private const val ResetAnimationSnapTarget = -5f
 
 /**
- * This creates a [DeferredAnimation], which will not animate until it is set up using
- * [DeferredAnimation.animate]. Once the animation is set up, it will animate from the
+ * This creates a [Transition.DeferredAnimation], which will not animate until it is set up using
+ * [Transition.DeferredAnimation.animate]. Once the animation is set up, it will animate from the
  * [currentState][Transition.currentState] to [targetState][Transition.targetState]. If the
  * [Transition] has already arrived at its target state at the time when the animation added, there
  * will be no animation.

@@ -19,7 +19,7 @@ package androidx.compose.ui.test.injectionscope.trackpad
 import androidx.compose.testutils.expectError
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Press
-import androidx.compose.ui.test.MouseButton
+import androidx.compose.ui.test.TrackpadButton
 import androidx.compose.ui.test.injectionscope.trackpad.Common.PrimaryButton
 import androidx.compose.ui.test.injectionscope.trackpad.Common.runTrackpadInputInjectionTest
 import androidx.compose.ui.test.injectionscope.trackpad.Common.verifyTrackpadEvent
@@ -36,7 +36,7 @@ class CancelTest {
         runTrackpadInputInjectionTest(
             trackpadInput = {
                 // press the primary button
-                press(MouseButton.Primary)
+                press(TrackpadButton.Primary)
                 // cancel the gesture
                 cancel()
             },
@@ -53,7 +53,7 @@ class CancelTest {
             trackpadInput = {
                 expectError<IllegalStateException>(
                     expectedMessage =
-                        "Cannot send trackpad cancel event, no mouse buttons are pressed"
+                        "Cannot send trackpad cancel event, no trackpad buttons are pressed"
                 ) {
                     cancel()
                 }

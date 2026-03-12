@@ -1,4 +1,5 @@
-# Bug component: 378604
-andreykulikov@google.com
+# Bug component: 1972982
+include /compose/PERF_OWNERS
+
 bentrengrove@google.com
 ccraik@google.com

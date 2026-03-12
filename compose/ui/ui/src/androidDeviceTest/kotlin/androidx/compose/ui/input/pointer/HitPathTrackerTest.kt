@@ -3302,8 +3302,8 @@ class HitPathTrackerTest {
                             HistoricalChange(
                                 uptimeMillis = 1L,
                                 position = Offset.Unspecified,
-                                scaleGestureFactor = 0f,
-                                panGestureOffset = Offset.Zero,
+                                scaleFactor = 0f,
+                                panOffset = Offset.Zero,
                             )
                         ),
                 )

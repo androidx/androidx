@@ -107,24 +107,18 @@ internal class LayoutIntrinsics(
         // 10 is just a random number that limits the size of the candidate list
         val heapSize = 10
         // min heap that will hold [heapSize] many words with max length
-        val longestWordCandidates =
-            PriorityQueue(
-                heapSize,
-                Comparator<Pair<Int, Int>> { left, right ->
-                    (left.second - left.first) - (right.second - right.first)
-                },
-            )
+        val longestWordCandidates = PriorityQueue(heapSize, IntRangeComparator)
 
         var start = 0
         var end = iterator.next()
         while (end != BreakIterator.DONE) {
             if (longestWordCandidates.size < heapSize) {
-                longestWordCandidates.add(Pair(start, end))
+                longestWordCandidates.add(IntRange(start, end))
             } else {
                 longestWordCandidates.peek()?.let { minPair ->
-                    if ((minPair.second - minPair.first) < (end - start)) {
+                    if ((minPair.last - minPair.first) < (end - start)) {
                         longestWordCandidates.poll()
-                        longestWordCandidates.add(Pair(start, end))
+                        longestWordCandidates.add(IntRange(start, end))
                     }
                 }
             }
@@ -133,8 +127,11 @@ internal class LayoutIntrinsics(
             end = iterator.next()
         }
 
-        return if (longestWordCandidates.isEmpty()) 0f
-        else longestWordCandidates.maxOf { (start, end) -> getDesiredWidth(start, end) }
+        return if (longestWordCandidates.isEmpty()) {
+            0f
+        } else {
+            longestWordCandidates.maxOf { range -> getDesiredWidth(range.first, range.last) }
+        }
     }
 
     /**
@@ -224,3 +221,6 @@ private fun shouldIncreaseMaxIntrinsic(
                 charSequence.hasSpan(LetterSpacingSpanEm::class.java)) ||
             textPaint.letterSpacing != 0f)
 }
+
+private val IntRangeComparator =
+    Comparator<IntRange> { left, right -> (left.last - left.first) - (right.last - right.first) }

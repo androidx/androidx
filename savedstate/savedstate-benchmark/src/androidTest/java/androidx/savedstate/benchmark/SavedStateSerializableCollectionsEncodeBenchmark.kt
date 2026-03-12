@@ -23,7 +23,12 @@ import androidx.savedstate.benchmark.utils.CharArrayData
 import androidx.savedstate.benchmark.utils.DoubleArrayData
 import androidx.savedstate.benchmark.utils.FloatArrayData
 import androidx.savedstate.benchmark.utils.IntArrayData
+import androidx.savedstate.benchmark.utils.ListBooleanData
+import androidx.savedstate.benchmark.utils.ListCharData
+import androidx.savedstate.benchmark.utils.ListDoubleData
+import androidx.savedstate.benchmark.utils.ListFloatData
 import androidx.savedstate.benchmark.utils.ListIntData
+import androidx.savedstate.benchmark.utils.ListLongData
 import androidx.savedstate.benchmark.utils.ListStringData
 import androidx.savedstate.benchmark.utils.LongArrayData
 import androidx.savedstate.benchmark.utils.StringArrayData
@@ -48,6 +53,36 @@ class SavedStateSerializableCollectionsEncodeBenchmark {
     @Test
     fun testEncodeListStringData() {
         val data = ListStringData(List(sampleSize) { "item $it" })
+        benchmarkRule.measureRepeated { encodeToSavedState(data, savedStateConfiguration) }
+    }
+
+    @Test
+    fun testEncodeListBooleanData() {
+        val data = ListBooleanData(List(sampleSize) { it % 2 == 0 })
+        benchmarkRule.measureRepeated { encodeToSavedState(data, savedStateConfiguration) }
+    }
+
+    @Test
+    fun testEncodeListLongData() {
+        val data = ListLongData(List(sampleSize) { it.toLong() })
+        benchmarkRule.measureRepeated { encodeToSavedState(data, savedStateConfiguration) }
+    }
+
+    @Test
+    fun testEncodeListFloatData() {
+        val data = ListFloatData(List(sampleSize) { it.toFloat() })
+        benchmarkRule.measureRepeated { encodeToSavedState(data, savedStateConfiguration) }
+    }
+
+    @Test
+    fun testEncodeListDoubleData() {
+        val data = ListDoubleData(List(sampleSize) { it.toDouble() })
+        benchmarkRule.measureRepeated { encodeToSavedState(data, savedStateConfiguration) }
+    }
+
+    @Test
+    fun testEncodeListCharData() {
+        val data = ListCharData(List(sampleSize) { (it % 26 + 'a'.code).toChar() })
         benchmarkRule.measureRepeated { encodeToSavedState(data, savedStateConfiguration) }
     }
 

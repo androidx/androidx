@@ -38,6 +38,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
@@ -2480,6 +2481,167 @@ class GridTest : LayoutTest() {
             }
         }
     }
+
+    @Test
+    fun testGrid_config_accessConstraints() =
+        with(density) {
+            val size = 100
+            val sizeDp = size.toDp()
+            val latch = CountDownLatch(1)
+
+            // Capture values from inside the config lambda
+            val capturedMaxWidth = Ref<Dp>()
+            val capturedMaxHeight = Ref<Dp>()
+            val capturedConstraints = Ref<Constraints>()
+
+            show {
+                Box(Modifier.size(sizeDp)) {
+                    Grid(
+                        config = {
+                            val maxWidthDp = constraints.maxWidth.toDp()
+                            val maxHeightDp = constraints.maxHeight.toDp()
+                            capturedMaxWidth.value = maxWidthDp
+                            capturedMaxHeight.value = maxHeightDp
+                            capturedConstraints.value = constraints
+
+                            // Define minimal tracks so layout pass completes
+                            column(GridTrackSize.Fixed(10.dp))
+                            row(GridTrackSize.Fixed(10.dp))
+                        }
+                    ) {
+                        // Place a dummy item to ensure measurement happens
+                        Box(
+                            Modifier.gridItem(1, 1).size(10.dp).onGloballyPositioned {
+                                latch.countDown()
+                            }
+                        )
+                    }
+                }
+            }
+
+            assertTrue("Timed out waiting for layout", latch.await(1, TimeUnit.SECONDS))
+
+            // Verify explicit Constraints (Exact pixels)
+            // We use the pixel size directly since we created the Box with sizeDp derived from it
+            assertEquals(size, capturedConstraints.value?.maxWidth)
+            assertEquals(size, capturedConstraints.value?.maxHeight)
+
+            // Verify Dp properties.
+            // Note: We compare pixel values because Dp floating point precision might
+            // result in 100.dp vs 100.0001.dp depending on density math.
+            assertEquals(size, capturedMaxWidth.value?.roundToPx())
+            assertEquals(size, capturedMaxHeight.value?.roundToPx())
+        }
+
+    @Test
+    fun testGrid_responsive_columnsChangeWithWidth() =
+        with(density) {
+            // Scenario: Responsive Breakpoint
+            // < 200dp width -> 1 Column
+            // >= 200dp width -> 2 Columns
+
+            val widthCompact = 100.dp
+            val widthExpanded = 300.dp
+            var parentWidth by mutableStateOf(widthCompact)
+
+            val initialLatch = CountDownLatch(1)
+            val updateLatch = CountDownLatch(1)
+            val itemSize = Ref<IntSize>()
+
+            show {
+                Box(Modifier.width(parentWidth)) {
+                    Grid(
+                        config = {
+                            val maxWidthDp = constraints.maxWidth.toDp()
+                            val cols = if (maxWidthDp < 200.dp) 1 else 2
+
+                            repeat(cols) { column(GridTrackSize.Flex(1.fr)) }
+                            row(GridTrackSize.Auto)
+                        }
+                    ) {
+                        // Place item in Column 1.
+                        // We measure this item to verify the column width.
+                        Box(
+                            Modifier.gridItem(1, 1)
+                                .fillMaxWidth()
+                                .height(50.dp)
+                                .onGloballyPositioned { coordinates ->
+                                    itemSize.value = coordinates.size
+                                    if (initialLatch.count > 0) {
+                                        initialLatch.countDown()
+                                    } else {
+                                        updateLatch.countDown()
+                                    }
+                                }
+                        )
+                    }
+                }
+            }
+
+            // 1. Verify Initial State (Compact: 100dp -> 1 Column)
+            assertTrue(
+                "Timed out waiting for initial layout",
+                initialLatch.await(1, TimeUnit.SECONDS),
+            )
+
+            // 1 Column = Full Width
+            assertEquals(widthCompact.roundToPx(), itemSize.value?.width)
+
+            // 2. Resize Parent (Expanded: 300dp)
+            parentWidth = widthExpanded
+
+            // 3. Verify Updated State (Expanded: 300dp -> 2 Columns)
+            assertTrue(
+                "Timed out waiting for layout update",
+                updateLatch.await(1, TimeUnit.SECONDS),
+            )
+
+            val totalPx = widthExpanded.roundToPx()
+            val expectedColWidth = (totalPx * 0.5f).roundToInt()
+
+            assertEquals(expectedColWidth, itemSize.value?.width)
+        }
+
+    @Test
+    fun testGrid_aspectRatio_inFlexTrack_doesNotExplode() =
+        with(density) {
+            val gridWidth = 500
+            val gridHeight = 500
+            val latch = CountDownLatch(1)
+            val childSize = Ref<IntSize>()
+
+            show {
+                Box(Modifier.size(gridWidth.toDp(), gridHeight.toDp())) {
+                    Grid(
+                        config = {
+                            column(GridTrackSize.Flex(1.fr))
+                            row(GridTrackSize.Flex(1.fr))
+                        },
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        Box(
+                            Modifier.gridItem(1, 1)
+                                .aspectRatio(16f / 9f)
+                                .fillMaxSize()
+                                .onGloballyPositioned {
+                                    childSize.value = it.size
+                                    latch.countDown()
+                                }
+                        )
+                    }
+                }
+            }
+            assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+            // Grid is 500x500. Cell is 500x500.
+            // AspectRatio(16/9) inside a 500x500 constraint:
+            // Width = 500, Height = 500 * 9/16 = 281
+            assertEquals(
+                "Aspect ratio should size cleanly within the cell bounds without exploding the track width",
+                IntSize(500, 281),
+                childSize.value,
+            )
+        }
 
     @Composable
     private fun IntrinsicItem(

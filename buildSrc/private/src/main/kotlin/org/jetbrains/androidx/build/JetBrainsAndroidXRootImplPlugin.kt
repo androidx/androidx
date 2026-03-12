@@ -35,6 +35,9 @@ class JetBrainsAndroidXRootImplPlugin @Inject constructor(
 ) : Plugin<Project> {
     override fun apply(project: Project) {
         project.allprojects { subproject ->
+            // Apply capability rule to resolve conflicts between org.jetbrains.androidx.* and androidx.*
+            subproject.configureJetBrainsCapabilityResolution()
+
             subproject.tasks.configureEach {
                 if (it.name == "kotlinStoreYarnLock") it.enabled = false
                 if (it.name == "kotlinWasmStoreYarnLock") it.enabled = false

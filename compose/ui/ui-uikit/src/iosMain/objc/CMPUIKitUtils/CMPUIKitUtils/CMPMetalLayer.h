@@ -54,10 +54,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Presents drawable on screen via CATransaction. Thread-safe; dispatches to main thread if needed.
- * The completionHandler is called on the main thread with the presentation CATransaction.
+ * The displayHandler is called on the main thread with the presentation CATransaction only when
+ * content of the drawable is presented.
  */
 - (void)presentDrawable:(CMPDrawable *)drawable
-             completion:(void (^)(void))completionHandler;
+              onDisplay:(void (^)(void))displayHandler;
 
 /**
  * Returns drawable to pool without presenting.

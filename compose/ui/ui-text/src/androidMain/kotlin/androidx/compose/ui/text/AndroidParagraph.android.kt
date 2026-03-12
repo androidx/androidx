@@ -18,6 +18,7 @@ package androidx.compose.ui.text
 
 import android.graphics.RectF
 import android.os.Build
+import android.text.Layout
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.Spanned
@@ -312,15 +313,29 @@ internal class AndroidParagraph(
                     return@map null
                 }
 
-                val direction = getBidiRunDirection(start)
+                val left: Float
+                val right: Float
+                val isLtrLine = layout.getParagraphDirection(line) == Layout.DIR_LEFT_TO_RIGHT
+                val isRtlChar = layout.isRtlCharAt(start)
 
-                val left =
-                    when (direction) {
-                        ResolvedTextDirection.Ltr -> getHorizontalPosition(start, true)
-                        ResolvedTextDirection.Rtl ->
-                            getHorizontalPosition(start, true) - span.widthPx
+                when {
+                    isLtrLine && !isRtlChar -> {
+                        left = layout.getPrimaryHorizontal(start, upstream = false)
+                        right = left + span.widthPx
                     }
-                val right = left + span.widthPx
+                    isLtrLine && isRtlChar -> {
+                        right = layout.getSecondaryHorizontal(start, upstream = false)
+                        left = right - span.widthPx
+                    }
+                    isRtlChar -> {
+                        right = layout.getPrimaryHorizontal(start, upstream = false)
+                        left = right - span.widthPx
+                    }
+                    else -> {
+                        left = layout.getSecondaryHorizontal(start, upstream = false)
+                        right = left + span.widthPx
+                    }
+                }
 
                 val top =
                     with(layout) {

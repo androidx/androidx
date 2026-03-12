@@ -102,8 +102,12 @@ internal class SyntheticEventSender(
             PointerEventType.Move,
             PointerEventType.Press,
             PointerEventType.Scroll,
-            PointerEventType.Scale,
-            PointerEventType.Pan
+            PointerEventType.ScaleStart,
+            PointerEventType.ScaleChange,
+            PointerEventType.ScaleEnd,
+            PointerEventType.PanStart,
+            PointerEventType.PanMove,
+            PointerEventType.PanEnd,
                 -> isMousePointerInside = true
             PointerEventType.Exit
                 -> isMousePointerInside = false

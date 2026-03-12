@@ -28,8 +28,17 @@ data class ArtifactRedirection(
      */
     val targetVersions: Map<String, String> = emptyMap()
 ) {
-    fun versionForTargetOrDefault(target: String): String {
-        return targetVersions[target.lowercase()] ?: defaultVersion
+    fun versionForTargetOrDefault(targetName: String): String {
+        return targetVersions[targetName.lowercase()] ?: defaultVersion
+    }
+
+    fun versionForConfigurationOrDefault(configurationName: String): String {
+        // Configuration names are target-prefixed in Kotlin KMP publications, for example:
+        // "desktopApiElements" or "iosArm64MetadataElements".
+        val targetName = targetVersions.keys.firstOrNull {
+            configurationName.startsWith(it, ignoreCase = true)
+        }
+        return versionForTargetOrDefault(targetName ?: "")
     }
 }
 

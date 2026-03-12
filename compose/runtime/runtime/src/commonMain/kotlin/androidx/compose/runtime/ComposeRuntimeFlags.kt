@@ -54,6 +54,7 @@ public object ComposeRuntimeFlags {
      * R8 release builds, the proguard configuration always takes precedence and programmatic
      * assignments to this flag become no-ops.
      */
+    // TODO: b/485957718
     @JvmField
     @field:Suppress("MutableBareField")
     public var isLinkBufferComposerEnabled: Boolean = false
