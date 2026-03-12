@@ -67,7 +67,8 @@ public fun <T : Any> rememberSceneState(
  *   entries.
  * @param sceneDecoratorStrategies list of [SceneDecoratorStrategy] to add content to the scene.
  * @param sharedTransitionScope the [SharedTransitionScope] needed to wrap the scene decorator. If
- *   this parameter is added, this function will require the [LocalNavAnimatedContentScope].
+ *   this parameter is added, this function will require the
+ *   [androidx.navigation3.ui.LocalNavAnimatedContentScope].
  * @param onBack a callback for handling system back press.
  * @sample androidx.navigation3.scene.samples.SceneStateSample
  */

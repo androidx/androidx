@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 import androidx.build.SoftwareType
@@ -58,14 +57,14 @@ androidXMultiplatform {
             api("androidx.savedstate:savedstate-compose:1.4.0")
             implementation("androidx.collection:collection:1.5.0")
             implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
-            api("androidx.navigationevent:navigationevent:1.0.0")
+            api("androidx.navigationevent:navigationevent:1.0.2")
         }
 
         commonTest.dependencies {
             implementation(libs.kotlinTest)
             implementation(project(":kruth:kruth"))
             implementation(project(":compose:runtime:runtime-test-utils"))
-            implementation("androidx.navigationevent:navigationevent-testing:1.0.0")
+            implementation("androidx.navigationevent:navigationevent-testing:1.0.2")
         }
 
         androidDeviceTest.dependencies {
