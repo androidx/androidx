@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,8 @@
 
 package androidx.navigation.internal
 
-private class URISyntaxException(
-    input: String, reason: String, index: Int
-) : Exception("$reason at index $index: $input")
+private class URISyntaxException(input: String, reason: String, index: Int) :
+    Exception("$reason at index $index: $input")
 
 /**
  * Decodes “application/x-www-form-urlencoded” content.
@@ -26,9 +25,7 @@ private class URISyntaxException(
  * Copy of android.net.UriCodec
  */
 internal object UriCodec {
-    /**
-     * Interprets a char as hex digits, returning a number from -1 (invalid char) to 15 ('f').
-     */
+    /** Interprets a char as hex digits, returning a number from -1 (invalid char) to 15 ('f'). */
     private fun hexCharToValue(c: Char): Int {
         if (c in '0'..'9') {
             return c.code - '0'.code
@@ -43,53 +40,45 @@ internal object UriCodec {
     }
 
     private fun unexpectedCharacterException(
-        uri: String, name: String?, unexpected: Char, index: Int
+        uri: String,
+        name: String?,
+        unexpected: Char,
+        index: Int,
     ): URISyntaxException {
         val nameString = if ((name == null)) "" else " in [$name]"
-        return URISyntaxException(
-            uri, "Unexpected character$nameString: $unexpected", index
-        )
+        return URISyntaxException(uri, "Unexpected character$nameString: $unexpected", index)
     }
 
     @Throws(URISyntaxException::class)
     private fun getNextCharacter(uri: String, index: Int, end: Int, name: String?): Char {
         if (index >= end) {
             val nameString = if ((name == null)) "" else " in [$name]"
-            throw URISyntaxException(
-                uri, "Unexpected end of string$nameString", index
-            )
+            throw URISyntaxException(uri, "Unexpected end of string$nameString", index)
         }
         return uri[index]
     }
 
     /**
      * Decode a string according to the rules of this decoder.
-     *
-     * - if `convertPlus == true` all ‘+’ chars in the decoded output are converted to ‘ ‘
-     * (white space)
-     * - if `throwOnFailure == true`, an [IllegalArgumentException] is thrown for
-     * invalid inputs. Else, U+FFFd is emitted to the output in place of invalid input octets.
+     * - if `convertPlus == true` all ‘+’ chars in the decoded output are converted to ‘ ‘ (white
+     *   space)
+     * - if `throwOnFailure == true`, an [IllegalArgumentException] is thrown for invalid inputs.
+     *   Else, U+FFFd is emitted to the output in place of invalid input octets.
      */
-    fun decode(
-        s: String,
-        convertPlus: Boolean = false,
-        throwOnFailure: Boolean = false
-    ): String {
+    fun decode(s: String, convertPlus: Boolean = false, throwOnFailure: Boolean = false): String {
         val builder = StringBuilder(s.length)
         appendDecoded(builder, s, convertPlus, throwOnFailure)
         return builder.toString()
     }
 
-    /**
-     * Character to be output when there's an error decoding an input.
-     */
+    /** Character to be output when there's an error decoding an input. */
     private const val INVALID_INPUT_CHARACTER = '\ufffd'
 
     private fun appendDecoded(
         builder: StringBuilder,
         s: String,
         convertPlus: Boolean,
-        throwOnFailure: Boolean
+        throwOnFailure: Boolean,
     ) {
         // Holds the bytes corresponding to the escaped chars being read (empty if the last char
         // wasn't a escaped char).
@@ -105,7 +94,7 @@ internal object UriCodec {
             builder.append(
                 byteBuffer.decodeToString(
                     endIndex = byteBufferPosition,
-                    throwOnInvalidSequence = throwOnFailure
+                    throwOnInvalidSequence = throwOnFailure,
                 )
             )
             byteBufferPosition = 0
@@ -143,7 +132,7 @@ internal object UriCodec {
                         if (newDigit < 0) {
                             if (throwOnFailure) {
                                 throw IllegalArgumentException(
-                                    unexpectedCharacterException(s, null,  /* name */c, i - 1)
+                                    unexpectedCharacterException(s, null, /* name */ c, i - 1)
                                 )
                             } else {
                                 flush()

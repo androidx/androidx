@@ -57,7 +57,7 @@ public fun navDeepLink(deepLinkBuilder: NavDeepLinkDslBuilder.() -> Unit): NavDe
 public inline fun <reified T : Any> navDeepLink(
     basePath: String,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
-    noinline deepLinkBuilder: NavDeepLinkDslBuilder.() -> Unit = {}
+    noinline deepLinkBuilder: NavDeepLinkDslBuilder.() -> Unit = {},
 ): NavDeepLink = navDeepLink(T::class, basePath, typeMap, deepLinkBuilder)
 
 /**
@@ -80,7 +80,7 @@ public fun <T : Any> navDeepLink(
     route: KClass<T>,
     basePath: String,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
-    deepLinkBuilder: NavDeepLinkDslBuilder.() -> Unit
+    deepLinkBuilder: NavDeepLinkDslBuilder.() -> Unit,
 ): NavDeepLink = NavDeepLinkDslBuilder(basePath, route, typeMap).apply(deepLinkBuilder).build()
 
 /** DSL for constructing a new [NavDeepLink] */
@@ -111,7 +111,7 @@ public class NavDeepLinkDslBuilder {
     internal constructor(
         basePath: String,
         route: KClass<*>,
-        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>
+        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
     ) {
         require(basePath.isNotEmpty()) {
             "The basePath for NavDeepLink from KClass cannot be empty"

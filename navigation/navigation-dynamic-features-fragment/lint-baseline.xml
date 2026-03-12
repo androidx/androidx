@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.0.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha05)" variant="all" version="9.0.0-alpha05">
+
+    <issue
+        id="PrivateResource"
+        message="Overriding `@attr/moduleName` which is marked as private in androidx.navigation:navigation-dynamic-features-runtime:2.10.0-alpha01. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        errorLine1="    &lt;attr name=&quot;moduleName&quot; format=&quot;string|reference&quot;/>"
+        errorLine2="                ~~~~~~~~~~">
+        <location
+            file="src/main/res/values/attrs.xml"/>
+    </issue>
+
+</issues>

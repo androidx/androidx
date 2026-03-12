@@ -33,7 +33,7 @@ import kotlinx.serialization.modules.SerializersModule
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RouteEncoder<T : Any>(
     private val serializer: KSerializer<T>,
-    private val typeMap: Map<String, NavType<Any?>>
+    private val typeMap: Map<String, NavType<Any?>>,
 ) : AbstractEncoder() {
     override val serializersModule: SerializersModule = EmptySerializersModule()
     private val map: MutableMap<String, List<String>> = mutableMapOf()
@@ -45,7 +45,7 @@ public class RouteEncoder<T : Any>(
      * The default entry point is [encodeSerializableValue] but we need to override it to handle
      * primitive and non-primitive values by converting them directly to string (instead of the
      * default implementation which further serializes nested non-primitive values). So we delegate
-     * to the default entry by directly calling [super.encodeSerializableValue].
+     * to the default entry by directly calling `super`.[encodeSerializableValue].
      */
     @Suppress("UNCHECKED_CAST")
     public fun encodeToArgMap(value: Any): Map<String, List<String>> {

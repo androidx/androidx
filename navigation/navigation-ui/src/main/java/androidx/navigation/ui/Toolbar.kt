@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released
+
 package androidx.navigation.ui
 
 import androidx.appcompat.widget.Toolbar
@@ -39,12 +41,12 @@ import androidx.navigation.NavController
  */
 public fun Toolbar.setupWithNavController(
     navController: NavController,
-    drawerLayout: DrawerLayout?
+    drawerLayout: DrawerLayout?,
 ) {
     NavigationUI.setupWithNavController(
         this,
         navController,
-        AppBarConfiguration(navController.graph, drawerLayout)
+        AppBarConfiguration(navController.graph, drawerLayout),
     )
 }
 
@@ -66,7 +68,7 @@ public fun Toolbar.setupWithNavController(
  */
 public fun Toolbar.setupWithNavController(
     navController: NavController,
-    configuration: AppBarConfiguration = AppBarConfiguration(navController.graph)
+    configuration: AppBarConfiguration = AppBarConfiguration(navController.graph),
 ) {
     NavigationUI.setupWithNavController(this, navController, configuration)
 }

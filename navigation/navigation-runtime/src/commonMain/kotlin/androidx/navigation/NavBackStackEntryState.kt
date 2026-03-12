@@ -36,7 +36,7 @@ internal expect class NavBackStackEntryState {
         context: NavContext,
         destination: NavDestination,
         hostLifecycleState: Lifecycle.State,
-        viewModel: NavControllerViewModel?
+        viewModel: NavControllerViewModel?,
     ): NavBackStackEntry
 
     internal fun prepareArgs(args: SavedState, context: NavContext): SavedState?

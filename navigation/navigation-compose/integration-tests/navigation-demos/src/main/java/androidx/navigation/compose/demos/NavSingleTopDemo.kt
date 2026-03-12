@@ -43,7 +43,7 @@ fun NavSingleTopDemo() {
         TextField(
             value = query.value,
             onValueChange = { query.value = it },
-            placeholder = { Text("Search") }
+            placeholder = { Text("Search") },
         )
         NavigateButton("Search") {
             navController.navigate(SearchScreen(query.value)) { launchSingleTop = true }

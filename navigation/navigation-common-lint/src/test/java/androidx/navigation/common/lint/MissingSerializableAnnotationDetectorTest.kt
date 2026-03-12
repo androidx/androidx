@@ -65,7 +65,7 @@ class MissingSerializableAnnotationDetectorTest : LintDetectorTest() {
                     )
                     .indented(),
                 *STUBS,
-                SERIALIZABLE_TEST_CLASS
+                SERIALIZABLE_TEST_CLASS,
             )
             .run()
             .expectClean()
@@ -102,51 +102,51 @@ class MissingSerializableAnnotationDetectorTest : LintDetectorTest() {
                     )
                     .indented(),
                 *STUBS,
-                TEST_CLASS
+                TEST_CLASS,
             )
             .run()
             .expect(
                 """
-src/androidx/test/Test.kt:11: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-object TestObject
-       ~~~~~~~~~~
-src/androidx/test/Test.kt:13: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-data object TestDataObject
-            ~~~~~~~~~~~~~~
-src/androidx/test/Test.kt:15: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-class TestClass
-      ~~~~~~~~~
-src/androidx/test/Test.kt:19: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-object Outer {
-       ~~~~~
-src/androidx/test/Test.kt:20: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-    data object InnerObject
-                ~~~~~~~~~~~
-src/androidx/test/Test.kt:22: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-    data class InnerClass (
-               ~~~~~~~~~~
-src/androidx/test/Test.kt:29: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-class InterfaceChildClass(val arg: Boolean): TestInterface
-      ~~~~~~~~~~~~~~~~~~~
-src/androidx/test/Test.kt:30: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-object InterfaceChildObject: TestInterface
-       ~~~~~~~~~~~~~~~~~~~~
-src/androidx/test/Test.kt:32: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-abstract class TestAbstract
-               ~~~~~~~~~~~~
-src/androidx/test/Test.kt:33: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-class AbstractChildClass(val arg: Boolean): TestAbstract()
-      ~~~~~~~~~~~~~~~~~~
-src/androidx/test/Test.kt:34: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-object AbstractChildObject: TestAbstract()
-       ~~~~~~~~~~~~~~~~~~~
-src/androidx/test/Test.kt:36: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-sealed class SealedClass {
-             ~~~~~~~~~~~
-src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-    class SealedSubClass : SealedClass()
-          ~~~~~~~~~~~~~~
-13 errors, 0 warnings
+                src/androidx/test/Test.kt:11: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                object TestObject
+                       ~~~~~~~~~~
+                src/androidx/test/Test.kt:13: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                data object TestDataObject
+                            ~~~~~~~~~~~~~~
+                src/androidx/test/Test.kt:15: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                class TestClass
+                      ~~~~~~~~~
+                src/androidx/test/Test.kt:19: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                object Outer {
+                       ~~~~~
+                src/androidx/test/Test.kt:20: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                    data object InnerObject
+                                ~~~~~~~~~~~
+                src/androidx/test/Test.kt:22: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                    data class InnerClass (
+                               ~~~~~~~~~~
+                src/androidx/test/Test.kt:29: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                class InterfaceChildClass(val arg: Boolean): TestInterface
+                      ~~~~~~~~~~~~~~~~~~~
+                src/androidx/test/Test.kt:30: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                object InterfaceChildObject: TestInterface
+                       ~~~~~~~~~~~~~~~~~~~~
+                src/androidx/test/Test.kt:32: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                abstract class TestAbstract
+                               ~~~~~~~~~~~~
+                src/androidx/test/Test.kt:33: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                class AbstractChildClass(val arg: Boolean): TestAbstract()
+                      ~~~~~~~~~~~~~~~~~~
+                src/androidx/test/Test.kt:34: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                object AbstractChildObject: TestAbstract()
+                       ~~~~~~~~~~~~~~~~~~~
+                src/androidx/test/Test.kt:36: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                sealed class SealedClass {
+                             ~~~~~~~~~~~
+                src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                    class SealedSubClass : SealedClass()
+                          ~~~~~~~~~~~~~~
+                13 errors, 0 warnings
                 """
                     .trimIndent()
             )
@@ -183,7 +183,7 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
                     )
                     .indented(),
                 *STUBS,
-                SERIALIZABLE_TEST_CLASS
+                SERIALIZABLE_TEST_CLASS,
             )
             .run()
             .expectClean()
@@ -220,51 +220,51 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
                     )
                     .indented(),
                 *STUBS,
-                TEST_CLASS
+                TEST_CLASS,
             )
             .run()
             .expect(
                 """
-src/androidx/test/Test.kt:11: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-object TestObject
-       ~~~~~~~~~~
-src/androidx/test/Test.kt:13: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-data object TestDataObject
-            ~~~~~~~~~~~~~~
-src/androidx/test/Test.kt:15: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-class TestClass
-      ~~~~~~~~~
-src/androidx/test/Test.kt:19: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-object Outer {
-       ~~~~~
-src/androidx/test/Test.kt:20: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-    data object InnerObject
-                ~~~~~~~~~~~
-src/androidx/test/Test.kt:22: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-    data class InnerClass (
-               ~~~~~~~~~~
-src/androidx/test/Test.kt:29: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-class InterfaceChildClass(val arg: Boolean): TestInterface
-      ~~~~~~~~~~~~~~~~~~~
-src/androidx/test/Test.kt:30: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-object InterfaceChildObject: TestInterface
-       ~~~~~~~~~~~~~~~~~~~~
-src/androidx/test/Test.kt:32: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-abstract class TestAbstract
-               ~~~~~~~~~~~~
-src/androidx/test/Test.kt:33: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-class AbstractChildClass(val arg: Boolean): TestAbstract()
-      ~~~~~~~~~~~~~~~~~~
-src/androidx/test/Test.kt:34: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-object AbstractChildObject: TestAbstract()
-       ~~~~~~~~~~~~~~~~~~~
-src/androidx/test/Test.kt:36: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-sealed class SealedClass {
-             ~~~~~~~~~~~
-src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-    class SealedSubClass : SealedClass()
-          ~~~~~~~~~~~~~~
-13 errors, 0 warnings
+                src/androidx/test/Test.kt:11: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                object TestObject
+                       ~~~~~~~~~~
+                src/androidx/test/Test.kt:13: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                data object TestDataObject
+                            ~~~~~~~~~~~~~~
+                src/androidx/test/Test.kt:15: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                class TestClass
+                      ~~~~~~~~~
+                src/androidx/test/Test.kt:19: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                object Outer {
+                       ~~~~~
+                src/androidx/test/Test.kt:20: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                    data object InnerObject
+                                ~~~~~~~~~~~
+                src/androidx/test/Test.kt:22: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                    data class InnerClass (
+                               ~~~~~~~~~~
+                src/androidx/test/Test.kt:29: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                class InterfaceChildClass(val arg: Boolean): TestInterface
+                      ~~~~~~~~~~~~~~~~~~~
+                src/androidx/test/Test.kt:30: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                object InterfaceChildObject: TestInterface
+                       ~~~~~~~~~~~~~~~~~~~~
+                src/androidx/test/Test.kt:32: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                abstract class TestAbstract
+                               ~~~~~~~~~~~~
+                src/androidx/test/Test.kt:33: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                class AbstractChildClass(val arg: Boolean): TestAbstract()
+                      ~~~~~~~~~~~~~~~~~~
+                src/androidx/test/Test.kt:34: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                object AbstractChildObject: TestAbstract()
+                       ~~~~~~~~~~~~~~~~~~~
+                src/androidx/test/Test.kt:36: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                sealed class SealedClass {
+                             ~~~~~~~~~~~
+                src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                    class SealedSubClass : SealedClass()
+                          ~~~~~~~~~~~~~~
+                13 errors, 0 warnings
                 """
                     .trimIndent()
             )
@@ -305,7 +305,7 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
                     )
                     .indented(),
                 *STUBS,
-                SERIALIZABLE_TEST_CLASS
+                SERIALIZABLE_TEST_CLASS,
             )
             .run()
             .expectClean()
@@ -346,51 +346,51 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
                     )
                     .indented(),
                 *STUBS,
-                TEST_CLASS
+                TEST_CLASS,
             )
             .run()
             .expect(
                 """
-src/androidx/test/Test.kt:11: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-object TestObject
-       ~~~~~~~~~~
-src/androidx/test/Test.kt:13: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-data object TestDataObject
-            ~~~~~~~~~~~~~~
-src/androidx/test/Test.kt:15: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-class TestClass
-      ~~~~~~~~~
-src/androidx/test/Test.kt:19: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-object Outer {
-       ~~~~~
-src/androidx/test/Test.kt:20: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-    data object InnerObject
-                ~~~~~~~~~~~
-src/androidx/test/Test.kt:22: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-    data class InnerClass (
-               ~~~~~~~~~~
-src/androidx/test/Test.kt:29: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-class InterfaceChildClass(val arg: Boolean): TestInterface
-      ~~~~~~~~~~~~~~~~~~~
-src/androidx/test/Test.kt:30: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-object InterfaceChildObject: TestInterface
-       ~~~~~~~~~~~~~~~~~~~~
-src/androidx/test/Test.kt:32: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-abstract class TestAbstract
-               ~~~~~~~~~~~~
-src/androidx/test/Test.kt:33: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-class AbstractChildClass(val arg: Boolean): TestAbstract()
-      ~~~~~~~~~~~~~~~~~~
-src/androidx/test/Test.kt:34: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-object AbstractChildObject: TestAbstract()
-       ~~~~~~~~~~~~~~~~~~~
-src/androidx/test/Test.kt:36: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-sealed class SealedClass {
-             ~~~~~~~~~~~
-src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-    class SealedSubClass : SealedClass()
-          ~~~~~~~~~~~~~~
-13 errors, 0 warnings
+                src/androidx/test/Test.kt:11: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                object TestObject
+                       ~~~~~~~~~~
+                src/androidx/test/Test.kt:13: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                data object TestDataObject
+                            ~~~~~~~~~~~~~~
+                src/androidx/test/Test.kt:15: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                class TestClass
+                      ~~~~~~~~~
+                src/androidx/test/Test.kt:19: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                object Outer {
+                       ~~~~~
+                src/androidx/test/Test.kt:20: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                    data object InnerObject
+                                ~~~~~~~~~~~
+                src/androidx/test/Test.kt:22: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                    data class InnerClass (
+                               ~~~~~~~~~~
+                src/androidx/test/Test.kt:29: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                class InterfaceChildClass(val arg: Boolean): TestInterface
+                      ~~~~~~~~~~~~~~~~~~~
+                src/androidx/test/Test.kt:30: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                object InterfaceChildObject: TestInterface
+                       ~~~~~~~~~~~~~~~~~~~~
+                src/androidx/test/Test.kt:32: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                abstract class TestAbstract
+                               ~~~~~~~~~~~~
+                src/androidx/test/Test.kt:33: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                class AbstractChildClass(val arg: Boolean): TestAbstract()
+                      ~~~~~~~~~~~~~~~~~~
+                src/androidx/test/Test.kt:34: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                object AbstractChildObject: TestAbstract()
+                       ~~~~~~~~~~~~~~~~~~~
+                src/androidx/test/Test.kt:36: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                sealed class SealedClass {
+                             ~~~~~~~~~~~
+                src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                    class SealedSubClass : SealedClass()
+                          ~~~~~~~~~~~~~~
+                13 errors, 0 warnings
                 """
                     .trimIndent()
             )
@@ -430,7 +430,7 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
                     )
                     .indented(),
                 *STUBS,
-                SERIALIZABLE_TEST_CLASS
+                SERIALIZABLE_TEST_CLASS,
             )
             .run()
             .expectClean()
@@ -470,51 +470,51 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
                     )
                     .indented(),
                 *STUBS,
-                TEST_CLASS
+                TEST_CLASS,
             )
             .run()
             .expect(
                 """
-src/androidx/test/Test.kt:11: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-object TestObject
-       ~~~~~~~~~~
-src/androidx/test/Test.kt:13: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-data object TestDataObject
-            ~~~~~~~~~~~~~~
-src/androidx/test/Test.kt:15: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-class TestClass
-      ~~~~~~~~~
-src/androidx/test/Test.kt:19: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-object Outer {
-       ~~~~~
-src/androidx/test/Test.kt:20: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-    data object InnerObject
-                ~~~~~~~~~~~
-src/androidx/test/Test.kt:22: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-    data class InnerClass (
-               ~~~~~~~~~~
-src/androidx/test/Test.kt:29: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-class InterfaceChildClass(val arg: Boolean): TestInterface
-      ~~~~~~~~~~~~~~~~~~~
-src/androidx/test/Test.kt:30: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-object InterfaceChildObject: TestInterface
-       ~~~~~~~~~~~~~~~~~~~~
-src/androidx/test/Test.kt:32: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-abstract class TestAbstract
-               ~~~~~~~~~~~~
-src/androidx/test/Test.kt:33: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-class AbstractChildClass(val arg: Boolean): TestAbstract()
-      ~~~~~~~~~~~~~~~~~~
-src/androidx/test/Test.kt:34: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-object AbstractChildObject: TestAbstract()
-       ~~~~~~~~~~~~~~~~~~~
-src/androidx/test/Test.kt:36: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-sealed class SealedClass {
-             ~~~~~~~~~~~
-src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-    class SealedSubClass : SealedClass()
-          ~~~~~~~~~~~~~~
-13 errors, 0 warnings
+                src/androidx/test/Test.kt:11: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                object TestObject
+                       ~~~~~~~~~~
+                src/androidx/test/Test.kt:13: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                data object TestDataObject
+                            ~~~~~~~~~~~~~~
+                src/androidx/test/Test.kt:15: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                class TestClass
+                      ~~~~~~~~~
+                src/androidx/test/Test.kt:19: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                object Outer {
+                       ~~~~~
+                src/androidx/test/Test.kt:20: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                    data object InnerObject
+                                ~~~~~~~~~~~
+                src/androidx/test/Test.kt:22: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                    data class InnerClass (
+                               ~~~~~~~~~~
+                src/androidx/test/Test.kt:29: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                class InterfaceChildClass(val arg: Boolean): TestInterface
+                      ~~~~~~~~~~~~~~~~~~~
+                src/androidx/test/Test.kt:30: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                object InterfaceChildObject: TestInterface
+                       ~~~~~~~~~~~~~~~~~~~~
+                src/androidx/test/Test.kt:32: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                abstract class TestAbstract
+                               ~~~~~~~~~~~~
+                src/androidx/test/Test.kt:33: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                class AbstractChildClass(val arg: Boolean): TestAbstract()
+                      ~~~~~~~~~~~~~~~~~~
+                src/androidx/test/Test.kt:34: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                object AbstractChildObject: TestAbstract()
+                       ~~~~~~~~~~~~~~~~~~~
+                src/androidx/test/Test.kt:36: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                sealed class SealedClass {
+                             ~~~~~~~~~~~
+                src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                    class SealedSubClass : SealedClass()
+                          ~~~~~~~~~~~~~~
+                13 errors, 0 warnings
                 """
                     .trimIndent()
             )
@@ -573,11 +573,11 @@ src/androidx/test/Test.kt:37: Error: To use this class or object as a type-safe 
             .run()
             .expect(
                 """
-src/com/example/TestClass.kt:7: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-class DeepLink
-      ~~~~~~~~
-1 errors, 0 warnings
-            """
+                src/com/example/TestClass.kt:7: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                class DeepLink
+                      ~~~~~~~~
+                1 errors, 0 warnings
+                """
                     .trimIndent()
             )
     }
@@ -603,7 +603,7 @@ class DeepLink
                     )
                     .indented(),
                 *STUBS,
-                NAV_DEEP_LINK
+                NAV_DEEP_LINK,
             )
             .run()
             .expectClean()
@@ -629,16 +629,16 @@ class DeepLink
                     )
                     .indented(),
                 *STUBS,
-                NAV_DEEP_LINK
+                NAV_DEEP_LINK,
             )
             .run()
             .expect(
                 """
-src/com/example/DeepLink.kt:5: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-class DeepLink
-      ~~~~~~~~
-1 errors, 0 warnings
-            """
+                src/com/example/DeepLink.kt:5: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                class DeepLink
+                      ~~~~~~~~
+                1 errors, 0 warnings
+                """
                     .trimIndent()
             )
     }
@@ -663,7 +663,7 @@ class DeepLink
                     )
                     .indented(),
                 *STUBS,
-                NAV_DEEP_LINK
+                NAV_DEEP_LINK,
             )
             .run()
             .expectClean()
@@ -689,16 +689,16 @@ class DeepLink
                     )
                     .indented(),
                 *STUBS,
-                NAV_DEEP_LINK
+                NAV_DEEP_LINK,
             )
             .run()
             .expect(
                 """
-src/com/example/DeepLink.kt:5: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
-class DeepLink
-      ~~~~~~~~
-1 errors, 0 warnings
-            """
+                src/com/example/DeepLink.kt:5: Error: To use this class or object as a type-safe destination, annotate it with @Serializable [MissingSerializableAnnotation]
+                class DeepLink
+                      ~~~~~~~~
+                1 errors, 0 warnings
+                """
                     .trimIndent()
             )
     }
@@ -727,7 +727,7 @@ class DeepLink
                     )
                     .indented(),
                 *STUBS,
-                CUSTOM_NAV_GRAPH_BUILDER_EXTENSIONS
+                CUSTOM_NAV_GRAPH_BUILDER_EXTENSIONS,
             )
             .run()
             .expectClean()
@@ -767,7 +767,7 @@ inline fun <reified T : Any> NavGraphBuilder.navigation() { }
                 lLHKiqTYh4E8sjnLNSygQPEDip6QN/QO9iqlz1jKNT/pFcAmW6DeTRSxTXiN
                 OJPiMpbJkhwVrJB/mKmLdHYytIU6+UPS3KQiqwPkXKy5uOWiipqLddx2sYE7
                 A7AUm7g7wEKqv3sp7md25Se3iEt3PgMAAA==
-                """
+                """,
             )
             .toTestBytecodeStub()
 

@@ -22,29 +22,31 @@ public actual abstract class NavUri {
     public actual abstract fun getFragment(): String?
     public actual abstract fun getQuery(): String?
     public actual abstract fun getPathSegments(): List<String>
-    public actual open fun getQueryParameters(key: String): List<String> = error("Abstract implementation")
+
+    public actual open fun getQueryParameters(key: String): List<String> =
+        error("Abstract implementation")
+
     public actual open fun getQueryParameterNames(): Set<String> = error("Abstract implementation")
+
     actual abstract override fun toString(): String
 }
 
 internal actual object NavUriUtils {
     actual fun encode(s: String, allow: String?): String = InternalUri.encode(s, allow)
+
     actual fun decode(s: String): String = InternalUri.decode(s)
+
     actual fun parse(uriString: String): NavUri = ActualUri(uriString)
 }
 
-private class ActualUri(
-    private val uriString: String
-) : NavUri() {
+private class ActualUri(private val uriString: String) : NavUri() {
 
     private companion object {
         private val QUERY_PATTERN = Regex("^[^?#]+\\?([^#]*).*")
         private val FRAGMENT_PATTERN = Regex("#(.+)")
     }
 
-    private val _query: String? by lazy {
-        QUERY_PATTERN.find(uriString)?.groups?.get(1)?.value
-    }
+    private val _query: String? by lazy { QUERY_PATTERN.find(uriString)?.groups?.get(1)?.value }
 
     private val _fragment: String? by lazy {
         FRAGMENT_PATTERN.find(uriString)?.groups?.get(1)?.value
@@ -86,8 +88,10 @@ private class ActualUri(
         return query.split('&').mapNotNull {
             val i = it.indexOf('=')
             when {
-                i == -1  -> if (it == encodedKey) "" else null
-                it.substring(0, i) == encodedKey -> { InternalUri.decode(it.substring(i + 1)) }
+                i == -1 -> if (it == encodedKey) "" else null
+                it.substring(0, i) == encodedKey -> {
+                    InternalUri.decode(it.substring(i + 1))
+                }
                 else -> null
             }
         }
@@ -97,11 +101,13 @@ private class ActualUri(
         require(isHierarchical())
         val query = _query ?: return emptySet()
 
-        return query.split('&').map {
-            val index = it.indexOf('=')
-            if (index == -1) return@map it
-            else InternalUri.decode(it.substring(0, index))
-        }.toSet()
+        return query
+            .split('&')
+            .map {
+                val index = it.indexOf('=')
+                if (index == -1) return@map it else InternalUri.decode(it.substring(0, index))
+            }
+            .toSet()
     }
 
     override fun toString(): String = uriString

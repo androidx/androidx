@@ -26,10 +26,11 @@ package androidx.navigation.fragment.compose {
   public static final class ComposableNavHostFragment.Companion {
     method public androidx.navigation.fragment.compose.ComposableNavHostFragment create(@NavigationRes int graphResId);
     method public androidx.navigation.fragment.compose.ComposableNavHostFragment create(@NavigationRes int graphResId, optional android.os.Bundle? startDestinationArgs);
+    method @BytecodeOnly public static androidx.navigation.fragment.compose.ComposableNavHostFragment! create$default(androidx.navigation.fragment.compose.ComposableNavHostFragment.Companion!, int, android.os.Bundle!, int, Object!);
   }
 
   public final class LocalFragmentKt {
-    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.fragment.app.Fragment> getLocalFragment();
+    method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.fragment.app.Fragment> getLocalFragment();
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.fragment.app.Fragment> LocalFragment;
   }
 

@@ -347,7 +347,7 @@ public class NavDeepLinkBuilder(private val context: Context) {
         return createTaskStackBuilder()
             .getPendingIntent(
                 requestCode,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )!!
     }
 
@@ -367,7 +367,7 @@ public class NavDeepLinkBuilder(private val context: Context) {
                     destination: NavDestination,
                     args: SavedState?,
                     navOptions: NavOptions?,
-                    navigatorExtras: Extras?
+                    navigatorExtras: Extras?,
                 ): NavDestination? {
                     throw IllegalStateException("navigate is not supported")
                 }

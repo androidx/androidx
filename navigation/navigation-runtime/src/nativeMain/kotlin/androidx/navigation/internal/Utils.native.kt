@@ -20,5 +20,4 @@ import kotlin.experimental.ExperimentalNativeApi
 import kotlin.native.identityHashCode
 
 @OptIn(ExperimentalNativeApi::class)
-internal actual fun identityHashCode(instance: Any?): Int =
-    instance.identityHashCode()
+internal actual fun identityHashCode(instance: Any?): Int = instance.identityHashCode()

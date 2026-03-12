@@ -57,7 +57,7 @@ public expect open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
         route: String,
         searchChildren: Boolean,
         searchParent: Boolean,
-        lastVisited: NavDestination
+        lastVisited: NavDestination,
     ): DeepLinkMatch?
 
     /**
@@ -70,7 +70,7 @@ public expect open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
         navDeepLinkRequest: NavDeepLinkRequest,
         searchChildren: Boolean,
         searchParent: Boolean,
-        lastVisited: NavDestination
+        lastVisited: NavDestination,
     ): DeepLinkMatch?
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -123,6 +123,7 @@ public expect open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
      *   because [resId] is only unique to a local graph. Nodes in sibling graphs can have the same
      *   id.
      */
+    @Suppress("KmpHideShowAnnotationMismatch") // actuals are RestrictTo
     public fun findNodeComprehensive(
         resId: Int,
         lastVisited: NavDestination?,

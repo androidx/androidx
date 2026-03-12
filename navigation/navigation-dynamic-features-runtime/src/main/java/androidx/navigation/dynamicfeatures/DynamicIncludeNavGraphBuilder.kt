@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE")
+// Facade class name cannot be updated, the Kt name has been released
+@file:Suppress("NOTHING_TO_INLINE", "FacadeClassJvmName")
 
 package androidx.navigation.dynamicfeatures
 
@@ -39,12 +40,12 @@ import kotlin.reflect.KType
 @Suppress("Deprecation")
 @Deprecated(
     "Use routes to include your DynamicNavGraph instead",
-    ReplaceWith("includeDynamic(route = id.toString(), moduleName, graphResourceName)")
+    ReplaceWith("includeDynamic(route = id.toString(), moduleName, graphResourceName)"),
 )
 public inline fun DynamicNavGraphBuilder.includeDynamic(
     @IdRes id: Int,
     moduleName: String,
-    graphResourceName: String
+    graphResourceName: String,
 ): Unit = includeDynamic(id, moduleName, graphResourceName) {}
 
 /**
@@ -62,20 +63,20 @@ public inline fun DynamicNavGraphBuilder.includeDynamic(
     "Use routes to include your DynamicNavGraph instead",
     ReplaceWith(
         "includeDynamic(route = id.toString(), moduleName, graphResourceName) { builder.invoke() }"
-    )
+    ),
 )
 public inline fun DynamicNavGraphBuilder.includeDynamic(
     @IdRes id: Int,
     moduleName: String,
     graphResourceName: String,
-    builder: DynamicIncludeNavGraphBuilder.() -> Unit
+    builder: DynamicIncludeNavGraphBuilder.() -> Unit,
 ): Unit =
     destination(
         DynamicIncludeNavGraphBuilder(
                 provider[DynamicIncludeGraphNavigator::class],
                 id,
                 moduleName,
-                graphResourceName
+                graphResourceName,
             )
             .apply(builder)
     )
@@ -92,7 +93,7 @@ public inline fun DynamicNavGraphBuilder.includeDynamic(
 public inline fun DynamicNavGraphBuilder.includeDynamic(
     route: String,
     moduleName: String,
-    graphResourceName: String
+    graphResourceName: String,
 ): Unit = includeDynamic(route, moduleName, graphResourceName) {}
 
 /**
@@ -126,14 +127,14 @@ public inline fun DynamicNavGraphBuilder.includeDynamic(
     route: String,
     moduleName: String,
     graphResourceName: String,
-    builder: DynamicIncludeNavGraphBuilder.() -> Unit
+    builder: DynamicIncludeNavGraphBuilder.() -> Unit,
 ): Unit =
     destination(
         DynamicIncludeNavGraphBuilder(
                 provider[DynamicIncludeGraphNavigator::class],
                 route,
                 moduleName,
-                graphResourceName
+                graphResourceName,
             )
             .apply(builder)
     )
@@ -154,7 +155,7 @@ public inline fun <reified T : Any> DynamicNavGraphBuilder.includeDynamic(
     moduleName: String,
     graphResourceName: String,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
-    builder: DynamicIncludeNavGraphBuilder.() -> Unit
+    builder: DynamicIncludeNavGraphBuilder.() -> Unit,
 ): Unit =
     destination(
         DynamicIncludeNavGraphBuilder(
@@ -162,7 +163,7 @@ public inline fun <reified T : Any> DynamicNavGraphBuilder.includeDynamic(
                 T::class,
                 typeMap,
                 moduleName,
-                graphResourceName
+                graphResourceName,
             )
             .apply(builder)
     )
@@ -181,13 +182,13 @@ public class DynamicIncludeNavGraphBuilder : NavDestinationBuilder<DynamicInclud
         ReplaceWith(
             "DynamicIncludeNavGraphBuilder(dynamicIncludeGraphNavigator, route = id.toString(), " +
                 "moduleName, graphResourceName)"
-        )
+        ),
     )
     public constructor(
         dynamicIncludeGraphNavigator: DynamicIncludeGraphNavigator,
         @IdRes id: Int,
         moduleName: String,
-        graphResourceName: String
+        graphResourceName: String,
     ) : super(dynamicIncludeGraphNavigator, id) {
         this.dynamicIncludeGraphNavigator = dynamicIncludeGraphNavigator
         this.moduleName = moduleName
@@ -198,7 +199,7 @@ public class DynamicIncludeNavGraphBuilder : NavDestinationBuilder<DynamicInclud
         dynamicIncludeGraphNavigator: DynamicIncludeGraphNavigator,
         route: String,
         moduleName: String,
-        graphResourceName: String
+        graphResourceName: String,
     ) : super(dynamicIncludeGraphNavigator, route) {
         this.dynamicIncludeGraphNavigator = dynamicIncludeGraphNavigator
         this.moduleName = moduleName
@@ -223,7 +224,7 @@ public class DynamicIncludeNavGraphBuilder : NavDestinationBuilder<DynamicInclud
         route: KClass<*>,
         typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
         moduleName: String,
-        graphResourceName: String
+        graphResourceName: String,
     ) : super(dynamicIncludeGraphNavigator, route, typeMap) {
         this.dynamicIncludeGraphNavigator = dynamicIncludeGraphNavigator
         this.moduleName = moduleName

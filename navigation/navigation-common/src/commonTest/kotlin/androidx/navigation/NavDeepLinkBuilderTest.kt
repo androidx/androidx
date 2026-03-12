@@ -23,6 +23,7 @@ import kotlin.test.Test
 import kotlin.test.fail
 import kotlinx.serialization.Serializable
 
+@IgnoreAndroidHostTestTarget
 class NavDeepLinkBuilderTest {
 
     @Test

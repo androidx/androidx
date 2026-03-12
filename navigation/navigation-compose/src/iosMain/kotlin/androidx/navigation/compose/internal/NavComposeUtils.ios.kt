@@ -69,4 +69,10 @@ internal actual object DefaultNavTransitions {
     }
     actual val sizeTransform:
         (AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)? = null
+
+    // TODO: https://youtrack.jetbrains.com/issue/CMP-9920/Correctly-implement-DefaultNavTransitions-predictive-pop-transitions-for-iOS
+    actual val predictivePopEnterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.(Int) -> EnterTransition
+        get() = StandardDefaultNavTransitions.predictivePopEnterTransition
+    actual val predictivePopExitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.(Int) -> ExitTransition
+        get() = StandardDefaultNavTransitions.predictivePopExitTransition
 }

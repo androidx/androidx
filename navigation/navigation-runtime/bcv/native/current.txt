@@ -1,5 +1,5 @@
 // Klib ABI Dump
-// Targets: [linuxX64.linuxx64Stubs]
+// Targets: [iosArm64, iosSimulatorArm64, linuxArm64, linuxX64, macosArm64]
 // Rendering settings:
 // - Signature version: 2
 // - Show manifest properties: true
@@ -103,4 +103,3 @@ final inline fun (androidx.navigation/NavController).androidx.navigation/createG
 final inline fun (androidx.navigation/NavHost).androidx.navigation/createGraph(kotlin.reflect/KClass<*>, kotlin.reflect/KClass<*>? = ..., kotlin.collections/Map<kotlin.reflect/KType, androidx.navigation/NavType<*>> = ..., kotlin/Function1<androidx.navigation/NavGraphBuilder, kotlin/Unit>): androidx.navigation/NavGraph // androidx.navigation/createGraph|createGraph@androidx.navigation.NavHost(kotlin.reflect.KClass<*>;kotlin.reflect.KClass<*>?;kotlin.collections.Map<kotlin.reflect.KType,androidx.navigation.NavType<*>>;kotlin.Function1<androidx.navigation.NavGraphBuilder,kotlin.Unit>){}[0]
 final inline fun (androidx.navigation/NavHost).androidx.navigation/createGraph(kotlin/Any, kotlin.reflect/KClass<*>? = ..., kotlin.collections/Map<kotlin.reflect/KType, androidx.navigation/NavType<*>> = ..., kotlin/Function1<androidx.navigation/NavGraphBuilder, kotlin/Unit>): androidx.navigation/NavGraph // androidx.navigation/createGraph|createGraph@androidx.navigation.NavHost(kotlin.Any;kotlin.reflect.KClass<*>?;kotlin.collections.Map<kotlin.reflect.KType,androidx.navigation.NavType<*>>;kotlin.Function1<androidx.navigation.NavGraphBuilder,kotlin.Unit>){}[0]
 final inline fun (androidx.navigation/NavHost).androidx.navigation/createGraph(kotlin/String, kotlin/String? = ..., kotlin/Function1<androidx.navigation/NavGraphBuilder, kotlin/Unit>): androidx.navigation/NavGraph // androidx.navigation/createGraph|createGraph@androidx.navigation.NavHost(kotlin.String;kotlin.String?;kotlin.Function1<androidx.navigation.NavGraphBuilder,kotlin.Unit>){}[0]
-final inline fun androidx.navigation/implementedInJetBrainsFork(): kotlin/Nothing // androidx.navigation/implementedInJetBrainsFork|implementedInJetBrainsFork(){}[0]

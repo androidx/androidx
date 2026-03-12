@@ -52,7 +52,7 @@ class WrongStartDestinationTypeDetectorTest : LintDetectorTest() {
                 """
                     )
                     .indented(),
-                *STUBS
+                *STUBS,
             )
             .skipTestModes(TestMode.FULLY_QUALIFIED)
             .run()
@@ -91,7 +91,7 @@ class WrongStartDestinationTypeDetectorTest : LintDetectorTest() {
                 """
                     )
                     .indented(),
-                *STUBS
+                *STUBS,
             )
             .run()
             .expectClean()
@@ -124,7 +124,7 @@ class WrongStartDestinationTypeDetectorTest : LintDetectorTest() {
                 """
                     )
                     .indented(),
-                *STUBS
+                *STUBS,
             )
             .run()
             .expectClean()
@@ -162,7 +162,7 @@ class WrongStartDestinationTypeDetectorTest : LintDetectorTest() {
                 """
                     )
                     .indented(),
-                *STUBS
+                *STUBS,
             )
             .run()
             .expect(
@@ -282,7 +282,7 @@ you can also pass in its KClass reference Companion::class [WrongStartDestinatio
                 """
                     )
                     .indented(),
-                *STUBS
+                *STUBS,
             )
             .run()
             .expectClean()
@@ -316,7 +316,7 @@ you can also pass in its KClass reference Companion::class [WrongStartDestinatio
                 """
                     )
                     .indented(),
-                *STUBS
+                *STUBS,
             )
             .run()
             .expectClean()
@@ -353,7 +353,7 @@ you can also pass in its KClass reference Companion::class [WrongStartDestinatio
                 """
                     )
                     .indented(),
-                *STUBS
+                *STUBS,
             )
             .run()
             .expect(

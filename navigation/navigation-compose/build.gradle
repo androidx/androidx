@@ -57,8 +57,8 @@ androidXMultiplatform {
             implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
             implementation(project(":lifecycle:lifecycle-viewmodel"))
             implementation(project(":lifecycle:lifecycle-viewmodel-compose"))
-            implementation(project(":savedstate:savedstate"))
-            implementation(project(":savedstate:savedstate-compose"))
+            implementation("androidx.savedstate:savedstate:1.4.0")
+            implementation("androidx.savedstate:savedstate-compose:1.4.0")
             implementation(libs.kotlinCoroutinesCore)
             implementation(libs.kotlinSerializationCore)
         }
@@ -66,11 +66,12 @@ androidXMultiplatform {
             implementation(libs.kotlinTest)
             implementation(project(":compose:ui:ui-test"))
         }
-        nonAndroidMain {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(project(":compose:ui:ui-backhandler"))
-            }
+        create("nonAndroidMain").dependsOn(commonMain)
+        create("nonAndroidTest").dependsOn(commonTest)
+
+        nonAndroidMain.dependencies {
+            // TODO: Remove the dependency - https://youtrack.jetbrains.com/issue/CMP-9922
+            implementation(project(":compose:ui:ui-backhandler"))
         }
 
         nonAndroidTest {
@@ -141,8 +142,17 @@ androidXMultiplatform {
             }
         }
 
+        nonJvmMain {
+            dependencies {
+                // To comply with Klib resolver until https://youtrack.jetbrains.com/issue/KT-61096 is fixed
+                implementation("org.jetbrains.androidx.savedstate:savedstate:1.4.0")
+                implementation("org.jetbrains.androidx.savedstate:savedstate-compose:1.4.0")
+            }
+        }
+
         nativeMain {
             dependsOn(nonAndroidMain)
+            dependsOn(nonJvmMain)
         }
 
         nativeTest {
@@ -151,6 +161,7 @@ androidXMultiplatform {
 
         webMain {
             dependsOn(nonAndroidMain)
+            dependsOn(nonJvmMain)
         }
 
         webTest {

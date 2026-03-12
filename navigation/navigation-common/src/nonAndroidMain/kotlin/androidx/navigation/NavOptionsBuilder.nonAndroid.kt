@@ -72,6 +72,7 @@ public actual class NavOptionsBuilder actual constructor() {
      * the back stack until this destination is found.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Suppress("KmpHideShowAnnotationMismatch")
     public fun popUpTo(id: Int, popUpToBuilder: PopUpToBuilder.() -> Unit = {}) {
         popUpToId = id
         popUpToRoute = null
@@ -99,7 +100,7 @@ public actual class NavOptionsBuilder actual constructor() {
     @Suppress("BuilderSetStyle")
     public actual fun <T : Any> popUpTo(
         route: KClass<T>,
-        popUpToBuilder: PopUpToBuilder.() -> Unit
+        popUpToBuilder: PopUpToBuilder.() -> Unit,
     ) {
         popUpToRouteClass = route
         popUpToId = -1

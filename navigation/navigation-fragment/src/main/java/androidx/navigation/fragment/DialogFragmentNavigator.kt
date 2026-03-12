@@ -42,7 +42,7 @@ import kotlinx.coroutines.flow.StateFlow
 @Navigator.Name("dialog")
 public class DialogFragmentNavigator(
     private val context: Context,
-    private val fragmentManager: FragmentManager
+    private val fragmentManager: FragmentManager,
 ) : Navigator<Destination>() {
     private val restoredTagsAwaitingAttach = mutableSetOf<String>()
     private val observer =
@@ -83,7 +83,7 @@ public class DialogFragmentNavigator(
                                     TAG,
                                     "Dialog $dialogFragment was dismissed while it was not the " +
                                         "top of the back stack, popping all dialogs above this " +
-                                        "dismissed dialog"
+                                        "dismissed dialog",
                                 )
                             }
                             poppedEntry?.let { popWithTransition(popIndex, it, false) }
@@ -137,7 +137,7 @@ public class DialogFragmentNavigator(
     private fun popWithTransition(
         popUpToIndex: Int,
         popUpTo: NavBackStackEntry,
-        savedState: Boolean
+        savedState: Boolean,
     ) {
         // track transitioning state of incoming entry
         val incomingEntry = state.backStack.value.elementAtOrNull(popUpToIndex - 1)
@@ -157,7 +157,7 @@ public class DialogFragmentNavigator(
     override fun navigate(
         entries: List<NavBackStackEntry>,
         navOptions: NavOptions?,
-        navigatorExtras: Extras?
+        navigatorExtras: Extras?,
     ) {
         if (fragmentManager.isStateSaved) {
             Log.i(TAG, "Ignoring navigate() call: FragmentManager has already saved its state")
@@ -184,7 +184,7 @@ public class DialogFragmentNavigator(
         if (fragmentManager.isStateSaved) {
             Log.i(
                 TAG,
-                "Ignoring onLaunchSingleTop() call: FragmentManager has already saved its state"
+                "Ignoring onLaunchSingleTop() call: FragmentManager has already saved its state",
             )
             return
         }
@@ -247,7 +247,7 @@ public class DialogFragmentNavigator(
      * Fragment via [setClassName].
      *
      * @param fragmentNavigator The [DialogFragmentNavigator] which this destination will be
-     *   associated with. Generally retrieved via a [NavController]'s
+     *   associated with. Generally retrieved via a [androidx.navigation.NavController]'s
      *   [NavigatorProvider.getNavigator] method.
      */
     @NavDestination.ClassType(DialogFragment::class)
@@ -270,8 +270,8 @@ public class DialogFragmentNavigator(
          * Construct a new fragment destination. This destination is not valid until you set the
          * Fragment via [setClassName].
          *
-         * @param navigatorProvider The [NavController] which this destination will be associated
-         *   with.
+         * @param navigatorProvider The [androidx.navigation.NavController] which this destination
+         *   will be associated with.
          */
         public constructor(
             navigatorProvider: NavigatorProvider

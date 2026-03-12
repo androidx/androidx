@@ -50,7 +50,7 @@ class UnrememberedGetBackStackEntryDetector : Detector(), SourceCodeScanner {
                 node,
                 context.getNameLocation(node),
                 "Calling getBackStackEntry during composition without using `remember` " +
-                    "with a NavBackStackEntry key"
+                    "with a NavBackStackEntry key",
             )
         }
     }
@@ -73,8 +73,8 @@ class UnrememberedGetBackStackEntryDetector : Detector(), SourceCodeScanner {
                 Severity.ERROR,
                 Implementation(
                     UnrememberedGetBackStackEntryDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES),
+                ),
             )
     }
 }

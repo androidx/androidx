@@ -26,7 +26,7 @@ data class Destination(
     val args: List<Argument>,
     val actions: List<Action>,
     val nested: List<Destination> = emptyList(),
-    val included: List<IncludedDestination> = emptyList()
+    val included: List<IncludedDestination> = emptyList(),
 ) {
 
     companion object {

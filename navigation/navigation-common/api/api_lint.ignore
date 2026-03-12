@@ -1,16 +1,16 @@
 // Baseline format: 1.0
 ArrayReturn: androidx.navigation.NavType.ParcelableArrayType#get(android.os.Bundle, String):
-    Method should return Collection<Parcelable> (or subclass) instead of raw array; was `D[]`
+    Method should return Collection<D> (or subclass) instead of raw array; was `D[]`
 ArrayReturn: androidx.navigation.NavType.ParcelableArrayType#parseValue(String):
-    Method should return Collection<Parcelable> (or subclass) instead of raw array; was `D[]`
+    Method should return Collection<D> (or subclass) instead of raw array; was `D[]`
 ArrayReturn: androidx.navigation.NavType.ParcelableArrayType#put(android.os.Bundle, String, D[]) parameter #2:
-    Method parameter should be Collection<Parcelable> (or subclass) instead of raw array; was `D[]`
+    Method parameter should be Collection<D> (or subclass) instead of raw array; was `D[]`
 ArrayReturn: androidx.navigation.NavType.SerializableArrayType#get(android.os.Bundle, String):
-    Method should return Collection<Serializable> (or subclass) instead of raw array; was `D[]`
+    Method should return Collection<D> (or subclass) instead of raw array; was `D[]`
 ArrayReturn: androidx.navigation.NavType.SerializableArrayType#parseValue(String):
-    Method should return Collection<Serializable> (or subclass) instead of raw array; was `D[]`
+    Method should return Collection<D> (or subclass) instead of raw array; was `D[]`
 ArrayReturn: androidx.navigation.NavType.SerializableArrayType#put(android.os.Bundle, String, D[]) parameter #2:
-    Method parameter should be Collection<Serializable> (or subclass) instead of raw array; was `D[]`
+    Method parameter should be Collection<D> (or subclass) instead of raw array; was `D[]`
 
 
 BuilderSetStyle: androidx.navigation.NavActionBuilder#navOptions(kotlin.jvm.functions.Function1<? super androidx.navigation.NavOptionsBuilder,kotlin.Unit>):
@@ -109,8 +109,6 @@ MissingGetterMatchingBuilder: androidx.navigation.NavOptions.Builder#setLaunchSi
     androidx.navigation.NavOptions does not declare a `isLaunchSingleTop()` method matching method androidx.navigation.NavOptions.Builder.setLaunchSingleTop(boolean)
 
 
-MissingJvmstatic: androidx.navigation.NavDestination#hierarchy:
-    Companion object constants like hierarchy should be using @JvmField, not @JvmStatic; see https://developer.android.com/kotlin/interop#companion_constants
 MissingJvmstatic: androidx.navigation.NavOptionsBuilder#popUpTo(String, kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit>):
     A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
 MissingJvmstatic: androidx.navigation.NavOptionsBuilder#popUpTo(int, kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit>):
@@ -135,10 +133,6 @@ NullableCollection: androidx.navigation.NavType#StringListType:
     Type of field androidx.navigation.NavType.StringListType uses a nullable collection (`java.util.List`); must be non-null
 NullableCollection: androidx.navigation.Navigator#onSaveState():
     Return type of method androidx.navigation.Navigator.onSaveState() uses a nullable collection (`android.os.Bundle`); must be non-null
-
-
-NullableCollectionElement: androidx.navigation.NavActionBuilder#getDefaultArguments():
-    Collection java.util.Map<java.lang.String,java.lang.Object> should not have a nullable element type (java.lang.Object) in method androidx.navigation.NavActionBuilder.getDefaultArguments()
 
 
 OptionalBuilderConstructorArgument: androidx.navigation.NavDestinationBuilder#NavDestinationBuilder(androidx.navigation.Navigator<? extends D>, String) parameter #1:
@@ -180,16 +174,20 @@ StaticFinalBuilder: androidx.navigation.NavDestinationBuilder:
 
 
 TopLevelBuilder: androidx.navigation.AnimBuilder:
-    Builder should be defined as inner class: androidx.navigation.AnimBuilder
+    Builder should be defined as nested class: androidx.navigation.AnimBuilder
 TopLevelBuilder: androidx.navigation.NavActionBuilder:
-    Builder should be defined as inner class: androidx.navigation.NavActionBuilder
+    Builder should be defined as nested class: androidx.navigation.NavActionBuilder
 TopLevelBuilder: androidx.navigation.NavArgumentBuilder:
-    Builder should be defined as inner class: androidx.navigation.NavArgumentBuilder
+    Builder should be defined as nested class: androidx.navigation.NavArgumentBuilder
 TopLevelBuilder: androidx.navigation.NavDeepLinkDslBuilder:
-    Builder should be defined as inner class: androidx.navigation.NavDeepLinkDslBuilder
+    Builder should be defined as nested class: androidx.navigation.NavDeepLinkDslBuilder
 TopLevelBuilder: androidx.navigation.NavDestinationBuilder:
-    Builder should be defined as inner class: androidx.navigation.NavDestinationBuilder
+    Builder should be defined as nested class: androidx.navigation.NavDestinationBuilder
 TopLevelBuilder: androidx.navigation.NavOptionsBuilder:
-    Builder should be defined as inner class: androidx.navigation.NavOptionsBuilder
+    Builder should be defined as nested class: androidx.navigation.NavOptionsBuilder
 TopLevelBuilder: androidx.navigation.PopUpToBuilder:
-    Builder should be defined as inner class: androidx.navigation.PopUpToBuilder
+    Builder should be defined as nested class: androidx.navigation.PopUpToBuilder
+
+
+TypeParameterName: androidx.navigation.NavArgsLazy:
+    Invalid type parameter name "Args". Type parameter names must follow the Google naming guidelines specified here: https://developer.android.com/kotlin/style-guide#type_variable_names

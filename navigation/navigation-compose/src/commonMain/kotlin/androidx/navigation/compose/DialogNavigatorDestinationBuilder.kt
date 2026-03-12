@@ -48,7 +48,7 @@ public class DialogNavigatorDestinationBuilder :
         navigator: DialogNavigator,
         route: String,
         dialogProperties: DialogProperties,
-        content: @Composable (NavBackStackEntry) -> Unit
+        content: @Composable (NavBackStackEntry) -> Unit,
     ) : super(navigator, route) {
         this.dialogNavigator = navigator
         this.dialogProperties = dialogProperties
@@ -71,7 +71,7 @@ public class DialogNavigatorDestinationBuilder :
         route: KClass<*>,
         typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
         dialogProperties: DialogProperties,
-        content: @Composable (NavBackStackEntry) -> Unit
+        content: @Composable (NavBackStackEntry) -> Unit,
     ) : super(navigator, route, typeMap) {
         this.dialogNavigator = navigator
         this.dialogProperties = dialogProperties

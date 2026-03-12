@@ -21,6 +21,7 @@ import androidx.kruth.assertWithMessage
 import kotlin.test.Test
 import kotlin.test.fail
 
+@IgnoreAndroidHostTestTarget
 class NavDeepLinkMimeTypeTest {
     companion object {
         private const val DEEP_LINK_EXACT_HTTPS = "https://www.example.com"

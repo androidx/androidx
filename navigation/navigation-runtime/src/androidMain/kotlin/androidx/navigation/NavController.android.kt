@@ -106,7 +106,7 @@ public actual open class NavController(
         public actual fun onDestinationChanged(
             controller: NavController,
             destination: NavDestination,
-            arguments: SavedState?
+            arguments: SavedState?,
         )
     }
 
@@ -129,7 +129,7 @@ public actual open class NavController(
 
         actual override fun createBackStackEntry(
             destination: NavDestination,
-            arguments: SavedState?
+            arguments: SavedState?,
         ) = impl.createBackStackEntry(destination, arguments)
 
         actual override fun pop(popUpTo: NavBackStackEntry, saveState: Boolean) {
@@ -219,7 +219,7 @@ public actual open class NavController(
     public open fun popBackStack(
         @IdRes destinationId: Int,
         inclusive: Boolean,
-        saveState: Boolean
+        saveState: Boolean,
     ): Boolean {
         return impl.popBackStack(destinationId, inclusive, saveState)
     }
@@ -234,7 +234,7 @@ public actual open class NavController(
     @JvmOverloads
     public actual inline fun <reified T : Any> popBackStack(
         inclusive: Boolean,
-        saveState: Boolean
+        saveState: Boolean,
     ): Boolean = popBackStack(T::class, inclusive, saveState)
 
     @MainThread
@@ -243,7 +243,7 @@ public actual open class NavController(
     public actual fun <T : Any> popBackStack(
         route: KClass<T>,
         inclusive: Boolean,
-        saveState: Boolean
+        saveState: Boolean,
     ): Boolean {
         return impl.popBackStack(route, inclusive, saveState)
     }
@@ -253,7 +253,7 @@ public actual open class NavController(
     public actual fun <T : Any> popBackStack(
         route: T,
         inclusive: Boolean,
-        saveState: Boolean
+        saveState: Boolean,
     ): Boolean {
         return impl.popBackStack(route, inclusive, saveState)
     }
@@ -262,7 +262,7 @@ public actual open class NavController(
     private fun popBackStackInternal(
         @IdRes destinationId: Int,
         inclusive: Boolean,
-        saveState: Boolean = false
+        saveState: Boolean = false,
     ): Boolean {
         return impl.popBackStackInternal(destinationId, inclusive, saveState)
     }
@@ -396,7 +396,7 @@ public actual open class NavController(
                                     navDeepLinkRequest = NavDeepLinkRequest(activity!!.intent),
                                     searchChildren = true,
                                     searchParent = true,
-                                    lastVisited = currGraph
+                                    lastVisited = currGraph,
                                 )
                             if (matchingDeepLink?.matchingArgs != null) {
                                 val destinationArgs =
@@ -516,7 +516,7 @@ public actual open class NavController(
                 android.util.Log.e(
                     NavControllerImpl.TAG,
                     "handleDeepLink() could not extract deepLink from $intent",
-                    e
+                    e,
                 )
                 null
             }
@@ -533,7 +533,7 @@ public actual open class NavController(
                     navDeepLinkRequest = NavDeepLinkRequest(intent),
                     searchChildren = true,
                     searchParent = true,
-                    lastVisited = currGraph
+                    lastVisited = currGraph,
                 )
             if (matchingDeepLink != null) {
                 val destination = matchingDeepLink.destination
@@ -553,7 +553,7 @@ public actual open class NavController(
             Log.i(
                 NavControllerImpl.TAG,
                 "Could not find destination $invalidDestinationDisplayName in the " +
-                    "navigation graph, ignoring the deep link from $intent"
+                    "navigation graph, ignoring the deep link from $intent",
             )
             return false
         }
@@ -601,7 +601,7 @@ public actual open class NavController(
                 navDeepLinkRequest = request,
                 searchChildren = true,
                 searchParent = true,
-                lastVisited = currGraph
+                lastVisited = currGraph,
             )
         if (matchingDeepLink != null) {
             val destination = matchingDeepLink.destination
@@ -626,7 +626,7 @@ public actual open class NavController(
     private fun handleDeepLink(
         deepLink: IntArray,
         args: Array<SavedState?>,
-        newTask: Boolean
+        newTask: Boolean,
     ): Boolean {
         if (newTask) {
             // Start with a cleared task starting at our root when we're on our own task
@@ -667,7 +667,7 @@ public actual open class NavController(
                             // same graph in a row
                         }
                     },
-                    null
+                    null,
                 )
             }
             deepLinkHandled = true
@@ -705,7 +705,7 @@ public actual open class NavController(
                         .setEnterAnim(0)
                         .setExitAnim(0)
                         .build(),
-                    null
+                    null,
                 )
             }
         }
@@ -837,7 +837,7 @@ public actual open class NavController(
         @IdRes resId: Int,
         args: SavedState?,
         navOptions: NavOptions?,
-        navigatorExtras: Navigator.Extras?
+        navigatorExtras: Navigator.Extras?,
     ) {
         var finalNavOptions = navOptions
         val currentNode =
@@ -878,12 +878,12 @@ public actual open class NavController(
                 finalNavOptions.popUpToRoute != null ->
                     popBackStack(
                         finalNavOptions.popUpToRoute!!,
-                        finalNavOptions.isPopUpToInclusive()
+                        finalNavOptions.isPopUpToInclusive(),
                     )
                 finalNavOptions.popUpToRouteClass != null ->
                     popBackStack(
                         finalNavOptions.popUpToRouteClass!!.serializer().generateHashCode(),
-                        finalNavOptions.isPopUpToInclusive()
+                        finalNavOptions.isPopUpToInclusive(),
                     )
                 finalNavOptions.popUpToId != -1 ->
                     popBackStack(finalNavOptions.popUpToId, finalNavOptions.isPopUpToInclusive())
@@ -923,9 +923,9 @@ public actual open class NavController(
     public actual open fun navigate(
         deepLink: Uri,
         navOptions: NavOptions?,
-        navigatorExtras: Navigator.Extras?
+        navigatorExtras: Navigator.Extras?,
     ) {
-        impl.navigate(NavDeepLinkRequest(deepLink, null, null), navOptions)
+        impl.navigate(NavDeepLinkRequest(deepLink, null, null), navOptions, navigatorExtras)
     }
 
     @MainThread
@@ -942,7 +942,7 @@ public actual open class NavController(
     public actual open fun navigate(
         request: NavDeepLinkRequest,
         navOptions: NavOptions?,
-        navigatorExtras: Navigator.Extras?
+        navigatorExtras: Navigator.Extras?,
     ) {
         impl.navigate(request, navOptions, navigatorExtras)
     }
@@ -961,7 +961,7 @@ public actual open class NavController(
         node: NavDestination,
         args: SavedState?,
         navOptions: NavOptions?,
-        navigatorExtras: Navigator.Extras?
+        navigatorExtras: Navigator.Extras?,
     ) {
         impl.navigate(node, args, navOptions, navigatorExtras)
     }
@@ -1008,7 +1008,7 @@ public actual open class NavController(
     public actual fun navigate(
         route: String,
         navOptions: NavOptions?,
-        navigatorExtras: Navigator.Extras?
+        navigatorExtras: Navigator.Extras?,
     ) {
         impl.navigate(route, navOptions, navigatorExtras)
     }
@@ -1023,7 +1023,7 @@ public actual open class NavController(
     public actual fun <T : Any> navigate(
         route: T,
         navOptions: NavOptions?,
-        navigatorExtras: Navigator.Extras?
+        navigatorExtras: Navigator.Extras?,
     ) {
         impl.navigate(route, navOptions, navigatorExtras)
     }
@@ -1193,12 +1193,12 @@ public actual open class NavController(
     ReplaceWith(
         "createGraph(startDestination = startDestination.toString(), route = id.toString()) " +
             "{ builder.invoke() }"
-    )
+    ),
 )
 public inline fun NavController.createGraph(
     @IdRes id: Int = 0,
     @IdRes startDestination: Int,
-    builder: NavGraphBuilder.() -> Unit
+    builder: NavGraphBuilder.() -> Unit,
 ): NavGraph = navigatorProvider.navigation(id, startDestination, builder)
 
 internal fun NavDeepLinkRequest(intent: Intent): NavDeepLinkRequest =

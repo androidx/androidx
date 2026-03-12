@@ -91,7 +91,7 @@ public abstract class NavigatorState {
     /** Create a new [NavBackStackEntry] from a given [destination] and [arguments]. */
     public abstract fun createBackStackEntry(
         destination: NavDestination,
-        arguments: SavedState?
+        arguments: SavedState?,
     ): NavBackStackEntry
 
     /**

@@ -121,7 +121,7 @@ public abstract class AbstractListDetailFragment : Fragment() {
     final override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         if (savedInstanceState != null) {
             graphId = savedInstanceState.getInt(NavHostFragment.KEY_GRAPH_ID)
@@ -183,7 +183,7 @@ public abstract class AbstractListDetailFragment : Fragment() {
     public abstract fun onCreateListPaneView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View
 
     /**

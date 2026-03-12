@@ -43,7 +43,7 @@ actual constructor(public actual open val isNullableAllowed: Boolean) {
         bundle: SavedState,
         key: String,
         value: String?,
-        previousValue: T
+        previousValue: T,
     ): T = navTypeParseAndPut(bundle, key, value, previousValue)
 
     public actual open fun serializeAsValue(value: T): String = value.toString()
@@ -90,7 +90,7 @@ actual constructor(public actual open val isNullableAllowed: Boolean) {
         @Suppress("UNCHECKED_CAST")
         internal fun parseSerializableOrParcelableType(
             clazz: Class<*>,
-            isArray: Boolean
+            isArray: Boolean,
         ): NavType<*>? =
             when {
                 Parcelable::class.java.isAssignableFrom(clazz) -> {
@@ -294,7 +294,7 @@ actual constructor(public actual open val isNullableAllowed: Boolean) {
 
         override fun valueEquals(
             @Suppress("ArrayReturn") value: Array<D>?,
-            @Suppress("ArrayReturn") other: Array<D>?
+            @Suppress("ArrayReturn") other: Array<D>?,
         ): Boolean = value.contentDeepEquals(other)
 
         /** Constructs a NavType that supports arrays of a given Parcelable type. */
@@ -456,7 +456,7 @@ actual constructor(public actual open val isNullableAllowed: Boolean) {
 
         override fun valueEquals(
             @Suppress("ArrayReturn") value: Array<D>?,
-            @Suppress("ArrayReturn") other: Array<D>?
+            @Suppress("ArrayReturn") other: Array<D>?,
         ): Boolean = value.contentDeepEquals(other)
 
         /** Constructs a NavType that supports arrays of a given Serializable type. */

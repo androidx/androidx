@@ -413,6 +413,11 @@ public final class androidx/navigation/NavType$Companion {
 	public final fun inferFromValueType (Ljava/lang/Object;)Landroidx/navigation/NavType;
 }
 
+public final class androidx/navigation/NavTypeKt {
+	public static final fun parseAndPutFromUri (Landroidx/navigation/NavType;Landroidx/savedstate/SavedState;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;
+	public static final fun parseAndPutFromUri (Landroidx/navigation/NavType;Landroidx/savedstate/SavedState;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;
+}
+
 public abstract class androidx/navigation/NavUri {
 	public fun <init> ()V
 	public abstract fun getFragment ()Ljava/lang/String;

@@ -318,12 +318,12 @@ class RoutePatternTest {
                 override fun put(
                     bundle: SavedState,
                     key: String,
-                    value: CustomType<TypeParam<TypeParamNested>>
+                    value: CustomType<TypeParam<TypeParamNested>>,
                 ) {}
 
                 override fun get(
                     bundle: SavedState,
-                    key: String
+                    key: String,
                 ): CustomType<TypeParam<TypeParamNested>>? = null
 
                 override fun parseValue(value: String): CustomType<TypeParam<TypeParamNested>> =
@@ -488,22 +488,22 @@ class RoutePatternTest {
 
 private fun <T> assertThatRoutePatternFrom(
     serializer: KSerializer<T>,
-    map: Map<KType, NavType<*>> = emptyMap()
+    map: Map<KType, NavType<*>> = emptyMap(),
 ) = serializer.generateRoutePattern(map)
 
-private fun String.isEqualTo(other: String) {
+internal fun String.isEqualTo(other: String) {
     assertThat(this).isEqualTo(other)
 }
 
 @Serializable
 @SerialName(PATH_SERIAL_NAME)
-private class ClassWithCompanionObject(val arg: Int) {
+internal class ClassWithCompanionObject(val arg: Int) {
     companion object TestObject
 }
 
 @Serializable
 @SerialName(PATH_SERIAL_NAME)
-private class ClassWithCompanionParam(val arg: Int) {
+internal class ClassWithCompanionParam(val arg: Int) {
     companion object {
         val companionVal: String = "hello"
     }
@@ -545,4 +545,4 @@ internal object CustomSerializer : KSerializer<CustomSerializerClass> {
         CustomSerializerClass(decoder.decodeLong())
 }
 
-private interface TestInterface
+internal interface TestInterface

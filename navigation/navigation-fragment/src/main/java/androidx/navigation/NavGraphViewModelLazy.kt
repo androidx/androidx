@@ -53,12 +53,12 @@ import androidx.navigation.fragment.findNavController
  */
 @Deprecated(
     "Superseded by navGraphViewModels that takes a CreationExtras producer",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @MainThread
 public inline fun <reified VM : ViewModel> Fragment.navGraphViewModels(
     @IdRes navGraphId: Int,
-    noinline factoryProducer: (() -> ViewModelProvider.Factory)? = null
+    noinline factoryProducer: (() -> ViewModelProvider.Factory)? = null,
 ): Lazy<VM> {
     val backStackEntry by lazy { findNavController().getBackStackEntry(navGraphId) }
     val storeProducer: () -> ViewModelStore = { backStackEntry.viewModelStore }
@@ -66,7 +66,7 @@ public inline fun <reified VM : ViewModel> Fragment.navGraphViewModels(
         VM::class,
         storeProducer,
         { backStackEntry.defaultViewModelCreationExtras },
-        factoryProducer ?: { backStackEntry.defaultViewModelProviderFactory }
+        factoryProducer ?: { backStackEntry.defaultViewModelProviderFactory },
     )
 }
 
@@ -102,7 +102,7 @@ public inline fun <reified VM : ViewModel> Fragment.navGraphViewModels(
 public inline fun <reified VM : ViewModel> Fragment.navGraphViewModels(
     @IdRes navGraphId: Int,
     noinline extrasProducer: (() -> CreationExtras)? = null,
-    noinline factoryProducer: (() -> ViewModelProvider.Factory)? = null
+    noinline factoryProducer: (() -> ViewModelProvider.Factory)? = null,
 ): Lazy<VM> {
     val backStackEntry by lazy { findNavController().getBackStackEntry(navGraphId) }
     val storeProducer: () -> ViewModelStore = { backStackEntry.viewModelStore }
@@ -110,7 +110,7 @@ public inline fun <reified VM : ViewModel> Fragment.navGraphViewModels(
         VM::class,
         storeProducer,
         { extrasProducer?.invoke() ?: backStackEntry.defaultViewModelCreationExtras },
-        factoryProducer ?: { backStackEntry.defaultViewModelProviderFactory }
+        factoryProducer ?: { backStackEntry.defaultViewModelProviderFactory },
     )
 }
 
@@ -143,12 +143,12 @@ public inline fun <reified VM : ViewModel> Fragment.navGraphViewModels(
  */
 @Deprecated(
     "Superseded by navGraphViewModels that takes a CreationExtras producer",
-    level = DeprecationLevel.HIDDEN
+    level = DeprecationLevel.HIDDEN,
 )
 @MainThread
 public inline fun <reified VM : ViewModel> Fragment.navGraphViewModels(
     navGraphRoute: String,
-    noinline factoryProducer: (() -> ViewModelProvider.Factory)? = null
+    noinline factoryProducer: (() -> ViewModelProvider.Factory)? = null,
 ): Lazy<VM> {
     val backStackEntry by lazy { findNavController().getBackStackEntry(navGraphRoute) }
     val storeProducer: () -> ViewModelStore = { backStackEntry.viewModelStore }
@@ -156,7 +156,7 @@ public inline fun <reified VM : ViewModel> Fragment.navGraphViewModels(
         VM::class,
         storeProducer,
         { backStackEntry.defaultViewModelCreationExtras },
-        factoryProducer ?: { backStackEntry.defaultViewModelProviderFactory }
+        factoryProducer ?: { backStackEntry.defaultViewModelProviderFactory },
     )
 }
 
@@ -194,7 +194,7 @@ public inline fun <reified VM : ViewModel> Fragment.navGraphViewModels(
 public inline fun <reified VM : ViewModel> Fragment.navGraphViewModels(
     navGraphRoute: String,
     noinline extrasProducer: (() -> CreationExtras)? = null,
-    noinline factoryProducer: (() -> ViewModelProvider.Factory)? = null
+    noinline factoryProducer: (() -> ViewModelProvider.Factory)? = null,
 ): Lazy<VM> {
     val backStackEntry by lazy { findNavController().getBackStackEntry(navGraphRoute) }
     val storeProducer: () -> ViewModelStore = { backStackEntry.viewModelStore }
@@ -202,6 +202,6 @@ public inline fun <reified VM : ViewModel> Fragment.navGraphViewModels(
         VM::class,
         storeProducer,
         { extrasProducer?.invoke() ?: backStackEntry.defaultViewModelCreationExtras },
-        factoryProducer ?: { backStackEntry.defaultViewModelProviderFactory }
+        factoryProducer ?: { backStackEntry.defaultViewModelProviderFactory },
     )
 }

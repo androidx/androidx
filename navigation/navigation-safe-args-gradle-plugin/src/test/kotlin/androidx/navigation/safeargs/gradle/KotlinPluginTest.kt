@@ -29,9 +29,9 @@ class KotlinPluginTest : BasePluginTest() {
         setupSimpleKotlinBuildGradle()
         runGradle("assembleDebug").assertSuccessfulTask("assembleDebug")
 
-        assertGenerated("debug/$NEXT_DIRECTIONS.kt")
-        assertGenerated("debug/$NEXT_ARGUMENTS.kt")
-        assertGenerated("debug/$MAIN_DIRECTIONS.kt")
+        assertGenerated("Debug/$NEXT_DIRECTIONS.kt")
+        assertGenerated("Debug/$NEXT_ARGUMENTS.kt")
+        assertGenerated("Debug/$MAIN_DIRECTIONS.kt")
     }
 
     @Test
@@ -45,7 +45,7 @@ class KotlinPluginTest : BasePluginTest() {
                     id('kotlin-android')
                     id('androidx.navigation.safeargs.kotlin')
                 }
-            """
+                """
                     .trimIndent(),
             suffix =
                 """
@@ -73,12 +73,12 @@ class KotlinPluginTest : BasePluginTest() {
                     }
                 }
             """
-                    .trimIndent()
+                    .trimIndent(),
         )
         runGradle("assembleDebug").assertSuccessfulTask("assembleDebug")
 
-        assertGenerated("debug/$FOO_NEXT_DIRECTIONS.kt")
-        assertGenerated("debug/$FOO_NEXT_ARGUMENTS.kt")
-        assertGenerated("debug/$FOO_MAIN_DIRECTIONS.kt")
+        assertGenerated("Debug/$FOO_NEXT_DIRECTIONS.kt")
+        assertGenerated("Debug/$FOO_NEXT_ARGUMENTS.kt")
+        assertGenerated("Debug/$FOO_MAIN_DIRECTIONS.kt")
     }
 }

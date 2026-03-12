@@ -105,6 +105,6 @@ internal class RouteBuilder<T> {
 
     private enum class ParamType {
         PATH,
-        QUERY
+        QUERY,
     }
 }

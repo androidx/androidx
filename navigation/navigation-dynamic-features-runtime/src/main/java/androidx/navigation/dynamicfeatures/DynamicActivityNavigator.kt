@@ -29,7 +29,7 @@ import androidx.navigation.NavigatorProvider
 @Navigator.Name("activity")
 public class DynamicActivityNavigator(
     context: Context,
-    private val installManager: DynamicInstallManager
+    private val installManager: DynamicInstallManager,
 ) : ActivityNavigator(context) {
 
     internal val packageName: String = context.packageName
@@ -37,7 +37,7 @@ public class DynamicActivityNavigator(
     override fun navigate(
         entries: List<NavBackStackEntry>,
         navOptions: NavOptions?,
-        navigatorExtras: Navigator.Extras?
+        navigatorExtras: Navigator.Extras?,
     ) {
         for (entry in entries) {
             navigate(entry, navOptions, navigatorExtras)
@@ -47,7 +47,7 @@ public class DynamicActivityNavigator(
     private fun navigate(
         entry: NavBackStackEntry,
         navOptions: NavOptions?,
-        navigatorExtras: Navigator.Extras?
+        navigatorExtras: Navigator.Extras?,
     ) {
         val destination = entry.destination
         val extras = navigatorExtras as? DynamicExtras
@@ -61,7 +61,7 @@ public class DynamicActivityNavigator(
         super.navigate(
             listOf(entry),
             navOptions,
-            if (extras != null) extras.destinationExtras else navigatorExtras
+            if (extras != null) extras.destinationExtras else navigatorExtras,
         )
     }
 

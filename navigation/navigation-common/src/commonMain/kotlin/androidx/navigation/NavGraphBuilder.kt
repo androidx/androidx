@@ -36,7 +36,7 @@ import kotlin.reflect.KType
 public inline fun NavigatorProvider.navigation(
     startDestination: String,
     route: String? = null,
-    builder: NavGraphBuilder.() -> Unit
+    builder: NavGraphBuilder.() -> Unit,
 ): NavGraph = NavGraphBuilder(this, startDestination, route).apply(builder).build()
 
 /**
@@ -54,7 +54,7 @@ public inline fun NavigatorProvider.navigation(
     startDestination: KClass<*>,
     route: KClass<*>? = null,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
-    builder: NavGraphBuilder.() -> Unit
+    builder: NavGraphBuilder.() -> Unit,
 ): NavGraph = NavGraphBuilder(this, startDestination, route, typeMap).apply(builder).build()
 
 /**
@@ -72,7 +72,7 @@ public inline fun NavigatorProvider.navigation(
     startDestination: Any,
     route: KClass<*>? = null,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
-    builder: NavGraphBuilder.() -> Unit
+    builder: NavGraphBuilder.() -> Unit,
 ): NavGraph = NavGraphBuilder(this, startDestination, route, typeMap).apply(builder).build()
 
 /**
@@ -86,7 +86,7 @@ public inline fun NavigatorProvider.navigation(
 public inline fun NavGraphBuilder.navigation(
     startDestination: String,
     route: String,
-    builder: NavGraphBuilder.() -> Unit
+    builder: NavGraphBuilder.() -> Unit,
 ): Unit = destination(NavGraphBuilder(provider, startDestination, route).apply(builder))
 
 /**
@@ -103,7 +103,7 @@ public inline fun NavGraphBuilder.navigation(
 public inline fun <reified T : Any> NavGraphBuilder.navigation(
     startDestination: KClass<*>,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
-    noinline builder: NavGraphBuilder.() -> Unit
+    noinline builder: NavGraphBuilder.() -> Unit,
 ): Unit = navigation(T::class, startDestination, typeMap, builder)
 
 /**
@@ -121,7 +121,7 @@ public fun <T : Any> NavGraphBuilder.navigation(
     route: KClass<T>,
     startDestination: KClass<*>,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
-    builder: NavGraphBuilder.() -> Unit
+    builder: NavGraphBuilder.() -> Unit,
 ): Unit = destination(NavGraphBuilder(provider, startDestination, route, typeMap).apply(builder))
 
 /**
@@ -138,7 +138,7 @@ public fun <T : Any> NavGraphBuilder.navigation(
 public inline fun <reified T : Any> NavGraphBuilder.navigation(
     startDestination: Any,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
-    noinline builder: NavGraphBuilder.() -> Unit
+    noinline builder: NavGraphBuilder.() -> Unit,
 ): Unit = navigation(T::class, startDestination, typeMap, builder)
 
 /**
@@ -156,7 +156,7 @@ public fun <T : Any> NavGraphBuilder.navigation(
     route: KClass<T>,
     startDestination: Any,
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
-    builder: NavGraphBuilder.() -> Unit
+    builder: NavGraphBuilder.() -> Unit,
 ): Unit = destination(NavGraphBuilder(provider, startDestination, route, typeMap).apply(builder))
 
 /** DSL for constructing a new [NavGraph] */
@@ -190,7 +190,7 @@ public expect open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
         provider: NavigatorProvider,
         startDestination: KClass<*>,
         route: KClass<*>?,
-        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>
+        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
     )
 
     /**
@@ -208,7 +208,7 @@ public expect open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
         provider: NavigatorProvider,
         startDestination: Any,
         route: KClass<*>?,
-        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>
+        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
     )
 
     /** Build and add a new destination to the [NavGraphBuilder] */

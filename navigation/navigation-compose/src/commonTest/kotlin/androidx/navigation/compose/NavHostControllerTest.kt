@@ -145,6 +145,8 @@ class NavHostControllerTest {
 
         runOnUiThread { navController.navigate(SECOND_DESTINATION) }
 
+        waitForIdle()
+
         assertWithMessage("the currentBackStackEntry should be after navigate")
             .that(currentBackStackEntry.value?.destination?.route)
             .isEqualTo(SECOND_DESTINATION)
@@ -202,6 +204,8 @@ class NavHostControllerTest {
         runOnUiThread {
             navController.navigate(SECOND_DESTINATION) { popUpTo("first") { inclusive = true } }
         }
+
+        waitForIdle()
 
         assertWithMessage("the currentBackStackEntry should be after navigate")
             .that(currentBackStackEntry.value?.destination?.route)
@@ -291,7 +295,7 @@ class NavHostControllerTest {
             NavHost(navController, startDestination = "first?arg=value1&arg=value2") {
                 composable(
                     "first?arg={arg}",
-                    arguments = listOf(navArgument("arg") { type = NavType.StringListType })
+                    arguments = listOf(navArgument("arg") { type = NavType.StringListType }),
                 ) { entry ->
                     if (entry.arguments?.read {  contains("arg") } == true) {
                         value = NavType.StringListType.get(entry.arguments!!, "arg")!!

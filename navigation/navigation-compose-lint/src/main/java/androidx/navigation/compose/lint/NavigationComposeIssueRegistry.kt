@@ -43,6 +43,6 @@ class NavigationComposeIssueRegistry : IssueRegistry() {
     override val vendor =
         Vendor(
             vendorName = "Jetpack Navigation Compose",
-            identifier = "androidx.navigation.compose"
+            identifier = "androidx.navigation.compose",
         )
 }

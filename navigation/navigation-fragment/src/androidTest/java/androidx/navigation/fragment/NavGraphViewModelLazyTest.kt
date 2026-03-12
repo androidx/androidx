@@ -21,7 +21,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.testing.launchFragmentInContainer
@@ -41,6 +40,7 @@ import androidx.navigation.fragment.test.R
 import androidx.navigation.navGraphViewModels
 import androidx.navigation.navigation
 import androidx.navigation.plusAssign
+import androidx.savedstate.savedState
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -71,7 +71,7 @@ class NavGraphViewModelLazyTest {
         val navGraph =
             navController.navigatorProvider.navigation(
                 id = R.id.vm_graph,
-                startDestination = R.id.start_destination
+                startDestination = R.id.start_destination,
             ) {
                 test(R.id.start_destination)
             }
@@ -93,7 +93,7 @@ class NavGraphViewModelLazyTest {
         val navGraph =
             navController.navigatorProvider.navigation(
                 route = "vm_graph",
-                startDestination = "start_destination"
+                startDestination = "start_destination",
             ) {
                 test("start_destination")
             }
@@ -239,7 +239,7 @@ class TestVMFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         return View(activity)
     }
@@ -254,7 +254,7 @@ class TestRouteVMFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         return View(activity)
     }
@@ -264,7 +264,7 @@ class TestRouteVMFragment : Fragment() {
     override val defaultViewModelCreationExtras: CreationExtras
         get() {
             val extras = MutableCreationExtras(super.defaultViewModelCreationExtras)
-            extras[DEFAULT_ARGS_KEY] = bundleOf("test" to "value")
+            extras[DEFAULT_ARGS_KEY] = savedState { putString("test", "value") }
             return extras
         }
 }

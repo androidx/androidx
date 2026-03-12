@@ -23,7 +23,6 @@ import androidx.annotation.CallSuper
 import androidx.annotation.RestrictTo
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
-import kotlin.jvm.JvmStatic
 import kotlin.reflect.KClass
 
 public actual open class NavigatorProvider actual constructor() {
@@ -75,7 +74,7 @@ public actual open class NavigatorProvider actual constructor() {
     @CallSuper
     public actual open fun addNavigator(
         name: String,
-        navigator: Navigator<out NavDestination>
+        navigator: Navigator<out NavDestination>,
     ): Navigator<out NavDestination>? {
         require(validateName(name)) { "Navigator name cannot be an empty string" }
         _typeToNavigatorName[navigator::class] = name
@@ -92,8 +91,8 @@ public actual open class NavigatorProvider actual constructor() {
         return _namedNavigators.put(name, navigator)
     }
 
-    internal companion object {
-        internal fun validateName(name: String?): Boolean {
+    internal actual companion object {
+        internal actual fun validateName(name: String?): Boolean {
             return !name.isNullOrEmpty()
         }
     }

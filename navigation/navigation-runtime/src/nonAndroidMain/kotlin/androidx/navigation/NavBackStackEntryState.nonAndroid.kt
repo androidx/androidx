@@ -52,7 +52,7 @@ internal actual class NavBackStackEntryState {
         context: NavContext,
         destination: NavDestination,
         hostLifecycleState: Lifecycle.State,
-        viewModel: NavControllerViewModel?
+        viewModel: NavControllerViewModel?,
     ): NavBackStackEntry {
         return impl.instantiate(context, destination, args, hostLifecycleState, viewModel)
     }

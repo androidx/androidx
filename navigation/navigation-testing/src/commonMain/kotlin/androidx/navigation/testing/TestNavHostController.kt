@@ -19,13 +19,9 @@ package androidx.navigation.testing
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 
-/**
- * Subclass of [NavHostController] that offers additional APIs for testing Navigation.
- */
+/** Subclass of [NavHostController] that offers additional APIs for testing Navigation. */
 public expect class TestNavHostController : NavHostController {
 
-    /**
-     * Gets an immutable copy of the [elements][NavBackStackEntry] currently on the back stack.
-     */
+    /** Gets an immutable copy of the [elements][NavBackStackEntry] currently on the back stack. */
     public val backStack: List<NavBackStackEntry>
 }

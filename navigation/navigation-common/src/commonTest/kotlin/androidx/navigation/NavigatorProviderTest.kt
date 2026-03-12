@@ -19,9 +19,12 @@ package androidx.navigation
 import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
 import androidx.navigation.testing.TestNavigatorState
+import androidx.savedstate.SavedState
 import kotlin.test.Test
 import kotlin.test.fail
+import kotlinx.coroutines.Dispatchers
 
+@IgnoreAndroidHostTestTarget
 class NavigatorProviderTest {
 
     @Test
@@ -49,7 +52,7 @@ class NavigatorProviderTest {
 
     @Test
     fun addExistingNavigatorDoesntReplace() {
-        val navigatorState = TestNavigatorState()
+        val navigatorState = TestNavigatorState(Dispatchers.Unconfined)
         val provider = NavigatorProvider()
         val navigator = EmptyNavigator()
 
@@ -93,7 +96,6 @@ class NavigatorProviderTest {
         val provider = NavigatorProvider()
         val navigatorA = EmptyNavigator()
 
-        class EmptyNavigator2 : EmptyNavigator()
         val navigatorB = EmptyNavigator2()
 
         assertThat(navigatorA).isNotEqualTo(navigatorB)
@@ -127,6 +129,7 @@ class NavigatorProviderTest {
     }
 }
 
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 internal expect class NoNameNavigator() : Navigator<NavDestination> {
     override fun createDestination(): NavDestination
 
@@ -134,6 +137,7 @@ internal expect class NoNameNavigator() : Navigator<NavDestination> {
 }
 
 /** An empty [Navigator] used to test [NavigatorProvider]. */
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 internal expect open class EmptyNavigator() : Navigator<NavDestination> {
 
     companion object {
@@ -144,5 +148,7 @@ internal expect open class EmptyNavigator() : Navigator<NavDestination> {
 
     override fun popBackStack(): Boolean
 }
+
+internal expect class EmptyNavigator2() : EmptyNavigator
 
 private const val NAME = "TEST"

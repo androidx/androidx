@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("FacadeClassJvmName") // Cannot be updated, the Kt name has been released
+
 package androidx.navigation.ui
 
 import androidx.appcompat.widget.Toolbar
@@ -42,13 +44,13 @@ import com.google.android.material.appbar.CollapsingToolbarLayout
 public fun CollapsingToolbarLayout.setupWithNavController(
     toolbar: Toolbar,
     navController: NavController,
-    drawerLayout: DrawerLayout?
+    drawerLayout: DrawerLayout?,
 ) {
     NavigationUI.setupWithNavController(
         this,
         toolbar,
         navController,
-        AppBarConfiguration(navController.graph, drawerLayout)
+        AppBarConfiguration(navController.graph, drawerLayout),
     )
 }
 
@@ -72,7 +74,7 @@ public fun CollapsingToolbarLayout.setupWithNavController(
 public fun CollapsingToolbarLayout.setupWithNavController(
     toolbar: Toolbar,
     navController: NavController,
-    configuration: AppBarConfiguration = AppBarConfiguration(navController.graph)
+    configuration: AppBarConfiguration = AppBarConfiguration(navController.graph),
 ) {
     NavigationUI.setupWithNavController(this, toolbar, navController, configuration)
 }

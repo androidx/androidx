@@ -46,7 +46,7 @@ private constructor(
     internal actual var hostLifecycleState: Lifecycle.State = Lifecycle.State.CREATED,
     internal actual val viewModelStoreProvider: NavViewModelStoreProvider? = null,
     public actual val id: String = randomUUID(),
-    internal actual val savedState: SavedState? = null
+    internal actual val savedState: SavedState? = null,
 ) :
     LifecycleOwner,
     ViewModelStoreOwner,
@@ -56,7 +56,7 @@ private constructor(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public actual constructor(
         entry: NavBackStackEntry,
-        arguments: SavedState?
+        arguments: SavedState?,
     ) : this(
         entry.context,
         entry.destination,
@@ -64,7 +64,7 @@ private constructor(
         entry.hostLifecycleState,
         entry.viewModelStoreProvider,
         entry.id,
-        entry.savedState
+        entry.savedState,
     ) {
         impl.hostLifecycleState = entry.hostLifecycleState
         impl.maxLifecycle = entry.maxLifecycle
@@ -79,7 +79,7 @@ private constructor(
             hostLifecycleState: Lifecycle.State,
             viewModelStoreProvider: NavViewModelStoreProvider?,
             id: String,
-            savedState: SavedState?
+            savedState: SavedState?,
         ): NavBackStackEntry =
             NavBackStackEntry(
                 context,
@@ -88,7 +88,7 @@ private constructor(
                 hostLifecycleState,
                 viewModelStoreProvider,
                 id,
-                savedState
+                savedState,
             )
 
         internal actual fun randomUUID(): String = UUID.randomUUID().toString()

@@ -22,7 +22,7 @@ import androidx.navigation.lint.createWrongStartDestinationTypeIssue
 class WrongStartDestinationTypeDetector :
     BaseWrongStartDestinationTypeDetector(
         methodNames = listOf("navigation", "setStartDestination"),
-        parameterNames = listOf("startDestination", "startDestRoute")
+        parameterNames = listOf("startDestination", "startDestRoute"),
     ) {
 
     companion object {

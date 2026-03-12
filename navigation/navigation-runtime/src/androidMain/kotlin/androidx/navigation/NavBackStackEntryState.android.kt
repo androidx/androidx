@@ -52,7 +52,7 @@ internal actual class NavBackStackEntryState {
         context: NavContext,
         destination: NavDestination,
         hostLifecycleState: Lifecycle.State,
-        viewModel: NavControllerViewModel?
+        viewModel: NavControllerViewModel?,
     ): NavBackStackEntry {
         val preparedArgs = args?.let { prepareArgs(it, context) }
         return impl.instantiate(context, destination, preparedArgs, hostLifecycleState, viewModel)

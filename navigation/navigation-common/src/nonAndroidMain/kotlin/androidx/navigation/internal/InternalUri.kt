@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,24 +17,22 @@
 package androidx.navigation.internal
 
 /**
- * Immutable URI reference. A URI reference includes a URI and a fragment, the
- * component of the URI following a '#'. Builds and parses URI references
- * which conform to
- * <a href="http://www.faqs.org/rfcs/rfc2396.html">RFC 2396</a>.
+ * Immutable URI reference. A URI reference includes a URI and a fragment, the component of the URI
+ * following a '#'. Builds and parses URI references which conform to <a
+ * href="http://www.faqs.org/rfcs/rfc2396.html">RFC 2396</a>.
  *
  * Partial KMP adoption of android.net.Url
  */
 internal object InternalUri {
 
     /**
-     * Encodes characters in the given string as '%'-escaped octets
-     * using the UTF-8 scheme. Leaves letters ("A-Z", "a-z"), numbers
-     * ("0-9"), and unreserved characters ("_-!.~'()*") intact. Encodes
-     * all other characters.
+     * Encodes characters in the given string as '%'-escaped octets using the UTF-8 scheme. Leaves
+     * letters ("A-Z", "a-z"), numbers ("0-9"), and unreserved characters ("_-!.~'()*") intact.
+     * Encodes all other characters.
      *
      * @param s string to encode
-     * @param allow set of additional characters to allow in the encoded form,
-     *  null if no characters should be skipped
+     * @param allow set of additional characters to allow in the encoded form, null if no characters
+     *   should be skipped
      * @return an encoded version of s suitable for use as a URI component
      */
     fun encode(s: String, allow: String? = null): String {
@@ -53,9 +51,7 @@ internal object InternalUri {
             // Find the next character which needs to be encoded.
 
             var nextToEncode = current
-            while (nextToEncode < oldLength
-                && isAllowed(s[nextToEncode], allow)
-            ) {
+            while (nextToEncode < oldLength && isAllowed(s[nextToEncode], allow)) {
                 nextToEncode++
             }
 
@@ -87,9 +83,7 @@ internal object InternalUri {
             // Find the next allowed character.
             current = nextToEncode
             var nextAllowed = current + 1
-            while (nextAllowed < oldLength
-                && !isAllowed(s[nextAllowed], allow)
-            ) {
+            while (nextAllowed < oldLength && !isAllowed(s[nextAllowed], allow)) {
                 nextAllowed++
             }
 
@@ -111,31 +105,27 @@ internal object InternalUri {
     }
 
     /**
-     * Decodes '%'-escaped octets in the given string using the UTF-8 scheme.
-     * Replaces invalid octets with the unicode replacement character
-     * ("\\uFFFD").
+     * Decodes '%'-escaped octets in the given string using the UTF-8 scheme. Replaces invalid
+     * octets with the unicode replacement character ("\\uFFFD").
      *
      * @param s encoded string to decode
-     * @return the given string with escaped octets decoded, or null if
-     *  s is null
+     * @return the given string with escaped octets decoded, or null if s is null
      */
-    fun decode(s: String): String =
-        UriCodec.decode(s, convertPlus = false, throwOnFailure = false)
+    fun decode(s: String): String = UriCodec.decode(s, convertPlus = false, throwOnFailure = false)
 
     /**
      * Returns true if the given character is allowed.
      *
      * @param c character to check
      * @param allow characters to allow
-     * @return true if the character is allowed or false if it should be
-     * encoded
+     * @return true if the character is allowed or false if it should be encoded
      */
     private fun isAllowed(c: Char, allow: String?): Boolean {
-        return (c in 'A'..'Z')
-            || (c in 'a'..'z')
-            || (c in '0'..'9')
-            || "_-!.~'()*".indexOf(c) != -1
-            || (allow != null && allow.indexOf(c) != -1)
+        return (c in 'A'..'Z') ||
+            (c in 'a'..'z') ||
+            (c in '0'..'9') ||
+            "_-!.~'()*".indexOf(c) != -1 ||
+            (allow != null && allow.indexOf(c) != -1)
     }
 
     private val HEX_DIGITS = "0123456789ABCDEF".toCharArray()
@@ -145,7 +135,6 @@ internal object InternalUri {
      *
      * @param uriString URI string
      * @param ssi scheme separator index, -1 for a relative URI
-     *
      * @return the path
      */
     fun parsePath(uriString: String, ssi: Int): String {
@@ -158,8 +147,10 @@ internal object InternalUri {
             pathStart = ssi + 3
             LOOP@ while (pathStart < length) {
                 when (uriString[pathStart]) {
-                    '?', '#' -> return "" // Empty path.
-                    '/', '\\' ->
+                    '?',
+                    '#' -> return "" // Empty path.
+                    '/',
+                    '\\' ->
                         // Per http://url.spec.whatwg.org/#host-state, the \ character
                         // is treated as if it were a / character when encountered in a
                         // host
@@ -176,7 +167,8 @@ internal object InternalUri {
         var pathEnd = pathStart
         LOOP@ while (pathEnd < length) {
             when (uriString[pathEnd]) {
-                '?', '#' -> break@LOOP
+                '?',
+                '#' -> break@LOOP
             }
             pathEnd++
         }

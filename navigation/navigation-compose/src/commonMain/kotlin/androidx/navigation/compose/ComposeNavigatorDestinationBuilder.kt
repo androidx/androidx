@@ -73,7 +73,7 @@ public class ComposeNavigatorDestinationBuilder :
     public constructor(
         navigator: ComposeNavigator,
         route: String,
-        content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
+        content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit,
     ) : super(navigator, route) {
         this.composeNavigator = navigator
         this.content = content
@@ -92,7 +92,7 @@ public class ComposeNavigatorDestinationBuilder :
         navigator: ComposeNavigator,
         route: KClass<*>,
         typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
-        content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
+        content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit,
     ) : super(navigator, route, typeMap) {
         this.composeNavigator = navigator
         this.content = content

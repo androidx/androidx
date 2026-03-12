@@ -59,32 +59,32 @@ class NavParserTest {
                                 "activityInfoNull",
                                 ObjectType("android.content.pm.ActivityInfo"),
                                 NullValue,
-                                true
+                                true,
                             ),
                             Argument("intArrayArg", IntArrayType),
                             Argument("stringArrayArg", StringArrayType),
                             Argument(
                                 "objectArrayArg",
-                                ObjectArrayType("android.content.pm.ActivityInfo")
+                                ObjectArrayType("android.content.pm.ActivityInfo"),
                             ),
                             Argument("booleanArrayArg", BoolArrayType, NullValue, true),
                             Argument(
                                 "enumArg",
                                 ObjectType("java.nio.file.AccessMode"),
                                 EnumValue(ObjectType("java.nio.file.AccessMode"), "READ"),
-                                false
+                                false,
                             ),
                             Argument("objectRelativeArg", ObjectType("a.b.pkg.ClassName")),
                             Argument("objectRelativeArg2", ObjectType("a.b.ClassName")),
                             Argument(
                                 "objectRelativeArg3",
-                                ObjectType("a.b.OuterClass\$InnerClass")
+                                ObjectType("a.b.OuterClass\$InnerClass"),
                             ),
                             Argument("implicitNullString", StringType, NullValue, true),
-                            Argument("explicitNullString", StringType, NullValue, true)
-                        )
+                            Argument("explicitNullString", StringType, NullValue, true),
+                        ),
                     )
-                )
+                ),
             )
 
         val expectedNext =
@@ -93,7 +93,7 @@ class NavParserTest {
                 nameNext,
                 "fragment",
                 listOf(Argument("myarg2", StringType)),
-                listOf(Action(id("next"), id("first_screen")), Action(id("finish"), null))
+                listOf(Action(id("next"), id("first_screen")), Action(id("finish"), null)),
             )
 
         val expectedComposable =
@@ -102,7 +102,7 @@ class NavParserTest {
                 nameComposable,
                 "composable",
                 listOf(Argument("myarg3", StringType)),
-                listOf(Action(id("action_home_screen_to_other_fragment"), id("other_fragment")))
+                listOf(Action(id("action_home_screen_to_other_fragment"), id("other_fragment"))),
             )
 
         val expectedGraph =
@@ -112,7 +112,7 @@ class NavParserTest {
                 "navigation",
                 emptyList(),
                 emptyList(),
-                listOf(expectedFirst, expectedNext, expectedComposable)
+                listOf(expectedFirst, expectedNext, expectedComposable),
             )
         assertThat(navGraph).isEqualTo(expectedGraph)
     }
@@ -125,7 +125,7 @@ class NavParserTest {
                 testData("nested_login_test.xml"),
                 "a.b",
                 "foo.app",
-                Context()
+                Context(),
             )
 
         val expectedMainFragment =
@@ -134,7 +134,7 @@ class NavParserTest {
                 name = ClassName.get("foo.app", "MainFragment"),
                 type = "fragment",
                 args = emptyList(),
-                actions = listOf(Action(id("start_login"), id("login")))
+                actions = listOf(Action(id("start_login"), id("login"))),
             )
 
         val expectedNestedFragment1 =
@@ -143,7 +143,7 @@ class NavParserTest {
                 name = ClassName.get("foo.app.account", "LoginFragment"),
                 type = "fragment",
                 args = emptyList(),
-                actions = listOf(Action(id("register"), id("register_fragment")))
+                actions = listOf(Action(id("register"), id("register_fragment"))),
             )
 
         val expectedNestedFragment2 =
@@ -152,7 +152,7 @@ class NavParserTest {
                 name = ClassName.get("foo.app.account", "RegisterFragment"),
                 type = "fragment",
                 args = emptyList(),
-                actions = emptyList()
+                actions = emptyList(),
             )
 
         val expectedNestedGraph =
@@ -162,7 +162,7 @@ class NavParserTest {
                 type = "navigation",
                 args = emptyList(),
                 actions = listOf(Action(id("action_done"), null)),
-                nested = listOf(expectedNestedFragment1, expectedNestedFragment2)
+                nested = listOf(expectedNestedFragment1, expectedNestedFragment2),
             )
 
         val expectedGraph =
@@ -172,7 +172,7 @@ class NavParserTest {
                 "navigation",
                 emptyList(),
                 emptyList(),
-                listOf(expectedMainFragment, expectedNestedGraph)
+                listOf(expectedMainFragment, expectedNestedGraph),
             )
 
         assertThat(navGraph).isEqualTo(expectedGraph)
@@ -186,7 +186,7 @@ class NavParserTest {
                 testData("nested_include_login_test.xml"),
                 "a.b",
                 "foo.app",
-                Context()
+                Context(),
             )
 
         val expectedMainFragment =
@@ -195,7 +195,7 @@ class NavParserTest {
                 name = ClassName.get("foo.app", "MainFragment"),
                 type = "fragment",
                 args = emptyList(),
-                actions = listOf(Action(id("start_login"), id("login")))
+                actions = listOf(Action(id("start_login"), id("login"))),
             )
 
         val expectedIncluded =
@@ -209,7 +209,7 @@ class NavParserTest {
                 emptyList(),
                 emptyList(),
                 listOf(expectedMainFragment),
-                listOf(expectedIncluded)
+                listOf(expectedIncluded),
             )
 
         assertThat(nestedIncludeNavGraph).isEqualTo(expectedGraph)

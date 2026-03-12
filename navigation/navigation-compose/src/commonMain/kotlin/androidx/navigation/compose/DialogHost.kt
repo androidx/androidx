@@ -51,7 +51,7 @@ public fun DialogHost(dialogNavigator: DialogNavigator) {
         val destination = backStackEntry.destination as Destination
         Dialog(
             onDismissRequest = { dialogNavigator.dismiss(backStackEntry) },
-            properties = destination.dialogProperties
+            properties = destination.dialogProperties,
         ) {
             DisposableEffect(backStackEntry) {
                 dialogsToDispose.add(backStackEntry)

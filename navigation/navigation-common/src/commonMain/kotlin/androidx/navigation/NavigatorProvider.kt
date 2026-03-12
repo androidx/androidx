@@ -69,8 +69,12 @@ public expect open class NavigatorProvider() {
     @CallSuper
     public open fun addNavigator(
         name: String,
-        navigator: Navigator<out NavDestination>
+        navigator: Navigator<out NavDestination>,
     ): Navigator<out NavDestination>?
+
+    internal companion object {
+        internal fun validateName(name: String?): Boolean
+    }
 }
 
 /**
@@ -103,7 +107,7 @@ public expect inline operator fun <T : Navigator<out NavDestination>> NavigatorP
 @Suppress("NOTHING_TO_INLINE")
 public inline operator fun NavigatorProvider.set(
     name: String,
-    navigator: Navigator<out NavDestination>
+    navigator: Navigator<out NavDestination>,
 ): Navigator<out NavDestination>? = addNavigator(name, navigator)
 
 /**

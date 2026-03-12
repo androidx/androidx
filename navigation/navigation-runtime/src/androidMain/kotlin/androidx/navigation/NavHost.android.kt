@@ -28,10 +28,10 @@ import androidx.annotation.IdRes
     ReplaceWith(
         "createGraph(startDestination = startDestination.toString(), route = id.toString()) " +
             "{ builder.invoke() }"
-    )
+    ),
 )
 public inline fun NavHost.createGraph(
     @IdRes id: Int = 0,
     @IdRes startDestination: Int,
-    builder: NavGraphBuilder.() -> Unit
+    builder: NavGraphBuilder.() -> Unit,
 ): NavGraph = navController.createGraph(id, startDestination, builder)

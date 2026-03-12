@@ -131,7 +131,7 @@ class DialogFragmentNavigatorTest {
         val navController = NavController(emptyActivity)
         Navigation.setViewNavController(
             dialogFragment.requireDialog().window!!.decorView,
-            navController
+            navController,
         )
 
         val returnedNavController = NavHostFragment.findNavController(dialogFragment)
@@ -189,7 +189,7 @@ class DialogFragmentNavigatorTest {
                                 object : LifecycleEventObserver {
                                     override fun onStateChanged(
                                         source: LifecycleOwner,
-                                        event: Lifecycle.Event
+                                        event: Lifecycle.Event,
                                     ) {
                                         if (event == Lifecycle.Event.ON_STOP) {
                                             if (
@@ -537,7 +537,7 @@ class DialogFragmentNavigatorTest {
 
     private fun createBackStackEntry(
         destId: Int = INITIAL_FRAGMENT,
-        clazz: KClass<out Fragment> = EmptyDialogFragment::class
+        clazz: KClass<out Fragment> = EmptyDialogFragment::class,
     ): NavBackStackEntry {
         val destination =
             dialogNavigator.createDestination().apply {

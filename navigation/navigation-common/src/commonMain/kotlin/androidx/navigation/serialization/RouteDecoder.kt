@@ -158,7 +158,7 @@ private abstract class ArgStore {
 
 private class SavedStateHandleArgStore(
     private val handle: SavedStateHandle,
-    private val typeMap: Map<String, NavType<*>>
+    private val typeMap: Map<String, NavType<*>>,
 ) : ArgStore() {
     override fun get(key: String): Any? {
         val arg: Any? = handle[key]
@@ -172,7 +172,7 @@ private class SavedStateHandleArgStore(
 
 private class SavedStateArgStore(
     private val savedState: SavedState,
-    private val typeMap: Map<String, NavType<*>>
+    private val typeMap: Map<String, NavType<*>>,
 ) : ArgStore() {
     override fun get(key: String): Any? {
         val navType = typeMap[key]

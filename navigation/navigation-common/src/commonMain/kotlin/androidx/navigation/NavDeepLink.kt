@@ -53,7 +53,7 @@ internal constructor(
      *
      * @see NavDeepLinkRequest.mimeType
      */
-    public val mimeType: String?
+    public val mimeType: String?,
 ) {
     // path
     private val pathArgs = mutableListOf<String>()
@@ -90,11 +90,7 @@ internal constructor(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(uri: String) : this(uri, null, null)
 
-    private fun buildRegex(
-        uri: String,
-        args: MutableList<String>,
-        uriRegex: StringBuilder,
-    ) {
+    private fun buildRegex(uri: String, args: MutableList<String>, uriRegex: StringBuilder) {
         var result = FILL_IN_PATTERN.find(uri)
         var appendPos = 0
         while (result != null) {
@@ -177,7 +173,7 @@ internal constructor(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun getMatchingArguments(
         deepLink: NavUri,
-        arguments: Map<String, NavArgument?>
+        arguments: Map<String, NavArgument?>,
     ): SavedState? {
         // first check overall uri pattern for quick return if general pattern does not match
         val result = pathPattern?.matchEntire(deepLink.toString()) ?: return null
@@ -205,7 +201,7 @@ internal constructor(
      */
     internal fun getMatchingPathAndQueryArgs(
         deepLink: NavUri?,
-        arguments: Map<String, NavArgument?>
+        arguments: Map<String, NavArgument?>,
     ): SavedState {
         val savedState = savedState()
         if (deepLink == null) return savedState
@@ -219,7 +215,7 @@ internal constructor(
     private fun getMatchingUriFragment(
         fragment: String?,
         savedState: SavedState,
-        arguments: Map<String, NavArgument?>
+        arguments: Map<String, NavArgument?>,
     ) {
         // Base condition of a matching fragment is a complete match on regex pattern. If a
         // required fragment arg is present while regex does not match, this will be caught later
@@ -241,7 +237,7 @@ internal constructor(
     private fun getMatchingPathArguments(
         result: MatchResult,
         savedState: SavedState,
-        arguments: Map<String, NavArgument?>
+        arguments: Map<String, NavArgument?>,
     ): Boolean {
         this.pathArgs.mapIndexed { index, argumentName ->
             val value = result.groups[index + 1]?.value?.let { NavUriUtils.decode(it) }.orEmpty()
@@ -262,7 +258,7 @@ internal constructor(
     private fun getMatchingQueryArguments(
         deepLink: NavUri,
         savedState: SavedState,
-        arguments: Map<String, NavArgument?>
+        arguments: Map<String, NavArgument?>,
     ): Boolean {
         // key is queryParameterName (argName could be different), value is NavDeepLink.ParamQuery
         queryArgsMap.forEach { entry ->
@@ -372,7 +368,7 @@ internal constructor(
         savedState: SavedState,
         name: String,
         value: String,
-        argument: NavArgument?
+        argument: NavArgument?,
     ) {
         if (argument != null) {
             val type = argument.type
@@ -386,14 +382,14 @@ internal constructor(
      * Parses subsequent arg values under the same queryParameterName
      *
      * For example with route "...?myArg=one&myArg=two&myArg=three", [savedState] is expected to
-     * already contain bundleOf([name] to "one"), and this function will parse & put values "two"
-     * and "three" into the SavedState under the same [name].
+     * already contain `[name] to "one"`, and this function will parse & put values "two" and
+     * "three" into the SavedState under the same [name].
      */
     private fun parseArgumentForRepeatedParam(
         savedState: SavedState,
         name: String,
         value: String?,
-        argument: NavArgument?
+        argument: NavArgument?,
     ): Boolean {
         if (!savedState.read { contains(name) }) {
             return true

@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -64,11 +63,11 @@ androidXMultiplatform {
 
         commonMain.dependencies {
             api("androidx.annotation:annotation:1.9.1")
-            api(project(":lifecycle:lifecycle-common"))
-            api(project(":lifecycle:lifecycle-runtime"))
-            api(project(":lifecycle:lifecycle-viewmodel"))
-            api(project(":lifecycle:lifecycle-viewmodel-savedstate"))
-            api(project(":savedstate:savedstate"))
+            api("androidx.lifecycle:lifecycle-common:2.9.2")
+            api("androidx.lifecycle:lifecycle-runtime:2.9.2")
+            api("androidx.lifecycle:lifecycle-viewmodel:2.9.2")
+            api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.2")
+            api("org.jetbrains.androidx.savedstate:savedstate:1.3.0")
             implementation("androidx.collection:collection:1.5.0")
             implementation(libs.kotlinSerializationCore)
         }
@@ -78,28 +77,6 @@ androidXMultiplatform {
             implementation(project(":kruth:kruth"))
             implementation(project(":navigation:navigation-testing"))
         }
-
-        nonAndroidMain.dependsOn(commonMain)
-        nonAndroidTest.dependsOn(commonTest)
-
-        darwinMain.dependsOn(appleMain)
-        darwinTest.dependsOn(appleTest)
-        iosMain.dependsOn(darwinMain)
-        iosTest.dependsOn(darwinTest)
-        macosMain.dependsOn(darwinMain)
-        macosTest.dependsOn(darwinTest)
-        tvosMain.dependsOn(darwinMain)
-        tvosTest.dependsOn(darwinTest)
-        watchosMain.dependsOn(darwinMain)
-        watchosTest.dependsOn(darwinTest)
-
-        jvmMain.dependsOn(nonAndroidMain)
-        jvmTest.dependsOn(nonAndroidTest)
-        desktopMain.dependsOn(jvmMain)
-        desktopTest.dependsOn(jvmTest)
-
-        desktopMain.dependsOn(nonAndroidMain)
-        desktopTest.dependsOn(nonAndroidTest)
 
         androidMain.dependencies {
             api(project(":lifecycle:lifecycle-runtime"))
@@ -129,11 +106,19 @@ androidXMultiplatform {
             implementation(libs.dexmakerMockito)
         }
 
-        nonJvmMain.dependsOn(nonAndroidMain)
-        nonJvmTest.dependsOn(nonAndroidTest)
+        create("androidTest").dependsOn(jvmAndAndroidTest)
+        androidDeviceTest.dependsOn(androidTest)
+        androidHostTest.dependsOn(androidTest)
 
-        nativeMain { dependsOn(nonAndroidMain) }
-        nativeTest { dependsOn(nonAndroidTest) }
+        create("nonAndroidMain").dependsOn(commonMain)
+        desktopMain.dependsOn(nonAndroidMain)
+        nativeMain.dependsOn(nonAndroidMain)
+        webMain.dependsOn(nonAndroidMain)
+
+        create("nonAndroidTest").dependsOn(commonTest)
+        desktopTest.dependsOn(nonAndroidTest)
+        nativeTest.dependsOn(nonAndroidTest)
+        webTest.dependsOn(nonAndroidTest)
     }
 }
 

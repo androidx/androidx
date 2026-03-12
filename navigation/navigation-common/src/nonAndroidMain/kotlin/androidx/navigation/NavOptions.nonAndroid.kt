@@ -52,7 +52,7 @@ internal constructor(
         restoreState,
         createRoute(popUpToRoute).hashCode(),
         popUpToInclusive,
-        popUpToSaveState
+        popUpToSaveState,
     ) {
         this.popUpToRoute = popUpToRoute
     }
@@ -70,7 +70,7 @@ internal constructor(
         restoreState,
         popUpToRouteClass!!.serializer().generateHashCode(),
         popUpToInclusive,
-        popUpToSaveState
+        popUpToSaveState,
     ) {
         this.popUpToRouteClass = popUpToRouteClass
     }
@@ -88,7 +88,7 @@ internal constructor(
         restoreState,
         popUpToRouteObject::class.serializer().generateHashCode(),
         popUpToInclusive,
-        popUpToSaveState
+        popUpToSaveState,
     ) {
         this.popUpToRouteObject = popUpToRouteObject
     }
@@ -205,11 +205,12 @@ internal constructor(
          * @see NavOptions.isPopUpToInclusive
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @Suppress("KmpHideShowAnnotationMismatch")
         @JvmOverloads
         public fun setPopUpTo(
             destinationId: Int,
             inclusive: Boolean,
-            saveState: Boolean = false
+            saveState: Boolean = false,
         ): Builder {
             popUpToId = destinationId
             popUpToRoute = null
@@ -222,7 +223,7 @@ internal constructor(
         public actual fun setPopUpTo(
             route: String?,
             inclusive: Boolean,
-            saveState: Boolean
+            saveState: Boolean,
         ): Builder {
             popUpToRoute = route
             popUpToId = -1
@@ -235,7 +236,7 @@ internal constructor(
         @Suppress("MissingGetterMatchingBuilder") // no need for getter
         public actual inline fun <reified T : Any> setPopUpTo(
             inclusive: Boolean,
-            saveState: Boolean
+            saveState: Boolean,
         ): Builder {
             setPopUpTo(T::class, inclusive, saveState)
             return this
@@ -245,7 +246,7 @@ internal constructor(
         public actual fun <T : Any> setPopUpTo(
             route: KClass<T>,
             inclusive: Boolean,
-            saveState: Boolean
+            saveState: Boolean,
         ): Builder {
             popUpToRouteClass = route
             popUpToId = -1
@@ -260,7 +261,7 @@ internal constructor(
         public actual fun <T : Any> setPopUpTo(
             route: T,
             inclusive: Boolean,
-            saveState: Boolean
+            saveState: Boolean,
         ): Builder {
             popUpToRouteObject = route
             setPopUpTo(route::class.serializer().generateHashCode(), inclusive, saveState)
@@ -293,13 +294,7 @@ internal constructor(
                     popUpToSaveState,
                 )
             } else {
-                NavOptions(
-                    singleTop,
-                    restoreState,
-                    popUpToId,
-                    popUpToInclusive,
-                    popUpToSaveState,
-                )
+                NavOptions(singleTop, restoreState, popUpToId, popUpToInclusive, popUpToSaveState)
             }
         }
     }
