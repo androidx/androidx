@@ -1071,6 +1071,96 @@ class DialogTest {
         }
     }
 
+    @Test
+    fun dialogTest_customWindowType() {
+        lateinit var window: Window
+        val customType = android.view.WindowManager.LayoutParams.TYPE_APPLICATION_PANEL
+
+        rule.setContent {
+            Dialog(onDismissRequest = {}, properties = DialogProperties(windowType = customType)) {
+                var parent = LocalView.current
+                while (parent !is DialogWindowProvider) {
+                    parent = parent.parent as View
+                }
+                window = (parent as DialogWindowProvider).window
+                Box(Modifier.size(10.dp))
+            }
+        }
+
+        rule.runOnIdle { assertThat(window.attributes.type).isEqualTo(customType) }
+    }
+
+    @Test
+    fun dialogTest_customWindowType_recreatesWindow_whenChanged() {
+        lateinit var window: Window
+        var customType by
+            mutableStateOf(android.view.WindowManager.LayoutParams.TYPE_APPLICATION_PANEL)
+
+        rule.setContent {
+            Dialog(onDismissRequest = {}, properties = DialogProperties(windowType = customType)) {
+                var parent = LocalView.current
+                while (parent !is DialogWindowProvider) {
+                    parent = parent.parent as View
+                }
+                window = (parent as DialogWindowProvider).window
+                Box(Modifier.size(10.dp))
+            }
+        }
+
+        // Verify initial type
+        val initialWindow = window
+        rule.runOnIdle {
+            assertThat(initialWindow.attributes.type)
+                .isEqualTo(android.view.WindowManager.LayoutParams.TYPE_APPLICATION_PANEL)
+        }
+
+        // Trigger a change in window type
+        customType = android.view.WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL
+
+        // Verify that a NEW window was created with the updated type
+        rule.runOnIdle {
+            assertThat(window).isNotSameInstanceAs(initialWindow)
+            assertThat(window.attributes.type)
+                .isEqualTo(android.view.WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL)
+        }
+    }
+
+    @Test
+    fun dialogTest_customWindowType_revertToApplication_isDisplayed() {
+        lateinit var window: Window
+        var windowType by
+            mutableStateOf(android.view.WindowManager.LayoutParams.TYPE_APPLICATION_PANEL)
+
+        rule.setContent {
+            Dialog(onDismissRequest = {}, properties = DialogProperties(windowType = windowType)) {
+                var parent = LocalView.current
+                while (parent !is DialogWindowProvider) {
+                    parent = parent.parent as View
+                }
+                window = (parent as DialogWindowProvider).window
+                // Use the existing testTag to verify visibility
+                Box(Modifier.size(10.dp).testTag(testTag))
+            }
+        }
+
+        // Verify initial custom type and that the dialog is displayed
+        rule.onNodeWithTag(testTag).assertIsDisplayed()
+        rule.runOnIdle {
+            assertThat(window.attributes.type)
+                .isEqualTo(android.view.WindowManager.LayoutParams.TYPE_APPLICATION_PANEL)
+        }
+
+        // Trigger an update to revert back to TYPE_APPLICATION
+        windowType = android.view.WindowManager.LayoutParams.TYPE_APPLICATION
+
+        // Verify updated type and that the dialog is still displayed
+        rule.onNodeWithTag(testTag).assertIsDisplayed()
+        rule.runOnIdle {
+            assertThat(window.attributes.type)
+                .isEqualTo(android.view.WindowManager.LayoutParams.TYPE_APPLICATION)
+        }
+    }
+
     private fun setupDialogTest(
         closeDialogOnDismiss: Boolean = true,
         dialogProperties: DialogProperties = DialogProperties(),

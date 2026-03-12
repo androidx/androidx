@@ -24,8 +24,10 @@ import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiObject2
+import androidx.testutils.AnimationSystemSettingsTestRule
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 
 /**
@@ -35,7 +37,11 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class SeekableTransitionInterruptMacrobenchmark {
-    @get:Rule val benchmarkRule = MacrobenchmarkRule()
+    val benchmarkRule = MacrobenchmarkRule()
+    val animationBenchmarkRule = AnimationSystemSettingsTestRule(1.0f)
+
+    @get:Rule
+    val ruleChain: RuleChain = RuleChain.outerRule(animationBenchmarkRule).around(benchmarkRule)
 
     @OptIn(ExperimentalMetricApi::class)
     @Test

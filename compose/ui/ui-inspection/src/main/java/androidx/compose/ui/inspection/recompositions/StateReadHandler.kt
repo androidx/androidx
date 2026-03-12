@@ -104,7 +104,7 @@ class StateReadHandler(artTooling: ArtTooling, anchorMap: AnchorMap) :
                 synchronized(lock) {
                     val anchor = (scope as? IdentifiableRecomposeScope)?.identity ?: return
                     // Again: filter by the composable.
-                    if (anchorsObserved.isNotEmpty() && !anchorsObserved.contains(anchor)) {
+                    if (!isObserving(anchor)) {
                         return
                     }
                     cache.addInvalidation(anchor, value)
@@ -138,12 +138,14 @@ class StateReadHandler(artTooling: ArtTooling, anchorMap: AnchorMap) :
             }
             if (!observingStateReads || settings.methodCase == MethodCase.ALL) {
                 anchorsObserved.clear()
-            } else if (settings.byId.composableToObserveList != anchorsObserved) {
-                anchorsObserved.clear()
-                anchorsObserved.addAll(
+            } else {
+                val anchorsToObserve =
                     settings.byId.composableToObserveList.mapNotNull { anchorMap[it] }
-                )
-                cache.removeAllExcept(anchorsObserved)
+                if (anchorsToObserve != anchorsObserved) {
+                    anchorsObserved.clear()
+                    anchorsObserved.addAll(anchorsToObserve)
+                    cache.removeAllExcept(anchorsObserved)
+                }
             }
             cache.maxStateReads =
                 when (settings.methodCase) {
@@ -151,6 +153,16 @@ class StateReadHandler(artTooling: ArtTooling, anchorMap: AnchorMap) :
                     MethodCase.BY_ID -> settings.byId.maxStateReads
                     else -> 0
                 }.takeIf { it != 0 } ?: DEFAULT_MAX_STATE_READS
+        }
+    }
+
+    override fun incrementRecompositionCount(anchor: Any): RecompositionDataWithStateReads? {
+        synchronized(lock) {
+            val data = super.incrementRecompositionCount(anchor) ?: return null
+            if (isObserving(anchor)) {
+                data.expectStateReads()
+            }
+            return data
         }
     }
 
@@ -188,6 +200,9 @@ class StateReadHandler(artTooling: ArtTooling, anchorMap: AnchorMap) :
 
     /** Return the number of state reads purged from the state read cache. */
     fun getPurgedStateReadCount(): Long = cache.purgedStateReads
+
+    private fun isObserving(anchor: Any): Boolean =
+        observerJob != null && (anchorsObserved.isEmpty() || anchorsObserved.contains(anchor))
 
     @OptIn(ExperimentalComposeRuntimeApi::class)
     private fun startObservingStateReads() {

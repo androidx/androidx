@@ -159,12 +159,14 @@ fun Surface(
  *    [color] is not part of the theme palette, [contentColor] will keep the same value set above
  *    this Surface.
  * 6) Click handling. This version of surface will react to the clicks, calling [onClick] lambda,
- *    updating the [interactionSource] when [PressInteraction] occurs, and showing ripple indication
- *    in response to press events. If you don't need click handling, consider using the Surface
- *    function that doesn't require [onClick] param.
+ *    updating the [interactionSource] when
+ *    [androidx.compose.foundation.interaction.PressInteraction] occurs, and showing ripple
+ *    indication in response to press events. If you don't need click handling, consider using the
+ *    Surface function that doesn't require [onClick] param.
  * 7) Semantics for clicks. Just like with [Modifier.clickable], clickable version of Surface will
  *    produce semantics to indicate that it is clicked. No semantic role is set by default, you may
- *    specify one by passing a desired [Role] with a [Modifier.semantics].
+ *    specify one by passing a desired [androidx.compose.ui.semantics.Role] with a
+ *    [Modifier.semantics].
  *
  * @sample androidx.compose.material.samples.ClickableSurfaceSample
  *
@@ -267,12 +269,14 @@ fun Surface(
  *    [color] is not part of the theme palette, [contentColor] will keep the same value set above
  *    this Surface.
  * 6) Click handling. This version of surface will react to the clicks, calling [onClick] lambda,
- *    updating the [interactionSource] when [PressInteraction] occurs, and showing ripple indication
- *    in response to press events. If you don't need click handling, consider using the Surface
- *    function that doesn't require [onClick] param.
+ *    updating the [interactionSource] when
+ *    [androidx.compose.foundation.interaction.PressInteraction] occurs, and showing ripple
+ *    indication in response to press events. If you don't need click handling, consider using the
+ *    Surface function that doesn't require [onClick] param.
  * 7) Semantics for selection. Just like with [Modifier.selectable], selectable version of Surface
  *    will produce semantics to indicate that it is selected. No semantic role is set by default,
- *    you may specify one by passing a desired [Role] with a [Modifier.semantics].
+ *    you may specify one by passing a desired [androidx.compose.ui.semantics.Role] with a
+ *    [Modifier.semantics].
  *
  * @sample androidx.compose.material.samples.SelectableSurfaceSample
  *
@@ -378,12 +382,14 @@ fun Surface(
  *    [color] is not part of the theme palette, [contentColor] will keep the same value set above
  *    this Surface.
  * 6) Click handling. This version of surface will react to the check toggles, calling
- *    [onCheckedChange] lambda, updating the [interactionSource] when [PressInteraction] occurs, and
- *    showing ripple indication in response to press events. If you don't need check handling,
- *    consider using a Surface function that doesn't require [onCheckedChange] param.
+ *    [onCheckedChange] lambda, updating the [interactionSource] when
+ *    [androidx.compose.foundation.interaction.PressInteraction] occurs, and showing ripple
+ *    indication in response to press events. If you don't need check handling, consider using a
+ *    Surface function that doesn't require [onCheckedChange] param.
  * 7) Semantics for toggle. Just like with [Modifier.toggleable], toggleable version of Surface will
  *    produce semantics to indicate that it is checked. No semantic role is set by default, you may
- *    specify one by passing a desired [Role] with a [Modifier.semantics].
+ *    specify one by passing a desired [androidx.compose.ui.semantics.Role] with a
+ *    [Modifier.semantics].
  *
  * @sample androidx.compose.material.samples.ToggleableSurfaceSample
  *

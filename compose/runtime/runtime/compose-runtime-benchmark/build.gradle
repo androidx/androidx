@@ -20,13 +20,22 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("com.android.experimental.built-in-kotlin")
+    id("org.jetbrains.kotlin.android")
     id("androidx.benchmark")
 }
 
 android {
     compileSdk = 35
     namespace = "androidx.compose.runtime.benchmark"
+
+    buildTypes.release {
+        androidTest {
+            testProguardFiles(
+                    getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+            )
+            enableMinification = true
+        }
+    }
 }
 
 dependencies {
@@ -58,7 +67,7 @@ dependencies {
     // Outside of androidx this is resolved via constraint added to lifecycle-common,
     // but it doesn't work in androidx.
     // See aosp/1804059
-    androidTestImplementation "androidx.lifecycle:lifecycle-common-java8:2.5.1"
+    androidTestImplementation("androidx.lifecycle:lifecycle-common-java8:2.5.1")
 }
 
 androidx {

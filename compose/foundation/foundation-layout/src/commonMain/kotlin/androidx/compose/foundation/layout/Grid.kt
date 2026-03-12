@@ -267,10 +267,22 @@ internal object GridScopeInstance : GridScope {
  * respective axes.
  *
  * @sample androidx.compose.foundation.layout.samples.GridConfigurationDslSample
+ * @sample androidx.compose.foundation.layout.samples.GridWithConstraints
  */
 @LayoutScopeMarker
 @ExperimentalGridApi
 interface GridConfigurationScope : Density {
+
+    /**
+     * The layout constraints passed to this [Grid] from its parent.
+     *
+     * These constraints represent the minimum and maximum size limits that the parent has imposed
+     * on this Grid. This can be useful for creating responsive layouts that adapt based on
+     * available space.
+     *
+     * @see Constraints
+     */
+    val constraints: Constraints
 
     /**
      * The direction in which items that do not specify a position are placed. Defaults to
@@ -616,7 +628,8 @@ private class GridItemElement(
  * @property columnSpan The number of columns the item should occupy.
  * @property alignment The alignment of the content within the grid cell.
  * @throws IllegalArgumentException if [rows] or [columns] ranges are empty, or if the derived
- *   row/column indices or spans do not meet the requirements of the primary [gridItem] function.
+ *   row/column indices or spans do not meet the requirements of the primary [GridScope.gridItem]
+ *   function.
  * @see GridScope.gridItem for the public API and input validation.
  */
 private class GridItemNode(
@@ -640,7 +653,7 @@ internal class GridMeasurePolicy(
         constraints: Constraints,
     ): MeasureResult {
         // 1. Run Configuration DSL
-        val gridConfig = GridConfigurationScopeImpl(this).apply(configState.value)
+        val gridConfig = GridConfigurationScopeImpl(this, constraints).apply(configState.value)
 
         // 2. Resolve Grid Item Indices (Resolve explicit and Auto placement)
         // This calculates the concrete index (row, col) for every item and determines total grid
@@ -698,7 +711,7 @@ internal class GridMeasurePolicy(
     }
 }
 
-private class GridConfigurationScopeImpl(density: Density) :
+private class GridConfigurationScopeImpl(density: Density, override val constraints: Constraints) :
     GridConfigurationScope, Density by density {
     val columnSpecs = mutableLongListOf()
     val rowSpecs = mutableLongListOf()
@@ -1102,8 +1115,8 @@ private fun resolveToZeroBasedIndex(index: Int, maxCount: Int): Int {
  * beyond the spec list sizes) are treated as `GridTrackSize.Auto`.
  *
  * **Spanning Items:** The function accounts for items spanning multiple tracks, potentially
- * increasing the sizes of growable tracks ([Auto], [MinContent], [MaxContent], [Flex]) to
- * accommodate them.
+ * increasing the sizes of growable tracks ([GridTrackSize.Auto], [GridTrackSize.MinContent],
+ * [GridTrackSize.MaxContent], [GridTrackSize.Flex]) to accommodate them.
  *
  * @param density The current screen density, used for converting Dp to pixels.
  * @param gridItems The list of all grid items, including their placement and spans.
@@ -1264,11 +1277,6 @@ private fun calculateColumnWidths(
             (availableSpace - totalGapSpace).coerceAtLeast(0)
         }
 
-    // Height constraint used when measuring intrinsic width.
-    // Usually Infinity (standard intrinsic measurement), unless parent enforces strict height.
-    val crossAxisAvailable =
-        if (constraints.hasBoundedHeight) constraints.maxHeight else Constraints.Infinity
-
     // Keep track of which columns are Auto so we can expand them later
     val autoIndices = MutableIntList()
 
@@ -1295,7 +1303,7 @@ private fun calculateColumnWidths(
                         // If the Grid is in a horizontally scrolling container
                         // (infinite width), we cannot calculate a percentage of "Infinity".
                         // We default to 'Auto' (MaxIntrinsic) so the content remains visible.
-                        calculateMaxIntrinsicWidth(itemsByColumn[index], crossAxisAvailable)
+                        calculateMaxIntrinsicWidth(itemsByColumn[index])
                     }
                 }
 
@@ -1305,21 +1313,18 @@ private fun calculateColumnWidths(
                     // This implements `minmax(min-content, <flex-factor>fr)`.
                     // It ensures that even if there is no remaining space to distribute,
                     // the column is at least wide enough to show its content.
-                    calculateMinIntrinsicWidth(itemsByColumn[index], crossAxisAvailable)
+                    calculateMinIntrinsicWidth(itemsByColumn[index])
                 }
 
-                GridTrackSize.TypeMinContent ->
-                    calculateMinIntrinsicWidth(itemsByColumn[index], crossAxisAvailable)
-                GridTrackSize.TypeMaxContent ->
-                    calculateMaxIntrinsicWidth(itemsByColumn[index], crossAxisAvailable)
+                GridTrackSize.TypeMinContent -> calculateMinIntrinsicWidth(itemsByColumn[index])
+                GridTrackSize.TypeMaxContent -> calculateMaxIntrinsicWidth(itemsByColumn[index])
                 GridTrackSize.TypeAuto -> {
                     if (availableTrackSpace == Constraints.Infinity) {
                         // If infinite space, Auto behaves like MaxContent
-                        calculateMaxIntrinsicWidth(itemsByColumn[index], crossAxisAvailable)
+                        calculateMaxIntrinsicWidth(itemsByColumn[index])
                     } else {
                         // Finite space: Auto needs Min (for base) AND Max (for growth).
-                        val packed =
-                            calculateMinMaxIntrinsicWidth(itemsByColumn[index], crossAxisAvailable)
+                        val packed = calculateMinMaxIntrinsicWidth(itemsByColumn[index])
                         // Unpack the Long (High 32 = Max, Low 32 = Min)
                         val max = (packed ushr 32).toInt()
                         val min = (packed and 0xFFFFFFFFL).toInt()
@@ -1332,7 +1337,7 @@ private fun calculateColumnWidths(
                     }
                 }
                 // Measure the max intrinsic width of all items in this column.
-                else -> calculateMaxIntrinsicWidth(itemsByColumn[index], crossAxisAvailable)
+                else -> calculateMaxIntrinsicWidth(itemsByColumn[index])
             }
         outSizes[index] = size
     }
@@ -1628,30 +1633,24 @@ private fun calculateRowHeights(
     return usedSpace + totalAddedFromFlex
 }
 
-private fun calculateMaxIntrinsicWidth(
-    items: MutableObjectList<GridItem>?,
-    heightConstraint: Int,
-): Int {
+private fun calculateMaxIntrinsicWidth(items: MutableObjectList<GridItem>?): Int {
     if (items == null) return 0
     var maxSize = 0
     items.forEach { item ->
         if (item.columnSpan == 1) {
-            val size = item.measurable.maxIntrinsicWidth(heightConstraint)
+            val size = item.measurable.maxIntrinsicWidth(Constraints.Infinity)
             if (size > maxSize) maxSize = size
         }
     }
     return maxSize
 }
 
-private fun calculateMinIntrinsicWidth(
-    items: MutableObjectList<GridItem>?,
-    heightConstraint: Int,
-): Int {
+private fun calculateMinIntrinsicWidth(items: MutableObjectList<GridItem>?): Int {
     if (items == null) return 0
     var maxSize = 0
     items.forEach { item ->
         if (item.columnSpan == 1) {
-            val size = item.measurable.minIntrinsicWidth(heightConstraint)
+            val size = item.measurable.minIntrinsicWidth(Constraints.Infinity)
             if (size > maxSize) maxSize = size
         }
     }
@@ -1699,22 +1698,18 @@ private fun calculateMinIntrinsicHeight(
  * pass.
  *
  * @param items The list of items in this column.
- * @param heightConstraint The available height to measure against (often [Constraints.Infinity]).
  * @return A packed [Long] containing both values to avoid object allocation:
  * * **High 32 bits:** The maximum intrinsic width. Extract via `(packed ushr 32).toInt()`.
  * * **Low 32 bits:** The minimum intrinsic width. Extract via `(packed and 0xFFFFFFFFL).toInt()`.
  */
-private fun calculateMinMaxIntrinsicWidth(
-    items: MutableObjectList<GridItem>?,
-    heightConstraint: Int,
-): Long {
+private fun calculateMinMaxIntrinsicWidth(items: MutableObjectList<GridItem>?): Long {
     if (items == null) return 0L
     var maxMin = 0
     var maxMax = 0
     items.forEach { item ->
         if (item.columnSpan == 1) {
-            val min = item.measurable.minIntrinsicWidth(heightConstraint)
-            val max = item.measurable.maxIntrinsicWidth(heightConstraint)
+            val min = item.measurable.minIntrinsicWidth(Constraints.Infinity)
+            val max = item.measurable.maxIntrinsicWidth(Constraints.Infinity)
             if (min > maxMin) maxMin = min
             if (max > maxMax) maxMax = max
         }
@@ -1846,12 +1841,9 @@ private fun distributeSpanningSpace(
                 item.measurable.maxIntrinsicHeight(itemWidth)
             } else {
                 // Case: Calculating Column Widths.
-                // Intrinsic width is typically calculated against infinite height (maxContent),
-                // or the parent's bounded height if specified.
-                val heightConstraint =
-                    if (constraints.hasBoundedHeight) constraints.maxHeight
-                    else Constraints.Infinity
-                item.measurable.maxIntrinsicWidth(heightConstraint)
+                // Intrinsic width must be calculated against infinite height to prevent
+                // aspect ratio modifiers from demanding widths based on the grid's height.
+                item.measurable.maxIntrinsicWidth(Constraints.Infinity)
             }
 
         // --- Step 3: Distribute Deficit ---

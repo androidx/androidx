@@ -96,8 +96,8 @@ fun FlexBoxAlignItemsDemo() {
 private fun FlexBoxRowAlignItemsStretchSample() {
     FlexBox(
         config = {
-            direction = FlexDirection.Row
-            alignItems = FlexAlignItems.Stretch
+            direction(FlexDirection.Row)
+            alignItems(FlexAlignItems.Stretch)
         },
         modifier = Modifier.fillMaxWidth().border(1.dp, Color.Black),
     ) {
@@ -134,8 +134,8 @@ private fun FlexBoxRowAlignItemsStretchSample() {
 private fun FlexBoxRowAlignItemsCenterSample() {
     FlexBox(
         config = {
-            direction = FlexDirection.Row
-            alignItems = FlexAlignItems.Center
+            direction(FlexDirection.Row)
+            alignItems(FlexAlignItems.Center)
         },
         modifier = Modifier.fillMaxWidth().border(1.dp, Color.Black),
     ) {
@@ -174,8 +174,8 @@ private fun FlexBoxRowAlignItemsCenterSample() {
 private fun FlexBoxRowAlignItemsStartSample() {
     FlexBox(
         config = {
-            direction = FlexDirection.Row
-            alignItems = FlexAlignItems.Start
+            direction(FlexDirection.Row)
+            alignItems(FlexAlignItems.Start)
         },
         modifier = Modifier.fillMaxWidth().border(1.dp, Color.Black),
     ) {
@@ -214,8 +214,8 @@ private fun FlexBoxRowAlignItemsStartSample() {
 private fun FlexBoxRowAlignItemsEndSample() {
     FlexBox(
         config = {
-            direction = FlexDirection.Row
-            alignItems = FlexAlignItems.End
+            direction(FlexDirection.Row)
+            alignItems(FlexAlignItems.End)
         },
         modifier = Modifier.fillMaxWidth().border(1.dp, Color.Black),
     ) {
@@ -254,8 +254,8 @@ private fun FlexBoxRowAlignItemsEndSample() {
 private fun FlexBoxRowAlignItemsBaselineSample() {
     FlexBox(
         config = {
-            direction = FlexDirection.Row
-            alignItems = FlexAlignItems.Baseline
+            direction(FlexDirection.Row)
+            alignItems(FlexAlignItems.Baseline)
         },
         modifier = Modifier.fillMaxWidth().border(1.dp, Color.Black),
     ) {
@@ -297,8 +297,8 @@ private fun FlexBoxRowAlignItemsBaselineSample() {
 private fun FlexBoxRowAlignItemsToLastBaselineSample() {
     FlexBox(
         config = {
-            direction = FlexDirection.Row
-            alignItemsToBaseline(LastBaseline)
+            direction(FlexDirection.Row)
+            alignItems(LastBaseline)
         },
         modifier = Modifier.fillMaxWidth().border(1.dp, Color.Black),
     ) {
@@ -340,8 +340,8 @@ private fun FlexBoxRowAlignItemsToLastBaselineSample() {
 private fun FlexBoxRowAlignItemsToCustomBaselineSample() {
     FlexBox(
         config = {
-            direction = FlexDirection.Row
-            alignItemsToBaseline { measured ->
+            direction(FlexDirection.Row)
+            alignItems { measured ->
                 // Custom baseline at the bottom of the item
                 measured.measuredHeight / 2
             }
@@ -386,8 +386,8 @@ private fun FlexBoxRowAlignItemsToCustomBaselineSample() {
 private fun FlexBoxColumnAlignItemsStretchSample() {
     FlexBox(
         config = {
-            direction = FlexDirection.Column
-            alignItems = FlexAlignItems.Stretch
+            direction(FlexDirection.Column)
+            alignItems(FlexAlignItems.Stretch)
         },
         modifier = Modifier.height(250.dp).border(1.dp, Color.Black),
     ) {
@@ -424,8 +424,8 @@ private fun FlexBoxColumnAlignItemsStretchSample() {
 private fun FlexBoxColumnAlignItemsCenterSample() {
     FlexBox(
         config = {
-            direction = FlexDirection.Column
-            alignItems = FlexAlignItems.Center
+            direction(FlexDirection.Column)
+            alignItems(FlexAlignItems.Center)
         },
         modifier = Modifier.height(250.dp).border(1.dp, Color.Black),
     ) {
@@ -464,8 +464,8 @@ private fun FlexBoxColumnAlignItemsCenterSample() {
 private fun FlexBoxColumnAlignItemsStartSample() {
     FlexBox(
         config = {
-            direction = FlexDirection.Column
-            alignItems = FlexAlignItems.Start
+            direction(FlexDirection.Column)
+            alignItems(FlexAlignItems.Start)
         },
         modifier = Modifier.height(250.dp).border(1.dp, Color.Black),
     ) {
@@ -504,8 +504,8 @@ private fun FlexBoxColumnAlignItemsStartSample() {
 private fun FlexBoxColumnAlignItemsEndSample() {
     FlexBox(
         config = {
-            direction = FlexDirection.Column
-            alignItems = FlexAlignItems.End
+            direction(FlexDirection.Column)
+            alignItems(FlexAlignItems.End)
         },
         modifier = Modifier.height(250.dp).border(1.dp, Color.Black),
     ) {

@@ -20,8 +20,9 @@ package androidx.compose.runtime.snapshots
  * Designates a function as a factory function that produces a State object. Since State factory
  * functions create and initialize a state, they should usually only be called once per state value
  * initialization. This annotation causes all invocations of marked state factory functions to be
- * checked to ensure that they are not called directly inside the body of a [Composable] function
- * and are instead wrapped with an appropriate [remember] call.
+ * checked to ensure that they are not called directly inside the body of a
+ * [androidx.compose.runtime.Composable] function and are instead wrapped with an appropriate
+ * [androidx.compose.runtime.remember] call.
  */
 @MustBeDocumented
 @Target(AnnotationTarget.FUNCTION)

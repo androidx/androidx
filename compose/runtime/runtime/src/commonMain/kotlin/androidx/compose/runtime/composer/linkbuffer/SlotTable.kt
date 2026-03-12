@@ -76,7 +76,7 @@ internal class SlotTable(
     override fun dispose() {
         if (root != NULL_ADDRESS) {
             addressSpace.freeGroupTree(root)
-            root == NULL_ADDRESS
+            root = NULL_ADDRESS
         }
     }
 

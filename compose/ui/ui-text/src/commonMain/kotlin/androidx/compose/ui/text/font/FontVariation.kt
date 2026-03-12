@@ -17,11 +17,13 @@
 package androidx.compose.ui.text.font
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.text.font.FontVariation.Settings
+import androidx.compose.ui.text.font.FontVariation.grade
+import androidx.compose.ui.text.font.FontVariation.italic
 import androidx.compose.ui.text.internal.requirePrecondition
 import androidx.compose.ui.text.internal.requirePreconditionNotNull
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.util.fastAny
 
 /**
  * Set font variation settings.
@@ -48,19 +50,19 @@ object FontVariation {
         internal val needsDensity: Boolean
 
         init {
-            this.settings =
-                ArrayList(
-                    settings
-                        .groupBy { it.axisName }
-                        .flatMap { (key, value) ->
-                            require(value.size == 1) {
-                                "'$key' must be unique. Actual [ [${value.joinToString()}]"
-                            }
-                            value
-                        }
-                )
-
-            needsDensity = this.settings.fastAny { it.needsDensity }
+            // assumption: number of settings is small (<10).
+            var needsDensity = false
+            for (i in settings.indices) {
+                val setting = settings[i]
+                val name = setting.axisName
+                val count = settings.count { it.axisName == name }
+                requirePrecondition(count == 1) {
+                    "'$name' must be unique. Actual [${settings.filter { it.axisName == name }}]"
+                }
+                needsDensity = needsDensity || setting.needsDensity
+            }
+            this.settings = settings.toList()
+            this.needsDensity = needsDensity
         }
 
         override fun equals(other: Any?): Boolean {

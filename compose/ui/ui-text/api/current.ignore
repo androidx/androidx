@@ -1,0 +1,13 @@
+// Baseline format: 1.0
+RemovedFromBytecode: androidx.compose.ui.text.TextRange#contains(int):
+    Binary breaking change: method androidx.compose.ui.text.TextRange.contains(int) has been removed from bytecode
+
+
+RemovedMethod: androidx.compose.ui.text.AnnotatedString.Builder#withBulletList(androidx.compose.ui.unit.TextUnit, androidx.compose.ui.text.Bullet, kotlin.jvm.functions.Function1<androidx.compose.ui.text.AnnotatedString.Builder.AnnotatedString.BulletScope,R>):
+    Source breaking change: Removed method androidx.compose.ui.text.AnnotatedString.Builder.withBulletList(androidx.compose.ui.unit.TextUnit,androidx.compose.ui.text.Bullet,kotlin.jvm.functions.Function1<androidx.compose.ui.text.AnnotatedString.Builder.AnnotatedString.BulletScope,R>)
+RemovedMethod: androidx.compose.ui.text.ParagraphStyle#ParagraphStyle():
+    Binary breaking change: Removed constructor androidx.compose.ui.text.ParagraphStyle()
+RemovedMethod: androidx.compose.ui.text.input.ImeOptions#ImeOptions():
+    Binary breaking change: Removed constructor androidx.compose.ui.text.input.ImeOptions()
+RemovedMethod: androidx.compose.ui.text.style.TextIndent#TextIndent():
+    Binary breaking change: Removed constructor androidx.compose.ui.text.style.TextIndent()

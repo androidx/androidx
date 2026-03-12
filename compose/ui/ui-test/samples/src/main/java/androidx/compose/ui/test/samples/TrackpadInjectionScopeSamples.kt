@@ -22,7 +22,9 @@ import androidx.compose.ui.test.animateMoveAlong
 import androidx.compose.ui.test.animateMoveTo
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.pan
 import androidx.compose.ui.test.performTrackpadInput
+import androidx.compose.ui.test.scale
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -65,18 +67,16 @@ fun trackpadInputAnimateMoveAlong() {
 }
 
 @Sampled
-fun trackpadInputScroll() {
+fun trackpadInputPan() {
     composeTestRule.onNodeWithTag("verticalScrollable").performTrackpadInput {
-        scroll(Offset(0f, 100f))
+        pan(Offset(0f, 100f))
     }
 }
 
 @Sampled
-fun trackpadInputPinch() {
+fun trackpadInputScale() {
     composeTestRule.onNodeWithTag("transformable").performTrackpadInput {
-        // Performs a pinch with a factor of 0.9f, which corresponds to a pinch
-        // with the fingers becoming closer together, which is commonly interpreted
-        // as a "zoom out" gesture
-        pinch(0.9f)
+        // Performs a scale with a factor of 0.9f, which corresponds to a "zoom out" gesture.
+        scale(0.9f)
     }
 }

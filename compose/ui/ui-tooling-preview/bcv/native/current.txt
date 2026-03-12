@@ -66,6 +66,13 @@ open annotation class androidx.compose.ui.tooling.preview/PreviewScreenSizes : k
     constructor <init>() // androidx.compose.ui.tooling.preview/PreviewScreenSizes.<init>|<init>(){}[0]
 }
 
+open annotation class androidx.compose.ui.tooling.preview/PreviewWrapperProvider : kotlin/Annotation { // androidx.compose.ui.tooling.preview/PreviewWrapperProvider|null[0]
+    constructor <init>(kotlin.reflect/KClass<out androidx.compose.ui.tooling.preview/PreviewWrapper>) // androidx.compose.ui.tooling.preview/PreviewWrapperProvider.<init>|<init>(kotlin.reflect.KClass<out|androidx.compose.ui.tooling.preview.PreviewWrapper>){}[0]
+
+    final val wrapper // androidx.compose.ui.tooling.preview/PreviewWrapperProvider.wrapper|{}wrapper[0]
+        final fun <get-wrapper>(): kotlin.reflect/KClass<out androidx.compose.ui.tooling.preview/PreviewWrapper> // androidx.compose.ui.tooling.preview/PreviewWrapperProvider.wrapper.<get-wrapper>|<get-wrapper>(){}[0]
+}
+
 abstract interface <#A: kotlin/Any?> androidx.compose.ui.tooling.preview/PreviewParameterProvider { // androidx.compose.ui.tooling.preview/PreviewParameterProvider|null[0]
     abstract val values // androidx.compose.ui.tooling.preview/PreviewParameterProvider.values|{}values[0]
         abstract fun <get-values>(): kotlin.sequences/Sequence<#A> // androidx.compose.ui.tooling.preview/PreviewParameterProvider.values.<get-values>|<get-values>(){}[0]
@@ -73,6 +80,10 @@ abstract interface <#A: kotlin/Any?> androidx.compose.ui.tooling.preview/Preview
         open fun <get-count>(): kotlin/Int // androidx.compose.ui.tooling.preview/PreviewParameterProvider.count.<get-count>|<get-count>(){}[0]
 
     open fun getDisplayName(kotlin/Int): kotlin/String? // androidx.compose.ui.tooling.preview/PreviewParameterProvider.getDisplayName|getDisplayName(kotlin.Int){}[0]
+}
+
+abstract interface androidx.compose.ui.tooling.preview/PreviewWrapper { // androidx.compose.ui.tooling.preview/PreviewWrapper|null[0]
+    abstract fun Wrap(kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int) // androidx.compose.ui.tooling.preview/PreviewWrapper.Wrap|Wrap(kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
 }
 
 open class <#A: kotlin/Any?> androidx.compose.ui.tooling.preview.datasource/CollectionPreviewParameterProvider : androidx.compose.ui.tooling.preview/PreviewParameterProvider<#A> { // androidx.compose.ui.tooling.preview.datasource/CollectionPreviewParameterProvider|null[0]

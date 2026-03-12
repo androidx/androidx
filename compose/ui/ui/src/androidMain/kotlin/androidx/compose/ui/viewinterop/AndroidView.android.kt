@@ -291,7 +291,7 @@ private fun <T : View> Updater<LayoutNode>.updateViewHolderParams(
                 LayoutDirection.Rtl -> android.util.LayoutDirection.RTL
             }
     }
-    init(compositeKeyHash, SetCompositeKeyHash)
+    set(compositeKeyHash, SetCompositeKeyHash)
 }
 
 @Suppress("UNCHECKED_CAST", "ExceptionMessage")

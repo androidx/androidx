@@ -85,7 +85,17 @@ internal actual fun BackgroundTextMeasurement(
                                 fontFamilyResolver = fontFamilyResolver,
                                 annotations = emptyList(),
                             )
+                        // It is important that maxIntrinsicWidth is called before minIntrinsicWidth
+                        // because the primary role of background text measurement is to warm the
+                        // platform word layout cache.
+
+                        // maxIntrinsicWidth premeasures all words in the given text. This warms
+                        // the platform word layout cache so that when the UI thread starts
+                        // measuring the Text composable, the text layout would be faster.
                         intrinsics.maxIntrinsicWidth
+                        // minIntrinsicWidth creates a BreakIterator which in turn initializes and
+                        // caches an instance of BreakIteratorCache in `android.icu.text`
+                        intrinsics.minIntrinsicWidth
                     }
                 }
             }
@@ -119,7 +129,17 @@ internal actual fun BackgroundTextMeasurement(
                                 placeholders = placeholders ?: emptyList(),
                                 fontFamilyResolver = fontFamilyResolver,
                             )
+                        // It is important that maxIntrinsicWidth is called before minIntrinsicWidth
+                        // because the primary role of background text measurement is to warm the
+                        // platform word layout cache.
+
+                        // maxIntrinsicWidth premeasures all words in the given text. This warms
+                        // the platform word layout cache so that when the UI thread starts
+                        // measuring the Text composable, the text layout would be faster.
                         intrinsics.maxIntrinsicWidth
+                        // minIntrinsicWidth creates a BreakIterator which in turn initializes and
+                        // caches an instance of BreakIteratorCache in `android.icu.text`
+                        intrinsics.minIntrinsicWidth
                     }
                 }
             }

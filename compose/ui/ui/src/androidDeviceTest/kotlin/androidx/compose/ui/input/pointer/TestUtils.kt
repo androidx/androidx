@@ -272,8 +272,8 @@ internal fun InternalPointerEvent(
                 down = data.pressed,
                 pressure = data.pressure,
                 type = data.type,
-                scaleGestureFactor = data.scaleGestureFactor,
-                panGestureOffset = data.panGestureOffset,
+                scaleGestureFactor = data.scaleFactor,
+                panGestureOffset = data.panOffset,
             )
         )
     }

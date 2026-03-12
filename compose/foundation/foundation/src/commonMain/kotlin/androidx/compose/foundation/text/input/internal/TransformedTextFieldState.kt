@@ -148,6 +148,17 @@ internal class TransformedTextFieldState(
     val untransformedText: TextFieldCharSequence
         get() = textFieldState.value
 
+    /** The raw composition in the underlying [TextFieldState]. */
+    val untransformedComposition: TextRange?
+        get() = textFieldState.composition
+
+    /**
+     * The commit state in the underlying [TextFieldState]. If true, the most recent commit was done
+     * by the user. Otherwise, will be false.
+     */
+    val userCommit: Boolean
+        get() = textFieldState.userCommit
+
     /**
      * The text that should be presented to the user in most cases. If an [OutputTransformation] is
      * specified, this text has the transformation applied. If there's no transformation, this will

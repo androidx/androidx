@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.0.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-beta02)" variant="all" version="9.0.0-beta02">
+<issues format="6" by="lint 9.1.0-alpha06" type="baseline" client="gradle" dependencies="false" name="AGP (9.1.0-alpha06)" variant="all" version="9.1.0-alpha06">
 
     <issue
         id="BanThreadSleep"
@@ -8,6 +8,24 @@
         errorLine2="                                        ~~~~~">
         <location
             file="src/androidDeviceTest/kotlin/androidx/compose/ui/input/pointer/AndroidPointerInputTest.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="    @OptIn(ComposeToolingApi::class)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/node/MeasureAndLayoutDelegate.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="    @OptIn(ComposeToolingApi::class)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/node/MeasureAndLayoutDelegate.kt"/>
     </issue>
 
     <issue

@@ -150,7 +150,7 @@ internal constructor(
                 return layoutNode.innerCoordinator.boundsInRoot(false)
             }
             return semanticsModifierNode.node.effectiveBoundsInRoot(
-                useMinimumTouchTarget = false,
+                unmergedConfig.useMinimumTouchTarget,
                 clipBounds = false,
             )
         }

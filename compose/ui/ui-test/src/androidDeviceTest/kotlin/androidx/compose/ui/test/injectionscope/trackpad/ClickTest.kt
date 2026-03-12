@@ -41,7 +41,7 @@ import androidx.compose.ui.input.pointer.PointerEventType.Companion.Release
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.InputDispatcher
-import androidx.compose.ui.test.MouseButton
+import androidx.compose.ui.test.TrackpadButton
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.doubleClick
 import androidx.compose.ui.test.dragAndDrop
@@ -86,11 +86,11 @@ class ClickTest {
                 // enter the box
                 moveTo(positionIn)
                 // press primary button
-                press(MouseButton.Primary)
+                press(TrackpadButton.Primary)
                 // move around the box
                 moveTo(positionMove1)
                 // release primary button
-                release(MouseButton.Primary)
+                release(TrackpadButton.Primary)
             },
             eventVerifiers =
                 arrayOf(
@@ -108,13 +108,13 @@ class ClickTest {
                 // enter the box
                 moveTo(positionIn)
                 // press primary button
-                press(MouseButton.Primary)
+                press(TrackpadButton.Primary)
                 // move out of the box
                 moveTo(positionOut)
                 // move back into the box
                 moveTo(positionMove1)
                 // release primary button in the box
-                release(MouseButton.Primary)
+                release(TrackpadButton.Primary)
             },
             eventVerifiers =
                 arrayOf(
@@ -133,11 +133,11 @@ class ClickTest {
                 // enter the box
                 moveTo(positionIn)
                 // press primary button
-                press(MouseButton.Primary)
+                press(TrackpadButton.Primary)
                 // move out of the box
                 moveTo(positionOut)
                 // release primary button
-                release(MouseButton.Primary)
+                release(TrackpadButton.Primary)
             },
             eventVerifiers =
                 arrayOf(
@@ -155,17 +155,17 @@ class ClickTest {
                 // enter the box
                 moveTo(positionIn)
                 // press primary button
-                press(MouseButton.Primary)
+                press(TrackpadButton.Primary)
                 // move around the box
                 moveTo(positionMove1)
                 // press secondary button
-                press(MouseButton.Secondary)
+                press(TrackpadButton.Secondary)
                 // move around a bit more
                 moveTo(positionMove2)
                 // release secondary button
-                release(MouseButton.Secondary)
+                release(TrackpadButton.Secondary)
                 // release primary button
-                release(MouseButton.Primary)
+                release(TrackpadButton.Primary)
             },
             eventVerifiers =
                 arrayOf(
@@ -197,17 +197,17 @@ class ClickTest {
                 // enter the box
                 moveTo(positionIn)
                 // press primary button
-                press(MouseButton.Primary)
+                press(TrackpadButton.Primary)
                 // move around the box
                 moveTo(positionMove1)
                 // press secondary button
-                press(MouseButton.Secondary)
+                press(TrackpadButton.Secondary)
                 // move around a bit more
                 moveTo(positionMove2)
                 // release primary button
-                release(MouseButton.Primary)
+                release(TrackpadButton.Primary)
                 // release secondary button
-                release(MouseButton.Secondary)
+                release(TrackpadButton.Secondary)
             },
             eventVerifiers =
                 arrayOf(
@@ -239,14 +239,14 @@ class ClickTest {
                 // enter the box
                 moveTo(positionIn)
                 // press primary button
-                press(MouseButton.Primary)
+                press(TrackpadButton.Primary)
                 // press primary button again
                 expectError<IllegalStateException>(
                     expectedMessage =
-                        "Cannot send mouse button down event, " +
-                            "button ${MouseButton.Primary.buttonId} is already pressed"
+                        "Cannot send trackpad button down event, " +
+                            "button ${TrackpadButton.Primary.buttonId} is already pressed"
                 ) {
-                    press(MouseButton.Primary)
+                    press(TrackpadButton.Primary)
                 }
             },
             eventVerifiers =

@@ -64,7 +64,7 @@ fun SimpleRowFlexBox() {
 @Composable
 @OptIn(ExperimentalFlexBoxApi::class)
 private fun FlexBoxRowDemo() {
-    FlexBox(config = { direction = FlexDirection.Row }, modifier = Modifier.fillMaxWidth()) {
+    FlexBox(config = { direction(FlexDirection.Row) }, modifier = Modifier.fillMaxWidth()) {
         repeat(4) {
             Box(
                 modifier =
@@ -83,8 +83,8 @@ private fun FlexBoxRowDemo() {
 private fun FlexBoxRowWrapDemo() {
     FlexBox(
         config = {
-            direction = FlexDirection.Row
-            wrap = FlexWrap.Wrap
+            direction(FlexDirection.Row)
+            wrap(FlexWrap.Wrap)
         }
     ) {
         repeat(10) {
@@ -104,7 +104,7 @@ private fun FlexBoxRowWrapDemo() {
 @Composable
 @OptIn(ExperimentalFlexBoxApi::class)
 private fun FlexBoxRowReverseDemo() {
-    FlexBox(config = { direction = FlexDirection.RowReverse }, modifier = Modifier.fillMaxWidth()) {
+    FlexBox(config = { direction(FlexDirection.RowReverse) }, modifier = Modifier.fillMaxWidth()) {
         repeat(4) {
             Box(
                 modifier =
@@ -124,8 +124,8 @@ private fun FlexBoxRowReverseDemo() {
 private fun FlexBoxRowWrapReverseDemo() {
     FlexBox(
         config = {
-            direction = FlexDirection.Row
-            wrap = FlexWrap.WrapReverse
+            direction(FlexDirection.Row)
+            wrap(FlexWrap.WrapReverse)
         }
     ) {
         repeat(10) {

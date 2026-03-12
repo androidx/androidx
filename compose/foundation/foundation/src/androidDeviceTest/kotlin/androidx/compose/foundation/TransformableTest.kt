@@ -49,11 +49,13 @@ import androidx.compose.ui.test.ScrollWheel
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.pan
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performMultiModalInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.performTrackpadInput
 import androidx.compose.ui.test.pinch
+import androidx.compose.ui.test.scale
 import androidx.compose.ui.test.withKeysDown
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
@@ -257,7 +259,7 @@ class TransformableTest {
 
         rule.onNodeWithTag(TEST_TAG).performTrackpadInput {
             moveTo(center)
-            scroll(expected)
+            pan(expected)
         }
 
         rule.runOnIdle {
@@ -491,7 +493,7 @@ class TransformableTest {
         rule.onNodeWithTag(TEST_TAG).performTrackpadInput {
             centerOffset = center
             moveTo(center)
-            pinch(scaleFactor = 0.5f)
+            scale(scaleFactor = 0.5f)
         }
 
         rule.runOnIdle {
@@ -525,7 +527,7 @@ class TransformableTest {
         rule.onNodeWithTag(TEST_TAG).performTrackpadInput {
             centerOffset = center
             moveTo(center)
-            pinch(scaleFactor = 2f)
+            scale(scaleFactor = 2f)
         }
 
         rule.runOnIdle {
@@ -1026,7 +1028,7 @@ class TransformableTest {
                 withKeysDown(listOf(Key.CtrlLeft)) {
                     trackpad {
                         moveTo(Offset(20f, 30f))
-                        scroll(Offset(0f, SCROLL_FACTOR * 1.dp.toPx()))
+                        pan(Offset(0f, SCROLL_FACTOR * 1.dp.toPx()))
                     }
                 }
             }
@@ -1071,7 +1073,7 @@ class TransformableTest {
                 withKeysDown(listOf(Key.CtrlLeft)) {
                     trackpad {
                         moveTo(Offset(20f, 30f))
-                        scroll(Offset(0f, -SCROLL_FACTOR * 1.dp.toPx()))
+                        pan(Offset(0f, -SCROLL_FACTOR * 1.dp.toPx()))
                     }
                 }
             }
@@ -1171,7 +1173,7 @@ class TransformableTest {
                 withKeysDown(listOf(Key.CtrlLeft)) {
                     trackpad {
                         moveTo(Offset(20f, 30f))
-                        scroll(Offset(0f, -SCROLL_FACTOR * 1.dp.toPx()))
+                        pan(Offset(0f, -SCROLL_FACTOR * 1.dp.toPx()))
                     }
                 }
             }
@@ -1224,7 +1226,7 @@ class TransformableTest {
                 withKeysDown(listOf(Key.CtrlLeft)) {
                     trackpad {
                         moveTo(Offset(20f, 30f))
-                        scroll(Offset(0f, 100f))
+                        pan(Offset(0f, 100f))
                     }
                 }
             }
@@ -1293,7 +1295,7 @@ class TransformableTest {
             }
         }
 
-        rule.onNodeWithTag(TEST_TAG).performTrackpadInput { scroll(Offset(0f, 100f)) }
+        rule.onNodeWithTag(TEST_TAG).performTrackpadInput { pan(Offset(0f, 100f)) }
 
         rule.runOnIdle {
             assertWithMessage("Should not scroll").that(scrollState.value).isEqualTo(0)

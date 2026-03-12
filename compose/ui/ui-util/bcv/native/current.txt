@@ -14,6 +14,10 @@ open annotation class androidx.compose.ui/ExperimentalIndirectPointerApi : kotli
     constructor <init>() // androidx.compose.ui/ExperimentalIndirectPointerApi.<init>|<init>(){}[0]
 }
 
+open annotation class androidx.compose.ui/ExperimentalMediaQueryApi : kotlin/Annotation { // androidx.compose.ui/ExperimentalMediaQueryApi|null[0]
+    constructor <init>() // androidx.compose.ui/ExperimentalMediaQueryApi.<init>|<init>(){}[0]
+}
+
 open annotation class androidx.compose.ui/InternalComposeUiApi : kotlin/Annotation { // androidx.compose.ui/InternalComposeUiApi|null[0]
     constructor <init>() // androidx.compose.ui/InternalComposeUiApi.<init>|<init>(){}[0]
 }

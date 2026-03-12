@@ -17,7 +17,6 @@
 package androidx.compose.foundation.text.input
 
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.Modifier
 
 @Stable
 fun interface KeyboardActionHandler {
@@ -30,7 +29,7 @@ fun interface KeyboardActionHandler {
      * [performDefaultAction].
      *
      * If you do not this callback to trigger when enter key is pressed on a single line TextField,
-     * refer to [Modifier.onPreviewKeyEvent] on how to intercept key events.
+     * refer to [androidx.compose.ui.input.key.onPreviewKeyEvent] on how to intercept key events.
      */
     fun onKeyboardAction(performDefaultAction: () -> Unit)
 }

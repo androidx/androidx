@@ -171,8 +171,8 @@ internal constructor(
      * data points is when tracking velocity for an object whose positions on a geometrical axis
      * over different instances of time are known.
      *
-     * @param isDataDifferential [true] if the data ponits provided to the constructed tracker are
-     *   differential. [false] otherwise.
+     * @param isDataDifferential `true` if the data ponits provided to the constructed tracker are
+     *   differential. `false` otherwise.
      */
     constructor(isDataDifferential: Boolean) : this(isDataDifferential, Strategy.Impulse)
 
@@ -500,10 +500,10 @@ internal fun polyFitLeastSquares(
  * Summing along the path, we get: W = sum(dW) = sum(m * v * dv) = m * sum(v * dv) Since the mass
  * stays constant, the equation for final velocity is: vfinal = sqrt(2*sum(v * dv))
  *
- * Here, dv : change of velocity = (v[i+1]-v[i]) dx : change of distance = (x[i+1]-x[i]) dt : change
- * of time = (t[i+1]-t[i]) v : instantaneous velocity = dx/dt
+ * Here, dv : change of velocity = `(v[i+1]-v[i])` dx : change of distance = `(x[i+1]-x[i])` dt :
+ * change of time = `(t[i+1]-t[i])` v : instantaneous velocity = dx/dt
  *
- * The final formula is: vfinal = sqrt(2) * sqrt(sum((v[i]-v[i-1])*|v[i]|)) for all i The absolute
+ * The final formula is: vfinal = `sqrt(2) * sqrt(sum((v[i]-v[i-1])*|v[i]|))` for all i The absolute
  * value is needed to properly account for the sign. If the velocity over a particular segment
  * descreases, then this indicates braking, which means that negative work was done. So for two
  * positive, but decreasing, velocities, this contribution would be negative and will cause a

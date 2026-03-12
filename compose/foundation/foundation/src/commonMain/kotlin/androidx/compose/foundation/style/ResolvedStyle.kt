@@ -61,6 +61,7 @@ import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import kotlin.jvm.JvmField
+import kotlin.math.ceil
 
 /**
  * This class is currently the actual object that [Style] lambdas get executed with, so this is the
@@ -504,41 +505,41 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
     // contentPadding
     override fun contentPaddingStart(value: Dp) {
         flags = flags or InnerLayoutFlag
-        contentPaddingStart = value.value * _density
+        contentPaddingStart = value.roundToPx().toFloat()
     }
 
     override fun contentPaddingEnd(value: Dp) {
         flags = flags or InnerLayoutFlag
-        contentPaddingEnd = value.value * _density
+        contentPaddingEnd = value.roundToPx().toFloat()
     }
 
     override fun contentPaddingTop(value: Dp) {
         flags = flags or InnerLayoutFlag
-        contentPaddingTop = value.value * _density
+        contentPaddingTop = value.roundToPx().toFloat()
     }
 
     override fun contentPaddingBottom(value: Dp) {
         flags = flags or InnerLayoutFlag
-        contentPaddingBottom = value.value * _density
+        contentPaddingBottom = value.roundToPx().toFloat()
     }
 
     override fun contentPaddingHorizontal(value: Dp) {
         flags = flags or InnerLayoutFlag
-        val value = value.value * _density
+        val value = value.roundToPx().toFloat()
         contentPaddingStart = value
         contentPaddingEnd = value
     }
 
     override fun contentPaddingVertical(value: Dp) {
         flags = flags or InnerLayoutFlag
-        val value = value.value * _density
+        val value = value.roundToPx().toFloat()
         contentPaddingTop = value
         contentPaddingBottom = value
     }
 
     override fun contentPadding(value: Dp) {
         flags = flags or InnerLayoutFlag
-        val value = value.value * _density
+        val value = value.roundToPx().toFloat()
         contentPaddingStart = value
         contentPaddingEnd = value
         contentPaddingTop = value
@@ -547,20 +548,18 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
 
     override fun contentPadding(start: Dp, top: Dp, end: Dp, bottom: Dp) {
         flags = flags or InnerLayoutFlag
-        val density = _density
-        contentPaddingTop = top.value * density
-        contentPaddingEnd = end.value * density
-        contentPaddingBottom = bottom.value * density
-        contentPaddingStart = start.value * density
+        contentPaddingTop = top.roundToPx().toFloat()
+        contentPaddingEnd = end.roundToPx().toFloat()
+        contentPaddingBottom = bottom.roundToPx().toFloat()
+        contentPaddingStart = start.roundToPx().toFloat()
     }
 
     override fun contentPadding(horizontal: Dp, vertical: Dp) {
         flags = flags or InnerLayoutFlag
-        val density = _density
-        val vertical = vertical.value * density
+        val vertical = vertical.roundToPx().toFloat()
         contentPaddingTop = vertical
         contentPaddingBottom = vertical
-        val horizontal = horizontal.value * density
+        val horizontal = horizontal.roundToPx().toFloat()
         contentPaddingEnd = horizontal
         contentPaddingStart = horizontal
     }
@@ -568,41 +567,41 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
     // externalPadding
     override fun externalPaddingStart(value: Dp) {
         flags = flags or OuterLayoutFlag
-        externalPaddingStart = value.value * _density
+        externalPaddingStart = value.roundToPx().toFloat()
     }
 
     override fun externalPaddingEnd(value: Dp) {
         flags = flags or OuterLayoutFlag
-        externalPaddingEnd = value.value * _density
+        externalPaddingEnd = value.roundToPx().toFloat()
     }
 
     override fun externalPaddingTop(value: Dp) {
         flags = flags or OuterLayoutFlag
-        externalPaddingTop = value.value * _density
+        externalPaddingTop = value.roundToPx().toFloat()
     }
 
     override fun externalPaddingBottom(value: Dp) {
         flags = flags or OuterLayoutFlag
-        externalPaddingBottom = value.value * _density
+        externalPaddingBottom = value.roundToPx().toFloat()
     }
 
     override fun externalPaddingHorizontal(value: Dp) {
         flags = flags or OuterLayoutFlag
-        val value = value.value * _density
+        val value = value.roundToPx().toFloat()
         externalPaddingStart = value
         externalPaddingEnd = value
     }
 
     override fun externalPaddingVertical(value: Dp) {
         flags = flags or OuterLayoutFlag
-        val value = value.value * _density
+        val value = value.roundToPx().toFloat()
         externalPaddingTop = value
         externalPaddingBottom = value
     }
 
     override fun externalPadding(value: Dp) {
         flags = flags or OuterLayoutFlag
-        val value = value.value * _density
+        val value = value.roundToPx().toFloat()
         externalPaddingStart = value
         externalPaddingEnd = value
         externalPaddingTop = value
@@ -611,20 +610,19 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
 
     override fun externalPadding(start: Dp, top: Dp, end: Dp, bottom: Dp) {
         flags = flags or OuterLayoutFlag
-        val density = _density
-        externalPaddingTop = top.value * density
-        externalPaddingEnd = end.value * density
-        externalPaddingBottom = bottom.value * density
-        externalPaddingStart = start.value * density
+        externalPaddingTop = top.roundToPx().toFloat()
+        externalPaddingEnd = end.roundToPx().toFloat()
+        externalPaddingBottom = bottom.roundToPx().toFloat()
+        externalPaddingStart = start.roundToPx().toFloat()
     }
 
     override fun externalPadding(horizontal: Dp, vertical: Dp) {
         flags = flags or OuterLayoutFlag
         val density = _density
-        val vertical = vertical.value * density
+        val vertical = vertical.roundToPx().toFloat()
         externalPaddingTop = vertical
         externalPaddingBottom = vertical
-        val horizontal = horizontal.value * density
+        val horizontal = horizontal.roundToPx().toFloat()
         externalPaddingEnd = horizontal
         externalPaddingStart = horizontal
     }
@@ -632,7 +630,12 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
     // border
     override fun borderWidth(value: Dp) {
         flags = flags or DrawFlag or InnerLayoutFlag
-        val width = value.value * _density
+        val width =
+            when (value) {
+                Dp.Unspecified -> 0.0f
+                Dp.Hairline -> 1.0f
+                else -> ceil(value.value * _density)
+            }
         borderWidth = width
     }
 

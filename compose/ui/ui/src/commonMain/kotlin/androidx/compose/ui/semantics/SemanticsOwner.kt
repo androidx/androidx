@@ -194,11 +194,12 @@ internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(
         }
 
         /**
-         * Helper to add descendants of a partially visible merging node. This method is similar to
-         * `findAllSemanticNodesRecursive` below but works with unclipped bounds instead and uses a
-         * merging parent (not a root) for unaccounted space.
+         * Helper to add descendants of a merging node that is partially visible in its scrolling
+         * container. This method is similar to `findAllSemanticNodesRecursive` below but handles
+         * both clipped and unclipped bounds and uses a merging parent (not a root) for unaccounted
+         * space.
          */
-        fun addUnclippedDescendants(
+        fun addDescendantsOfMergingNodePartiallyVisibleInScrollParent(
             currentNode: SemanticsNode,
             region: SemanticsRegion,
             unaccountedSpace: SemanticsRegion,
@@ -213,11 +214,17 @@ internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(
                 return
             }
 
-            // Use unclipped bounds for intersection and reporting within this context
-            val currentBounds = currentNode.unclippedBoundsInRoot.roundToIntRect()
+            // Use unclipped bounds for intersection and reporting within this context only if the
+            // node is fully off-screen. Otherwise, continue using the clipped bounds.
+            val currentBounds =
+                currentNode.touchBoundsInRoot
+                    .run { if (isEmpty) currentNode.unclippedBoundsInRoot else this }
+                    .roundToIntRect()
             region.set(currentBounds)
             if (region.intersect(unaccountedSpace)) {
-                // We set the offscreen bounds for these nodes. But to send the correct signal to
+                // For nodes that are partially visible in the root, we will continue reporting
+                // their clipped bounds. However, if the node is *fully* off-screen, we will add
+                // them with their unclipped bounds. But to send the correct signal to
                 // the accessibility services, we will mark them as invisible to user
                 nodes[virtualViewId(currentNode)] =
                     SemanticsNodeWithAdjustedBounds(currentNode, region.bounds)
@@ -227,7 +234,11 @@ internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(
                     if (shouldIgnoreNode(children[i])) {
                         continue
                     }
-                    addUnclippedDescendants(children[i], region, unaccountedSpace)
+                    addDescendantsOfMergingNodePartiallyVisibleInScrollParent(
+                        children[i],
+                        region,
+                        unaccountedSpace,
+                    )
                 }
                 if (currentNode.isImportantForAccessibility()) {
                     unaccountedSpace.difference(currentBounds)
@@ -279,7 +290,7 @@ internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(
                         if (shouldIgnoreNode(children[i])) {
                             continue
                         }
-                        addUnclippedDescendants(
+                        addDescendantsOfMergingNodePartiallyVisibleInScrollParent(
                             children[i],
                             SemanticsRegion(),
                             childrenUnaccountedRegion,

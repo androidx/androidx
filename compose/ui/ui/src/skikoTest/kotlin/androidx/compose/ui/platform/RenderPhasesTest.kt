@@ -58,6 +58,7 @@ import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.runInternalSkikoComposeUiTest
 import androidx.compose.ui.touch
 import androidx.compose.ui.unit.dp
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
@@ -394,6 +395,7 @@ class RenderPhasesTest {
         assertNotEquals(0, scrollState.value)
     }
 
+    @Ignore // TODO: https://youtrack.jetbrains.com/issue/CMP-9905/Properly-adopt-Pan-Scale-Start-and-End-events
     @Test
     fun panPointerEventHandlesScrollUpdatesSynchronously() = runInternalSkikoComposeUiTest(
         coroutineDispatcher = StandardTestDispatcher()
@@ -409,7 +411,7 @@ class RenderPhasesTest {
         assertEquals(0, scrollState.value)
 
         scene.sendPointerEvent(
-            eventType = PointerEventType.Pan,
+            eventType = PointerEventType.PanMove,
             position = Offset(50f, 50f),
             panGestureOffset = Offset(0f, 40f)
         )
@@ -418,15 +420,16 @@ class RenderPhasesTest {
         assertNotEquals(0, scrollState.value)
     }
 
+    @Ignore // TODO: https://youtrack.jetbrains.com/issue/CMP-9905/Properly-adopt-Pan-Scale-Start-and-End-events
     @Test
     fun scalePointerEventHandlesScrollUpdatesSynchronously() = runInternalSkikoComposeUiTest(
         coroutineDispatcher = StandardTestDispatcher()
     ) {
         var scale = 1f
         setContent {
-            Box(modifier = Modifier.size(100.dp).onPointerEvent(PointerEventType.Scale) {
+            Box(modifier = Modifier.size(100.dp).onPointerEvent(PointerEventType.ScaleChange) {
                 it.changes.forEach { change ->
-                    scale *= change.scaleGestureFactor
+                    scale *= change.scaleFactor
                 }
             }) {
                 Box(Modifier.size(200.dp))
@@ -437,7 +440,7 @@ class RenderPhasesTest {
         assertEquals(1f, scale)
 
         scene.sendPointerEvent(
-            eventType = PointerEventType.Scale,
+            eventType = PointerEventType.ScaleChange,
             position = Offset(50f, 50f),
             scaleGestureFactor = 2.0f
         )

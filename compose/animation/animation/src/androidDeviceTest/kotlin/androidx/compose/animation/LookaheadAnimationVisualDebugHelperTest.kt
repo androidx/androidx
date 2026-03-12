@@ -1244,6 +1244,17 @@ class LookaheadAnimationVisualDebugHelperTest {
                                                     .background(contentColor)
                                                     .align(Alignment.CenterEnd)
                                         )
+                                        Box(
+                                            modifier =
+                                                Modifier.sharedElement(
+                                                        rememberSharedContentState(key = "match"),
+                                                        this@AnimatedContent,
+                                                        boundsTransform = { _, _ -> tween(50) },
+                                                    )
+                                                    .size(10.dp)
+                                                    .background(contentColor)
+                                                    .align(Alignment.TopStart)
+                                        )
                                     } else {
                                         Box(
                                             modifier =
@@ -1260,6 +1271,17 @@ class LookaheadAnimationVisualDebugHelperTest {
                                                     .size(90.dp)
                                                     .background(contentColor)
                                                     .align(Alignment.CenterStart)
+                                        )
+                                        Box(
+                                            modifier =
+                                                Modifier.sharedElement(
+                                                        rememberSharedContentState(key = "match"),
+                                                        this@AnimatedContent,
+                                                        boundsTransform = { _, _ -> tween(50) },
+                                                    )
+                                                    .size(20.dp)
+                                                    .background(contentColor)
+                                                    .align(Alignment.TopStart)
                                         )
                                     }
                                 }

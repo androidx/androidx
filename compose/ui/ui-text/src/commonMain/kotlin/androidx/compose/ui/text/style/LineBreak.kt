@@ -43,7 +43,9 @@ import kotlin.jvm.JvmInline
  */
 @JvmInline
 @Immutable
-expect value class LineBreak private constructor(internal val mask: Int) {
+expect value class LineBreak
+@Suppress("KmpVisibilityMismatch")
+private constructor(internal val mask: Int) {
     companion object {
         /**
          * Basic, fast line breaking. Ideal for text input fields, as it will cause minimal text

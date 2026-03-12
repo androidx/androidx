@@ -797,7 +797,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
     }
 
     /**
-     * Dispatch [OnPositionedModifier] callbacks for the nodes affected by the previous
+     * Dispatch [OnPositionedDispatcher] callbacks for the nodes affected by the previous
      * [measureAndLayout] execution.
      *
      * @param forceDispatch true means the whole tree should dispatch the callback (for example when

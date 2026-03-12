@@ -67,6 +67,8 @@ import kotlinx.coroutines.withTimeout
  *   component.
  * @param enableUserInput [Boolean] which determines if this BasicTooltipBox will handle long press
  *   and mouse hover to trigger the tooltip through the state provided.
+ * @param propagateMinConstraints Whether the incoming min constraints should be passed to content.
+ *   This is equivalent to [Box]'s parameter of the same name.
  * @param content the composable that the tooltip will anchor to.
  */
 @Composable
@@ -78,10 +80,16 @@ fun BasicTooltipBox(
     modifier: Modifier = Modifier,
     focusable: Boolean = true,
     enableUserInput: Boolean = true,
+    propagateMinConstraints: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
-    Box {
+    WrappedAnchor(
+        enableUserInput = enableUserInput,
+        state = state,
+        propagateMinConstraints = propagateMinConstraints,
+        modifier = modifier,
+    ) {
         if (state.isVisible) {
             TooltipPopup(
                 positionProvider = positionProvider,
@@ -92,15 +100,38 @@ fun BasicTooltipBox(
             )
         }
 
-        WrappedAnchor(
-            enableUserInput = enableUserInput,
-            state = state,
-            modifier = modifier,
-            content = content,
-        )
+        content()
     }
 
     DisposableEffect(state) { onDispose { state.onDispose() } }
+}
+
+@Deprecated(
+    message =
+        "Maintained for binary compatibility. Use version with propagateMinConstraints instead.",
+    level = DeprecationLevel.HIDDEN,
+)
+@Composable
+@ExperimentalFoundationApi
+fun BasicTooltipBox(
+    positionProvider: PopupPositionProvider,
+    tooltip: @Composable () -> Unit,
+    state: BasicTooltipState,
+    modifier: Modifier = Modifier,
+    focusable: Boolean = true,
+    enableUserInput: Boolean = true,
+    content: @Composable () -> Unit,
+) {
+    BasicTooltipBox(
+        positionProvider = positionProvider,
+        tooltip = tooltip,
+        state = state,
+        modifier = modifier,
+        focusable = focusable,
+        enableUserInput = enableUserInput,
+        propagateMinConstraints = false,
+        content = content,
+    )
 }
 
 @Composable
@@ -108,6 +139,7 @@ fun BasicTooltipBox(
 private fun WrappedAnchor(
     enableUserInput: Boolean,
     state: BasicTooltipState,
+    propagateMinConstraints: Boolean,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
@@ -117,7 +149,8 @@ private fun WrappedAnchor(
         modifier =
             modifier
                 .handleGestures(enableUserInput, state)
-                .anchorSemantics(longPressLabel, enableUserInput, state, scope)
+                .anchorSemantics(longPressLabel, enableUserInput, state, scope),
+        propagateMinConstraints = propagateMinConstraints,
     ) {
         content()
     }

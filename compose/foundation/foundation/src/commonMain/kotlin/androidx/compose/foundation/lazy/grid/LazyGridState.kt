@@ -629,6 +629,20 @@ constructor(
         if (!isLookingAhead && hasLookaheadOccurred) {
             // If there was already a lookahead pass, record this result as Approach result
             approachLayoutInfo = result
+            Snapshot.withoutReadObservation {
+                // Check whether backscroll animation (from _lazyLayoutScrollDeltaBetweenPasses) is
+                // necessary. This animation handles cases where lookahead and approach passes
+                // have different maximum scroll bounds due to measurement differences (e.g.,
+                // when scrolling past the last item). If both passes already have the same
+                // scroll position, the animation is unnecessary and can be stopped.
+                if (
+                    _lazyLayoutScrollDeltaBetweenPasses.isActive &&
+                        result.firstVisibleLineScrollOffset == scrollPosition.scrollOffset &&
+                        result.firstVisibleLine?.items?.firstOrNull()?.index == scrollPosition.index
+                ) {
+                    _lazyLayoutScrollDeltaBetweenPasses.stop()
+                }
+            }
         } else {
             if (isLookingAhead) {
                 hasLookaheadOccurred = true

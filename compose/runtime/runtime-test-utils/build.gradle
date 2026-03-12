@@ -49,7 +49,7 @@ androidXMultiplatform {
             implementation(libs.kotlinReflect)
         }
 
-        unixMain.dependsOn(nativeMain)
+        create("unixMain").dependsOn(nativeMain)
         appleMain.dependsOn(unixMain)
         linuxMain.dependsOn(unixMain)
     }

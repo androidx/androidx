@@ -59,17 +59,20 @@ object ComposeUiFlags {
      * This enables fixes for View focus. The changes are large enough to require a flag to allow
      * disabling them.
      */
+    // TODO: b/455588830
     @field:Suppress("MutableBareField") @JvmField var isViewFocusFixEnabled: Boolean = false
 
     /**
      * This flag enables an alternate approach to fixing the issues addressed by the
      * [isViewFocusFixEnabled] flag.
      */
+    // TODO: b/455592447
     @field:Suppress("MutableBareField")
     @JvmField
     var isBypassUnfocusableComposeViewEnabled: Boolean = true
 
     /** Enable initial focus when a focusable is added to a screen with no focusable content. */
+    // TODO: b/455601824
     @field:Suppress("MutableBareField")
     @JvmField
     var isInitialFocusOnFocusableAvailable: Boolean = false
@@ -78,27 +81,33 @@ object ComposeUiFlags {
      * Enable focus restoration, by always saving focus. This flag depends on
      * [isInitialFocusOnFocusableAvailable] also being true.
      */
+    // TODO: b/485962036
     @field:Suppress("MutableBareField") @JvmField var isFocusRestorationEnabled: Boolean = false
 
     /** Flag for enabling indirect pointer event navigation gestures in Compose. */
+    // TODO: b/455601135
     @field:Suppress("MutableBareField")
     @JvmField
     var isIndirectPointerNavigationGestureDetectorEnabled: Boolean = true
 
     /** Flag enables optimized focus change dispatching logic. */
+    // TODO: b/455603009
     @field:Suppress("MutableBareField")
     @JvmField
     var isOptimizedFocusEventDispatchEnabled: Boolean = true
 
     /** This flag enables setting the shape semantics property in the graphicsLayer modifiers. */
+    // TODO: b/455600081
     @field:Suppress("MutableBareField")
     @JvmField
     var isGraphicsLayerShapeSemanticsEnabled: Boolean = true
 
     /**
-     * Enables a fix where [TraversableNode] traversal method [findNearestAncestor] will take into
-     * consideration any delegates that might also be traversable.
+     * Enables a fix where [androidx.compose.ui.node.TraversableNode] traversal method
+     * [findNearestAncestor] will take into consideration any delegates that might also be
+     * traversable.
      */
+    // TODO: b/485962494
     @field:Suppress("MutableBareField")
     @JvmField
     var isTraversableDelegatesFixEnabled: Boolean = true
@@ -110,6 +119,7 @@ object ComposeUiFlags {
      *
      * Enabled is correct, and it should be enabled in all apps.
      */
+    // TODO: b/484259656
     @field:Suppress("MutableBareField")
     @JvmField
     var isAccessibilityShouldIncludeOffscreenChildrenEnabled: Boolean = true
@@ -118,9 +128,9 @@ object ComposeUiFlags {
      * Enables support of trackpad gesture events.
      *
      * If enabled, [androidx.compose.ui.input.pointer.PointerEvent]s can have type of
-     * [androidx.compose.ui.input.pointer.PointerEventType.Pan] and
-     * [androidx.compose.ui.input.pointer.PointerEventType.Scale], corresponding to gestures on a
-     * trackpad.
+     * [androidx.compose.ui.input.pointer.PointerEventType.PanMove] and
+     * [androidx.compose.ui.input.pointer.PointerEventType.ScaleChange], corresponding to
+     * system-recognized gestures on a trackpad.
      *
      * These trackpad gestures will also generally be treated as mouse, with the exact behavior
      * depending on platform specifics.
@@ -129,4 +139,24 @@ object ComposeUiFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     var isTrackpadGestureHandlingEnabled: Boolean = true
+
+    /**
+     * Enable the integration of [LocalUiMediaScope] at the root compose view which provides various
+     * signals for adapting the UI across different devices.
+     *
+     * This feature is experimental and is disabled by default.
+     */
+    // TODO: b/485160699 - Remove once the API goes stable
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isMediaQueryIntegrationEnabled: Boolean = false
+
+    /**
+     * Enables hit test to continue searching for "semantic nodes" if the initial node that is hit
+     * is unimportant from an accessibility semantics node point of view.
+     */
+    // TODO: b/487663967
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isSkipNonImportantSemanticsNodesHitTestEnabled: Boolean = true
 }

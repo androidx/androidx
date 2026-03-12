@@ -21,7 +21,6 @@ import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.GapComposer.CompositionContextHolder
 import androidx.compose.runtime.RememberObserverHolder
 import androidx.compose.runtime.composer.GroupSourceInformation
-import androidx.compose.runtime.composer.gapbuffer.GapAnchor
 import androidx.compose.runtime.composer.gapbuffer.SlotReader
 import androidx.compose.runtime.composer.gapbuffer.SlotTable
 import androidx.compose.runtime.composer.gapbuffer.SlotWriter
@@ -90,7 +89,7 @@ internal abstract class ComposeStackTraceBuilder {
                         sourceInfo != null &&
                             (sourceInfo.key == defaultsKey ||
                                 (sourceInfo.key == 0 &&
-                                    child is GapAnchor &&
+                                    child is Anchor &&
                                     groupKeyOf(child) == defaultsKey))
 
                     // If sourceInformation is null, it means that default group does not capture
@@ -117,7 +116,7 @@ internal abstract class ComposeStackTraceBuilder {
 
     private fun sourceInformationOf(group: Any) =
         when (group) {
-            is GapAnchor -> sourceInformationOf(group)
+            is Anchor -> sourceInformationOf(group)
             is GroupSourceInformation -> group
             else -> error("Unexpected child source info $group")
         }
@@ -181,7 +180,7 @@ internal abstract class ComposeStackTraceBuilder {
         children.fastForEach { child ->
             // find the edge that leads to target anchor
             when (child) {
-                is GapAnchor -> {
+                is Anchor -> {
                     // edge found, return
                     if (child == target) {
                         appendTraceFrame(sourceInformation.key, sourceInformation, child)

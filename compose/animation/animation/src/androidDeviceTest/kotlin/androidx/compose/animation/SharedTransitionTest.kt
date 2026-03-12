@@ -38,6 +38,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -51,6 +52,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -77,6 +79,7 @@ import androidx.compose.ui.Alignment.Companion.TopStart
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
@@ -5424,6 +5427,73 @@ class SharedTransitionTest {
         detach = true
 
         rule.waitForIdle()
+    }
+
+    @Test
+    fun testIsTransitionActiveWhenNoMatch() {
+        var transitioned by mutableStateOf(false)
+        val activeRecord = mutableListOf<Boolean>()
+        var previousContentDisposed = false
+        rule.setContent {
+            var key1 by remember { mutableStateOf("key1") }
+            var key2 by remember { mutableStateOf("key2") }
+            SharedTransitionLayout() {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    AnimatedContent(transitioned) { isTransitioned ->
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            if (isTransitioned) {
+                                Box(
+                                    modifier =
+                                        Modifier.sharedElement(
+                                                sharedContentState =
+                                                    rememberSharedContentState(key = key1),
+                                                animatedVisibilityScope = this@AnimatedContent,
+                                            )
+                                            .aspectRatio(2f)
+                                            .background(Color.Red)
+                                            .align(Alignment.TopCenter)
+                                )
+                            } else {
+                                Box(
+                                    modifier =
+                                        Modifier.sharedElement(
+                                                sharedContentState =
+                                                    rememberSharedContentState(key = key2),
+                                                animatedVisibilityScope = this@AnimatedContent,
+                                            )
+                                            .size(width = 200.dp, height = 300.dp)
+                                            .clip(RoundedCornerShape(10.dp))
+                                            .background(Color.Red)
+                                            .align(Alignment.BottomEnd)
+                                )
+                                DisposableEffect(Unit) {
+                                    onDispose { previousContentDisposed = true }
+                                }
+                            }
+                        }
+                    }
+                }
+                activeRecord.add(isTransitionActive)
+            }
+        }
+        rule.waitForIdle()
+        assertFalse(activeRecord.isEmpty())
+        assertFalse(activeRecord.any { it })
+
+        rule.mainClock.autoAdvance = false
+        transitioned = true
+        rule.waitForIdle()
+
+        while (!previousContentDisposed) {
+            rule.mainClock.advanceTimeBy(200)
+            rule.waitForIdle()
+        }
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+
+        // Assert that isTransitionActive has always been false
+        assertFalse(activeRecord.any { it })
     }
 }
 

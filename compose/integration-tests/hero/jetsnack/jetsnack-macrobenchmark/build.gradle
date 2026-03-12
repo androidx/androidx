@@ -17,7 +17,7 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.test")
-    id("com.android.experimental.built-in-kotlin")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {

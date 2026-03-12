@@ -1345,14 +1345,15 @@ internal val SlotWriter.isAfterFirstChild
 internal val SlotReader.isAfterFirstChild
     get() = currentGroup > parent + 1
 
-/*
- * Remember observer which is not removed during reuse/deactivate of the group.
- * It is used to preserve composition locals between group deactivation.
+/**
+ * Remember observer which is not removed during reuse/deactivate of the group. It is used to
+ * preserve composition locals between group deactivation.
  */
-internal class ReusableRememberObserverHolder(wrapped: RememberObserver, afterGroupIndex: Int) :
-    RememberObserverHolder(wrapped, afterGroupIndex)
+internal interface ReusableRememberObserverHolder : RememberObserverHolder
 
-internal open class RememberObserverHolder(var wrapped: RememberObserver, var afterGroupIndex: Int)
+internal interface RememberObserverHolder {
+    var wrapped: RememberObserver
+}
 
 // An arbitrary key value that marks the default parameter group
 internal const val defaultsKey = -127

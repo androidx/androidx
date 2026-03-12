@@ -33,17 +33,17 @@ package androidx.compose.runtime.retain
  * 2. Transient content removal begins. The content is recomposed, removed from the hierarchy, and
  *    remembered values are forgotten. Values remembered by [retain] leave the composition but are
  *    not yet released. Every value returned by [retain] will be passed as an argument to
- *    [saveExitingValue] so that it can later be returned by [getExitedValueOrDefault].
+ *    [saveExitingValue] so that it can later be returned by [consumeExitedValueOrDefault].
  * 3. An arbitrary amount of time passes, and the store is installed in the composition hierarchy
  *    again along with its content. When a [retain] call is invoked during the restoration, it calls
- *    [getExitedValueOrDefault]. If all the input keys match a retained value, the previous result
- *    is returned and the retained value is removed from the pool of restorable objects that exited
- *    the previous composition. This step may be skipped if it becomes impossible to return to the
- *    transiently removed content while this store is retaining exited values.
+ *    [consumeExitedValueOrDefault]. If all the input keys match a retained value, the previous
+ *    result is returned and the retained value is removed from the pool of restorable objects that
+ *    exited the previous composition. This step may be skipped if it becomes impossible to return
+ *    to the transiently removed content while this store is retaining exited values.
  * 4. The content finishes composing after being restored, and the entire frame completes.
  *    [onContentEnteredComposition] is invoked to signal the complete consumption of all retained
  *    exited values. Any values that are retained and not currently used in a composition (and
- *    therefore not restored by [getExitedValueOrDefault]) are then immediately discarded.
+ *    therefore not restored by [consumeExitedValueOrDefault]) are then immediately discarded.
  *
  * A given `RetainedValuesStore` should only be used by a single
  * [Recomposer][androidx.compose.runtime.Recomposer] at a time. It can move between recomposers (for

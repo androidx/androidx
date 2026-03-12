@@ -28,23 +28,32 @@ import android.view.MotionEvent.CLASSIFICATION_NONE
 import android.view.View
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.performTrackpadInput
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.roundToIntSize
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -270,6 +279,105 @@ class BasicTooltipTest {
 
         // Even though the timeout didn't pass, the deep press should immediately show the tooltip
         rule.runOnIdle { Truth.assertThat(state.isVisible).isTrue() }
+    }
+
+    @Test
+    fun tooltip_childMeasuredWithNoMinConstraints() {
+        val expectedSize = DpSize(1.dp, 1.dp)
+        var childSizePx: IntSize? = null
+        rule.setContent {
+            BasicTooltipBox(
+                positionProvider = EmptyPositionProvider(),
+                tooltip = {},
+                state = rememberBasicTooltipState(),
+                modifier = Modifier.requiredSize(100.dp),
+            ) {
+                Box(Modifier.size(expectedSize).onSizeChanged { childSizePx = it })
+            }
+        }
+
+        val expectedSizePx = with(rule.density) { expectedSize.toSize().roundToIntSize() }
+        rule.runOnIdle { Truth.assertThat(childSizePx).isEqualTo(expectedSizePx) }
+    }
+
+    @Test
+    fun tooltip_propagateMinConstraints_childMeasuredWithIncomingConstraints() {
+        val expectedSize = DpSize(100.dp, 100.dp)
+        var childSizePx: IntSize? = null
+        rule.setContent {
+            BasicTooltipBox(
+                positionProvider = EmptyPositionProvider(),
+                tooltip = {},
+                state = rememberBasicTooltipState(),
+                modifier = Modifier.size(expectedSize),
+                propagateMinConstraints = true,
+            ) {
+                Box(Modifier.onSizeChanged { childSizePx = it })
+            }
+        }
+
+        val expectedSizePx = with(rule.density) { expectedSize.toSize().roundToIntSize() }
+        rule.runOnIdle { Truth.assertThat(childSizePx).isEqualTo(expectedSizePx) }
+    }
+
+    @Test
+    fun tooltip_anchorSemantics_enabledUserInput() {
+        rule.setContent {
+            BasicTooltipBox(
+                positionProvider = EmptyPositionProvider(),
+                tooltip = {},
+                state = rememberBasicTooltipState(initialIsVisible = false),
+                modifier = Modifier.testTag(TOOLTIP_ANCHOR),
+                enableUserInput = true,
+            ) {
+                Box(modifier = Modifier.requiredSize(1.dp)) {}
+            }
+        }
+
+        rule
+            .onNodeWithTag(TOOLTIP_ANCHOR, useUnmergedTree = true)
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.OnLongClick))
+    }
+
+    @Test
+    fun tooltip_anchorSemantics_disabledUserInput() {
+        rule.setContent {
+            BasicTooltipBox(
+                positionProvider = EmptyPositionProvider(),
+                tooltip = {},
+                state = rememberBasicTooltipState(initialIsVisible = false),
+                modifier = Modifier.testTag(TOOLTIP_ANCHOR),
+                enableUserInput = false,
+            ) {
+                Box(modifier = Modifier.requiredSize(1.dp)) {}
+            }
+        }
+
+        rule
+            .onNodeWithTag(TOOLTIP_ANCHOR, useUnmergedTree = true)
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.OnLongClick))
+    }
+
+    @Test
+    fun tooltip_popupSemantics_whenVisible() {
+        rule.setContent {
+            BasicTooltipBox(
+                positionProvider = EmptyPositionProvider(),
+                tooltip = { Box(Modifier.requiredSize(1.dp)) },
+                state = rememberBasicTooltipState(initialIsVisible = true),
+            ) {
+                Box(modifier = Modifier.requiredSize(1.dp)) {}
+            }
+        }
+
+        rule
+            .onNode(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.LiveRegion,
+                    LiveRegionMode.Assertive,
+                )
+            )
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.PaneTitle))
     }
 }
 

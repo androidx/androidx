@@ -114,6 +114,14 @@ internal constructor(
         private set
 
     /**
+     * True if the most recent committed text is from a user action (e.g. typing) and not from
+     * non-user/programmatic actions (e.g. accessibility). If no text has been committed this will
+     * also be false.
+     */
+    internal var userCommit: Boolean by mutableStateOf(false)
+        private set
+
+    /**
      * The current text content. This value will automatically update when the user enters text or
      * otherwise changes the text field contents. To change it programmatically, call [edit].
      *
@@ -241,10 +249,12 @@ internal constructor(
         )
     }
 
+    /** Only called for non-user edits. */
     @Suppress("ShowingMemberInHiddenClass")
     @PublishedApi
     internal fun finishEditing() {
         isEditing = false
+        userCommit = false
     }
 
     /**
@@ -281,6 +291,7 @@ internal constructor(
             restartImeIfContentChanges = restartImeIfContentChanges,
             undoBehavior = undoBehavior,
         )
+        userCommit = true
     }
 
     /**
@@ -458,7 +469,6 @@ internal constructor(
         // previous and current values, a system callback may request the latest state e.g. IME
         // restartInput call is handled before notifyImeListeners return.
         value = newValue
-        finishEditing()
 
         notifyImeListeners.forEach {
             it.onChange(
@@ -473,6 +483,9 @@ internal constructor(
                         oldValue.composition != null,
             )
         }
+
+        // After notifying listeners, reset the state as the next action may not be user-enacted.
+        userCommit = false
     }
 
     /**

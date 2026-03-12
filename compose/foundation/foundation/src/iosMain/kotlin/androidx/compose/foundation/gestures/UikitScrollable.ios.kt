@@ -30,8 +30,8 @@ internal actual fun CompositionLocalConsumerModifierNode.platformScrollConfig():
 internal object UiKitScrollConfig : ScrollConfig {
     override fun Density.calculateMouseWheelScroll(event: PointerEvent, bounds: IntSize): Offset =
         event.changes.fastFold(Offset.Zero) { acc, c ->
-            if (event.type == PointerEventType.Pan) {
-                acc + c.panGestureOffset
+            if (event.type == PointerEventType.PanMove) {
+                acc + c.panOffset
             } else {
                 acc + c.scrollDelta
             }

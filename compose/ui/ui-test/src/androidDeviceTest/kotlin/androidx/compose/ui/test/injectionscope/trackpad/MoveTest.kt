@@ -23,7 +23,7 @@ import androidx.compose.ui.input.pointer.PointerEventType.Companion.Exit
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Move
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Press
 import androidx.compose.ui.test.InputDispatcher
-import androidx.compose.ui.test.MouseButton
+import androidx.compose.ui.test.TrackpadButton
 import androidx.compose.ui.test.TrackpadInjectionScope
 import androidx.compose.ui.test.animateMoveAlong
 import androidx.compose.ui.test.animateMoveBy
@@ -117,7 +117,7 @@ class MoveTest {
                 updatePointerToAndCheck(positionMove1)
                 updatePointerToAndCheck(positionMove2)
                 // press primary button
-                press(MouseButton.Primary)
+                press(TrackpadButton.Primary)
             },
             eventVerifiers =
                 arrayOf(
@@ -136,7 +136,7 @@ class MoveTest {
                 updatePointerByAndCheck(positionMove1 - positionIn)
                 updatePointerByAndCheck(positionMove2 - positionMove1)
                 // press primary button
-                press(MouseButton.Primary)
+                press(TrackpadButton.Primary)
             },
             eventVerifiers =
                 arrayOf(

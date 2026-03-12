@@ -22,6 +22,7 @@ import android.graphics.Outline
 import android.graphics.PixelFormat
 import android.graphics.Rect
 import android.os.Build
+import android.os.IBinder
 import android.os.Looper
 import android.view.Gravity
 import android.view.KeyEvent
@@ -110,6 +111,11 @@ import org.jetbrains.annotations.TestOnly
  *   systemGestureExclusionRects. The default is true.
  * @property usePlatformDefaultWidth Whether the width of the popup's content should be limited to
  *   the platform default, which is smaller than the screen width.
+ * @property windowType An optional [WindowManager.LayoutParams.type] for the popup window. Defaults
+ *   to [WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL].
+ * @property windowToken An optional [android.os.IBinder] for [WindowManager.LayoutParams.token] for
+ *   the popup window. If null, the popup will automatically use the token from the parent Compose
+ *   view.
  */
 @Immutable
 actual class PopupProperties
@@ -120,6 +126,8 @@ constructor(
     actual val dismissOnClickOutside: Boolean = true,
     val excludeFromSystemGesture: Boolean = true,
     actual val usePlatformDefaultWidth: Boolean = false,
+    val windowType: Int = WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL,
+    val windowToken: IBinder? = null,
 ) {
     actual constructor(
         focusable: Boolean,
@@ -135,6 +143,48 @@ constructor(
         excludeFromSystemGesture = true,
         clippingEnabled = clippingEnabled,
         usePlatformDefaultWidth = usePlatformDefaultWidth,
+        windowType = WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL,
+        windowToken = null,
+    )
+
+    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
+    constructor(
+        focusable: Boolean = false,
+        dismissOnBackPress: Boolean = true,
+        dismissOnClickOutside: Boolean = true,
+        securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
+        excludeFromSystemGesture: Boolean = true,
+        clippingEnabled: Boolean = true,
+        usePlatformDefaultWidth: Boolean = false,
+    ) : this(
+        focusable = focusable,
+        dismissOnBackPress = dismissOnBackPress,
+        dismissOnClickOutside = dismissOnClickOutside,
+        securePolicy = securePolicy,
+        excludeFromSystemGesture = excludeFromSystemGesture,
+        clippingEnabled = clippingEnabled,
+        usePlatformDefaultWidth = usePlatformDefaultWidth,
+        windowType = WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL,
+        windowToken = null,
+    )
+
+    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
+    constructor(
+        flags: Int,
+        inheritSecurePolicy: Boolean = true,
+        dismissOnBackPress: Boolean = true,
+        dismissOnClickOutside: Boolean = true,
+        excludeFromSystemGesture: Boolean = true,
+        usePlatformDefaultWidth: Boolean = false,
+    ) : this(
+        flags = flags,
+        inheritSecurePolicy = inheritSecurePolicy,
+        dismissOnBackPress = dismissOnBackPress,
+        dismissOnClickOutside = dismissOnClickOutside,
+        excludeFromSystemGesture = excludeFromSystemGesture,
+        usePlatformDefaultWidth = usePlatformDefaultWidth,
+        windowType = WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL,
+        windowToken = null,
     )
 
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
@@ -191,6 +241,11 @@ constructor(
      *   will allow windows to be accurately positioned. The default value is true.
      * @param usePlatformDefaultWidth Whether the width of the popup's content should be limited to
      *   the platform default, which is smaller than the screen width.
+     * @param windowType An optional [WindowManager.LayoutParams.type] for the popup window.
+     *   Defaults to [WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL].
+     * @param windowToken An optional [android.os.IBinder] for [WindowManager.LayoutParams.token]
+     *   for the popup window. If null, the popup will automatically use the token from the parent
+     *   Compose view.
      */
     constructor(
         focusable: Boolean = false,
@@ -200,6 +255,8 @@ constructor(
         excludeFromSystemGesture: Boolean = true,
         clippingEnabled: Boolean = true,
         usePlatformDefaultWidth: Boolean = false,
+        windowType: Int = WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL,
+        windowToken: IBinder? = null,
     ) : this(
         flags = createFlags(focusable, securePolicy, clippingEnabled),
         inheritSecurePolicy = securePolicy == SecureFlagPolicy.Inherit,
@@ -207,6 +264,8 @@ constructor(
         dismissOnClickOutside = dismissOnClickOutside,
         excludeFromSystemGesture = excludeFromSystemGesture,
         usePlatformDefaultWidth = usePlatformDefaultWidth,
+        windowType = windowType,
+        windowToken = windowToken,
     )
 
     /**
@@ -243,6 +302,8 @@ constructor(
         if (dismissOnClickOutside != other.dismissOnClickOutside) return false
         if (excludeFromSystemGesture != other.excludeFromSystemGesture) return false
         if (usePlatformDefaultWidth != other.usePlatformDefaultWidth) return false
+        if (windowType != other.windowType) return false
+        if (windowToken != other.windowToken) return false
 
         return true
     }
@@ -254,6 +315,9 @@ constructor(
         result = 31 * result + dismissOnClickOutside.hashCode()
         result = 31 * result + excludeFromSystemGesture.hashCode()
         result = 31 * result + usePlatformDefaultWidth.hashCode()
+        result = 31 * result + windowType
+        result = 31 * result + (windowToken?.hashCode() ?: 0)
+
         return result
     }
 }
@@ -286,7 +350,9 @@ actual fun Popup(
     content: @Composable () -> Unit,
 ) {
     val popupPositioner =
-        remember(alignment, offset) { AlignmentOffsetPositionProvider(alignment, offset) }
+        remember(alignment, offset, properties.windowType, properties.windowToken) {
+            AlignmentOffsetPositionProvider(alignment, offset)
+        }
 
     Popup(
         popupPositionProvider = popupPositioner,
@@ -881,10 +947,10 @@ internal class PopupLayout(
 
             flags = properties.flagsWithSecureFlagInherited(composeView.isFlagSecureEnabled())
 
-            type = WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL
+            type = properties.windowType
 
-            // Get the Window token from the parent view
-            token = composeView.applicationWindowToken
+            // Use windowToken if provided else get the Window token from the parent view
+            token = properties.windowToken ?: composeView.applicationWindowToken
 
             // Wrap the frame layout which contains composable content
             width = WindowManager.LayoutParams.WRAP_CONTENT

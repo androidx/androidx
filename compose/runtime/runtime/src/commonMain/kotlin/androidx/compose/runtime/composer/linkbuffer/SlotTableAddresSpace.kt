@@ -974,7 +974,7 @@ internal inline fun IntArray.groupSlotRange(address: GroupAddress, value: Int) {
 }
 
 private inline fun Array<Any?>.clearRange(start: SlotAddress, end: SlotAddress) {
-    if (end == start + 1) this[start] == Unallocated else this.fill(Unallocated, start, end)
+    if (end == start + 1) this[start] = Unallocated else this.fill(Unallocated, start, end)
 }
 
 @Suppress("SameParameterValue")

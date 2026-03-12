@@ -25,10 +25,6 @@ plugins {
     id("JetBrainsAndroidXPlugin")
 }
 
-repositories {
-    mavenLocal()
-}
-
 fun KotlinNativeBinaryContainer.configureFramework() {
     framework {
         baseName = "shared"

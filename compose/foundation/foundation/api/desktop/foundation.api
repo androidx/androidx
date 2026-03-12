@@ -1978,6 +1978,7 @@ public final class androidx/compose/foundation/style/StyleStateKt {
 	public static final fun focused (Landroidx/compose/foundation/style/StyleScope;Landroidx/compose/foundation/style/Style;)V
 	public static final fun hovered (Landroidx/compose/foundation/style/StyleScope;Landroidx/compose/foundation/style/Style;)V
 	public static final fun pressed (Landroidx/compose/foundation/style/StyleScope;Landroidx/compose/foundation/style/Style;)V
+	public static final fun rememberUpdatedStyleState (Landroidx/compose/foundation/interaction/InteractionSource;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)Landroidx/compose/foundation/style/StyleState;
 	public static final fun selected (Landroidx/compose/foundation/style/StyleScope;Landroidx/compose/foundation/style/Style;)V
 	public static final fun triStateToggleIndeterminate (Landroidx/compose/foundation/style/StyleScope;Landroidx/compose/foundation/style/Style;)V
 	public static final fun triStateToggleOff (Landroidx/compose/foundation/style/StyleScope;Landroidx/compose/foundation/style/Style;)V

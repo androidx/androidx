@@ -1,0 +1,61 @@
+// Baseline format: 1.0
+RemovedFromBytecode: androidx.compose.ui.graphics.Color#component1():
+    Binary breaking change: method androidx.compose.ui.graphics.Color.component1() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.graphics.Color#component2():
+    Binary breaking change: method androidx.compose.ui.graphics.Color.component2() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.graphics.Color#component3():
+    Binary breaking change: method androidx.compose.ui.graphics.Color.component3() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.graphics.Color#component4():
+    Binary breaking change: method androidx.compose.ui.graphics.Color.component4() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.graphics.Color#component5():
+    Binary breaking change: method androidx.compose.ui.graphics.Color.component5() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.graphics.ColorMatrix#convertRgbToYuv():
+    Binary breaking change: method androidx.compose.ui.graphics.ColorMatrix.convertRgbToYuv() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.graphics.ColorMatrix#convertYuvToRgb():
+    Binary breaking change: method androidx.compose.ui.graphics.ColorMatrix.convertYuvToRgb() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.graphics.ColorMatrix#get(int, int):
+    Binary breaking change: method androidx.compose.ui.graphics.ColorMatrix.get(int,int) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.graphics.ColorMatrix#reset():
+    Binary breaking change: method androidx.compose.ui.graphics.ColorMatrix.reset() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.graphics.ColorMatrix#set(int, int, float):
+    Binary breaking change: method androidx.compose.ui.graphics.ColorMatrix.set(int,int,float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.graphics.ColorMatrix#setToRotateBlue(float):
+    Binary breaking change: method androidx.compose.ui.graphics.ColorMatrix.setToRotateBlue(float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.graphics.ColorMatrix#setToRotateGreen(float):
+    Binary breaking change: method androidx.compose.ui.graphics.ColorMatrix.setToRotateGreen(float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.graphics.ColorMatrix#setToRotateRed(float):
+    Binary breaking change: method androidx.compose.ui.graphics.ColorMatrix.setToRotateRed(float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.graphics.ColorMatrix#setToSaturation(float):
+    Binary breaking change: method androidx.compose.ui.graphics.ColorMatrix.setToSaturation(float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.graphics.ColorMatrix#setToScale(float, float, float, float):
+    Binary breaking change: method androidx.compose.ui.graphics.ColorMatrix.setToScale(float,float,float,float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.graphics.Matrix#get(int, int):
+    Binary breaking change: method androidx.compose.ui.graphics.Matrix.get(int,int) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.graphics.Matrix#invert():
+    Binary breaking change: method androidx.compose.ui.graphics.Matrix.invert() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.graphics.Matrix#map(androidx.compose.ui.geometry.MutableRect):
+    Binary breaking change: method androidx.compose.ui.graphics.Matrix.map(androidx.compose.ui.geometry.MutableRect) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.graphics.Matrix#map(androidx.compose.ui.geometry.Rect):
+    Binary breaking change: method androidx.compose.ui.graphics.Matrix.map(androidx.compose.ui.geometry.Rect) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.graphics.Matrix#reset():
+    Binary breaking change: method androidx.compose.ui.graphics.Matrix.reset() has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.graphics.Matrix#resetToPivotedTransform(float, float, float, float, float, float, float, float, float, float, float):
+    Binary breaking change: method androidx.compose.ui.graphics.Matrix.resetToPivotedTransform(float,float,float,float,float,float,float,float,float,float,float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.graphics.Matrix#rotateX(float):
+    Binary breaking change: method androidx.compose.ui.graphics.Matrix.rotateX(float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.graphics.Matrix#rotateY(float):
+    Binary breaking change: method androidx.compose.ui.graphics.Matrix.rotateY(float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.graphics.Matrix#rotateZ(float):
+    Binary breaking change: method androidx.compose.ui.graphics.Matrix.rotateZ(float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.graphics.Matrix#scale(float, float, float):
+    Binary breaking change: method androidx.compose.ui.graphics.Matrix.scale(float,float,float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.graphics.Matrix#set(int, int, float):
+    Binary breaking change: method androidx.compose.ui.graphics.Matrix.set(int,int,float) has been removed from bytecode
+RemovedFromBytecode: androidx.compose.ui.graphics.Matrix#translate(float, float, float):
+    Binary breaking change: method androidx.compose.ui.graphics.Matrix.translate(float,float,float) has been removed from bytecode
+
+
+RemovedMethod: androidx.compose.ui.graphics.Shadow#Shadow():
+    Binary breaking change: Removed constructor androidx.compose.ui.graphics.Shadow()
+RemovedMethod: androidx.compose.ui.graphics.drawscope.Stroke#Stroke():
+    Binary breaking change: Removed constructor androidx.compose.ui.graphics.drawscope.Stroke()
