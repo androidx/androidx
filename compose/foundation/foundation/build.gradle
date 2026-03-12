@@ -54,7 +54,7 @@ androidXMultiplatform {
     configureDarwinFlags()
 
     sourceSets {
-		def navigationEventVersion = project.findProperty('artifactRedirection.version.androidx.navigationevent')
+        def navigationEventVersion = project.findProperty('artifactRedirection.version.androidx.navigationevent')
         commonMain.dependencies {
             api("androidx.collection:collection:1.5.0")
             api(project(":compose:animation:animation"))
