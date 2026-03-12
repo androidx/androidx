@@ -12,9 +12,7 @@ import org.jetbrains.androidx.build.hasRedirection
 }
 
 val libraryToComponents = JetBrainsPublication.libraryToComponents
-
-val pathToComposeComponent = libraryToComponents.values.flatten().associateBy { it.path }
-val Project.composeComponent get() = pathToComposeComponent[path]
+val Project.composeComponent get() = JetBrainsPublication.projectPathToComponent[path]
 
 val parsedComposeProperties = ComposeProperties(project)
 
