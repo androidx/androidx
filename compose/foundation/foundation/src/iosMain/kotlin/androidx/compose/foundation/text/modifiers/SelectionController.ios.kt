@@ -25,22 +25,24 @@ import androidx.compose.foundation.text.selection.SelectionAdjustment
 import androidx.compose.foundation.text.selection.SelectionRegistrar
 import androidx.compose.foundation.text.selection.hasSelection
 import androidx.compose.foundation.text.selection.isMouseOrTouchPad
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
 import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
 import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.isPrimaryPressed
 import androidx.compose.ui.input.pointer.isShiftPressed
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.currentValueOf
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastForEach
@@ -228,29 +230,84 @@ internal actual fun SelectionRegistrar.makeSelectionModifier(
     return Modifier.selectionGestureInput(mouseSelectionObserver, longPressDragObserver)
 }
 
-// Copied from SelectionController.kt, except CupertinoTextDragObserver parameter
 private fun Modifier.selectionGestureInput(
     mouseSelectionObserver: MouseSelectionObserver,
     textDragObserver: CupertinoTextDragObserver,
-): Modifier = composed {
-    // TODO(https://youtrack.jetbrains.com/issue/COMPOSE-79) how we can rewrite this without `composed`?
-    val currentMouseSelectionObserver by rememberUpdatedState(mouseSelectionObserver)
-    val currentTextDragObserver by rememberUpdatedState(textDragObserver)
-    val hapticFeedback = LocalHapticFeedback.current
-    this.pointerInput(Unit) {
-        val clicksCounter = ClicksCounter(viewConfiguration)
-        awaitEachGesture {
-            val down = awaitDown()
-            if (
-                down.isMouseOrTouchPad() &&
-                down.buttons.isPrimaryPressed &&
-                down.changes.fastAll { !it.isConsumed }
-            ) {
-                mouseSelection(currentMouseSelectionObserver, clicksCounter, down)
-            } else if (!down.isMouseOrTouchPad()) {
-                touchSelection(currentTextDragObserver, clicksCounter, down, hapticFeedback)
+): Modifier = this.then(
+    SelectionGestureInputElement(
+        mouseSelectionObserver = mouseSelectionObserver,
+        textDragObserver = textDragObserver,
+    )
+)
+
+private class SelectionGestureInputElement(
+    private val mouseSelectionObserver: MouseSelectionObserver,
+    private val textDragObserver: CupertinoTextDragObserver,
+) : ModifierNodeElement<SelectionGestureInputNode>() {
+
+    override fun create(): SelectionGestureInputNode = SelectionGestureInputNode(
+        mouseSelectionObserver = mouseSelectionObserver,
+        textDragObserver = textDragObserver,
+    )
+
+    override fun update(node: SelectionGestureInputNode) = node.update(
+        mouseSelectionObserver = mouseSelectionObserver,
+        textDragObserver = textDragObserver,
+    )
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "selectionGestureInput"
+        properties["mouseSelectionObserver"] = mouseSelectionObserver
+        properties["textDragObserver"] = textDragObserver
+    }
+
+    override fun equals(other: Any?): Boolean =
+        other is SelectionGestureInputElement &&
+        other !== this &&
+        mouseSelectionObserver == other.mouseSelectionObserver &&
+        textDragObserver == other.textDragObserver
+
+    override fun hashCode(): Int {
+        var result = mouseSelectionObserver.hashCode()
+        result = 31 * result + textDragObserver.hashCode()
+        return result
+    }
+}
+
+private class SelectionGestureInputNode(
+    private var mouseSelectionObserver: MouseSelectionObserver,
+    private var textDragObserver: CupertinoTextDragObserver,
+): DelegatingNode(), CompositionLocalConsumerModifierNode {
+
+    private val pointerInputNode = delegate(
+        SuspendingPointerInputModifierNode(
+            pointerInputEventHandler = {
+                val hapticFeedback = currentValueOf(LocalHapticFeedback)
+                val clicksCounter = ClicksCounter(viewConfiguration)
+
+                awaitEachGesture {
+                    val down = awaitDown()
+
+                    if (
+                        down.isMouseOrTouchPad() &&
+                        down.buttons.isPrimaryPressed &&
+                        down.changes.fastAll { !it.isConsumed }
+                    ) {
+                        mouseSelection(mouseSelectionObserver, clicksCounter, down)
+                    } else if (!down.isMouseOrTouchPad()) {
+                        touchSelection(textDragObserver, clicksCounter, down, hapticFeedback)
+                    }
+                }
             }
-        }
+        )
+    )
+
+    fun update(
+        mouseSelectionObserver: MouseSelectionObserver,
+        textDragObserver: CupertinoTextDragObserver,
+    ) {
+        this.mouseSelectionObserver = mouseSelectionObserver
+        this.textDragObserver = textDragObserver
     }
 }
 
