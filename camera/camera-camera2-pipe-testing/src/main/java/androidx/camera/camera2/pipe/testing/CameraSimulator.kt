@@ -73,13 +73,13 @@ public interface CameraSimulator {
     /**
      * Utility function to simulate the production of [FakeImage]s for all outputs on a specific
      * [request]. Use [simulateImage] to directly control simulation of individual outputs.
-     * [physicalCameraId] should be used to select the correct output id when simulating images from
-     * multi-resolution [ImageReader]s and [ImageSource]s
+     * [physicalCameraIds] should be used to select the correct output ids when simulating images
+     * from multi-resolution [ImageReader]s and [ImageSource]s
      */
     public fun simulateImages(
         request: Request,
         imageTimestamp: Long,
-        physicalCameraId: CameraId? = null,
+        physicalCameraIds: Set<CameraId> = emptySet(),
     )
 
     /**

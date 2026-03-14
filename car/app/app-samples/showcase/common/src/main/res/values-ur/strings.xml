@@ -245,6 +245,7 @@
     <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"ہر فہرست کے نیچے ذیلی ٹیکسٹ"</string>
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"تصویر اور کارروائیوں کا ڈیمو ختم کریں"</string>
     <string name="filter_chip_demo_title" msgid="92190365856639582">"فلٹر چِپ کا ڈیمو"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"پیش رفت بار کا ڈیمو"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"پین کی تمثیل کا ڈیمو"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"مقام کی فہرست کی تمثیل کا ڈیمو"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"مقامات براؤز کریں"</string>

@@ -84,8 +84,10 @@ package androidx.xr.arcore.openxr {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class OpenXrDevice implements androidx.xr.arcore.runtime.ArDevice {
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getDevicePose();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
     method public void update(long xrTime);
     property public androidx.xr.runtime.math.Pose devicePose;
+    property public androidx.xr.runtime.TrackingState trackingState;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class OpenXrEye implements androidx.xr.arcore.runtime.Eye {

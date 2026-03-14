@@ -187,9 +187,6 @@ class PausableCompositionTests {
     @OptIn(ExperimentalComposeApi::class, ExperimentalCoroutinesApi::class)
     @Test
     fun reuseFromRoot_preventsGroupIndexCollisionWithRootKey() = compositionTest {
-        // TODO: assumeFalse
-        if (ComposeRuntimeFlags.isLinkBufferComposerEnabled) return@compositionTest
-
         val awaiter = Awaiter()
         val workflow = workflow {
             setContentWithReuse()
@@ -832,6 +829,37 @@ class PausableCompositionTests {
         assertEquals("Remember(B)", events[0])
         assertEquals(2, events.count { it == "Abandon(A)" })
         assertEquals(1, events.count { it == "Abandon(B)" })
+    }
+
+    @Test
+    fun pausableComposition_reusableContent() = compositionTest {
+        var key by mutableStateOf(0)
+
+        val awaiter = Awaiter()
+        val workflow = workflow {
+            setContent() // Pausable content is not used yet for movable
+            resumeTillComplete { false }
+            apply()
+
+            composition.deactivate()
+            key++
+
+            setContentWithReuse()
+            resumeOnce { true }
+            resumeTillComplete { false }
+            apply()
+
+            awaiter.done()
+        }
+        compose {
+            PausableContent(workflow) {
+                Linear {
+                    ReusableContent(key) {}
+                    Text("After $key")
+                }
+            }
+        }
+        awaiter.await()
     }
 }
 

@@ -79,6 +79,11 @@ package androidx.lifecycle {
     property public abstract androidx.lifecycle.Lifecycle lifecycle;
   }
 
+  public final class LifecycleOwnerFactory {
+    method @KotlinOnly public static androidx.lifecycle.LifecycleOwner LifecycleOwner(androidx.lifecycle.Lifecycle lifecycle);
+    method @InaccessibleFromKotlin public static androidx.lifecycle.LifecycleOwner create(androidx.lifecycle.Lifecycle lifecycle);
+  }
+
   public final class LifecycleOwnerKt {
     method @InaccessibleFromKotlin public static androidx.lifecycle.LifecycleCoroutineScope getLifecycleScope(androidx.lifecycle.LifecycleOwner);
     property public static androidx.lifecycle.LifecycleCoroutineScope androidx.lifecycle.LifecycleOwner.lifecycleScope;

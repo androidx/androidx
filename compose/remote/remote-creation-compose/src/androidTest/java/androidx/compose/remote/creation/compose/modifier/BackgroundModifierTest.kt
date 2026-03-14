@@ -20,7 +20,6 @@ import android.content.Context
 import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
-import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteText
@@ -245,14 +244,12 @@ class BackgroundModifierTest {
     private fun DemoBox(title: RemoteString, content: @RemoteComposable @Composable () -> Unit) {
         RemoteBox(
             modifier = RemoteModifier.fillMaxSize(),
-            horizontalAlignment = RemoteAlignment.CenterHorizontally,
-            verticalArrangement = RemoteArrangement.Center,
+            contentAlignment = RemoteAlignment.Center,
         ) {
             content()
             RemoteBox(
                 modifier = RemoteModifier.fillMaxSize(),
-                verticalArrangement = RemoteArrangement.Bottom,
-                horizontalAlignment = RemoteAlignment.CenterHorizontally,
+                contentAlignment = RemoteAlignment.BottomCenter,
             ) {
                 RemoteText(title, color = RemoteColor(Color.White), fontSize = 8.rsp)
             }

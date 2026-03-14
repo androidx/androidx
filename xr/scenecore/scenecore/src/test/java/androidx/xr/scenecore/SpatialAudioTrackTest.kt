@@ -59,16 +59,17 @@ class SpatialAudioTrackTest {
         val track = AudioTrack.Builder().build()
 
         val entity = Entity.create(session, "test")
-        val pointSourceParams = PointSourceParams(entity)
+        val pointSourceParams = PointSourceParams()
 
-        SpatialAudioTrack.setPointSourceParams(session, track, pointSourceParams)
+        SpatialAudioTrack.setPointSourceParams(session, track, pointSourceParams, entity)
         val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
         val rtAudioTrackExtensionsWrapper = fakeSceneRuntime.audioTrackExtensionsWrapper
         val storedRtParams = rtAudioTrackExtensionsWrapper.pointSourceParamsMap[track]
+        val storedEntity = rtAudioTrackExtensionsWrapper.entityMap[track]
 
+        // TODO: b/426001209 - Check params equality once additional params are implemented.
         assertThat(storedRtParams).isNotNull()
-        assertThat(storedRtParams?.entity).isEqualTo(pointSourceParams.rtPointSourceParams.entity)
-        assertThat(storedRtParams?.entity).isEqualTo((entity as BaseEntity<*>).rtEntity)
+        assertThat(storedEntity).isEqualTo((entity as BaseEntity<*>).rtEntity)
     }
 
     @Test
@@ -76,13 +77,14 @@ class SpatialAudioTrackTest {
         val track = AudioTrack.Builder().build()
 
         val entity = Entity.create(session, "test")
-        val pointSourceParams = PointSourceParams(entity)
+        val pointSourceParams = PointSourceParams()
         val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
-        fakeSceneRuntime.audioTrackExtensionsWrapper.fakeExtensionException =
+        val rtAudioTrackExtensionsWrapper = fakeSceneRuntime.audioTrackExtensionsWrapper
+        rtAudioTrackExtensionsWrapper.fakeExtensionException =
             IllegalStateException("Simulated runtime failure")
 
         kotlin.test.assertFailsWith<IllegalStateException> {
-            SpatialAudioTrack.setPointSourceParams(session, track, pointSourceParams)
+            SpatialAudioTrack.setPointSourceParams(session, track, pointSourceParams, entity)
         }
     }
 
@@ -91,15 +93,17 @@ class SpatialAudioTrackTest {
         val builder = AudioTrack.Builder()
 
         val entity = Entity.create(session, "test")
-        val pointSourceParams = PointSourceParams(entity)
+        val pointSourceParams = PointSourceParams()
 
-        SpatialAudioTrackBuilder.setPointSourceParams(session, builder, pointSourceParams)
+        SpatialAudioTrackBuilder.setPointSourceParams(session, builder, pointSourceParams, entity)
         val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
         val rtAudioTrackExtensionsWrapper = fakeSceneRuntime.audioTrackExtensionsWrapper
         val storedRtParams = rtAudioTrackExtensionsWrapper.pointSourceParamsBuilderMap[builder]
+        val storedEntity = rtAudioTrackExtensionsWrapper.entityBuilderMap[builder]
 
+        // TODO: b/426001209 - Check params equality once additional params are implemented.
         assertThat(storedRtParams).isNotNull()
-        assertThat(storedRtParams!!.entity).isEqualTo(pointSourceParams.rtPointSourceParams.entity)
+        assertThat(storedEntity).isEqualTo((entity as BaseEntity<*>).rtEntity)
     }
 
     @Test
@@ -135,15 +139,17 @@ class SpatialAudioTrackTest {
 
         val temp: BaseEntity<*> = entity as BaseEntity<*>
         val rtEntity = temp.rtEntity!!
-        val rtPointSourceParams = RtPointSourceParams(rtEntity)
+        val rtPointSourceParams = RtPointSourceParams()
 
         sceneRuntime.audioTrackExtensionsWrapper.setPointSourceParams(
             audioTrack,
             rtPointSourceParams,
+            rtEntity,
         )
         val pointSourceParams = SpatialAudioTrack.getPointSourceParams(session, audioTrack)
 
-        assertThat((pointSourceParams!!.entity as BaseEntity<*>).rtEntity).isEqualTo(rtEntity)
+        // TODO: b/426001209 - Check params equality once additional params are implemented.
+        assertThat(pointSourceParams).isNotNull()
     }
 
     @Test

@@ -36,10 +36,11 @@ internal class BatchPdfAnnotationsProcessor(private val remoteDocument: PdfDocum
     /**
      * Processes a draft of edits by applying them to the remote PDF document in batches.
      *
-     * This method prevents large lists of operations from causing [TransactionTooLargeException]
-     * when sent over an AIDL connection. It splits the list of operations from the [EditsDraft]
-     * into smaller batches based on a maximum size limit and processes each batch individually. The
-     * results from each batch are then combined into a single list of success IDs.
+     * This method prevents large lists of operations from causing
+     * [android.os.TransactionTooLargeException] when sent over an AIDL connection. It splits the
+     * list of operations from the [EditsDraft] into smaller batches based on a maximum size limit
+     * and processes each batch individually. The results from each batch are then combined into a
+     * single list of success IDs.
      *
      * @param editsDraft The [EditsDraft] containing the operations to be applied.
      * @param onBatchedEditsApplied callback method invoked when a batch is applied.

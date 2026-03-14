@@ -55,7 +55,7 @@ import androidx.compose.ui.util.fastMap
 public fun RemoteBrush.Companion.sweepGradient(
     vararg colorStops: Pair<RemoteFloat, RemoteColor>,
     center: RemoteOffset? = null,
-): RemoteSweepGradient =
+): RemoteBrush =
     RemoteSweepGradient(
         colors = List(colorStops.size) { i -> colorStops[i].second },
         stops = List(colorStops.size) { i -> colorStops[i].first },
@@ -83,7 +83,7 @@ public fun RemoteBrush.Companion.sweepGradient(
 public fun RemoteBrush.Companion.sweepGradient(
     colors: List<RemoteColor>,
     center: RemoteOffset? = null,
-): RemoteSweepGradient = RemoteSweepGradient(colors = colors, stops = null, center = center)
+): RemoteBrush = RemoteSweepGradient(colors = colors, stops = null, center = center)
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable

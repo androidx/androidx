@@ -23,22 +23,18 @@ import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.assumeExtensionModeSupported
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.launchCameraExtensionsActivity
-import androidx.camera.integration.extensions.util.HOME_TIMEOUT_MS
 import androidx.camera.integration.extensions.util.waitForPreviewViewStreaming
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
-import androidx.camera.testing.impl.CoreAppTestUtil
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
-import androidx.test.uiautomator.UiDevice
 import androidx.testutils.withActivity
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
-import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -50,7 +46,11 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 class PreviewTest(private val cameraId: String, private val extensionMode: Int) {
-    private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    @get:Rule
+    val requireForegroundRule = RequireForegroundRule {
+        assumeTrue(CameraUtil.deviceHasCamera())
+        assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
+    }
 
     @get:Rule
     val useCamera =
@@ -65,6 +65,7 @@ class PreviewTest(private val cameraId: String, private val extensionMode: Int) 
             Manifest.permission.RECORD_AUDIO,
         )
 
+    private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var extensionsManager: ExtensionsManager
 
     companion object {
@@ -77,38 +78,19 @@ class PreviewTest(private val cameraId: String, private val extensionMode: Int) 
 
     @Before
     fun setup(): Unit = runBlocking {
-        assumeTrue(CameraUtil.deviceHasCamera())
-        assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
-        // Clear the device UI and check if there is no dialog or lock screen on the top of the
-        // window before start the test.
-        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
-        // Use the natural orientation throughout these tests to ensure the activity isn't
-        // recreated unexpectedly. This will also freeze the sensors until
-        // mDevice.unfreezeRotation() in the tearDown() method. Any simulated rotations will be
-        // explicitly initiated from within the test.
-        device.setOrientationNatural()
-        val cameraProvider =
-            ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+        cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
 
         extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
 
         assumeExtensionModeSupported(extensionsManager, cameraId, extensionMode)
-    }
 
-    @After
-    fun tearDown(): Unit = runBlocking {
-        val cameraProvider =
-            ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
-        cameraProvider.shutdownAsync()
-
-        val extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
-        extensionsManager.shutdown()
-
-        // Unfreeze rotation so the device can choose the orientation via its own policy. Be nice
-        // to other tests :)
-        device.unfreezeRotation()
-        device.pressHome()
-        device.waitForIdle(HOME_TIMEOUT_MS)
+        requireForegroundRule.deferCleanup {
+            if (::cameraProvider.isInitialized) {
+                cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
+                val extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
+                extensionsManager.shutdown()
+            }
+        }
     }
 
     /**

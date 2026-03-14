@@ -243,6 +243,7 @@
     <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"每个列表下的辅助文本"</string>
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"结束图片和操作的演示"</string>
     <string name="filter_chip_demo_title" msgid="92190365856639582">"条状过滤标签演示"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"进度条演示"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"窗格模板演示"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"地点列表模板演示"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"浏览地点"</string>
@@ -250,7 +251,7 @@
     <string name="search_hint" msgid="978495498991026792">"在此处搜索"</string>
     <string name="additional_text" msgid="5755100726890686184">"请查看我们的"<annotation link="terms_of_service">"服务条款"</annotation></string>
     <string name="google_sign_in" msgid="6556259799319701727">"Google 登录"</string>
-    <string name="use_pin" msgid="7850893299484337431">"使用 PIN 码"</string>
+    <string name="use_pin" msgid="7850893299484337431">"使用数字密码"</string>
     <string name="qr_code" msgid="5487041647280777397">"二维码"</string>
     <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"您的主机不支持登录模板"</string>
     <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"不兼容的主机"</string>

@@ -162,7 +162,7 @@ public class WebViewProviderAdapter {
             @Nullable WebViewRenderProcessClient client) {
         InvocationHandler handler = client != null
                 ? BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
-                    new WebViewRenderProcessClientAdapter(executor, client)) : null;
+                        new WebViewRenderProcessClientAdapter(executor, client)) : null;
         mImpl.setWebViewRendererClient(handler);
     }
 
@@ -318,6 +318,52 @@ public class WebViewProviderAdapter {
                 BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
                         new NavigationListenerAdapter(listener));
         mImpl.removeWebViewNavigationListener(listenerBoundaryInterface);
+    }
+
+    /**
+     * Adapter method for
+     * {@link WebViewCompat#getExecutionWorld(WebView, String)}.
+     */
+    public int getExecutionWorld(@NonNull String name) {
+        return mImpl.getJavaScriptWorld(name);
+    }
+
+    /**
+     * Adapter method for
+     * {@link WebViewCompat#addJavaScriptOnEvent(WebView, String, int, Set, JsExecutionWorld)}.
+     */
+    public @NonNull ScriptHandlerImpl addJavaScriptOnEvent(
+            @NonNull String script,
+            int injectionEvent,
+            @NonNull String[] allowedOriginRules,
+            @NonNull String worldName) {
+        return ScriptHandlerImpl.toScriptHandler(
+                mImpl.addJavaScriptOnEvent(script, allowedOriginRules, injectionEvent, worldName));
+    }
+
+    /**
+     * Adapter method for
+     * {@link WebViewCompat#addWebMessageListener(WebView, String, Set, WebMessageListener,
+     * JsExecutionWorld)}.
+     */
+    public void addWebMessageListener(
+            @NonNull String jsObjectName,
+            @NonNull String[] allowedOriginRules,
+            @NonNull String worldName,
+            WebViewCompat.@NonNull WebMessageListener listener) {
+        mImpl.addWebMessageListener(jsObjectName, allowedOriginRules,
+                BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
+                        new WebMessageListenerAdapter(listener)), worldName);
+    }
+
+    /**
+     * Adapter method for
+     * {@link WebViewCompat#removeWebMessageListener(WebView, String, JsExecutionWorld)}.
+     */
+    public void removeWebMessageListener(
+            @NonNull String jsObjectName,
+            @NonNull String worldName) {
+        mImpl.removeWebMessageListener(jsObjectName, worldName);
     }
 
 }

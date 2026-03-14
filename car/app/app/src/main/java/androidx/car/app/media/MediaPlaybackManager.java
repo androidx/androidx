@@ -28,7 +28,7 @@ import androidx.annotation.MainThread;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
 import androidx.car.app.HostDispatcher;
-import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.managers.Manager;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.serialization.BundlerException;
@@ -45,7 +45,7 @@ import org.jspecify.annotations.NonNull;
  * <p>Apps must use this interface to coordinate with the car system to allow media playback.
  *
  */
-@ExperimentalCarApi
+@RequiresCarApi(8)
 public class MediaPlaybackManager implements Manager {
     private final HostDispatcher mHostDispatcher;
 

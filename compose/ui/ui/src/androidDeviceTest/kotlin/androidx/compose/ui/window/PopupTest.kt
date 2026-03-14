@@ -1055,6 +1055,29 @@ class PopupTest {
         }
     }
 
+    @Test
+    fun customWindowType() {
+        val customType = WindowManager.LayoutParams.TYPE_APPLICATION_PANEL
+
+        rule.setContent {
+            PopupTestTag(testTag) {
+                Popup(properties = PopupProperties(windowType = customType)) {
+                    Box(Modifier.size(50.dp))
+                }
+            }
+        }
+
+        // Ensure the popup is composed and the window is created
+        rule.runOnIdle {}
+        val popupMatcher = PopupLayoutMatcher(testTag)
+        Espresso.onView(instanceOf(Owner::class.java))
+            .inRoot(popupMatcher)
+            .check(matches(isDisplayed()))
+
+        // Verify the window type was correctly passed to the LayoutParams
+        assertThat(popupMatcher.lastSeenWindowParams!!.type).isEqualTo(customType)
+    }
+
     private fun matchesSize(width: Int, height: Int): BoundedMatcher<View, View> {
         return object : BoundedMatcher<View, View>(View::class.java) {
             override fun matchesSafely(item: View?): Boolean {

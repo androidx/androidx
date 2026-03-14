@@ -61,6 +61,16 @@ class ScatterMapBenchmarkTest(private val size: Int) {
     }
 
     @Test
+    fun getOrPut_insert() {
+        benchmark.runCollectionBenchmark(ScatterMapGetOrPutInsertBenchmark(sourceSet))
+    }
+
+    @Test
+    fun getOrPut_read() {
+        benchmark.runCollectionBenchmark(ScatterMapGetOrPutReadBenchmark(sourceSet))
+    }
+
+    @Test
     fun compute() {
         benchmark.runCollectionBenchmark(ScatterMapComputeBenchmark(sourceSet))
     }

@@ -23,6 +23,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Base64;
+
 /**
  * Tests for the {@link Message} class.
  */
@@ -36,19 +38,19 @@ public class MessageTest {
     public void testCreateMessage_nullString_throws() throws Throwable {
         Assert.assertThrows(
                 NullPointerException.class,
-                () -> Message.createString(null));
+                () -> Message.createStringMessage(null));
     }
 
     @Test
     public void testCreateMessage_nullArrayBuffer_throws() throws Throwable {
         Assert.assertThrows(
                 NullPointerException.class,
-                () -> Message.createArrayBuffer(null));
+                () -> Message.createArrayBufferMessage(null));
     }
 
     @Test
     public void testGetString_fromArrayBuffer_MessageTypeMismatchAccess() throws Throwable {
-        Message message = Message.createArrayBuffer(TEST_BYTE_ARRAY);
+        Message message = Message.createArrayBufferMessage(TEST_BYTE_ARRAY);
         Assert.assertThrows(
                 MessageTypeMismatchException.class,
                 message::getString);
@@ -56,14 +58,14 @@ public class MessageTest {
 
     @Test
     public void testGetString_fromString_matches() throws Throwable {
-        Message message = Message.createString(TEST_STRING);
-        Assert.assertEquals(Message.Type.STRING, message.getType());
+        Message message = Message.createStringMessage(TEST_STRING);
+        Assert.assertEquals(Message.TYPE_STRING, message.getType());
         Assert.assertEquals(TEST_STRING, message.getString());
     }
 
     @Test
     public void testGetArrayBuffer_fromString_MessageTypeMismatchAccess() throws Throwable {
-        Message message = Message.createString(TEST_STRING);
+        Message message = Message.createStringMessage(TEST_STRING);
         Assert.assertThrows(
                 MessageTypeMismatchException.class,
                 message::getArrayBuffer);
@@ -71,8 +73,38 @@ public class MessageTest {
 
     @Test
     public void testGetArrayBuffer_fromArrayBuffer_matches() throws Throwable {
-        Message message = Message.createArrayBuffer(TEST_BYTE_ARRAY);
-        Assert.assertEquals(Message.Type.ARRAY_BUFFER, message.getType());
+        Message message = Message.createArrayBufferMessage(TEST_BYTE_ARRAY);
+        Assert.assertEquals(Message.TYPE_ARRAY_BUFFER, message.getType());
         Assert.assertEquals(TEST_BYTE_ARRAY, message.getArrayBuffer());
+    }
+
+    @Test
+    public void testToString_stringMessage_expectedOutput() throws Throwable {
+        Message message = Message.createStringMessage("abcd\r\n0123");
+        String string = message.toString();
+        Assert.assertTrue("toString did not match expectation. Was: `" + string + "`",
+                string.matches("androidx.javascriptengine.Message@\\p{XDigit}{1,8}\\("
+                        + "string="
+                        + "abcd\r\n0123"
+                        + "\\)"));
+    }
+
+    @Test
+    public void testToString_arrayBufferMessage_expectedOutput() throws Throwable {
+        // Has to be long to ensure we cover whether there are line breaks in the encoding.
+        byte[] largeBuffer = Base64.getDecoder().decode(
+                "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+                            + "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+                            + "AA==");
+        Message message = Message.createArrayBufferMessage(largeBuffer);
+        String string = message.toString();
+        Assert.assertTrue("toString did not match expectation. Was: `" + string + "`",
+                string.matches(
+                "androidx.javascriptengine.Message@\\p{XDigit}{1,8}\\("
+                        + "arrayBuffer="
+                        + "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789\\+/"
+                        + "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789\\+/"
+                        + "AA=="
+                        + "\\)"));
     }
 }

@@ -47,7 +47,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
 
     @Test
-    fun customInheritedDaoReturnType() {
+    fun customDaoReturnType_inherited() {
         val src =
             Source.kotlin(
                 "MyDao.kt",
@@ -59,6 +59,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 interface MyDao {
                   @Query("SELECT * FROM MyEntity")
                   suspend fun getFoo(): Foo<MyEntity>
+
                   @Query("SELECT * FROM MyEntity")
                   suspend fun getBar(): Bar<MyEntity>
                 }
@@ -70,10 +71,8 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 class Foo<T>(data: T): Bar<T>(data)
 
                 class FooReturnTypeConverter {
-                    @DaoReturnTypeConverter(operations = [OperationType.READ, OperationType.WRITE])
+                    @DaoReturnTypeConverter([OperationType.READ, OperationType.WRITE])
                     suspend fun <T> convert(
-                        database: RoomDatabase,
-                        tableNames: Array<String>,
                         executeAndConvert: suspend () -> T,
                     ): Foo<T> {
                         return Foo(executeAndConvert.invoke())
@@ -90,7 +89,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     }
 
     @Test
-    fun customReadDaoReturnType() {
+    fun customDaoReturnType_read() {
         val src =
             Source.kotlin(
                 "MyDao.kt",
@@ -103,8 +102,10 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 interface MyDao {
                   @Query("SELECT * FROM MyEntity")
                   suspend fun getFooSingleColumn(): Foo<MyEntity>
+
                   @Query("SELECT * FROM MyEntity")
                   suspend fun getFooList(): Foo<List<MyEntity>>
+
                   @Query("SELECT * FROM MyEntity")
                   fun getBlockingFooList(): Foo<List<MyEntity>>
                 }
@@ -116,19 +117,15 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 class Foo<T>(data: T): Bar<T>(data)
 
                 class FooReturnTypeConverter {
-                    @DaoReturnTypeConverter(operations = [OperationType.READ, OperationType.WRITE])
+                    @DaoReturnTypeConverter([OperationType.READ, OperationType.WRITE])
                     suspend fun <T> convert(
-                        database: RoomDatabase,
-                        tableNames: Array<String>,
                         executeAndConvert: suspend () -> T,
                     ): Foo<T> {
                         return Foo(executeAndConvert.invoke())
                     }
 
-                    @DaoReturnTypeConverter(operations = [OperationType.READ, OperationType.WRITE])
+                    @DaoReturnTypeConverter([OperationType.READ, OperationType.WRITE])
                     fun <T> convertBlocking(
-                        database: RoomDatabase,
-                        tableNames: Array<String>,
                         executeAndConvert: suspend () -> T,
                     ): Foo<T> {
                         return runBlocking {
@@ -148,7 +145,212 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     }
 
     @Test
-    fun customDaoReturnTypeWithCollectionLambda() {
+    fun customDaoReturnType_optionalParams() {
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
+                import androidx.room3.*
+
+                @DaoReturnTypeConverters(LettersReturnTypeConverter::class)
+                @Dao
+                interface MyDao {
+                  @Query("SELECT * FROM MyEntity")
+                  suspend fun getA(): A<MyEntity>
+
+                  @Query("SELECT * FROM MyEntity")
+                  suspend fun getB(): B<MyEntity>
+
+                  @Query("SELECT * FROM MyEntity")
+                  suspend fun getC(): C<MyEntity>
+                }
+
+                @Entity
+                data class MyEntity(@PrimaryKey val pk: Int)
+
+                class A<T>
+                class B<T>
+                class C<T>
+
+                class LettersReturnTypeConverter {
+                    @DaoReturnTypeConverter([OperationType.READ])
+                    suspend fun <T> convertA(
+                        tableNames: List<String>,
+                        roomDatabase: RoomDatabase,
+                        executeAndConvert: suspend () -> T,
+                    ): A<T> {
+                        executeAndConvert.invoke()
+                        return A()
+                    }
+
+                    @DaoReturnTypeConverter([OperationType.READ])
+                    suspend fun <T> convertB(
+                        roomDatabase: RoomDatabase,
+                        query: RoomRawQuery,
+                        executeAndConvert: suspend (RoomRawQuery) -> T,
+                    ): B<T> {
+                        executeAndConvert.invoke(query)
+                        return B()
+                    }
+
+                    @DaoReturnTypeConverter([OperationType.READ])
+                    suspend fun <T> convertC(
+                        inTransaction: Boolean,
+                        roomDatabase: RoomDatabase,
+                        tableNames: Array<String>,
+                        executeAndConvert: suspend () -> T,
+                    ): C<T> {
+                        executeAndConvert.invoke()
+                        return C()
+                    }
+                }
+                """
+                    .trimIndent(),
+            )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName.methodName),
+            compiledFiles = compileFiles(listOf()),
+        )
+    }
+
+    @Test
+    fun customDaoReturnType_write() {
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
+                import androidx.room3.*
+                import kotlinx.coroutines.runBlocking
+
+                @DaoReturnTypeConverters(FooReturnTypeConverter::class)
+                @Dao
+                interface MyDao {
+                  @Query("INSERT INTO MyEntity (pk) VALUES (:pk)")
+                  suspend fun insertWithId(pk: Int): Foo<Unit>
+
+                  @Query("INSERT INTO MyEntity (pk) VALUES (:pk)")
+                  fun insertWithIdBlocking(pk: Int): Foo<Unit>
+
+                  @Insert
+                  suspend fun insert(item: MyEntity): Foo<Unit>
+
+                  @Insert
+                  suspend fun insertReturnId(item: MyEntity): Foo<Long>
+
+                  @Insert
+                  fun insertBlocking(item: MyEntity): Foo<Unit>
+
+                  @Update
+                  suspend fun update(item: MyEntity): Foo<Unit>
+
+                  @Update
+                  suspend fun updateReturnChanges(item: MyEntity): Foo<Int>
+
+                  @Update
+                  suspend fun updateBlocking(item: MyEntity): Foo<Unit>
+
+                  @Delete
+                  suspend fun delete(item: MyEntity): Foo<Unit>
+
+                  @Delete
+                  suspend fun deleteReturnChanges(item: MyEntity): Foo<Int>
+
+                  @Delete
+                  suspend fun deleteBlocking(item: MyEntity): Foo<Unit>
+
+                  @Upsert
+                  suspend fun upsert(item: MyEntity): Foo<Unit>
+
+                  @Upsert
+                  suspend fun upsertBlocking(item: MyEntity): Foo<Unit>
+                }
+
+                @Entity
+                data class MyEntity(@PrimaryKey val pk: Int)
+
+                class Foo<T>(private val data: T)
+
+                class FooReturnTypeConverter {
+                    @DaoReturnTypeConverter([OperationType.READ, OperationType.WRITE])
+                    suspend fun <T> convert(
+                        executeAndConvert: suspend () -> T,
+                    ): Foo<T> {
+                        return Foo(executeAndConvert.invoke())
+                    }
+
+                    @DaoReturnTypeConverter([OperationType.READ, OperationType.WRITE])
+                    fun <T> convertBlocking(
+                        executeAndConvert: suspend () -> T,
+                    ): Foo<T> {
+                        return runBlocking {
+                            Foo(executeAndConvert.invoke())
+                        }
+                    }
+                }
+                """
+                    .trimIndent(),
+            )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName.methodName),
+            compiledFiles = compileFiles(listOf()),
+        )
+    }
+
+    @Test
+    fun customDaoReturnType_noTypeArg() {
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
+                import androidx.room3.*
+
+                @DaoReturnTypeConverters(FooReturnTypeConverter::class)
+                @Dao
+                interface MyDao {
+                  @Query("INSERT INTO MyEntity (pk) VALUES (:pk)")
+                  suspend fun insertWithId(pk: Int): Foo
+
+                  @Insert
+                  suspend fun insert(item: MyEntity): Foo
+
+                  @Update
+                  suspend fun update(item: MyEntity): Foo
+
+                  @Delete
+                  suspend fun delete(item: MyEntity): Foo
+
+                  @Upsert
+                  suspend fun upsert(item: MyEntity): Foo
+                }
+
+                @Entity
+                data class MyEntity(@PrimaryKey val pk: Int)
+
+                object Foo
+
+                class FooReturnTypeConverter {
+                    @DaoReturnTypeConverter([OperationType.READ, OperationType.WRITE])
+                    suspend fun convert(
+                        executeAndConvert: suspend () -> Unit,
+                    ): Foo {
+                        executeAndConvert.invoke()
+                        return Foo
+                    }
+                }
+                """
+                    .trimIndent(),
+            )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName.methodName),
+            compiledFiles = compileFiles(listOf()),
+        )
+    }
+
+    @Test
+    fun customDaoReturnType_collectionLambda() {
         val src =
             Source.kotlin(
                 "MyDao.kt",
@@ -172,20 +374,57 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 class FooArray<T>(val data: Array<T>)
 
                 class FooReturnTypeConverter {
-                    @DaoReturnTypeConverter(operations = [OperationType.READ, OperationType.WRITE])
+                    @DaoReturnTypeConverter([OperationType.READ, OperationType.WRITE])
                     suspend fun <T> convertArray(
                         executeAndConvert: suspend () -> Array<T>,
                     ): FooArray<T> {
                         return FooArray(executeAndConvert.invoke())
                     }
 
-                    @DaoReturnTypeConverter(operations = [OperationType.READ, OperationType.WRITE])
+                    @DaoReturnTypeConverter([OperationType.READ, OperationType.WRITE])
                     suspend fun <T> convertList(
-                        database: RoomDatabase,
-                        tableNames: Array<String>,
                         executeAndConvert: suspend () -> List<T>,
                     ): FooList<T> {
                         return FooList(executeAndConvert.invoke())
+                    }
+                }
+                """
+                    .trimIndent(),
+            )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName.methodName),
+            compiledFiles = compileFiles(listOf()),
+        )
+    }
+
+    @Test
+    fun customDaoReturnType_object() {
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
+                import androidx.room3.*
+                import kotlinx.coroutines.runBlocking
+
+                @DaoReturnTypeConverters(FooReturnTypeConverter::class)
+                @Dao
+                interface MyDao {
+                  @Query("SELECT * FROM MyEntity")
+                  suspend fun getFooList(): Foo<List<MyEntity>>
+                }
+
+                @Entity
+                data class MyEntity(@PrimaryKey val pk: Int)
+
+                class Foo<T>(private val data: T)
+
+                object FooReturnTypeConverter {
+                    @DaoReturnTypeConverter([OperationType.READ, OperationType.WRITE])
+                    suspend fun <T> convert(
+                        executeAndConvert: suspend () -> T,
+                    ): Foo<T> {
+                        return Foo(executeAndConvert.invoke())
                     }
                 }
                 """
@@ -840,6 +1079,48 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 data class Foo(val data: String)
 
                 class FooConverter {
+                    @TypeConverter
+                    fun fromString(data: String): Foo = Foo(data)
+                    @TypeConverter
+                    fun toString(foo: Foo): String = foo.data
+                }
+                """
+                    .trimIndent(),
+            )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName.methodName),
+        )
+    }
+
+    @Test
+    fun dataClassRowAdapter_customTypeConverter_object() {
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
+                import androidx.room3.*
+
+                @Dao
+                interface MyDao {
+                  @Query("SELECT * FROM MyEntity")
+                  fun getEntity(): MyEntity
+
+                  @Insert
+                  fun addEntity(item: MyEntity)
+                }
+
+                @Entity
+                @TypeConverters(FooConverter::class)
+                data class MyEntity(
+                    @PrimaryKey
+                    val pk: Int,
+                    val foo: Foo,
+                )
+
+                data class Foo(val data: String)
+
+                object FooConverter {
                     @TypeConverter
                     fun fromString(data: String): Foo = Foo(data)
                     @TypeConverter

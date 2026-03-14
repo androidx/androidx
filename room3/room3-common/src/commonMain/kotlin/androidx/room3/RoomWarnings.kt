@@ -126,7 +126,7 @@ public object RoomWarnings {
      * It is recommended that columns on entities used as junctions contain indices, otherwise Room
      * will print this warning.
      */
-    public const val MISSING_INDEX_ON_JUNCTION: String = "MISSING_INDEX_ON_JUNCTION"
+    public const val MISSING_INDEX_ON_JUNCTION: String = "ROOM_MISSING_INDEX_ON_JUNCTION"
 
     /**
      * Reported when a data class has multiple constructors, one of which is a no-arg constructor.
@@ -185,7 +185,7 @@ public object RoomWarnings {
      */
     public const val MISMATCHED_SETTER: String = "ROOM_MISMATCHED_SETTER_TYPE"
 
-    /** Reported when there is an ambiguous column on the result of a multimap query. */
+    /** Reported when there is an ambiguous column on the result of a query. */
     public const val AMBIGUOUS_COLUMN_IN_RESULT: String = "ROOM_AMBIGUOUS_COLUMN_IN_RESULT"
 
     /**
@@ -195,4 +195,11 @@ public object RoomWarnings {
      */
     public const val UNNECESSARY_NULLABILITY_IN_DAO_RETURN_TYPE: String =
         "ROOM_UNNECESSARY_NULLABILITY_IN_DAO_RETURN_TYPE"
+
+    /**
+     * Reported when a [Database] annotated declaration is missing [ConstructedBy] on non-JVM
+     * platforms. When this error is suppressed then a factory should be provided to Room's builder.
+     */
+    @ExperimentalRoomApi
+    public const val NO_DATABASE_CONSTRUCTOR: String = "ROOM_NO_DATABASE_CONSTRUCTOR"
 }

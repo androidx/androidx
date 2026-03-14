@@ -80,6 +80,15 @@ androidXMultiplatform {
             implementation(libs.espressoCore)
         }
 
+        create("nonAndroidMain").dependsOn(commonMain)
+        create("nonAndroidTest").dependsOn(commonTest)
+
+        desktopMain.dependsOn(nonAndroidMain)
+        desktopTest.dependsOn(nonAndroidTest)
+
+        nonJvmMain.dependsOn(nonAndroidMain)
+        nonJvmTest.dependsOn(nonAndroidTest)
+
         wasmJsMain.dependencies {
             implementation(libs.kotlinXw3c)
         }

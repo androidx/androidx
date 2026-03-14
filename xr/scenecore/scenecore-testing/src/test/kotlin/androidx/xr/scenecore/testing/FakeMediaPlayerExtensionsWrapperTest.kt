@@ -34,12 +34,14 @@ class FakeMediaPlayerExtensionsWrapperTest {
     @Test
     fun setPointSourceParams_storesParams() {
         val mediaPlayer = MediaPlayer()
-        val params = PointSourceParams(FakeEntity())
-        check(fakeWrapper.pointSourceParams[mediaPlayer] == null)
+        val entity = FakeEntity()
+        val params = PointSourceParams()
+        check(fakeWrapper.paramsWithEntity[mediaPlayer] == null)
 
-        fakeWrapper.setPointSourceParams(mediaPlayer, params)
+        fakeWrapper.setPointSourceParams(mediaPlayer, params, entity)
 
-        assertThat(fakeWrapper.pointSourceParams[mediaPlayer]).isEqualTo(params)
+        assertThat(fakeWrapper.paramsWithEntity[mediaPlayer]!!.first).isEqualTo(params)
+        assertThat(fakeWrapper.paramsWithEntity[mediaPlayer]!!.second).isEqualTo(entity)
     }
 
     @Test

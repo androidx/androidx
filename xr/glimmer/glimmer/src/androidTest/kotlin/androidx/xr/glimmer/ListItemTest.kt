@@ -405,13 +405,13 @@ class ListItemTest {
             )
 
         (primaryLabelBounds.left - listItemBounds.left).assertIsEqualTo(
-            24.dp,
+            Spacing.Large + Spacing.Small,
             "Padding between the start of the list item and the start of the primary label.",
         )
 
         // The width should fill the max width, like with the spacer
         listItemBounds.width.assertIsEqualTo(spacerBounds.width, "width of list item.")
-        listItemBounds.height.assertIsEqualTo(72.dp, "height of list item.")
+        listItemBounds.height.assertIsEqualTo(80.dp, "height of list item.")
     }
 
     @Test
@@ -442,17 +442,17 @@ class ListItemTest {
         // Label should be top aligned when the height of the primary and supporting labels is
         // greater than minimum list item height
         (primaryLabelBounds.top - listItemBounds.top).assertIsEqualTo(
-            20.dp,
+            Spacing.Large,
             "Padding between top of list item and top of primary label.",
         )
 
         (primaryLabelBounds.left - listItemBounds.left).assertIsEqualTo(
-            24.dp,
+            Spacing.Large + Spacing.Small,
             "Padding between the start of the list item and the start of the primary label.",
         )
 
         (supportingLabelBounds.left - listItemBounds.left).assertIsEqualTo(
-            24.dp,
+            Spacing.Large + Spacing.Small,
             "Padding between the start of the list item and the start of the supporting label.",
         )
 
@@ -462,7 +462,7 @@ class ListItemTest {
         )
 
         (listItemBounds.bottom - supportingLabelBounds.bottom).assertIsEqualTo(
-            20.dp,
+            Spacing.Large,
             "Padding between bottom of list item and bottom of supporting label.",
         )
 
@@ -512,12 +512,12 @@ class ListItemTest {
             rule.onNodeWithTag("listItem", useUnmergedTree = true).getUnclippedBoundsInRoot()
 
         (leadingIconBounds.top - listItemBounds.top).assertIsEqualTo(
-            20.dp,
+            Spacing.Large,
             "Padding between top of list item and top of leading icon.",
         )
 
         (leadingIconBounds.left - listItemBounds.left).assertIsEqualTo(
-            24.dp,
+            Spacing.Large,
             "Padding between start of list item and start of leading icon.",
         )
 
@@ -530,24 +530,24 @@ class ListItemTest {
             )
 
         (primaryLabelBounds.left - leadingIconBounds.right).assertIsEqualTo(
-            12.dp,
+            Spacing.Small,
             "Padding between end of leading icon and start of primary label.",
         )
 
         (trailingIconBounds.top - listItemBounds.top).assertIsEqualTo(
-            20.dp,
+            Spacing.Large,
             "Padding between top of list item and top of trailing icon.",
         )
 
         (listItemBounds.right - trailingIconBounds.right).assertIsEqualTo(
-            24.dp,
+            Spacing.Large,
             "Padding between end of trailing icon and end of list item.",
         )
 
         // The width should fill the max width, like with the spacer
         listItemBounds.width.assertIsEqualTo(spacerBounds.width, "width of list item.")
         listItemBounds.height.assertIsEqualTo(
-            /* vertical padding * 2 + icon height*/ (20 + 20 + 56).dp,
+            /* vertical padding * 2 + icon height*/ Spacing.Large * 2 + 48.dp,
             "height of list item.",
         )
     }
@@ -596,29 +596,29 @@ class ListItemTest {
             rule.onNodeWithTag("listItem", useUnmergedTree = true).getUnclippedBoundsInRoot()
 
         (leadingIconBounds.top - listItemBounds.top).assertIsEqualTo(
-            20.dp,
+            Spacing.Large,
             "Padding between top of list item and top of leading icon.",
         )
 
         (leadingIconBounds.left - listItemBounds.left).assertIsEqualTo(
-            24.dp,
+            Spacing.Large,
             "Padding between start of list item and start of leading icon.",
         )
 
         // Label should be top aligned when the height of the primary and supporting labels is
         // greater than minimum list item height
         (primaryLabelBounds.top - listItemBounds.top).assertIsEqualTo(
-            23.5.dp,
+            Spacing.Large,
             "Padding between top of list item and top of primary label.",
         )
 
         (primaryLabelBounds.left - leadingIconBounds.right).assertIsEqualTo(
-            12.dp,
+            Spacing.Small,
             "Padding between end of leading icon and start of primary label.",
         )
 
         (supportingLabelBounds.left - leadingIconBounds.right).assertIsEqualTo(
-            12.dp,
+            Spacing.Small,
             "Padding between end of leading icon and start of supporting label.",
         )
 
@@ -628,17 +628,17 @@ class ListItemTest {
         )
 
         (listItemBounds.bottom - supportingLabelBounds.bottom).assertIsEqualTo(
-            23.5.dp,
+            Spacing.Large,
             "Padding between bottom of list item and bottom of supporting label.",
         )
 
         (trailingIconBounds.top - listItemBounds.top).assertIsEqualTo(
-            20.dp,
+            Spacing.Large,
             "Padding between top of list item and top of trailing icon.",
         )
 
         (listItemBounds.right - trailingIconBounds.right).assertIsEqualTo(
-            24.dp,
+            Spacing.Large,
             "Padding between end of trailing icon and end of list item.",
         )
 
@@ -696,29 +696,29 @@ class ListItemTest {
             rule.onNodeWithTag("listItem", useUnmergedTree = true).getUnclippedBoundsInRoot()
 
         (leadingIconBounds.top - listItemBounds.top).assertIsEqualTo(
-            20.dp,
+            Spacing.Large,
             "Padding between top of list item and top of leading icon.",
         )
 
         (leadingIconBounds.left - listItemBounds.left).assertIsEqualTo(
-            24.dp,
+            Spacing.Large,
             "Padding between start of list item and start of leading icon.",
         )
 
         // Label should be top aligned when the height of the primary and supporting labels is
         // greater than minimum list item height
         (primaryLabelBounds.top - listItemBounds.top).assertIsEqualTo(
-            20.dp,
+            Spacing.Large,
             "Padding between top of list item and top of primary label.",
         )
 
         (primaryLabelBounds.left - leadingIconBounds.right).assertIsEqualTo(
-            12.dp,
+            Spacing.Small,
             "Padding between end of leading icon and start of primary label.",
         )
 
         (supportingLabelBounds.left - leadingIconBounds.right).assertIsEqualTo(
-            12.dp,
+            Spacing.Small,
             "Padding between end of leading icon and start of supporting label.",
         )
 
@@ -728,17 +728,17 @@ class ListItemTest {
         )
 
         (listItemBounds.bottom - supportingLabelBounds.bottom).assertIsEqualTo(
-            20.dp,
+            Spacing.Large,
             "Padding between bottom of list item and bottom of supporting label.",
         )
 
         (trailingIconBounds.top - listItemBounds.top).assertIsEqualTo(
-            20.dp,
+            Spacing.Large,
             "Padding between top of list item and top of trailing icon.",
         )
 
         (listItemBounds.right - trailingIconBounds.right).assertIsEqualTo(
-            24.dp,
+            Spacing.Large,
             "Padding between end of trailing icon and end of list item.",
         )
 

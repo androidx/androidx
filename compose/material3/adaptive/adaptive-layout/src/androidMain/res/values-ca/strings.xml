@@ -20,7 +20,7 @@
     <string name="m3_adaptive_default_pane_title_primary" msgid="4435202124665670898">"Subfinestra principal"</string>
     <string name="m3_adaptive_default_pane_title_secondary" msgid="5571153069654173825">"Subfinestra secundària"</string>
     <string name="m3_adaptive_default_pane_title_tertiary" msgid="4618411484428250300">"Subfinestra terciària"</string>
-    <string name="m3_adaptive_default_pane_expansion_drag_handle_content_description" msgid="9058489142432490820">"Ansa per arrossegar l\'expansió de la subfinestra"</string>
+    <string name="m3_adaptive_default_pane_expansion_drag_handle_content_description" msgid="9058489142432490820">"Ansa de posicionament l\'expansió de la subfinestra"</string>
     <string name="m3_adaptive_default_pane_expansion_drag_handle_state_description" msgid="3470811934112444098">"Divisió de la subfinestra actual, %s"</string>
     <string name="m3_adaptive_default_pane_expansion_drag_handle_action_description" msgid="9031621431415014327">"Canvia la divisió de la subfinestra a %s"</string>
     <string name="m3_adaptive_default_pane_expansion_proportion_anchor_description" msgid="1205294531112795522">"percentatge de %d"</string>

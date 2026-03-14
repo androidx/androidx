@@ -16,19 +16,16 @@
 
 package androidx.javascriptengine;
 
-import androidx.annotation.RestrictTo;
-
 import org.jspecify.annotations.NonNull;
 
 /**
  * Indicates an attempt to access the data of a {@link Message} object as the wrong type.
- *
+ * <p>
  * This exception is thrown by accessor methods in the {@link Message} class when the message's
  * actual content type does not match the requested type.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class MessageTypeMismatchException extends RuntimeException {
-    MessageTypeMismatchException(@NonNull String message) {
+    public MessageTypeMismatchException(@NonNull String message) {
         super(message);
     }
 }

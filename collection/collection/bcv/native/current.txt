@@ -164,6 +164,7 @@ final class <#A: kotlin/Any?> androidx.collection/MutableFloatObjectMap : androi
     constructor <init>(kotlin/Int = ...) // androidx.collection/MutableFloatObjectMap.<init>|<init>(kotlin.Int){}[0]
 
     final fun clear() // androidx.collection/MutableFloatObjectMap.clear|clear(){}[0]
+    final fun findInsertIndex(kotlin/Float): kotlin/Int // androidx.collection/MutableFloatObjectMap.findInsertIndex|findInsertIndex(kotlin.Float){}[0]
     final fun put(kotlin/Float, #A): #A? // androidx.collection/MutableFloatObjectMap.put|put(kotlin.Float;1:0){}[0]
     final fun putAll(androidx.collection/FloatObjectMap<#A>) // androidx.collection/MutableFloatObjectMap.putAll|putAll(androidx.collection.FloatObjectMap<1:0>){}[0]
     final fun remove(kotlin/Float): #A? // androidx.collection/MutableFloatObjectMap.remove|remove(kotlin.Float){}[0]
@@ -184,6 +185,7 @@ final class <#A: kotlin/Any?> androidx.collection/MutableIntObjectMap : androidx
     constructor <init>(kotlin/Int = ...) // androidx.collection/MutableIntObjectMap.<init>|<init>(kotlin.Int){}[0]
 
     final fun clear() // androidx.collection/MutableIntObjectMap.clear|clear(){}[0]
+    final fun findInsertIndex(kotlin/Int): kotlin/Int // androidx.collection/MutableIntObjectMap.findInsertIndex|findInsertIndex(kotlin.Int){}[0]
     final fun put(kotlin/Int, #A): #A? // androidx.collection/MutableIntObjectMap.put|put(kotlin.Int;1:0){}[0]
     final fun putAll(androidx.collection/IntObjectMap<#A>) // androidx.collection/MutableIntObjectMap.putAll|putAll(androidx.collection.IntObjectMap<1:0>){}[0]
     final fun remove(kotlin/Int): #A? // androidx.collection/MutableIntObjectMap.remove|remove(kotlin.Int){}[0]
@@ -204,6 +206,7 @@ final class <#A: kotlin/Any?> androidx.collection/MutableLongObjectMap : android
     constructor <init>(kotlin/Int = ...) // androidx.collection/MutableLongObjectMap.<init>|<init>(kotlin.Int){}[0]
 
     final fun clear() // androidx.collection/MutableLongObjectMap.clear|clear(){}[0]
+    final fun findInsertIndex(kotlin/Long): kotlin/Int // androidx.collection/MutableLongObjectMap.findInsertIndex|findInsertIndex(kotlin.Long){}[0]
     final fun put(kotlin/Long, #A): #A? // androidx.collection/MutableLongObjectMap.put|put(kotlin.Long;1:0){}[0]
     final fun putAll(androidx.collection/LongObjectMap<#A>) // androidx.collection/MutableLongObjectMap.putAll|putAll(androidx.collection.LongObjectMap<1:0>){}[0]
     final fun remove(kotlin/Long): #A? // androidx.collection/MutableLongObjectMap.remove|remove(kotlin.Long){}[0]
@@ -224,6 +227,7 @@ final class <#A: kotlin/Any?> androidx.collection/MutableObjectFloatMap : androi
     constructor <init>(kotlin/Int = ...) // androidx.collection/MutableObjectFloatMap.<init>|<init>(kotlin.Int){}[0]
 
     final fun clear() // androidx.collection/MutableObjectFloatMap.clear|clear(){}[0]
+    final fun findInsertIndex(#A): kotlin/Int // androidx.collection/MutableObjectFloatMap.findInsertIndex|findInsertIndex(1:0){}[0]
     final fun put(#A, kotlin/Float) // androidx.collection/MutableObjectFloatMap.put|put(1:0;kotlin.Float){}[0]
     final fun put(#A, kotlin/Float, kotlin/Float): kotlin/Float // androidx.collection/MutableObjectFloatMap.put|put(1:0;kotlin.Float;kotlin.Float){}[0]
     final fun putAll(androidx.collection/ObjectFloatMap<#A>) // androidx.collection/MutableObjectFloatMap.putAll|putAll(androidx.collection.ObjectFloatMap<1:0>){}[0]
@@ -246,6 +250,7 @@ final class <#A: kotlin/Any?> androidx.collection/MutableObjectIntMap : androidx
     constructor <init>(kotlin/Int = ...) // androidx.collection/MutableObjectIntMap.<init>|<init>(kotlin.Int){}[0]
 
     final fun clear() // androidx.collection/MutableObjectIntMap.clear|clear(){}[0]
+    final fun findInsertIndex(#A): kotlin/Int // androidx.collection/MutableObjectIntMap.findInsertIndex|findInsertIndex(1:0){}[0]
     final fun put(#A, kotlin/Int) // androidx.collection/MutableObjectIntMap.put|put(1:0;kotlin.Int){}[0]
     final fun put(#A, kotlin/Int, kotlin/Int): kotlin/Int // androidx.collection/MutableObjectIntMap.put|put(1:0;kotlin.Int;kotlin.Int){}[0]
     final fun putAll(androidx.collection/ObjectIntMap<#A>) // androidx.collection/MutableObjectIntMap.putAll|putAll(androidx.collection.ObjectIntMap<1:0>){}[0]
@@ -323,6 +328,7 @@ final class <#A: kotlin/Any?> androidx.collection/MutableObjectLongMap : android
     constructor <init>(kotlin/Int = ...) // androidx.collection/MutableObjectLongMap.<init>|<init>(kotlin.Int){}[0]
 
     final fun clear() // androidx.collection/MutableObjectLongMap.clear|clear(){}[0]
+    final fun findInsertIndex(#A): kotlin/Int // androidx.collection/MutableObjectLongMap.findInsertIndex|findInsertIndex(1:0){}[0]
     final fun put(#A, kotlin/Long) // androidx.collection/MutableObjectLongMap.put|put(1:0;kotlin.Long){}[0]
     final fun put(#A, kotlin/Long, kotlin/Long): kotlin/Long // androidx.collection/MutableObjectLongMap.put|put(1:0;kotlin.Long;kotlin.Long){}[0]
     final fun putAll(androidx.collection/ObjectLongMap<#A>) // androidx.collection/MutableObjectLongMap.putAll|putAll(androidx.collection.ObjectLongMap<1:0>){}[0]
@@ -498,6 +504,7 @@ final class androidx.collection/MutableFloatFloatMap : androidx.collection/Float
     constructor <init>(kotlin/Int = ...) // androidx.collection/MutableFloatFloatMap.<init>|<init>(kotlin.Int){}[0]
 
     final fun clear() // androidx.collection/MutableFloatFloatMap.clear|clear(){}[0]
+    final fun findInsertIndex(kotlin/Float): kotlin/Int // androidx.collection/MutableFloatFloatMap.findInsertIndex|findInsertIndex(kotlin.Float){}[0]
     final fun put(kotlin/Float, kotlin/Float) // androidx.collection/MutableFloatFloatMap.put|put(kotlin.Float;kotlin.Float){}[0]
     final fun put(kotlin/Float, kotlin/Float, kotlin/Float): kotlin/Float // androidx.collection/MutableFloatFloatMap.put|put(kotlin.Float;kotlin.Float;kotlin.Float){}[0]
     final fun putAll(androidx.collection/FloatFloatMap) // androidx.collection/MutableFloatFloatMap.putAll|putAll(androidx.collection.FloatFloatMap){}[0]
@@ -519,6 +526,7 @@ final class androidx.collection/MutableFloatIntMap : androidx.collection/FloatIn
     constructor <init>(kotlin/Int = ...) // androidx.collection/MutableFloatIntMap.<init>|<init>(kotlin.Int){}[0]
 
     final fun clear() // androidx.collection/MutableFloatIntMap.clear|clear(){}[0]
+    final fun findInsertIndex(kotlin/Float): kotlin/Int // androidx.collection/MutableFloatIntMap.findInsertIndex|findInsertIndex(kotlin.Float){}[0]
     final fun put(kotlin/Float, kotlin/Int) // androidx.collection/MutableFloatIntMap.put|put(kotlin.Float;kotlin.Int){}[0]
     final fun put(kotlin/Float, kotlin/Int, kotlin/Int): kotlin/Int // androidx.collection/MutableFloatIntMap.put|put(kotlin.Float;kotlin.Int;kotlin.Int){}[0]
     final fun putAll(androidx.collection/FloatIntMap) // androidx.collection/MutableFloatIntMap.putAll|putAll(androidx.collection.FloatIntMap){}[0]
@@ -573,6 +581,7 @@ final class androidx.collection/MutableFloatLongMap : androidx.collection/FloatL
     constructor <init>(kotlin/Int = ...) // androidx.collection/MutableFloatLongMap.<init>|<init>(kotlin.Int){}[0]
 
     final fun clear() // androidx.collection/MutableFloatLongMap.clear|clear(){}[0]
+    final fun findInsertIndex(kotlin/Float): kotlin/Int // androidx.collection/MutableFloatLongMap.findInsertIndex|findInsertIndex(kotlin.Float){}[0]
     final fun put(kotlin/Float, kotlin/Long) // androidx.collection/MutableFloatLongMap.put|put(kotlin.Float;kotlin.Long){}[0]
     final fun put(kotlin/Float, kotlin/Long, kotlin/Long): kotlin/Long // androidx.collection/MutableFloatLongMap.put|put(kotlin.Float;kotlin.Long;kotlin.Long){}[0]
     final fun putAll(androidx.collection/FloatLongMap) // androidx.collection/MutableFloatLongMap.putAll|putAll(androidx.collection.FloatLongMap){}[0]
@@ -613,6 +622,7 @@ final class androidx.collection/MutableIntFloatMap : androidx.collection/IntFloa
     constructor <init>(kotlin/Int = ...) // androidx.collection/MutableIntFloatMap.<init>|<init>(kotlin.Int){}[0]
 
     final fun clear() // androidx.collection/MutableIntFloatMap.clear|clear(){}[0]
+    final fun findInsertIndex(kotlin/Int): kotlin/Int // androidx.collection/MutableIntFloatMap.findInsertIndex|findInsertIndex(kotlin.Int){}[0]
     final fun put(kotlin/Int, kotlin/Float) // androidx.collection/MutableIntFloatMap.put|put(kotlin.Int;kotlin.Float){}[0]
     final fun put(kotlin/Int, kotlin/Float, kotlin/Float): kotlin/Float // androidx.collection/MutableIntFloatMap.put|put(kotlin.Int;kotlin.Float;kotlin.Float){}[0]
     final fun putAll(androidx.collection/IntFloatMap) // androidx.collection/MutableIntFloatMap.putAll|putAll(androidx.collection.IntFloatMap){}[0]
@@ -634,6 +644,7 @@ final class androidx.collection/MutableIntIntMap : androidx.collection/IntIntMap
     constructor <init>(kotlin/Int = ...) // androidx.collection/MutableIntIntMap.<init>|<init>(kotlin.Int){}[0]
 
     final fun clear() // androidx.collection/MutableIntIntMap.clear|clear(){}[0]
+    final fun findInsertIndex(kotlin/Int): kotlin/Int // androidx.collection/MutableIntIntMap.findInsertIndex|findInsertIndex(kotlin.Int){}[0]
     final fun put(kotlin/Int, kotlin/Int) // androidx.collection/MutableIntIntMap.put|put(kotlin.Int;kotlin.Int){}[0]
     final fun put(kotlin/Int, kotlin/Int, kotlin/Int): kotlin/Int // androidx.collection/MutableIntIntMap.put|put(kotlin.Int;kotlin.Int;kotlin.Int){}[0]
     final fun putAll(androidx.collection/IntIntMap) // androidx.collection/MutableIntIntMap.putAll|putAll(androidx.collection.IntIntMap){}[0]
@@ -688,6 +699,7 @@ final class androidx.collection/MutableIntLongMap : androidx.collection/IntLongM
     constructor <init>(kotlin/Int = ...) // androidx.collection/MutableIntLongMap.<init>|<init>(kotlin.Int){}[0]
 
     final fun clear() // androidx.collection/MutableIntLongMap.clear|clear(){}[0]
+    final fun findInsertIndex(kotlin/Int): kotlin/Int // androidx.collection/MutableIntLongMap.findInsertIndex|findInsertIndex(kotlin.Int){}[0]
     final fun put(kotlin/Int, kotlin/Long) // androidx.collection/MutableIntLongMap.put|put(kotlin.Int;kotlin.Long){}[0]
     final fun put(kotlin/Int, kotlin/Long, kotlin/Long): kotlin/Long // androidx.collection/MutableIntLongMap.put|put(kotlin.Int;kotlin.Long;kotlin.Long){}[0]
     final fun putAll(androidx.collection/IntLongMap) // androidx.collection/MutableIntLongMap.putAll|putAll(androidx.collection.IntLongMap){}[0]
@@ -728,6 +740,7 @@ final class androidx.collection/MutableLongFloatMap : androidx.collection/LongFl
     constructor <init>(kotlin/Int = ...) // androidx.collection/MutableLongFloatMap.<init>|<init>(kotlin.Int){}[0]
 
     final fun clear() // androidx.collection/MutableLongFloatMap.clear|clear(){}[0]
+    final fun findInsertIndex(kotlin/Long): kotlin/Int // androidx.collection/MutableLongFloatMap.findInsertIndex|findInsertIndex(kotlin.Long){}[0]
     final fun put(kotlin/Long, kotlin/Float) // androidx.collection/MutableLongFloatMap.put|put(kotlin.Long;kotlin.Float){}[0]
     final fun put(kotlin/Long, kotlin/Float, kotlin/Float): kotlin/Float // androidx.collection/MutableLongFloatMap.put|put(kotlin.Long;kotlin.Float;kotlin.Float){}[0]
     final fun putAll(androidx.collection/LongFloatMap) // androidx.collection/MutableLongFloatMap.putAll|putAll(androidx.collection.LongFloatMap){}[0]
@@ -749,6 +762,7 @@ final class androidx.collection/MutableLongIntMap : androidx.collection/LongIntM
     constructor <init>(kotlin/Int = ...) // androidx.collection/MutableLongIntMap.<init>|<init>(kotlin.Int){}[0]
 
     final fun clear() // androidx.collection/MutableLongIntMap.clear|clear(){}[0]
+    final fun findInsertIndex(kotlin/Long): kotlin/Int // androidx.collection/MutableLongIntMap.findInsertIndex|findInsertIndex(kotlin.Long){}[0]
     final fun put(kotlin/Long, kotlin/Int) // androidx.collection/MutableLongIntMap.put|put(kotlin.Long;kotlin.Int){}[0]
     final fun put(kotlin/Long, kotlin/Int, kotlin/Int): kotlin/Int // androidx.collection/MutableLongIntMap.put|put(kotlin.Long;kotlin.Int;kotlin.Int){}[0]
     final fun putAll(androidx.collection/LongIntMap) // androidx.collection/MutableLongIntMap.putAll|putAll(androidx.collection.LongIntMap){}[0]
@@ -803,6 +817,7 @@ final class androidx.collection/MutableLongLongMap : androidx.collection/LongLon
     constructor <init>(kotlin/Int = ...) // androidx.collection/MutableLongLongMap.<init>|<init>(kotlin.Int){}[0]
 
     final fun clear() // androidx.collection/MutableLongLongMap.clear|clear(){}[0]
+    final fun findInsertIndex(kotlin/Long): kotlin/Int // androidx.collection/MutableLongLongMap.findInsertIndex|findInsertIndex(kotlin.Long){}[0]
     final fun put(kotlin/Long, kotlin/Long) // androidx.collection/MutableLongLongMap.put|put(kotlin.Long;kotlin.Long){}[0]
     final fun put(kotlin/Long, kotlin/Long, kotlin/Long): kotlin/Long // androidx.collection/MutableLongLongMap.put|put(kotlin.Long;kotlin.Long;kotlin.Long){}[0]
     final fun putAll(androidx.collection/LongLongMap) // androidx.collection/MutableLongLongMap.putAll|putAll(androidx.collection.LongLongMap){}[0]

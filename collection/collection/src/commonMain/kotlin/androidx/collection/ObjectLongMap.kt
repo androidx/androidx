@@ -683,12 +683,14 @@ public class MutableObjectLongMap<K>(initialCapacity: Int = DefaultScatterCapaci
      * Otherwise, calls `defaultValue()` and puts the result in the map associated with [key].
      */
     public inline fun getOrPut(key: K, defaultValue: () -> Long): Long {
-        val index = findKeyIndex(key)
+        val index = findInsertIndex(key)
         if (index >= 0) {
             return values[index]
         }
         val value = defaultValue()
-        set(key, value)
+        val insertIndex = index.inv()
+        keys[insertIndex] = key
+        values[insertIndex] = value
         return value
     }
 
@@ -699,8 +701,7 @@ public class MutableObjectLongMap<K>(initialCapacity: Int = DefaultScatterCapaci
      * the underlying storage and cause allocations.
      */
     public operator fun set(key: K, value: Long) {
-        var index = findIndex(key)
-        if (index < 0) index = index.inv()
+        val index = findInsertIndex(key).let { index -> if (index < 0) index.inv() else index }
         keys[index] = key
         values[index] = value
     }
@@ -724,7 +725,7 @@ public class MutableObjectLongMap<K>(initialCapacity: Int = DefaultScatterCapaci
      * @return value previously associated with [key] or [default] if key was not present.
      */
     public fun put(key: K, value: Long, default: Long): Long {
-        var index = findIndex(key)
+        var index = findInsertIndex(key)
         var previous = default
         if (index < 0) {
             index = index.inv()
@@ -832,11 +833,12 @@ public class MutableObjectLongMap<K>(initialCapacity: Int = DefaultScatterCapaci
 
     /**
      * Scans the hash table to find the index at which we can store a value for the give [key]. If
-     * the key already exists in the table, its index will be returned, otherwise the index of an
-     * empty slot will be returned. Calling this function may cause the internal storage to be
+     * the key already exists in the table, its index will be returned, otherwise the `index.inv()`
+     * of an empty slot will be returned. Calling this function may cause the internal storage to be
      * reallocated if the table is full.
      */
-    private fun findIndex(key: K): Int {
+    @PublishedApi
+    internal fun findInsertIndex(key: K): Int {
         val hash = hash(key)
         val hash1 = h1(hash)
         val hash2 = h2(hash)

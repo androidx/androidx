@@ -27,11 +27,7 @@ class DiagnosticMessagesSubject
 internal constructor(
     failureMetadata: FailureMetadata,
     private val diagnosticMessages: List<DiagnosticMessage>,
-) :
-    Subject<DiagnosticMessagesSubject, List<DiagnosticMessage>>(
-        failureMetadata,
-        diagnosticMessages,
-    ) {
+) : Subject(failureMetadata, diagnosticMessages) {
 
     private val lineContents by lazy {
         diagnosticMessages.mapNotNull {
@@ -102,7 +98,7 @@ internal constructor(
     companion object {
         private val FACTORY =
             Factory<DiagnosticMessagesSubject, List<DiagnosticMessage>> { metadata, actual ->
-                DiagnosticMessagesSubject(metadata, actual)
+                DiagnosticMessagesSubject(metadata, checkNotNull(actual))
             }
 
         fun assertThat(diagnosticMessages: List<DiagnosticMessage>): DiagnosticMessagesSubject {

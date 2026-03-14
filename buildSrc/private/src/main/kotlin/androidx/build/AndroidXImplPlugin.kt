@@ -81,6 +81,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.JavaVersion
 import org.gradle.api.JavaVersion.VERSION_11
 import org.gradle.api.JavaVersion.VERSION_17
+import org.gradle.api.JavaVersion.VERSION_1_8
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -636,7 +637,7 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
     ) {
         androidComponents.onVariants { variant ->
             variant.configureTests(project.getKeystore())
-            variant.enableMicrobenchmarkInternalDefaults(project)
+            variant.enableBenchmarkInternalDefaults(project)
             project.validateKotlinModuleFiles(
                 variant.name,
                 variant.artifacts.get(SingleArtifact.AAR),
@@ -690,12 +691,7 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
             kotlinMultiplatformAndroidComponentsExtension,
         )
         kotlinMultiplatformAndroidComponentsExtension.apply {
-            finalizeDsl {
-                it.lint.targetSdk = project.defaultAndroidConfig.targetSdk
-                project.setUpBlankProguardFileForKmpAarIfNeeded(
-                    kotlinMultiplatformAndroidTarget.optimization.consumerKeepRules
-                )
-            }
+            finalizeDsl { it.lint.targetSdk = project.defaultAndroidConfig.targetSdk }
         }
 
         kotlinMultiplatformAndroidComponentsExtension.onVariants { variant ->
@@ -844,7 +840,6 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
 
         libraryAndroidComponentsExtension.apply {
             finalizeDsl {
-                project.setUpBlankProguardFileForAarIfNeeded(it.defaultConfig)
                 it.lint.targetSdk = project.defaultAndroidConfig.targetSdk
                 it.testOptions.targetSdk = project.defaultAndroidConfig.targetSdk
                 // Replace with a public API once available, see b/360392255
@@ -919,7 +914,6 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
             }
         }
 
-        project.setUpBlankProguardFileForJarIfNeeded(javaExtension)
         project.configureJavaCompilationWarnings(androidXExtension)
 
         if (
@@ -991,8 +985,8 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
             throw IllegalArgumentException("Unexpected extension: $this")
         }
         compileOptions.apply {
-            sourceCompatibility = VERSION_11
-            targetCompatibility = VERSION_11
+            sourceCompatibility = VERSION_1_8
+            targetCompatibility = VERSION_1_8
         }
 
         val defaultMinSdk = project.defaultAndroidConfig.minSdk
@@ -1395,7 +1389,7 @@ internal fun getDefaultTargetJavaVersion(
         projectName != null && projectName.contains("desktop") -> VERSION_11
         targetName != null && (targetName == "desktop" || targetName == "jvmStubs") -> VERSION_11
         softwareType.compilationTarget == CompilationTarget.HOST -> VERSION_17
-        else -> VERSION_11
+        else -> VERSION_1_8
     }
 }
 

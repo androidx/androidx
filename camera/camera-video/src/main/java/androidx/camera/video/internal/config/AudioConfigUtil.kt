@@ -23,6 +23,7 @@ import androidx.camera.core.Logger
 import androidx.camera.core.impl.EncoderProfilesProxy.AudioProfileProxy
 import androidx.camera.core.impl.Timebase
 import androidx.camera.video.AudioSpec
+import androidx.camera.video.MediaConstants.MIME_TYPE_UNSPECIFIED
 import androidx.camera.video.MediaSpec.Companion.OUTPUT_FORMAT_WEBM
 import androidx.camera.video.MediaSpec.OutputFormat
 import androidx.camera.video.internal.audio.AudioSettings
@@ -59,7 +60,7 @@ public object AudioConfigUtil {
      *
      * This method attempts to find the first profile in the provided list that matches the
      * requested [audioMime] and its corresponding codec profile. If the [audioMime] is set to
-     * [AudioSpec.MIME_TYPE_UNSPECIFIED], it will return the first available profile in the list.
+     * [MIME_TYPE_UNSPECIFIED], it will return the first available profile in the list.
      *
      * @param audioMime The desired audio MIME type.
      * @param audioProfiles A list of available [AudioProfileProxy]s.
@@ -71,7 +72,7 @@ public object AudioConfigUtil {
     ): AudioProfileProxy? {
         val audioCodecProfile = audioMimeToAudioProfile(audioMime)
         return audioProfiles.firstOrNull {
-            audioMime == AudioSpec.MIME_TYPE_UNSPECIFIED ||
+            audioMime == MIME_TYPE_UNSPECIFIED ||
                 (it.mediaType == audioMime && it.profile == audioCodecProfile)
         }
     }

@@ -1085,18 +1085,18 @@ class SurfaceTest {
     }
 
     @Test
-    fun focusableSurface_depth_focusChange_newDepthIsRendered() {
+    fun focusableSurface_depthEffect_focusChange_newDepthEffectIsRendered() {
         val (focusRequester, otherFocusRequester) = FocusRequester.createRefs()
 
-        val surfaceDepth =
-            SurfaceDepth(
-                depth =
-                    Depth(
+        val surfaceDepthEffect =
+            SurfaceDepthEffect(
+                depthEffect =
+                    DepthEffect(
                         Shadow(color = Color.Red, spread = 100.dp, radius = 100.dp),
                         Shadow(color = Color.Red, spread = 100.dp, radius = 100.dp),
                     ),
-                focusedDepth =
-                    Depth(
+                focusedDepthEffect =
+                    DepthEffect(
                         layer1 = Shadow(color = Color.Blue, spread = 100.dp, radius = 100.dp),
                         layer2 = Shadow(color = Color.Blue, spread = 100.dp, radius = 100.dp),
                     ),
@@ -1108,7 +1108,7 @@ class SurfaceTest {
                     Modifier.padding(40.dp)
                         .size(20.dp)
                         .focusRequester(focusRequester)
-                        .surface(depth = surfaceDepth, border = null)
+                        .surface(depthEffect = surfaceDepthEffect, border = null)
                 )
                 Box(Modifier.size(100.dp).focusRequester(otherFocusRequester).focusTarget())
             }
@@ -1117,7 +1117,7 @@ class SurfaceTest {
         rule.onNodeWithTag("outerBox").captureToImage().run {
             val map = toPixelMap()
             val outsideSurface = map[width / 3, height / 2]
-            // Base depth should be rendered
+            // Base depth effect should be rendered
             assertColorsEqualWithTolerance(Color.Red, outsideSurface)
         }
 
@@ -1127,7 +1127,7 @@ class SurfaceTest {
         rule.onNodeWithTag("outerBox").captureToImage().run {
             val map = toPixelMap()
             val outsideSurface = map[width / 3, height / 2]
-            // The focused depth should be rendered
+            // The focused depth effect should be rendered
             assertColorsEqualWithTolerance(Color.Blue, outsideSurface)
         }
 
@@ -1137,24 +1137,24 @@ class SurfaceTest {
         rule.onNodeWithTag("outerBox").captureToImage().run {
             val map = toPixelMap()
             val outsideSurface = map[width / 3, height / 2]
-            // Base depth should be rendered again
+            // Base depth effect should be rendered again
             assertColorsEqualWithTolerance(Color.Red, outsideSurface)
         }
     }
 
     @Test
-    fun clickableSurface_depth_focusChange_newDepthIsRendered() {
+    fun clickableSurface_depthEffect_focusChange_newDepthEffectIsRendered() {
         val (focusRequester, otherFocusRequester) = FocusRequester.createRefs()
 
-        val surfaceDepth =
-            SurfaceDepth(
-                depth =
-                    Depth(
+        val surfaceDepthEffect =
+            SurfaceDepthEffect(
+                depthEffect =
+                    DepthEffect(
                         Shadow(color = Color.Red, spread = 100.dp, radius = 100.dp),
                         Shadow(color = Color.Red, spread = 100.dp, radius = 100.dp),
                     ),
-                focusedDepth =
-                    Depth(
+                focusedDepthEffect =
+                    DepthEffect(
                         layer1 = Shadow(color = Color.Blue, spread = 100.dp, radius = 100.dp),
                         layer2 = Shadow(color = Color.Blue, spread = 100.dp, radius = 100.dp),
                     ),
@@ -1166,7 +1166,7 @@ class SurfaceTest {
                     Modifier.padding(40.dp)
                         .size(20.dp)
                         .focusRequester(focusRequester)
-                        .surface(depth = surfaceDepth, border = null, onClick = {})
+                        .surface(depthEffect = surfaceDepthEffect, border = null, onClick = {})
                 )
                 Box(Modifier.size(100.dp).focusRequester(otherFocusRequester).focusTarget())
             }
@@ -1175,7 +1175,7 @@ class SurfaceTest {
         rule.onNodeWithTag("outerBox").captureToImage().run {
             val map = toPixelMap()
             val outsideSurface = map[width / 3, height / 2]
-            // Base depth should be rendered
+            // Base depth effect should be rendered
             assertColorsEqualWithTolerance(Color.Red, outsideSurface)
         }
 
@@ -1185,7 +1185,7 @@ class SurfaceTest {
         rule.onNodeWithTag("outerBox").captureToImage().run {
             val map = toPixelMap()
             val outsideSurface = map[width / 3, height / 2]
-            // The focused depth should be rendered
+            // The focused depth effect should be rendered
             assertColorsEqualWithTolerance(Color.Blue, outsideSurface)
         }
 
@@ -1195,20 +1195,23 @@ class SurfaceTest {
         rule.onNodeWithTag("outerBox").captureToImage().run {
             val map = toPixelMap()
             val outsideSurface = map[width / 3, height / 2]
-            // Base depth should be rendered again
+            // Base depth effect should be rendered again
             assertColorsEqualWithTolerance(Color.Red, outsideSurface)
         }
     }
 
     @Test
-    fun focusableSurface_depth_focusChange_depthChangesAreAnimated() {
+    fun focusableSurface_depthEffect_focusChange_depthEffectChangesAreAnimated() {
         rule.mainClock.autoAdvance = false
 
         val focusRequester = FocusRequester()
 
         val shadow = Shadow(color = Color.Red, spread = 100.dp, radius = 100.dp)
-        val surfaceDepth =
-            SurfaceDepth(depth = null, focusedDepth = Depth(layer1 = shadow, layer2 = shadow))
+        val surfaceDepthEffect =
+            SurfaceDepthEffect(
+                depthEffect = null,
+                focusedDepthEffect = DepthEffect(layer1 = shadow, layer2 = shadow),
+            )
 
         rule.setGlimmerThemeContent(addInitialFocusInterceptor = true) {
             Box(Modifier.testTag("outerBox")) {
@@ -1216,7 +1219,7 @@ class SurfaceTest {
                     Modifier.padding(40.dp)
                         .size(20.dp)
                         .focusRequester(focusRequester)
-                        .surface(depth = surfaceDepth, border = null)
+                        .surface(depthEffect = surfaceDepthEffect, border = null)
                 )
             }
         }
@@ -1224,7 +1227,7 @@ class SurfaceTest {
         rule.onNodeWithTag("outerBox").captureToImage().run {
             val map = toPixelMap()
             val outsideSurface = map[width / 3, height / 2]
-            // No depth should be rendered
+            // No depth effect should be rendered
             assertThat(outsideSurface).isEqualTo(Color.Black)
         }
 
@@ -1237,7 +1240,8 @@ class SurfaceTest {
         rule.onNodeWithTag("outerBox").captureToImage().run {
             val map = toPixelMap()
             val outsideSurface = map[width / 3, height / 2]
-            // The focused depth should be partially rendered, so there should be some red channel.
+            // The focused depth effect should be partially rendered, so there should be some red
+            // channel.
             assertThat(outsideSurface.red).isGreaterThan(0)
             assertThat(outsideSurface.green).isEqualTo(0)
             assertThat(outsideSurface.blue).isEqualTo(0)
@@ -1249,20 +1253,23 @@ class SurfaceTest {
         rule.onNodeWithTag("outerBox").captureToImage().run {
             val map = toPixelMap()
             val outsideSurface = map[width / 3, height / 2]
-            // The focused depth should be fully rendered
+            // The focused depth effect should be fully rendered
             assertColorsEqualWithTolerance(Color.Red, outsideSurface)
         }
     }
 
     @Test
-    fun clickableSurface_depth_focusChange_depthChangesAreAnimated() {
+    fun clickableSurface_depthEffect_focusChange_depthEffectChangesAreAnimated() {
         rule.mainClock.autoAdvance = false
 
         val focusRequester = FocusRequester()
 
         val shadow = Shadow(color = Color.Red, spread = 100.dp, radius = 100.dp)
-        val surfaceDepth =
-            SurfaceDepth(depth = null, focusedDepth = Depth(layer1 = shadow, layer2 = shadow))
+        val surfaceDepthEffect =
+            SurfaceDepthEffect(
+                depthEffect = null,
+                focusedDepthEffect = DepthEffect(layer1 = shadow, layer2 = shadow),
+            )
 
         rule.setGlimmerThemeContent {
             Box(Modifier.testTag("outerBox")) {
@@ -1270,7 +1277,7 @@ class SurfaceTest {
                     Modifier.padding(40.dp)
                         .size(20.dp)
                         .focusRequester(focusRequester)
-                        .surface(depth = surfaceDepth, border = null, onClick = {})
+                        .surface(depthEffect = surfaceDepthEffect, border = null, onClick = {})
                 )
             }
         }
@@ -1278,7 +1285,7 @@ class SurfaceTest {
         rule.onNodeWithTag("outerBox").captureToImage().run {
             val map = toPixelMap()
             val outsideSurface = map[width / 3, height / 2]
-            // No depth should be rendered
+            // No depth effect should be rendered
             assertThat(outsideSurface).isEqualTo(Color.Black)
         }
 
@@ -1291,7 +1298,8 @@ class SurfaceTest {
         rule.onNodeWithTag("outerBox").captureToImage().run {
             val map = toPixelMap()
             val outsideSurface = map[width / 3, height / 2]
-            // The focused depth should be partially rendered, so there should be some red channel.
+            // The focused depth effect should be partially rendered, so there should be some red
+            // channel.
             assertThat(outsideSurface.red).isGreaterThan(0)
             assertThat(outsideSurface.green).isEqualTo(0)
             assertThat(outsideSurface.blue).isEqualTo(0)
@@ -1303,24 +1311,24 @@ class SurfaceTest {
         rule.onNodeWithTag("outerBox").captureToImage().run {
             val map = toPixelMap()
             val outsideSurface = map[width / 3, height / 2]
-            // The focused depth should be fully rendered
+            // The focused depth effect should be fully rendered
             assertColorsEqualWithTolerance(Color.Red, outsideSurface)
         }
     }
 
     @Test
-    fun focusableSurface_depth_focusedDepthHasHigherZIndex() {
+    fun focusableSurface_depthEffect_focusedDepthEffectHasHigherZIndex() {
         val (focusRequester, otherFocusRequester) = FocusRequester.createRefs()
 
-        val surfaceDepth =
-            SurfaceDepth(
-                depth =
-                    Depth(
+        val surfaceDepthEffect =
+            SurfaceDepthEffect(
+                depthEffect =
+                    DepthEffect(
                         Shadow(color = Color.Red, spread = 100.dp, radius = 100.dp),
                         Shadow(color = Color.Red, spread = 100.dp, radius = 100.dp),
                     ),
-                focusedDepth =
-                    Depth(
+                focusedDepthEffect =
+                    DepthEffect(
                         layer1 = Shadow(color = Color.Blue, spread = 100.dp, radius = 100.dp),
                         layer2 = Shadow(color = Color.Blue, spread = 100.dp, radius = 100.dp),
                     ),
@@ -1332,7 +1340,7 @@ class SurfaceTest {
                     Modifier.padding(40.dp)
                         .size(20.dp)
                         .focusRequester(focusRequester)
-                        .surface(depth = surfaceDepth, border = null)
+                        .surface(depthEffect = surfaceDepthEffect, border = null)
                 )
                 Box(
                     Modifier.testTag("greenBox")
@@ -1345,8 +1353,8 @@ class SurfaceTest {
         }
 
         // Default draw order is based on placement order. The green box is second in the column,
-        // so it should draw over the first box - as a result the depth will not be visible, and the
-        // entire box will be green.
+        // so it should draw over the first box - as a result the depth effect will not be visible,
+        // and the entire box will be green.
         rule.onNodeWithTag("greenBox").captureToImage().assertPixels { Color.Green }
 
         // Request focus for the surface
@@ -1369,18 +1377,18 @@ class SurfaceTest {
     }
 
     @Test
-    fun clickableSurface_depth_focusedDepthHasHigherZIndex() {
+    fun clickableSurface_depthEffect_focusedDepthEffectHasHigherZIndex() {
         val (focusRequester, otherFocusRequester) = FocusRequester.createRefs()
 
-        val surfaceDepth =
-            SurfaceDepth(
-                depth =
-                    Depth(
+        val surfaceDepthEffect =
+            SurfaceDepthEffect(
+                depthEffect =
+                    DepthEffect(
                         Shadow(color = Color.Red, spread = 100.dp, radius = 100.dp),
                         Shadow(color = Color.Red, spread = 100.dp, radius = 100.dp),
                     ),
-                focusedDepth =
-                    Depth(
+                focusedDepthEffect =
+                    DepthEffect(
                         layer1 = Shadow(color = Color.Blue, spread = 100.dp, radius = 100.dp),
                         layer2 = Shadow(color = Color.Blue, spread = 100.dp, radius = 100.dp),
                     ),
@@ -1392,7 +1400,7 @@ class SurfaceTest {
                     Modifier.padding(40.dp)
                         .size(20.dp)
                         .focusRequester(focusRequester)
-                        .surface(depth = surfaceDepth, border = null, onClick = {})
+                        .surface(depthEffect = surfaceDepthEffect, border = null, onClick = {})
                 )
                 Box(
                     Modifier.testTag("greenBox")
@@ -1405,8 +1413,8 @@ class SurfaceTest {
         }
 
         // Default draw order is based on placement order. The green box is second in the column,
-        // so it should draw over the first box - as a result the depth will not be visible, and the
-        // entire box will be green.
+        // so it should draw over the first box - as a result the depth effect will not be visible,
+        // and the entire box will be green.
         rule.onNodeWithTag("greenBox").captureToImage().assertPixels { Color.Green }
 
         // Request focus for the surface

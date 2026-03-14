@@ -32,6 +32,7 @@ dependencies {
     implementation(project(":benchmark:benchmark-macro-junit4"))
     implementation(project(":test:uiautomator:uiautomator"))
     implementation(project(":test:uiautomator:uiautomator-shell"))
+    implementation(libs.testExtJunit)
 }
 
 android {

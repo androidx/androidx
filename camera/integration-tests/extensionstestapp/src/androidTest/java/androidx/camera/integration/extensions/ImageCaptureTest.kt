@@ -25,21 +25,17 @@ import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.assumeExtensionModeOutputFormatSupported
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.assumeExtensionModeSupported
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.launchCameraExtensionsActivity
-import androidx.camera.integration.extensions.util.HOME_TIMEOUT_MS
 import androidx.camera.integration.extensions.util.takePictureAndWaitForImageSavedIdle
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
-import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.testing.impl.ExtensionsUtil.assumePcsSupportedForImageCapture
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
-import androidx.test.uiautomator.UiDevice
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
-import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -51,7 +47,11 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 class ImageCaptureTest(private val cameraId: String, private val extensionMode: Int) {
-    private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    @get:Rule
+    val requireForegroundRule = RequireForegroundRule {
+        assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
+        assumePcsSupportedForImageCapture(context)
+    }
 
     @get:Rule
     val useCamera =
@@ -79,39 +79,21 @@ class ImageCaptureTest(private val cameraId: String, private val extensionMode: 
 
     @Before
     fun setup(): Unit = runBlocking {
-        assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
-        assumePcsSupportedForImageCapture(context)
-        // Clear the device UI and check if there is no dialog or lock screen on the top of the
-        // window before start the test.
-        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
-        // Use the natural orientation throughout these tests to ensure the activity isn't
-        // recreated unexpectedly. This will also freeze the sensors until
-        // mDevice.unfreezeRotation() in the tearDown() method. Any simulated rotations will be
-        // explicitly initiated from within the test.
-        device.setOrientationNatural()
-
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
 
         extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
 
         assumeExtensionModeSupported(extensionsManager, cameraId, extensionMode)
-    }
 
-    @After
-    fun tearDown() {
-        if (::cameraProvider.isInitialized) {
-            cameraProvider.shutdownAsync()
+        requireForegroundRule.deferCleanup {
+            if (::cameraProvider.isInitialized) {
+                cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
+            }
+
+            if (::extensionsManager.isInitialized) {
+                extensionsManager.shutdown()
+            }
         }
-
-        if (::extensionsManager.isInitialized) {
-            extensionsManager.shutdown()
-        }
-
-        // Unfreeze rotation so the device can choose the orientation via its own policy. Be nice
-        // to other tests :)
-        device.unfreezeRotation()
-        device.pressHome()
-        device.waitForIdle(HOME_TIMEOUT_MS)
     }
 
     /**

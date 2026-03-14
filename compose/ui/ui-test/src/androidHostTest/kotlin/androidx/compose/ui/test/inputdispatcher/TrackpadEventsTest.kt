@@ -36,8 +36,8 @@ import androidx.compose.testutils.expectError
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.AndroidInputDispatcher
 import androidx.compose.ui.test.InputDispatcher.Companion.eventPeriodMillis
-import androidx.compose.ui.test.MouseButton
 import androidx.compose.ui.test.RobolectricMinSdk
+import androidx.compose.ui.test.TrackpadButton
 import androidx.compose.ui.test.util.assertHasValidEventTimes
 import androidx.compose.ui.test.util.verifyTouchEvent
 import androidx.compose.ui.test.util.verifyTouchPointer
@@ -67,20 +67,20 @@ class TrackpadEventsTest : InputDispatcherTest() {
 
     @Test
     fun oneButton_primary() {
-        oneButton(MouseButton.Primary, BUTTON_PRIMARY)
+        oneButton(TrackpadButton.Primary, BUTTON_PRIMARY)
     }
 
     @Test
     fun oneButton_secondary() {
-        oneButton(MouseButton.Secondary, BUTTON_SECONDARY)
+        oneButton(TrackpadButton.Secondary, BUTTON_SECONDARY)
     }
 
     @Test
     fun oneButton_tertiary() {
-        oneButton(MouseButton.Tertiary, BUTTON_TERTIARY)
+        oneButton(TrackpadButton.Tertiary, BUTTON_TERTIARY)
     }
 
-    private fun oneButton(mouseButton: MouseButton, expectedButtonState: Int) {
+    private fun oneButton(TrackpadButton: TrackpadButton, expectedButtonState: Int) {
         // Scenario:
         // move trackpad
         // press button
@@ -94,14 +94,14 @@ class TrackpadEventsTest : InputDispatcherTest() {
         subject.verifyTrackpadPosition(position1)
         expectedEvents += 2 // enter + hover
         subject.advanceEventTime()
-        subject.enqueueTrackpadPress(mouseButton.buttonId)
+        subject.enqueueTrackpadPress(TrackpadButton.buttonId)
         expectedEvents += 3 // exit + down + press
         subject.advanceEventTime()
         subject.enqueueTrackpadMove(position2)
         subject.verifyTrackpadPosition(position2)
         expectedEvents += 1 // move
         subject.advanceEventTime()
-        subject.enqueueTrackpadRelease(mouseButton.buttonId)
+        subject.enqueueTrackpadRelease(TrackpadButton.buttonId)
         expectedEvents += 4 // release + up + enter + hover
         subject.advanceEventTime()
         subject.enqueueTrackpadMove(position3)
@@ -157,7 +157,7 @@ class TrackpadEventsTest : InputDispatcherTest() {
         // cancel trackpad gesture
 
         var expectedEvents = 0
-        subject.enqueueTrackpadPress(MouseButton.Primary.buttonId)
+        subject.enqueueTrackpadPress(TrackpadButton.Primary.buttonId)
         expectedEvents += 2 // down + press
         subject.advanceEventTime()
         subject.enqueueTrackpadCancel()
@@ -250,20 +250,20 @@ class TrackpadEventsTest : InputDispatcherTest() {
 
         var expectedEvents = 0
         subject.verifyTrackpadPosition(Offset.Zero)
-        subject.enqueueTrackpadPress(MouseButton.Primary.buttonId)
+        subject.enqueueTrackpadPress(TrackpadButton.Primary.buttonId)
         expectedEvents += 2 // down + press
         subject.advanceEventTime()
         subject.enqueueTrackpadMove(positionMin1)
         subject.verifyTrackpadPosition(positionMin1)
         expectedEvents += 1 // move
         subject.advanceEventTime()
-        subject.enqueueTrackpadPress(MouseButton.Secondary.buttonId)
+        subject.enqueueTrackpadPress(TrackpadButton.Secondary.buttonId)
         expectedEvents += 1 // move (suppressed press)
         subject.advanceEventTime()
-        subject.enqueueTrackpadRelease(MouseButton.Secondary.buttonId)
+        subject.enqueueTrackpadRelease(TrackpadButton.Secondary.buttonId)
         expectedEvents += 1 // move (suppressed release)
         subject.advanceEventTime()
-        subject.enqueueTrackpadRelease(MouseButton.Primary.buttonId)
+        subject.enqueueTrackpadRelease(TrackpadButton.Primary.buttonId)
         expectedEvents += 1 // up (suppressed release)
         subject.flush()
 
@@ -321,35 +321,35 @@ class TrackpadEventsTest : InputDispatcherTest() {
 
         var expectedEvents = 0
         subject.verifyTrackpadPosition(Offset.Zero)
-        subject.enqueueTrackpadPress(MouseButton.Primary.buttonId)
+        subject.enqueueTrackpadPress(TrackpadButton.Primary.buttonId)
         expectedEvents += 2 // down + press
         subject.advanceEventTime()
         subject.enqueueTrackpadMove(position1)
         subject.verifyTrackpadPosition(position1)
         expectedEvents += 1 // move
         subject.advanceEventTime()
-        subject.enqueueTrackpadPress(MouseButton.Secondary.buttonId)
+        subject.enqueueTrackpadPress(TrackpadButton.Secondary.buttonId)
         expectedEvents += 2 // move + press
         subject.advanceEventTime()
         subject.enqueueTrackpadMove(position2)
         subject.verifyTrackpadPosition(position2)
         expectedEvents += 1 // move
         subject.advanceEventTime()
-        subject.enqueueTrackpadRelease(MouseButton.Primary.buttonId)
+        subject.enqueueTrackpadRelease(TrackpadButton.Primary.buttonId)
         expectedEvents += 2 // release + move
         subject.advanceEventTime()
         subject.enqueueTrackpadMove(position3)
         subject.verifyTrackpadPosition(position3)
         expectedEvents += 1 // move
         subject.advanceEventTime()
-        subject.enqueueTrackpadRelease(MouseButton.Secondary.buttonId)
+        subject.enqueueTrackpadRelease(TrackpadButton.Secondary.buttonId)
         expectedEvents += 4 // release + up + enter + hover
         subject.advanceEventTime()
         subject.enqueueTrackpadMove(position4)
         subject.verifyTrackpadPosition(position4)
         expectedEvents += 1 // hover
         subject.advanceEventTime()
-        subject.enqueueTrackpadPress(MouseButton.Tertiary.buttonId)
+        subject.enqueueTrackpadPress(TrackpadButton.Tertiary.buttonId)
         expectedEvents += 3 // exit + down + press
         subject.flush()
 
@@ -489,7 +489,7 @@ class TrackpadEventsTest : InputDispatcherTest() {
         subject.enqueueTrackpadPanEnd()
         expectedEvents += 5 // exit + down + move + up + enter
         subject.advanceEventTime()
-        subject.enqueueTrackpadPress(MouseButton.Primary.buttonId)
+        subject.enqueueTrackpadPress(TrackpadButton.Primary.buttonId)
         expectedEvents += 3 // exit + down + press
         subject.advanceEventTime()
         subject.enqueueTrackpadPanStart()
@@ -845,10 +845,10 @@ class TrackpadEventsTest : InputDispatcherTest() {
         // cancel
 
         var expectedEvents = 0
-        subject.enqueueTrackpadPress(MouseButton.Primary.buttonId)
+        subject.enqueueTrackpadPress(TrackpadButton.Primary.buttonId)
         expectedEvents += 2 // down + press
         subject.advanceEventTime()
-        subject.enqueueTrackpadPress(MouseButton.Secondary.buttonId)
+        subject.enqueueTrackpadPress(TrackpadButton.Secondary.buttonId)
         expectedEvents += 2 // move + press
         subject.advanceEventTime()
         subject.enqueueTrackpadCancel()
@@ -893,7 +893,7 @@ class TrackpadEventsTest : InputDispatcherTest() {
         subject.enqueueTouchDown(1, position1)
         expectedEvents += 1 // down
         subject.advanceEventTime()
-        subject.enqueueTrackpadPress(MouseButton.Primary.buttonId)
+        subject.enqueueTrackpadPress(TrackpadButton.Primary.buttonId)
         expectedEvents += 3 // cancel + down + press
         subject.flush()
 
@@ -967,7 +967,7 @@ class TrackpadEventsTest : InputDispatcherTest() {
     fun enqueueTrackpadDown_alreadyDown() {
         subject.enqueueTrackpadPress(1)
         expectError<IllegalStateException>(
-            expectedMessage = "Cannot send mouse button down event, button 1 is already pressed"
+            expectedMessage = "Cannot send trackpad button down event, button 1 is already pressed"
         ) {
             subject.enqueueTrackpadPress(1)
         }
@@ -988,7 +988,7 @@ class TrackpadEventsTest : InputDispatcherTest() {
     @Test
     fun enqueueTrackpadUp_withoutDown() {
         expectError<IllegalStateException>(
-            expectedMessage = "Cannot send mouse button up event, button 1 is not pressed"
+            expectedMessage = "Cannot send trackpad button up event, button 1 is not pressed"
         ) {
             subject.enqueueTrackpadRelease(1)
         }
@@ -1008,7 +1008,7 @@ class TrackpadEventsTest : InputDispatcherTest() {
     fun enqueueTrackpadEnter_buttonsDown() {
         subject.enqueueTrackpadPress(1)
         expectError<IllegalStateException>(
-            expectedMessage = "Cannot send trackpad hover enter event, mouse buttons are down"
+            expectedMessage = "Cannot send trackpad hover enter event, trackpad buttons are down"
         ) {
             subject.enqueueTrackpadEnter(position1)
         }
@@ -1037,7 +1037,7 @@ class TrackpadEventsTest : InputDispatcherTest() {
     @Test
     fun enqueueTrackpadCancel_withoutDown() {
         expectError<IllegalStateException>(
-            expectedMessage = "Cannot send trackpad cancel event, no mouse buttons are pressed"
+            expectedMessage = "Cannot send trackpad cancel event, no trackpad buttons are pressed"
         ) {
             subject.enqueueTrackpadCancel()
         }

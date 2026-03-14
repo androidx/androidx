@@ -23,13 +23,11 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.remote.creation.compose.action.HostAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
-import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
-import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.widthIn
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rf
@@ -51,9 +49,7 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 fun RemoteButtonGroupThreeButtonSample(modifier: RemoteModifier = RemoteModifier) {
     RemoteButtonGroup(modifier = modifier.fillMaxWidth()) {
         Button(Icons.Filled.MailOutline, RemoteModifier.weight(1f))
-        Spacer()
         Button(Icons.Filled.Favorite, RemoteModifier.weight(1f))
-        Spacer()
         Button(Icons.Filled.Call, RemoteModifier.weight(1f))
     }
 }
@@ -62,12 +58,6 @@ fun RemoteButtonGroupThreeButtonSample(modifier: RemoteModifier = RemoteModifier
 @Composable
 fun RemoteButtonGroupThreeButtonSamplePreview() = RemotePreview {
     Container { RemoteButtonGroupThreeButtonSample() }
-}
-
-@Composable
-@RemoteComposable
-private fun Spacer() {
-    RemoteBox(RemoteModifier.size(RemoteButtonGroupDefaults.Spacing))
 }
 
 @Composable
@@ -90,12 +80,7 @@ private fun Container(
     modifier: RemoteModifier = RemoteModifier.fillMaxSize(),
     content: @Composable @RemoteComposable () -> Unit,
 ) {
-    RemoteBox(
-        modifier,
-        horizontalAlignment = RemoteAlignment.CenterHorizontally,
-        verticalArrangement = RemoteArrangement.Center,
-        content = content,
-    )
+    RemoteBox(modifier, contentAlignment = RemoteAlignment.Center, content = content)
 }
 
 private val tonalColors

@@ -25,7 +25,7 @@ import androidx.sqlite.step
 /**
  * Implementations of this class know how to delete or update a particular entity.
  *
- * This is an library class and all of its implementations are auto-generated.
+ * This is a library class and all of its implementations are auto-generated.
  *
  * @param T The type parameter of the entity to be deleted
  * @constructor Creates a DeletionOrUpdateAdapter that can delete or update the entity type T on the
@@ -49,12 +49,68 @@ public abstract class EntityDeleteOrUpdateAdapter<T> {
     protected abstract fun bind(statement: SQLiteStatement, entity: T)
 
     /**
+     * Deletes or updates the given entities in the database.
+     *
+     * @param entity The entity to delete or update
+     */
+    public suspend fun handle(connection: SQLiteConnection, entity: T?): Unit {
+        if (entity == null) {
+            return
+        }
+        connection.prepare(createQuery()).use { stmt ->
+            bind(stmt, entity)
+            stmt.step()
+        }
+    }
+
+    /**
+     * Deletes or updates the given entities in the database.
+     *
+     * @param entities Entities to delete or update
+     */
+    public suspend fun handleMultiple(connection: SQLiteConnection, entities: Iterable<T?>?): Unit {
+        if (entities == null) {
+            return
+        }
+        connection.prepare(createQuery()).use { stmt ->
+            for (entity in entities) {
+                if (entity == null) continue
+                bind(stmt, entity)
+                stmt.step()
+                stmt.reset()
+            }
+        }
+    }
+
+    /**
+     * Deletes or updates the given entities in the database.
+     *
+     * @param entities Entities to delete or update
+     */
+    public suspend fun handleMultiple(
+        connection: SQLiteConnection,
+        entities: Array<out T?>?,
+    ): Unit {
+        if (entities == null) {
+            return
+        }
+        connection.prepare(createQuery()).use { stmt ->
+            for (entity in entities) {
+                if (entity == null) continue
+                bind(stmt, entity)
+                stmt.step()
+                stmt.reset()
+            }
+        }
+    }
+
+    /**
      * Deletes or updates the given entities in the database and returns the affected row count.
      *
      * @param entity The entity to delete or update
      * @return The number of affected rows
      */
-    public suspend fun handle(connection: SQLiteConnection, entity: T?): Int {
+    public suspend fun handleAndReturnChanges(connection: SQLiteConnection, entity: T?): Int {
         if (entity == null) return 0
         connection.prepare(createQuery()).use { stmt ->
             bind(stmt, entity)
@@ -69,7 +125,10 @@ public abstract class EntityDeleteOrUpdateAdapter<T> {
      * @param entities Entities to delete or update
      * @return The number of affected rows
      */
-    public suspend fun handleMultiple(connection: SQLiteConnection, entities: Iterable<T?>?): Int {
+    public suspend fun handleMultipleAndReturnChanges(
+        connection: SQLiteConnection,
+        entities: Iterable<T?>?,
+    ): Int {
         if (entities == null) return 0
         var total = 0
         connection.prepare(createQuery()).use { stmt ->
@@ -90,7 +149,10 @@ public abstract class EntityDeleteOrUpdateAdapter<T> {
      * @param entities Entities to delete or update
      * @return The number of affected rows
      */
-    public suspend fun handleMultiple(connection: SQLiteConnection, entities: Array<out T?>?): Int {
+    public suspend fun handleMultipleAndReturnChanges(
+        connection: SQLiteConnection,
+        entities: Array<out T?>?,
+    ): Int {
         if (entities == null) return 0
         var total = 0
         connection.prepare(createQuery()).use { stmt ->

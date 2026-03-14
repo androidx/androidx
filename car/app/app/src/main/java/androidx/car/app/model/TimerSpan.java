@@ -18,7 +18,6 @@ package androidx.car.app.model;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
-import androidx.car.app.annotations.RequiresCarApi;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -38,7 +37,6 @@ import java.util.concurrent.TimeUnit;
  * @see CarSpan
  */
 @ExperimentalCarApi
-@RequiresCarApi(8)
 @KeepFields
 @CarProtocol
 public final class TimerSpan extends CarSpan {

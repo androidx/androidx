@@ -17,8 +17,15 @@ package androidx.camera.integration.featurecombo.ui
 
 import android.content.ContentValues
 import android.content.Context
+import android.hardware.camera2.CameraCaptureSession
+import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.TotalCaptureResult
+import android.os.SystemClock
 import android.provider.MediaStore
 import android.util.Log
+import androidx.annotation.OptIn
+import androidx.camera.camera2.interop.Camera2Interop
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.core.CameraEffect
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
@@ -62,6 +69,7 @@ import androidx.lifecycle.viewModelScope
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.measureTimedValue
 import kotlinx.coroutines.CompletableDeferred
@@ -76,6 +84,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalCamera2Interop::class)
 class CameraViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel() {
     private lateinit var appContext: Context
     private var bouncyLogoOverlayEffect: BouncyLogoOverlayEffect? = null
@@ -86,11 +95,37 @@ class CameraViewModel(private val savedStateHandle: SavedStateHandle) : ViewMode
 
     private lateinit var cameraSelector: CameraSelector
 
-    private var preview = Preview.Builder().build()
-    private val imageCapture = ImageCapture.Builder().build()
-    private val imageAnalysis = ImageAnalysis.Builder().build()
+    private val captureFrameCount = AtomicInteger(0)
+    private val lastFrameNumber = AtomicLong(-1)
+
+    private val _cameraCaptureFps = MutableStateFlow(0)
+    val cameraCaptureFps: StateFlow<Int>
+        get() = _cameraCaptureFps
+
+    private val captureCallback =
+        object : CameraCaptureSession.CaptureCallback() {
+            override fun onCaptureCompleted(
+                session: CameraCaptureSession,
+                request: CaptureRequest,
+                result: TotalCaptureResult,
+            ) {
+                val currentFrame = result.frameNumber
+                if (lastFrameNumber.getAndSet(currentFrame) != currentFrame) {
+                    captureFrameCount.incrementAndGet()
+                }
+            }
+        }
+
+    private fun <T : androidx.camera.core.ExtendableBuilder<*>> T.withCaptureCallback(): T {
+        Camera2Interop.Extender(this).setSessionCaptureCallback(captureCallback)
+        return this
+    }
+
+    private var preview = Preview.Builder().withCaptureCallback().build()
+    private val imageCapture = ImageCapture.Builder().withCaptureCallback().build()
+    private val imageAnalysis = ImageAnalysis.Builder().withCaptureCallback().build()
     private val videoCapture: VideoCapture<Recorder> =
-        VideoCapture.withOutput(Recorder.Builder().build())
+        VideoCapture.Builder(Recorder.Builder().build()).withCaptureCallback().build()
 
     private val _toastMessages = MutableSharedFlow<String>()
     private var activeRecording: Recording? = null
@@ -157,6 +192,27 @@ class CameraViewModel(private val savedStateHandle: SavedStateHandle) : ViewMode
     private var bindStartTime: Long = Long.MIN_VALUE
 
     private var imageAnalysisJob: Job? = null
+
+    init {
+        viewModelScope.launch {
+            var lastFrameCount = captureFrameCount.get()
+            var lastFpsTime = SystemClock.elapsedRealtime()
+            while (true) {
+                delay(1_000)
+                val currentTime = SystemClock.elapsedRealtime()
+                val currentFrameCount = captureFrameCount.get()
+
+                val timeDiff = currentTime - lastFpsTime
+                if (timeDiff > 0) {
+                    val frameDiff = currentFrameCount - lastFrameCount
+                    _cameraCaptureFps.value = ((frameDiff * 1000.0) / timeDiff).toInt()
+                }
+
+                lastFpsTime = currentTime
+                lastFrameCount = currentFrameCount
+            }
+        }
+    }
 
     fun setupCamera(applicationContext: Context, lifecycleOwner: LifecycleOwner) {
         appContext = applicationContext

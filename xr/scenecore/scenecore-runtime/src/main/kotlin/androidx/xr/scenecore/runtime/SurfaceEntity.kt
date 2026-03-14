@@ -40,14 +40,14 @@ public interface SurfaceEntity : Entity {
      *
      * @throws kotlin.IllegalStateException when setting this value if the Entity has been disposed.
      */
-    public var stereoMode: Int
+    @StereoMode public var stereoMode: Int
 
     /**
      * Specifies the blending mode of the content.
      *
      * @throws kotlin.IllegalStateException when setting this value if the Entity has been disposed.
      */
-    public var mediaBlendingMode: Int
+    @MediaBlendingMode public var mediaBlendingMode: Int
 
     /**
      * Specifies the geometry of the spatial canvas which the surface is texture mapped to.
@@ -131,9 +131,9 @@ public interface SurfaceEntity : Entity {
     /**
      * Indicates whether explicit color information has been set for the surface content. If
      * `false`, the runtime should signal the backend to use its best effort color correction and
-     * tonemapping. If `true`, the runtime should inform the backend to use the values specified in
+     * tone mapping. If `true`, the runtime should inform the backend to use the values specified in
      * [colorSpace], [colorTransfer], [colorRange], and [maxContentLightLevel] for color correction
-     * and tonemapping of the surface content.
+     * and tone mapping of the surface content.
      *
      * This property is typically managed by the `setContentColorMetadata` and
      * `resetContentColorMetadata` methods.
@@ -144,20 +144,20 @@ public interface SurfaceEntity : Entity {
      * The active color space of the media asset drawn on the surface. Use constants from
      * [SurfaceEntity.ColorSpace]. This value is used if [contentColorMetadataSet] is `true`.
      */
-    public val colorSpace: Int
+    @ColorSpace public val colorSpace: Int
 
     /**
      * The active color transfer function of the media asset drawn on the surface. Use constants
      * from [SurfaceEntity.ColorTransfer]. This value is used if [contentColorMetadataSet] is
      * `true`.
      */
-    public val colorTransfer: Int
+    @ColorTransfer public val colorTransfer: Int
 
     /**
      * The active color range of the media asset drawn on the surface. Use constants from
      * [SurfaceEntity.ColorRange]. This value is used if [contentColorMetadataSet] is `true`.
      */
-    public val colorRange: Int
+    @ColorRange public val colorRange: Int
 
     /**
      * The active maximum content light level (MaxContentLightLevel) in nits. A value of 0 indicates
@@ -405,7 +405,7 @@ public interface SurfaceEntity : Entity {
             EdgeFeather
 
         /** A Default implementation of EdgeFeather that does nothing. */
-        public class NoFeathering() : EdgeFeather
+        public class NoFeathering : EdgeFeather
     }
 
     /**

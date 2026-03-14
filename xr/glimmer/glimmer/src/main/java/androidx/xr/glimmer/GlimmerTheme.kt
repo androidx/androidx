@@ -30,7 +30,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.DelegatableNode
 import androidx.xr.glimmer.GlimmerTheme.Companion.colors
-import androidx.xr.glimmer.GlimmerTheme.Companion.depthLevels
+import androidx.xr.glimmer.GlimmerTheme.Companion.depthEffectLevels
 import androidx.xr.glimmer.GlimmerTheme.Companion.iconSizes
 import androidx.xr.glimmer.GlimmerTheme.Companion.shapes
 
@@ -75,7 +75,7 @@ public fun GlimmerTheme(
  * @property colors [Colors] used by Jetpack Compose Glimmer components
  * @property typography [Typography] used by Jetpack Compose Glimmer components
  * @property shapes [Shapes] used by Jetpack Compose Glimmer components
- * @property depthLevels [DepthLevels] used by Jetpack Compose Glimmer components
+ * @property depthEffectLevels [DepthEffectLevels] used by Jetpack Compose Glimmer components
  * @property iconSizes [IconSizes] used by icons
  */
 @Immutable
@@ -84,7 +84,7 @@ public class GlimmerTheme(
     public val typography: Typography = Typography(),
 ) {
     public val shapes: Shapes = _shapes
-    public val depthLevels: DepthLevels = _depthLevels
+    public val depthEffectLevels: DepthEffectLevels = _depthEffectLevels
     public val iconSizes: IconSizes = _iconSizes
 
     public companion object {
@@ -100,9 +100,11 @@ public class GlimmerTheme(
         public val shapes: Shapes
             @Composable @ReadOnlyComposable get() = LocalGlimmerTheme.current.shapes
 
-        /** Retrieves the current [DepthLevels] at the call site's position in the hierarchy. */
-        public val depthLevels: DepthLevels
-            @Composable @ReadOnlyComposable get() = LocalGlimmerTheme.current.depthLevels
+        /**
+         * Retrieves the current [DepthEffectLevels] at the call site's position in the hierarchy.
+         */
+        public val depthEffectLevels: DepthEffectLevels
+            @Composable @ReadOnlyComposable get() = LocalGlimmerTheme.current.depthEffectLevels
 
         /** Retrieves the current [IconSizes] at the call site's position in the hierarchy. */
         public val iconSizes: IconSizes
@@ -125,10 +127,10 @@ public class GlimmerTheme(
         private val _shapes = Shapes()
 
         /**
-         * Cached DepthLevels instance to be used across [GlimmerTheme] instances - currently depth
-         * levels are not user-configurable.
+         * Cached [DepthEffectLevels] instance to be used across [GlimmerTheme] instances -
+         * currently depth effect levels are not user-configurable.
          */
-        private val _depthLevels = DepthLevels()
+        private val _depthEffectLevels = DepthEffectLevels()
 
         /**
          * Cached IconSizes instance to be used across [GlimmerTheme] instances - currently icon

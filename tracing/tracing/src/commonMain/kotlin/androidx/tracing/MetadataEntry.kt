@@ -29,8 +29,8 @@ import androidx.annotation.RestrictTo
 internal const val EMPTY: String = ""
 
 /**
- * [TraceEvent]s can contain metadata. This is how that metadata is sent to the [TraceSink]. These
- * objects are pooled, and we expose bare-fields because this is performance sensitive code.
+ * [TraceEvent]s can contain metadata. This is how that metadata is sent to the [AbstractTraceSink].
+ * These objects are pooled, and we expose bare-fields because this is performance sensitive code.
  *
  * End users of tracing will never use this class directly. They will only interact with it using
  * [TraceEventScope].

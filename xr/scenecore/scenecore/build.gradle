@@ -35,6 +35,7 @@ dependencies {
     api(project(":xr:arcore:arcore"))
     api(project(":xr:runtime:runtime"))
     api(project(":xr:scenecore:scenecore-runtime"))
+    api("androidx.media3:media3-exoplayer:1.9.0-beta01")
 
     implementation(project(":xr:scenecore:scenecore-spatial-core"))
     implementation(project(":xr:scenecore:scenecore-spatial-rendering"))
@@ -68,6 +69,7 @@ android {
     defaultConfig {
         consumerProguardFiles("proguard-rules.pro")
         minSdk { version = release(24) }
+        compileSdk { version = release(36) }
     }
     namespace = "androidx.xr.scenecore"
 }

@@ -18,13 +18,11 @@
 
 package androidx.compose.remote.creation.compose.layout
 
-import android.graphics.Bitmap
 import android.graphics.Typeface
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
-import androidx.compose.remote.creation.compose.capture.RemoteComposePath
 import androidx.compose.remote.creation.compose.capture.RemoteDrawScope0.Companion.DefaultBlendMode
 import androidx.compose.remote.creation.compose.capture.RemoteDrawScope0.Companion.DefaultFilterQuality
 import androidx.compose.remote.creation.compose.capture.withTransform
@@ -36,8 +34,12 @@ import androidx.compose.remote.creation.compose.shaders.RemoteSolidColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.asRemotePaint
+import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.v2.RemoteComposeApplierV2
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.currentComposer
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
@@ -47,6 +49,7 @@ import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.FilterQuality
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.Path
@@ -70,6 +73,8 @@ public fun RemoteCanvas0(
     modifier: RemoteModifier = RemoteModifier,
     content: RemoteCanvasDrawScope0.() -> Unit,
 ) {
+    check(currentComposer.applier !is RemoteComposeApplierV2) { "Migrate to RemoteCanvas" }
+
     val captureMode = LocalRemoteComposeCreationState.current
     @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
     Spacer(
@@ -87,7 +92,7 @@ public fun RemoteCanvasDrawScope0.rotate(
     function: RemoteCanvasDrawScope0.() -> Unit,
 ) {
     canvas.save()
-    canvas.rotate(angle, pivotX, pivotY)
+    remoteCanvas.rotate(angle, pivotX, pivotY)
     this@rotate.function()
     canvas.restore()
 }
@@ -133,25 +138,24 @@ public fun RemoteCanvasDrawScope0.remoteDrawAnchoredText(
     val colorFilter: ColorFilter? = null
     val blendMode: BlendMode = DefaultBlendMode
 
-    val size = RemoteSize(remote.component.width, remote.component.height)
+    val size = remoteSize
     val paint = toPaint(brush, drawStyle, alpha, colorFilter, blendMode, size = size)
 
-    val ap = paint.nativePaint
-
+    val ap = paint
     if (typeface != null) {
-        ap.setTypeface(typeface)
+        ap.nativePaint.setTypeface(typeface)
     } else {
-        ap.setTypeface(Typeface.DEFAULT)
+        ap.nativePaint.setTypeface(Typeface.DEFAULT)
     }
-    ap.textSize = textSize.floatId
-    canvas.drawAnchoredText(
-        text.toString(),
+    ap.nativePaint.textSize = textSize.floatId
+    remoteCanvas.drawAnchoredText(
+        text = RemoteString(text.toString()),
         anchorX = anchor.x,
         anchorY = anchor.y,
         panx = panx,
         pany = pany,
         flags = 0,
-        paint = ap,
+        paint = ap.asRemotePaint(),
     )
 }
 
@@ -169,25 +173,24 @@ public fun RemoteCanvasDrawScope0.remoteDrawAnchoredText(
     val colorFilter: ColorFilter? = null
     val blendMode: BlendMode = DefaultBlendMode
 
-    val size = RemoteSize(remote.component.width, remote.component.height)
+    val size = remoteSize
     val paint = toPaint(brush, drawStyle, alpha, colorFilter, blendMode, size = size)
 
-    val ap = paint.nativePaint
-
+    val ap = paint
     if (typeface != null) {
-        ap.setTypeface(typeface)
+        ap.nativePaint.setTypeface(typeface)
     } else {
-        ap.setTypeface(Typeface.DEFAULT)
+        ap.nativePaint.setTypeface(Typeface.DEFAULT)
     }
-    ap.textSize = textSize.floatId
-    canvas.drawAnchoredText(
-        text,
+    ap.nativePaint.textSize = textSize.floatId
+    remoteCanvas.drawAnchoredText(
+        text = text,
         anchorX = anchor.x,
         anchorY = anchor.y,
         panx = panx,
         pany = pany,
         flags = 0,
-        paint = ap,
+        paint = ap.asRemotePaint(),
     )
 }
 
@@ -206,22 +209,21 @@ public fun RemoteCanvasDrawScope0.remoteDrawAnchoredText(
     val blendMode: BlendMode = DefaultBlendMode
 
     val paint = configurePaint(color, drawStyle, alpha.floatId, colorFilter, blendMode)
-    val ap = paint.nativePaint
-
+    val ap = paint
     if (typeface != null) {
-        ap.setTypeface(typeface)
+        ap.nativePaint.setTypeface(typeface)
     } else {
-        ap.setTypeface(Typeface.DEFAULT)
+        ap.nativePaint.setTypeface(Typeface.DEFAULT)
     }
-    ap.textSize = textSize.floatId
-    canvas.drawAnchoredText(
-        text.toString(),
+    ap.nativePaint.textSize = textSize.floatId
+    remoteCanvas.drawAnchoredText(
+        text = RemoteString(text.toString()),
         anchorX = anchor.x,
         anchorY = anchor.y,
         panx = panx,
         pany = pany,
         flags = 0,
-        paint = ap,
+        paint = ap.asRemotePaint(),
     )
 }
 
@@ -240,22 +242,21 @@ public fun RemoteCanvasDrawScope0.remoteDrawAnchoredText(
     val blendMode: BlendMode = DefaultBlendMode
 
     val paint = configurePaint(color, drawStyle, alpha.floatId, colorFilter, blendMode)
-    val ap = paint.nativePaint
-
+    val ap = paint
     if (typeface != null) {
-        ap.setTypeface(typeface)
+        ap.nativePaint.setTypeface(typeface)
     } else {
-        ap.setTypeface(Typeface.DEFAULT)
+        ap.nativePaint.setTypeface(Typeface.DEFAULT)
     }
-    ap.textSize = textSize.floatId
-    canvas.drawAnchoredText(
-        text,
+    ap.nativePaint.textSize = textSize.floatId
+    remoteCanvas.drawAnchoredText(
+        text = text,
         anchorX = anchor.x,
         anchorY = anchor.y,
         panx = panx,
         pany = pany,
         flags = 0,
-        paint = ap,
+        paint = ap.asRemotePaint(),
     )
 }
 
@@ -282,16 +283,17 @@ public fun RemoteCanvasDrawScope0.remoteDrawTweePath(
     color: Color,
     alpha: Float = 1.0f,
     style: DrawStyle = Fill,
-    colorFilter: ColorFilter? = null,
-    blendMode: BlendMode = DefaultBlendMode,
+    colorFilter: ColorFilter?,
+    blendMode: BlendMode,
 ) {
-    canvas.drawTweenPath(
-        path1,
-        path2,
-        tween,
-        start,
-        stop,
-        configurePaint(color, style, alpha, colorFilter, blendMode),
+    val ap = configurePaint(color, style, alpha, colorFilter, blendMode)
+    canvas.usePaint(ap.nativePaint)
+    canvas.document.drawTweenPath(
+        path1.asAndroidPath(),
+        path2.asAndroidPath(),
+        tween.floatId,
+        start.floatId,
+        stop.floatId,
     )
 }
 
@@ -374,12 +376,12 @@ public fun RemoteCanvasDrawScope0.remoteDrawRect(
     blendMode: BlendMode = DrawScope.DefaultBlendMode,
 ) {
     val paint = configurePaint(color, style, alpha, colorFilter, blendMode)
-    canvas.drawRect(
-        left = left,
-        top = top,
-        right = right,
-        bottom = bottom,
-        paint = paint.nativePaint,
+    remoteCanvas.drawRect(
+        left = left.rf,
+        top = top.rf,
+        right = right.rf,
+        bottom = bottom.rf,
+        paint = paint.asRemotePaint(),
     )
 }
 
@@ -392,11 +394,8 @@ public fun RemoteCanvasDrawScope0.remoteDrawPath(
     blendMode: BlendMode,
 ) {
     val paint = configurePaint(color, style, alpha, colorFilter, blendMode)
-    if (path is RemoteComposePath) {
-        canvas.drawRPath(path.remote, paint.nativePaint)
-    } else {
-        canvas.drawPath(path.asAndroidPath(), paint.nativePaint)
-    }
+    canvas.usePaint(paint.nativePaint)
+    canvas.document.drawPath(path.asAndroidPath())
 }
 
 public fun RemoteCanvasDrawScope0.remoteDrawRect(
@@ -408,16 +407,16 @@ public fun RemoteCanvasDrawScope0.remoteDrawRect(
     alpha: Float = 1.0f,
     style: DrawStyle = Fill,
     colorFilter: ColorFilter? = null,
-    blendMode: BlendMode = DrawScope.DefaultBlendMode,
+    blendMode: BlendMode,
 ) {
-    val size = RemoteSize(remote.component.width, remote.component.height)
-    val paint = toPaint(brush, style, alpha.rf, colorFilter, blendMode, size = size)
-    canvas.drawRect(
-        left = left,
-        top = top,
-        right = right,
-        bottom = bottom,
-        paint = paint.nativePaint,
+    remoteCanvas.drawRect(
+        left = left.rf,
+        top = top.rf,
+        right = right.rf,
+        bottom = bottom.rf,
+        paint =
+            toPaint(brush, style, alpha.rf, colorFilter, blendMode, size = remoteSize)
+                .asRemotePaint(),
     )
 }
 
@@ -433,14 +432,14 @@ public fun RemoteCanvasDrawScope0.remoteDrawRoundRect(
     colorFilter: ColorFilter?,
     blendMode: BlendMode,
 ) {
-    canvas.drawRoundRect(
-        left,
-        top,
-        right,
-        bottom,
-        cornerRadius.x,
-        cornerRadius.y,
-        toPaint(color, style, alpha, colorFilter, blendMode).nativePaint,
+    remoteCanvas.drawRoundRect(
+        left.rf,
+        top.rf,
+        right.rf,
+        bottom.rf,
+        cornerRadius.x.rf,
+        cornerRadius.y.rf,
+        toPaint(color, style, alpha, colorFilter, blendMode).asRemotePaint(),
     )
 }
 
@@ -456,16 +455,14 @@ public fun RemoteCanvasDrawScope0.remoteDrawRoundRect(
     colorFilter: ColorFilter?,
     blendMode: BlendMode,
 ) {
-    val size = RemoteSize(remote.component.width, remote.component.height)
-    val paint = toPaint(brush, style, alpha.rf, colorFilter, blendMode, size = size)
-    canvas.drawRoundRect(
-        left,
-        top,
-        right,
-        bottom,
-        cornerRadius.x,
-        cornerRadius.y,
-        paint.nativePaint,
+    remoteCanvas.drawRoundRect(
+        left.rf,
+        top.rf,
+        right.rf,
+        bottom.rf,
+        cornerRadius.x.rf,
+        cornerRadius.y.rf,
+        toPaint(brush, style, alpha.rf, colorFilter, blendMode, size = remoteSize).asRemotePaint(),
     )
 }
 
@@ -480,17 +477,17 @@ public fun RemoteCanvasDrawScope0.remoteDrawOval(
     colorFilter: ColorFilter?,
     blendMode: BlendMode,
 ) {
-    canvas.drawOval(
-        left = left,
-        top = top,
-        right = right,
-        bottom = bottom,
-        paint = toPaint(color, style, alpha, colorFilter, blendMode).nativePaint,
+    remoteCanvas.drawOval(
+        left = left.rf,
+        top = top.rf,
+        right = right.rf,
+        bottom = bottom.rf,
+        paint = toPaint(color, style, alpha, colorFilter, blendMode).asRemotePaint(),
     )
 }
 
 public fun RemoteCanvasDrawScope0.remoteDrawScaledBitmap(
-    image: Bitmap,
+    image: ImageBitmap,
     srcLeft: Float,
     srcTop: Float,
     srcRight: Float,
@@ -512,9 +509,9 @@ public fun RemoteCanvasDrawScope0.remoteDrawScaledBitmap(
     paint.blendMode = blendMode
     paint.colorFilter = colorFilter
     paint.alpha = alpha
-    canvas.usePaint(paint.nativePaint)
-    canvas.drawScaledBitmap(
-        image,
+    val remoteBitmap = image.rb
+    remoteCanvas.drawScaledBitmap(
+        remoteBitmap,
         srcLeft.rf,
         srcTop.rf,
         srcRight.rf,
@@ -526,6 +523,7 @@ public fun RemoteCanvasDrawScope0.remoteDrawScaledBitmap(
         scaleType,
         scaleFactor.rf,
         contentDescription,
+        paint.asRemotePaint(),
     )
 }
 
@@ -540,14 +538,14 @@ public fun RemoteCanvasDrawScope0.remoteDrawOval(
     colorFilter: ColorFilter?,
     blendMode: BlendMode,
 ) {
-    val size = RemoteSize(remote.component.width, remote.component.height)
-    val paint = toPaint(brush, style, alpha.rf, colorFilter, blendMode, size = size)
-    canvas.drawOval(
-        left = left,
-        top = top,
-        right = right,
-        bottom = bottom,
-        paint = paint.nativePaint,
+    remoteCanvas.drawOval(
+        left = left.rf,
+        top = top.rf,
+        right = right.rf,
+        bottom = bottom.rf,
+        paint =
+            toPaint(brush, style, alpha.rf, colorFilter, blendMode, size = remoteSize)
+                .asRemotePaint(),
     )
 }
 
@@ -565,15 +563,15 @@ public fun RemoteCanvasDrawScope0.remoteDrawArc(
     colorFilter: ColorFilter?,
     blendMode: BlendMode,
 ) {
-    canvas.drawArc(
-        left = left,
-        top = top,
-        right = right,
-        bottom = bottom,
-        startAngle = startAngle,
-        sweepAngle = sweepAngle,
+    remoteCanvas.drawArc(
+        left = left.rf,
+        top = top.rf,
+        right = right.rf,
+        bottom = bottom.rf,
+        startAngle = startAngle.rf,
+        sweepAngle = sweepAngle.rf,
         useCenter = useCenter,
-        paint = toPaint(color, style, alpha, colorFilter, blendMode).nativePaint,
+        paint = toPaint(color, style, alpha, colorFilter, blendMode).asRemotePaint(),
     )
 }
 

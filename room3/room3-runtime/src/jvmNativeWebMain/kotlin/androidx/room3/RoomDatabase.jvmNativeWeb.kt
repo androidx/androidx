@@ -23,8 +23,9 @@ import androidx.annotation.RestrictTo
 import androidx.room3.concurrent.CloseBarrier
 import androidx.room3.migration.AutoMigrationSpec
 import androidx.room3.migration.Migration
-import androidx.room3.util.contains as containsCommon
+import androidx.room3.util.containsCommon as containsCommon
 import androidx.room3.util.defaultQueryDispatcher
+import androidx.room3.util.findMigrationPathCommon
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
 import kotlin.coroutines.ContinuationInterceptor
@@ -510,7 +511,7 @@ actual constructor() {
                     migrationContainer = migrationContainer,
                     callbacks = callbacks,
                     journalMode = journalMode,
-                    requireMigration = requireMigration,
+                    isMigrationRequired = requireMigration,
                     allowDestructiveMigrationOnDowngrade = allowDestructiveMigrationOnDowngrade,
                     migrationNotRequiredFrom = migrationsNotRequiredFrom,
                     typeConverters = typeConverters,
@@ -540,6 +541,19 @@ actual constructor() {
          */
         public actual fun getMigrations(): Map<Int, Map<Int, Migration>> {
             return migrations
+        }
+
+        /**
+         * Finds the list of migrations that should be run to move from `start` version to `end`
+         * version.
+         *
+         * @param start The current database version
+         * @param end The target database version
+         * @return An ordered list of [Migration] objects that should be run to migrate between the
+         *   given versions. If a migration path cannot be found, returns `null`.
+         */
+        public actual fun findMigrationPath(start: Int, end: Int): List<Migration>? {
+            return this.findMigrationPathCommon(start, end)
         }
 
         /**

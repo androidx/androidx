@@ -24,12 +24,14 @@ import java.io.OutputStream
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.junit.Before
 import org.junit.Rule
@@ -51,7 +53,7 @@ class DataStoreRaceTest {
     fun testCacheRaceCondition() = runTest {
         val serializer = TestingSerializer()
 
-        val store = createDataStore(serializer = serializer, scope = backgroundScope)
+        val store = createDataStore(serializer = serializer, scope = this)
 
         val firstValue = 1.toByte()
         val secondValue = 2.toByte()
@@ -72,11 +74,13 @@ class DataStoreRaceTest {
         // Let write proceed and await processes to finish
         serializer.resumeWrite()
         writerJob.join()
-        withTimeout(5.seconds) {
-            // Without the fix, we pass the first assert of the value [1], and get stuck waiting and
-            // timeout because value [2] is dropped due to the version is the old version, which is
-            // not newer than the current version (incorrectly).
-            readerJob.join()
+        withContext(Dispatchers.IO) {
+            withTimeout(5.seconds) {
+                // Without the fix, we pass the first assert of the value [1], and get stuck
+                // waiting and timeout because value [2] is dropped due to the version is the
+                // old version, which is not newer than the current version (incorrectly).
+                readerJob.join()
+            }
         }
 
         // With the fix it should see [1, 2].

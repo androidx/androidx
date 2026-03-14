@@ -48,10 +48,10 @@ import androidx.xr.compose.spatial.ContentEdge
 import androidx.xr.compose.spatial.Orbiter
 import androidx.xr.compose.spatial.OrbiterOffsetType
 import androidx.xr.compose.spatial.Subspace
-import androidx.xr.compose.subspace.MovePolicy
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
 import androidx.xr.compose.subspace.layout.SubspaceModifier
+import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.DepthEstimationMode
 import androidx.xr.runtime.DeviceTrackingMode
@@ -183,7 +183,7 @@ class DepthMapActivity : ComponentActivity(), GLSurfaceView.Renderer {
     @Composable
     fun DepthMapPanel(view: View) {
         Subspace {
-            SpatialPanel(modifier = SubspaceModifier, dragPolicy = MovePolicy()) {
+            SpatialPanel(modifier = SubspaceModifier.movable()) {
                 AndroidView(
                     modifier = Modifier.width(1200.dp).height(1200.dp),
                     factory = { _ -> surfaceView },

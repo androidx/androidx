@@ -27,6 +27,7 @@ import androidx.xr.compose.subspace.node.SubspaceLayoutAwareModifierNode
 import androidx.xr.compose.subspace.node.SubspaceLayoutModifierNode
 import androidx.xr.compose.subspace.node.SubspaceModifierNodeElement
 import androidx.xr.compose.subspace.node.currentValueOf
+import androidx.xr.compose.subspace.node.invalidatePlacement
 import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.compose.unit.toDimensionsInMeters
 import androidx.xr.runtime.PlaneTrackingMode

@@ -243,6 +243,7 @@
     <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Subteks dalam setiap senarai"</string>
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Tamatkan Demo Imej dan Tindakan"</string>
     <string name="filter_chip_demo_title" msgid="92190365856639582">"Demo Cip Penapis"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"Demo Bar Kemajuan"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demo Templat Anak Tetingkap"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demo Templat Senarai Tempat"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Semak Imbas Tempat"</string>

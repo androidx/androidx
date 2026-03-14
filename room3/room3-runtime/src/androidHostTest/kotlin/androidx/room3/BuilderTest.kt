@@ -21,6 +21,7 @@ import androidx.kruth.assertThrows
 import androidx.room3.Room.databaseBuilder
 import androidx.room3.Room.inMemoryDatabaseBuilder
 import androidx.room3.migration.Migration
+import androidx.room3.util.isMigrationRequired
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.driver.AndroidSQLiteDriver
@@ -105,7 +106,7 @@ class BuilderTest {
         val db =
             databaseBuilder(mock(), TestDatabase::class.java, "foo").addMigrations(m1, m2).build()
 
-        val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
+        val config: DatabaseConfiguration = db.getConfiguration()
         val migrations = config.migrationContainer
 
         assertThat(migrations.findMigrationPath(0, 1)).containsExactlyElementsIn(listOf(m1))
@@ -125,7 +126,7 @@ class BuilderTest {
                 .addMigrations(m1, m2, m3)
                 .build()
 
-        val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
+        val config: DatabaseConfiguration = db.getConfiguration()
         val migrations = config.migrationContainer
 
         assertThat(migrations.findMigrationPath(0, 1)).containsExactlyElementsIn(listOf(m3))
@@ -144,7 +145,7 @@ class BuilderTest {
                 .addMigrations(m1, m2, m3, m4)
                 .build()
 
-        val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
+        val config: DatabaseConfiguration = db.getConfiguration()
         val migrations = config.migrationContainer
 
         assertThat(migrations.findMigrationPath(0, 3)).containsExactlyElementsIn(listOf(m4))
@@ -162,7 +163,7 @@ class BuilderTest {
             databaseBuilder(mock(), TestDatabase::class.java, "foo")
                 .addMigrations(m1_2, m2_3, m3_4, m3_2, m2_1)
                 .build()
-        val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
+        val config: DatabaseConfiguration = db.getConfiguration()
         val migrations = config.migrationContainer
         assertThat(migrations.findMigrationPath(3, 2)).containsExactlyElementsIn(listOf(m3_2))
         assertThat(migrations.findMigrationPath(3, 1)).containsExactlyElementsIn(listOf(m3_2, m2_1))
@@ -175,8 +176,8 @@ class BuilderTest {
             inMemoryDatabaseBuilder(context, TestDatabase::class.java)
                 .fallbackToDestructiveMigration(false)
                 .build()
-        val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
-        assertThat(config.requireMigration).isFalse()
+        val config: DatabaseConfiguration = db.getConfiguration()
+        assertThat(config.isMigrationRequired).isFalse()
     }
 
     @Test
@@ -186,7 +187,7 @@ class BuilderTest {
             inMemoryDatabaseBuilder(context, TestDatabase::class.java)
                 .fallbackToDestructiveMigrationFrom(true, 1, 2)
                 .build()
-        val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
+        val config: DatabaseConfiguration = db.getConfiguration()
         assertThat(config.isMigrationRequired(1, 2)).isFalse()
         assertThat(config.isMigrationRequired(2, 3)).isFalse()
     }
@@ -199,7 +200,7 @@ class BuilderTest {
                 .fallbackToDestructiveMigrationFrom(true, 1, 2)
                 .fallbackToDestructiveMigrationFrom(true, 3, 4)
                 .build()
-        val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
+        val config: DatabaseConfiguration = db.getConfiguration()
         assertThat(config.isMigrationRequired(1, 2)).isFalse()
         assertThat(config.isMigrationRequired(2, 3)).isFalse()
         assertThat(config.isMigrationRequired(3, 4)).isFalse()
@@ -213,7 +214,7 @@ class BuilderTest {
             inMemoryDatabaseBuilder(context, TestDatabase::class.java)
                 .fallbackToDestructiveMigration(false)
                 .build()
-        val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
+        val config: DatabaseConfiguration = db.getConfiguration()
 
         assertThat(config.isMigrationRequired(0, 1)).isFalse()
         assertThat(config.isMigrationRequired(1, 2)).isFalse()
@@ -236,7 +237,7 @@ class BuilderTest {
             inMemoryDatabaseBuilder(context, TestDatabase::class.java)
                 .fallbackToDestructiveMigrationOnDowngrade(false)
                 .build()
-        val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
+        val config: DatabaseConfiguration = db.getConfiguration()
 
         // isMigrationRequiredFrom doesn't know about downgrade only so it always returns true
         assertThat(config.isMigrationRequired(0, 1)).isTrue()
@@ -254,7 +255,7 @@ class BuilderTest {
             inMemoryDatabaseBuilder(context, TestDatabase::class.java)
                 .fallbackToDestructiveMigrationOnDowngrade(false)
                 .build()
-        val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
+        val config: DatabaseConfiguration = db.getConfiguration()
 
         // isMigrationRequiredFrom doesn't know about downgrade only so it always returns true
         assertThat(config.isMigrationRequired(1, 0)).isFalse()
@@ -268,7 +269,7 @@ class BuilderTest {
     fun isMigrationRequiredFrom_byDefault_alwaysReturnsTrue() {
         val context: Context = mock()
         val db = inMemoryDatabaseBuilder(context, TestDatabase::class.java).build()
-        val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
+        val config: DatabaseConfiguration = db.getConfiguration()
 
         assertThat(config.isMigrationRequired(0, 1)).isTrue()
         assertThat(config.isMigrationRequired(1, 2)).isTrue()
@@ -290,7 +291,7 @@ class BuilderTest {
             inMemoryDatabaseBuilder(context, TestDatabase::class.java)
                 .fallbackToDestructiveMigrationFrom(true, 1, 4, 81)
                 .build()
-        val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
+        val config: DatabaseConfiguration = db.getConfiguration()
         assertThat(config.isMigrationRequired(1, 2)).isFalse()
         assertThat(config.isMigrationRequired(4, 8)).isFalse()
         assertThat(config.isMigrationRequired(81, 90)).isFalse()
@@ -303,7 +304,7 @@ class BuilderTest {
             inMemoryDatabaseBuilder(context, TestDatabase::class.java)
                 .fallbackToDestructiveMigrationFrom(true, 1, 4, 81)
                 .build()
-        val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
+        val config: DatabaseConfiguration = db.getConfiguration()
         assertThat(config.isMigrationRequired(2, 3)).isTrue()
         assertThat(config.isMigrationRequired(3, 4)).isTrue()
         assertThat(config.isMigrationRequired(73, 80)).isTrue()
@@ -316,7 +317,7 @@ class BuilderTest {
             inMemoryDatabaseBuilder(context, TestDatabase::class.java)
                 .addMigrations(EmptyMigration(1, 0))
                 .build() as BuilderTest_TestDatabase_Impl
-        val config: DatabaseConfiguration = db.databaseConfiguration
+        val config: DatabaseConfiguration = db.getConfiguration()
         assertThat(config.migrationContainer.findMigrationPath(1, 2))
             .isEqualTo((db.mAutoMigrations))
     }
@@ -329,7 +330,7 @@ class BuilderTest {
                 .fallbackToDestructiveMigrationOnDowngrade(false)
                 .fallbackToDestructiveMigrationFrom(true, 2, 4)
                 .build()
-        val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
+        val config: DatabaseConfiguration = db.getConfiguration()
         assertThat(config.isMigrationRequired(1, 2)).isTrue()
         assertThat(config.isMigrationRequired(2, 3)).isFalse()
         assertThat(config.isMigrationRequired(3, 4)).isTrue()
@@ -347,7 +348,7 @@ class BuilderTest {
         val context: Context = mock()
         val db = inMemoryDatabaseBuilder(context, TestDatabase::class.java).build()
         assertThat(db).isInstanceOf<BuilderTest_TestDatabase_Impl>()
-        val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
+        val config: DatabaseConfiguration = db.getConfiguration()
         assertThat(config).isNotNull()
         assertThat(config.context).isEqualTo(context)
         assertThat(config.name).isNull()
@@ -362,7 +363,7 @@ class BuilderTest {
             inMemoryDatabaseBuilder(context, TestDatabase::class.java)
                 .allowMainThreadQueries()
                 .build()
-        val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
+        val config: DatabaseConfiguration = db.getConfiguration()
         assertThat(config.allowMainThreadQueries).isTrue()
     }
 
@@ -374,7 +375,7 @@ class BuilderTest {
                 .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
                 .build()
         assertThat(db).isInstanceOf<BuilderTest_TestDatabase_Impl>()
-        val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
+        val config: DatabaseConfiguration = db.getConfiguration()
         assertThat(config.journalMode).isEqualTo(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
     }
 
@@ -440,7 +441,7 @@ class BuilderTest {
         val driver: SQLiteDriver = mock()
         val db = inMemoryDatabaseBuilder(mock(), TestDatabase::class.java).setDriver(driver).build()
         assertThat(db).isInstanceOf<BuilderTest_TestDatabase_Impl>()
-        val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
+        val config: DatabaseConfiguration = db.getConfiguration()
         assertThat(config.sqliteDriver).isEqualTo(driver)
     }
 
@@ -448,18 +449,11 @@ class BuilderTest {
     fun driverDefaultsToAndroid() {
         val db = inMemoryDatabaseBuilder(mock(), TestDatabase::class.java).build()
         assertThat(db).isInstanceOf<BuilderTest_TestDatabase_Impl>()
-        val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
+        val config: DatabaseConfiguration = db.getConfiguration()
         assertThat(config.sqliteDriver).isInstanceOf<AndroidSQLiteDriver>()
     }
 
-    internal abstract class TestDatabase : RoomDatabase() {
-        lateinit var databaseConfiguration: DatabaseConfiguration
-
-        override fun init(configuration: DatabaseConfiguration) {
-            super.init(configuration)
-            databaseConfiguration = configuration
-        }
-    }
+    internal abstract class TestDatabase : RoomDatabase()
 
     internal class EmptyMigration(start: Int, end: Int) : Migration(start, end) {
         override suspend fun migrate(connection: SQLiteConnection) {}

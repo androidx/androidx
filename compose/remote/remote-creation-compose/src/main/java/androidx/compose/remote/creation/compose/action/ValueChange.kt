@@ -43,7 +43,7 @@ internal class ValueChangeAction<T>(
     override fun RemoteStateScope.toRemoteAction(): CreationAction {
         return if (remoteValue is MutableRemoteInt) {
             updatedValue as RemoteInt
-            val array = updatedValue.arrayForCreationState(creationState)
+            val array = updatedValue.arrayForCreationState(this)
 
             if (array.isLiteral()) {
                 ValueIntegerChange(remoteValue.id, array[0].toInt())

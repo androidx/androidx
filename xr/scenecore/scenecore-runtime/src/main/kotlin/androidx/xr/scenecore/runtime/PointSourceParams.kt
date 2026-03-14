@@ -18,10 +18,5 @@ package androidx.xr.scenecore.runtime
 
 import androidx.annotation.RestrictTo
 
-/**
- * Represents a XR Runtime PointSourceParams
- *
- * @param entity the SceneCore [Entity] for this instance.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public class PointSourceParams(public val entity: Entity) {}
+/** Represents a XR Runtime PointSourceParams */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class PointSourceParams() {}

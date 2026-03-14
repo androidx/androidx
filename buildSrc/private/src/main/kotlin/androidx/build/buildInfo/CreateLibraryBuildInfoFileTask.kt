@@ -319,7 +319,10 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
         private fun String?.isAndroidXDependency() =
             this != null &&
                 startsWith("androidx.") &&
-                !startsWith("androidx.test") &&
+                // we are allowing androidx.test.uiautomator because of b/483359994
+                // uiautomator is released with other AndroidX libraries in Jetpad so if another
+                // package depends on it we need to have it in the build info file
+                (startsWith("androidx.test.uiautomator") || !startsWith("androidx.test")) &&
                 !startsWith("androidx.databinding") &&
                 !startsWith("androidx.media3")
 

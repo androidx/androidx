@@ -55,6 +55,55 @@ import androidx.compose.remote.integration.view.demos.examples.ServerSideKt;
 import androidx.compose.remote.integration.view.demos.examples.ShaderCalendarKt;
 import androidx.compose.remote.integration.view.demos.examples.SmallAnimated;
 import androidx.compose.remote.integration.view.demos.examples.TextKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoBoxKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoCollapsibleColumnKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoCollapsibleRowKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoColumnKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoFitBoxKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoFlowKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoImageKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierAlignByBaselineKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierBackgroundIdKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierBackgroundKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierBorderKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierClipCircleKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierClipRectKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierClipRoundedRectKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierCollapsiblePriorityKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierComponentIdKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierComputeMeasureKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierComputePositionKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierDynamicBorderKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierFillMaxHeightKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierFillMaxSizeKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierFillMaxWidthKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierFillParentMaxHeightKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierFillParentMaxSizeKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierFillParentMaxWidthKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierHeightInKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierHeightKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierHorizontalScrollKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierHorizontalWeightKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierOnClickKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierOnTouchCancelKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierOnTouchDownKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierOnTouchUpKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierPaddingKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierSizeKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierSpacedByKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierVerticalScrollKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierVerticalWeightKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierVisibilityKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierWidthInKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierWidthKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierWrapContentHeightKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierWrapContentSizeKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierWrapContentWidthKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoModifierZIndexKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoRowKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoStateLayoutKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoTextAutoSizeKt;
+import androidx.compose.remote.integration.view.demos.examples.components.DemoTextKt;
 import androidx.compose.remote.integration.view.demos.examples.old.BasicProceduralDemos;
 import androidx.compose.remote.integration.view.demos.examples.old.BitmapFontWatch;
 import androidx.compose.remote.integration.view.demos.examples.old.ClockDemo1;
@@ -234,8 +283,115 @@ public abstract class DemosCreation {
                 getp("fancyClock2", DemoMetalClockKt::fancyClock2),
                 getp("Server/maze", DemoParticlesKt::pmaze),
                 getp("Server/maze1", DemoParticlesKt::pmaze1),
-                getp("Server/maze2", DemoParticlesKt::pmaze2)
+                getp("Server/maze2", DemoParticlesKt::pmaze2),
 
+                // Group 1: Foundation & Sizing
+                getp("Components/Box",
+                        DemoBoxKt::DemoBox),
+                getp("Components/Row",
+                        DemoRowKt::DemoRow),
+                getp("Components/Column",
+                        DemoColumnKt::DemoColumn),
+                getp("Components/Modifier/Width",
+                        DemoModifierWidthKt::DemoModifierWidth),
+                getp("Components/Modifier/Height",
+                        DemoModifierHeightKt::DemoModifierHeight),
+                getp("Components/Modifier/Size",
+                        DemoModifierSizeKt::DemoModifierSize),
+                getp("Components/Modifier/FillMaxWidth",
+                        DemoModifierFillMaxWidthKt::DemoModifierFillMaxWidth),
+                getp("Components/Modifier/FillMaxHeight",
+                        DemoModifierFillMaxHeightKt::DemoModifierFillMaxHeight),
+                getp("Components/Modifier/FillMaxSize",
+                        DemoModifierFillMaxSizeKt::DemoModifierFillMaxSize),
+                getp("Components/Modifier/WidthIn",
+                        DemoModifierWidthInKt::DemoModifierWidthIn),
+                getp("Components/Modifier/HeightIn",
+                        DemoModifierHeightInKt::DemoModifierHeightIn),
+                getp("Components/Modifier/WrapContentWidth",
+                        DemoModifierWrapContentWidthKt::DemoModifierWrapContentWidth),
+                getp("Components/Modifier/WrapContentHeight",
+                        DemoModifierWrapContentHeightKt::DemoModifierWrapContentHeight),
+                getp("Components/Modifier/WrapContentSize",
+                        DemoModifierWrapContentSizeKt::DemoModifierWrapContentSize),
+
+                // Group 2: Parent-Relative & Layout Logic
+                getp("Components/Modifier/FillParentMaxWidth",
+                        DemoModifierFillParentMaxWidthKt::DemoModifierFillParentMaxWidth),
+                getp("Components/Modifier/FillParentMaxHeight",
+                        DemoModifierFillParentMaxHeightKt::DemoModifierFillParentMaxHeight),
+                getp("Components/Modifier/FillParentMaxSize",
+                        DemoModifierFillParentMaxSizeKt::DemoModifierFillParentMaxSize),
+                getp("Components/Modifier/HorizontalWeight",
+                        DemoModifierHorizontalWeightKt::DemoModifierHorizontalWeight),
+                getp("Components/Modifier/VerticalWeight",
+                        DemoModifierVerticalWeightKt::DemoModifierVerticalWeight),
+                getp("Components/Modifier/SpacedBy",
+                        DemoModifierSpacedByKt::DemoModifierSpacedBy),
+                getp("Components/Modifier/AlignByBaseline",
+                        DemoModifierAlignByBaselineKt::DemoModifierAlignByBaseline),
+                getp("Components/Modifier/Padding",
+                        DemoModifierPaddingKt::DemoModifierPadding),
+                getp("Components/Modifier/ZIndex",
+                        DemoModifierZIndexKt::DemoModifierZIndex),
+                getp("Components/Modifier/ComponentId",
+                        DemoModifierComponentIdKt::DemoModifierComponentId),
+
+                // Group 3: Visual & Clipping
+                getp("Components/Modifier/Background",
+                        DemoModifierBackgroundKt::DemoModifierBackground),
+                getp("Components/Modifier/BackgroundId",
+                        DemoModifierBackgroundIdKt::DemoModifierBackgroundId),
+                getp("Components/Modifier/Border",
+                        DemoModifierBorderKt::DemoModifierBorder),
+                getp("Components/Modifier/DynamicBorder",
+                        DemoModifierDynamicBorderKt::DemoModifierDynamicBorder),
+                getp("Components/Modifier/ClipRect",
+                        DemoModifierClipRectKt::DemoModifierClipRect),
+                getp("Components/Modifier/ClipRoundedRect",
+                        DemoModifierClipRoundedRectKt::DemoModifierClipRoundedRect),
+                getp("Components/Modifier/ClipCircle",
+                        DemoModifierClipCircleKt::DemoModifierClipCircle),
+                getp("Components/Modifier/Visibility",
+                        DemoModifierVisibilityKt::DemoModifierVisibility),
+                getp("Components/Modifier/ComputeMeasure",
+                        DemoModifierComputeMeasureKt::DemoModifierComputeMeasure),
+                getp("Components/Modifier/ComputePosition",
+                        DemoModifierComputePositionKt::DemoModifierComputePosition),
+
+                // Group 4: Specialized Layouts & Content
+                getp("Components/Flow",
+                        DemoFlowKt::DemoFlow),
+                getp("Components/FitBox",
+                        DemoFitBoxKt::DemoFitBox),
+                getp("Components/CollapsibleColumn",
+                        DemoCollapsibleColumnKt::DemoCollapsibleColumn),
+                getp("Components/CollapsibleRow",
+                        DemoCollapsibleRowKt::DemoCollapsibleRow),
+                getp("Components/Modifier/CollapsiblePriority",
+                        DemoModifierCollapsiblePriorityKt::DemoModifierCollapsiblePriority),
+                getp("Components/StateLayout",
+                        DemoStateLayoutKt::DemoStateLayout),
+                getp("Components/Text",
+                        DemoTextKt::DemoText),
+                getp("Components/TextAutoSize",
+                        DemoTextAutoSizeKt::DemoTextAutoSize),
+                getp("Components/Image",
+                        DemoImageKt::DemoImage),
+
+                // Group 5: Interactive & Scrolling
+                getp("Components/Modifier/VerticalScroll",
+                        DemoModifierVerticalScrollKt::DemoModifierVerticalScroll),
+                getp("Components/Modifier/HorizontalScroll",
+                        DemoModifierHorizontalScrollKt::DemoModifierHorizontalScroll),
+                getp("Components/Modifier/OnClick",
+                        DemoModifierOnClickKt::DemoModifierOnClick),
+                getp("Components/Modifier/OnTouchDown",
+                        DemoModifierOnTouchDownKt::DemoModifierOnTouchDown),
+                getp("Components/Modifier/OnTouchUp",
+                        DemoModifierOnTouchUpKt::DemoModifierOnTouchUp),
+                getp("Components/Modifier/OnTouchCancel",
+                        DemoModifierOnTouchCancelKt::DemoModifierOnTouchCancel)
 
         ));
     }

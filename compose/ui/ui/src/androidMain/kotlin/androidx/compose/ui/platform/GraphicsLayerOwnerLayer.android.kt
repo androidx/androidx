@@ -21,6 +21,7 @@ import androidx.compose.ui.FrameRateCategory
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.center
+import androidx.compose.ui.geometry.isSimple
 import androidx.compose.ui.geometry.isUnspecified
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.CompositingStrategy as OldCompositingStrategy
@@ -203,7 +204,11 @@ internal class GraphicsLayerOwnerLayer(
     private fun updateOutline() {
         val outline = outline ?: return
         graphicsLayer.setOutline(outline)
-        if (outline is Outline.Generic && Build.VERSION.SDK_INT < 33) {
+        if (
+            Build.VERSION.SDK_INT < 33 &&
+                (outline is Outline.Generic ||
+                    (outline is Outline.Rounded && !outline.roundRect.isSimple))
+        ) {
             // before 33 many of the paths are not clipping by rendernode. instead we have to
             // manually clip on a canvas. it means we have redraw the parent layer when it changes
             // TODO We should somehow move it into the android specific GraphicsLayer

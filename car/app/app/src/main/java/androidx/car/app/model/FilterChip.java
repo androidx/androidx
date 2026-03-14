@@ -23,6 +23,7 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
@@ -39,8 +40,9 @@ import java.util.Objects;
  * <p>Filter chips are used to filter content. They can contain text, a start icon, and an end icon.
  * They can also be selected or unselected.
  */
+@ExperimentalCarApi
 @CarProtocol
-@RequiresCarApi(8)
+@RequiresCarApi(9)
 @KeepFields
 public final class FilterChip implements Item {
     @Nullable

@@ -31,6 +31,7 @@ plugins {
 dependencies {
     api("androidx.core:core:1.9.0")
     implementation(libs.kotlinCoroutinesAndroid)
+    implementation(libs.guavaAndroid) // upgrading to newer version of guava due to CVE-2023-2976
     implementation(libs.kotlinCoroutinesGuava)
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.core:core-ktx:1.9.0")

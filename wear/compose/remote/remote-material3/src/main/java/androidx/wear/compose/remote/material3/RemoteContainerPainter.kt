@@ -44,9 +44,9 @@ private class DefaultRemoteContainerPainter(
         scrim?.let {
             drawRect(
                 paint =
-                    RemotePaint().apply {
-                        applyRemoteBrush(scrim, remoteSize)
-                        remoteColor =
+                    RemotePaint {
+                        applyRemoteBrush(scrim, size)
+                        color =
                             Color.Black.rc.copy(alpha = this@DefaultRemoteContainerPainter.alpha)
                     }
             )

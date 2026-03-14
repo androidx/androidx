@@ -33,12 +33,11 @@ import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.layout.StateLayout
 import androidx.compose.remote.creation.compose.layout.rememberStateMachine
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertNotNull
@@ -124,12 +123,7 @@ class RemoteComposeV2Test {
         val displayInfo = CreationDisplayInfo(500, 500, 1)
         val document =
             captureSingleRemoteDocumentV2(creationDisplayInfo = displayInfo, context = context) {
-                RemoteCanvas {
-                    drawRect(
-                        paint =
-                            RemotePaint().apply { remoteColor = RemoteColor(Color.Red.toArgb()) }
-                    )
-                }
+                RemoteCanvas { drawRect(paint = RemotePaint { color = Color.Red.rc }) }
             }
 
         assertNotNull(document)

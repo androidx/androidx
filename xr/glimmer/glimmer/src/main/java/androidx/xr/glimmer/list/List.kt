@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
+import androidx.xr.glimmer.Spacing
 import androidx.xr.glimmer.edgeScrim
 import androidx.xr.glimmer.list.VerticalListDefaults.VerticalArrangement
 import kotlin.math.max
@@ -42,8 +43,10 @@ import kotlin.math.max
 /**
  * This is a scrolling list component that only composes and lays out the currently visible items.
  * It is based on [androidx.compose.foundation.lazy.LazyColumn], but with extra functionality and
- * customized behavior required for Jetpack Compose Glimmer. Jetpack Compose Glimmer applications
- * should always use VerticalList instead of LazyColumn to ensure correct behavior.
+ * customized behavior required for Jetpack Compose Glimmer. For Jetpack Compose Glimmer
+ * applications, it is recommended to use [VerticalList] instead of
+ * [androidx.compose.foundation.lazy.LazyColumn], as it is specifically designed to provide seamless
+ * focus-based navigation, visual scrim edge effects and support for focus-aware snap behavior.
  *
  * The [content] block defines a DSL which allows you to emit items of different types. For example,
  * you can use [ListScope.item] to add a single item and [ListScope.items] to add a list of items.
@@ -181,7 +184,7 @@ public object VerticalListDefaults {
      *
      * @see [VerticalArrangement] for the default arrangement that uses this spacing.
      */
-    public val ItemSpacing: Dp = 20.dp
+    public val ItemSpacing: Dp = Spacing.ExtraLarge
 
     /** The maximum height of the fade effects on the sides of the list. */
     public val ScrimMaxHeight: Dp = 46.dp

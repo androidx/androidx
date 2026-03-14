@@ -328,6 +328,7 @@ internal class RemoteComposeCoreTextComponentModifier(
             canvas.document.startTextComponent(
                 modifier,
                 id.getIdForCreationState(canvas.creationState),
+                -1,
                 color.constantValueOrNull?.toArgb() ?: Color.Black.toArgb(),
                 if (color.hasConstantValue) -1
                 else color.getIdForCreationState(canvas.creationState),

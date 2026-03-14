@@ -32,11 +32,8 @@ import org.jspecify.annotations.Nullable;
 final class AudioTrackExtensionsWrapperImpl implements AudioTrackExtensionsWrapper {
     private final AudioTrackExtensions mExtensions;
 
-    private final EntityManager mEntityManager;
-
-    AudioTrackExtensionsWrapperImpl(AudioTrackExtensions extensions, EntityManager entityManager) {
+    AudioTrackExtensionsWrapperImpl(AudioTrackExtensions extensions) {
         mExtensions = extensions;
-        mEntityManager = entityManager;
     }
 
     @Override
@@ -48,13 +45,7 @@ final class AudioTrackExtensionsWrapperImpl implements AudioTrackExtensionsWrapp
             return null;
         }
 
-        Entity entity = mEntityManager.getEntityForNode(extParams.getNode());
-
-        if (entity == null) {
-            return null;
-        }
-
-        return new PointSourceParams(entity);
+        return new PointSourceParams();
     }
 
     @Override
@@ -76,18 +67,22 @@ final class AudioTrackExtensionsWrapperImpl implements AudioTrackExtensionsWrapp
     }
 
     @Override
-    public void setPointSourceParams(@NonNull AudioTrack track, @NonNull PointSourceParams params) {
+    public void setPointSourceParams(
+            @NonNull AudioTrack track, @NonNull PointSourceParams params, @Nullable Entity entity) {
         com.android.extensions.xr.media.PointSourceParams extParams =
-                MediaUtils.convertPointSourceParamsToExtensions(params);
+                MediaUtils.convertPointSourceParamsToExtensions(params, entity);
 
         mExtensions.setPointSourceParams(track, extParams);
     }
 
     @Override
     public AudioTrack.@NonNull Builder setPointSourceParams(
-            AudioTrack.@NonNull Builder builder, @NonNull PointSourceParams params) {
+            AudioTrack.@NonNull Builder builder,
+            @NonNull PointSourceParams params,
+            @Nullable Entity entity
+    ) {
         com.android.extensions.xr.media.PointSourceParams extParams =
-                MediaUtils.convertPointSourceParamsToExtensions(params);
+                MediaUtils.convertPointSourceParamsToExtensions(params, entity);
 
         return mExtensions.setPointSourceParams(builder, extParams);
     }

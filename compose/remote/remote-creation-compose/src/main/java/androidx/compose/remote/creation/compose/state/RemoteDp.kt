@@ -141,6 +141,11 @@ public fun Dp.asRdp(): RemoteDp {
     return RemoteDp(this.value.rf)
 }
 
+/** Converts this [RemoteFloat] to a [RemoteDp] directly (1:1) */
+public fun RemoteFloat.asRemoteDp(): RemoteDp {
+    return RemoteDp(this)
+}
+
 /**
  * Remembers a named remote Dp expression.
  *

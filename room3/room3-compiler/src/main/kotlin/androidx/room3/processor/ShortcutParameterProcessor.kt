@@ -49,12 +49,12 @@ class ShortcutParameterProcessor(
             errorMsg = ProcessorErrors.QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE,
         )
 
-        val (pojoType, isMultiple) = extractPojoType(asMember)
+        val (dataClassType, isMultiple) = extractDataClassType(asMember)
         return ShortcutQueryParameter(
             element = element,
             name = name,
             type = asMember,
-            pojoType = pojoType,
+            dataClassType = dataClassType,
             isMultiple = isMultiple,
         )
     }
@@ -76,21 +76,21 @@ class ShortcutParameterProcessor(
     }
 
     @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-    private fun extractPojoType(typeMirror: XType): Pair<XType?, Boolean> {
+    private fun extractDataClassType(typeMirror: XType): Pair<XType?, Boolean> {
 
         val processingEnv = context.processingEnv
 
-        fun verifyAndPair(pojoType: XType, isMultiple: Boolean): Pair<XType?, Boolean> {
+        fun verifyAndPair(dataClassType: XType, isMultiple: Boolean): Pair<XType?, Boolean> {
             // kotlin may generate ? extends T so we should reduce it.
-            val boundedVar = pojoType.extendsBound()
+            val boundedVar = dataClassType.extendsBound()
             return if (boundedVar != null) {
                 verifyAndPair(boundedVar, isMultiple)
             } else {
-                Pair(pojoType, isMultiple)
+                Pair(dataClassType, isMultiple)
             }
         }
 
-        fun extractPojoTypeFromIterator(iterableType: XType): XType {
+        fun extractDataClassTypeFromIterator(iterableType: XType): XType {
             iterableType.typeElement!!.getAllNonPrivateInstanceMethods().forEach {
                 if (it.jvmName == "iterator") {
                     return it.asMemberOf(iterableType).returnType.typeArguments.first()
@@ -101,12 +101,12 @@ class ShortcutParameterProcessor(
 
         val iterableType = processingEnv.requireType("java.lang.Iterable").rawType
         if (iterableType.isAssignableFrom(typeMirror)) {
-            val pojo = extractPojoTypeFromIterator(typeMirror)
-            return verifyAndPair(pojo, true)
+            val dataClass = extractDataClassTypeFromIterator(typeMirror)
+            return verifyAndPair(dataClass, true)
         }
         if (typeMirror.isArray()) {
-            val pojo = typeMirror.componentType
-            return verifyAndPair(pojo, true)
+            val dataClass = typeMirror.componentType
+            return verifyAndPair(dataClass, true)
         }
         return verifyAndPair(typeMirror, false)
     }

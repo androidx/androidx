@@ -19,153 +19,208 @@ package androidx.glance.wear.parcel
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.Intent.ACTION_MAIN
-import android.content.Intent.CATEGORY_HOME
-import android.content.ServiceConnection
-import android.content.pm.PackageManager
-import android.os.Build.VERSION
-import android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
-import android.os.IBinder
 import android.os.RemoteException
-import android.provider.Settings
 import android.util.Log
-import androidx.annotation.GuardedBy
+import androidx.glance.wear.core.WearWidgetRawContent
+import androidx.glance.wear.core.WearWidgetUpdateRequest
+import androidx.glance.wear.core.WidgetInstanceId
 import androidx.glance.wear.parcel.legacy.TileUpdateRequestData
 import androidx.glance.wear.parcel.legacy.TileUpdateRequesterService
+import androidx.glance.wear.proto.legacy.TileUpdateRequest
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeout
 
-internal class WidgetUpdateClientImpl() : WidgetUpdateClient {
-    private val lock = Any()
+internal class WidgetUpdateClientImpl(
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+) : WidgetUpdateClient {
+    private val binderMutex = Mutex()
 
-    @GuardedBy("lock") private val pendingUpdates = mutableSetOf<ComponentName>()
-    @GuardedBy("lock") private var bindingInProgress = false
+    // Writes must be guarded by binderMutex.
+    @Volatile
+    private var legacyBinder:
+        WidgetUpdateBinder<TileUpdateRequesterService, PullUpdateIdentifier>? =
+        null
+
+    // Writes must be guarded by binderMutex.
+    @Volatile
+    private var widgetUpdateBinder:
+        WidgetUpdateBinder<IWearWidgetUpdateRequester, PushUpdateData>? =
+        null
+
+    private val scope = CoroutineScope(dispatcher + SupervisorJob())
 
     override fun sendUpdateBroadcast(context: Context, provider: ComponentName) {
-        val intent = Intent(ACTION_REQUEST_TILE_UPDATE)
-        intent.putExtra(Intent.EXTRA_COMPONENT_NAME, provider)
+        val intent =
+            Intent(ACTION_REQUEST_TILE_UPDATE_BROADCAST_LEGACY).apply {
+                putExtra(Intent.EXTRA_COMPONENT_NAME, provider)
+            }
         context.sendBroadcast(intent)
     }
 
-    override fun requestUpdate(context: Context, provider: ComponentName) {
-        synchronized(lock) {
-            pendingUpdates.add(provider)
-
-            if (bindingInProgress) {
-                // Something else kicked off the bind; let that carry on binding.
-                return
-            } else {
-                bindingInProgress = true
+    override fun requestUpdate(
+        context: Context,
+        provider: ComponentName,
+        instanceId: WidgetInstanceId?,
+    ) {
+        val pullId = PullUpdateIdentifier(provider, instanceId)
+        scope.launch {
+            try {
+                withTimeout(UPDATE_TIMEOUT) {
+                    val binder =
+                        legacyBinder
+                            ?: binderMutex.withLock {
+                                legacyBinder
+                                    ?: createLegacyBinder(context.applicationContext, dispatcher)
+                                        .also { legacyBinder = it }
+                            }
+                    binder.requestUpdate(pullId)
+                }
+            } catch (ex: Exception) {
+                Log.e(TAG, "Failed to request widget update", ex)
             }
         }
-
-        val bindIntent = buildUpdateBindIntent(context)
-        if (bindIntent == null) {
-            Log.e(TAG, "Could not build bind intent")
-            synchronized(lock) { bindingInProgress = false }
-            return
-        }
-        bindAndUpdate(context, bindIntent)
     }
 
-    private fun bindAndUpdate(context: Context, intent: Intent) {
-        context.bindService(
-            intent,
-            object : ServiceConnection {
-                override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-                    val pendingUpdatesCopy =
-                        synchronized(lock) {
-                            val copy = ArrayList(pendingUpdates)
-                            pendingUpdates.clear()
-                            bindingInProgress = false
-                            copy
-                        }
-
-                    val updateRequesterService: TileUpdateRequesterService? =
-                        TileUpdateRequesterService.Stub.asInterface(service)
-
-                    for (index in 0 until pendingUpdatesCopy.size) {
-                        updateRequesterService?.sendUpdateRequest(pendingUpdatesCopy[index])
+    override suspend fun pushUpdate(
+        context: Context,
+        updateRequest: WearWidgetUpdateRequest,
+        rawContent: WearWidgetRawContent,
+    ) {
+        val pushData = PushUpdateData(updateRequest, rawContent)
+        withTimeout(UPDATE_TIMEOUT) {
+            val binder =
+                widgetUpdateBinder
+                    ?: binderMutex.withLock {
+                        widgetUpdateBinder
+                            ?: createBinder(context.applicationContext, dispatcher).also {
+                                widgetUpdateBinder = it
+                            }
                     }
-
-                    context.unbindService(this)
-                }
-
-                override fun onServiceDisconnected(name: ComponentName?) {}
-            },
-            Context.BIND_AUTO_CREATE,
-        )
+            binder.requestUpdate(pushData)
+        }
     }
 
-    companion object {
-        internal const val ACTION_REQUEST_TILE_UPDATE =
+    internal companion object {
+        const val TAG = "WidgetUpdateClientImpl"
+        const val ACTION_BIND_UPDATE_REQUESTER_LEGACY =
+            "androidx.wear.tiles.action.BIND_UPDATE_REQUESTER"
+        const val ACTION_BIND_UPDATE_REQUESTER = "androidx.glance.wear.action.BIND_UPDATE_REQUESTER"
+
+        data class PushUpdateData(
+            val request: WearWidgetUpdateRequest,
+            val rawContent: WearWidgetRawContent,
+        )
+
+        data class PullUpdateIdentifier(
+            val componentName: ComponentName,
+            val instanceId: WidgetInstanceId?,
+        )
+
+        private val UPDATE_TIMEOUT = 10.seconds
+
+        /** Intent action to broadcast debugging update requests. */
+        internal const val ACTION_REQUEST_TILE_UPDATE_BROADCAST_LEGACY =
             "androidx.wear.tiles.action.REQUEST_TILE_UPDATE"
 
-        internal const val ACTION_BIND_UPDATE_REQUESTER =
-            "androidx.wear.tiles.action.BIND_UPDATE_REQUESTER"
-        internal const val CATEGORY_HOME_MAIN = "${CATEGORY_HOME}_MAIN"
-        private const val DEFAULT_TARGET_SYSUI = "com.google.android.wearable.app"
-        private const val SYSUI_SETTINGS_KEY = "clockwork_sysui_package"
-        private const val TAG = "WidgetUpdateClient"
+        /** Create a binder that can be used to request updates from the legacy Tile Renderer. */
+        fun createLegacyBinder(
+            context: Context,
+            dispatcher: CoroutineDispatcher,
+        ): WidgetUpdateBinder<TileUpdateRequesterService, PullUpdateIdentifier> =
+            WidgetUpdateBinder(
+                context = context,
+                action = ACTION_BIND_UPDATE_REQUESTER_LEGACY,
+                asInterface = { TileUpdateRequesterService.Stub.asInterface(it) },
+                dispatcher = dispatcher,
+                sendRequest = { service, pullData ->
+                    try {
+                        val requestProto = TileUpdateRequest(tile_id = pullData.instanceId?.id)
+                        val request =
+                            TileUpdateRequestData(
+                                requestProto.encode(),
+                                TileUpdateRequestData.VERSION_1,
+                            )
+                        service.requestUpdate(pullData.componentName, request)
+                    } catch (ex: RemoteException) {
+                        Log.e(TAG, "while requesting widget update", ex)
+                    }
+                },
+            )
 
-        private fun TileUpdateRequesterService.sendUpdateRequest(provider: ComponentName) {
-            try {
-                this.requestUpdate(provider, TileUpdateRequestData())
-            } catch (ex: RemoteException) {
-                Log.w(TAG, "while requesting widget update", ex)
-            }
-        }
+        /** Create a binder that can be used to push updates to the Tile Renderer. */
+        fun createBinder(
+            context: Context,
+            dispatcher: CoroutineDispatcher,
+        ): WidgetUpdateBinder<IWearWidgetUpdateRequester, PushUpdateData> =
+            WidgetUpdateBinder(
+                context = context,
+                action = ACTION_BIND_UPDATE_REQUESTER,
+                asInterface = { IWearWidgetUpdateRequester.Stub.asInterface(it) },
+                dispatcher = dispatcher,
+                sendRequest = { service, pushData ->
+                    suspendCancellableCoroutine { continuation ->
+                        val contCallback = ContinuationCallback(continuation)
 
-        private fun buildUpdateBindIntent(context: Context): Intent? {
-            val bindIntent =
-                Intent(ACTION_BIND_UPDATE_REQUESTER).apply {
-                    `package` = getSysUiPackageName(context)
+                        // The service doesn't have an API to cancel in-flight requests,
+                        // so we don't register a cancellation handler here. If the coroutine
+                        // is cancelled, suspendCancellableCoroutine automatically handles
+                        // throwing CancellationException to the caller.
+                        try {
+                            service.requestUpdate(
+                                pushData.request.toParcel(),
+                                pushData.rawContent.toParcel(),
+                                contCallback,
+                            )
+                        } catch (ex: RemoteException) {
+                            Log.w(
+                                TAG,
+                                "while pushing widget update for instanceId: ${pushData.request.instanceId.flattenToString()}",
+                                ex,
+                            )
+                            contCallback.onError(
+                                IWearWidgetUpdateRequester.UPDATE_ERROR_CODE_INTERNAL_ERROR,
+                                ex.message,
+                            )
+                        }
+                    }
+                },
+            )
+
+        private class ContinuationCallback(
+            private val continuation: CancellableContinuation<Unit>
+        ) : IExecutionCallback.Stub() {
+            override fun getInterfaceVersion(): Int = VERSION
+
+            override fun onSuccess() {
+                if (continuation.isActive) {
+                    continuation.resume(Unit)
                 }
-
-            // Find the concrete ComponentName of the service that implements what we need.
-            val services =
-                context.packageManager.queryIntentServices(
-                    bindIntent,
-                    PackageManager.GET_META_DATA or PackageManager.GET_RESOLVED_FILTER,
-                )
-
-            if (services.isEmpty()) {
-                Log.w(TAG, "Couldn't find any services filtering on $ACTION_BIND_UPDATE_REQUESTER")
-                return null
             }
 
-            services.first().serviceInfo.let { bindIntent.setClassName(it.packageName, it.name) }
+            override fun onError(errorCode: Int, errorMessage: String?) {
+                if (continuation.isActive) {
+                    val exception =
+                        when (errorCode) {
+                            IWearWidgetUpdateRequester.UPDATE_ERROR_CODE_INVALID_REQUEST_ERROR ->
+                                IllegalArgumentException(errorMessage)
 
-            return bindIntent
-        }
-
-        private fun getSysUiPackageName(context: Context): String? {
-            if (
-                VERSION.SDK_INT == UPSIDE_DOWN_CAKE &&
-                    (context.applicationInfo.targetSdkVersion > UPSIDE_DOWN_CAKE)
-            ) {
-                return getSysUiPackageNameOnU(context)
+                            else ->
+                                RuntimeException("Update failed (code=$errorCode): $errorMessage")
+                        }
+                    continuation.resumeWithException(exception)
+                }
             }
-
-            val sysUiPackageName =
-                Settings.Global.getString(context.contentResolver, SYSUI_SETTINGS_KEY)
-            return if (sysUiPackageName.isNullOrEmpty()) {
-                DEFAULT_TARGET_SYSUI
-            } else {
-                sysUiPackageName
-            }
-        }
-
-        private fun getSysUiPackageNameOnU(context: Context): String? {
-            val queryIntent = Intent(ACTION_MAIN).apply { addCategory(CATEGORY_HOME_MAIN) }
-            val homeActivity =
-                context.packageManager.resolveActivity(
-                    queryIntent,
-                    PackageManager.MATCH_DEFAULT_ONLY,
-                )
-            if (homeActivity == null) {
-                Log.e(TAG, "Couldn't find SysUi packageName")
-                return DEFAULT_TARGET_SYSUI
-            }
-            return homeActivity.activityInfo.packageName
         }
     }
 }

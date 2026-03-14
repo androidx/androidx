@@ -26,8 +26,8 @@ import androidx.camera.testing.impl.Api27Impl.setShowWhenLocked
 import androidx.camera.testing.impl.Api27Impl.setTurnScreenOn
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
-import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.testing.impl.ParameterizedTestConfigUtil
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.testing.impl.fakes.FakeActivity
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.testing.impl.testrule.CameraTestActivityScenarioRule
@@ -345,7 +345,7 @@ class PreviewViewBitmapTest(private val implName: String, private val cameraConf
         @BeforeClass
         @JvmStatic
         fun classSetUp() {
-            CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
+            RequireForegroundRule.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
         }
 
         @JvmStatic

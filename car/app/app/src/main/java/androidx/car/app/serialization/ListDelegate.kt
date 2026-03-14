@@ -16,15 +16,15 @@
 package androidx.car.app.serialization
 
 import android.annotation.SuppressLint
+import androidx.annotation.RestrictTo
 import androidx.car.app.OnDoneCallback
-import androidx.car.app.annotations.ExperimentalCarApi
 
 /**
  * A host-side interface, for querying portions of a long list.
  *
  * <p> Long lists are stored on the client for performance reasons.
  */
-@ExperimentalCarApi
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 interface ListDelegate<out T> {
     /** The size of the underlying [List] */
     val size: Int

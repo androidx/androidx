@@ -42,9 +42,10 @@ class FakeAudioTrackExtensionsWrapperTest {
         val track = AudioTrack.Builder().build()
         check(fakeWrapper.getPointSourceParams(track) == null)
 
-        val params = PointSourceParams(FakeEntity())
+        val entity = FakeEntity()
+        val params = PointSourceParams()
         // Uses default spatial source type SOURCE_TYPE_BYPASS.
-        fakeWrapper.setPointSourceParams(track, params)
+        fakeWrapper.setPointSourceParams(track, params, entity)
 
         assertThat(fakeWrapper.getPointSourceParams(track)).isEqualTo(params)
     }
@@ -56,9 +57,10 @@ class FakeAudioTrackExtensionsWrapperTest {
 
         fakeWrapper.spatialSourceTypeMap =
             mutableMapOf(track to SpatializerConstants.SOURCE_TYPE_POINT_SOURCE)
-        val params = PointSourceParams(FakeEntity())
+        val entity = FakeEntity()
+        val params = PointSourceParams()
         // Uses spatial source type SOURCE_TYPE_POINT_SOURCE.
-        fakeWrapper.setPointSourceParams(track, params)
+        fakeWrapper.setPointSourceParams(track, params, entity)
 
         assertThat(fakeWrapper.getPointSourceParams(track)).isEqualTo(params)
     }
@@ -70,9 +72,9 @@ class FakeAudioTrackExtensionsWrapperTest {
 
         fakeWrapper.spatialSourceTypeMap =
             mutableMapOf(track to SpatializerConstants.SOURCE_TYPE_SOUND_FIELD)
-        val params = PointSourceParams(FakeEntity())
+        val params = PointSourceParams()
         // Uses spatial source type SOURCE_TYPE_SOUND_FIELD.
-        fakeWrapper.setPointSourceParams(track, params)
+        fakeWrapper.setPointSourceParams(track, params, null)
 
         assertThat(fakeWrapper.getPointSourceParams(track)).isNull()
     }

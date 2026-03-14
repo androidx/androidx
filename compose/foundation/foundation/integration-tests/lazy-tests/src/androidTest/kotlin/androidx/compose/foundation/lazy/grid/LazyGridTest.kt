@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
@@ -2422,6 +2423,70 @@ class LazyGridTest(private val orientation: Orientation) :
         rule
             .onNodeWithTag("1")
             .assertMainAxisStartPositionInRootIsEqualTo(itemSizeDp - scrollDeltaDp)
+    }
+
+    @Test
+    fun triggerBackScrollAndVerifyNoScrollDeltaBetweenTwoPasses() {
+        val state = LazyGridState()
+        rule.setContent {
+            val list = (0..20).toList()
+            LookaheadScope {
+                CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                    LazyGrid(cells = 1, state = state, modifier = Modifier.mainAxisSize(500.dp)) {
+                        items(list) {
+                            val color = if (it % 2 == 0) Color.Red else Color.Blue
+                            Box(
+                                modifier =
+                                    Modifier.padding(vertical = 6.dp)
+                                        .mainAxisSize(100.dp)
+                                        .crossAxisSize(100.dp)
+                                        .background(color = color)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+        state.scrollTo(20)
+        repeat(5) {
+            rule.mainClock.advanceTimeByFrame()
+            assertEquals(0f, state.scrollDeltaBetweenPasses)
+            rule.waitForIdle()
+        }
+    }
+
+    @Test
+    fun triggerBackScrollAndVerifyNoScrollDeltaBetweenTwoPasses_multiColumn() {
+        val state = LazyGridState()
+        rule.setContent {
+            val list = (0..20).toList()
+            LookaheadScope {
+                CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                    LazyGrid(cells = 2, state = state, modifier = Modifier.mainAxisSize(500.dp)) {
+                        items(list) {
+                            val color = if (it % 2 == 0) Color.Red else Color.Blue
+                            Box(
+                                modifier =
+                                    Modifier.padding(vertical = 6.dp)
+                                        .mainAxisSize(100.dp)
+                                        .crossAxisSize(100.dp)
+                                        .background(color = color)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+        state.scrollTo(20)
+        repeat(5) {
+            rule.mainClock.advanceTimeByFrame()
+            assertEquals(0f, state.scrollDeltaBetweenPasses)
+            rule.waitForIdle()
+        }
     }
 
     private val Offset.mainAxisPosition: Int

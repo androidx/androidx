@@ -38,6 +38,7 @@ dependencies {
     implementation(libs.androidx.core)
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("com.google.errorprone:error_prone_annotations:2.30.0")
+    implementation("androidx.media3:media3-exoplayer:1.9.0-beta01")
 
     // For com.android.extensions.xr
     // TODO(b/447454270): Remove this once extensions are in g3.
@@ -49,6 +50,7 @@ dependencies {
 android {
     defaultConfig {
         minSdk { version = release(24) }
+        compileSdk { version = release(36) }
     }
     namespace = "androidx.xr.scenecore.runtime"
 }

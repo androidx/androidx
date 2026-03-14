@@ -37,8 +37,7 @@ public final class Flags {
     // The prefix of all the flags defined for AppSearch. The prefix has
     // "com.android.appsearch.flags", aka the package name for generated AppSearch flag classes in
     // the framework, plus an additional trailing '.'.
-    private static final String FLAG_PREFIX =
-            "com.android.appsearch.flags.";
+    public static final String FLAG_PREFIX = "com.android.appsearch.flags.";
 
     // The full string values for flags defined in the framework.
     //
@@ -280,13 +279,6 @@ public final class Flags {
     /** Enables passing down filters to child iterators for optimized DocHitInfo retrieval. */
     public static final String FLAG_ENABLE_PASSING_FILTER_TO_CHILDREN =
             FLAG_PREFIX + "enable_passing_filter_to_children";
-
-    /**
-     * Whether to enable the new header format (refactor legacy format and introduce unsynced tail
-     * checksum) related changes in PortableFileBackedProtoLog.
-     */
-    public static final String FLAG_ENABLE_PROTO_LOG_NEW_HEADER_FORMAT =
-            FLAG_PREFIX + "enable_proto_log_new_header_format";
 
     /**
      * Whether to skip interacting with icing if the set schema call is a noop.
@@ -686,15 +678,6 @@ public final class Flags {
     }
 
     /**
-     * Whether to enable the new header format (refactor legacy format and introduce unsynced tail
-     * checksum) related changes in PortableFileBackedProtoLog.
-     */
-    public static boolean enableProtoLogNewHeaderFormat() {
-        // TODO(b/415387509): Enable this once the feature is rolled out to Nextfood in platform.
-        return false;
-    }
-
-    /**
      * Whether to skip interacting with icing if the set schema call is a noop.
      */
     public static boolean enableEarlySetSchemaExit() {
@@ -754,7 +737,8 @@ public final class Flags {
      * also be true.
      */
     public static boolean enableDeletePropagationRw() {
-        return true;
+        // TODO(b/384947619): Enable this once the feature is rolled out to Nextfood in platform.
+        return false;
     }
 
     /**

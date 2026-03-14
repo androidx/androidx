@@ -47,6 +47,7 @@ import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
+import androidx.glance.layout.width
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
@@ -152,7 +153,8 @@ private fun BobaCard(
                         ),
                 )
                 Spacer(GlanceModifier.defaultWeight())
-                FilledButton("Order", onClick = {}, modifier = GlanceModifier.padding(end = 16.dp))
+                FilledButton("Order", onClick = {})
+                Spacer(GlanceModifier.width(16.dp))
             }
         }
     }

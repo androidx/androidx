@@ -202,13 +202,6 @@ class GltfModelAnimationActivity : AppCompatActivity() {
                     return@addOnChangeListener
                 }
 
-                if (
-                    animations[selectedIndexAtAnimationList].animationState ==
-                        GltfAnimation.AnimationState.STOPPED
-                ) {
-                    return@addOnChangeListener
-                }
-
                 animations[selectedIndexAtAnimationList].seekTo(
                     value.toDouble().seconds.toJavaDuration()
                 )
@@ -219,13 +212,6 @@ class GltfModelAnimationActivity : AppCompatActivity() {
             speedText.text = "Speed=$value"
 
             if (selectedIndexAtAnimationList < 0 || animations.isEmpty()) {
-                return@addOnChangeListener
-            }
-
-            if (
-                animations[selectedIndexAtAnimationList].animationState ==
-                    GltfAnimation.AnimationState.STOPPED
-            ) {
                 return@addOnChangeListener
             }
 

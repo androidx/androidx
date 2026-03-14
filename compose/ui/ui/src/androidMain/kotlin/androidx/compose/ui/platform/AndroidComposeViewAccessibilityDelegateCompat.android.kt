@@ -525,6 +525,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
     }
 
+    @OptIn(ExperimentalComposeViewContextApi::class)
     private fun createNodeInfo(virtualViewId: Int): AccessibilityNodeInfoCompat? {
         if (
             view.composeViewContext.lifecycleOwner.lifecycle.currentState ==
@@ -786,7 +787,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
 
         info.isPassword = semanticsNode.unmergedConfig.contains(SemanticsProperties.Password)
-        info.isEditable = semanticsNode.unmergedConfig.contains(SemanticsProperties.IsEditable)
+        info.isEditable =
+            semanticsNode.unmergedConfig.getOrNull(SemanticsProperties.IsEditable) == true
         info.maxTextLength =
             semanticsNode.unmergedConfig.getOrNull(SemanticsProperties.MaxTextLength) ?: -1
         info.isEnabled = semanticsNode.enabled()

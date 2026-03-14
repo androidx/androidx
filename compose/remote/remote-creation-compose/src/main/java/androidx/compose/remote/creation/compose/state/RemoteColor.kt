@@ -67,7 +67,7 @@ internal constructor(
         green: RemoteFloat,
         blue: RemoteFloat,
     ) : this(
-        constantValueOrNull = null,
+        constantValueOrNull = constantColorOrNull(alpha, red, green, blue),
         alpha = alpha,
         red = red,
         green = green,
@@ -185,7 +185,23 @@ internal constructor(
      */
     private fun colorComponent(component: Short): RemoteFloat {
         val key = RemoteOperationCacheKey.create(OperationKey.Component, this, component)
-        return RemoteFloatExpression(constantValueOrNull = null, cacheKey = key) { creationState ->
+        return RemoteFloatExpression(
+            constantValueOrNull =
+                when (component) {
+                    ColorAttribute.COLOR_ALPHA -> constantValueOrNull?.alpha
+                    ColorAttribute.COLOR_RED -> constantValueOrNull?.red
+                    ColorAttribute.COLOR_GREEN -> constantValueOrNull?.green
+                    ColorAttribute.COLOR_BLUE -> constantValueOrNull?.blue
+                    ColorAttribute.COLOR_HUE ->
+                        constantValueOrNull?.let { Utils.getHue(it.toArgb()) }
+                    ColorAttribute.COLOR_SATURATION ->
+                        constantValueOrNull?.let { Utils.getSaturation(it.toArgb()) }
+                    ColorAttribute.COLOR_BRIGHTNESS ->
+                        constantValueOrNull?.let { Utils.getBrightness(it.toArgb()) }
+                    else -> throw IllegalArgumentException("Unsupported $component")
+                },
+            cacheKey = key,
+        ) { creationState ->
             floatArrayOf(
                 creationState.document.getColorAttribute(idProvider(creationState), component)
             )
@@ -590,3 +606,20 @@ public val Color.rc: RemoteColor
 /** Extension function to pack a [Color] into a Long for protocol use. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun Color.pack(): Long = android.graphics.Color.pack(toArgb())
+
+private fun constantColorOrNull(
+    alpha: RemoteFloat,
+    red: RemoteFloat,
+    green: RemoteFloat,
+    blue: RemoteFloat,
+): Color? {
+    val constA = alpha.constantValueOrNull
+    val constR = red.constantValueOrNull
+    val constG = green.constantValueOrNull
+    val constB = blue.constantValueOrNull
+    if (constA != null && constR != null && constG != null && constB != null) {
+        return Color(red = constR, green = constG, blue = constB, alpha = constA)
+    } else {
+        return null
+    }
+}

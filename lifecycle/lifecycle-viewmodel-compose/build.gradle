@@ -56,6 +56,7 @@ androidXMultiplatform {
             api(project(":compose:runtime:runtime"))
             api(project(":compose:runtime:runtime-saveable"))
             api(libs.kotlinSerializationCore)
+            implementation(project(":lifecycle:lifecycle-runtime-compose"))
         }
 
         commonTest.dependencies {

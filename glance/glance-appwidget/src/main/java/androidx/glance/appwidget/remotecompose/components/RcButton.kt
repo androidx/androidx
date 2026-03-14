@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.EmittableButton
+import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.remotecompose.TranslationContext
 import androidx.glance.appwidget.remotecompose.convertGlanceModifierToRemoteComposeModifier
 import androidx.glance.appwidget.toPixels
@@ -100,13 +101,13 @@ internal class RcButton(emittableButton: EmittableButton, translationContext: Tr
             outputModifier =
                 RecordingModifier()
                     .clip(RoundedRectShape(corners, corners, corners, corners))
-                    .then(modifier)
                     .background(backgroundColor)
+                    .then(modifier)
                     .padding(hPad, vPad, hPad, vPad) // todo: is there a way to set minHeight?
 
             // Apply button text defaults
-            // TODO: figrue out how to handle modifier, if any, for emittabletext
-            val buttonTextEmittable = emittableButton.toEmittableText()
+            val buttonTextEmittable =
+                emittableButton.toEmittableText().also { it.modifier = GlanceModifier }
             var textStyle = buttonTextEmittable.style ?: TextStyle()
             if (
                 textStyle.fontSize == null &&

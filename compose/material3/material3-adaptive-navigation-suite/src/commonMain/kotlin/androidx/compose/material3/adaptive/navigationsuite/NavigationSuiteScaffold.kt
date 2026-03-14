@@ -1452,6 +1452,7 @@ class NavigationSuiteItemColors(
     val navigationDrawerItemColors: NavigationDrawerItemColors,
 )
 
+@Suppress("DEPRECATION") // Move to V2 when adaptive dependency is updated
 internal val WindowAdaptiveInfoDefault
     @Composable get() = currentWindowAdaptiveInfo()
 

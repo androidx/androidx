@@ -19,6 +19,7 @@ package androidx.room3.solver.binderprovider
 import androidx.room3.OperationType
 import androidx.room3.compiler.processing.XType
 import androidx.room3.processor.Context
+import androidx.room3.solver.TypeAdapterExtras
 import androidx.room3.solver.shortcut.binder.DaoConverterInsertOrUpsertFunctionBinder
 import androidx.room3.solver.shortcut.binder.InsertOrUpsertFunctionBinder
 import androidx.room3.solver.shortcut.binderprovider.InsertOrUpsertFunctionBinderProvider
@@ -37,6 +38,7 @@ class DaoConverterInsertOrUpsertFunctionQueryResultBinderProvider(
         declared: XType,
         params: List<ShortcutQueryParameter>,
         forUpsert: Boolean,
+        extras: TypeAdapterExtras,
     ): InsertOrUpsertFunctionBinder {
         val typeArg = extractTypeArg(declared)
         val adapter =

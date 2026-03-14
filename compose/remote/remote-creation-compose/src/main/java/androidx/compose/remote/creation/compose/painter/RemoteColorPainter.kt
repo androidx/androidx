@@ -35,7 +35,7 @@ public class RemoteColorPainter(private val color: RemoteColor) : RemotePainter(
 
     override fun RemoteDrawScope.onDraw() {
         val paint = RemotePaint()
-        paint.remoteColor = color
+        paint.color = color
         drawRect(paint = paint)
     }
 }

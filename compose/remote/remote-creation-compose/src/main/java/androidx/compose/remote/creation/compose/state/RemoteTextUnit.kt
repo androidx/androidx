@@ -20,6 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.state.RemoteTextUnit.OperationKey
+import androidx.compose.remote.creation.compose.text.RemoteFontScaleConverter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
@@ -70,7 +71,8 @@ internal constructor(public val value: RemoteFloat, public val type: TextUnitTyp
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun toPx(density: RemoteDensity): RemoteFloat {
         checkTextUnit()
-        return value * density.fontScale * density.density
+        val dp = RemoteFontScaleConverter.NonLinear.convertSpToDp(this, density.fontScale)
+        return dp * density.density
     }
 
     /** Converts this [RemoteTextUnit] to pixels using the screen's density. */
@@ -81,7 +83,8 @@ internal constructor(public val value: RemoteFloat, public val type: TextUnitTyp
             cacheKey = RemoteOperationCacheKey.create(OperationKey.ToPx, value),
         ) { creationState ->
             val density = creationState.remoteDensity
-            (value * density.fontScale * density.density).arrayForCreationState(creationState)
+            val dp = RemoteFontScaleConverter.NonLinear.convertSpToDp(this, density.fontScale)
+            (dp * density.density).arrayForCreationState(creationState)
         }
     }
 

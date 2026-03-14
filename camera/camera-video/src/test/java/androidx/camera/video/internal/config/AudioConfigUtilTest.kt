@@ -22,8 +22,8 @@ import android.media.MediaFormat.MIMETYPE_AUDIO_VORBIS
 import android.util.Rational
 import androidx.camera.testing.impl.EncoderProfilesUtil.createFakeAudioProfileProxy
 import androidx.camera.video.AudioSpec.Companion.CHANNEL_COUNT_MONO
-import androidx.camera.video.AudioSpec.Companion.MIME_TYPE_UNSPECIFIED
 import androidx.camera.video.AudioSpec.Companion.SOURCE_FORMAT_PCM_16BIT
+import androidx.camera.video.MediaConstants.MIME_TYPE_UNSPECIFIED
 import androidx.camera.video.internal.encoder.EncoderConfig.CODEC_PROFILE_NONE
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test

@@ -76,7 +76,7 @@ class DatabaseViewProcessor(
             ProcessorErrors.VIEW_NAME_CANNOT_START_WITH_SQLITE,
         )
 
-        val pojo =
+        val dataClass =
             DataClassProcessor.createFor(
                     context = context,
                     element = element,
@@ -90,10 +90,10 @@ class DatabaseViewProcessor(
             element = element,
             viewName = viewName,
             query = query,
-            type = pojo.type,
-            fields = pojo.properties,
-            embeddedProperties = pojo.embeddedProperties,
-            constructor = pojo.constructor,
+            type = dataClass.type,
+            fields = dataClass.properties,
+            embeddedProperties = dataClass.embeddedProperties,
+            constructor = dataClass.constructor,
         )
     }
 

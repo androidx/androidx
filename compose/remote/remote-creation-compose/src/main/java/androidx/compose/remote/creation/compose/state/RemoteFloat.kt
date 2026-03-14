@@ -496,12 +496,6 @@ public abstract class RemoteFloat internal constructor() : BaseRemoteState<Float
         return binaryOp(this, v, OperationKey.Div) { aVal: Float, bVal: Float -> aVal / bVal }
     }
 
-    /** Converts this [RemoteFloat] to a [RemoteDp] */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun asRemoteDp(): RemoteDp {
-        return RemoteDp(this)
-    }
-
     /**
      * Returns a [RemoteFloat] that is a reference of this RemoteFloat.
      *
@@ -542,7 +536,7 @@ public abstract class RemoteFloat internal constructor() : BaseRemoteState<Float
                 )
             },
         ) { a, b ->
-            if (a == b) 1 else 0
+            a == b
         }
 
     /**
@@ -566,7 +560,7 @@ public abstract class RemoteFloat internal constructor() : BaseRemoteState<Float
                 )
             },
         ) { a, b ->
-            if (a != b) 1 else 0
+            a != b
         }
 
     /**
@@ -589,7 +583,7 @@ public abstract class RemoteFloat internal constructor() : BaseRemoteState<Float
                 )
             },
         ) { a, b ->
-            if (a < b) 1 else 0
+            a < b
         }
 
     /**
@@ -612,7 +606,7 @@ public abstract class RemoteFloat internal constructor() : BaseRemoteState<Float
                 )
             },
         ) { a, b ->
-            if (a <= b) 1 else 0
+            a <= b
         }
 
     /**
@@ -635,7 +629,7 @@ public abstract class RemoteFloat internal constructor() : BaseRemoteState<Float
                 )
             },
         ) { a, b ->
-            if (a > b) 1 else 0
+            a > b
         }
 
     /**
@@ -658,7 +652,7 @@ public abstract class RemoteFloat internal constructor() : BaseRemoteState<Float
                 )
             },
         ) { a, b ->
-            if (a >= b) 1 else 0
+            a >= b
         }
 
     public companion object {
@@ -674,12 +668,20 @@ public abstract class RemoteFloat internal constructor() : BaseRemoteState<Float
          * @return A [RemoteFloat] representing the given constant or encoded id.
          */
         public operator fun invoke(float: Float): RemoteFloat {
-            val constValue = if (isConstant(float)) float else null
-            return RemoteFloatExpression(
-                constantValueOrNull = constValue,
-                cacheKey = RemoteConstantCacheKey(float),
-            ) { _ ->
-                floatArrayOf(float)
+            return if (isConstant(float)) {
+                RemoteFloatExpression(
+                    constantValueOrNull = float,
+                    cacheKey = RemoteConstantCacheKey(float),
+                ) { _ ->
+                    floatArrayOf(float)
+                }
+            } else {
+                RemoteFloatExpression(
+                    constantValueOrNull = null,
+                    cacheKey = RemoteStateIdKey(Utils.idFromNan(float)),
+                ) { _ ->
+                    floatArrayOf(float)
+                }
             }
         }
 
@@ -926,12 +928,12 @@ internal fun comparisonOp(
     b: RemoteFloat,
     op: OperationKey,
     expressionGenerator: (FloatArray, FloatArray) -> FloatArray,
-    directEval: (Float, Float) -> Long,
+    directEval: (Float, Float) -> Boolean,
 ): RemoteBoolean {
     val aConst = a.constantValueOrNull
     val bConst = b.constantValueOrNull
     if (aConst != null && bConst != null) {
-        return RemoteBoolean(RemoteInt.createForId(directEval(aConst, bConst)))
+        return RemoteBoolean(directEval(aConst, bConst))
     }
 
     return RemoteBoolean(

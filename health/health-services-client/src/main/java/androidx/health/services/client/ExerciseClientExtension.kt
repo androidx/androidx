@@ -283,11 +283,13 @@ public suspend fun ExerciseClient.updateExerciseTypeConfig(exerciseTypeConfig: E
  *
  * [DebouncedGoal]s apply to only sample data types (e.g. HeartRate, Speed) for active exercises
  * owned by the client, and will be invalidated once the exercise is complete. Note: To add goals
- * for Cumulative DataTypes (i.e. steps, distance...) please see [addGoalToActiveExerciseAsync].
+ * for Cumulative DataTypes (i.e. steps, distance...) please see
+ * [ExerciseClient.addGoalToActiveExerciseAsync].
  *
  * Before adding, [DebouncedGoal] should be checked for support against
- * [ExerciseTypeCapabilities.supportedDebouncedGoals]. Only one [DebouncedGoal] is allowed per
- * [DataType]+[ComparisonType] pair.
+ * [androidx.health.services.client.data.ExerciseTypeCapabilities.supportedDebouncedGoals]. Only one
+ * [DebouncedGoal] is allowed per [DataType]+[androidx.health.services.client.data.ComparisonType]
+ * pair.
  *
  * @param debouncedGoal the [DebouncedGoal] to add to this exercise
  * @throws HealthServicesException if Health Service fails to process the call

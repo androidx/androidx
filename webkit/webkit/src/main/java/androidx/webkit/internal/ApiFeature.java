@@ -122,6 +122,24 @@ public abstract class ApiFeature implements ConditionallySupportedFeature {
     }
 
     /**
+     * Represents a feature that has no framework support and is internal to the AndroidX
+     * WebView library.
+     */
+    public static class NoFrameworkInternal extends ApiFeature {
+        // Use a consistent string for all internal features to distinguish them from public ones.
+        private static final String PUBLIC_NAME = "IMPLEMENTATION_ONLY_FEATURE";
+
+        NoFrameworkInternal(@NonNull String internalFeatureValue) {
+            super(PUBLIC_NAME, internalFeatureValue);
+        }
+
+        @Override
+        public final boolean isSupportedByFramework() {
+            return false;
+        }
+    }
+
+    /**
      * Represents a feature that was added in M.
      */
     public static class M extends ApiFeature {

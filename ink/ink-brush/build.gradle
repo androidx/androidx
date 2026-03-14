@@ -38,11 +38,14 @@ androidXMultiplatform {
   defaultPlatform(PlatformIdentifier.JVM)
 
   sourceSets {
-    jvmAndAndroidMain.dependencies {
+    commonMain.dependencies {
       api(libs.androidx.annotation)
       implementation("androidx.collection:collection:1.4.3")
-      implementation(project(":ink:ink-geometry"))
       implementation(project(":ink:ink-nativeloader"))
+    }
+
+    jvmAndAndroidMain.dependencies {
+      implementation(project(":ink:ink-geometry"))
     }
 
     jvmAndAndroidTest.dependencies {
@@ -52,10 +55,10 @@ androidXMultiplatform {
     }
 
     androidDeviceTest.dependencies {
+      implementation(libs.espressoCore)
       implementation(libs.testExtJunit)
       implementation(libs.testRules)
       implementation(libs.testRunner)
-      implementation(libs.espressoCore)
     }
   }
 }
@@ -67,8 +70,9 @@ androidx {
     description = "Define brushes for freehand input."
 }
 
-// TODO: b/362697089 - Enable to run the tests in a JVM environment in addition to on Android
-//  emulators, once the mysterious SIGSEGV is resolved.
-project.tasks.named("jvmTest").configure {
-    it.enabled = false
+// TODO: b/374774638 - Run tests on host as well as device.
+afterEvaluate {
+    project.tasks.named("testAndroidHostTest").configure {
+        it.enabled = false
+    }
 }

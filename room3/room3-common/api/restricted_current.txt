@@ -193,6 +193,9 @@ package androidx.room3 {
     property public abstract String tableName;
   }
 
+  @SuppressCompatibility @kotlin.RequiresOptIn @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ExperimentalRoomApi {
+  }
+
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={}) public @interface ForeignKey {
     ctor @KotlinOnly public ForeignKey(kotlin.reflect.KClass<? extends java.lang.Object?> entity, String[] parentColumns, String[] childColumns, optional int onDelete, optional int onUpdate, optional boolean deferred);
     method @InaccessibleFromKotlin public abstract String[] childColumns();
@@ -458,6 +461,7 @@ package androidx.room3 {
     property public static String MISSING_INDEX_ON_JUNCTION;
     property public static String MISSING_JAVA_TMP_DIR;
     property public static String MISSING_SCHEMA_LOCATION;
+    property @SuppressCompatibility @androidx.room3.ExperimentalRoomApi public static String NO_DATABASE_CONSTRUCTOR;
     property public static String PRIMARY_KEY_FROM_EMBEDDED_IS_DROPPED;
     property public static String QUERY_MISMATCH;
     property public static String RELATION_QUERY_WITHOUT_TRANSACTION;
@@ -475,9 +479,10 @@ package androidx.room3 {
     field public static final String MISMATCHED_GETTER = "ROOM_MISMATCHED_GETTER_TYPE";
     field public static final String MISMATCHED_SETTER = "ROOM_MISMATCHED_SETTER_TYPE";
     field public static final String MISSING_INDEX_ON_FOREIGN_KEY_CHILD = "ROOM_MISSING_FOREIGN_KEY_CHILD_INDEX";
-    field public static final String MISSING_INDEX_ON_JUNCTION = "MISSING_INDEX_ON_JUNCTION";
+    field public static final String MISSING_INDEX_ON_JUNCTION = "ROOM_MISSING_INDEX_ON_JUNCTION";
     field public static final String MISSING_JAVA_TMP_DIR = "ROOM_MISSING_JAVA_TMP_DIR";
     field public static final String MISSING_SCHEMA_LOCATION = "ROOM_MISSING_SCHEMA_LOCATION";
+    field @SuppressCompatibility @androidx.room3.ExperimentalRoomApi public static final String NO_DATABASE_CONSTRUCTOR = "ROOM_NO_DATABASE_CONSTRUCTOR";
     field public static final String PRIMARY_KEY_FROM_EMBEDDED_IS_DROPPED = "ROOM_EMBEDDED_PRIMARY_KEY_IS_DROPPED";
     field public static final String QUERY_MISMATCH = "ROOM_QUERY_MISMATCH";
     field public static final String RELATION_QUERY_WITHOUT_TRANSACTION = "ROOM_RELATION_QUERY_WITHOUT_TRANSACTION";

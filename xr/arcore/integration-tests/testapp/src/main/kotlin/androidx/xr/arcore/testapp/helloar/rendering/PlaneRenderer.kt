@@ -17,6 +17,7 @@
 
 package androidx.xr.arcore.testapp.helloar.rendering
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.res.Resources
 import android.graphics.Color
@@ -144,6 +145,7 @@ internal class PlaneRenderer(val session: Session, val coroutineScope: Coroutine
                             )
 
                             if (counter > PANEL_RESIZE_UPDATE_COUNT) {
+                                @SuppressLint("RestrictedApiAndroidX")
                                 modelEntity.setScale(scaledExtents(state.extents))
                                 counter = 0
                             }

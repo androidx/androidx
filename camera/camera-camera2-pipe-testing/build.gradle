@@ -56,9 +56,9 @@ android {
 }
 
 // Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
+tasks.withType(KotlinCompile).configureEach { task ->
+    task.compilerOptions {
+        it.freeCompilerArgs.add("-opt-in=kotlin.RequiresOptIn")
     }
 }
 

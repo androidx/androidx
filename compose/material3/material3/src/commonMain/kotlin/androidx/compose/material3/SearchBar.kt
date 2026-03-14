@@ -2024,12 +2024,12 @@ object SearchBarDefaults {
             suffix = suffix,
             inputTransformation = inputTransformation,
             outputTransformation = outputTransformation,
-            keyboardOptions = KeyboardOptions.Default,
-            lineLimits = TextFieldLineLimits.SingleLine,
             scrollState = scrollState,
             shape = shape,
             colors = colors,
             interactionSource = interactionSource,
+            keyboardOptions = KeyboardOptions.Default,
+            lineLimits = TextFieldLineLimits.SingleLine,
         )
 
     /**
@@ -2066,12 +2066,6 @@ object SearchBarDefaults {
      *   edit. The transformation will not immediately affect the current [textFieldState].
      * @param outputTransformation optional [OutputTransformation] that transforms how the contents
      *   of the text field are presented.
-     * @param keyboardOptions software keyboard options that contains configuration such as
-     *   [KeyboardType]. Note that the [ImeAction] will always be overwritten with
-     *   [ImeAction.Search].
-     * @param lineLimits whether the text field should be [TextFieldLineLimits.SingleLine], scroll
-     *   horizontally, and ignore newlines; or [TextFieldLineLimits.MultiLine] and grow and scroll
-     *   vertically.
      * @param scrollState scroll state that manages the horizontal scroll of the input field.
      * @param shape the shape of the input field.
      * @param colors [TextFieldColors] that will be used to resolve the colors used for this input
@@ -2080,6 +2074,12 @@ object SearchBarDefaults {
      *   emitting [Interaction]s for this input field. You can use this to change the search bar's
      *   appearance or preview the search bar in different states. Note that if `null` is provided,
      *   interactions will still happen internally.
+     * @param keyboardOptions software keyboard options that contains configuration such as
+     *   [KeyboardType]. Note that the [ImeAction] will always be overwritten with
+     *   [ImeAction.Search].
+     * @param lineLimits whether the text field should be [TextFieldLineLimits.SingleLine], scroll
+     *   horizontally, and ignore newlines; or [TextFieldLineLimits.MultiLine] and grow and scroll
+     *   vertically.
      */
     @ExperimentalMaterial3Api
     @Composable
@@ -2098,12 +2098,12 @@ object SearchBarDefaults {
         suffix: @Composable (() -> Unit)? = null,
         inputTransformation: InputTransformation? = null,
         outputTransformation: OutputTransformation? = null,
-        keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-        lineLimits: TextFieldLineLimits = TextFieldLineLimits.SingleLine,
         scrollState: ScrollState = rememberScrollState(),
         shape: Shape = inputFieldShape,
         colors: TextFieldColors = inputFieldColors(),
         interactionSource: MutableInteractionSource? = null,
+        keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+        lineLimits: TextFieldLineLimits = TextFieldLineLimits.SingleLine,
     ) {
         @Suppress("NAME_SHADOWING")
         val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
@@ -2851,12 +2851,12 @@ internal fun AppBarWithSearchColors.appBarContainerColor(colorTransitionFraction
                 "            suffix = suffix,\n" +
                 "            inputTransformation = inputTransformation,\n" +
                 "            outputTransformation = outputTransformation,\n" +
-                "            keyboardOptions = keyboardOptions,\n" +
-                "            lineLimits = lineLimits,\n" +
                 "            scrollState = scrollState,\n" +
                 "            shape = shape,\n" +
                 "            colors = colors,\n" +
                 "            interactionSource = interactionSource,\n" +
+                "            keyboardOptions = keyboardOptions,\n" +
+                "            lineLimits = lineLimits,\n" +
                 "        )\n" +
                 "    },\n" +
                 "    expanded = active,\n" +

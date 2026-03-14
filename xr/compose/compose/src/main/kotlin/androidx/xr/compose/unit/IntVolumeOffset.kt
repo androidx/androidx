@@ -18,7 +18,14 @@ package androidx.xr.compose.unit
 
 import androidx.compose.runtime.Immutable
 
-/** Represents the offset of an object in 3D space. */
+/**
+ * Represents the offset of an object in 3D space.
+ *
+ * @property x The offset along the x-axis.
+ * @property y The offset along the y-axis. The positive values in the y-axis point upwards and the
+ *   negative values point downwards.
+ * @property z The offset along the z-axis.
+ */
 @Immutable
 public class IntVolumeOffset(public val x: Int, public val y: Int, public val z: Int) {
 

@@ -115,17 +115,15 @@ object Errors {
                     .trimMarginWrapNewlines()
         }
 
-        if (!DeviceInfo.isEmulator && DeviceInfo.isRooted && !CpuInfo.locked) {
-            warningPrefix += "UNLOCKED_"
-            warningString +=
-                """
-                |WARNING: Unlocked CPU clocks
-                |    Benchmark appears to be running on a rooted device with unlocked CPU
-                |    clocks. Unlocked CPU clocks can lead to inconsistent results due to
-                |    dynamic frequency scaling, and thermal throttling. On a rooted device,
-                |    lock your device clocks to a stable frequency with `./gradlew lockClocks`
-            """
-                    .trimMarginWrapNewlines()
+        if (
+            Arguments.requireLockedClocks &&
+                !DeviceInfo.isEmulator &&
+                DeviceInfo.isRooted &&
+                !CpuInfo.locked
+        ) {
+            warningPrefix += "${CpuInfo.Error.ID}_"
+            warningString += "|WARNING: " + CpuInfo.Error.SUMMARY
+            warningString += CpuInfo.Error.MESSAGE.trimMarginWrapNewlines()
         }
 
         if (

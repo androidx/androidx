@@ -921,6 +921,61 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
     }
 
     @Test
+    fun testPopulateAccessibilityNodeInfoProperties_textField_isEditable_false() {
+        // Arrange.
+        val text = "hello"
+        rule.setContentWithAccessibilityEnabled {
+            Box(
+                Modifier.size(10.dp).semantics(mergeDescendants = true) {
+                    testTag = tag
+                    editableText = AnnotatedString(text)
+                    isEditable = false
+                }
+            )
+        }
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
+
+        // Act.
+        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(info.className).isEqualTo("android.widget.EditText")
+            assertThat(info.isEditable).isFalse()
+        }
+    }
+
+    @Test
+    fun testPopulateAccessibilityNodeInfoProperties_textField_readOnly() {
+        // Arrange.
+        rule.setContentWithAccessibilityEnabled {
+            BasicTextField(
+                rememberTextFieldState(),
+                readOnly = true,
+                modifier = Modifier.testTag(tag),
+            )
+        }
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
+
+        // Act.
+        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(info.className).isEqualTo("android.widget.EditText")
+            assertThat(info.isEditable).isFalse()
+            assertThat(info.actionList)
+                .comparingElementsUsing(IdAndLabel)
+                .doesNotContain(
+                    AccessibilityActionCompat(
+                        AccessibilityNodeInfoCompat.ACTION_SET_TEXT,
+                        "setText",
+                    )
+                )
+        }
+    }
+
+    @Test
     fun testMovementGranularities_textField_focused() {
         // Arrange.
         rule.setContentWithAccessibilityEnabled {

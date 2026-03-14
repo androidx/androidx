@@ -32,12 +32,10 @@
 package androidx.car.app.testing
 
 import androidx.car.app.OnDoneCallback
-import androidx.car.app.annotations.ExperimentalCarApi
 import androidx.car.app.serialization.Bundleable
 import androidx.car.app.serialization.ListDelegate
 
 /** Provides a simplified interface for invoking AIDL/delegate APIs in tests */
-@ExperimentalCarApi
 public object TestDelegateInvoker {
     public fun <T> ListDelegate<T>.requestAllItemsForTest(): List<T> =
         requestItemRangeForTest(0, size - 1)

@@ -31,7 +31,16 @@ import androidx.compose.runtime.Immutable
 internal class RemoteStateInstanceKey : RemoteStateCacheKey
 
 /** A cache key for constant values (primitive types, strings, etc.). */
-internal data class RemoteConstantCacheKey(private val value: Any?) : RemoteStateCacheKey
+internal data class RemoteConstantCacheKey(private val value: Any?) : RemoteStateCacheKey {
+    init {
+        if (value is Float) {
+            check(!value.isNaN()) { "Float constant value cannot be NaN" }
+        }
+        if (value is Double) {
+            check(!value.isNaN()) { "Double constant value cannot be NaN" }
+        }
+    }
+}
 
 /** A cache key for named variables, identified by their [name] and [domain]. */
 internal data class RemoteNamedCacheKey(

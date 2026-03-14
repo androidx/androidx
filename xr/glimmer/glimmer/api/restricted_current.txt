@@ -72,28 +72,32 @@ package androidx.xr.glimmer {
     method @BytecodeOnly public static androidx.compose.ui.Modifier contentColorProvider-4WTKRHQ(androidx.compose.ui.Modifier, long);
   }
 
-  @androidx.compose.runtime.Immutable public final class Depth {
-    ctor public Depth(androidx.compose.ui.graphics.shadow.Shadow layer1, androidx.compose.ui.graphics.shadow.Shadow layer2);
+  @androidx.compose.runtime.Immutable public final class DepthEffect {
+    ctor public DepthEffect(androidx.compose.ui.graphics.shadow.Shadow layer1, androidx.compose.ui.graphics.shadow.Shadow layer2);
+    method @InaccessibleFromKotlin public androidx.compose.ui.graphics.shadow.Shadow getLayer1();
+    method @InaccessibleFromKotlin public androidx.compose.ui.graphics.shadow.Shadow getLayer2();
+    property public androidx.compose.ui.graphics.shadow.Shadow layer1;
+    property public androidx.compose.ui.graphics.shadow.Shadow layer2;
   }
 
-  public final class DepthKt {
-    method public static androidx.compose.ui.Modifier depth(androidx.compose.ui.Modifier, androidx.xr.glimmer.Depth? depth, androidx.compose.ui.graphics.Shape shape);
+  public final class DepthEffectKt {
+    method public static androidx.compose.ui.Modifier depthEffect(androidx.compose.ui.Modifier, androidx.xr.glimmer.DepthEffect? depthEffect, androidx.compose.ui.graphics.Shape shape);
   }
 
-  @androidx.compose.runtime.Immutable public final class DepthLevels {
-    ctor public DepthLevels();
-    ctor public DepthLevels(optional androidx.xr.glimmer.Depth level1, optional androidx.xr.glimmer.Depth level2, optional androidx.xr.glimmer.Depth level3, optional androidx.xr.glimmer.Depth level4, optional androidx.xr.glimmer.Depth level5);
-    ctor @BytecodeOnly public DepthLevels(androidx.xr.glimmer.Depth!, androidx.xr.glimmer.Depth!, androidx.xr.glimmer.Depth!, androidx.xr.glimmer.Depth!, androidx.xr.glimmer.Depth!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    method @InaccessibleFromKotlin public androidx.xr.glimmer.Depth getLevel1();
-    method @InaccessibleFromKotlin public androidx.xr.glimmer.Depth getLevel2();
-    method @InaccessibleFromKotlin public androidx.xr.glimmer.Depth getLevel3();
-    method @InaccessibleFromKotlin public androidx.xr.glimmer.Depth getLevel4();
-    method @InaccessibleFromKotlin public androidx.xr.glimmer.Depth getLevel5();
-    property public androidx.xr.glimmer.Depth level1;
-    property public androidx.xr.glimmer.Depth level2;
-    property public androidx.xr.glimmer.Depth level3;
-    property public androidx.xr.glimmer.Depth level4;
-    property public androidx.xr.glimmer.Depth level5;
+  @androidx.compose.runtime.Immutable public final class DepthEffectLevels {
+    ctor public DepthEffectLevels();
+    ctor public DepthEffectLevels(optional androidx.xr.glimmer.DepthEffect level1, optional androidx.xr.glimmer.DepthEffect level2, optional androidx.xr.glimmer.DepthEffect level3, optional androidx.xr.glimmer.DepthEffect level4, optional androidx.xr.glimmer.DepthEffect level5);
+    ctor @BytecodeOnly public DepthEffectLevels(androidx.xr.glimmer.DepthEffect!, androidx.xr.glimmer.DepthEffect!, androidx.xr.glimmer.DepthEffect!, androidx.xr.glimmer.DepthEffect!, androidx.xr.glimmer.DepthEffect!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public androidx.xr.glimmer.DepthEffect getLevel1();
+    method @InaccessibleFromKotlin public androidx.xr.glimmer.DepthEffect getLevel2();
+    method @InaccessibleFromKotlin public androidx.xr.glimmer.DepthEffect getLevel3();
+    method @InaccessibleFromKotlin public androidx.xr.glimmer.DepthEffect getLevel4();
+    method @InaccessibleFromKotlin public androidx.xr.glimmer.DepthEffect getLevel5();
+    property public androidx.xr.glimmer.DepthEffect level1;
+    property public androidx.xr.glimmer.DepthEffect level2;
+    property public androidx.xr.glimmer.DepthEffect level3;
+    property public androidx.xr.glimmer.DepthEffect level4;
+    property public androidx.xr.glimmer.DepthEffect level5;
   }
 
   @androidx.compose.runtime.Immutable public final class GlimmerTheme {
@@ -101,12 +105,12 @@ package androidx.xr.glimmer {
     ctor public GlimmerTheme(optional androidx.xr.glimmer.Colors colors, optional androidx.xr.glimmer.Typography typography);
     ctor @BytecodeOnly public GlimmerTheme(androidx.xr.glimmer.Colors!, androidx.xr.glimmer.Typography!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.xr.glimmer.Colors getColors();
-    method @InaccessibleFromKotlin public androidx.xr.glimmer.DepthLevels getDepthLevels();
+    method @InaccessibleFromKotlin public androidx.xr.glimmer.DepthEffectLevels getDepthEffectLevels();
     method @InaccessibleFromKotlin public androidx.xr.glimmer.IconSizes getIconSizes();
     method @InaccessibleFromKotlin public androidx.xr.glimmer.Shapes getShapes();
     method @InaccessibleFromKotlin public androidx.xr.glimmer.Typography getTypography();
     property public androidx.xr.glimmer.Colors colors;
-    property public androidx.xr.glimmer.DepthLevels depthLevels;
+    property public androidx.xr.glimmer.DepthEffectLevels depthEffectLevels;
     property public androidx.xr.glimmer.IconSizes iconSizes;
     property public androidx.xr.glimmer.Shapes shapes;
     property public androidx.xr.glimmer.Typography typography;
@@ -115,14 +119,14 @@ package androidx.xr.glimmer {
 
   public static final class GlimmerTheme.Companion {
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.Colors getColors(androidx.compose.runtime.Composer?, int);
-    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.DepthLevels getDepthLevels(androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.DepthEffectLevels getDepthEffectLevels(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.IconSizes getIconSizes(androidx.compose.runtime.Composer?, int);
     method @InaccessibleFromKotlin public androidx.compose.runtime.CompositionLocal<androidx.xr.glimmer.GlimmerTheme> getLocalGlimmerTheme();
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.Shapes getShapes(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.xr.glimmer.Typography getTypography(androidx.compose.runtime.Composer?, int);
     property public androidx.compose.runtime.CompositionLocal<androidx.xr.glimmer.GlimmerTheme> LocalGlimmerTheme;
     property public androidx.xr.glimmer.Colors colors;
-    property public androidx.xr.glimmer.DepthLevels depthLevels;
+    property public androidx.xr.glimmer.DepthEffectLevels depthEffectLevels;
     property public androidx.xr.glimmer.IconSizes iconSizes;
     property public androidx.xr.glimmer.Shapes shapes;
     property public androidx.xr.glimmer.Typography typography;
@@ -166,7 +170,7 @@ package androidx.xr.glimmer {
   }
 
   public final class IndirectPointerGestureKt {
-    method public static androidx.compose.ui.Modifier onIndirectPointerGesture(androidx.compose.ui.Modifier, optional boolean enabled, optional kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional kotlin.jvm.functions.Function0<kotlin.Unit> onSwipeForward, optional kotlin.jvm.functions.Function0<kotlin.Unit> onSwipeBackward);
+    method public static androidx.compose.ui.Modifier onIndirectPointerGesture(androidx.compose.ui.Modifier, optional boolean enabled, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onSwipeForward, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onSwipeBackward, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onClick);
     method @BytecodeOnly public static androidx.compose.ui.Modifier! onIndirectPointerGesture$default(androidx.compose.ui.Modifier!, boolean, kotlin.jvm.functions.Function0!, kotlin.jvm.functions.Function0!, kotlin.jvm.functions.Function0!, int, Object!);
   }
 
@@ -205,19 +209,19 @@ package androidx.xr.glimmer {
     field public static final androidx.xr.glimmer.SurfaceDefaults INSTANCE;
   }
 
-  @androidx.compose.runtime.Immutable public final class SurfaceDepth {
-    ctor public SurfaceDepth(androidx.xr.glimmer.Depth? depth, androidx.xr.glimmer.Depth? focusedDepth);
-    method @InaccessibleFromKotlin public androidx.xr.glimmer.Depth? getDepth();
-    method @InaccessibleFromKotlin public androidx.xr.glimmer.Depth? getFocusedDepth();
-    property public androidx.xr.glimmer.Depth? depth;
-    property public androidx.xr.glimmer.Depth? focusedDepth;
+  @androidx.compose.runtime.Immutable public final class SurfaceDepthEffect {
+    ctor public SurfaceDepthEffect(androidx.xr.glimmer.DepthEffect? depthEffect, androidx.xr.glimmer.DepthEffect? focusedDepthEffect);
+    method @InaccessibleFromKotlin public androidx.xr.glimmer.DepthEffect? getDepthEffect();
+    method @InaccessibleFromKotlin public androidx.xr.glimmer.DepthEffect? getFocusedDepthEffect();
+    property public androidx.xr.glimmer.DepthEffect? depthEffect;
+    property public androidx.xr.glimmer.DepthEffect? focusedDepthEffect;
   }
 
   public final class SurfaceKt {
-    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.ui.Modifier surface(androidx.compose.ui.Modifier, optional boolean focusable, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.ui.graphics.Color color, optional androidx.compose.ui.graphics.Color contentColor, optional androidx.xr.glimmer.SurfaceDepth? depth, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource);
-    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.ui.Modifier surface(androidx.compose.ui.Modifier, optional boolean enabled, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.ui.graphics.Color color, optional androidx.compose.ui.graphics.Color contentColor, optional androidx.xr.glimmer.SurfaceDepth? depth, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.ui.Modifier surface-LHOAhiI(androidx.compose.ui.Modifier, boolean, androidx.compose.ui.graphics.Shape?, long, long, androidx.xr.glimmer.SurfaceDepth?, androidx.compose.foundation.BorderStroke?, androidx.compose.foundation.interaction.MutableInteractionSource?, kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.ui.Modifier surface-X-z6DiA(androidx.compose.ui.Modifier, boolean, androidx.compose.ui.graphics.Shape?, long, long, androidx.xr.glimmer.SurfaceDepth?, androidx.compose.foundation.BorderStroke?, androidx.compose.foundation.interaction.MutableInteractionSource?, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.ui.Modifier surface(androidx.compose.ui.Modifier, optional boolean focusable, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.ui.graphics.Color color, optional androidx.compose.ui.graphics.Color contentColor, optional androidx.xr.glimmer.SurfaceDepthEffect? depthEffect, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.ui.Modifier surface(androidx.compose.ui.Modifier, optional boolean enabled, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.ui.graphics.Color color, optional androidx.compose.ui.graphics.Color contentColor, optional androidx.xr.glimmer.SurfaceDepthEffect? depthEffect, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.ui.Modifier surface-LHOAhiI(androidx.compose.ui.Modifier, boolean, androidx.compose.ui.graphics.Shape?, long, long, androidx.xr.glimmer.SurfaceDepthEffect?, androidx.compose.foundation.BorderStroke?, androidx.compose.foundation.interaction.MutableInteractionSource?, kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.ui.Modifier surface-X-z6DiA(androidx.compose.ui.Modifier, boolean, androidx.compose.ui.graphics.Shape?, long, long, androidx.xr.glimmer.SurfaceDepthEffect?, androidx.compose.foundation.BorderStroke?, androidx.compose.foundation.interaction.MutableInteractionSource?, androidx.compose.runtime.Composer?, int, int);
   }
 
   public final class TextKt {
@@ -230,9 +234,10 @@ package androidx.xr.glimmer {
   }
 
   public final class TitleChipDefaults {
-    method public androidx.compose.foundation.layout.PaddingValues contentPadding(boolean hasIcon);
     method @BytecodeOnly public float getAssociatedContentSpacing-D9Ej5fM();
+    method @InaccessibleFromKotlin public androidx.compose.foundation.layout.PaddingValues getContentPadding();
     property public androidx.compose.ui.unit.Dp AssociatedContentSpacing;
+    property public androidx.compose.foundation.layout.PaddingValues ContentPadding;
     field public static final androidx.xr.glimmer.TitleChipDefaults INSTANCE;
   }
 

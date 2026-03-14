@@ -56,6 +56,6 @@ public abstract class EventMetadata internal constructor() {
      */
     public abstract fun addCategory(name: String)
 
-    /** Dispatches the underlying [TraceEvent] to the [TraceSink] instance if applicable. */
+    /** Dispatches the underlying [TraceEvent] to the [AbstractTraceSink] instance if applicable. */
     @DelicateTracingApi public abstract fun dispatchToTraceSink()
 }

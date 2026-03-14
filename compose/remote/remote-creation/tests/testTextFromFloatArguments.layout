@@ -62,7 +62,7 @@
           value: {type: Value, value: 1234.5677}
           digitsBefore: 0
           digitsAfter: 0
-          flags: 512
+          flags: 4096
         - type: ComponentModifiers
           modifiers:
           - type: WidthModifierOperation
@@ -336,7 +336,7 @@
           value: {type: Value, value: 1234.5677}
           digitsBefore: 0
           digitsAfter: 0
-          flags: 512
+          flags: 4096
         - type: ComponentModifiers
           modifiers:
           - type: WidthModifierOperation

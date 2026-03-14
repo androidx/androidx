@@ -243,6 +243,7 @@
     <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"각 목록 아래 하위 텍스트"</string>
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"종료 이미지 및 작업 데모"</string>
     <string name="filter_chip_demo_title" msgid="92190365856639582">"필터 칩 데모"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"진행률 표시줄 데모"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"창 템플릿 데모"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"장소 목록 템플릿 데모"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"장소 둘러보기"</string>

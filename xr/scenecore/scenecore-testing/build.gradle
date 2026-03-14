@@ -40,6 +40,7 @@ dependencies {
     implementation(libs.testExtTruth)
     implementation("androidx.annotation:annotation:1.8.1")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
+    implementation("androidx.media3:media3-exoplayer:1.9.0-beta01")
 
     testImplementation(project(":kruth:kruth"))
     testImplementation(libs.testRunner)
@@ -51,6 +52,7 @@ dependencies {
 android {
     defaultConfig {
         minSdk { version = release(24) }
+        compileSdk { version = release(36) }
     }
     namespace = "androidx.xr.scenecore.testing"
 }

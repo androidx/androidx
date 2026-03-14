@@ -20,8 +20,10 @@ import android.graphics.BlendMode as AndroidBlendMode
 import android.graphics.Paint as AndroidPaint
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
+import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.core.operations.utilities.ImageScaling
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.layout.ContentScale
@@ -85,6 +87,15 @@ public fun StrokeJoin.toAndroidJoin(): AndroidPaint.Join =
         else -> AndroidPaint.Join.MITER
     }
 
+/** Converts a Compose [PaintingStyle] to an Android framework [AndroidPaint.Style]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun PaintingStyle.toAndroidStyle(): AndroidPaint.Style =
+    when (this) {
+        PaintingStyle.Fill -> AndroidPaint.Style.FILL
+        PaintingStyle.Stroke -> AndroidPaint.Style.STROKE
+        else -> AndroidPaint.Style.FILL
+    }
+
 /** Converts [ContentScale] to [ImageScaling]. */
 internal fun ContentScale.toImageScalingInt(): Int {
     return when (this) {
@@ -138,3 +149,101 @@ internal fun FontFamily?.encode(): String? =
         is GenericFontFamily -> name
         else -> null
     }
+
+internal fun AndroidBlendMode.toComposeBlendMode(): BlendMode {
+    return when (this) {
+        AndroidBlendMode.CLEAR -> BlendMode.Clear
+        AndroidBlendMode.SRC -> BlendMode.Src
+        AndroidBlendMode.DST -> BlendMode.Dst
+        AndroidBlendMode.SRC_OVER -> BlendMode.SrcOver
+        AndroidBlendMode.DST_OVER -> BlendMode.DstOver
+        AndroidBlendMode.SRC_IN -> BlendMode.SrcIn
+        AndroidBlendMode.DST_IN -> BlendMode.DstIn
+        AndroidBlendMode.SRC_OUT -> BlendMode.SrcIn
+        AndroidBlendMode.DST_OUT -> BlendMode.DstOut
+        AndroidBlendMode.SRC_ATOP -> BlendMode.SrcAtop
+        AndroidBlendMode.DST_ATOP -> BlendMode.DstAtop
+        AndroidBlendMode.XOR -> BlendMode.Xor
+        AndroidBlendMode.PLUS -> BlendMode.Plus
+        AndroidBlendMode.MODULATE -> BlendMode.Modulate
+        AndroidBlendMode.SCREEN -> BlendMode.Screen
+        AndroidBlendMode.OVERLAY -> BlendMode.Overlay
+        AndroidBlendMode.DARKEN -> BlendMode.Darken
+        AndroidBlendMode.LIGHTEN -> BlendMode.Lighten
+        AndroidBlendMode.COLOR_DODGE -> BlendMode.ColorDodge
+        AndroidBlendMode.COLOR_BURN -> BlendMode.ColorBurn
+        AndroidBlendMode.HARD_LIGHT -> BlendMode.Hardlight
+        AndroidBlendMode.SOFT_LIGHT -> BlendMode.Softlight
+        AndroidBlendMode.DIFFERENCE -> BlendMode.Difference
+        AndroidBlendMode.EXCLUSION -> BlendMode.Exclusion
+        AndroidBlendMode.MULTIPLY -> BlendMode.Multiply
+        AndroidBlendMode.HUE -> BlendMode.Hue
+        AndroidBlendMode.SATURATION -> BlendMode.Saturation
+        AndroidBlendMode.COLOR -> BlendMode.Color
+        AndroidBlendMode.LUMINOSITY -> BlendMode.Luminosity
+    }
+}
+
+/** Converts an Android framework [AndroidPaint.Style] to a Compose [PaintingStyle]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun AndroidPaint.Style?.toPaintingStyle(): PaintingStyle =
+    when (this) {
+        AndroidPaint.Style.FILL -> PaintingStyle.Fill
+        AndroidPaint.Style.STROKE -> PaintingStyle.Stroke
+        else -> PaintingStyle.Fill
+    }
+
+/** Converts an Android framework [AndroidPaint.Cap] to a Compose [StrokeCap]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun AndroidPaint.Cap?.toStrokeCap(): StrokeCap =
+    when (this) {
+        AndroidPaint.Cap.BUTT -> StrokeCap.Butt
+        AndroidPaint.Cap.ROUND -> StrokeCap.Round
+        AndroidPaint.Cap.SQUARE -> StrokeCap.Square
+        else -> StrokeCap.Butt
+    }
+
+/** Converts an Android framework [AndroidPaint.Join] to a Compose [StrokeJoin]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun AndroidPaint.Join?.toStrokeJoin(): StrokeJoin =
+    when (this) {
+        AndroidPaint.Join.MITER -> StrokeJoin.Miter
+        AndroidPaint.Join.ROUND -> StrokeJoin.Round
+        AndroidPaint.Join.BEVEL -> StrokeJoin.Bevel
+        else -> StrokeJoin.Miter
+    }
+
+internal fun BlendMode.toInt(): Int {
+    return when (this) {
+        BlendMode.Clear -> PaintBundle.BLEND_MODE_CLEAR
+        BlendMode.Src -> PaintBundle.BLEND_MODE_SRC
+        BlendMode.Dst -> PaintBundle.BLEND_MODE_DST
+        BlendMode.SrcOver -> PaintBundle.BLEND_MODE_SRC_OVER
+        BlendMode.DstOver -> PaintBundle.BLEND_MODE_DST_OVER
+        BlendMode.SrcIn -> PaintBundle.BLEND_MODE_SRC_IN
+        BlendMode.DstIn -> PaintBundle.BLEND_MODE_DST_IN
+        BlendMode.SrcOut -> PaintBundle.BLEND_MODE_SRC_OUT
+        BlendMode.DstOut -> PaintBundle.BLEND_MODE_DST_OUT
+        BlendMode.SrcAtop -> PaintBundle.BLEND_MODE_SRC_ATOP
+        BlendMode.DstAtop -> PaintBundle.BLEND_MODE_DST_ATOP
+        BlendMode.Xor -> PaintBundle.BLEND_MODE_XOR
+        BlendMode.Plus -> PaintBundle.BLEND_MODE_PLUS
+        BlendMode.Modulate -> PaintBundle.BLEND_MODE_MODULATE
+        BlendMode.Screen -> PaintBundle.BLEND_MODE_SCREEN
+        BlendMode.Overlay -> PaintBundle.BLEND_MODE_OVERLAY
+        BlendMode.Darken -> PaintBundle.BLEND_MODE_DARKEN
+        BlendMode.Lighten -> PaintBundle.BLEND_MODE_LIGHTEN
+        BlendMode.ColorDodge -> PaintBundle.BLEND_MODE_COLOR_DODGE
+        BlendMode.ColorBurn -> PaintBundle.BLEND_MODE_COLOR_BURN
+        BlendMode.Hardlight -> PaintBundle.BLEND_MODE_HARD_LIGHT
+        BlendMode.Softlight -> PaintBundle.BLEND_MODE_SOFT_LIGHT
+        BlendMode.Difference -> PaintBundle.BLEND_MODE_DIFFERENCE
+        BlendMode.Exclusion -> PaintBundle.BLEND_MODE_EXCLUSION
+        BlendMode.Multiply -> PaintBundle.BLEND_MODE_MULTIPLY
+        BlendMode.Hue -> PaintBundle.BLEND_MODE_HUE
+        BlendMode.Saturation -> PaintBundle.BLEND_MODE_SATURATION
+        BlendMode.Color -> PaintBundle.BLEND_MODE_COLOR
+        BlendMode.Luminosity -> PaintBundle.BLEND_MODE_LUMINOSITY
+        else -> PaintBundle.BLEND_MODE_SRC_OVER
+    }
+}

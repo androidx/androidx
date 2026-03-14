@@ -109,11 +109,9 @@ inspection {
 }
 
 // TODO(b/407640608): Fix :compose:ui:ui-inspection:connectedCheck to work without this block
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += [
-                "-Xlambdas=class"
-        ]
+tasks.withType(KotlinCompile).configureEach { task ->
+    task.compilerOptions {
+        it.freeCompilerArgs.add("-Xlambdas=class")
     }
 }
 

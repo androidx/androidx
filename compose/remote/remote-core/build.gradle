@@ -33,6 +33,7 @@ dependencies {
     testImplementation(project(":compose:remote:remote-core-testutils"))
     testImplementation("org.yaml:snakeyaml:2.4")
     testImplementation("org.jetbrains.kotlin:kotlin-stdlib")
+    testImplementation project(':kruth:kruth')
 }
 
 androidx {

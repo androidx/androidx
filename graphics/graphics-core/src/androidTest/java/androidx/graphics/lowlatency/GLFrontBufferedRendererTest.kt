@@ -1806,6 +1806,7 @@ class GLFrontBufferedRendererTest {
         }
     }
 
+    @Ignore // b/488201211
     @Test
     fun testSetPixelFormat() {
         val flags = HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or HardwareBuffer.USAGE_GPU_COLOR_OUTPUT

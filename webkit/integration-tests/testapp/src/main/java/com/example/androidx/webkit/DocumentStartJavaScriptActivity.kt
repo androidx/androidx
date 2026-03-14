@@ -18,9 +18,7 @@ package com.example.androidx.webkit
 
 import android.net.Uri
 import android.os.Bundle
-import android.webkit.WebResourceRequest
 import android.webkit.WebView
-import android.webkit.WebViewClient
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.webkit.JavaScriptReplyProxy
@@ -34,27 +32,6 @@ import androidx.webkit.WebViewFeature
  * java.util.Set)} related functionality.
  */
 class DocumentStartJavaScriptActivity : AppCompatActivity() {
-
-    private inner class AssetLoadingWebViewClient : WebViewClient() {
-
-        // Use WebViewAssetLoader to load HTML page from app's assets.
-        val assetLoader =
-            WebViewAssetLoader.Builder()
-                .setDomain("example.com")
-                .addPathHandler(
-                    "/androidx_webkit/example/assets/",
-                    WebViewAssetLoader.AssetsPathHandler(this@DocumentStartJavaScriptActivity),
-                )
-                .build()
-
-        // use the old one for compatibility with all API levels
-        @Deprecated("Intentional use of deprecated function")
-        override fun shouldInterceptRequest(view: WebView, url: String) =
-            assetLoader.shouldInterceptRequest(Uri.parse(url))
-
-        override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest) =
-            assetLoader.shouldInterceptRequest(request.url)
-    }
 
     private inner class ReplyMessageListener : WebViewCompat.WebMessageListener {
         override fun onPostMessage(
@@ -82,13 +59,19 @@ class DocumentStartJavaScriptActivity : AppCompatActivity() {
             return
         }
 
+        val assetLoader =
+            WebViewAssetLoader.Builder()
+                .setDomain(EXAMPLE_DOMAIN)
+                .addPathHandler("$EXAMPLE_PATH/", WebViewAssetLoader.AssetsPathHandler(this))
+                .build()
+
         val webView =
             findViewById<WebView>(R.id.webview).apply {
-                webViewClient = AssetLoadingWebViewClient()
+                webViewClient = AssetLoaderWebViewClient(assetLoader)
                 settings.javaScriptEnabled = true
             }
 
-        val allowedOriginRules = setOf("https://example.com")
+        val allowedOriginRules = setOf("https://$EXAMPLE_DOMAIN")
 
         // Add WebMessageListeners.
         WebViewCompat.addWebMessageListener(
@@ -109,8 +92,11 @@ class DocumentStartJavaScriptActivity : AppCompatActivity() {
             allowedOriginRules,
         )
 
-        webView.loadUrl(
-            "https://example.com/androidx_webkit/example/assets/www/document_start_javascript.html"
-        )
+        webView.loadUrl("https://$EXAMPLE_DOMAIN$EXAMPLE_PATH/www/document_start_javascript.html")
+    }
+
+    companion object {
+        private const val EXAMPLE_DOMAIN = "example.com"
+        private const val EXAMPLE_PATH = "/androidx_webkit/example/assets"
     }
 }

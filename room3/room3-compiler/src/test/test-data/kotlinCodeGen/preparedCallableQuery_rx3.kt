@@ -13,6 +13,7 @@ import kotlin.Int
 import kotlin.Long
 import kotlin.String
 import kotlin.Suppress
+import kotlin.Unit
 import kotlin.collections.List
 import kotlin.reflect.KClass
 
@@ -77,10 +78,10 @@ internal class MyDao_Impl(
           _argIndex = 2
           _stmt.bindText(_argIndex, name)
           _stmt.step()
+          Unit
         } finally {
           _stmt.close()
         }
-        kotlin.Unit
       }
     }
   }

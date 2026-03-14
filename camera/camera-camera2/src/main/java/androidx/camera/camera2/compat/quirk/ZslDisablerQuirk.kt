@@ -27,7 +27,7 @@ import androidx.camera.core.impl.Quirk
  * - Bug Id: 252818931, 261744070, 319913852, 361328838
  * - Description: On certain devices, the captured image has color or zoom freezing issue for
  *   reprocessing. We need to disable zero-shutter lag and return false for
- *   [CameraInfo.isZslSupported].
+ *   [androidx.camera.core.CameraInfo.isZslSupported].
  * - Device(s): Samsung Fold4, Samsung s22, Xiaomi Mi 8
  */
 @SuppressLint("CameraXQuirksClassDetector")

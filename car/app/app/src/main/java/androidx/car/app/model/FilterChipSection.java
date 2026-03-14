@@ -39,7 +39,7 @@ import java.util.Objects;
  */
 @ExperimentalCarApi
 @CarProtocol
-@RequiresCarApi(8)
+@RequiresCarApi(9)
 @KeepFields
 public final class FilterChipSection extends Section<FilterChip> {
     @Nullable

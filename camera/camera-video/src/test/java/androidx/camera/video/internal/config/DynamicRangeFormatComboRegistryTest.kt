@@ -113,7 +113,7 @@ class DynamicRangeFormatComboRegistryTest {
         val ranges =
             DynamicRangeFormatComboRegistry.getDynamicRangesForVideoMime(VIDEO_DOLBY_VISION)
 
-        assertThat(ranges).containsExactly(SDR, DOLBY_VISION_8_BIT, DOLBY_VISION_10_BIT)
+        assertThat(ranges).containsExactly(DOLBY_VISION_8_BIT, DOLBY_VISION_10_BIT)
     }
 
     @Test

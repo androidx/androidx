@@ -32,6 +32,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -62,9 +63,6 @@ import androidx.navigation3.scene.SceneState
 import androidx.navigation3.scene.SceneStrategy
 import androidx.navigation3.scene.SinglePaneSceneStrategy
 import androidx.navigation3.scene.rememberSceneState
-import androidx.navigation3.ui.NavDisplay.POP_TRANSITION_SPEC
-import androidx.navigation3.ui.NavDisplay.PREDICTIVE_POP_TRANSITION_SPEC
-import androidx.navigation3.ui.NavDisplay.TRANSITION_SPEC
 import androidx.navigation3.ui.NavDisplay.popTransitionSpec
 import androidx.navigation3.ui.NavDisplay.predictivePopTransitionSpec
 import androidx.navigation3.ui.NavDisplay.transitionSpec
@@ -74,7 +72,6 @@ import androidx.navigationevent.NavigationEventTransitionState.InProgress
 import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.NavigationEventState
 import androidx.navigationevent.compose.rememberNavigationEventState
-import kotlin.collections.emptySet
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
 import kotlin.reflect.KClass
@@ -668,6 +665,13 @@ public fun <T : Any> NavDisplay(
     val initialZIndex = zIndices.getOrPut(initialKey) { 0f }
     val targetZIndex =
         when {
+            // AnimatedContent does not change the zIndex of content that is already on the
+            // screen, regardless of what you pass as the targetZIndex. So we need to check
+            // if the target is mid-transition and if it is, re-use the previously calculated
+            // zIndex. This ensures that `zIndices` is tracking the correct zIndex and that
+            // it matches the actual zIndex running in AnimatedContent.
+            !inPredictiveBack && transition.targetState != scene && zIndices.contains(targetKey) ->
+                zIndices[targetKey]
             initialKey == targetKey -> initialZIndex
             isPop || inPredictiveBack -> initialZIndex - 1f
             else -> initialZIndex + 1f
@@ -848,7 +852,9 @@ public fun <T : Any> NavDisplay(
         val isSettled = transition.currentState == transition.targetState
         val sceneLifecycleOwner =
             rememberLifecycleOwner(
-                maxLifecycle = if (isSettled) Lifecycle.State.RESUMED else Lifecycle.State.STARTED
+                maxLifecycle =
+                    if (isSettled && currentOverlayScenes.isEmpty()) Lifecycle.State.RESUMED
+                    else Lifecycle.State.STARTED
             )
         CompositionLocalProvider(
             LocalLifecycleOwner provides sceneLifecycleOwner,
@@ -882,12 +888,22 @@ public fun <T : Any> NavDisplay(
     // Show all OverlayScene instances above the AnimatedContent
     currentOverlayScenes.fastForEachReversed { overlayScene ->
         val scope = rememberCoroutineScope()
-        CompositionLocalProvider(
-            LocalEntriesToExcludeFromCurrentScene provides
-                sceneToExcludedEntryMap.getValue(AnimatedSceneKey(overlayScene)),
-            LocalCurrentScene provides overlayScene,
-        ) {
-            overlayScene.content.invoke()
+        key(overlayScene) {
+            val overlaySceneLifecycleOwner =
+                rememberLifecycleOwner(
+                    maxLifecycle =
+                        if (overlayScenes.firstOrNull() == overlayScene) Lifecycle.State.RESUMED
+                        else Lifecycle.State.STARTED
+                )
+
+            CompositionLocalProvider(
+                LocalLifecycleOwner provides overlaySceneLifecycleOwner,
+                LocalEntriesToExcludeFromCurrentScene provides
+                    sceneToExcludedEntryMap.getValue(AnimatedSceneKey(overlayScene)),
+                LocalCurrentScene provides overlayScene,
+            ) {
+                overlayScene.content.invoke()
+            }
         }
         // if the overlay scene is popped, let onRemoved finish before
         // removing from composition to ensure animations can complete

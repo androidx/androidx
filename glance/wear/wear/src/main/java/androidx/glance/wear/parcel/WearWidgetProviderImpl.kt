@@ -78,7 +78,7 @@ internal class WearWidgetProviderImpl(
             launch {
                 activeWidgetStore?.markWidgetAsActive(providerName, params.instanceId.id)
                 widgetCache.update {
-                    setInstanceType(params.instanceId, params.containerType)
+                    setContainerTypeForInstance(params.instanceId, params.containerType)
                     setWidgetParams(params)
                 }
             }

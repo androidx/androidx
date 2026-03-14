@@ -30,7 +30,7 @@ plugins {
 
 dependencies {
     api(project(":paging:paging-common"))
-    api(libs.guavaAndroid)
+    api(libs.guavaAndroid) // upgrading to newer version of guava due to CVE-2023-2976
     implementation(libs.kotlinCoroutinesGuava)
 
     testImplementation(project(":internal-testutils-common"))

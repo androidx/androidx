@@ -77,7 +77,8 @@ abstract class SingleProcessDataStoreJavaTest :
                 }
             }
 
-        val dataStore = DataStoreImpl(FileStorage(serializer) { testFile.file })
+        val dataStore =
+            DataStoreImpl(FileStorage(serializer) { testFile.file }, context = coroutineContext)
 
         // Shouldn't throw:
         dataStore.data.first()

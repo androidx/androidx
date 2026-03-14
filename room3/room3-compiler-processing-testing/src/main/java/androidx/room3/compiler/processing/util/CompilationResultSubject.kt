@@ -27,7 +27,6 @@ import com.google.common.truth.FailureMetadata
 import com.google.common.truth.PrimitiveByteArraySubject
 import com.google.common.truth.StringSubject
 import com.google.common.truth.Subject
-import com.google.common.truth.Subject.Factory
 import com.google.common.truth.Truth
 import com.google.testing.compile.Compilation
 import java.util.regex.Pattern
@@ -120,7 +119,7 @@ internal constructor(
 @ExperimentalProcessingApi
 class CompilationResultSubject
 internal constructor(failureMetadata: FailureMetadata, val compilationResult: CompilationResult) :
-    Subject<CompilationResultSubject, CompilationResult>(failureMetadata, compilationResult) {
+    Subject(failureMetadata, compilationResult) {
     /** set to true if any assertion on the subject requires it to fail (e.g. looking for errors) */
     internal var shouldSucceed: Boolean = true
 
@@ -481,7 +480,7 @@ internal constructor(failureMetadata: FailureMetadata, val compilationResult: Co
     companion object {
         private val FACTORY =
             Factory<CompilationResultSubject, CompilationResult> { metadata, actual ->
-                CompilationResultSubject(metadata, actual)
+                CompilationResultSubject(metadata, checkNotNull(actual))
             }
 
         fun assertThat(compilationResult: CompilationResult): CompilationResultSubject {

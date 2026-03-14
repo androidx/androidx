@@ -21,7 +21,6 @@ import androidx.room3.RoomDatabase.JournalMode.TRUNCATE
 import androidx.room3.RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING
 import androidx.room3.coroutines.ConnectionFactory
 import androidx.room3.coroutines.ExclusiveMutex
-import androidx.room3.util.findMigrationPath
 import androidx.room3.util.isMigrationRequired
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver

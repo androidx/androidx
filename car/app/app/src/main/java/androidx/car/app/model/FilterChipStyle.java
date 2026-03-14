@@ -19,6 +19,7 @@ package androidx.car.app.model;
 import static java.util.Objects.requireNonNull;
 
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 
@@ -38,8 +39,9 @@ import java.util.Objects;
  * the Section, then override the style of the individual "selected" FilterChips. Remember that
  * these colors will fall back to host defaults if they are unset or they fail contrast checks.
  */
+@ExperimentalCarApi
 @CarProtocol
-@RequiresCarApi(8)
+@RequiresCarApi(9)
 @KeepFields
 public final class FilterChipStyle {
     @Nullable

@@ -46,6 +46,8 @@ package androidx.xr.scenecore.testing {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FakeAudioTrackExtensionsWrapper implements androidx.xr.scenecore.runtime.AudioTrackExtensionsWrapper {
     ctor public FakeAudioTrackExtensionsWrapper();
+    method @InaccessibleFromKotlin public java.util.Map<android.media.AudioTrack.Builder,androidx.xr.scenecore.runtime.Entity?> getEntityBuilderMap();
+    method @InaccessibleFromKotlin public java.util.Map<android.media.AudioTrack,androidx.xr.scenecore.runtime.Entity?> getEntityMap();
     method @InaccessibleFromKotlin public Throwable? getFakeExtensionException();
     method public androidx.xr.scenecore.runtime.PointSourceParams? getPointSourceParams(android.media.AudioTrack track);
     method @InaccessibleFromKotlin public java.util.Map<android.media.AudioTrack.Builder,androidx.xr.scenecore.runtime.PointSourceParams?> getPointSourceParamsBuilderMap();
@@ -55,11 +57,13 @@ package androidx.xr.scenecore.testing {
     method @androidx.xr.scenecore.runtime.SpatializerConstants.SourceType public int getSpatialSourceType(android.media.AudioTrack track);
     method @InaccessibleFromKotlin public java.util.Map<android.media.AudioTrack,java.lang.Integer> getSpatialSourceTypeMap();
     method @InaccessibleFromKotlin public void setFakeExtensionException(Throwable?);
-    method public void setPointSourceParams(android.media.AudioTrack track, androidx.xr.scenecore.runtime.PointSourceParams params);
-    method public android.media.AudioTrack.Builder setPointSourceParams(android.media.AudioTrack.Builder builder, androidx.xr.scenecore.runtime.PointSourceParams params);
+    method public void setPointSourceParams(android.media.AudioTrack track, androidx.xr.scenecore.runtime.PointSourceParams params, androidx.xr.scenecore.runtime.Entity? entity);
+    method public android.media.AudioTrack.Builder setPointSourceParams(android.media.AudioTrack.Builder builder, androidx.xr.scenecore.runtime.PointSourceParams params, androidx.xr.scenecore.runtime.Entity? entity);
     method public void setSoundFieldAttributes(android.media.AudioTrack track, androidx.xr.scenecore.runtime.SoundFieldAttributes attributes);
     method public android.media.AudioTrack.Builder setSoundFieldAttributes(android.media.AudioTrack.Builder builder, androidx.xr.scenecore.runtime.SoundFieldAttributes attributes);
     method @InaccessibleFromKotlin public void setSpatialSourceTypeMap(java.util.Map<android.media.AudioTrack,java.lang.Integer>);
+    property public java.util.Map<android.media.AudioTrack.Builder,androidx.xr.scenecore.runtime.Entity?> entityBuilderMap;
+    property public java.util.Map<android.media.AudioTrack,androidx.xr.scenecore.runtime.Entity?> entityMap;
     property public Throwable? fakeExtensionException;
     property public java.util.Map<android.media.AudioTrack.Builder,androidx.xr.scenecore.runtime.PointSourceParams?> pointSourceParamsBuilderMap;
     property public java.util.Map<android.media.AudioTrack,androidx.xr.scenecore.runtime.PointSourceParams?> pointSourceParamsMap;
@@ -171,52 +175,30 @@ package androidx.xr.scenecore.testing {
     ctor public FakeGltfEntity(optional androidx.xr.scenecore.runtime.GltfFeature? feature, optional java.util.concurrent.Executor? executor);
     ctor @BytecodeOnly public FakeGltfEntity(androidx.xr.scenecore.runtime.GltfFeature!, java.util.concurrent.Executor!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public final void addAnimation(androidx.xr.scenecore.runtime.GltfAnimationFeature animation);
-    method public void addAnimationStateListener(java.util.concurrent.Executor executor, java.util.function.Consumer<java.lang.Integer> listener);
     method public void addOnBoundsUpdateListener(java.util.function.Consumer<androidx.xr.runtime.math.BoundingBox> listener);
-    method @InaccessibleFromKotlin public int getAnimationState();
     method @InaccessibleFromKotlin public java.util.List<androidx.xr.scenecore.runtime.GltfAnimationFeature> getAnimations();
-    method @InaccessibleFromKotlin public final String? getCurrentAnimationName();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.BoundingBox getGltfModelBoundingBox();
     method @InaccessibleFromKotlin public java.util.List<androidx.xr.scenecore.runtime.GltfModelNodeFeature> getNodes();
-    method @InaccessibleFromKotlin public final java.util.List<java.lang.String> getSupportedAnimationNames();
-    method @InaccessibleFromKotlin public final boolean isLooping();
-    method public void pauseAnimation();
-    method public void removeAnimationStateListener(java.util.function.Consumer<java.lang.Integer> listener);
     method public void removeOnBoundsUpdateListener(java.util.function.Consumer<androidx.xr.runtime.math.BoundingBox> listener);
-    method public void resumeAnimation();
     method public void setColliderEnabled(boolean enabled);
-    method @InaccessibleFromKotlin public final void setLooping(boolean);
     method public void setReformAffordanceEnabled(boolean enabled, boolean systemMovable);
-    method @InaccessibleFromKotlin public final void setSupportedAnimationNames(java.util.List<java.lang.String>);
-    method public void startAnimation(boolean loop, String? animationName);
-    method public void stopAnimation();
-    property @androidx.xr.scenecore.runtime.GltfEntity.AnimationStateValue public int animationState;
     property public java.util.List<androidx.xr.scenecore.runtime.GltfAnimationFeature> animations;
-    property public final String? currentAnimationName;
     property public androidx.xr.runtime.math.BoundingBox gltfModelBoundingBox;
-    property public final boolean isLooping;
     property public java.util.List<androidx.xr.scenecore.runtime.GltfModelNodeFeature> nodes;
-    property public final java.util.List<java.lang.String> supportedAnimationNames;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FakeGltfFeature extends androidx.xr.scenecore.testing.FakeBaseRenderingFeature implements androidx.xr.scenecore.runtime.GltfFeature {
     ctor public FakeGltfFeature(androidx.xr.runtime.NodeHolder<? extends java.lang.Object?> nodeHolder);
     method public void addAnimationStateListener(java.util.concurrent.Executor executor, java.util.function.Consumer<java.lang.Integer> listener);
     method public void addOnBoundsUpdateListener(java.util.function.Consumer<androidx.xr.runtime.math.BoundingBox> listener);
-    method @InaccessibleFromKotlin public int getAnimationState();
     method public java.util.List<androidx.xr.scenecore.runtime.GltfAnimationFeature> getAnimations(java.util.concurrent.Executor executor);
     method public androidx.xr.runtime.math.BoundingBox getGltfModelBoundingBox();
     method @InaccessibleFromKotlin public java.util.List<androidx.xr.scenecore.runtime.GltfModelNodeFeature> getNodes();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.FloatSize3d getSize();
-    method public void pauseAnimation();
     method public void removeAnimationStateListener(java.util.function.Consumer<java.lang.Integer> listener);
     method public void removeOnBoundsUpdateListener(java.util.function.Consumer<androidx.xr.runtime.math.BoundingBox> listener);
-    method public void resumeAnimation();
     method public void setColliderEnabled(boolean enableCollider);
     method public void setReformAffordanceEnabled(androidx.xr.scenecore.runtime.GltfEntity entity, boolean enabled, java.util.concurrent.Executor executor, boolean systemMovable);
-    method public void startAnimation(boolean loop, String? animationName, java.util.concurrent.Executor executor);
-    method public void stopAnimation();
-    property public int animationState;
     property public java.util.List<androidx.xr.scenecore.runtime.GltfModelNodeFeature> nodes;
     property public androidx.xr.runtime.math.FloatSize3d size;
     field public static final androidx.xr.scenecore.testing.FakeGltfFeature.Companion Companion;
@@ -270,11 +252,11 @@ package androidx.xr.scenecore.testing {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FakeMediaPlayerExtensionsWrapper implements androidx.xr.scenecore.runtime.MediaPlayerExtensionsWrapper {
     ctor public FakeMediaPlayerExtensionsWrapper();
-    method @InaccessibleFromKotlin public java.util.Map<android.media.MediaPlayer,androidx.xr.scenecore.runtime.PointSourceParams> getPointSourceParams();
+    method @InaccessibleFromKotlin public java.util.Map<android.media.MediaPlayer,kotlin.Pair<androidx.xr.scenecore.runtime.PointSourceParams,androidx.xr.scenecore.runtime.Entity>> getParamsWithEntity();
     method @InaccessibleFromKotlin public java.util.Map<android.media.MediaPlayer,androidx.xr.scenecore.runtime.SoundFieldAttributes> getSoundFieldAttributes();
-    method public void setPointSourceParams(android.media.MediaPlayer mediaPlayer, androidx.xr.scenecore.runtime.PointSourceParams params);
+    method public void setPointSourceParams(android.media.MediaPlayer mediaPlayer, androidx.xr.scenecore.runtime.PointSourceParams params, androidx.xr.scenecore.runtime.Entity entity);
     method public void setSoundFieldAttributes(android.media.MediaPlayer mediaPlayer, androidx.xr.scenecore.runtime.SoundFieldAttributes attributes);
-    property public java.util.Map<android.media.MediaPlayer,androidx.xr.scenecore.runtime.PointSourceParams> pointSourceParams;
+    property public java.util.Map<android.media.MediaPlayer,kotlin.Pair<androidx.xr.scenecore.runtime.PointSourceParams,androidx.xr.scenecore.runtime.Entity>> paramsWithEntity;
     property public java.util.Map<android.media.MediaPlayer,androidx.xr.scenecore.runtime.SoundFieldAttributes> soundFieldAttributes;
   }
 
@@ -344,6 +326,18 @@ package androidx.xr.scenecore.testing {
     method public void onInputEvent(androidx.xr.scenecore.runtime.InputEvent event);
     method public void onStateChanged(@androidx.xr.scenecore.runtime.PointerCaptureComponent.PointerCaptureState int newState);
     property public androidx.xr.scenecore.runtime.InputEventListener? inputListener;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FakePositionalAudioComponent extends androidx.xr.scenecore.testing.FakeComponent implements androidx.xr.scenecore.runtime.PositionalAudioComponent {
+    ctor public FakePositionalAudioComponent(android.content.Context context, androidx.xr.scenecore.runtime.PointSourceParams params);
+    method public androidx.media3.exoplayer.audio.AudioOutputProvider getAudioOutputProvider();
+    method @InaccessibleFromKotlin public int getGetAudioOutputProviderCount();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.runtime.PointSourceParams getParams();
+    method @InaccessibleFromKotlin public void setGetAudioOutputProviderCount(int);
+    method @InaccessibleFromKotlin public void setParams(androidx.xr.scenecore.runtime.PointSourceParams);
+    method public void setPointSourceParams(androidx.xr.scenecore.runtime.PointSourceParams params);
+    property public int getAudioOutputProviderCount;
+    property public androidx.xr.scenecore.runtime.PointSourceParams params;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FakeRenderingRuntime implements androidx.xr.scenecore.runtime.RenderingRuntime {
@@ -670,7 +664,11 @@ package androidx.xr.scenecore.testing {
     method public androidx.xr.scenecore.runtime.PanelEntity createPanelEntity(android.content.Context context, androidx.xr.runtime.math.Pose pose, android.view.View view, androidx.xr.scenecore.runtime.Dimensions dimensions, String name, androidx.xr.scenecore.runtime.Entity? parent);
     method public androidx.xr.scenecore.runtime.PanelEntity createPanelEntity(android.content.Context context, androidx.xr.runtime.math.Pose pose, android.view.View view, androidx.xr.scenecore.runtime.PixelDimensions pixelDimensions, String name, androidx.xr.scenecore.runtime.Entity? parent);
     method public androidx.xr.scenecore.testing.FakePointerCaptureComponent createPointerCaptureComponent(java.util.concurrent.Executor executor, androidx.xr.scenecore.runtime.PointerCaptureComponent.StateListener stateListener, androidx.xr.scenecore.runtime.InputEventListener inputListener);
+    method public androidx.xr.scenecore.runtime.PositionalAudioComponent createPositionalAudioComponent(android.content.Context context, androidx.xr.scenecore.runtime.PointSourceParams params);
     method public androidx.xr.scenecore.testing.FakeResizableComponent createResizableComponent(androidx.xr.scenecore.runtime.Dimensions minimumSize, androidx.xr.scenecore.runtime.Dimensions maximumSize);
+    method public androidx.xr.scenecore.runtime.SoundEffectPool createSoundEffectPool(int maxStreams);
+    method public androidx.xr.scenecore.runtime.SoundEffectPoolComponent createSoundEffectPoolComponent(androidx.xr.scenecore.runtime.SoundEffectPool soundEffectPool);
+    method public androidx.xr.scenecore.runtime.SoundFieldAudioComponent createSoundFieldAudioComponent(android.content.Context context, androidx.xr.scenecore.runtime.SoundFieldAttributes rtSoundFieldAttributes);
     method public androidx.xr.scenecore.runtime.SpatialPointerComponent createSpatialPointerComponent();
     method public androidx.xr.scenecore.runtime.SubspaceNodeEntity createSubspaceNodeEntity(androidx.xr.scenecore.testing.FakeNode node, androidx.xr.scenecore.runtime.Dimensions size);
     method public androidx.xr.scenecore.runtime.SurfaceEntity createSurfaceEntity(androidx.xr.scenecore.runtime.SurfaceFeature feature, androidx.xr.runtime.math.Pose pose, androidx.xr.scenecore.runtime.Entity? parentEntity);
@@ -760,7 +758,6 @@ package androidx.xr.scenecore.testing {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FakeScheduledExecutorService extends java.util.concurrent.AbstractExecutorService implements java.lang.AutoCloseable java.util.concurrent.ScheduledExecutorService {
     ctor public FakeScheduledExecutorService();
     method public boolean awaitTermination(long, java.util.concurrent.TimeUnit?);
-    method public void close();
     method public void execute(Runnable?);
     method public boolean hasNext();
     method @com.google.errorprone.annotations.CheckReturnValue public boolean isEmpty();
@@ -779,11 +776,90 @@ package androidx.xr.scenecore.testing {
     method public boolean simulateSleepExecutingAtMostOneTask(java.time.Duration);
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FakeSoundEffectPool implements androidx.xr.scenecore.runtime.SoundEffectPool {
+    ctor public FakeSoundEffectPool();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.runtime.SoundEffectPool.LoadCompleteListener? getLoadCompleteListener();
+    method @InaccessibleFromKotlin public android.content.res.AssetFileDescriptor? getLoadedAfd();
+    method @InaccessibleFromKotlin public Integer? getLoadedResId();
+    method @InaccessibleFromKotlin public boolean getReleased();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.runtime.SoundEffect? getUnloadedSoundEffect();
+    method public androidx.xr.scenecore.runtime.SoundEffect load(android.content.Context context, int resId);
+    method public androidx.xr.scenecore.runtime.SoundEffect load(android.content.res.AssetFileDescriptor assetFileDescriptor);
+    method public void notifyLoadComplete(androidx.xr.scenecore.runtime.SoundEffect soundEffect, boolean success);
+    method public void release();
+    method @InaccessibleFromKotlin public void setLoadCompleteListener(androidx.xr.scenecore.runtime.SoundEffectPool.LoadCompleteListener?);
+    method @InaccessibleFromKotlin public void setLoadedAfd(android.content.res.AssetFileDescriptor?);
+    method @InaccessibleFromKotlin public void setLoadedResId(Integer?);
+    method public void setOnLoadCompleteListener(java.util.concurrent.Executor executor, androidx.xr.scenecore.runtime.SoundEffectPool.LoadCompleteListener listener);
+    method @InaccessibleFromKotlin public void setReleased(boolean);
+    method @InaccessibleFromKotlin public void setUnloadedSoundEffect(androidx.xr.scenecore.runtime.SoundEffect?);
+    method public boolean unload(androidx.xr.scenecore.runtime.SoundEffect soundEffect);
+    property public androidx.xr.scenecore.runtime.SoundEffectPool.LoadCompleteListener? loadCompleteListener;
+    property public android.content.res.AssetFileDescriptor? loadedAfd;
+    property public Integer? loadedResId;
+    property public boolean released;
+    property public androidx.xr.scenecore.runtime.SoundEffect? unloadedSoundEffect;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FakeSoundEffectPoolComponent extends androidx.xr.scenecore.testing.FakeComponent implements androidx.xr.scenecore.runtime.SoundEffectPoolComponent {
+    ctor public FakeSoundEffectPoolComponent();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.runtime.Stream? getLastPausedStream();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.runtime.Entity? getLastPlayedEntity();
+    method @InaccessibleFromKotlin public Boolean? getLastPlayedIsLooping();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.runtime.PointSourceParams? getLastPlayedParams();
+    method @InaccessibleFromKotlin public Integer? getLastPlayedPriority();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.runtime.SoundEffect? getLastPlayedSoundEffect();
+    method @InaccessibleFromKotlin public Float? getLastPlayedVolume();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.runtime.Stream? getLastResumedStream();
+    method @InaccessibleFromKotlin public Boolean? getLastSetLoopingIsLooping();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.runtime.Stream? getLastSetLoopingStream();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.runtime.Stream? getLastSetVolumeStream();
+    method @InaccessibleFromKotlin public Float? getLastSetVolumeVolume();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.runtime.Stream? getLastStoppedStream();
+    method public void pause(androidx.xr.scenecore.runtime.Stream stream);
+    method public androidx.xr.scenecore.runtime.Stream play(androidx.xr.scenecore.runtime.SoundEffect soundEffect, androidx.xr.scenecore.runtime.PointSourceParams pointSourceParams, androidx.xr.scenecore.runtime.Entity? entity, float volume, int priority, boolean isLooping);
+    method public void resume(androidx.xr.scenecore.runtime.Stream stream);
+    method @InaccessibleFromKotlin public void setLastPausedStream(androidx.xr.scenecore.runtime.Stream?);
+    method @InaccessibleFromKotlin public void setLastPlayedEntity(androidx.xr.scenecore.runtime.Entity?);
+    method @InaccessibleFromKotlin public void setLastPlayedIsLooping(Boolean?);
+    method @InaccessibleFromKotlin public void setLastPlayedParams(androidx.xr.scenecore.runtime.PointSourceParams?);
+    method @InaccessibleFromKotlin public void setLastPlayedPriority(Integer?);
+    method @InaccessibleFromKotlin public void setLastPlayedSoundEffect(androidx.xr.scenecore.runtime.SoundEffect?);
+    method @InaccessibleFromKotlin public void setLastPlayedVolume(Float?);
+    method @InaccessibleFromKotlin public void setLastResumedStream(androidx.xr.scenecore.runtime.Stream?);
+    method @InaccessibleFromKotlin public void setLastSetLoopingIsLooping(Boolean?);
+    method @InaccessibleFromKotlin public void setLastSetLoopingStream(androidx.xr.scenecore.runtime.Stream?);
+    method @InaccessibleFromKotlin public void setLastSetVolumeStream(androidx.xr.scenecore.runtime.Stream?);
+    method @InaccessibleFromKotlin public void setLastSetVolumeVolume(Float?);
+    method @InaccessibleFromKotlin public void setLastStoppedStream(androidx.xr.scenecore.runtime.Stream?);
+    method public void setLooping(androidx.xr.scenecore.runtime.Stream stream, boolean isLooping);
+    method public void setVolume(androidx.xr.scenecore.runtime.Stream stream, float volume);
+    method public void stop(androidx.xr.scenecore.runtime.Stream stream);
+    property public androidx.xr.scenecore.runtime.Stream? lastPausedStream;
+    property public androidx.xr.scenecore.runtime.Entity? lastPlayedEntity;
+    property public Boolean? lastPlayedIsLooping;
+    property public androidx.xr.scenecore.runtime.PointSourceParams? lastPlayedParams;
+    property public Integer? lastPlayedPriority;
+    property public androidx.xr.scenecore.runtime.SoundEffect? lastPlayedSoundEffect;
+    property public Float? lastPlayedVolume;
+    property public androidx.xr.scenecore.runtime.Stream? lastResumedStream;
+    property public Boolean? lastSetLoopingIsLooping;
+    property public androidx.xr.scenecore.runtime.Stream? lastSetLoopingStream;
+    property public androidx.xr.scenecore.runtime.Stream? lastSetVolumeStream;
+    property public Float? lastSetVolumeVolume;
+    property public androidx.xr.scenecore.runtime.Stream? lastStoppedStream;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FakeSoundFieldAudioComponent extends androidx.xr.scenecore.testing.FakeComponent implements androidx.xr.scenecore.runtime.SoundFieldAudioComponent {
+    ctor public FakeSoundFieldAudioComponent(android.content.Context context);
+    method public androidx.media3.exoplayer.audio.AudioOutputProvider getAudioOutputProvider();
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FakeSoundPoolExtensionsWrapper implements androidx.xr.scenecore.runtime.SoundPoolExtensionsWrapper {
     ctor public FakeSoundPoolExtensionsWrapper();
     method @InaccessibleFromKotlin public int getSourceType();
     method @androidx.xr.scenecore.runtime.SpatializerConstants.SourceType public int getSpatialSourceType(android.media.SoundPool soundPool, int streamId);
-    method public int play(android.media.SoundPool soundPool, int soundId, androidx.xr.scenecore.runtime.PointSourceParams params, float volume, int priority, int loop, float rate);
+    method public int play(android.media.SoundPool soundPool, int soundId, androidx.xr.scenecore.runtime.PointSourceParams params, androidx.xr.scenecore.runtime.Entity? entity, float volume, int priority, int loop, float rate);
     method public int play(android.media.SoundPool soundPool, int soundId, androidx.xr.scenecore.runtime.SoundFieldAttributes attributes, float volume, int priority, int loop, float rate);
     method public void setPlayAsPointSourceResult(int result);
     method public void setPlayAsSoundFieldResult(int result);

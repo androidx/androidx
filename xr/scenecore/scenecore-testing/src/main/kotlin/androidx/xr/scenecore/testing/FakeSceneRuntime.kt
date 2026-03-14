@@ -38,10 +38,16 @@ import androidx.xr.scenecore.runtime.PerceptionSpaceScenePose
 import androidx.xr.scenecore.runtime.PixelDimensions
 import androidx.xr.scenecore.runtime.PlaneSemantic
 import androidx.xr.scenecore.runtime.PlaneType
+import androidx.xr.scenecore.runtime.PointSourceParams
 import androidx.xr.scenecore.runtime.PointerCaptureComponent
+import androidx.xr.scenecore.runtime.PositionalAudioComponent
 import androidx.xr.scenecore.runtime.RenderingEntityFactory
 import androidx.xr.scenecore.runtime.ScenePose
 import androidx.xr.scenecore.runtime.SceneRuntime
+import androidx.xr.scenecore.runtime.SoundEffectPool
+import androidx.xr.scenecore.runtime.SoundEffectPoolComponent
+import androidx.xr.scenecore.runtime.SoundFieldAttributes
+import androidx.xr.scenecore.runtime.SoundFieldAudioComponent
 import androidx.xr.scenecore.runtime.SoundPoolExtensionsWrapper
 import androidx.xr.scenecore.runtime.SpatialCapabilities
 import androidx.xr.scenecore.runtime.SpatialModeChangeListener
@@ -442,6 +448,30 @@ public class FakeSceneRuntime(public val executor: Executor? = null) :
 
     override fun removeOnBoundaryConsentChangedListener(listener: Consumer<Boolean>) {
         _boundaryConsentChangedMap.remove(listener)
+    }
+
+    override fun createPositionalAudioComponent(
+        context: Context,
+        params: PointSourceParams,
+    ): PositionalAudioComponent {
+        return FakePositionalAudioComponent(context, params)
+    }
+
+    override fun createSoundFieldAudioComponent(
+        context: Context,
+        rtSoundFieldAttributes: SoundFieldAttributes,
+    ): SoundFieldAudioComponent {
+        return FakeSoundFieldAudioComponent(context)
+    }
+
+    override fun createSoundEffectPool(maxStreams: Int): SoundEffectPool {
+        return FakeSoundEffectPool()
+    }
+
+    override fun createSoundEffectPoolComponent(
+        soundEffectPool: SoundEffectPool
+    ): SoundEffectPoolComponent {
+        return FakeSoundEffectPoolComponent()
     }
 
     /**

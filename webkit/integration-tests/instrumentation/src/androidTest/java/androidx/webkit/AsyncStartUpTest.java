@@ -16,6 +16,7 @@
 
 package androidx.webkit;
 
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.webkit.WebSettings;
@@ -24,12 +25,14 @@ import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.webkit.internal.StartupFeatures;
 import androidx.webkit.internal.WebViewFeatureInternal;
 import androidx.webkit.internal.WebViewGlueCommunicator;
 import androidx.webkit.test.common.WebViewOnUiThread;
 import androidx.webkit.test.common.WebkitUtils;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
@@ -53,6 +56,7 @@ import java.util.concurrent.TimeUnit;
  * (See b/376656739).
  * For the time being, please run each test thoroughly locally till the above bug is fixed.
  */
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class AsyncStartUpTest {
@@ -71,7 +75,17 @@ public class AsyncStartUpTest {
                 ResolvableFuture.create();
 
         WebViewCompat.startUpWebView(ApplicationProvider.getApplicationContext(), config,
-                startUpFinishedFuture::set);
+                new WebViewOutcomeReceiver<WebViewStartUpResult, WebViewStartupException>() {
+                    @Override
+                    public void onResult(@NonNull WebViewStartUpResult result) {
+                        startUpFinishedFuture.set(result);
+                    }
+
+                    @Override
+                    public void onError(@NonNull WebViewStartupException error) {
+                        startUpFinishedFuture.setException(error);
+                    }
+                });
         // Wait until the callback has triggered.
         WebkitUtils.waitForFuture(startUpFinishedFuture);
 
@@ -94,23 +108,28 @@ public class AsyncStartUpTest {
                 ResolvableFuture.create();
 
         WebViewCompat.startUpWebView(ApplicationProvider.getApplicationContext(), config,
-                startUpFinishedFuture::set);
+                new WebViewOutcomeReceiver<WebViewStartUpResult, WebViewStartupException>() {
+                    @Override
+                    public void onResult(@NonNull WebViewStartUpResult result) {
+                        startUpFinishedFuture.set(result);
+                    }
+
+                    @Override
+                    public void onError(@NonNull WebViewStartupException error) {
+                        startUpFinishedFuture.setException(error);
+                    }
+                });
         // Wait until the callback has triggered.
         WebViewStartUpResult result = WebkitUtils.waitForFuture(startUpFinishedFuture);
 
         // We are running the assumption here so that checking for the feature doesn't
         // interfere with our test as feature checks run provider init.
-        Assume.assumeTrue(WebViewFeatureInternal.ASYNC_WEBVIEW_STARTUP.isSupportedByWebView());
+        Assume.assumeTrue(WebViewFeatureInternal.ASYNC_WEBVIEW_STARTUP_V2.isSupportedByWebView());
         Assert.assertNotNull(result);
         Assert.assertNotNull(result.getTotalTimeInUiThreadMillis());
         Assert.assertNotNull(result.getMaxTimePerTaskInUiThreadMillis());
     }
 
-    /**
-     * Tests that
-     * {@link WebViewCompat#startUpWebView(android.content.Context, WebViewStartUpConfig, WebViewCompat.WebViewStartUpCallback)}
-     * returns NO startup locations if WebView is started up by calling `startUpWebView()`.
-     */
     @Test
     @MediumTest
     public void testAsyncStartUp_onSuccessReturnsNoStartupLocationWithStartUpApi()
@@ -123,23 +142,29 @@ public class AsyncStartUpTest {
                 ResolvableFuture.create();
 
         WebViewCompat.startUpWebView(ApplicationProvider.getApplicationContext(), config,
-                startUpFinishedFuture::set);
+                new WebViewOutcomeReceiver<WebViewStartUpResult, WebViewStartupException>() {
+                    @Override
+                    public void onResult(@NonNull WebViewStartUpResult result) {
+                        startUpFinishedFuture.set(result);
+                    }
+
+                    @Override
+                    public void onError(@NonNull WebViewStartupException error) {
+                        startUpFinishedFuture.setException(error);
+                    }
+                });
         // Wait until the callback has triggered.
         WebViewStartUpResult result = WebkitUtils.waitForFuture(startUpFinishedFuture);
 
         // We are running the assumption here so that checking for the feature doesn't
         // interfere with our test as feature checks run provider init.
-        Assume.assumeTrue(WebViewFeatureInternal.ASYNC_WEBVIEW_STARTUP.isSupportedByWebView());
+        Assume.assumeTrue(WebViewFeatureInternal.ASYNC_WEBVIEW_STARTUP_V2.isSupportedByWebView());
         Assert.assertNotNull(result);
         Assert.assertEquals(0,
                 Objects.requireNonNull(result.getUiThreadBlockingStartUpLocations()).size());
-        if (WebViewFeatureInternal
-                .ASYNC_WEBVIEW_STARTUP_ASYNC_STARTUP_LOCATIONS.isSupportedByWebView()) {
-            Assert.assertEquals(0,
-                    Objects.requireNonNull(result.getNonUiThreadBlockingStartUpLocations()).size());
-        } else {
-            Assert.assertNull(result.getNonUiThreadBlockingStartUpLocations());
-        }
+        Assert.assertEquals(0,
+                Objects.requireNonNull(result.getNonUiThreadBlockingStartUpLocations()).size());
+
     }
 
     /**
@@ -161,13 +186,23 @@ public class AsyncStartUpTest {
         // Triggers provider init.
         new Handler(Looper.getMainLooper()).post(WebViewGlueCommunicator::getWebViewClassLoader);
         WebViewCompat.startUpWebView(ApplicationProvider.getApplicationContext(), config,
-                startUpFinishedFuture::set);
+                new WebViewOutcomeReceiver<WebViewStartUpResult, WebViewStartupException>() {
+                    @Override
+                    public void onResult(@NonNull WebViewStartUpResult result) {
+                        startUpFinishedFuture.set(result);
+                    }
+
+                    @Override
+                    public void onError(@NonNull WebViewStartupException error) {
+                        startUpFinishedFuture.setException(error);
+                    }
+                });
         // Wait until the callback has triggered.
         WebViewStartUpResult result = WebkitUtils.waitForFuture(startUpFinishedFuture);
 
         // We are running the assumption here so that checking for the feature doesn't
         // interfere with our test as feature checks run provider init.
-        Assume.assumeTrue(WebViewFeatureInternal.ASYNC_WEBVIEW_STARTUP.isSupportedByWebView());
+        Assume.assumeTrue(WebViewFeatureInternal.ASYNC_WEBVIEW_STARTUP_V2.isSupportedByWebView());
         Assert.assertNotNull(result);
         Assert.assertEquals(1,
                 Objects.requireNonNull(result.getUiThreadBlockingStartUpLocations()).size());
@@ -175,13 +210,9 @@ public class AsyncStartUpTest {
                 convertToString(
                         result.getUiThreadBlockingStartUpLocations().get(0).getStackInformation())
                 .contains("Provider init"));
-        if (WebViewFeatureInternal
-                .ASYNC_WEBVIEW_STARTUP_ASYNC_STARTUP_LOCATIONS.isSupportedByWebView()) {
-            Assert.assertEquals(0,
-                    Objects.requireNonNull(result.getNonUiThreadBlockingStartUpLocations()).size());
-        } else {
-            Assert.assertNull(result.getNonUiThreadBlockingStartUpLocations());
-        }
+
+        Assert.assertEquals(0,
+                Objects.requireNonNull(result.getNonUiThreadBlockingStartUpLocations()).size());
     }
 
     /**
@@ -203,13 +234,24 @@ public class AsyncStartUpTest {
         WebViewGlueCommunicator.getWebViewClassLoader();
         try (WebViewOnUiThread webViewOnUiThread = new WebViewOnUiThread()) {
             WebViewCompat.startUpWebView(ApplicationProvider.getApplicationContext(), config,
-                    startUpFinishedFuture::set);
+                    new WebViewOutcomeReceiver<WebViewStartUpResult, WebViewStartupException>() {
+                        @Override
+                        public void onResult(@NonNull WebViewStartUpResult result) {
+                            startUpFinishedFuture.set(result);
+                        }
+
+                        @Override
+                        public void onError(@NonNull WebViewStartupException error) {
+                            startUpFinishedFuture.setException(error);
+                        }
+                    });
             // Wait until the callback has triggered.
             WebViewStartUpResult result = WebkitUtils.waitForFuture(startUpFinishedFuture);
 
             // We are running the assumption here so that checking for the feature doesn't
             // interfere with our test as feature checks run provider init.
-            Assume.assumeTrue(WebViewFeatureInternal.ASYNC_WEBVIEW_STARTUP.isSupportedByWebView());
+            Assume.assumeTrue(
+                    WebViewFeatureInternal.ASYNC_WEBVIEW_STARTUP_V2.isSupportedByWebView());
             Assert.assertNotNull(result);
             Assert.assertEquals(1,
                     Objects.requireNonNull(result.getUiThreadBlockingStartUpLocations()).size());
@@ -246,13 +288,24 @@ public class AsyncStartUpTest {
                 ResolvableFuture.create();
         try (WebViewOnUiThread webViewOnUiThread = new WebViewOnUiThread()) {
             WebViewCompat.startUpWebView(ApplicationProvider.getApplicationContext(), config,
-                    startUpFinishedFuture::set);
+                    new WebViewOutcomeReceiver<WebViewStartUpResult, WebViewStartupException>() {
+                        @Override
+                        public void onResult(@NonNull WebViewStartUpResult result) {
+                            startUpFinishedFuture.set(result);
+                        }
+
+                        @Override
+                        public void onError(@NonNull WebViewStartupException error) {
+                            startUpFinishedFuture.setException(error);
+                        }
+                    });
             // Wait until the callback has triggered.
             WebViewStartUpResult result = WebkitUtils.waitForFuture(startUpFinishedFuture);
 
             // We are running the assumption here so that checking for the feature doesn't
             // interfere with our test as feature checks run provider init.
-            Assume.assumeTrue(WebViewFeatureInternal.ASYNC_WEBVIEW_STARTUP.isSupportedByWebView());
+            Assume.assumeTrue(
+                    WebViewFeatureInternal.ASYNC_WEBVIEW_STARTUP_V2.isSupportedByWebView());
             Assert.assertNotNull(result);
             Assert.assertEquals(2,
                     Objects.requireNonNull(result.getUiThreadBlockingStartUpLocations()).size());
@@ -297,11 +350,41 @@ public class AsyncStartUpTest {
         // Invoke provider init on main looper.
         new Handler(Looper.getMainLooper()).post(WebViewGlueCommunicator::getWebViewClassLoader);
         WebViewCompat.startUpWebView(ApplicationProvider.getApplicationContext(), config,
-                startUpFinishedFuture1::set);
+                new WebViewOutcomeReceiver<WebViewStartUpResult, WebViewStartupException>() {
+                    @Override
+                    public void onResult(@NonNull WebViewStartUpResult result) {
+                        startUpFinishedFuture1.set(result);
+                    }
+
+                    @Override
+                    public void onError(@NonNull WebViewStartupException error) {
+                        startUpFinishedFuture1.setException(error);
+                    }
+                });
         WebViewCompat.startUpWebView(ApplicationProvider.getApplicationContext(), config,
-                startUpFinishedFuture2::set);
+                new WebViewOutcomeReceiver<WebViewStartUpResult, WebViewStartupException>() {
+                    @Override
+                    public void onResult(@NonNull WebViewStartUpResult result) {
+                        startUpFinishedFuture2.set(result);
+                    }
+
+                    @Override
+                    public void onError(@NonNull WebViewStartupException error) {
+                        startUpFinishedFuture2.setException(error);
+                    }
+                });
         WebViewCompat.startUpWebView(ApplicationProvider.getApplicationContext(), config,
-                startUpFinishedFuture3::set);
+                new WebViewOutcomeReceiver<WebViewStartUpResult, WebViewStartupException>() {
+                    @Override
+                    public void onResult(@NonNull WebViewStartUpResult result) {
+                        startUpFinishedFuture3.set(result);
+                    }
+
+                    @Override
+                    public void onError(@NonNull WebViewStartupException error) {
+                        startUpFinishedFuture3.setException(error);
+                    }
+                });
         // Wait until the callback has triggered.
         WebViewStartUpResult result1 = WebkitUtils.waitForFuture(startUpFinishedFuture1);
         WebViewStartUpResult result2 = WebkitUtils.waitForFuture(startUpFinishedFuture2);
@@ -309,7 +392,7 @@ public class AsyncStartUpTest {
 
         // We are running the assumption here so that checking for the feature doesn't
         // interfere with our test as feature checks run provider init.
-        Assume.assumeTrue(WebViewFeatureInternal.ASYNC_WEBVIEW_STARTUP.isSupportedByWebView());
+        Assume.assumeTrue(WebViewFeatureInternal.ASYNC_WEBVIEW_STARTUP_V2.isSupportedByWebView());
         Assert.assertEquals(result1.getTotalTimeInUiThreadMillis(),
                 result2.getTotalTimeInUiThreadMillis());
         Assert.assertEquals(result2.getTotalTimeInUiThreadMillis(),
@@ -324,25 +407,18 @@ public class AsyncStartUpTest {
         Assert.assertEquals(
                 Objects.requireNonNull(result2.getUiThreadBlockingStartUpLocations()).size(),
                 Objects.requireNonNull(result3.getUiThreadBlockingStartUpLocations()).size());
-        if (WebViewFeatureInternal
-                .ASYNC_WEBVIEW_STARTUP_ASYNC_STARTUP_LOCATIONS.isSupportedByWebView()) {
-            Assert.assertEquals(
-                    0,
-                    Objects.requireNonNull(
-                            result1.getNonUiThreadBlockingStartUpLocations()).size());
-            Assert.assertEquals(
-                    0,
-                    Objects.requireNonNull(
-                            result2.getNonUiThreadBlockingStartUpLocations()).size());
-            Assert.assertEquals(
-                    0,
-                    Objects.requireNonNull(
-                            result3.getNonUiThreadBlockingStartUpLocations()).size());
-        } else {
-            Assert.assertNull(result1.getNonUiThreadBlockingStartUpLocations());
-            Assert.assertNull(result2.getNonUiThreadBlockingStartUpLocations());
-            Assert.assertNull(result3.getNonUiThreadBlockingStartUpLocations());
-        }
+        Assert.assertEquals(
+                0,
+                Objects.requireNonNull(
+                        result1.getNonUiThreadBlockingStartUpLocations()).size());
+        Assert.assertEquals(
+                0,
+                Objects.requireNonNull(
+                        result2.getNonUiThreadBlockingStartUpLocations()).size());
+        Assert.assertEquals(
+                0,
+                Objects.requireNonNull(
+                        result3.getNonUiThreadBlockingStartUpLocations()).size());
     }
 
     /**
@@ -366,13 +442,23 @@ public class AsyncStartUpTest {
                 ResolvableFuture.create();
 
         WebViewCompat.startUpWebView(ApplicationProvider.getApplicationContext(), config,
-                startUpFinishedFuture::set);
+                new WebViewOutcomeReceiver<WebViewStartUpResult, WebViewStartupException>() {
+                    @Override
+                    public void onResult(@NonNull WebViewStartUpResult result) {
+                        startUpFinishedFuture.set(result);
+                    }
+
+                    @Override
+                    public void onError(@NonNull WebViewStartupException error) {
+                        startUpFinishedFuture.setException(error);
+                    }
+                });
         // Wait until the callback has triggered.
         WebViewStartUpResult result = WebkitUtils.waitForFuture(startUpFinishedFuture);
 
         // We are running the assumption here so that checking for the feature doesn't
         // interfere with our test as feature checks run provider init.
-        Assume.assumeTrue(WebViewFeatureInternal.ASYNC_WEBVIEW_STARTUP.isSupportedByWebView());
+        Assume.assumeTrue(WebViewFeatureInternal.ASYNC_WEBVIEW_STARTUP_V2.isSupportedByWebView());
         Assert.assertTrue(webViewCurrentlyLoaded());
         Assert.assertNull(result.getTotalTimeInUiThreadMillis());
         Assert.assertNull(result.getMaxTimePerTaskInUiThreadMillis());
@@ -399,13 +485,23 @@ public class AsyncStartUpTest {
                 ResolvableFuture.create();
 
         WebViewCompat.startUpWebView(ApplicationProvider.getApplicationContext(), config,
-                startUpFinishedFuture::set);
+                new WebViewOutcomeReceiver<WebViewStartUpResult, WebViewStartupException>() {
+                    @Override
+                    public void onResult(@NonNull WebViewStartUpResult result) {
+                        startUpFinishedFuture.set(result);
+                    }
+
+                    @Override
+                    public void onError(@NonNull WebViewStartupException error) {
+                        startUpFinishedFuture.setException(error);
+                    }
+                });
         // Wait until the callback has triggered.
         WebkitUtils.waitForFuture(startUpFinishedFuture);
 
         // We are running the assumption here so that checking for the feature doesn't
         // interfere with our test as feature checks run provider init.
-        Assume.assumeTrue(WebViewFeatureInternal.ASYNC_WEBVIEW_STARTUP.isSupportedByWebView());
+        Assume.assumeTrue(WebViewFeatureInternal.ASYNC_WEBVIEW_STARTUP_V2.isSupportedByWebView());
         WebkitUtils.onMainThreadSync(() -> {
             Assert.assertTrue(webViewCurrentlyLoaded());
             Assert.assertTrue(ProfileStore.getInstance().getAllProfileNames().contains("TestX"));
@@ -436,13 +532,23 @@ public class AsyncStartUpTest {
         // Triggers provider init.
         new Handler(Looper.getMainLooper()).post(WebViewGlueCommunicator::getWebViewClassLoader);
         WebViewCompat.startUpWebView(ApplicationProvider.getApplicationContext(), config,
-                startUpFinishedFuture::set);
+                new WebViewOutcomeReceiver<WebViewStartUpResult, WebViewStartupException>() {
+                    @Override
+                    public void onResult(@NonNull WebViewStartUpResult result) {
+                        startUpFinishedFuture.set(result);
+                    }
+
+                    @Override
+                    public void onError(@NonNull WebViewStartupException error) {
+                        startUpFinishedFuture.setException(error);
+                    }
+                });
         // Wait until the callback has triggered.
         WebViewStartUpResult result = WebkitUtils.waitForFuture(startUpFinishedFuture);
 
         // We are running the assumption here so that checking for the feature doesn't
         // interfere with our test as feature checks run provider init.
-        Assume.assumeTrue(WebViewFeatureInternal.ASYNC_WEBVIEW_STARTUP.isSupportedByWebView());
+        Assume.assumeTrue(WebViewFeatureInternal.ASYNC_WEBVIEW_STARTUP_V2.isSupportedByWebView());
         Assert.assertNull(result.getTotalTimeInUiThreadMillis());
         Assert.assertNull(result.getMaxTimePerTaskInUiThreadMillis());
         Assert.assertNotNull(result);
@@ -477,14 +583,24 @@ public class AsyncStartUpTest {
                 ResolvableFuture.create();
         Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
         WebViewCompat.startUpWebView(ApplicationProvider.getApplicationContext(), config,
-                startUpFinishedFuture::set);
+                new WebViewOutcomeReceiver<WebViewStartUpResult, WebViewStartupException>() {
+                    @Override
+                    public void onResult(@NonNull WebViewStartUpResult result) {
+                        startUpFinishedFuture.set(result);
+                    }
+
+                    @Override
+                    public void onError(@NonNull WebViewStartupException error) {
+                        startUpFinishedFuture.setException(error);
+                    }
+                });
         // Wait until the callback has triggered.
         WebViewStartUpResult result = WebkitUtils.waitForFuture(startUpFinishedFuture);
 
         // We are running the assumption here so that checking for the feature doesn't
         // interfere with our test as feature checks run provider init.
         Assume.assumeTrue(WebViewFeatureInternal
-                .ASYNC_WEBVIEW_STARTUP_ASYNC_STARTUP_LOCATIONS.isSupportedByWebView());
+                .ASYNC_WEBVIEW_STARTUP_V2.isSupportedByWebView());
         Assert.assertNotNull(result);
         Assert.assertNotNull(result.getTotalTimeInUiThreadMillis());
         Assert.assertNotNull(result.getMaxTimePerTaskInUiThreadMillis());

@@ -48,7 +48,7 @@ final class ImpressApiTestHelper {
     static native void nativeSetExpectedSetGltfReformAffordanceEnabled(
             int impressNodeId, boolean enabled, boolean systemMovable);
 
-    static native void nativeSetExpectedAnimateGltfModelNew(
+    static native void nativeSetExpectedAnimateGltfModel(
             int nodeId,
             String animationName,
             boolean loop,
@@ -56,27 +56,14 @@ final class ImpressApiTestHelper {
             float startTime,
             int channelId);
 
-    // TODO: b/465818627 - Remove old animation APIs once all clients are
-    // migrated to new animation system.
-    static native void nativeSetExpectedAnimateGltfModel(
-            int nodeId, String animationName, boolean loop);
-
     static native void nativeSetAnimateGltfModelSuccess();
 
     static native void nativeSetAnimateGltfModelFailure(String message);
 
-    static native void nativeSetExpectedStopGltfModelAnimationNew(int nodeId, int channelId);
+    static native void nativeSetExpectedStopGltfModelAnimation(int nodeId, int channelId);
 
-    // TODO: b/465818627 - Remove old animation APIs once all clients are
-    // migrated to new animation system.
-    static native void nativeSetExpectedStopGltfModelAnimation(int nodeId);
-
-    static native void nativeSetExpectedToggleGltfModelAnimationNew(
+    static native void nativeSetExpectedToggleGltfModelAnimation(
             int nodeId, boolean toggle, int channelId);
-
-    // TODO: b/465818627 - Remove old animation APIs once all clients are
-    // migrated to new animation system.
-    static native void nativeSetExpectedToggleGltfModelAnimation(int nodeId, boolean toggle);
 
     static native void nativeSetExpectedGetGltfModelAnimationDurationSeconds(int nodeId, int index);
 

@@ -16,13 +16,13 @@
 
 package androidx.tracing.wire
 
+import androidx.tracing.AbstractTraceDriver
+import androidx.tracing.AbstractTraceSink
 import androidx.tracing.DEFAULT_LONG
 import androidx.tracing.ExperimentalContextPropagation
 import androidx.tracing.PooledTracePacketArray
 import androidx.tracing.TRACE_PACKET_BUFFER_SIZE
 import androidx.tracing.TRACE_PACKET_POOL_ARRAY_POOL_SIZE
-import androidx.tracing.TraceDriver
-import androidx.tracing.TraceSink
 import androidx.tracing.Tracer
 import androidx.tracing.wire.protos.MutableCallstack
 import androidx.tracing.wire.protos.MutableTracePacket
@@ -46,7 +46,7 @@ import okio.blackholeSink
 import okio.buffer
 import org.junit.Before
 
-class TestSink : TraceSink() {
+class TestSink : AbstractTraceSink() {
     internal val packets = mutableListOf<MutableTracePacket>()
 
     override fun enqueue(pooledPacketArray: PooledTracePacketArray) {
@@ -98,7 +98,7 @@ class TestSink : TraceSink() {
 
 class TracingTest {
     private val sink = TestSink()
-    lateinit var driver: TraceDriver
+    lateinit var driver: AbstractTraceDriver
     lateinit var tracer: Tracer
 
     @Before
@@ -289,7 +289,7 @@ class TracingTest {
     @Test
     internal fun testCounterTrackEvents() {
         driver.use { tracer.counter(category = "counter", "counter").setValue(10L) }
-        assertEquals(3, sink.packets.size)
+        assertEquals(4, sink.packets.size)
         val packet =
             sink.packets.firstOrNull { packet ->
                 packet.track_event?.type == MutableTrackEvent.Type.TYPE_COUNTER
@@ -418,7 +418,7 @@ class TracingTest {
         }
     }
 
-    internal class TraceSinkDelegate(private val sink: TraceSink) : TraceSink() {
+    internal class TraceSinkDelegate(private val sink: AbstractTraceSink) : AbstractTraceSink() {
         internal var reportDroppedTracePacket = false
         internal var packetCount: Int = 0
         internal var packetCountOnDroppedTracePacket = 0

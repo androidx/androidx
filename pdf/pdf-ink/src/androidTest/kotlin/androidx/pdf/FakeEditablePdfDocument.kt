@@ -68,7 +68,7 @@ internal open class FakeEditablePdfDocument(
     private val pageFormWidgetInfos: Map<Int, List<FormWidgetInfo>> = mapOf(),
     initialEdits: List<PdfAnnotation> = emptyList(),
     override val linearizationStatus: Int = LINEARIZATION_STATUS_UNKNOWN,
-) : EditablePdfDocument() {
+) : EditablePdfDocument {
     override val pageCount: Int = pages.size
 
     @get:Synchronized @set:Synchronized internal var layoutReach: Int = 0
@@ -286,11 +286,16 @@ internal open class FakeEditablePdfDocument(
         override fun close() {}
     }
 
-    override fun addOnEditsAppliedListener(executor: Executor, listener: OnEditsAppliedListener) {
+    override fun addOnEditsAppliedListener(
+        executor: Executor,
+        listener: EditablePdfDocument.OnEditsAppliedListener,
+    ) {
         TODO("Not yet implemented")
     }
 
-    override fun removeOnEditsAppliedListener(listener: OnEditsAppliedListener) {
+    override fun removeOnEditsAppliedListener(
+        listener: EditablePdfDocument.OnEditsAppliedListener
+    ) {
         TODO("Not yet implemented")
     }
 

@@ -145,7 +145,7 @@ public class Hand internal constructor(internal val runtimeHand: RuntimeHand) :
 
             override val keys: Set<HandJointType>
                 get() =
-                    if (trackingState == TrackingState.TRACKING) HandJointType.values().toSet()
+                    if (trackingState == TrackingState.TRACKING) HandJointType.entries.toSet()
                     else emptySet()
 
             override val size: Int
@@ -189,7 +189,7 @@ public class Hand internal constructor(internal val runtimeHand: RuntimeHand) :
             ): Map<HandJointType, Pose> {
                 return handJointTypeMap.mapKeys { entry ->
                     val runtimeKey: RuntimeHandJoint = entry.key
-                    HandJointType.valueOf(runtimeKey.name)
+                    HandJointType.entries.single { it.ordinal == runtimeKey.ordinal }
                 }
             }
         }

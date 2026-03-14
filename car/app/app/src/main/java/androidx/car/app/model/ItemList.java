@@ -26,7 +26,6 @@ import android.os.Looper;
 import androidx.annotation.IntRange;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.CollectionUtils;
 
@@ -193,7 +192,6 @@ public final class ItemList {
     /**
      * Creates and returns a new {@link Builder} initialized with this {@link ItemList}'s data.
      */
-    @ExperimentalCarApi
     public @NonNull Builder toBuilder() {
         return new Builder(this);
     }
@@ -325,7 +323,6 @@ public final class ItemList {
         }
 
         /** Removes all {@link Item}s added via {@link #addItem(Item)} */
-        @ExperimentalCarApi
         public @NonNull Builder clearItems() {
             mItems.clear();
             return this;

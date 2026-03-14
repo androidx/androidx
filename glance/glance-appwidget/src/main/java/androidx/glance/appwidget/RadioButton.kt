@@ -70,9 +70,9 @@ public class EmittableRadioButton(public var colors: RadioButtonColors) : Emitta
 /**
  * Adds a radio button to the glance view.
  *
- * When showing a [Row] or [Column] that has [RadioButton] children, use
- * [GlanceModifier.selectableGroup] to enable the radio group effect (unselecting the previously
- * selected radio button when another is selected).
+ * When showing a [androidx.glance.layout.Row] or [androidx.glance.layout.Column] that has
+ * [RadioButton] children, use [GlanceModifier.selectableGroup] to enable the radio group effect
+ * (unselecting the previously selected radio button when another is selected).
  *
  * @param checked whether the radio button is checked
  * @param onClick the action to be run when the radio button is clicked
@@ -99,9 +99,9 @@ public fun RadioButton(
 /**
  * Adds a radio button to the glance view.
  *
- * When showing a [Row] or [Column] that has [RadioButton] children, use
- * [GlanceModifier.selectableGroup] to enable the radio group effect (unselecting the previously
- * selected radio button when another is selected).
+ * When showing a [androidx.glance.layout.Row] or [androidx.glance.layout.Column] that has
+ * [RadioButton] children, use [GlanceModifier.selectableGroup] to enable the radio group effect
+ * (unselecting the previously selected radio button when another is selected).
  *
  * @param checked whether the radio button is checked
  * @param onClick the action to be run when the radio button is clicked
@@ -138,9 +138,9 @@ public fun RadioButton(
 /**
  * Adds a radio button to the glance view.
  *
- * When showing a [Row] or [Column] that has [RadioButton] children, use
- * [GlanceModifier.selectableGroup] to enable the radio group effect (unselecting the previously
- * selected radio button when another is selected).
+ * When showing a [androidx.glance.layout.Row] or [androidx.glance.layout.Column] that has
+ * [RadioButton] children, use [GlanceModifier.selectableGroup] to enable the radio group effect
+ * (unselecting the previously selected radio button when another is selected).
  *
  * @param checked whether the radio button is checked
  * @param onClick the action to be run when the radio button is clicked
@@ -271,10 +271,11 @@ private fun RadioButtonElement(
 /**
  * Use this modifier to group a list of RadioButtons together for accessibility purposes.
  *
- * This modifier can only be used on a [Row] or [Column]. This modifier additonally enables the
- * radio group effect, which automatically unselects the currently selected RadioButton when another
- * is selected. When this modifier is used, an error will be thrown if more than one RadioButton has
- * their "checked" value set to true.
+ * This modifier can only be used on a [androidx.glance.layout.Row] or
+ * [androidx.glance.layout.Column]. This modifier additonally enables the radio group effect, which
+ * automatically unselects the currently selected RadioButton when another is selected. When this
+ * modifier is used, an error will be thrown if more than one RadioButton has their "checked" value
+ * set to true.
  */
 public fun GlanceModifier.selectableGroup(): GlanceModifier = this.then(SelectableGroupModifier)
 

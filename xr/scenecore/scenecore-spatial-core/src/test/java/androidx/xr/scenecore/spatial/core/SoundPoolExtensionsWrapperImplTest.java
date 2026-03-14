@@ -69,7 +69,7 @@ public final class SoundPoolExtensionsWrapperImplTest {
         Node fakeNode = mXrExtensions.createNode();
         AndroidXrEntity entity = mock(AndroidXrEntity.class);
         when(entity.getNode()).thenReturn(fakeNode);
-        PointSourceParams rtParams = new PointSourceParams(entity);
+        PointSourceParams rtParams = new PointSourceParams();
 
         SoundPool soundPool = new SoundPool.Builder().build();
 
@@ -82,6 +82,7 @@ public final class SoundPoolExtensionsWrapperImplTest {
                         soundPool,
                         TEST_SOUND_ID,
                         rtParams,
+                        entity,
                         TEST_VOLUME,
                         TEST_PRIORITY,
                         TEST_LOOP,

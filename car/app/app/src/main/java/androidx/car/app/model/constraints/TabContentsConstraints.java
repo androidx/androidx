@@ -16,9 +16,10 @@
 
 package androidx.car.app.model.constraints;
 
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.dialer.InCallTemplate;
 import androidx.car.app.dialer.TelephoneKeypadTemplate;
 import androidx.car.app.model.CarText;
@@ -70,7 +71,7 @@ public class TabContentsConstraints {
             ));
 
     /** The set of allowed templates as content within a tab template since API 8. */
-    @ExperimentalCarApi
+    @OptIn(markerClass = ExperimentalCarApi.class)
     public static final @NonNull TabContentsConstraints API_8 =
             new TabContentsConstraints(Arrays.asList(
                     ListTemplate.class,

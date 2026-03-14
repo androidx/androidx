@@ -224,15 +224,14 @@ class RemoteBrushTest {
                             .background(
                                 object : RemotePainter() {
                                     override fun RemoteDrawScope.onDraw() {
-                                        val paint =
-                                            RemotePaint().apply {
-                                                applyRemoteBrush(
-                                                    RemoteBrush.bitmap(image),
-                                                    remoteSize,
-                                                    matrix33,
-                                                )
-                                            }
-                                        this.drawRoundRect(
+                                        val paint = RemotePaint {
+                                            applyRemoteBrush(
+                                                RemoteBrush.bitmap(image),
+                                                size,
+                                                matrix33,
+                                            )
+                                        }
+                                        drawRoundRect(
                                             paint,
                                             RemoteOffset(topLeftX.rf, topLeftY.rf),
                                             imageSize,
@@ -257,8 +256,7 @@ class RemoteBrushTest {
     ) {
         RemoteBox(
             modifier = modifier.size(ContainerSize).background(ContainerColor),
-            horizontalAlignment = RemoteAlignment.CenterHorizontally,
-            verticalArrangement = RemoteArrangement.Center,
+            contentAlignment = RemoteAlignment.Center,
             content = content,
         )
     }

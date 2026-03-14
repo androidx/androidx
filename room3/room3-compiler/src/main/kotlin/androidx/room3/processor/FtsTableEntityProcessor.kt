@@ -21,7 +21,6 @@ import androidx.room3.Fts4
 import androidx.room3.FtsOptions.MatchInfo
 import androidx.room3.FtsOptions.Order
 import androidx.room3.FtsOptions.TOKENIZER_SIMPLE
-import androidx.room3.compiler.codegen.asClassName
 import androidx.room3.compiler.processing.XAnnotation
 import androidx.room3.compiler.processing.XType
 import androidx.room3.compiler.processing.XTypeElement
@@ -102,7 +101,7 @@ internal constructor(
             tableName = element.name
         }
 
-        val pojo =
+        val dataClass =
             DataClassProcessor.createFor(
                     context = context,
                     element = element,
@@ -112,7 +111,11 @@ internal constructor(
                 )
                 .process()
 
-        context.checker.check(pojo.relations.isEmpty(), element, ProcessorErrors.RELATION_IN_ENTITY)
+        context.checker.check(
+            dataClass.relations.isEmpty(),
+            element,
+            ProcessorErrors.RELATION_IN_ENTITY,
+        )
 
         val (ftsVersion, ftsOptions) =
             if (element.hasAnnotation(androidx.room3.Fts3::class)) {
@@ -133,10 +136,10 @@ internal constructor(
                 "${tableName}_content"
             }
 
-        val primaryKey = findAndValidatePrimaryKey(entityAnnotation, pojo.properties)
-        findAndValidateLanguageId(pojo.properties, ftsOptions.languageIdColumnName)
+        val primaryKey = findAndValidatePrimaryKey(entityAnnotation, dataClass.properties)
+        findAndValidateLanguageId(dataClass.properties, ftsOptions.languageIdColumnName)
 
-        val missingNotIndexed = ftsOptions.notIndexedColumns - pojo.columnNames
+        val missingNotIndexed = ftsOptions.notIndexedColumns - dataClass.columnNames.toSet()
         context.checker.check(
             missingNotIndexed.isEmpty(),
             element,
@@ -153,11 +156,11 @@ internal constructor(
             FtsEntity(
                 element = element,
                 tableName = tableName,
-                type = pojo.type,
-                properties = pojo.properties,
-                embeddedProperties = pojo.embeddedProperties,
+                type = dataClass.type,
+                properties = dataClass.properties,
+                embeddedProperties = dataClass.embeddedProperties,
                 primaryKey = primaryKey,
-                constructor = pojo.constructor,
+                constructor = dataClass.constructor,
                 ftsVersion = ftsVersion,
                 ftsOptions = ftsOptions,
                 shadowTableName = shadowTableName,

@@ -60,7 +60,7 @@ class ProjectedGeospatialTest {
         xrResources = XrResources()
         xrResources.service = service
         projectedGeospatial = xrResources.geospatial
-        xrResources.deviceTrackingState = TrackingState.TRACKING
+        xrResources.trackingState = TrackingState.TRACKING
         xrResources.geospatialTrackingState = TrackingState.TRACKING
     }
 
@@ -147,7 +147,7 @@ class ProjectedGeospatialTest {
 
     @Test
     fun createPoseFromGeospatialPose_notTracking_throwsException() {
-        xrResources.deviceTrackingState = TrackingState.STOPPED
+        xrResources.trackingState = TrackingState.STOPPED
         xrResources.geospatialTrackingState = TrackingState.STOPPED
         assertFailsWith<GeospatialPoseNotTrackingException> {
             projectedGeospatial.createPoseFromGeospatialPose(GeospatialPose())
@@ -157,14 +157,14 @@ class ProjectedGeospatialTest {
     @Test
     fun createPoseFromGeospatialPose_partiallyTracking_throwsException() {
         // This should throw
-        xrResources.deviceTrackingState = TrackingState.STOPPED
+        xrResources.trackingState = TrackingState.STOPPED
         xrResources.geospatialTrackingState = TrackingState.TRACKING
         assertFailsWith<GeospatialPoseNotTrackingException> {
             projectedGeospatial.createPoseFromGeospatialPose(GeospatialPose())
         }
 
         // This should also throw
-        xrResources.deviceTrackingState = TrackingState.TRACKING
+        xrResources.trackingState = TrackingState.TRACKING
         xrResources.geospatialTrackingState = TrackingState.STOPPED
         assertFailsWith<GeospatialPoseNotTrackingException> {
             projectedGeospatial.createPoseFromGeospatialPose(GeospatialPose())

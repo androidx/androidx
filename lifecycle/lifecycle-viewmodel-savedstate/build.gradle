@@ -57,12 +57,15 @@ androidXMultiplatform {
             api("androidx.savedstate:savedstate:1.4.0")
             api(project(":lifecycle:lifecycle-viewmodel"))
             implementation(project(":lifecycle:lifecycle-common"))
+            implementation("androidx.collection:collection:1.5.0")
             api(libs.kotlinCoroutinesCore)
             api(libs.kotlinSerializationCore)
         }
 
         commonTest.dependencies {
-            implementation(project(":lifecycle:lifecycle-runtime"))
+            implementation(project(":lifecycle:lifecycle-runtime-testing"))
+            implementation(project(":kruth:kruth"))
+            implementation(libs.kotlinTest)
             implementation(libs.kotlinCoroutinesTest)
         }
 

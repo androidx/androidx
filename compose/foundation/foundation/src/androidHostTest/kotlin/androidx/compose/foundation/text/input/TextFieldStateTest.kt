@@ -587,13 +587,12 @@ class TextFieldStateTest {
                     append("hello")
                     placeCursorAtEnd()
                 }
-                assertThat(texts.isEmpty())
             }
-            assertThat(texts.isEmpty())
 
             snapshot.apply()
             snapshot.dispose()
 
+            assertThat(texts).hasSize(2)
             assertThat(texts.last()).isSameInstanceAs(state.value)
         }
 

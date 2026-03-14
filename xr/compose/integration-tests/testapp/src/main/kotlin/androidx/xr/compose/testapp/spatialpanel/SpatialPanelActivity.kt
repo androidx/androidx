@@ -41,12 +41,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.spatial.Subspace
-import androidx.xr.compose.subspace.MovePolicy
 import androidx.xr.compose.subspace.ResizePolicy
 import androidx.xr.compose.subspace.SpatialColumn
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
+import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.onGloballyPositioned
 import androidx.xr.compose.subspace.layout.width
@@ -163,12 +163,12 @@ class SpatialPanelActivity : ComponentActivity() {
                     TestResultsDisplay(testResults)
                 }
                 SpatialPanel(
-                    dragPolicy = MovePolicy(),
                     resizePolicy = ResizePolicy(),
                     modifier =
                         SubspaceModifier.width(1200.dp)
                             .height(200.dp)
                             .offset(panelOffset.x.dp, panelOffset.y.dp)
+                            .movable()
                             .onGloballyPositioned {
                                 val newX = it?.poseInRoot?.translation?.x
                                 val newY = it?.poseInRoot?.translation?.y

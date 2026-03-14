@@ -64,11 +64,11 @@ public class MediaPlayerExtensionsWrapperImplTest {
         AndroidXrEntity entity = mock(AndroidXrEntity.class);
         when(entity.getNode()).thenReturn(fakeNode);
 
-        PointSourceParams expectedRtParams = new PointSourceParams(entity);
+        PointSourceParams expectedRtParams = new PointSourceParams();
 
         MediaPlayerExtensionsWrapper wrapper =
                 new MediaPlayerExtensionsWrapperImpl(mMediaPlayerExtensions);
-        wrapper.setPointSourceParams(mediaPlayer, expectedRtParams);
+        wrapper.setPointSourceParams(mediaPlayer, expectedRtParams, entity);
 
         assertThat(
                         ShadowMediaPlayerExtensions.extract(mMediaPlayerExtensions)

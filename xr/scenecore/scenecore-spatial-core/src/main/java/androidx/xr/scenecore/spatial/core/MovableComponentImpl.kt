@@ -34,6 +34,7 @@ import androidx.xr.scenecore.runtime.MoveEvent
 import androidx.xr.scenecore.runtime.MoveEventListener
 import androidx.xr.scenecore.runtime.PanelEntity
 import androidx.xr.scenecore.runtime.Space
+import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider
 import androidx.xr.scenecore.spatial.core.RuntimeUtils.getPose
 import androidx.xr.scenecore.spatial.core.RuntimeUtils.getVector3
@@ -63,10 +64,15 @@ internal class MovableComponentImpl(
     private var lastScale = Vector3(1f, 1f, 1f)
     private var initialRay: Ray? = null
     private var isMoving = false
-    override var size: Dimensions = Dimensions(0f, 0f, 0f)
+    private var isSizeExplicit = false // True if size is explicitly set by the user.
+    override var size: Dimensions = Dimensions(1f, 1f, 1f)
         set(value) {
+            isSizeExplicit = true
+            if (value == field) {
+                return
+            }
             field = value
-            if (entity == null) {
+            if ((entity == null) or (entity is GltfEntity)) {
                 return
             }
             val reformOptions = (entity as AndroidXrEntity).getReformOptions()
@@ -205,23 +211,7 @@ internal class MovableComponentImpl(
         return moveEvent
     }
 
-    override fun onAttach(entity: Entity): Boolean {
-        if (this.entity != null) {
-            return false
-        }
-        this.entity = entity
-        lastPose = entity.getPose(Space.PARENT)
-        lastScale = entity.getScale(Space.PARENT)
-
-        if (entity is GltfEntity) {
-            entity.setReformAffordanceEnabled(
-                /* enabled */
-                true,
-                systemMovable && !userAnchorable,
-            )
-            entity.addInputEventListener(runtimeExecutor, inputEventListener)
-            return true
-        }
+    private fun updateEntityReformOptionsForMove() {
         val reformOptions = (entity as AndroidXrEntity).getReformOptions()
         var reformFlags = ReformOptions.FLAG_POSE_RELATIVE_TO_PARENT
         reformFlags =
@@ -234,24 +224,63 @@ internal class MovableComponentImpl(
         reformOptions
             .setEnabledReform(reformOptions.enabledReform or ReformOptions.ALLOW_MOVE)
             .scaleWithDistanceMode = translateScaleWithDistanceMode(scaleWithDistanceMode)
-
-        // TODO: b/348037292 - Remove this special case for PanelEntity.
-        if (entity is PanelEntity) {
-            size = entity.size
-        }
-
         reformOptions.currentSize = Vec3(size.width, size.height, size.depth)
-        entity.updateReformOptions()
-        entity.addReformEventConsumer(reformEventConsumer, runtimeExecutor)
+        (entity as AndroidXrEntity).updateReformOptions()
+    }
+
+    private fun updateReformsForPanelEntity(): Boolean {
+        updateEntityReformOptionsForMove()
+        // Update the size to match panel entity's current size if user hasn't explicitly set it.
+        if (!isSizeExplicit) size = (entity as PanelEntity).size
         return true
+    }
+
+    private fun updateReformsForGltfEntity(): Boolean {
+        (entity as GltfEntity).setReformAffordanceEnabled(
+            enabled = true,
+            systemMovable = systemMovable && !userAnchorable,
+        )
+        (entity as AndroidXrEntity).addInputEventListener(runtimeExecutor, inputEventListener)
+        return true
+    }
+
+    private fun updateReformsForSurfaceEntity(): Boolean {
+        updateEntityReformOptionsForMove()
+        // Update the size to match surface entity's current size if user hasn't explicitly set it.
+        if (!isSizeExplicit) size = (entity as SurfaceEntity).shape.dimensions
+        return true
+    }
+
+    override fun onAttach(entity: Entity): Boolean {
+        if (this.entity != null) {
+            return false
+        }
+        this.entity = entity
+        lastPose = entity.getPose(Space.PARENT)
+        lastScale = entity.getScale(Space.PARENT)
+
+        val success =
+            when (entity) {
+                is PanelEntity -> updateReformsForPanelEntity()
+                is GltfEntity -> updateReformsForGltfEntity()
+                is SurfaceEntity -> updateReformsForSurfaceEntity()
+                else -> {
+                    updateEntityReformOptionsForMove()
+                    true
+                }
+            }
+
+        if (success && entity !is GltfEntity) {
+            (entity as AndroidXrEntity).addReformEventConsumer(reformEventConsumer, runtimeExecutor)
+        }
+        return success
     }
 
     override fun onDetach(entity: Entity) {
         if (entity is GltfEntity) {
             entity.setReformAffordanceEnabled(
-                /* enabled */
-                false,
-                systemMovable && !userAnchorable,
+                enabled = false,
+                systemMovable = systemMovable && !userAnchorable,
             )
             entity.removeInputEventListener(inputEventListener)
             this.entity = null

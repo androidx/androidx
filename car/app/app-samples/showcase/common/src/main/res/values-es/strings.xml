@@ -243,6 +243,7 @@
     <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Subtexto debajo de cada lista"</string>
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Finalizar demo de imágenes y acciones"</string>
     <string name="filter_chip_demo_title" msgid="92190365856639582">"Demostración de chip de filtro"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"Demostración de la barra de progreso"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demo de plantilla de panel"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demo de plantilla de la lista de lugares"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Ver lugares"</string>

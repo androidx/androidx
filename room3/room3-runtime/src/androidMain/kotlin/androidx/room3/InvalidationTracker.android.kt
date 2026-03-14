@@ -34,8 +34,7 @@ import kotlinx.coroutines.flow.onStart
  * starts being collected, if a database operation changes one of the tables that the [Flow] was
  * created from, then such table is considered 'invalidated' and the [Flow] will emit a new value.
  */
-@Suppress("KmpModifierMismatch") // expect is not open
-public actual open class InvalidationTracker
+public actual class InvalidationTracker
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 actual constructor(
     internal val database: RoomDatabase,

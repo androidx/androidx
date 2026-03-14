@@ -380,6 +380,17 @@ constructor() {
         public fun getMigrations(): Map<Int, Map<Int, Migration>>
 
         /**
+         * Finds the list of migrations that should be run to move from `start` version to `end`
+         * version.
+         *
+         * @param start The current database version
+         * @param end The target database version
+         * @return An ordered list of [Migration] objects that should be run to migrate between the
+         *   given versions. If a migration path cannot be found, returns `null`.
+         */
+        public fun findMigrationPath(start: Int, end: Int): List<Migration>?
+
+        /**
          * Adds the given migrations to the list of available migrations. If 2 migrations have the
          * same start-end versions, the latter migration overrides the previous one.
          *

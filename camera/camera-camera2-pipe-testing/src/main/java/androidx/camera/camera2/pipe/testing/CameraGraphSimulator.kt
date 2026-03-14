@@ -210,18 +210,24 @@ internal constructor(
     override fun simulateImages(
         request: Request,
         imageTimestamp: Long,
-        physicalCameraId: CameraId?,
+        physicalCameraIds: Set<CameraId>,
     ) {
         var imageSimulated = false
         for (streamId in request.streams) {
-            val outputId =
-                if (physicalCameraId == null) {
-                    streams[streamId]?.outputs?.single()?.id
+            val stream = checkNotNull(streams[streamId])
+            val outputIds =
+                if (stream.outputs.size == 1) {
+                    listOf(stream.outputs.single().id)
                 } else {
-                    streams[streamId]?.outputs?.find { it.camera == physicalCameraId }?.id
+                    stream.outputs.filter { physicalCameraIds.contains(it.camera) }.map { it.id }
                 }
-            val success = simulateImageInternal(streamId, outputId, imageTimestamp)
-            imageSimulated = imageSimulated || success
+            if (stream.outputs.size > 1) {
+                simulateExpectedOutputs(streamId, imageTimestamp, outputIds.toSet())
+            }
+            for (outputId in outputIds) {
+                val success = simulateImageInternal(streamId, outputId, imageTimestamp)
+                imageSimulated = imageSimulated || success
+            }
         }
 
         check(imageSimulated) {
@@ -415,14 +421,14 @@ internal constructor(
          */
         public fun simulateImages(
             imageTimestamp: Long? = null,
-            physicalCameraId: CameraId? = null,
+            physicalCameraIds: Set<CameraId> = emptySet(),
         ) {
             val timestamp = imageTimestamp ?: timestampNanos
             checkNotNull(timestamp) {
                 "Cannot simulate an image without a timestamp! Provide an " +
                     "imageTimestamp or call simulateStarted before simulateImage."
             }
-            this@CameraGraphSimulator.simulateImages(request, timestamp, physicalCameraId)
+            this@CameraGraphSimulator.simulateImages(request, timestamp, physicalCameraIds)
         }
 
         public fun simulateExpectedOutputs(

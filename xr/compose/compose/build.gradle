@@ -73,6 +73,7 @@ dependencies {
 android {
     defaultConfig {
         minSdk { version = release(24) }
+        compileSdk { version = release(36) }
     }
     namespace = "androidx.xr.compose"
 }

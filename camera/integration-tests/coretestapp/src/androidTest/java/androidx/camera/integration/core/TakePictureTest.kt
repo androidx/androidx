@@ -23,6 +23,7 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CoreAppTestUtil
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.testing.impl.waitForIdle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -30,12 +31,10 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.filters.LargeTest
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.TimeUnit
-import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -46,6 +45,12 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 class TakePictureTest(private val implName: String) {
+    @get:Rule
+    val requireForegroundRule = RequireForegroundRule {
+        assumeTrue(CameraUtil.deviceHasCamera())
+        CoreAppTestUtil.assumeCompatibleDevice()
+    }
+
     @get:Rule
     val useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
@@ -70,19 +75,11 @@ class TakePictureTest(private val implName: String) {
 
     @Before
     fun setUp() {
-        assumeTrue(CameraUtil.deviceHasCamera())
-        CoreAppTestUtil.assumeCompatibleDevice()
-
-        // Clear the device UI and check if there is no dialog or lock screen on the top of the
-        // window before start the test.
-        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
-    }
-
-    @After
-    fun tearDown() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
-        cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
+        requireForegroundRule.deferCleanup {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
+            cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
+        }
     }
 
     // Take a photo, wait for callback via imageSavedIdlingResource resource.

@@ -111,6 +111,8 @@ const val YARN_OFFLINE_MODE = "androidx.yarnOfflineMode"
 /** Defined by AndroidX Benchmark Plugin, may be used for local experiments with compilation */
 const val FORCE_BENCHMARK_AOT_COMPILATION = "androidx.benchmark.forceaotcompilation"
 
+const val ALLOW_LOCKFILE_MISMATCH = "androidx.allowLockfileMismatch"
+
 val ALL_ANDROIDX_PROPERTIES =
     setOf(
         ADD_GROUP_CONSTRAINTS,
@@ -140,6 +142,7 @@ val ALL_ANDROIDX_PROPERTIES =
         FilteredAnchorTask.PROP_PATH_PREFIX,
         YARN_OFFLINE_MODE,
         FORCE_BENCHMARK_AOT_COMPILATION,
+        ALLOW_LOCKFILE_MISMATCH,
     ) + AndroidConfigImpl.GRADLE_PROPERTIES
 
 /**
@@ -166,20 +169,18 @@ fun Project.isValidateProjectStructureEnabled(): Boolean =
  * Validates that all properties passed by the user of the form "-Pandroidx.*" are not misspelled
  */
 fun Project.validateAllAndroidxArgumentsAreRecognized() {
-    for (propertyName in project.properties.keys) {
-        if (propertyName.startsWith("androidx")) {
-            if (!ALL_ANDROIDX_PROPERTIES.contains(propertyName)) {
-                val message =
-                    "Unrecognized Androidx property '$propertyName'.\n" +
-                        "\n" +
-                        "Is this a misspelling? All recognized Androidx properties:\n" +
-                        ALL_ANDROIDX_PROPERTIES.joinToString("\n") +
-                        "\n" +
-                        "\n" +
-                        "See AndroidXGradleProperties.kt if you need to add this property to " +
-                        "the list of known properties."
-                throw GradleException(message)
-            }
+    for (propertyName in providers.gradlePropertiesPrefixedBy("androidx.").get().keys) {
+        if (!ALL_ANDROIDX_PROPERTIES.contains(propertyName)) {
+            val message =
+                "Unrecognized Androidx property '$propertyName'.\n" +
+                    "\n" +
+                    "Is this a misspelling? All recognized Androidx properties:\n" +
+                    ALL_ANDROIDX_PROPERTIES.joinToString("\n") +
+                    "\n" +
+                    "\n" +
+                    "See AndroidXGradleProperties.kt if you need to add this property to " +
+                    "the list of known properties."
+            throw GradleException(message)
         }
     }
 }
@@ -217,6 +218,8 @@ fun Project.useYarnOffline() = findBooleanProperty(YARN_OFFLINE_MODE) ?: false
  */
 fun Project.allowMissingLintProject() =
     findBooleanProperty(ALLOW_MISSING_LINT_CHECKS_PROJECT) ?: false
+
+fun Project.allowLockfileMismatch() = findBooleanProperty(ALLOW_LOCKFILE_MISMATCH) ?: true
 
 fun Project.findBooleanProperty(propName: String): Boolean? =
     project.providers.gradleProperty(propName).map { it.toBoolean() }.getOrNull()

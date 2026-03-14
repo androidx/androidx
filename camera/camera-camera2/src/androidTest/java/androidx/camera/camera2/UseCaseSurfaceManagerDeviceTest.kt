@@ -39,7 +39,7 @@ import androidx.camera.core.impl.ImmediateSurface
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.CameraDeviceHolder
-import androidx.camera.testing.impl.CoreAppTestUtil
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.testing.impl.activity.Camera2TestActivity
 import androidx.camera.testing.impl.fakes.FakeUseCase
 import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
@@ -161,7 +161,7 @@ class UseCaseSurfaceManagerDeviceTest {
     @Test
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.S_V2)
     fun disconnectOpenedCameraGraph_deferrableSurfaceUsageCountTest() = runBlocking {
-        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
+        RequireForegroundRule.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
 
         // Arrange.
         testSessionParameters = TestSessionParameters()

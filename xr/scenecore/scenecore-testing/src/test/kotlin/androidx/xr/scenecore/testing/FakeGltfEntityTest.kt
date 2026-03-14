@@ -18,9 +18,7 @@ package androidx.xr.scenecore.testing
 
 import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.runtime.GltfEntity
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,76 +36,25 @@ class FakeGltfEntityTest {
 
     @Test
     fun getInitialState_returnsDefaultValues() {
-        check(underTest.animationState == GltfEntity.AnimationState.STOPPED)
-        check(!underTest.isLooping)
-        check(underTest.currentAnimationName == null)
         check(underTest.gltfModelBoundingBox.center == Vector3(0.5f, 0.5f, 0.5f))
         check(underTest.gltfModelBoundingBox.halfExtents == FloatSize3d(0.5f, 0.5f, 0.5f))
     }
 
     @Test
-    fun startAnimationWithSupportedAnimation_setsAnimationStateToPlaying() = runBlocking {
-        check(underTest.supportedAnimationNames.contains("animation_name"))
-
-        underTest.startAnimation(false, "test_animation")
-
-        // startAnimation doesn't work on an unsupported animation name.
-        assertThat(underTest.isLooping).isFalse()
-        assertThat(underTest.animationState).isEqualTo(GltfEntity.AnimationState.STOPPED)
-        assertThat(underTest.currentAnimationName).isNull()
-
-        underTest.startAnimation(loop = true, animationName = "animation_name")
-
-        assertThat(underTest.isLooping).isTrue()
-        assertThat(underTest.animationState).isEqualTo(GltfEntity.AnimationState.PLAYING)
-        assertThat(underTest.currentAnimationName).isEqualTo("animation_name")
-
-        underTest.supportedAnimationNames.add("test_animation")
-        underTest.startAnimation(false, "test_animation")
-
-        // startAnimation doesn't work when the animationState is PLAYING.
-        assertThat(underTest.isLooping).isTrue()
-        assertThat(underTest.animationState).isEqualTo(GltfEntity.AnimationState.PLAYING)
-        assertThat(underTest.currentAnimationName).isEqualTo("animation_name")
-
-        underTest.stopAnimation()
-
-        // stopAnimation resets all states.
-        assertThat(underTest.isLooping).isFalse()
-        assertThat(underTest.animationState).isEqualTo(GltfEntity.AnimationState.STOPPED)
-        assertThat(underTest.currentAnimationName).isNull()
-
-        underTest.startAnimation(false, "test_animation")
-
-        // Verifies that startAnimation works on the added supported animation name.
-        assertThat(underTest.isLooping).isFalse()
-        assertThat(underTest.animationState).isEqualTo(GltfEntity.AnimationState.PLAYING)
-        assertThat(underTest.currentAnimationName).isEqualTo("test_animation")
-    }
-
-    @Test
-    fun startAnimationWithSupportedAnimation_setsAnimationStateToPlayingAfterPause() {
-        check(underTest.supportedAnimationNames.contains("animation_name"))
-
-        underTest.startAnimation(loop = true, animationName = "animation_name")
-
-        assertThat(underTest.isLooping).isTrue()
-        assertThat(underTest.animationState).isEqualTo(GltfEntity.AnimationState.PLAYING)
-        assertThat(underTest.currentAnimationName).isEqualTo("animation_name")
-
-        underTest.pauseAnimation()
-
-        // Verifies that pauseAnimation works by the animation state.
-        assertThat(underTest.animationState).isEqualTo(GltfEntity.AnimationState.PAUSED)
-
-        underTest.resumeAnimation()
-
-        // Verifies that resumeAnimation works by the animation state.
-        assertThat(underTest.animationState).isEqualTo(GltfEntity.AnimationState.PLAYING)
-    }
-
-    @Test
     fun getAnimations_returnsEmptyList() {
         assertThat(underTest.animations).isEmpty()
+    }
+
+    @Test
+    fun addAnimation_addsAnimationToList() {
+        val animation = FakeGltfAnimationFeature()
+        underTest.addAnimation(animation)
+
+        assertThat(underTest.animations).containsExactly(animation)
+    }
+
+    @Test
+    fun getNodes_returnsEmptyListByDefault() {
+        assertThat(underTest.nodes).isEmpty()
     }
 }

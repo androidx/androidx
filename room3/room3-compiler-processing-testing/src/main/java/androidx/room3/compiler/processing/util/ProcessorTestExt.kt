@@ -28,11 +28,11 @@ import androidx.room3.compiler.processing.util.runner.JavacCompilationTestRunner
 import androidx.room3.compiler.processing.util.runner.KaptCompilationTestRunner
 import androidx.room3.compiler.processing.util.runner.KspCompilationTestRunner
 import androidx.room3.compiler.processing.util.runner.TestCompilationParameters
-import com.google.common.io.Files
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import java.io.File
+import java.nio.file.Files
 import java.util.jar.JarEntry
 import java.util.jar.JarOutputStream
 import javax.annotation.processing.Processor
@@ -442,7 +442,7 @@ fun compileFiles(
     kotlincArguments: List<String> = emptyList(),
     includeSystemClasspath: Boolean = true,
 ): List<File> {
-    val workingDir = Files.createTempDir()
+    val workingDir = Files.createTempDirectory("xprocessing-testing").toFile()
     val result =
         compile(
             workingDir = workingDir,
@@ -558,7 +558,7 @@ private fun addJarEntry(source: File, changeDir: String, target: JarOutputStream
  * reference the temporary directory.
  */
 private inline fun withTempDir(block: (tmpDir: File) -> Unit) {
-    val tmpDir = Files.createTempDir()
+    val tmpDir = Files.createTempDirectory("xprocessing-testing").toFile()
     try {
         return block(tmpDir)
     } finally {

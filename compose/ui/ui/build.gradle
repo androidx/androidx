@@ -229,10 +229,8 @@ if (!ProjectLayoutType.isPlayground(project)) {
 }
 
 // TODO(b/407725586): Remove this block when AndroidAssistTest passes on API Level 21
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += [
-                "-Xlambdas=class"
-        ]
+tasks.withType(KotlinCompile).configureEach { task ->
+    task.compilerOptions {
+        it.freeCompilerArgs.addAll("-Xlambdas=class")
     }
 }

@@ -17,9 +17,10 @@ generated or modified must follow the guidelines in
   components implementing Material Design.
 
 ## General Instructions
-- **Formatting:** Use `./gradlew :ktCheckFile --format --file <file>` for all
-  `.kt` files. Multiple files can be formatted by appending more `--file <path>`
-  arguments.
+- **Formatting:** Ensure all modified `.kt` files are formatted using
+  `./gradlew :ktCheckFile --format --file <file>` before committing or calling
+  a change done. Multiple files can be formatted by appending more
+  `--file <path>` arguments.
 - **API Updates:** Run `./gradlew <project>:updateApi` (and
   `<project>:updateAbiNative` where applicable) after any public API change.
 - **Context:** Always execute commands from the `frameworks/support` directory.
@@ -47,6 +48,10 @@ generated or modified must follow the guidelines in
   dependency.
 
 ## Testing & Documentation
+- **Bug Investigations:** Always consider whether we can create a test to
+  reproduce the issue described in the bug as closely as possible without making
+  assumptions on what the solution is. Only after we have a test case that
+  represents the bug and is failing should we start trying to fix the code.
 - **Samples:** Every new public API should have a corresponding sample in the
   project's `samples` module. Link it in the KDoc using the `@sample` tag.
 - **Screenshot Tests:** Use `androidDeviceTest` for rendering verification.

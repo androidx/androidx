@@ -17,7 +17,6 @@
 package androidx.car.app.hardware.climate;
 
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 
 import org.jspecify.annotations.NonNull;
@@ -28,7 +27,6 @@ import org.jspecify.annotations.NonNull;
  */
 @CarProtocol
 @RequiresCarApi(5)
-@ExperimentalCarApi
 public interface CarClimateProfileCallback {
     /**
      * Notifies that the profile information for

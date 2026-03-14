@@ -243,6 +243,7 @@
     <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Undertekst under hver liste"</string>
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Avslutt bilde- og handlingsdemoen"</string>
     <string name="filter_chip_demo_title" msgid="92190365856639582">"Demo av filterbrikke"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"Demo av fremdriftslinje"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demo av panelmal"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demo av mal for stedsliste"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Bla gjennom steder"</string>

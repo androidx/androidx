@@ -172,6 +172,7 @@ class EnvironmentActivity : AppCompatActivity() {
         loadBytesButton.setOnClickListener {
             lifecycleScope.launch {
                 val bytes = assets.open("skyboxes/BlueSkybox.zip").readBytes()
+                @SuppressLint("RestrictedApiAndroidX")
                 blueSkybox = ExrImage.createFromZip(session!!, bytes, "BlueSkybox.zip")
                 addEvent(EventType.SKYBOX_CHANGED, "Blue Skybox loaded from Bytes")
                 findViewById<Button>(R.id.environment_button2_2).isEnabled = true
@@ -301,6 +302,7 @@ class EnvironmentActivity : AppCompatActivity() {
             spatialEnvironmentPreference =
                 SpatialEnvironment.SpatialEnvironmentPreference(skybox, geometry)
         } else {
+            @SuppressLint("RestrictedApiAndroidX")
             spatialEnvironmentPreference =
                 SpatialEnvironment.SpatialEnvironmentPreference(skybox, null, geometryEntity)
         }

@@ -42,9 +42,6 @@ public interface GltfFeature : RenderingFeature {
     /** Returns the animations of the glTF model. */
     @MainThread public fun getAnimations(executor: Executor): List<GltfAnimationFeature>
 
-    /** Returns the current animation state of the glTF entity. */
-    public val animationState: Int
-
     /**
      * Retrieves the axis-aligned bounding box (AABB) of an instanced glTF model.
      *
@@ -57,25 +54,6 @@ public interface GltfFeature : RenderingFeature {
      *   of the box is twice the half-extent. All values are in meters.
      */
     @MainThread public fun getGltfModelBoundingBox(): BoundingBox
-
-    /**
-     * Starts the animation with the given name.
-     *
-     * @param animationName The name of the animation to start. If null is supplied, will play the
-     *   first animation found in the glTF.
-     * @param loop Whether the animation should loop.
-     * @param executor The Entity's executor to use for the animation.
-     */
-    @MainThread public fun startAnimation(loop: Boolean, animationName: String?, executor: Executor)
-
-    /** Stops the animation of the glTF entity. */
-    @MainThread public fun stopAnimation()
-
-    /* Pause the animation of the glTF entity. */
-    @MainThread public fun pauseAnimation()
-
-    /* Resume the animation of the glTF entity. */
-    @MainThread public fun resumeAnimation()
 
     /**
      * Sets whether the collider is enabled.

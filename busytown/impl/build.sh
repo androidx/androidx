@@ -104,7 +104,7 @@ listJavaProcesses
 busytown/impl/monitor.sh 3600 busytown/impl/showJavaStacks.sh &
 
 # run the build
-if run ./gradlew --ci "$@"; then
+if run ./gradlew --ci -Pandroidx.allowLockfileMismatch=false "$@"; then
   echo "build passed"
   if [[ "$IS_POSTSUBMIT" == "true" && "$ENABLE_PRESUBMIT_COMPATIBLE_CC_STORE" == "true" ]]; then
     echo "Caching configuration for reuse in presubmit."

@@ -87,13 +87,6 @@ internal class InProgressStrokesManager<
     /** For getting instances of in-progress shapes. Injectable for testing only. */
     inProgressStrokePool: InProgressStrokePool<ShapeSpecT, InProgressShapeT> =
         InProgressStrokePoolImpl(shapeWorkflow),
-    /**
-     * Allows tests to replace [CountDownLatch.await] with something that yields rather than blocks.
-     */
-    private val blockingAwait: (CountDownLatch, Long, TimeUnit) -> Boolean =
-        { latch, timeout, timeoutUnit ->
-            latch.await(timeout, timeoutUnit)
-        },
 ) : InProgressStrokesRenderHelper.Callback<CompletedShapeT> {
 
     /**
@@ -899,7 +892,7 @@ internal class InProgressStrokesManager<
             val flushAction = FlushAction()
             queueActionToRenderThread(flushAction)
             // Wait for all previous actions to be processed.
-            blockingAwait(flushAction.flushCompleted, timeout, timeoutUnit)
+            flushAction.flushCompleted.await(timeout, timeoutUnit)
         }
 
         // If waiting won't help or a handoff is definitely not needed, skip the wait.
@@ -951,7 +944,7 @@ internal class InProgressStrokesManager<
         }
         val syncAction = SyncAction()
         queueActionToRenderThread(syncAction)
-        blockingAwait(syncAction.syncCompleted, timeout, timeoutUnit)
+        syncAction.syncCompleted.await(timeout, timeoutUnit)
     }
 
     @UiThread

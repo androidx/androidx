@@ -18,6 +18,7 @@ package androidx.xr.scenecore.spatial.core;
 
 import android.media.MediaPlayer;
 
+import androidx.xr.scenecore.runtime.Entity;
 import androidx.xr.scenecore.runtime.MediaPlayerExtensionsWrapper;
 import androidx.xr.scenecore.runtime.PointSourceParams;
 import androidx.xr.scenecore.runtime.SoundFieldAttributes;
@@ -37,9 +38,11 @@ final class MediaPlayerExtensionsWrapperImpl implements MediaPlayerExtensionsWra
 
     @Override
     public void setPointSourceParams(
-            @NonNull MediaPlayer mediaPlayer, @NonNull PointSourceParams params) {
+            @NonNull MediaPlayer mediaPlayer,
+            @NonNull PointSourceParams params,
+            @NonNull Entity entity) {
         com.android.extensions.xr.media.PointSourceParams extParams =
-                MediaUtils.convertPointSourceParamsToExtensions(params);
+                MediaUtils.convertPointSourceParamsToExtensions(params, entity);
 
         MediaPlayer unused = mExtensions.setPointSourceParams(mediaPlayer, extParams);
     }

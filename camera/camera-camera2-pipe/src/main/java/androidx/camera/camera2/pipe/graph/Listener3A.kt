@@ -21,7 +21,6 @@ import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
-import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import java.util.concurrent.CopyOnWriteArrayList
 import javax.inject.Inject
@@ -47,7 +46,9 @@ internal class Listener3A @Inject constructor() : Request.Listener, GraphLoop.Li
         frameNumber: FrameNumber,
         captureResult: FrameMetadata,
     ) {
-        updateListeners(requestMetadata.requestNumber, captureResult)
+        for (listener in listeners) {
+            listener.onPartialCaptureResult(requestMetadata, frameNumber, captureResult)
+        }
     }
 
     override fun onTotalCaptureResult(
@@ -55,7 +56,11 @@ internal class Listener3A @Inject constructor() : Request.Listener, GraphLoop.Li
         frameNumber: FrameNumber,
         totalCaptureResult: FrameInfo,
     ) {
-        updateListeners(requestMetadata.requestNumber, totalCaptureResult.metadata)
+        for (listener in listeners) {
+            if (listener.onTotalCaptureResult(requestMetadata, frameNumber, totalCaptureResult)) {
+                listeners.remove(listener)
+            }
+        }
     }
 
     fun addListener(listener: Result3AStateListener) {
@@ -64,14 +69,6 @@ internal class Listener3A @Inject constructor() : Request.Listener, GraphLoop.Li
 
     fun removeListener(listener: Result3AStateListener) {
         listeners.remove(listener)
-    }
-
-    private fun updateListeners(requestNumber: RequestNumber, metadata: FrameMetadata) {
-        for (listener in listeners) {
-            if (listener.update(requestNumber, metadata)) {
-                listeners.remove(listener)
-            }
-        }
     }
 
     override fun onStopRepeating() {

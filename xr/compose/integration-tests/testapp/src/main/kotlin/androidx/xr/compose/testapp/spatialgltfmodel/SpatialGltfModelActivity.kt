@@ -25,6 +25,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,16 +37,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -60,7 +65,11 @@ import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialBox
 import androidx.xr.compose.subspace.SpatialGltfModel
+import androidx.xr.compose.subspace.SpatialGltfModelAnimation
+import androidx.xr.compose.subspace.SpatialGltfModelAnimation.AnimationState.Companion.Paused
+import androidx.xr.compose.subspace.SpatialGltfModelAnimation.AnimationState.Companion.Playing
 import androidx.xr.compose.subspace.SpatialGltfModelSource
+import androidx.xr.compose.subspace.SpatialGltfModelState
 import androidx.xr.compose.subspace.SpatialMainPanel
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SpatialRow
@@ -83,6 +92,8 @@ import androidx.xr.scenecore.AlphaMode
 import androidx.xr.scenecore.GltfModelNode
 import androidx.xr.scenecore.KhronosPbrMaterial
 import java.nio.file.Paths
+import kotlin.math.roundToLong
+import kotlin.time.Duration.Companion.milliseconds
 
 class SpatialGltfModelActivity : ComponentActivity() {
 
@@ -106,15 +117,14 @@ class SpatialGltfModelActivity : ComponentActivity() {
 
         SpatialRow {
             DragonModel(state)
-            SpatialMainPanel(modifier = SubspaceModifier.width(600.dp).height(800.dp))
+            SpatialMainPanel(modifier = SubspaceModifier.width(600.dp).height(1000.dp))
         }
     }
 
     @SuppressLint("PrimitiveInCollection")
     @Composable
     fun GltfControlPanel(state: DragonControlState) {
-        var title = intent.getStringExtra("TITLE") ?: "Spatial Gltf Model Test"
-        val context = LocalContext.current
+        val title = intent.getStringExtra("TITLE") ?: "Spatial Gltf Model Test"
 
         CommonTestScaffold(
             title = title,
@@ -127,58 +137,23 @@ class SpatialGltfModelActivity : ComponentActivity() {
             ) {
                 Text("Controls", style = MaterialTheme.typography.headlineSmall)
                 Spacer(Modifier.height(16.dp))
-                Row(Modifier.fillMaxWidth()) {
-                    Button(
-                        onClick = { state.useRotation = !state.useRotation },
-                        modifier = Modifier.weight(1f).padding(horizontal = 4.dp),
-                    ) {
-                        Text(if (state.useRotation) "No Rotation" else "Rotation")
-                    }
-                }
 
-                // Show Arrows Toggle
-                Button(
-                    onClick = { state.showArrows = !state.showArrows },
-                    enabled = state.selectedNode != null,
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                ) {
-                    Text(if (state.showArrows) "Hide XYZ Arrows" else "Show XYZ Arrows")
-                }
+                SwitchRow(
+                    label = "Show arrows indicator",
+                    checked = state.showArrows,
+                    onCheckedChange = { state.showArrows = !state.showArrows },
+                )
 
-                // Material Override Controls
-                Column(
-                    Modifier.fillMaxWidth()
-                        .padding(top = 8.dp)
-                        .background(Color.LightGray.copy(alpha = 0.2f))
-                        .padding(8.dp)
-                ) {
-                    Button(
-                        onClick = { state.toggleMaterialOverride(context) },
-                        enabled = state.selectedNode != null && state.overrideMaterial != null,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Text(
-                            if (state.isMaterialOverridden) "Remove Material Override"
-                            else "Apply Material Override"
-                        )
-                    }
-
-                    if (state.isMaterialOverridden) {
-                        Spacer(Modifier.height(8.dp))
-                        Text("Material Properties", style = MaterialTheme.typography.labelMedium)
-                        SliderRow("Metallic", state.metallic, 0f, 1f) {
-                            state.updateMaterialProperties(metallic = it)
-                        }
-                        SliderRow("Roughness", state.roughness, 0f, 1f) {
-                            state.updateMaterialProperties(roughness = it)
-                        }
-                    }
-                }
+                SwitchRow(
+                    label = "Rotate indicators to match node orientation",
+                    checked = state.useRotation,
+                    onCheckedChange = { state.useRotation = !state.useRotation },
+                )
 
                 Spacer(Modifier.height(16.dp))
 
                 // Nodes List & Transform Controls
-                Row(Modifier.fillMaxSize()) {
+                Row(Modifier.weight(1f)) {
                     Column(Modifier.weight(0.4f).fillMaxSize()) {
                         Text(
                             "Nodes (${state.nodes.size})",
@@ -200,7 +175,7 @@ class SpatialGltfModelActivity : ComponentActivity() {
                                         Modifier.fillMaxWidth()
                                             .clickable {
                                                 state.selectedNode = node
-                                                state.updateFromNode(node)
+                                                state.updateTransformDataFromNode(node)
                                             }
                                             .background(
                                                 if (isSelected) Color.Blue.copy(alpha = 0.2f)
@@ -224,12 +199,124 @@ class SpatialGltfModelActivity : ComponentActivity() {
                         }
                     }
                 }
+
+                // Animation List & Animation Controls
+                Row(Modifier.weight(1f)) {
+                    Column(Modifier.weight(0.4f).fillMaxSize()) {
+                        Text(
+                            "Animations (${state.animations.size})",
+                            style = MaterialTheme.typography.titleMedium,
+                        )
+                        LazyColumn(
+                            Modifier.fillMaxWidth()
+                                .weight(1f)
+                                .background(Color.LightGray.copy(alpha = 0.1f))
+                        ) {
+                            itemsIndexed(state.animations) { ix, animation ->
+                                val isSelected = state.selectedAnimation == animation
+                                val displayName = animation.name ?: "Animation $ix"
+                                val playingText =
+                                    when (animation.animationState) {
+                                        Playing,
+                                        Paused -> " (${animation.animationState})"
+                                        else -> ""
+                                    }
+                                Text(
+                                    text = "$displayName$playingText",
+                                    fontSize = 14.sp,
+                                    fontWeight =
+                                        if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                    modifier =
+                                        Modifier.fillMaxWidth()
+                                            .clickable { state.selectedAnimation = animation }
+                                            .background(
+                                                if (isSelected) Color.Blue.copy(alpha = 0.2f)
+                                                else Color.Transparent
+                                            )
+                                            .padding(8.dp),
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(Modifier.width(16.dp))
+
+                    Column(Modifier.weight(0.6f).fillMaxSize()) {
+                        val animation = state.selectedAnimation
+                        if (animation != null) {
+                            AnimationControls(animation)
+                        } else {
+                            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                Text("Select an animation", color = Color.Gray)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Composable
+    fun AnimationControls(animation: SpatialGltfModelAnimation) {
+        var seekStartTime by remember(animation) { mutableStateOf(0.milliseconds) }
+
+        LaunchedEffect(seekStartTime) { animation.seekTo(seekStartTime) }
+
+        Column(Modifier.fillMaxSize().padding(horizontal = 8.dp)) {
+            Text("Animation Controls", style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.height(8.dp))
+
+            LazyColumn {
+                item {
+                    SliderRow(
+                        label = "Speed",
+                        value = animation.speed,
+                        min = -2f,
+                        max = 2f,
+                        onValueChange = { animation.speed = it },
+                    )
+                }
+                item {
+                    SliderRow(
+                        label = "Seek to (ms)",
+                        value = seekStartTime.inWholeMilliseconds.toFloat(),
+                        min = 0f,
+                        max = animation.duration.inWholeMilliseconds.toFloat(),
+                        onValueChange = { seekStartTime = it.roundToLong().milliseconds },
+                    )
+                }
+                item {
+                    if (animation.animationState != Playing) {
+                        Button(
+                            onClick = {
+                                animation.start()
+                                seekStartTime = 0.milliseconds
+                            }
+                        ) {
+                            Text("Play")
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        Button(
+                            onClick = {
+                                animation.loop()
+                                seekStartTime = 0.milliseconds
+                            }
+                        ) {
+                            Text("Play Looping")
+                        }
+                    } else {
+                        Button(onClick = { animation.stop() }) { Text("Stop") }
+                        Spacer(Modifier.width(8.dp))
+                        Button(onClick = { animation.pause() }) { Text("Pause") }
+                    }
+                }
             }
         }
     }
 
     @Composable
     fun TransformControls(state: DragonControlState) {
+        val context = LocalContext.current
         val data = state.transformData
 
         Column(Modifier.fillMaxSize().padding(horizontal = 8.dp)) {
@@ -237,6 +324,37 @@ class SpatialGltfModelActivity : ComponentActivity() {
             Spacer(Modifier.height(8.dp))
 
             LazyColumn {
+                item {
+                    // Material Override Controls
+                    Column(
+                        Modifier.fillMaxWidth()
+                            .padding(top = 8.dp)
+                            .background(Color.LightGray.copy(alpha = 0.2f))
+                            .padding(8.dp)
+                    ) {
+                        SwitchRow(
+                            label = "Apply material override",
+                            checked = state.isMaterialOverridden,
+                            enabled = state.selectedNode != null,
+                            onCheckedChange = { state.toggleMaterialOverride(context) },
+                        )
+
+                        if (state.isMaterialOverridden) {
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                "Material Properties",
+                                style = MaterialTheme.typography.labelMedium,
+                            )
+                            SliderRow("Metallic", state.metallic, 0f, 1f) {
+                                state.updateMaterialProperties(metallic = it)
+                            }
+                            SliderRow("Roughness", state.roughness, 0f, 1f) {
+                                state.updateMaterialProperties(roughness = it)
+                            }
+                        }
+                    }
+                    HorizontalDivider(Modifier.padding(vertical = 4.dp))
+                }
                 item {
                     Text("Translation", fontWeight = FontWeight.Bold, fontSize = 12.sp)
                     SliderRow("Tx", data.translation.x, -2f, 2f) {
@@ -279,29 +397,6 @@ class SpatialGltfModelActivity : ComponentActivity() {
         }
     }
 
-    @Composable
-    fun SliderRow(
-        label: String,
-        value: Float,
-        min: Float,
-        max: Float,
-        onValueChange: (Float) -> Unit,
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = "$label: %.2f".format(value),
-                fontSize = 11.sp,
-                modifier = Modifier.width(70.dp),
-            )
-            Slider(
-                value = value,
-                onValueChange = onValueChange,
-                valueRange = min..max,
-                modifier = Modifier.weight(1f),
-            )
-        }
-    }
-
     @SuppressLint("PrimitiveInCollection")
     @Composable
     @SubspaceComposable
@@ -316,11 +411,7 @@ class SpatialGltfModelActivity : ComponentActivity() {
                 source = SpatialGltfModelSource.fromPath(Paths.get("models", "xyzArrows.glb"))
             )
 
-        LaunchedEffect(dragonModelState.nodes.size) {
-            if (dragonModelState.nodes.isNotEmpty()) {
-                state.nodes = dragonModelState.nodes
-            }
-        }
+        LaunchedEffect(dragonModelState) { state.dragonModelState = dragonModelState }
 
         SpatialBox {
             SpatialGltfModel(state = dragonModelState) {
@@ -366,15 +457,22 @@ class SpatialGltfModelActivity : ComponentActivity() {
     )
 
     class DragonControlState {
-        var isAnimating by mutableStateOf(false)
-        var nodes by mutableStateOf<List<GltfModelNode>>(emptyList())
+        var dragonModelState by mutableStateOf<SpatialGltfModelState?>(null)
+        val nodes: List<GltfModelNode>
+            get() = dragonModelState?.nodes ?: emptyList()
+
+        val animations: List<SpatialGltfModelAnimation>
+            get() = dragonModelState?.animations ?: emptyList()
+
         var selectedNode by mutableStateOf<GltfModelNode?>(null)
+
+        var selectedAnimation by mutableStateOf<SpatialGltfModelAnimation?>(null)
         var useRotation by mutableStateOf(false)
         var showArrows by mutableStateOf(false)
 
         // Material Override State
         var overrideMaterial: KhronosPbrMaterial? = null
-        var isMaterialOverridden by mutableStateOf(false)
+        val isMaterialOverridden by derivedStateOf { overriddenMaterials.containsKey(selectedNode) }
 
         // New State for Material Properties
         var metallic by mutableFloatStateOf(1.0f)
@@ -382,6 +480,8 @@ class SpatialGltfModelActivity : ComponentActivity() {
 
         private var session: Session? = null
         var transformData by mutableStateOf(TransformData())
+
+        var overriddenMaterials = mutableStateMapOf<GltfModelNode, KhronosPbrMaterial>()
 
         suspend fun initializeSession(session: Session) {
             if (this.session == null) {
@@ -401,15 +501,19 @@ class SpatialGltfModelActivity : ComponentActivity() {
             try {
                 if (isMaterialOverridden) {
                     node.clearMaterialOverride(0)
-                    isMaterialOverridden = false
+                    overriddenMaterials.remove(node)
                 } else {
                     node.setMaterialOverride(mat, 0)
-                    isMaterialOverridden = true
+                    overriddenMaterials[node] = mat
                 }
             } catch (e: Exception) {
-                Toast.makeText(context, "Can't apply override: ${e.message}", Toast.LENGTH_SHORT)
+                Toast.makeText(
+                        context,
+                        "Can't apply override to node [${node.name}]: ${e.message}",
+                        Toast.LENGTH_SHORT,
+                    )
                     .show()
-                isMaterialOverridden = false
+                overriddenMaterials.remove(node)
             }
         }
 
@@ -426,9 +530,7 @@ class SpatialGltfModelActivity : ComponentActivity() {
             }
         }
 
-        fun updateFromNode(node: GltfModelNode) {
-            isMaterialOverridden = false
-
+        fun updateTransformDataFromNode(node: GltfModelNode) {
             val pose = node.localPose
             val scale = node.localScale
             val euler = pose.rotation.eulerAngles
@@ -477,5 +579,54 @@ class SpatialGltfModelActivity : ComponentActivity() {
                 z = Meter(translation.z).toDp(),
             )
             .let { if (rotation != null) it.rotate(rotation) else it }
+    }
+}
+
+@Composable
+fun SliderRow(label: String, value: Float, min: Float, max: Float, onValueChange: (Float) -> Unit) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            text = "$label: %.2f".format(value),
+            fontSize = 11.sp,
+            modifier = Modifier.width(70.dp),
+        )
+        Slider(
+            value = value,
+            onValueChange = onValueChange,
+            valueRange = min..max,
+            modifier = Modifier.weight(1f),
+        )
+    }
+}
+
+@Composable
+private fun SwitchRow(
+    label: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+) {
+    Row(
+        modifier =
+            modifier.clickable {
+                if (enabled) {
+                    onCheckedChange(!checked)
+                }
+            },
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Text(
+            text = label,
+            color =
+                if (enabled) {
+                    MaterialTheme.colorScheme.onSurface
+                } else {
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                },
+        )
+        Spacer(Modifier.width(8.dp))
+        Switch(checked = checked, onCheckedChange = onCheckedChange, enabled = enabled)
     }
 }

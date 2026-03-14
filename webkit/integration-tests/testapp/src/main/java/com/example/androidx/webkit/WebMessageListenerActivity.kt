@@ -22,10 +22,7 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.AbsoluteSizeSpan
 import android.webkit.JavascriptInterface
-import android.webkit.WebResourceRequest
-import android.webkit.WebResourceResponse
 import android.webkit.WebView
-import android.webkit.WebViewClient
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -40,23 +37,6 @@ import androidx.webkit.WebViewFeature
 class WebMessageListenerActivity : AppCompatActivity() {
 
     private lateinit var textView: TextView
-
-    private class AssetLoaderWebViewClient(val assetLoader: WebViewAssetLoader) : WebViewClient() {
-
-        override fun shouldInterceptRequest(
-            view: WebView,
-            request: WebResourceRequest,
-        ): WebResourceResponse? {
-            return assetLoader.shouldInterceptRequest(request.url)
-        }
-
-        @Deprecated(
-            "Intentional use of deprecated function"
-        ) // use the old one for compatibility with all API levels
-        override fun shouldInterceptRequest(view: WebView, url: String): WebResourceResponse? {
-            return assetLoader.shouldInterceptRequest(Uri.parse(url))
-        }
-    }
 
     private inner class ReplyMessageListener : WebViewCompat.WebMessageListener {
 

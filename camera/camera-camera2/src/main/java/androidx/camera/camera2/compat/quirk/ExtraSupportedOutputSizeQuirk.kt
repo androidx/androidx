@@ -26,9 +26,10 @@ import androidx.camera.core.impl.Quirk
 
 /**
  * QuirkSummary Bug Id: b/241876294, b/299075294 Description: CamcorderProfile resolutions can not
- * find a match in the output size list of [CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP].
- * Some resolutions are added back as they are supported by the camera and do not have stretching
- * issues. Device(s): Motorola Moto E5 Play.
+ * find a match in the output size list of
+ * [android.hardware.camera2.CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]. Some
+ * resolutions are added back as they are supported by the camera and do not have stretching issues.
+ * Device(s): Motorola Moto E5 Play.
  *
  * TODO: enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */

@@ -17,7 +17,6 @@
 package androidx.car.app.media.model;
 
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.media.MediaPlaybackManager;
@@ -37,7 +36,6 @@ import java.util.Objects;
  * A pre requisite for using this template is the usage of {@link
  * MediaPlaybackManager#registerMediaPlaybackToken}.
  */
-@ExperimentalCarApi
 @RequiresCarApi(8)
 @CarProtocol
 @KeepFields
@@ -85,7 +83,7 @@ public class MediaPlaybackTemplate implements Template {
     }
 
     /** Builder for the {@link MediaPlaybackTemplate} */
-    @ExperimentalCarApi
+    @RequiresCarApi(8)
     public static final class Builder {
         @Nullable Header mHeader;
 

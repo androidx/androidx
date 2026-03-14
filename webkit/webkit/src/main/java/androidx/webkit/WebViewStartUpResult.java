@@ -27,7 +27,6 @@ import java.util.List;
  * {@link androidx.webkit.WebViewCompat.WebViewStartUpCallback#onSuccess(WebViewStartUpResult)}.
  *
  */
-@WebViewCompat.ExperimentalAsyncStartUp
 public interface WebViewStartUpResult {
     /**
      * The total time WebView startup took on the UI thread.

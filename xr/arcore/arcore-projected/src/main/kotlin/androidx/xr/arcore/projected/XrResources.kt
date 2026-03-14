@@ -35,7 +35,7 @@ internal class XrResources {
     lateinit internal var service: IProjectedPerceptionService
 
     /** The tracking state of the device */
-    internal var deviceTrackingState: TrackingState = TrackingState.STOPPED
+    internal var trackingState: TrackingState = TrackingState.STOPPED
 
     /** The tracking state of geospatial */
     internal var geospatialTrackingState: TrackingState = TrackingState.STOPPED

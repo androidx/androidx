@@ -17,10 +17,12 @@
 package androidx.xr.runtime
 
 import android.content.Context
+import androidx.annotation.GuardedBy
 import androidx.lifecycle.Lifecycle
 import androidx.xr.runtime.XrDevice.Companion.getCurrentDevice
 import androidx.xr.runtime.interfaces.XrDeviceCapabilityProvider
 import androidx.xr.runtime.interfaces.XrDeviceCapabilityProviderFactory
+import java.util.WeakHashMap
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -76,9 +78,11 @@ private constructor(
 
         private val CAPABILITY_FACTORY_PROVIDERS =
             listOf(
-                "androidx.xr.openxr.OpenXrDeviceCapabilityProviderFactory",
+                "androidx.xr.runtime.openxr.OpenXrDeviceCapabilityProviderFactory",
                 "androidx.xr.projected.ProjectedDeviceCapabilityProviderFactory",
             )
+
+        @GuardedBy("deviceCache") private val deviceCache = WeakHashMap<Context, XrDevice>()
 
         // TODO(b/461561664): Remove this API once session is no longer needed for XrDevice.
         /**
@@ -105,6 +109,11 @@ private constructor(
             context: Context,
             coroutineContext: CoroutineContext = EmptyCoroutineContext,
         ): XrDevice {
+            synchronized(deviceCache) {
+                deviceCache[context]?.let {
+                    return it
+                }
+            }
             val features = getDeviceContextFeatures(context)
             val xrDeviceCapabilityProviderFactory: XrDeviceCapabilityProviderFactory? =
                 selectProvider(
@@ -114,11 +123,13 @@ private constructor(
                     ),
                     features,
                 )
-
-            return XrDevice(
-                session = null,
-                xrDeviceCapabilityProviderFactory?.create(context, coroutineContext),
-            )
+            val device =
+                XrDevice(
+                    session = null,
+                    xrDeviceCapabilityProviderFactory?.create(context, coroutineContext),
+                )
+            synchronized(deviceCache) { deviceCache[context] = device }
+            return device
         }
     }
 

@@ -151,7 +151,14 @@ internal class CurvedTextChild(
         Box(Modifier.semantics { with(mergedSemantics) { applySemantics() } })
     }
 
-    override fun CurvedMeasureScope.initializeMeasure(measurables: Iterator<Measurable>) {
+    override fun CurvedMeasureScope.initializeMeasure(
+        measurables: Iterator<Measurable>
+    ): (Placeable.PlacementScope).() -> Unit {
+        if (isLookingAhead) {
+            // TODO(b/486792667): Investigate properly supporting Lookahead animations.
+            val lookaheadPlaceable = measurables.next().measure(Constraints())
+            return { lookaheadPlaceable.place(0, 0) }
+        }
         delegate.updateIfNeeded(
             text,
             clockwise,
@@ -196,6 +203,10 @@ internal class CurvedTextChild(
                         maxHeight = height,
                     )
                 )
+        return {
+            // clockwise doesn't matter, we have no content in placeable.
+            place(placeable, layoutInfo!!, parentSweepRadians, clockwise = false)
+        }
     }
 
     override fun doEstimateThickness(maxRadius: Float): Float = delegate.textHeight
@@ -240,10 +251,6 @@ internal class CurvedTextChild(
             )
         }
     }
-
-    override fun (Placeable.PlacementScope).placeIfNeeded() =
-        // clockwise doesn't matter, we have no content in placeable.
-        place(placeable, layoutInfo!!, parentSweepRadians, clockwise = false)
 }
 
 /** Used to cache computations and objects with expensive construction (Android's Paint & Path) */

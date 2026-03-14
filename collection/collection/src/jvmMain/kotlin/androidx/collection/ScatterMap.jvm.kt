@@ -485,7 +485,20 @@ public actual class MutableScatterMap<K, V> @JvmOverloads actual constructor(ini
     }
 
     public actual inline fun getOrPut(key: K, defaultValue: () -> V): V {
-        return get(key) ?: defaultValue().also { set(key, it) }
+        val index = findInsertIndex(key)
+        return if (index < 0)
+            defaultValue().also {
+                val insertIndex = index.inv()
+                keys[insertIndex] = key
+                values[insertIndex] = it
+            }
+        else
+            @Suppress("UNCHECKED_CAST")
+            values[index] as V?
+                ?: defaultValue().also {
+                    keys[index] = key
+                    values[index] = it
+                }
     }
 
     public actual inline fun compute(key: K, computeBlock: (key: K, value: V?) -> V): V {
@@ -861,7 +874,9 @@ public actual class MutableScatterMap<K, V> @JvmOverloads actual constructor(ini
         mutableMapWrapper ?: MutableMapWrapper(this).also { mutableMapWrapper = it }
 }
 
-private class MapEntry<K, V>(override val key: K, override val value: V) : Map.Entry<K, V>
+private class MapEntry<K, V>(override val key: K, override val value: V) : Map.Entry<K, V> {
+    override fun toString(): String = "$key=$value"
+}
 
 private class Entries<K, V>(private val parent: ScatterMap<K, V>) : Set<Map.Entry<K, V>> {
     override val size: Int
@@ -882,6 +897,8 @@ private class Entries<K, V>(private val parent: ScatterMap<K, V>) : Set<Map.Entr
         elements.all { parent[it.key] == it.value }
 
     override fun contains(element: Map.Entry<K, V>): Boolean = parent[element.key] == element.value
+
+    override fun toString(): String = joinToString(prefix = "[", postfix = "]")
 }
 
 private class Keys<K, V>(private val parent: ScatterMap<K, V>) : Set<K> {
@@ -896,6 +913,8 @@ private class Keys<K, V>(private val parent: ScatterMap<K, V>) : Set<K> {
         elements.all { parent.containsKey(it) }
 
     override fun contains(element: K): Boolean = parent.containsKey(element)
+
+    override fun toString(): String = joinToString(prefix = "[", postfix = "]")
 }
 
 private class Values<K, V>(private val parent: ScatterMap<K, V>) : Collection<V> {
@@ -912,6 +931,8 @@ private class Values<K, V>(private val parent: ScatterMap<K, V>) : Collection<V>
         elements.all { parent.containsValue(it) }
 
     override fun contains(element: V): Boolean = parent.containsValue(element)
+
+    override fun toString(): String = joinToString(prefix = "[", postfix = "]")
 }
 
 // TODO: While not mandatory, it would be pertinent to throw a

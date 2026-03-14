@@ -34,7 +34,6 @@ import androidx.wear.compose.material3.TextConfiguration
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
-@Suppress("RestrictedApiAndroidX")
 public fun ProvideRemoteTextStyle(
     value: RemoteTextStyle,
     content: @RemoteComposable @Composable () -> Unit,

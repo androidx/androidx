@@ -75,11 +75,17 @@ class DeleteOrUpdateFunctionAdapter private constructor(val returnType: XType) {
             }
             parameters.forEach { param ->
                 val adapter = adapters.getValue(param.name).first
+                val handleFunctionWithSuffix =
+                    if (hasReturnValue) {
+                        param.handleFunctionName + "AndReturnChanges"
+                    } else {
+                        param.handleFunctionName
+                    }
                 addStatement(
                     "%L%L.%L(%L, %L)",
                     if (resultVar == null) "" else "$resultVar += ",
                     adapter.name,
-                    param.handleFunctionName,
+                    handleFunctionWithSuffix,
                     connectionVar,
                     param.name,
                 )

@@ -131,13 +131,17 @@ public fun CurvedLayout(
 
         // Give the curved row scope the information needed to measure and map measurables
         // to children.
-        with(CurvedMeasureScope(subDensity = this, curvedLayoutDirection, radius)) {
-            with(curvedRowChild) {
-                val iterator = measurables.iterator()
-                initializeMeasure(iterator)
-                require(!iterator.hasNext()) { "unused measurable" }
+        val placementBlock =
+            with(
+                CurvedMeasureScope(subDensity = this, curvedLayoutDirection, radius, isLookingAhead)
+            ) {
+                with(curvedRowChild) {
+                    val iterator = measurables.iterator()
+                    initializeMeasure(iterator).also {
+                        require(!iterator.hasNext()) { "unused measurable" }
+                    }
+                }
             }
-        }
 
         curvedRowChild.estimateThickness(radius)
 
@@ -149,7 +153,7 @@ public fun CurvedLayout(
         val totalSweep = curvedRowChild.sweepRadians
 
         // Apply anchor & anchorType
-        var layoutAngleStart =
+        val layoutAngleStart =
             anchor.toRadians() -
                 (if (curvedLayoutDirection.clockwise()) anchorType.ratio
                 else 1f - anchorType.ratio) * totalSweep
@@ -157,7 +161,7 @@ public fun CurvedLayout(
         curvedRowChild.angularPosition(layoutAngleStart, totalSweep, Offset(radius, radius))
 
         // Place the composable children
-        layout(diameter, diameter) { with(curvedRowChild) { placeIfNeeded() } }
+        layout(diameter, diameter, placementBlock = placementBlock)
     }
 }
 
@@ -247,6 +251,10 @@ internal constructor(
                 distance = outerRadius - thickness * (1f - radialRatio),
                 angle = startAngleRadians + angleRatio * sweepRadians,
             )
+
+    override fun toString(): String {
+        return "CurvedLayoutInfo(centerOffset=$centerOffset, sweepRadians=$sweepRadians, outerRadius=$outerRadius, thickness=$thickness, measureRadius=$measureRadius, startAngleRadians=$startAngleRadians, innerRadius=$innerRadius)"
+    }
 }
 
 // Partially computed CurvedLayoutInfo
@@ -263,6 +271,7 @@ internal class CurvedMeasureScope(
     val subDensity: Density,
     val curvedLayoutDirection: CurvedLayoutDirection,
     val radius: Float,
+    val isLookingAhead: Boolean,
 ) : Density by subDensity
 
 internal class CurvedSemanticProperties(
@@ -312,7 +321,7 @@ internal class CurvedSemanticProperties(
  * 1. During composition [CurvedChild#ComposeIfNeeded] is called.
  * 2. During measurement [CurvedChild#initializeMeasure], [CurvedChild#estimateThickness],
  * [CurvedChild#radialPosition] & [CurvedChild#angularPosition] will be called, in order.
- * 3. During placement [CurvedChild#placeIfNeeded] is called.
+ * 3. During placement, the placementBlock returned from [CurvedChild#initializeMeasure] is called.
  * 4. During drawing [CurvedChild#draw] is called.
  * </pre>
  * See those functions for specifics.
@@ -353,8 +362,11 @@ internal abstract class CurvedChild() {
      *
      * @param measurables: The measurables on the CurvedLayout, used to map to the compose-ui nodes
      *   we generated in [SubComposition] as we walk the tree.
+     * @return the placement block that needs to be executed during placement.
      */
-    open fun CurvedMeasureScope.initializeMeasure(measurables: Iterator<Measurable>) {}
+    open fun CurvedMeasureScope.initializeMeasure(
+        measurables: Iterator<Measurable>
+    ): (Placeable.PlacementScope).() -> Unit = {}
 
     /**
      * Compute the parent data required to give to the parent layout to properly size and position
@@ -422,9 +434,6 @@ internal abstract class CurvedChild() {
         parentSweepRadians: Float,
         centerOffset: Offset,
     ): Float = parentStartAngleRadians
-
-    /** If this component generated a child composable, this is the opportunity to place it. */
-    open fun (Placeable.PlacementScope).placeIfNeeded() {}
 
     /** A chance for this component to draw itself. */
     open fun DrawScope.draw() {}

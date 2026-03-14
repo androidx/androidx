@@ -24,129 +24,169 @@ import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Base64;
 import java.util.Objects;
 
 /**
- * Represents a message sent between two message ports.
- * <p>
- * The type of the message can be checked using {@link #getType()}.
+ * Represents a message that can be sent or received between two message ports.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class Message {
     /**
-     * The type of the message.
+     * The data type of the message.
      */
-    @IntDef({Message.Type.STRING, Message.Type.ARRAY_BUFFER})
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
-    @interface Type {
-        /**
-         * The message is a {@link String}.
-         */
-        int STRING = 0;
-        /**
-         * The message is a {@code byte[]} (representing an ArrayBuffer).
-         */
-        int ARRAY_BUFFER = 1;
-    }
+    @IntDef({
+        TYPE_STRING,
+        TYPE_ARRAY_BUFFER,
+    })
+    public @interface Type {}
 
-    @Type private final int mType;
+    /**
+     * The message is a {@link String}.
+     */
+    public static final int TYPE_STRING = 0;
+    /**
+     * The message is a {@code byte[]} representing a JavaScript ArrayBuffer.
+     */
+    public static final int TYPE_ARRAY_BUFFER = 1;
+
+    private final @Type int mType;
     @Nullable
     private final String mString;
     private final byte @Nullable [] mArrayBuffer;
 
     /**
      * Creates a new message with a {@link String} payload.
+     * <p>
+     * String messages must contain valid Unicode. Invalid Unicode, such as unpaired surrogates may
+     * result in message corruption. To send binary data, use
+     * {@link #createArrayBufferMessage(byte[])}.
      *
      * @param string the string payload.
      * @return a new Message instance with the string payload.
      */
     @NonNull
-    public static Message createString(@NonNull String string) {
+    public static Message createStringMessage(@NonNull String string) {
         return new Message(string);
     }
 
     /**
-     * Creates a new message with a {@code byte[]} payload.
+     * Creates a new message with a JavaScript ArrayBuffer ({@code byte[]}) payload.
      * <p>
      * This method does not create a copy of the byte array; the message object will only hold a
-     * reference to the original byte array. Data is only copied during message posting.
+     * reference to the original byte array. Data is only copied during message posting. As such,
+     * you should generally avoid modifying the original supplied array after creating the message.
      *
-     * @param bytes the byte array payload.
-     * @return a new Message instance with the byte array payload.
+     * @param bytes the contents of the ArrayBuffer.
+     * @return a new Message instance with the ArrayBuffer payload.
      */
     @NonNull
-    public static Message createArrayBuffer(byte @NonNull [] bytes) {
+    public static Message createArrayBufferMessage(byte @NonNull [] bytes) {
         return new Message(bytes);
     }
 
+    // We generally don't want to provide public constructors as there isn't a clean 1:1 mapping
+    // between Java and JavaScript types. For example, Java has ArrayBuffer, Uint8Array, and
+    // Int8Array, all of which could correspond to a Java byte[].
+    //
+    // Therefore, we instead expose factory methods to ensure that we can provide support for such
+    // data types in the future.
     private Message(@NonNull String string) {
         Objects.requireNonNull(string);
         mString = string;
         mArrayBuffer = null;
-        mType = Type.STRING;
+        mType = TYPE_STRING;
     }
 
     private Message(byte @NonNull [] bytes) {
         Objects.requireNonNull(bytes);
         mString = null;
         mArrayBuffer = bytes;
-        mType = Type.ARRAY_BUFFER;
+        mType = TYPE_ARRAY_BUFFER;
     }
 
     /**
      * Returns the type of the data stored in the message.
-     *
+     * <p>
      * Note on Forward Compatibility:
      * <p>
-     * Support for new types may be added over time. An application should generally
-     * be prepared to handle messages of previously undefined types, particularly when
-     * it processes external scripts that may be updated separately from the application.
+     * Support for new types may be added over time. An application should generally be prepared to
+     * accept messages of previously undefined types, particularly when it processes external
+     * scripts that may be updated separately from the application. This may necessitate else blocks
+     * or default case labels to handle unknown types, or simply ignoring messages of unmatched
+     * types if appropriate.
      * <p>
-     * A new message type may be introduced in future versions of the JavaScript engine.
-     * If a generic else block is used, code like message.getArrayBuffer() could be called
-     * on new, unsupported type, leading to a MessageTypeMismatchException at runtime.
+     * As such, you should avoid assuming the data type unless you have positively confirmed it
+     * specifically, else you may encounter a MessageTypeMismatchException due to using an
+     * inappropriate getter.
      *
-     * @return the type of the message.
+     * @return the data type of the message.
      */
     public @Type int getType() {
         return mType;
     }
 
     /**
-     * Returns the message's data as a String.
+     * Returns the encapsulated String data.
      * <p>
-     * Does not perform any implicit conversions.
-     * If the internal representation of the message is not a String, a
-     * {@link MessageTypeMismatchException} will be thrown.
+     * No implicit conversions are performed. If the data type of the message is not a String,
+     * a {@link MessageTypeMismatchException} will be thrown. You should only call this method if
+     * {@link #getType()} returns {@link #TYPE_STRING}.
      *
-     * @return the message's data as a String.
+     * @return the encapsulated String data.
      * @throws MessageTypeMismatchException if the message type is not a string.
      */
     @NonNull
     public String getString() {
-        if (mType != Type.STRING) {
+        if (mType != TYPE_STRING) {
             throw new MessageTypeMismatchException("Message type is not a string");
         }
         return Objects.requireNonNull(mString);
     }
 
     /**
-     * Returns the message's data as a byte array.
+     * Returns the encapsulated JavaScript ArrayBuffer data as a <code>byte[]</code>.
      * <p>
-     * Does not perform any implicit conversions.
-     * If the internal representation of the message is not a byte array, a
-     * {@link MessageTypeMismatchException} will be thrown.
+     * No implicit conversions are performed. If the data type of the message is not an ArrayBuffer,
+     * a {@link MessageTypeMismatchException} will be thrown. You should only call this method if
+     * {@link #getType()} returns {@link #TYPE_ARRAY_BUFFER}.
      * <p>
      * This method only obtains a reference to the backing array and does not create a copy.
      * Modifications to the returned byte array will modify the content of this message instance.
      *
-     * @return the message's data as a byte array.
-     * @throws MessageTypeMismatchException if the message type is not an array buffer.
+     * @return the encapsulated ArrayBuffer data as a <code>byte[]</code>.
+     * @throws MessageTypeMismatchException if the message type is not an ArrayBuffer.
      */
     public byte @NonNull [] getArrayBuffer() {
-        if (mType != Type.ARRAY_BUFFER) {
+        if (mType != TYPE_ARRAY_BUFFER) {
             throw new MessageTypeMismatchException("Message type is not an array buffer");
         }
         return Objects.requireNonNull(mArrayBuffer);
+    }
+
+    /**
+     * Produce a string representation of the message for debugging purposes.
+     * <p>
+     * The output of toString may not be stable across API versions. Do not attempt to parse its
+     * output or rely on any property about it in main application logic.
+     *
+     * @return a string representation of the message.
+     */
+    @Override
+    @NonNull
+    public String toString() {
+        switch (mType) {
+            case TYPE_STRING:
+                return super.toString() + "(string=" + mString + ")";
+            case TYPE_ARRAY_BUFFER:
+                return super.toString() + "(arrayBuffer="
+                        + Base64.getEncoder().encodeToString(mArrayBuffer) + ")";
+            default:
+                // This case should be unreachable if all Message.Type enum values are handled.
+                // Reaching here indicates a bug in the JavaScriptEngine library.
+                throw new UnsupportedOperationException(
+                        "Unsupported message type: " + getType());
+        }
     }
 }

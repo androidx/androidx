@@ -23,6 +23,8 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
@@ -353,6 +355,26 @@ class GlimmerListAutoFocusTest : BaseListTestWithOrientation(Orientation.Vertica
         rule.onNodeWithTag("button").assertIsFocused()
     }
 
+    @Test
+    fun listWithLargePadding_focusesFirstListItemAutomatically() {
+        rule.setAutoFocusContent {
+            FocusableTestList(
+                modifier = Modifier.padding(start = ItemWidth * 2, top = ItemHeight * 2)
+            )
+        }
+        rule.onListItem(0).assertIsFocused()
+    }
+
+    @Test
+    fun listWithLargeContentPadding_focusesFirstListItemAutomatically() {
+        rule.setAutoFocusContent {
+            FocusableTestList(
+                contentPadding = PaddingValues(start = ItemWidth * 2, top = ItemHeight * 2)
+            )
+        }
+        rule.onListItem(0).assertIsFocused()
+    }
+
     private fun scrollListBy(scroll: Dp) {
         val pixels = with(rule.density) { scroll.toPx() }
         rule.onNodeWithTag(LIST_TEST_TAG).performSemanticsAction(ScrollBy) { it.invoke(0f, pixels) }
@@ -394,10 +416,12 @@ class GlimmerListAutoFocusTest : BaseListTestWithOrientation(Orientation.Vertica
      */
     @Composable
     fun FocusableTestList(
+        modifier: Modifier = Modifier,
         itemsCount: Int = 100,
         userScrollEnabled: Boolean = true,
         listOrientation: Orientation = orientation,
         state: ListState = rememberListState(),
+        contentPadding: PaddingValues = PaddingValues(),
         itemContent: @Composable (Int) -> Unit = { FocusableListItem(it) },
     ) {
         TestList(
@@ -405,7 +429,8 @@ class GlimmerListAutoFocusTest : BaseListTestWithOrientation(Orientation.Vertica
             itemsCount = itemsCount,
             listOrientation = listOrientation,
             userScrollEnabled = userScrollEnabled,
-            modifier = Modifier.requiredSize(ItemWidth * 3, ItemHeight * ItemsPerScreen),
+            contentPadding = contentPadding,
+            modifier = modifier.requiredSize(ItemWidth * 3, ItemHeight * ItemsPerScreen),
         ) { index ->
             itemContent(index)
         }

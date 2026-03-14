@@ -16,6 +16,7 @@
 
 package androidx.tracing.wire
 
+import androidx.tracing.AbstractTraceSink
 import androidx.tracing.TraceContext
 import kotlin.coroutines.CoroutineContext
 import kotlinx.benchmark.Benchmark
@@ -92,7 +93,7 @@ open class TracingJvmBenchmark {
     }
 
     private fun buildTraceContext(
-        sink: androidx.tracing.TraceSink,
+        sink: AbstractTraceSink,
         @Suppress("SameParameterValue") isEnabled: Boolean,
     ): TraceContext {
         return TraceContext(sink = sink, isEnabled = isEnabled)
@@ -106,7 +107,7 @@ open class TracingJvmBenchmark {
         )
     }
 
-    fun buildInMemoryRingBufferSink(): androidx.tracing.TraceSink {
+    fun buildInMemoryRingBufferSink(): AbstractTraceSink {
         return InMemoryRingBufferTraceSink(capacityInBytes = 5_000_000, sequenceId = 1)
     }
 }

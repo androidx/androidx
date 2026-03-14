@@ -243,6 +243,7 @@
     <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"ഓരോ ലിസ്‌റ്റിന് കീഴിലും സബ്‌ടെക്‌സ്‌റ്റ്"</string>
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"അവസാന ചിത്രവും പ്രവർത്തനങ്ങളും സംബന്ധിച്ച ഡെമോ"</string>
     <string name="filter_chip_demo_title" msgid="92190365856639582">"ഫിൽട്ടർ ചിപ്പ് ഡെമോ"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"പ്രോഗ്രസ് ബാർ ഡെമോ"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"പെയിൻ ടെംപ്ലേറ്റ് ഡെമോ"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"സ്ഥലങ്ങളുടെ ലിസ്റ്റിന്റെ ടെംപ്ലേറ്റ് ഡെമോ"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"സ്ഥലങ്ങൾ ബ്രൗസ് ചെയ്യുക"</string>

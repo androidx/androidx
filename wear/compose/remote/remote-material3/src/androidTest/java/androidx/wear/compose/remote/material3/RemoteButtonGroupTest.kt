@@ -19,7 +19,6 @@ package androidx.wear.compose.remote.material3
 import android.content.Context
 import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
-import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -75,11 +74,6 @@ class RemoteButtonGroupTest {
         modifier: RemoteModifier = RemoteModifier.fillMaxSize(),
         content: @Composable @RemoteComposable () -> Unit,
     ) {
-        RemoteBox(
-            modifier,
-            horizontalAlignment = RemoteAlignment.CenterHorizontally,
-            verticalArrangement = RemoteArrangement.Center,
-            content = content,
-        )
+        RemoteBox(modifier, contentAlignment = RemoteAlignment.Center, content = content)
     }
 }

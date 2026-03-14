@@ -42,7 +42,7 @@ internal class RemoteComposeRowModifier(
         drawIntoRemoteCanvas { canvas ->
             canvas.document.startRow(
                 modifier,
-                horizontalArrangement.toRemote(),
+                horizontalArrangement.toRemote(this.layoutDirection),
                 verticalAlignment.toRemote(),
             )
             this@draw.drawContent()

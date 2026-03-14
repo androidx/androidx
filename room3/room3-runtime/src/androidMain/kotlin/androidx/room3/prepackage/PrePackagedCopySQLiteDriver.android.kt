@@ -20,6 +20,7 @@ import android.util.Log
 import androidx.room3.DatabaseConfiguration
 import androidx.room3.Room.LOG_TAG
 import androidx.room3.util.copy
+import androidx.room3.util.isMigrationRequired
 import androidx.room3.util.readVersion
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
@@ -77,10 +78,10 @@ internal class PrePackagedCopySQLiteDriver(
         if (currentVersion == databaseVersion) {
             return
         }
-        if (
+        val hasMigrationPath =
             configuration.migrationContainer.findMigrationPath(currentVersion, databaseVersion) !=
                 null
-        ) {
+        if (hasMigrationPath) {
             // There is a migration path and it will be prioritized, i.e. we won't be
             // performing a copy destructive migration.
             return

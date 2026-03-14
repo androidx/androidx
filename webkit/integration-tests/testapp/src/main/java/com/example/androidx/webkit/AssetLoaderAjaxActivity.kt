@@ -34,8 +34,6 @@ import androidx.webkit.WebViewAssetLoader
  */
 class AssetLoaderAjaxActivity : AppCompatActivity() {
 
-    val MAX_IDLE_TIME_MS = 5000L
-
     private class MyWebViewClient(
         private val assetLoader: WebViewAssetLoader,
         val uriIdlingResource: UriIdlingResource,
@@ -130,5 +128,9 @@ class AssetLoaderAjaxActivity : AppCompatActivity() {
     /** Load the url https://example.com/androidx_webkit/example/assets/www/ajax_requests.html. */
     fun loadUrl() {
         webView.loadUrl("https://example.com/androidx_webkit/example/assets/www/ajax_requests.html")
+    }
+
+    companion object {
+        private const val MAX_IDLE_TIME_MS = 5000L
     }
 }

@@ -21,8 +21,8 @@ import android.content.Context
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.glance.wear.GlanceWearWidget
+import androidx.glance.wear.WearWidgetBrush
 import androidx.glance.wear.WearWidgetData
 import androidx.glance.wear.WearWidgetDocument
 import androidx.glance.wear.core.ActiveWearWidgetHandle
@@ -138,7 +138,6 @@ class WearWidgetProviderImplTest {
               BOX [-3:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE
                 MODIFIERS
                   ROUNDED_CLIP_RECT = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-                  BACKGROUND = [0.0, 0.0, 0.0, 0.0] color [0.0, 0.0, 0.0, 0.0] shape [0]
                 BOX [-5:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE
                   DATA_TEXT<42> = "Testing ..."
                   MODIFIERS
@@ -313,7 +312,7 @@ class WearWidgetProviderImplTest {
             if (enableFailureMode) {
                 throw Exception("Test exception")
             }
-            return WearWidgetDocument(backgroundColor = Color.Transparent) { content() }
+            return WearWidgetDocument(background = WearWidgetBrush) { content() }
         }
 
         override suspend fun onAdded(context: Context, widgetHandle: ActiveWearWidgetHandle) {

@@ -30,9 +30,9 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.glance.wear.GlanceWearWidget
 import androidx.glance.wear.GlanceWearWidgetService
+import androidx.glance.wear.WearWidgetBrush
 import androidx.glance.wear.WearWidgetData
 import androidx.glance.wear.WearWidgetDocument
 import androidx.glance.wear.core.WearWidgetParams
@@ -42,8 +42,7 @@ private class Material3ThemeWidget : GlanceWearWidget() {
     override suspend fun provideWidgetData(
         context: Context,
         params: WearWidgetParams,
-    ): WearWidgetData =
-        WearWidgetDocument(backgroundColor = Color.Transparent) { Material3ThemeContent() }
+    ): WearWidgetData = WearWidgetDocument(background = WearWidgetBrush) { Material3ThemeContent() }
 }
 
 @RemoteComposable

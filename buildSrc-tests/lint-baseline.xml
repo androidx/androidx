@@ -31,6 +31,15 @@
     <issue
         id="EagerGradleConfiguration"
         message="Use register instead of create"
+        errorLine1="            project.configurations.create(&quot;kmpDocsWithoutApiSince&quot;) {"
+        errorLine2="                                   ~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/docs/AndroidXDocsImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use register instead of create"
         errorLine1="            project.configurations.create(&quot;stubs&quot;) {"
         errorLine2="                                   ~~~~~~">
         <location
@@ -78,15 +87,6 @@
         message="Use register instead of create"
         errorLine1="            project.configurations.create(&quot;docs-runtime-classpath&quot;) {"
         errorLine2="                                   ~~~~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/docs/AndroidXDocsImplPlugin.kt"/>
-    </issue>
-
-    <issue
-        id="EagerGradleConfiguration"
-        message="Use configureEach instead of whenTaskAdded"
-        errorLine1="        project.tasks.whenTaskAdded { task ->"
-        errorLine2="                      ~~~~~~~~~~~~~">
         <location
             file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/docs/AndroidXDocsImplPlugin.kt"/>
     </issue>
@@ -282,15 +282,6 @@
 
     <issue
         id="GradleProjectIsolation"
-        message="Use providers.gradleProperty instead of getProperties"
-        errorLine1="    for (propertyName in project.properties.keys) {"
-        errorLine2="                                 ~~~~~~~~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXGradleProperties.kt"/>
-    </issue>
-
-    <issue
-        id="GradleProjectIsolation"
         message="Avoid using method findProject"
         errorLine1="                    allProjectsExist || findProject(otherGradlePath) != null"
         errorLine2="                                        ~~~~~~~~~~~">
@@ -354,45 +345,9 @@
 
     <issue
         id="GradleProjectIsolation"
-        message="Use providers.gradleProperty instead of getProperties"
-        errorLine1="        val pathPrefixes = (properties[PROP_PATH_PREFIX] as String).split(&quot;,&quot;)"
-        errorLine2="                            ~~~~~~~~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/FilteredAnchorTask.kt"/>
-    </issue>
-
-    <issue
-        id="GradleProjectIsolation"
-        message="Use providers.gradleProperty instead of getProperties"
-        errorLine1="            val taskName = properties[PROP_TASK_NAME] as String"
-        errorLine2="                           ~~~~~~~~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/FilteredAnchorTask.kt"/>
-    </issue>
-
-    <issue
-        id="GradleProjectIsolation"
         message="Use isolated.rootProject instead of getRootProject"
         errorLine1="                    rootProject.tasks.named(GLOBAL_TASK_NAME).configure { task ->"
         errorLine2="                    ~~~~~~~~~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/FilteredAnchorTask.kt"/>
-    </issue>
-
-    <issue
-        id="GradleProjectIsolation"
-        message="Use providers.gradleProperty instead of getProperties"
-        errorLine1="            task.pathPrefix = properties[PROP_PATH_PREFIX] as String"
-        errorLine2="                              ~~~~~~~~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/FilteredAnchorTask.kt"/>
-    </issue>
-
-    <issue
-        id="GradleProjectIsolation"
-        message="Use providers.gradleProperty instead of getProperties"
-        errorLine1="            task.taskName = properties[PROP_TASK_NAME] as String"
-        errorLine2="                            ~~~~~~~~~~">
         <location
             file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/FilteredAnchorTask.kt"/>
     </issue>

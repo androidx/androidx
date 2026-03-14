@@ -32,7 +32,8 @@ import androidx.ink.strokes.StrokeInputBatch
  * artifacts or poor performance.
  *
  * This instance will be reused for performance purposes according to the following lifecycle:
- * 1. [start] is called to set the [ShapeSpecT] on this object and do any required setup.
+ * 1. [start] is called to set the [ShapeSpecT] on this object, reset any previous state, and do any
+ *    required setup.
  * 2. This shape is repeatedly updated by:
  *     1. Calling [enqueueInputs] with any new real and predicted freehand inputs. This may happen
  *        multiple times in a row before the next call to [update].
@@ -42,9 +43,11 @@ import androidx.ink.strokes.StrokeInputBatch
  *     3. Rendering the calculated shape using an [InProgressShapeRenderer] compatible with this
  *        shape type.
  * 3. [finishInput] is called once there are no more inputs for this stroke (e.g. the user lifts the
- *    stylus from the screen).
+ *    stylus from the screen). Alternately, [cancel] may be called if the stroke is cancelled.
  * 4. [update] continues to be called and the shape is rendered until [getCompletedShape] returns a
  *    non-null value, and even afterwards if [changesWithTime] returns `true`.
+ * 5. [prepareToRecycle] is called to optionally reset state early, allowing non-reused objects to
+ *    be garbage collected promptly.
  *
  * @param ShapeSpecT A type that defines how inputs will be interpreted. This is typically pure,
  *   immutable data.
@@ -117,41 +120,45 @@ public interface InProgressShape<in ShapeSpecT : Any, out CompletedShapeT : Any>
     public fun update(shapeDurationMillis: Long)
 
     /**
-     * Indicates that this shape should will longer be drawn. It will not receive any further calls
-     * to [enqueueInputs] or [update], and it will never receive a call to [finishInput]. A call to
-     * this function should be reflected in the next call to [getUpdatedRegion] - the updated region
-     * of a canceled shape must include the entire shape's bounding box, along with the locations of
-     * any other content that had been removed before cancellation but after the last call to
-     * [resetUpdatedRegion]. After [resetUpdatedRegion] has been called following [cancel], then
-     * further calls to [getUpdatedRegion] must return `null` and [isCanceled] will return `false`
-     * until the next call to [start] or [prepareToRecycle].
+     * Indicates that this shape will longer be drawn. It will not receive any further calls to
+     * [enqueueInputs] or [update], and it will never receive a call to [finishInput].
+     *
+     * After [cancel], the region returned by [getUpdatedRegion] must include the entire shape's
+     * latest bounding box, plus any region removed before cancellation but after the last call to
+     * [resetUpdatedRegion]. This is because everything that was removed since the last call to
+     * [resetUpdatedRegion] must be erased now that the shape is cancelled. After a subsequent call
+     * to [resetUpdatedRegion], further calls to [getUpdatedRegion] must return `null` until the
+     * next call to [prepareToRecycle].
+     *
+     * [isCanceled] must return `true` from when [cancel] is called until the next call to
+     * [prepareToRecycle].
      */
     public fun cancel()
 
     /**
-     * Returns whether [cancel] has been called since the most recent call to [start] or
-     * [prepareToRecycle].
+     * Returns whether [cancel] has been called since the most recent call to [start], assuming no
+     * intervening call to [prepareToRecycle].
      */
     public fun isCanceled(): Boolean
 
     /**
      * Returns an axis-aligned bounding rectangle of parts of the shape added, removed, or changed
-     * since the last call to [resetUpdatedRegion]. The primary way that these changes would occur
-     * is through calls to [update], but calls to [cancel] should also be reflected here by
-     * including the most recent bounding box of the entire shape. The resulting [Box] should be in
-     * the same coordinate system as the inputs supplied to [enqueueInputs]. If no changes have
-     * occurred since the last call to [resetUpdatedRegion], then this must return `null`.
+     * since the most recent call to [start] or [resetUpdatedRegion], assuming no intervening call
+     * to [prepareToRecycle]. This result may change due to calls to [update] or [cancel] (cancel
+     * changes the drawn shape by removing everything that was drawn previously). The resulting
+     * [Box] must be in the same coordinate system as the inputs supplied to [enqueueInputs]. If no
+     * changes have occurred, this must return `null`.
      */
     public fun getUpdatedRegion(): Box?
 
     /**
-     * Reset the calculation of [getUpdatedRegion] so that if it is called again after this without
-     * calling [update] or [cancel] first, then the result will be `null` to represent no changes.
+     * Reset the bounding box returned by [getUpdatedRegion] to `null` until the next call to
+     * [update] or [cancel].
      */
     public fun resetUpdatedRegion()
 
     /**
-     * Indicate that no new calls to [enqueueInputs] will be made.
+     * Indicate that no new calls to [enqueueInputs] will be made until the next call to [start].
      *
      * This occurs after the final call to [enqueueInputs] and before any corresponding call to
      * [update].
@@ -160,7 +167,8 @@ public interface InProgressShape<in ShapeSpecT : Any, out CompletedShapeT : Any>
 
     /**
      * If this is called, a subsequent call to [getCompletedShape] must return a non-null
-     * [CompletedShapeT]. This can only ever be called after [finishInput] and [update].
+     * [CompletedShapeT]. This can only be called after [finishInput] and [update], before a
+     * subsequent call to [prepareToRecycle].
      */
     public fun forceCompletion()
 
@@ -192,7 +200,8 @@ public interface InProgressShape<in ShapeSpecT : Any, out CompletedShapeT : Any>
      *
      * This function should not modify, reset, or clear any internal state, even once it begins
      * returning a non-null value, as the [InProgressShape] is still used for rendering until
-     * [prepareToRecycle] is called.
+     * [prepareToRecycle] is called. It may return `null` again after a call to [prepareToRecycle],
+     * and must after a subsequent call to [start].
      */
     public fun getCompletedShape(): CompletedShapeT?
 
@@ -200,7 +209,9 @@ public interface InProgressShape<in ShapeSpecT : Any, out CompletedShapeT : Any>
      * The optional inverse of [start], where some state can be cleaned up when this instance is not
      * currently needed but may be used again in the future. Do not actually release underlying
      * resources that would have to be reallocated on another future call to [start], as performing
-     * that allocation each time can hurt performance.
+     * that allocation each time can hurt performance. The behavior of reading this object between
+     * this and the next call to [start] is not defined by this interface. Relevant state may be
+     * cleared here, and must be reset either here or in the next call to [start].
      */
     public fun prepareToRecycle() {}
 }

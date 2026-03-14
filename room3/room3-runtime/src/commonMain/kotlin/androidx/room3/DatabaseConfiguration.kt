@@ -27,11 +27,11 @@ public expect class DatabaseConfiguration {
     /* Collection of available migrations. */
     public val migrationContainer: RoomDatabase.MigrationContainer
     /* Database callbacks. */
-    public val callbacks: List<RoomDatabase.Callback>?
+    public val callbacks: List<RoomDatabase.Callback>
     /* The journal mode for this database. */
     public val journalMode: RoomDatabase.JournalMode
     /* Whether Room should throw an exception for missing migrations. */
-    public val requireMigration: Boolean
+    public val isMigrationRequired: Boolean
     /* Whether Room will fallback to destructive migrations on downgrades only .*/
     public val allowDestructiveMigrationOnDowngrade: Boolean
     internal val migrationNotRequiredFrom: Set<Int>?

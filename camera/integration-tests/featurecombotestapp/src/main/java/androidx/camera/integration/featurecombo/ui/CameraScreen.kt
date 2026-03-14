@@ -120,6 +120,7 @@ fun CameraScreen(viewModel: CameraViewModel = viewModel()) {
         useCaseResolutions = viewModel.useCaseResolutions.collectAsStateWithLifecycle().value,
         imageAnalysisFrameCount =
             viewModel.imageAnalysisFrameCount.collectAsStateWithLifecycle().value,
+        cameraCaptureFps = viewModel.cameraCaptureFps.collectAsStateWithLifecycle().value,
         onToggleCamera = { viewModel.toggleCamera(lifecycleOwner) },
         onCapture = { viewModel.capture(context) },
         onRecord = { viewModel.record(context) },
@@ -142,6 +143,7 @@ fun ContentScreen(
     featureUis: List<FeatureUi>,
     useCaseResolutions: Map<AppUseCase, String>,
     imageAnalysisFrameCount: Int,
+    cameraCaptureFps: Int,
     onToggleCamera: () -> Unit,
     onCapture: () -> Unit,
     onRecord: () -> Unit,
@@ -197,6 +199,7 @@ fun ContentScreen(
             isUseCaseEnabled = isUseCaseEnabled,
             useCaseResolutions = useCaseResolutions,
             imageAnalysisFrameCount = imageAnalysisFrameCount,
+            cameraCaptureFps = cameraCaptureFps,
             onCapture = onCapture,
             onRecord = onRecord,
             onReset = onReset,
@@ -306,6 +309,7 @@ fun CameraControlsRow(
     isUseCaseEnabled: Map<AppUseCase, Boolean>,
     useCaseResolutions: Map<AppUseCase, String>,
     imageAnalysisFrameCount: Int,
+    cameraCaptureFps: Int,
     onCapture: () -> Unit,
     onRecord: () -> Unit,
     onReset: () -> Unit,
@@ -399,6 +403,14 @@ fun CameraControlsRow(
                     textAlign = TextAlign.Center,
                 )
             }
+
+            Text(
+                modifier = Modifier.padding(4.dp).basicMarquee(),
+                text = "Capture Result FPS:\r\n$cameraCaptureFps",
+                color = MaterialTheme.colorScheme.onBackground,
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+            )
         }
 
         UseCaseCheckboxes(
@@ -525,6 +537,7 @@ fun ContentScreenPreview() {
                 put(AppUseCase.IMAGE_ANALYSIS, "(640 x 480)")
             },
         imageAnalysisFrameCount = 0,
+        cameraCaptureFps = 0,
         onToggleCamera = {},
         onCapture = {},
         onRecord = {},

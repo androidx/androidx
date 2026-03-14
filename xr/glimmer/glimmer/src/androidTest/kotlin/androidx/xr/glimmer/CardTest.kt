@@ -829,7 +829,7 @@ class CardTest {
         cardBounds.width.assertIsEqualTo(spacerBounds.width, "width of card.")
         val totalOuterAndInnerPadding = (Spacing.Medium + Spacing.Small) * 2
         cardBounds.height.assertIsEqualTo(
-            /* vertical padding * 2 + icon height*/ totalOuterAndInnerPadding + 56.dp,
+            /* vertical padding * 2 + icon height*/ totalOuterAndInnerPadding + 48.dp,
             "height of card.",
         )
     }

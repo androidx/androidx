@@ -205,7 +205,7 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
         val rightPose =
             if (rightState?.trackingState == TrackingState.TRACKING)
                 scene.perceptionSpace.transformPoseTo(
-                    rightState.handJoints[HandJointType.HAND_JOINT_TYPE_PALM]!!,
+                    rightState.handJoints[HandJointType.PALM]!!,
                     scene.activitySpace,
                 )
             else null
@@ -214,7 +214,7 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
         val leftPose =
             if (leftState?.trackingState == TrackingState.TRACKING)
                 scene.perceptionSpace.transformPoseTo(
-                    leftState.handJoints[HandJointType.HAND_JOINT_TYPE_PALM]!!,
+                    leftState.handJoints[HandJointType.PALM]!!,
                     scene.activitySpace,
                 )
             else null

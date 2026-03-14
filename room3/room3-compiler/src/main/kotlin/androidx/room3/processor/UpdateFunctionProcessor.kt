@@ -20,6 +20,7 @@ import androidx.room3.OnConflictStrategy
 import androidx.room3.Update
 import androidx.room3.compiler.processing.XMethodElement
 import androidx.room3.compiler.processing.XType
+import androidx.room3.solver.shortcut.binder.InstantDeleteOrUpdateFunctionBinder
 import androidx.room3.vo.UpdateFunction
 import androidx.room3.vo.findPropertyByColumnName
 
@@ -46,16 +47,16 @@ class UpdateFunctionProcessor(
             delegate.extractParams(
                 targetEntityType = annotation?.get("entity")?.asType(),
                 missingParamError = ProcessorErrors.UPDATE_MISSING_PARAMS,
-                onValidatePartialEntity = { entity, pojo ->
+                onValidatePartialEntity = { entity, dataClass ->
                     val missingPrimaryKeys =
                         entity.primaryKey.properties.filter {
-                            pojo.findPropertyByColumnName(it.columnName) == null
+                            dataClass.findPropertyByColumnName(it.columnName) == null
                         }
                     context.checker.check(
                         missingPrimaryKeys.isEmpty(),
                         executableElement,
                         ProcessorErrors.missingPrimaryKeysInPartialEntityForUpdate(
-                            partialEntityName = pojo.typeName.toString(context.codeLanguage),
+                            partialEntityName = dataClass.typeName.toString(context.codeLanguage),
                             primaryKeyNames = missingPrimaryKeys.map { it.columnName },
                         ),
                     )
@@ -64,6 +65,16 @@ class UpdateFunctionProcessor(
 
         val returnType = delegate.extractReturnType()
         val functionBinder = delegate.findDeleteOrUpdateFunctionBinder(returnType)
+        if (
+            functionBinder is InstantDeleteOrUpdateFunctionBinder && !context.isAndroidOnlyTarget()
+        ) {
+            // A blocking function that does not return a deferred return type is not allowed
+            // if the target platforms include non-Android targets.
+            context.logger.e(
+                executableElement,
+                ProcessorErrors.INVALID_BLOCKING_DAO_FUNCTION_NON_ANDROID,
+            )
+        }
 
         context.checker.check(
             functionBinder.adapter != null,

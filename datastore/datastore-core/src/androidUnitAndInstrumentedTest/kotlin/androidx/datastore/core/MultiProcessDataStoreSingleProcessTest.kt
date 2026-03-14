@@ -915,7 +915,7 @@ abstract class MultiProcessDataStoreSingleProcessTest<F : TestFile<F>>(
             }
             localFile
         }
-        val localContext = newSingleThreadContext("test")
+        val localContext = coroutineContext + newSingleThreadContext("test")
         val dataStore =
             DataStoreImpl(
                 storage =

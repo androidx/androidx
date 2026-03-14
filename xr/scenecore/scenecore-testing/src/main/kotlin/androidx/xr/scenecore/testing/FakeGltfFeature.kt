@@ -43,27 +43,9 @@ public class FakeGltfFeature(nodeHolder: NodeHolder<*>) :
         return mockGltfFeature?.getAnimations(executor) ?: emptyList()
     }
 
-    override val animationState: Int = mockGltfFeature?.animationState ?: 0
-
     override fun getGltfModelBoundingBox(): BoundingBox {
         return mockGltfFeature?.getGltfModelBoundingBox()
             ?: BoundingBox.fromMinMax(Vector3.Zero, Vector3.One)
-    }
-
-    override fun startAnimation(loop: Boolean, animationName: String?, executor: Executor) {
-        mockGltfFeature?.startAnimation(loop, animationName, executor)
-    }
-
-    override fun stopAnimation() {
-        mockGltfFeature?.stopAnimation()
-    }
-
-    override fun pauseAnimation() {
-        mockGltfFeature?.pauseAnimation()
-    }
-
-    override fun resumeAnimation() {
-        mockGltfFeature?.resumeAnimation()
     }
 
     override fun setColliderEnabled(enableCollider: Boolean) {

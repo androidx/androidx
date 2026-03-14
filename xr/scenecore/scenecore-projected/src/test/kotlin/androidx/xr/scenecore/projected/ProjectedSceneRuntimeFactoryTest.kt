@@ -51,7 +51,7 @@ class ProjectedSceneRuntimeFactoryTest {
     }
 
     @Test
-    fun createRuntime_returnsProjectedRuntimeandBindsConnection() = runTest {
+    fun createRuntime_returnsProjectedRuntimeAndBindsConnection() = runTest {
         val mockClient = mock<ProjectedSceneCoreServiceClient>()
         whenever(mockClient.bindService(any())).thenReturn(mock())
         val factory = ProjectedSceneRuntimeFactory(serviceClientProvider = { mockClient })
@@ -73,5 +73,12 @@ class ProjectedSceneRuntimeFactoryTest {
 
         // Verify that the exception thrown by the client bubbles up out of the factory
         assertThrows(IllegalStateException::class.java) { factory.create(activity) }
+    }
+
+    @Test
+    fun create_throwsException_whenCalledFromMainThread() {
+        val factory = ProjectedSceneRuntimeFactory()
+        val exception = assertThrows(IllegalStateException::class.java) { factory.create(activity) }
+        assertThat(exception).hasMessageThat().contains("cannot be bound from the main thread")
     }
 }

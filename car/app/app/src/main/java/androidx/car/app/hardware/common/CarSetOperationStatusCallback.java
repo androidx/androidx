@@ -21,7 +21,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.climate.ClimateProfileRequest;
 
@@ -36,7 +35,6 @@ import java.lang.annotation.RetentionPolicy;
  */
 @CarProtocol
 @RequiresCarApi(5)
-@ExperimentalCarApi
 public interface CarSetOperationStatusCallback {
     /**
      * Defines the possible status code for the set operation.

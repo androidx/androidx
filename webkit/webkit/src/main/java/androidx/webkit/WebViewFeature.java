@@ -137,7 +137,10 @@ public class WebViewFeature {
             ORIGIN_MATCHED_HEADERS,
             CUSTOM_REQUEST_HEADERS,
             ADD_QUIC_HINTS_V1,
-            PAGE_GET_URL
+            PAGE_GET_URL,
+            PREFETCH_CACHE_V1,
+            SET_MAX_PRERENDERS_V1,
+            JS_INJECTION_IN_FRAME_AND_WORLD
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -720,6 +723,24 @@ public class WebViewFeature {
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link PrefetchCache#setMaxPrefetches(Integer)},{@link PrefetchCache#setPrefetchTtlSeconds(Integer)}
+     */
+    @Profile.ExperimentalUrlPrefetch
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String PREFETCH_CACHE_V1 = "PREFETCH_CACHE_V1";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link Profile#setMaxPrerenders(Integer)}
+     */
+    @Profile.ExperimentalUrlPrefetch
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String SET_MAX_PRERENDERS_V1 = "SET_MAX_PRERENDERS_V1";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers {@link WebViewCompat#saveState}.
      */
     @WebViewCompat.ExperimentalSaveState
@@ -859,7 +880,6 @@ public class WebViewFeature {
      * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
      * This feature covers {@link WebViewStartUpConfig.Builder#setProfilesToLoadDuringStartup(Set)}.
      */
-    @WebViewCompat.ExperimentalAsyncStartUp
     public static final String STARTUP_FEATURE_SET_PROFILES_TO_LOAD =
             "STARTUP_FEATURE_SET_PROFILES_TO_LOAD";
 
@@ -916,6 +936,17 @@ public class WebViewFeature {
     public static final String PAGE_GET_URL = "PAGE_GET_URL";
 
     /**
+     * Feature for injecting JavaScript into isolated worlds and iFrames.
+     * This feature covers:
+     * {@link WebViewCompat#addJavaScriptOnEvent(WebView, String, int, Set, JavaScriptExecutionWorld)},
+     * {@link WebViewCompat#addWebMessageListener(WebView, String, Set, JavaScriptExecutionWorld, WebViewCompat.WebMessageListener)},
+     * {@link WebViewCompat#removeWebMessageListener(WebView, JavaScriptExecutionWorld, String)}
+     * {@link WebViewCompat#getExecutionWorld(WebView, String)}, and
+     * {@link JavaScriptReplyProxy#executeJavaScript(String, WebViewOutcomeReceiver)}.
+     */
+    public static final String JS_INJECTION_IN_FRAME_AND_WORLD = "JS_INJECTION_IN_FRAME_AND_WORLD";
+
+    /**
      * Return whether a feature is supported at run-time. This will check whether a feature is
      * supported, depending on the combination of the desired feature, the Android version of
      * device, and the WebView APK on the device.
@@ -958,4 +989,5 @@ public class WebViewFeature {
             @WebViewStartupFeature @NonNull String startupFeature) {
         return WebViewFeatureInternal.isStartupFeatureSupported(startupFeature, context);
     }
+
 }

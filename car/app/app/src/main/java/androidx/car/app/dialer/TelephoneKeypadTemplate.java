@@ -32,7 +32,6 @@ import androidx.annotation.VisibleForTesting;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
-import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.Header;
@@ -61,7 +60,6 @@ import java.util.Objects;
  * and a place for the user to see their dialed number.
  */
 @ExperimentalCarApi
-@RequiresCarApi(8)
 @KeepFields
 @CarProtocol
 public class TelephoneKeypadTemplate implements Template {

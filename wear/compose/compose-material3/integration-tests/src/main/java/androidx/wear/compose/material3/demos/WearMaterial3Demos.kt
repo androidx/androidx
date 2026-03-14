@@ -30,7 +30,6 @@ import androidx.wear.compose.material3.samples.ButtonGroupSample
 import androidx.wear.compose.material3.samples.ButtonGroupThreeButtonsSample
 import androidx.wear.compose.material3.samples.ButtonWithImageSample
 import androidx.wear.compose.material3.samples.CustomCompositingStrategyTransformationSpecSample
-import androidx.wear.compose.material3.samples.EdgeButtonListSample
 import androidx.wear.compose.material3.samples.EdgeButtonSample
 import androidx.wear.compose.material3.samples.EdgeSwipeForSwipeToDismiss
 import androidx.wear.compose.material3.samples.FadingExpandingLabelButtonSample
@@ -98,9 +97,10 @@ val WearMaterial3Demos =
                     "Edge Button",
                     listOf(
                         ComposableDemo("Simple Edge Button") { EdgeButtonSample() },
+                        ComposableDemo("Sizes") { EdgeButtonSizeDemo() },
                         ComposableDemo("Sizes and Colors") { EdgeButtonMultiDemo() },
                         ComposableDemo("Configurable") { EdgeButtonConfigurableDemo() },
-                        ComposableDemo("Simple Edge Button below SLC") { EdgeButtonListSample() },
+                        ComposableDemo("Simple Edge Button below SLC") { EdgeButtonListDemo() },
                         ComposableDemo("Edge Button Below LC") {
                             EdgeButtonBelowLazyColumnDemo(reverseLayout = false)
                         },

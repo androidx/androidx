@@ -17,7 +17,7 @@
 package androidx.tracing
 
 /** A sink that does very little. We simply drop the trace packets without writing it to a file. */
-class NoOpSink : TraceSink() {
+class NoOpSink : AbstractTraceSink() {
     override fun enqueue(pooledPacketArray: PooledTracePacketArray) {
         pooledPacketArray.recycle()
     }

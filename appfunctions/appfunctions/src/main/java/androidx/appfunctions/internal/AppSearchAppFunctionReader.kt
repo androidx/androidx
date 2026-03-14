@@ -179,10 +179,20 @@ internal class AppSearchAppFunctionReader(
                 staticMetadataSearchSpecWithJoin,
             )
             .readAll { searchResult ->
-                convertSearchResultToAppFunctionMetadata(
-                    searchResult,
-                    sharedTopLevelComponentsByPackage,
-                )
+                try {
+                    convertSearchResultToAppFunctionMetadata(
+                        searchResult,
+                        sharedTopLevelComponentsByPackage,
+                    )
+                } catch (e: Exception) {
+                    Log.w(
+                        APP_FUNCTIONS_TAG,
+                        "Failed to convert search result ${searchResult.genericDocument.id} " +
+                            "to ${AppFunctionMetadata::class.simpleName}",
+                        e,
+                    )
+                    null
+                }
             }
             .filterNotNull()
             .groupBy { it.packageName }
@@ -209,34 +219,42 @@ internal class AppSearchAppFunctionReader(
                 .setListFilterQueryLanguageEnabled(true)
                 .build()
 
-        val sharedTopLevelComponentsByPackage: MutableMap<String, AppFunctionComponentsMetadata> =
-            mutableMapOf()
-        session.search("", topLevelComponentsSearchSpec).readAll { searchResult ->
-            extractAppFunctionComponentsMetadataFromSearchResult(
-                searchResult,
-                sharedTopLevelComponentsByPackage,
-            )
-        }
-        return sharedTopLevelComponentsByPackage
+        return session
+            .search("", topLevelComponentsSearchSpec)
+            .readAll { searchResult ->
+                val packageName = searchResult.genericDocument.getPropertyString("packageName")
+                val metadata = extractAppFunctionComponentsMetadataFromSearchResult(searchResult)
+
+                // Only return a Pair if both are non-null and metadata is valid
+                if (packageName != null && metadata != null && metadata.dataTypes.isNotEmpty()) {
+                    packageName to metadata
+                } else {
+                    null
+                }
+            }
+            .filterNotNull()
+            // There is only a single component metadata per package, so we can safely overwrite the
+            // existing value.
+            .toMap()
     }
 
     private fun extractAppFunctionComponentsMetadataFromSearchResult(
-        searchResult: SearchResult,
-        sharedTopLevelComponentsByPackage: MutableMap<String, AppFunctionComponentsMetadata>,
-    ) {
-        val packageName =
-            checkNotNull(searchResult.genericDocument.getPropertyString("packageName"))
-        val componentMetadataSearchResult =
+        searchResult: SearchResult
+    ): AppFunctionComponentsMetadata? =
+        try {
             safeCastToDocumentClass<AppFunctionComponentsMetadataDocument>(
                     searchResult.genericDocument
                 )
-                ?.toAppFunctionComponentsMetadata() ?: return
-        // There is only a single component metadata per package, so we can safely overwrite the
-        // existing value.
-        if (componentMetadataSearchResult.dataTypes.isNotEmpty()) {
-            sharedTopLevelComponentsByPackage[packageName] = componentMetadataSearchResult
+                ?.toAppFunctionComponentsMetadata()
+        } catch (ex: Exception) {
+            Log.w(
+                APP_FUNCTIONS_TAG,
+                "Failed to convert search result ${searchResult.genericDocument.id} " +
+                    "to ${AppFunctionComponentsMetadata::class.simpleName}",
+                ex,
+            )
+            null
         }
-    }
 
     private inline fun <reified T : Any> safeCastToDocumentClass(
         genericDocument: GenericDocument
@@ -244,7 +262,7 @@ internal class AppSearchAppFunctionReader(
         try {
             genericDocument.toDocumentClass(T::class.java)
         } catch (ex: Exception) {
-            Log.e(
+            Log.w(
                 APP_FUNCTIONS_TAG,
                 "Failed to convert search result ${genericDocument.id} " +
                     "to ${T::class.simpleName}",

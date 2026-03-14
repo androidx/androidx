@@ -27,7 +27,7 @@ import androidx.camera.integration.view.TestUtil.assertPreviewStreamingState
 import androidx.camera.integration.view.TestUtil.getFragment
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
-import androidx.camera.testing.impl.CoreAppTestUtil
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.view.PreviewView
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.lifecycle.Lifecycle
@@ -54,6 +54,14 @@ class EffectsFragmentDeviceTest(
     private val cameraConfig: CameraXConfig,
 ) {
     @get:Rule
+    val requireForegroundRule = RequireForegroundRule {
+        assumeFalse(
+            "Test fails on cuttlefish (b/465855844)",
+            MODEL.contains("Cuttlefish", ignoreCase = true),
+        )
+    }
+
+    @get:Rule
     val useCameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             CameraControllerFragmentTest.testCameraRule,
@@ -73,14 +81,6 @@ class EffectsFragmentDeviceTest(
 
     @Before
     fun setup() {
-        assumeFalse(
-            "Test fails on cuttlefish (b/465855844)",
-            MODEL.contains("Cuttlefish", ignoreCase = true),
-        )
-
-        // Clear the device UI and check if there is no dialog or lock screen on the top of the
-        // window before start the test.
-        CoreAppTestUtil.prepareDeviceUI(instrumentation)
         ProcessCameraProvider.configureInstance(cameraConfig)
         cameraProvider =
             ProcessCameraProvider.getInstance(ApplicationProvider.getApplicationContext())[
@@ -93,15 +93,18 @@ class EffectsFragmentDeviceTest(
                 null,
             )
         fragment = fragmentScenario.getFragment()
+
+        requireForegroundRule.deferCleanup {
+            if (::cameraProvider.isInitialized) {
+                cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
+            }
+        }
     }
 
     @After
     fun tearDown() {
         if (::fragmentScenario.isInitialized) {
             fragmentScenario.moveToState(Lifecycle.State.DESTROYED)
-        }
-        if (::cameraProvider.isInitialized) {
-            cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
         }
     }
 

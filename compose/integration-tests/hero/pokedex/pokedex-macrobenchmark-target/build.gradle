@@ -51,7 +51,4 @@ dependencies {
     implementation(project(":compose:ui:ui-util"))
     implementation("com.github.bumptech.glide:glide:4.16.0")
     ksp("com.github.bumptech.glide:ksp:4.16.0")
-
-    // We add a test runner dependency because buildConfig generates a test source set. b/435711074
-    androidTestImplementation(libs.testRunner)
 }

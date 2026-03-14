@@ -343,6 +343,71 @@ class BasicCallControlsTest : BaseTelecomTest() {
     }
 
     /**
+     * Assert that an incoming video call avoids the platform earpiece routing bug and successfully
+     * requests a switch to the speaker endpoint on start. The call should use the *V2 platform
+     * APIs* under the hood.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.O)
+    @LargeTest
+    @Test(timeout = 15000)
+    fun testIncomingVideoCall_EnforcesSpeakerOnStart() {
+        runBlocking {
+            val videoIncomingAttributes =
+                CallAttributesCompat(
+                    OUTGOING_NAME,
+                    TEST_ADDRESS,
+                    CallAttributesCompat.DIRECTION_INCOMING,
+                    CallAttributesCompat.CALL_TYPE_VIDEO_CALL,
+                    ALL_CALL_CAPABILITIES,
+                )
+
+            usingIcs { ics ->
+                assertWithinTimeout_addCall(videoIncomingAttributes) {
+                    // We MUST use launch here to provide a coroutine context for suspend functions
+                    // like delay() and disconnect(), and to run concurrently with the call session.
+                    launch {
+                        // Wait for the platform to become aware of the call
+                        val call = TestUtils.waitOnInCallServiceToReachXCalls(ics, 1)
+                        assertNotNull("The returned Call object is <NULL>", call)
+
+                        // 1. Keep track of the most recent endpoint the platform emits
+                        var settledEndpoint: CallEndpointCompat? = null
+                        val endpointCollectorJob = launch {
+                            currentCallEndpoint.collect { endpoint -> settledEndpoint = endpoint }
+                        }
+
+                        // 2. Allow the platform time to run through its noisy initial routing
+                        //    (e.g. SPEAKER -> EARPIECE) and allow our Jetpack workaround time
+                        //    to intercept and correct it back to SPEAKER.
+                        delay(3000)
+
+                        // Stop collecting now that the route should be stable
+                        endpointCollectorJob.cancel()
+
+                        // 3. Assert that the FINAL, settled state is SPEAKER, catching the bug
+                        //    where it ends on EARPIECE.
+                        assertNotNull(
+                            "Never received an endpoint update from the platform",
+                            settledEndpoint,
+                        )
+                        assertEquals(
+                            "Video call routing failed to settle on the SPEAKER endpoint",
+                            CallEndpointCompat.TYPE_SPEAKER,
+                            settledEndpoint?.type,
+                        )
+
+                        // Clean up
+                        assertEquals(
+                            CallControlResult.Success(),
+                            disconnect(DisconnectCause(DisconnectCause.LOCAL)),
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * ********************************************************************************************
      * Helpers
      * *******************************************************************************************

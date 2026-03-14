@@ -52,10 +52,12 @@ androidXMultiplatform {
                 implementation(project(":room3:integration-tests:room-testapp-multiplatform-library"))
                 implementation(project(":room3:room3-runtime"))
                 implementation(project(":room3:room3-testing"))
+                implementation(project(":room3:room3-paging"))
+                implementation(project(":paging:paging-common"))
                 implementation(project(":kruth:kruth"))
                 implementation(libs.kotlinTest)
                 implementation(libs.kotlinCoroutinesTest)
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.8.1")
+                implementation(libs.kotlinSerializationCore)
             }
         }
         nonWebTest {
@@ -64,17 +66,8 @@ androidXMultiplatform {
                 implementation(project(":sqlite:sqlite-bundled"))
             }
         }
-        // b/432783733: Test source set dedicating to room-paging since watchOS and tvOS are not
-        // supported targets.
-        pagingCommonTest {
-            dependsOn(nonWebTest)
-            dependencies {
-                implementation(project(":room3:room3-paging"))
-                implementation(project(":paging:paging-common"))
-            }
-        }
         jvmAndAndroidTest {
-            dependsOn(pagingCommonTest)
+            dependsOn(nonWebTest)
         }
         androidDeviceTest.dependencies {
             implementation(libs.kotlinTestJunit)
@@ -88,11 +81,7 @@ androidXMultiplatform {
         nativeTest.dependsOn(nonWebTest)
 
         // Host OSes (Linux and Mac)
-        hostNativeTest {
-            dependsOn(nativeTest)
-            dependsOn(pagingCommonTest)
-
-        }
+        hostNativeTest.dependsOn(nativeTest)
         macosTest.dependsOn(hostNativeTest)
         linuxTest.dependsOn(hostNativeTest)
 
@@ -100,12 +89,8 @@ androidXMultiplatform {
         create("appleOsNativeTest").dependsOn(nativeTest)
         tvosTest.dependsOn(appleOsNativeTest)
         watchosTest.dependsOn(appleOsNativeTest)
-
         // iOS family
-        iosTest {
-            dependsOn(appleOsNativeTest)
-            dependsOn(pagingCommonTest)
-        }
+        iosTest.dependsOn(appleOsNativeTest)
 
         webTest.dependencies {
             implementation(project(":sqlite:sqlite-web"))

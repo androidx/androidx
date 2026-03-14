@@ -253,12 +253,10 @@ public final class JavaScriptSandbox implements AutoCloseable {
     /**
      * Feature for {@link #isFeatureSupported(String)}
      * <p>
-     * When this feature is present,
-     * {@link MessagePort#postMessage(androidx.javascriptengine.common.Message)}
-     * can be used to send messages between the embedder and the sandboxed
-     * JavaScript isolate, through Binder or AssetFileDescriptors.
+     * When this feature is present, message ports can be sent to JavaScript isolates using
+     * {@link JavaScriptIsolate#provideMessagPort(String)} and be used to send and receive messages
+     * between the embedder and the JavaScript isolate.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String JS_FEATURE_MESSAGE_PORTS = "JS_FEATURE_MESSAGE_PORTS";
 
     // This set must not be modified after JavaScriptSandbox construction.

@@ -110,6 +110,30 @@ public final class AppSearchBatchResult<KeyType, ValueType> {
         }
     }
 
+    /**
+     * Returns an {@link AppSearchBatchResult} with the same keys and {@link Void} value type.
+     *
+     * <p>It is used to convert {@link ValueType} to {@link Void} for safe parcelable if the {@link
+     * ValueType} is an internal only type and won't be returned to the client.
+     *
+     * @exportToFramework:hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @NonNull AppSearchBatchResult<KeyType, Void> toVoidBatchResult() {
+        Builder<KeyType, Void> builder = new Builder<>();
+        for (Map.Entry<KeyType, @Nullable ValueType> entry : mSuccesses.entrySet()) {
+            builder.setSuccess(entry.getKey(), /* value= */ null);
+        }
+        for (Map.Entry<KeyType, AppSearchResult<ValueType>> entry : mFailures.entrySet()) {
+            builder.setFailure(
+                    entry.getKey(),
+                    entry.getValue().getResultCode(),
+                    entry.getValue().getErrorMessage());
+        }
+        // No need to convert mAll since setSuccess and setFailure have already added entries to it.
+        return builder.build();
+    }
+
     @Override
     public @NonNull String toString() {
         return "{\n  successes: " + mSuccesses + "\n  failures: " + mFailures + "\n}";

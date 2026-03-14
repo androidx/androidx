@@ -23,6 +23,7 @@ plugins {
 
 dependencies {
     implementation("androidx.core:core:1.1.0")
+    implementation(libs.guavaAndroid) // upgrading to newer version of guava due to CVE-2023-2976
     api(libs.kotlinCoroutinesGuava)
     // Add dependencies here
     compileOnly files("../../wear_sdk/wear-sdk.jar")

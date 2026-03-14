@@ -318,19 +318,21 @@ private constructor(private val lifecycleCameraProvider: LifecycleCameraProvider
      *
      * There are two modes:
      * 1. Non-Composition mode: These two [SingleCameraConfig]s have different preview and video
-     *    capture use cases and there is no [CompositionSettings]. In this mode, the two preview and
-     *    the two video capture can stream separately. CameraX doesn't perform any composition. You
-     *    can also bind an extra image capture along with the preview and the video capture use
-     *    cases.
+     *    capture use cases and there is no [androidx.camera.core.CompositionSettings]. In this
+     *    mode, the two preview and the two video capture can stream separately. CameraX doesn't
+     *    perform any composition. You can also bind an extra image capture along with the preview
+     *    and the video capture use cases.
      * 2. Composition mode: If the concurrent logical cameras are binding the same instances of
      *    preview and video use cases, the concurrent cameras video recording is supported. The
      *    concurrent camera preview stream will be shared with video capture and record the
-     *    concurrent cameras streams as a composited stream. The [CompositionSettings] can be used
-     *    to configure the position of each camera stream and different layouts can be built. See
-     *    [CompositionSettings] for more details. The composition mode only supports preview and
-     *    video capture. ImageCapture is not supported. [androidx.camera.core.CameraEffect] can be
-     *    applied on the composited stream. However, the mirrorMode of VideoCapture will be ignored.
-     *    This means the recorded video will have the same mirrorMode as the preview.
+     *    concurrent cameras streams as a composited stream. The
+     *    [androidx.camera.core.CompositionSettings] can be used to configure the position of each
+     *    camera stream and different layouts can be built. See
+     *    [androidx.camera.core.CompositionSettings] for more details. The composition mode only
+     *    supports preview and video capture. ImageCapture is not supported.
+     *    [androidx.camera.core.CameraEffect] can be applied on the composited stream. However, the
+     *    mirrorMode of VideoCapture will be ignored. This means the recorded video will have the
+     *    same mirrorMode as the preview.
      *
      * If we want to open concurrent physical cameras, which are two front cameras or two back
      * cameras, the device needs to support physical cameras and the capability could be checked via

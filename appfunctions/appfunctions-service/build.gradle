@@ -35,9 +35,8 @@ dependencies {
 
     // Internal dependencies
     implementation("androidx.annotation:annotation:1.9.0")
-    implementation(libs.kotlinCoroutinesGuava) {
-        exclude group: "com.google.guava", module: "guava"
-    }
+    implementation(libs.guavaAndroid) // upgrading to newer version of guava due to CVE-2023-2976
+    implementation(libs.kotlinCoroutinesGuava)
     // Compile only dependencies
     compileOnly(project(":appfunctions:appfunctions-stubs"))
 

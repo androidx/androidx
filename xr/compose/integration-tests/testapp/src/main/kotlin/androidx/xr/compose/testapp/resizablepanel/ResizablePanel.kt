@@ -49,7 +49,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.xr.compose.spatial.Subspace
-import androidx.xr.compose.subspace.MovePolicy
 import androidx.xr.compose.subspace.ResizePolicy
 import androidx.xr.compose.subspace.SpatialActivityPanel
 import androidx.xr.compose.subspace.SpatialColumn
@@ -62,6 +61,7 @@ import androidx.xr.compose.subspace.layout.SpatialArrangement
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.fillMaxWidth
 import androidx.xr.compose.subspace.layout.height
+import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.padding
 import androidx.xr.compose.subspace.layout.size
@@ -173,8 +173,8 @@ class ResizablePanel : ComponentActivity() {
                                 .offset(x = 120.dp)
                                 .width(300.dp)
                                 .height(300.dp)
-                                .testTag("ActivityPanel"),
-                        dragPolicy = MovePolicy(),
+                                .testTag("ActivityPanel")
+                                .movable(),
                         resizePolicy = ResizePolicy(true),
                     )
                 }

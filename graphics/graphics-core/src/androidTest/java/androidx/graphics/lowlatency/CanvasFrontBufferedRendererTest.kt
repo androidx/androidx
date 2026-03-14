@@ -1352,6 +1352,41 @@ class CanvasFrontBufferedRendererTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testExecute() {
+        verifyCanvasFrontBufferedRenderer(
+            object : CanvasFrontBufferedRenderer.Callback<Any> {
+                override fun onDrawFrontBufferedLayer(
+                    canvas: Canvas,
+                    bufferWidth: Int,
+                    bufferHeight: Int,
+                    param: Any,
+                ) {
+                    // NO-OP
+                }
+
+                override fun onDrawMultiBufferedLayer(
+                    canvas: Canvas,
+                    bufferWidth: Int,
+                    bufferHeight: Int,
+                    params: Collection<Any>,
+                ) {
+                    // NO-OP
+                }
+            }
+        ) { _, renderer, _ ->
+            val latch = CountDownLatch(1)
+            val threadNameRef = AtomicReference<String>()
+            renderer.execute {
+                threadNameRef.set(Thread.currentThread().name)
+                latch.countDown()
+            }
+            assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
+            assertTrue(threadNameRef.get().contains("CanvasRenderThread"))
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun CanvasFrontBufferedRenderer<*>?.blockingRelease(timeoutMillis: Long = 3000) {
         if (this != null && this.isValid()) {

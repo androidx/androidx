@@ -17,6 +17,7 @@
 package androidx.car.app.model;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
@@ -40,7 +41,6 @@ import java.util.Objects;
 @KeepFields
 @RequiresCarApi(8)
 @CarProtocol
-@ExperimentalCarApi
 public final class SectionedItemTemplate implements Template {
     /**
      * Denotes possible strategies for preserving a user's scroll position when this template is
@@ -270,7 +270,6 @@ public final class SectionedItemTemplate implements Template {
      *     is allowed
      * </ul>
      */
-    @ExperimentalCarApi
     public static final class Builder {
         private @NonNull List<Section<?>> mSections = new ArrayList<>();
 
@@ -471,6 +470,7 @@ public final class SectionedItemTemplate implements Template {
          *
          * @see Builder for the list of validation logic
          */
+        @OptIn(markerClass = ExperimentalCarApi.class)
         public @NonNull SectionedItemTemplate build() {
             if (mIsLoading) {
                 if (!mSections.isEmpty()) {

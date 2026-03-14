@@ -159,6 +159,11 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
                     "/repository",
                 includeGroupRegex = """androidx\..*""",
             )
+        val mavenSnapshots =
+            PlaygroundRepository(
+                "https://central.sonatype.com/repository/maven-snapshots/",
+                includeGroupRegex = """com\.google\.devtools.*""",
+            )
         val metalava =
             PlaygroundRepository(
                 "https://androidx.dev/metalava/builds/${props.metalavaBuildId}/artifacts" +
@@ -181,7 +186,7 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
                 includeGroupRegex = """org\.jetbrains\.kotlin.*""",
             )
         val priority = listOf(metalava, dokka)
-        val fallback = listOf(snapshots, prebuilts, kotlinDev)
+        val fallback = listOf(snapshots, mavenSnapshots, prebuilts, kotlinDev)
     }
 
     private data class PlaygroundRepository(

@@ -831,9 +831,9 @@ internal class CanvasInProgressStrokesRenderHelperV33<
                     renderThreadExecutor,
                     object : SurfaceControlCompat.TransactionCommittedListener {
                         override fun onTransactionCommitted() {
-                            mainView.invalidate()
                             state.active.cleanup()
                             state.inactive.cleanup()
+                            mainView.postInvalidate()
                         }
                     },
                 )

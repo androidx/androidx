@@ -2,6 +2,14 @@
 package androidx.savedstate {
 
   public final class SavedStateKt {
+    method @KotlinOnly public static inline <reified T> T getKotlinSerializable(androidx.savedstate.SavedStateReader, String key, optional androidx.savedstate.serialization.SavedStateConfiguration configuration);
+    method @KotlinOnly public static <T> T getKotlinSerializable(androidx.savedstate.SavedStateReader, kotlinx.serialization.KSerializer<T> deserializer, String key, optional androidx.savedstate.serialization.SavedStateConfiguration configuration);
+    method @BytecodeOnly public static <T> T getKotlinSerializable-FwvpL2Y(android.os.Bundle, kotlinx.serialization.KSerializer<T>, String, androidx.savedstate.serialization.SavedStateConfiguration);
+    method @BytecodeOnly public static Object! getKotlinSerializable-FwvpL2Y$default(android.os.Bundle!, kotlinx.serialization.KSerializer!, String!, androidx.savedstate.serialization.SavedStateConfiguration!, int, Object!);
+    method @KotlinOnly public static inline <reified T> void putKotlinSerializable(androidx.savedstate.SavedStateWriter, String key, T value, optional androidx.savedstate.serialization.SavedStateConfiguration configuration);
+    method @KotlinOnly public static <T> void putKotlinSerializable(androidx.savedstate.SavedStateWriter, kotlinx.serialization.KSerializer<T> serializer, String key, T value, optional androidx.savedstate.serialization.SavedStateConfiguration configuration);
+    method @BytecodeOnly public static <T> void putKotlinSerializable-xOxc9nE(android.os.Bundle, kotlinx.serialization.KSerializer<T>, String, T, androidx.savedstate.serialization.SavedStateConfiguration);
+    method @BytecodeOnly public static void putKotlinSerializable-xOxc9nE$default(android.os.Bundle!, kotlinx.serialization.KSerializer!, String!, Object!, androidx.savedstate.serialization.SavedStateConfiguration!, int, Object!);
     method public static inline <T> T read(android.os.Bundle, kotlin.jvm.functions.Function1<? super androidx.savedstate.SavedStateReader,? extends T> block);
     method public static inline android.os.Bundle savedState(android.os.Bundle initialState, optional kotlin.jvm.functions.Function1<? super androidx.savedstate.SavedStateWriter,kotlin.Unit> builderAction);
     method public static inline android.os.Bundle savedState(optional java.util.Map<java.lang.String,? extends java.lang.Object?> initialState, optional kotlin.jvm.functions.Function1<? super androidx.savedstate.SavedStateWriter,kotlin.Unit> builderAction);
@@ -196,6 +204,11 @@ package androidx.savedstate {
   public interface SavedStateRegistryOwner extends androidx.lifecycle.LifecycleOwner {
     method @InaccessibleFromKotlin public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
     property public abstract androidx.savedstate.SavedStateRegistry savedStateRegistry;
+  }
+
+  public final class SavedStateRegistryOwnerFactory {
+    method @KotlinOnly public static androidx.savedstate.SavedStateRegistryOwner SavedStateRegistryOwner(androidx.savedstate.SavedStateRegistry savedStateRegistry, androidx.lifecycle.Lifecycle lifecycle);
+    method @InaccessibleFromKotlin public static androidx.savedstate.SavedStateRegistryOwner create(androidx.savedstate.SavedStateRegistry savedStateRegistry, androidx.lifecycle.Lifecycle lifecycle);
   }
 
   @kotlin.jvm.JvmInline public final value class SavedStateWriter {

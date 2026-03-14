@@ -19,6 +19,7 @@ package androidx.wear.compose.foundation
 import androidx.annotation.FloatRange
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -105,8 +106,10 @@ internal class SweepSizeWrapper(
     minThickness: Dp,
     maxThickness: Dp,
 ) : BaseSizeWrapper(child, minThickness, maxThickness) {
-    override fun CurvedMeasureScope.initializeMeasure(measurables: Iterator<Measurable>) {
-        baseInitializeMeasure(measurables)
+    override fun CurvedMeasureScope.initializeMeasure(
+        measurables: Iterator<Measurable>
+    ): (Placeable.PlacementScope).() -> Unit {
+        return baseInitializeMeasure(measurables)
     }
 
     override fun calculateSweepRadians(sweepRadians: Float, measureRadius: Float): Float =
@@ -124,11 +127,13 @@ internal class AngularWidthSizeWrapper(
     private var minAngularWidthPx = 0f
     private var maxAngularWidthPx = 0f
 
-    override fun CurvedMeasureScope.initializeMeasure(measurables: Iterator<Measurable>) {
+    override fun CurvedMeasureScope.initializeMeasure(
+        measurables: Iterator<Measurable>
+    ): (Placeable.PlacementScope).() -> Unit {
         minAngularWidthPx = minAngularWidth.toPx()
         maxAngularWidthPx = maxAngularWidth.toPx()
 
-        baseInitializeMeasure(measurables)
+        return baseInitializeMeasure(measurables)
     }
 
     override fun calculateSweepRadians(sweepRadians: Float, measureRadius: Float) =
@@ -143,10 +148,12 @@ internal abstract class BaseSizeWrapper(
     private var minThicknessPx = 0f
     private var maxThicknessPx = 0f
 
-    protected fun CurvedMeasureScope.baseInitializeMeasure(measurables: Iterator<Measurable>) {
+    protected fun CurvedMeasureScope.baseInitializeMeasure(
+        measurables: Iterator<Measurable>
+    ): (Placeable.PlacementScope).() -> Unit {
         minThicknessPx = minThickness.toPx()
         maxThicknessPx = maxThickness.toPx()
-        with(wrapped) {
+        return with(wrapped) {
             // Call initializeMeasure on wrapper (while still having the MeasureScope scope)
             initializeMeasure(measurables)
         }

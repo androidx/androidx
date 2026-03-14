@@ -586,6 +586,7 @@ class ScaffoldTest {
                 }
             }
         }
+        rule.waitForIdle()
         val fabOffsetDp =
             with(density!!) { (fabPosition!!.x.roundToInt() + fabSize!!.width).toDp() + fabSpacing }
         assertDpIsWithinThreshold(

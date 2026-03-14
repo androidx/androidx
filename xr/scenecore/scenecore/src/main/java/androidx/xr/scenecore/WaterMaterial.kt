@@ -24,7 +24,7 @@ import androidx.xr.scenecore.runtime.RenderingRuntime
 
 /** A Material which implements a water effect. */
 // TODO(b/396201066): Add unit tests for this class if we end up making it public.
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WaterMaterial
 internal constructor(
     override val material: RtMaterial,

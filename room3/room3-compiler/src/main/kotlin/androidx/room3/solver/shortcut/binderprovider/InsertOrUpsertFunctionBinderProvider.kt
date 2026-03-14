@@ -17,6 +17,7 @@
 package androidx.room3.solver.shortcut.binderprovider
 
 import androidx.room3.compiler.processing.XType
+import androidx.room3.solver.TypeAdapterExtras
 import androidx.room3.solver.shortcut.binder.InsertOrUpsertFunctionBinder
 import androidx.room3.vo.ShortcutQueryParameter
 
@@ -33,5 +34,6 @@ interface InsertOrUpsertFunctionBinderProvider {
         declared: XType,
         params: List<ShortcutQueryParameter>,
         forUpsert: Boolean,
+        extras: TypeAdapterExtras,
     ): InsertOrUpsertFunctionBinder
 }

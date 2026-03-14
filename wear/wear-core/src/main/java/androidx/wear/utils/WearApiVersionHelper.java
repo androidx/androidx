@@ -117,8 +117,14 @@ public final class WearApiVersionHelper {
     /** The first Wear API version released on the Android VIC platform version (API level 35). */
     public static final String WEAR_VIC_1 = "WEAR_VIC_1";
 
-    /** The first Wear API version released on Android BAKLAVA (API level 36.0). */
+    /** The first major Wear API version released on Android BAKLAVA (API level 36.0). */
     public static final String WEAR_BAKLAVA_0 = "WEAR_BAKLAVA_0";
+
+    /** The first minor Wear API version released on Android BAKLAVA (API level 36.1). */
+    public static final String WEAR_BAKLAVA_1 = "WEAR_BAKLAVA_1";
+
+    /** The first major Wear API version released on Android CINNAMON_BUN (API level 37.0). */
+    public static final String WEAR_CINNAMON_BUN_0 = "WEAR_CINNAMON_BUN_0";
 
     private static final String RELEASE_PROP = "ro.cw_build.platform_qpr.version";
     private static final int UNKNOWN_INCREMENTAL_RELEASE = -1;
@@ -199,12 +205,13 @@ public final class WearApiVersionHelper {
     private static class WearApiVersionCompat extends AbstractApiVersion {
 
         private static final String VERSION_CODE_PATTERN_STRING =
-                "WEAR_(\\w+)_(\\d+)";
+                "WEAR_(\\w+)_(\\d+)"; // version code is greedy, so CINNAMON_BUN etc is ok.
 
         private static final String TIRAMISU = "TIRAMISU";
         private static final String UDC = "UDC";
         private static final String VIC = "VIC";
         private static final String BAKLAVA = "BAKLAVA";
+        private static final String CINNAMON_BUN = "CINNAMON_BUN";
 
 
         private int mPlatformApiLevel = Integer.MAX_VALUE;
@@ -233,6 +240,9 @@ public final class WearApiVersionHelper {
                     break;
                 case BAKLAVA:
                     mPlatformApiLevel = 36; // TODO: Build.VERSION_CODES.BAKLAVA;
+                    break;
+                case CINNAMON_BUN:
+                    mPlatformApiLevel = 37; // TODO: Build.VERSION_CODES.CINNAMON_BUN;
                     break;
             }
 
@@ -265,6 +275,8 @@ public final class WearApiVersionHelper {
      *                          <li>{@link #WEAR_UDC_1}
      *                          <li>{@link #WEAR_VIC_1}
      *                          <li>{@link #WEAR_BAKLAVA_0}
+     *                          <li>{@link #WEAR_BAKLAVA_1}
+     *                          <li>{@link #WEAR_CINNAMON_BUN_0}
      *                          <li>etc
      *                        </ul>.
      *                        {@code IllegalArgumentException} will result for any other value.

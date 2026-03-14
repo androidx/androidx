@@ -16,30 +16,53 @@
 
 package androidx.camera.camera2.pipe.testing
 
+import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
+import androidx.camera.camera2.pipe.FrameNumber
+import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.graph.Result3AStateListener
 
 /**
- * Wrapper on Result3AStateListenerImpl to keep track of the number of times the update method is
+ * Wrapper on Result3AStateListenerImpl to keep track of the number of times the update methods are
  * called.
  */
 internal class UpdateCounting3AStateListener(private val listener: Result3AStateListener) :
     Result3AStateListener {
-    var updateCount = 0
+    var partialUpdateCount = 0
+    var totalUpdateCount = 0
 
     override fun onRequestSequenceCreated(requestNumber: RequestNumber) {
         listener.onRequestSequenceCreated(requestNumber)
     }
 
-    override fun update(requestNumber: RequestNumber, frameMetadata: FrameMetadata): Boolean {
-        updateCount++
-        return listener.update(requestNumber, frameMetadata)
+    override fun onPartialCaptureResult(
+        requestMetadata: RequestMetadata,
+        frameNumber: FrameNumber,
+        captureResult: FrameMetadata,
+    ) {
+        partialUpdateCount++
+        listener.onPartialCaptureResult(requestMetadata, frameNumber, captureResult)
     }
 
-    override fun onStopRepeating() {}
+    override fun onTotalCaptureResult(
+        requestMetadata: RequestMetadata,
+        frameNumber: FrameNumber,
+        totalCaptureResult: FrameInfo,
+    ): Boolean {
+        totalUpdateCount++
+        return listener.onTotalCaptureResult(requestMetadata, frameNumber, totalCaptureResult)
+    }
 
-    override fun onGraphStopped() {}
+    override fun onStopRepeating() {
+        listener.onStopRepeating()
+    }
 
-    override fun onGraphShutdown() {}
+    override fun onGraphStopped() {
+        listener.onGraphStopped()
+    }
+
+    override fun onGraphShutdown() {
+        listener.onGraphShutdown()
+    }
 }

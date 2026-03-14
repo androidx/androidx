@@ -154,6 +154,7 @@ internal class AugmentedObjectRenderer {
                         modelEntity.setPose(newPose)
 
                         if (counter > PANEL_RESIZE_UPDATE_COUNT) {
+                            @SuppressLint("RestrictedApiAndroidX")
                             modelEntity.setScale(scaledExtents(state.extents))
                             counter = 0
                         }

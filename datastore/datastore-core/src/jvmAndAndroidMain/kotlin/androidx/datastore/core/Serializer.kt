@@ -35,9 +35,9 @@ public interface Serializer<T> {
      *
      * @param input the InputStream with the data to deserialize
      * @throws androidx.datastore.core.CorruptionException if the data from [input] is corrupted
-     *   and/or unparseable, e.g. [InvalidProtocolBufferException] when the type [T] is a protobuf
-     *   message and it is corrupted. Other unrecoverable [IOException] from the file system should
-     *   not be thrown as [CorruptionException].
+     *   and/or unparseable, e.g. [com.google.protobuf.InvalidProtocolBufferException] when the type
+     *   [T] is a protobuf message and it is corrupted. Other unrecoverable [IOException] from the
+     *   file system should not be thrown as [CorruptionException].
      */
     public suspend fun readFrom(input: InputStream): T
 

@@ -25,6 +25,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.CoreAppTestUtil
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.view.PreviewView
 import androidx.fragment.app.FragmentFactory
 import androidx.fragment.app.testing.FragmentScenario
@@ -55,6 +56,12 @@ class PreviewViewFragmentTest(
     private val cameraConfig: CameraXConfig,
 ) {
     @get:Rule
+    val requireForegroundRule = RequireForegroundRule {
+        Assume.assumeTrue(CameraUtil.deviceHasCamera())
+        CoreAppTestUtil.assumeCompatibleDevice()
+    }
+
+    @get:Rule
     var useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraConfig))
 
@@ -68,15 +75,13 @@ class PreviewViewFragmentTest(
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     @Before
-    @Throws(CoreAppTestUtil.ForegroundOccupiedError::class)
     fun setup() {
-        Assume.assumeTrue(CameraUtil.deviceHasCamera())
-        CoreAppTestUtil.assumeCompatibleDevice()
-        // Clear the device UI and check if there is no dialog or lock screen on the top of the
-        // window before start the test.
-        CoreAppTestUtil.prepareDeviceUI(instrumentation)
         ProcessCameraProvider.configureInstance(cameraConfig)
         scenario = createScenario()
+
+        requireForegroundRule.deferCleanup {
+            ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS].shutdownAsync()
+        }
     }
 
     @After
@@ -84,7 +89,6 @@ class PreviewViewFragmentTest(
         if (scenario != null) {
             scenario!!.moveToState(Lifecycle.State.DESTROYED)
         }
-        ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS].shutdownAsync()
     }
 
     @Test

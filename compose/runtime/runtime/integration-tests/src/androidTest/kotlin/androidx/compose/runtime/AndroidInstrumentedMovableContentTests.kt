@@ -16,11 +16,18 @@
 
 package androidx.compose.runtime
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -81,6 +88,39 @@ class AndroidInstrumentedMovableContentTests {
         }
 
         moveToDialog = false
+        rule.waitForIdle()
+    }
+
+    @Test
+    fun moveOutOfSubcompositionWithLargeSlotTable() {
+        var move by mutableStateOf(false)
+        rule.setContent {
+            val movableContent = remember {
+                movableContentOf {
+                    Box(
+                        modifier =
+                            Modifier.size(32.dp).background(if (move) Color.Red else Color.Black)
+                    )
+                }
+            }
+
+            Box(Modifier.fillMaxSize()) {
+                if (move) movableContent()
+
+                SubcomposeLayout {
+                    val measurable =
+                        subcompose(null) { Box { if (!move) movableContent() } }.single()
+
+                    layout(it.maxWidth, it.maxHeight) { measurable.measure(it).place(0, 0) }
+                }
+
+                repeat(1000) { Box {} }
+            }
+        }
+
+        move = true
+        rule.waitForIdle()
+        move = false
         rule.waitForIdle()
     }
 }

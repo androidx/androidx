@@ -83,7 +83,7 @@ internal constructor(
          * @param geometry The preferred geometry for the environment.
          * @param geometryEntity The preferred geometry Entity for the environment.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public constructor(
             skybox: ExrImage?,
             geometry: GltfModel?,

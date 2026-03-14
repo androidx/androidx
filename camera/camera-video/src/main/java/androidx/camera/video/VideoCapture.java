@@ -435,13 +435,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             @Nullable StreamSpec secondaryStreamSpec) {
         Logger.d(TAG, "onSuggestedStreamSpecUpdated: primaryStreamSpec = " + primaryStreamSpec
                 + ", secondaryStreamSpec " + secondaryStreamSpec);
-        VideoCaptureConfig<T> config = (VideoCaptureConfig<T>) getCurrentConfig();
-        List<Size> customOrderedResolutions = config.getCustomOrderedResolutions(null);
-        if (customOrderedResolutions != null
-                && !customOrderedResolutions.contains(primaryStreamSpec.getResolution())) {
-            Logger.w(TAG, "suggested resolution " + primaryStreamSpec.getResolution()
-                    + " is not in custom ordered resolutions " + customOrderedResolutions);
-        }
 
         mResolvedMediaInfo = resolveMediaInfo(primaryStreamSpec);
 
@@ -498,7 +491,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     public void onSessionStart() {
         super.onSessionStart();
 
-        Logger.d(TAG, "VideoCapture#onStateAttached: cameraID = " + getCameraId());
+        Logger.d(TAG, "VideoCapture#onSessionStart: cameraID = " + getCameraId());
 
         // For concurrent camera, the surface request might not be null when switching
         // from single to dual camera.
@@ -617,6 +610,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @Override
     protected @NonNull UseCaseConfig<?> onMergeConfig(@NonNull CameraInfoInternal cameraInfo,
             UseCaseConfig.@NonNull Builder<?, ?, ?> builder) {
+
+        getOutput().onValidateConfig();
 
         updateCustomOrderedResolutionsByQuality(cameraInfo, builder);
 
@@ -761,8 +756,16 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 dynamicRange, isBufferRotationRequired);
         boolean hasGlProcessing = !camera.getHasTransform() || mNode != null;
         Timebase timebase = resolveTimebase(camera, mNode);
-        Logger.d(TAG, "camera timebase = " + camera.getCameraInfoInternal().getTimebase()
-                + ", processing timebase = " + timebase);
+        Logger.d(TAG, "expectedFrameRate = " + expectedFrameRate
+                + ", originalCropRect = " + originalCropRect
+                + ", mCropRect = " + mCropRect
+                + ", nodeResolution = " + nodeResolution
+                + ", mRotationDegrees = " + mRotationDegrees
+                + ", isBufferRotationRequired = " + isBufferRotationRequired
+                + ", mHasCompensatingTransformation = " + mHasCompensatingTransformation
+                + ", camera timebase = " + camera.getCameraInfoInternal().getTimebase()
+                + ", processing timebase = " + timebase
+        );
         // Update the StreamSpec with new frame rate range and resolution.
         StreamSpec updatedStreamSpec =
                 streamSpec.toBuilder()
@@ -1676,16 +1679,20 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         int aspectRatio = mediaSpec.getVideoSpec().getAspectRatio();
         Map<Quality, Size> supportedQualityToSizeMap = getQualityToResolutionMap(videoCapabilities,
                 requestedDynamicRange);
+        Logger.d(TAG, "supportedQualityToSizeMap = " + supportedQualityToSizeMap);
         List<Size> supportedResolutions = getSupportedResolutions(cameraInfo, sessionType,
                 targetFrameRate);
+        Logger.d(TAG, "supportedResolutions = " + supportedResolutions);
         QualityRatioToResolutionsTable qualityRatioTable = new QualityRatioToResolutionsTable(
                 supportedResolutions, supportedQualityToSizeMap);
+        Logger.d(TAG, "qualityRatioTable = " + qualityRatioTable);
         // Use LinkedHashMap to maintain the order.
         LinkedHashMap<Quality, List<Size>> orderedQualityToSizesMap = new LinkedHashMap<>();
         for (Quality selectedQuality : selectedQualities) {
             orderedQualityToSizesMap.put(selectedQuality,
                     qualityRatioTable.getResolutions(selectedQuality, aspectRatio));
         }
+        Logger.d(TAG, "orderedQualityToSizesMap = " + orderedQualityToSizesMap);
 
         // Filter out encoder unsupported resolutions.
         return filterOutEncoderUnsupportedResolutions(videoEncoderInfoFinder, mediaSpec,

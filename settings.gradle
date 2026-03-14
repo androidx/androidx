@@ -38,7 +38,7 @@ buildscript {
         if (agpOverride != null) {
             classpath("com.android.settings:com.android.settings.gradle.plugin:$agpOverride")
         } else {
-            classpath("com.android.settings:com.android.settings.gradle.plugin:9.1.0-alpha06")
+            classpath("com.android.settings:com.android.settings.gradle.plugin:9.2.0-alpha03")
         }
         // set guava version to be compatible with Depdendency analysis gradle plugin
         classpath("com.google.guava:guava:33.3.1-jre")
@@ -55,7 +55,7 @@ def supportRootFolder = buildscript.sourceFile.getParentFile()
 skikoSetup.defineSkikoInVersionCatalog(settings)
 
 // Abort immediately if we're running in Studio, but not a managed instance of Studio.
-if (startParameter.projectProperties.containsKey('android.injected.invoked.from.ide')) {
+if (providers.gradleProperty("android.injected.invoked.from.ide").isPresent()) {
     def expectedAgpVersion = System.getenv().get("EXPECTED_AGP_VERSION")
     if (expectedAgpVersion == null) {
         throw new Exception("Android Studio must be run from studiow or gradlew studio.")
@@ -164,7 +164,7 @@ switch (cacheSetting) {
         if (uplinkLinux.exists() || uplinkMac.exists()) {
             logger.warn("\u001B[31m\nIt looks like you are a Googler running without remote build "
                     + "cache. Enable it for faster builds, see " +
-                    "http://go/androidx-dev#remote-build-cache\u001B[0m\n")
+                    "http://go/androidx-onboarding#remote-build-cache\u001B[0m\n")
         }
 }
 
@@ -486,7 +486,7 @@ includeProject(":biometric:integration-tests:testapp-compose", [BuildType.MAIN])
 includeProject(":browser:browser", [BuildType.MAIN])
 includeProject(":buildSrc-tests", [BuildType.MAIN, BuildType.TOOLS])
 // these projects intentionally fail to compile unless androidx.useMaxDepVersions is enabled
-if (startParameter.projectProperties.containsKey("androidx.useMaxDepVersions")) {
+if (providers.gradleProperty("androidx.useMaxDepVersions").isPresent()) {
     includeProject(":buildSrc-tests:max-dep-versions:buildSrc-tests-max-dep-versions-dep", [BuildType.MAIN])
     includeProject(":buildSrc-tests:max-dep-versions:buildSrc-tests-max-dep-versions-main", [BuildType.MAIN])
 }
@@ -1094,6 +1094,7 @@ includeProject(":text:text-vertical", [BuildType.MAIN])
 includeProject(":text:text-vertical-testapp", "text/text-vertical/testapp", [BuildType.MAIN])
 includeProject(":tracing:tracing")
 includeProject(":tracing:tracing-benchmark", "tracing/benchmark", [BuildType.MAIN, BuildType.COMPOSE])
+includeProject(":tracing:tracing-system-capture")
 includeProject(":tracing:tracing-ktx")
 includeProject(":tracing:tracing-wire")
 includeProject(":tracing:tracing-perfetto")

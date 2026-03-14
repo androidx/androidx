@@ -1553,32 +1553,6 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_DELETE_PROPAGATION_RW)
-    public void testGetSchema_deletePropagationTypePropagateFrom_notSupported() throws Exception {
-        assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
-        assumeFalse(mDb1.getFeatures().isFeatureSupported(
-                Features.SCHEMA_STRING_PROPERTY_CONFIG_DELETE_PROPAGATION_TYPE_PROPAGATE_FROM));
-
-        AppSearchSchema inSchema = new AppSearchSchema.Builder("Test")
-                .addProperty(new StringPropertyConfig.Builder("qualifiedId")
-                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
-                        .setJoinableValueType(StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
-                        .setDeletePropagationType(
-                                StringPropertyConfig.DELETE_PROPAGATION_TYPE_PROPAGATE_FROM)
-                        .build()
-                ).build();
-
-        SetSchemaRequest request = new SetSchemaRequest.Builder()
-                .addSchemas(inSchema).build();
-
-        UnsupportedOperationException e = assertThrows(UnsupportedOperationException.class, () ->
-                mDb1.setSchemaAsync(request).get());
-        assertThat(e.getMessage()).isEqualTo(
-                "StringPropertyConfig.DELETE_PROPAGATION_TYPE_PROPAGATE_FROM is not supported on "
-                        + "this AppSearch implementation.");
-    }
-
-    @Test
     public void testGetNamespaces() throws Exception {
         // Schema registration
         mDb1.setSchemaAsync(

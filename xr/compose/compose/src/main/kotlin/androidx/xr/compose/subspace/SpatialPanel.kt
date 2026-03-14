@@ -61,9 +61,7 @@ import androidx.xr.compose.subspace.layout.CorePanelEntity
 import androidx.xr.compose.subspace.layout.InteractionPolicy
 import androidx.xr.compose.subspace.layout.PlaneOrientation
 import androidx.xr.compose.subspace.layout.PlaneSemantic
-import androidx.xr.compose.subspace.layout.SpatialMoveEndEvent
 import androidx.xr.compose.subspace.layout.SpatialMoveEvent
-import androidx.xr.compose.subspace.layout.SpatialMoveStartEvent
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
 import androidx.xr.compose.subspace.layout.SpatialShape
 import androidx.xr.compose.subspace.layout.SubspaceLayout
@@ -188,21 +186,23 @@ public class AnchorPolicy(
  *   distance from the user during movement, giving an illusion of constant visual size. If `false`,
  *   its physical size remains constant. Defaults to `true`.
  * @property onMoveStart A callback function invoked when a move operation begins. It receives a
- *   [SpatialMoveStartEvent] providing initial move details. Defaults to `null`.
+ *   [SpatialMoveEvent] providing initial move details. Defaults to `null`.
  * @property onMoveEnd A callback function invoked when a move operation ends. It receives a
- *   [SpatialMoveEndEvent] providing final move details. Defaults to `null`.
+ *   [SpatialMoveEvent] providing final move details. Defaults to `null`.
  * @property onMove A callback function invoked repeatedly during a move operation. It receives a
  *   [SpatialMoveEvent] with current move details and should return `true` to indicate the move
  *   should continue, or `false` to cancel it. Defaults to `null`.
  */
+@Deprecated("Use SubspaceModifier.movable() instead.")
 public class MovePolicy(
     public val isEnabled: Boolean = true,
     public val isStickyPose: Boolean = false,
     @get:JvmName("shouldScaleWithDistance") public val shouldScaleWithDistance: Boolean = true,
-    public val onMoveStart: ((SpatialMoveStartEvent) -> Unit)? = null,
-    public val onMoveEnd: ((SpatialMoveEndEvent) -> Unit)? = null,
+    public val onMoveStart: ((SpatialMoveEvent) -> Unit)? = null,
+    public val onMoveEnd: ((SpatialMoveEvent) -> Unit)? = null,
     public val onMove: ((SpatialMoveEvent) -> Boolean)? = null,
 ) : DragPolicy() {
+    @Suppress("DEPRECATION")
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is MovePolicy) return false
@@ -847,13 +847,13 @@ private class SpatialViewPanelMeasurePolicy(private val view: View) : SubspaceMe
  *   events.
  * @return A [SubspaceModifier] with all applicable policies integrated.
  */
+@Suppress("DEPRECATION")
 internal fun buildSpatialPanelModifier(
     baseModifier: SubspaceModifier,
     dragPolicy: DragPolicy?,
     resizePolicy: ResizePolicy?,
     interactionPolicy: InteractionPolicy? = null,
 ): SubspaceModifier {
-
     var finalModifier =
         when (dragPolicy) {
             is AnchorPolicy ->

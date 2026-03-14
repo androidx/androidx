@@ -19,10 +19,6 @@ ExecutorRegistration: androidx.room3.RoomDatabase.Builder#createFromInputStream(
     Registration methods should have overload that accepts delivery Executor: `createFromInputStream`
 
 
-InvalidNullabilityOverride: androidx.room3.MultiInstanceInvalidationService#onBind(android.content.Intent) parameter #0:
-    Invalid nullability on type android.content.Intent in parameter `intent` in method `onBind`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
-
-
 MissingGetterMatchingBuilder: androidx.room3.RoomDatabase.Builder#addCallback(androidx.room3.RoomDatabase.Callback):
     androidx.room3.RoomDatabase does not declare a `getCallbacks()` method matching method androidx.room3.RoomDatabase.Builder.addCallback(androidx.room3.RoomDatabase.Callback)
 MissingGetterMatchingBuilder: androidx.room3.RoomDatabase.Builder#addMigrations(androidx.room3.migration.Migration...):
@@ -37,18 +33,12 @@ NotCloseable: androidx.room3.RoomDatabase:
     Classes that release resources (close()) should implement AutoCloseable and CloseGuard: class androidx.room3.RoomDatabase
 
 
-NullableCollection: androidx.room3.DatabaseConfiguration#callbacks:
-    Type of field androidx.room3.DatabaseConfiguration.callbacks uses a nullable collection (`java.util.List`); must be non-null
 NullableCollection: androidx.room3.RoomDatabase.MigrationContainer#findMigrationPath(int, int):
     Return type of method androidx.room3.RoomDatabase.MigrationContainer.findMigrationPath(int,int) uses a nullable collection (`java.util.List`); must be non-null
 
 
 PairedRegistration: androidx.room3.RoomDatabase.Builder#addCallback(androidx.room3.RoomDatabase.Callback):
     Found addCallback but not removeCallback in androidx.room3.RoomDatabase.Builder
-
-
-StaticFinalBuilder: androidx.room3.RoomDatabase.Builder:
-    Builder must be final: androidx.room3.RoomDatabase.Builder
 
 
 StreamFiles: androidx.room3.RoomDatabase.Builder#createFromFile(java.io.File):

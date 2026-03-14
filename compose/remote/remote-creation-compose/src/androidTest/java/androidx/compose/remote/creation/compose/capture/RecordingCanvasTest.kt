@@ -20,6 +20,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.BlendMode
+import android.graphics.BlendModeColorFilter
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -47,6 +48,7 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.StandardRemotePaint
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.tween
@@ -55,6 +57,7 @@ import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode.Companion.Multiply
 import androidx.compose.ui.graphics.Color as ComposeColor
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.asImageBitmap
@@ -123,8 +126,8 @@ class RecordingCanvasTest {
                 timeZone,
             )
         )
-    val shape1 = RoundedPolygon.circle(10, centerX = 300f, centerY = 300f, radius = 200f)
-    val shape2 =
+    val shapeCircle = RoundedPolygon.circle(10, centerX = 300f, centerY = 300f, radius = 200f)
+    val shapeStar =
         RoundedPolygon.star(
             numVerticesPerRadius = 9,
             radius = 200f,
@@ -140,12 +143,18 @@ class RecordingCanvasTest {
     }
 
     @Test
+    fun creationDisplayInfo() {
+        assertThat(recordingCanvas.creationDisplayInfo.width).isEqualTo(WIDTH)
+        assertThat(recordingCanvas.creationDisplayInfo.height).isEqualTo(HEIGHT)
+        assertThat(recordingCanvas.creationDisplayInfo.densityDpi).isEqualTo(160)
+    }
+
+    @Test
     fun remotePaint() {
-        val paint = RemotePaint()
-        paint.remoteColorFilter =
-            RemoteBlendModeColorFilter(RemoteColor(0xffffee70.toInt()), BlendMode.MULTIPLY)
+        val paint = Paint()
+        paint.colorFilter = BlendModeColorFilter(0xffffee70.toInt(), BlendMode.MULTIPLY)
         val bitmap =
-            BitmapFactory.decodeResource(context.getResources(), R.drawable.android_image)
+            BitmapFactory.decodeResource(context.resources, R.drawable.android_image)
                 .asImageBitmap()
         recordingCanvas.drawBitmap(bitmap, 0f, 0f, paint)
         val document = constructDocument()
@@ -280,7 +289,7 @@ class RecordingCanvasTest {
     @Test
     fun remotePaintSetColor_constantColor() {
         val paint = RemotePaint()
-        paint.remoteColor =
+        paint.color =
             RemoteColor.rgb(
                 red = RemoteFloat(0.8f),
                 green = RemoteFloat(0.7f),
@@ -298,7 +307,7 @@ class RecordingCanvasTest {
     @Test
     fun remotePaintColorInt() {
         val paint = RemotePaint()
-        paint.color = Color.RED
+        paint.color = RemoteColor(Color.RED)
 
         recordingCanvas.usePaint(paint)
 
@@ -322,7 +331,7 @@ class RecordingCanvasTest {
     @Test
     fun remotePaintSetColor_colorExpression() {
         val paint = RemotePaint()
-        paint.remoteColor =
+        paint.color =
             RemoteColor.rgb(
                 RemoteFloat(0.8f),
                 RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC),
@@ -340,7 +349,7 @@ class RecordingCanvasTest {
     @Test
     fun remotePaintSetRemoteColorFilter_constantColor() {
         val paint = RemotePaint()
-        paint.remoteColorFilter =
+        paint.colorFilter =
             RemoteBlendModeColorFilter(
                 RemoteColor.rgb(
                     RemoteFloat(0.8f),
@@ -348,7 +357,7 @@ class RecordingCanvasTest {
                     RemoteFloat(0.5f),
                     RemoteFloat(1f),
                 ),
-                BlendMode.MULTIPLY,
+                Multiply,
             )
 
         recordingCanvas.usePaint(paint)
@@ -362,7 +371,7 @@ class RecordingCanvasTest {
     @Test
     fun remotePaintSetRemoteColorFilter_colorExpression() {
         val paint = RemotePaint()
-        paint.remoteColorFilter =
+        paint.colorFilter =
             RemoteBlendModeColorFilter(
                 RemoteColor.rgb(
                     RemoteFloat(0.8f),
@@ -370,7 +379,7 @@ class RecordingCanvasTest {
                     RemoteFloat(0.5f),
                     RemoteFloat(1f),
                 ),
-                BlendMode.MULTIPLY,
+                Multiply,
             )
 
         recordingCanvas.usePaint(paint)
@@ -384,7 +393,7 @@ class RecordingCanvasTest {
     @Test
     fun remotePaintSetRemoteColorFilter_clearColorExpression() {
         val paint = RemotePaint()
-        paint.remoteColorFilter =
+        paint.colorFilter =
             RemoteBlendModeColorFilter(
                 RemoteColor.rgb(
                     RemoteFloat(0.8f),
@@ -392,7 +401,7 @@ class RecordingCanvasTest {
                     RemoteFloat(0.5f),
                     RemoteFloat(1f),
                 ),
-                BlendMode.MULTIPLY,
+                Multiply,
             )
         recordingCanvas.usePaint(paint)
 
@@ -406,14 +415,14 @@ class RecordingCanvasTest {
     @Test
     fun remotePaintCopyConstructor() {
         val paint = RemotePaint()
-        paint.remoteColor =
+        paint.color =
             RemoteColor.rgb(
                 RemoteFloat(0.8f),
                 RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC),
                 RemoteFloat(0.5f),
                 RemoteFloat(1f),
             )
-        paint.remoteColorFilter =
+        paint.colorFilter =
             RemoteBlendModeColorFilter(
                 RemoteColor.rgb(
                     RemoteFloat(0.8f),
@@ -421,13 +430,13 @@ class RecordingCanvasTest {
                     RemoteFloat(0.5f),
                     RemoteFloat(1f),
                 ),
-                BlendMode.MULTIPLY,
+                Multiply,
             )
 
-        val paintCopy = RemotePaint(paint)
+        val paintCopy = StandardRemotePaint(paint)
 
-        assertThat(paintCopy.remoteColor).isEqualTo(paint.remoteColor)
-        assertThat(paintCopy.remoteColorFilter).isEqualTo(paint.remoteColorFilter)
+        assertThat(paintCopy.color).isEqualTo(paint.color)
+        assertThat(paintCopy.colorFilter).isEqualTo(paint.colorFilter)
     }
 
     @Test
@@ -593,33 +602,31 @@ class RecordingCanvasTest {
                     null,
                 )
                 .apply { remoteMatrix3x3 = RemoteMatrix3x3.createRotate(90f.rf) }
-        val paintWithShader = RemotePaint().apply { shader = remoteShader }
-        val paintWithShader2 =
-            RemotePaint().apply {
-                shader =
-                    RemoteLinearShader(
-                        10f.rf,
-                        100f.rf,
-                        200f.rf,
-                        200f.rf,
-                        listOf(ComposeColor.Red.rc, ComposeColor.Green.rc, ComposeColor.Blue.rc),
-                        null,
-                        TileMode.Repeated,
-                    )
-            }
-        val paintWithShader3 =
-            RemotePaint().apply {
-                shader =
-                    RemoteLinearShader(
-                        10f.rf,
-                        100f.rf,
-                        100f.rf,
-                        200f.rf,
-                        listOf(ComposeColor.Red.rc, ComposeColor.Blue.rc),
-                        null,
-                        TileMode.Repeated,
-                    )
-            }
+        val paintWithShader = RemotePaint { shader = remoteShader }
+        val paintWithShader2 = RemotePaint {
+            shader =
+                RemoteLinearShader(
+                    10f.rf,
+                    100f.rf,
+                    200f.rf,
+                    200f.rf,
+                    listOf(ComposeColor.Red.rc, ComposeColor.Green.rc, ComposeColor.Blue.rc),
+                    null,
+                    TileMode.Repeated,
+                )
+        }
+        val paintWithShader3 = RemotePaint {
+            shader =
+                RemoteLinearShader(
+                    10f.rf,
+                    100f.rf,
+                    100f.rf,
+                    200f.rf,
+                    listOf(ComposeColor.Red.rc, ComposeColor.Blue.rc),
+                    null,
+                    TileMode.Repeated,
+                )
+        }
         recordingCanvas.usePaint(paintWithShader)
         recordingCanvas.usePaint(paintWithShader2)
         recordingCanvas.usePaint(paintWithShader3)
@@ -649,8 +656,11 @@ class RecordingCanvasTest {
     }
 
     @Test
-    fun drawRoundedPolygon_star() {
-        recordingCanvas.drawRoundedPolygon(shape1, Paint().apply { color = Color.GREEN })
+    fun drawRoundedPolygon_circle() {
+        recordingCanvas.drawRoundedPolygon(
+            shapeCircle,
+            RemotePaint { color = ComposeColor.Green.rc },
+        )
 
         val document = constructDocument()
         assertScreenshot(document, "drawRoundedPolygon")
@@ -659,10 +669,10 @@ class RecordingCanvasTest {
     @Test
     fun morphCircleToStar_progress_0() {
         recordingCanvas.drawRoundedPolygonMorph(
-            shape1,
-            shape2,
+            shapeCircle,
+            shapeStar,
             RemoteFloat(0f),
-            Paint().apply { color = Color.RED },
+            RemotePaint { color = ComposeColor.Red.rc },
         )
 
         val document = constructDocument()
@@ -672,10 +682,10 @@ class RecordingCanvasTest {
     @Test
     fun morphCircleToStar_progress_0_5() {
         recordingCanvas.drawRoundedPolygonMorph(
-            shape1,
-            shape2,
+            shapeCircle,
+            shapeStar,
             RemoteFloat(0.5f),
-            Paint().apply { color = Color.RED },
+            RemotePaint { color = ComposeColor.Red.rc },
         )
 
         val document = constructDocument()
@@ -685,10 +695,10 @@ class RecordingCanvasTest {
     @Test
     fun morphCircleToStar_progress_1() {
         recordingCanvas.drawRoundedPolygonMorph(
-            shape1,
-            shape2,
+            shapeCircle,
+            shapeStar,
             RemoteFloat(1f),
-            Paint().apply { color = Color.RED },
+            RemotePaint { color = ComposeColor.Red.rc },
         )
 
         val document = constructDocument()

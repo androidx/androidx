@@ -55,6 +55,11 @@ sourceSets.test.output.dir(testLibraryJar.map { it.destinationDirectory })
 tasks.withType(Test).configureEach {
     // https://github.com/google/compile-testing/issues/222
     it.jvmArgs "--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED"
+    it.jvmArgs "--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED"
+    it.jvmArgs "--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED"
+    it.jvmArgs "--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED"
+    it.jvmArgs "--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED"
+    it.jvmArgs "--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED"
 }
 
 androidx {

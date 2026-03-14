@@ -17,7 +17,6 @@
 package androidx.tracing.wire
 
 import androidx.tracing.ExperimentalContextPropagation
-import androidx.tracing.TraceDriver
 import java.io.File
 import kotlin.concurrent.thread
 import kotlin.random.Random

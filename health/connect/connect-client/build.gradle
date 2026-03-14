@@ -35,9 +35,8 @@ dependencies {
     api("androidx.activity:activity:1.2.0")
     api("androidx.annotation:annotation:1.8.1")
     implementation(project(":health:connect:connect-client-proto"))
-    implementation(libs.guavaListenableFuture)
-    implementation(libs.guavaAndroid)
     implementation(libs.kotlinCoroutinesAndroid)
+    implementation(libs.guavaAndroid) // upgrading to newer version of guava due to CVE-2023-2976
     implementation(libs.kotlinCoroutinesGuava)
     implementation("androidx.core:core-ktx:1.12.0")
 
@@ -86,10 +85,8 @@ androidx {
 }
 
 //TODO(b/407717306): Remove this block when RecordConvertersTest passes on API Level 21 and 34 devices
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += [
-                "-Xlambdas=class"
-        ]
+tasks.withType(KotlinCompile).configureEach { task ->
+    task.compilerOptions {
+        it.freeCompilerArgs.add("-Xlambdas=class")
     }
 }

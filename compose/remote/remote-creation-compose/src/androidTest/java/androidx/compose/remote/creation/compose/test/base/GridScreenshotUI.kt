@@ -17,7 +17,6 @@
 package androidx.compose.remote.creation.compose.test.base
 
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
-import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -94,8 +93,7 @@ private fun Container(
 ) {
     RemoteBox(
         modifier = modifier.size(size).background(Color(0xFFCFD8DC)),
-        horizontalAlignment = RemoteAlignment.Start,
-        verticalArrangement = RemoteArrangement.Center,
+        contentAlignment = RemoteAlignment.CenterStart,
         content = content,
     )
 }

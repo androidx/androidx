@@ -26,6 +26,7 @@ import android.hardware.input.InputManager
 import android.os.Handler
 import android.os.Looper
 import android.view.InputDevice
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewTreeObserver
 import androidx.compose.runtime.Composable
@@ -218,7 +219,7 @@ private fun hasPhysicalKeyboard(inputManager: InputManager?): Boolean {
 }
 
 /**
- * Resolves the primary pointer type available on the system based on all connected input devices.
+ * Resolves the highest precision pointer type available based on all connected input devices.
  *
  * Priority: Fine > Coarse > Blunt > None.
  */
@@ -229,19 +230,18 @@ private fun resolvePointerPrecision(inputManager: InputManager?): PointerPrecisi
 
     for (id in inputManager.inputDeviceIds) {
         val device = inputManager.getInputDevice(id) ?: continue
-        val sources = device.sources
 
         // High Precision (Fine)
         if (
-            sources.hasSource(InputDevice.SOURCE_MOUSE) ||
-                sources.hasSource(InputDevice.SOURCE_STYLUS) ||
-                sources.hasSource(InputDevice.SOURCE_TOUCHPAD)
+            device.hasValidPointerSource(InputDevice.SOURCE_MOUSE) ||
+                device.hasValidPointerSource(InputDevice.SOURCE_STYLUS) ||
+                device.hasValidPointerSource(InputDevice.SOURCE_TOUCHPAD)
         ) {
             return PointerPrecision.Fine
         }
 
         // Limited Precision (Coarse)
-        if (sources.hasSource(InputDevice.SOURCE_TOUCHSCREEN)) {
+        if (device.hasValidPointerSource(InputDevice.SOURCE_TOUCHSCREEN)) {
             pointerPrecision = PointerPrecision.Coarse
             continue
         }
@@ -249,14 +249,25 @@ private fun resolvePointerPrecision(inputManager: InputManager?): PointerPrecisi
         // Low Precision (Blunt)
         if (
             pointerPrecision == PointerPrecision.None &&
-                (sources.hasSource(InputDevice.SOURCE_JOYSTICK) ||
-                    sources.hasSource(InputDevice.SOURCE_GAMEPAD))
+                (device.hasValidPointerSource(InputDevice.SOURCE_JOYSTICK) ||
+                    device.hasValidPointerSource(InputDevice.SOURCE_GAMEPAD))
         ) {
             pointerPrecision = PointerPrecision.Blunt
         }
     }
 
     return pointerPrecision
+}
+
+/**
+ * Verify if a pointer input source is actually functional by checking both the bitmask and the
+ * existence of a valid Motion Range.
+ */
+private fun InputDevice.hasValidPointerSource(
+    source: Int,
+    axis: Int = MotionEvent.AXIS_X,
+): Boolean {
+    return (sources and source == source) && getMotionRange(axis, source) != null
 }
 
 private val WindowInsetsCompat?.isImeVisible: Boolean

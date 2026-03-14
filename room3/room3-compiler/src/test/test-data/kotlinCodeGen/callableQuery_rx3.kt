@@ -4,6 +4,7 @@ import androidx.room3.util.appendPlaceholders
 import androidx.room3.util.getColumnIndexOrThrow
 import androidx.room3.util.performSuspending
 import androidx.sqlite.SQLiteStatement
+import androidx.sqlite.prepare
 import androidx.sqlite.step
 import com.google.common.base.Optional
 import io.reactivex.rxjava3.core.Flowable

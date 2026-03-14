@@ -97,8 +97,8 @@ internal class RcMaterial3IconButton(
                 // misbhave 2025/5
                 //                .widthIn(minSizePx, -1f)
                 .clip(RoundedRectShape(cornerRadius, cornerRadius, cornerRadius, cornerRadius))
-                .then(modifier)
                 .background(backgroundColor)
+                .then(modifier)
                 .padding(paddingPx)
 
         imageNode =

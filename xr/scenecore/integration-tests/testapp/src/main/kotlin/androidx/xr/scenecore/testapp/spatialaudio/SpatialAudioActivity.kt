@@ -39,6 +39,7 @@ import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.MovableComponent
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.PointSourceParams
@@ -94,7 +95,7 @@ class SpatialAudioActivity : AppCompatActivity() {
         val movableComponent = MovableComponent.createSystemMovable(session, scaleInZ = false)
         soundEntity.addComponent(movableComponent)
 
-        val pointSourceParams = PointSourceParams(soundEntity)
+        val pointSourceParams = PointSourceParams()
         val soundFieldAttributes =
             SoundFieldAttributes(SpatializerConstants.AmbisonicsOrder.FIRST_ORDER)
 
@@ -142,6 +143,7 @@ class SpatialAudioActivity : AppCompatActivity() {
                 soundPool,
                 pointSoundId,
                 pointSourceParams,
+                soundEntity,
                 DEFAULT_VOLUME,
                 DEFAULT_PRIORITY,
                 DEFAULT_LOOP,
@@ -178,7 +180,7 @@ class SpatialAudioActivity : AppCompatActivity() {
         val audioTrackDefaultSetParams =
             findViewById<Button>(R.id.button_audiotrack_default_set_params)
         audioTrackDefaultSetParams.setOnClickListener {
-            audioTrackDefaultPlayer.setPointSourceParams(session, PointSourceParams(soundEntity))
+            audioTrackDefaultPlayer.setPointSourceParams(session, PointSourceParams(), soundEntity)
         }
 
         val audioTrackPointPlayer =
@@ -188,7 +190,8 @@ class SpatialAudioActivity : AppCompatActivity() {
                 Environment.getExternalStorageDirectory().path + "/Download/tiger_16db_raw.wav",
                 sampleRate = 48000,
                 session,
-                PointSourceParams(session.scene.mainPanelEntity),
+                PointSourceParams(),
+                session.scene.mainPanelEntity,
             )
         audioTrackPointPlayer.configureTrack()
         val audioTrackPointButton = findViewById<Button>(R.id.button_audiotrack_play_point_sound)
@@ -196,7 +199,7 @@ class SpatialAudioActivity : AppCompatActivity() {
 
         val audioTrackParamsButton = findViewById<Button>(R.id.button_audiotrack_point_set_params)
         audioTrackParamsButton.setOnClickListener {
-            audioTrackPointPlayer.setPointSourceParams(session, PointSourceParams(soundEntity))
+            audioTrackPointPlayer.setPointSourceParams(session, PointSourceParams(), soundEntity)
         }
 
         val audioTrackSoundFieldPlayer =
@@ -218,7 +221,11 @@ class SpatialAudioActivity : AppCompatActivity() {
         val audioTrackSoundFieldParamsButton =
             findViewById<Button>(R.id.button_audiotrack_set_params_log_error)
         audioTrackSoundFieldParamsButton.setOnClickListener {
-            audioTrackSoundFieldPlayer.setPointSourceParams(session, PointSourceParams(soundEntity))
+            audioTrackSoundFieldPlayer.setPointSourceParams(
+                session,
+                PointSourceParams(),
+                soundEntity,
+            )
         }
 
         // Init MediaPlayer
@@ -243,7 +250,12 @@ class SpatialAudioActivity : AppCompatActivity() {
                     .setUsage(AudioAttributes.USAGE_MEDIA)
                     .build()
 
-            SpatialMediaPlayer.setPointSourceParams(session, mediaplayer, pointSourceParams)
+            SpatialMediaPlayer.setPointSourceParams(
+                session,
+                mediaplayer,
+                pointSourceParams,
+                soundEntity,
+            )
 
             mediaplayer.setAudioAttributes(audioAttributes)
             mediaplayer.prepare()
@@ -297,11 +309,17 @@ class SpatialAudioActivity : AppCompatActivity() {
         val sampleRate: Int,
         session: Session,
         val pointSourceParams: PointSourceParams,
+        val entity: Entity,
     ) : AudioTrackPlayer(resources, filePath, sampleRate, session) {
 
         override fun configureBuilder(session: Session, builder: AudioTrack.Builder) {
             super.configureBuilder(session, builder)
-            SpatialAudioTrackBuilder.setPointSourceParams(session, builder, pointSourceParams)
+            SpatialAudioTrackBuilder.setPointSourceParams(
+                session,
+                builder,
+                pointSourceParams,
+                entity,
+            )
         }
     }
 
@@ -405,9 +423,9 @@ class SpatialAudioActivity : AppCompatActivity() {
             }
         }
 
-        fun setPointSourceParams(session: Session, params: PointSourceParams) {
+        fun setPointSourceParams(session: Session, params: PointSourceParams, entity: Entity) {
             try {
-                SpatialAudioTrack.setPointSourceParams(session, audioTrack, params)
+                SpatialAudioTrack.setPointSourceParams(session, audioTrack, params, entity)
             } catch (e: IllegalStateException) {
                 Log.e(TAG, "Failed to set point source params", e)
             }

@@ -288,6 +288,34 @@ class StyleEquivalenceTests {
         )
     }
 
+    @Test // b482308908
+    fun roundedCornerShapeBrushBackground() {
+        checkEquivalence(
+            styleVersion = {
+                BaseStyleableButton(
+                    onClick = {},
+                    style = {
+                        shape(RoundedCornerShape(5.dp))
+                        background(SolidColor(Color.Red))
+                        contentPadding(10.dp)
+                    },
+                ) {
+                    Box(modifier = Modifier.size(10.dp).background(Color.Blue))
+                }
+            },
+            modifierVersion = {
+                BaseModifierButton(
+                    onClick = {},
+                    contentPadding = PaddingValues(10.dp),
+                    shape = RoundedCornerShape(5.dp),
+                    background = SolidColor(Color.Red),
+                ) {
+                    Box(modifier = Modifier.size(10.dp).background(Color.Blue))
+                }
+            },
+        )
+    }
+
     /** Validate the style and the modifier version produce the same drawing. */
     @SdkSuppress(minSdkVersion = 26)
     private fun checkEquivalence(

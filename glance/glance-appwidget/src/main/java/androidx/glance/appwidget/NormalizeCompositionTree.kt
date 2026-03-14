@@ -230,8 +230,8 @@ private fun normalizeLazyListItem(view: EmittableLazyItemWithChildren) {
 
 /**
  * If this [Emittable] has a background image or a ripple, transform the emittable so that it is
- * wrapped in an [EmittableBox], with the background and ripple added as [ImageView]s in the
- * background and foreground.
+ * wrapped in an [EmittableBox], with the background and ripple added as [android.widget.ImageView]s
+ * in the background and foreground.
  *
  * If this is an [EmittableButton], we additionally set a clip outline on the wrapper box, and
  * convert the target emittable to an [EmittableText]

@@ -21,6 +21,7 @@ import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.Converge3ABehavior
 import androidx.camera.camera2.pipe.FrameCapture
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.Lock3ABehavior
@@ -139,6 +140,31 @@ internal class CameraGraphSessionImpl(
     override fun setTorchOff(aeMode: AeMode?): Deferred<Result3A> {
         check(!token.released) { "Cannot call setTorchOff on $this after close." }
         return controller3A.setTorchOff(aeMode)
+    }
+
+    override fun converge3A(
+        aeRegions: List<MeteringRectangle>?,
+        afRegions: List<MeteringRectangle>?,
+        awbRegions: List<MeteringRectangle>?,
+        aeBehavior: Converge3ABehavior?,
+        afBehavior: Converge3ABehavior?,
+        awbBehavior: Converge3ABehavior?,
+        convergedCondition: ((FrameMetadata) -> Boolean)?,
+        frameLimit: Int?,
+        timeLimitNs: Long?,
+    ): Deferred<Result3A> {
+        check(!token.released) { "Cannot call converge3A on $this after close." }
+        return controller3A.converge3A(
+            aeRegions,
+            afRegions,
+            awbRegions,
+            aeBehavior,
+            afBehavior,
+            awbBehavior,
+            convergedCondition,
+            frameLimit,
+            timeLimitNs,
+        )
     }
 
     override suspend fun lock3A(

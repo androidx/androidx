@@ -243,6 +243,7 @@
     <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"প্রতিটি তালিকায় থাকা সাবটেক্সট"</string>
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"ছবি ও অ্যাকশনের ডেমো শেষ করুন"</string>
     <string name="filter_chip_demo_title" msgid="92190365856639582">"ফিল্টার চিপ ডেমো"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"প্রগ্রেস বার ডেমো"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"প্যানেল টেমপ্লেটের ডেমো"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"জায়গার তালিকার টেমপ্লেটের ডেমো"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"জায়গা ব্রাউজ করুন"</string>

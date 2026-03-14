@@ -16,17 +16,20 @@
 
 package androidx.tracing.benchmark.driver
 
+import android.content.Context
 import androidx.benchmark.BlackHole
 import androidx.benchmark.ExperimentalBenchmarkConfigApi
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.tracing.AbstractTraceDriver
 import androidx.tracing.PerfettoTracer
 import androidx.tracing.TRACE_PACKET_BUFFER_SIZE
-import androidx.tracing.TraceDriver
 import androidx.tracing.benchmark.BASIC_STRING
 import androidx.tracing.benchmark.CATEGORY
+import androidx.tracing.wire.TraceDriver
 import androidx.tracing.wire.TraceSink
 import kotlin.coroutines.CoroutineContext
 import kotlin.test.assertEquals
@@ -50,8 +53,9 @@ class TracingBenchmark {
     private fun buildTraceDriver(
         sink: TraceSink,
         @Suppress("SameParameterValue") isEnabled: Boolean,
-    ): TraceDriver {
-        return TraceDriver(sink = sink, isEnabled = isEnabled)
+    ): AbstractTraceDriver {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        return TraceDriver(context = context, sink = sink, isEnabled = isEnabled)
     }
 
     fun buildInMemorySink(coroutineContext: CoroutineContext): TraceSink {
@@ -64,7 +68,7 @@ class TracingBenchmark {
 
     private val dispatcher = StandardTestDispatcher()
     private val sink = buildInMemorySink(dispatcher)
-    // This test intentionally does not close the TraceDriver instance. The reason is
+    // This test intentionally does not close the AbstractTraceDriver instance. The reason is
     // when we call close() we end up blocking the Thread on which close() was called.
     // Also given the fact that we are using a TestDispatcher here, that blocks forever because
     // there is no good way to advance the TestScheduler by calling advanceUntilIdle().

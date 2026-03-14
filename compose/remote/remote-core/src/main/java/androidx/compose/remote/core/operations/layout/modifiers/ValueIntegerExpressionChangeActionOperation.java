@@ -23,6 +23,7 @@ import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.documentation.DocumentedOperation;
+import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.layout.ActionOperation;
 import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.operations.utilities.StringSerializer;
@@ -77,7 +78,7 @@ public class ValueIntegerExpressionChangeActionOperation extends Operation
     @NonNull
     @Override
     public String deepToString(@NonNull String indent) {
-        return (indent != null ? indent : "") + toString();
+        return (indent != null ? indent : "") + this;
     }
 
     @Override
@@ -91,7 +92,11 @@ public class ValueIntegerExpressionChangeActionOperation extends Operation
             @NonNull Component component,
             float x,
             float y) {
-        document.evaluateIntExpression(mValueExpressionId, (int) mTargetValueId, context);
+        document.evaluateIntExpression(
+                Utils.idFromLong(mValueExpressionId),
+                (int) mTargetValueId,
+                context
+        );
     }
 
     /**

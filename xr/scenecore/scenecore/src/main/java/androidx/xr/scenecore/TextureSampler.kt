@@ -133,25 +133,25 @@ constructor(
             @JvmField public val LINEAR: MinificationFilter = MinificationFilter("LINEAR")
 
             /** Mip-mapping is activated, but no filtering occurs. */
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             @JvmField
             public val NEAREST_MIPMAP_NEAREST: MinificationFilter =
                 MinificationFilter("NEAREST_MIPMAP_NEAREST")
 
             /** Box filtering within a mip-map level. */
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             @JvmField
             public val LINEAR_MIPMAP_NEAREST: MinificationFilter =
                 MinificationFilter("LINEAR_MIPMAP_NEAREST")
 
             /** Mip-map levels are interpolated, but no other filtering occurs. */
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             @JvmField
             public val NEAREST_MIPMAP_LINEAR: MinificationFilter =
                 MinificationFilter("NEAREST_MIPMAP_LINEAR")
 
             /** Both interpolated Mip-mapping and linear filtering are used. */
-            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             @JvmField
             public val LINEAR_MIPMAP_LINEAR: MinificationFilter =
                 MinificationFilter("LINEAR_MIPMAP_LINEAR")

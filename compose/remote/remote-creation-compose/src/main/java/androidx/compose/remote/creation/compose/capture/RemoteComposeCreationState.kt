@@ -45,7 +45,7 @@ import androidx.compose.ui.unit.LayoutDirection
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class RemoteComposeCreationState : RemoteStateScope {
 
-    override val creationState: RemoteComposeCreationState
+    override val parentScope: RemoteComposeCreationState
         get() = this
 
     public val creationDisplayInfo: CreationDisplayInfo

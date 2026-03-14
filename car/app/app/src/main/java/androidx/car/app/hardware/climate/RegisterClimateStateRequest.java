@@ -34,7 +34,6 @@ import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_SE
 import static androidx.car.app.hardware.climate.ClimateProfileRequest.FEATURE_STEERING_WHEEL_HEAT;
 
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 
 import org.jspecify.annotations.NonNull;
@@ -56,7 +55,6 @@ import java.util.Set;
  */
 @CarProtocol
 @RequiresCarApi(5)
-@ExperimentalCarApi
 public final class RegisterClimateStateRequest {
 
     @ClimateProfileRequest.ClimateProfileFeature

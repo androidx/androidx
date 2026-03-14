@@ -18,6 +18,7 @@ package androidx.datastore.core
 
 import androidx.datastore.core.handlers.ReThrowCorruptionHandler
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
+import androidx.datastore.core.util.getContextFromScope
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -57,7 +58,7 @@ public object MultiProcessDataStoreFactory {
         migrations: List<DataMigration<T>> = listOf(),
         scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
     ): DataStore<T> =
-        DataStore.Builder(storage = storage, context = scope.coroutineContext)
+        DataStore.Builder(storage = storage, context = getContextFromScope(scope))
             .setCorruptionHandler(corruptionHandler ?: ReThrowCorruptionHandler())
             .addMigrations(migrations)
             .build()
@@ -104,11 +105,11 @@ public object MultiProcessDataStoreFactory {
                     FileStorage(
                         serializer = serializer,
                         coordinatorProducer = {
-                            MultiProcessCoordinator(scope.coroutineContext, it)
+                            MultiProcessCoordinator(getContextFromScope(scope), it)
                         },
                         produceFile = produceFile,
                     ),
-                context = scope.coroutineContext,
+                context = getContextFromScope(scope),
             )
             .setCorruptionHandler(corruptionHandler ?: ReThrowCorruptionHandler())
             .addMigrations(migrations)

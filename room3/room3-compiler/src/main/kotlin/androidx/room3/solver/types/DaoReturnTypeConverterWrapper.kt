@@ -16,7 +16,6 @@
 
 package androidx.room3.solver.types
 
-import androidx.room3.compiler.codegen.CodeLanguage
 import androidx.room3.compiler.codegen.XCodeBlock
 import androidx.room3.compiler.codegen.XPropertySpec
 import androidx.room3.compiler.codegen.XTypeName
@@ -27,33 +26,19 @@ import androidx.room3.writer.TypeWriter
 import java.util.Locale
 
 /** Wraps a type converter specified by the developer and forwards calls to it. */
-class DaoReturnTypeConverterWrapper(
-    val customDaoReturnTypeConverter: CustomDaoReturnTypeConverter
-) :
-    DaoReturnTypeConverter(
-        to = customDaoReturnTypeConverter.to,
-        operationTypes = customDaoReturnTypeConverter.operationTypes,
-    ) {
-    override val isSuspend = customDaoReturnTypeConverter.function.isSuspendFunction()
-    override val requiredFunctionParamTypes =
-        customDaoReturnTypeConverter.requiredFunctionParamTypes
-    override val executeAndReturnLambda = customDaoReturnTypeConverter.executeAndReturnLambda
-    private val converterClassName = customDaoReturnTypeConverter.className
+class DaoReturnTypeConverterWrapper(val converter: CustomDaoReturnTypeConverter) :
+    DaoReturnTypeConverter(to = converter.to, operationTypes = converter.operationTypes) {
+    override val isSuspend = converter.function.isSuspendFunction()
+    override val requiredParameters = converter.requiredParameters
+    override val executeAndReturnLambda = converter.executeAndReturnLambda
+
+    private val converterClassName = converter.className
 
     override fun buildStatement(returnTypeArgName: XTypeName, scope: CodeGenScope): XCodeBlock {
-        val converterFunctionName = customDaoReturnTypeConverter.getFunctionName(scope.language)
-        return if (customDaoReturnTypeConverter.isEnclosingClassKotlinObject) {
-            when (scope.language) {
-                CodeLanguage.JAVA ->
-                    XCodeBlock.of(
-                        "%T.INSTANCE.%L",
-                        converterClassName,
-                        customDaoReturnTypeConverter.getFunctionName(scope.language),
-                    )
-                CodeLanguage.KOTLIN ->
-                    XCodeBlock.of("%T.%L", converterClassName, converterFunctionName)
-            }
-        } else if (customDaoReturnTypeConverter.isStatic) {
+        val converterFunctionName = converter.getFunctionName(scope.language)
+        return if (converter.isEnclosingClassKotlinObject) {
+            XCodeBlock.of("%T.%L", converterClassName, converterFunctionName)
+        } else if (converter.isStatic) {
             XCodeBlock.of("%T.%L(%L)", converterClassName, converterFunctionName, returnTypeArgName)
         } else {
             // TODO(b/460563469): Implement Provided DAO Return Type Converter handling, this

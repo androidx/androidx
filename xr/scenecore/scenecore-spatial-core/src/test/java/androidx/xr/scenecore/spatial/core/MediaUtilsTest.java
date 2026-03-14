@@ -45,12 +45,12 @@ public final class MediaUtilsTest {
 
         AndroidXrEntity entity = mock(AndroidXrEntity.class);
         when(entity.getNode()).thenReturn(expected);
-        PointSourceParams rtParams = new PointSourceParams(entity);
+        PointSourceParams rtParams = new PointSourceParams();
 
         com.android.extensions.xr.media.PointSourceParams result =
-                MediaUtils.convertPointSourceParamsToExtensions(rtParams);
+                MediaUtils.convertPointSourceParamsToExtensions(rtParams, entity);
 
-        assertThat(result.getNode()).isEqualTo(expected);
+        assertThat(result.getNode()).isEqualTo(entity.getNode());
     }
 
     @Test

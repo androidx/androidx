@@ -34,6 +34,7 @@ import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import okio.BufferedSink
 import okio.BufferedSource
@@ -153,6 +154,12 @@ internal constructor(
      */
     @SuppressLint("NewApi")
     override fun getValue(thisRef: Context, property: KProperty<*>): DataStore<T> {
+        val context =
+            if (scope.coroutineContext[Job] == null) {
+                scope.coroutineContext + Job()
+            } else {
+                scope.coroutineContext
+            }
         return INSTANCE
             ?: synchronized(lock) {
                 if (INSTANCE == null) {
@@ -181,7 +188,7 @@ internal constructor(
                                             .absolutePath
                                             .toPath()
                                     },
-                                context = scope.coroutineContext,
+                                context = context,
                             )
                             .apply { corruptionHandler?.let { setCorruptionHandler(it) } }
                             .addMigrations(produceMigrations(applicationContext))

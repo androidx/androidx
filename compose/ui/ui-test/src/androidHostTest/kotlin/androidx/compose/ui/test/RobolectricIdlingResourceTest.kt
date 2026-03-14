@@ -16,6 +16,10 @@
 
 package androidx.compose.ui.test
 
+import android.os.Handler
+import android.os.Looper
+import androidx.compose.material.Text
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
@@ -70,5 +74,72 @@ class RobolectricIdlingResourceTest {
 
         unregisterIdlingResource(idlingResource)
         executor.shutdownNow()
+    }
+
+    @Test
+    fun testIdlingResourceFromBackgroundThread() = runComposeUiTest {
+        val executor = Executors.newSingleThreadExecutor()
+        val counterState = mutableStateOf(-1)
+
+        var isIdleCheckCount = 0
+        var workCompleted = false
+
+        val customIdlingResource =
+            object : IdlingResource {
+                override val isIdleNow: Boolean
+                    get() {
+                        isIdleCheckCount++
+
+                        if (isIdleCheckCount == 1) {
+                            // On the first poll, we simulate the case:
+                            // Schedule background work that updates compose state and report busy.
+                            executor.execute {
+                                counterState.value = 100
+                                workCompleted = true
+                            }
+                            return false
+                        }
+                        return workCompleted
+                    }
+            }
+
+        registerIdlingResource(customIdlingResource)
+
+        setContent { Text(text = "Counter: ${counterState.value}") }
+
+        // This assertion forces `runUntilIdle()` to execute.
+        // It will poll `isIdleNow` (triggering the background work),
+        // wait for `workCompleted` to become true, and verify that Compose processed
+        // the snapshot state change from the background thread before proceeding.
+        onNodeWithText("Counter: 100").assertIsDisplayed()
+
+        unregisterIdlingResource(customIdlingResource)
+        executor.shutdownNow()
+    }
+
+    @Test
+    fun testIsIdleNow_calledBeforeMainQueueDrained_causesCrash() = runComposeUiTest {
+        var criticalAppState: String? = null
+
+        // Queue a state initialization on the main thread.
+        // We use this to verify that the idling strategy correctly drains
+        // the main looper before querying idling resources.
+        Handler(Looper.getMainLooper()).post { criticalAppState = "Initialized and Ready" }
+
+        val strictlyOrderedIdlingResource =
+            object : IdlingResource {
+                override val isIdleNow: Boolean
+                    get() {
+                        // The runUntilIdle() loop ensures the main queue is drained before
+                        // evaluating `isIdleNow`. Consequently, the Handler task above is
+                        // guaranteed to have executed, `criticalAppState` is safely initialized,
+                        // and no exception occurs.
+                        return criticalAppState!!.isNotEmpty()
+                    }
+            }
+
+        registerIdlingResource(strictlyOrderedIdlingResource)
+        waitForIdle()
+        unregisterIdlingResource(strictlyOrderedIdlingResource)
     }
 }

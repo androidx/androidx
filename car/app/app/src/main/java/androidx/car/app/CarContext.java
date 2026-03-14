@@ -46,7 +46,6 @@ import androidx.annotation.MainThread;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.constraints.ConstraintManager;
 import androidx.car.app.hardware.CarHardwareManager;
@@ -148,7 +147,7 @@ public class CarContext extends ContextWrapper {
     /**
      * Manages the media requests from 3p apps such as providing a media session token,
      */
-    @ExperimentalCarApi
+    @RequiresCarApi(8)
     public static final String MEDIA_PLAYBACK_SERVICE = "media_playback";
 
     /**

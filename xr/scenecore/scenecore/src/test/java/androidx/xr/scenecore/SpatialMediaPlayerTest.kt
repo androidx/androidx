@@ -57,14 +57,14 @@ class SpatialMediaPlayerTest {
         val mediaPlayer = MediaPlayer()
 
         val entity = Entity.create(session, "test")
-        val pointSourceAttributes = PointSourceParams(entity)
+        val pointSourceParams = PointSourceParams()
 
-        SpatialMediaPlayer.setPointSourceParams(session, mediaPlayer, pointSourceAttributes)
+        SpatialMediaPlayer.setPointSourceParams(session, mediaPlayer, pointSourceParams, entity)
         val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
         val fakeMediaPlayerExtensionsWrapper = fakeSceneRuntime.mediaPlayerExtensionsWrapper
 
-        assertThat(fakeMediaPlayerExtensionsWrapper.pointSourceParams[mediaPlayer]?.entity)
-            .isEqualTo(pointSourceAttributes.rtPointSourceParams.entity)
+        assertThat(fakeMediaPlayerExtensionsWrapper.paramsWithEntity[mediaPlayer]?.second)
+            .isEqualTo((entity as BaseEntity<*>).rtEntity)
     }
 
     @Test

@@ -38,6 +38,7 @@ public interface SoundPoolExtensionsWrapper {
         soundPool: SoundPool,
         soundId: Int,
         params: PointSourceParams,
+        entity: Entity?,
         volume: Float,
         priority: Int,
         loop: Int,

@@ -56,19 +56,71 @@ interface PreviewWrapper {
  * When a preview is rendered, Android Studio looks for this annotation to determine if the preview
  * content should be wrapped in a custom container (e.g., for Remote Compose or custom theming).
  *
- * **Scope and Precedence:** This annotation is not repeatable. Each preview rendered uses at most
- * one wrapper.
+ * **Scope and Precedence**
  *
- * [AnnotationTarget.FUNCTION]: The wrapper is applied to previews directly annotating this
- * function, including MultiPreviews.
+ * This annotation is not repeatable. Each preview rendered uses at most one wrapper. The wrapper is
+ * applied to all [Preview]s associated with this function, including direct `@Preview` annotations
+ * and MultiPreview annotations.
  *
- * **Example**
+ * **Examples**
+ *
+ * **1. Basic Usage**
  *
  * ```kotlin
+ * class CustomThemeWrapper : PreviewWrapper {
+ *     @Composable
+ *     override fun Wrap(content: @Composable () -> Unit) {
+ *         // Apply your custom theme here
+ *         MyTheme {
+ *             content()
+ *         }
+ *     }
+ * }
+ *
  * @PreviewWrapperProvider(wrapper = CustomThemeWrapper::class)
  * @Preview
  * @Composable
  * fun MyThemedComponent() { ... }
+ * ```
+ *
+ * **2. Usage with MultiPreview** The wrapper `CustomThemeWrapper` will be applied to both "Small"
+ * and "Large" previews.
+ *
+ * ```kotlin
+ * @Preview(name = "Small", fontScale = 0.8f)
+ * @Preview(name = "Large", fontScale = 1.2f)
+ * annotation class FontPreviews
+ *
+ * @PreviewWrapperProvider(wrapper = CustomThemeWrapper::class)
+ * @FontPreviews
+ * @Composable
+ * fun MyMultiPreviewComponent() { ... }
+ * ```
+ *
+ * **3. Combining Multiple Wrappers**
+ *
+ * Since [PreviewWrapperProvider] allows only a single wrapper, you can create a composite wrapper
+ * to apply multiple effects.
+ *
+ * ```kotlin
+ * // A composite wrapper that combines Theming and Remote Compose logic.
+ * class ThemeAndRemoteWrapper : PreviewWrapper {
+ *
+ *     // Instantiate the individual wrappers
+ *     private val themeWrapper = ThemeWrapper()
+ *     private val remoteWrapper = RemoteComposeWrapper()
+ *
+ *     @Composable
+ *     override fun Wrap(content: @Composable () -> Unit) {
+ *         // Nest the wrappers: Theme is usually the outermost layer,
+ *         // followed by the environment/container wrapper.
+ *         themeWrapper.Wrap {
+ *             remoteWrapper.Wrap {
+ *                 content()
+ *             }
+ *         }
+ *     }
+ * }
  * ```
  *
  * @param wrapper The [KClass] of the [PreviewWrapper] implementation to use. Must have a default

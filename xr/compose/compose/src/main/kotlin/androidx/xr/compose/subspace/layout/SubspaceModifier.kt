@@ -204,32 +204,3 @@ internal class CombinedSubspaceModifier(
             } +
             "]"
 }
-
-/**
- * Generates a lazy sequence that walks up the node tree to the root.
- *
- * If this node is the root, an empty sequence is returned.
- */
-internal fun SubspaceModifier.Node.traverseAncestors(): Sequence<SubspaceModifier.Node> {
-    return generateSequence(seed = parent) { it.parent }
-}
-
-/** Generates a sequence with self and elements up the node tree to the root. */
-internal fun SubspaceModifier.Node.traverseSelfThenAncestors(): Sequence<SubspaceModifier.Node> =
-    sequenceOf(this) + traverseAncestors()
-
-/**
- * Generates a lazy sequence that walks down the node tree.
- *
- * If this node is a leaf node, an empty sequence is returned.
- */
-internal fun SubspaceModifier.Node.traverseDescendants(): Sequence<SubspaceModifier.Node> {
-    return generateSequence(seed = child) { it.child }
-}
-
-/** Generates a sequence with self and elements down the node tree. */
-internal fun SubspaceModifier.Node.traverseSelfThenDescendants(): Sequence<SubspaceModifier.Node> =
-    sequenceOf(this) + traverseDescendants()
-
-/** Returns the first element of type [T] in the sequence, or `null` if none match. */
-internal inline fun <reified T> Sequence<*>.findInstance(): T? = firstOrNull { it is T } as T?

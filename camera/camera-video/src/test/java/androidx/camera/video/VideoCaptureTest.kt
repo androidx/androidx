@@ -477,6 +477,47 @@ class VideoCaptureTest {
     }
 
     @Test
+    fun addUseCases_onValidateConfigFailed_throwException() {
+        // Arrange.
+        setupCamera()
+        createCameraUseCaseAdapter()
+
+        val videoOutput =
+            createVideoOutput(
+                onValidateConfigException = IllegalArgumentException("onValidateConfigFailed")
+            )
+        val videoCapture = createVideoCapture(videoOutput)
+
+        // Assert.
+        assertThrows(CameraUseCaseAdapter.CameraException::class.java) {
+            // Act.
+            addAndAttachUseCases(videoCapture)
+        }
+    }
+
+    @Test
+    fun addUseCases_unsupportedMimeTypeInRecorder_throwException() {
+        // Arrange.
+        setupCamera()
+        createCameraUseCaseAdapter()
+
+        // AVC is in the Recorder's static allowlist, so the Builder check passes.
+        val videoMime = MIMETYPE_VIDEO_AVC
+        val recorder = Recorder.Builder().setVideoMimeType(videoMime).build()
+        val videoCapture = VideoCapture.withOutput(recorder)
+
+        // Assert.
+        val exception =
+            assertThrows(CameraUseCaseAdapter.CameraException::class.java) {
+                // Act.
+                addAndAttachUseCases(videoCapture)
+            }
+        assertThat(exception.cause).isInstanceOf(IllegalArgumentException::class.java)
+        assertThat(exception.cause!!.message)
+            .isEqualTo("The requested video MIME type $videoMime is not supported by this device.")
+    }
+
+    @Test
     fun setQualitySelector_sameResolutionAsQualitySelector() {
         // Arrange.
         setupCamera()
@@ -2304,13 +2345,18 @@ class VideoCaptureTest {
         mediaSpec: MediaSpec? = createMediaSpec(),
         videoCapabilities: VideoCapabilities = CAMERA_0_VIDEO_CAPABILITIES,
         profilesResolver: EncoderProfilesResolver = CAMERA_0_PROFILES_RESOLVER,
+        onValidateConfigException: IllegalArgumentException? = null,
         surfaceRequestListener: (SurfaceRequest, Timebase) -> Unit = { surfaceRequest, _ ->
             surfaceRequest.willNotProvideSurface()
         },
     ): TestVideoOutput =
-        TestVideoOutput(streamInfo, mediaSpec, videoCapabilities, profilesResolver) {
-            surfaceRequest,
-            timebase ->
+        TestVideoOutput(
+            streamInfo,
+            mediaSpec,
+            videoCapabilities,
+            profilesResolver,
+            onValidateConfigException,
+        ) { surfaceRequest, timebase ->
             surfaceRequestsToRelease.add(surfaceRequest)
             surfaceRequestListener.invoke(surfaceRequest, timebase)
         }
@@ -2334,6 +2380,7 @@ class VideoCaptureTest {
         mediaSpec: MediaSpec?,
         val videoCapabilities: VideoCapabilities = CAMERA_0_VIDEO_CAPABILITIES,
         val profilesResolver: EncoderProfilesResolver,
+        val onVerifyConfigException: IllegalArgumentException? = null,
         val surfaceRequestCallback: (SurfaceRequest, Timebase) -> Unit,
     ) : VideoOutput {
         private val streamInfoObservable: MutableStateObservable<StreamInfo> =
@@ -2341,6 +2388,10 @@ class VideoCaptureTest {
 
         private val mediaSpecObservable: MutableStateObservable<MediaSpec> =
             MutableStateObservable.withInitialState(mediaSpec)
+
+        override fun onValidateConfig() {
+            onVerifyConfigException?.let { throw it }
+        }
 
         override fun onSurfaceRequested(surfaceRequest: SurfaceRequest) {
             surfaceRequestCallback.invoke(surfaceRequest, Timebase.UPTIME)

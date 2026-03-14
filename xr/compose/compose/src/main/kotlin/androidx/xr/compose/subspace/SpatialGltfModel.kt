@@ -19,6 +19,7 @@ package androidx.xr.compose.subspace
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -96,6 +97,7 @@ import kotlinx.coroutines.supervisorScope
  */
 @Composable
 @SubspaceComposable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun SpatialGltfModel(
     state: SpatialGltfModelState,
     modifier: SubspaceModifier = SubspaceModifier,
@@ -133,8 +135,13 @@ public fun SpatialGltfModel(
     )
 }
 
-/** Remembers a [SpatialGltfModelState] object for use with the [SpatialGltfModel] API. */
+/**
+ * Remembers a [SpatialGltfModelState] object for use with the [SpatialGltfModel] API.
+ *
+ * @param source The [SpatialGltfModelSource] that defines where to load the 3D model from.
+ */
 @Composable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun rememberSpatialGltfModelState(source: SpatialGltfModelSource): SpatialGltfModelState =
     remember(source) { SpatialGltfModelStateHolder(SpatialGltfModelState(source)) }.state
 
@@ -162,6 +169,7 @@ private class SpatialGltfModelStateHolder(val state: SpatialGltfModelState) : Re
  *
  * @param source The [SpatialGltfModelSource] that defines where to load the 3D model from.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class SpatialGltfModelState(internal val source: SpatialGltfModelSource) : AutoCloseable {
     private val coreEntityActionQueue = ActionQueue<CoreModelEntity>()
 
@@ -236,6 +244,7 @@ public class SpatialGltfModelState(internal val source: SpatialGltfModelSource) 
  * An object that describes and contains information relevant to the current loading state of the
  * glTF model.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public abstract class SpatialGltfModelStatus private constructor() {
 
     /** The glTF model is fully loaded and ready to be displayed. */
@@ -272,6 +281,7 @@ public abstract class SpatialGltfModelStatus private constructor() {
  *
  * Instances of [SpatialGltfModelSource] are created using [fromPath], [fromUri], or [fromData].
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface SpatialGltfModelSource {
 
     /**
@@ -437,6 +447,7 @@ private class SpatialGltfModelMeasurePolicy(private val intrinsicSize: IntVolume
  * This may be used to inspect or control the state of this animation.
  */
 @RequiresApi(Build.VERSION_CODES.O)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class SpatialGltfModelAnimation internal constructor(private val animation: GltfAnimation) :
     AutoCloseable {
 

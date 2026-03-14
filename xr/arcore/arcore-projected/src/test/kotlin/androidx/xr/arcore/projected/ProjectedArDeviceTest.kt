@@ -37,7 +37,7 @@ class ProjectedArDeviceTest {
 
     @Test
     fun init_default_returnsStoppedAndIdentity() {
-        assertThat(projectedArDevice.deviceTrackingState).isEqualTo(TrackingState.STOPPED)
+        assertThat(projectedArDevice.trackingState).isEqualTo(TrackingState.STOPPED)
         assertThat(projectedArDevice.devicePose).isEqualTo(Pose())
     }
 
@@ -47,7 +47,7 @@ class ProjectedArDeviceTest {
 
         projectedArDevice.update(TrackingState.TRACKING, pose)
 
-        assertThat(projectedArDevice.deviceTrackingState).isEqualTo(TrackingState.TRACKING)
+        assertThat(projectedArDevice.trackingState).isEqualTo(TrackingState.TRACKING)
         assertThat(projectedArDevice.devicePose).isEqualTo(pose)
     }
 
@@ -57,7 +57,7 @@ class ProjectedArDeviceTest {
 
         projectedArDevice.update(TrackingState.TRACKING_DEGRADED, pose)
 
-        assertThat(projectedArDevice.deviceTrackingState).isEqualTo(TrackingState.TRACKING_DEGRADED)
+        assertThat(projectedArDevice.trackingState).isEqualTo(TrackingState.TRACKING_DEGRADED)
         assertThat(projectedArDevice.devicePose).isEqualTo(pose)
     }
 }

@@ -34,8 +34,9 @@ import java.time.ZoneOffset
  * Each record requires the start time, the end time and the activity intensity type.
  *
  * The ability to insert or read this record type is dependent on the version of Health Connect
- * installed on the device. To check if available: call [HealthConnectFeatures.getFeatureStatus] and
- * pass [HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY] as an argument.
+ * installed on the device. To check if available: call
+ * [androidx.health.connect.client.HealthConnectFeatures.getFeatureStatus] and pass
+ * [androidx.health.connect.client.HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY] as an argument.
  */
 class ActivityIntensityRecord(
     override val startTime: Instant,
@@ -94,8 +95,9 @@ class ActivityIntensityRecord(
         /**
          * Metric identifier to retrieve the total duration of moderate activity intensity from
          * [androidx.health.connect.client.aggregate.AggregationResult]. To check if this metric is
-         * available, use [HealthConnectFeatures.getFeatureStatus] with
-         * [HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY] as the argument.
+         * available, use [androidx.health.connect.client.HealthConnectFeatures.getFeatureStatus]
+         * with [androidx.health.connect.client.HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY] as
+         * the argument.
          */
         @JvmField
         val MODERATE_DURATION_TOTAL: AggregateMetric<Duration> =
@@ -108,8 +110,9 @@ class ActivityIntensityRecord(
         /**
          * Metric identifier to retrieve the total duration of vigorous activity intensity from
          * [androidx.health.connect.client.aggregate.AggregationResult]. To check if this metric is
-         * available, use [HealthConnectFeatures.getFeatureStatus] with
-         * [HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY] as the argument.
+         * available, use [androidx.health.connect.client.HealthConnectFeatures.getFeatureStatus]
+         * with [androidx.health.connect.client.HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY] as
+         * the argument.
          */
         @JvmField
         val VIGOROUS_DURATION_TOTAL: AggregateMetric<Duration> =
@@ -122,8 +125,10 @@ class ActivityIntensityRecord(
         /**
          * Metric identifier to retrieve the total duration of activity intensity regardless of the
          * type from [androidx.health.connect.client.aggregate.AggregationResult]. To check if this
-         * metric is available, use [HealthConnectFeatures.getFeatureStatus] with
-         * [HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY] as the argument.
+         * metric is available, use
+         * [androidx.health.connect.client.HealthConnectFeatures.getFeatureStatus] with
+         * [androidx.health.connect.client.HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY] as the
+         * argument.
          */
         @JvmField
         val DURATION_TOTAL: AggregateMetric<Duration> =
@@ -136,8 +141,9 @@ class ActivityIntensityRecord(
         /**
          * Metric identifier to retrieve the number of weighted intensity minutes from
          * [androidx.health.connect.client.aggregate.AggregationResult]. To check if this metric is
-         * available, use [HealthConnectFeatures.getFeatureStatus] with
-         * [HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY] as the argument.
+         * available, use [androidx.health.connect.client.HealthConnectFeatures.getFeatureStatus]
+         * with [androidx.health.connect.client.HealthConnectFeatures.FEATURE_ACTIVITY_INTENSITY] as
+         * the argument.
          */
         @JvmField
         val INTENSITY_MINUTES_TOTAL: AggregateMetric<Long> =

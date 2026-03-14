@@ -27,11 +27,11 @@ public actual class DatabaseConfiguration(
     /* Collection of available migrations. */
     public actual val migrationContainer: RoomDatabase.MigrationContainer,
     /* Database callbacks. */
-    public actual val callbacks: List<RoomDatabase.Callback>?,
+    public actual val callbacks: List<RoomDatabase.Callback>,
     /* The journal mode for this database. */
     public actual val journalMode: RoomDatabase.JournalMode,
     /* Whether Room should throw an exception for missing migrations. */
-    public actual val requireMigration: Boolean,
+    public actual val isMigrationRequired: Boolean,
     /* Whether Room will fallback to destructive migrations on downgrades only .*/
     public actual val allowDestructiveMigrationOnDowngrade: Boolean,
     internal actual val migrationNotRequiredFrom: Set<Int>?,

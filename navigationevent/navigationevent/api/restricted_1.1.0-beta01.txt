@@ -1,0 +1,193 @@
+// Signature format: 4.0
+package androidx.navigationevent {
+
+  public final class DirectNavigationEventInput extends androidx.navigationevent.NavigationEventInput {
+    ctor public DirectNavigationEventInput();
+    method @MainThread public void backCancelled();
+    method @MainThread public void backCompleted();
+    method @MainThread public void backProgressed(androidx.navigationevent.NavigationEvent event);
+    method @MainThread public void backStarted(androidx.navigationevent.NavigationEvent event);
+    method @MainThread public void forwardCancelled();
+    method @MainThread public void forwardCompleted();
+    method @MainThread public void forwardProgressed(androidx.navigationevent.NavigationEvent event);
+    method @MainThread public void forwardStarted(androidx.navigationevent.NavigationEvent event);
+  }
+
+  @androidx.compose.runtime.Immutable public final class NavigationEvent {
+    ctor public NavigationEvent();
+    ctor public NavigationEvent(optional int swipeEdge);
+    ctor public NavigationEvent(optional int swipeEdge, optional @FloatRange(from=0.0, to=1.0) float progress);
+    ctor public NavigationEvent(optional int swipeEdge, optional @FloatRange(from=0.0, to=1.0) float progress, optional @FloatRange(from=0.0) float touchX);
+    ctor public NavigationEvent(optional int swipeEdge, optional @FloatRange(from=0.0, to=1.0) float progress, optional @FloatRange(from=0.0) float touchX, optional @FloatRange(from=0.0) float touchY);
+    ctor public NavigationEvent(optional int swipeEdge, optional @FloatRange(from=0.0, to=1.0) float progress, optional @FloatRange(from=0.0) float touchX, optional @FloatRange(from=0.0) float touchY, optional long frameTimeMillis);
+    ctor @BytecodeOnly public NavigationEvent(int, float, float, float, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public long getFrameTimeMillis();
+    method @InaccessibleFromKotlin @FloatRange(from=0.0, to=1.0) public float getProgress();
+    method @InaccessibleFromKotlin public int getSwipeEdge();
+    method @InaccessibleFromKotlin @FloatRange(from=0.0) public float getTouchX();
+    method @InaccessibleFromKotlin @FloatRange(from=0.0) public float getTouchY();
+    property public long frameTimeMillis;
+    property @FloatRange(from=0.0, to=1.0) public float progress;
+    property public int swipeEdge;
+    property @FloatRange(from=0.0) public float touchX;
+    property @FloatRange(from=0.0) public float touchY;
+    field public static final androidx.navigationevent.NavigationEvent.Companion Companion;
+    field public static final int EDGE_LEFT = 0; // 0x0
+    field public static final int EDGE_NONE = 2; // 0x2
+    field public static final int EDGE_RIGHT = 1; // 0x1
+  }
+
+  public static final class NavigationEvent.Companion {
+    property public static int EDGE_LEFT;
+    property public static int EDGE_NONE;
+    property public static int EDGE_RIGHT;
+  }
+
+  public final class NavigationEventDispatcher {
+    ctor public NavigationEventDispatcher();
+    ctor public NavigationEventDispatcher(androidx.navigationevent.NavigationEventDispatcher parent);
+    ctor public NavigationEventDispatcher(androidx.navigationevent.OnBackCompletedFallback onBackCompletedFallback);
+    method @MainThread public void addHandler(androidx.navigationevent.NavigationEventHandler<? extends java.lang.Object?> handler);
+    method @MainThread public void addHandler(androidx.navigationevent.NavigationEventHandler<? extends java.lang.Object?> handler, optional int priority);
+    method @BytecodeOnly @MainThread public static void addHandler$default(androidx.navigationevent.NavigationEventDispatcher!, androidx.navigationevent.NavigationEventHandler!, int, int, Object!);
+    method @MainThread public void addInput(androidx.navigationevent.NavigationEventInput input);
+    method @MainThread public void addInput(androidx.navigationevent.NavigationEventInput input, int priority);
+    method @MainThread public void dispose();
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.navigationevent.NavigationEventHistory> getHistory();
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.navigationevent.NavigationEventTransitionState> getTransitionState();
+    method @InaccessibleFromKotlin public boolean isEnabled();
+    method @MainThread public void removeInput(androidx.navigationevent.NavigationEventInput input);
+    method @InaccessibleFromKotlin public void setEnabled(boolean);
+    property public kotlinx.coroutines.flow.StateFlow<androidx.navigationevent.NavigationEventHistory> history;
+    property public boolean isEnabled;
+    property public kotlinx.coroutines.flow.StateFlow<androidx.navigationevent.NavigationEventTransitionState> transitionState;
+    field public static final androidx.navigationevent.NavigationEventDispatcher.Companion Companion;
+    field public static final int PRIORITY_DEFAULT = 1; // 0x1
+    field public static final int PRIORITY_OVERLAY = 0; // 0x0
+  }
+
+  public static final class NavigationEventDispatcher.Companion {
+    property public static int PRIORITY_DEFAULT;
+    property public static int PRIORITY_OVERLAY;
+  }
+
+  public interface NavigationEventDispatcherOwner {
+    method @InaccessibleFromKotlin public androidx.navigationevent.NavigationEventDispatcher getNavigationEventDispatcher();
+    property public abstract androidx.navigationevent.NavigationEventDispatcher navigationEventDispatcher;
+  }
+
+  public abstract class NavigationEventHandler<T extends androidx.navigationevent.NavigationEventInfo> {
+    ctor public NavigationEventHandler(T initialInfo, boolean isBackEnabled);
+    ctor public NavigationEventHandler(T initialInfo, boolean isBackEnabled, boolean isForwardEnabled);
+    method @InaccessibleFromKotlin public final java.util.List<T> getBackInfo();
+    method @InaccessibleFromKotlin public final T getCurrentInfo();
+    method @InaccessibleFromKotlin public final java.util.List<T> getForwardInfo();
+    method @InaccessibleFromKotlin public final androidx.navigationevent.NavigationEventTransitionState getTransitionState();
+    method @InaccessibleFromKotlin public final boolean isBackEnabled();
+    method @InaccessibleFromKotlin public final boolean isForwardEnabled();
+    method @EmptySuper protected void onBackCancelled();
+    method @EmptySuper protected void onBackCompleted();
+    method @EmptySuper protected void onBackProgressed(androidx.navigationevent.NavigationEvent event);
+    method @EmptySuper protected void onBackStarted(androidx.navigationevent.NavigationEvent event);
+    method @EmptySuper protected void onForwardCancelled();
+    method @EmptySuper protected void onForwardCompleted();
+    method @EmptySuper protected void onForwardProgressed(androidx.navigationevent.NavigationEvent event);
+    method @EmptySuper protected void onForwardStarted(androidx.navigationevent.NavigationEvent event);
+    method public final void remove();
+    method @InaccessibleFromKotlin public final void setBackEnabled(boolean);
+    method @InaccessibleFromKotlin public final void setForwardEnabled(boolean);
+    method public final void setInfo(T currentInfo);
+    method public final void setInfo(T currentInfo, optional java.util.List<? extends T> backInfo);
+    method public final void setInfo(T currentInfo, optional java.util.List<? extends T> backInfo, optional java.util.List<? extends T> forwardInfo);
+    method @BytecodeOnly public static void setInfo$default(androidx.navigationevent.NavigationEventHandler!, androidx.navigationevent.NavigationEventInfo!, java.util.List!, java.util.List!, int, Object!);
+    property public final java.util.List<T> backInfo;
+    property public final T currentInfo;
+    property public final java.util.List<T> forwardInfo;
+    property public final boolean isBackEnabled;
+    property public final boolean isForwardEnabled;
+    property public final androidx.navigationevent.NavigationEventTransitionState transitionState;
+  }
+
+  @androidx.compose.runtime.Immutable public final class NavigationEventHistory {
+    method @InaccessibleFromKotlin public int getCurrentIndex();
+    method @InaccessibleFromKotlin public java.util.List<androidx.navigationevent.NavigationEventInfo> getMergedHistory();
+    property public int currentIndex;
+    property public java.util.List<androidx.navigationevent.NavigationEventInfo> mergedHistory;
+  }
+
+  @androidx.compose.runtime.Immutable public abstract class NavigationEventInfo {
+    ctor public NavigationEventInfo();
+  }
+
+  public static final class NavigationEventInfo.None extends androidx.navigationevent.NavigationEventInfo {
+    field public static final androidx.navigationevent.NavigationEventInfo.None INSTANCE;
+  }
+
+  public abstract class NavigationEventInput {
+    ctor public NavigationEventInput();
+    method @MainThread protected final void dispatchOnBackCancelled();
+    method @MainThread protected final void dispatchOnBackCompleted();
+    method @MainThread protected final void dispatchOnBackProgressed(androidx.navigationevent.NavigationEvent event);
+    method @MainThread protected final void dispatchOnBackStarted(androidx.navigationevent.NavigationEvent event);
+    method @MainThread protected final void dispatchOnForwardCancelled();
+    method @MainThread protected final void dispatchOnForwardCompleted();
+    method @MainThread protected final void dispatchOnForwardProgressed(androidx.navigationevent.NavigationEvent event);
+    method @MainThread protected final void dispatchOnForwardStarted(androidx.navigationevent.NavigationEvent event);
+    method @EmptySuper @MainThread protected void onAdded(androidx.navigationevent.NavigationEventDispatcher dispatcher);
+    method @EmptySuper @MainThread protected void onHasEnabledHandlersChanged(boolean hasEnabledHandlers);
+    method @EmptySuper @MainThread protected void onHistoryChanged(androidx.navigationevent.NavigationEventHistory history);
+    method @EmptySuper @MainThread protected void onRemoved();
+  }
+
+  public final class NavigationEventKt {
+    method @RequiresApi(34) public static android.window.BackEvent toBackEvent(androidx.navigationevent.NavigationEvent);
+    method @RequiresApi(34) public static androidx.navigationevent.NavigationEvent toNavigationEvent(android.window.BackEvent);
+  }
+
+  @androidx.compose.runtime.Immutable public abstract sealed exhaustive class NavigationEventTransitionState {
+    field public static final androidx.navigationevent.NavigationEventTransitionState.Companion Companion;
+    field public static final int TRANSITIONING_BACK = -1; // 0xffffffff
+    field public static final int TRANSITIONING_FORWARD = 1; // 0x1
+  }
+
+  public static final class NavigationEventTransitionState.Companion {
+    property public static int TRANSITIONING_BACK;
+    property public static int TRANSITIONING_FORWARD;
+  }
+
+  public static final class NavigationEventTransitionState.Idle extends androidx.navigationevent.NavigationEventTransitionState {
+    field public static final androidx.navigationevent.NavigationEventTransitionState.Idle INSTANCE;
+  }
+
+  public static final class NavigationEventTransitionState.InProgress extends androidx.navigationevent.NavigationEventTransitionState {
+    ctor public NavigationEventTransitionState.InProgress(androidx.navigationevent.NavigationEvent latestEvent, int direction);
+    method @InaccessibleFromKotlin public int getDirection();
+    method @InaccessibleFromKotlin public androidx.navigationevent.NavigationEvent getLatestEvent();
+    property public int direction;
+    property public androidx.navigationevent.NavigationEvent latestEvent;
+  }
+
+  public fun interface OnBackCompletedFallback {
+    method public void onBackCompletedFallback();
+  }
+
+  @RequiresApi(33) public final class OnBackInvokedDefaultInput extends androidx.navigationevent.OnBackInvokedInput {
+    ctor public OnBackInvokedDefaultInput(android.window.OnBackInvokedDispatcher onBackInvokedDispatcher);
+  }
+
+  @RequiresApi(33) public abstract sealed exhaustive class OnBackInvokedInput extends androidx.navigationevent.NavigationEventInput {
+  }
+
+  @RequiresApi(33) public final class OnBackInvokedOverlayInput extends androidx.navigationevent.OnBackInvokedInput {
+    ctor public OnBackInvokedOverlayInput(android.window.OnBackInvokedDispatcher onBackInvokedDispatcher);
+  }
+
+  public final class ViewTreeNavigationEventDispatcherOwner {
+    method @KotlinOnly public static androidx.navigationevent.NavigationEventDispatcherOwner? findViewTreeNavigationEventDispatcherOwner(android.view.View);
+    method @InaccessibleFromKotlin public static androidx.navigationevent.NavigationEventDispatcherOwner? get(android.view.View);
+    method @InaccessibleFromKotlin public static void set(android.view.View, androidx.navigationevent.NavigationEventDispatcherOwner? navigationEventDispatcherOwner);
+    method @KotlinOnly public static void setViewTreeNavigationEventDispatcherOwner(android.view.View, androidx.navigationevent.NavigationEventDispatcherOwner? navigationEventDispatcherOwner);
+  }
+
+}
+

@@ -23,7 +23,7 @@ import androidx.xr.scenecore.runtime.RenderingRuntime
 import androidx.xr.scenecore.runtime.TextureResource as RtTextureResource
 
 /** [CubeMapTexture] represents a cube map texture that can be used with materials. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CubeMapTexture internal constructor(texture: RtTextureResource, session: Session) :
     Texture(texture, session) {
 

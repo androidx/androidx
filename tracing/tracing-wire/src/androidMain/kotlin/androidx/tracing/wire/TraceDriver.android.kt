@@ -23,42 +23,62 @@ import android.app.Application
 import android.content.Context
 import android.os.Build
 import android.os.Process
-import androidx.tracing.TraceDriver
+import androidx.tracing.AbstractTraceDriver
+import androidx.tracing.AbstractTraceSink
+import androidx.tracing.TraceContext
+import androidx.tracing.Tracer
 
 /**
  * Constructs a [TraceDriver] instance on Android based on the provided [Context] instance.
  *
- * @param context The Android app [Context].
+ * @param context The Android application [Context].
  * @param sink The [TraceSink] instance.
  * @param isEnabled Set this to `true` to emit trace events. `false` disables all tracing to lower
  *   overhead.
  */
+public actual class TraceDriver
 @JvmOverloads
-public fun TraceDriver(context: Context, sink: TraceSink, isEnabled: Boolean = true): TraceDriver {
-    val driver = TraceDriver(sink = sink, isEnabled = isEnabled)
-    val pid = Process.myPid()
-    val processName = getProcessName(context = context)
-    // Eagerly populate a process track
-    driver.context.createProcessTrack(id = pid, name = processName)
-    // Eager populate the main thread track
-    // For the main thread on Android pid = tid
-    // Main thread
-    driver.context.process.getOrCreateThreadTrack(id = pid, name = processName)
-    // Thread Tracks
-    // There are multiple ways of obtaining tids.
-    // You can use android.Os.gettid(). This makes a JNI call under the hood (libcore) [SLOW].
-    // This method returns an `Int`.
-    // The fastest way of getting a `tid` is by relying on `Thread.currentThread().id`. Even
-    // though this method returns a `Long` type, given the underlying tid is an `Int` as defined
-    // in libcore - this downcast is safe.
-    val thread = Thread.currentThread()
-    val tid = thread.id.toInt()
-    // Populate additional thread tracks if necessary.
-    if (tid != pid) {
+constructor(context: Context, sink: AbstractTraceSink, isEnabled: Boolean = true) :
+    AbstractTraceDriver(sink = sink, isEnabled = isEnabled) {
+
+    private val applicationContext = context.applicationContext
+    private val context = TraceContext(sink = sink, isEnabled = isEnabled)
+
+    init {
+        val pid = Process.myPid()
+        val processName = getProcessName(context = applicationContext)
+        // Eagerly populate a process track
+        this.context.createProcessTrack(id = pid, name = processName)
+        // Eager populate the main thread track
+        // For the main thread on Android pid = tid
+        // Main thread
+        this.context.process.getOrCreateThreadTrack(id = pid, name = processName)
+        // Thread Tracks
+        // There are multiple ways of obtaining tids.
+        // You can use android.Os.gettid(). This makes a JNI call under the hood (libcore) [SLOW].
+        // This method returns an `Int`.
+        // The fastest way of getting a `tid` is by relying on `Thread.currentThread().id`. Even
+        // though this method returns a `Long` type, given the underlying tid is an `Int` as defined
+        // in libcore - this downcast is safe.
         val thread = Thread.currentThread()
-        driver.context.process.getOrCreateThreadTrack(id = tid, name = thread.name)
+        val tid = thread.id.toInt()
+        // Populate additional thread tracks if necessary.
+        if (tid != pid) {
+            val thread = Thread.currentThread()
+            this.context.process.getOrCreateThreadTrack(id = tid, name = thread.name)
+        }
     }
-    return driver
+
+    override val tracer: Tracer by
+        lazy(mode = LazyThreadSafetyMode.PUBLICATION) { this.context.createTracer() }
+
+    override fun flush() {
+        this.context.flush()
+    }
+
+    override fun close() {
+        this.context.close()
+    }
 }
 
 internal fun getProcessName(context: Context): String {
@@ -70,7 +90,7 @@ internal fun getProcessName(context: Context): String {
             Class.forName(
                 /* name = */ "android.app.ActivityThread",
                 /* initialize = */ false,
-                /* loader = */ TraceDriver::class.java.classLoader,
+                /* loader = */ AbstractTraceDriver::class.java.classLoader,
             )
         val currentProcessName = activityThread.getDeclaredMethod(/* name= */ "currentProcessName")
         currentProcessName.isAccessible = true

@@ -72,7 +72,6 @@ import androidx.xr.compose.spatial.Orbiter
 import androidx.xr.compose.spatial.OrbiterOffsetType
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.AnchorPolicy
-import androidx.xr.compose.subspace.MovePolicy
 import androidx.xr.compose.subspace.ResizePolicy
 import androidx.xr.compose.subspace.SceneCoreEntity
 import androidx.xr.compose.subspace.SpatialActivityPanel
@@ -93,6 +92,7 @@ import androidx.xr.compose.subspace.layout.depth
 import androidx.xr.compose.subspace.layout.fillMaxHeight
 import androidx.xr.compose.subspace.layout.fillMaxWidth
 import androidx.xr.compose.subspace.layout.height
+import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.padding
 import androidx.xr.compose.subspace.layout.rotate
@@ -258,9 +258,9 @@ class SpatialCompose : ComponentActivity() {
                             .padding(horizontal = 20.dp)
                             .testTag("CenterColumn"),
                     horizontalAlignment = SpatialAlignment.CenterHorizontally,
-                    verticalArrangement = SpatialArrangement.SpaceAround,
+                    verticalArrangement = SpatialArrangement.Center,
                 ) {
-                    SpatialMainPanel(modifier = SubspaceModifier.fillMaxWidth().height(600.dp))
+                    SpatialMainPanel(modifier = SubspaceModifier.fillMaxHeight(0.7f).fillMaxWidth())
                     val intent = remember {
                         Intent(this@SpatialCompose, AnotherActivity::class.java)
                     }
@@ -270,8 +270,10 @@ class SpatialCompose : ComponentActivity() {
                     SpatialActivityPanel(
                         intent = intent,
                         modifier =
-                            SubspaceModifier.width(800.dp).height(600.dp).testTag("ActivityPanel"),
-                        dragPolicy = MovePolicy(true),
+                            SubspaceModifier.fillMaxHeight()
+                                .fillMaxWidth()
+                                .testTag("ActivityPanel")
+                                .movable(),
                     )
                 }
                 SpatialColumn(
@@ -293,8 +295,7 @@ class SpatialCompose : ComponentActivity() {
         var moveResizeLocked by remember { mutableStateOf(true) }
         var alpha by remember { mutableFloatStateOf(1f) }
         SpatialPanel(
-            modifier = modifier.testTag(text).alpha(alpha),
-            dragPolicy = MovePolicy(isEnabled = !moveResizeLocked),
+            modifier = modifier.testTag(text).alpha(alpha).movable(enabled = !moveResizeLocked),
             resizePolicy =
                 ResizePolicy(
                     isEnabled = !moveResizeLocked,

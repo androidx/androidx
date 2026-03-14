@@ -25,17 +25,28 @@ import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.modifiers.RecordingModifier
+import androidx.glance.appwidget.remotecompose.RemoteComposeConstants.DebugRemoteCompose
 
-/** Alternative to the scroll impl in core */
+/**
+ * Alternative to the scroll impl in core
+ *
+ * @param direction either [VERTICAL] or [HORIZONTAL]
+ * @param touchPositionVariable A document variable for the touch position
+ * @param scrollPositionExpr An expression calculating the scroll position
+ * @param numItems
+ * @param scrollContainerSizePx
+ * @param snapScrolling true if snap scroll, false for standard scrolling
+ */
 internal class CustomScrollModifier(
     private var direction: Int,
-    private val touchPosition: Float,
-    private val scrollPosition: Float,
-    private var notches: Int,
+    private val touchPositionVariable: Float,
+    private val scrollPositionExpr: Float,
+    private var numItems: Int,
     private var scrollContainerSizePx: Float,
+    private val snapScrolling: Boolean = true,
 ) : RecordingModifier.Element {
-    var mPositionId: Float = 0f
-    var mCustom: CustomTouch? = null
+    var positionId: Float = 0f
+    var customTouch: CustomTouch? = null
 
     interface CustomTouch {
         fun touch(max: Float, notchMax: Float): Float
@@ -45,9 +56,9 @@ internal class CustomScrollModifier(
         addModifierCustomScroll(
             writer,
             direction,
-            scrollPosition,
-            touchPosition,
-            notches,
+            scrollPositionExpr,
+            touchPositionVariable,
+            numItems,
             scrollContainerSizePx,
         )
     }
@@ -55,53 +66,62 @@ internal class CustomScrollModifier(
     fun addModifierCustomScroll(
         writer: RemoteComposeWriter,
         direction: Int,
-        scrollPosition: Float,
-        touchPosition: Float,
-        notches: Int,
+        scrollPositionExpr: Float,
+        touchPositionVariable: Float,
+        numItems: Int,
         scrollContainerSizePx: Float,
     ) {
 
-        val notchMax = writer.reserveFloatVariable()
-        val touchExpressionDirection =
+        val notchMaxVariable: Float = writer.reserveFloatVariable()
+        val touchExpressionDirection: Float =
             if (direction == VERTICAL) RemoteContext.FLOAT_TOUCH_POS_Y
             else RemoteContext.FLOAT_TOUCH_POS_X
 
         ScrollModifierOperation.apply(
-            writer.getBuffer().getBuffer(),
+            writer.buffer.buffer,
             direction,
-            scrollPosition,
+            scrollPositionExpr,
             scrollContainerSizePx,
-            notchMax,
+            notchMaxVariable,
         )
 
-        writer
-            .getBuffer()
-            .addTouchExpression(
-                Utils.idFromNan(touchPosition),
-                0f, // initial value of touchPosition
-                0f,
-                notches.toFloat(),
-                0f,
-                3,
-                floatArrayOf(
-                    touchExpressionDirection,
-                    scrollContainerSizePx,
-                    Rc.FloatExpression.DIV,
-                    notches.toFloat(),
-                    AnimatedFloatExpression.MUL,
-                    -1f,
-                    AnimatedFloatExpression.MUL,
-                ),
-                TouchExpression.STOP_NOTCHES_EVEN,
-                floatArrayOf(notches.toFloat()),
-                writer.easing(3f, 1f, 2f),
-            )
+        writer.buffer.addTouchExpression(
+            Utils.idFromNan(touchPositionVariable),
+            0f, // initial value of touchPosition
+            0f, // min
+            numItems.toFloat(), // max
+            0f,
+            3, // TODO: maps to HapticFeedbackConstantsCompat.KEYBOARD_TAP
+            floatArrayOf(
+                touchExpressionDirection,
+                scrollContainerSizePx,
+                Rc.FloatExpression.DIV,
+                numItems.toFloat(),
+                AnimatedFloatExpression.MUL,
+                -1f,
+                AnimatedFloatExpression.MUL,
+            ),
+            if (snapScrolling) TouchExpression.STOP_NOTCHES_EVEN else TouchExpression.STOP_GENTLY,
+            if (snapScrolling) floatArrayOf(numItems.toFloat())
+            else null, // describes how many notches
+            writer.easing(MaxTimeToSettle, MaxAcceleration, MaxVelocity),
+        )
 
-        val touchVariableId: Int = Utils.idFromNan(touchPosition)
-        writer.addDebugMessage("~~~ touchPosition [id = $touchVariableId]: ", touchPosition)
-        writer.addDebugMessage("~~~ scrollPos: ", scrollPosition)
-        writer.addDebugMessage("~~~ maxScrollPxExpr id = ${Utils.idFromNan(scrollContainerSizePx)}")
-        writer.addDebugMessage("~~~ scrollContainerSizePx: ", scrollContainerSizePx)
+        if (DebugRemoteCompose) {
+            val touchVariableId: Int = Utils.idFromNan(touchPositionVariable)
+            writer.addDebugMessage(
+                "CustomScrollModifier.kt: touchPosition [id = $touchVariableId]: ",
+                touchPositionVariable,
+            )
+            writer.addDebugMessage("CustomScrollModifier.kt: scrollPos: ", scrollPositionExpr)
+            writer.addDebugMessage(
+                "CustomScrollModifier.kt: maxScrollPxExpr id = ${Utils.idFromNan(scrollContainerSizePx)}"
+            )
+            writer.addDebugMessage(
+                "CustomScrollModifier.kt: scrollContainerSizePx: ",
+                scrollContainerSizePx,
+            )
+        }
 
         writer.getBuffer().addContainerEnd()
     }
@@ -109,5 +129,9 @@ internal class CustomScrollModifier(
     companion object {
         const val VERTICAL: Int = 0
         const val HORIZONTAL: Int = 1
+
+        const val MaxTimeToSettle = .6f // seconds
+        const val MaxAcceleration = 1f // probably pixels per second squared
+        const val MaxVelocity = .5f // max velocity per second
     }
 }

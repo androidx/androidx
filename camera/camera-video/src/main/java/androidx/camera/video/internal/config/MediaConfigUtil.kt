@@ -25,13 +25,12 @@ import androidx.camera.core.Logger
 import androidx.camera.core.impl.EncoderProfilesProxy
 import androidx.camera.core.impl.EncoderProfilesProxy.AudioProfileProxy
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy
-import androidx.camera.video.AudioSpec
+import androidx.camera.video.MediaConstants.MIME_TYPE_UNSPECIFIED
 import androidx.camera.video.MediaSpec
 import androidx.camera.video.MediaSpec.Companion.OUTPUT_FORMAT_MPEG_4
 import androidx.camera.video.MediaSpec.Companion.OUTPUT_FORMAT_UNSPECIFIED
 import androidx.camera.video.MediaSpec.Companion.OUTPUT_FORMAT_WEBM
 import androidx.camera.video.MediaSpec.OutputFormat
-import androidx.camera.video.VideoSpec
 import androidx.camera.video.internal.config.AudioConfigUtil.outputFormatToAudioMime
 import androidx.camera.video.internal.config.VideoConfigUtil.getDynamicRangeDefaultMime
 import androidx.camera.video.internal.config.VideoConfigUtil.outputFormatToVideoMime
@@ -159,7 +158,7 @@ public object MediaConfigUtil {
                 dynamicRange = dynamicRange,
                 outputFormat = formatCombo.container,
                 videoMime = formatCombo.videoMime!!,
-                audioMime = formatCombo.audioMime ?: AudioSpec.MIME_TYPE_UNSPECIFIED,
+                audioMime = formatCombo.audioMime ?: MIME_TYPE_UNSPECIFIED,
             )
 
         return MediaInfo(
@@ -264,12 +263,12 @@ public object MediaConfigUtil {
             outputFormat.takeIf { it != OUTPUT_FORMAT_UNSPECIFIED } ?: OUTPUT_FORMAT_DEFAULT
 
         val resolvedVideoMime =
-            videoMime.takeIf { it != VideoSpec.MIME_TYPE_UNSPECIFIED }
+            videoMime.takeIf { it != MIME_TYPE_UNSPECIFIED }
                 ?: getDynamicRangeDefaultMime(dynamicRange)
                 ?: outputFormatToVideoMime(outputFormat)
 
         val resolvedAudioMime =
-            audioMime.takeIf { it != AudioSpec.MIME_TYPE_UNSPECIFIED }
+            audioMime.takeIf { it != MIME_TYPE_UNSPECIFIED }
                 ?: outputFormatToAudioMime(outputFormat)
 
         val compatibleProfiles =

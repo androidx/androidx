@@ -86,7 +86,7 @@ internal class GltfAnimationFeatureImpl(
                     // background thread (which is where executor put you), the native code looks
                     // for the context, doesn't find it (or finds a mismatch), and fails or crashes
                     withContext(Dispatchers.Main) {
-                        impressApi.animateGltfModelNew(
+                        impressApi.animateGltfModel(
                             /* modelImpressNode= */ modelImpressNode,
                             /* animationName= */ name,
                             /* loop= */ loop,
@@ -112,14 +112,14 @@ internal class GltfAnimationFeatureImpl(
             animationState == GltfEntity.AnimationState.PLAYING ||
                 animationState == GltfEntity.AnimationState.PAUSED
         ) {
-            impressApi.stopGltfModelAnimationNew(modelImpressNode, /* channelId= */ index)
+            impressApi.stopGltfModelAnimation(modelImpressNode, /* channelId= */ index)
             animationState = GltfEntity.AnimationState.STOPPED
         }
     }
 
     override fun pauseAnimation() {
         if (animationState == GltfEntity.AnimationState.PLAYING) {
-            impressApi.toggleGltfModelAnimationNew(
+            impressApi.toggleGltfModelAnimation(
                 modelImpressNode,
                 /* playing= */ false,
                 /* channelId= */ index,
@@ -130,7 +130,7 @@ internal class GltfAnimationFeatureImpl(
 
     override fun resumeAnimation() {
         if (animationState == GltfEntity.AnimationState.PAUSED) {
-            impressApi.toggleGltfModelAnimationNew(
+            impressApi.toggleGltfModelAnimation(
                 modelImpressNode,
                 /* playing= */ true,
                 /* channelId= */ index,
@@ -140,19 +140,29 @@ internal class GltfAnimationFeatureImpl(
     }
 
     override fun seekAnimation(startTime: Float) {
-        impressApi.setGltfModelAnimationPlaybackTime(
-            modelImpressNode,
-            /* playbackTime= */ startTime,
-            /* channelId= */ index,
-        )
+        if (
+            animationState == GltfEntity.AnimationState.PLAYING ||
+                animationState == GltfEntity.AnimationState.PAUSED
+        ) {
+            impressApi.setGltfModelAnimationPlaybackTime(
+                modelImpressNode,
+                /* playbackTime= */ startTime,
+                /* channelId= */ index,
+            )
+        }
     }
 
     override fun setAnimationSpeed(speed: Float) {
-        impressApi.setGltfModelAnimationSpeed(
-            modelImpressNode,
-            /* speed= */ speed,
-            /* channelId= */ index,
-        )
+        if (
+            animationState == GltfEntity.AnimationState.PLAYING ||
+                animationState == GltfEntity.AnimationState.PAUSED
+        ) {
+            impressApi.setGltfModelAnimationSpeed(
+                modelImpressNode,
+                /* speed= */ speed,
+                /* channelId= */ index,
+            )
+        }
     }
 
     override fun addAnimationStateListener(executor: Executor, listener: Consumer<Int>) {

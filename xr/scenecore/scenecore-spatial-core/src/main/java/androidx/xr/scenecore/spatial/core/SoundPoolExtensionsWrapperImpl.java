@@ -18,11 +18,15 @@ package androidx.xr.scenecore.spatial.core;
 
 import android.media.SoundPool;
 
+import androidx.xr.scenecore.runtime.Entity;
 import androidx.xr.scenecore.runtime.PointSourceParams;
 import androidx.xr.scenecore.runtime.SoundFieldAttributes;
 import androidx.xr.scenecore.runtime.SoundPoolExtensionsWrapper;
 
 import com.android.extensions.xr.media.SoundPoolExtensions;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /** Implementation of {@link SoundPoolExtensionsWrapper}. */
 final class SoundPoolExtensionsWrapperImpl implements SoundPoolExtensionsWrapper {
@@ -35,24 +39,25 @@ final class SoundPoolExtensionsWrapperImpl implements SoundPoolExtensionsWrapper
 
     @Override
     public int play(
-            SoundPool soundPool,
+            @NonNull SoundPool soundPool,
             int soundId,
-            PointSourceParams params,
+            @NonNull PointSourceParams params,
+            @Nullable Entity entity,
             float volume,
             int priority,
             int loop,
             float rate) {
         com.android.extensions.xr.media.PointSourceParams extParams =
-                MediaUtils.convertPointSourceParamsToExtensions(params);
+                MediaUtils.convertPointSourceParamsToExtensions(params, entity);
         return mExtensions.playAsPointSource(
                 soundPool, soundId, extParams, volume, priority, loop, rate);
     }
 
     @Override
     public int play(
-            SoundPool soundPool,
+            @NonNull SoundPool soundPool,
             int soundId,
-            SoundFieldAttributes params,
+            @NonNull SoundFieldAttributes params,
             float volume,
             int priority,
             int loop,
@@ -65,7 +70,7 @@ final class SoundPoolExtensionsWrapperImpl implements SoundPoolExtensionsWrapper
     }
 
     @Override
-    public int getSpatialSourceType(SoundPool soundPool, int streamId) {
+    public int getSpatialSourceType(@NonNull SoundPool soundPool, int streamId) {
         return MediaUtils.convertExtensionsToSourceType(
                 mExtensions.getSpatialSourceType(soundPool, streamId));
     }

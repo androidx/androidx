@@ -406,13 +406,11 @@ internal class AndroidCameraState(
     override fun onError(cameraDevice: CameraDevice, errorCode: Int) {
         check(cameraDevice.id == cameraId.value)
         Debug.traceStart { "$cameraId#onError-$errorCode" }
-        Log.debug { "$cameraId: onError $errorCode" }
+        val cameraError = CameraError.from(errorCode)
+        Log.debug { "$cameraId: onError $cameraError" }
         cameraDeviceClosed.countDown()
 
-        closeWith(
-            cameraDevice,
-            ClosingInfo(ClosedReason.CAMERA2_ERROR, errorCode = CameraError.from(errorCode)),
-        )
+        closeWith(cameraDevice, ClosingInfo(ClosedReason.CAMERA2_ERROR, errorCode = cameraError))
         interopCameraDeviceStateCallback?.onError(cameraDevice, errorCode)
         Debug.traceStop()
     }

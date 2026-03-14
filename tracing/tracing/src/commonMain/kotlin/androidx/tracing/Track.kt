@@ -43,8 +43,8 @@ public abstract class Track(
     /**
      * The uuid for the track descriptor.
      *
-     * This ID must be unique within all [Track]s in a given trace produced by [TraceDriver] - it is
-     * used to connect recorded trace events to the containing track.
+     * This ID must be unique within all [Track]s in a given trace produced by
+     * [AbstractTraceDriver] - it is used to connect recorded trace events to the containing track.
      */
     @field:Suppress("ShowingMemberInHiddenClass")
     @JvmField // avoid getter generation

@@ -34,6 +34,7 @@ import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_FRAME_LIMIT
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsAutoFocusTrigger
+import androidx.camera.camera2.pipe.Converge3ABehavior
 import androidx.camera.camera2.pipe.FlashMode
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.Lock3ABehavior
@@ -169,6 +170,11 @@ constructor(
                     CaptureResult.CONTROL_AF_STATE to afUnlockedStateList
                 )
                 .toConditionChecker()
+
+        // Default Deferred<Result3A> when there is no explicit error but the operation might have
+        // determined to exit early.
+        private val deferredResult3AOk =
+            CompletableDeferred(Result3A(Status.OK, frameMetadata = null))
     }
 
     fun state3ASnapshot(): State3A {
@@ -260,6 +266,84 @@ constructor(
         return listener.result
     }
 
+    fun converge3A(
+        aeRegions: List<MeteringRectangle>? = null,
+        afRegions: List<MeteringRectangle>? = null,
+        awbRegions: List<MeteringRectangle>? = null,
+        aeBehavior: Converge3ABehavior? = null,
+        afBehavior: Converge3ABehavior? = null,
+        awbBehavior: Converge3ABehavior? = null,
+        convergedCondition: ((FrameMetadata) -> Boolean)? = null,
+        frameLimit: Int? = DEFAULT_FRAME_LIMIT,
+        timeLimitNs: Long? = DEFAULT_TIME_LIMIT_NS,
+    ): Deferred<Result3A> {
+        require(aeBehavior != null || afBehavior != null || awbBehavior != null) {
+            "Converge behavior must be specified for at least one of ae, af or awb."
+        }
+
+        val afBehavior = afBehavior.takeIf { metadata.supportsAutoFocusTrigger }
+        if (aeBehavior == null && afBehavior == null && awbBehavior == null) {
+            return deferredResult3AOk
+        }
+
+        if (graphProcessor.repeatingRequest == null) {
+            return deferredResult3ASubmitFailed
+        }
+
+        if (aeRegions != null || afRegions != null || awbRegions != null) {
+            graphState3A.update(
+                aeRegions = aeRegions,
+                afRegions = afRegions,
+                awbRegions = awbRegions,
+            )
+        }
+        // Unlock ae/awb if a rescan has been requested. The lock/unlock property for ae/awb are
+        // part of repeating request unlock AF which needs a single request to star or cancel
+        // trigger.
+        val aeLockValue = if (aeBehavior.shouldUnlock()) false else null
+        val awbLockValue = if (awbBehavior.shouldUnlock()) false else null
+        if (aeLockValue != null || awbLockValue != null) {
+            debug {
+                "converge3A - setting aeLock=$aeLockValue, awbLock=$awbLockValue for rescan. Custom converge isSet=${convergedCondition != null})"
+            }
+            graphState3A.update(aeLock = aeLockValue, awbLock = awbLockValue)
+        }
+
+        val listener =
+            createConvergeListener(
+                aeBehavior != null,
+                afBehavior != null,
+                awbBehavior != null,
+                convergedCondition,
+                frameLimit,
+                timeLimitNs,
+            )
+
+        val unlockAf = afBehavior.shouldUnlock()
+        // If we don't need to unlock af, then we can update the regions, ae/wb locks and exit
+        // listener in the same repeating request.
+        if (!unlockAf) {
+            graphListener3A.addListener(listener)
+            graphProcessor.update3AParameters(graphState3A.toCaptureRequestParametersMap())
+            return listener.result
+        }
+
+        // Otherwise we just update the metering regions and ae/awb locks, and skip the listener in
+        // the repeating request update to prevent premature exit if af is already converged from
+        // the previous/stale scan.
+        graphProcessor.update3AParameters(graphState3A.toCaptureRequestParametersMap())
+
+        debug { "converge3A - sending a single request to unlock af to start a new scan." }
+        if (!graphProcessor.trigger(parameterForAfTriggerCancel)) {
+            return deferredResult3ASubmitFailed
+        }
+
+        // Attach the exit listener and refresh the repeating request.
+        graphListener3A.addListener(listener)
+        graphProcessor.update3AParameters(graphState3A.toCaptureRequestParametersMap())
+        return listener.result
+    }
+
     /**
      * Given the desired metering regions and lock behaviors for ae, af and awb, this method updates
      * the metering regions and then, (a) unlocks ae, af, awb and wait for them to converge, and
@@ -304,7 +388,7 @@ constructor(
             afLockBehaviorSanitized = null
         }
         if (aeLockBehavior == null && afLockBehaviorSanitized == null && awbLockBehavior == null) {
-            return CompletableDeferred(Result3A(Status.OK, /* frameMetadata= */ null))
+            return deferredResult3AOk
         }
 
         // Update the 3A state of camera graph with the given metering regions. If metering regions
@@ -329,22 +413,16 @@ constructor(
         }
 
         // As needed unlock ae, awb and wait for ae, af and awb to converge.
-        if (
-            aeLockBehavior.shouldWaitForAeToConverge() ||
-                afLockBehaviorSanitized.shouldWaitForAfToConverge() ||
-                awbLockBehavior.shouldWaitForAwbToConverge()
-        ) {
-            val converged3AExitConditions =
-                convergedCondition
-                    ?: createConverged3AExitConditions(
-                            aeLockBehavior.shouldWaitForAeToConverge(),
-                            afLockBehaviorSanitized.shouldWaitForAfToConverge(),
-                            awbLockBehavior.shouldWaitForAwbToConverge(),
-                        )
-                        .toConditionChecker()
+        val waitForAeToConverge = aeLockBehavior.shouldWaitForAeToConverge()
+        val waitForAfToConverge = afLockBehaviorSanitized.shouldWaitForAfToConverge()
+        val waitForAwbToConverge = awbLockBehavior.shouldWaitForAwbToConverge()
+        if (waitForAeToConverge || waitForAfToConverge || waitForAwbToConverge) {
             val listener =
-                Result3AStateListenerImpl(
-                    converged3AExitConditions,
+                createConvergeListener(
+                    waitForAeToConverge,
+                    waitForAfToConverge,
+                    waitForAwbToConverge,
+                    convergedCondition,
                     frameLimit,
                     convergedTimeLimitNs,
                 )
@@ -365,10 +443,10 @@ constructor(
 
             debug {
                 "lock3A - waiting for" +
-                    (if (aeLockBehavior.shouldWaitForAeToConverge()) " ae" else "") +
-                    (if (afLockBehaviorSanitized.shouldWaitForAfToConverge()) " af" else "") +
-                    (if (awbLockBehavior.shouldWaitForAwbToConverge()) " awb" else "") +
-                    " to converge before locking them."
+                    (if (waitForAeToConverge) " ae" else "") +
+                    (if (waitForAfToConverge) " af" else "") +
+                    (if (waitForAwbToConverge) " awb" else "") +
+                    " to converge before locking them. Custom converge condition isSet=${convergedCondition != null}."
             }
             val result = listener.result.await()
             debug {
@@ -414,7 +492,7 @@ constructor(
             afSanitized = null
         }
         if (!(ae == true || afSanitized == true || awb == true)) {
-            return CompletableDeferred(Result3A(Status.OK, /* frameMetadata= */ null))
+            return deferredResult3AOk
         }
         // If the GraphProcessor does not have a repeating request, we should fail immediately.
         if (graphProcessor.repeatingRequest == null) {
@@ -829,6 +907,24 @@ constructor(
         return Result3AStateListenerImpl(resultModesMap.toMap())
     }
 
+    private fun createConvergeListener(
+        forAe: Boolean,
+        forAf: Boolean,
+        forAwb: Boolean,
+        conditionOverride: ((FrameMetadata) -> Boolean)? = null,
+        frameLimit: Int?,
+        convergedTimeLimitNs: Long?,
+    ): Result3AStateListenerImpl {
+        val converged3AExitConditions =
+            conditionOverride
+                ?: createConverged3AExitConditions(forAe, forAf, forAwb).toConditionChecker()
+        return Result3AStateListenerImpl(
+            converged3AExitConditions,
+            frameLimit,
+            convergedTimeLimitNs,
+        )
+    }
+
     /** Resets the state of 3A to the given State3A. */
     fun reset3A(initialState3A: State3A) {
         val currentState3A = state3ASnapshot()
@@ -894,3 +990,5 @@ internal fun Lock3ABehavior?.shouldWaitForAwbToConverge(): Boolean =
 // https://developer.android.com/reference/android/hardware/camera2/CaptureResult#CONTROL_AF_STATE
 internal fun Lock3ABehavior?.shouldWaitForAfToConverge(): Boolean =
     this != null && this != Lock3ABehavior.IMMEDIATE
+
+internal fun Converge3ABehavior?.shouldUnlock(): Boolean = this == Converge3ABehavior.AFTER_NEW_SCAN

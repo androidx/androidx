@@ -17,6 +17,7 @@
 package androidx.room3.solver.shortcut.binderprovider
 
 import androidx.room3.compiler.processing.XType
+import androidx.room3.solver.TypeAdapterExtras
 import androidx.room3.solver.shortcut.binder.DeleteOrUpdateFunctionBinder
 import androidx.room3.solver.shortcut.result.DeleteOrUpdateFunctionAdapter
 
@@ -27,5 +28,5 @@ interface DeleteOrUpdateFunctionBinderProvider {
     fun matches(declared: XType): Boolean
 
     /** Provider of [DeleteOrUpdateFunctionAdapter], based on the [XType] */
-    fun provide(declared: XType): DeleteOrUpdateFunctionBinder
+    fun provide(declared: XType, extras: TypeAdapterExtras): DeleteOrUpdateFunctionBinder
 }

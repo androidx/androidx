@@ -159,10 +159,7 @@ class SubspaceModifierNodeChainTest {
             }
         }
 
-        // There should be multiple initial compositions as the SpatialPanel is attempting to
-        // size
-        // itself and the state manager is initialized and settled.
-        var count = 2
+        var count = 1
         composeTestRule.waitForIdle()
         assertThat(nodeCount).isEqualTo(count)
 

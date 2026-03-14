@@ -36,9 +36,11 @@ import androidx.xr.scenecore.runtime.MoveEvent
 import androidx.xr.scenecore.runtime.MoveEventListener
 import androidx.xr.scenecore.runtime.PanelEntity
 import androidx.xr.scenecore.runtime.PixelDimensions
+import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider.getXrExtensions
 import androidx.xr.scenecore.testing.FakeGltfFeature.Companion.createWithMockFeature
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
+import androidx.xr.scenecore.testing.FakeSurfaceFeature
 import com.android.extensions.xr.node.InputEvent
 import com.android.extensions.xr.node.Mat4f
 import com.android.extensions.xr.node.Node
@@ -106,7 +108,7 @@ class MovableComponentImplTest {
     fun setUp() {
         sceneRuntime =
             SpatialSceneRuntime.create(activity, fakeExecutor, xrExtensions, entityManager)
-        activitySpaceImpl = sceneRuntime.activitySpace as ActivitySpaceImpl
+        activitySpaceImpl = sceneRuntime.activitySpace
         activitySpaceNode = activitySpaceImpl.mNode
         Dispatchers.setMain(UnconfinedTestDispatcher())
     }
@@ -127,7 +129,7 @@ class MovableComponentImplTest {
         val display = activity.getSystemService(DisplayManager::class.java).displays[0]
         val displayContext = activity.createDisplayContext(display!!)
         val view = View(displayContext)
-        view.setLayoutParams(ViewGroup.LayoutParams(640, 480))
+        view.layoutParams = ViewGroup.LayoutParams(640, 480)
         val node = xrExtensions.createNode()
 
         val panelEntity =
@@ -205,6 +207,20 @@ class MovableComponentImplTest {
         return GltfEntityImpl(
             activity,
             fakeGltfFeature,
+            activitySpaceImpl,
+            xrExtensions,
+            entityManager,
+            fakeExecutor,
+        )
+    }
+
+    private fun createSurfaceEntity(activity: Activity): SurfaceEntityImpl {
+        val fakeSurfaceFeature =
+            FakeSurfaceFeature(NodeHolder<Node>(xrExtensions.createNode(), Node::class.java))
+
+        return SurfaceEntityImpl(
+            activity,
+            fakeSurfaceFeature,
             activitySpaceImpl,
             xrExtensions,
             entityManager,
@@ -523,8 +539,8 @@ class MovableComponentImplTest {
                 runtimeExecutor = fakeExecutor,
             )
 
-        // Initial size of movableComponent should be (0, 0, 0)
-        Truth.assertThat(movableComponent.size).isEqualTo(Dimensions(0f, 0f, 0f))
+        // Initial size of movableComponent should be 1f x 1f x 1f.
+        Truth.assertThat(movableComponent.size).isEqualTo(Dimensions(1f, 1f, 1f))
 
         Truth.assertThat(panelEntity.addComponent(movableComponent)).isTrue()
 
@@ -545,13 +561,34 @@ class MovableComponentImplTest {
                 runtimeExecutor = fakeExecutor,
             )
 
-        // Initial size of movableComponent should be (0, 0, 0)
-        Truth.assertThat(movableComponent.size).isEqualTo(Dimensions(0f, 0f, 0f))
+        // Initial size of movableComponent should be 1f x 1f x 1f.
+        Truth.assertThat(movableComponent.size).isEqualTo(Dimensions(1f, 1f, 1f))
 
         Truth.assertThat(mainPanelEntity.addComponent(movableComponent)).isTrue()
 
         // After attaching, size should match entity size
         Truth.assertThat(movableComponent.size).isEqualTo(mainPanelEntity.size)
+    }
+
+    @Test
+    fun addMovableComponentToSurfaceEntity_updatesComponentSize() {
+        val surfaceEntity = createSurfaceEntity(activity)
+        val expectedSize = FloatSize2d(10f, 20f)
+        surfaceEntity.shape = SurfaceEntity.Shape.Quad(expectedSize)
+
+        val movableComponent: MovableComponent =
+            MovableComponentImpl(
+                systemMovable = false,
+                scaleInZ = false,
+                userAnchorable = false,
+                activitySpaceImpl = activitySpaceImpl,
+                entityShadowRenderer = mockPanelShadowRenderer,
+                runtimeExecutor = fakeExecutor,
+            )
+
+        Truth.assertThat(surfaceEntity.addComponent(movableComponent)).isTrue()
+        Truth.assertThat(movableComponent.size)
+            .isEqualTo(Dimensions(expectedSize.width, expectedSize.height, 0f))
     }
 
     @Test

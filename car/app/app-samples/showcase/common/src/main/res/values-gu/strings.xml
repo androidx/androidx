@@ -243,6 +243,7 @@
     <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"દરેક સૂચિ હેઠળની પેટાટેક્સ્ટ"</string>
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"છબી અને ઍક્શનનો ડેમો સમાપ્ત કરો"</string>
     <string name="filter_chip_demo_title" msgid="92190365856639582">"ફિલ્ટર ચિપનો ડેમો"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"પ્રોગ્રેસ બારનો ડેમો"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"વિભાગના નમૂનાનો ડેમો"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"જગ્યાની સૂચિના નમૂનાનો ડેમો"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"સ્થાનો બ્રાઉઝ કરો"</string>

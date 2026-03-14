@@ -19,8 +19,9 @@ package androidx.datastore.core
 import android.content.Context
 import androidx.kruth.assertThat
 import androidx.test.core.app.ApplicationProvider
-import androidx.tracing.TraceDriver
+import androidx.tracing.AbstractTraceDriver
 import androidx.tracing.Tracer
+import androidx.tracing.wire.TraceDriver
 import androidx.tracing.wire.TraceSink
 import java.io.File
 import java.util.concurrent.TimeUnit
@@ -45,7 +46,7 @@ class DataStoreTracingTest {
     private lateinit var testDataStoreFile: File
     private lateinit var traceFile: File
     private lateinit var dataStoreScope: TestScope
-    private lateinit var driver: TraceDriver
+    private lateinit var driver: AbstractTraceDriver
     private lateinit var tracer: Tracer
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -56,7 +57,7 @@ class DataStoreTracingTest {
         val context: Context = ApplicationProvider.getApplicationContext()
         traceFile = File(context.getExternalFilesDir(null), "datastore-test-trace.txt")
         driver =
-            androidx.tracing.wire.TraceDriver(
+            TraceDriver(
                 context = context,
                 sink =
                     TraceSink(

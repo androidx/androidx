@@ -17,7 +17,7 @@
 package androidx.xr.glimmer.list
 
 import androidx.compose.ui.focus.requestFocusForChildInRootBounds
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.requireLayoutCoordinates
 import androidx.compose.ui.util.fastCoerceIn
@@ -54,64 +54,66 @@ internal class GlimmerListAutoFocusState {
     internal fun onAfterLayout(node: DelegatableNode) {
         val properties = properties
         if (isAutoFocusEnabled && pendingRequestFocus && properties != null) {
+            val layoutProperties = properties.layoutProperties
             val focusLinePosition = getFocusLinePosition(properties)
-            val coordinates = node.requireLayoutCoordinates()
+            val size = node.requireLayoutCoordinates().size
 
-            val localLeftTop = getFocusLeftTopOffset(focusLinePosition, properties.layoutProperties)
-            val rootTopLeft = coordinates.localToRoot(localLeftTop)
-
-            val rootLeft = rootTopLeft.x.fastRoundToInt()
-            val rootTop = rootTopLeft.y.fastRoundToInt()
-            val rootBottom = rootTop + getFocusHeight(properties.layoutProperties)
-            val rootRight = rootLeft + getFocusWidth(properties.layoutProperties)
-
-            node.requestFocusForChildInRootBounds(
-                left = rootLeft,
-                top = rootTop,
-                right = rootRight,
-                bottom = rootBottom,
-            )
+            if (layoutProperties.isVertical) {
+                node.requestFocusForChildInLocalBounds(
+                    // Focus line along the main-axis (height)
+                    top = focusLinePosition,
+                    bottom = focusLinePosition,
+                    // Focus spans the cross-axis (width)
+                    left = 0,
+                    right = size.width,
+                )
+            } else {
+                node.requestFocusForChildInLocalBounds(
+                    // Focus line along the main-axis (width)
+                    left = focusLinePosition,
+                    right = focusLinePosition,
+                    // Focus spans the cross-axis (height)
+                    top = 0,
+                    bottom = size.height,
+                )
+            }
 
             pendingRequestFocus = false
         }
     }
 }
 
-private fun getFocusLinePosition(state: GlimmerListAutoFocusProperties): Float {
+/**
+ * Requests focus at the position along the main-axis where the focus line is, along the entire
+ * cross-axis size of the layout node.
+ */
+private fun DelegatableNode.requestFocusForChildInLocalBounds(
+    left: Int,
+    top: Int,
+    right: Int,
+    bottom: Int,
+) {
+    val rootOrigin = requireLayoutCoordinates().positionInRoot()
+    val x = rootOrigin.x.fastRoundToInt()
+    val y = rootOrigin.y.fastRoundToInt()
+    requestFocusForChildInRootBounds(
+        left = x + left,
+        top = y + top,
+        right = x + right,
+        bottom = y + bottom,
+    )
+}
+
+/** Returns the focus line position along the main axis */
+private fun getFocusLinePosition(state: GlimmerListAutoFocusProperties): Int {
     // The FocusScroll doesn't include paddings, but the RectList API requires us to respect them.
     val focusLinePosition =
-        state.layoutProperties.beforeContentPadding + state.focusScroll.toFloat()
+        state.layoutProperties.beforeContentPadding + state.focusScroll.fastRoundToInt()
     // Specifies the boundaries where the focus line can be.
-    val start = state.layoutProperties.beforeContentPadding.toFloat()
+    val start = state.layoutProperties.beforeContentPadding
     val end = start + state.layoutProperties.mainAxisAvailableSize
     // If the focus line lies exactly on the edge of an item, they are considered non-overlapping.
     // This breaks the behavior at the very beginning and end of the list. To avoid this, we shrink
     // the area where the focus line can exist by one pixel on both sides.
     return focusLinePosition.fastCoerceIn(start + 1, end - 1)
-}
-
-private fun getFocusLeftTopOffset(
-    focusLine: Float,
-    layoutProperties: ListLayoutProperties,
-): Offset {
-    return Offset(
-        x = if (layoutProperties.isVertical) 0f else focusLine,
-        y = if (layoutProperties.isVertical) focusLine else 0f,
-    )
-}
-
-private fun getFocusWidth(layoutProperties: ListLayoutProperties): Int {
-    return if (layoutProperties.isVertical) {
-        layoutProperties.contentConstraints.maxWidth + layoutProperties.totalHorizontalPadding
-    } else {
-        0
-    }
-}
-
-private fun getFocusHeight(layoutProperties: ListLayoutProperties): Int {
-    return if (layoutProperties.isVertical) {
-        0
-    } else {
-        layoutProperties.contentConstraints.maxHeight + layoutProperties.totalVerticalPadding
-    }
 }

@@ -103,8 +103,7 @@ class ProjectedManagerTest {
 
         underTest.update()
 
-        assertThat(perceptionManager.xrResources.deviceTrackingState)
-            .isEqualTo(TrackingState.TRACKING)
+        assertThat(perceptionManager.xrResources.trackingState).isEqualTo(TrackingState.TRACKING)
         assertThat(perceptionManager.xrResources.geospatialTrackingState)
             .isEqualTo(TrackingState.STOPPED)
         assertThat(perceptionManager.arDevice.devicePose).isEqualTo(expectedPose)

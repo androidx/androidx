@@ -38,4 +38,5 @@ interface IWearWidgetUpdateRequester {
   oneway void requestUpdate(in androidx.glance.wear.parcel.WearWidgetUpdateRequestParcel requestParcel, in androidx.glance.wear.parcel.WearWidgetRawContentParcel contentParcel, in androidx.glance.wear.parcel.IExecutionCallback callback) = 1;
   const int API_VERSION = 1;
   const int UPDATE_ERROR_CODE_INTERNAL_ERROR = 1;
+  const int UPDATE_ERROR_CODE_INVALID_REQUEST_ERROR = 2;
 }

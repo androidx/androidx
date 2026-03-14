@@ -315,6 +315,9 @@
     <!-- FilterChipDemo -->
     <string name="filter_chip_demo_title">Filter Chip Demo</string>
 
+    <!-- ProgressBarDemo -->
+    <string name="progress_bar_demo_title">Progress Bar Demo</string>
+
   <!-- PaneTemplateDemoScreen -->
   <string name="pane_template_demo_title">Pane Template Demo</string>
 

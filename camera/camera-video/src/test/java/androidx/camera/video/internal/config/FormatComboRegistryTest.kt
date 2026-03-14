@@ -20,11 +20,10 @@ import android.media.MediaFormat.MIMETYPE_AUDIO_AAC
 import android.media.MediaFormat.MIMETYPE_AUDIO_OPUS
 import android.media.MediaFormat.MIMETYPE_VIDEO_AVC
 import android.media.MediaFormat.MIMETYPE_VIDEO_VP9
-import androidx.camera.video.AudioSpec
+import androidx.camera.video.MediaConstants.MIME_TYPE_UNSPECIFIED
 import androidx.camera.video.MediaSpec.Companion.OUTPUT_FORMAT_MPEG_4
 import androidx.camera.video.MediaSpec.Companion.OUTPUT_FORMAT_UNSPECIFIED
 import androidx.camera.video.MediaSpec.Companion.OUTPUT_FORMAT_WEBM
-import androidx.camera.video.VideoSpec
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -67,8 +66,8 @@ class FormatComboRegistryTest {
         val results =
             sampleRegistry.getCombos(
                 OUTPUT_FORMAT_UNSPECIFIED,
-                VideoSpec.MIME_TYPE_UNSPECIFIED,
-                AudioSpec.MIME_TYPE_UNSPECIFIED,
+                MIME_TYPE_UNSPECIFIED,
+                MIME_TYPE_UNSPECIFIED,
             )
 
         // MPEG_4: (AVC+AAC), (AVC+null), (null+AAC) -> 3
@@ -86,11 +85,7 @@ class FormatComboRegistryTest {
     @Test
     fun getCombos_supportsMimeUnspecified() {
         val results =
-            sampleRegistry.getCombos(
-                OUTPUT_FORMAT_MPEG_4,
-                VIDEO_AVC,
-                AudioSpec.MIME_TYPE_UNSPECIFIED,
-            )
+            sampleRegistry.getCombos(OUTPUT_FORMAT_MPEG_4, VIDEO_AVC, MIME_TYPE_UNSPECIFIED)
 
         // Should find (AVC+AAC) and (AVC+null)
         assertThat(results).hasSize(2)

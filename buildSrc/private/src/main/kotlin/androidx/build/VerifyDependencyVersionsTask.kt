@@ -230,6 +230,16 @@ internal fun Project.shouldVerifyConfiguration(configuration: Configuration): Bo
     // Don't check KGP internal configuration used for tooling
     if (name == "kotlinInternalAbiValidation") return false
 
+    // don't verify these configurations of KMP projects since we don't publish them anyway
+    if (name.endsWith("CompileKlibraries")) return false
+    if (name.endsWith("CompilationApi")) return false
+    if (name == "jsCompileClasspath") return false
+    if (name == "jsNpmAggregated") return false
+    if (name == "jsRuntimeClasspath") return false
+    if (name == "wasmJsCompileClasspath") return false
+    if (name == "wasmJsNpmAggregated") return false
+    if (name == "wasmJsRuntimeClasspath") return false
+
     // don't verify test configurations of KMP projects
     if (name.contains("TestCompilation")) return false
     if (name.contains("TestCompile")) return false

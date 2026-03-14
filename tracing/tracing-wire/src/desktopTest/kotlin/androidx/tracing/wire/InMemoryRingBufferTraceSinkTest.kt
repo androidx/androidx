@@ -16,7 +16,6 @@
 
 package androidx.tracing.wire
 
-import androidx.tracing.TraceDriver
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -50,11 +49,13 @@ class InMemoryRingBufferTraceSinkTest {
             delay(50)
 
             val bufferedSink = file1.sink().buffer()
+            driver.flush()
             sink.flushTo(bufferedSink)
 
             job.join()
 
             // Flush remainder
+            driver.flush()
             sink.flushTo(bufferedSink)
             bufferedSink.close()
 
@@ -79,9 +80,10 @@ class InMemoryRingBufferTraceSinkTest {
             // Wait for potential background processing
             delay(50)
 
-            val bufferedSink = file.sink().buffer()
-            sink.flushTo(bufferedSink)
-            bufferedSink.close()
+            file.sink().buffer().use { bufferedSink ->
+                driver.flush()
+                sink.flushTo(bufferedSink)
+            }
 
             assertTrue(file.exists())
             assertTrue(file.length() > 0, "File should not be empty")
@@ -120,9 +122,10 @@ class InMemoryRingBufferTraceSinkTest {
             // Wait for potential background processing
             delay(50)
 
-            val bufferedSink = file.sink().buffer()
-            sink.flushTo(bufferedSink)
-            bufferedSink.close()
+            file.sink().buffer().use { bufferedSink ->
+                driver.flush()
+                sink.flushTo(bufferedSink)
+            }
 
             assertTrue(file.exists())
             assertTrue(file.length() > 0)
@@ -147,5 +150,58 @@ class InMemoryRingBufferTraceSinkTest {
 
         // The file should be empty because data should be dropped
         assertEquals(0L, file.length(), "File should be empty when closed without flush")
+    }
+
+    @Test
+    fun testDriverFlush_isNoOpAndDataIsSentToSink() = runBlocking {
+        val folder = tmpFolder.newFolder()
+        val file = File(folder, "trace_tracks.perfetto")
+        val sink = InMemoryRingBufferTraceSink(capacityInBytes = 10_000_000, sequenceId = 1)
+        val driver = TraceDriver(sink = sink, isEnabled = true)
+        val tracer = driver.tracer
+
+        tracer.trace("cat", "event-test") {
+            // no suspending
+        }
+
+        // Flushing the driver without flushing the sink ensures that the track preamble
+        // and buffered packets are enqueued into the sink, but the sink itself is not cleared.
+        driver.flush()
+
+        file.sink().buffer().use { bufferedSink ->
+            driver.flush()
+            sink.flushTo(bufferedSink)
+        }
+        // Close driver (and sink)
+        driver.close()
+
+        assertTrue(file.exists())
+        assertTrue(file.length() > 0, "File should contain flushed events")
+
+        val trace = androidx.tracing.wire.protos.MutableTrace.ADAPTER.decode(file.readBytes())
+
+        val starts =
+            trace.packet.filter {
+                it.track_event?.type ==
+                    androidx.tracing.wire.protos.MutableTrackEvent.Type.TYPE_SLICE_BEGIN
+            }
+        val ends =
+            trace.packet.filter {
+                it.track_event?.type ==
+                    androidx.tracing.wire.protos.MutableTrackEvent.Type.TYPE_SLICE_END
+            }
+
+        assertEquals(1, starts.size, "Should have exactly one start packet")
+        assertEquals(1, ends.size, "Should have exactly one end packet")
+
+        // NEW: Verify that the Process and Thread metadata (preambles) are in the trace.
+        // Without these, the Perfetto UI won't know what process/thread the slices belong to.
+        val trackDescriptors = trace.packet.mapNotNull { it.track_descriptor }
+
+        val hasProcessDescriptor = trackDescriptors.any { it.process != null }
+        val hasThreadDescriptor = trackDescriptors.any { it.thread != null }
+
+        assertTrue(hasProcessDescriptor, "Trace must contain a Process TrackDescriptor")
+        assertTrue(hasThreadDescriptor, "Trace must contain a Thread TrackDescriptor")
     }
 }

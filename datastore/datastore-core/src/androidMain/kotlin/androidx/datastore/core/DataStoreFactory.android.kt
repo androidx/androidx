@@ -21,6 +21,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.datastore.core.handlers.ReThrowCorruptionHandler
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
+import androidx.datastore.core.util.getContextFromScope
 import androidx.tracing.Tracer
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
@@ -110,11 +111,12 @@ public actual object DataStoreFactory {
         corruptionHandler: ReplaceFileCorruptionHandler<T>?,
         migrations: List<DataMigration<T>>,
         scope: CoroutineScope,
-    ): DataStore<T> =
-        DataStore.Builder(storage = storage, context = scope.coroutineContext)
+    ): DataStore<T> {
+        return DataStore.Builder(storage = storage, context = getContextFromScope(scope))
             .apply { corruptionHandler?.let { setCorruptionHandler(it) } }
             .addMigrations(migrations)
             .build()
+    }
 
     /**
      * Create an instance of SingleProcessDataStore with tracing enabled.
@@ -139,7 +141,7 @@ public actual object DataStoreFactory {
         migrations: List<DataMigration<T>> = listOf(),
         scope: CoroutineScope = CoroutineScope(ioDispatcher() + SupervisorJob()),
     ): DataStore<T> =
-        DataStore.Builder(storage = storage, context = scope.coroutineContext)
+        DataStore.Builder(storage = storage, context = getContextFromScope(scope))
             .setCorruptionHandler(corruptionHandler)
             .addMigrations(migrations)
             .setTracer(tracer)
@@ -182,7 +184,7 @@ public actual object DataStoreFactory {
                         serializer = serializer,
                         produceFile = { context.deviceProtectedDataStoreFile(fileName) },
                     ),
-                context = scope.coroutineContext,
+                context = getContextFromScope(scope),
             )
             .apply { corruptionHandler?.let { setCorruptionHandler(it) } }
             .addMigrations(migrations)

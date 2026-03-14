@@ -22,7 +22,7 @@ import kotlinx.coroutines.withContext
 /**
  * A [Tracer] is the entry point for all Tracing APIs.
  *
- * To obtain an instance of `Tracer` use [TraceDriver.tracer].
+ * To obtain an instance of `Tracer` use [AbstractTraceDriver.tracer].
  */
 // False positive: https://youtrack.jetbrains.com/issue/KTIJ-22326
 @Suppress("OPTIONAL_DECLARATION_USAGE_IN_NON_COMMON_SOURCE")

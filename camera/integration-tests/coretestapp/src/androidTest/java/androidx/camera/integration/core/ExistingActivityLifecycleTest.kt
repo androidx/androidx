@@ -26,6 +26,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.CoreAppTestUtil
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.lifecycle.Lifecycle.State.CREATED
 import androidx.lifecycle.Lifecycle.State.RESUMED
 import androidx.test.core.app.ActivityScenario
@@ -44,7 +45,6 @@ import androidx.testutils.RepeatRule
 import androidx.testutils.withActivity
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
-import org.junit.After
 import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
@@ -60,6 +60,13 @@ private const val ROTATE_TIMEOUT_MS = 2000L
 @LargeTest
 class ExistingActivityLifecycleTest(private val implName: String) {
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+
+    @get:Rule
+    val requireForegroundRule = RequireForegroundRule {
+        Assume.assumeFalse("Ignore Cuttlefish", Build.MODEL.contains("Cuttlefish"))
+        Assume.assumeTrue(CameraUtil.deviceHasCamera())
+        CoreAppTestUtil.assumeCompatibleDevice()
+    }
 
     @get:Rule
     val useCamera =
@@ -80,31 +87,12 @@ class ExistingActivityLifecycleTest(private val implName: String) {
         Intent(ApplicationProvider.getApplicationContext(), CameraXActivity::class.java)
 
     @Before
-    fun setup() {
-        Assume.assumeFalse("Ignore Cuttlefish", Build.MODEL.contains("Cuttlefish"))
-        Assume.assumeTrue(CameraUtil.deviceHasCamera())
-        CoreAppTestUtil.assumeCompatibleDevice()
-        // Clear the device UI and check if there is no dialog or lock screen on the top of the
-        // window before start the test.
-        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
-        // Use the natural orientation throughout these tests to ensure the activity isn't
-        // recreated unexpectedly. This will also freeze the sensors until
-        // mDevice.unfreezeRotation() in the tearDown() method. Any simulated rotations will be
-        // explicitly initiated from within the test.
-        device.setOrientationNatural()
-    }
-
-    @After
-    fun tearDown() {
-        // Unfreeze rotation so the device can choose the orientation via its own policy. Be nice
-        // to other tests :)
-        device.unfreezeRotation()
-        device.pressHome()
-        device.waitForIdle(HOME_TIMEOUT_MS)
-
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
-        cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
+    fun setUp() {
+        requireForegroundRule.deferCleanup {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
+            cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
+        }
     }
 
     // Check if Preview screen is updated or not, after Destroy-Create lifecycle.

@@ -22,6 +22,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
@@ -84,7 +85,7 @@ private fun TestWearWidget() {
         horizontalPadding = 8.rdp,
         verticalPadding = 8.rdp,
         cornerRadius = 26.dp,
-        backgroundColor = Color.Blue,
+        background = WearWidgetBrush.color(Color.Blue.rc),
     ) {
         RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Yellow))
     }

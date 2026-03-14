@@ -19,6 +19,7 @@ package androidx.room3.solver.binderprovider
 import androidx.room3.OperationType
 import androidx.room3.compiler.processing.XType
 import androidx.room3.processor.Context
+import androidx.room3.solver.TypeAdapterExtras
 import androidx.room3.solver.shortcut.binder.DaoConverterDeleteOrUpdateFunctionBinder
 import androidx.room3.solver.shortcut.binder.DeleteOrUpdateFunctionBinder
 import androidx.room3.solver.shortcut.binderprovider.DeleteOrUpdateFunctionBinderProvider
@@ -32,7 +33,7 @@ class DaoConverterDeleteOrUpdateFunctionBinderProvider(
     DeleteOrUpdateFunctionBinderProvider {
     override fun matches(declared: XType): Boolean = matchConverter(declared, OperationType.WRITE)
 
-    override fun provide(declared: XType): DeleteOrUpdateFunctionBinder {
+    override fun provide(declared: XType, extras: TypeAdapterExtras): DeleteOrUpdateFunctionBinder {
         val typeArg = extractTypeArg(declared)
         val adapter = context.typeAdapterStore.findDeleteOrUpdateAdapter(typeArg)
 

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.wear.compose.remote.material3
 
@@ -37,26 +36,41 @@ import androidx.compose.runtime.Composable
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteButtonGroupThreeButtonSample
  * @param modifier Modifier to be applied to the button group
+ * @param spacing the amount of spacing between buttons
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
  * @param verticalAlignment the vertical alignment of the button group's children.
  * @param content the content and properties of each button. The Ux guidance is to use no more than
  *   3 buttons within a ButtonGroup.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 @RemoteComposable
 public fun RemoteButtonGroup(
     modifier: RemoteModifier = RemoteModifier,
+    spacing: RemoteDp = RemoteButtonGroupDefaults.Spacing,
     contentPadding: RemotePaddingValues = RemoteButtonGroupDefaults.fullWidthPaddings(),
     verticalAlignment: RemoteAlignment.Vertical = RemoteAlignment.CenterVertically,
-    horizontalArrangement: RemoteArrangement.Horizontal = RemoteArrangement.CenterHorizontally,
+    content: @RemoteComposable @Composable (RemoteRowScope.() -> Unit),
+) {
+    RemoteButtonGroupImpl(modifier, spacing, contentPadding, verticalAlignment, content)
+}
+
+@Composable
+@RemoteComposable
+private fun RemoteButtonGroupImpl(
+    modifier: RemoteModifier = RemoteModifier,
+    spacing: RemoteDp = RemoteButtonGroupDefaults.Spacing,
+    contentPadding: RemotePaddingValues = RemoteButtonGroupDefaults.fullWidthPaddings(),
+    verticalAlignment: RemoteAlignment.Vertical = RemoteAlignment.CenterVertically,
     content: @RemoteComposable @Composable (RemoteRowScope.() -> Unit),
 ) {
     RemoteRow(
         modifier.padding(contentPadding),
         content = content,
         verticalAlignment = verticalAlignment,
-        horizontalArrangement = horizontalArrangement,
+        horizontalArrangement =
+            RemoteArrangement.spacedBy(spacing, RemoteAlignment.CenterHorizontally),
     )
 }
 

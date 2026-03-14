@@ -179,9 +179,9 @@ public actual class MigrationTestHelper(
         DatabaseConfiguration(
             name = fileName,
             migrationContainer = container,
-            callbacks = null,
+            callbacks = emptyList(),
             journalMode = RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING,
-            requireMigration = true,
+            isMigrationRequired = true,
             allowDestructiveMigrationOnDowngrade = false,
             migrationNotRequiredFrom = null,
             typeConverters = emptyList(),

@@ -36,10 +36,7 @@ class SafeBrowsingActivity : AppCompatActivity() {
                     MenuListView.MenuItem(
                         resources.getString(R.string.small_interstitial_activity_title),
                         Intent(this, SmallInterstitialActivity::class.java)
-                            .putExtra(
-                                SmallInterstitialActivity.CONTENT_TYPE,
-                                ContentType.MALICIOUS_CONTENT,
-                            ),
+                            .putExtra(INTENT_EXTRA_CONTENT_TYPE, ContentType.MALICIOUS_CONTENT),
                     ),
                     MenuListView.MenuItem(
                         resources.getString(R.string.medium_wide_interstitial_activity_title),
@@ -54,10 +51,7 @@ class SafeBrowsingActivity : AppCompatActivity() {
                     MenuListView.MenuItem(
                         resources.getString(R.string.loud_interstitial_activity_title),
                         Intent(this, FullPageInterstitialActivity::class.java)
-                            .putExtra(
-                                FullPageInterstitialActivity.CONTENT_TYPE,
-                                ContentType.MALICIOUS_CONTENT,
-                            ),
+                            .putExtra(INTENT_EXTRA_CONTENT_TYPE, ContentType.MALICIOUS_CONTENT),
                     ),
                     MenuListView.MenuItem(
                         resources.getString(R.string.giant_interstitial_activity_title),

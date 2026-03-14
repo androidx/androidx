@@ -25,8 +25,10 @@ import android.webkit.WebStorage;
 import android.webkit.WebView;
 
 import androidx.annotation.AnyThread;
+import androidx.annotation.IntRange;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RequiresOptIn;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 
 import org.jspecify.annotations.NonNull;
@@ -90,6 +92,28 @@ public interface Profile {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     @NonNull
     WebStorage getWebStorage();
+
+    /**
+     *
+     * Returns the {@link PrefetchCache} associated with this {@link Profile}.
+     * Can be called from any thread.
+     *
+     * @throws IllegalStateException if the profile has been deleted by
+     *                               {@link ProfileStore#deleteProfile(String)}}.
+     */
+    @AnyThread
+    @RequiresFeature(name = WebViewFeature.PREFETCH_CACHE_V1,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @NonNull
+    @ExperimentalUrlPrefetch
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    default PrefetchCache getPrefetchCache() {
+        // We provide a default implementation of this method so that embedders extending the
+        // Profile (eg, for testing) don't have their build broken by the addition of this
+        // method. However, throw a runtime exception if this method is actually called, as
+        // that's better than silently no-oping.
+        throw new UnsupportedOperationException("Profile#preconnect is not implemented.");
+    }
 
     /**
      * Returns the geolocation permissions of the profile.
@@ -227,14 +251,43 @@ public interface Profile {
      * a prerender request. This applies specifically to WebViews that are
      * associated with this Profile.
      * <p>
+     *
      * @param speculativeLoadingConfig the config to set for this profile session.
+     * @deprecated use {@link Profile#setMaxPrerenders(Integer)},
+     * {@link PrefetchCache#setMaxPrefetches(Integer)} and
+     * {@link PrefetchCache#setPrefetchTtlSeconds(Integer)} instead.
      */
     @RequiresFeature(name = WebViewFeature.SPECULATIVE_LOADING_CONFIG,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     @UiThread
     @ExperimentalUrlPrefetch
+    @Deprecated(forRemoval = true)
     void setSpeculativeLoadingConfig(@NonNull SpeculativeLoadingConfig
             speculativeLoadingConfig);
+
+    /**
+     * Sets the max pererenders for the current profile session.
+     * These configurations will be applied to any prerender requests made after they are set;
+     * they will not be applied to in-flight requests.
+     * <p>
+     * These configurations will be applied to WebViews that are associated with this Profile.
+     * <p>
+     *
+     * @param maxPrerenders the prerender value to update. Setting this value {@code null} will
+     *                      use the default value of maximum prerenders.
+     */
+    @RequiresFeature(name = WebViewFeature.SET_MAX_PRERENDERS_V1,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @UiThread
+    @ExperimentalUrlPrefetch
+    default void setMaxPrerenders(
+            @SuppressWarnings("AutoBoxing") @Nullable @IntRange(from = 1) Integer maxPrerenders) {
+        // We provide a default implementation of this method so that embedders extending the
+        // Profile (eg, for testing) don't have their build broken by the addition of this
+        // method. However, throw a runtime exception if this method is actually called, as
+        // that's better than silently no-oping.
+        throw new UnsupportedOperationException("Profile#setMaxPrerenders is not implemented.");
+    }
 
     /**
      * Denotes that the WarmUpRendererProcess API surface is experimental.
@@ -288,8 +341,8 @@ public interface Profile {
      *
      * @param headerName  A
      *                    <a href="https://datatracker.ietf.org/doc/html/rfc7230#section-3.2">valid HTTP header name string</a>
-     * @param headerValue  A
-     *                          <a href="https://datatracker.ietf.org/doc/html/rfc7230#section-3.2">valid HTTP value name string</a>
+     * @param headerValue A
+     *                    <a href="https://datatracker.ietf.org/doc/html/rfc7230#section-3.2">valid HTTP value name string</a>
      * @param originRules a set of origin rules following the same format as
      *                    {@link WebViewCompat#addWebMessageListener}
      */
@@ -336,6 +389,7 @@ public interface Profile {
 
     /**
      * Remove any currently set headers from being applied to network requests.
+     *
      * @see #setOriginMatchedHeader(String, String, Set)
      */
     @RequiresFeature(name = WebViewFeature.ORIGIN_MATCHED_HEADERS,
@@ -523,7 +577,8 @@ public interface Profile {
      * loaded.
      * <p>
      * Note: Preconnect operates on origins, but for convenience full URLs can be provided. A call
-     * with a full URL (such as {@code https://www.example.com/index.html}) will be treated as a call
+     * with a full URL (such as {@code https://www.example.com/index.html}) will be treated as a
+     * call
      * to the origin ({@code https://www.example.com}).
      * <p>
      * Multiple origins can be connected to by calling this API multiple times.

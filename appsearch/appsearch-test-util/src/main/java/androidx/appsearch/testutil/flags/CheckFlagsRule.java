@@ -18,18 +18,22 @@ package androidx.appsearch.testutil.flags;
 
 import static org.junit.Assume.assumeTrue;
 
-import androidx.collection.ArrayMap;
+import android.annotation.SuppressLint;
 
-import java.lang.annotation.Annotation;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import androidx.appsearch.flags.Flags;
+import androidx.collection.ArrayMap;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Shim for real CheckFlagsRule defined in Framework.
@@ -39,7 +43,7 @@ import org.junit.runners.model.Statement;
  * <ul>
  *     <li>checks that all {@link RequiresFlagsEnabled} and {@link RequiresFlagsDisabled}
  *     annotations do not conflict.</li>
- *     <li>skips any test/test class that has a {@link RequiresFlagsDisabled} annotation.</li>
+ *     <li>skips any test/test class with any required flag different from the actual flag.</li>
  * </ul>
  */
 public final class CheckFlagsRule implements TestRule {
@@ -60,11 +64,34 @@ public final class CheckFlagsRule implements TestRule {
      * The presence of any flag value specific in {@link RequiresFlagsDisabled} will result in the
      * test being skipped.
      */
+    @SuppressLint("BanUncheckedReflection") // No public APIs are called, and for test only.
     private static void checkFlags(@NonNull Map<String, Boolean> requiredFlagValues) {
         for (Map.Entry<String, Boolean> required : requiredFlagValues.entrySet()) {
             final String flag = required.getKey();
-            assumeTrue(String.format("Flag %s required to be enabled, but is disabled", flag),
-                    required.getValue());
+            final Boolean requiredFlagValue = required.getValue();
+
+            // Parse the flag name, convert to the static method name and invoke the method (of
+            // Flags class) to get the actual flag value.
+            Boolean actualFlagValue;
+            try {
+                Method flagMethod = Flags.class.getMethod(getFlagMethodName(flag));
+                actualFlagValue = (Boolean) flagMethod.invoke(null);
+            } catch (Exception e) {
+                // Failed to get the actual flag value. Set it to true.
+                // Note: some of flags are missing the static methods. Making it default true will
+                // keep the original behavior:
+                // - Tests with @RequiresFlagsDisabled will be skipped.
+                // - Tests with @RequiresFlagsEnabled will run.
+                //
+                // TODO(b/491117995): fix missing static methods for all flags and throw
+                //   RuntimeException here.
+                actualFlagValue = true;
+            }
+
+            // Compare the required value and actual value. Skip the test if they are not equal.
+            assumeTrue(
+                    String.format("Flag %s does not meet the requirement", flag),
+                    requiredFlagValue.equals(actualFlagValue));
         }
     }
 
@@ -116,5 +143,25 @@ public final class CheckFlagsRule implements TestRule {
                                 + " to be both enabled and disabled.");
             }
         }
+    }
+
+    private static String getFlagMethodName(@NonNull String flagName)
+            throws IllegalArgumentException {
+        if (!flagName.startsWith(Flags.FLAG_PREFIX)) {
+            throw new IllegalArgumentException("Invalid flag name");
+        }
+        StringBuilder methodNameBuilder = new StringBuilder();
+        for (int i = Flags.FLAG_PREFIX.length(); i < flagName.length(); ++i) {
+            if (flagName.charAt(i) == '_') {
+                if (i + 1 >= flagName.length()) {
+                    throw new IllegalArgumentException("Invalid flag name ending with underscore");
+                }
+                methodNameBuilder.append(Character.toUpperCase(flagName.charAt(i + 1)));
+                i += 1;
+            } else {
+                methodNameBuilder.append(flagName.charAt(i));
+            }
+        }
+        return methodNameBuilder.toString();
     }
 }

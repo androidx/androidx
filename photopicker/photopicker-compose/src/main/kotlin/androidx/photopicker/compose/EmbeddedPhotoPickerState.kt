@@ -55,7 +55,7 @@ import kotlinx.coroutines.withContext
  *
  * A default implementation is provided via the [rememberEmbeddedPhotoPickerState] composable which
  * can be used to obtain an implementation that should work for most use cases. This object can be
- * passed to the [EmbeddedPhotopicker] composable which provides the display layer for the Embedded
+ * passed to the [EmbeddedPhotoPicker] composable which provides the display layer for the Embedded
  * PhotoPicker.
  *
  * Callbacks to the underlying session are exposed here to push Compose state into the remote view.
@@ -134,8 +134,9 @@ public interface EmbeddedPhotoPickerState {
     /**
      * Request the EmbeddedPhotoPickerSession deselect the media item with the provided Uri.
      *
-     * NOTE: The Uri should have been received from the PhotoPicker. Regular [MediaStore] uris, or
-     * other Uris passed here will be ignored by the Photopicker.
+     * NOTE: The Uri should have been received from the PhotoPicker. Regular
+     * [android.provider.MediaStore] uris, or other Uris passed here will be ignored by the
+     * Photopicker.
      *
      * @param uri the [Uri] that should be deselected in the PhotoPicker's interface.
      */
@@ -145,8 +146,9 @@ public interface EmbeddedPhotoPickerState {
      * Request the EmbeddedPhotoPickerSession deselect media items with the provided list of Uris
      * from its interface.
      *
-     * NOTE: The Uri should have been received from the PhotoPicker. Regular [MediaStore] uris, or
-     * other Uris passed here will be ignored by the PhotoPicker.
+     * NOTE: The Uri should have been received from the PhotoPicker. Regular
+     * [android.provider.MediaStore] uris, or other Uris passed here will be ignored by the
+     * PhotoPicker.
      *
      * @param uris the [List] of [Uri] that should be deselected in the PhotoPicker's interface.
      */
@@ -155,11 +157,12 @@ public interface EmbeddedPhotoPickerState {
     /**
      * Run a [EmbeddedPhotoPickerSession] using the state provided by this state object.
      *
-     * This suspended function should be started from a [LaunchedEffect] in the composable hosting
-     * the SurfaceView the [EmbeddedPhotoPicker] is drawing to. The function should perform the
-     * necessary startup logic with the EmbeddedPhotoPickerProvider, and then run the provided
-     * client in a child scope of the current CoroutineScope. Throughout the entire session, and
-     * then close / cleanup any resources being used when the suspended function is cancelled.
+     * This suspended function should be started from a [androidx.compose.runtime.LaunchedEffect] in
+     * the composable hosting the SurfaceView the [EmbeddedPhotoPicker] is drawing to. The function
+     * should perform the necessary startup logic with the EmbeddedPhotoPickerProvider, and then run
+     * the provided client in a child scope of the current CoroutineScope. Throughout the entire
+     * session, and then close / cleanup any resources being used when the suspended function is
+     * cancelled.
      *
      * @param provider The provider that should be used for this session.
      * @param featureInfo The client provided EmbeddedPhotoPickerFeatureInfo to configure the
@@ -187,7 +190,7 @@ public interface EmbeddedPhotoPickerState {
  * receives this state object should set the [surfaceHostToken] once the SurfaceView has attached to
  * the window. Additionally, [notifyResized] should also be called to provide the initial size of
  * the SurfaceView. (This should also be called any time the SurfaceView changes size, see
- * [Modifier.onSizeChanged] as a modifier that can listen for size changes.)
+ * [androidx.compose.ui.layout.onSizeChanged] as a modifier that can listen for size changes.)
  *
  * Key responsibilities include:
  * - Managing the [isExpanded] and [isReady] states.
@@ -434,21 +437,21 @@ internal interface ClientCallbacks {
     /**
      * Called when a session error occurs.
      *
-     * @param throwable The error that occurred.
+     * Param: The error that occurred.
      */
     var onSessionError: (Throwable) -> Unit
 
     /**
      * Called when URI permissions are granted to the service.
      *
-     * @param uris A list of URIs for which permissions have been granted.
+     * Param: A list of URIs for which permissions have been granted.
      */
     var onUriPermissionGranted: (List<Uri>) -> Unit
 
     /**
      * Called when URI permissions are revoked from the service.
      *
-     * @param uris A list of URIs for which permissions have been revoked.
+     * Param: A list of URIs for which permissions have been revoked.
      */
     var onUriPermissionRevoked: (List<Uri>) -> Unit
 
@@ -475,9 +478,9 @@ internal class EmbeddedPhotoPickerStateImpl(
 
     companion object {
         /**
-         * A [Saver] for [EmbeddedPhotoPickerStateImpl] to enable state restoration, for example,
-         * across configuration changes. It saves and restores the `selectedMedia` and `isExpanded`
-         * properties.
+         * A [androidx.compose.runtime.saveable.Saver] for [EmbeddedPhotoPickerStateImpl] to enable
+         * state restoration, for example, across configuration changes. It saves and restores the
+         * `selectedMedia` and `isExpanded` properties.
          */
         val saver = run {
             val selectedUrisKey = "selectedUris"

@@ -98,8 +98,7 @@ fun ScrollableList(name: String, modifier: RemoteModifier = RemoteModifier) {
                         .clickable(HostAction("abc".rs))
                         // Must be direct child of the scrollable item
                         .semantics(mergeDescendants = true) {},
-                horizontalAlignment = RemoteAlignment.CenterHorizontally,
-                verticalArrangement = RemoteArrangement.Center,
+                contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteText(
                     if (it == 0) name else "Item $it",

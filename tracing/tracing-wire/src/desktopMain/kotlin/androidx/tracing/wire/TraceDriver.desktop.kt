@@ -18,7 +18,10 @@
 
 package androidx.tracing.wire
 
-import androidx.tracing.TraceDriver
+import androidx.tracing.AbstractTraceDriver
+import androidx.tracing.AbstractTraceSink
+import androidx.tracing.TraceContext
+import androidx.tracing.Tracer
 import kotlin.jvm.optionals.getOrNull
 
 /**
@@ -28,18 +31,33 @@ import kotlin.jvm.optionals.getOrNull
  * @param isEnabled Set this to `true` to emit trace events. `false` disables all tracing to lower
  *   overhead.
  */
-@JvmOverloads
 @Suppress("DEPRECATION")
-public fun TraceDriver(sink: TraceSink, isEnabled: Boolean = true): TraceDriver {
-    val driver = TraceDriver(sink = sink, isEnabled = isEnabled)
-    val processHandle = ProcessHandle.current()
-    val pid = processHandle.pid()
-    val name = processHandle.info().command().getOrNull() ?: "Process pid($pid)"
+public actual class TraceDriver
+@JvmOverloads
+constructor(sink: AbstractTraceSink, isEnabled: Boolean = true) :
+    AbstractTraceDriver(sink = sink, isEnabled = isEnabled) {
 
-    // Eagerly populate a process track
-    driver.context.createProcessTrack(id = pid.toInt(), name = name)
-    // Eagerly populate the current thread track
-    val thread = Thread.currentThread()
-    driver.context.process.getOrCreateThreadTrack(id = thread.id.toInt(), name = thread.name)
-    return driver
+    private val context = TraceContext(sink = sink, isEnabled = isEnabled)
+
+    init {
+        val processHandle = ProcessHandle.current()
+        val pid = processHandle.pid()
+        val name = processHandle.info().command().getOrNull() ?: "Process pid($pid)"
+        // Eagerly populate a process track
+        context.createProcessTrack(id = pid.toInt(), name = name)
+        // Eagerly populate the current thread track
+        val thread = Thread.currentThread()
+        context.process.getOrCreateThreadTrack(id = thread.id.toInt(), name = thread.name)
+    }
+
+    override val tracer: Tracer by
+        lazy(mode = LazyThreadSafetyMode.PUBLICATION) { this.context.createTracer() }
+
+    override fun flush() {
+        this.context.flush()
+    }
+
+    override fun close() {
+        this.context.close()
+    }
 }

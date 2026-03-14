@@ -1483,6 +1483,7 @@ package androidx.collection {
     ctor public MutableFloatFloatMap(optional int initialCapacity);
     ctor @BytecodeOnly public MutableFloatFloatMap(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clear();
+    method @kotlin.PublishedApi internal int findInsertIndex(float key);
     method public inline float getOrPut(float key, kotlin.jvm.functions.Function0<java.lang.Float> defaultValue);
     method public inline operator void minusAssign(androidx.collection.FloatList keys);
     method public inline operator void minusAssign(androidx.collection.FloatSet keys);
@@ -1505,6 +1506,7 @@ package androidx.collection {
     ctor public MutableFloatIntMap(optional int initialCapacity);
     ctor @BytecodeOnly public MutableFloatIntMap(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clear();
+    method @kotlin.PublishedApi internal int findInsertIndex(float key);
     method public inline int getOrPut(float key, kotlin.jvm.functions.Function0<java.lang.Integer> defaultValue);
     method public inline operator void minusAssign(androidx.collection.FloatList keys);
     method public inline operator void minusAssign(androidx.collection.FloatSet keys);
@@ -1562,6 +1564,7 @@ package androidx.collection {
     ctor public MutableFloatLongMap(optional int initialCapacity);
     ctor @BytecodeOnly public MutableFloatLongMap(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clear();
+    method @kotlin.PublishedApi internal int findInsertIndex(float key);
     method public inline long getOrPut(float key, kotlin.jvm.functions.Function0<java.lang.Long> defaultValue);
     method public inline operator void minusAssign(androidx.collection.FloatList keys);
     method public inline operator void minusAssign(androidx.collection.FloatSet keys);
@@ -1584,6 +1587,7 @@ package androidx.collection {
     ctor public MutableFloatObjectMap(optional int initialCapacity);
     ctor @BytecodeOnly public MutableFloatObjectMap(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clear();
+    method @kotlin.PublishedApi internal int findInsertIndex(float key);
     method public inline V getOrPut(float key, kotlin.jvm.functions.Function0<? extends V> defaultValue);
     method public inline operator void minusAssign(androidx.collection.FloatList keys);
     method public inline operator void minusAssign(androidx.collection.FloatSet keys);
@@ -1625,6 +1629,7 @@ package androidx.collection {
     ctor public MutableIntFloatMap(optional int initialCapacity);
     ctor @BytecodeOnly public MutableIntFloatMap(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clear();
+    method @kotlin.PublishedApi internal int findInsertIndex(int key);
     method public inline float getOrPut(int key, kotlin.jvm.functions.Function0<java.lang.Float> defaultValue);
     method public inline operator void minusAssign(androidx.collection.IntList keys);
     method public inline operator void minusAssign(androidx.collection.IntSet keys);
@@ -1647,6 +1652,7 @@ package androidx.collection {
     ctor public MutableIntIntMap(optional int initialCapacity);
     ctor @BytecodeOnly public MutableIntIntMap(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clear();
+    method @kotlin.PublishedApi internal int findInsertIndex(int key);
     method public inline int getOrPut(int key, kotlin.jvm.functions.Function0<java.lang.Integer> defaultValue);
     method public inline operator void minusAssign(androidx.collection.IntList keys);
     method public inline operator void minusAssign(androidx.collection.IntSet keys);
@@ -1704,6 +1710,7 @@ package androidx.collection {
     ctor public MutableIntLongMap(optional int initialCapacity);
     ctor @BytecodeOnly public MutableIntLongMap(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clear();
+    method @kotlin.PublishedApi internal int findInsertIndex(int key);
     method public inline long getOrPut(int key, kotlin.jvm.functions.Function0<java.lang.Long> defaultValue);
     method public inline operator void minusAssign(androidx.collection.IntList keys);
     method public inline operator void minusAssign(androidx.collection.IntSet keys);
@@ -1726,6 +1733,7 @@ package androidx.collection {
     ctor public MutableIntObjectMap(optional int initialCapacity);
     ctor @BytecodeOnly public MutableIntObjectMap(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clear();
+    method @kotlin.PublishedApi internal int findInsertIndex(int key);
     method public inline V getOrPut(int key, kotlin.jvm.functions.Function0<? extends V> defaultValue);
     method public inline operator void minusAssign(androidx.collection.IntList keys);
     method public inline operator void minusAssign(androidx.collection.IntSet keys);
@@ -1767,6 +1775,7 @@ package androidx.collection {
     ctor public MutableLongFloatMap(optional int initialCapacity);
     ctor @BytecodeOnly public MutableLongFloatMap(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clear();
+    method @kotlin.PublishedApi internal int findInsertIndex(long key);
     method public inline float getOrPut(long key, kotlin.jvm.functions.Function0<java.lang.Float> defaultValue);
     method public inline operator void minusAssign(androidx.collection.LongList keys);
     method public inline operator void minusAssign(androidx.collection.LongSet keys);
@@ -1789,6 +1798,7 @@ package androidx.collection {
     ctor public MutableLongIntMap(optional int initialCapacity);
     ctor @BytecodeOnly public MutableLongIntMap(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clear();
+    method @kotlin.PublishedApi internal int findInsertIndex(long key);
     method public inline int getOrPut(long key, kotlin.jvm.functions.Function0<java.lang.Integer> defaultValue);
     method public inline operator void minusAssign(androidx.collection.LongList keys);
     method public inline operator void minusAssign(androidx.collection.LongSet keys);
@@ -1846,6 +1856,7 @@ package androidx.collection {
     ctor public MutableLongLongMap(optional int initialCapacity);
     ctor @BytecodeOnly public MutableLongLongMap(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clear();
+    method @kotlin.PublishedApi internal int findInsertIndex(long key);
     method public inline long getOrPut(long key, kotlin.jvm.functions.Function0<java.lang.Long> defaultValue);
     method public inline operator void minusAssign(androidx.collection.LongList keys);
     method public inline operator void minusAssign(androidx.collection.LongSet keys);
@@ -1868,6 +1879,7 @@ package androidx.collection {
     ctor public MutableLongObjectMap(optional int initialCapacity);
     ctor @BytecodeOnly public MutableLongObjectMap(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clear();
+    method @kotlin.PublishedApi internal int findInsertIndex(long key);
     method public inline V getOrPut(long key, kotlin.jvm.functions.Function0<? extends V> defaultValue);
     method public inline operator void minusAssign(androidx.collection.LongList keys);
     method public inline operator void minusAssign(androidx.collection.LongSet keys);
@@ -1909,6 +1921,7 @@ package androidx.collection {
     ctor public MutableObjectFloatMap(optional int initialCapacity);
     ctor @BytecodeOnly public MutableObjectFloatMap(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clear();
+    method @kotlin.PublishedApi internal int findInsertIndex(K key);
     method public inline float getOrPut(K key, kotlin.jvm.functions.Function0<java.lang.Float> defaultValue);
     method public inline operator void minusAssign(androidx.collection.ScatterSet<K> keys);
     method public inline operator void minusAssign(Iterable<? extends K> keys);
@@ -1932,6 +1945,7 @@ package androidx.collection {
     ctor public MutableObjectIntMap(optional int initialCapacity);
     ctor @BytecodeOnly public MutableObjectIntMap(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clear();
+    method @kotlin.PublishedApi internal int findInsertIndex(K key);
     method public inline int getOrPut(K key, kotlin.jvm.functions.Function0<java.lang.Integer> defaultValue);
     method public inline operator void minusAssign(androidx.collection.ScatterSet<K> keys);
     method public inline operator void minusAssign(Iterable<? extends K> keys);
@@ -2012,6 +2026,7 @@ package androidx.collection {
     ctor public MutableObjectLongMap(optional int initialCapacity);
     ctor @BytecodeOnly public MutableObjectLongMap(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public void clear();
+    method @kotlin.PublishedApi internal int findInsertIndex(K key);
     method public inline long getOrPut(K key, kotlin.jvm.functions.Function0<java.lang.Long> defaultValue);
     method public inline operator void minusAssign(androidx.collection.ScatterSet<K> keys);
     method public inline operator void minusAssign(Iterable<? extends K> keys);

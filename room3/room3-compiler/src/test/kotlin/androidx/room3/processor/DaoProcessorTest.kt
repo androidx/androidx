@@ -717,7 +717,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
                   fun nullableList(): List<MyEntity?>
 
                   @Query("SELECT * FROM MyEntity")
-                  fun nullableImmutableList(): ImmutableList<MyEntity?>
+                  fun nullableImmutableList(): ImmutableList<MyEntity>
 
                   @Query("SELECT * FROM MyEntity")
                   fun nullableArray(): Array<MyEntity?>
@@ -726,19 +726,19 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
                   fun nullableOptional(): java.util.Optional<MyEntity?>
 
                   @Query("SELECT * FROM MyEntity")
-                  fun nullableOptionalGuava(): com.google.common.base.Optional<MyEntity?>
+                  fun nullableOptionalGuava(): com.google.common.base.Optional<MyEntity>
 
                   @Query("SELECT * FROM MyEntity JOIN MyOtherEntity ON MyEntity.pk = MyOtherEntity.otherPk")
                   fun nullableMap(): Map<MyEntity?, MyOtherEntity>
 
                   @Query("SELECT * FROM MyEntity JOIN MyOtherEntity ON MyEntity.pk = MyOtherEntity.otherPk")
-                  fun nullableImmutableMap(): com.google.common.collect.ImmutableMap<MyEntity?, MyOtherEntity>
+                  fun nullableImmutableMap(): com.google.common.collect.ImmutableMap<MyEntity, MyOtherEntity>
 
                   @Query("SELECT * FROM MyEntity JOIN MyOtherEntity ON MyEntity.pk = MyOtherEntity.otherPk")
-                  fun nullableImmutableSetMultimap(): com.google.common.collect.ImmutableSetMultimap<MyEntity?, MyOtherEntity>
+                  fun nullableImmutableSetMultimap(): com.google.common.collect.ImmutableSetMultimap<MyEntity, MyOtherEntity>
 
                   @Query("SELECT * FROM MyEntity JOIN MyOtherEntity ON MyEntity.pk = MyOtherEntity.otherPk")
-                  fun nullableImmutableListMultimap(): com.google.common.collect.ImmutableListMultimap<MyEntity?, MyOtherEntity>
+                  fun nullableImmutableListMultimap(): com.google.common.collect.ImmutableListMultimap<MyEntity, MyOtherEntity>
                 }
 
                 @Entity
@@ -770,20 +770,10 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
                     nullableComponentInDaoFunctionReturnType("kotlin.collections.List<MyEntity?>")
                 )
                 hasWarningContaining(
-                    nullableComponentInDaoFunctionReturnType(
-                        "com.google.common.collect.ImmutableList<MyEntity?>"
-                    )
-                )
-                hasWarningContaining(
                     nullableComponentInDaoFunctionReturnType("kotlin.Array<MyEntity?>")
                 )
                 hasWarningContaining(
                     nullableComponentInDaoFunctionReturnType("java.util.Optional<MyEntity?>")
-                )
-                hasWarningContaining(
-                    nullableComponentInDaoFunctionReturnType(
-                        "com.google.common.base.Optional<MyEntity?>"
-                    )
                 )
                 hasWarningContaining(
                     nullableComponentInDaoFunctionReturnType(
@@ -792,28 +782,10 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
                 )
                 hasWarningContaining(
                     nullableComponentInDaoFunctionReturnType(
-                        "com.google.common.collect.ImmutableMap<MyEntity?, MyOtherEntity>"
+                        "kotlin.collections.Map<MyEntity?, MyOtherEntity>"
                     )
                 )
-                // We expect "MutableMap" when ImmutableMap is used because TypeAdapterStore will
-                // convert the map to a mutable one and re-run the `findQueryResultAdapter`
-                // algorithm
-                hasWarningContaining(
-                    nullableComponentInDaoFunctionReturnType(
-                        "kotlin.collections.MutableMap<MyEntity?, MyOtherEntity>"
-                    )
-                )
-                hasWarningContaining(
-                    nullableComponentInDaoFunctionReturnType(
-                        "com.google.common.collect.ImmutableSetMultimap<MyEntity?, MyOtherEntity>"
-                    )
-                )
-                hasWarningContaining(
-                    nullableComponentInDaoFunctionReturnType(
-                        "com.google.common.collect.ImmutableListMultimap<MyEntity?, MyOtherEntity>"
-                    )
-                )
-                hasWarningCount(10)
+                hasWarningCount(4)
             }
         }
     }

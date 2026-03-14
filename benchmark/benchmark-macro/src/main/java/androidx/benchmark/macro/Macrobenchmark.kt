@@ -25,6 +25,7 @@ import android.os.Build
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Arguments
 import androidx.benchmark.ConfigurationError
+import androidx.benchmark.CpuInfo
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.DeviceMirroring
 import androidx.benchmark.ExperimentalBenchmarkConfigApi
@@ -186,6 +187,16 @@ internal fun checkErrors(packageName: String): ConfigurationError.SuppressionSta
                         id = DeviceMirroring.Error.ID,
                         summary = DeviceMirroring.Error.SUMMARY,
                         message = DeviceMirroring.Error.MESSAGE.trimIndent(),
+                    ),
+                    conditionalError(
+                        hasError =
+                            Arguments.requireLockedClocks &&
+                                !DeviceInfo.isEmulator &&
+                                DeviceInfo.isRooted &&
+                                !CpuInfo.locked,
+                        id = CpuInfo.Error.ID,
+                        summary = CpuInfo.Error.SUMMARY,
+                        message = CpuInfo.Error.MESSAGE.trimIndent(),
                     ),
                 )
                 .sortedBy { it.id }

@@ -68,8 +68,12 @@ internal expect fun createInputDispatcher(
  * * [updateTrackpadPosition]
  * * [enqueueTrackpadRelease]
  * * [enqueueTrackpadCancel]
- * * [enqueueTrackpadScroll]
- * * [enqueueTrackpadPinch]
+ * * [enqueueTrackpadPanStart]
+ * * [enqueueTrackpadPanMove]
+ * * [enqueueTrackpadPanEnd]
+ * * [enqueueTrackpadScaleStart]
+ * * [enqueueTrackpadScaleChange]
+ * * [enqueueTrackpadScaleEnd]
  *
  * Chaining methods:
  * * [advanceEventTime]
@@ -609,18 +613,18 @@ internal abstract class InputDispatcher(
     }
 
     /**
-     * Generates a mouse button pressed event for the given [buttonId]. This will generate all
+     * Generates a trackpad button pressed event for the given [buttonId]. This will generate all
      * required associated events as well, such as a down event if it is the first button being
      * pressed and an optional hover exit event.
      *
-     * @param buttonId The id of the mouse button. This is platform dependent, use the values
-     *   defined by [MouseButton.buttonId].
+     * @param buttonId The id of the trackpad button. This is platform dependent, use the values
+     *   defined by [TrackpadButton.buttonId].
      */
     fun enqueueTrackpadPress(buttonId: Int) {
         val cursor = cursorInputState
 
         check(!cursor.isButtonPressed(buttonId)) {
-            "Cannot send mouse button down event, button $buttonId is already pressed"
+            "Cannot send trackpad button down event, button $buttonId is already pressed"
         }
         check(isWithinRootBounds(currentCursorPosition) || cursor.hasAnyButtonPressed) {
             "Cannot start a trackpad gesture outside the Compose root bounds, trackpad position " +
@@ -651,10 +655,10 @@ internal abstract class InputDispatcher(
     }
 
     /**
-     * Generates a mouse move or hover event to the given [position]. If buttons are pressed, a move
-     * event is generated, otherwise generates a hover event.
+     * Generates a trackpad move or hover event to the given [position]. If buttons are pressed, a
+     * move event is generated, otherwise generates a hover event.
      *
-     * @param position The new mouse position
+     * @param position The new trackpad position
      */
     fun enqueueTrackpadMove(position: Offset) {
         val cursor = cursorInputState
@@ -694,21 +698,21 @@ internal abstract class InputDispatcher(
     }
 
     /**
-     * Generates a mouse button released event for the given [buttonId]. This will generate all
+     * Generates a trackpad button released event for the given [buttonId]. This will generate all
      * required associated events as well, such as an up and hover enter event if it is the last
      * button being released.
      *
-     * @param buttonId The id of the mouse button. This is platform dependent, use the values
-     *   defined by [MouseButton.buttonId].
+     * @param buttonId The id of the trackpad button. This is platform dependent, use the values
+     *   defined by [TrackpadButton.buttonId].
      */
     fun enqueueTrackpadRelease(buttonId: Int) {
         val cursor = cursorInputState
 
         check(cursor.isButtonPressed(buttonId)) {
-            "Cannot send mouse button up event, button $buttonId is not pressed"
+            "Cannot send trackpad button up event, button $buttonId is not pressed"
         }
         check(partialGesture == null) {
-            "Touch gesture can't be in progress, mouse buttons are down"
+            "Touch gesture can't be in progress, trackpad buttons are down"
         }
 
         cursor.unsetButtonBit(buttonId)
@@ -740,7 +744,7 @@ internal abstract class InputDispatcher(
             "Cannot send trackpad hover enter event, trackpad is already hovering"
         }
         check(cursor.hasNoButtonsPressed) {
-            "Cannot send trackpad hover enter event, mouse buttons are down"
+            "Cannot send trackpad hover enter event, trackpad buttons are down"
         }
         check(isWithinRootBounds(position)) {
             "Cannot send trackpad hover enter event, $position is out of bounds"
@@ -771,13 +775,13 @@ internal abstract class InputDispatcher(
     }
 
     /**
-     * Generates a trackpad cancel event. Can only be done if no mouse buttons are currently
-     * pressed. Sent automatically if a touch event is sent while mouse buttons are down.
+     * Generates a trackpad cancel event. Can only be done if no trackpad buttons are currently
+     * pressed. Sent automatically if a touch event is sent while trackpad buttons are down.
      */
     fun enqueueTrackpadCancel() {
         val cursor = cursorInputState
         check(cursor.hasAnyButtonPressed) {
-            "Cannot send trackpad cancel event, no mouse buttons are pressed"
+            "Cannot send trackpad cancel event, no trackpad buttons are pressed"
         }
         check(cursor.currentCursorInputSource == CursorInputSource.Trackpad) {
             "Cannot send trackpad cancel event, since the current cursor input isn't a trackpad"

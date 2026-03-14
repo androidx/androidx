@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.dp
 public class IconSizes(
     public val small: Dp = 32.dp,
     public val medium: Dp = 40.dp,
-    public val large: Dp = 56.dp,
+    public val large: Dp = 48.dp,
 ) {
 
     /** Returns a copy of this IconSizes, optionally overriding some of the values. */

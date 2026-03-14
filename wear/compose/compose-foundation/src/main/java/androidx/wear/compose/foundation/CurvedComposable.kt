@@ -27,6 +27,7 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.lerp
 import kotlin.math.PI
 import kotlin.math.asin
@@ -99,7 +100,7 @@ internal class CurvedComposableChild(
     val rotationLocked: Boolean,
     val content: @Composable BoxScope.() -> Unit,
 ) : CurvedChild() {
-    lateinit var placeable: Placeable
+    var placeableSize: IntSize = IntSize.Zero
 
     @Composable
     override fun SubComposition(semanticProperties: CurvedSemanticProperties) {
@@ -113,10 +114,16 @@ internal class CurvedComposableChild(
         )
     }
 
-    override fun CurvedMeasureScope.initializeMeasure(measurables: Iterator<Measurable>) {
-        // TODO: check that we actually match adding a parent data modifier to the Box in
-        // composeIfNeeded and verifying this measurable has it?
-        placeable = measurables.next().measure(Constraints())
+    override fun CurvedMeasureScope.initializeMeasure(
+        measurables: Iterator<Measurable>
+    ): (Placeable.PlacementScope).() -> Unit {
+        // TODO(b/486792667): Investigate properly supporting Lookahead animations.
+        val placeable = measurables.next().measure(Constraints())
+        if (isLookingAhead) {
+            return { placeable.place(0, 0) }
+        }
+        placeableSize = IntSize(placeable.width, placeable.height)
+        return { place(placeable, layoutInfo!!, parentSweepRadians, clockwise, rotationLocked) }
     }
 
     override fun doEstimateThickness(maxRadius: Float): Float {
@@ -139,7 +146,7 @@ internal class CurvedComposableChild(
                 radialAlignment.ratio,
             )
 
-        val sweepRadians = 2f * asin(placeable.width / 2f / myInnerRadius)
+        val sweepRadians = 2f * asin(placeableSize.width / 2f / myInnerRadius)
         return PartialLayoutInfo(
             sweepRadians,
             myOuterRadius,
@@ -156,9 +163,6 @@ internal class CurvedComposableChild(
         centerOffset: Offset,
     ): Float = parentStartAngleRadians.also { this.parentSweepRadians = parentSweepRadians }
 
-    override fun (Placeable.PlacementScope).placeIfNeeded() =
-        place(placeable, layoutInfo!!, parentSweepRadians, clockwise, rotationLocked)
-
     /**
      * Compute the inner and outer radii of the annulus sector required to fit the given box.
      *
@@ -171,16 +175,16 @@ internal class CurvedComposableChild(
      */
     private fun computeAnnulusRadii(targetRadius: Float, radiusAlpha: Float): Pair<Float, Float> {
         // The top side of the triangles we use, squared.
-        val topSquared = pow2(placeable.width / 2f)
+        val topSquared = pow2(placeableSize.width / 2f)
 
         // Project the radius we know to the line going from the center to the circle to the center
         // of the box
         val radiusInBox = sqrt(pow2(targetRadius) - topSquared)
 
         // Move to the top/bottom of the child box, then project back
-        val outerRadius = sqrt(topSquared + pow2(radiusInBox + radiusAlpha * placeable.height))
+        val outerRadius = sqrt(topSquared + pow2(radiusInBox + radiusAlpha * placeableSize.height))
         val innerRadius =
-            sqrt(topSquared + pow2(radiusInBox - (1 - radiusAlpha) * placeable.height))
+            sqrt(topSquared + pow2(radiusInBox - (1 - radiusAlpha) * placeableSize.height))
 
         return innerRadius to outerRadius
     }

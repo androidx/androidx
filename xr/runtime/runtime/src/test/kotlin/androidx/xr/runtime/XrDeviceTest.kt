@@ -73,6 +73,26 @@ class XrDeviceTest {
         assertThat(xrDevice.getLifecycle()).isEqualTo((session.lifecycleOwner.lifecycle))
     }
 
+    @OptIn(ExperimentalXrDeviceLifecycleApi::class)
+    @Test
+    fun getCurrentDevice_returnsCachedDevice() {
+        val device1 = XrDevice.getCurrentDevice(activity)
+        val device2 = XrDevice.getCurrentDevice(activity)
+
+        assertThat(device1).isSameInstanceAs(device2)
+    }
+
+    @OptIn(ExperimentalXrDeviceLifecycleApi::class)
+    @Test
+    fun getCurrentDevice_returnsDifferentDeviceForDifferentContext() {
+        val device1 = XrDevice.getCurrentDevice(activity)
+        val activityController2 = Robolectric.buildActivity(ComponentActivity::class.java)
+        val activity2 = activityController2.get()
+        val device2 = XrDevice.getCurrentDevice(activity2)
+
+        assertThat(device1).isNotSameInstanceAs(device2)
+    }
+
     private fun createSession(coroutineDispatcher: CoroutineDispatcher = testDispatcher): Session {
         val result = Session.create(activity, coroutineDispatcher)
         assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)

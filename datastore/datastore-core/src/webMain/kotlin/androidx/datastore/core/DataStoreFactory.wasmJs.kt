@@ -16,6 +16,8 @@
 
 package androidx.datastore.core
 
+import androidx.datastore.core.util.getContextFromScope
+
 /** Public factory for creating DataStore instances. */
 actual object DataStoreFactory {
     actual fun <T> create(
@@ -24,7 +26,7 @@ actual object DataStoreFactory {
         migrations: List<DataMigration<T>>,
         scope: kotlinx.coroutines.CoroutineScope,
     ): DataStore<T> {
-        return DataStore.Builder(storage = storage, context = scope.coroutineContext)
+        return DataStore.Builder(storage = storage, context = getContextFromScope(scope))
             .apply { corruptionHandler?.let { setCorruptionHandler(it) } }
             .addMigrations(migrations)
             .build()

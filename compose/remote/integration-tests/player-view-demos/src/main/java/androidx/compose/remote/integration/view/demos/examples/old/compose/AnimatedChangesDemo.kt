@@ -26,6 +26,7 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -53,7 +54,7 @@ fun AnimatedChangesDemo() {
 
             translate(0.rf, anim * 100f) {
                 drawCircle(
-                    paint = RemotePaint().apply { color = android.graphics.Color.RED },
+                    paint = RemotePaint().apply { color = Color.Red.rc },
                     radius = rad,
                     center = RemoteOffset(centerX, centerY),
                 )
@@ -63,12 +64,12 @@ fun AnimatedChangesDemo() {
                 val color = android.graphics.Color.rgb(0x7B, 0x00, 0xFF)
                 val len = centerY
                 drawLine(
-                    paint = RemotePaint().apply { this.color = color },
+                    paint = RemotePaint().apply { this.color = Color(color).rc },
                     start = RemoteOffset(centerX, 0f),
                     end = RemoteOffset(centerX, len),
                 )
                 drawCircle(
-                    paint = RemotePaint().apply { this.color = color },
+                    paint = RemotePaint().apply { this.color = Color(color).rc },
                     radius = rad,
                     center = RemoteOffset(centerX, len),
                 )

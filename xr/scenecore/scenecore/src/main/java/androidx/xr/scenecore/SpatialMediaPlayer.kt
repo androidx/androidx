@@ -33,16 +33,20 @@ public object SpatialMediaPlayer {
      * @param session The current [Session] instance.
      * @param mediaPlayer The [MediaPlayer] instance on which to set the params
      * @param params The source params to be set.
+     * @param entity The [Entity] from which the sound will be played.
      */
     @JvmStatic
     public fun setPointSourceParams(
         session: Session,
         mediaPlayer: MediaPlayer,
         params: PointSourceParams,
+        entity: Entity,
     ) {
+        (entity as BaseEntity<*>).checkNotDisposed()
         session.sceneRuntime.mediaPlayerExtensionsWrapper.setPointSourceParams(
             mediaPlayer,
             params.rtPointSourceParams,
+            entity.rtEntity!!,
         )
     }
 

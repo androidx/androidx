@@ -127,6 +127,7 @@ import androidx.compose.remote.core.operations.layout.managers.ImageLayout;
 import androidx.compose.remote.core.operations.layout.managers.RowLayout;
 import androidx.compose.remote.core.operations.layout.managers.StateLayout;
 import androidx.compose.remote.core.operations.layout.managers.TextLayout;
+import androidx.compose.remote.core.operations.layout.managers.TextStyle;
 import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.BackgroundModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.BorderModifierOperation;
@@ -1137,6 +1138,7 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
             int componentId,
             int animationId,
             int textId,
+            int textStyleId,
             int color,
             int colorId,
             float fontSize,
@@ -1189,7 +1191,102 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
                         fontAxis,
                         fontAxisValues,
                         autosize,
-                        flags));
+                        flags,
+                        textStyleId));
+    }
+
+    @Override
+    public void addTextStyle(
+            int id,
+            @Nullable Integer color,
+            @Nullable Integer colorId,
+            @Nullable Float fontSize,
+            @Nullable Float minFontSize,
+            @Nullable Float maxFontSize,
+            @Nullable Integer fontStyle,
+            @Nullable Float fontWeight,
+            @Nullable Integer fontFamilyId,
+            @Nullable Integer textAlign,
+            @Nullable Integer overflow,
+            @Nullable Integer maxLines,
+            @Nullable Float letterSpacing,
+            @Nullable Float lineHeightAdd,
+            @Nullable Float lineHeightMultiplier,
+            @Nullable Integer lineBreakStrategy,
+            @Nullable Integer hyphenationFrequency,
+            @Nullable Integer justificationMode,
+            @Nullable Boolean underline,
+            @Nullable Boolean strikethrough,
+            int @Nullable [] fontAxis,
+            float @Nullable [] fontAxisValues,
+            @Nullable Boolean autosize,
+            @Nullable Integer parentId) {
+        addOperation(
+                new TextStyle(
+                        id,
+                        color,
+                        colorId,
+                        fontSize,
+                        minFontSize,
+                        maxFontSize,
+                        fontStyle,
+                        fontWeight,
+                        fontFamilyId,
+                        textAlign,
+                        overflow,
+                        maxLines,
+                        letterSpacing,
+                        lineHeightAdd,
+                        lineHeightMultiplier,
+                        lineBreakStrategy,
+                        hyphenationFrequency,
+                        justificationMode,
+                        underline,
+                        strikethrough,
+                        fontAxis,
+                        fontAxisValues,
+                        autosize,
+                        parentId));
+    }
+
+    @Override
+    public void addTextComponentStart(
+            int componentId,
+            int animationId,
+            int textId,
+            int textStyleId,
+            int flags) {
+        mLastComponentId = getComponentId(componentId);
+        addOperation(
+                new CoreText(
+                        null,
+                        mLastComponentId,
+                        animationId,
+                        textId,
+                        0,
+                        -1,
+                        16f,
+                        -1f,
+                        -1f,
+                        0,
+                        400f,
+                        -1,
+                        1,
+                        1,
+                        Integer.MAX_VALUE,
+                        0f,
+                        0f,
+                        1f,
+                        0,
+                        0,
+                        0,
+                        false,
+                        false,
+                        null,
+                        null,
+                        false,
+                        flags,
+                        textStyleId));
     }
 
     @Override

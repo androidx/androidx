@@ -437,18 +437,6 @@ class MovableModifierTest {
     }
 
     @Test
-    fun movable_columnEntity_noComponentWhenMovableIsEnabled() {
-        composeTestRule.setContent {
-            Subspace {
-                SpatialColumn(SubspaceModifier.testTag("column").movable()) {
-                    SpatialPanel { Text(text = "Column") }
-                }
-            }
-        }
-        assertMovableComponentDoesNotExist("column")
-    }
-
-    @Test
     fun movable_columnEntity_noComponentWhenMovableIsDisabled() {
         composeTestRule.setContent {
             Subspace {
@@ -474,18 +462,6 @@ class MovableModifierTest {
                 .components
                 .isNullOrEmpty()
         )
-    }
-
-    @Test
-    fun movable_rowEntity_noComponentWhenMovableIsEnabled() {
-        composeTestRule.setContent {
-            Subspace {
-                SpatialRow(SubspaceModifier.testTag("row").movable()) {
-                    SpatialPanel { Text(text = "Row") }
-                }
-            }
-        }
-        assertMovableComponentDoesNotExist("row")
     }
 
     @Test

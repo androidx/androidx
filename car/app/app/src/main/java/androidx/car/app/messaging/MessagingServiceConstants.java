@@ -16,10 +16,10 @@
 
 package androidx.car.app.messaging;
 
-import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.RequiresCarApi;
 
 /** Constants related to messaging in Android Auto */
-@ExperimentalCarApi
+@RequiresCarApi(8)
 public class MessagingServiceConstants {
     /**
      * Used to declare Android Auto messaging support within an app's manifest

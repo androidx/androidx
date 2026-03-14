@@ -128,6 +128,7 @@ val WearFoundationDemos =
                 listOf(
                     ComposableDemo("Warped Text Demo") { WarpedTextDemo() },
                     ComposableDemo("Warped Text Sample") { CurvedWarpingSample() },
+                    ComposableDemo("Lookahead Demo") { LookaheadDemo() },
                     ComposableDemo("Curved Row") { CurvedWorldDemo() },
                     ComposableDemo("Curved Row and Column") { CurvedRowAndColumn() },
                     ComposableDemo("Curved Box") { CurvedBoxDemo() },

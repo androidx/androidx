@@ -29,6 +29,7 @@ import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.MouseButton
+import androidx.compose.ui.test.TrackpadButton
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -131,11 +132,11 @@ class RightClickGesturesTest {
 
         interaction.performTrackpadInput {
             updatePointerTo(center)
-            press(MouseButton.Secondary)
+            press(TrackpadButton.Secondary)
         }
         assertThat(clickCount).isEqualTo(1)
 
-        interaction.performTrackpadInput { release(MouseButton.Secondary) }
+        interaction.performTrackpadInput { release(TrackpadButton.Secondary) }
         assertThat(clickCount).isEqualTo(1)
     }
 

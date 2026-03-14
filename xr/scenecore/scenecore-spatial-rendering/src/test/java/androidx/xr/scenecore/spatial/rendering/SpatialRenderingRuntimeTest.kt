@@ -41,16 +41,13 @@ import com.android.extensions.xr.ShadowXrExtensions
 import com.google.androidxr.splitengine.SplitEngineSubspaceManager
 import com.google.ar.imp.view.splitengine.ImpSplitEngineRenderer
 import com.google.common.truth.Truth.assertThat
-import kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.any
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
@@ -227,78 +224,6 @@ class SpatialRenderingRuntimeTest {
     @Test
     fun createGltfEntity_returnsEntity() {
         assertThat(createGltfEntity(impressApi = mock(ImpressApi::class.java))).isNotNull()
-    }
-
-    @Test
-    fun animateGltfEntity_gltfEntityIsAnimating() {
-        val mockImpressApi = mock(ImpressApi::class.java)
-
-        runBlocking {
-            Mockito.doAnswer { COROUTINE_SUSPENDED }
-                .`when`(mockImpressApi)
-                .animateGltfModel(
-                    any(ImpressNode::class.java) ?: fakeImpressApi.createImpressNode(),
-                    Mockito.anyString(),
-                    Mockito.eq(false),
-                )
-        }
-
-        val gltfEntity = createGltfEntity(impressApi = mockImpressApi)
-        gltfEntity.startAnimation(false, "animation_name")
-        fakeExecutor.runAll()
-        val loopingAnimatingNodes = fakeImpressApi.impressNodeLoopAnimatingSize()
-
-        // The fakeJniApi returns a future which immediately fires, which makes it seem like the
-        // animation is done immediately. This makes it look like the animation stopped right away.
-        assertThat(gltfEntity.animationState).isEqualTo(GltfEntity.AnimationState.PLAYING)
-        assertThat(loopingAnimatingNodes).isEqualTo(0)
-    }
-
-    @Test
-    fun animateLoopGltfEntity_gltfEntityIsAnimatingInLoop() {
-        val mockImpressApi = mock(ImpressApi::class.java)
-
-        runBlocking {
-            Mockito.doAnswer { COROUTINE_SUSPENDED }
-                .`when`(mockImpressApi)
-                .animateGltfModel(
-                    any(ImpressNode::class.java) ?: fakeImpressApi.createImpressNode(),
-                    Mockito.anyString(),
-                    Mockito.eq(true),
-                )
-        }
-
-        val gltfEntity = createGltfEntity(impressApi = mockImpressApi)
-        gltfEntity.startAnimation(true, "animation_name")
-        val animatingNodes = fakeImpressApi.impressNodeAnimatingSize()
-
-        assertThat(gltfEntity.animationState).isEqualTo(GltfEntity.AnimationState.PLAYING)
-        assertThat(animatingNodes).isEqualTo(0)
-    }
-
-    @Test
-    fun stopAnimateGltfEntity_gltfEntityStopsAnimating() {
-        val mockImpressApi = mock(ImpressApi::class.java)
-
-        runBlocking {
-            Mockito.doAnswer { COROUTINE_SUSPENDED }
-                .`when`(mockImpressApi)
-                .animateGltfModel(
-                    any(ImpressNode::class.java) ?: fakeImpressApi.createImpressNode(),
-                    Mockito.anyString(),
-                    Mockito.eq(false),
-                )
-        }
-
-        val gltfEntity = createGltfEntity(impressApi = mockImpressApi)
-        gltfEntity.startAnimation(true, "animation_name")
-        gltfEntity.stopAnimation()
-        val animatingNodes = fakeImpressApi.impressNodeAnimatingSize()
-        val loopingAnimatingNodes = fakeImpressApi.impressNodeLoopAnimatingSize()
-
-        assertThat(gltfEntity.animationState).isEqualTo(GltfEntity.AnimationState.STOPPED)
-        assertThat(animatingNodes).isEqualTo(0)
-        assertThat(loopingAnimatingNodes).isEqualTo(0)
     }
 
     @Test

@@ -10,6 +10,7 @@
     "start": "node built/index.js",
     "debug": "npm run --silent watch & node_modules/.bin/nodemon --inspect built/index.js",
     "setupGcpProject": "gcloud config set project fetch-licenses",
+    "gcp-build": "node node_modules/puppeteer/install.mjs",
     "deploy": "gcloud app deploy app.yaml"
   },
   "license": "MIT",

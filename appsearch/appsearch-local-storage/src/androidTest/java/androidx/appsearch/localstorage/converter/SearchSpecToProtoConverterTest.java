@@ -31,6 +31,7 @@ import androidx.appsearch.flags.Flags;
 import androidx.appsearch.localstorage.AppSearchConfig;
 import androidx.appsearch.localstorage.AppSearchConfigImpl;
 import androidx.appsearch.localstorage.AppSearchImpl;
+import androidx.appsearch.localstorage.AppSearchUserPlugins;
 import androidx.appsearch.localstorage.IcingOptionsConfig;
 import androidx.appsearch.localstorage.LocalStorageIcingOptionsConfig;
 import androidx.appsearch.localstorage.NamespaceCache;
@@ -100,11 +101,7 @@ public class SearchSpecToProtoConverterTest {
         mAppSearchImpl = AppSearchImpl.create(
                 mTemporaryFolder.newFolder(),
                 config,
-                /*initStatsBuilder=*/ null,
-                /*callStatsBuilder=*/ null,
-                /*visibilityChecker=*/ null,
-                /*revocableFileDescriptorStore=*/ null,
-                /*icingSearchEngine=*/ null,
+                AppSearchUserPlugins.EMPTY,
                 ALWAYS_OPTIMIZE);
     }
 

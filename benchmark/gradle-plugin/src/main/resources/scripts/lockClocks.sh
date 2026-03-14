@@ -267,7 +267,10 @@ function_lock_gpu_kgsl() {
     done
 
     # (below, 100M = 1M for MHz * 100 for %)
-    TARGET_FREQ_MHZ=$(( (${gpuMaxFreq} * ${GPU_TARGET_FREQ_PERCENT}) / 100000000 ))
+    # Since GPU frequencies are in HZ, we need to multiply by 1,000,000 to get MHz.
+    # (x Hz / 1000^2) * (target_percent / 100) = (x Hz * t) / 100,000,000
+    # Important: Divide by 1,000,000 first to avoid Int32 overflow
+    TARGET_FREQ_MHZ=$(( (${gpuMaxFreq} / 1000000 * ${GPU_TARGET_FREQ_PERCENT}) / 100 ))
 
     chosenFreq=${gpuMaxFreq}
     index=0

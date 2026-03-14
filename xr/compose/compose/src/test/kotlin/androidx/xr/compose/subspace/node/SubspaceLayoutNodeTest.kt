@@ -37,6 +37,8 @@ import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.scenecore.Entity
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -53,7 +55,7 @@ class SubspaceLayoutNodeTest {
     val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
 
     @Test
-    fun subspaceLayoutNode_shouldParentNodesProperly() {
+    fun subspaceLayoutNode_shouldParentNodesProperly() = runTest {
         var parentEntity: Entity? = null
 
         composeTestRule.setContent {
@@ -80,8 +82,8 @@ class SubspaceLayoutNodeTest {
     }
 
     @Test
-    fun subspaceLayoutNode_updatesToMeasurePolicy_triggersRemeasure() {
-        val owner = AndroidComposeSpatialElement()
+    fun subspaceLayoutNode_updatesToMeasurePolicy_triggersRemeasure() = runTest {
+        val owner = createOwner()
         val logger = TestLogger().also { owner.logger = it }
         val node = SubspaceLayoutNode()
         owner.root.insertAt(0, node)
@@ -92,8 +94,8 @@ class SubspaceLayoutNodeTest {
     }
 
     @Test
-    fun subspaceLayoutNode_insertingChild_triggersRemeasure() {
-        val owner = AndroidComposeSpatialElement()
+    fun subspaceLayoutNode_insertingChild_triggersRemeasure() = runTest {
+        val owner = createOwner()
         val logger = TestLogger().also { owner.logger = it }
         val node = SubspaceLayoutNode()
         logger
@@ -105,8 +107,8 @@ class SubspaceLayoutNodeTest {
     }
 
     @Test
-    fun subspaceLayoutNode_movingChild_triggersRemeasure() {
-        val owner = AndroidComposeSpatialElement()
+    fun subspaceLayoutNode_movingChild_triggersRemeasure() = runTest {
+        val owner = createOwner()
         val logger = TestLogger().also { owner.logger = it }
         val node1 = SubspaceLayoutNode()
         owner.root.insertAt(0, node1)
@@ -120,8 +122,8 @@ class SubspaceLayoutNodeTest {
     }
 
     @Test
-    fun subspaceLayoutNode_removingChild_triggersRemeasure() {
-        val owner = AndroidComposeSpatialElement()
+    fun subspaceLayoutNode_removingChild_triggersRemeasure() = runTest {
+        val owner = createOwner()
         val logger = TestLogger().also { owner.logger = it }
         val node1 = SubspaceLayoutNode()
         owner.root.insertAt(0, node1)
@@ -137,50 +139,53 @@ class SubspaceLayoutNodeTest {
     }
 
     @Test
-    fun subspaceLayoutNode_verifyRootDepthIsZero() {
+    fun subspaceLayoutNode_verifyRootDepthIsZero() = runTest {
         val rootNode = SubspaceLayoutNode()
 
         assertThat(rootNode.depth).isEqualTo(0)
     }
 
     @Test
-    fun subspaceLayoutNode_verifyChildrenDepth() {
-        val owner = AndroidComposeSpatialElement()
+    fun subspaceLayoutNode_verifyChildrenDepth() = runTest {
+        val owner = createOwner()
         val rootNode = SubspaceLayoutNode()
         val grandParentNode = SubspaceLayoutNode()
         val parentNode = SubspaceLayoutNode()
         val childNode = SubspaceLayoutNode()
 
-        rootNode.attach(owner)
+        owner.root.insertAt(0, rootNode)
         rootNode.insertAt(0, grandParentNode)
         grandParentNode.insertAt(0, parentNode)
         parentNode.insertAt(0, childNode)
 
-        assertThat(grandParentNode.depth).isEqualTo(1)
-        assertThat(parentNode.depth).isEqualTo(2)
-        assertThat(childNode.depth).isEqualTo(3)
+        assertThat(grandParentNode.depth).isEqualTo(2)
+        assertThat(parentNode.depth).isEqualTo(3)
+        assertThat(childNode.depth).isEqualTo(4)
     }
 
     @Test
-    fun subspaceLayoutNode_verifyDetachingChangesDepth() {
-        val owner = AndroidComposeSpatialElement()
+    fun subspaceLayoutNode_verifyDetachingChangesDepth() = runTest {
+        val owner = createOwner()
         val rootNode = SubspaceLayoutNode()
         val parentNode = SubspaceLayoutNode()
         val childNode = SubspaceLayoutNode()
 
-        rootNode.attach(owner)
+        owner.root.insertAt(0, rootNode)
         rootNode.insertAt(0, parentNode)
         parentNode.insertAt(0, childNode)
 
-        assertThat(parentNode.depth).isEqualTo(1)
-        assertThat(childNode.depth).isEqualTo(2)
+        assertThat(parentNode.depth).isEqualTo(2)
+        assertThat(childNode.depth).isEqualTo(3)
 
         rootNode.removeAt(0, 1)
-        parentNode.attach(owner)
+        owner.root.insertAt(1, parentNode)
 
-        assertThat(parentNode.depth).isEqualTo(0)
-        assertThat(childNode.depth).isEqualTo(1)
+        assertThat(parentNode.depth).isEqualTo(1)
+        assertThat(childNode.depth).isEqualTo(2)
     }
+
+    private fun createOwner(): AndroidComposeSpatialElement =
+        AndroidComposeSpatialElement(StandardTestDispatcher())
 
     @Composable
     @SubspaceComposable

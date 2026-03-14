@@ -188,6 +188,10 @@ open annotation class androidx.room3/Entity : kotlin/Annotation { // androidx.ro
         final fun <get-tableName>(): kotlin/String // androidx.room3/Entity.tableName.<get-tableName>|<get-tableName>(){}[0]
 }
 
+open annotation class androidx.room3/ExperimentalRoomApi : kotlin/Annotation { // androidx.room3/ExperimentalRoomApi|null[0]
+    constructor <init>() // androidx.room3/ExperimentalRoomApi.<init>|<init>(){}[0]
+}
+
 open annotation class androidx.room3/ForeignKey : kotlin/Annotation { // androidx.room3/ForeignKey|null[0]
     constructor <init>(kotlin.reflect/KClass<*>, kotlin/Array<kotlin/String>, kotlin/Array<kotlin/String>, kotlin/Int = ..., kotlin/Int = ..., kotlin/Boolean = ...) // androidx.room3/ForeignKey.<init>|<init>(kotlin.reflect.KClass<*>;kotlin.Array<kotlin.String>;kotlin.Array<kotlin.String>;kotlin.Int;kotlin.Int;kotlin.Boolean){}[0]
 

@@ -33,10 +33,10 @@ public interface OkioSerializer<T> {
      * Unmarshal object from source.
      *
      * @param source the BufferedSource with the data to deserialize
-     * @throws androidx.datastore.core.CorruptionException if the data from [input] is corrupted
-     *   and/or unparseable, e.g. [InvalidProtocolBufferException] when the type [T] is a protobuf
-     *   message and it is corrupted. Other unrecoverable [IOException] from the file system should
-     *   not be thrown as [CorruptionException].
+     * @throws androidx.datastore.core.CorruptionException if the data from [source] is corrupted
+     *   and/or unparseable, e.g. `InvalidProtocolBufferException` when the type [T] is a protobuf
+     *   message and it is corrupted. Other unrecoverable [androidx.datastore.core.IOException] from
+     *   the file system should not be thrown as [androidx.datastore.core.CorruptionException].
      */
     public suspend fun readFrom(source: BufferedSource): T
 

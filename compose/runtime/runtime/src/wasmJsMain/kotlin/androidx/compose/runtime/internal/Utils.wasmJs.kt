@@ -47,5 +47,5 @@ internal actual fun identityHashCode(instance: Any?): Int {
     }
 
     val jsRef = instance.toJsReference()
-    return weakMap.get(jsRef) ?: memoizeIdentityHashCode(jsRef)
+    return weakMap.get(jsRef).takeIf { it != 0 } ?: memoizeIdentityHashCode(jsRef)
 }

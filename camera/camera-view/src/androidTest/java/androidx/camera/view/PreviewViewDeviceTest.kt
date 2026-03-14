@@ -47,8 +47,8 @@ import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
-import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.testing.impl.ParameterizedTestConfigUtil
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.testing.impl.fakes.FakeActivity
 import androidx.camera.view.PreviewView.ImplementationMode
 import androidx.camera.view.internal.compat.quirk.DeviceQuirks
@@ -70,7 +70,6 @@ import java.util.concurrent.Executor
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
-import org.junit.After
 import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
@@ -82,6 +81,8 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 class PreviewViewDeviceTest(private val implName: String, private val cameraConfig: CameraXConfig) {
+
+    @get:Rule val requireForegroundRule = RequireForegroundRule()
 
     @get:Rule
     val useCamera =
@@ -97,21 +98,19 @@ class PreviewViewDeviceTest(private val implName: String, private val cameraConf
 
     @Before
     fun setUp() {
-        CoreAppTestUtil.prepareDeviceUI(instrumentation)
         activityScenario = ActivityScenario.launch(FakeActivity::class.java)
         ProcessCameraProvider.configureInstance(cameraConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
-    }
 
-    @After
-    fun tearDown() {
-        for (surfaceRequest in surfaceRequestList) {
-            surfaceRequest.willNotProvideSurface()
-            // Ensure all successful requests have their returned future finish.
-            surfaceRequest.deferrableSurface.close()
-        }
-        if (cameraProvider != null) {
-            cameraProvider!!.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
+        requireForegroundRule.deferCleanup {
+            for (surfaceRequest in surfaceRequestList) {
+                surfaceRequest.willNotProvideSurface()
+                // Ensure all successful requests have their returned future finish.
+                surfaceRequest.deferrableSurface.close()
+            }
+            if (cameraProvider != null) {
+                cameraProvider!!.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
+            }
         }
     }
 

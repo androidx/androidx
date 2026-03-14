@@ -21,7 +21,6 @@ import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.RFloat
 import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RemoteComposeContext
-import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.actions.ValueFloatExpressionChange
 import androidx.compose.remote.creation.modifiers.DrawWithContentModifier
@@ -38,7 +37,6 @@ import androidx.glance.appwidget.remotecompose.convertGlanceModifierToRemoteComp
 import androidx.glance.appwidget.remotecompose.custom.CustomScrollModifier
 import androidx.glance.appwidget.remotecompose.toColumnLayoutEnum
 import androidx.glance.appwidget.toPixels
-import kotlin.text.toFloat
 
 internal class RcLazyColumn(
     emittable: EmittableLazyColumn,
@@ -53,12 +51,12 @@ internal class RcLazyColumn(
 
     // TODO vvvvvvv
     // workaround for match-parent sizing of snap scrollable children
-    val heightVariableId: Float
+    private val heightVariableId: Float
 
-    val visFloatExpId: Float
-    val notVisFloatExpId: Float
-    var touchPositionVariable: Float = 0f
-    var scrollPositionExpr: Float = 0f // needs assignment
+    private val visFloatExpId: Float
+    private val notVisFloatExpId: Float
+    private var touchPositionVariable: Float = 0f
+    private var scrollPositionExpr: Float = 0f // needs assignment
 
     // end workaround
     // TODO ^^^^^^
@@ -88,7 +86,7 @@ internal class RcLazyColumn(
             when (emittable.verticalScrollMode) {
                 is VerticalScrollMode.SnapScrollMatchHeight,
                 is VerticalScrollMode.SnapScroll -> children.size - 1
-                is VerticalScrollMode.Normal -> 0 // pass 1 to signify no snap scrolling
+                is VerticalScrollMode.Normal -> 1 // pass 1 to signify no snap scrolling
             }
 
         // this will only be referenced if we do snap scrolling .
@@ -102,10 +100,12 @@ internal class RcLazyColumn(
         heightVariableId =
             translationContext.remoteComposeContext.addFloatConstant(defaultChildHeightF)
 
+        val isSnapScroll = this.verticalScrollMode != VerticalScrollMode.Normal
         val scrollModifier: RecordingModifier.Element =
-            makeCustomScrollModifier(
+            makeCustomSnapScrollModifier(
                 numItems = notches,
                 rcContext = translationContext.remoteComposeContext,
+                snapScrolling = isSnapScroll,
             )
 
         outputModifier = userSpecifiedModifier.then(scrollModifier)
@@ -118,76 +118,59 @@ internal class RcLazyColumn(
             outputModifier.then(DrawWithContentModifier()), // modifier
             horizontalAlign, // horizontal align
         ) {
-            /*
-             * This is a workaround for not having (as of 2025/7) a matchParentHeight modifier
-             * for children of a scrollable container. This expression will grab the scrollable
-             * column's height at runtime, and apply it to the child elements
-             */
+            val writer: RemoteComposeWriterAndroid =
+                translationContext.remoteComposeContext.writer as RemoteComposeWriterAndroid
+
+            writer.startCanvasOperations()
+            val scrollColumnDynamicHeightId: Float = writer.addComponentHeightValue()
+            val computedHeight =
+                writer.floatExpression(scrollColumnDynamicHeightId, 1f, Rc.FloatExpression.MUL)
+
+            // Force refresh when height changes
+            refreshOnHeightChange(computedHeight)
+
+            // vvvv Update the scroll view height vvvv
+            val action =
+                ValueFloatExpressionChange(
+                    Utils.idFromNan(heightVariableId),
+                    Utils.idFromNan(computedHeight),
+                )
+            writer.startRunActions()
+            writer.addAction(action)
+            writer.endRunActions()
+            writer.drawComponentContent() // draws the normal content
+
+            //                /// Vvvvv TODO: remove. This is only a reminder for how to write
+            // expressions  vvvv
+            //                val thing = writer.rf(Rc.Time.ANIMATION_TIME)
+            //                val thing2 =
+            //                    thing * 4f // example of operator overloading, we can now use
+            // normal math
+            //                val thing2Expr =
+            //                    thing2.toFloat() // convert from expression mode to RPN float
+            // expression
+            //                // TODO: ^^^^^^^^^^
             if (verticalScrollMode !is VerticalScrollMode.Normal) {
-                val writer: RemoteComposeWriterAndroid =
-                    translationContext.remoteComposeContext.writer as RemoteComposeWriterAndroid
-
-                writer.startCanvasOperations()
-                val scrollColumnDynamicHeightId: Float = writer.addComponentHeightValue()
-                val computedHeight =
-                    writer.floatExpression(scrollColumnDynamicHeightId, 1f, Rc.FloatExpression.MUL)
-
-                // vvvvv Force refresh when height changes vvvv
-                // This section just triggers a refresh
-                conditionalOperations(Rc.Condition.NEQ, heightVariableId, computedHeight)
-                if (DebugRemoteCompose) {
-                    addDebugMessage(" REFRESH ")
-                }
-                startRunActions()
-                val notCalc =
-                    floatExpression(
-                        visFloatExpId,
-                        1f,
-                        Rc.FloatExpression.ADD,
-                        2f,
-                        Rc.FloatExpression.MOD,
-                    )
-                val refresh = ValueFloatExpressionChange(visFloatExpId.toIntId(), notCalc.toIntId())
-                addAction(refresh)
-                endRunActions()
-                endConditionalOperations()
-                // ^^^^^ end: refresh hack ^^^^
-
-                // vvvv Update the scroll view height vvvv
-                val action =
-                    ValueFloatExpressionChange(
-                        Utils.idFromNan(heightVariableId),
-                        Utils.idFromNan(computedHeight),
-                    )
-                writer.startRunActions()
-                writer.addAction(action)
-                writer.endRunActions()
-                writer.drawComponentContent() // draws the normal content
-
-                //                /// Vvvvv TODO: remove. This is only a reminder for how to write
-                // expressions  vvvv
-                //                val thing = writer.rf(Rc.Time.ANIMATION_TIME)
-                //                val thing2 =
-                //                    thing * 4f // example of operator overloading, we can now use
-                // normal math
-                //                val thing2Expr =
-                //                    thing2.toFloat() // convert from expression mode to RPN float
-                // expression
-                //                // TODO: ^^^^^^^^^^
-
                 drawDots(computedHeight = computedHeight)
 
                 writer.endCanvasOperations()
                 // ^^^^ end: height hack ^^^^
 
-                // now update all the children's modifiers
+                /*
+                 * This is a workaround for not having (as of 2025/7) a matchParentHeight modifier
+                 * for children of a scrollable container. This expression will grab the scrollable
+                 * column's height at runtime, and apply it to the child elements
+                 */
                 if (verticalScrollMode is VerticalScrollMode.SnapScrollMatchHeight) {
+
                     @Suppress("ListIterator")
                     for (child in children) {
                         child.outputModifier.height(heightVariableId)
                     }
                 }
-            } // end-if-isSnapScrollMatchHeight special case
+            } else {
+                writer.endCanvasOperations()
+            }
 
             // common code path: write the children as a part of this component
             @Suppress("ListIterator")
@@ -209,11 +192,26 @@ internal class RcLazyColumn(
         }
     }
 
-    private fun makeCustomScrollModifier(
+    /** If the currently computed height does not match the cached height, do a refresh action. */
+    private fun RemoteComposeContext.refreshOnHeightChange(computedHeight: Float) {
+        conditionalOperations(Rc.Condition.NEQ, heightVariableId, computedHeight)
+        if (DebugRemoteCompose) {
+            addDebugMessage(" REFRESH ")
+        }
+        startRunActions()
+        val notCalc =
+            floatExpression(visFloatExpId, 1f, Rc.FloatExpression.ADD, 2f, Rc.FloatExpression.MOD)
+        val refresh = ValueFloatExpressionChange(visFloatExpId.toIntId(), notCalc.toIntId())
+        addAction(refresh)
+        endRunActions()
+        endConditionalOperations()
+    }
+
+    private fun makeCustomSnapScrollModifier(
         numItems: Int,
+        snapScrolling: Boolean = true,
         rcContext: RemoteComposeContext,
     ): RecordingModifier.Element {
-        //
 
         touchPositionVariable = rcContext.addFloatConstant(0f)
         scrollPositionExpr =
@@ -222,53 +220,43 @@ internal class RcLazyColumn(
                 heightVariableId,
                 Rc.FloatExpression.MUL,
             )
+
         val maxScrollPxExpr: Float =
             rcContext.floatExpression(heightVariableId, numItems.toFloat(), Rc.FloatExpression.MUL)
 
-        val touchVariableId: Int = Utils.idFromNan(touchPositionVariable)
-
         if (DebugRemoteCompose) {
+            val touchVariableId: Int = Utils.idFromNan(touchPositionVariable)
             rcContext.addDebugMessage(
-                "RcLazyColumn: touchPosition [id= $touchVariableId]",
+                "RcLazyColumn:\t touchPosition [id= $touchVariableId]",
                 touchPositionVariable,
             )
-            rcContext.addDebugMessage("RcLazyColumn: heightVariable", heightVariableId)
-            rcContext.addDebugMessage("RcLazyColumn: scrollPositionExpr", scrollPositionExpr)
+            rcContext.addDebugMessage("RcLazyColumn:\t heightVariable", heightVariableId)
+            rcContext.addDebugMessage("RcLazyColumn:\t scrollPositionExpr", scrollPositionExpr)
             rcContext.addDebugMessage(
-                "RcLazyColumn: maxScrollPxExpr id = ${Utils.idFromNan(maxScrollPxExpr)}"
+                "RcLazyColumn:\t maxScrollPxExpr id = ${Utils.idFromNan(maxScrollPxExpr)}"
             )
         }
 
         val customScrollModifier =
             CustomScrollModifier(
                 direction = CustomScrollModifier.VERTICAL,
-                touchPosition = touchPositionVariable,
-                scrollPosition = scrollPositionExpr, // outputs an index of page
-                notches = numItems,
+                touchPositionVariable = touchPositionVariable,
+                scrollPositionExpr = scrollPositionExpr, // outputs an index of page
+                numItems = numItems,
                 scrollContainerSizePx = maxScrollPxExpr,
+                snapScrolling = snapScrolling,
             )
-
-        if (DebugRemoteCompose) {
-            rcContext.addDebugMessage(
-                "RcLazyColumn: touchPosition [id= $touchVariableId]",
-                touchPositionVariable,
-            )
-            rcContext.addDebugMessage("RcLazyColumn: heightVariable", heightVariableId)
-            rcContext.addDebugMessage("RcLazyColumn: scrollPositionExpr", scrollPositionExpr)
-            rcContext.addDebugMessage(
-                "RcLazyColumn: maxScrollPxExpr id = ${Utils.idFromNan(maxScrollPxExpr)}"
-            )
-            rcContext.addDebugMessage("RcLazyColumn: maxScrollPxExpr", maxScrollPxExpr)
-        }
 
         return customScrollModifier
     }
 
-    ///
     private fun RemoteComposeContext.drawDots(computedHeight: Float) {
         val widthVariableId = writer.addComponentWidthValue()
         val writer: RemoteComposeWriterAndroid = writer as RemoteComposeWriterAndroid
 
+        val startingAlpha = 2f // this gives us 1 second of solid alpha before fading
+
+        // time since last touch coerced to (0,2)
         val touchEventTimeExpr =
             writer.floatExpression(
                 Rc.Time.ANIMATION_TIME, // current time, in seconds f
@@ -279,11 +267,12 @@ internal class RcLazyColumn(
                 Rc.FloatExpression.MAX // clamp a negative value to 0 (probably not needed here)
                 ,
                 /////
-                2f,
+                startingAlpha,
                 Rc.FloatExpression.MIN, // clamp a large value to 2
             )
 
-        val alphaExpr = writer.floatExpression(2f, touchEventTimeExpr, Rc.FloatExpression.SUB)
+        val alphaExpr =
+            writer.floatExpression(startingAlpha, touchEventTimeExpr, Rc.FloatExpression.SUB)
         val clampedAlpha = writer.floatExpression(0f, 1f, alphaExpr, Rc.FloatExpression.CLAMP)
         writer.painter.setAlpha(clampedAlpha).commit()
         if (DebugRemoteCompose) {
@@ -292,13 +281,16 @@ internal class RcLazyColumn(
         }
 
         val dimenScale = 2f // TODO: do actual dp to px scaling, not this
+
         val maxDots = 5f
-        val xPadding = 3f * dimenScale * 4 // 4 is arbitrary
         val numDots = Math.min(maxDots, children.size.toFloat())
         val dotRadius = 3f * dimenScale
+
+        val dotColumnXOffset = 3f * dimenScale * 4 // 4 is arbitrary
         val dotVPad = 4f * dimenScale
         val pillHeight = 6f * dimenScale // todo, change back to 12f
-        val cx = writer.floatExpression(widthVariableId, xPadding, Rc.FloatExpression.SUB)
+        val centerX =
+            writer.floatExpression(widthVariableId, dotColumnXOffset, Rc.FloatExpression.SUB)
         val scrollSectionHeight =
             ((numDots - 1) * (2 * dotRadius) + (numDots - 1) * dotVPad + pillHeight)
         val scrollSectionY0: RFloat = ((rf(computedHeight) / rf(2f)) - (scrollSectionHeight / 2f))
@@ -307,7 +299,7 @@ internal class RcLazyColumn(
             // now, we can draw an overlay
             writer.painter.setColor(Color.Magenta.toArgb()).setAlpha(clampedAlpha).commit()
             writer.drawCircle(
-                cx,
+                centerX,
                 (scrollSectionY0 + child * (2 * dotRadius + dotVPad)).toFloat(),
                 dotRadius,
             )
@@ -321,24 +313,13 @@ internal class RcLazyColumn(
         if (DebugRemoteCompose) {
             addDebugMessage("RcLazyColumn: pillYExpr ", pillYExpr)
         }
-        writer.drawCircle(cx, pillYExpr, dotRadius)
+        writer.drawCircle(centerX, pillYExpr, dotRadius)
         writer.painter.setAlpha(1f).commit() // reset alpha to a normal value
         //                writer.floatExpression(
         //                    Rc.Time.CONTINUOUS_SEC
         //                ) // force repaint // TODO: without this, the fade out animation
         // doesn't run
-
     }
-
-    //
-
-}
-
-/** @return a NaN float which is really an expression */
-private fun matchParentExpression(doc: RemoteComposeWriter): Float {
-    //    val expressionFloat = doc.addComponentHeightValue()
-
-    return doc.floatExpression(300f)
 }
 
 private fun Float.toIntId() = Utils.idFromNan(this)

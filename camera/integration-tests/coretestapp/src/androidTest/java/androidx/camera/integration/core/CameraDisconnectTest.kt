@@ -30,12 +30,12 @@ import androidx.camera.integration.core.CameraXActivity.BIND_IMAGE_CAPTURE
 import androidx.camera.integration.core.CameraXActivity.BIND_PREVIEW
 import androidx.camera.integration.core.CameraXActivity.INTENT_EXTRA_CAMERA_ID
 import androidx.camera.integration.core.CameraXActivity.INTENT_EXTRA_USE_CASE_COMBINATION
-import androidx.camera.integration.core.util.StressTestUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.testing.impl.LabTestRule
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.testing.impl.activity.Camera2TestActivity
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -49,9 +49,7 @@ import androidx.test.uiautomator.UiDevice
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -69,6 +67,13 @@ class CameraDisconnectTest(
     private val implName: String,
     private val cameraConfig: CameraXConfig,
 ) {
+
+    @get:Rule
+    val requireForegroundRule = RequireForegroundRule {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
+        CoreAppTestUtil.assumeCompatibleDevice()
+        CoreAppTestUtil.assumeCanTestCameraDisconnect()
+    }
 
     @get:Rule
     val cameraRule =
@@ -111,16 +116,18 @@ class CameraDisconnectTest(
 
     @Before
     fun setUp() {
-        assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
-        device.setOrientationNatural()
-        CoreAppTestUtil.assumeCompatibleDevice()
-        CoreAppTestUtil.assumeCanTestCameraDisconnect()
         ProcessCameraProvider.configureInstance(cameraConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
-        // Clear the device UI and check if there is no dialog or lock screen on the top of the
-        // window before start the test.
-        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
         cameraId = CameraUtil.getCameraIdWithLensFacing(lensFacing)!!
+        requireForegroundRule.deferCleanup {
+            if (::cameraProvider.isInitialized) {
+                cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
+            }
+
+            if (::backgroundCameraHandlerThread.isInitialized) {
+                backgroundCameraHandlerThread.quitSafely()
+            }
+        }
     }
 
     @After
@@ -128,22 +135,6 @@ class CameraDisconnectTest(
         if (::cameraXActivityScenario.isInitialized) {
             cameraXActivityScenario.close()
         }
-
-        if (::cameraProvider.isInitialized) {
-            withContext(Dispatchers.Main) {
-                cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
-            }
-        }
-
-        if (::backgroundCameraHandlerThread.isInitialized) {
-            backgroundCameraHandlerThread.quitSafely()
-        }
-
-        // Unfreeze rotation so the device can choose the orientation via its own policy. Be nice
-        // to other tests :)
-        device.unfreezeRotation()
-        device.pressHome()
-        device.waitForIdle(StressTestUtil.HOME_TIMEOUT_MS)
     }
 
     private fun launchAndAwaitCamera2Activity(cameraId: String) {

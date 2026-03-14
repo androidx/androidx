@@ -23,7 +23,7 @@ import androidx.pdf.models.FormEditInfo
 import java.util.concurrent.Executor
 
 /** Represents a PDF document that allows for editing. */
-public abstract class EditablePdfDocument : PdfDocument {
+public interface EditablePdfDocument : PdfDocument {
 
     /**
      * Applies the changes specified by [record] to the form.
@@ -39,7 +39,7 @@ public abstract class EditablePdfDocument : PdfDocument {
      * @throws IllegalArgumentException if the provided [record] cannot be applied to the widget
      *   indicated by the index, or if the index does not correspond to a widget on the page.
      */
-    public abstract suspend fun applyEdit(record: FormEditInfo)
+    public suspend fun applyEdit(record: FormEditInfo)
 
     /**
      * Applies a list of edits to the document sequentially. The edits are sorted by page number
@@ -50,14 +50,13 @@ public abstract class EditablePdfDocument : PdfDocument {
      * @throws [PdfEditApplyException] if any of the edit failed to be applied.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Suppress("HiddenAbstractMethod")
-    public abstract suspend fun applyEdits(editsDraft: EditsDraft): List<String>
+    public suspend fun applyEdits(editsDraft: EditsDraft): List<String>
 
     /**
      * Creates a [PdfWriteHandle] which can be used to save the document to a
      * [ParcelFileDescriptor].
      */
-    public abstract fun createWriteHandle(): PdfWriteHandle
+    public fun createWriteHandle(): PdfWriteHandle
 
     /**
      * Adds a listener to be notified when an edit is applied on the document. Remove the listener
@@ -67,11 +66,7 @@ public abstract class EditablePdfDocument : PdfDocument {
      * @param listener the listener to add.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Suppress("HiddenAbstractMethod")
-    public abstract fun addOnEditsAppliedListener(
-        executor: Executor,
-        listener: OnEditsAppliedListener,
-    )
+    public fun addOnEditsAppliedListener(executor: Executor, listener: OnEditsAppliedListener)
 
     /**
      * Remove a listener for applied edits.
@@ -79,8 +74,7 @@ public abstract class EditablePdfDocument : PdfDocument {
      * @param listener the listener for notification of applied edit.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Suppress("HiddenAbstractMethod")
-    public abstract fun removeOnEditsAppliedListener(listener: OnEditsAppliedListener)
+    public fun removeOnEditsAppliedListener(listener: OnEditsAppliedListener)
 
     /**
      * Interface definition for a callback that notifies when an edit is applied using the

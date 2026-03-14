@@ -40,18 +40,19 @@ dependencies {
     api("androidx.compose.runtime:runtime:$composeVersion")
     api(project(":glance:wear:wear-core"))
 
-    implementation("androidx.compose.foundation:foundation:$composeVersion")
     implementation("androidx.compose.ui:ui-graphics:$composeVersion")
 
     implementation(project(":compose:remote:remote-creation"))
 
+    implementation("androidx.compose.foundation:foundation:$composeVersion")
+    implementation("androidx.compose.ui:ui-graphics:$composeVersion")
+    implementation("androidx.core:core-ktx:1.17.0")
     implementation("androidx.datastore:datastore-android:$datastoreVersion")
     implementation("androidx.datastore:datastore-core:$datastoreVersion")
 
     compileOnly files("../../../wear/wear_sdk/wear-sdk.jar")
 
     testImplementation(files("../../../wear/wear_sdk/wear-sdk.jar"))
-    testImplementation("androidx.core:core-ktx:1.17.0")
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.junit)
     testImplementation(libs.mockitoKotlin4)
@@ -61,7 +62,6 @@ dependencies {
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.testRunner)
-    androidTestImplementation("androidx.core:core-ktx:1.17.0")
     androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(project(":compose:remote:remote-player-core"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:$composeVersion")

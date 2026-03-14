@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package androidx.xr.compose.unit
 import androidx.compose.ui.unit.Density
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.runtime.math.FloatSize3d
-import androidx.xr.scenecore.impl.extensions.XrExtensionsProvider
+import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider
 import com.android.extensions.xr.ShadowConfig
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before

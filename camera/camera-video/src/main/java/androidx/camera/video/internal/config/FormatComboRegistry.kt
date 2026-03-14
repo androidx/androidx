@@ -16,10 +16,9 @@
 
 package androidx.camera.video.internal.config
 
-import androidx.camera.video.AudioSpec
+import androidx.camera.video.MediaConstants.MIME_TYPE_UNSPECIFIED
 import androidx.camera.video.MediaSpec
 import androidx.camera.video.MediaSpec.Companion.OUTPUT_FORMAT_UNSPECIFIED
-import androidx.camera.video.VideoSpec
 
 /**
  * A read-only lookup engine for media format combinations.
@@ -46,8 +45,8 @@ private constructor(private val formatComboMapping: Map<Int, Map<String?, Set<Fo
      * Retrieves combinations based on container, video, and audio criteria with wildcard support.
      *
      * @param outputFormat The specific container ID or [OUTPUT_FORMAT_UNSPECIFIED] for any.
-     * @param videoMime The specific video MIME or [VideoSpec.MIME_TYPE_UNSPECIFIED] for any.
-     * @param audioMime The specific audio MIME or [AudioSpec.MIME_TYPE_UNSPECIFIED] for any.
+     * @param videoMime The specific video MIME or [MIME_TYPE_UNSPECIFIED] for any.
+     * @param audioMime The specific audio MIME or [MIME_TYPE_UNSPECIFIED] for any.
      * @return A list of matching canonical [FormatCombo] instances.
      */
     public fun getCombos(
@@ -70,7 +69,7 @@ private constructor(private val formatComboMapping: Map<Int, Map<String?, Set<Fo
 
             // Resolve Video Mimes to search
             val videoMimesToSearch =
-                if (videoMime == VideoSpec.MIME_TYPE_UNSPECIFIED) {
+                if (videoMime == MIME_TYPE_UNSPECIFIED) {
                     videoMap.keys
                 } else {
                     listOf(videoMime)
@@ -80,7 +79,7 @@ private constructor(private val formatComboMapping: Map<Int, Map<String?, Set<Fo
                 val comboSet = videoMap[videoMime] ?: continue
 
                 // Filter by Audio Mime
-                if (audioMime == AudioSpec.MIME_TYPE_UNSPECIFIED) {
+                if (audioMime == MIME_TYPE_UNSPECIFIED) {
                     results.addAll(comboSet)
                 } else {
                     results.addAll(comboSet.filter { it.audioMime == audioMime })

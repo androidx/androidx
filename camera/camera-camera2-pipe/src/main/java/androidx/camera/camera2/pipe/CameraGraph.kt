@@ -412,6 +412,41 @@ public interface CameraGraph : CameraGraphBase<Session>, CameraControls3A {
         public fun submit(request: Request)
 
         /**
+         * Takes the 3A state machine to a converged state. We can specify if we want to converge on
+         * the values after the ongoing scan or if we want to start a fresh scan before converging.
+         *
+         * @param aeRegions the new regions for Ae before requesting convergence.
+         * @param afRegions the new regions for Af before requesting convergence.
+         * @param awbRegions the new regions for Awb before requesting convergence.
+         * @param aeBehavior if not null then the ae will be converged.
+         * @param afBehavior if not null then the af will be converged.
+         * @param awbBehavior if not null then the awb will be converged.
+         * @param convergedCondition an optional function can be used to identify if the result
+         *   frame with correct 3A converge state is received.
+         * @param frameLimit the maximum number of frames to wait before we give up waiting for this
+         *   convergence to complete.
+         * @param timeLimitNs the maximum time limit in ns we wait before we give up waiting for
+         *   convergence to complete.
+         * @return [Result3A] for the latest frame number at which the convergence was reached or
+         *   the frame at which the method returned early because either frame limit or time limit
+         *   was reached.
+         */
+        public fun converge3A(
+            aeRegions: List<MeteringRectangle>? = null,
+            afRegions: List<MeteringRectangle>? = null,
+            awbRegions: List<MeteringRectangle>? = null,
+            aeBehavior: Converge3ABehavior? = null,
+            afBehavior: Converge3ABehavior? = null,
+            awbBehavior: Converge3ABehavior? = null,
+            convergedCondition: ((FrameMetadata) -> Boolean)? = null,
+            frameLimit: Int? = DEFAULT_FRAME_LIMIT,
+            timeLimitNs: Long? = DEFAULT_TIME_LIMIT_NS,
+        ): Deferred<Result3A> =
+            throw UnsupportedOperationException(
+                "converge3a is not supported for this implementation."
+            )
+
+        /**
          * Locks the auto-exposure, auto-focus and auto-whitebalance as per the given desired
          * behaviors. This given 3A parameters are applied before the lock is obtained. If 'null'
          * value is passed for a parameter, that parameter is ignored, and the current value for

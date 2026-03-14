@@ -28,6 +28,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
@@ -598,6 +599,26 @@ class PagerAsStateTest {
             assertThat(error).isNotNull()
             assertThat(error!!.message)
                 .isEqualTo(localLoadStatesOf(refreshLocal = LoadState.Error(exception)).toString())
+        }
+    }
+
+    @Test
+    fun staticList() {
+        val staticList = listOf(55, 56, 57)
+        val staticPagingData = PagingData.from(staticList)
+        val pager =
+            Pager(config, pagingSourceFactory = pagingSourceFactory).flow.onStart {
+                emit(staticPagingData)
+            }
+
+        testScope.runTest {
+            val result = collectOnPager(pager)
+            advanceUntilIdle()
+            assertThat(result.loadedLists.size).isEqualTo(2)
+            assertThat(result.loadedLists.first().items).isEqualTo(staticList)
+            assertThat(result.loadedLists.last().items).containsExactly(0, 1, 2, 3, 4).inOrder()
+
+            result.job.cancel()
         }
     }
 }

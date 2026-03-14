@@ -16,8 +16,24 @@
 
 package androidx.camera.video;
 
+import static android.media.MediaFormat.MIMETYPE_AUDIO_AAC;
+import static android.media.MediaFormat.MIMETYPE_AUDIO_AMR_NB;
+import static android.media.MediaFormat.MIMETYPE_AUDIO_AMR_WB;
+import static android.media.MediaFormat.MIMETYPE_AUDIO_OPUS;
+import static android.media.MediaFormat.MIMETYPE_AUDIO_VORBIS;
+import static android.media.MediaFormat.MIMETYPE_VIDEO_APV;
+import static android.media.MediaFormat.MIMETYPE_VIDEO_AV1;
+import static android.media.MediaFormat.MIMETYPE_VIDEO_AVC;
+import static android.media.MediaFormat.MIMETYPE_VIDEO_DOLBY_VISION;
+import static android.media.MediaFormat.MIMETYPE_VIDEO_H263;
+import static android.media.MediaFormat.MIMETYPE_VIDEO_HEVC;
+import static android.media.MediaFormat.MIMETYPE_VIDEO_MPEG4;
+import static android.media.MediaFormat.MIMETYPE_VIDEO_VP8;
+import static android.media.MediaFormat.MIMETYPE_VIDEO_VP9;
+
 import static androidx.camera.core.impl.SessionConfig.SESSION_TYPE_HIGH_SPEED;
 import static androidx.camera.video.AudioStats.AUDIO_AMPLITUDE_NONE;
+import static androidx.camera.video.MediaConstants.MIME_TYPE_UNSPECIFIED;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_DURATION_LIMIT_REACHED;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_ENCODING_FAILED;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED;
@@ -112,6 +128,7 @@ import androidx.camera.video.internal.muxer.MediaMuxerImpl;
 import androidx.camera.video.internal.muxer.Muxer;
 import androidx.camera.video.internal.muxer.MuxerException;
 import androidx.camera.video.internal.muxer.MuxerFactory;
+import androidx.camera.video.internal.utils.CodecUtil;
 import androidx.camera.video.internal.utils.OutputUtil;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Consumer;
@@ -127,6 +144,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -327,6 +345,28 @@ public final class Recorder implements VideoOutput {
                     State.STOPPING, // Waiting for previous recording to finalize before starting.
                     State.ERROR // Waiting for re-initialization before starting.
             ));
+
+    // Refer to https://developer.android.com/reference/androidx/media3/muxer/Mp4Muxer + VP8
+    // Note: All MIME types in this list must be lowercase to ensure case-sensitive lookups in
+    // getSupportedVideoFormats()/getSupportedAudioFormats() function correctly.
+    private static final List<String> SUPPORTED_VIDEO_MIME_TYPES = Arrays.asList(
+            MIMETYPE_VIDEO_AV1,
+            MIMETYPE_VIDEO_MPEG4,
+            MIMETYPE_VIDEO_H263,
+            MIMETYPE_VIDEO_AVC,
+            MIMETYPE_VIDEO_HEVC,
+            MIMETYPE_VIDEO_VP8,
+            MIMETYPE_VIDEO_VP9,
+            MIMETYPE_VIDEO_APV,
+            MIMETYPE_VIDEO_DOLBY_VISION
+    );
+    private static final List<String> SUPPORTED_AUDIO_MIME_TYPES = Arrays.asList(
+            MIMETYPE_AUDIO_AAC,
+            MIMETYPE_AUDIO_AMR_NB,
+            MIMETYPE_AUDIO_AMR_WB,
+            MIMETYPE_AUDIO_OPUS,
+            MIMETYPE_AUDIO_VORBIS
+    );
 
     /**
      * Default quality selector for recordings.
@@ -571,7 +611,38 @@ public final class Recorder implements VideoOutput {
         mRequiredFreeStorageBytes =
                 requiredFreeStorageBytes != REQUIRED_FREE_STORAGE_UNSET
                         ? requiredFreeStorageBytes : REQUIRED_FREE_STORAGE_DEFAULT_BYTES;
+
+        Logger.d(TAG, "mediaSpec = " + mediaSpec);
         Logger.d(TAG, "mRequiredFreeStorageBytes = " + formatSize(mRequiredFreeStorageBytes));
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Override
+    public void onValidateConfig() throws IllegalArgumentException {
+        MediaSpec mediaSpec = getObservableData(mMediaSpec);
+
+        checkMimeTypeSupportOrThrow(mediaSpec);
+    }
+
+    private void checkMimeTypeSupportOrThrow(@NonNull MediaSpec mediaSpec)
+            throws IllegalArgumentException {
+        // Validate Video MIME Type
+        String videoMime = mediaSpec.getVideoSpec().getMimeType();
+        if (!Objects.equals(videoMime, MIME_TYPE_UNSPECIFIED)) {
+            List<String> supportedVideoMimes = getSupportedVideoMimeTypes();
+            checkArgument(supportedVideoMimes.contains(videoMime),
+                    "The requested video MIME type " + videoMime
+                            + " is not supported by this device.");
+        }
+
+        // Validate Audio MIME Type
+        String audioMime = mediaSpec.getAudioSpec().getMimeType();
+        if (!Objects.equals(audioMime, MIME_TYPE_UNSPECIFIED)) {
+            List<String> supportedAudioMimes = getSupportedAudioMimeTypes();
+            checkArgument(supportedAudioMimes.contains(audioMime),
+                    "The requested audio MIME type " + audioMime
+                            + " is not supported by this device.");
+        }
     }
 
     @Override
@@ -3099,6 +3170,24 @@ public final class Recorder implements VideoOutput {
                 timeUnit);
     }
 
+    /** Returns the video MIME types supported by the device that are compatible with Recorder. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static @NonNull List<String> getSupportedVideoMimeTypes() {
+        List<String> encoderMimes = CodecUtil.getVideoEncoderMimeTypes();
+        List<String> filteredMimes = new ArrayList<>(encoderMimes);
+        filteredMimes.retainAll(SUPPORTED_VIDEO_MIME_TYPES);
+        return filteredMimes;
+    }
+
+    /** Returns the audio MIME types supported by the device that are compatible with Recorder. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static @NonNull List<String> getSupportedAudioMimeTypes() {
+        List<String> encoderMimes = CodecUtil.getAudioEncoderMimeTypes();
+        List<String> filteredMimes = new ArrayList<>(encoderMimes);
+        filteredMimes.retainAll(SUPPORTED_AUDIO_MIME_TYPES);
+        return filteredMimes;
+    }
+
     /**
      * Returns the {@link VideoCapabilities} of Recorder with respect to input camera information.
      *
@@ -3115,7 +3204,7 @@ public final class Recorder implements VideoOutput {
      */
     public static @NonNull VideoCapabilities getVideoCapabilities(@NonNull CameraInfo cameraInfo) {
         return getVideoCapabilitiesInternal(VIDEO_RECORDING_TYPE_REGULAR, cameraInfo,
-                VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE, VideoSpec.MIME_TYPE_UNSPECIFIED);
+                VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE, MIME_TYPE_UNSPECIFIED);
     }
 
     /**
@@ -3123,10 +3212,12 @@ public final class Recorder implements VideoOutput {
      * and video mime type.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static @NonNull VideoCapabilities getVideoCapabilities(@NonNull CameraInfo cameraInfo,
+    public static @Nullable VideoCapabilities getVideoCapabilities(@NonNull CameraInfo cameraInfo,
             @NonNull String mimeType) {
-        return getVideoCapabilitiesInternal(VIDEO_RECORDING_TYPE_REGULAR, cameraInfo,
+        VideoCapabilities videoCapabilities = getVideoCapabilitiesInternal(
+                VIDEO_RECORDING_TYPE_REGULAR, cameraInfo,
                 VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE, mimeType);
+        return videoCapabilities == VideoCapabilities.EMPTY ? null : videoCapabilities;
     }
 
     /**
@@ -3149,7 +3240,7 @@ public final class Recorder implements VideoOutput {
     public static @NonNull VideoCapabilities getVideoCapabilities(@NonNull CameraInfo cameraInfo,
             @VideoCapabilitiesSource int videoCapabilitiesSource) {
         return getVideoCapabilitiesInternal(VIDEO_RECORDING_TYPE_REGULAR, cameraInfo,
-                videoCapabilitiesSource, VideoSpec.MIME_TYPE_UNSPECIFIED);
+                videoCapabilitiesSource, MIME_TYPE_UNSPECIFIED);
     }
 
     /**
@@ -3195,7 +3286,7 @@ public final class Recorder implements VideoOutput {
             @VideoCapabilitiesSource int videoCapabilitiesSource) {
         VideoCapabilities videoCapabilities = getVideoCapabilitiesInternal(
                 VIDEO_RECORDING_TYPE_HIGH_SPEED, cameraInfo, videoCapabilitiesSource,
-                VideoSpec.MIME_TYPE_UNSPECIFIED);
+                MIME_TYPE_UNSPECIFIED);
         return videoCapabilities.getSupportedDynamicRanges().isEmpty() ? null : videoCapabilities;
     }
 
@@ -3205,13 +3296,14 @@ public final class Recorder implements VideoOutput {
             @VideoCapabilitiesSource int videoCapabilitiesSource,
             @NonNull String mimeType) {
         CameraInfoInternal cameraInfoInternal = (CameraInfoInternal) cameraInfo;
-        if (VideoSpec.MIME_TYPE_UNSPECIFIED.equals(mimeType)) {
+        if (MIME_TYPE_UNSPECIFIED.equals(mimeType)) {
             EncoderProfilesResolver profilesResolver = getEncoderProfilesResolverInternal(
                     videoRecordingType, cameraInfo, videoCapabilitiesSource);
             return new RecorderVideoCapabilities(profilesResolver, cameraInfoInternal);
         } else {
-            return new MimeMatchedVideoCapabilities(mimeType, cameraInfoInternal,
-                    DEFAULT_VIDEO_ENCODER_INFO_FINDER);
+            return getSupportedVideoMimeTypes().contains(mimeType)
+                    ? new MimeMatchedVideoCapabilities(mimeType, cameraInfoInternal,
+                    DEFAULT_VIDEO_ENCODER_INFO_FINDER) : VideoCapabilities.EMPTY;
         }
     }
 

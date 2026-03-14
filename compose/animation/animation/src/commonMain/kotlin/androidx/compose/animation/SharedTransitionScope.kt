@@ -1231,7 +1231,12 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
         val sharedElements = sharedElementsIterator
         var isActive = false
         sharedElements.forEach { element ->
-            isActive = isActive || element.isAnimating()
+            isActive =
+                isActive ||
+                    (
+                    // Note: This should evaluate to true for animating shared elements that lost
+                    // its match (e.g.ActiveMatchRemovedDuringTransition)
+                    element.foundMatch && element.isAnimating())
             element.updateMatch()
         }
         if (isActive != isTransitionActive) {

@@ -485,6 +485,7 @@ internal fun BasicTextField(
                                 textStyle = textStyle,
                                 minLines = minLines,
                                 maxLines = maxLines,
+                                softWrap = !singleLine,
                             )
                             .textFieldMinSize(textStyle)
                             .clipToBounds()

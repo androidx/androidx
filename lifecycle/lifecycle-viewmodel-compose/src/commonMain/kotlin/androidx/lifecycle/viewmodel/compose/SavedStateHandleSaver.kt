@@ -28,7 +28,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotMutableState
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.SavedStateHandle.Companion.validateValue
-import androidx.lifecycle.viewmodel.compose.internal.canonicalName
 import androidx.savedstate.SavedState
 import androidx.savedstate.read
 import androidx.savedstate.savedState

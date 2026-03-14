@@ -836,6 +836,7 @@ internal class Controller3ALock3ATest {
 
             return@convergeCondition aeUnlocked && afUnlocked && awbUnlocked
         }
+
         val lockCondition: (FrameMetadata) -> Boolean = lockCondition@{ frameMetadata ->
             val aeUnlocked =
                 frameMetadata[CaptureResult.CONTROL_AE_STATE]?.let {

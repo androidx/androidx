@@ -108,8 +108,9 @@ internal class TestEmbeddedPhotoPickerSession(
     override fun requestRevokeUriPermission(uris: List<Uri>) {}
 
     /**
-     * Creates the [SurfaceControlViewHost] which owns the [SurfacePackage] that will be used for
-     * remote rendering the Photopicker's [ComposeView] inside the client app's [SurfaceView].
+     * Creates the [SurfaceControlViewHost] which owns the
+     * [android.view.SurfaceControlViewHost.SurfacePackage] that will be used for remote rendering
+     * the Photopicker's [ComposeView] inside the client app's [android.view.SurfaceView].
      *
      * SurfaceControlViewHost needs to be created on the Main thread, so this method will spawn a
      * coroutine on the @Main dispatcher and block until that coroutine has completed.
@@ -117,7 +118,7 @@ internal class TestEmbeddedPhotoPickerSession(
      * @param context The service context
      * @param displayId the displayId to locate the display for the [SurfaceControlViewHost]. This
      *   must resolve to a corresponding display in [DisplayManager] or the Session will crash.
-     * @param hostToken A [Binder] token from the client to pass to the [SurfaceControlViewHost]
+     * @param hostToken A [IBinder] token from the client to pass to the [SurfaceControlViewHost]
      */
     private fun createSurfaceControlViewHost(
         context: Context,

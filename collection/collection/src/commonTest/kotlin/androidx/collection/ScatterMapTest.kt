@@ -1557,6 +1557,24 @@ class ScatterMapTest {
     }
 
     @Test
+    fun asMapViewsToString() {
+        val map = mutableScatterMapOf("one" to 1, "two" to 2)
+        val asMap = map.asMap()
+
+        val keysString = asMap.keys.toString()
+        assertEquals(keysString, "[one, two]", "Keys toString was: $keysString")
+
+        val valuesString = asMap.values.toString()
+        assertEquals(valuesString, "[1, 2]", "Values toString was: $valuesString")
+
+        val entriesString = asMap.entries.toString()
+        assertEquals(entriesString, "[one=1, two=2]", "Entries toString was: $entriesString")
+
+        val entryString = asMap.entries.first().toString()
+        assertEquals(entryString, "one=1", "MapEntry toString was: $entryString")
+    }
+
+    @Test
     fun trim() {
         // Trim is not supported on JS.
         if (isJs()) return

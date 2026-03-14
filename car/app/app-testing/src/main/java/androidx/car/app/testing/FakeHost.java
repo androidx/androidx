@@ -36,7 +36,6 @@ import androidx.car.app.IAppHost;
 import androidx.car.app.ICarHost;
 import androidx.car.app.ISurfaceCallback;
 import androidx.car.app.Screen;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.media.OpenMicrophoneResponse;
 import androidx.car.app.navigation.INavigationHost;
 import androidx.car.app.notification.CarAppNotificationBroadcastReceiver;
@@ -99,7 +98,6 @@ public class FakeHost {
     /**
      * Sets an {@link InputStream} to use as the source for microphone data input.
      */
-    @ExperimentalCarApi
     public void setMicrophoneInputData(@NonNull InputStream inputStream) {
         try {
             ParcelFileDescriptor[] pfd = ParcelFileDescriptor.createPipe();

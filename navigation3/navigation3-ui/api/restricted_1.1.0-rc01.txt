@@ -1,0 +1,128 @@
+// Signature format: 4.0
+package androidx.navigation3.scene {
+
+  public final class DialogSceneStrategy<T> implements androidx.navigation3.scene.SceneStrategy<T> {
+    ctor public DialogSceneStrategy();
+    method public androidx.navigation3.scene.Scene<T>? calculateScene(androidx.navigation3.scene.SceneStrategyScope<T>, java.util.List<androidx.navigation3.runtime.NavEntry<T>> entries);
+    field public static final androidx.navigation3.scene.DialogSceneStrategy.Companion Companion;
+  }
+
+  public static final class DialogSceneStrategy.Companion {
+    method public java.util.Map<java.lang.String,java.lang.Object> dialog(optional androidx.compose.ui.window.DialogProperties dialogProperties);
+    method @BytecodeOnly public static java.util.Map! dialog$default(androidx.navigation3.scene.DialogSceneStrategy.Companion!, androidx.compose.ui.window.DialogProperties!, int, Object!);
+  }
+
+  public static final class DialogSceneStrategy.Companion.DialogKey implements androidx.navigation3.runtime.NavMetadataKey<androidx.compose.ui.window.DialogProperties> {
+    field public static final androidx.navigation3.scene.DialogSceneStrategy.Companion.DialogKey INSTANCE;
+  }
+
+  public interface OverlayScene<T> extends androidx.navigation3.scene.Scene<T> {
+    method @InaccessibleFromKotlin public java.util.List<androidx.navigation3.runtime.NavEntry<T>> getOverlaidEntries();
+    method public default suspend Object? onRemove(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public abstract java.util.List<androidx.navigation3.runtime.NavEntry<T>> overlaidEntries;
+  }
+
+  @androidx.compose.runtime.Immutable public interface Scene<T> {
+    method @InaccessibleFromKotlin public kotlin.jvm.functions.Function0<kotlin.Unit> getContent();
+    method @InaccessibleFromKotlin public java.util.List<androidx.navigation3.runtime.NavEntry<T>> getEntries();
+    method @InaccessibleFromKotlin public Object getKey();
+    method @InaccessibleFromKotlin public default java.util.Map<java.lang.String,java.lang.Object> getMetadata();
+    method @InaccessibleFromKotlin public java.util.List<androidx.navigation3.runtime.NavEntry<T>> getPreviousEntries();
+    property public abstract kotlin.jvm.functions.Function0<kotlin.Unit> content;
+    property public abstract java.util.List<androidx.navigation3.runtime.NavEntry<T>> entries;
+    property public abstract Object key;
+    property public default java.util.Map<java.lang.String,java.lang.Object> metadata;
+    property public abstract java.util.List<androidx.navigation3.runtime.NavEntry<T>> previousEntries;
+  }
+
+  public fun interface SceneDecoratorStrategy<T> {
+    method public androidx.navigation3.scene.Scene<T> decorateScene(androidx.navigation3.scene.SceneDecoratorStrategyScope<T>, androidx.navigation3.scene.Scene<T> scene);
+  }
+
+  @androidx.compose.runtime.Immutable public final class SceneDecoratorStrategyScope<T> extends androidx.navigation3.scene.SceneStrategyScope<T> {
+    ctor public SceneDecoratorStrategyScope();
+  }
+
+  @androidx.compose.runtime.Immutable public final class SceneInfo<T> extends androidx.navigationevent.NavigationEventInfo {
+    ctor public SceneInfo(androidx.navigation3.scene.Scene<T> scene);
+    method @InaccessibleFromKotlin public androidx.navigation3.scene.Scene<T> getScene();
+    property public androidx.navigation3.scene.Scene<T> scene;
+  }
+
+  @androidx.compose.runtime.Immutable public final class SceneState<T> {
+    method @InaccessibleFromKotlin public androidx.navigation3.scene.Scene<T> getCurrentScene();
+    method @InaccessibleFromKotlin public java.util.List<androidx.navigation3.runtime.NavEntry<T>> getEntries();
+    method @InaccessibleFromKotlin public java.util.List<androidx.navigation3.scene.OverlayScene<T>> getOverlayScenes();
+    method @InaccessibleFromKotlin public java.util.List<androidx.navigation3.scene.Scene<T>> getPreviousScenes();
+    property public androidx.navigation3.scene.Scene<T> currentScene;
+    property public java.util.List<androidx.navigation3.runtime.NavEntry<T>> entries;
+    property public java.util.List<androidx.navigation3.scene.OverlayScene<T>> overlayScenes;
+    property public java.util.List<androidx.navigation3.scene.Scene<T>> previousScenes;
+  }
+
+  public final class SceneStateKt {
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.navigation3.scene.SceneState! rememberSceneState(java.util.List!, androidx.navigation3.scene.SceneStrategy!, kotlin.jvm.functions.Function0!, androidx.compose.runtime.Composer!, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.navigation3.scene.SceneState<T> rememberSceneState(java.util.List<androidx.navigation3.runtime.NavEntry<T>!>, java.util.List<? extends androidx.navigation3.scene.SceneStrategy<T>!>, java.util.List<? extends androidx.navigation3.scene.SceneDecoratorStrategy<T>!>?, androidx.compose.animation.SharedTransitionScope?, kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.navigation3.scene.SceneState<T> rememberSceneState(java.util.List<androidx.navigation3.runtime.NavEntry<T>> entries, java.util.List<androidx.navigation3.scene.SceneStrategy<T>> sceneStrategies, optional java.util.List<androidx.navigation3.scene.SceneDecoratorStrategy<T>> sceneDecoratorStrategies, optional androidx.compose.animation.SharedTransitionScope? sharedTransitionScope, kotlin.jvm.functions.Function0<kotlin.Unit> onBack);
+  }
+
+  @androidx.compose.runtime.Immutable public fun interface SceneStrategy<T> {
+    method public androidx.navigation3.scene.Scene<T>? calculateScene(androidx.navigation3.scene.SceneStrategyScope<T>, java.util.List<androidx.navigation3.runtime.NavEntry<T>> entries);
+    method @Deprecated public default infix androidx.navigation3.scene.SceneStrategy<T> then(androidx.navigation3.scene.SceneStrategy<T> sceneStrategy);
+  }
+
+  @androidx.compose.runtime.Immutable public class SceneStrategyScope<T> {
+    ctor public SceneStrategyScope();
+    method @InaccessibleFromKotlin public final kotlin.jvm.functions.Function0<kotlin.Unit> getOnBack();
+    property public final kotlin.jvm.functions.Function0<kotlin.Unit> onBack;
+  }
+
+  public final class SinglePaneSceneStrategy<T> implements androidx.navigation3.scene.SceneStrategy<T> {
+    ctor public SinglePaneSceneStrategy();
+    method public androidx.navigation3.scene.Scene<T> calculateScene(androidx.navigation3.scene.SceneStrategyScope<T>, java.util.List<androidx.navigation3.runtime.NavEntry<T>> entries);
+  }
+
+}
+
+package androidx.navigation3.ui {
+
+  public final class LocalNavAnimatedContentScopeKt {
+    method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.animation.AnimatedContentScope> getLocalNavAnimatedContentScope();
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.animation.AnimatedContentScope> LocalNavAnimatedContentScope;
+  }
+
+  public final class NavDisplay {
+    method public java.util.Map<java.lang.String,java.lang.Object> popTransitionSpec(kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedContentTransitionScope<androidx.navigation3.scene.Scene<? extends java.lang.Object?>>,androidx.compose.animation.ContentTransform?> popTransitionSpec);
+    method public java.util.Map<java.lang.String,java.lang.Object> predictivePopTransitionSpec(kotlin.jvm.functions.Function2<? super androidx.compose.animation.AnimatedContentTransitionScope<androidx.navigation3.scene.Scene<? extends java.lang.Object?>>,? super java.lang.Integer,androidx.compose.animation.ContentTransform?> predictivePopTransitionSpec);
+    method public java.util.Map<java.lang.String,java.lang.Object> transitionSpec(kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedContentTransitionScope<androidx.navigation3.scene.Scene<? extends java.lang.Object?>>,androidx.compose.animation.ContentTransform?> transitionSpec);
+    field public static final androidx.navigation3.ui.NavDisplay INSTANCE;
+  }
+
+  public static final class NavDisplay.PopTransitionKey implements androidx.navigation3.runtime.NavMetadataKey<kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedContentTransitionScope<androidx.navigation3.scene.Scene<? extends java.lang.Object?>>,? extends androidx.compose.animation.ContentTransform>> {
+    field public static final androidx.navigation3.ui.NavDisplay.PopTransitionKey INSTANCE;
+  }
+
+  public static final class NavDisplay.PredictivePopTransitionKey implements androidx.navigation3.runtime.NavMetadataKey<kotlin.jvm.functions.Function2<? super androidx.compose.animation.AnimatedContentTransitionScope<androidx.navigation3.scene.Scene<? extends java.lang.Object?>>,? super java.lang.Integer,? extends androidx.compose.animation.ContentTransform?>> {
+    field public static final androidx.navigation3.ui.NavDisplay.PredictivePopTransitionKey INSTANCE;
+  }
+
+  public static final class NavDisplay.TransitionKey implements androidx.navigation3.runtime.NavMetadataKey<kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedContentTransitionScope<androidx.navigation3.scene.Scene<? extends java.lang.Object?>>,? extends androidx.compose.animation.ContentTransform>> {
+    field public static final androidx.navigation3.ui.NavDisplay.TransitionKey INSTANCE;
+  }
+
+  public final class NavDisplayKt {
+    method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public static <T> void NavDisplay(androidx.navigation3.scene.SceneState<T>, androidx.navigationevent.compose.NavigationEventState<androidx.navigation3.scene.SceneInfo<T>!>, androidx.compose.ui.Modifier?, androidx.compose.ui.Alignment?, androidx.compose.animation.SizeTransform?, kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedContentTransitionScope<androidx.navigation3.scene.Scene<T>!>!,androidx.compose.animation.ContentTransform!>?, kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedContentTransitionScope<androidx.navigation3.scene.Scene<T>!>!,androidx.compose.animation.ContentTransform!>?, kotlin.jvm.functions.Function2<? super androidx.compose.animation.AnimatedContentTransitionScope<androidx.navigation3.scene.Scene<T>!>!,? super java.lang.Integer!,androidx.compose.animation.ContentTransform!>?, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> void NavDisplay(androidx.navigation3.scene.SceneState<T> sceneState, androidx.navigationevent.compose.NavigationEventState<androidx.navigation3.scene.SceneInfo<T>> navigationEventState, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.Alignment contentAlignment, optional androidx.compose.animation.SizeTransform? sizeTransform, optional kotlin.jvm.functions.Function1<androidx.compose.animation.AnimatedContentTransitionScope<androidx.navigation3.scene.Scene<T>>,androidx.compose.animation.ContentTransform> transitionSpec, optional kotlin.jvm.functions.Function1<androidx.compose.animation.AnimatedContentTransitionScope<androidx.navigation3.scene.Scene<T>>,androidx.compose.animation.ContentTransform> popTransitionSpec, optional kotlin.jvm.functions.Function2<androidx.compose.animation.AnimatedContentTransitionScope<androidx.navigation3.scene.Scene<T>>,java.lang.Integer,androidx.compose.animation.ContentTransform> predictivePopTransitionSpec);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static void NavDisplay(java.util.List!, androidx.compose.ui.Modifier!, androidx.compose.ui.Alignment!, androidx.navigation3.scene.SceneStrategy!, androidx.compose.animation.SizeTransform!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function2!, kotlin.jvm.functions.Function0!, androidx.compose.runtime.Composer!, int, int);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static void NavDisplay(java.util.List!, androidx.compose.ui.Modifier!, androidx.compose.ui.Alignment!, kotlin.jvm.functions.Function0!, java.util.List!, androidx.navigation3.scene.SceneStrategy!, androidx.compose.animation.SizeTransform!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function2!, kotlin.jvm.functions.Function1!, androidx.compose.runtime.Composer!, int, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> void NavDisplay(java.util.List<? extends T>, androidx.compose.ui.Modifier?, androidx.compose.ui.Alignment?, kotlin.jvm.functions.Function0<kotlin.Unit!>?, java.util.List<? extends androidx.navigation3.runtime.NavEntryDecorator<T>!>?, java.util.List<? extends androidx.navigation3.scene.SceneStrategy<T>!>?, java.util.List<? extends androidx.navigation3.scene.SceneDecoratorStrategy<T>!>?, androidx.compose.animation.SharedTransitionScope?, androidx.compose.animation.SizeTransform?, kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedContentTransitionScope<androidx.navigation3.scene.Scene<T>!>!,androidx.compose.animation.ContentTransform!>?, kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedContentTransitionScope<androidx.navigation3.scene.Scene<T>!>!,androidx.compose.animation.ContentTransform!>?, kotlin.jvm.functions.Function2<? super androidx.compose.animation.AnimatedContentTransitionScope<androidx.navigation3.scene.Scene<T>!>!,? super java.lang.Integer!,androidx.compose.animation.ContentTransform!>?, kotlin.jvm.functions.Function1<? super T,androidx.navigation3.runtime.NavEntry<T>!>, androidx.compose.runtime.Composer?, int, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> void NavDisplay(java.util.List<androidx.navigation3.runtime.NavEntry<T>!>, androidx.compose.ui.Modifier?, androidx.compose.ui.Alignment?, java.util.List<? extends androidx.navigation3.scene.SceneStrategy<T>!>?, java.util.List<? extends androidx.navigation3.scene.SceneDecoratorStrategy<T>!>?, androidx.compose.animation.SharedTransitionScope?, androidx.compose.animation.SizeTransform?, kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedContentTransitionScope<androidx.navigation3.scene.Scene<T>!>!,androidx.compose.animation.ContentTransform!>?, kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedContentTransitionScope<androidx.navigation3.scene.Scene<T>!>!,androidx.compose.animation.ContentTransform!>?, kotlin.jvm.functions.Function2<? super androidx.compose.animation.AnimatedContentTransitionScope<androidx.navigation3.scene.Scene<T>!>!,? super java.lang.Integer!,androidx.compose.animation.ContentTransform!>?, kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> void NavDisplay(java.util.List<androidx.navigation3.runtime.NavEntry<T>> entries, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.Alignment contentAlignment, optional java.util.List<androidx.navigation3.scene.SceneStrategy<T>> sceneStrategies, optional java.util.List<androidx.navigation3.scene.SceneDecoratorStrategy<T>> sceneDecoratorStrategies, optional androidx.compose.animation.SharedTransitionScope? sharedTransitionScope, optional androidx.compose.animation.SizeTransform? sizeTransform, optional kotlin.jvm.functions.Function1<androidx.compose.animation.AnimatedContentTransitionScope<androidx.navigation3.scene.Scene<T>>,androidx.compose.animation.ContentTransform> transitionSpec, optional kotlin.jvm.functions.Function1<androidx.compose.animation.AnimatedContentTransitionScope<androidx.navigation3.scene.Scene<T>>,androidx.compose.animation.ContentTransform> popTransitionSpec, optional kotlin.jvm.functions.Function2<androidx.compose.animation.AnimatedContentTransitionScope<androidx.navigation3.scene.Scene<T>>,java.lang.Integer,androidx.compose.animation.ContentTransform> predictivePopTransitionSpec, kotlin.jvm.functions.Function0<kotlin.Unit> onBack);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> void NavDisplay(java.util.List<T> backStack, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.Alignment contentAlignment, optional kotlin.jvm.functions.Function0<kotlin.Unit> onBack, optional java.util.List<androidx.navigation3.runtime.NavEntryDecorator<T>> entryDecorators, optional java.util.List<androidx.navigation3.scene.SceneStrategy<T>> sceneStrategies, optional java.util.List<androidx.navigation3.scene.SceneDecoratorStrategy<T>> sceneDecoratorStrategies, optional androidx.compose.animation.SharedTransitionScope? sharedTransitionScope, optional androidx.compose.animation.SizeTransform? sizeTransform, optional kotlin.jvm.functions.Function1<androidx.compose.animation.AnimatedContentTransitionScope<androidx.navigation3.scene.Scene<T>>,androidx.compose.animation.ContentTransform> transitionSpec, optional kotlin.jvm.functions.Function1<androidx.compose.animation.AnimatedContentTransitionScope<androidx.navigation3.scene.Scene<T>>,androidx.compose.animation.ContentTransform> popTransitionSpec, optional kotlin.jvm.functions.Function2<androidx.compose.animation.AnimatedContentTransitionScope<androidx.navigation3.scene.Scene<T>>,java.lang.Integer,androidx.compose.animation.ContentTransform> predictivePopTransitionSpec, kotlin.jvm.functions.Function1<T,androidx.navigation3.runtime.NavEntry<T>> entryProvider);
+    method public static <T> kotlin.jvm.functions.Function1<androidx.compose.animation.AnimatedContentTransitionScope<androidx.navigation3.scene.Scene<T>>,androidx.compose.animation.ContentTransform> defaultPopTransitionSpec();
+    method public static <T> kotlin.jvm.functions.Function2<androidx.compose.animation.AnimatedContentTransitionScope<androidx.navigation3.scene.Scene<T>>,java.lang.Integer,androidx.compose.animation.ContentTransform> defaultPredictivePopTransitionSpec();
+    method public static <T> kotlin.jvm.functions.Function1<androidx.compose.animation.AnimatedContentTransitionScope<androidx.navigation3.scene.Scene<T>>,androidx.compose.animation.ContentTransform> defaultTransitionSpec();
+  }
+
+}
+

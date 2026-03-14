@@ -25,10 +25,10 @@ import androidx.compose.remote.creation.compose.modifier.clip
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.state.RemoteDp
-import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
+import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.Dp
+import androidx.glance.wear.WearWidgetBrush
 
 /**
  * A container for a remote compose widget, applying standard styling.
@@ -41,15 +41,17 @@ internal fun WearWidgetContainer(
     horizontalPadding: RemoteDp,
     verticalPadding: RemoteDp,
     cornerRadius: Dp,
-    backgroundColor: Color,
+    background: WearWidgetBrush,
     content: @RemoteComposable @Composable () -> Unit,
 ) {
-    RemoteBox(
-        modifier =
-            RemoteModifier.fillMaxSize()
-                .clip(shape = RoundedCornerShape(size = cornerRadius))
-                .background(backgroundColor.rc)
-    ) {
+    val baseModifier =
+        RemoteModifier.fillMaxSize().clip(shape = RoundedCornerShape(size = cornerRadius))
+    val modifier =
+        remember(cornerRadius, background) {
+            background.foldIn(baseModifier) { modifier, brush -> modifier.background(brush.color) }
+        }
+
+    RemoteBox(modifier = modifier) {
         RemoteBox(
             modifier =
                 RemoteModifier.fillMaxSize()

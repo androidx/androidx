@@ -58,8 +58,7 @@ class MyWidget : RemoteComposeWidget() {
                 .background(Color.LightGray)
                 .padding(20.dp)
                 .onClick(onClick),
-            RemoteAlignment.CenterHorizontally,
-            RemoteArrangement.Center,
+            contentAlignment = RemoteAlignment.Center,
         ) {
             RemoteText(text, fontSize = 32.rsp, color = RemoteColor(Color.White))
         }
@@ -71,7 +70,7 @@ class MyWidget : RemoteComposeWidget() {
         val counter = readCounter(context, widgetId)
         RemoteRow(
             RemoteModifier.background(Color.White).fillMaxSize(),
-            horizontalArrangement = RemoteArrangement.CenterHorizontally,
+            horizontalArrangement = RemoteArrangement.Center,
             verticalAlignment = RemoteAlignment.CenterVertically,
         ) {
             Button("-", RemoteModifier.weight(1f)) { writeCounter(context, widgetId, -1) }

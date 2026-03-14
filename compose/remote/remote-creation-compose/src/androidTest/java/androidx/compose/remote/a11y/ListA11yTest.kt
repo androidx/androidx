@@ -168,8 +168,7 @@ class ListA11yTest {
                             .clickable(HostAction("abc".rs, i.ri))
                             // Must be direct child of the scrollable item
                             .semantics(mergeDescendants = true) {},
-                    horizontalAlignment = RemoteAlignment.CenterHorizontally,
-                    verticalArrangement = RemoteArrangement.Center,
+                    contentAlignment = RemoteAlignment.Center,
                 ) {
                     RemoteText("Item $i", color = RemoteColor(Color.Black), fontSize = 36.rsp)
                 }

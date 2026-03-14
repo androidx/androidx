@@ -23,7 +23,6 @@ import org.jspecify.annotations.NonNull;
  * <p>
  * This is associated with {@link WebViewStartUpResult}.
  */
-@WebViewCompat.ExperimentalAsyncStartUp
 public interface StartUpLocation {
     /**
      * Gets information about the code location including the stack trace.

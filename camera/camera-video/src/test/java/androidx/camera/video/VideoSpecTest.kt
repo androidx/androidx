@@ -18,6 +18,7 @@ package androidx.camera.video
 
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.AspectRatio.RATIO_DEFAULT
+import androidx.camera.video.MediaConstants.MIME_TYPE_UNSPECIFIED
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,7 +38,7 @@ class VideoSpecTest {
         assertThat(videoSpec.bitrate).isEqualTo(VideoSpec.BITRATE_UNSPECIFIED)
         assertThat(videoSpec.encodeFrameRate).isEqualTo(VideoSpec.ENCODE_FRAME_RATE_UNSPECIFIED)
         assertThat(videoSpec.aspectRatio).isEqualTo(RATIO_DEFAULT)
-        assertThat(videoSpec.mimeType).isEqualTo(VideoSpec.MIME_TYPE_UNSPECIFIED)
+        assertThat(videoSpec.mimeType).isEqualTo(MIME_TYPE_UNSPECIFIED)
     }
 
     @Test

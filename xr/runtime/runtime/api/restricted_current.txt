@@ -48,13 +48,6 @@ package androidx.xr.runtime {
 
   public final class Config {
     ctor public Config();
-    ctor @Deprecated public Config(androidx.xr.runtime.Config.PlaneTrackingMode planeTracking);
-    ctor @Deprecated public Config(androidx.xr.runtime.Config.PlaneTrackingMode planeTracking, androidx.xr.runtime.Config.HandTrackingMode handTracking);
-    ctor @Deprecated public Config(androidx.xr.runtime.Config.PlaneTrackingMode planeTracking, androidx.xr.runtime.Config.HandTrackingMode handTracking, androidx.xr.runtime.Config.DeviceTrackingMode deviceTracking);
-    ctor @Deprecated public Config(androidx.xr.runtime.Config.PlaneTrackingMode planeTracking, androidx.xr.runtime.Config.HandTrackingMode handTracking, androidx.xr.runtime.Config.DeviceTrackingMode deviceTracking, androidx.xr.runtime.Config.DepthEstimationMode depthEstimation);
-    ctor @Deprecated public Config(androidx.xr.runtime.Config.PlaneTrackingMode planeTracking, androidx.xr.runtime.Config.HandTrackingMode handTracking, androidx.xr.runtime.Config.DeviceTrackingMode deviceTracking, androidx.xr.runtime.Config.DepthEstimationMode depthEstimation, androidx.xr.runtime.Config.AnchorPersistenceMode anchorPersistence);
-    ctor @Deprecated public Config(androidx.xr.runtime.Config.PlaneTrackingMode planeTracking, androidx.xr.runtime.Config.HandTrackingMode handTracking, androidx.xr.runtime.Config.DeviceTrackingMode deviceTracking, androidx.xr.runtime.Config.DepthEstimationMode depthEstimation, androidx.xr.runtime.Config.AnchorPersistenceMode anchorPersistence, androidx.xr.runtime.Config.FaceTrackingMode faceTracking);
-    ctor @Deprecated public Config(androidx.xr.runtime.Config.PlaneTrackingMode planeTracking, androidx.xr.runtime.Config.HandTrackingMode handTracking, androidx.xr.runtime.Config.DeviceTrackingMode deviceTracking, androidx.xr.runtime.Config.DepthEstimationMode depthEstimation, androidx.xr.runtime.Config.AnchorPersistenceMode anchorPersistence, androidx.xr.runtime.Config.FaceTrackingMode faceTracking, androidx.xr.runtime.Config.GeospatialMode geospatial);
     ctor public Config(optional androidx.xr.runtime.PlaneTrackingMode planeTracking);
     ctor public Config(optional androidx.xr.runtime.PlaneTrackingMode planeTracking, optional androidx.xr.runtime.HandTrackingMode handTracking);
     ctor public Config(optional androidx.xr.runtime.PlaneTrackingMode planeTracking, optional androidx.xr.runtime.HandTrackingMode handTracking, optional androidx.xr.runtime.DeviceTrackingMode deviceTracking);
@@ -97,112 +90,8 @@ package androidx.xr.runtime {
     property public androidx.xr.runtime.PlaneTrackingMode planeTracking;
   }
 
-  @Deprecated public static final class Config.AnchorPersistenceMode extends androidx.xr.runtime.Config.ConfigMode {
-    method @InaccessibleFromKotlin @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getMode();
-    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.runtime.AnchorPersistenceMode toNewType();
-    property @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int mode;
-    field @Deprecated public static final androidx.xr.runtime.Config.AnchorPersistenceMode.Companion Companion;
-    field @Deprecated public static final androidx.xr.runtime.Config.AnchorPersistenceMode DISABLED;
-    field @Deprecated public static final androidx.xr.runtime.Config.AnchorPersistenceMode LOCAL;
-  }
-
-  @Deprecated public static final class Config.AnchorPersistenceMode.Companion {
-    property @Deprecated public androidx.xr.runtime.Config.AnchorPersistenceMode DISABLED;
-    property @Deprecated public androidx.xr.runtime.Config.AnchorPersistenceMode LOCAL;
-  }
-
   public abstract static class Config.ConfigMode {
     ctor public Config.ConfigMode();
-  }
-
-  @Deprecated public static final class Config.DepthEstimationMode extends androidx.xr.runtime.Config.ConfigMode {
-    method @InaccessibleFromKotlin @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getMode();
-    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.runtime.DepthEstimationMode toNewType();
-    property @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int mode;
-    field @Deprecated public static final androidx.xr.runtime.Config.DepthEstimationMode.Companion Companion;
-    field @Deprecated public static final androidx.xr.runtime.Config.DepthEstimationMode DISABLED;
-    field @Deprecated public static final androidx.xr.runtime.Config.DepthEstimationMode RAW_ONLY;
-    field @Deprecated public static final androidx.xr.runtime.Config.DepthEstimationMode SMOOTH_AND_RAW;
-    field @Deprecated public static final androidx.xr.runtime.Config.DepthEstimationMode SMOOTH_ONLY;
-  }
-
-  @Deprecated public static final class Config.DepthEstimationMode.Companion {
-    property @Deprecated public androidx.xr.runtime.Config.DepthEstimationMode DISABLED;
-    property @Deprecated public androidx.xr.runtime.Config.DepthEstimationMode RAW_ONLY;
-    property @Deprecated public androidx.xr.runtime.Config.DepthEstimationMode SMOOTH_AND_RAW;
-    property @Deprecated public androidx.xr.runtime.Config.DepthEstimationMode SMOOTH_ONLY;
-  }
-
-  @Deprecated public static final class Config.DeviceTrackingMode extends androidx.xr.runtime.Config.ConfigMode {
-    method @InaccessibleFromKotlin @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getMode();
-    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.runtime.DeviceTrackingMode toNewType();
-    property @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int mode;
-    field @Deprecated public static final androidx.xr.runtime.Config.DeviceTrackingMode.Companion Companion;
-    field @Deprecated public static final androidx.xr.runtime.Config.DeviceTrackingMode DISABLED;
-    field @Deprecated public static final androidx.xr.runtime.Config.DeviceTrackingMode LAST_KNOWN;
-  }
-
-  @Deprecated public static final class Config.DeviceTrackingMode.Companion {
-    property @Deprecated public androidx.xr.runtime.Config.DeviceTrackingMode DISABLED;
-    property @Deprecated public androidx.xr.runtime.Config.DeviceTrackingMode LAST_KNOWN;
-  }
-
-  @Deprecated public static final class Config.FaceTrackingMode extends androidx.xr.runtime.Config.ConfigMode {
-    method @InaccessibleFromKotlin @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getMode();
-    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.runtime.FaceTrackingMode toNewType();
-    property @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int mode;
-    field @Deprecated public static final androidx.xr.runtime.Config.FaceTrackingMode BLEND_SHAPES;
-    field @Deprecated public static final androidx.xr.runtime.Config.FaceTrackingMode.Companion Companion;
-    field @Deprecated public static final androidx.xr.runtime.Config.FaceTrackingMode DISABLED;
-    field @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final androidx.xr.runtime.Config.FaceTrackingMode MESHES;
-  }
-
-  @Deprecated public static final class Config.FaceTrackingMode.Companion {
-    property @Deprecated public androidx.xr.runtime.Config.FaceTrackingMode BLEND_SHAPES;
-    property @Deprecated public androidx.xr.runtime.Config.FaceTrackingMode DISABLED;
-    property @Deprecated public androidx.xr.runtime.Config.FaceTrackingMode MESHES;
-  }
-
-  @Deprecated public static final class Config.GeospatialMode extends androidx.xr.runtime.Config.ConfigMode {
-    method @InaccessibleFromKotlin @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getMode();
-    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.runtime.GeospatialMode toNewType();
-    property @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int mode;
-    field @Deprecated public static final androidx.xr.runtime.Config.GeospatialMode.Companion Companion;
-    field @Deprecated public static final androidx.xr.runtime.Config.GeospatialMode DISABLED;
-    field @Deprecated public static final androidx.xr.runtime.Config.GeospatialMode VPS_AND_GPS;
-  }
-
-  @Deprecated public static final class Config.GeospatialMode.Companion {
-    property @Deprecated public androidx.xr.runtime.Config.GeospatialMode DISABLED;
-    property @Deprecated public androidx.xr.runtime.Config.GeospatialMode VPS_AND_GPS;
-  }
-
-  @Deprecated public static final class Config.HandTrackingMode extends androidx.xr.runtime.Config.ConfigMode {
-    method @InaccessibleFromKotlin @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getMode();
-    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.runtime.HandTrackingMode toNewType();
-    property @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int mode;
-    field @Deprecated public static final androidx.xr.runtime.Config.HandTrackingMode BOTH;
-    field @Deprecated public static final androidx.xr.runtime.Config.HandTrackingMode.Companion Companion;
-    field @Deprecated public static final androidx.xr.runtime.Config.HandTrackingMode DISABLED;
-  }
-
-  @Deprecated public static final class Config.HandTrackingMode.Companion {
-    property @Deprecated public androidx.xr.runtime.Config.HandTrackingMode BOTH;
-    property @Deprecated public androidx.xr.runtime.Config.HandTrackingMode DISABLED;
-  }
-
-  @Deprecated public static final class Config.PlaneTrackingMode extends androidx.xr.runtime.Config.ConfigMode {
-    method @InaccessibleFromKotlin @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getMode();
-    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.runtime.PlaneTrackingMode toNewType();
-    property @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int mode;
-    field @Deprecated public static final androidx.xr.runtime.Config.PlaneTrackingMode.Companion Companion;
-    field @Deprecated public static final androidx.xr.runtime.Config.PlaneTrackingMode DISABLED;
-    field @Deprecated public static final androidx.xr.runtime.Config.PlaneTrackingMode HORIZONTAL_AND_VERTICAL;
-  }
-
-  @Deprecated public static final class Config.PlaneTrackingMode.Companion {
-    property @Deprecated public androidx.xr.runtime.Config.PlaneTrackingMode DISABLED;
-    property @Deprecated public androidx.xr.runtime.Config.PlaneTrackingMode HORIZONTAL_AND_VERTICAL;
   }
 
   public final class CoreState {
@@ -396,7 +285,7 @@ package androidx.xr.runtime {
     property public androidx.xr.runtime.PlaneTrackingMode HORIZONTAL_AND_VERTICAL;
   }
 
-  @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.ERROR, message="This API is in an unstable preview state and requires a developer preview system image work properly. Do not use this API in release builds as it will likely to lead to crashes.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface PreviewSpatialApi3 {
+  @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.ERROR, message="This API is in an unstable preview state and requires a developer preview system image work properly. Do not use this API in release builds as it will likely to lead to crashes.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface PreviewSpatialApi {
   }
 
   public final class RequiredCalibrationType {
@@ -419,6 +308,12 @@ package androidx.xr.runtime {
   }
 
   public final class Session {
+    ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public Session(android.app.Activity activity);
+    ctor @BytecodeOnly @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public Session(android.app.Activity!, java.util.List!, java.util.List!, java.util.List!, kotlinx.coroutines.CoroutineScope!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public Session(android.app.Activity activity, optional java.util.List<? extends androidx.xr.runtime.StateExtender> stateExtenders);
+    ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public Session(android.app.Activity activity, optional java.util.List<? extends androidx.xr.runtime.StateExtender> stateExtenders, optional java.util.List<? extends androidx.xr.runtime.SessionConnector> sessionConnectors);
+    ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public Session(android.app.Activity activity, optional java.util.List<? extends androidx.xr.runtime.StateExtender> stateExtenders, optional java.util.List<? extends androidx.xr.runtime.SessionConnector> sessionConnectors, optional java.util.List<? extends androidx.xr.runtime.internal.JxrRuntime> runtimes);
+    ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public Session(android.app.Activity activity, optional java.util.List<? extends androidx.xr.runtime.StateExtender> stateExtenders, optional java.util.List<? extends androidx.xr.runtime.SessionConnector> sessionConnectors, optional java.util.List<? extends androidx.xr.runtime.internal.JxrRuntime> runtimes, optional kotlinx.coroutines.CoroutineScope coroutineScope);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public Session(android.content.Context context, androidx.lifecycle.LifecycleOwner lifecycleOwner);
     ctor @BytecodeOnly @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public Session(android.content.Context!, java.util.List!, java.util.List!, java.util.List!, kotlinx.coroutines.CoroutineScope!, androidx.lifecycle.LifecycleOwner!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public Session(android.content.Context context, optional java.util.List<? extends androidx.xr.runtime.StateExtender> stateExtenders, androidx.lifecycle.LifecycleOwner lifecycleOwner);

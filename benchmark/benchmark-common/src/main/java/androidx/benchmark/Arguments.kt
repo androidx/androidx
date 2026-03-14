@@ -60,6 +60,13 @@ object Arguments {
     private val _startupInsightsHelpUrlBase: String?
     @VisibleForTesting var startupInsightsHelpUrlBaseOverride: String? = null
 
+    /**
+     * Whether to require clocks to be locked. Important: This is *disabled* by default as it was
+     * introduced in later versions of benchmark, and running with unlocked clocks is a legitimate
+     * use case for Macrobenchmarks.
+     */
+    val requireLockedClocks: Boolean
+
     val enabledRules: Set<RuleType>
 
     enum class RuleType {
@@ -344,6 +351,8 @@ object Arguments {
         requireAot = arguments.getBenchmarkArgument("requireAot")?.toBoolean() ?: false
         requireJitDisabledIfRooted =
             arguments.getBenchmarkArgument("requireJitDisabledIfRooted")?.toBoolean() ?: false
+        requireLockedClocks =
+            arguments.getBenchmarkArgument("requireLockedClocks")?.toBoolean() ?: false
 
         throwOnMainThreadMeasureRepeated =
             arguments.getBenchmarkArgument("throwOnMainThreadMeasureRepeated")?.toBoolean() ?: false

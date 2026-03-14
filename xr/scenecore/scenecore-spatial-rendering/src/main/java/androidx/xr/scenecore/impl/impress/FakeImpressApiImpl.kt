@@ -255,27 +255,7 @@ public class FakeImpressApiImpl : ImpressApi {
         throw IllegalArgumentException("not implemented")
     }
 
-    // TODO: b/465818627 - Remove old animation APIs once all clients are
-    // migrated to new animation system.
-    @Suppress("RestrictTo")
     override suspend fun animateGltfModel(
-        impressNode: ImpressNode,
-        animationName: String?,
-        looping: Boolean,
-    ): Void? {
-        if (getGltfNodeData(impressNode) == null) {
-            throw IllegalArgumentException("Impress node not found")
-        }
-        val animationInProgress = AnimationInProgress(animationName, null)
-        if (looping) {
-            impressLoopAnimatedNodes[impressNode] = animationInProgress
-        } else {
-            impressAnimatedNodes[impressNode] = animationInProgress
-        }
-        return null
-    }
-
-    override suspend fun animateGltfModelNew(
         impressNode: ImpressNode,
         animationName: String?,
         looping: Boolean,
@@ -303,25 +283,7 @@ public class FakeImpressApiImpl : ImpressApi {
         return null
     }
 
-    // TODO: b/465818627 - Remove old animation APIs once all clients are
-    // migrated to new animation system.
-    override fun stopGltfModelAnimation(impressNode: ImpressNode) {
-        activeAnimations[impressNode]?.complete(Unit)
-
-        when {
-            getGltfNodeData(impressNode) == null ->
-                throw IllegalArgumentException("Impress node not found")
-            !impressAnimatedNodes.containsKey(impressNode) &&
-                !impressLoopAnimatedNodes.containsKey(impressNode) ->
-                throw IllegalArgumentException("Impress node is not animating")
-            impressAnimatedNodes.containsKey(impressNode) ->
-                impressAnimatedNodes.remove(impressNode)
-            impressLoopAnimatedNodes.containsKey(impressNode) ->
-                impressLoopAnimatedNodes.remove(impressNode)
-        }
-    }
-
-    override fun stopGltfModelAnimationNew(impressNode: ImpressNode, channel: Int) {
+    override fun stopGltfModelAnimation(impressNode: ImpressNode, channel: Int) {
         val nodeAnims = channelAnimations[impressNode]
         if (nodeAnims != null) {
             nodeAnims.remove(channel)
@@ -331,7 +293,7 @@ public class FakeImpressApiImpl : ImpressApi {
         }
     }
 
-    override fun toggleGltfModelAnimationNew(
+    override fun toggleGltfModelAnimation(
         impressNode: ImpressNode,
         playing: Boolean,
         channel: Int,
@@ -340,35 +302,6 @@ public class FakeImpressApiImpl : ImpressApi {
         val animation = nodeAnims?.get(channel)
         if (animation != null) {
             animation.paused = !playing
-        }
-    }
-
-    // TODO: b/465818627 - Remove old animation APIs once all clients are
-    // migrated to new animation system.
-    override fun toggleGltfModelAnimation(impressNode: ImpressNode, playing: Boolean) {
-        if (getGltfNodeData(impressNode) == null) {
-            throw IllegalArgumentException("Impress node not found")
-        }
-        if (playing) {
-            // playing as true = resume animation
-            if (!impressPausedAnimatedNode.contains(impressNode)) {
-                throw IllegalArgumentException(
-                    "Animation in this Impress node is not in " + "pausing status"
-                )
-            }
-            impressPausedAnimatedNode.remove(impressNode)
-        } else {
-            // toggle as false = pause animation
-            if (
-                !impressAnimatedNodes.containsKey(impressNode) &&
-                    !impressLoopAnimatedNodes.containsKey(impressNode)
-            ) {
-                throw IllegalArgumentException("Impress node is not animating")
-            } else if (impressAnimatedNodes.containsKey(impressNode)) {
-                impressPausedAnimatedNode.add(impressNode)
-            } else if (impressLoopAnimatedNodes.containsKey(impressNode)) {
-                impressPausedAnimatedNode.add(impressNode)
-            }
         }
     }
 

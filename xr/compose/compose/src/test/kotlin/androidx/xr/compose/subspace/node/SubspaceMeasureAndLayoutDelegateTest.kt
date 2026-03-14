@@ -696,12 +696,12 @@ class SubspaceMeasureAndLayoutDelegateTest {
     }
 
     @Test
-    fun requestEntityUpdate_alwaysReturnsTrue() {
+    fun requestEntityUpdate_isCalledOnAttach() {
         val owner = AndroidComposeSpatialElement()
         val rootNode = owner.root
         val delegate = SubspaceMeasureAndLayoutDelegate(rootNode)
 
-        assertTrue(delegate.requestEntityUpdate(rootNode))
+        assertTrue(rootNode.entityUpdatePending)
     }
 
     @Test

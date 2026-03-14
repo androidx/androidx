@@ -19,6 +19,7 @@ package androidx.xr.scenecore.testing
 import android.media.AudioTrack
 import androidx.annotation.RestrictTo
 import androidx.xr.scenecore.runtime.AudioTrackExtensionsWrapper
+import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.PointSourceParams
 import androidx.xr.scenecore.runtime.SoundFieldAttributes
 import androidx.xr.scenecore.runtime.SpatializerConstants
@@ -39,6 +40,14 @@ public class FakeAudioTrackExtensionsWrapper : AudioTrackExtensionsWrapper {
     /**
      * For test purposes only.
      *
+     * This map allows tests to inspect the [Entity] that were set on a specific [AudioTrack] via
+     * the [setPointSourceParams] method.
+     */
+    public val entityMap: MutableMap<AudioTrack, Entity?> = mutableMapOf()
+
+    /**
+     * For test purposes only.
+     *
      * This map allows tests to inspect the [PointSourceParams] that were associated with an
      * [AudioTrack.Builder] via the [setPointSourceParams] builder method. This is useful for
      * verifying that the correct parameters were passed during the audio track configuration
@@ -46,6 +55,16 @@ public class FakeAudioTrackExtensionsWrapper : AudioTrackExtensionsWrapper {
      */
     public val pointSourceParamsBuilderMap: MutableMap<AudioTrack.Builder, PointSourceParams?> =
         mutableMapOf()
+
+    /**
+     * For test purposes only.
+     *
+     * This map allows tests to inspect the [Entity] that were associated with an
+     * [AudioTrack.Builder] via the [setPointSourceParams] builder method. This is useful for
+     * verifying that the correct parameters were passed during the audio track configuration
+     * process.
+     */
+    public val entityBuilderMap: MutableMap<AudioTrack.Builder, Entity?> = mutableMapOf()
 
     override fun getPointSourceParams(track: AudioTrack): PointSourceParams? {
         return pointSourceParamsMap[track]
@@ -124,13 +143,18 @@ public class FakeAudioTrackExtensionsWrapper : AudioTrackExtensionsWrapper {
      */
     public var fakeExtensionException: Throwable? = null
 
-    override fun setPointSourceParams(track: AudioTrack, params: PointSourceParams) {
+    override fun setPointSourceParams(
+        track: AudioTrack,
+        params: PointSourceParams,
+        entity: Entity?,
+    ) {
         fakeExtensionException?.let { throw it }
 
         when (getSpatialSourceType(track)) {
             SpatializerConstants.SOURCE_TYPE_BYPASS,
             SpatializerConstants.SOURCE_TYPE_POINT_SOURCE -> {
                 pointSourceParamsMap[track] = params
+                entityMap[track] = entity
             }
         }
     }
@@ -138,8 +162,10 @@ public class FakeAudioTrackExtensionsWrapper : AudioTrackExtensionsWrapper {
     override fun setPointSourceParams(
         builder: AudioTrack.Builder,
         params: PointSourceParams,
+        entity: Entity?,
     ): AudioTrack.Builder {
         pointSourceParamsBuilderMap[builder] = params
+        entityBuilderMap[builder] = entity
         return builder
     }
 

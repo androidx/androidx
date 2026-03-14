@@ -18,13 +18,16 @@ package androidx.xr.arcore.playservices
 
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.ArDevice
+import androidx.xr.runtime.TrackingState as RuntimeTrackingState
 import androidx.xr.runtime.math.Pose
 import com.google.ar.core.Frame
+import com.google.ar.core.TrackingState
 
 /**
  * Provides access to the current [Frame]'s camera pose.
  *
  * @property devicePose the [Pose] of the device
+ * @property trackingState the tracking state of the device
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class ArCoreDevice internal constructor() : ArDevice {
@@ -32,7 +35,19 @@ public class ArCoreDevice internal constructor() : ArDevice {
     override var devicePose: Pose = Pose()
         private set
 
+    override var trackingState: RuntimeTrackingState = RuntimeTrackingState.STOPPED
+        private set
+
     public fun update(frame: Frame) {
         devicePose = frame.camera.pose.toRuntimePose()
+        val currentTrackingState: TrackingState? = frame.camera.trackingState
+        val mappedState =
+            when (currentTrackingState) {
+                TrackingState.TRACKING -> RuntimeTrackingState.TRACKING
+                TrackingState.PAUSED -> RuntimeTrackingState.PAUSED
+                TrackingState.STOPPED,
+                null -> RuntimeTrackingState.STOPPED
+            }
+        this.trackingState = mappedState
     }
 }

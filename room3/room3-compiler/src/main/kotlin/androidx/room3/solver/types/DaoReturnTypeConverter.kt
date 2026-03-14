@@ -27,8 +27,8 @@ import androidx.room3.vo.ExecuteAndReturnLambda
  * Internal compiler representation of a DAO return type adapter.
  *
  * This class models the conversion logic defined by a developer provided function annotated with
- * [DaoReturnTypeConverter]. It is used by Room's compiler to generate the necessary code that wraps
- * the execution of a DAO method.
+ * [androidx.room3.DaoReturnTypeConverter]. It is used by Room's compiler to generate the necessary
+ * code that wraps the execution of a DAO method.
  *
  * This specific abstract class is intended for converters that can be represented by a **single
  * expression** (e.g., `return Foo(executeAndConvert.invoke())`).
@@ -38,7 +38,7 @@ import androidx.room3.vo.ExecuteAndReturnLambda
  */
 abstract class DaoReturnTypeConverter(val to: XType, val operationTypes: List<OperationType>) {
     abstract val isSuspend: Boolean
-    abstract val requiredFunctionParamTypes: List<XType>
+    abstract val requiredParameters: List<OptionalParam>
     abstract val executeAndReturnLambda: ExecuteAndReturnLambda
 
     /**
@@ -53,4 +53,12 @@ abstract class DaoReturnTypeConverter(val to: XType, val operationTypes: List<Op
      * @return A [XCodeBlock] containing the single conversion statement.
      */
     abstract fun buildStatement(returnTypeArgName: XTypeName, scope: CodeGenScope): XCodeBlock
+
+    enum class OptionalParam {
+        ROOM_DB,
+        TABLE_NAMES_ARRAY,
+        TABLE_NAMES_LIST,
+        IN_TRANSACTION,
+        RAW_QUERY,
+    }
 }

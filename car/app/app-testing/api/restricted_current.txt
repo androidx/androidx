@@ -3,7 +3,7 @@ package androidx.car.app.testing {
 
   public class FakeHost {
     method public void performNotificationActionClick(android.app.PendingIntent);
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public void setMicrophoneInputData(java.io.InputStream);
+    method public void setMicrophoneInputData(java.io.InputStream);
   }
 
   public class ScreenController {
@@ -42,7 +42,7 @@ package androidx.car.app.testing {
     method public java.util.List<java.lang.String!> getPermissionsRequested();
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public final class TestDelegateInvoker {
+  public final class TestDelegateInvoker {
     method public <T> java.util.List<T> requestAllItemsForTest(androidx.car.app.serialization.ListDelegate<? extends T>);
     method public <T> java.util.List<T> requestItemRangeForTest(androidx.car.app.serialization.ListDelegate<? extends T>, int startIndex, int endIndex);
     field public static final androidx.car.app.testing.TestDelegateInvoker INSTANCE;

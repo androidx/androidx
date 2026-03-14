@@ -44,8 +44,9 @@ abstract class MultimapQueryResultAdapter(
 
     // List of duplicate columns in the query result. Note that if the query result info is not
     // available then we use the adapter mappings to determine if there are duplicate columns.
-    // The latter approach might yield false positive (i.e. two POJOs that want the same column)
-    // but the resolver will still produce correct results based on the result columns at runtime.
+    // The latter approach might yield false positive (i.e. two data class that want the same
+    // column) but the resolver will still produce correct results based on the result columns at
+    // runtime.
     val duplicateColumns: Set<String>
 
     val dupeColumnsIndexAdapter: AmbiguousColumnIndexAdapter?

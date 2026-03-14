@@ -19,7 +19,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="error_action_finish" msgid="7621130025103996211">"Zatvori aplikaciju"</string>
     <string name="error_action_update_host" msgid="4802951804749609593">"Provjerite ima li ažuriranja"</string>
-    <string name="error_action_retry" msgid="985347670495166517">"Pokušaj ponovo"</string>
+    <string name="error_action_retry" msgid="985347670495166517">"Pokušaj ponovno"</string>
     <string name="error_message_client_side_error" msgid="3323186720368387787">"Pogreška u prijavi. Prijavite ovu pogrešku razvojnom programeru aplikacija"</string>
     <string name="error_message_host_error" msgid="5484419926049675696">"Pogreška sustava"</string>
     <string name="error_message_host_connection_lost" msgid="5723205987837759151">"Sustav privremeno nedostupan"</string>

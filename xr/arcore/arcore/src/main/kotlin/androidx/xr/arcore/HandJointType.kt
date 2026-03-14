@@ -19,65 +19,82 @@ package androidx.xr.arcore
 /** Represents the type of hand joint. */
 public enum class HandJointType {
     /** The center of the palm. Often used as a reference point for hand tracking. */
-    HAND_JOINT_TYPE_PALM,
+    PALM,
     /** The wrist joint, where the hand connects to the forearm. */
-    HAND_JOINT_TYPE_WRIST,
+    WRIST,
 
     // Thumb Joints
     /** The base of the thumb (the first joint connecting the thumb to the palm). */
-    HAND_JOINT_TYPE_THUMB_METACARPAL,
+    THUMB_METACARPAL,
     /** The second joint of the thumb, closer to the palm. */
-    HAND_JOINT_TYPE_THUMB_PROXIMAL,
+    THUMB_PROXIMAL,
     /** The third joint of the thumb, further from the palm. */
-    HAND_JOINT_TYPE_THUMB_DISTAL,
+    THUMB_DISTAL,
     /** The tip of the thumb. */
-    HAND_JOINT_TYPE_THUMB_TIP,
+    THUMB_TIP,
 
     // Index Finger Joints
     /** The base of the index finger, connecting it to the hand. */
-    HAND_JOINT_TYPE_INDEX_METACARPAL,
+    INDEX_METACARPAL,
     /** The first joint of the index finger, closer to the palm. */
-    HAND_JOINT_TYPE_INDEX_PROXIMAL,
+    INDEX_PROXIMAL,
     /** The second joint of the index finger, between the proximal and distal joints. */
-    HAND_JOINT_TYPE_INDEX_INTERMEDIATE,
+    INDEX_INTERMEDIATE,
     /** The third joint of the index finger, closest to the fingertip. */
-    HAND_JOINT_TYPE_INDEX_DISTAL,
+    INDEX_DISTAL,
     /** The tip of the index finger. */
-    HAND_JOINT_TYPE_INDEX_TIP,
+    INDEX_TIP,
 
     // Middle Finger Joints
     /** The base of the middle finger, connecting it to the hand. */
-    HAND_JOINT_TYPE_MIDDLE_METACARPAL,
+    MIDDLE_METACARPAL,
     /** The first joint of the middle finger, closer to the palm. */
-    HAND_JOINT_TYPE_MIDDLE_PROXIMAL,
+    MIDDLE_PROXIMAL,
     /** The second joint of the middle finger, between the proximal and distal joints. */
-    HAND_JOINT_TYPE_MIDDLE_INTERMEDIATE,
+    MIDDLE_INTERMEDIATE,
     /** The third joint of the middle finger, closest to the fingertip. */
-    HAND_JOINT_TYPE_MIDDLE_DISTAL,
+    MIDDLE_DISTAL,
     /** The tip of the middle finger. */
-    HAND_JOINT_TYPE_MIDDLE_TIP,
+    MIDDLE_TIP,
 
     // Ring Finger Joints
     /** The base of the ring finger, connecting it to the hand. */
-    HAND_JOINT_TYPE_RING_METACARPAL,
+    RING_METACARPAL,
     /** The first joint of the ring finger, closer to the palm. */
-    HAND_JOINT_TYPE_RING_PROXIMAL,
+    RING_PROXIMAL,
     /** The second joint of the ring finger, between the proximal and distal joints. */
-    HAND_JOINT_TYPE_RING_INTERMEDIATE,
+    RING_INTERMEDIATE,
     /** The third joint of the ring finger, closest to the fingertip. */
-    HAND_JOINT_TYPE_RING_DISTAL,
+    RING_DISTAL,
     /** The tip of the ring finger. */
-    HAND_JOINT_TYPE_RING_TIP,
+    RING_TIP,
 
     // Little Finger (Pinky) Joints
     /** The base of the little finger (pinky), connecting it to the hand. */
-    HAND_JOINT_TYPE_LITTLE_METACARPAL,
+    LITTLE_METACARPAL,
     /** The first joint of the little finger, closer to the palm. */
-    HAND_JOINT_TYPE_LITTLE_PROXIMAL,
+    LITTLE_PROXIMAL,
     /** The second joint of the little finger, between the proximal and distal joints. */
-    HAND_JOINT_TYPE_LITTLE_INTERMEDIATE,
+    LITTLE_INTERMEDIATE,
     /** The third joint of the little finger, closest to the fingertip. */
-    HAND_JOINT_TYPE_LITTLE_DISTAL,
+    LITTLE_DISTAL,
     /** The tip of the little finger (pinky). */
-    HAND_JOINT_TYPE_LITTLE_TIP,
+    LITTLE_TIP;
+
+    public companion object {
+        @JvmField
+        @Deprecated(
+            "HandJointType values have been renamed.",
+            ReplaceWith("HandJointType.THUMB_TIP"),
+        )
+        // TODO b/489797124 Remove when no longer used by G3 1P apps
+        public val HAND_JOINT_TYPE_THUMB_TIP: HandJointType = THUMB_TIP
+        @JvmField
+        @Deprecated(
+            "HandJointType values have been renamed.",
+            ReplaceWith("HandJointType.INDEX_TIP"),
+        )
+        // TODO b/489797124 Remove when no longer used by G3 1P apps
+        public val HAND_JOINT_TYPE_INDEX_TIP: HandJointType = INDEX_TIP
+    }
 }

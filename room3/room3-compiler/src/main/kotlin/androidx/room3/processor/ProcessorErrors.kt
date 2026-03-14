@@ -289,20 +289,21 @@ object ProcessorErrors {
         "Classes annotated with @Database should extend " + ROOM_DB.canonicalName
 
     const val DAO_RETURN_TYPE_CONVERTER_MUST_HAVE_ONE_LAMBDA_PARAM_THAT_IS_SUSPEND =
-        "DaoReturnTypeConverter functions must have exactly ONE lambda parameter, must be suspend " +
+        "@DaoReturnTypeConverter functions must have exactly ONE lambda parameter, must be suspend " +
             "and can have at most one parameter of type RoomRawQuery."
 
     const val DAO_RETURN_TYPE_CONVERTER_ANNOTATION_MUST_HAVE_OPERATION_TYPE =
-        "A Dao Return Type Converter function annotated with `@DaoReturnTypeConverter` must specify the `OperationType` in the annotation."
+        "A Dao Return Type Converter function annotated with @DaoReturnTypeConverter must " +
+            "specify the OperationType in the annotation."
 
     const val FOUND_DAO_TYPE_CONVERTER_WITH_NON_SUSPEND_LAMBDA =
-        "Found a DaoReturnTypeConverter function with a non-suspend lambda parameter."
+        "Found a @DaoReturnTypeConverter function with a non-suspend lambda parameter."
 
     const val DAO_RETURN_TYPE_CONVERTER_LAMBDA_MUST_BE_LAST_PARAM =
-        "The lambda parameter of a DaoReturnTypeConverter function should be the last parameter."
+        "The lambda parameter of a @DaoReturnTypeConverter function should be the last parameter."
 
     const val DAO_RETURN_TYPE_CONVERTER_FUNCTIONS_WITHOUT_TYPE_PARAM_SHOULD_RETURN_UNIT =
-        "DaoReturnTypeConverter functions without a type parameter should have a suspend lambda " +
+        "@DaoReturnTypeConverter functions without a type parameter should have a suspend lambda " +
             "returning Unit."
 
     const val OBSERVABLE_QUERY_NOTHING_TO_OBSERVE =
@@ -428,7 +429,7 @@ object ProcessorErrors {
             dataClassUnusedProperties.map { (dataClassName, unusedProperties) ->
                 """
                 $dataClassName has some properties
-                [${unusedProperties.joinToString() { it.columnName }}] which are not returned by
+                [${unusedProperties.joinToString { it.columnName }}] which are not returned by
                 the query. If they are not supposed to be read from the result, you can mark them
                 with @Ignore annotation.
             """
@@ -438,7 +439,7 @@ object ProcessorErrors {
             $unusedColumnsWarning
             ${unusedPropertiesWarning.joinToString(separator = " ")}
             You can suppress this warning by annotating the function with
-            @SuppressWarnings(RoomWarnings.QUERY_MISMATCH).
+            @Suppress(RoomWarnings.QUERY_MISMATCH).
             Columns returned by the query: ${allColumns.joinToString()}.
             """
             .trim()
@@ -465,6 +466,13 @@ object ProcessorErrors {
 
     const val DAO_RETURN_TYPE_CONVERTER_FUNCTIONS_MUST_HAVE_AT_MOST_ONE_TYPE_PARAMETER =
         "DAO return type converter functions can have at most 1 type parameter."
+
+    fun daoReturnTypeFunctionForOpWithBadParam(op: String, paramTypeName: String) =
+        "A DAO return type converter functions for $op operations cannot have a param of type " +
+            "$paramTypeName."
+
+    fun daoReturnTypeFunctionWithBadParam(paramTypeName: String) =
+        "Unsupported parameter in DAO return type converter function: $paramTypeName."
 
     fun daoReturnTypeConverterFunctionsWithATypeParamShouldHaveReturnTypeContainingTheSameTypeArg(
         functionArg: String,
@@ -740,14 +748,6 @@ object ProcessorErrors {
         to add $entity to the entities section of the @Database?
         """
             .trim()
-
-    const val MISSING_ROOM_GUAVA_ARTIFACT =
-        "To use Guava features, you must add `guava`" +
-            " artifact from Room as a dependency. androidx.room3:room3-guava:<version>"
-
-    const val MISSING_ROOM_RXJAVA3_ARTIFACT =
-        "To use RxJava3 features, you must add `rxjava3`" +
-            " artifact from Room as a dependency. androidx.room3:room3-rxjava3:<version>"
 
     fun ambiguousConstructor(
         dataClass: String,
@@ -1171,20 +1171,33 @@ object ProcessorErrors {
                 }
                 AmbiguousColumnLocation.ENTITY -> {
                     checkNotNull(typeName)
-                    "in the entity '$typeName'" to
-                        "use a new data class / data class with " + "@ColumnInfo'"
+                    "in the entity '$typeName'" to "use a new data class with " + "@ColumnInfo'"
                 }
             }
         return "The column '$columnName' $locationDesc is ambiguous and cannot be properly " +
             "resolved. Please alias the column and $recommendation. Otherwise there is a risk of " +
             "the query returning invalid values. You can suppress this warning by annotating " +
-            "the function with @SuppressWarnings(RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT)."
+            "the function with @Suppress(RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT)."
     }
 
     enum class AmbiguousColumnLocation {
         MAP_COLUMN,
         DATA_CLASS,
         ENTITY,
+    }
+
+    fun ambiguousDuplicateColumn(dataClassTypeNames: List<String>, columnName: String): String {
+        val dataClassNames =
+            if (dataClassTypeNames.size > 1) {
+                "one of [${dataClassTypeNames.joinToString()}]"
+            } else {
+                dataClassTypeNames.single()
+            }
+        return "The column '$columnName' in $dataClassNames and in the query result is ambiguous " +
+            "because it is a duplicate column in the query result which can lead invalid values. " +
+            "Please remove the duplicate column from the query projection or alias the column. " +
+            "You can suppress this warning by annotating the function with " +
+            "@Suppress(RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT)."
     }
 
     const val NONNULL_VOID =

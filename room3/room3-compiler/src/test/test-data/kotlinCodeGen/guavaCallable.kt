@@ -92,7 +92,7 @@ internal class MyDao_Impl(
   public override fun deleteListenableFuture(entity: MyEntity): ListenableFuture<Int> = __guavaDaoReturnTypeConverter.convertAsync(__db, true) {
     performSuspending(__db, false, true) { _connection ->
       var _result: Int = 0
-      _result += __deleteAdapterOfMyEntity.handle(_connection, entity)
+      _result += __deleteAdapterOfMyEntity.handleAndReturnChanges(_connection, entity)
       _result
     }
   }
@@ -100,7 +100,7 @@ internal class MyDao_Impl(
   public override fun updateListenableFuture(entity: MyEntity): ListenableFuture<Int> = __guavaDaoReturnTypeConverter.convertAsync(__db, true) {
     performSuspending(__db, false, true) { _connection ->
       var _result: Int = 0
-      _result += __updateAdapterOfMyEntity.handle(_connection, entity)
+      _result += __updateAdapterOfMyEntity.handleAndReturnChanges(_connection, entity)
       _result
     }
   }

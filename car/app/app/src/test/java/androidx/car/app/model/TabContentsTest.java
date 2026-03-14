@@ -90,25 +90,13 @@ public class TabContentsTest {
     }
 
     @Test
-    public void createInstance_sectionedItemTemplate_Throws() {
+    public void createInstance_sectionedItemTemplate() {
         SectionedItemTemplate template =
                 new SectionedItemTemplate.Builder().setHeader(
                         new Header.Builder().setTitle("title").build()
                 ).build();
 
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> new TabContents.Builder(template).build());
-    }
-
-    @Test
-    public void createInstance_api8_sectionedItemTemplate() {
-        SectionedItemTemplate template =
-                new SectionedItemTemplate.Builder().setHeader(
-                        new Header.Builder().setTitle("title").build()
-                ).build();
-
-        TabContents tabContents = new TabContents.Builder(template, /* enableApi8= */ true).build();
+        TabContents tabContents = new TabContents.Builder(template).build();
 
         assertEquals(template, tabContents.getTemplate());
     }

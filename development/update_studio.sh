@@ -15,8 +15,8 @@ function sedInPlace() {
 
 # Versions that the user should update when running this script
 echo Getting Studio version and link
-AGP_VERSION=${1:-9.1.0-alpha06}
-STUDIO_VERSION_STRING=${2:-"Android Studio Panda 2 | 2025.3.2 Canary 1"}
+AGP_VERSION=${1:-9.2.0-alpha02}
+STUDIO_VERSION_STRING=${2:-"Android Studio Panda 3 | 2025.3.3 Canary 2"}
 
 # Get studio version number from version name
 STUDIO_IFRAME_LINK=`curl "https://developer.android.com/studio/archive.html" | grep "<iframe " | sed "s/.* src=\"\([^\"]*\)\".*/\1/g"`

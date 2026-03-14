@@ -1,10 +1,12 @@
 // Baseline format: 1.0
-AddedAbstractMethod: androidx.webkit.Profile#clearPrefetchAsync(String, java.util.concurrent.Executor, androidx.webkit.WebViewOutcomeReceiver<java.lang.Void,androidx.webkit.PrefetchException>):
-    Binary breaking change: Added method androidx.webkit.Profile.clearPrefetchAsync(String,java.util.concurrent.Executor,androidx.webkit.WebViewOutcomeReceiver<java.lang.Void,androidx.webkit.PrefetchException>)
 AddedAbstractMethod: androidx.webkit.Profile#prefetchUrlAsync(String, android.os.CancellationSignal, java.util.concurrent.Executor, androidx.webkit.SpeculativeLoadingParameters, androidx.webkit.WebViewOutcomeReceiver<java.lang.Void,androidx.webkit.PrefetchException>):
     Binary breaking change: Added method androidx.webkit.Profile.prefetchUrlAsync(String,android.os.CancellationSignal,java.util.concurrent.Executor,androidx.webkit.SpeculativeLoadingParameters,androidx.webkit.WebViewOutcomeReceiver<java.lang.Void,androidx.webkit.PrefetchException>)
 AddedAbstractMethod: androidx.webkit.Profile#prefetchUrlAsync(String, android.os.CancellationSignal, java.util.concurrent.Executor, androidx.webkit.WebViewOutcomeReceiver<java.lang.Void,androidx.webkit.PrefetchException>):
     Binary breaking change: Added method androidx.webkit.Profile.prefetchUrlAsync(String,android.os.CancellationSignal,java.util.concurrent.Executor,androidx.webkit.WebViewOutcomeReceiver<java.lang.Void,androidx.webkit.PrefetchException>)
+
+
+ChangedType: androidx.webkit.StartUpLocation#getStackInformation():
+    Binary breaking change: Method androidx.webkit.StartUpLocation.getStackInformation has changed return type from java.lang.String to java.lang.Throwable
 
 
 RemovedMethod: androidx.webkit.Profile#clearPrefetchAsync(String, java.util.concurrent.Executor, androidx.webkit.OutcomeReceiverCompat<java.lang.Void,androidx.webkit.PrefetchException>):

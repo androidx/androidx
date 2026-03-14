@@ -781,7 +781,7 @@ class ArtMetric : Metric() {
                 )
             ) {
                 traceSession
-                    .querySlices("L%/%;", packageName = captureInfo.targetPackageName)
+                    .querySlices("L%;", packageName = captureInfo.targetPackageName)
                     .asMeasurements("artClassLoad")
             } else emptyList()
     }

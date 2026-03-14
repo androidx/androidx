@@ -25,6 +25,7 @@ import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import okio.Path
 
@@ -95,8 +96,14 @@ public actual object PreferenceDataStoreFactory {
         migrations: List<DataMigration<Preferences>>,
         scope: CoroutineScope,
     ): DataStore<Preferences> {
+        val context =
+            if (scope.coroutineContext[Job] == null) {
+                scope.coroutineContext + Job()
+            } else {
+                scope.coroutineContext
+            }
         return PreferenceDataStore(
-            DataStore.Builder(storage = storage, context = scope.coroutineContext)
+            DataStore.Builder(storage = storage, context = context)
                 .apply { corruptionHandler?.let { setCorruptionHandler(it) } }
                 .addMigrations(migrations)
                 .build()

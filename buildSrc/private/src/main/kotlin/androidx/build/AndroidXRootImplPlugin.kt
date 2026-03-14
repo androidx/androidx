@@ -22,6 +22,7 @@ import androidx.build.buildInfo.CreateAggregateLibraryBuildInfoFileTask
 import androidx.build.buildInfo.CreateAggregateLibraryBuildInfoFileTask.Companion.CREATE_AGGREGATE_BUILD_INFO_FILES_TASK
 import androidx.build.dependencyTracker.AffectedModuleDetector
 import androidx.build.gradle.isRoot
+import androidx.build.intellij.IntelliJTask.Companion.registerIntelliJTask
 import androidx.build.license.ValidateLicensesExistTask
 import androidx.build.logging.TERMINAL_RED
 import androidx.build.logging.TERMINAL_RESET
@@ -171,6 +172,7 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
             registerOwnersServiceTasks()
         }
         registerStudioTask()
+        registerIntelliJTask()
 
         project.tasks.register("listTaskOutputs", ListTaskOutputsTask::class.java) { task ->
             task.outputFile.set(project.getDistributionDirectory().file("task_outputs.txt"))

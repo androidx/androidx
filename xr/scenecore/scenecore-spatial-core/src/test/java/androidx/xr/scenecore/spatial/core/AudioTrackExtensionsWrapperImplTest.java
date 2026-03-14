@@ -78,11 +78,11 @@ public class AudioTrackExtensionsWrapperImplTest {
         AndroidXrEntity entity = mock(AndroidXrEntity.class);
         when(entity.getNode()).thenReturn(fakeNode);
 
-        PointSourceParams expectedRtParams = new PointSourceParams(entity);
+        PointSourceParams expectedRtParams = new PointSourceParams();
 
         AudioTrackExtensionsWrapper wrapper =
-                new AudioTrackExtensionsWrapperImpl(mAudioTrackExtensions, mEntityManager);
-        wrapper.setPointSourceParams(track, expectedRtParams);
+                new AudioTrackExtensionsWrapperImpl(mAudioTrackExtensions);
+        wrapper.setPointSourceParams(track, expectedRtParams, entity);
 
         assertThat(mAudioTrackExtensions.getPointSourceParams(track).getNode()).isEqualTo(fakeNode);
     }
@@ -94,11 +94,12 @@ public class AudioTrackExtensionsWrapperImplTest {
         AndroidXrEntity entity = mock(AndroidXrEntity.class);
         when(entity.getNode()).thenReturn(fakeNode);
 
-        PointSourceParams expectedRtParams = new PointSourceParams(entity);
+        PointSourceParams expectedRtParams = new PointSourceParams();
 
         AudioTrackExtensionsWrapper wrapper =
-                new AudioTrackExtensionsWrapperImpl(mAudioTrackExtensions, mEntityManager);
-        AudioTrack.Builder actual = wrapper.setPointSourceParams(mBuilder, expectedRtParams);
+                new AudioTrackExtensionsWrapperImpl(mAudioTrackExtensions);
+        AudioTrack.Builder actual = wrapper.setPointSourceParams(
+                mBuilder, expectedRtParams, entity);
 
         assertThat(actual).isEqualTo(mBuilder);
         assertThat(mAudioTrackExtensions.getPointSourceParams(track).getNode()).isEqualTo(fakeNode);
@@ -111,7 +112,7 @@ public class AudioTrackExtensionsWrapperImplTest {
                 new SoundFieldAttributes(SpatializerConstants.AMBISONICS_ORDER_THIRD_ORDER);
 
         AudioTrackExtensionsWrapper wrapper =
-                new AudioTrackExtensionsWrapperImpl(mAudioTrackExtensions, mEntityManager);
+                new AudioTrackExtensionsWrapperImpl(mAudioTrackExtensions);
 
         AudioTrack.Builder actual = wrapper.setSoundFieldAttributes(mBuilder, expectedRtAttr);
 
@@ -139,13 +140,14 @@ public class AudioTrackExtensionsWrapperImplTest {
                                 .setNode(fakeNode)
                                 .build());
 
-        PointSourceParams expectedRtParams = new PointSourceParams(entity);
+        PointSourceParams expectedRtParams = new PointSourceParams();
         AudioTrackExtensionsWrapper wrapper =
-                new AudioTrackExtensionsWrapperImpl(mAudioTrackExtensions, mEntityManager);
+                new AudioTrackExtensionsWrapperImpl(mAudioTrackExtensions);
 
         PointSourceParams actual = wrapper.getPointSourceParams(track);
 
-        assertThat(actual.getEntity()).isEqualTo(expectedRtParams.getEntity());
+        // TODO: Compare point source params once additional parameters are added.
+        assertThat(actual).isNotNull();
     }
 
     @Test
@@ -153,7 +155,7 @@ public class AudioTrackExtensionsWrapperImplTest {
         AudioTrack track = mock(AudioTrack.class);
 
         AudioTrackExtensionsWrapper wrapper =
-                new AudioTrackExtensionsWrapperImpl(mAudioTrackExtensions, mEntityManager);
+                new AudioTrackExtensionsWrapperImpl(mAudioTrackExtensions);
 
         PointSourceParams actual = wrapper.getPointSourceParams(track);
 
@@ -175,7 +177,7 @@ public class AudioTrackExtensionsWrapperImplTest {
         SoundFieldAttributes expectedRtAttr =
                 new SoundFieldAttributes(SpatializerConstants.AMBISONICS_ORDER_THIRD_ORDER);
         AudioTrackExtensionsWrapper wrapper =
-                new AudioTrackExtensionsWrapperImpl(mAudioTrackExtensions, mEntityManager);
+                new AudioTrackExtensionsWrapperImpl(mAudioTrackExtensions);
 
         SoundFieldAttributes actual = wrapper.getSoundFieldAttributes(track);
 
@@ -187,7 +189,7 @@ public class AudioTrackExtensionsWrapperImplTest {
         AudioTrack track = mock(AudioTrack.class);
 
         AudioTrackExtensionsWrapper wrapper =
-                new AudioTrackExtensionsWrapperImpl(mAudioTrackExtensions, mEntityManager);
+                new AudioTrackExtensionsWrapperImpl(mAudioTrackExtensions);
 
         SoundFieldAttributes actual = wrapper.getSoundFieldAttributes(track);
 
@@ -202,7 +204,7 @@ public class AudioTrackExtensionsWrapperImplTest {
         ShadowAudioTrackExtensions.extract(mAudioTrackExtensions).setSourceType(expected);
 
         AudioTrackExtensionsWrapper wrapper =
-                new AudioTrackExtensionsWrapperImpl(mAudioTrackExtensions, mEntityManager);
+                new AudioTrackExtensionsWrapperImpl(mAudioTrackExtensions);
 
         int actualSourceType = wrapper.getSpatialSourceType(track);
 

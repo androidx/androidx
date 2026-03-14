@@ -47,9 +47,9 @@ internal class SubspaceDepthSortedSet(
         }
     }
 
-    fun removeFirst(): SubspaceLayoutNode = first().also { remove(it) }
+    override fun removeFirst(): SubspaceLayoutNode = first().also { remove(it) }
 
-    fun removeLast(): SubspaceLayoutNode = last().also { remove(it) }
+    override fun removeLast(): SubspaceLayoutNode = last().also { remove(it) }
 
     override val size: Int
         get() = set.size

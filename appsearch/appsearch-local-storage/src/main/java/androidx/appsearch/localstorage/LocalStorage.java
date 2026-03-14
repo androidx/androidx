@@ -405,11 +405,9 @@ public class LocalStorage {
         mAppSearchImpl = AppSearchImpl.create(
                 icingDir,
                 config,
-                initStatsBuilder,
-                /*callStatsBuilder=*/null,
-                /*visibilityChecker=*/ null,
-                revocableFileDescriptorStore,
-                /*icingSearchEngine=*/ null,
+                new AppSearchUserPlugins.Builder()
+                        .setInitStatsBuilder(initStatsBuilder)
+                        .setRevocableFileDescriptorStore(revocableFileDescriptorStore).build(),
                 new JetpackOptimizeStrategy());
 
         if (logger != null) {

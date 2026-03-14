@@ -195,7 +195,11 @@ private fun ListItemImpl(
     val colors = GlimmerTheme.colors
     val iconSize = GlimmerTheme.iconSizes.large
     val typography = GlimmerTheme.typography
-    val depth = SurfaceDepth(depth = null, focusedDepth = GlimmerTheme.depthLevels.level4)
+    val depthEffect =
+        SurfaceDepthEffect(
+            depthEffect = null,
+            focusedDepthEffect = GlimmerTheme.depthEffectLevels.level4,
+        )
 
     val surfaceModifier =
         if (onClick != null) {
@@ -204,7 +208,7 @@ private fun ListItemImpl(
                 shape = shape,
                 color = color,
                 contentColor = contentColor,
-                depth = depth,
+                depthEffect = depthEffect,
                 border = border,
                 interactionSource = interactionSource,
             )
@@ -213,7 +217,7 @@ private fun ListItemImpl(
                 shape = shape,
                 color = color,
                 contentColor = contentColor,
-                depth = depth,
+                depthEffect = depthEffect,
                 border = border,
                 interactionSource = interactionSource,
             )
@@ -229,15 +233,13 @@ private fun ListItemImpl(
     ) {
         if (leadingIcon != null) {
             Box(
-                Modifier.align(Alignment.Top)
-                    .padding(end = IconSpacing)
-                    .contentColorProvider(colors.primary),
+                Modifier.align(Alignment.Top).contentColorProvider(colors.primary),
                 contentAlignment = Alignment.TopStart,
             ) {
                 CompositionLocalProvider(LocalIconSize provides iconSize, content = leadingIcon)
             }
         }
-        Column(Modifier.weight(1f)) {
+        Column(Modifier.weight(1f).padding(horizontal = InnerPadding)) {
             if (supportingLabel == null) {
                 CompositionLocalProvider(
                     LocalTextStyle provides typography.bodySmall,
@@ -256,9 +258,7 @@ private fun ListItemImpl(
         }
         if (trailingIcon != null) {
             Box(
-                Modifier.align(Alignment.Top)
-                    .padding(start = IconSpacing)
-                    .contentColorProvider(colors.primary),
+                Modifier.align(Alignment.Top).contentColorProvider(colors.primary),
                 Alignment.TopEnd,
             ) {
                 CompositionLocalProvider(LocalIconSize provides iconSize, content = trailingIcon)
@@ -270,11 +270,13 @@ private fun ListItemImpl(
 /** Default values used for [ListItem] */
 public object ListItemDefaults {
     /** Default content padding used for a [ListItem] */
-    public val ContentPadding: PaddingValues = PaddingValues(horizontal = 24.dp, vertical = 20.dp)
+    public val ContentPadding: PaddingValues = PaddingValues(Spacing.Large)
 }
 
 /** Default minimum height for a [ListItem] */
-private val MinimumHeight = 72.dp
+private val MinimumHeight = 80.dp
 
-/** Spacing between icons and the text in a [ListItem] */
-private val IconSpacing = 12.dp
+/**
+ * Padding around the [ListItem] body content, i.e., between the text and leading/trailing icons.
+ */
+private val InnerPadding = Spacing.Small

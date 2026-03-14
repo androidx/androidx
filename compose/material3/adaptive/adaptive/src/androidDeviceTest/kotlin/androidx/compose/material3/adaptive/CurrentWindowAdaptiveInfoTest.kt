@@ -51,6 +51,7 @@ class CurrentWindowAdaptiveInfoTest {
     @get:Rule val testRule: TestRule = RuleChain.outerRule(layoutInfoRule).around(composeRule)
 
     @Test
+    @Suppress("DEPRECATION")
     fun test_currentWindowAdaptiveInfo() {
         lateinit var actualAdaptiveInfo: WindowAdaptiveInfo
         val mockWindowSize = mutableStateOf(MockWindowSize1)
@@ -96,7 +97,7 @@ class CurrentWindowAdaptiveInfoTest {
                 LocalDensity provides MockDensity,
                 LocalWindowInfo provides MockWindowInfo(mockWindowSize, MockDensity),
             ) {
-                actualAdaptiveInfo = currentWindowAdaptiveInfo(supportLargeAndXLargeWidth = true)
+                actualAdaptiveInfo = currentWindowAdaptiveInfoV2()
             }
         }
 

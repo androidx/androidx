@@ -21,7 +21,7 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.material3.adaptive.layout.PaneAdaptedValue
 import androidx.compose.material3.adaptive.layout.PaneExpansionState
 import androidx.compose.material3.adaptive.layout.PaneMotionDefaults
@@ -70,7 +70,8 @@ public fun <T : Any> rememberSupportingPaneSceneStrategy(
     shouldHandleSinglePaneLayout: Boolean = false,
     backNavigationBehavior: BackNavigationBehavior =
         BackNavigationBehavior.PopUntilCurrentDestinationChange,
-    directive: PaneScaffoldDirective = calculatePaneScaffoldDirective(currentWindowAdaptiveInfo()),
+    directive: PaneScaffoldDirective =
+        calculatePaneScaffoldDirective(currentWindowAdaptiveInfoV2()),
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
         SupportingPaneScaffoldDefaults.adaptStrategies(),
     paneExpansionDragHandle: (@Composable ThreePaneScaffoldScope.(PaneExpansionState) -> Unit)? =

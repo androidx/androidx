@@ -455,6 +455,13 @@ internal object Api33Compat {
             }
             .build()
     }
+
+    @JvmStatic fun getDataSpace(image: Image) = image.dataSpace
+
+    @JvmStatic
+    fun setDataSpace(image: Image, value: Int) {
+        image.dataSpace = value
+    }
 }
 
 @RequiresApi(34)

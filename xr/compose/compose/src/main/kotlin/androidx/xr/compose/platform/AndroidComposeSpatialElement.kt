@@ -43,8 +43,9 @@ import kotlinx.coroutines.launch
  *
  * This class draws inspiration from the [androidx/compose/ui/platform/AndroidComposeView].
  */
-internal class AndroidComposeSpatialElement :
-    SpatialElement(), SubspaceOwner, DefaultLifecycleObserver {
+internal class AndroidComposeSpatialElement(
+    override val coroutineContext: CoroutineContext = AndroidUiDispatcher.Main
+) : SpatialElement(), SubspaceOwner, DefaultLifecycleObserver {
     override val root: SubspaceLayoutNode =
         SubspaceLayoutNode().apply { measurePolicy = SubspaceLayoutNode.RootMeasurePolicy }
 
@@ -52,10 +53,7 @@ internal class AndroidComposeSpatialElement :
     override var logger: Logger? = null
 
     // This coroutine scope will launch tasks to the Choreographer on the main thread.
-    private val uiCoroutineScope = CoroutineScope(AndroidUiDispatcher.Main)
-
-    override val coroutineContext: CoroutineContext
-        get() = uiCoroutineScope.coroutineContext
+    private val coroutineScope = CoroutineScope(coroutineContext)
 
     internal var wrappedComposition: WrappedComposition? = null
 
@@ -132,7 +130,7 @@ internal class AndroidComposeSpatialElement :
 
     override fun onResume(owner: LifecycleOwner) {
         super.onResume(owner)
-        // TODO: "Refresh the layout hierarchy." <- Can we just call scheduleMeasureAndLayout()?
+        scheduleMeasureAndLayout()
     }
 
     override fun onDestroy(owner: LifecycleOwner) {
@@ -161,9 +159,6 @@ internal class AndroidComposeSpatialElement :
     }
 
     override fun requestEntityUpdate(node: SubspaceLayoutNode, forceRequest: Boolean) {
-
-        if (!root.isPlaced) return
-
         if (measureAndLayoutDelegate.requestEntityUpdate(node, forceRequest)) {
             scheduleMeasureAndLayout()
         }
@@ -175,7 +170,7 @@ internal class AndroidComposeSpatialElement :
         if (isMeasureAndLayoutScheduled) return
 
         isMeasureAndLayoutScheduled = true
-        uiCoroutineScope.launch {
+        coroutineScope.launch {
             isMeasureAndLayoutScheduled = false
             measureAndLayoutDelegate.measureAndLayout()
         }

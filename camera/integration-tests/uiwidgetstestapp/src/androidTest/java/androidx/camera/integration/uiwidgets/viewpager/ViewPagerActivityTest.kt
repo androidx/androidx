@@ -26,8 +26,8 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.integration.uiwidgets.R
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
-import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.testing.impl.InternalTestConvenience.useInCameraTest
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.view.PreviewView
 import androidx.lifecycle.Lifecycle.State
 import androidx.test.core.app.ActivityScenario
@@ -48,7 +48,6 @@ import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
-import org.junit.After
 import org.junit.Assume
 import org.junit.Before
 import org.junit.Ignore
@@ -83,6 +82,11 @@ class ViewPagerActivityTest(private val lensFacing: Int) {
     }
 
     @get:Rule
+    val requireForegroundRule = RequireForegroundRule {
+        Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
+    }
+
+    @get:Rule
     val useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             testCameraRule,
@@ -93,25 +97,12 @@ class ViewPagerActivityTest(private val lensFacing: Int) {
 
     @Before
     fun setUp() {
-        Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
-
         device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        // Ensure it's in a natural orientation. This change could delay around 1 sec, please
-        // call this earlier before launching the test activity.
-        device.setOrientationNatural()
 
-        // Clear the device UI and check if there is no dialog or lock screen on the top of the
-        // window.
-        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
-    }
-
-    @After
-    fun tearDown() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
-        cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
-        if (::device.isInitialized) {
-            device.unfreezeRotation()
+        requireForegroundRule.deferCleanup {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
+            cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
         }
     }
 

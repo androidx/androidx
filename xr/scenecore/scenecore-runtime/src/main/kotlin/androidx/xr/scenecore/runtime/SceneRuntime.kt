@@ -484,4 +484,58 @@ public interface SceneRuntime : JxrRuntime {
      * @param listener The [Consumer] to be removed. It will no longer receive change events.
      */
     public fun removeOnBoundaryConsentChangedListener(listener: Consumer<Boolean>)
+
+    /**
+     * Creates a [PositionalAudioComponent].
+     *
+     * This component allows an entity to emit sound that appears to originate from its position in
+     * the scene.
+     *
+     * @param context The application context.
+     * @param params The parameters defining the audio source's behavior.
+     * @return A new [PositionalAudioComponent].
+     */
+    public fun createPositionalAudioComponent(
+        context: Context,
+        params: PointSourceParams,
+    ): PositionalAudioComponent
+
+    /**
+     * Creates a [SoundFieldAudioComponent].
+     *
+     * This component allows an entity to emit sound that represents a sound field (e.g.
+     * Ambisonics).
+     *
+     * @param context The application context.
+     * @param rtSoundFieldAttributes The attributes defining the sound field's behavior.
+     * @return A new [SoundFieldAudioComponent].
+     */
+    public fun createSoundFieldAudioComponent(
+        context: Context,
+        rtSoundFieldAttributes: SoundFieldAttributes,
+    ): SoundFieldAudioComponent
+
+    /**
+     * Creates a [SoundEffectPool].
+     *
+     * A sound effect pool manages a collection of sound resources and can play them with low
+     * latency.
+     *
+     * @param maxStreams The maximum number of simultaneous streams that can be played by this pool.
+     * @return A new [SoundEffectPool].
+     */
+    public fun createSoundEffectPool(maxStreams: Int): SoundEffectPool
+
+    /**
+     * Creates a [SoundEffectPoolComponent].
+     *
+     * This component allows an entity to play sound effects from a [SoundEffectPool] as positional
+     * audio.
+     *
+     * @param soundEffectPool The [SoundEffectPool] to use for playing sound effects.
+     * @return A new [SoundEffectPoolComponent].
+     */
+    public fun createSoundEffectPoolComponent(
+        soundEffectPool: SoundEffectPool
+    ): SoundEffectPoolComponent
 }

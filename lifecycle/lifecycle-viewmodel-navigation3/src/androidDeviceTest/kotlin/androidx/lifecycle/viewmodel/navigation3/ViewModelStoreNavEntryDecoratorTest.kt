@@ -16,11 +16,8 @@
 
 package androidx.lifecycle.viewmodel.navigation3
 
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
@@ -103,14 +100,14 @@ class ViewModelStoreNavEntryDecoratorTest {
                 }
             }
         } catch (e: Exception) {
-            assertThat(e)
-                .hasMessageThat()
-                .isEqualTo(
-                    "The Lifecycle state is already beyond INITIALIZED. The " +
-                        "ViewModelStoreNavEntryDecorator requires adding the " +
-                        "SavedStateNavEntryDecorator to ensure support for " +
-                        "SavedStateHandles."
+            with(assertThat(e.message)) {
+                // Assert the static parts of the new error message
+                contains("Failed to enable `SavedStateHandle` for `")
+                contains("`. The `Lifecycle.State` must be `INITIALIZED` or `CREATED`, but was `")
+                contains(
+                    "`. You must call `enableSavedStateHandles()` before the `Lifecycle.State` moves to `STARTED`."
                 )
+            }
         }
     }
 
@@ -202,9 +199,8 @@ class ViewModelStoreNavEntryDecoratorTest {
     }
 
     @Test
-    fun testChangeRemoveViewModelStoreOnPop() {
+    fun testViewModelRemovedOnPop() {
         val viewModels = mutableMapOf<Int, MyViewModel>()
-        var removeViewModelStoreOnPop by mutableStateOf(true)
 
         fun createNaveEntry(key: Int) = NavEntry(key) { viewModels[key] = viewModel<MyViewModel>() }
 
@@ -220,14 +216,7 @@ class ViewModelStoreNavEntryDecoratorTest {
                     entryDecorators =
                         listOf(
                             rememberSaveableStateHolderNavEntryDecorator(),
-                            rememberViewModelStoreNavEntryDecorator(
-                                removeViewModelStoreOnPop =
-                                    if (removeViewModelStoreOnPop) {
-                                        { true }
-                                    } else {
-                                        { false }
-                                    }
-                            ),
+                            rememberViewModelStoreNavEntryDecorator(),
                         ),
                 )
 
@@ -242,11 +231,10 @@ class ViewModelStoreNavEntryDecoratorTest {
         assertThat(viewModels.mapValues { (_, viewModel) -> viewModel.isCleared })
             .isEqualTo(mapOf(1 to false, 2 to false, 3 to true))
 
-        removeViewModelStoreOnPop = false
         backStack.removeAt(backStack.lastIndex)
         composeTestRule.waitForIdle()
         assertThat(viewModels.mapValues { (_, viewModel) -> viewModel.isCleared })
-            .isEqualTo(mapOf(1 to false, 2 to false, 3 to true))
+            .isEqualTo(mapOf(1 to false, 2 to true, 3 to true))
     }
 }
 

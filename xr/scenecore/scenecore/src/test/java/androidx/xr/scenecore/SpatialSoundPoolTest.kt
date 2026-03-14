@@ -32,7 +32,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
-import org.mockito.kotlin.argWhere
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
@@ -87,12 +86,13 @@ class SpatialSoundPoolTest {
 
         val soundPool = SoundPool.Builder().build()
         val entity = Entity.create(session, "test")
-        val pointSourceAttributes = PointSourceParams(entity)
+        val pointSourceAttributes = PointSourceParams()
         whenever(
                 mockRtSoundPoolExtensions.play(
                     eq(soundPool),
                     any(),
                     any<RtPointSourceParams>(),
+                    any<RtEntity>(),
                     any(),
                     any(),
                     any(),
@@ -107,6 +107,7 @@ class SpatialSoundPoolTest {
                 soundPool,
                 TEST_SOUND_ID,
                 pointSourceAttributes,
+                entity,
                 TEST_VOLUME,
                 TEST_PRIORITY,
                 TEST_LOOP,
@@ -116,7 +117,8 @@ class SpatialSoundPoolTest {
             .play(
                 eq(soundPool),
                 eq(TEST_SOUND_ID),
-                argWhere<RtPointSourceParams> { it.entity == mockEntity },
+                any(),
+                eq(mockEntity),
                 eq(TEST_VOLUME),
                 eq(TEST_PRIORITY),
                 eq(TEST_LOOP),

@@ -180,10 +180,62 @@ internal open class CallSession(
         }
         maybeSwitchToSpeakerOnHeadsetDisconnect(mCurrentCallEndpoint!!, previousCallEndpoint)
         avoidSpeakerOverrideOnCallStart(previousCallEndpoint, mCurrentCallEndpoint)
+
+        enforceVideoCallSpeakerFallback(mCurrentCallEndpoint!!)
+
         // clear out the last user requested CallEndpoint. It's only used to determine if the
         // change in current endpoints was intentional for maybeSwitchToSpeakerOnHeadsetDisconnect
         if (mLastClientRequestedEndpoint?.type == endpoint.endpointType) {
             mLastClientRequestedEndpoint = null
+        }
+    }
+
+    /**
+     * A strict enforcer that ensures video calls never linger on the earpiece. If the platform
+     * routes to the earpiece unexpectedly, this immediately forces it to the speaker, UNLESS a
+     * Bluetooth headset is available or the user explicitly requested the earpiece.
+     */
+    private fun enforceVideoCallSpeakerFallback(endpoint: CallEndpointCompat) {
+        // We only care about video calls
+        if (mCallType != CallAttributesCompat.CALL_TYPE_VIDEO_CALL) {
+            return
+        }
+
+        // If the client explicitly requested the earpiece, respect their choice
+        if (isEarpieceEndpoint(mLastClientRequestedEndpoint)) {
+            return
+        }
+
+        // Prevent duplicate requests: if we (via switchToSpeakerForVideoCallIfNeeded)
+        // or the user just requested the speaker, and that request is still in flight,
+        // don't spam the platform with another request.
+        if (isSpeakerEndpoint(mLastClientRequestedEndpoint)) {
+            Log.d(
+                TAG,
+                "enforceVideoCallSpeakerFallback: Switch to SPEAKER already in flight. Skipping.",
+            )
+            return
+        }
+
+        // Delegate to the manager. This safely checks if we are on the earpiece AND
+        // ensures no non-watch Bluetooth devices are available before overriding.
+        if (
+            mVideoCallSpeakerManager.shouldSwitchToSpeaker(
+                isVideoCall = true, // We already checked mCallType above
+                currentEndpoint = endpoint,
+                availableEndpoints = mAvailableEndpoints,
+            )
+        ) {
+            Log.i(
+                TAG,
+                "enforceVideoCallSpeakerFallback: Video call landed on EARPIECE " +
+                    "with no BT headset available. Forcing back to SPEAKER.",
+            )
+            CoroutineScope(coroutineContext).launch {
+                getSpeakerEndpoint(mAvailableEndpoints)?.let { speakerEndpoint ->
+                    requestEndpointChange(speakerEndpoint)
+                }
+            }
         }
     }
 
@@ -428,6 +480,9 @@ internal open class CallSession(
     override fun onVideoStateChanged(videoState: Int) {
         mCallType = videoState
         CoroutineScope(coroutineContext).launch { callChannels.callTypeChannel.send(videoState) }
+        // if the call is upgraded to a video call, switch the audio route to speaker
+        // on behalf of the user if the call audio route is the earpiece
+        mCurrentCallEndpoint?.let { enforceVideoCallSpeakerFallback(it) }
     }
 
     /**
@@ -541,6 +596,9 @@ internal open class CallSession(
                 Runnable::run,
                 CallControlReceiver(result),
             )
+            // requestVideoState cannot fail  in the platform so mCallType can be
+            // updated immediately
+            mCallType = videoState
             return result.await()
         } else {
             mCallType = videoState

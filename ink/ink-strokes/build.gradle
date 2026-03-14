@@ -31,21 +31,23 @@ androidXMultiplatform {
 
     sourceSets {
         commonMain.dependencies {
-            implementation("androidx.annotation:annotation:1.8.0")
+            api(libs.androidx.annotation)
+            implementation(project(":ink:ink-nativeloader"))
         }
 
         jvmAndAndroidMain.dependencies {
-            implementation(project(":ink:ink-nativeloader"))
             implementation(project(":ink:ink-geometry"))
             implementation(project(":ink:ink-brush"))
         }
 
-        jvmTest.dependencies {
+        jvmAndAndroidTest.dependencies {
             implementation(libs.junit)
             implementation(libs.kotlinTest)
             implementation(libs.truth)
-            implementation(project(":ink:ink-geometry"))
-            implementation(project(":ink:ink-brush"))
+        }
+
+        androidDeviceTest.dependencies {
+            implementation(libs.testRunner)
         }
     }
 }
@@ -57,8 +59,9 @@ androidx {
     description = "Create beautiful strokes"
 }
 
-// TODO: b/362697089 - Enable to run the tests in a JVM environment in addition to on Android
-//  emulators, once the mysterious SIGSEGV is resolved.
-project.tasks.named("jvmTest").configure {
-    it.enabled = false
+// TODO: b/374774638 - Run tests on host as well as device.
+afterEvaluate {
+    project.tasks.named("testAndroidHostTest").configure {
+        it.enabled = false
+    }
 }

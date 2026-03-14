@@ -12,7 +12,7 @@
 
     <issue
         id="PrivateResource"
-        message="The resource `@string/action_search` is marked as private in androidx.pdf:pdf-viewer:1.0.0-alpha14"
+        message="The resource `@string/action_search` is marked as private in androidx.pdf:pdf-viewer:1.0.0-alpha15"
         errorLine1="        android:contentDescription=&quot;@string/action_search&quot;"
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~">
         <location

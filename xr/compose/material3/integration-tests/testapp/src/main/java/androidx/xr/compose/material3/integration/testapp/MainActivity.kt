@@ -63,6 +63,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
+@Suppress("DEPRECATION") // Move to currentWindowAdaptiveInfoV2 when dependency is updated
 private fun Content() {
     var navSuiteType: NavigationSuiteType? by remember { mutableStateOf(null) }
     var orbiterPosition: OrbiterPosition by remember { mutableStateOf(OrbiterPosition.Outside) }

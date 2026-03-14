@@ -18,7 +18,7 @@ package androidx.tracing
 
 /**
  * Represents an API surface that is typically only useful for custom implementations of a
- * [TraceSink] or a [Track].
+ * [AbstractTraceSink] or a [Track].
  *
  * Any use of a delicate declaration has to be carefully reviewed to make sure it is properly used
  * and does not create problems like memory and resource leaks.

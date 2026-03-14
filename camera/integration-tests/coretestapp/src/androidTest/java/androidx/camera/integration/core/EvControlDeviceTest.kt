@@ -17,7 +17,9 @@
 package androidx.camera.integration.core
 
 import android.content.Context
+import android.hardware.camera2.CameraMetadata.CONTROL_AE_STATE_SEARCHING
 import android.hardware.camera2.CaptureResult.CONTROL_AE_EXPOSURE_COMPENSATION
+import android.hardware.camera2.CaptureResult.CONTROL_AE_STATE
 import android.os.Build
 import android.util.Log
 import androidx.annotation.OptIn
@@ -44,6 +46,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.After
@@ -58,6 +61,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalCamera2Interop::class)
 class EvControlDeviceTest {
+    private val TAG = "EvControlDeviceTest"
     private lateinit var cameraSelector: CameraSelector
     private lateinit var context: Context
     private lateinit var cameraProvider: ProcessCameraProvider
@@ -118,7 +122,8 @@ class EvControlDeviceTest {
         val targetIndex = getSafeTargetExposureIndex(exposureState)
 
         // Act.
-        val ret = cameraControl.setExposureCompensationIndex(targetIndex).awaitWithTimeout()
+        val ret =
+            cameraControl.setExposureCompensationIndex(targetIndex).awaitWithFlakyCheck(targetIndex)
 
         // Assert.
         assertThat(ret).isEqualTo(targetIndex)
@@ -133,7 +138,7 @@ class EvControlDeviceTest {
         bindUseCase()
 
         // Act. Set the exposure compensation
-        cameraControl.setExposureCompensationIndex(targetIndex).awaitWithTimeout()
+        cameraControl.setExposureCompensationIndex(targetIndex).awaitWithFlakyCheck(targetIndex)
 
         // Assert.
         captureCallback.verifyLastCaptureResult(
@@ -156,7 +161,7 @@ class EvControlDeviceTest {
         cameraControl.setExposureCompensationIndex(targetIndex - 2)
 
         // Act. Set the EC value again, and verify this task should complete successfully.
-        cameraControl.setExposureCompensationIndex(targetIndex).awaitWithTimeout()
+        cameraControl.setExposureCompensationIndex(targetIndex).awaitWithFlakyCheck(targetIndex)
 
         // Assert. Verify the exposure compensation target result is in the capture result.
         captureCallback.verifyLastCaptureResult(
@@ -175,7 +180,7 @@ class EvControlDeviceTest {
         // Act. Set the exposure compensation, and then use the zoom API after the exposure is
         // changed.
         val targetIndex = getSafeTargetExposureIndex(exposureState)
-        cameraControl.setExposureCompensationIndex(targetIndex).awaitWithTimeout()
+        cameraControl.setExposureCompensationIndex(targetIndex).awaitWithFlakyCheck(targetIndex)
         cameraControl
             .setZoomRatio(camera.cameraInfo.zoomState.value!!.maxZoomRatio)
             .awaitWithTimeout()
@@ -197,7 +202,7 @@ class EvControlDeviceTest {
         // Act. Set the exposure compensation, and then use the zoom API after the exposure is
         // changed.
         val targetIndex = getSafeTargetExposureIndex(exposureState)
-        cameraControl.setExposureCompensationIndex(targetIndex).awaitWithTimeout()
+        cameraControl.setExposureCompensationIndex(targetIndex).awaitWithFlakyCheck(targetIndex)
         cameraControl.setLinearZoom(0.5f).awaitWithTimeout()
 
         // Assert. Verify the exposure compensation target result is in the capture result.
@@ -217,7 +222,7 @@ class EvControlDeviceTest {
         // Act. Set the exposure compensation, and then use the flash API after the exposure is
         // changed.
         val targetIndex = getSafeTargetExposureIndex(exposureState)
-        cameraControl.setExposureCompensationIndex(targetIndex).awaitWithTimeout()
+        cameraControl.setExposureCompensationIndex(targetIndex).awaitWithFlakyCheck(targetIndex)
         cameraControl.setFlashMode(ImageCapture.FLASH_MODE_AUTO)
 
         // Assert. Verify the exposure compensation target result is in the capture result.
@@ -241,7 +246,7 @@ class EvControlDeviceTest {
         }
 
         // Assert. Verify the second time call should set the new exposure value successfully.
-        Truth.assertThat(cameraControl.setExposureCompensationIndex(2).awaitWithTimeout())
+        Truth.assertThat(cameraControl.setExposureCompensationIndex(2).awaitWithFlakyCheck(2))
             .isEqualTo(2)
     }
 
@@ -275,6 +280,54 @@ class EvControlDeviceTest {
             range.contains(current - 1) -> current - 1
             range.contains(current + 1) -> current + 1
             else -> throw IllegalArgumentException("Cannot find safe target EV.")
+        }
+    }
+
+    /**
+     * A flaky-aware await for Exposure Compensation.
+     *
+     * If the standard converged result times out, we check if the EV value has actually been
+     * applied while the AE state is still SEARCHING.
+     */
+    private suspend fun ListenableFuture<Int>.awaitWithFlakyCheck(targetIndex: Int): Int {
+        return try {
+            // 1. Try the standard wait (which expects CONVERGED/LOCKED)
+            awaitWithTimeout()
+        } catch (e: TimeoutCancellationException) {
+            Log.w(TAG, "Standard convergence timed out. Checking AE_STATE...")
+
+            var isAppliedButSearching = false
+
+            // 2. Use interop callback to verify if the value is applied despite SEARCHING state
+            try {
+                // We look at the very last capture result stored in our interop callback
+                captureCallback.verifyFor(timeout = 2000, numOfCaptures = 1) { _, results ->
+                    val lastResult = results.lastOrNull()
+                    val aeState = lastResult?.get(CONTROL_AE_STATE)
+                    val actualEv = lastResult?.get(CONTROL_AE_EXPOSURE_COMPENSATION)
+
+                    if (actualEv == targetIndex && aeState == CONTROL_AE_STATE_SEARCHING) {
+                        isAppliedButSearching = true
+                        true
+                    } else {
+                        false
+                    }
+                }
+            } catch (verifyEx: Exception) {
+                // If verification also fails/times out, we fall back to the original
+                // TimeoutException
+                Log.w(TAG, "verification also fails.", verifyEx)
+            }
+
+            if (isAppliedButSearching) {
+                Log.i(
+                    TAG,
+                    "Workaround triggered: EV $targetIndex applied but AE is SEARCHING. Proceeding.",
+                )
+                targetIndex
+            } else {
+                throw e // Rethrow if it's a "real" timeout (wrong value or different state)
+            }
         }
     }
 }

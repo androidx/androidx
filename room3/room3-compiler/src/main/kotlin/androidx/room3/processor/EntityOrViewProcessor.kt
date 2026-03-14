@@ -39,7 +39,7 @@ private class NonEntityOrViewProcessor(
 
     override fun process(): EntityOrView {
         context.logger.e(element, ProcessorErrors.NOT_ENTITY_OR_VIEW)
-        // Parse this as a Pojo in case there are more errors.
+        // Parse this as a data class in case there are more errors.
         DataClassProcessor.createFor(
                 context = context,
                 element = element,
@@ -59,7 +59,6 @@ private class NonEntityOrViewProcessor(
     }
 }
 
-@Suppress("FunctionName")
 fun EntityOrViewProcessor(
     context: Context,
     element: XTypeElement,

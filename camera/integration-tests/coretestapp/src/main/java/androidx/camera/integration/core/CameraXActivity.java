@@ -64,7 +64,10 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Rect;
+import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.display.DisplayManager;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
@@ -111,6 +114,7 @@ import androidx.camera.camera2.compat.quirk.DeviceQuirks;
 import androidx.camera.camera2.compat.quirk.ImageCaptureFailWithAutoFlashQuirk;
 import androidx.camera.camera2.compat.quirk.ImageCaptureFlashNotFireQuirk;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
+import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.Camera;
@@ -194,6 +198,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -321,11 +326,77 @@ public class CameraXActivity extends AppCompatActivity {
             "force_enable_stream_sharing";
 
     private final AtomicLong mImageAnalysisFrameCount = new AtomicLong(0);
+    private final AtomicInteger mCaptureFrameCount = new AtomicInteger(0);
+    private final AtomicLong mLastFrameNumber = new AtomicLong(-1);
+    private long mLastFpsTime = 0;
+    private int mLastCaptureFrameCount = 0;
+
+    private final CameraCaptureSession.CaptureCallback mCaptureCallback =
+            new CameraCaptureSession.CaptureCallback() {
+                @Override
+                public void onCaptureCompleted(
+                        @NonNull CameraCaptureSession session,
+                        @NonNull CaptureRequest request,
+                        @NonNull TotalCaptureResult result) {
+                    long currentFrame = result.getFrameNumber();
+                    if (mLastFrameNumber.getAndSet(currentFrame) != currentFrame) {
+                        mCaptureFrameCount.incrementAndGet();
+                    }
+                }
+            };
+
     private final AtomicLong mPreviewFrameCount = new AtomicLong(0);
     // Automatically stops the video recording when this length value is set to be non-zero and
     // video length reaches the length in ms.
     private long mVideoCaptureAutoStopLength = 0;
     final MutableLiveData<String> mImageAnalysisResult = new MutableLiveData<>();
+    private String mLastImageAnalysisText = "";
+    private String mLastVideoStatsText = "";
+    private double mLastCaptureFps = 0.0;
+    private final Handler mFpsHandler = new Handler(Looper.getMainLooper());
+    private final Runnable mFpsRunnable = new Runnable() {
+        @Override
+        public void run() {
+            long currentTime = SystemClock.elapsedRealtime();
+            int currentFrameCount = mCaptureFrameCount.get();
+            if (mLastFpsTime > 0) {
+                long timeDiff = currentTime - mLastFpsTime;
+                int frameDiff = currentFrameCount - mLastCaptureFrameCount;
+                mLastCaptureFps = frameDiff * 1000.0 / timeDiff;
+            }
+            mLastFpsTime = currentTime;
+            mLastCaptureFrameCount = currentFrameCount;
+
+            updateTextView();
+            mFpsHandler.postDelayed(this, 1000);
+        }
+    };
+
+    private void updateTextView() {
+        String fpsText = String.format(java.util.Locale.US, "Capture FPS: %.2f", mLastCaptureFps);
+
+        // Update the main textView
+        String text = "";
+        if (mAnalysisToggle != null && mAnalysisToggle.isChecked()
+                && !mLastImageAnalysisText.isEmpty()) {
+            text += mLastImageAnalysisText + "\n";
+        }
+        text += fpsText;
+        if (mTextView != null) {
+            mTextView.setText(text);
+            mTextView.setVisibility(View.VISIBLE);
+        }
+
+        // Update the video stats textView if video is active (since it overlaps mTextView)
+        if (mVideoToggle != null && mVideoToggle.isChecked() && mRecordUi != null) {
+            String videoText = mLastVideoStatsText;
+            if (!videoText.isEmpty()) {
+                videoText += "\n";
+            }
+            videoText += fpsText;
+            mRecordUi.getTextStats().setText(videoText);
+        }
+    }
     private static final String BACKWARD = "BACKWARD";
     private static final String SWITCH_TEST_CASE = "switch_test_case";
     private static final String PREVIEW_TEST_CASE = "preview_test_case";
@@ -1025,8 +1096,9 @@ public class CameraXActivity extends AppCompatActivity {
         double durationMs = TimeUnit.NANOSECONDS.toMillis(stats.getRecordedDurationNanos());
         // Show megabytes in International System of Units (SI)
         double sizeMb = stats.getNumBytesRecorded() / (1000d * 1000d);
-        String msg = String.format("%.2f sec\n%.2f MB", durationMs / 1000d, sizeMb);
-        mRecordUi.getTextStats().setText(msg);
+        mLastVideoStatsText = String.format(java.util.Locale.US, "%.2f sec\n%.2f MB",
+                durationMs / 1000d, sizeMb);
+        updateTextView();
 
         if (mVideoCaptureAutoStopLength > 0 && durationMs >= mVideoCaptureAutoStopLength
                 && mRecordUi.getState() == RecordUi.State.RECORDING) {
@@ -1646,14 +1718,15 @@ public class CameraXActivity extends AppCompatActivity {
 
         setUpButtonEvents();
         setupViewFinderGestureControls();
+        mFpsHandler.post(mFpsRunnable);
 
         mImageAnalysisResult.observe(
                 this,
                 text -> {
                     if (mImageAnalysisFrameCount.getAndIncrement() % 30 == 0) {
-                        mTextView.setText(
-                                "ImgCount: " + mImageAnalysisFrameCount.get() + " @ts: "
-                                        + text);
+                        mLastImageAnalysisText = "ImgCount: " + mImageAnalysisFrameCount.get()
+                                + " @ts: " + text;
+                        updateTextView();
                     }
                 });
 
@@ -1886,6 +1959,7 @@ public class CameraXActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mFpsHandler.removeCallbacks(mFpsRunnable);
         DisplayManager dpyMgr =
                 requireNonNull(ContextCompat.getSystemService(this, DisplayManager.class));
         dpyMgr.unregisterDisplayListener(mDisplayListener);
@@ -1904,6 +1978,8 @@ public class CameraXActivity extends AppCompatActivity {
      * @param calledBySelf flag indicates if this is a recursive call.
      */
     void tryBindUseCases(boolean calledBySelf) {
+        mLastImageAnalysisText = "";
+        mLastVideoStatsText = "";
         boolean isViewFinderReady = mViewFinder.getWidth() != 0 && mViewFinder.getHeight() != 0;
         boolean isCameraReady = mCameraProvider != null;
         if (isPermissionMissing() || !isCameraReady || !isViewFinderReady) {
@@ -2020,6 +2096,11 @@ public class CameraXActivity extends AppCompatActivity {
         }
     }
 
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
+    private <T> void setCaptureCallback(androidx.camera.core.ExtendableBuilder<T> builder) {
+        new Camera2Interop.Extender<>(builder).setSessionCaptureCallback(mCaptureCallback);
+    }
+
     /**
      * Builds all use cases based on current settings and return as an array.
      */
@@ -2032,7 +2113,7 @@ public class CameraXActivity extends AppCompatActivity {
         }
 
         if (mPreviewToggle.isChecked()) {
-            Preview preview = new Preview.Builder()
+            Preview.Builder builder = new Preview.Builder()
                     .setTargetName("Preview")
                     .setResolutionSelector(
                             new ResolutionSelector.Builder()
@@ -2042,8 +2123,9 @@ public class CameraXActivity extends AppCompatActivity {
                     .setPreviewStabilizationEnabled(mIsPreviewStabilizationOn)
                     .setDynamicRange(
                             mVideoToggle.isChecked() ? DynamicRange.UNSPECIFIED : mDynamicRange)
-                    .setTargetFrameRate(mFpsRange)
-                    .build();
+                    .setTargetFrameRate(mFpsRange);
+            setCaptureCallback(builder);
+            Preview preview = builder.build();
             resetViewIdlingResource();
             // Use the listener of the future to make sure the Preview setup the new surface.
             mPreviewRenderer.attachInputPreview(preview).addListener(() -> {
@@ -2062,7 +2144,7 @@ public class CameraXActivity extends AppCompatActivity {
                 flashType = FLASH_TYPE_USE_TORCH_AS_FLASH;
             }
 
-            ImageCapture imageCapture = new ImageCapture.Builder()
+            ImageCapture.Builder builder = new ImageCapture.Builder()
                     .setFlashType(flashType)
                     .setCaptureMode(getCaptureMode())
                     .setResolutionSelector(
@@ -2071,20 +2153,22 @@ public class CameraXActivity extends AppCompatActivity {
                                     .build()
                     )
                     .setOutputFormat(mImageOutputFormat)
-                    .setTargetName("ImageCapture")
-                    .build();
+                    .setTargetName("ImageCapture");
+            setCaptureCallback(builder);
+            ImageCapture imageCapture = builder.build();
             useCases.add(imageCapture);
         }
 
         if (mAnalysisToggle.isChecked()) {
-            ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
+            ImageAnalysis.Builder builder = new ImageAnalysis.Builder()
                     .setTargetName("ImageAnalysis")
                     .setResolutionSelector(
                             new ResolutionSelector.Builder()
                                     .setAspectRatioStrategy(getTargetAspectRatioStrategy())
                                     .build()
-                    )
-                    .build();
+                    );
+            setCaptureCallback(builder);
+            ImageAnalysis imageAnalysis = builder.build();
             useCases.add(imageAnalysis);
             // Make the analysis idling resource non-idle, until the required frames received.
             resetAnalysisIdlingResource();
@@ -2103,11 +2187,13 @@ public class CameraXActivity extends AppCompatActivity {
                     builder.setQualitySelector(QualitySelector.from(mVideoQuality));
                 }
                 mRecorder = builder.setAspectRatio(mTargetAspectRatio).build();
-                mVideoCapture = new VideoCapture.Builder<>(mRecorder)
-                        .setMirrorMode(mVideoMirrorMode)
-                        .setDynamicRange(mDynamicRange)
-                        .setTargetFrameRate(mFpsRange)
-                        .build();
+                VideoCapture.Builder<Recorder> videoCaptureBuilder =
+                        new VideoCapture.Builder<>(mRecorder)
+                                .setMirrorMode(mVideoMirrorMode)
+                                .setDynamicRange(mDynamicRange)
+                                .setTargetFrameRate(mFpsRange);
+                setCaptureCallback(videoCaptureBuilder);
+                mVideoCapture = videoCaptureBuilder.build();
             }
             useCases.add(mVideoCapture);
         }

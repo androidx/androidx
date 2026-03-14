@@ -20,7 +20,6 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.Posture
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.adaptive.allVerticalHingeBounds
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.occludingVerticalHingeBounds
 import androidx.compose.material3.adaptive.separatingVerticalHingeBounds
 import androidx.compose.runtime.Immutable
@@ -33,8 +32,8 @@ import kotlin.jvm.JvmName
 
 /**
  * Calculates the recommended [PaneScaffoldDirective] from a given [WindowAdaptiveInfo]. Use this
- * method with [currentWindowAdaptiveInfo] to acquire Material-recommended adaptive layout settings
- * of the current activity window.
+ * method with [currentWindowAdaptiveInfoV2] to acquire Material-recommended adaptive layout
+ * settings of the current activity window.
  *
  * See more details on the [Material design guideline site]
  * (https://m3.material.io/foundations/layout/applying-layout/window-size-classes).
@@ -108,7 +107,7 @@ fun calculatePaneScaffoldDirective(
 
 /**
  * Calculates the recommended [PaneScaffoldDirective] from a given [WindowAdaptiveInfo]. Use this
- * method with [currentWindowAdaptiveInfo] to acquire Material-recommended dense-mode adaptive
+ * method with [currentWindowAdaptiveInfoV2] to acquire Material-recommended dense-mode adaptive
  * layout settings of the current activity window. Note that this function results in a dual-pane
  * layout when the window width falls in the Medium size bucket, while
  * [calculatePaneScaffoldDirective] results in a single-pane layout instead. We recommend to use

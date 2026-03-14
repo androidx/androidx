@@ -28,6 +28,7 @@ import androidx.camera.integration.uiwidgets.R
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CoreAppTestUtil
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
@@ -38,9 +39,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.io.Closeable
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.BeforeClass
@@ -61,6 +60,22 @@ import org.junit.Rule
 abstract class ImageCaptureBaseTest<A : CameraActivity> {
 
     @get:Rule
+    val requireForegroundRule = RequireForegroundRule {
+        // TODO(b/147448711) Cuttlefish seems to have an issue handling rotation. Might be
+        //  related to the attached bug.
+        assumeFalse(
+            "Cuttlefish does not correctly handle rotating. Unable to test.",
+            Build.MODEL.contains("Cuttlefish"),
+        )
+        assumeFalse(
+            "Known issue on this device. Please see b/199115443",
+            Build.MODEL.contains("k61v1_basic_ref"),
+        )
+
+        CoreAppTestUtil.assumeCompatibleDevice()
+    }
+
+    @get:Rule
     val useCameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             testCameraRule,
@@ -74,42 +89,22 @@ abstract class ImageCaptureBaseTest<A : CameraActivity> {
     protected lateinit var device: UiDevice
 
     protected fun setUp(lensFacing: Int) {
-        // TODO(b/147448711) Cuttlefish seems to have an issue handling rotation. Might be
-        //  related to the attached bug.
-        assumeFalse(
-            "Cuttlefish does not correctly handle rotating. Unable to test.",
-            Build.MODEL.contains("Cuttlefish"),
-        )
-        assumeFalse(
-            "Known issue on this device. Please see b/199115443",
-            Build.MODEL.contains("k61v1_basic_ref"),
-        )
-
-        CoreAppTestUtil.assumeCompatibleDevice()
         assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
-
-        device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        // Ensure it's in a natural orientation. This change could delay around 1 sec, please
-        // call this earlier before launching the test activity.
-        device.setOrientationNatural()
-
-        // Clear the device UI and check if there is no dialog or lock screen on the top of the
-        // window before start the test.
-        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
 
         // Create pictures folder if it doesn't exist on the device. If this fails, abort test.
         assumeTrue("Failed to create pictures directory", createPicturesFolder())
-    }
 
-    protected fun tearDown(): Unit = runBlocking {
-        withContext(Dispatchers.Main) {
+        device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+
+        requireForegroundRule.deferCleanup {
             val context = ApplicationProvider.getApplicationContext<Context>()
             val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
             cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
         }
-        if (::device.isInitialized) {
-            device.unfreezeRotation()
-        }
+    }
+
+    protected fun tearDown(): Unit = runBlocking {
+        // No-op for now.
     }
 
     @Suppress("DEPRECATION")

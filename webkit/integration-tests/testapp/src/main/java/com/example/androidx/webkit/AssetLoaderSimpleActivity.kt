@@ -16,11 +16,8 @@
 
 package com.example.androidx.webkit
 
-import android.net.Uri
 import android.os.Bundle
-import android.webkit.WebResourceRequest
 import android.webkit.WebView
-import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import androidx.webkit.WebViewAssetLoader
 
@@ -30,21 +27,13 @@ import androidx.webkit.WebViewAssetLoader
  */
 class AssetLoaderSimpleActivity : AppCompatActivity() {
 
-    private class MyWebViewClient(private val assetLoader: WebViewAssetLoader) : WebViewClient() {
+    private class MyWebViewClient(assetLoader: WebViewAssetLoader) :
+        AssetLoaderWebViewClient(assetLoader) {
 
         @Deprecated(
             "Intentional use of deprecated function"
         ) // use the old one for compatibility with all API levels
         override fun shouldOverrideUrlLoading(view: WebView, url: String) = false
-
-        @Deprecated(
-            "Intentional use of deprecated function"
-        ) // use the old one for compatibility with all API levels
-        override fun shouldInterceptRequest(view: WebView, url: String) =
-            assetLoader.shouldInterceptRequest(Uri.parse(url))
-
-        override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest) =
-            assetLoader.shouldInterceptRequest(request.url)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

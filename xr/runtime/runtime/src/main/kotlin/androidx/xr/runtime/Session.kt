@@ -80,6 +80,27 @@ public constructor(
     public val coroutineScope: CoroutineScope = CoroutineScope(context = EmptyCoroutineContext),
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val lifecycleOwner: LifecycleOwner,
 ) {
+
+    @Deprecated("Use the constructor with an explicit LifecycleOwner instead.")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @JvmOverloads
+    public constructor(
+        activity: Activity,
+        stateExtenders: List<StateExtender> =
+            loadProviders(StateExtender::class.java, STATE_EXTENDER_PROVIDERS),
+        sessionConnectors: List<SessionConnector> =
+            loadProviders(SessionConnector::class.java, SESSION_CONNECTOR_PROVIDERS),
+        runtimes: List<JxrRuntime> = emptyList(),
+        coroutineScope: CoroutineScope = CoroutineScope(context = EmptyCoroutineContext),
+    ) : this(
+        activity,
+        stateExtenders,
+        sessionConnectors,
+        runtimes,
+        coroutineScope,
+        activity as LifecycleOwner,
+    )
+
     init {
         check(!contextSessionMap.containsKey(context)) {
             "Session already exists for context: $context"

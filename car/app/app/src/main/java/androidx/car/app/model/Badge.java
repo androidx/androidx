@@ -17,7 +17,7 @@
 package androidx.car.app.model;
 
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.annotations.KeepFields;
 
 import org.jspecify.annotations.NonNull;
@@ -35,7 +35,7 @@ import java.util.Objects;
  * <p>Badges may have a dot which is a colored circle appearing in a different location to the icon.
  */
 @CarProtocol
-@ExperimentalCarApi
+@RequiresCarApi(8)
 @KeepFields
 public class Badge {
     private final boolean mHasDot;

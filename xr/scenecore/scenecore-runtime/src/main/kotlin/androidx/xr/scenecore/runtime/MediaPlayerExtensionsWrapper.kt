@@ -28,7 +28,11 @@ public interface MediaPlayerExtensionsWrapper {
      * @param mediaPlayer The MediaPlayer to set the PointSourceParams on.
      * @param params The PointSourceParams to set.
      */
-    public fun setPointSourceParams(mediaPlayer: MediaPlayer, params: PointSourceParams)
+    public fun setPointSourceParams(
+        mediaPlayer: MediaPlayer,
+        params: PointSourceParams,
+        entity: Entity,
+    )
 
     /**
      * Sets the SoundFieldAttributes of the MediaPlayer.

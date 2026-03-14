@@ -1324,7 +1324,14 @@ class RecorderTest(private val implName: String, private val cameraConfig: Camer
 
         assertThat(capabilities).isNotNull()
         // We expect at least SDR to be supported for AVC
-        assertThat(capabilities.supportedDynamicRanges).contains(DynamicRange.SDR)
+        assertThat(capabilities!!.supportedDynamicRanges).contains(DynamicRange.SDR)
+    }
+
+    @Test
+    fun getVideoCapabilities_withUnsupportedMimeType_returnNull() {
+        val capabilities = Recorder.getVideoCapabilities(camera.cameraInfo, "video/unknown")
+
+        assertThat(capabilities).isNull()
     }
 
     private fun testRecorderIsConfiguredBasedOnTargetVideoEncodingBitrate(targetBitrate: Int) {

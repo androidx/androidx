@@ -197,11 +197,11 @@ class PropertyReadWriteWriter(propertyWithIndex: PropertyWithIndex) {
                     val constructorProperties =
                         node.directProperties
                             .filter { it.property.setter.callType == CallType.CONSTRUCTOR }
-                            .associateBy { fwi ->
-                                PropertyReadWriteWriter(fwi)
+                            .associateBy { pwi ->
+                                PropertyReadWriteWriter(pwi)
                                     .readIntoTmpVar(
                                         stmtVar,
-                                        fwi.property.setter.type.asTypeName(),
+                                        pwi.property.setter.type.asTypeName(),
                                         scope,
                                     )
                             }
@@ -244,8 +244,8 @@ class PropertyReadWriteWriter(propertyWithIndex: PropertyWithIndex) {
                     // ready any property that was not part of the constructor
                     node.directProperties
                         .filterNot { it.property.setter.callType == CallType.CONSTRUCTOR }
-                        .forEach { fwi ->
-                            PropertyReadWriteWriter(fwi)
+                        .forEach { pwi ->
+                            PropertyReadWriteWriter(pwi)
                                 .readFromStatement(
                                     ownerVar = node.varName,
                                     stmtVar = stmtVar,
@@ -316,8 +316,8 @@ class PropertyReadWriteWriter(propertyWithIndex: PropertyWithIndex) {
     }
 
     /**
-     * @param ownerVar The entity / pojo variable that owns this property. It must own this
-     *   property! (not the container pojo)
+     * @param ownerVar The entity / data class variable that owns this property. It must own this
+     *   property! (not the container data class)
      * @param stmtParamVar The statement variable
      * @param scope The code generation scope
      */
@@ -327,8 +327,8 @@ class PropertyReadWriteWriter(propertyWithIndex: PropertyWithIndex) {
     }
 
     /**
-     * @param ownerVar The entity / pojo variable that owns this property. It must own this property
-     *   (not the container pojo)
+     * @param ownerVar The entity / data class variable that owns this property. It must own this
+     *   property (not the container data class)
      * @param stmtVar The statement variable
      * @param scope The code generation scope
      */

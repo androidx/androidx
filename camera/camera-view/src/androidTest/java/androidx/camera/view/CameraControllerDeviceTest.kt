@@ -37,9 +37,9 @@ import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
-import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.testing.impl.ExtensionsUtil
 import androidx.camera.testing.impl.ParameterizedTestConfigUtil
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.testing.impl.fakes.FakeActivity
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.testing.impl.fakes.FakeSurfaceEffect
@@ -61,7 +61,6 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -89,6 +88,9 @@ class CameraControllerDeviceTest(
     }
 
     @get:Rule
+    val requireForegroundRule = RequireForegroundRule { assumeTrue(CameraUtil.deviceHasCamera()) }
+
+    @get:Rule
     val useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraConfig))
 
@@ -102,21 +104,16 @@ class CameraControllerDeviceTest(
     @Before
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
-        CoreAppTestUtil.prepareDeviceUI(instrumentation)
         ProcessCameraProvider.configureInstance(cameraConfig)
         defaultCameraSelector = CameraUtil.assumeFirstAvailableCameraSelector()
-        cameraProvider = ProcessCameraProvider.getInstance(context).get()
+        cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
         activityScenario = ActivityScenario.launch(FakeActivity::class.java)
         controller = LifecycleCameraController(context)
         instrumentation.runOnMainSync { controller!!.cameraSelector = defaultCameraSelector }
         controller!!.initializationFuture.get()
-    }
-
-    @After
-    fun tearDown() {
-        instrumentation.runOnMainSync {
+        requireForegroundRule.deferCleanup {
             controller?.shutDownForTests()
-            cameraProvider?.shutdownAsync()?.get(10000, TimeUnit.MILLISECONDS)
+            cameraProvider?.shutdownAsync()?.get(10, TimeUnit.SECONDS)
             cameraProvider = null
         }
     }

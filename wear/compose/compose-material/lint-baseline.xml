@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.0.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-beta02)" variant="all" version="9.0.0-beta02">
+<issues format="6" by="lint 9.2.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (9.2.0-alpha01)" variant="all" version="9.2.0-alpha01">
 
     <issue
         id="ComposableLambdaParameterNaming"
@@ -309,24 +309,6 @@
 
     <issue
         id="AutoboxingStateValueProperty"
-        message="Reading `value` will cause an autoboxing operation. Use `longValue` to avoid unnecessary allocations."
-        errorLine1="        frameMillis.value += timeToAdd"
-        errorLine2="                    ~~~~~">
-        <location
-            file="src/androidTest/kotlin/androidx/wear/compose/material/PlaceholderTest.kt"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateValueProperty"
-        message="Reading `value` will cause an autoboxing operation. Use `longValue` to avoid unnecessary allocations."
-        errorLine1="        frameMillis.value += PLACEHOLDER_SHIMMER_DURATION_MS"
-        errorLine2="                    ~~~~~">
-        <location
-            file="src/androidTest/kotlin/androidx/wear/compose/material/PlaceholderTest.kt"/>
-    </issue>
-
-    <issue
-        id="AutoboxingStateValueProperty"
         message="Assigning `value` will cause an autoboxing operation. Use `longValue` to avoid unnecessary allocations."
         errorLine1="        frameMillis.value = currentTime"
         errorLine2="                    ~~~~~">
@@ -390,7 +372,7 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="method setAnchors$compose_material has parameter anchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        message="method setAnchors$compose_material has parameter &lt;set-?> with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
         errorLine1="    internal var anchors by mutableStateOf(emptyMap&lt;Float, T>())"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location

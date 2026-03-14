@@ -162,6 +162,7 @@ fun SimpleTopAppBar() {
 @Preview
 @Sampled
 @Composable
+@Suppress("DEPRECATION") // Move to currentWindowAdaptiveInfoV2 when dependency is updated
 fun SimpleTopAppBarWithAdaptiveActions() {
     val sizeClass = currentWindowAdaptiveInfo().windowSizeClass
     // Material guidelines state 3 items max in compact, and 5 items max elsewhere.

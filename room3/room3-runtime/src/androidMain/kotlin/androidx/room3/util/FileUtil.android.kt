@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 @file:JvmName("FileUtil")
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.room3.util
 
-import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RestrictTo
 import java.io.IOException
@@ -33,9 +32,7 @@ import java.nio.channels.ReadableByteChannel
  * @param output the output channel to copy.
  * @throws IOException if there is an I/O error.
  */
-@SuppressLint("LambdaLast")
-@Throws(IOException::class)
-public fun copy(input: ReadableByteChannel, output: FileChannel) {
+internal fun copy(input: ReadableByteChannel, output: FileChannel) {
     try {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
             output.transferFrom(input, 0, Long.MAX_VALUE)

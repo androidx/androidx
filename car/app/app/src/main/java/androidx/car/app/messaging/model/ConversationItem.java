@@ -23,7 +23,6 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
@@ -191,7 +190,7 @@ public class ConversationItem implements Item {
      *
      * @see Builder#setIndexable(boolean)
      */
-    @ExperimentalCarApi
+    @RequiresCarApi(8)
     public boolean isIndexable() {
         return mIndexable;
     }
@@ -330,7 +329,7 @@ public class ConversationItem implements Item {
          * template's API (eg. {@code SectionedItemTemplate
          * .Builder#setAlphabeticalIndexingAllowed(Boolean)}).
          */
-        @ExperimentalCarApi
+        @RequiresCarApi(8)
         public @NonNull Builder setIndexable(boolean indexable) {
             mIndexable = indexable;
             return this;

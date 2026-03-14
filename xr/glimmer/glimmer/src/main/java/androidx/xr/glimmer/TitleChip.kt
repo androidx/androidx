@@ -22,8 +22,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -70,7 +72,7 @@ public fun TitleChip(
     color: Color = GlimmerTheme.colors.surface,
     contentColor: Color = calculateContentColor(color),
     border: BorderStroke? = SurfaceDefaults.border(),
-    contentPadding: PaddingValues = TitleChipDefaults.contentPadding(hasIcon = leadingIcon != null),
+    contentPadding: PaddingValues = TitleChipDefaults.ContentPadding,
     content: @Composable RowScope.() -> Unit,
 ) {
     val colors = GlimmerTheme.colors
@@ -84,7 +86,7 @@ public fun TitleChip(
                     shape = shape,
                     color = color,
                     contentColor = contentColor,
-                    depth = null,
+                    depthEffect = null,
                     border = border,
                 )
                 .defaultMinSize(minHeight = MinimumHeight)
@@ -94,24 +96,21 @@ public fun TitleChip(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (leadingIcon != null) {
-                Box(Modifier.padding(end = IconSpacing).contentColorProvider(colors.primary)) {
+                Box(Modifier.contentColorProvider(colors.primary)) {
                     CompositionLocalProvider(LocalIconSize provides iconSize, content = leadingIcon)
                 }
             }
+            Spacer(Modifier.width(HorizontalInnerContentPadding))
             content()
+            Spacer(Modifier.width(HorizontalInnerContentPadding))
         }
     }
 }
 
 /** Default values used for [TitleChip]. */
 public object TitleChipDefaults {
-    /**
-     * Default content padding used for a [TitleChip]
-     *
-     * @param hasIcon whether the [TitleChip] has an icon specified
-     */
-    public fun contentPadding(hasIcon: Boolean): PaddingValues =
-        if (hasIcon) ContentPaddingWithIcon else ContentPadding
+    /** Default content padding for a [TitleChip]. */
+    public val ContentPadding: PaddingValues = PaddingValues(Spacing.Small)
 
     /**
      * Default spacing between the bottom of a [TitleChip] and content associated with this title
@@ -123,18 +122,11 @@ public object TitleChipDefaults {
     public val AssociatedContentSpacing: Dp = 12.dp
 }
 
-/** Default content padding for a [TitleChip] */
-private val ContentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-
-/** Default content padding for a [TitleChip] with an icon specified */
-private val ContentPaddingWithIcon =
-    PaddingValues(start = 8.dp, end = 16.dp, top = 8.dp, bottom = 8.dp)
+/** Inner content padding for a [TitleChip] content body (excluding the icon) */
+private val HorizontalInnerContentPadding = Spacing.Small
 
 /** Default minimum height for a [TitleChip] */
 private val MinimumHeight = 56.dp
 
 /** Default maximum width for a [TitleChip] */
 private val MaximumWidth = 352.dp
-
-/** Spacing between icons and the text in a [TitleChip] */
-private val IconSpacing = 8.dp

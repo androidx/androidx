@@ -31,34 +31,29 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.JVM)
 
     sourceSets {
+        commonMain.dependencies {
+            implementation(project(":ink:ink-nativeloader"))
+        }
+
         jvmAndAndroidMain.dependencies {
             implementation(project(":ink:ink-brush"))
             implementation(project(":ink:ink-strokes"))
-            implementation(project(":ink:ink-nativeloader"))
         }
 
         androidMain.dependencies {
             implementation(project(":ink:ink-rendering"))
         }
 
-        // JVM tests use java.util.Base64 API which is only available on
-        // Android API 26+, so just run those tests in the JVM environment.
-        androidDeviceTest.dependencies {
-            implementation(libs.testExtJunit)
-            implementation(libs.testRules)
-            implementation(libs.testRunner)
-            implementation(libs.espressoCore)
+        jvmAndAndroidTest.dependencies {
             implementation(libs.junit)
             implementation(libs.kotlinTest)
             implementation(libs.truth)
         }
 
-        jvmTest.dependencies {
-            implementation(libs.junit)
-            implementation(libs.kotlinTest)
-            implementation(libs.truth)
-            implementation(project(":ink:ink-brush"))
-            implementation(project(":ink:ink-strokes"))
+        androidDeviceTest.dependencies {
+            implementation(libs.testExtJunit)
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
         }
     }
 }
@@ -68,4 +63,11 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2025"
     description = "Efficiently store and retrieve Ink strokes"
+}
+
+// TODO: b/374774638 - Run tests on host as well as device.
+afterEvaluate {
+    project.tasks.named("testAndroidHostTest").configure {
+        it.enabled = false
+    }
 }

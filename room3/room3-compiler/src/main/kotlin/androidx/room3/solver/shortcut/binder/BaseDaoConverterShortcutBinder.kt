@@ -19,16 +19,13 @@ package androidx.room3.solver.shortcut.binder
 import androidx.room3.compiler.codegen.XCodeBlock
 import androidx.room3.compiler.codegen.XPropertySpec
 import androidx.room3.compiler.processing.XType
-import androidx.room3.compiler.processing.isBoolean
-import androidx.room3.compiler.processing.isKotlinUnit
 import androidx.room3.ext.InvokeWithLambdaParameter
 import androidx.room3.ext.LambdaSpec
 import androidx.room3.ext.RoomMemberNames.DB_UTIL_PERFORM_SUSPENDING
-import androidx.room3.ext.RoomTypeNames.RAW_QUERY
-import androidx.room3.ext.RoomTypeNames.ROOM_DB
 import androidx.room3.ext.SQLiteDriverTypeNames
 import androidx.room3.solver.CodeGenScope
 import androidx.room3.solver.types.DaoReturnTypeConverter
+import androidx.room3.solver.types.DaoReturnTypeConverter.OptionalParam
 
 abstract class BaseDaoConverterShortcutBinder(val converter: DaoReturnTypeConverter) {
     /**
@@ -41,15 +38,11 @@ abstract class BaseDaoConverterShortcutBinder(val converter: DaoReturnTypeConver
         scope: CodeGenScope,
         generateBlock: (innerScope: CodeGenScope, connectionVar: String) -> Unit,
     ) {
-        val lambdaType = converter.requiredFunctionParamTypes.last()
-        val isParameterizedLambda = lambdaType.typeArguments.size > 1
-
         val lambdaSpec =
             object :
                 LambdaSpec(
-                    parameterTypeName = if (isParameterizedLambda) RAW_QUERY else null,
-                    parameterName =
-                        if (isParameterizedLambda) scope.getTmpVar("_limitQuery") else null,
+                    parameterTypeName = null,
+                    parameterName = null,
                     returnTypeName = converter.to.asTypeName(),
                     javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable,
                 ) {
@@ -60,17 +53,14 @@ abstract class BaseDaoConverterShortcutBinder(val converter: DaoReturnTypeConver
                     )
                 }
             }
-        val rawQueryVar = scope.getTmpVar("_rawQuery")
-        val args = buildList {
-            converter.requiredFunctionParamTypes.forEach { paramType ->
-                val typeName = paramType.asTypeName()
-                when {
-                    typeName == ROOM_DB -> add(dbProperty.name)
-                    paramType.isBoolean() -> add(true)
-                    typeName == RAW_QUERY -> add(rawQueryVar)
+        val args =
+            converter.requiredParameters.map {
+                when (it) {
+                    OptionalParam.ROOM_DB -> dbProperty.name
+                    OptionalParam.IN_TRANSACTION -> true
+                    else -> error("Unexpected optional param in converter: $it")
                 }
             }
-        }
         val convertBlock =
             InvokeWithLambdaParameter(
                 scope = scope,
@@ -104,9 +94,6 @@ abstract class BaseDaoConverterShortcutBinder(val converter: DaoReturnTypeConver
                     ) {
                     override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
                         generateBlock(scope, connectionVar)
-                        if (typeArg.isKotlinUnit()) {
-                            scope.builder.addStatement("kotlin.Unit")
-                        }
                     }
                 },
         )

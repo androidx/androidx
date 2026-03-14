@@ -20,7 +20,6 @@ import android.annotation.SuppressLint;
 import androidx.car.app.OnDoneCallback;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
-import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.dialer.TelephoneKeypadTemplate.KeypadKey;
 
 import org.jspecify.annotations.NonNull;
@@ -33,7 +32,6 @@ import org.jspecify.annotations.NonNull;
  */
 @CarProtocol
 @ExperimentalCarApi
-@RequiresCarApi(8)
 public interface TelephoneKeypadCallbackDelegate {
     /**
      * Send the key long press event to the client.

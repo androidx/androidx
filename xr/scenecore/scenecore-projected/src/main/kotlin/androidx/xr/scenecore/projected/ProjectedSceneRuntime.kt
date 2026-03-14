@@ -39,10 +39,16 @@ import androidx.xr.scenecore.runtime.PerceptionSpaceScenePose
 import androidx.xr.scenecore.runtime.PixelDimensions
 import androidx.xr.scenecore.runtime.PlaneSemantic
 import androidx.xr.scenecore.runtime.PlaneType
+import androidx.xr.scenecore.runtime.PointSourceParams
 import androidx.xr.scenecore.runtime.PointerCaptureComponent
+import androidx.xr.scenecore.runtime.PositionalAudioComponent
 import androidx.xr.scenecore.runtime.ResizableComponent
 import androidx.xr.scenecore.runtime.ScenePose
 import androidx.xr.scenecore.runtime.SceneRuntime
+import androidx.xr.scenecore.runtime.SoundEffectPool
+import androidx.xr.scenecore.runtime.SoundEffectPoolComponent
+import androidx.xr.scenecore.runtime.SoundFieldAttributes
+import androidx.xr.scenecore.runtime.SoundFieldAudioComponent
 import androidx.xr.scenecore.runtime.SoundPoolExtensionsWrapper
 import androidx.xr.scenecore.runtime.SpatialCapabilities
 import androidx.xr.scenecore.runtime.SpatialEnvironment
@@ -254,6 +260,30 @@ internal constructor(
     }
 
     override fun removeOnBoundaryConsentChangedListener(listener: Consumer<Boolean>) {
+        TODO("Not yet implemented")
+    }
+
+    override fun createPositionalAudioComponent(
+        context: Context,
+        params: PointSourceParams,
+    ): PositionalAudioComponent {
+        TODO("Not yet implemented")
+    }
+
+    override fun createSoundFieldAudioComponent(
+        context: Context,
+        rtSoundFieldAttributes: SoundFieldAttributes,
+    ): SoundFieldAudioComponent {
+        TODO("Not yet implemented")
+    }
+
+    override fun createSoundEffectPool(maxStreams: Int): SoundEffectPool {
+        TODO("Not yet implemented")
+    }
+
+    override fun createSoundEffectPoolComponent(
+        soundEffectPool: SoundEffectPool
+    ): SoundEffectPoolComponent {
         TODO("Not yet implemented")
     }
 

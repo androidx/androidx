@@ -210,7 +210,7 @@ class RemoteFloatOperationTest {
         ),
         CLAMP(
             "clamp",
-            { a, _ -> clamp(10f.rf, 20f.rf, a) },
+            { a, _ -> clamp(value = a, min = 10f.rf, max = 20f.rf) },
             5f,
             0f,
             10f,

@@ -202,6 +202,18 @@ package androidx.leanback.widget {
     method public void onChildViewHolderSelectedAndPositioned(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder?, int, int);
   }
 
+  public abstract class SpanSizeLookup extends androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup {
+    ctor public SpanSizeLookup();
+    method public int getSpanSize(int, int);
+    field public static final int FILL_ALL_SPANS = -2; // 0xfffffffe
+    field public static final int FILL_ALL_SPANS_AND_PADDINGS = -1; // 0xffffffff
+  }
+
+  public static final class SpanSizeLookup.DefaultSpanSizeLookup extends androidx.leanback.widget.SpanSizeLookup {
+    method public int getSpanSize(int);
+    field public static final androidx.leanback.widget.SpanSizeLookup.DefaultSpanSizeLookup INSTANCE;
+  }
+
   public class VerticalGridView extends androidx.leanback.widget.BaseGridView {
     ctor public VerticalGridView(android.content.Context);
     ctor public VerticalGridView(android.content.Context, android.util.AttributeSet?);

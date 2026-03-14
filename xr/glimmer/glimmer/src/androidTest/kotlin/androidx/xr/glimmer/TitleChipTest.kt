@@ -162,12 +162,12 @@ class TitleChipTest {
             rule.onNodeWithTag("text", useUnmergedTree = true).getUnclippedBoundsInRoot()
 
         (textBounds.left - titleChipBounds.left).assertIsEqualTo(
-            16.dp,
+            Spacing.Small * 2,
             "padding between the start of the titleChip and the start of the text.",
         )
 
         (titleChipBounds.right - textBounds.right).assertIsEqualTo(
-            16.dp,
+            Spacing.Small * 2,
             "padding between the end of the text and the end of the titleChip.",
         )
 
@@ -199,17 +199,17 @@ class TitleChipTest {
             rule.onNodeWithTag("titleChip", useUnmergedTree = true).getUnclippedBoundsInRoot()
 
         (leadingIconBounds.left - titleChipBounds.left).assertIsEqualTo(
-            8.dp,
+            Spacing.Small,
             "Padding between start of titleChip and start of leading icon.",
         )
 
         (textBounds.left - leadingIconBounds.right).assertIsEqualTo(
-            8.dp,
+            Spacing.Small,
             "Padding between end of leading icon and start of text.",
         )
 
         (titleChipBounds.right - textBounds.right).assertIsEqualTo(
-            16.dp,
+            Spacing.Small * 2,
             "padding between the end of the text and the end of the titleChip.",
         )
 
@@ -222,7 +222,7 @@ class TitleChipTest {
             TitleChip(
                 contentPadding = PaddingValues(),
                 modifier =
-                    Modifier.requiredWidthIn(20.dp).requiredHeightIn(15.dp).testTag("titleChip"),
+                    Modifier.requiredWidthIn(30.dp).requiredHeightIn(15.dp).testTag("titleChip"),
             ) {
                 Spacer(Modifier.requiredSize(10.dp))
             }
@@ -230,7 +230,7 @@ class TitleChipTest {
 
         rule.onNodeWithTag("titleChip").apply {
             with(getBoundsInRoot()) {
-                width.assertIsEqualTo(20.dp, "width")
+                width.assertIsEqualTo(30.dp, "width")
                 height.assertIsEqualTo(15.dp, "height")
             }
         }

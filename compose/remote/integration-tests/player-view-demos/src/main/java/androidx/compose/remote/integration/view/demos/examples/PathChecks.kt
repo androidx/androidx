@@ -17,8 +17,9 @@
 package androidx.compose.remote.integration.view.demos.examples
 
 import android.graphics.Typeface
+import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
-import androidx.compose.remote.creation.compose.layout.RemoteCanvas0
+import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteRow
@@ -27,18 +28,14 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxHeight
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
+import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.tooling.preview.RemotePreview
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.PaintingStyle
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.asAndroidPath
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.nativePaint
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
 
 @Suppress("RestrictedApiAndroidX")
@@ -49,37 +46,32 @@ fun SimplePath() {
         modifier = RemoteModifier.fillMaxSize(),
         verticalAlignment = RemoteAlignment.CenterVertically,
     ) {
-        RemoteCanvas0(modifier = RemoteModifier.fillMaxWidth().fillMaxHeight()) {
+        RemoteCanvas(modifier = RemoteModifier.fillMaxWidth().fillMaxHeight()) {
             drawRect(
-                Color.DarkGray,
+                Color.DarkGray.paint(),
                 RemoteOffset(0f.rf, 0f.rf),
                 RemoteSize(remote.component.width, remote.component.height),
             )
 
             val path =
-                Path().apply {
-                    addArc(Rect(20f, 20f, 240f, 240f), 240f, 360f)
+                RemotePath().apply {
+                    addArc(20f, 20f, 240f, 240f, 240f, 360f)
                     close()
                 }
 
-            val textPaint =
-                Paint()
-                    .apply {
-                        color = Color.Red
-                        style = PaintingStyle.Fill
-                    }
-                    .nativePaint
-                    .apply {
-                        textSize = 32f
-                        typeface = Typeface.DEFAULT
-                        color = Color.Red.toArgb()
+            val textPaint = RemotePaint {
+                color = Color.Red.rc
+                style = PaintingStyle.Fill
+                textSize = 32f.rf
+                typeface = Typeface.DEFAULT
+                color = Color.White.rc
+            }
 
-                        // TODO why?
-                        color = Color.White.toArgb()
-                    }
-
-            drawPath(path, color = Color.Green, style = Stroke(4f))
-            canvas.drawTextOnPath("10:10", path.asAndroidPath(), 20f, 0f, textPaint)
+            drawPath(
+                path,
+                paint = Color.Green.paint(style = PaintingStyle.Stroke, strokeWidth = 4f),
+            )
+            drawTextOnPath("10:10".rs, path, 20f.rf, 0f.rf, textPaint)
         }
     }
 }

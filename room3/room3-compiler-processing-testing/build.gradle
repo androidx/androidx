@@ -38,11 +38,7 @@ dependencies {
     implementation(libs.ksp)
     implementation(libs.kspApi)
     implementation(libs.kspCommon)
-    // Remove exclusion when project targets Kotlin 2.3. Added right now to avoid adding Kotlin 2.3
-    // to the runtimeClasspath. See b/457417317
-    implementation(libs.kspEmbeddable, {
-        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib"
-    })
+    implementation(libs.kspEmbeddable)
     // For Kotlin source compilation and KAPT
     implementation(libs.kotlinCompilerEmbeddable)
     implementation(libs.kotlinAnnotationProcessingEmbeddable)
@@ -50,21 +46,9 @@ dependencies {
 
 // enable opt in only for tests so that we don't create non experimental APIs by mistake
 // in the source.
-tasks.named("compileTestKotlin", KotlinCompile.class).configure {
-    it.kotlinOptions {
-        freeCompilerArgs += [
-                "-opt-in=androidx.room3.compiler.processing.ExperimentalProcessingApi"
-        ]
-    }
-}
-
-afterEvaluate {
-    lint {
-        lintOptions {
-            // Until fully switch to K2, existing FE1.0 usages are legitimate
-            // TODO(b/314151707)
-            disable("KotlincFE10")
-        }
+tasks.named("compileTestKotlin", KotlinCompile.class).configure { task ->
+    task.compilerOptions {
+        it.freeCompilerArgs.add("-opt-in=androidx.room3.compiler.processing.ExperimentalProcessingApi")
     }
 }
 

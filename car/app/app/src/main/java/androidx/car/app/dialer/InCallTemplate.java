@@ -23,7 +23,6 @@ import static java.util.Objects.requireNonNull;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
-import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
@@ -45,7 +44,6 @@ import java.util.Objects;
 
 /** A {@link Template} showing phone call controls and details. */
 @ExperimentalCarApi
-@RequiresCarApi(8)
 @CarProtocol
 @KeepFields
 public class InCallTemplate implements Template {

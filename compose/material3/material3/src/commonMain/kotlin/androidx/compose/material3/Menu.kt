@@ -42,7 +42,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
@@ -90,7 +89,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFirst
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
-import kotlin.collections.get
 import kotlin.math.max
 import kotlin.math.min
 
@@ -1699,7 +1697,8 @@ internal val DropdownMenuGroupVerticalPadding = 2.dp
 private val DropdownMenuSelectableItemPadding = PaddingValues(horizontal = 4.dp)
 private val DropdownMenuSelectableItemWithSupportTexPadding =
     PaddingValues(horizontal = 4.dp, vertical = 2.dp)
-private val DropdownMenuIconTextPadding = 8.dp
+private val DropdownMenuIconTextPadding =
+    if (shouldUsePrecisionPointerComponentSizing.value) 12.dp else 8.dp
 internal val DropdownMenuVerticalPadding = 8.dp
 internal val DropdownMenuItemDefaultMinWidth = 112.dp
 internal val DropdownMenuItemDefaultMaxWidth = 280.dp

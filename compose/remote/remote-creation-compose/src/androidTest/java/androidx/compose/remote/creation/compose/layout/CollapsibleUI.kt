@@ -109,11 +109,7 @@ class CollapsibleUI(
                 .background(Color.Blue)
                 .then(priorityModifier ?: RemoteModifier)
 
-        RemoteBox(
-            modifier = appliedModifier,
-            horizontalAlignment = RemoteAlignment.CenterHorizontally,
-            verticalArrangement = RemoteArrangement.Center,
-        ) {
+        RemoteBox(modifier = appliedModifier, contentAlignment = RemoteAlignment.Center) {
             RemoteText(letter.toString())
         }
     }

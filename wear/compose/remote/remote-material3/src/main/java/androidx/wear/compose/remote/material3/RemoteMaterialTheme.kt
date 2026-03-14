@@ -61,5 +61,4 @@ internal val LocalRemoteColorScheme = staticCompositionLocalOf { RemoteColorSche
 
 internal val LocalRemoteTypography = staticCompositionLocalOf { RemoteTypography() }
 
-@Suppress("RestrictedApiAndroidX")
 internal val LocalRemoteTextStyle = staticCompositionLocalOf { RemoteTextStyle() }

@@ -91,7 +91,6 @@ object RemoteComposeTestUtils {
 
     fun debugPrintDoc(doc: CoreDocument) {
         if (DebugRemoteCompose) {
-            Log.d(TAG, "~~~~~~~~~~~~~~~~~~~")
             Log.d(TAG, doc.toNestedString())
             doc.operations.forEach { println(it.toString() + "\n--- -- -- -- --") }
         }

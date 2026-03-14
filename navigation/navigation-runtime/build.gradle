@@ -34,6 +34,7 @@ androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.navigation"
         androidResources.enable = true
+        withJava()
     }
     desktop()
     linux()

@@ -38,7 +38,7 @@ internal class RemoteComposeFitBoxModifier(
         drawIntoRemoteCanvas { canvas ->
             canvas.document.startFitBox(
                 canvas.toRecordingModifier(modifier),
-                horizontalAlignment.toRemote(),
+                horizontalAlignment.toRemote(this.layoutDirection),
                 verticalArrangement.toRemote(),
             )
             this@draw.drawContent()

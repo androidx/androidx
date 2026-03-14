@@ -33,8 +33,8 @@ dependencies {
     api("androidx.annotation:annotation:1.9.1")
     api(libs.kotlinCoroutinesAndroid)
 
-    implementation(libs.guavaListenableFuture)
     implementation(libs.jspecify)
+    implementation(libs.guavaAndroid) // upgrading to newer version of guava due to CVE-2023-2976
     implementation(libs.kotlinCoroutinesGuava)
     testImplementation(libs.junit)
     testImplementation(libs.mockitoKotlin4)

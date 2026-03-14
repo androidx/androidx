@@ -28,6 +28,7 @@ import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
 import androidx.compose.remote.core.operations.layout.managers.RowLayout
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
+import androidx.compose.remote.core.operations.layout.managers.TextStyle
 import androidx.compose.remote.core.operations.layout.modifiers.LayoutComputeOperation
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.actions.Action
@@ -1318,6 +1319,7 @@ public open class RemoteComposeContext {
     public fun startTextComponent(
         modifier: RecordingModifier,
         textId: Int,
+        textStyleId: Int,
         color: Int,
         colorId: Int,
         fontSize: Float,
@@ -1345,6 +1347,7 @@ public open class RemoteComposeContext {
         mRemoteWriter.startTextComponent(
             modifier,
             textId,
+            textStyleId,
             color,
             colorId,
             fontSize,
@@ -1369,6 +1372,77 @@ public open class RemoteComposeContext {
             autosize,
             flags,
         )
+    }
+
+    public fun addTextStyle(
+        color: Int? = null,
+        colorId: Int? = null,
+        fontSize: Float? = null,
+        minFontSize: Float? = null,
+        maxFontSize: Float? = null,
+        fontStyle: Int? = null,
+        fontWeight: Float? = null,
+        fontFamily: String? = null,
+        textAlign: Int? = null,
+        overflow: Int? = null,
+        maxLines: Int? = null,
+        letterSpacing: Float? = null,
+        lineHeightAdd: Float? = null,
+        lineHeightMultiplier: Float? = null,
+        lineBreakStrategy: Int? = null,
+        hyphenationFrequency: Int? = null,
+        justificationMode: Int? = null,
+        underline: Boolean? = null,
+        strikethrough: Boolean? = null,
+        fontAxis: Array<String>? = null,
+        fontAxisValues: FloatArray? = null,
+        autosize: Boolean? = null,
+        parentId: Int = -1,
+    ): Int {
+        return mRemoteWriter.addTextStyle(
+            color,
+            colorId,
+            fontSize,
+            minFontSize,
+            maxFontSize,
+            fontStyle,
+            fontWeight,
+            fontFamily,
+            textAlign,
+            overflow,
+            maxLines,
+            letterSpacing,
+            lineHeightAdd,
+            lineHeightMultiplier,
+            lineBreakStrategy,
+            hyphenationFrequency,
+            justificationMode,
+            underline,
+            strikethrough,
+            fontAxis,
+            fontAxisValues,
+            autosize,
+            parentId,
+        )
+    }
+
+    public fun startTextComponent(
+        modifier: RecordingModifier,
+        textId: Int,
+        textStyleId: Int,
+        flags: Int = 0,
+    ) {
+        mRemoteWriter.startTextComponent(modifier, textId, textStyleId, flags)
+    }
+
+    public fun textComponent(
+        modifier: RecordingModifier,
+        textId: Int,
+        textStyleId: Int,
+        flags: Int = 0,
+        content: RemoteComposeWriterInterface,
+    ) {
+        mRemoteWriter.textComponent(modifier, textId, textStyleId, flags, content)
     }
 
     public fun endTextComponent() {
@@ -1624,9 +1698,9 @@ public open class RemoteComposeContext {
         stringId: Int,
         modifier: RecordingModifier = RecordingModifier(),
         color: Int = 0xFF000000.toInt(),
-        fontSize: Float = 36f,
+        fontSize: Float = TextStyle.DEFAULT_FONT_SIZE,
         fontStyle: Int = 0,
-        fontWeight: Float = 400f,
+        fontWeight: Float = TextStyle.DEFAULT_FONT_WEIGHT,
         fontFamily: String? = null,
         textAlign: Int = TextLayout.TEXT_ALIGN_LEFT,
         overflow: Int = TextLayout.OVERFLOW_CLIP,
@@ -1651,11 +1725,12 @@ public open class RemoteComposeContext {
         modifier: RecordingModifier = RecordingModifier(),
         color: Int = 0xFF000000.toInt(),
         colorId: Int = -1,
-        fontSize: Float = 36f,
+        textStyleId: Int = -1,
+        fontSize: Float = TextStyle.DEFAULT_FONT_SIZE,
         minFontSize: Float = -1f,
         maxFontSize: Float = -1f,
         fontStyle: Int = 0,
-        fontWeight: Float = 400f,
+        fontWeight: Float = TextStyle.DEFAULT_FONT_WEIGHT,
         fontFamily: String? = null,
         textAlign: Int = TextLayout.TEXT_ALIGN_LEFT,
         overflow: Int = TextLayout.OVERFLOW_CLIP,
@@ -1675,6 +1750,7 @@ public open class RemoteComposeContext {
         text(
             textId,
             modifier,
+            textStyleId,
             color,
             colorId,
             fontSize,
@@ -1702,13 +1778,14 @@ public open class RemoteComposeContext {
     public fun text(
         textId: Int,
         modifier: RecordingModifier = RecordingModifier(),
+        textStyleId: Int = -1,
         color: Int = 0xFF000000.toInt(),
-        colorId: Int = 0,
-        fontSize: Float = 36f,
+        colorId: Int = -1,
+        fontSize: Float = TextStyle.DEFAULT_FONT_SIZE,
         minFontSize: Float = -1f,
         maxFontSize: Float = -1f,
         fontStyle: Int = 0,
-        fontWeight: Float = 400f,
+        fontWeight: Float = TextStyle.DEFAULT_FONT_WEIGHT,
         fontFamily: String? = null,
         textAlign: Int = TextLayout.TEXT_ALIGN_LEFT,
         overflow: Int = TextLayout.OVERFLOW_CLIP,
@@ -1720,7 +1797,7 @@ public open class RemoteComposeContext {
         hyphenationFrequency: Int = 0,
         justificationMode: Int = 0,
         underline: Boolean = false,
-        striketrough: Boolean = false,
+        strikethrough: Boolean = false,
         autosize: Boolean = false,
         fontAxis: List<Pair<String, Float>>? = null,
         flags: Int = 0,
@@ -1734,6 +1811,7 @@ public open class RemoteComposeContext {
         mRemoteWriter.textComponent(
             modifier,
             textId,
+            textStyleId,
             color,
             colorId,
             fontSize,
@@ -1752,7 +1830,7 @@ public open class RemoteComposeContext {
             hyphenationFrequency,
             justificationMode,
             underline,
-            striketrough,
+            strikethrough,
             explicitStringArray,
             explicitFloatArray,
             autosize,

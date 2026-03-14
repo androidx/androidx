@@ -548,16 +548,16 @@ class FocusRestorerTest {
             }
             rule.onNodeWithTag("1-0").assertIsFocused()
 
-            // Go down 5 rows
-            repeat(5) { count ->
+            // Go down 25 rows
+            repeat(25) { count ->
                 pressKey(Key.DirectionDown)
                 rule.onNodeWithTag("${count + 2}-0").assertIsFocused()
             }
 
             // Go back up to the second row
-            repeat(5) { count ->
+            repeat(25) { count ->
                 pressKey(Key.DirectionUp)
-                rule.onNodeWithTag("${5 - count}-0").assertIsFocused()
+                rule.onNodeWithTag("${25 - count}-0").assertIsFocused()
             }
 
             // Go back to the first row, focus should go back to the previously focused item within

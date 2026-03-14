@@ -294,12 +294,6 @@ private constructor(
         @JvmStatic
         public fun builder(): Builder = Builder()
 
-        /** The old spring-based input modeler. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
-        @ExperimentalInkCustomBrushApi
-        @JvmField
-        public val SPRING_MODEL: InputModel = NoParametersModel.SPRING_MODEL
-
         /**
          * A naive model that passes through raw inputs mostly unchanged. This is an experimental
          * configuration which may be adjusted or removed later.
@@ -368,7 +362,6 @@ private constructor(
             fun fromInputModelType(type: Int): NoParametersModel =
                 checkNotNull(TYPE_TO_INSTANCE[type]) { "Invalid NoParametersModel type: $type" }
 
-            val SPRING_MODEL = NoParametersModel(1, "SpringModel")
             val EXPERIMENTAL_NAIVE_MODEL = NoParametersModel(3, "ExperimentalNaiveModel")
             // SlidingWindowModel, below, uses type 4.
         }

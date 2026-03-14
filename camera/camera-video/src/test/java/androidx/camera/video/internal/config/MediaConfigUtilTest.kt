@@ -39,11 +39,10 @@ import androidx.camera.testing.impl.EncoderProfilesUtil.DEFAULT_OUTPUT_FORMAT
 import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_1080P
 import androidx.camera.testing.impl.EncoderProfilesUtil.createFakeAudioProfileProxy
 import androidx.camera.testing.impl.EncoderProfilesUtil.createFakeVideoProfileProxy
-import androidx.camera.video.AudioSpec
+import androidx.camera.video.MediaConstants.MIME_TYPE_UNSPECIFIED
 import androidx.camera.video.MediaSpec
 import androidx.camera.video.MediaSpec.Companion.OUTPUT_FORMAT_MPEG_4
 import androidx.camera.video.MediaSpec.Companion.OUTPUT_FORMAT_UNSPECIFIED
-import androidx.camera.video.VideoSpec
 import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
@@ -318,8 +317,8 @@ class MediaConfigUtilTest {
 
     private fun createMediaSpec(
         outputFormat: Int = OUTPUT_FORMAT_UNSPECIFIED,
-        videoMime: String = VideoSpec.MIME_TYPE_UNSPECIFIED,
-        audioMime: String = AudioSpec.MIME_TYPE_UNSPECIFIED,
+        videoMime: String = MIME_TYPE_UNSPECIFIED,
+        audioMime: String = MIME_TYPE_UNSPECIFIED,
     ) =
         MediaSpec.builder()
             .setOutputFormat(outputFormat)

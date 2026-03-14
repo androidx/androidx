@@ -68,7 +68,9 @@
          <trust group="com.google.android.libraries.identity.googleid" reason="old version, before signing"/>
          <trust group="com.google.android.material" reason="b/216192082"/>
          <trust group="com.google.android.play" reason="b/255621183"/>
-         <trust group="com.google.ar" reason="b/378946732"/>
+         <trust group="com.google.ar" name="impress" version="0.0.9" reason="b/378946732"/>
+         <trust group="com.google.ar" name="impress" version="0.0.11" reason="b/378946732"/>
+         <trust group="com.google.ar" name="core" reason="b/378946732"/>
          <trust group="com.google.devsite" reason="developed by our own team, not signed yet"/>
          <trust group="com.google.firebase" reason="b/223907608"/>
          <trust group="com.google.mlkit" reason="b/223907608"/>
@@ -127,6 +129,7 @@
             <trusting group="^androidx\..*" regex="true"/>
             <trusting group="com.android"/>
             <trusting group="^com\.android\..*" regex="true"/>
+            <trusting group="com.google.ar" name="impress"/>
          </trusted-key>
          <trusted-key id="0EB9D7C468F97E44051D650AD73C68EE4152C255" group="com.google.dagger"/>
          <trusted-key id="0F06FF86BEEAF4E71866EE5232EE5355A6BC6E42">
@@ -543,6 +546,7 @@
          <trusted-key id="BDB5FA4FE719D787FB3D3197F6D4A1D411E9D1AE">
             <trusting group="com.google.guava"/>
             <trusting group="com.google.j2objc" name="j2objc-annotations" version="3.0.0"/>
+            <trusting group="com.google.testing.compile" name="compile-testing" version="0.22.0"/>
             <trusting group="com.google.truth"/>
             <trusting group="com.google.truth.extensions"/>
          </trusted-key>

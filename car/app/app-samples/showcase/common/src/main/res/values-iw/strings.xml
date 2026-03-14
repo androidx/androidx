@@ -243,6 +243,7 @@
     <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"טקסט משנה מתחת לכל רשימה"</string>
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"הדגמה של תמונת סיום ופעולות"</string>
     <string name="filter_chip_demo_title" msgid="92190365856639582">"הדגמה של סמל המסנן"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"הדגמה (דמו) של סרגל התקדמות"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"הדגמה של תבנית החלונית"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"הדגמת התבנית של רשימת המקומות"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"עיון במקומות"</string>
@@ -250,7 +251,7 @@
     <string name="search_hint" msgid="978495498991026792">"כאן אפשר לבצע חיפוש"</string>
     <string name="additional_text" msgid="5755100726890686184">"יש לעיין "<annotation link="terms_of_service">"בתנאים ובהגבלות"</annotation>" שלנו"</string>
     <string name="google_sign_in" msgid="6556259799319701727">"‏כניסה באמצעות חשבון Google"</string>
-    <string name="use_pin" msgid="7850893299484337431">"שימוש בקוד אימות"</string>
+    <string name="use_pin" msgid="7850893299484337431">"שימוש בקוד סודי"</string>
     <string name="qr_code" msgid="5487041647280777397">"‏קוד QR"</string>
     <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"המארח שלך לא תומך בתבנית כניסה לחשבון"</string>
     <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"מארח לא תואם"</string>

@@ -277,20 +277,27 @@ private constructor(
             @JvmField
             public val TIME_OF_INPUT_IN_SECONDS: Source = Source(14, "TIME_OF_INPUT_IN_SECONDS")
             /**
+             * Time elapsed from the current modeled stroke input until the last input in the
+             * stroke.
+             */
+            @JvmField
+            public val TIME_FROM_INPUT_TO_STROKE_END_IN_SECONDS: Source =
+                Source(15, "TIME_FROM_INPUT_TO_STROKE_END_IN_SECONDS")
+            /**
              * Distance traveled by the inputs of the current prediction, starting at 0 at the last
              * non-predicted input, in multiples of the brush size. Zero for inputs before the
              * predicted portion of the stroke.
              */
             @JvmField
             public val PREDICTED_DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE: Source =
-                Source(15, "PREDICTED_DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE")
+                Source(16, "PREDICTED_DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE")
             /**
              * Elapsed time of the prediction in seconds, starting at 0 at the last non-predicted
              * input. Zero for inputs before the predicted portion of the stroke.
              */
             @JvmField
             public val PREDICTED_TIME_ELAPSED_IN_SECONDS: Source =
-                Source(16, "PREDICTED_TIME_ELAPSED_IN_SECONDS")
+                Source(17, "PREDICTED_TIME_ELAPSED_IN_SECONDS")
             /**
              * The distance left to be traveled from a given modeled input to the current last
              * modeled input of the stroke in multiples of the brush size. This value changes for
@@ -298,7 +305,7 @@ private constructor(
              */
             @JvmField
             public val DISTANCE_REMAINING_IN_MULTIPLES_OF_BRUSH_SIZE: Source =
-                Source(17, "DISTANCE_REMAINING_IN_MULTIPLES_OF_BRUSH_SIZE")
+                Source(18, "DISTANCE_REMAINING_IN_MULTIPLES_OF_BRUSH_SIZE")
             /**
              * Time elapsed in seconds since the modeled stroke input. This continues to increase
              * even after all stroke inputs have completed, and can be used to drive stroke
@@ -308,7 +315,7 @@ private constructor(
              */
             @JvmField
             public val TIME_SINCE_INPUT_IN_SECONDS: Source =
-                Source(18, "TIME_SINCE_INPUT_IN_SECONDS")
+                Source(19, "TIME_SINCE_INPUT_IN_SECONDS")
             /**
              * Time elapsed since the final input of the stroke, or zero if the final input hasn't
              * arrived yet. This can be used to drive wet-layer stroke animations that should occur
@@ -318,7 +325,7 @@ private constructor(
              */
             @JvmField
             public val TIME_SINCE_STROKE_END_IN_SECONDS: Source =
-                Source(19, "TIME_SINCE_STROKE_END_IN_SECONDS")
+                Source(20, "TIME_SINCE_STROKE_END_IN_SECONDS")
             /**
              * Absolute acceleration of the modeled stroke input in multiples of the brush size per
              * second squared. Note that this value doesn't take into account brush behaviors that
@@ -326,7 +333,7 @@ private constructor(
              */
             @JvmField
             public val ACCELERATION_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED: Source =
-                Source(20, "ACCELERATION_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED")
+                Source(21, "ACCELERATION_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED")
             /**
              * Signed x component of the acceleration of the modeled stroke input in multiples of
              * the brush size per second squared. Note that this value doesn't take into account
@@ -334,7 +341,7 @@ private constructor(
              */
             @JvmField
             public val ACCELERATION_X_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED: Source =
-                Source(21, "ACCELERATION_X_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED")
+                Source(22, "ACCELERATION_X_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED")
             /**
              * Signed y component of the acceleration of the modeled stroke input in multiples of
              * the brush size per second squared. Note that this value doesn't take into account
@@ -342,7 +349,7 @@ private constructor(
              */
             @JvmField
             public val ACCELERATION_Y_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED: Source =
-                Source(22, "ACCELERATION_Y_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED")
+                Source(23, "ACCELERATION_Y_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED")
             /**
              * Signed component of acceleration of the modeled stroke input in the direction of its
              * velocity in multiples of the brush size per second squared. Note that this value
@@ -351,7 +358,7 @@ private constructor(
              */
             @JvmField
             public val ACCELERATION_FORWARD_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED: Source =
-                Source(23, "ACCELERATION_FORWARD_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED")
+                Source(24, "ACCELERATION_FORWARD_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED")
             /**
              * Signed component of acceleration of the modeled stroke input perpendicular to its
              * velocity, rotated 90 degrees in the direction from the positive x-axis towards the
@@ -361,75 +368,75 @@ private constructor(
              */
             @JvmField
             public val ACCELERATION_LATERAL_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED: Source =
-                Source(24, "ACCELERATION_LATERAL_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED")
+                Source(25, "ACCELERATION_LATERAL_IN_MULTIPLES_OF_BRUSH_SIZE_PER_SECOND_SQUARED")
             /** Absolute speed of the modeled stroke input pointer in centimeters per second. */
             @JvmField
-            public val INPUT_SPEED_IN_CENTIMETERS_PER_SECOND: Source =
-                Source(25, "INPUT_SPEED_IN_CENTIMETERS_PER_SECOND")
+            public val SPEED_IN_CENTIMETERS_PER_SECOND: Source =
+                Source(26, "SPEED_IN_CENTIMETERS_PER_SECOND")
             /**
              * Signed x component of the modeled stroke input pointer's velocity in centimeters per
              * second.
              */
             @JvmField
-            public val INPUT_VELOCITY_X_IN_CENTIMETERS_PER_SECOND: Source =
-                Source(26, "INPUT_VELOCITY_X_IN_CENTIMETERS_PER_SECOND")
+            public val VELOCITY_X_IN_CENTIMETERS_PER_SECOND: Source =
+                Source(27, "VELOCITY_X_IN_CENTIMETERS_PER_SECOND")
             /**
              * Signed y component of the modeled stroke input pointer's velocity in centimeters per
              * second.
              */
             @JvmField
-            public val INPUT_VELOCITY_Y_IN_CENTIMETERS_PER_SECOND: Source =
-                Source(27, "INPUT_VELOCITY_Y_IN_CENTIMETERS_PER_SECOND")
+            public val VELOCITY_Y_IN_CENTIMETERS_PER_SECOND: Source =
+                Source(28, "VELOCITY_Y_IN_CENTIMETERS_PER_SECOND")
             /**
              * Distance in centimeters traveled by the modeled stroke input pointer along the input
              * path from the start of the stroke.
              */
             @JvmField
-            public val INPUT_DISTANCE_TRAVELED_IN_CENTIMETERS: Source =
-                Source(28, "INPUT_DISTANCE_TRAVELED_IN_CENTIMETERS")
+            public val DISTANCE_TRAVELED_IN_CENTIMETERS: Source =
+                Source(29, "DISTANCE_TRAVELED_IN_CENTIMETERS")
             /**
              * Distance in centimeters alonge the input path from the real portion of the modeled
              * stroke to this input. Zero for inputs before the predicted portion of the stroke.
              */
             @JvmField
-            public val PREDICTED_INPUT_DISTANCE_TRAVELED_IN_CENTIMETERS: Source =
-                Source(29, "PREDICTED_INPUT_DISTANCE_TRAVELED_IN_CENTIMETERS")
+            public val PREDICTED_DISTANCE_TRAVELED_IN_CENTIMETERS: Source =
+                Source(30, "PREDICTED_DISTANCE_TRAVELED_IN_CENTIMETERS")
             /**
              * Absolute acceleration of the modeled stroke input pointer in centimeters per second
              * squared.
              */
             @JvmField
-            public val INPUT_ACCELERATION_IN_CENTIMETERS_PER_SECOND_SQUARED: Source =
-                Source(30, "INPUT_ACCELERATION_IN_CENTIMETERS_PER_SECOND_SQUARED")
+            public val ACCELERATION_IN_CENTIMETERS_PER_SECOND_SQUARED: Source =
+                Source(31, "ACCELERATION_IN_CENTIMETERS_PER_SECOND_SQUARED")
             /**
              * Signed x component of the acceleration of the modeled stroke input pointer in
              * centimeters per second squared.
              */
             @JvmField
-            public val INPUT_ACCELERATION_X_IN_CENTIMETERS_PER_SECOND_SQUARED: Source =
-                Source(31, "INPUT_ACCELERATION_X_IN_CENTIMETERS_PER_SECOND_SQUARED")
+            public val ACCELERATION_X_IN_CENTIMETERS_PER_SECOND_SQUARED: Source =
+                Source(32, "ACCELERATION_X_IN_CENTIMETERS_PER_SECOND_SQUARED")
             /**
              * Signed y component of the acceleration of the modeled stroke input pointer in
              * centimeters per second squared.
              */
             @JvmField
-            public val INPUT_ACCELERATION_Y_IN_CENTIMETERS_PER_SECOND_SQUARED: Source =
-                Source(32, "INPUT_ACCELERATION_Y_IN_CENTIMETERS_PER_SECOND_SQUARED")
+            public val ACCELERATION_Y_IN_CENTIMETERS_PER_SECOND_SQUARED: Source =
+                Source(33, "ACCELERATION_Y_IN_CENTIMETERS_PER_SECOND_SQUARED")
             /**
              * Signed component acceleration of the modeled stroke input pointer in the direction of
              * its velocity in centimeters per second squared.
              */
             @JvmField
-            public val INPUT_ACCELERATION_FORWARD_IN_CENTIMETERS_PER_SECOND_SQUARED: Source =
-                Source(33, "INPUT_ACCELERATION_FORWARD_IN_CENTIMETERS_PER_SECOND_SQUARED")
+            public val ACCELERATION_FORWARD_IN_CENTIMETERS_PER_SECOND_SQUARED: Source =
+                Source(34, "ACCELERATION_FORWARD_IN_CENTIMETERS_PER_SECOND_SQUARED")
             /**
              * Signed component of acceleration of the modeled stroke input pointer perpendicular to
              * its velocity, rotated 90 degrees in the direction from the positive x-axis towards
              * the positive y-axis, in centimeters per second squared.
              */
             @JvmField
-            public val INPUT_ACCELERATION_LATERAL_IN_CENTIMETERS_PER_SECOND_SQUARED: Source =
-                Source(34, "INPUT_ACCELERATION_LATERAL_IN_CENTIMETERS_PER_SECOND_SQUARED")
+            public val ACCELERATION_LATERAL_IN_CENTIMETERS_PER_SECOND_SQUARED: Source =
+                Source(35, "ACCELERATION_LATERAL_IN_CENTIMETERS_PER_SECOND_SQUARED")
             /**
              * Distance from the current modeled input to the end of the stroke along the input
              * path, as a fraction of the current total length of the stroke. This value changes for
@@ -437,7 +444,7 @@ private constructor(
              */
             @JvmField
             public val DISTANCE_REMAINING_AS_FRACTION_OF_STROKE_LENGTH: Source =
-                Source(35, "DISTANCE_REMAINING_AS_FRACTION_OF_STROKE_LENGTH")
+                Source(36, "DISTANCE_REMAINING_AS_FRACTION_OF_STROKE_LENGTH")
         }
     }
 
@@ -554,10 +561,11 @@ private constructor(
              */
             @JvmField public val SATURATION_MULTIPLIER: Target = Target(13, "SATURATION_MULTIPLIER")
             /**
-             * Target the luminosity of the color. An offset of +/-100% corresponds to changing the
-             * luminosity by up to +/-100%.
+             * Shifts the luminosity of the base brush color. An offset of ±1.0 corresponds to
+             * changing the luminosity by up to ±100%. If multiple behaviors have this target, they
+             * stack additively. The final luminosity offset is clamped to [-1, 1].
              */
-            @JvmField public val LUMINOSITY: Target = Target(14, "LUMINOSITY")
+            @JvmField public val LUMINOSITY_OFFSET: Target = Target(14, "LUMINOSITY_OFFSET")
             /**
              * Scales the opacity of the base brush color. If multiple behaviors have one of these
              * targets, they stack multiplicatively. The final opacity multiplier is clamped to

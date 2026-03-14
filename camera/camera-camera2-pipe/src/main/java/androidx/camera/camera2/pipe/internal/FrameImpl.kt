@@ -137,12 +137,14 @@ internal constructor(
     }
 
     override suspend fun awaitFrameInfo(): FrameInfo? {
-        if (closed.value) return null
+        // Since FrameInfo is not an AutoCloseable, return it regardless of whether the Frame is
+        // closed or not.
         return frameState.frameInfoOutput.await()
     }
 
     override fun getFrameInfo(): FrameInfo? {
-        if (closed.value) return null
+        // Since FrameInfo is not an AutoCloseable, return it regardless of whether the Frame is
+        // closed or not.
         return frameState.frameInfoOutput.outputOrNull()
     }
 

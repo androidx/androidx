@@ -62,11 +62,10 @@ fun SwitchWidgetOnState(modifier: RemoteModifier = RemoteModifier, id: Int = 0) 
                 .clip(RemoteRoundedCornerShape(20.rdp))
                 .background(Color(63, 81, 181, 255))
                 .padding(2.dp),
-        horizontalAlignment = RemoteAlignment.End,
-        verticalArrangement = RemoteArrangement.Center,
+        contentAlignment = RemoteAlignment.CenterEnd,
     ) {
         RemoteCanvas(modifier = RemoteModifier.size(32.rdp)) {
-            val paint = RemotePaint().apply { remoteColor = Color(255, 255, 255).rc }
+            val paint = RemotePaint().apply { color = Color(255, 255, 255).rc }
             drawCircle(paint = paint, radius = 34f.rf)
         }
     }
@@ -88,11 +87,10 @@ fun SwitchWidgetOffState(modifier: RemoteModifier = RemoteModifier) {
                 .background(Color(100, 100, 100))
                 .padding(8.dp)
                 .then(modifier),
-        horizontalAlignment = RemoteAlignment.Start,
-        verticalArrangement = RemoteArrangement.Center,
+        contentAlignment = RemoteAlignment.CenterStart,
     ) {
         RemoteCanvas(modifier = RemoteModifier.size(20.rdp)) {
-            val paint = RemotePaint().apply { remoteColor = Color(220, 220, 220).rc }
+            val paint = RemotePaint().apply { color = Color(220, 220, 220).rc }
             drawCircle(paint = paint, radius = 34f.rf)
         }
     }
@@ -128,7 +126,7 @@ fun SwitchWidget(value: MutableRemoteInt) {
 
     RemoteBox(
         modifier = RemoteModifier.padding(4.dp),
-        verticalArrangement = RemoteArrangement.Center,
+        contentAlignment = RemoteAlignment.CenterStart,
     ) {
         val modifierSize = RemoteModifier.size(60.rdp, 36.rdp)
         StateLayout(modifier = RemoteModifier.wrapContentSize(), stateMachine = fsm) { state ->
@@ -201,7 +199,7 @@ fun SwitchWidgetDemo() {
         RowSwitch(checkedC, "State C")
         Row(
             modifier = Modifier.padding(top = 8.dp).fillMaxWidth(),
-            horizontalArrangement = RemoteArrangement.CenterHorizontally,
+            horizontalArrangement = RemoteArrangement.Center,
             verticalAlignment = RemoteAlignment.CenterVertically,
         ) {
             val visibilityModifierB = RemoteModifier.visibility(checkedB)

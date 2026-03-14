@@ -42,6 +42,7 @@ import androidx.camera.core.Logger
 import androidx.camera.core.SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy
 import androidx.camera.core.impl.Timebase
+import androidx.camera.video.MediaConstants.MIME_TYPE_UNSPECIFIED
 import androidx.camera.video.MediaSpec.Companion.OUTPUT_FORMAT_WEBM
 import androidx.camera.video.MediaSpec.OutputFormat
 import androidx.camera.video.VideoSpec
@@ -123,8 +124,8 @@ public object VideoConfigUtil {
      *
      * This method attempts to find the first profile in the provided list that matches the
      * requested [videoMime] and the constraints (HDR format and bit depth) of the [dynamicRange].
-     * If the [videoMime] is set to [VideoSpec.MIME_TYPE_UNSPECIFIED], it will return the first
-     * profile that satisfies the [dynamicRange] requirements.
+     * If the [videoMime] is set to [MIME_TYPE_UNSPECIFIED], it will return the first profile that
+     * satisfies the [dynamicRange] requirements.
      *
      * @param videoMime The desired video MIME type.
      * @param dynamicRange The fully specified [DynamicRange] required for the profile.
@@ -144,7 +145,7 @@ public object VideoConfigUtil {
             hdrFormats.contains(it.hdrFormat) &&
                 bitDepths.contains(it.bitDepth) &&
                 // is MIME type compatible
-                (videoMime == VideoSpec.MIME_TYPE_UNSPECIFIED || it.mediaType == videoMime)
+                (videoMime == MIME_TYPE_UNSPECIFIED || it.mediaType == videoMime)
         }
     }
 

@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.remote.creation.compose.capture.RememberRemoteDocumentInline
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
-import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteText
@@ -95,11 +94,7 @@ fun Main(modifier: Modifier = Modifier) {
 @Composable
 @Suppress("RestrictedApiAndroidX")
 fun Greeting(modifier: RemoteModifier = RemoteModifier) {
-    RemoteBox(
-        modifier = modifier,
-        horizontalAlignment = RemoteAlignment.CenterHorizontally,
-        verticalArrangement = RemoteArrangement.Center,
-    ) {
+    RemoteBox(modifier = modifier, contentAlignment = RemoteAlignment.Center) {
         RemoteText(text = "Hello world!")
     }
 }

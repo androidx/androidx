@@ -16,6 +16,8 @@
 
 package androidx.leanback.widget;
 
+import static org.junit.Assert.assertTrue;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
@@ -28,12 +30,12 @@ import android.widget.TextView;
 
 import androidx.leanback.test.R;
 import androidx.recyclerview.widget.ConcatAdapter;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,6 +71,7 @@ public class GridActivity extends Activity {
     public static final String EXTRA_LAYOUT_MARGINS = "layoutMargins";
     public static final String EXTRA_NINEPATCH_SHADOW = "NINEPATCH_SHADOW";
     public static final String EXTRA_HAS_STABLE_IDS = "hasStableIds";
+    public static final String EXTRA_LEAK_TEST = "leakTest";
 
     /**
      * Class that implements GridWidgetTest.ViewTypeProvider for creating different
@@ -112,6 +115,7 @@ public class GridActivity extends Activity {
     boolean mUpdateSize = true;
     boolean mUpdateSizeSecondary = false;
     boolean mHasStableIds;
+    boolean mLeakTest;
 
     int[] mGridViewLayoutSize;
     BaseGridView mGridView;
@@ -120,6 +124,7 @@ public class GridActivity extends Activity {
     boolean[] mItemFocusables;
     int[] mLayoutMargins;
     int mNinePatchShadow;
+    ArrayList<WeakReference<View>> mLeakTestViews = new ArrayList<>();
 
     private int mBoundCount;
     ImportantForAccessibilityListener mImportantForAccessibilityListener;
@@ -177,6 +182,7 @@ public class GridActivity extends Activity {
         mHasStableIds = intent.getBooleanExtra(EXTRA_HAS_STABLE_IDS, false);
         mItemFocusables = intent.getBooleanArrayExtra(EXTRA_ITEMS_FOCUSABLE);
         mLayoutMargins = intent.getIntArrayExtra(EXTRA_LAYOUT_MARGINS);
+        mLeakTest = intent.getBooleanExtra(EXTRA_LEAK_TEST, false);
         String alignmentClass = intent.getStringExtra(EXTRA_ITEMALIGNMENTPROVIDER_CLASS);
         String alignmentViewTypeClass =
                 intent.getStringExtra(EXTRA_ITEMALIGNMENTPROVIDER_VIEWTYPE_CLASS);
@@ -354,6 +360,30 @@ public class GridActivity extends Activity {
         return removed;
     }
 
+    private boolean hasViewReference() throws Exception {
+        for (int j = 0; j < mLeakTestViews.size(); j++) {
+            if (mLeakTestViews.get(j).get() != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void assertNotLeak() throws Exception {
+        // Like LeakCanary: give it up to 10 seconds for gc to finish.
+        for (int i = 0; i < 10; i++) {
+            System.gc();
+            Runtime.getRuntime().runFinalization();
+            System.gc();
+            // Give it time for gc() to run.
+            Thread.sleep(1000);
+            if (!hasViewReference()) {
+                return;
+            }
+        }
+        assertTrue("view still has reference", false);
+    }
+
     void attachToNewAdapter(int[] items) {
         mItemLengths = items;
         mNumItems = items.length;
@@ -389,14 +419,14 @@ public class GridActivity extends Activity {
 
     class MyAdapter extends RecyclerView.Adapter implements FacetProviderAdapter, FacetProvider {
 
-        GridLayoutManager.SpanSizeLookup mSpanSizeLookup;
+        SpanSizeLookup mSpanSizeLookup;
 
         MyAdapter() {
             if (mSpanSizes != null) {
                 if (mSpanSizes.size() == 0) {
-                    mSpanSizeLookup = new GridLayoutManager.DefaultSpanSizeLookup();
+                    mSpanSizeLookup = SpanSizeLookup.DefaultSpanSizeLookup.INSTANCE;
                 } else {
-                    mSpanSizeLookup = new GridLayoutManager.SpanSizeLookup() {
+                    mSpanSizeLookup = new SpanSizeLookup() {
                         @Override
                         public int getSpanSize(int position) {
                             if (position < 0 || position >= mGridView.getAdapter().getItemCount()) {
@@ -426,7 +456,7 @@ public class GridActivity extends Activity {
         @Override
         public @Nullable Object getFacet(@NonNull Class<?> facetClass) {
             if (mSpanSizeLookup != null) {
-                if (facetClass.equals(GridLayoutManager.SpanSizeLookup.class)) {
+                if (facetClass.equals(SpanSizeLookup.class)) {
                     return mSpanSizeLookup;
                 }
             }
@@ -529,6 +559,9 @@ public class GridActivity extends Activity {
                 viewGroup.addView(shadow);
                 viewGroup.setLayoutMode(ViewGroup.LAYOUT_MODE_OPTICAL_BOUNDS);
             }
+            if (mLeakTest) {
+                mLeakTestViews.add(new WeakReference<>(itemView));
+            }
             return new ViewHolder(itemView);
         }
 
@@ -582,7 +615,7 @@ public class GridActivity extends Activity {
         }
         boolean multiSpan = false;
         if (mGridView.getAdapter() instanceof MyAdapter) {
-            androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup spanSizeLookup =
+            SpanSizeLookup spanSizeLookup =
                     ((MyAdapter) mGridView.getAdapter()).mSpanSizeLookup;
             multiSpan = spanSizeLookup != null && (spanSizeLookup.getSpanSize(position) > 1
                     || spanSizeLookup.getSpanSize(position) < 0);

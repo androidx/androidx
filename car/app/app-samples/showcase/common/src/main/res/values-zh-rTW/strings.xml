@@ -243,6 +243,7 @@
     <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"每個清單底下的子文字"</string>
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"結束圖片和動作示範"</string>
     <string name="filter_chip_demo_title" msgid="92190365856639582">"篩選器方塊示範"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"進度列示範"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"「窗格範本」示範"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"「地點清單範本」示範"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"瀏覽地點"</string>

@@ -32,19 +32,20 @@ androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.room3.paging"
     }
+    js()
     jvm()
     mac()
     linux()
     ios()
-    // TODO(b/432783733): Add TV and Watch once paging-common 3.4 is released
-    // tvos()
-    // watchos()
+    tvos()
+    watchos()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
         commonMain.dependencies {
-            api("androidx.paging:paging-common:3.3.2")
+            api("androidx.paging:paging-common:3.4.2")
             api(project(":room3:room3-runtime"))
         }
 
@@ -53,16 +54,18 @@ androidXMultiplatform {
             implementation(project(":kruth:kruth"))
         }
 
-        create("jvmNativeMain").dependsOn(commonMain)
+        create("jvmNativeWebMain").dependsOn(commonMain)
 
-        jvmMain.dependsOn(jvmNativeMain)
+        jvmMain.dependsOn(jvmNativeWebMain)
 
         nativeMain {
-            dependsOn(jvmNativeMain)
+            dependsOn(jvmNativeWebMain)
             dependencies {
                 implementation(libs.atomicFu)
             }
         }
+
+        webMain.dependsOn(jvmNativeWebMain)
 
         androidDeviceTest.dependencies {
             implementation(libs.junit)
@@ -72,7 +75,7 @@ androidXMultiplatform {
             implementation(libs.testCore)
             implementation(libs.testRunner)
             implementation("androidx.arch.core:core-testing:2.2.0")
-            implementation("androidx.paging:paging-testing:3.3.2")
+            implementation("androidx.paging:paging-testing:3.4.2")
         }
     }
 }

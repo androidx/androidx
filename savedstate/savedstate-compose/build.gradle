@@ -57,7 +57,16 @@ androidXMultiplatform {
             implementation(libs.testRunner)
             implementation(libs.testRules)
         }
+
+        create("nonAndroidMain").dependsOn(commonMain)
+        create("nonAndroidTest").dependsOn(commonTest)
+
+        desktopMain.dependsOn(nonAndroidMain)
+        desktopTest.dependsOn(nonAndroidTest)
         desktopTest.dependsOn(nonJvmTest)
+
+        nonJvmMain.dependsOn(nonAndroidMain)
+        nonJvmTest.dependsOn(nonAndroidTest)
     }
 }
 

@@ -1123,6 +1123,97 @@ public class RemoteComposeWriter {
     }
 
     /**
+     * Add a text style
+     *
+     * @param color the color
+     * @param colorId the color id
+     * @param fontSize the font size
+     * @param minFontSize the minimum font size
+     * @param maxFontSize the maximum font size
+     * @param fontStyle the font style
+     * @param fontWeight the font weight
+     * @param fontFamily the font family
+     * @param textAlign the text alignment
+     * @param overflow the overflow strategy
+     * @param maxLines the maximum number of lines
+     * @param letterSpacing the letter spacing
+     * @param lineHeightAdd the line height addition
+     * @param lineHeightMultiplier the line height multiplier
+     * @param lineBreakStrategy the line break strategy
+     * @param hyphenationFrequency the hyphenation frequency
+     * @param justificationMode the justification mode
+     * @param underline if underlined
+     * @param strikethrough if strikethrough
+     * @param fontAxis font axis tags
+     * @param fontAxisValues font axis values
+     * @param autosize if autosize
+     * @return the id of the text style
+     */
+    public int addTextStyle(
+            @Nullable Integer color,
+            @Nullable Integer colorId,
+            @Nullable Float fontSize,
+            @Nullable Float minFontSize,
+            @Nullable Float maxFontSize,
+            @Nullable Integer fontStyle,
+            @Nullable Float fontWeight,
+            @Nullable String fontFamily,
+            @Nullable Integer textAlign,
+            @Nullable Integer overflow,
+            @Nullable Integer maxLines,
+            @Nullable Float letterSpacing,
+            @Nullable Float lineHeightAdd,
+            @Nullable Float lineHeightMultiplier,
+            @Nullable Integer lineBreakStrategy,
+            @Nullable Integer hyphenationFrequency,
+            @Nullable Integer justificationMode,
+            @Nullable Boolean underline,
+            @Nullable Boolean strikethrough,
+            @Nullable String @Nullable [] fontAxis,
+            float @Nullable [] fontAxisValues,
+            @Nullable Boolean autosize,
+            int parentId) {
+        int id = mState.createNextAvailableId();
+        Integer fontFamilyId = null;
+        if (fontFamily != null) {
+            fontFamilyId = addText(fontFamily);
+        }
+        int[] fontAxisTags = null;
+        if (fontAxis != null) {
+            fontAxisTags = new int[fontAxis.length];
+            for (int i = 0; i < fontAxis.length; i++) {
+                fontAxisTags[i] = addText(fontAxis[i]);
+            }
+        }
+        mBuffer.addTextStyle(
+                id,
+                color,
+                colorId,
+                fontSize,
+                minFontSize,
+                maxFontSize,
+                fontStyle,
+                fontWeight,
+                fontFamilyId,
+                textAlign,
+                overflow,
+                maxLines,
+                letterSpacing,
+                lineHeightAdd,
+                lineHeightMultiplier,
+                lineBreakStrategy,
+                hyphenationFrequency,
+                justificationMode,
+                underline,
+                strikethrough,
+                fontAxisTags,
+                fontAxisValues,
+                autosize,
+                parentId);
+        return id;
+    }
+
+    /**
      * This creates text id from text. It can be used with methods that take String or textId.
      *
      * @param text string
@@ -3328,6 +3419,7 @@ public class RemoteComposeWriter {
     public void textComponent(
             @NonNull RecordingModifier modifier,
             int textId,
+            int textStyleId,
             int color,
             int colorId,
             float fontSize,
@@ -3355,6 +3447,7 @@ public class RemoteComposeWriter {
         startTextComponent(
                 modifier,
                 textId,
+                textStyleId,
                 color,
                 colorId,
                 fontSize,
@@ -3472,6 +3565,7 @@ public class RemoteComposeWriter {
     public void startTextComponent(
             @NonNull RecordingModifier modifier,
             int textId,
+            int textStyleId,
             int color,
             int colorId,
             float fontSize,
@@ -3513,6 +3607,7 @@ public class RemoteComposeWriter {
                 modifier.getComponentId(),
                 -1,
                 textId,
+                textStyleId,
                 color,
                 colorId,
                 fontSize,
@@ -3546,6 +3641,51 @@ public class RemoteComposeWriter {
     public void endTextComponent() {
         mBuffer.addContainerEnd();
         mBuffer.addContainerEnd();
+    }
+
+    /**
+     * Start a text component with a text style
+     *
+     * @param modifier    the modifier
+     * @param textId      id of the text
+     * @param textStyleId id of the text style
+     * @param flags       flags for configuration
+     */
+    public void startTextComponent(
+            @NonNull RecordingModifier modifier,
+            int textId,
+            int textStyleId,
+            int flags) {
+        mBuffer.addTextComponentStart(
+                modifier.getComponentId(),
+                -1,
+                textId,
+                textStyleId,
+                flags);
+        for (RecordingModifier.Element m : modifier.getList()) {
+            m.write(this);
+        }
+        addContentStart();
+    }
+
+    /**
+     * Add a text component with a text style
+     *
+     * @param modifier    the modifier
+     * @param textId      id of the text
+     * @param textStyleId id of the text style
+     * @param flags       flags for configuration
+     * @param content     the content to run
+     */
+    public void textComponent(
+            @NonNull RecordingModifier modifier,
+            int textId,
+            int textStyleId,
+            int flags,
+            @NonNull RemoteComposeWriterInterface content) {
+        startTextComponent(modifier, textId, textStyleId, flags);
+        content.run();
+        endTextComponent();
     }
 
     /**

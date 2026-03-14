@@ -59,10 +59,7 @@ import androidx.compose.ui.unit.dp
 @RemoteComposable
 @Composable
 fun WeatherDemo() {
-    RemoteBox(
-        horizontalAlignment = RemoteAlignment.CenterHorizontally,
-        verticalArrangement = RemoteArrangement.Center,
-    ) {
+    RemoteBox(contentAlignment = RemoteAlignment.Center) {
         RemoteColumn(
             modifier = RemoteModifier.fillMaxWidth(),
             // .background(Color(219, 247, 239) )
@@ -91,8 +88,7 @@ fun WeatherDemo() {
                 }
                 RemoteBox(
                     modifier = RemoteModifier.fillMaxSize(),
-                    horizontalAlignment = RemoteAlignment.CenterHorizontally,
-                    verticalArrangement = RemoteArrangement.Center,
+                    contentAlignment = RemoteAlignment.Center,
                 ) {
                     RemoteColumn(
                         modifier =
@@ -260,8 +256,7 @@ fun WeatherDay(day: String, precipitation: String, image: Int, temperature: Stri
         ) {
             RemoteBox(
                 RemoteModifier.width(70.rdp),
-                horizontalAlignment = RemoteAlignment.Start,
-                verticalArrangement = RemoteArrangement.Center,
+                contentAlignment = RemoteAlignment.CenterStart,
             ) {
                 RemoteText(day, RemoteModifier.width(70.rdp))
             }
@@ -274,8 +269,7 @@ fun WeatherDay(day: String, precipitation: String, image: Int, temperature: Stri
         ) {
             RemoteBox(
                 RemoteModifier.width(26.rdp),
-                horizontalAlignment = RemoteAlignment.Start,
-                verticalArrangement = RemoteArrangement.Center,
+                contentAlignment = RemoteAlignment.CenterStart,
             ) {
                 RemoteText(day.substring(IntRange(0, 2)), RemoteModifier.width(100.rdp))
             }
@@ -304,11 +298,7 @@ private fun Temp(
         RemoteImage(image, RemoteString(""), RemoteModifier.size(24.rdp))
     }
     RemoteBox(modWeight.widthIn(min = 0.dp))
-    RemoteBox(
-        modifier = RemoteModifier.width(60.rdp),
-        horizontalAlignment = RemoteAlignment.CenterHorizontally,
-        verticalArrangement = RemoteArrangement.Center,
-    ) {
+    RemoteBox(modifier = RemoteModifier.width(60.rdp), contentAlignment = RemoteAlignment.Center) {
         RemoteText(temperature)
     }
 }

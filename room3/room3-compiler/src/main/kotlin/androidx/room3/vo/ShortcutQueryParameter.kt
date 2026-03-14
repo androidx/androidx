@@ -25,7 +25,7 @@ data class ShortcutQueryParameter(
     val element: XVariableElement,
     val name: String,
     val type: XType, // actual param type (List<Foo>, Set<Foo>, Foo, etc...)
-    val pojoType: XType?, // extracted type, never a Collection
+    val dataClassType: XType?, // extracted type, never a Collection
     val isMultiple: Boolean,
 ) {
     /** Function name in entity insertion or update adapter. */

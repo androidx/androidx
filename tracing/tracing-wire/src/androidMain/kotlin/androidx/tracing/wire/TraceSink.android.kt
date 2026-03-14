@@ -21,6 +21,7 @@ package androidx.tracing.wire
 import android.content.ComponentCallbacks2
 import android.content.Context
 import android.content.res.Configuration
+import androidx.tracing.AbstractTraceSink
 import androidx.tracing.PooledTracePacketArray
 import java.io.File
 import java.io.OutputStream
@@ -46,7 +47,7 @@ public fun TraceSink(
     sequenceId: Int,
     coroutineContext: CoroutineContext,
     outputStream: OutputStream,
-): androidx.tracing.TraceSink =
+): AbstractTraceSink =
     TraceSink(
         context = context,
         sequenceId = sequenceId,
@@ -60,7 +61,7 @@ public fun TraceSink(
     sequenceId: Int,
     coroutineContext: CoroutineContext,
     traceFile: File = context.filesDir.perfettoTraceFile(),
-): androidx.tracing.TraceSink {
+): AbstractTraceSink {
     val sink =
         TraceSink(
             context = context,
@@ -72,7 +73,7 @@ public fun TraceSink(
 }
 
 private class TraceSinkDelegate(private val context: Context, private val sink: TraceSink) :
-    androidx.tracing.TraceSink() {
+    AbstractTraceSink() {
     private val callback: FlushCallback = FlushCallback(sink)
 
     init {
@@ -117,7 +118,7 @@ private fun TraceSink(
     sequenceId: Int,
     coroutineContext: CoroutineContext,
     bufferedSink: BufferedSink,
-): androidx.tracing.TraceSink {
+): AbstractTraceSink {
     val sink =
         TraceSink(
             sequenceId = sequenceId,

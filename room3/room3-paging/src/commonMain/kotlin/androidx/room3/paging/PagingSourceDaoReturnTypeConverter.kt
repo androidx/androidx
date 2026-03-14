@@ -52,7 +52,7 @@ public class PagingSourceDaoReturnTypeConverter {
      *   expected list of items.
      * @return A [PagingSource] that emits pages of type [T].
      */
-    @DaoReturnTypeConverter(operations = [OperationType.READ, OperationType.WRITE])
+    @DaoReturnTypeConverter(operations = [OperationType.READ])
     public fun <T : Any> convert(
         database: RoomDatabase,
         tableNames: Array<String>,

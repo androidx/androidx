@@ -836,7 +836,7 @@ internal fun Project.configureNode() {
         plugins.withType<WasmYarnPlugin>().configureEach {
             the<WasmYarnRootEnvSpec>().let {
                 it.version.set(getVersionByName("yarn"))
-                it.yarnLockMismatchReport.set(YarnLockMismatchReport.FAIL)
+                it.yarnLockMismatchReport.set(yarnLockMisMatchReportSetting())
                 it.downloadBaseUrl.set(javascriptPrebuiltsRoot.toURI().toString())
             }
         }
@@ -844,12 +844,19 @@ internal fun Project.configureNode() {
         plugins.withType<YarnPlugin>().configureEach {
             the<YarnRootEnvSpec>().let {
                 it.version.set(getVersionByName("yarn"))
-                it.yarnLockMismatchReport.set(YarnLockMismatchReport.FAIL)
+                it.yarnLockMismatchReport.set(yarnLockMisMatchReportSetting())
                 it.downloadBaseUrl.set(javascriptPrebuiltsRoot.toURI().toString())
             }
         }
     }
 }
+
+private fun Project.yarnLockMisMatchReportSetting() =
+    if (allowLockfileMismatch()) {
+        YarnLockMismatchReport.WARNING
+    } else {
+        YarnLockMismatchReport.FAIL
+    }
 
 @OptIn(ExperimentalWasmDsl::class)
 private fun Project.configureBinaryen() {

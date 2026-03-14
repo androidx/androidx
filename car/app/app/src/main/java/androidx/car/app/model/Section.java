@@ -20,8 +20,8 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.ItemList.OnItemVisibilityChangedListener;
 import androidx.car.app.model.constraints.CarTextConstraints;
 import androidx.car.app.serialization.ListDelegate;
@@ -45,7 +45,7 @@ import java.util.Objects;
  */
 @KeepFields
 @CarProtocol
-@ExperimentalCarApi
+@RequiresCarApi(8)
 public abstract class Section<T extends Item> {
     private final @NonNull ListDelegate<T> mItemsDelegate;
     private final @Nullable CarText mTitle;
@@ -69,6 +69,7 @@ public abstract class Section<T extends Item> {
     }
 
     /** Returns the items added to this section. */
+    @RestrictTo(LIBRARY)
     public @NonNull ListDelegate<T> getItemsDelegate() {
         return mItemsDelegate;
     }

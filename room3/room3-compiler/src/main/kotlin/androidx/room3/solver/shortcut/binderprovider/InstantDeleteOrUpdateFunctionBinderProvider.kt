@@ -18,6 +18,7 @@ package androidx.room3.solver.shortcut.binderprovider
 
 import androidx.room3.compiler.processing.XType
 import androidx.room3.processor.Context
+import androidx.room3.solver.TypeAdapterExtras
 import androidx.room3.solver.shortcut.binder.DeleteOrUpdateFunctionBinder
 import androidx.room3.solver.shortcut.binder.InstantDeleteOrUpdateFunctionBinder
 
@@ -27,7 +28,7 @@ class InstantDeleteOrUpdateFunctionBinderProvider(private val context: Context) 
 
     override fun matches(declared: XType) = true
 
-    override fun provide(declared: XType): DeleteOrUpdateFunctionBinder {
+    override fun provide(declared: XType, extras: TypeAdapterExtras): DeleteOrUpdateFunctionBinder {
         val adapter = context.typeAdapterStore.findDeleteOrUpdateAdapter(declared)
         return InstantDeleteOrUpdateFunctionBinder(adapter)
     }

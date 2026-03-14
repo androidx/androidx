@@ -26,7 +26,8 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 
 /**
- * Abstract base class for all remote bitmap representations.
+ * Abstract base class for all remote bitmap representations in Compose Remote, this class extends
+ * [RemoteState<ImageBitmap>].
  *
  * `RemoteBitmap` represents an image value that can be a constant, a named variable, or an
  * offscreen buffer.
@@ -76,10 +77,10 @@ internal constructor(public override val constantValueOrNull: ImageBitmap?) :
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
         /**
-         * Creates a [RemoteBitmap] instance from a [Bitmap] value. This factory method can be used
-         * with or without an explicit [RemoteComposeCreationState].
+         * Creates a [RemoteBitmap] instance from a [ImageBitmap] value. This factory method can be
+         * used with or without an explicit [RemoteComposeCreationState].
          *
-         * @param v The [Bitmap] value.
+         * @param v The [ImageBitmap] value.
          * @return A [RemoteBitmap] representing the provided bitmap.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

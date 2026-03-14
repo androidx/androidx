@@ -93,8 +93,7 @@ class TabTemplateDemoScreen(carContext: CarContext) : Screen(carContext) {
                             "2" -> createSectionedItemTemplate()
                             "3" -> createGridTemplate()
                             else -> throw IllegalStateException("Invalid tab id: $mActiveContentId")
-                        },
-                        true,
+                        }
                     )
                     .build()
             )

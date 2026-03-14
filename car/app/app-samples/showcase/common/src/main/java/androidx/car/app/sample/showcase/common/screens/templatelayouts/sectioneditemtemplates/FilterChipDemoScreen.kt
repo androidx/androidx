@@ -46,6 +46,7 @@ import androidx.core.graphics.drawable.IconCompat
  * * Setting a FilterChipStyle on the section using [FilterChipSection#setStyle], and overriding
  *   this style for a single chip using [FilterChip#setStyle] when the chip is selected
  */
+@OptIn(ExperimentalCarApi::class)
 @RequiresCarApi(8)
 class FilterChipDemoScreen(carContext: CarContext) : Screen(carContext) {
     private val mSectionStyle =
@@ -265,7 +266,6 @@ class FilterChipDemoScreen(carContext: CarContext) : Screen(carContext) {
             },
         )
 
-    @OptIn(markerClass = [ExperimentalCarApi::class])
     override fun onGetTemplate(): Template {
         val filterChipSectionBuilder = FilterChipSection.Builder().setStyle(mSectionStyle)
 

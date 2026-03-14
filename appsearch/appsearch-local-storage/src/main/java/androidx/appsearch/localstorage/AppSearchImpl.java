@@ -48,6 +48,7 @@ import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
+import androidx.appsearch.app.InternalPutDocumentResponse;
 import androidx.appsearch.app.InternalSetSchemaResponse;
 import androidx.appsearch.app.InternalVisibilityConfig;
 import androidx.appsearch.app.JoinSpec;
@@ -114,6 +115,7 @@ import com.google.android.icing.proto.GetOptimizeInfoResultProto;
 import com.google.android.icing.proto.GetResultProto;
 import com.google.android.icing.proto.GetResultSpecProto;
 import com.google.android.icing.proto.GetSchemaResultProto;
+import com.google.android.icing.proto.HandleExpiredDocumentsResultProto;
 import com.google.android.icing.proto.IcingSearchEngineOptions;
 import com.google.android.icing.proto.InitializeResultProto;
 import com.google.android.icing.proto.InitializeStatsProto;
@@ -226,9 +228,9 @@ public final class AppSearchImpl implements Closeable {
     @VisibleForTesting
     IcingSearchEngineInterface mIcingSearchEngineLocked;
 
-    private boolean mIsVMEnabled;
-
     private boolean mResetVisibilityStore;
+
+    @NonNull private final LaunchVMFeatures mLaunchVMFeatures;
 
     private boolean mIsIcingSchemaDatabaseEnabled;
 
@@ -347,41 +349,32 @@ public final class AppSearchImpl implements Closeable {
      * <p>Instead, logger instance needs to be passed to each individual method, like create, query
      * and putDocument.
      *
-     * @param initStatsBuilder  collects stats for initialization if provided.
-     * @param visibilityChecker The {@link VisibilityChecker} that check whether the caller has
-     *                          access to aa specific schema. Pass null will lost that ability and
-     *                          global querier could only get their own data.
-     * @param icingSearchEngine the underlying icing instance to use. If not provided, a new {@link
-     *     IcingSearchEngine} instance will be created and used.
+     * @param icingDir The directory where AppSearch data should be stored.
+     * @param config The configuration for AppSearch.
+     * @param appSearchUserPlugins Optional plugins and instrumentation builders (such as stats
+     *                             collectors, visibility checkers, or a mock search engine) to
+     *                             enhance or monitor the engine's behavior. If no extensions are
+     *                             needed, pass {@link AppSearchUserPlugins#EMPTY}.
+     * @param optimizeStrategy The strategy to use for deciding when to trigger database
+     * optimization.
+     * @throws AppSearchException if error occurs during initialization.
      */
     @OptIn(markerClass = ExperimentalAppSearchApi.class)
+    // Functional interface parameters should be last to improve Kotlin interoperability;
     public static @NonNull AppSearchImpl create(
             @NonNull File icingDir,
             @NonNull AppSearchConfig config,
-            InitializeStats.@Nullable Builder initStatsBuilder,
-            CallStats.@Nullable Builder callStatsBuilder,
-            @Nullable VisibilityChecker visibilityChecker,
-            @Nullable RevocableFileDescriptorStore revocableFileDescriptorStore,
-            @Nullable IcingSearchEngineInterface icingSearchEngine,
+            @NonNull AppSearchUserPlugins appSearchUserPlugins,
             @NonNull OptimizeStrategy optimizeStrategy)
             throws AppSearchException {
-        return new AppSearchImpl(icingDir, config, initStatsBuilder, callStatsBuilder,
-                visibilityChecker, revocableFileDescriptorStore, icingSearchEngine,
-                optimizeStrategy);
+        return new AppSearchImpl(icingDir, config, appSearchUserPlugins, optimizeStrategy);
     }
 
-    /**
-     * @param initStatsBuilder collects stats for initialization if provided.
-     */
     @OptIn(markerClass = ExperimentalAppSearchApi.class)
     private AppSearchImpl(
             @NonNull File icingDir,
             @NonNull AppSearchConfig config,
-            InitializeStats.@Nullable Builder initStatsBuilder,
-            CallStats.@Nullable Builder callStatsBuilder,
-            @Nullable VisibilityChecker visibilityChecker,
-            @Nullable RevocableFileDescriptorStore revocableFileDescriptorStore,
-            @Nullable IcingSearchEngineInterface icingSearchEngine,
+            @NonNull AppSearchUserPlugins appSearchUserPlugins,
             @NonNull OptimizeStrategy optimizeStrategy)
             throws AppSearchException {
         Preconditions.checkNotNull(icingDir);
@@ -393,8 +386,11 @@ public final class AppSearchImpl implements Closeable {
         mBlobFilesDir = new File(icingDir, "blob_dir/blob_files");
         mConfig = Preconditions.checkNotNull(config);
         mOptimizeStrategy = Preconditions.checkNotNull(optimizeStrategy);
-        mVisibilityCheckerLocked = visibilityChecker;
-        mRevocableFileDescriptorStore = revocableFileDescriptorStore;
+        Preconditions.checkNotNull(appSearchUserPlugins);
+        mVisibilityCheckerLocked = appSearchUserPlugins.getVisibilityChecker();
+        mRevocableFileDescriptorStore = appSearchUserPlugins.getRevocableFileDescriptorStore();
+        CallStats.Builder callStatsBuilder = appSearchUserPlugins.getCallStatsBuilder();
+        InitializeStats.Builder initStatsBuilder = appSearchUserPlugins.getInitStatsBuilder();
         mNeedsPersistToDisk.set(false);
 
         // By default, we don't perform any retries.
@@ -404,16 +400,16 @@ public final class AppSearchImpl implements Closeable {
         long javaLockAcquisitionEndTimeMillis = 0;
         mReadWriteLock.writeLock().lock();
         try {
+            mLaunchVMFeatures = appSearchUserPlugins.getLaunchVMFeatures();
             javaLockAcquisitionEndTimeMillis = SystemClock.elapsedRealtime();
             // We synchronize here because we don't want to call IcingSearchEngine.initialize() more
             // than once. It's unnecessary and can be a costly operation.
-            if (icingSearchEngine == null) {
-                mIsVMEnabled = false;
+            if (appSearchUserPlugins.getIcingSearchEngine() == null) {
                 if (Flags.enableInitializationRetriesBeforeReset()) {
                     maxInitRetries = 2;
                 }
                 IcingSearchEngineOptions options = mConfig.toIcingSearchEngineOptions(
-                        icingDir.getAbsolutePath(), mIsVMEnabled);
+                        icingDir.getAbsolutePath(), mLaunchVMFeatures.isVMEnabled1());
                 LogUtil.piiTrace(TAG, "Constructing IcingSearchEngine, request", options);
                 mIcingSearchEngineLocked = new IcingSearchEngine(options);
                 mIsIcingSchemaDatabaseEnabled = options.getEnableSchemaDatabase();
@@ -422,12 +418,12 @@ public final class AppSearchImpl implements Closeable {
                         "Constructing IcingSearchEngine, response",
                         ObjectsCompat.hashCode(mIcingSearchEngineLocked));
             } else {
-                mIcingSearchEngineLocked = icingSearchEngine;
-                mIsVMEnabled = true;
+                mIcingSearchEngineLocked = appSearchUserPlugins.getIcingSearchEngine();
                 mIsIcingSchemaDatabaseEnabled = true;
                 maxInitRetries = 2;
             }
-            mResetVisibilityStore = Flags.enableResetVisibilityStore() || mIsVMEnabled;
+            mResetVisibilityStore =
+                    Flags.enableResetVisibilityStore() || mLaunchVMFeatures.isVMEnabled1();
 
             // The core initialization procedure. If any part of this fails, we bail into
             // resetLocked(), deleting all data (but hopefully allowing AppSearchImpl to come up).
@@ -465,7 +461,8 @@ public final class AppSearchImpl implements Closeable {
                                     statusProtoToResultCode(initializeResultProto.getStatus()))
                             // TODO(b/173532925) how to get DeSyncs value
                             .setHasDeSync(false)
-                            .setLaunchVMEnabled(mIsVMEnabled)
+                            .setLaunchVMEnabled(mLaunchVMFeatures.isVMEnabled1())
+                            .setLaunchVM2Enabled(mLaunchVMFeatures.isVMEnabled2())
                             .addGetVmLatencyMillis(initializeResultProto.getGetVmLatencyMs());
                     AppSearchLoggerHelper.copyNativeStats(
                             initializeResultProto.getInitializeStats(), initStatsBuilder);
@@ -725,7 +722,7 @@ public final class AppSearchImpl implements Closeable {
 
     /** Returns whether pVM is enabled in this AppSearchImpl instance. */
     public boolean isVMEnabled() {
-        return mIsVMEnabled;
+        return mLaunchVMFeatures.isVMEnabled1();
     }
 
     /** Returns whether this AppSearchImpl instance should use database-scoped set and get schema */
@@ -740,16 +737,16 @@ public final class AppSearchImpl implements Closeable {
     /** Atomic method to set a new icing search engine and return the previous engine. */
     @GuardedBy("mReadWriteLock")
     public @NonNull IcingSearchEngineInterface swapIcingSearchEngineLocked(
-            @NonNull IcingSearchEngineInterface icingSearchEngineLocked, boolean isVmEnabled) {
+            @NonNull IcingSearchEngineInterface icingSearchEngineLocked, boolean isVm1Enabled) {
         Objects.requireNonNull(icingSearchEngineLocked);
         mReadWriteLock.writeLock().lock();
         try {
             IcingSearchEngineInterface previousIcingSearchEngine = mIcingSearchEngineLocked;
             mIcingSearchEngineLocked = icingSearchEngineLocked;
-            mIsVMEnabled = isVmEnabled;
+            mLaunchVMFeatures.setVMEnabled1(isVm1Enabled);
             mIsIcingSchemaDatabaseEnabled =
-                    Flags.enableDatabaseScopedSchemaOperations() || isVmEnabled;
-            mResetVisibilityStore = Flags.enableResetVisibilityStore() || isVmEnabled;
+                    Flags.enableDatabaseScopedSchemaOperations() || isVm1Enabled;
+            mResetVisibilityStore = Flags.enableResetVisibilityStore() || isVm1Enabled;
             return previousIcingSearchEngine;
         } finally {
             mReadWriteLock.writeLock().unlock();
@@ -859,7 +856,8 @@ public final class AppSearchImpl implements Closeable {
                         .setLastBlockingOperation(mLastReadOrWriteOperationLocked)
                         .setLastBlockingOperationLatencyMillis(
                                 mLastReadOrWriteOperationLatencyMillisLocked)
-                        .setLaunchVMEnabled(mIsVMEnabled);
+                        .setLaunchVMEnabled(mLaunchVMFeatures.isVMEnabled1())
+                        .setLaunchVM2Enabled(mLaunchVMFeatures.isVMEnabled2());
             }
             if (mObserverManager.isPackageObserved(packageName)) {
                 if (useDatabaseScopedSchemaOperations()) {
@@ -1805,7 +1803,8 @@ public final class AppSearchImpl implements Closeable {
             @NonNull String packageName,
             @NonNull String databaseName,
             @NonNull List<GenericDocument> documents,
-            AppSearchBatchResult.@Nullable Builder<String, Void> batchResultBuilder,
+            AppSearchBatchResult.@NonNull Builder<String, InternalPutDocumentResponse>
+                    batchResultBuilder,
             boolean sendChangeNotifications,
             @Nullable AppSearchLogger logger,
             PersistType.@NonNull Code persistType,
@@ -1841,10 +1840,7 @@ public final class AppSearchImpl implements Closeable {
                         newlyAddedAccounts.addAll(accounts);
                     }
                 } catch (AppSearchException e) {
-                    if (batchResultBuilder != null) {
-                        batchResultBuilder.setResult(documents.get(i).getId(),
-                                e.toAppSearchResult());
-                    }
+                    batchResultBuilder.setResult(documents.get(i).getId(), e.toAppSearchResult());
                     continue;
                 }
             }
@@ -1919,7 +1915,8 @@ public final class AppSearchImpl implements Closeable {
             @NonNull String databaseName,
             @NonNull List<DocumentProto> documents,
             @NonNull List<PutDocumentStats.Builder> statsBuilders,
-            AppSearchBatchResult.@Nullable Builder<String, Void> batchResultBuilder,
+            AppSearchBatchResult.@NonNull Builder<String, InternalPutDocumentResponse>
+                    batchResultBuilder,
             boolean sendChangeNotifications,
             @Nullable AppSearchLogger logger,
             PersistType.@NonNull Code persistType,
@@ -1949,7 +1946,8 @@ public final class AppSearchImpl implements Closeable {
                 String docId = finalDocument.getUri();
                 PutDocumentStats.Builder pStatsBuilder =
                         statsBuilders.get(i)
-                                .setLaunchVMEnabled(mIsVMEnabled)
+                                .setLaunchVMEnabled(mLaunchVMFeatures.isVMEnabled1())
+                                .setLaunchVM2Enabled(mLaunchVMFeatures.isVMEnabled2())
                                 .setJavaLockAcquisitionLatencyMillis(
                                         (int)
                                                 (javaLockAcquisitionEndTimeMillis
@@ -1965,9 +1963,7 @@ public final class AppSearchImpl implements Closeable {
                     putRequestBuilder.addDocuments(finalDocument);
                     statsNotFilteredOut.add(pStatsBuilder);
                 } catch (Throwable t) {
-                    if (batchResultBuilder != null) {
-                        batchResultBuilder.setResult(docId, throwableToFailedResult(t));
-                    }
+                    batchResultBuilder.setResult(docId, throwableToFailedResult(t));
                 }
             }
 
@@ -2020,9 +2016,10 @@ public final class AppSearchImpl implements Closeable {
                     // If it is a failure, it will throw and the catch section will
                     // set generated result
                     checkSuccess(putResultProto.getStatus());
-                    if (batchResultBuilder != null) {
-                        batchResultBuilder.setSuccess(docId, /* value= */ null);
-                    }
+                    batchResultBuilder.setSuccess(
+                            docId,
+                            new InternalPutDocumentResponse(
+                                    putResultProto.getDocumentExpirationTimestampMs()));
 
                     // Don't need to check the index here, as request doc list size should
                     // definitely be bigger than response doc list size.
@@ -2066,11 +2063,7 @@ public final class AppSearchImpl implements Closeable {
                                 mVisibilityCheckerLocked);
                     }
                 } catch (Throwable t) {
-                    if (batchResultBuilder != null) {
-                        batchResultBuilder.setResult(docId, throwableToFailedResult(t));
-                    } else {
-                        throw t;
-                    }
+                    batchResultBuilder.setResult(docId, throwableToFailedResult(t));
                 }
             }
 
@@ -2111,6 +2104,7 @@ public final class AppSearchImpl implements Closeable {
      * @param sendChangeNotifications Whether to dispatch
      *                                {@link DocumentChangeInfo}
      *                                messages to observers for this change.
+     * @return {@link InternalPutDocumentResponse}
      * @throws AppSearchException on IcingSearchEngine error.
      *
      * @deprecated use {@link #batchPutDocuments(String, String, List,
@@ -2119,7 +2113,7 @@ public final class AppSearchImpl implements Closeable {
     // TODO(b/394875109) keep this for now to make code sync easier.
     @Deprecated
     @OptIn(markerClass = ExperimentalAppSearchApi.class)
-    public void putDocument(
+    public @NonNull InternalPutDocumentResponse putDocument(
             @NonNull String packageName,
             @NonNull String databaseName,
             @NonNull GenericDocument document,
@@ -2130,7 +2124,8 @@ public final class AppSearchImpl implements Closeable {
         PutDocumentStats.Builder pStatsBuilder = null;
         if (logger != null) {
             pStatsBuilder = new PutDocumentStats.Builder(packageName, databaseName)
-                    .setLaunchVMEnabled(mIsVMEnabled);
+                    .setLaunchVMEnabled(mLaunchVMFeatures.isVMEnabled1())
+                    .setLaunchVM2Enabled(mLaunchVMFeatures.isVMEnabled2());
         }
         long totalLatencyStartMillis = SystemClock.elapsedRealtime();
         long javaLockAcquisitionEndTimeMillis = 0;
@@ -2237,6 +2232,8 @@ public final class AppSearchImpl implements Closeable {
                         mDocumentVisibilityStoreLocked,
                         mVisibilityCheckerLocked);
             }
+            return new InternalPutDocumentResponse(
+                    putResultProto.getDocumentExpirationTimestampMs());
         } finally {
             logWriteOperationLatencyLocked(totalLatencyStartMillis,
                     javaLockAcquisitionEndTimeMillis,
@@ -3163,7 +3160,8 @@ public final class AppSearchImpl implements Closeable {
                         new QueryStats.Builder(QueryStats.VISIBILITY_SCOPE_LOCAL, packageName)
                                 .setDatabase(databaseName)
                                 .setSearchSourceLogTag(searchSpec.getSearchSourceLogTag())
-                                .setLaunchVMEnabled(mIsVMEnabled)
+                                .setLaunchVMEnabled(mLaunchVMFeatures.isVMEnabled1())
+                                .setLaunchVM2Enabled(mLaunchVMFeatures.isVMEnabled2())
                                 .setLastBlockingOperation(mLastWriteOperationLocked)
                                 .setLastBlockingOperationLatencyMillis(
                                         mLastWriteOperationLatencyMillisLocked)
@@ -3254,7 +3252,8 @@ public final class AppSearchImpl implements Closeable {
                                 QueryStats.VISIBILITY_SCOPE_GLOBAL,
                                 callerAccess.getCallingPackageName())
                                 .setSearchSourceLogTag(searchSpec.getSearchSourceLogTag())
-                                .setLaunchVMEnabled(mIsVMEnabled)
+                                .setLaunchVMEnabled(mLaunchVMFeatures.isVMEnabled1())
+                                .setLaunchVM2Enabled(mLaunchVMFeatures.isVMEnabled2())
                                 .setLastBlockingOperation(mLastWriteOperationLocked)
                                 .setLastBlockingOperationLatencyMillis(
                                         mLastWriteOperationLatencyMillisLocked)
@@ -3354,9 +3353,9 @@ public final class AppSearchImpl implements Closeable {
         // All processes are counted in rewriteSearchSpecLatencyMillis
         long rewriteSearchSpecLatencyStartMillis = SystemClock.elapsedRealtime();
         SearchSpecProto finalSearchSpec = searchSpecToProtoConverter.toSearchSpecProto(
-                mIsVMEnabled);
+                mLaunchVMFeatures.isVMEnabled1());
         ResultSpecProto finalResultSpec = searchSpecToProtoConverter.toResultSpecProto(
-                mNamespaceCacheLocked, mSchemaCacheLocked, mIsVMEnabled);
+                mNamespaceCacheLocked, mSchemaCacheLocked, mLaunchVMFeatures.isVMEnabled1());
         ScoringSpecProto scoringSpec = searchSpecToProtoConverter.toScoringSpecProto();
         if (sStatsBuilder != null) {
             sStatsBuilder.setRewriteSearchSpecLatencyMillis((int)
@@ -3676,7 +3675,8 @@ public final class AppSearchImpl implements Closeable {
                 queryStatsBuilder.setJavaLockAcquisitionLatencyMillis(
                                 (int) (javaLockAcquisitionEndTimeMillis
                                         - totalLatencyStartMillis))
-                        .setLaunchVMEnabled(mIsVMEnabled)
+                        .setLaunchVMEnabled(mLaunchVMFeatures.isVMEnabled1())
+                        .setLaunchVM2Enabled(mLaunchVMFeatures.isVMEnabled2())
                         .setLastBlockingOperation(mLastWriteOperationLocked)
                         .setLastBlockingOperationLatencyMillis(
                                 mLastWriteOperationLatencyMillisLocked);
@@ -3831,6 +3831,37 @@ public final class AppSearchImpl implements Closeable {
         }
     }
 
+    /**
+     * Handles expired documents.
+     *
+     * <p>The job will purge expired documents and propagate deletion to child documents with delete
+     * propagation enabled.
+     *
+     * @return a {@link HandleExpiredDocumentsResultProto} object with success code
+     * @throws AppSearchException if Icing failed to handle expired documents
+     */
+    public @NonNull HandleExpiredDocumentsResultProto handleExpiredDocuments()
+            throws AppSearchException {
+        mReadWriteLock.writeLock().lock();
+        try {
+            throwIfClosedLocked();
+
+            HandleExpiredDocumentsResultProto resultProto =
+                    mIcingSearchEngineLocked.handleExpiredDocuments();
+            checkSuccess(resultProto.getStatus());
+
+            // PersistToDisk is needed if any document was purged.
+            if (resultProto.getNumExpiredDocuments() > 0
+                    || resultProto.getNumPropagatedDeletedDocuments() > 0) {
+                mNeedsPersistToDisk.set(true);
+            }
+
+            return resultProto;
+        } finally {
+            mReadWriteLock.writeLock().unlock();
+        }
+    }
+
     /** Reports a usage of the given document at the given timestamp. */
     public void reportUsage(
             @NonNull String packageName,
@@ -3948,7 +3979,8 @@ public final class AppSearchImpl implements Closeable {
             if (removeStatsBuilder != null) {
                 removeStatsBuilder.setStatusCode(statusProtoToResultCode(
                                 deleteResultProto.getStatus()))
-                        .setLaunchVMEnabled(mIsVMEnabled)
+                        .setLaunchVMEnabled(mLaunchVMFeatures.isVMEnabled1())
+                        .setLaunchVM2Enabled(mLaunchVMFeatures.isVMEnabled2())
                         .setJavaLockAcquisitionLatencyMillis(
                                 (int) (javaLockAcquisitionEndTimeMillis - totalLatencyStartMillis))
                         .setLastBlockingOperation(mLastReadOrWriteOperationLocked)
@@ -4061,7 +4093,7 @@ public final class AppSearchImpl implements Closeable {
             }
 
             SearchSpecProto finalSearchSpec = searchSpecToProtoConverter.toSearchSpecProto(
-                    mIsVMEnabled);
+                    mLaunchVMFeatures.isVMEnabled1());
 
             Set<String> prefixedObservedSchemas = null;
             if (mObserverManager.isPackageObserved(packageName)) {
@@ -4090,7 +4122,8 @@ public final class AppSearchImpl implements Closeable {
             if (removeStatsBuilder != null) {
                 removeStatsBuilder.setTotalLatencyMillis(
                                 (int) (SystemClock.elapsedRealtime() - totalLatencyStartMillis))
-                        .setLaunchVMEnabled(mIsVMEnabled);
+                        .setLaunchVMEnabled(mLaunchVMFeatures.isVMEnabled1())
+                        .setLaunchVM2Enabled(mLaunchVMFeatures.isVMEnabled2());
             }
 
         }
@@ -4563,7 +4596,8 @@ public final class AppSearchImpl implements Closeable {
                         .setLastBlockingOperation(mLastReadOrWriteOperationLocked)
                         .setLastBlockingOperationLatencyMillis(
                                 mLastReadOrWriteOperationLatencyMillisLocked)
-                                .setLaunchVMEnabled(mIsVMEnabled);
+                        .setLaunchVMEnabled(mLaunchVMFeatures.isVMEnabled1())
+                        .setLaunchVM2Enabled(mLaunchVMFeatures.isVMEnabled2());
             }
 
             LogUtil.piiTrace(TAG, "persistToDisk, request", persistType);
@@ -5324,7 +5358,8 @@ public final class AppSearchImpl implements Closeable {
                         .setLastBlockingOperation(mLastReadOrWriteOperationLocked)
                         .setLastBlockingOperationLatencyMillis(
                                 mLastReadOrWriteOperationLatencyMillisLocked)
-                        .setLaunchVMEnabled(mIsVMEnabled)
+                        .setLaunchVMEnabled(mLaunchVMFeatures.isVMEnabled1())
+                        .setLaunchVM2Enabled(mLaunchVMFeatures.isVMEnabled2())
                         .addGetVmLatencyMillis(optimizeResultProto.getGetVmLatencyMs());
                 AppSearchLoggerHelper.copyNativeStats(optimizeResultProto.getOptimizeStats(),
                         optimizeStatsBuilder);

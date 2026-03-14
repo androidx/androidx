@@ -265,7 +265,7 @@ internal var platformTextInputServiceInterceptor:
 private const val ONE_FRAME_120_HERTZ_IN_MILLISECONDS = 8L
 
 @Suppress("ViewConstructor", "VisibleForTests")
-@OptIn(InternalComposeUiApi::class)
+@OptIn(InternalComposeUiApi::class, ExperimentalComposeViewContextApi::class)
 internal class AndroidComposeView(context: Context, composeViewContext: ComposeViewContext) :
     ViewGroup(context),
     Owner,

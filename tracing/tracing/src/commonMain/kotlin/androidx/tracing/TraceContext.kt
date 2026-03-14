@@ -22,7 +22,8 @@ import kotlin.concurrent.Volatile
 
 /**
  * This is something that is only typically created once per process. All the traces emitted are
- * managed and written into a single [TraceSink] in an optimal way based on the underlying platform.
+ * managed and written into a single [AbstractTraceSink] in an optimal way based on the underlying
+ * platform.
  */
 // False positive: https://youtrack.jetbrains.com/issue/KTIJ-22326
 @Suppress("OPTIONAL_DECLARATION_USAGE_IN_NON_COMMON_SOURCE")
@@ -30,7 +31,7 @@ import kotlin.concurrent.Volatile
 public open class TraceContext
 internal constructor(
     /** The sink all the trace events are written to. */
-    @JvmField public val sink: TraceSink,
+    @JvmField public val sink: AbstractTraceSink,
     /** Is tracing enabled ? */
     @JvmField public val isEnabled: Boolean,
     /** Debug mode */
@@ -39,7 +40,10 @@ internal constructor(
     @JvmField internal val isDebug: Boolean,
 ) : AutoCloseable {
 
-    public constructor(sink: TraceSink, isEnabled: Boolean) : this(sink, isEnabled, isDebug = false)
+    public constructor(
+        sink: AbstractTraceSink,
+        isEnabled: Boolean,
+    ) : this(sink, isEnabled, isDebug = false)
 
     @JvmField internal val processTrackLock = Any()
 
@@ -65,7 +69,7 @@ internal constructor(
         }
     }
 
-    /** Flushes the trace packets into the underlying [TraceSink]. */
+    /** Flushes the trace packets into the underlying [AbstractTraceSink]. */
     public fun flush() {
         if (isEnabled) {
             process.flush()

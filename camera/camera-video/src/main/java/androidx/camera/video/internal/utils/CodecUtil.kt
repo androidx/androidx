@@ -51,7 +51,7 @@ public object CodecUtil {
         get() =
             allEncoderMimeTypesCache
                 ?: allEncoderInfos
-                    .flatMap { it.supportedTypes?.toList() ?: emptyList() }
+                    .flatMap { info -> info.supportedTypes?.map { it.lowercase() } ?: emptyList() }
                     .distinct()
                     .also { allEncoderMimeTypesCache = it }
 

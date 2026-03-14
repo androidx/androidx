@@ -543,13 +543,14 @@ final class IsolateUsableState implements IsolateState {
         messagePortInternal.setClient(new MessagePortInternal.MessagePortClient() {
                     @Override
                     public void onString(@NonNull String string) {
-                        executor.execute(() -> client.onMessage(Message.createString(string)));
+                        executor.execute(() -> client.onMessage(
+                                Message.createStringMessage(string)));
                     }
 
                     @Override
                     public void onArrayBuffer(byte @NonNull [] arrayBuffer) {
                         executor.execute(() -> client.onMessage(
-                                Message.createArrayBuffer(arrayBuffer)));
+                                Message.createArrayBufferMessage(arrayBuffer)));
                     }
                 });
 

@@ -164,6 +164,22 @@ public class WearApiVersionHelperTest {
         assertTrue(WearApiVersionHelper.isApiVersionAtLeast(
                 WearApiVersionHelper.WEAR_BAKLAVA_0));
     }
+
+    public void test_CinnamonBunIsAtLeastBaklava_success() {
+        when(mMockApiVersion.getPlatformApiLevel()).thenReturn(37);
+        when(mMockApiVersion.getIncrementalApiLevel()).thenReturn(0);
+
+        assertTrue(WearApiVersionHelper.isApiVersionAtLeast(
+                WearApiVersionHelper.WEAR_BAKLAVA_0));
+    }
+
+    public void test_CinnamonBunIsAtLeastCinnamonBun_success() {
+        when(mMockApiVersion.getPlatformApiLevel()).thenReturn(37);
+        when(mMockApiVersion.getIncrementalApiLevel()).thenReturn(0);
+
+        assertTrue(WearApiVersionHelper.isApiVersionAtLeast(
+                WearApiVersionHelper.WEAR_CINNAMON_BUN_0));
+    }
 }
 
 

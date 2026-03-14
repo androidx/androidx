@@ -53,7 +53,6 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.drawscope.DrawContext
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope.Companion.DefaultBlendMode
@@ -84,11 +83,11 @@ public open class RemoteCanvasDrawScope0(
     override val layoutDirection: LayoutDirection = drawScope.layoutDirection,
 ) : RemoteDrawScope0, RemoteStateScope {
 
-    override val creationState: RemoteComposeCreationState
+    override val parentScope: RemoteComposeCreationState
         get() = remoteComposeCreationState
 
     override val remoteDensity: RemoteDensity
-        get() = creationState.remoteDensity
+        get() = parentScope.remoteDensity
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public class RemoteAccess(
@@ -372,7 +371,7 @@ public open class RemoteCanvasDrawScope0(
         val dstB = ofAdd(dstOffset.y, dstSize.height)
 
         remoteDrawScaledBitmap(
-            image.asAndroidBitmap(),
+            image,
             srcOffset.x.floatId,
             srcOffset.y.floatId,
             srcR.floatId,

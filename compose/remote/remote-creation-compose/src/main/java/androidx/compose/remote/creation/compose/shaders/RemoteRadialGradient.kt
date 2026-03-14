@@ -66,7 +66,7 @@ public fun RemoteBrush.Companion.radialGradient(
     center: RemoteOffset? = null,
     radius: RemoteFloat? = null,
     tileMode: ComposeTileMode = ComposeTileMode.Clamp,
-): RemoteRadialGradient =
+): RemoteBrush =
     RemoteRadialGradient(
         colors = List(colorStops.size) { i -> colorStops[i].second },
         stops = List(colorStops.size) { i -> colorStops[i].first },
@@ -103,7 +103,7 @@ public fun RemoteBrush.Companion.radialGradient(
     center: RemoteOffset? = null,
     radius: RemoteFloat? = null,
     tileMode: ComposeTileMode = ComposeTileMode.Clamp,
-): RemoteRadialGradient =
+): RemoteBrush =
     RemoteRadialGradient(
         colors = colors,
         stops = null,

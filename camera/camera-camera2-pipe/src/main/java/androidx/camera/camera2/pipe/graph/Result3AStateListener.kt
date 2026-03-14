@@ -18,8 +18,10 @@ package androidx.camera.camera2.pipe.graph
 
 import android.hardware.camera2.CaptureResult
 import androidx.annotation.GuardedBy
+import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
+import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Result3A
 import kotlinx.coroutines.CompletableDeferred
@@ -28,20 +30,30 @@ import kotlinx.coroutines.Deferred
 /**
  * Given a map of keys and a list of acceptable values for each key, this checks if the given
  * [CaptureResult] has all of those keys and for every key the value for that key is one of the
- * acceptable values. If the key set is empty then the [update] method returns true. This is helpful
+ * acceptable values. If the key set is empty then the condition is immediately met. This is helpful
  * for use cases where the value in the [CaptureResult] might not be exactly equal to the value
  * requested via a capture request. In those cases, just knowing that the correct request was
- * submitted and that at least one capture result for that request was received via the [update]
- * method should suffice to confirm that the desired key value pairs were applied by the camera
- * device.
+ * submitted and that at least one capture result for that request was received should suffice to
+ * confirm that the desired key value pairs were applied by the camera device.
  *
- * This update method can be called multiple times as we get newer [CaptureResult]s from the camera
- * device. This class also exposes a [Deferred] to query the status of desired state.
+ * This listener receives updates via [onPartialCaptureResult] and [onTotalCaptureResult] as we get
+ * newer [CaptureResult]s from the camera device. This class also exposes a [Deferred] to query the
+ * status of desired state.
  */
 internal interface Result3AStateListener : GraphLoop.Listener {
     fun onRequestSequenceCreated(requestNumber: RequestNumber)
 
-    fun update(requestNumber: RequestNumber, frameMetadata: FrameMetadata): Boolean
+    fun onPartialCaptureResult(
+        requestMetadata: RequestMetadata,
+        frameNumber: FrameNumber,
+        captureResult: FrameMetadata,
+    )
+
+    fun onTotalCaptureResult(
+        requestMetadata: RequestMetadata,
+        frameNumber: FrameNumber,
+        totalCaptureResult: FrameInfo,
+    ): Boolean
 }
 
 internal class Result3AStateListenerImpl(
@@ -64,10 +76,12 @@ internal class Result3AStateListenerImpl(
     val result: Deferred<Result3A>
         get() = _result
 
+    private val _frameInfo = CompletableDeferred<FrameInfo>()
+
+    @Volatile private var matchedFrameNumber: FrameNumber? = null
     @Volatile private var frameNumberOfFirstUpdate: FrameNumber? = null
-
     @Volatile private var timestampOfFirstUpdateNs: Long? = null
-
+    @Volatile private var lastTotalCaptureResult: FrameInfo? = null
     @GuardedBy("this") private var initialRequestNumber: RequestNumber? = null
 
     override fun onRequestSequenceCreated(requestNumber: RequestNumber) {
@@ -78,20 +92,69 @@ internal class Result3AStateListenerImpl(
         }
     }
 
-    override fun update(requestNumber: RequestNumber, frameMetadata: FrameMetadata): Boolean {
-        // Save some compute if the task is already complete or has been canceled.
-        if (_result.isCompleted || _result.isCancelled) {
+    override fun onPartialCaptureResult(
+        requestMetadata: RequestMetadata,
+        frameNumber: FrameNumber,
+        captureResult: FrameMetadata,
+    ) {
+        if (_result.isCompleted) return
+        matchConditions(requestMetadata.requestNumber, captureResult)
+    }
+
+    override fun onTotalCaptureResult(
+        requestMetadata: RequestMetadata,
+        frameNumber: FrameNumber,
+        totalCaptureResult: FrameInfo,
+    ): Boolean {
+        lastTotalCaptureResult = totalCaptureResult
+        if (_result.isCompleted) {
+            val target = matchedFrameNumber
+            if (target != null && frameNumber.value >= target.value) {
+                _frameInfo.complete(totalCaptureResult)
+                return true
+            }
+            return target == null
+        }
+
+        if (matchConditions(requestMetadata.requestNumber, totalCaptureResult.metadata)) {
+            _frameInfo.complete(totalCaptureResult)
             return true
         }
 
-        // Ignore the update if the update is from a previously submitted request.
-        synchronized(this) {
-            val initialRequestNumber = initialRequestNumber
-            if (initialRequestNumber == null || requestNumber.value < initialRequestNumber.value) {
-                return false
-            }
+        return false
+    }
+
+    /**
+     * Checks if the current frame hits a timeout limit or fulfills the 3A exit conditions.
+     * Completes the primary `_result` deferred if a terminal state is reached.
+     *
+     * @return true if a terminal state was reached, false otherwise.
+     */
+    private fun matchConditions(
+        requestNumber: RequestNumber,
+        frameMetadata: FrameMetadata,
+    ): Boolean {
+        if (!isUpdateValid(requestNumber)) return false
+
+        if (checkLimits(frameMetadata)) return true
+
+        if (exitCondition(frameMetadata)) {
+            matchedFrameNumber = frameMetadata.frameNumber
+            _result.complete(Result3A(Result3A.Status.OK, frameMetadata, _frameInfo))
+            return true
         }
 
+        return false
+    }
+
+    private fun isUpdateValid(requestNumber: RequestNumber): Boolean {
+        synchronized(this) {
+            val initialReqNum = initialRequestNumber
+            return !(initialReqNum == null || requestNumber.value < initialReqNum.value)
+        }
+    }
+
+    private fun checkLimits(frameMetadata: FrameMetadata): Boolean {
         val currentTimestampNs: Long? = frameMetadata.get(CaptureResult.SENSOR_TIMESTAMP)
         val currentFrameNumber = frameMetadata.frameNumber
 
@@ -99,14 +162,17 @@ internal class Result3AStateListenerImpl(
             timestampOfFirstUpdateNs = currentTimestampNs
         }
 
-        val timestampOfFirstUpdateNs = timestampOfFirstUpdateNs
+        val timestampFirstNs = timestampOfFirstUpdateNs
         if (
             timeLimitNs != null &&
-                timestampOfFirstUpdateNs != null &&
+                timestampFirstNs != null &&
                 currentTimestampNs != null &&
-                currentTimestampNs - timestampOfFirstUpdateNs > timeLimitNs
+                currentTimestampNs - timestampFirstNs > timeLimitNs
         ) {
-            _result.complete(Result3A(Result3A.Status.TIME_LIMIT_REACHED, frameMetadata))
+            matchedFrameNumber = currentFrameNumber
+            _result.complete(
+                Result3A(Result3A.Status.TIME_LIMIT_REACHED, frameMetadata, _frameInfo)
+            )
             return true
         }
 
@@ -114,33 +180,35 @@ internal class Result3AStateListenerImpl(
             frameNumberOfFirstUpdate = currentFrameNumber
         }
 
-        val frameNumberOfFirstUpdate = frameNumberOfFirstUpdate
+        val frameFirstUpdate = frameNumberOfFirstUpdate
         if (
-            frameNumberOfFirstUpdate != null &&
+            frameFirstUpdate != null &&
                 frameLimit != null &&
-                currentFrameNumber.value - frameNumberOfFirstUpdate.value > frameLimit
+                currentFrameNumber.value - frameFirstUpdate.value > frameLimit
         ) {
-            _result.complete(Result3A(Result3A.Status.FRAME_LIMIT_REACHED, frameMetadata))
+            matchedFrameNumber = currentFrameNumber
+            _result.complete(
+                Result3A(Result3A.Status.FRAME_LIMIT_REACHED, frameMetadata, _frameInfo)
+            )
             return true
         }
 
-        if (!exitCondition(frameMetadata)) {
-            return false
-        }
-        _result.complete(Result3A(Result3A.Status.OK, frameMetadata))
-        return true
+        return false
     }
 
     override fun onStopRepeating() {
-        _result.complete(Result3A(Result3A.Status.SUBMIT_CANCELLED))
+        _frameInfo.cancel()
+        _result.complete(Result3A(Result3A.Status.SUBMIT_CANCELLED, frameInfo = _frameInfo))
     }
 
     override fun onGraphStopped() {
-        _result.complete(Result3A(Result3A.Status.SUBMIT_CANCELLED))
+        _frameInfo.cancel()
+        _result.complete(Result3A(Result3A.Status.SUBMIT_CANCELLED, frameInfo = _frameInfo))
     }
 
     override fun onGraphShutdown() {
-        _result.complete(Result3A(Result3A.Status.SUBMIT_CANCELLED))
+        _frameInfo.cancel()
+        _result.complete(Result3A(Result3A.Status.SUBMIT_CANCELLED, frameInfo = _frameInfo))
     }
 }
 

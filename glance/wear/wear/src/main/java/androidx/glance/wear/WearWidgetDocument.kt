@@ -20,6 +20,7 @@ import android.content.Context
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -35,15 +36,23 @@ import androidx.glance.wear.parcel.WearWidgetCapture
  * The provided composable content will be captured into a Remote Compose document for display
  * within a widget.
  *
- * @param backgroundColor The [Color] for the widget's background. The system draws this color
- *   behind the [content], applying clipping and system-defined padding.
+ * @param background The [WearWidgetBrush] for the widget's background. The system draws this behind
+ *   the [content], applying host-defined clipping and padding.
  * @param content The RemoteComposable content of the widget. This content is rendered in a padded
- *   area on top of the background.
+ *   area on top of the background. See [WearWidgetParams.horizontalPaddingDp] and
+ *   [WearWidgetParams.verticalPaddingDp].
  */
 public class WearWidgetDocument(
-    private val backgroundColor: Color,
+    private val background: WearWidgetBrush,
     private val content: @RemoteComposable @Composable () -> Unit,
 ) : WearWidgetData {
+
+    // TODO: b/470080675 - Remove this after G3 drop.
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public constructor(
+        backgroundColor: Color,
+        content: @RemoteComposable @Composable () -> Unit,
+    ) : this(WearWidgetBrush.color(backgroundColor.rc), content)
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override suspend fun captureRawContent(
@@ -62,7 +71,7 @@ public class WearWidgetDocument(
                 horizontalPadding = params.horizontalPaddingDp.rdp,
                 verticalPadding = params.verticalPaddingDp.rdp,
                 cornerRadius = params.cornerRadiusDp.dp,
-                backgroundColor = backgroundColor,
+                background = background,
                 content = content,
             )
         }

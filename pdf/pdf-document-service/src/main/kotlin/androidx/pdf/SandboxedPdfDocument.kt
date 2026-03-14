@@ -103,7 +103,7 @@ public class SandboxedPdfDocument(
         replaceWith = ReplaceWith("linearizationStatus"),
     )
     override val isLinearized: Boolean,
-) : EditablePdfDocument() {
+) : EditablePdfDocument {
 
     private val refCount = AtomicInteger(1)
 
@@ -306,11 +306,16 @@ public class SandboxedPdfDocument(
     override suspend fun getAnnotationsForPage(pageNum: Int): List<KeyedPdfAnnotation> =
         getKeyedAnnotationsForPage(pageNum)
 
-    override fun addOnEditsAppliedListener(executor: Executor, listener: OnEditsAppliedListener) {
+    override fun addOnEditsAppliedListener(
+        executor: Executor,
+        listener: EditablePdfDocument.OnEditsAppliedListener,
+    ) {
         onEditsAppliedListenerEntries.add(OnEditsAppliedListenerEntry(executor, listener))
     }
 
-    override fun removeOnEditsAppliedListener(listener: OnEditsAppliedListener) {
+    override fun removeOnEditsAppliedListener(
+        listener: EditablePdfDocument.OnEditsAppliedListener
+    ) {
         for (onEditsAppliedListener in onEditsAppliedListenerEntries) {
             if (onEditsAppliedListener.listener == listener) {
                 onEditsAppliedListenerEntries.remove(onEditsAppliedListener)
@@ -515,7 +520,7 @@ public class SandboxedPdfDocument(
 
     private data class OnEditsAppliedListenerEntry(
         val executor: Executor,
-        val listener: OnEditsAppliedListener,
+        val listener: EditablePdfDocument.OnEditsAppliedListener,
     )
 
     private companion object {

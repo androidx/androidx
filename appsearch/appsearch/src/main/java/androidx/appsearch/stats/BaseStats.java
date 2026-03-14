@@ -207,8 +207,11 @@ public class BaseStats {
 
     // Enabled features bitmask with all features disabled.
     public static final long NO_FEATURES_ENABLED_BITMASK = 0;
-    // Bit representing whether icing is running in a VM or not within the enabled features bitmask.
+    // Bit representing whether icing is running in a VM or not within the enabled features'
+    // bitmask.
     public static final int LAUNCH_VM = 0;
+    // Bit representing whether AI seal is enabled or not within the enabled features' bitmask.
+    public static final int LAUNCH_VM_2 = 1;
     private final long mEnabledFeatures;
     /** Time passed while waiting to acquire the lock during Java function calls. */
     protected final int mJavaLockAcquisitionLatencyMillis;
@@ -341,6 +344,13 @@ public class BaseStats {
         @CanIgnoreReturnValue
         public @NonNull BuilderType setLaunchVMEnabled(boolean enabled) {
             modifyEnabledFeature(LAUNCH_VM, enabled);
+            return mBuilderTypeInstance;
+        }
+
+        /** Sets bitmask for all enabled features . */
+        @CanIgnoreReturnValue
+        public @NonNull BuilderType setLaunchVM2Enabled(boolean enabled) {
+            modifyEnabledFeature(LAUNCH_VM_2, enabled);
             return mBuilderTypeInstance;
         }
 

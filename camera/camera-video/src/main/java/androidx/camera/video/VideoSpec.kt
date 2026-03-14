@@ -18,6 +18,7 @@ package androidx.camera.video
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope
 import androidx.camera.core.AspectRatio
+import androidx.camera.video.MediaConstants.MIME_TYPE_UNSPECIFIED
 import java.util.Objects
 
 /** Video specification that provides options to configure video encoding. */
@@ -128,9 +129,6 @@ public constructor(
 
         /** No preference for bitrate. */
         public const val BITRATE_UNSPECIFIED: Int = 0
-
-        /** No preference for MIME type. */
-        public const val MIME_TYPE_UNSPECIFIED: String = "video/*"
 
         /** Quality selector representing no preference for quality. */
         public val QUALITY_SELECTOR_UNSPECIFIED: QualitySelector = QualitySelector.NONE

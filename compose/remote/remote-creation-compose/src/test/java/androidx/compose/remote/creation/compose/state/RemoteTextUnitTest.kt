@@ -17,7 +17,6 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.compose.remote.core.RemoteContext
-import androidx.compose.remote.creation.compose.capture.NoRemoteCompose
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.util.RemoteDocumentTestRule
 import androidx.compose.ui.unit.TextUnitType
@@ -42,9 +41,6 @@ class RemoteTextUnitTest {
 
     private val context: RemoteContext
         get() = remoteComposeTestRule.context
-
-    private val testScope =
-        NoRemoteCompose().apply { remoteDensity = remoteComposeTestRule.density }
 
     @Test
     fun constructor_createsCorrectly() {
@@ -75,7 +71,7 @@ class RemoteTextUnitTest {
         val (resultId, resultPxId) =
             remoteComposeTestRule.initialise {
                 val remoteTextUnit = intValue.rsp
-                val remoteFloatPx = remoteTextUnit.toPx(testScope.remoteDensity)
+                val remoteFloatPx = remoteTextUnit.toPx()
 
                 val resultId = remoteTextUnit.value.getIdForCreationState(it)
                 val resultPxId = remoteFloatPx.getIdForCreationState(it)

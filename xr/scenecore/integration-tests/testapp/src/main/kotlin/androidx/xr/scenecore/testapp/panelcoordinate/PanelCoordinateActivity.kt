@@ -48,7 +48,6 @@ import kotlinx.coroutines.launch
 
 class PanelCoordinateActivity : AppCompatActivity() {
 
-    private val TAG = "PanelCoordinateActivity"
     private var session: Session? = null
 
     private lateinit var coordinateTypeRadioGroup: RadioGroup
@@ -102,7 +101,9 @@ class PanelCoordinateActivity : AppCompatActivity() {
             if (sessionResult is SessionCreateSuccess) {
                 session = sessionResult.session
                 setupSecondaryPanelAndGltfEntity(session!!)
-                session!!.scene.mainPanelEntity.size = FloatSize2d(1.2f, 0.8f)
+                if (session!!.scene.mainPanelEntity.sizeInPixels != DEFAULT_MAIN_PANEL_SIZE) {
+                    session!!.scene.mainPanelEntity.sizeInPixels = DEFAULT_MAIN_PANEL_SIZE
+                }
                 session?.scene?.keyEntity = session?.scene?.mainPanelEntity
             } else {
                 this@PanelCoordinateActivity.finish()
@@ -251,5 +252,9 @@ class PanelCoordinateActivity : AppCompatActivity() {
                 )
             )
         }
+    }
+
+    companion object {
+        val DEFAULT_MAIN_PANEL_SIZE = IntSize2d(2048, 1280)
     }
 }

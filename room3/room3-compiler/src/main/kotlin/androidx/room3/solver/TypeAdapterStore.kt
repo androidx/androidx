@@ -46,6 +46,7 @@ import androidx.room3.processor.ProcessorErrors
 import androidx.room3.processor.ProcessorErrors.DO_NOT_USE_GENERIC_IMMUTABLE_MULTIMAP
 import androidx.room3.processor.ProcessorErrors.invalidQueryForSingleColumnArray
 import androidx.room3.processor.PropertyProcessor
+import androidx.room3.processor.hasContinuation
 import androidx.room3.solver.binderprovider.CoroutineFlowResultBinderProvider
 import androidx.room3.solver.binderprovider.DaoConverterDeleteOrUpdateFunctionBinderProvider
 import androidx.room3.solver.binderprovider.DaoConverterInsertOrUpsertFunctionQueryResultBinderProvider
@@ -56,6 +57,7 @@ import androidx.room3.solver.binderprovider.SuspendResultBinderProvider
 import androidx.room3.solver.prepared.binder.PreparedQueryResultBinder
 import androidx.room3.solver.prepared.binderprovider.InstantPreparedQueryResultBinderProvider
 import androidx.room3.solver.prepared.binderprovider.PreparedQueryResultBinderProvider
+import androidx.room3.solver.prepared.binderprovider.SuspendPreparedQueryResultBinderProvider
 import androidx.room3.solver.prepared.result.PreparedQueryResultAdapter
 import androidx.room3.solver.query.parameter.ArrayQueryParameterAdapter
 import androidx.room3.solver.query.parameter.BasicQueryParameterAdapter
@@ -89,6 +91,8 @@ import androidx.room3.solver.shortcut.binderprovider.DeleteOrUpdateFunctionBinde
 import androidx.room3.solver.shortcut.binderprovider.InsertOrUpsertFunctionBinderProvider
 import androidx.room3.solver.shortcut.binderprovider.InstantDeleteOrUpdateFunctionBinderProvider
 import androidx.room3.solver.shortcut.binderprovider.InstantInsertOrUpsertFunctionBinderProvider
+import androidx.room3.solver.shortcut.binderprovider.SuspendDeleteOrUpdateFunctionBinderProvider
+import androidx.room3.solver.shortcut.binderprovider.SuspendInsertOrUpsertFunctionBinderProvider
 import androidx.room3.solver.shortcut.result.DeleteOrUpdateFunctionAdapter
 import androidx.room3.solver.shortcut.result.InsertOrUpsertFunctionAdapter
 import androidx.room3.solver.types.BoxedBooleanToBoxedIntConverter
@@ -199,69 +203,88 @@ private constructor(
         }
     }
 
-    private val coroutineQueryResultBinderProviders =
-        mutableListOf<QueryResultBinderProvider>().apply {
-            addAll(
-                daoReturnTypeConverters
-                    .filter { it.isSuspend }
-                    .map { DaoConverterQueryResultBinderProvider(context, it) }
-            )
-            add(SuspendResultBinderProvider(context))
-        }
+    private val queryResultBinderProviders: List<QueryResultBinderProvider> = buildList {
+        add(CoroutineFlowResultBinderProvider(context))
+        addAll(
+            daoReturnTypeConverters
+                .filterNot { it.isSuspend }
+                .map { DaoConverterQueryResultBinderProvider(context, it) }
+        )
+        add(InstantQueryResultBinderProvider(context))
+    }
 
-    private val queryResultBinderProviders: List<QueryResultBinderProvider> =
-        mutableListOf<QueryResultBinderProvider>().apply {
-            add(CoroutineFlowResultBinderProvider(context))
+    private val coroutineQueryResultBinderProviders = buildList {
+        addAll(
+            daoReturnTypeConverters
+                .filter { it.isSuspend }
+                .map { DaoConverterQueryResultBinderProvider(context, it) }
+        )
+        add(SuspendResultBinderProvider(context))
+    }
+
+    private val preparedQueryResultBinderProviders: List<PreparedQueryResultBinderProvider> =
+        buildList {
             addAll(
                 daoReturnTypeConverters
                     .filterNot { it.isSuspend }
-                    .map {
-                        DaoConverterQueryResultBinderProvider(
-                            context = context,
-                            returnTypeConverter = it,
-                        )
-                    }
-            )
-            add(InstantQueryResultBinderProvider(context))
-        }
-
-    private val preparedQueryResultBinderProviders: List<PreparedQueryResultBinderProvider> =
-        mutableListOf<PreparedQueryResultBinderProvider>().apply {
-            addAll(
-                daoReturnTypeConverters.map {
-                    DaoReturnTypePreparedQueryBinderProvider(
-                        context = context,
-                        returnTypeConverter = it,
-                    )
-                }
+                    .map { DaoReturnTypePreparedQueryBinderProvider(context, it) }
             )
             add(InstantPreparedQueryResultBinderProvider(context))
         }
 
-    private val insertOrUpsertBinderProviders: List<InsertOrUpsertFunctionBinderProvider> =
-        mutableListOf<InsertOrUpsertFunctionBinderProvider>().apply {
+    private val coroutinePreparedQueryResultBinderProviders:
+        List<PreparedQueryResultBinderProvider> =
+        buildList {
             addAll(
-                daoReturnTypeConverters.map {
-                    DaoConverterInsertOrUpsertFunctionQueryResultBinderProvider(
-                        context = context,
-                        returnTypeConverter = it,
-                    )
-                }
+                daoReturnTypeConverters
+                    .filter { it.isSuspend }
+                    .map { DaoReturnTypePreparedQueryBinderProvider(context, it) }
+            )
+            add(SuspendPreparedQueryResultBinderProvider(context))
+        }
+
+    private val insertOrUpsertBinderProviders: List<InsertOrUpsertFunctionBinderProvider> =
+        buildList {
+            addAll(
+                daoReturnTypeConverters
+                    .filterNot { it.isSuspend }
+                    .map {
+                        DaoConverterInsertOrUpsertFunctionQueryResultBinderProvider(context, it)
+                    }
             )
             add(InstantInsertOrUpsertFunctionBinderProvider(context))
         }
 
-    private val deleteOrUpdateBinderProvider: List<DeleteOrUpdateFunctionBinderProvider> =
-        mutableListOf<DeleteOrUpdateFunctionBinderProvider>().apply {
+    private val coroutineInsertOrUpsertBinderProviders: List<InsertOrUpsertFunctionBinderProvider> =
+        buildList {
             addAll(
-                daoReturnTypeConverters.map {
-                    DaoConverterDeleteOrUpdateFunctionBinderProvider(
-                        context = context,
-                        returnTypeConverter = it,
-                    )
-                }
+                daoReturnTypeConverters
+                    .filter { it.isSuspend }
+                    .map {
+                        DaoConverterInsertOrUpsertFunctionQueryResultBinderProvider(context, it)
+                    }
+            )
+            add(SuspendInsertOrUpsertFunctionBinderProvider(context))
+        }
+
+    private val deleteOrUpdateBinderProvider: List<DeleteOrUpdateFunctionBinderProvider> =
+        buildList {
+            addAll(
+                daoReturnTypeConverters
+                    .filterNot { it.isSuspend }
+                    .map { DaoConverterDeleteOrUpdateFunctionBinderProvider(context, it) }
             )
             add(InstantDeleteOrUpdateFunctionBinderProvider(context))
+        }
+
+    private val coroutineDeleteOrUpdateBinderProvider: List<DeleteOrUpdateFunctionBinderProvider> =
+        buildList {
+            addAll(
+                daoReturnTypeConverters
+                    .filter { it.isSuspend }
+                    .map { DaoConverterDeleteOrUpdateFunctionBinderProvider(context, it) }
+            )
+            add(SuspendDeleteOrUpdateFunctionBinderProvider(context))
         }
 
     /** Searches 1 way to bind a value into a statement. */
@@ -440,26 +463,45 @@ private constructor(
         }
     }
 
-    fun findDeleteOrUpdateFunctionBinder(typeMirror: XType): DeleteOrUpdateFunctionBinder {
-        return deleteOrUpdateBinderProvider.first { it.matches(typeMirror) }.provide(typeMirror)
+    fun findDeleteOrUpdateFunctionBinder(
+        typeMirror: XType,
+        extras: TypeAdapterExtras = TypeAdapterExtras(),
+    ): DeleteOrUpdateFunctionBinder {
+        return if (extras.hasContinuation()) {
+                coroutineDeleteOrUpdateBinderProvider
+            } else {
+                deleteOrUpdateBinderProvider
+            }
+            .first { it.matches(typeMirror) }
+            .provide(typeMirror, extras)
     }
 
     fun findInsertFunctionBinder(
         typeMirror: XType,
         params: List<ShortcutQueryParameter>,
+        extras: TypeAdapterExtras = TypeAdapterExtras(),
     ): InsertOrUpsertFunctionBinder {
-        return insertOrUpsertBinderProviders
+        return if (extras.hasContinuation()) {
+                coroutineInsertOrUpsertBinderProviders
+            } else {
+                insertOrUpsertBinderProviders
+            }
             .first { it.matches(typeMirror) }
-            .provide(typeMirror, params, false)
+            .provide(typeMirror, params, false, extras)
     }
 
     fun findUpsertFunctionBinder(
         typeMirror: XType,
         params: List<ShortcutQueryParameter>,
+        extras: TypeAdapterExtras = TypeAdapterExtras(),
     ): InsertOrUpsertFunctionBinder {
-        return insertOrUpsertBinderProviders
+        return if (extras.hasContinuation()) {
+                coroutineInsertOrUpsertBinderProviders
+            } else {
+                insertOrUpsertBinderProviders
+            }
             .first { it.matches(typeMirror) }
-            .provide(typeMirror, params, true)
+            .provide(typeMirror, params, true, extras)
     }
 
     fun findQueryResultBinder(
@@ -475,17 +517,11 @@ private constructor(
         query: ParsedQuery,
         extras: TypeAdapterExtras,
     ): QueryResultBinder {
-        return queryResultBinderProviders
-            .first { it.matches(typeMirror) }
-            .provide(typeMirror, query, extras)
-    }
-
-    fun findCoroutineQueryResultBinder(
-        typeMirror: XType,
-        query: ParsedQuery,
-        extras: TypeAdapterExtras,
-    ): QueryResultBinder {
-        return coroutineQueryResultBinderProviders
+        return if (extras.hasContinuation()) {
+                coroutineQueryResultBinderProviders
+            } else {
+                queryResultBinderProviders
+            }
             .first { it.matches(typeMirror) }
             .provide(typeMirror, query, extras)
     }
@@ -493,10 +529,15 @@ private constructor(
     fun findPreparedQueryResultBinder(
         typeMirror: XType,
         query: ParsedQuery,
+        extras: TypeAdapterExtras = TypeAdapterExtras(),
     ): PreparedQueryResultBinder {
-        return preparedQueryResultBinderProviders
+        return if (extras.hasContinuation()) {
+                coroutinePreparedQueryResultBinderProviders
+            } else {
+                preparedQueryResultBinderProviders
+            }
             .first { it.matches(typeMirror) }
-            .provide(typeMirror, query)
+            .provide(typeMirror, query, extras)
     }
 
     fun findPreparedQueryResultAdapter(typeMirror: XType, query: ParsedQuery) =

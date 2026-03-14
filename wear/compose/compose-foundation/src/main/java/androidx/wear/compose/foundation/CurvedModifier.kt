@@ -80,8 +80,9 @@ internal open class BaseCurvedChildWrapper(val wrapped: CurvedChild) : CurvedChi
         wrapped.SubComposition(semanticProperties)
     }
 
-    override fun CurvedMeasureScope.initializeMeasure(measurables: Iterator<Measurable>) =
-        with(wrapped) { initializeMeasure(measurables) }
+    override fun CurvedMeasureScope.initializeMeasure(
+        measurables: Iterator<Measurable>
+    ): (Placeable.PlacementScope).() -> Unit = with(wrapped) { initializeMeasure(measurables) }
 
     override fun computeParentData(): Any? = wrapped.computeParentData()
 
@@ -95,8 +96,6 @@ internal open class BaseCurvedChildWrapper(val wrapped: CurvedChild) : CurvedChi
         parentSweepRadians: Float,
         centerOffset: Offset,
     ) = wrapped.angularPosition(parentStartAngleRadians, parentSweepRadians, centerOffset)
-
-    override fun (Placeable.PlacementScope).placeIfNeeded() = with(wrapped) { placeIfNeeded() }
 
     override fun DrawScope.draw() = with(wrapped) { draw() }
 }

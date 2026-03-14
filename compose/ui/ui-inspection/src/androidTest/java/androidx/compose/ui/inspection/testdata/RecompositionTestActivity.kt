@@ -49,16 +49,21 @@ class RecompositionTestActivity : ComponentActivity() {
         val list = remember { mutableStateListOf("a", "b", "c", "d", "e", "f") }
         Row {
             Column {
-                Button(
-                    onClick = { clickCount.value = clickCount.value + 1 },
-                    modifier = Modifier.padding(16.dp, 4.dp),
-                ) {
+                Button(onClick = { clickCount.value++ }, modifier = Modifier.padding(16.dp, 4.dp)) {
                     Text("Click row $number")
                 }
             }
             Column(modifier = Modifier.align(Alignment.CenterVertically)) {
                 Text("Row $number click count: ${clickCount.value}, ${list.joinToString("")}")
+                AnotherItem(clickCount.value) { clickCount.value }
             }
         }
+    }
+
+    /** This @Composable will have a state read every 2nd time it called from Item. */
+    @Composable
+    fun AnotherItem(number: Int, withStateRead: () -> Int) {
+        val value = if (number % 2 == 1) number + withStateRead() else number
+        Text(value.toString(), modifier = Modifier.padding(16.dp, 4.dp))
     }
 }

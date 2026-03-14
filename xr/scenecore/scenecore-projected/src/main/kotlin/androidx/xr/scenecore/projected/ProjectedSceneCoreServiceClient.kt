@@ -24,6 +24,8 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.os.IBinder
+import android.os.Looper
+import androidx.annotation.WorkerThread
 import androidx.xr.runtime.XrLog
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -44,10 +46,18 @@ internal open class ProjectedSceneCoreServiceClient {
      * @return The connected [IProjectedSceneCoreService].
      * @throws IllegalStateException If the service cannot be found or binding fails.
      */
+    @WorkerThread
     public open suspend fun bindService(context: Context): IProjectedSceneCoreService {
         // Return immediately if already connected
         service?.let {
             return it
+        }
+
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            throw IllegalStateException(
+                "The Projected SceneCore Service cannot be bound from the main thread. " +
+                    "Please call this method from a background thread."
+            )
         }
 
         return suspendCancellableCoroutine { continuation ->

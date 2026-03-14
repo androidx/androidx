@@ -33,6 +33,7 @@ import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.AppSearchConfig;
 import androidx.appsearch.localstorage.AppSearchConfigImpl;
 import androidx.appsearch.localstorage.AppSearchImpl;
+import androidx.appsearch.localstorage.AppSearchUserPlugins;
 import androidx.appsearch.localstorage.LocalStorageIcingOptionsConfig;
 import androidx.appsearch.localstorage.OptimizeStrategy;
 import androidx.appsearch.localstorage.UnlimitedLimitConfig;
@@ -91,11 +92,7 @@ public class VisibilityStoreMigrationFromV2Test {
         // Create AppSearchImpl with visibility document version 2;
         AppSearchImpl appSearchImplInV2 = AppSearchImpl.create(mFile,
                 mConfig,
-                /*initStatsBuilder=*/ null,
-                /*callStatsBuilder=*/ null,
-                /*visibilityChecker=*/ null,
-                /*revocableFileDescriptorStore=*/ null,
-                /*icingSearchEngine=*/ null,
+                AppSearchUserPlugins.EMPTY,
                 ALWAYS_OPTIMIZE);
 
         // Erase overlay schemas since it doesn't exist in released V2 schema.
@@ -175,11 +172,7 @@ public class VisibilityStoreMigrationFromV2Test {
         appSearchImplInV2.close();
         AppSearchImpl appSearchImpl = AppSearchImpl.create(mFile,
                 mConfig,
-                /*initStatsBuilder=*/ null,
-                /*callStatsBuilder=*/ null,
-                /*visibilityChecker=*/ null,
-                /*revocableFileDescriptorStore=*/ null,
-                /*icingSearchEngine=*/ null,
+                AppSearchUserPlugins.EMPTY,
                 ALWAYS_OPTIMIZE);
 
         InternalVisibilityConfig actualConfig =

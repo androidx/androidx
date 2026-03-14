@@ -56,11 +56,7 @@ public class SearchResultsImplTest {
         mAppSearchImpl = AppSearchImpl.create(
                 mTemporaryFolder.newFolder(),
                 config,
-                /*initStatsBuilder=*/ null,
-                /*callStatsBuilder=*/ null,
-                /*visibilityChecker=*/ null,
-                /*revocableFileDescriptorStore=*/ null,
-                /*icingSearchEngine=*/ null,
+                AppSearchUserPlugins.EMPTY,
                 ALWAYS_OPTIMIZE);
     }
 

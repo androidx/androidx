@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.0.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-beta02)" variant="all" version="9.0.0-beta02">
+<issues format="6" by="lint 9.2.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (9.2.0-alpha01)" variant="all" version="9.2.0-alpha01">
 
     <issue
         id="BanThreadSleep"
@@ -480,7 +480,7 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="method setAnchors$material has parameter anchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        message="method setAnchors$material has parameter &lt;set-?> with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
         errorLine1="    internal var anchors by mutableStateOf(emptyMap&lt;Float, T>())"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location

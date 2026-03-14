@@ -22,6 +22,7 @@ import androidx.room3.Insert
 import androidx.room3.OnConflictStrategy
 import androidx.room3.compiler.processing.XMethodElement
 import androidx.room3.compiler.processing.XType
+import androidx.room3.solver.shortcut.binder.InstantInsertOrUpsertFunctionBinder
 import androidx.room3.vo.InsertFunction
 import androidx.room3.vo.findPropertyByColumnName
 
@@ -55,40 +56,50 @@ class InsertFunctionProcessor(
             delegate.extractParams(
                 targetEntityType = annotation?.get("entity")?.asType(),
                 missingParamError = ProcessorErrors.INSERT_DOES_NOT_HAVE_ANY_PARAMETERS_TO_INSERT,
-                onValidatePartialEntity = { entity, pojo ->
+                onValidatePartialEntity = { entity, dataClass ->
                     val missingPrimaryKeys =
                         entity.primaryKey.properties.any {
-                            pojo.findPropertyByColumnName(it.columnName) == null
+                            dataClass.findPropertyByColumnName(it.columnName) == null
                         }
                     context.checker.check(
                         entity.primaryKey.autoGenerateId || !missingPrimaryKeys,
                         executableElement,
                         ProcessorErrors.missingPrimaryKeysInPartialEntityForInsert(
-                            partialEntityName = pojo.typeName.toString(context.codeLanguage),
+                            partialEntityName = dataClass.typeName.toString(context.codeLanguage),
                             primaryKeyNames = entity.primaryKey.properties.columnNames,
                         ),
                     )
 
-                    // Verify all non null columns without a default value are in the POJO otherwise
-                    // the INSERT will fail with a NOT NULL constraint.
-                    val missingRequiredFields =
+                    // Verify all non null columns without a default value are in the data class
+                    // otherwise the INSERT will fail with a NOT NULL constraint.
+                    val missingRequiredProperties =
                         (entity.properties - entity.primaryKey.properties).filter {
                             it.nonNull &&
                                 it.defaultValue == null &&
-                                pojo.findPropertyByColumnName(it.columnName) == null
+                                dataClass.findPropertyByColumnName(it.columnName) == null
                         }
                     context.checker.check(
-                        missingRequiredFields.isEmpty(),
+                        missingRequiredProperties.isEmpty(),
                         executableElement,
                         ProcessorErrors.missingRequiredColumnsInPartialEntity(
-                            partialEntityName = pojo.typeName.toString(context.codeLanguage),
-                            missingColumnNames = missingRequiredFields.map { it.columnName },
+                            partialEntityName = dataClass.typeName.toString(context.codeLanguage),
+                            missingColumnNames = missingRequiredProperties.map { it.columnName },
                         ),
                     )
                 },
             )
 
         val functionBinder = delegate.findInsertFunctionBinder(returnType, params)
+        if (
+            functionBinder is InstantInsertOrUpsertFunctionBinder && !context.isAndroidOnlyTarget()
+        ) {
+            // A blocking function that does not return a deferred return type is not allowed
+            // if the target platforms include non-Android targets.
+            context.logger.e(
+                executableElement,
+                ProcessorErrors.INVALID_BLOCKING_DAO_FUNCTION_NON_ANDROID,
+            )
+        }
 
         context.checker.check(
             functionBinder.adapter != null,

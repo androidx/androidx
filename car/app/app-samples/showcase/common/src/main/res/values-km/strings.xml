@@ -243,6 +243,7 @@
     <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"អត្ថបទរងនៅក្រោមបញ្ជីនីមួយៗ"</string>
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"បញ្ចប់គំរូបង្ហាញសកម្មភាព និងរូបភាព"</string>
     <string name="filter_chip_demo_title" msgid="92190365856639582">"គំរូបង្ហាញឈីបតម្រង"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"គំរូបង្ហាញរបារ​ដំណើរការ"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"គំរូបង្ហាញ​ទម្រង់គំរូផ្ទាំង"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"គំរូបង្ហាញទម្រង់​គំរូនៃបញ្ជីទីកន្លែង"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"រុករក​ទីកន្លែង"</string>

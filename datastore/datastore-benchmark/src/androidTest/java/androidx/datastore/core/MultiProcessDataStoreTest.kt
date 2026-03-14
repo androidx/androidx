@@ -105,12 +105,12 @@ class MultiProcessDataStoreTest {
     @MediumTest
     fun read() =
         runTest(UnconfinedTestDispatcher()) {
-            val scope = backgroundScope
+            val scope = this
             val testFile = tmp.newFile()
             val store =
                 MultiProcessDataStoreFactory.create(
                     serializer = TestingSerializer(),
-                    scope = backgroundScope,
+                    scope = this,
                 ) {
                     testFile
                 }
@@ -130,12 +130,12 @@ class MultiProcessDataStoreTest {
     @MediumTest
     fun update_withoutValueChange() =
         runTest(UnconfinedTestDispatcher()) {
-            val scope = backgroundScope
+            val scope = this
             val testFile = tmp.newFile()
             val store =
                 MultiProcessDataStoreFactory.create(
                     serializer = TestingSerializer(),
-                    scope = backgroundScope,
+                    scope = this,
                 ) {
                     testFile
                 }
@@ -155,12 +155,12 @@ class MultiProcessDataStoreTest {
     @MediumTest
     fun update_withValueChange() =
         runTest(UnconfinedTestDispatcher()) {
-            val scope = backgroundScope
+            val scope = this
             val testFile = tmp.newFile()
             val store =
                 MultiProcessDataStoreFactory.create(
                     serializer = TestingSerializer(),
-                    scope = backgroundScope,
+                    scope = this,
                 ) {
                     testFile
                 }

@@ -38,6 +38,7 @@ Calculating task graph as configuration cache cannot be reused because the file 
 Calculating task graph as configuration cache cannot be reused because directory.*
 Calculating task graph as configuration cache cannot be reused because an input to plugin class.*
 Calculating task graph as configuration cache cannot be reused because an input to unknown location has changed.*
+Calculating task graph as configuration cache cannot be reused because the set of Gradle properties prefixed by 'androidx.' has changed.*
 See the profiling report at\: file\:\/\/\$OUT_DIR\/androidx\/build\/reports\/profile\/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
 # > Task :lifecycle:lifecycle-common:compileJava
 Note: \$[^ ]+ uses or overrides a deprecated API\.
@@ -60,7 +61,7 @@ See the complete report at file://.*/build/reports/configuration\-cache/[^ ]*/[^
 A fine\-grained performance profile is available\: use the \-\-scan option\.
 # > Task :docs
 # b/484324711
-WARN: Couldn't resolve link for .*
+WARN: Couldn't resolve link: .*
 WARN: .*\/unzippedJvmSources\/android\/support\/v4\/media\/session\/MediaControllerCompat\.java:[0-9]+ Missing @param tag for parameter `context` in DFunction MediaControllerCompat
 WARN: .*\/unzippedJvmSources\/androidx\/appcompat\/app\/AppCompatDelegate\.java:[0-9]+ Missing @param tag for parameter `activity` in DFunction create
 WARN: .*\/unzippedJvmSources\/androidx\/appcompat\/app\/AppCompatDelegate\.java:[0-9]+ Missing @param tag for parameter `context` in DFunction create
@@ -236,8 +237,6 @@ WARN: .*\/unzippedJvmSources\/androidx\/credentials\/SignalCredentialStateReques
 WARN: File location could not be determined\. Failed to resolve See <a href="https:\/\/developer\.android\.com\/training\/transitions">Transition API Guide<\/a> in DPackage androidx\.transition
 # b/484051200
 WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/runtime\/rxjava[2-3]\/RxJava[2-3]Adapter\.kt:[0-9]+ Unresolved receiver .* in DFunction subscribeAsState
-# b/484050995
-WARN: .*\/unzippedJvmSources\/androidx\/sqlite\/db\/SupportSQLiteDatabaseExt\.kt:[0-9]+ Unresolved receiver SupportSQLiteDatabase in DFunction transaction
 [0-9]+ cpus, so not storing build metrics.
 64 cpus, so storing build metrics.
 # b/351805708: upstream bug in Kotlin: can't have a nested class with different expect from parent
@@ -377,10 +376,19 @@ Calculating task graph as configuration cache cannot be reused because the set o
 # b/414775532
 # > Task :compose-hero-benchmarks:pokedex-compose:app:kspReleaseKotlin
 w: \[ksp\] LibraryGlideModules \[\] are included more than once, keeping only one\!
-# b/439568035
+# b/477184340
 WARNING: The option setting 'android\.newDsl=false' is deprecated\.
 The current default is 'true'\.
 It will be removed in version 10\.0 of the Android Gradle plugin\.
+WARNING: API 'applicationVariants' is obsolete and has been replaced with 'AndroidComponentsExtension'\.
+WARNING: API 'libraryVariants' is obsolete and has been replaced with 'AndroidComponentsExtension'\.
+WARNING: API 'testVariants' is obsolete and has been replaced with 'AndroidComponentsExtension'\.
+WARNING: API 'unitTestVariants' is obsolete and has been replaced with 'AndroidComponentsExtension'\.
+The legacy variant API is disabled by default in AGP 9\.0, but can be re-enabled by adding
+android\.newDsl=false
+to this project's gradle\.properties file\.
+For more information, see http://developer\.android\.com/build/r/new-dsl\.
+To determine what is calling .*, use \-Pandroid\.debug\.obsoleteApi=true on the command line to display more information\.
 # b/454595352
 WARNING: The option setting 'android\.kmp\.use\.jvm\.platform\.type=true' is experimental\.
 # b/439073627
@@ -411,8 +419,6 @@ w: file://\$SUPPORT/navigation/navigation-runtime/src/wasmJsTest/kotlin/androidx
 # > Task :kotlinWasmToolingSetup
 \(node:[0-9]+\) \[DEP[0-9]+\] DeprecationWarning: The `punycode` module is deprecated\. Please use a userland alternative instead\.
 \(Use `node \-\-trace\-deprecation \.\.\.` to show where the warning was created\)
-# > Task :kruth:kruth:compileNativeMainKotlinMetadata
-w: KLIB resolver: The same 'unique_name=kotlin\-stdlib\-common' found in more than one library: \$OUT_DIR/androidx/kruth/kruth/build/kotlinTransformedMetadataLibraries/commonMain/org\.jetbrains\.kotlin\-kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\-commonMain\-Y[0-9]+sbrw\.klib, \$OUT_DIR/androidx/kruth/kruth/build/kotlinTransformedMetadataLibraries/nonJvmMain/org\.jetbrains\.kotlin\-kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\-commonNonJvmMain\-Y[0-9]+sbrw\.klib, \$OUT_DIR/androidx/kruth/kruth/build/kotlinTransformedMetadataLibraries/nonJvmMain/org\.jetbrains\.kotlin\-kotlin\-stdlib\-[0-9]+\.[0-9]+\.[0-9]+\-webMain\-Y[0-9]+sbrw\.klib
 # > Task :appfunctions:integration-tests:multi-modules-testapp:app:compileDebugAndroidTestKotlin
 # b/472412144
 \[KOTLIN\] \[IC\] Incremental compilation was attempted but failed:
@@ -423,3 +429,5 @@ java\.lang\.IllegalStateException: The following LookupSymbols are not yet conve
 \$OUT_DIR/androidx/car/app/app\-automotive/build/generated/source/stable_aidl/release/androidx/car/app/activity/renderer/IInsetsListener\.java:[0-9]+: warning: \[dep\-ann\] deprecated item is not annotated with @Deprecated
 @Override public void onInsetsChanged\(android\.graphics\.Insets insets\) throws android\.os\.RemoteException
 \^
+# Fixed in next AGP alpha via ag/38589626
+\-\-XuseK2Uast is no longer in effect, and will be an error in the next release\.

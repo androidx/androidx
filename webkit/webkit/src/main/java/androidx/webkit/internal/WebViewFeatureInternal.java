@@ -731,9 +731,21 @@ public class WebViewFeatureInternal {
      * This feature is not referred to by the app and is only used by the library to choose
      * different code paths based on underlying support from WebView.
      */
-    public static final ApiFeature.NoFramework ASYNC_WEBVIEW_STARTUP =
-            new ApiFeature.NoFramework("IMPLEMENTATION_ONLY_FEATURE",
-                    Features.ASYNC_WEBVIEW_STARTUP);
+    public static final ApiFeature.NoFrameworkInternal ASYNC_WEBVIEW_STARTUP_V2 =
+            new ApiFeature.NoFrameworkInternal(Features.ASYNC_WEBVIEW_STARTUP_V2);
+
+
+    /**
+     * @deprecated Use {@link #ASYNC_WEBVIEW_STARTUP_V2} instead.
+     * Feature that is relevant for the implementation of
+     * {@link androidx.webkit.WebViewCompat#startUpWebView(WebViewStartUpConfig, WebViewCompat.WebViewStartUpCallback)}
+     *
+     * This feature is not referred to by the app and is only used by the library to choose
+     * different code paths based on underlying support from WebView.
+     */
+    @Deprecated
+    public static final ApiFeature.NoFrameworkInternal ASYNC_WEBVIEW_STARTUP =
+            new ApiFeature.NoFrameworkInternal(Features.ASYNC_WEBVIEW_STARTUP);
 
     /**
      * Feature that is relevant for the implementation of
@@ -742,8 +754,9 @@ public class WebViewFeatureInternal {
      * This feature is not referred to by the app and is only used by the library to choose
      * different code paths based on underlying support from WebView.
      */
-    public static final ApiFeature.NoFramework ASYNC_WEBVIEW_STARTUP_ASYNC_STARTUP_LOCATIONS =
-            new ApiFeature.NoFramework("IMPLEMENTATION_ONLY_FEATURE",
+    public static final ApiFeature.NoFrameworkInternal
+            ASYNC_WEBVIEW_STARTUP_ASYNC_STARTUP_LOCATIONS =
+            new ApiFeature.NoFrameworkInternal(
                     Features.ASYNC_WEBVIEW_STARTUP_ASYNC_STARTUP_LOCATIONS);
 
     /**
@@ -771,6 +784,24 @@ public class WebViewFeatureInternal {
     public static final ApiFeature.NoFramework SPECULATIVE_LOADING_CONFIG =
             new ApiFeature.NoFramework(WebViewFeature.SPECULATIVE_LOADING_CONFIG,
                     Features.SPECULATIVE_LOADING_CONFIG);
+
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers {@link Profile#setMaxPrefetches(Integer)},
+     * {@link Profile#setPrefetchTtlSeconds(Integer)}
+     */
+    public static final ApiFeature.NoFramework PREFETCH_CACHE =
+            new ApiFeature.NoFramework(WebViewFeature.PREFETCH_CACHE_V1,
+                    Features.PREFETCH_CACHE);
+
+
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers {@link Profile#setMaxPrerenders(Integer)}
+     */
+    public static final ApiFeature.NoFramework SET_MAX_PRERENDERS =
+            new ApiFeature.NoFramework(WebViewFeature.SET_MAX_PRERENDERS_V1,
+                    Features.SET_MAX_PRERENDERS);
 
     /**
      * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
@@ -940,7 +971,6 @@ public class WebViewFeatureInternal {
      * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
      * This feature covers {@link WebViewStartUpConfig.Builder#setProfilesToLoadDuringStartup(Set)},
      */
-    @WebViewCompat.ExperimentalAsyncStartUp
     public static final StartupApiFeature.NoFramework STARTUP_FEATURE_SET_PROFILES_TO_LOAD =
             new StartupApiFeature.NoFramework(WebViewFeature.STARTUP_FEATURE_SET_PROFILES_TO_LOAD,
                     StartupFeatures.STARTUP_FEATURE_SET_PROFILES_TO_LOAD);
@@ -952,6 +982,7 @@ public class WebViewFeatureInternal {
      *
      * @deprecated Use {@link #STARTUP_FEATURE_SET_UI_THREAD_STARTUP_MODE_V2} instead.
      */
+    @WebViewCompat.ExperimentalAsyncStartUp
     @Deprecated
     public static final StartupApiFeature.NoFramework
             STARTUP_FEATURE_SET_UI_THREAD_STARTUP_MODE =
@@ -964,6 +995,7 @@ public class WebViewFeatureInternal {
      * This feature covers
      * {@link androidx.webkit.ProcessGlobalConfig#setUiThreadStartupMode(Context, int)}.
      */
+    @WebViewCompat.ExperimentalAsyncStartUp
     public static final StartupApiFeature.NoFramework
             STARTUP_FEATURE_SET_UI_THREAD_STARTUP_MODE_V2 =
             new StartupApiFeature.NoFramework(
@@ -1003,6 +1035,21 @@ public class WebViewFeatureInternal {
             new ApiFeature.NoFramework(
                     WebViewFeature.PAGE_GET_URL,
                     Features.PAGE_GET_URL);
+
+    /**
+     * This feature covers {@link
+     * androidx.webkit.WebViewCompat#addJavaScriptOnEvent(android.webkit.WebView, String, int, Set,
+     * androidx.webkit.WebViewCompat.JsExecutionWorld)} {@link
+     * androidx.webkit.WebViewCompat#getExecutionWorld(android.webkit.WebView, String)} {@link
+     * androidx.webkit.WebViewCompat#addWebMessageListener(android.webkit.WebView, String, Set,
+     * WebMessageListener, JsExecutionWorld)} {@link
+     * androidx.webkit.WebViewCompat#removeWebMessageListener(android.webkit.WebView, String,
+     * JsExecutionWorld)}
+     */
+    public static final ApiFeature.NoFramework JS_INJECTION_IN_FRAME_AND_WORLD =
+            new ApiFeature.NoFramework(
+                    WebViewFeature.JS_INJECTION_IN_FRAME_AND_WORLD,
+                    Features.JS_INJECTION_IN_FRAME_AND_WORLD);
 
     // --- Add new feature constants above this line ---
 

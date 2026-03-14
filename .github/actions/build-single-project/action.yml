@@ -82,6 +82,20 @@ runs:
 
         cache-disabled: ${{ inputs.gradle-cache-disabled }}
 
+    # Using the wrapper version in the setup-gradle action above does not set the version used by
+    # the `gradle` command to the wrapper version (https://github.com/gradle/actions/issues/273).
+    - name: "Set Gradle command"
+      shell: bash
+      run: |
+        gradleCommand=$(
+          if [ ${{ inputs.gradle-version }} = "wrapper" ]; then
+            echo "./gradlew"
+          else
+            echo "gradle"
+          fi
+        )
+        echo "GRADLE_COMMAND=$gradleCommand" >> "$GITHUB_ENV"
+
     - name: "gradle buildOnServer zipTestConfigsWithApks"
       env:
         JAVA_HOME: ${{ steps.setup-java.outputs.path }}
@@ -90,7 +104,7 @@ runs:
         GRADLE_ENCRYPTION_KEY: ${{ inputs.gradle-encryption-key }}
       working-directory: ${{ inputs.project-root }}
       shell: bash
-      run: gradle buildOnServer zipTestConfigsWithApks ${{ inputs.gradle-flags }}
+      run: $GRADLE_COMMAND  buildOnServer zipTestConfigsWithApks ${{ inputs.gradle-flags }}
     - name: "gradle playgroundCIHostTests"
       env:
         JAVA_HOME: ${{ steps.setup-java.outputs.path }}
@@ -99,7 +113,7 @@ runs:
         GRADLE_ENCRYPTION_KEY: ${{ inputs.gradle-encryption-key }}
       working-directory: ${{ inputs.project-root }}
       shell: bash
-      run: gradle playgroundCIHostTests ${{ inputs.gradle-flags }}
+      run: $GRADLE_COMMAND playgroundCIHostTests ${{ inputs.gradle-flags }}
 
     # Zip artifacts because some paths contain ":", which upload-artifact does not accept.
     - name: "Zip build artifacts"

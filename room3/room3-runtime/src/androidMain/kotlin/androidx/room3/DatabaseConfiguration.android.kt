@@ -15,82 +15,75 @@
  */
 package androidx.room3
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import androidx.annotation.RestrictTo
 import androidx.room3.autoclose.AutoCloserConfig
 import androidx.room3.migration.AutoMigrationSpec
 import androidx.room3.prepackage.PrePackagedCopyConfig
-import androidx.room3.util.isMigrationRequired as isMigrationRequiredExt
 import androidx.sqlite.SQLiteDriver
 import kotlin.coroutines.CoroutineContext
 
 /** Configuration class for a [RoomDatabase]. */
-@Suppress("UNUSED_PARAMETER", "KmpModifierMismatch") // expect is not open
-public actual open class DatabaseConfiguration
-@SuppressLint("LambdaLast")
+public actual class DatabaseConfiguration
+@Suppress("ExecutorRegistration") // not a registration method
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
 constructor(
     /* The context to use while connecting to the database. */
-    @JvmField public val context: Context,
+    public val context: Context,
 
     /* The name of the database file or null if it is an in-memory database. */
-    @JvmField public actual val name: String?,
+    public actual val name: String?,
 
     /* Collection of available migrations. */
-    @JvmField public actual val migrationContainer: RoomDatabase.MigrationContainer,
+    public actual val migrationContainer: RoomDatabase.MigrationContainer,
 
     /* Database callbacks. */
-    @JvmField public actual val callbacks: List<RoomDatabase.Callback>?,
+    public actual val callbacks: List<RoomDatabase.Callback>,
 
     /* Whether Room should throw an exception for queries run on the main thread. */
-    @JvmField public val allowMainThreadQueries: Boolean,
+    @get:Suppress("GetterSetterNames") // Existing name pattern
+    public val allowMainThreadQueries: Boolean,
 
     /* The journal mode for this database. */
-    @JvmField public actual val journalMode: RoomDatabase.JournalMode,
+    public actual val journalMode: RoomDatabase.JournalMode,
 
     /**
-     * Intent that should be bound to acquire the invalidation service or `null` if not used.
+     * The [Intent] not null table invalidation in an instance of [RoomDatabase] is broadcast and
+     * synchronized with other instances of the same [RoomDatabase] file, including those in a
+     * separate process.
      *
-     * @see [multiInstanceInvalidation]
+     * This [Intent] should be used to bound to acquire the invalidation service.
      */
-    @field:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
-    @JvmField
-    public val multiInstanceInvalidationServiceIntent: Intent?,
+    internal val multiInstanceInvalidationServiceIntent: Intent?,
 
     /* Whether Room should throw an exception for missing migrations. */
-    @JvmField public actual val requireMigration: Boolean,
+    public actual val isMigrationRequired: Boolean,
 
     /* Whether Room will fallback to destructive migrations on downgrades only .*/
-    @JvmField public actual val allowDestructiveMigrationOnDowngrade: Boolean,
+    @get:Suppress("GetterSetterNames") // Existing name pattern
+    public actual val allowDestructiveMigrationOnDowngrade: Boolean,
     internal actual val migrationNotRequiredFrom: Set<Int>?,
 
     /* Callback when Room uses a pre-packaged database. */
-    @JvmField public val prepackagedDatabaseCallback: RoomDatabase.PrepackagedDatabaseCallback?,
+    public val prepackagedDatabaseCallback: RoomDatabase.PrepackagedDatabaseCallback?,
 
     /* List of provided type converters. */
-    @JvmField public actual val typeConverters: List<Any>,
+    @param:Suppress("ListenerLast") public actual val typeConverters: List<Any>,
 
     /* List of provided auto migration specs. */
-    @JvmField public actual val autoMigrationSpecs: List<AutoMigrationSpec>,
+    @param:Suppress("ListenerLast") public actual val autoMigrationSpecs: List<AutoMigrationSpec>,
 
     /* Whether Room will delete all tables or only known tables during destructive migrations. */
-    @JvmField public actual val allowDestructiveMigrationForAllTables: Boolean,
+    @get:Suppress("GetterSetterNames") // Existing name pattern
+    public actual val allowDestructiveMigrationForAllTables: Boolean,
 
     /* The SQLite Driver for the database. */
-    @JvmField public actual val sqliteDriver: SQLiteDriver,
+    public actual val sqliteDriver: SQLiteDriver,
 
     /* The Coroutine context for the database. */
-    @JvmField public actual val queryCoroutineContext: CoroutineContext,
+    public actual val queryCoroutineContext: CoroutineContext,
 ) {
-    /**
-     * If true, table invalidation in an instance of [RoomDatabase] is broadcast and synchronized
-     * with other instances of the same [RoomDatabase] file, including those in a separate process.
-     */
-    @JvmField
-    public val multiInstanceInvalidation: Boolean = multiInstanceInvalidationServiceIntent != null
-
     /* Whether the invalidation tracker will use temp or real tables for invalidation tracking. */
     internal var useTempTrackingTable = true
 
@@ -100,31 +93,23 @@ constructor(
     /* Config for auto-close or null if not used. */
     internal var autoCloseConfig: AutoCloserConfig? = null
 
-    /* Size of the prepared statement cache. 25 to match Android Framework cache size. 0 if cache is to be unused. */
-    internal var preparedStatementCacheSize = 25
-
     /**
-     * Returns whether a migration is required between two versions.
-     *
-     * @param fromVersion The old schema version.
-     * @param toVersion The new schema version.
-     * @return True if a valid migration is required, false otherwise.
+     * Size of the prepared statement cache. Defaults to 25 to match Android Framework cache size.
+     * If 0 then cache is to be unused.
      */
-    public open fun isMigrationRequired(fromVersion: Int, toVersion: Int): Boolean {
-        return isMigrationRequiredExt(fromVersion, toVersion)
-    }
+    internal var preparedStatementCacheSize = 25
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun copy(
         context: Context = this.context,
         name: String? = this.name,
         migrationContainer: RoomDatabase.MigrationContainer = this.migrationContainer,
-        callbacks: List<RoomDatabase.Callback>? = this.callbacks,
+        callbacks: List<RoomDatabase.Callback> = this.callbacks,
         allowMainThreadQueries: Boolean = this.allowMainThreadQueries,
         journalMode: RoomDatabase.JournalMode = this.journalMode,
         multiInstanceInvalidationServiceIntent: Intent? =
             this.multiInstanceInvalidationServiceIntent,
-        requireMigration: Boolean = this.requireMigration,
+        requireMigration: Boolean = this.isMigrationRequired,
         allowDestructiveMigrationOnDowngrade: Boolean = this.allowDestructiveMigrationOnDowngrade,
         migrationNotRequiredFrom: Set<Int>? = this.migrationNotRequiredFrom,
         prepackagedDatabaseCallback: RoomDatabase.PrepackagedDatabaseCallback? =

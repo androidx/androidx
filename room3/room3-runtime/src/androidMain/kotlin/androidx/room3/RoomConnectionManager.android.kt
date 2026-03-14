@@ -45,7 +45,7 @@ internal actual class RoomConnectionManager : BaseRoomConnectionManager {
     ) {
         this.configuration = config
         this.openDelegate = openDelegate
-        this.callbacks = config.callbacks ?: emptyList()
+        this.callbacks = config.callbacks
         this.connectionPool =
             if (config.sqliteDriver.hasConnectionPool) {
                 // If the driver already has a connection pool then use a pass-through pool to

@@ -213,7 +213,7 @@ class VideoEncoderConfigDefaultResolverTest {
         )
         val dynamicRangeToExpectedProfiles =
             mapOf(
-                DynamicRange.SDR to CodecProfileLevel.HEVCProfileMain,
+                DynamicRange.SDR to EncoderProfilesProxy.CODEC_PROFILE_NONE,
                 DynamicRange.HLG_10_BIT to CodecProfileLevel.HEVCProfileMain10,
                 DynamicRange.HDR10_10_BIT to CodecProfileLevel.HEVCProfileMain10HDR10,
                 DynamicRange.HDR10_PLUS_10_BIT to CodecProfileLevel.HEVCProfileMain10HDR10Plus,
@@ -245,7 +245,7 @@ class VideoEncoderConfigDefaultResolverTest {
 
         for (entry in dynamicRangeToExpectedProfiles) {
             testMimeAndDynamicRangeResolveToProfile(
-                MediaFormat.MIMETYPE_VIDEO_HEVC,
+                MediaFormat.MIMETYPE_VIDEO_AV1,
                 entry.key,
                 entry.value,
             )

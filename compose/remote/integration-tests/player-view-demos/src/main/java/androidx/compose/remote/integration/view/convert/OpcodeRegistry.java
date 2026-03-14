@@ -389,7 +389,8 @@ public class OpcodeRegistry {
                 new FieldSpec("min", FieldType.FLOAT),
                 new FieldSpec("max", FieldType.FLOAT)));
         reg(new OpSpec(Operations.MODIFIER_COLLAPSIBLE_PRIORITY, "MODIFIER_COLLAPSIBLE_PRIORITY",
-                new FieldSpec("priority", FieldType.INT)));
+                new FieldSpec("orientation", FieldType.INT),
+                new FieldSpec("priority", FieldType.FLOAT)));
         reg(new OpSpec(Operations.MODIFIER_VISIBILITY, "MODIFIER_VISIBILITY",
                 new FieldSpec("visibilityId", FieldType.INT)));
         reg(new OpSpec(Operations.MODIFIER_OFFSET, "MODIFIER_OFFSET",

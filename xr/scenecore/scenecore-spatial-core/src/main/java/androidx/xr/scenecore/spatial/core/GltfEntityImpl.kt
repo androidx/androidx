@@ -16,7 +16,6 @@
 package androidx.xr.scenecore.spatial.core
 
 import android.content.Context
-import androidx.annotation.RestrictTo
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.GltfAnimationFeature
@@ -24,7 +23,6 @@ import androidx.xr.scenecore.runtime.GltfEntity
 import androidx.xr.scenecore.runtime.GltfFeature
 import androidx.xr.scenecore.runtime.GltfModelNodeFeature
 import com.android.extensions.xr.XrExtensions
-import java.util.concurrent.Executor
 import java.util.concurrent.ScheduledExecutorService
 import java.util.function.Consumer
 
@@ -54,38 +52,8 @@ internal class GltfEntityImpl(
     override val animations: List<GltfAnimationFeature>
         get() = gltfFeature.getAnimations(mExecutor)
 
-    override fun startAnimation(loop: Boolean, animationName: String?) {
-        gltfFeature.startAnimation(loop, animationName, mExecutor)
-    }
-
-    override fun stopAnimation() {
-        gltfFeature.stopAnimation()
-    }
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    override fun pauseAnimation() {
-        gltfFeature.pauseAnimation()
-    }
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    override fun resumeAnimation() {
-        gltfFeature.resumeAnimation()
-    }
-
-    @GltfEntity.AnimationStateValue
-    override val animationState: Int
-        get() = gltfFeature.animationState
-
     override fun setColliderEnabled(enabled: Boolean) {
         gltfFeature.setColliderEnabled(enabled)
-    }
-
-    override fun addAnimationStateListener(executor: Executor, listener: Consumer<Int>) {
-        gltfFeature.addAnimationStateListener(executor, listener)
-    }
-
-    override fun removeAnimationStateListener(listener: Consumer<Int>) {
-        gltfFeature.removeAnimationStateListener(listener)
     }
 
     override fun addOnBoundsUpdateListener(listener: Consumer<BoundingBox>) {

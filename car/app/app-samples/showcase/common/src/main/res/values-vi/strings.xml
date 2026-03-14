@@ -243,6 +243,7 @@
     <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Nội dung phụ dưới mỗi danh sách"</string>
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Kết thúc bản minh hoạ hình ảnh và thao tác"</string>
     <string name="filter_chip_demo_title" msgid="92190365856639582">"Bản minh hoạ thẻ bộ lọc"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"Bản minh hoạ thanh tiến trình"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Bản demo ngăn mẫu"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Bản demo mẫu danh sách địa điểm"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Duyệt xem các địa điểm"</string>

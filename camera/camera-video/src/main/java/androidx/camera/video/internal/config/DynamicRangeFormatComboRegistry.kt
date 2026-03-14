@@ -132,7 +132,6 @@ public object DynamicRangeFormatComboRegistry {
                                 MIMETYPE_VIDEO_MPEG4,
                                 MIMETYPE_VIDEO_H263,
                                 MIMETYPE_VIDEO_HEVC_GATED,
-                                MIMETYPE_VIDEO_DOLBY_VISION_GATED,
                                 MIMETYPE_VIDEO_AV1_GATED,
                                 MIMETYPE_VIDEO_APV_GATED,
                             ),

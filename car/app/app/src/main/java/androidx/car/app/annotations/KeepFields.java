@@ -25,7 +25,6 @@ import androidx.annotation.RestrictTo;
  * private final fields
  *
  */
-@ExperimentalCarApi
 @RestrictTo(LIBRARY)
 public @interface KeepFields {
 }

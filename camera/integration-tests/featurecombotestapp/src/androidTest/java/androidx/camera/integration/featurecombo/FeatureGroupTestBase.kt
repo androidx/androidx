@@ -24,6 +24,7 @@ import android.hardware.DataSpace.TRANSFER_HLG
 import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.CaptureRequest
 import android.os.Build
+import android.os.SystemClock
 import android.util.Log
 import android.util.Range
 import android.util.Size
@@ -79,10 +80,17 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.min
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.After
@@ -231,24 +239,31 @@ open class FeatureGroupTestBase(
     ) {
         Log.d(TAG, "verifyFeatures: $this, useCases = $useCases")
 
-        forEach {
-            when {
-                it == HDR_HLG10 -> {
-                    // Reaching this stage before API 33 means query API didn't work correctly
-                    require(Build.VERSION.SDK_INT >= 33)
-                    verifyHlg10Hdr(useCases, cameraInfo)
+        coroutineScope {
+            map {
+                    async {
+                        when {
+                            it == HDR_HLG10 -> {
+                                // Reaching this stage before API 33 means query API didn't work
+                                // correctly
+                                require(Build.VERSION.SDK_INT >= 33)
+                                verifyHlg10Hdr(useCases, cameraInfo)
+                            }
+                            it == FPS_60 -> verify60Fps(cameraInfo)
+                            it == PREVIEW_STABILIZATION ->
+                                verifyPreviewStabilization(cameraInfo as CameraInfoInternal)
+                            it == IMAGE_ULTRA_HDR -> {
+                                // Reaching this stage before API 34 means query API didn't work
+                                // correctly
+                                require(Build.VERSION.SDK_INT >= 34)
+                                verifyUltraHdr(useCases, cameraInfo)
+                            }
+                            it.featureTypeInternal == FeatureTypeInternal.RECORDING_QUALITY ->
+                                verifyRecordingQuality(useCases, it, aspectRatio)
+                        }
+                    }
                 }
-                it == FPS_60 -> verify60Fps(cameraInfo)
-                it == PREVIEW_STABILIZATION ->
-                    verifyPreviewStabilization(cameraInfo as CameraInfoInternal)
-                it == IMAGE_ULTRA_HDR -> {
-                    // Reaching this stage before API 34 means query API didn't work correctly
-                    require(Build.VERSION.SDK_INT >= 34)
-                    verifyUltraHdr(useCases, cameraInfo)
-                }
-                it.featureTypeInternal == FeatureTypeInternal.RECORDING_QUALITY ->
-                    verifyRecordingQuality(useCases, it, aspectRatio)
-            }
+                .awaitAll()
         }
     }
 
@@ -293,6 +308,45 @@ open class FeatureGroupTestBase(
         assertThat(cameraInfo.supportedFrameRateRanges).contains(Range(60, 60))
 
         verifyCaptureResult(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(60, 60))
+
+        // Wait a little bit for the frame rate to settle
+        delay(500)
+
+        val lastFrameNumber = AtomicLong(-1)
+        val frameCount = AtomicInteger(0)
+        val startTime = AtomicLong(0L)
+        val currentFps = AtomicReference(0.0)
+
+        val result =
+            sessionCaptureCallback.verify { _, captureResult ->
+                val currentFrame = captureResult.frameNumber
+                if (lastFrameNumber.getAndSet(currentFrame) != currentFrame) {
+                    frameCount.incrementAndGet()
+                }
+
+                val currentTime = SystemClock.elapsedRealtime()
+                if (startTime.compareAndSet(0L, currentTime)) {
+                    // Start counting from the first observed frame in the window
+                    frameCount.set(0)
+                }
+
+                val timeDiff = currentTime - startTime.get()
+                if (timeDiff >= 3000) { // Calculate over a 3-second window
+                    currentFps.set((frameCount.get() * 1000.0) / timeDiff)
+                    true // Complete verification
+                } else {
+                    false
+                }
+            }
+
+        val isCompleted = result.awaitUntil(timeoutMillis = 5000)
+        assertWithMessage("Test failed to complete FPS verification in time")
+            .that(isCompleted)
+            .isTrue()
+
+        assertWithMessage("Actual capture result FPS was too low: ${currentFps.get()}")
+            .that(currentFps.get())
+            .isGreaterThan(40.0)
     }
 
     private suspend fun verifyPreviewStabilization(cameraInfo: CameraInfo) {

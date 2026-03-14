@@ -35,7 +35,7 @@ internal class RemoteComposeFlowRowModifier(
         drawIntoRemoteCanvas { canvas ->
             canvas.document.startFlow(
                 canvas.toRecordingModifier(modifier),
-                horizontalArrangement.toRemote(),
+                horizontalArrangement.toRemote(this.layoutDirection),
                 verticalArrangement.toRemote(),
             )
             this@draw.drawContent()

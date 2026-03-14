@@ -20,24 +20,12 @@ package androidx.xr.arcore
 public class FaceConfidenceRegion private constructor(private val value: Int) {
     public companion object {
         /** Represents the lower region of the face. */
-        @JvmField
-        public val FACE_CONFIDENCE_REGION_LOWER: FaceConfidenceRegion = FaceConfidenceRegion(0)
+        @JvmField public val LOWER: FaceConfidenceRegion = FaceConfidenceRegion(0)
 
         /** Represents the left upper region of the face. */
-        @JvmField
-        public val FACE_CONFIDENCE_REGION_LEFT_UPPER: FaceConfidenceRegion = FaceConfidenceRegion(1)
+        @JvmField public val LEFT_UPPER: FaceConfidenceRegion = FaceConfidenceRegion(1)
 
         /** Represents the right upper region of the face. */
-        @JvmField
-        public val FACE_CONFIDENCE_REGION_RIGHT_UPPER: FaceConfidenceRegion =
-            FaceConfidenceRegion(2)
+        @JvmField public val RIGHT_UPPER: FaceConfidenceRegion = FaceConfidenceRegion(2)
     }
-
-    public override fun toString(): String =
-        when (value) {
-            0 -> "LOWER"
-            1 -> "LEFT_UPPER"
-            2 -> "RIGHT_UPPER"
-            else -> "UNKNOWN"
-        }
 }

@@ -119,7 +119,7 @@ private constructor(
      * Whether the size of the resize overlay should be automatically updated to match the proposed
      * size as resize events are received.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @get:JvmName("shouldAutoUpdateOverlay")
     public var shouldAutoUpdateOverlay: Boolean = true
         set(value) {

@@ -16,9 +16,6 @@
 
 package androidx.datastore.core
 
-import kotlin.coroutines.CoroutineContext
-import kotlinx.coroutines.CompletableDeferred
-
 /** The actions for the actor. */
 internal sealed class Message<T> {
     abstract val lastState: State<T>?
@@ -32,10 +29,7 @@ internal sealed class Message<T> {
     /** Represents an update operation. */
     class Update<T>(
         val transform: suspend (t: T) -> T,
-        /** Used to signal (un)successful completion of the update to the caller. */
-        val ack: CompletableDeferred<T>,
         override val lastState: State<T>?,
-        val callerContext: CoroutineContext,
         val token: DataStoreTraceToken?,
     ) : Message<T>()
 }

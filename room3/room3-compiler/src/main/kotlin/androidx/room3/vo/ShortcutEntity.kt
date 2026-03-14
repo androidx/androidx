@@ -28,11 +28,11 @@ data class ShortcutEntity(
         if (partialEntity == null) {
             entity.primaryKey
         } else {
-            val partialEntityPrimaryKeyFields =
+            val partialEntityPrimaryKeyProperties =
                 entity.primaryKey.properties.mapNotNull {
                     partialEntity.findPropertyByColumnName(it.columnName)
                 }
-            entity.primaryKey.copy(properties = Properties(partialEntityPrimaryKeyFields))
+            entity.primaryKey.copy(properties = Properties(partialEntityPrimaryKeyProperties))
         }
     }
     val dataClass = partialEntity ?: entity

@@ -89,16 +89,14 @@ public annotation class RequiresSpatialApi(
 )
 
 /**
- * Marks declarations that are part of the unstable Spatial API Preview, version 3.
+ * Marks declarations that are part of the unstable Spatial API Preview.
  *
  * These APIs are not final and are subject to change or removal in future releases without notice.
  * They are intended for development and testing purposes only and require a specific developer
- * preview system image to function correctly. The version number in this annotation's name will
- * increase in future releases to correspond with the next upcoming stable API version (e.g.,
- * `@PreviewSpatialApi4` for `SpatialApiVersions.SPATIAL_API_V4`).
+ * preview system image to function correctly.
  *
- * Any usage of a declaration annotated with `@PreviewSpatialApi3` must be explicitly opted-in by
- * annotating the calling code with `@OptIn(PreviewSpatialApi3::class)`.
+ * Any usage of a declaration annotated with `@PreviewSpatialApi` must be explicitly opted-in by
+ * annotating the calling code with `@OptIn(PreviewSpatialApi::class)`.
  *
  * Furthermore, to prevent runtime errors, applications must wrap calls to these APIs in a
  * `try-catch` block to handle cases where the device does not support the required preview API
@@ -106,12 +104,12 @@ public annotation class RequiresSpatialApi(
  *
  * Example of opting-in and performing a runtime check:
  * <pre><code class="language-kotlin">
- * @PreviewSpatialApi3
+ * @PreviewSpatialApi
  * fun newPreviewApi() {
  *     // ...
  * }
  *
- * @OptIn(PreviewSpatialApi3::class)
+ * @OptIn(PreviewSpatialApi::class)
  * fun callPreviewApi() {
  *     try {
  *         newPreviewApi()
@@ -129,4 +127,4 @@ public annotation class RequiresSpatialApi(
             "lead to crashes.",
 )
 @Retention(AnnotationRetention.BINARY)
-public annotation class PreviewSpatialApi3
+public annotation class PreviewSpatialApi

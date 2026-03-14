@@ -40,11 +40,14 @@ import androidx.room3.integration.kotlintestapp.vo.BookWithPublisher
 import androidx.room3.integration.kotlintestapp.vo.CustomDaoReturnType
 import androidx.room3.integration.kotlintestapp.vo.CustomDaoReturnTypeConverter
 import androidx.room3.integration.kotlintestapp.vo.DateConverter
+import androidx.room3.integration.kotlintestapp.vo.Either
+import androidx.room3.integration.kotlintestapp.vo.EitherDaoReturnTypeConverter
 import androidx.room3.integration.kotlintestapp.vo.Lang
 import androidx.room3.integration.kotlintestapp.vo.MiniBook
 import androidx.room3.integration.kotlintestapp.vo.Publisher
 import androidx.room3.integration.kotlintestapp.vo.PublisherWithBookSales
 import androidx.room3.integration.kotlintestapp.vo.PublisherWithBooks
+import androidx.room3.integration.kotlintestapp.vo.ResultDaoReturnTypeConverter
 import com.google.common.base.Optional
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableListMultimap
@@ -58,7 +61,11 @@ import java.util.Date
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-@DaoReturnTypeConverters(CustomDaoReturnTypeConverter::class)
+@DaoReturnTypeConverters(
+    CustomDaoReturnTypeConverter::class,
+    ResultDaoReturnTypeConverter::class,
+    EitherDaoReturnTypeConverter::class,
+)
 @TypeConverters(DateConverter::class, AnswerConverter::class)
 interface BooksDao {
 
@@ -513,4 +520,14 @@ interface BooksDao {
     @Query("SELECT * FROM Author") fun getAuthorsFlow(): Flow<List<Author>>
 
     @Query("SELECT * FROM Publisher") fun getPublishersFlow(): Flow<List<Publisher>>
+
+    @Query("SELECT * FROM Publisher WHERE publisherId = :id")
+    suspend fun getPublisherResult(id: String): Result<Publisher>
+
+    @Insert suspend fun insertPublisherResult(p: Publisher): Result<Long>
+
+    @Query("SELECT * FROM Publisher WHERE publisherId = :id")
+    suspend fun getPublisherEither(id: String): Either<Throwable, Publisher>
+
+    @Insert suspend fun insertPublisherEither(p: Publisher): Either<Throwable, Long>
 }

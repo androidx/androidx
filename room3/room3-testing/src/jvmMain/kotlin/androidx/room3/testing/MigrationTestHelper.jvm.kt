@@ -172,9 +172,9 @@ public actual class MigrationTestHelper(
         DatabaseConfiguration(
             name = databasePath.toString(),
             migrationContainer = container,
-            callbacks = null,
+            callbacks = emptyList(),
             journalMode = RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING,
-            requireMigration = true,
+            isMigrationRequired = true,
             allowDestructiveMigrationOnDowngrade = false,
             migrationNotRequiredFrom = null,
             typeConverters = emptyList(),

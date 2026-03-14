@@ -109,7 +109,10 @@ class FullscreenActivity : AppCompatActivity() {
                     when {
                         fullScreenClient.isFullScreenMode() -> fullScreenClient.exitFullScreen()
                         webView.canGoBack() -> webView.goBack()
-                        else -> handleOnBackPressed()
+                        else -> {
+                            isEnabled = false
+                            onBackPressedDispatcher.onBackPressed()
+                        }
                     }
                 }
             }

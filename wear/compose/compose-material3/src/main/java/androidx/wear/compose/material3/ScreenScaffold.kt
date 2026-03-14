@@ -222,10 +222,6 @@ public fun ScreenScaffold(
  * Example of using AppScaffold and ScreenScaffold with TransformingLazyColumn:
  *
  * @sample androidx.wear.compose.material3.samples.ScaffoldWithTLCEdgeButtonSample
- *
- * Example of using ScreenScaffold with a [EdgeButton]:
- *
- * @sample androidx.wear.compose.material3.samples.EdgeButtonListSample
  * @param scrollState The scroll state for [TransformingLazyColumn], used to drive screen
  *   transitions such as [TimeText] scroll away and showing/hiding [ScrollIndicator].
  * @param edgeButton Slot for an [EdgeButton] that takes the available space below a scrolling list.

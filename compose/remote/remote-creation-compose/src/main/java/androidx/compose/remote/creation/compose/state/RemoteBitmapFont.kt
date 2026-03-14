@@ -17,18 +17,19 @@
 
 package androidx.compose.remote.creation.compose.state
 
-import android.graphics.Bitmap
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.core.operations.BitmapTextMeasure
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
 
 /**
  * Represents a **bitmap font** within a Compose Remote hierarchy.
  *
- * A bitmap font defines its glyphs (character representations) using individual [Bitmap] images.
- * This class allows you to define custom fonts using rasterized images for each character or
- * character sequence.
+ * A bitmap font defines its glyphs (character representations) using individual [ImageBitmap]
+ * images. This class allows you to define custom fonts using rasterized images for each character
+ * or character sequence.
  *
  * When bitmap fonts are rendered, a **greedy algorithm** is used to match parts of the text to
  * available glyphs. This means that the system prefers to match longer glyphs (e.g., a glyph for
@@ -58,7 +59,7 @@ public class RemoteBitmapFont(
         public val chars: String,
 
         /** The bitmap for this glyph, or null for a space. */
-        public val bitmap: Bitmap?,
+        public val bitmap: ImageBitmap?,
 
         /** The margin in pixels to the left of the glyph bitmap. */
         public val marginLeft: Short,
@@ -89,7 +90,8 @@ public class RemoteBitmapFont(
                 val glyph = glyphs[index]
                 BitmapFontData.Glyph(
                     glyph.chars,
-                    glyph.bitmap?.let { creationState.document.addBitmap(it) } ?: -1,
+                    glyph.bitmap?.let { creationState.document.addBitmap(it.asAndroidBitmap()) }
+                        ?: -1,
                     glyph.marginLeft,
                     glyph.marginTop,
                     glyph.marginRight,

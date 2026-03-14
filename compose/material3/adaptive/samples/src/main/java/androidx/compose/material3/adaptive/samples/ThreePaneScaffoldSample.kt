@@ -64,7 +64,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.VerticalDragHandle
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.material3.adaptive.layout.AdaptStrategy
 import androidx.compose.material3.adaptive.layout.AnimatedPane
 import androidx.compose.material3.adaptive.layout.DockedEdge
@@ -446,7 +446,7 @@ fun <T> reflowAdaptStrategySample(): ThreePaneScaffoldNavigator<T> =
 @Composable
 fun <T> levitateAsDialogSample(): ThreePaneScaffoldNavigator<T> {
     val coroutineScope = rememberCoroutineScope()
-    val scaffoldDirective = calculatePaneScaffoldDirective(currentWindowAdaptiveInfo())
+    val scaffoldDirective = calculatePaneScaffoldDirective(currentWindowAdaptiveInfoV2())
     var navigator: ThreePaneScaffoldNavigator<T>? = null
     val onClick: () -> Unit = { coroutineScope.launch { navigator?.navigateBack() } }
     navigator =
@@ -493,7 +493,7 @@ fun <T> levitateAsDialogSample(): ThreePaneScaffoldNavigator<T> {
 @Sampled
 @Composable
 fun <T> levitateAsBottomSheetSample(): ThreePaneScaffoldNavigator<T> {
-    val scaffoldDirective = calculatePaneScaffoldDirective(currentWindowAdaptiveInfo())
+    val scaffoldDirective = calculatePaneScaffoldDirective(currentWindowAdaptiveInfoV2())
     val dragToResizeState = rememberDragToResizeState(dockedEdge = DockedEdge.Bottom)
     var navigator: ThreePaneScaffoldNavigator<T>? = null
     navigator =

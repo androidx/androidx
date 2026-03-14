@@ -84,6 +84,7 @@ public object SpatialAudioTrack {
      * @param session The current [Session] instance.
      * @param track The [AudioTrack] on which to set the [PointSourceParams].
      * @param params The [PointSourceParams] to be set.
+     * @param entity The [Entity] from which the sound will be played.
      * @throws IllegalStateException if the [SpatializerConstants.SourceType] of the [AudioTrack] is
      *   [SpatializerConstants.SourceType.SOUND_FIELD].
      * @throws IllegalArgumentException if the [PointSourceParams] cannot be set on this
@@ -94,10 +95,12 @@ public object SpatialAudioTrack {
         session: Session,
         track: AudioTrack,
         params: PointSourceParams,
+        entity: Entity,
     ) {
         session.sceneRuntime.audioTrackExtensionsWrapper.setPointSourceParams(
             track,
             params.rtPointSourceParams,
+            (entity as BaseEntity<*>).rtEntity,
         )
     }
 }
@@ -112,6 +115,7 @@ public object SpatialAudioTrackBuilder {
      * @param session The current [Session] instance.
      * @param builder The Builder on which to set the attributes.
      * @param params The source params to be set.
+     * @param entity The [Entity] from which the sound will be played.
      */
     @Suppress("SetterReturnsThis")
     @JvmStatic
@@ -119,10 +123,12 @@ public object SpatialAudioTrackBuilder {
         session: Session,
         builder: AudioTrack.Builder,
         params: PointSourceParams,
+        entity: Entity,
     ) {
         session.sceneRuntime.audioTrackExtensionsWrapper.setPointSourceParams(
             builder,
             params.rtPointSourceParams,
+            (entity as BaseEntity<*>).rtEntity,
         )
     }
 

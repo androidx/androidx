@@ -46,7 +46,7 @@ internal class RemoteComposeCollapsibleRowModifier(
         drawIntoRemoteCanvas { canvas ->
             canvas.document.startCollapsibleRow(
                 modifier,
-                horizontalArrangement.toRemote(),
+                horizontalArrangement.toRemote(this.layoutDirection),
                 verticalAlignment.toRemote(),
             )
             this@draw.drawContent()

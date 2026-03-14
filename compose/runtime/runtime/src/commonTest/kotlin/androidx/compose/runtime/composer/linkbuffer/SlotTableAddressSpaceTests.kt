@@ -192,8 +192,7 @@ class SlotTableAddressSpaceTests {
 
     @Test
     fun whenAllocatingSlotsInFullyUsedArray_canAllocatedLargeBlocksFromMiddleOfTheFreeList() {
-        val size = 256
-        val addressSpace = SlotTableAddressSpace(slots = arrayOfNulls(size))
+        val addressSpace = SlotTableAddressSpace(groupsCapacity = 6, slotsCapacity = 256)
         val startSize = addressSpace.slots.size
         val smallSize = 32
         val largeSize = 64

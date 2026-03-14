@@ -20,6 +20,7 @@ import android.content.Context
 import android.graphics.Outline
 import android.graphics.Rect
 import android.os.Build
+import android.os.IBinder
 import android.util.DisplayMetrics
 import android.view.ContextThemeWrapper
 import android.view.Gravity
@@ -102,12 +103,29 @@ import kotlin.math.roundToInt
  *   [WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING] on [Build.VERSION_CODES.S] and above.
  *   [Window.isFloating] will be `false` when `decorFitsSystemWindows` is `false`.
  * @property windowTitle Title to be set on the dialog's window.
- * @property windowType The specific window type to apply to the dialog's underlying [Window]. This
- *   directly sets [WindowManager.LayoutParams.type]. The default value is
- *   [WindowManager.LayoutParams.TYPE_APPLICATION], which is the platform's standard dialog window
- *   type. Setting a custom window type is particularly useful when displaying a dialog from a
- *   [android.app.Service] or outside the scope of an Activity context (e.g.,
- *   [WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY]).
+ * @property windowType An optional [android.view.WindowManager.LayoutParams.type] to apply to the
+ *   dialog's underlying [android.view.Window]. The default value is
+ *   [android.view.WindowManager.LayoutParams.TYPE_APPLICATION], which is the platform's standard
+ *   dialog window type. Overriding this allows you to change the layer or behavior of the dialog.
+ *   For example, setting it to [android.view.WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY]
+ *   allows the dialog to draw on top of other applications (requires the
+ *   [android.Manifest.permission.SYSTEM_ALERT_WINDOW] permission). Note: If you are displaying a
+ *   dialog from a non-Activity context (such as an [android.app.Service]) but still want it to be
+ *   anchored to an existing application window, you should leave this as the default type and
+ *   instead provide the [windowToken] of the target application window.
+ * @property windowToken An optional [android.os.IBinder] to be used as the window token for the
+ *   dialog window. If null, the dialog will typically derive the token from the context. This
+ *   parameter is crucial for scenarios where the dialog is shown from a context without a suitable
+ *   default token, such as a Service running in a separate process from the main application. In
+ *   such cross-process cases, the token from the main application's window should be provided. The
+ *   provided token must be a valid [android.os.IBinder] from an existing window and must have the
+ *   necessary permissions to add windows of the specified [windowType]. Providing an invalid,
+ *   stale, or permission-denied token will typically result in a
+ *   [android.view.WindowManager.BadTokenException] when the dialog attempts to show.
+ *
+ *   Example usage:
+ *
+ * @sample androidx.compose.ui.samples.DialogFromServiceSample
  */
 @Immutable
 actual class DialogProperties(
@@ -118,6 +136,7 @@ actual class DialogProperties(
     val decorFitsSystemWindows: Boolean = true,
     val windowTitle: String = "",
     val windowType: Int = WindowManager.LayoutParams.TYPE_APPLICATION,
+    val windowToken: IBinder? = null,
 ) {
     actual constructor(
         dismissOnBackPress: Boolean,
@@ -147,6 +166,7 @@ actual class DialogProperties(
         decorFitsSystemWindows = decorFitsSystemWindows,
         windowTitle = windowTitle,
         windowType = WindowManager.LayoutParams.TYPE_APPLICATION,
+        windowToken = null,
     )
 
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
@@ -188,6 +208,7 @@ actual class DialogProperties(
         if (usePlatformDefaultWidth != other.usePlatformDefaultWidth) return false
         if (decorFitsSystemWindows != other.decorFitsSystemWindows) return false
         if (windowType != other.windowType) return false
+        if (windowToken != other.windowToken) return false
         return true
     }
 
@@ -198,6 +219,7 @@ actual class DialogProperties(
         result = 31 * result + usePlatformDefaultWidth.hashCode()
         result = 31 * result + decorFitsSystemWindows.hashCode()
         result = 31 * result + windowType
+        result = 31 * result + (windowToken?.hashCode() ?: 0)
         return result
     }
 }
@@ -237,7 +259,7 @@ actual fun Dialog(
     // add properties.windowType as a remember key to force the DialogWrapper to be
     // completely recreated from scratch when the type changes.
     val dialog =
-        remember(view, density, properties.windowType) {
+        remember(view, density, properties.windowType, properties.windowToken) {
             DialogWrapper(onDismissRequest, properties, view, layoutDirection, density, dialogId)
                 .apply {
                     setContent(composition) {
@@ -525,7 +547,7 @@ private class DialogWrapper(
     init {
         val window = window ?: error("Dialog has no window")
 
-        applyWindowTypeAndToken(properties.windowType)
+        applyWindowTypeAndToken(properties)
 
         window.requestFeature(Window.FEATURE_NO_TITLE)
         window.setBackgroundDrawableResource(android.R.color.transparent)
@@ -626,16 +648,12 @@ private class DialogWrapper(
         return super.onKeyUp(keyCode, event)
     }
 
-    private fun applyWindowTypeAndToken(type: Int) {
+    private fun applyWindowTypeAndToken(properties: DialogProperties) {
         window?.let { window ->
             val attrs = window.attributes
-            attrs.type = type
-            // TYPE_APPLICATION is the default dialog window type.
-            // Framework automatically assigns the correct Activity WindowToken for this type.
-            // We only override the token for custom types (like sub-panels).
-            if (type != WindowManager.LayoutParams.TYPE_APPLICATION) {
-                composeView.windowToken?.let { token -> attrs.token = token }
-            }
+            attrs.type = properties.windowType
+            // Use windowToken if provided else let the framework handle it.
+            properties.windowToken?.let { token -> attrs.token = token }
             window.attributes = attrs
         }
     }

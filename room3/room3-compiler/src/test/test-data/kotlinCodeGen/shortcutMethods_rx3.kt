@@ -85,14 +85,13 @@ internal class MyDao_Impl(
   public override fun insertCompletable(vararg entities: MyEntity): Completable = __rxDaoReturnTypeConverters.convertCompletable(__db) {
     performSuspending(__db, false, true) { _connection ->
       __insertAdapterOfMyEntity.insert(_connection, entities)
-      kotlin.Unit
     }
   }
 
   public override fun deleteSingle(entity: MyEntity): Single<Int> = __rxDaoReturnTypeConverters.convertSingle(__db) {
     performSuspending(__db, false, true) { _connection ->
       var _result: Int = 0
-      _result += __deleteAdapterOfMyEntity.handle(_connection, entity)
+      _result += __deleteAdapterOfMyEntity.handleAndReturnChanges(_connection, entity)
       _result
     }
   }
@@ -100,14 +99,13 @@ internal class MyDao_Impl(
   public override fun deleteCompletable(entity: MyEntity): Completable = __rxDaoReturnTypeConverters.convertCompletable(__db) {
     performSuspending(__db, false, true) { _connection ->
       __deleteAdapterOfMyEntity.handle(_connection, entity)
-      kotlin.Unit
     }
   }
 
   public override fun updateSingle(entity: MyEntity): Single<Int> = __rxDaoReturnTypeConverters.convertSingle(__db) {
     performSuspending(__db, false, true) { _connection ->
       var _result: Int = 0
-      _result += __updateAdapterOfMyEntity.handle(_connection, entity)
+      _result += __updateAdapterOfMyEntity.handleAndReturnChanges(_connection, entity)
       _result
     }
   }
@@ -115,7 +113,6 @@ internal class MyDao_Impl(
   public override fun updateCompletable(entity: MyEntity): Completable = __rxDaoReturnTypeConverters.convertCompletable(__db) {
     performSuspending(__db, false, true) { _connection ->
       __updateAdapterOfMyEntity.handle(_connection, entity)
-      kotlin.Unit
     }
   }
 
@@ -129,7 +126,6 @@ internal class MyDao_Impl(
   public override fun upsertCompletable(vararg entities: MyEntity): Completable = __rxDaoReturnTypeConverters.convertCompletable(__db) {
     performSuspending(__db, false, true) { _connection ->
       __upsertAdapterOfMyEntity.upsert(_connection, entities)
-      kotlin.Unit
     }
   }
 

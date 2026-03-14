@@ -132,6 +132,8 @@ public class MessagePortTest {
             generateUnpairedSurrogates(131072);
     private static final byte[] LARGE_ARRAY = generateByteArray(131072);
 
+    private static final MessagePortClient IGNORE_INCOMING_MESSAGES =
+            message -> {};
     private static final MessagePortClient EXPECT_NO_INCOMING_MESSAGES =
             message -> Assert.fail("Message received when none were expected.");
 
@@ -218,10 +220,10 @@ public class MessagePortTest {
             byte[] largeArrayBuffer = LARGE_ARRAY;
             largeArrayBuffer = largeArrayBuffer.clone();
             largeArrayBuffer[0] = (byte) round;
-            messages.add(Message.createString(round + SMALL_ASCII_STRING));
-            messages.add(Message.createString(round + LARGE_ASCII_STRING));
-            messages.add(Message.createArrayBuffer(smallArrayBuffer));
-            messages.add(Message.createArrayBuffer(largeArrayBuffer));
+            messages.add(Message.createStringMessage(round + SMALL_ASCII_STRING));
+            messages.add(Message.createStringMessage(round + LARGE_ASCII_STRING));
+            messages.add(Message.createArrayBufferMessage(smallArrayBuffer));
+            messages.add(Message.createArrayBufferMessage(largeArrayBuffer));
         }
         // Shuffle so that there's more variety to the order of small and large messages.
         Collections.shuffle(messages, new Random(0));
@@ -263,7 +265,7 @@ public class MessagePortTest {
     public void testProvideMessagePort_nullPortName_throws() throws Throwable {
         Assert.assertThrows(
                 NullPointerException.class,
-                () -> mJsIsolate.provideMessagePort(null, MoreExecutors.directExecutor(),
+                () -> mJsIsolate.createMessageChannel(null, MoreExecutors.directExecutor(),
                         EXPECT_NO_INCOMING_MESSAGES));
     }
 
@@ -271,26 +273,27 @@ public class MessagePortTest {
     public void testProvideMessagePort_nullExecutor_throws() throws Throwable {
         Assert.assertThrows(
                 NullPointerException.class,
-                () -> mJsIsolate.provideMessagePort(PORT_NAME, null, EXPECT_NO_INCOMING_MESSAGES));
+                () -> mJsIsolate.createMessageChannel(PORT_NAME, null,
+                        EXPECT_NO_INCOMING_MESSAGES));
     }
 
     @Test
     public void testProvideMessagePort_nullClient_throws() throws Throwable {
         Assert.assertThrows(
                 NullPointerException.class,
-                () -> mJsIsolate.provideMessagePort(PORT_NAME, MoreExecutors.directExecutor(),
+                () -> mJsIsolate.createMessageChannel(PORT_NAME, MoreExecutors.directExecutor(),
                         null));
     }
 
     @Test
     public void testProvideMessagePort_portNameAlreadyUsed_throws() throws Throwable {
-        MessagePort firstPort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort firstPort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
 
         Assert.assertThrows(
                 IllegalStateException.class,
-                () -> mJsIsolate.provideMessagePort(PORT_NAME, MoreExecutors.directExecutor(),
+                () -> mJsIsolate.createMessageChannel(PORT_NAME, MoreExecutors.directExecutor(),
                         EXPECT_NO_INCOMING_MESSAGES));
     }
 
@@ -300,13 +303,13 @@ public class MessagePortTest {
 
         Assert.assertThrows(
                 IllegalStateException.class,
-                () -> mJsIsolate.provideMessagePort(PORT_NAME, MoreExecutors.directExecutor(),
+                () -> mJsIsolate.createMessageChannel(PORT_NAME, MoreExecutors.directExecutor(),
                         EXPECT_NO_INCOMING_MESSAGES));
     }
 
     @Test
     public void testProvideMessagePort_liveIsolate_returnsEntangledPort() throws Throwable {
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
 
@@ -316,62 +319,62 @@ public class MessagePortTest {
     @Test
     public void testProvideMessagePort_closedSandbox_returnsDisentangledPort() throws Throwable {
         mJsSandbox.close();
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
 
         Assert.assertNull(messagePort.getMessagePortInternalForTest().mRemoteIMessagePort.get());
         // Messages posted here should be silently dropped and not crash.
-        messagePort.postMessage(Message.createString(SMALL_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(SMALL_ARRAY));
-        messagePort.postMessage(Message.createString(LARGE_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(LARGE_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(SMALL_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(SMALL_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(LARGE_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(LARGE_ARRAY));
     }
 
     @Test
     public void testProvideMessagePort_unboundSandbox_returnsDisentangledPort() throws Throwable {
         // Simulates a service death which hasn't yet been handled.
         mJsSandbox.unbindService();
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
 
         Assert.assertNull(messagePort.getMessagePortInternalForTest().mRemoteIMessagePort.get());
         // Messages posted here should be silently dropped and not crash.
-        messagePort.postMessage(Message.createString(SMALL_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(SMALL_ARRAY));
-        messagePort.postMessage(Message.createString(LARGE_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(LARGE_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(SMALL_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(SMALL_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(LARGE_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(LARGE_ARRAY));
     }
 
     @Test
     public void testProvideMessagePort_killedSandbox_returnsDisentangledPort() throws Throwable {
         // Kill the sandbox and make sure all isolates are placed into a dead environment state.
         mJsSandbox.killImmediatelyOnThread();
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
 
         Assert.assertNull(messagePort.getMessagePortInternalForTest().mRemoteIMessagePort.get());
         // Messages posted here should be silently dropped and not crash.
-        messagePort.postMessage(Message.createString(SMALL_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(SMALL_ARRAY));
-        messagePort.postMessage(Message.createString(LARGE_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(LARGE_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(SMALL_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(SMALL_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(LARGE_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(LARGE_ARRAY));
     }
 
     @Test
     public void testAppPostMessage_echoingIsolateAndProvidingPortBeforeEval_echoesMessage()
             throws Throwable {
         final BlockingQueue<Message> messageQueue = new LinkedBlockingQueue<>();
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(), messageQueue::add);
         mJsIsolate.evaluateJavaScriptAsync(ECHO_MESSAGE_CODE)
                 .get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
-        messagePort.postMessage(Message.createString(SMALL_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(SMALL_ARRAY));
-        messagePort.postMessage(Message.createString(LARGE_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(LARGE_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(SMALL_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(SMALL_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(LARGE_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(LARGE_ARRAY));
 
         Assert.assertEquals(SMALL_ASCII_STRING,
                 messageQueue.poll(TIMEOUT_SECONDS, TimeUnit.SECONDS).getString());
@@ -392,13 +395,13 @@ public class MessagePortTest {
         mJsIsolate.evaluateJavaScriptAsync("'Dummy eval used for synchronization'")
                 .get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
         Assert.assertFalse(earlyEval.isDone());
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(), messageQueue::add);
         earlyEval.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
-        messagePort.postMessage(Message.createString(SMALL_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(SMALL_ARRAY));
-        messagePort.postMessage(Message.createString(LARGE_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(LARGE_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(SMALL_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(SMALL_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(LARGE_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(LARGE_ARRAY));
 
         Assert.assertEquals(SMALL_ASCII_STRING,
                 messageQueue.poll(TIMEOUT_SECONDS, TimeUnit.SECONDS).getString());
@@ -413,194 +416,199 @@ public class MessagePortTest {
     @Test
     public void testAppPostMessage_isolateClosedWithoutGettingPort_silentlyDiscards()
             throws Throwable {
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         mJsIsolate.close();
-        messagePort.postMessage(Message.createString(SMALL_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(SMALL_ARRAY));
-        messagePort.postMessage(Message.createString(LARGE_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(LARGE_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(SMALL_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(SMALL_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(LARGE_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(LARGE_ARRAY));
     }
 
     @Test
     public void testAppPostMessage_isolateClosedAfterGettingPort_silentlyDiscards()
             throws Throwable {
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         mJsIsolate.evaluateJavaScriptAsync(GET_PORT_CODE)
                 .get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
         mJsIsolate.close();
-        messagePort.postMessage(Message.createString(SMALL_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(SMALL_ARRAY));
-        messagePort.postMessage(Message.createString(LARGE_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(LARGE_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(SMALL_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(SMALL_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(LARGE_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(LARGE_ARRAY));
     }
 
     @Test
     public void testAppPostMessage_isolateClosedAfterSettingOnMessage_silentlyDiscards()
             throws Throwable {
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        // Use IGNORE_INCOMING_MESSAGES rather than EXPECT_NO_INCOMING_MESSAGES, as closing an
+        // isolate is not a synchronous operation. The isolate thread may continue to execute code
+        // and process messages (sending and receiving) for a short while after being told to close.
+        //
+        // The most important thing to verify is that we do not throw or crash!
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
-                EXPECT_NO_INCOMING_MESSAGES);
+                IGNORE_INCOMING_MESSAGES);
         mJsIsolate.evaluateJavaScriptAsync(ECHO_MESSAGE_CODE)
                 .get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
         mJsIsolate.close();
-        messagePort.postMessage(Message.createString(SMALL_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(SMALL_ARRAY));
-        messagePort.postMessage(Message.createString(LARGE_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(LARGE_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(SMALL_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(SMALL_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(LARGE_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(LARGE_ARRAY));
     }
 
     @Test
     public void testAppPostMessage_sandboxClosedWithoutGettingPort_silentlyDiscards()
             throws Throwable {
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         mJsSandbox.close();
-        messagePort.postMessage(Message.createString(SMALL_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(SMALL_ARRAY));
-        messagePort.postMessage(Message.createString(LARGE_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(LARGE_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(SMALL_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(SMALL_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(LARGE_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(LARGE_ARRAY));
     }
 
     @Test
     public void testAppPostMessage_sandboxClosedAfterGettingPort_silentlyDiscards()
             throws Throwable {
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         mJsIsolate.evaluateJavaScriptAsync(GET_PORT_CODE)
                 .get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
         mJsSandbox.close();
-        messagePort.postMessage(Message.createString(SMALL_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(SMALL_ARRAY));
-        messagePort.postMessage(Message.createString(LARGE_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(LARGE_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(SMALL_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(SMALL_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(LARGE_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(LARGE_ARRAY));
     }
 
     @Test
     public void testAppPostMessage_sandboxClosedAfterSettingOnMessage_silentlyDiscards()
             throws Throwable {
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         mJsIsolate.evaluateJavaScriptAsync(ECHO_MESSAGE_CODE)
                 .get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
         mJsSandbox.close();
-        messagePort.postMessage(Message.createString(SMALL_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(SMALL_ARRAY));
-        messagePort.postMessage(Message.createString(LARGE_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(LARGE_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(SMALL_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(SMALL_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(LARGE_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(LARGE_ARRAY));
     }
 
     @Test
     public void testAppPostMessage_sandboxUnboundWithoutGettingPort_silentlyDiscards()
             throws Throwable {
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         // Simulates a service death which hasn't yet been handled.
         mJsSandbox.unbindService();
-        messagePort.postMessage(Message.createString(SMALL_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(SMALL_ARRAY));
-        messagePort.postMessage(Message.createString(LARGE_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(LARGE_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(SMALL_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(SMALL_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(LARGE_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(LARGE_ARRAY));
     }
 
     @Test
     public void testAppPostMessage_sandboxUnboundAfterGettingPort_silentlyDiscards()
             throws Throwable {
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         mJsIsolate.evaluateJavaScriptAsync(GET_PORT_CODE)
                 .get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
         // Simulates a service death which hasn't yet been handled.
         mJsSandbox.unbindService();
-        messagePort.postMessage(Message.createString(SMALL_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(SMALL_ARRAY));
-        messagePort.postMessage(Message.createString(LARGE_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(LARGE_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(SMALL_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(SMALL_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(LARGE_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(LARGE_ARRAY));
     }
 
     @Test
     public void testAppPostMessage_sandboxUnboundAfterSettingOnMessage_silentlyDiscards()
             throws Throwable {
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         mJsIsolate.evaluateJavaScriptAsync(ECHO_MESSAGE_CODE)
                 .get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
         // Simulates a service death which hasn't yet been handled.
         mJsSandbox.unbindService();
-        messagePort.postMessage(Message.createString(SMALL_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(SMALL_ARRAY));
-        messagePort.postMessage(Message.createString(LARGE_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(LARGE_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(SMALL_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(SMALL_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(LARGE_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(LARGE_ARRAY));
     }
 
     @Test
     public void testAppPostMessage_sandboxKilledWithoutGettingPort_silentlyDiscards()
             throws Throwable {
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         // Kill the sandbox and make sure all isolates are placed into a dead environment state.
         mJsSandbox.killImmediatelyOnThread();
-        messagePort.postMessage(Message.createString(SMALL_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(SMALL_ARRAY));
-        messagePort.postMessage(Message.createString(LARGE_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(LARGE_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(SMALL_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(SMALL_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(LARGE_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(LARGE_ARRAY));
     }
 
     @Test
     public void testAppPostMessage_sandboxKilledAfterGettingPort_silentlyDiscards()
             throws Throwable {
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         mJsIsolate.evaluateJavaScriptAsync(GET_PORT_CODE)
                 .get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
         // Kill the sandbox and make sure all isolates are placed into a dead environment state.
         mJsSandbox.killImmediatelyOnThread();
-        messagePort.postMessage(Message.createString(SMALL_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(SMALL_ARRAY));
-        messagePort.postMessage(Message.createString(LARGE_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(LARGE_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(SMALL_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(SMALL_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(LARGE_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(LARGE_ARRAY));
     }
 
     @Test
     public void testAppPostMessage_sandboxKilledAfterSettingOnMessage_silentlyDiscards()
             throws Throwable {
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         mJsIsolate.evaluateJavaScriptAsync(ECHO_MESSAGE_CODE)
                 .get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
         // Kill the sandbox and make sure all isolates are placed into a dead environment state.
         mJsSandbox.killImmediatelyOnThread();
-        messagePort.postMessage(Message.createString(SMALL_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(SMALL_ARRAY));
-        messagePort.postMessage(Message.createString(LARGE_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(LARGE_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(SMALL_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(SMALL_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(LARGE_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(LARGE_ARRAY));
     }
 
     @Test
     public void testPostMessage_appClosedPort_silentlyDiscards() throws Throwable {
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         mJsIsolate.evaluateJavaScriptAsync(QUEUE_MESSAGES_CODE)
                 .get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
         messagePort.close();
-        messagePort.postMessage(Message.createString(SMALL_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(SMALL_ARRAY));
-        messagePort.postMessage(Message.createString(LARGE_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(LARGE_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(SMALL_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(SMALL_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(LARGE_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(LARGE_ARRAY));
         mJsIsolate.evaluateJavaScriptAsync(
                         "writeMessage('" + escape(SMALL_ASCII_STRING) + "');")
                 .get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
@@ -622,7 +630,7 @@ public class MessagePortTest {
 
     @Test
     public void testPostMessage_isolateClosedPort_silentlyDiscards() throws Throwable {
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         mJsIsolate.evaluateJavaScriptAsync(QUEUE_MESSAGES_CODE)
@@ -630,10 +638,10 @@ public class MessagePortTest {
 
         mJsIsolate.evaluateJavaScriptAsync("port.close()")
                 .get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
-        messagePort.postMessage(Message.createString(SMALL_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(SMALL_ARRAY));
-        messagePort.postMessage(Message.createString(LARGE_ASCII_STRING));
-        messagePort.postMessage(Message.createArrayBuffer(LARGE_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(SMALL_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(SMALL_ARRAY));
+        messagePort.postMessage(Message.createStringMessage(LARGE_ASCII_STRING));
+        messagePort.postMessage(Message.createArrayBufferMessage(LARGE_ARRAY));
         mJsIsolate.evaluateJavaScriptAsync(
                         "writeMessage('" + escape(SMALL_ASCII_STRING) + "');")
                 .get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
@@ -654,7 +662,7 @@ public class MessagePortTest {
 
     @Test
     public void testAppCloseIsolate_unclaimedByIsolate_unsetsRemote() throws Throwable {
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         MessagePortInternal messagePortInternal = messagePort.getMessagePortInternalForTest();
@@ -669,7 +677,7 @@ public class MessagePortTest {
 
     @Test
     public void testAppCloseIsolate_claimedByIsolate_unsetsRemote() throws Throwable {
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         MessagePortInternal messagePortInternal = messagePort.getMessagePortInternalForTest();
@@ -687,7 +695,7 @@ public class MessagePortTest {
 
     @Test
     public void testAppKillSandbox_unclaimedByIsolate_unsetsRemote() throws Throwable {
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         MessagePortInternal messagePortInternal = messagePort.getMessagePortInternalForTest();
@@ -702,7 +710,7 @@ public class MessagePortTest {
 
     @Test
     public void testAppKillSandbox_claimedByIsolate_unsetsRemote() throws Throwable {
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         MessagePortInternal messagePortInternal = messagePort.getMessagePortInternalForTest();
@@ -720,7 +728,7 @@ public class MessagePortTest {
 
     @Test
     public void testAppClose_unclaimedByIsolate_unsetsRemote() throws Throwable {
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         MessagePortInternal messagePortInternal = messagePort.getMessagePortInternalForTest();
@@ -734,7 +742,7 @@ public class MessagePortTest {
 
     @Test
     public void testAppClosePort_claimedByIsolate_unsetsRemote() throws Throwable {
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         MessagePortInternal messagePortInternal = messagePort.getMessagePortInternalForTest();
@@ -751,7 +759,7 @@ public class MessagePortTest {
 
     @Test
     public void testIsolateClosePort_unsetsRemote() throws Throwable {
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         MessagePortInternal messagePortInternal = messagePort.getMessagePortInternalForTest();
@@ -769,7 +777,7 @@ public class MessagePortTest {
 
     @Test
     public void testMultipleClosePort_appFirst_noCrash() throws Throwable {
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         MessagePortInternal messagePortInternal = messagePort.getMessagePortInternalForTest();
@@ -791,7 +799,7 @@ public class MessagePortTest {
 
     @Test
     public void testMultipleClosePort_isolateFirst_noCrash() throws Throwable {
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         MessagePortInternal messagePortInternal = messagePort.getMessagePortInternalForTest();
@@ -813,13 +821,13 @@ public class MessagePortTest {
 
     @Test
     public void testAppPostMessage_emptyFromApp_receivedInIsolate() throws Throwable {
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         mJsIsolate.evaluateJavaScriptAsync(QUEUE_MESSAGES_CODE)
                 .get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
-        messagePort.postMessage(Message.createString(""));
-        messagePort.postMessage(Message.createArrayBuffer(new byte[0]));
+        messagePort.postMessage(Message.createStringMessage(""));
+        messagePort.postMessage(Message.createArrayBufferMessage(new byte[0]));
 
         mJsIsolate.evaluateJavaScriptAsync(
                         "expectMessage('');")
@@ -832,7 +840,7 @@ public class MessagePortTest {
     @Test
     public void testIsolatePostMessage_emptyFromIsolate_receivedInApp() throws Throwable {
         final BlockingQueue<Message> messageQueue = new LinkedBlockingQueue<>();
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 messageQueue::add);
         mJsIsolate.evaluateJavaScriptAsync(QUEUE_MESSAGES_CODE)
@@ -852,17 +860,17 @@ public class MessagePortTest {
 
     @Test
     public void testAppPostMessage_unicodeFromApp_receivedInIsolate() throws Throwable {
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         mJsIsolate.evaluateJavaScriptAsync(QUEUE_MESSAGES_CODE)
                 .get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
-        messagePort.postMessage(Message.createString(SMALL_ASCII_STRING));
-        messagePort.postMessage(Message.createString(SMALL_BMP_STRING));
-        messagePort.postMessage(Message.createString(SMALL_SMP_STRING));
-        messagePort.postMessage(Message.createString(LARGE_ASCII_STRING));
-        messagePort.postMessage(Message.createString(LARGE_BMP_STRING));
-        messagePort.postMessage(Message.createString(LARGE_SMP_STRING));
+        messagePort.postMessage(Message.createStringMessage(SMALL_ASCII_STRING));
+        messagePort.postMessage(Message.createStringMessage(SMALL_BMP_STRING));
+        messagePort.postMessage(Message.createStringMessage(SMALL_SMP_STRING));
+        messagePort.postMessage(Message.createStringMessage(LARGE_ASCII_STRING));
+        messagePort.postMessage(Message.createStringMessage(LARGE_BMP_STRING));
+        messagePort.postMessage(Message.createStringMessage(LARGE_SMP_STRING));
 
         mJsIsolate.evaluateJavaScriptAsync(
                         "expectMessage('" + escape(SMALL_ASCII_STRING) + "');")
@@ -887,7 +895,7 @@ public class MessagePortTest {
     @Test
     public void testIsolatePostMessage_unicodeFromIsolate_receivedInApp() throws Throwable {
         final BlockingQueue<Message> messageQueue = new LinkedBlockingQueue<>();
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 messageQueue::add);
         mJsIsolate.evaluateJavaScriptAsync(QUEUE_MESSAGES_CODE)
@@ -934,11 +942,11 @@ public class MessagePortTest {
         mJsIsolate.evaluateJavaScriptAsync("const outbox = [];");
         for (Message message : messages) {
             switch (message.getType()) {
-                case Message.Type.STRING:
+                case Message.TYPE_STRING:
                     mJsIsolate.evaluateJavaScriptAsync(
                             "outbox.push('" + escape(message.getString()) + "');");
                     break;
-                case Message.Type.ARRAY_BUFFER:
+                case Message.TYPE_ARRAY_BUFFER:
                     mJsIsolate.evaluateJavaScriptAsync(
                             "outbox.push(" + jsArrayBuffer(message.getArrayBuffer()) + ");");
                     break;
@@ -947,7 +955,7 @@ public class MessagePortTest {
             }
         }
         final BlockingQueue<Message> messageQueue = new LinkedBlockingQueue<>();
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 messageQueue::add);
         // Use `get()` here to wait for all the evaluations to complete, so they can all be sent
@@ -962,10 +970,10 @@ public class MessagePortTest {
         for (Message expected : messages) {
             Message actual = messageQueue.poll(TIMEOUT_SECONDS, TimeUnit.SECONDS);
             switch (expected.getType()) {
-                case Message.Type.STRING:
+                case Message.TYPE_STRING:
                     Assert.assertEquals(expected.getString(), actual.getString());
                     break;
-                case Message.Type.ARRAY_BUFFER:
+                case Message.TYPE_ARRAY_BUFFER:
                     Assert.assertArrayEquals(expected.getArrayBuffer(), actual.getArrayBuffer());
                     break;
                 default:
@@ -977,7 +985,7 @@ public class MessagePortTest {
     @Test
     public void testAppPostMessage_manyTimes_receivedInIsolateInOrder() throws Throwable {
         List<Message> messages = generateComplexMessageSequence();
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         mJsIsolate.evaluateJavaScriptAsync(QUEUE_MESSAGES_CODE)
@@ -989,12 +997,12 @@ public class MessagePortTest {
         // Note that messages may still be in transit at this point.
         for (Message expected : messages) {
             switch (expected.getType()) {
-                case Message.Type.STRING:
+                case Message.TYPE_STRING:
                     mJsIsolate.evaluateJavaScriptAsync(
                                     "expectMessage('" + escape(expected.getString()) + "');")
                             .get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
                     break;
-                case Message.Type.ARRAY_BUFFER:
+                case Message.TYPE_ARRAY_BUFFER:
                     mJsIsolate.evaluateJavaScriptAsync(
                                     "expectMessage(" + jsArrayBuffer(expected.getArrayBuffer())
                                             + ");")
@@ -1050,13 +1058,13 @@ public class MessagePortTest {
     // [2] Technically, they're not allowed in UTF-16 either, but that doesn't stop anyone.
     @Test
     public void testAppPostMessage_unpairedSurrogatesFromApp_mangledInIsolate() throws Throwable {
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         mJsIsolate.evaluateJavaScriptAsync(QUEUE_MESSAGES_CODE)
                 .get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
-        messagePort.postMessage(Message.createString(SMALL_UNPAIRED_SURROGATES_STRING));
-        messagePort.postMessage(Message.createString(LARGE_UNPAIRED_SURROGATES_STRING));
+        messagePort.postMessage(Message.createStringMessage(SMALL_UNPAIRED_SURROGATES_STRING));
+        messagePort.postMessage(Message.createStringMessage(LARGE_UNPAIRED_SURROGATES_STRING));
 
         // Binder and FD mechanisms result in differently mangled strings!
         final String smallReplacementString =
@@ -1075,7 +1083,7 @@ public class MessagePortTest {
     public void testIsolatePostMessage_unpairedSurrogatesFromIsolate_mangledInApp()
             throws Throwable {
         final BlockingQueue<Message> messageQueue = new LinkedBlockingQueue<>();
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 messageQueue::add);
         mJsIsolate.evaluateJavaScriptAsync(QUEUE_MESSAGES_CODE)
@@ -1097,7 +1105,7 @@ public class MessagePortTest {
 
     @Test
     public void testPostMessage_nullMessage_throws() throws Throwable {
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
 
@@ -1111,14 +1119,14 @@ public class MessagePortTest {
         final String asciiPayload = generateAsciiString(MAX_EVALUATION_RETURN_SIZE + 1);
         final String bmpPayload = generateBmpString(MAX_EVALUATION_RETURN_SIZE / 2 + 1);
         final byte[] arrayPayload = generateByteArray(MAX_EVALUATION_RETURN_SIZE + 1);
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         mJsIsolate.evaluateJavaScriptAsync(QUEUE_MESSAGES_CODE)
                 .get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
-        messagePort.postMessage(Message.createString(asciiPayload));
-        messagePort.postMessage(Message.createString(bmpPayload));
-        messagePort.postMessage(Message.createArrayBuffer(arrayPayload));
+        messagePort.postMessage(Message.createStringMessage(asciiPayload));
+        messagePort.postMessage(Message.createStringMessage(bmpPayload));
+        messagePort.postMessage(Message.createArrayBufferMessage(arrayPayload));
 
         mJsIsolate.evaluateJavaScriptAsync(
                         "expectMessage('" + escape(asciiPayload) + "');")
@@ -1137,7 +1145,7 @@ public class MessagePortTest {
         final String bmpPayload = generateBmpString(MAX_EVALUATION_RETURN_SIZE / 2);
         final byte[] arrayPayload = generateByteArray(MAX_EVALUATION_RETURN_SIZE);
         final BlockingQueue<Message> messageQueue = new LinkedBlockingQueue<>();
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 messageQueue::add);
         mJsIsolate.evaluateJavaScriptAsync(QUEUE_MESSAGES_CODE)
@@ -1165,7 +1173,7 @@ public class MessagePortTest {
     public void testIsolatePostAsciiStringExceedingIsolateReturnSizeLimit_killsIsolate()
             throws Throwable {
         final String asciiPayload = generateAsciiString(MAX_EVALUATION_RETURN_SIZE + 1);
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         mJsIsolate.evaluateJavaScriptAsync(QUEUE_MESSAGES_CODE)
@@ -1187,7 +1195,7 @@ public class MessagePortTest {
     public void testIsolatePostBmpStringExceedingIsolateReturnSizeLimit_killsIsolate()
             throws Throwable {
         final String bmpPayload = generateBmpString(MAX_EVALUATION_RETURN_SIZE / 2 + 1);
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         mJsIsolate.evaluateJavaScriptAsync(QUEUE_MESSAGES_CODE)
@@ -1209,7 +1217,7 @@ public class MessagePortTest {
     public void testIsolatePostArrayExceedingIsolateReturnSizeLimit_killsIsolate()
             throws Throwable {
         final byte[] arrayPayload = generateByteArray(MAX_EVALUATION_RETURN_SIZE + 1);
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME,
                 MoreExecutors.directExecutor(),
                 EXPECT_NO_INCOMING_MESSAGES);
         mJsIsolate.evaluateJavaScriptAsync(QUEUE_MESSAGES_CODE)
@@ -1236,7 +1244,7 @@ public class MessagePortTest {
         EchoingMessagePortClient(@NonNull JavaScriptIsolate isolate,
                 @NonNull Executor executor, @NonNull String portName) {
             mPortName = portName;
-            mMessagePort = isolate.provideMessagePort(portName, executor, this);
+            mMessagePort = isolate.createMessageChannel(portName, executor, this);
         }
 
         @Override
@@ -1377,7 +1385,7 @@ public class MessagePortTest {
     public void testCloseAfterMessagesSent_messagesStillProcessed() throws Throwable {
         final BlockingQueue<Message> messageQueue = new LinkedBlockingQueue<>();
         final ManualExecutorService manualExecutorService = new ManualExecutorService();
-        MessagePort messagePort = mJsIsolate.provideMessagePort(PORT_NAME, manualExecutorService,
+        MessagePort messagePort = mJsIsolate.createMessageChannel(PORT_NAME, manualExecutorService,
                 messageQueue::add);
         mJsIsolate.evaluateJavaScriptAsync(QUEUE_MESSAGES_CODE)
                 .get(TIMEOUT_SECONDS, TimeUnit.SECONDS);

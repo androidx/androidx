@@ -24,6 +24,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.testing.impl.InternalTestConvenience.useInCameraTest
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
@@ -32,10 +33,8 @@ import androidx.test.uiautomator.UiDevice
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
-import org.junit.Assume
+import org.junit.Assume.assumeTrue
 import org.junit.BeforeClass
 import org.junit.Rule
 
@@ -52,6 +51,9 @@ import org.junit.Rule
 abstract class ImageAnalysisBaseTest<A : CameraActivity> {
 
     @get:Rule
+    val requireForegroundRule = RequireForegroundRule { CoreAppTestUtil.assumeCompatibleDevice() }
+
+    @get:Rule
     val useCameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             testCameraRule,
@@ -65,28 +67,17 @@ abstract class ImageAnalysisBaseTest<A : CameraActivity> {
     protected lateinit var device: UiDevice
 
     protected fun setUp(lensFacing: Int) {
-        CoreAppTestUtil.assumeCompatibleDevice()
-        Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
-
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
         device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        // Ensure it's in a natural orientation. This change could delay around 1 sec, please
-        // call this earlier before launching the test activity.
-        device.setOrientationNatural()
-
-        // Clear the device UI and check if there is no dialog or lock screen on the top of the
-        // window before start the test.
-        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
-    }
-
-    protected fun tearDown(): Unit = runBlocking {
-        withContext(Dispatchers.Main) {
+        requireForegroundRule.deferCleanup {
             val context = ApplicationProvider.getApplicationContext<Context>()
             val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
             cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
         }
-        if (::device.isInitialized) {
-            device.unfreezeRotation()
-        }
+    }
+
+    protected fun tearDown(): Unit = runBlocking {
+        // No-op for now.
     }
 
     protected inline fun <reified A : CameraActivity> verifyRotation(

@@ -19,7 +19,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="fingerprint_dialog_activity_label" msgid="1978496998419611110">"Диалоговое окно аутентификации по отпечатку пальца"</string>
     <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"Коснитесь сканера отпечатков."</string>
-    <string name="fingerprint_not_recognized" msgid="3873359464293253009">"Не распознано"</string>
+    <string name="fingerprint_not_recognized" msgid="3873359464293253009">"Не распознано."</string>
     <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"Сканер отпечатков пальцев недоступен."</string>
     <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"Нет отсканированных отпечатков пальцев."</string>
     <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"На этом устройстве нет сканера отпечатков пальцев."</string>

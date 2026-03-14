@@ -32,7 +32,6 @@ import kotlin.jvm.JvmName
  * @param toVersion The new schema version.
  * @return True if a valid migration is required, false otherwise.
  */
-@Suppress("EXTENSION_SHADOWED_BY_MEMBER") // On purpose and only in Android source set.
 internal fun DatabaseConfiguration.isMigrationRequired(fromVersion: Int, toVersion: Int): Boolean {
     // Migrations are not required if it is a downgrade AND destructive migration during downgrade
     // has been allowed.
@@ -44,7 +43,7 @@ internal fun DatabaseConfiguration.isMigrationRequired(fromVersion: Int, toVersi
         // Migrations are required between the two versions if we generally require migrations
         // AND EITHER there are no exceptions OR the supplied fromVersion is not one of the
         // exceptions.
-        this.requireMigration &&
+        this.isMigrationRequired &&
             (migrationNotRequiredFrom == null || !migrationNotRequiredFrom.contains(fromVersion))
     }
 }
@@ -57,8 +56,7 @@ internal fun DatabaseConfiguration.isMigrationRequired(fromVersion: Int, toVersi
  * @param endVersion End version of the migration
  * @return True if it contains a migration with the same start-end version, false otherwise.
  */
-@Suppress("EXTENSION_SHADOWED_BY_MEMBER") // On purpose in non-common platforms source sets.
-internal fun MigrationContainer.contains(startVersion: Int, endVersion: Int): Boolean {
+internal fun MigrationContainer.containsCommon(startVersion: Int, endVersion: Int): Boolean {
     val migrations = getMigrations()
     if (migrations.containsKey(startVersion)) {
         val startVersionMatches = migrations[startVersion] ?: emptyMap()
@@ -75,22 +73,20 @@ internal fun MigrationContainer.contains(startVersion: Int, endVersion: Int): Bo
  * @return An ordered list of [Migration] objects that should be run to migrate between the given
  *   versions. If a migration path cannot be found, `null` is returned.
  */
-@Suppress("EXTENSION_SHADOWED_BY_MEMBER") // On purpose and only in Android source set.
-internal fun MigrationContainer.findMigrationPath(start: Int, end: Int): List<Migration>? {
+internal fun MigrationContainer.findMigrationPathCommon(start: Int, end: Int): List<Migration>? {
     if (start == end) {
         return emptyList()
     }
     val migrateUp = end > start
-    val result = mutableListOf<Migration>()
-    return findUpMigrationPath(result, migrateUp, start, end)
+    return findUpMigrationPath(migrateUp, start, end)
 }
 
 private fun MigrationContainer.findUpMigrationPath(
-    result: MutableList<Migration>,
     upgrade: Boolean,
     start: Int,
     end: Int,
 ): List<Migration>? {
+    val result = mutableListOf<Migration>()
     var migrationStart = start
     while (if (upgrade) migrationStart < end else migrationStart > end) {
         // Use ordered keys and start searching from one end of them.

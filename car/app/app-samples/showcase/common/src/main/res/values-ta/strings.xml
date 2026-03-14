@@ -243,6 +243,7 @@
     <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"ஒவ்வொரு பட்டியலுக்கும் கீழுள்ள சுருக்க விவரம்"</string>
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"படங்கள், செயல்கள் ஆகியவற்றுக்கான டெமோவை முடித்தல்"</string>
     <string name="filter_chip_demo_title" msgid="92190365856639582">"ஃபில்டர் சிப் டெமோ"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"செயல்நிலைப் பட்டி டெமோ"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"பெட்டி டெம்ப்ளேட்டின் டெமோ"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"இருப்பிடப் பட்டியல் டெம்ப்ளேட்டின் டெமோ"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"இடங்களைக் கண்டறியுங்கள்"</string>

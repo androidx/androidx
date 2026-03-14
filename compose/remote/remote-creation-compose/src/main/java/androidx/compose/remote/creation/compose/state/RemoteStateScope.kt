@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.state
 
@@ -27,10 +26,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.LayoutDirection
 
 /** Scope for accessing remote state IDs. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface RemoteStateScope {
     /** The [RemoteComposeCreationState] associated with the document being drawn into. */
-    public val creationState: RemoteComposeCreationState
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val parentScope: RemoteStateScope
 
     /** The [RemoteDensity] associated with the document being drawn into. */
     public val remoteDensity: RemoteDensity
@@ -39,21 +37,30 @@ public interface RemoteStateScope {
     public val layoutDirection: LayoutDirection
 
     /** The [RemoteComposeWriter] associated with the document being drawn into. */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val document: RemoteComposeWriter
-        get() = creationState.document
+        get() = parentScope.document
 
     /** Returns the ID for this state within the scope. */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val RemoteState<*>.id: Int
         get() = (this as BaseRemoteState<*>).getIdForCreationState(creationState)
 
     /** Returns the float ID for this state within the scope. */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val RemoteState<*>.floatId: Float
         get() = (this as BaseRemoteState<*>).getFloatIdForCreationState(creationState)
 
     /** Returns the long ID for this state within the scope. */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val RemoteState<*>.longId: Long
         get() = (this as BaseRemoteState<*>).getLongIdForCreationState(creationState)
 }
+
+/** The [RemoteComposeCreationState] associated with the document being drawn into. */
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public val RemoteStateScope.creationState: RemoteComposeCreationState
+    get() = this as? RemoteComposeCreationState ?: parentScope.creationState
 
 /**
  * Allocates the RemoteState in global scope allowing assigning to global state IDs and
@@ -61,6 +68,7 @@ public interface RemoteStateScope {
  */
 @Composable
 @RemoteComposable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun <T : RemoteState<*>> T.withGlobalScope(): T {
     with(LocalRemoteComposeCreationState.current) {
         this.document.beginGlobal()

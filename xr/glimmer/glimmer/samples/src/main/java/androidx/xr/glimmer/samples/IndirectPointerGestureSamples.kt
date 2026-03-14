@@ -45,9 +45,9 @@ fun OnIndirectPointerGestureSampleUsage() {
         modifier =
             Modifier.onIndirectPointerGesture(
                     enabled = true,
-                    onClick = { log = "${Instant.now()} - onClick\n" + log },
                     onSwipeForward = { log = "${Instant.now()} - onSwipeForward\n" + log },
                     onSwipeBackward = { log = "${Instant.now()} - onSwipeBackward\n" + log },
+                    onClick = { log = "${Instant.now()} - onClick\n" + log },
                 )
                 .focusTarget()
                 .padding(16.dp),
@@ -66,9 +66,9 @@ fun OnIndirectPointerGestureSample() {
             Modifier.fillMaxSize()
                 .onIndirectPointerGesture(
                     enabled = true,
-                    onClick = { /* onClick */ },
                     onSwipeForward = { /* onSwipeForward */ },
                     onSwipeBackward = { /* onSwipeBackward */ },
+                    onClick = { /* onClick */ },
                 )
                 .focusTarget()
     ) {

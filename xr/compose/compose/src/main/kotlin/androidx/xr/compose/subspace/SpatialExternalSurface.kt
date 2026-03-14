@@ -54,7 +54,7 @@ internal object SpatialExternalSurfaceDefaults {
  * [SpatialExternalSurfaceScope] is a scoped environment that provides the [Surface] associated with
  * a [SpatialExternalSurface]
  */
-public interface SpatialExternalSurfaceScope {
+public sealed interface SpatialExternalSurfaceScope {
     /**
      * Invoked only one time when the Surface is created. This will execute before any layout or
      * modifiers are computed.
@@ -141,8 +141,19 @@ public value class StereoMode private constructor(internal val value: SurfaceEnt
  *
  * @see [SpatialExternalSurface]
  */
+@Deprecated("Use SpatialExternalSurfaceProtection instead.")
+public typealias SurfaceProtection = SpatialExternalSurfaceProtection
+
+/**
+ * Specifies if the Surface should be backed by [android.hardware.HardwareBuffer]s with the
+ * USAGE_PROTECTED_CONTENT flag set. These buffers support hardware paths for decoding protected
+ * content.
+ *
+ * @see [SpatialExternalSurface]
+ * @see https://developer.android.com/reference/android/media/MediaDrm
+ */
 @JvmInline
-public value class SurfaceProtection
+public value class SpatialExternalSurfaceProtection
 private constructor(internal val value: SurfaceEntity.SurfaceProtection) {
     public companion object {
         /**
@@ -150,15 +161,16 @@ private constructor(internal val value: SurfaceEntity.SurfaceProtection) {
          * surface. Protected content can not be decoded into this Surface. Screen captures of the
          * [SpatialExternalSurface] will show the Surface content.
          */
-        public val None: SurfaceProtection = SurfaceProtection(SurfaceEntity.SurfaceProtection.NONE)
+        public val None: SpatialExternalSurfaceProtection =
+            SpatialExternalSurfaceProtection(SurfaceEntity.SurfaceProtection.NONE)
 
         /**
          * The Surface content is protected. Non-protected content can be decoded into this surface.
          * Protected content can be decoded into this Surface. Screen captures of the
          * [SpatialExternalSurface] will redact the Surface content.
          */
-        public val Protected: SurfaceProtection =
-            SurfaceProtection(SurfaceEntity.SurfaceProtection.PROTECTED)
+        public val Protected: SpatialExternalSurfaceProtection =
+            SpatialExternalSurfaceProtection(SurfaceEntity.SurfaceProtection.PROTECTED)
     }
 }
 
@@ -167,24 +179,25 @@ private constructor(internal val value: SurfaceEntity.SurfaceProtection) {
  * stereo image content. This can be thought of as the spatial equivalent of AndroidExternalSurface.
  * This Surface is texture mapped to the canvas, and if a stereoscopic StereoMode is specified, then
  * the User will see left and right eye content mapped to the appropriate display. Width and height
- * will default to 400 pixels if it is not specified using size modifiers.
+ * will default to 400 pixels if it is not specified using size modifiers. This surface currently
+ * cannot be used for rendering still images.
  *
  * It is not currently possible to synchronize StereoMode changes with application rendering or
  * video decoding. This composable currently cannot render in front of other panels, so [dragPolicy]
  * usage is not recommended if there are other panels in the layout, aside from the content block of
  * this Composable.
  *
- * Playing certain content will require the proper [SurfaceProtection]. This is mainly used to
- * protect DRM video content.
+ * Playing certain content will require the proper [SpatialExternalSurfaceProtection]. This is
+ * mainly used to protect DRM video content.
  *
  * @param modifier SubspaceModifiers to apply to the SpatialSurfacePanel.
  * @param stereoMode The [StereoMode] which describes how parts of the surface are displayed to the
  *   user's eyes. This will affect how the content is interpreted and displayed on the surface.
- * @param featheringEffect A [SpatialFeatheringEffect] to apply to to canvas of the surface exposed
+ * @param featheringEffect A [SpatialFeatheringEffect] to apply to the canvas of the surface exposed
  *   from [SpatialExternalSurfaceScope.onSurfaceCreated].
  * @param surfaceProtection Sets the Surface's content protection. Use this to redact content in
- *   screen recordings. Setting this to [SurfaceProtection.Protected] is required if decoding DRM
- *   media content.
+ *   screen recordings. Setting this to [SpatialExternalSurfaceProtection.Protected] is required if
+ *   decoding DRM media content.
  * @param dragPolicy An optional [DragPolicy] that defines the motion behavior of the
  *   [SpatialPanel]. This can be either a [MovePolicy] for free movement or an [AnchorPolicy] for
  *   anchoring to real-world surfaces. If a policy is provided, draggable UI controls will be shown,
@@ -199,6 +212,7 @@ private constructor(internal val value: SurfaceEntity.SurfaceProtection) {
  *   [SpatialExternalSurfaceScope.onSurfaceCreated]. Composable content will be rendered over the
  *   Surface canvas. If using [StereoMode.SideBySide] or [StereoMode.TopBottom], it is recommended
  *   to offset Composable content far enough to avoid depth perception issues.
+ * @sample androidx.xr.compose.samples.SpatialExternalSurfaceSample
  */
 @Composable
 @SubspaceComposable
@@ -206,7 +220,7 @@ public fun SpatialExternalSurface(
     stereoMode: StereoMode,
     modifier: SubspaceModifier = SubspaceModifier,
     featheringEffect: SpatialFeatheringEffect? = null,
-    surfaceProtection: SurfaceProtection = SurfaceProtection.None,
+    surfaceProtection: SpatialExternalSurfaceProtection = SpatialExternalSurfaceProtection.None,
     dragPolicy: DragPolicy? = null,
     resizePolicy: ResizePolicy? = null,
     interactionPolicy: InteractionPolicy? = null,
@@ -255,31 +269,35 @@ public fun SpatialExternalSurface(
  * A Composable that creates and owns an Android Surface into which the application can render
  * stereo image content inside a 180 degree hemisphere dome. This Surface is texture mapped to the
  * canvas, and if a stereoscopic StereoMode is specified, then the User will see left and right eye
- * content mapped to the appropriate display.
+ * content mapped to the appropriate display. This surface currently cannot be used for rendering
+ * still images.
  *
- * This Composable orients itself to match the parent Pose and has no layout size. While this
- * Composable is active, a temporary preferred environment will be set, if one isn't already set, to
- * put the user inside a boundary. In cases where the user has not consented to the boundary or if
- * passthrough is ever fully enabled, a transparent feathered surface will display instead.
+ * This Composable orients itself to match the parent Pose. Unlike [SpatialExternalSurface], due to
+ * this Composable's close resemblance to the system environment, this Composable has no layout size
+ * when inserted into rows and columns, and Composables can't be positioned relative to its edges,
+ * or as its children. While this Composable is active, a temporary preferred environment will be
+ * set, if one isn't already set, to put the user inside a boundary. In cases where the user has not
+ * consented to the boundary or if passthrough is ever fully enabled, a transparent feathered
+ * surface will display instead.
  *
  * It is not currently possible to synchronize StereoMode changes with application rendering or
  * video decoding.
  *
- * Playing certain content will require the proper [SurfaceProtection]. This is mainly used to
- * protect DRM video content.
+ * Playing certain content will require the proper [SpatialExternalSurfaceProtection]. This is
+ * mainly used to protect DRM video content.
  *
  * @param modifier SubspaceModifiers to apply to the hemisphere. A sphere's measured size is
  *   automatically inferred from [radius] and does not need to be set through a modifier.
  * @param stereoMode The [StereoMode] which describes how parts of the surface are displayed to the
  *   user's eyes. This will affect how the content is interpreted and displayed on the surface.
  * @param radius The radius of the dome displaying the video.
- * @param featheringEffect A [SpatialFeatheringEffect] to apply to to canvas of the surface exposed
+ * @param featheringEffect A [SpatialFeatheringEffect] to apply to the canvas of the surface exposed
  *   from [SpatialExternalSurfaceScope.onSurfaceCreated]. For hemisphere domes, vertical feathering
  *   applies to the top and bottom poles of the dome, while horizontal feathering applies to the
  *   left and right sides.
  * @param surfaceProtection Sets the Surface's content protection. Use this to redact content in
- *   screen recordings. Setting this to [SurfaceProtection.Protected] is required if decoding DRM
- *   media content.
+ *   screen recordings. Setting this to [SpatialExternalSurfaceProtection.Protected] is required if
+ *   decoding DRM media content.
  * @param interactionPolicy An optional [InteractionPolicy] that can be set to detect input events.
  * @param superSamplingPattern The pattern to use to super sample this surface, or
  *   [SuperSamplingPattern.None] to disable super sampling.
@@ -289,17 +307,17 @@ public fun SpatialExternalSurface(
  */
 @Composable
 @SubspaceComposable
-public fun SpatialExternalSurface180Hemisphere(
+public fun SpatialExternalSurfaceHemisphere(
     stereoMode: StereoMode,
     modifier: SubspaceModifier = SubspaceModifier,
     radius: Dp = SpatialExternalSurfaceDefaults.sphereRadius,
     featheringEffect: SpatialFeatheringEffect? = null,
-    surfaceProtection: SurfaceProtection = SurfaceProtection.None,
+    surfaceProtection: SpatialExternalSurfaceProtection = SpatialExternalSurfaceProtection.None,
     interactionPolicy: InteractionPolicy? = null,
     superSamplingPattern: SuperSamplingPattern = SuperSamplingPattern.Pentagon,
     onSurface: SpatialExternalSurfaceScope.() -> Unit,
 ) {
-    SpatialExternalSurfaceSphere(
+    SpatialExternalSurfaceBaseSphere(
         stereoMode = stereoMode,
         isHemisphere = true,
         modifier = modifier,
@@ -316,31 +334,35 @@ public fun SpatialExternalSurface180Hemisphere(
  * A Composable that creates and owns an Android Surface into which the application can render
  * stereo image content inside a 360 degree sphere dome. This Surface is then texture mapped to the
  * canvas, and if a stereoscopic StereoMode is specified, then the User will see left and right eye
- * content mapped to the appropriate display.
+ * content mapped to the appropriate display. This surface currently cannot be used for rendering
+ * still images.
  *
- * This Composable orients itself to match the parent Pose and has no layout size. While this
- * Composable is active, a temporary preferred environment will be set, if one isn't already set, to
- * put the user inside a boundary. In cases where the user has not consented to the boundary or if
- * passthrough is ever fully enabled, a transparent feathered surface will display instead.
+ * This Composable orients itself to match the parent Pose. Unlike [SpatialExternalSurface], due to
+ * this Composable's close resemblance to the system environment, this Composable has no layout size
+ * when inserted into rows and columns, and Composables can't be positioned relative to its edges,
+ * or as its children. While this Composable is active, a temporary preferred environment will be
+ * set, if one isn't already set, to put the user inside a boundary. In cases where the user has not
+ * consented to the boundary or if passthrough is ever fully enabled, a transparent feathered
+ * surface will display instead.
  *
  * It is not currently possible to synchronize StereoMode changes with application rendering or
  * video decoding.
  *
- * Playing certain content will require the proper [SurfaceProtection]. This is mainly used to
- * protect DRM video content.
+ * Playing certain content will require the proper [SpatialExternalSurfaceProtection]. This is
+ * mainly used to protect DRM video content.
  *
  * @param modifier SubspaceModifiers to apply to the sphere. A sphere's measured size is
  *   automatically inferred from [radius] and does not need to be set through a modifier.
  * @param stereoMode The [StereoMode] which describes how parts of the surface are displayed to the
  *   user's eyes. This will affect how the content is interpreted and displayed on the surface.
  * @param radius The radius of the dome displaying the video.
- * @param featheringEffect A [SpatialFeatheringEffect] to apply to to canvas of the surface exposed
+ * @param featheringEffect A [SpatialFeatheringEffect] to apply to the canvas of the surface exposed
  *   from [SpatialExternalSurfaceScope.onSurfaceCreated]. For sphere domes, vertical feathering
  *   applies to the top and bottom poles of the dome, while horizontal feathering applies to the
  *   left and right sides where the video is stitched together.
  * @param surfaceProtection Sets the Surface's content protection. Use this to redact content in
- *   screen recordings. Setting this to [SurfaceProtection.Protected] is required if decoding DRM
- *   media content.
+ *   screen recordings. Setting this to [SpatialExternalSurfaceProtection.Protected] is required if
+ *   decoding DRM media content.
  * @param interactionPolicy An optional [InteractionPolicy] that can be set to detect input events.
  * @param superSamplingPattern The pattern to use to super sample this surface, or
  *   [SuperSamplingPattern.None] to disable super sampling.
@@ -350,17 +372,17 @@ public fun SpatialExternalSurface180Hemisphere(
  */
 @Composable
 @SubspaceComposable
-public fun SpatialExternalSurface360Sphere(
+public fun SpatialExternalSurfaceSphere(
     stereoMode: StereoMode,
     modifier: SubspaceModifier = SubspaceModifier,
     radius: Dp = SpatialExternalSurfaceDefaults.sphereRadius,
     featheringEffect: SpatialFeatheringEffect? = null,
-    surfaceProtection: SurfaceProtection = SurfaceProtection.None,
+    surfaceProtection: SpatialExternalSurfaceProtection = SpatialExternalSurfaceProtection.None,
     interactionPolicy: InteractionPolicy? = null,
     superSamplingPattern: SuperSamplingPattern = SuperSamplingPattern.Pentagon,
     onSurface: SpatialExternalSurfaceScope.() -> Unit,
 ) {
-    SpatialExternalSurfaceSphere(
+    SpatialExternalSurfaceBaseSphere(
         stereoMode = stereoMode,
         isHemisphere = false,
         modifier = modifier,
@@ -375,13 +397,13 @@ public fun SpatialExternalSurface360Sphere(
 
 @Composable
 @SubspaceComposable
-private fun SpatialExternalSurfaceSphere(
+private fun SpatialExternalSurfaceBaseSphere(
     stereoMode: StereoMode,
     isHemisphere: Boolean,
     modifier: SubspaceModifier = SubspaceModifier,
     radius: Dp = SpatialExternalSurfaceDefaults.sphereRadius,
     featheringEffect: SpatialFeatheringEffect? = null,
-    surfaceProtection: SurfaceProtection = SurfaceProtection.None,
+    surfaceProtection: SpatialExternalSurfaceProtection = SpatialExternalSurfaceProtection.None,
     interactionPolicy: InteractionPolicy?,
     superSamplingPattern: SuperSamplingPattern,
     onSurface: SpatialExternalSurfaceScope.() -> Unit,
@@ -467,7 +489,7 @@ private fun SpatialExternalSurfaceSphere(
  * A sphere's measured size is always 0 as it will render behind content and shouldn't occupy layout
  * space.
  */
-internal class SphereMeasurePolicy() : SubspaceMeasurePolicy {
+internal class SphereMeasurePolicy : SubspaceMeasurePolicy {
     override fun SubspaceMeasureScope.measure(
         measurables: List<SubspaceMeasurable>,
         constraints: VolumeConstraints,

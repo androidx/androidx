@@ -110,7 +110,6 @@ package androidx.xr.scenecore {
     method public java.util.List<androidx.xr.scenecore.Component> getComponents();
     method public <T extends androidx.xr.scenecore.Component> java.util.List<T> getComponentsOfType(Class<? extends T> type);
     method @InaccessibleFromKotlin public CharSequence getContentDescription();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.runtime.math.Vector3 getNonUniformScale(optional androidx.xr.scenecore.Space relativeTo);
     method @InaccessibleFromKotlin public androidx.xr.scenecore.Entity? getParent();
     method public androidx.xr.runtime.math.Pose getPose(optional androidx.xr.scenecore.Space relativeTo);
     method public float getScale(optional androidx.xr.scenecore.Space relativeTo);
@@ -123,7 +122,6 @@ package androidx.xr.scenecore {
     method public void setEnabled(boolean enabled);
     method @InaccessibleFromKotlin public void setParent(androidx.xr.scenecore.Entity?);
     method public void setPose(androidx.xr.runtime.math.Pose pose, optional androidx.xr.scenecore.Space relativeTo);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setScale(androidx.xr.runtime.math.Vector3 scale, optional androidx.xr.scenecore.Space relativeTo);
     method public void setScale(float scale, optional androidx.xr.scenecore.Space relativeTo);
     property public java.util.List<androidx.xr.scenecore.Entity> children;
     property public CharSequence contentDescription;
@@ -158,17 +156,8 @@ package androidx.xr.scenecore {
   }
 
   public interface Component {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean onAttach(androidx.xr.scenecore.Entity entity);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void onDetach(androidx.xr.scenecore.Entity entity);
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class CubeMapTexture extends androidx.xr.scenecore.Texture {
-    method @MainThread public static androidx.xr.scenecore.CubeMapTexture borrowReflectionTexture(androidx.xr.runtime.Session session);
-    field public static final androidx.xr.scenecore.CubeMapTexture.Companion Companion;
-  }
-
-  public static final class CubeMapTexture.Companion {
-    method @MainThread public androidx.xr.scenecore.CubeMapTexture borrowReflectionTexture(androidx.xr.runtime.Session session);
+    method public boolean onAttach(androidx.xr.scenecore.Entity entity);
+    method public void onDetach(androidx.xr.scenecore.Entity entity);
   }
 
   public interface Entity extends androidx.xr.scenecore.ScenePose {
@@ -186,8 +175,6 @@ package androidx.xr.scenecore {
     method public java.util.List<androidx.xr.scenecore.Component> getComponents();
     method public <T extends androidx.xr.scenecore.Component> java.util.List<T> getComponentsOfType(Class<? extends T> type);
     method @InaccessibleFromKotlin public CharSequence getContentDescription();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.runtime.math.Vector3 getNonUniformScale(optional androidx.xr.scenecore.Space relativeTo);
-    method @BytecodeOnly @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.xr.runtime.math.Vector3! getNonUniformScale$default(androidx.xr.scenecore.Entity!, androidx.xr.scenecore.Space!, int, Object!);
     method @InaccessibleFromKotlin public androidx.xr.scenecore.Entity? getParent();
     method public default androidx.xr.runtime.math.Pose getPose();
     method public androidx.xr.runtime.math.Pose getPose(optional androidx.xr.scenecore.Space relativeTo);
@@ -207,10 +194,8 @@ package androidx.xr.scenecore {
     method public default void setPose(androidx.xr.runtime.math.Pose pose);
     method public void setPose(androidx.xr.runtime.math.Pose pose, optional androidx.xr.scenecore.Space relativeTo);
     method @BytecodeOnly public static void setPose$default(androidx.xr.scenecore.Entity!, androidx.xr.runtime.math.Pose!, androidx.xr.scenecore.Space!, int, Object!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setScale(androidx.xr.runtime.math.Vector3 scale, optional androidx.xr.scenecore.Space relativeTo);
     method public default void setScale(@FloatRange(from=0.0) float scale);
     method public void setScale(@FloatRange(from=0.0) float scale, optional androidx.xr.scenecore.Space relativeTo);
-    method @BytecodeOnly @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void setScale$default(androidx.xr.scenecore.Entity!, androidx.xr.runtime.math.Vector3!, androidx.xr.scenecore.Space!, int, Object!);
     method @BytecodeOnly public static void setScale$default(androidx.xr.scenecore.Entity!, float, androidx.xr.scenecore.Space!, int, Object!);
     property public abstract java.util.List<androidx.xr.scenecore.Entity> children;
     property public abstract CharSequence contentDescription;
@@ -227,10 +212,6 @@ package androidx.xr.scenecore {
     method @BytecodeOnly public static androidx.xr.scenecore.Entity! create$default(androidx.xr.scenecore.Entity.Companion!, androidx.xr.runtime.Session!, String!, androidx.xr.runtime.math.Pose!, androidx.xr.scenecore.Entity!, int, Object!);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final class Entity.DisposedException extends java.lang.IllegalStateException {
-    ctor public Entity.DisposedException(String message);
-  }
-
   public interface EntityMoveListener {
     method public default void onMoveEnd(androidx.xr.scenecore.Entity entity, androidx.xr.runtime.math.Ray finalInputRay, androidx.xr.runtime.math.Pose finalPose, float finalScale, androidx.xr.scenecore.Entity? updatedParent);
     method public default void onMoveStart(androidx.xr.scenecore.Entity entity, androidx.xr.runtime.math.Ray initialInputRay, androidx.xr.runtime.math.Pose initialPose, float initialScale, androidx.xr.scenecore.Entity initialParent);
@@ -242,15 +223,12 @@ package androidx.xr.scenecore {
 
   public final class ExrImage {
     method @MainThread public static suspend Object? createFromZip(androidx.xr.runtime.Session session, android.net.Uri uri, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.ExrImage>);
-    method @MainThread @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static suspend Object? createFromZip(androidx.xr.runtime.Session session, byte[] assetData, String assetKey, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.ExrImage>);
     method @MainThread public static suspend Object? createFromZip(androidx.xr.runtime.Session session, java.nio.file.Path path, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.ExrImage>);
-    method @MainThread @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.scenecore.CubeMapTexture getReflectionTexture();
     field public static final androidx.xr.scenecore.ExrImage.Companion Companion;
   }
 
   public static final class ExrImage.Companion {
     method @MainThread public suspend Object? createFromZip(androidx.xr.runtime.Session session, android.net.Uri uri, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.ExrImage>);
-    method @MainThread @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public suspend Object? createFromZip(androidx.xr.runtime.Session session, byte[] assetData, String assetKey, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.ExrImage>);
     method @MainThread public suspend Object? createFromZip(androidx.xr.runtime.Session session, java.nio.file.Path path, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.ExrImage>);
   }
 
@@ -708,7 +686,7 @@ package androidx.xr.scenecore {
   }
 
   public final class PointSourceParams {
-    ctor public PointSourceParams(androidx.xr.scenecore.Entity entity);
+    ctor public PointSourceParams();
   }
 
   public final class PointerCaptureComponent implements androidx.xr.scenecore.Component {
@@ -733,6 +711,19 @@ package androidx.xr.scenecore {
     property public androidx.xr.scenecore.PointerCaptureComponent.PointerCaptureState ACTIVE;
     property public androidx.xr.scenecore.PointerCaptureComponent.PointerCaptureState PAUSED;
     property public androidx.xr.scenecore.PointerCaptureComponent.PointerCaptureState STOPPED;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class PositionalAudioComponent implements androidx.xr.scenecore.Component {
+    method public static androidx.xr.scenecore.PositionalAudioComponent create(androidx.xr.runtime.Session session, androidx.xr.scenecore.PointSourceParams params);
+    method public androidx.media3.exoplayer.audio.AudioOutputProvider getAudioOutputProvider();
+    method public boolean onAttach(androidx.xr.scenecore.Entity entity);
+    method public void onDetach(androidx.xr.scenecore.Entity entity);
+    method public void setPointSourceParams(androidx.xr.scenecore.PointSourceParams params);
+    field public static final androidx.xr.scenecore.PositionalAudioComponent.Companion Companion;
+  }
+
+  public static final class PositionalAudioComponent.Companion {
+    method public androidx.xr.scenecore.PositionalAudioComponent create(androidx.xr.runtime.Session session, androidx.xr.scenecore.PointSourceParams params);
   }
 
   public final class ResizableComponent implements androidx.xr.scenecore.Component {
@@ -766,7 +757,6 @@ package androidx.xr.scenecore {
     property public boolean isFixedAspectRatioEnabled;
     property public androidx.xr.runtime.math.FloatSize3d maximumEntitySize;
     property public androidx.xr.runtime.math.FloatSize3d minimumEntitySize;
-    property public boolean shouldAutoUpdateOverlay;
     field public static final androidx.xr.scenecore.ResizableComponent.Companion Companion;
   }
 
@@ -804,14 +794,11 @@ package androidx.xr.scenecore {
   }
 
   public final class Scene implements androidx.xr.runtime.SessionConnector {
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public Scene();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void addOnBoundaryConsentChangedListener(java.util.concurrent.Executor callbackExecutor, java.util.function.Consumer<java.lang.Boolean> listener);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void addOnBoundaryConsentChangedListener(java.util.function.Consumer<java.lang.Boolean> listener);
     method public void addSpatialCapabilitiesChangedListener(java.util.concurrent.Executor callbackExecutor, java.util.function.Consumer<java.util.Set<androidx.xr.scenecore.SpatialCapability>> listener);
     method public void addSpatialCapabilitiesChangedListener(java.util.function.Consumer<java.util.Set<androidx.xr.scenecore.SpatialCapability>> listener);
     method public void clearSpatialModeChangedListener();
     method public void clearSpatialVisibilityChangedListener();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void close();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public void close();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.ActivitySpace getActivitySpace();
     method public <T extends androidx.xr.scenecore.Entity> java.util.List<T> getEntitiesOfType(Class<? extends T> type);
     method @InaccessibleFromKotlin public androidx.xr.scenecore.Entity? getKeyEntity();
@@ -820,9 +807,7 @@ package androidx.xr.scenecore {
     method @InaccessibleFromKotlin public androidx.xr.scenecore.PerceptionSpace getPerceptionSpace();
     method @InaccessibleFromKotlin public java.util.Set<androidx.xr.scenecore.SpatialCapability> getSpatialCapabilities();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.SpatialEnvironment getSpatialEnvironment();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void initialize(java.util.List<? extends androidx.xr.runtime.internal.JxrRuntime> runtimes);
-    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean isBoundaryConsentGranted();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void removeOnBoundaryConsentChangedListener(java.util.function.Consumer<java.lang.Boolean> listener);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public void initialize(java.util.List<? extends androidx.xr.runtime.internal.JxrRuntime> runtimes);
     method public void removeSpatialCapabilitiesChangedListener(java.util.function.Consumer<java.util.Set<androidx.xr.scenecore.SpatialCapability>> listener);
     method public void requestFullSpaceMode();
     method public void requestHomeSpaceMode();
@@ -833,7 +818,6 @@ package androidx.xr.scenecore {
     method public void setSpatialVisibilityChangedListener(java.util.concurrent.Executor callbackExecutor, java.util.function.Consumer<androidx.xr.scenecore.SpatialVisibility> listener);
     method public void setSpatialVisibilityChangedListener(java.util.function.Consumer<androidx.xr.scenecore.SpatialVisibility> listener);
     property public androidx.xr.scenecore.ActivitySpace activitySpace;
-    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean isBoundaryConsentGranted;
     property public androidx.xr.scenecore.Entity? keyEntity;
     property public androidx.xr.scenecore.MainPanelEntity mainPanelEntity;
     property public androidx.xr.scenecore.PanelClippingConfig panelClippingConfig;
@@ -866,10 +850,79 @@ package androidx.xr.scenecore {
     property public static androidx.xr.scenecore.Scene androidx.xr.runtime.Session.scene;
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class SoundEffect {
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface SoundEffectPlayer {
+    method public void pause(androidx.xr.scenecore.Stream stream);
+    method public androidx.xr.scenecore.Stream play(androidx.xr.scenecore.SoundEffect soundEffect, @FloatRange(from=0.0, to=1.0) float volume, @IntRange(from=0L) int priority, boolean isLooping);
+    method public void resume(androidx.xr.scenecore.Stream stream);
+    method public void setLooping(androidx.xr.scenecore.Stream stream, boolean isLooping);
+    method public void setVolume(androidx.xr.scenecore.Stream stream, @FloatRange(from=0.0, to=1.0) float volume);
+    method public void stop(androidx.xr.scenecore.Stream stream);
+  }
+
+  public final class SoundEffectPlayerKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) internal static androidx.xr.scenecore.Stream toStream(androidx.xr.scenecore.runtime.Stream);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class SoundEffectPool implements java.lang.AutoCloseable {
+    method public void close();
+    method public static androidx.xr.scenecore.SoundEffectPool create(androidx.xr.runtime.Session session, int maxStreams);
+    method public androidx.xr.scenecore.SoundEffect load(android.content.Context context, int resId);
+    method public androidx.xr.scenecore.SoundEffect load(android.content.res.AssetFileDescriptor assetFileDescriptor);
+    method public void release();
+    method public void setOnLoadCompleteListener(androidx.xr.scenecore.SoundEffectPool.LoadCompleteListener listener);
+    method public void setOnLoadCompleteListener(java.util.concurrent.Executor executor, androidx.xr.scenecore.SoundEffectPool.LoadCompleteListener listener);
+    method public boolean unload(androidx.xr.scenecore.SoundEffect soundEffect);
+    field public static final androidx.xr.scenecore.SoundEffectPool.Companion Companion;
+  }
+
+  public static final class SoundEffectPool.Companion {
+    method public androidx.xr.scenecore.SoundEffectPool create(androidx.xr.runtime.Session session, int maxStreams);
+  }
+
+  public static fun interface SoundEffectPool.LoadCompleteListener {
+    method public void onLoadComplete(androidx.xr.scenecore.SoundEffect soundEffect, boolean success);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class SoundEffectPoolComponent implements androidx.xr.scenecore.Component androidx.xr.scenecore.SoundEffectPlayer {
+    method public static androidx.xr.scenecore.SoundEffectPoolComponent create(androidx.xr.runtime.Session session, androidx.xr.scenecore.SoundEffectPool soundEffectPool, androidx.xr.scenecore.PointSourceParams params);
+    method public boolean onAttach(androidx.xr.scenecore.Entity entity);
+    method public void onDetach(androidx.xr.scenecore.Entity entity);
+    method public void pause(androidx.xr.scenecore.Stream stream);
+    method public androidx.xr.scenecore.Stream play(androidx.xr.scenecore.SoundEffect soundEffect, float volume, int priority, boolean isLooping);
+    method public void resume(androidx.xr.scenecore.Stream stream);
+    method public void setLooping(androidx.xr.scenecore.Stream stream, boolean isLooping);
+    method public void setVolume(androidx.xr.scenecore.Stream stream, float volume);
+    method public void stop(androidx.xr.scenecore.Stream stream);
+    field public static final androidx.xr.scenecore.SoundEffectPoolComponent.Companion Companion;
+  }
+
+  public static final class SoundEffectPoolComponent.Companion {
+    method public androidx.xr.scenecore.SoundEffectPoolComponent create(androidx.xr.runtime.Session session, androidx.xr.scenecore.SoundEffectPool soundEffectPool, androidx.xr.scenecore.PointSourceParams params);
+  }
+
+  public final class SoundEffectPoolKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) internal static androidx.xr.scenecore.SoundEffect toSoundEffect(androidx.xr.scenecore.runtime.SoundEffect);
+  }
+
   public final class SoundFieldAttributes {
     ctor public SoundFieldAttributes(androidx.xr.scenecore.SpatializerConstants.AmbisonicsOrder order);
     method @InaccessibleFromKotlin public androidx.xr.scenecore.SpatializerConstants.AmbisonicsOrder getOrder();
     property public androidx.xr.scenecore.SpatializerConstants.AmbisonicsOrder order;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class SoundFieldAudioComponent implements androidx.xr.scenecore.Component {
+    method public static androidx.xr.scenecore.SoundFieldAudioComponent create(androidx.xr.runtime.Session session, androidx.xr.scenecore.SoundFieldAttributes attributes);
+    method public androidx.media3.exoplayer.audio.AudioOutputProvider getAudioOutputProvider();
+    method public boolean onAttach(androidx.xr.scenecore.Entity entity);
+    method public void onDetach(androidx.xr.scenecore.Entity entity);
+    field public static final androidx.xr.scenecore.SoundFieldAudioComponent.Companion Companion;
+  }
+
+  public static final class SoundFieldAudioComponent.Companion {
+    method public androidx.xr.scenecore.SoundFieldAudioComponent create(androidx.xr.runtime.Session session, androidx.xr.scenecore.SoundFieldAttributes attributes);
   }
 
   public final class Space {
@@ -889,12 +942,12 @@ package androidx.xr.scenecore {
     method public static androidx.xr.scenecore.PointSourceParams? getPointSourceParams(androidx.xr.runtime.Session session, android.media.AudioTrack track);
     method public static androidx.xr.scenecore.SoundFieldAttributes? getSoundFieldAttributes(androidx.xr.runtime.Session session, android.media.AudioTrack track);
     method public static androidx.xr.scenecore.SpatializerConstants.SourceType getSpatialSourceType(androidx.xr.runtime.Session session, android.media.AudioTrack track);
-    method public static void setPointSourceParams(androidx.xr.runtime.Session session, android.media.AudioTrack track, androidx.xr.scenecore.PointSourceParams params);
+    method public static void setPointSourceParams(androidx.xr.runtime.Session session, android.media.AudioTrack track, androidx.xr.scenecore.PointSourceParams params, androidx.xr.scenecore.Entity entity);
     field public static final androidx.xr.scenecore.SpatialAudioTrack INSTANCE;
   }
 
   public final class SpatialAudioTrackBuilder {
-    method public static void setPointSourceParams(androidx.xr.runtime.Session session, android.media.AudioTrack.Builder builder, androidx.xr.scenecore.PointSourceParams params);
+    method public static void setPointSourceParams(androidx.xr.runtime.Session session, android.media.AudioTrack.Builder builder, androidx.xr.scenecore.PointSourceParams params, androidx.xr.scenecore.Entity entity);
     method public static void setSoundFieldAttributes(androidx.xr.runtime.Session session, android.media.AudioTrack.Builder builder, androidx.xr.scenecore.SoundFieldAttributes attributes);
     field public static final androidx.xr.scenecore.SpatialAudioTrackBuilder INSTANCE;
   }
@@ -945,7 +998,6 @@ package androidx.xr.scenecore {
 
   public static final class SpatialEnvironment.SpatialEnvironmentPreference {
     ctor public SpatialEnvironment.SpatialEnvironmentPreference(androidx.xr.scenecore.ExrImage? skybox, androidx.xr.scenecore.GltfModel? geometry);
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public SpatialEnvironment.SpatialEnvironmentPreference(androidx.xr.scenecore.ExrImage? skybox, androidx.xr.scenecore.GltfModel? geometry, androidx.xr.scenecore.GltfModelEntity? geometryEntity);
     method @InaccessibleFromKotlin public androidx.xr.scenecore.GltfModel? getGeometry();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.ExrImage? getSkybox();
     property public androidx.xr.scenecore.GltfModel? geometry;
@@ -953,7 +1005,7 @@ package androidx.xr.scenecore {
   }
 
   public final class SpatialMediaPlayer {
-    method public static void setPointSourceParams(androidx.xr.runtime.Session session, android.media.MediaPlayer mediaPlayer, androidx.xr.scenecore.PointSourceParams params);
+    method public static void setPointSourceParams(androidx.xr.runtime.Session session, android.media.MediaPlayer mediaPlayer, androidx.xr.scenecore.PointSourceParams params, androidx.xr.scenecore.Entity entity);
     method public static void setSoundFieldAttributes(androidx.xr.runtime.Session session, android.media.MediaPlayer mediaPlayer, androidx.xr.scenecore.SoundFieldAttributes attributes);
     field public static final androidx.xr.scenecore.SpatialMediaPlayer INSTANCE;
   }
@@ -995,17 +1047,17 @@ package androidx.xr.scenecore {
 
   public final class SpatialSoundPool {
     method public androidx.xr.scenecore.SpatializerConstants.SourceType getSpatialSourceType(androidx.xr.runtime.Session session, android.media.SoundPool soundPool, int streamId);
-    method public static int play(androidx.xr.runtime.Session session, android.media.SoundPool soundPool, int soundID, androidx.xr.scenecore.PointSourceParams params);
-    method public static int play(androidx.xr.runtime.Session session, android.media.SoundPool soundPool, int soundID, androidx.xr.scenecore.PointSourceParams params, optional @FloatRange(from=0.0, to=1.0) float volume);
-    method public static int play(androidx.xr.runtime.Session session, android.media.SoundPool soundPool, int soundID, androidx.xr.scenecore.PointSourceParams params, optional @FloatRange(from=0.0, to=1.0) float volume, optional @IntRange(from=0L) int priority);
-    method public static int play(androidx.xr.runtime.Session session, android.media.SoundPool soundPool, int soundID, androidx.xr.scenecore.PointSourceParams params, optional @FloatRange(from=0.0, to=1.0) float volume, optional @IntRange(from=0L) int priority, optional @IntRange(from=-1L) int loop);
-    method public static int play(androidx.xr.runtime.Session session, android.media.SoundPool soundPool, int soundID, androidx.xr.scenecore.PointSourceParams params, optional @FloatRange(from=0.0, to=1.0) float volume, optional @IntRange(from=0L) int priority, optional @IntRange(from=-1L) int loop, optional @FloatRange(from=0.5, to=2.0) float rate);
+    method public static int play(androidx.xr.runtime.Session session, android.media.SoundPool soundPool, int soundID, androidx.xr.scenecore.PointSourceParams params, androidx.xr.scenecore.Entity entity);
+    method public static int play(androidx.xr.runtime.Session session, android.media.SoundPool soundPool, int soundID, androidx.xr.scenecore.PointSourceParams params, androidx.xr.scenecore.Entity entity, optional @FloatRange(from=0.0, to=1.0) float volume);
+    method public static int play(androidx.xr.runtime.Session session, android.media.SoundPool soundPool, int soundID, androidx.xr.scenecore.PointSourceParams params, androidx.xr.scenecore.Entity entity, optional @FloatRange(from=0.0, to=1.0) float volume, optional @IntRange(from=0L) int priority);
+    method public static int play(androidx.xr.runtime.Session session, android.media.SoundPool soundPool, int soundID, androidx.xr.scenecore.PointSourceParams params, androidx.xr.scenecore.Entity entity, optional @FloatRange(from=0.0, to=1.0) float volume, optional @IntRange(from=0L) int priority, optional @IntRange(from=-1L) int loop);
+    method public static int play(androidx.xr.runtime.Session session, android.media.SoundPool soundPool, int soundID, androidx.xr.scenecore.PointSourceParams params, androidx.xr.scenecore.Entity entity, optional @FloatRange(from=0.0, to=1.0) float volume, optional @IntRange(from=0L) int priority, optional @IntRange(from=-1L) int loop, optional @FloatRange(from=0.5, to=2.0) float rate);
     method public static int play(androidx.xr.runtime.Session session, android.media.SoundPool soundPool, int soundID, androidx.xr.scenecore.SoundFieldAttributes attributes);
     method public static int play(androidx.xr.runtime.Session session, android.media.SoundPool soundPool, int soundID, androidx.xr.scenecore.SoundFieldAttributes attributes, optional @FloatRange(from=0.0, to=1.0) float volume);
     method public static int play(androidx.xr.runtime.Session session, android.media.SoundPool soundPool, int soundID, androidx.xr.scenecore.SoundFieldAttributes attributes, optional @FloatRange(from=0.0, to=1.0) float volume, optional @IntRange(from=0L) int priority);
     method public static int play(androidx.xr.runtime.Session session, android.media.SoundPool soundPool, int soundID, androidx.xr.scenecore.SoundFieldAttributes attributes, optional @FloatRange(from=0.0, to=1.0) float volume, optional @IntRange(from=0L) int priority, optional @IntRange(from=-1L) int loop);
     method public static int play(androidx.xr.runtime.Session session, android.media.SoundPool soundPool, int soundID, androidx.xr.scenecore.SoundFieldAttributes attributes, optional @FloatRange(from=0.0, to=1.0) float volume, optional @IntRange(from=0L) int priority, optional @IntRange(from=-1L) int loop, optional @FloatRange(from=0.5, to=2.0) float rate);
-    method @BytecodeOnly public static int play$default(androidx.xr.runtime.Session!, android.media.SoundPool!, int, androidx.xr.scenecore.PointSourceParams!, float, int, int, float, int, Object!);
+    method @BytecodeOnly public static int play$default(androidx.xr.runtime.Session!, android.media.SoundPool!, int, androidx.xr.scenecore.PointSourceParams!, androidx.xr.scenecore.Entity!, float, int, int, float, int, Object!);
     method @BytecodeOnly public static int play$default(androidx.xr.runtime.Session!, android.media.SoundPool!, int, androidx.xr.scenecore.SoundFieldAttributes!, float, int, int, float, int, Object!);
     property public static int PLAY_FAILED;
     field public static final androidx.xr.scenecore.SpatialSoundPool INSTANCE;
@@ -1063,6 +1115,9 @@ package androidx.xr.scenecore {
     property public androidx.xr.scenecore.SpatializerConstants.SourceType POINT_SOURCE;
     property public androidx.xr.scenecore.SpatializerConstants.SourceType SOUND_FIELD;
     property public static int SOURCE_TYPE_SOUND_FIELD;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class Stream {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class SubspaceNodeEntity extends androidx.xr.scenecore.BaseEntity<androidx.xr.scenecore.runtime.SubspaceNodeEntity> {
@@ -1369,20 +1424,12 @@ package androidx.xr.scenecore {
   public static final class TextureSampler.MinificationFilter {
     field public static final androidx.xr.scenecore.TextureSampler.MinificationFilter.Companion Companion;
     field public static final androidx.xr.scenecore.TextureSampler.MinificationFilter LINEAR;
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final androidx.xr.scenecore.TextureSampler.MinificationFilter LINEAR_MIPMAP_LINEAR;
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final androidx.xr.scenecore.TextureSampler.MinificationFilter LINEAR_MIPMAP_NEAREST;
     field public static final androidx.xr.scenecore.TextureSampler.MinificationFilter NEAREST;
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final androidx.xr.scenecore.TextureSampler.MinificationFilter NEAREST_MIPMAP_LINEAR;
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final androidx.xr.scenecore.TextureSampler.MinificationFilter NEAREST_MIPMAP_NEAREST;
   }
 
   public static final class TextureSampler.MinificationFilter.Companion {
     property public androidx.xr.scenecore.TextureSampler.MinificationFilter LINEAR;
-    property public androidx.xr.scenecore.TextureSampler.MinificationFilter LINEAR_MIPMAP_LINEAR;
-    property public androidx.xr.scenecore.TextureSampler.MinificationFilter LINEAR_MIPMAP_NEAREST;
     property public androidx.xr.scenecore.TextureSampler.MinificationFilter NEAREST;
-    property public androidx.xr.scenecore.TextureSampler.MinificationFilter NEAREST_MIPMAP_LINEAR;
-    property public androidx.xr.scenecore.TextureSampler.MinificationFilter NEAREST_MIPMAP_NEAREST;
   }
 
   public static final class TextureSampler.WrapMode {
@@ -1396,26 +1443,6 @@ package androidx.xr.scenecore {
     property public androidx.xr.scenecore.TextureSampler.WrapMode CLAMP_TO_EDGE;
     property public androidx.xr.scenecore.TextureSampler.WrapMode MIRRORED_REPEAT;
     property public androidx.xr.scenecore.TextureSampler.WrapMode REPEAT;
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class WaterMaterial implements androidx.xr.scenecore.Material {
-    method @MainThread public void close();
-    method @MainThread public static suspend Object? create(androidx.xr.runtime.Session session, boolean isAlphaMapVersion, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.WaterMaterial>);
-    method @InaccessibleFromKotlin public androidx.xr.scenecore.runtime.MaterialResource getMaterial();
-    method @MainThread public void setAlphaMap(androidx.xr.scenecore.Texture alphaMap, androidx.xr.scenecore.TextureSampler sampler);
-    method @MainThread public void setAlphaStepMultiplier(float alphaStepMultiplier);
-    method @MainThread public void setNormalBoundary(float normalBoundary);
-    method @MainThread public void setNormalMap(androidx.xr.scenecore.Texture normalMap, androidx.xr.scenecore.TextureSampler sampler);
-    method @MainThread public void setNormalSpeed(float normalSpeed);
-    method @MainThread public void setNormalTiling(float normalTiling);
-    method @MainThread public void setNormalZ(float normalZ);
-    method @MainThread public void setReflectionMap(androidx.xr.scenecore.CubeMapTexture reflectionMap, androidx.xr.scenecore.TextureSampler sampler);
-    property public androidx.xr.scenecore.runtime.MaterialResource material;
-    field public static final androidx.xr.scenecore.WaterMaterial.Companion Companion;
-  }
-
-  public static final class WaterMaterial.Companion {
-    method @MainThread public suspend Object? create(androidx.xr.runtime.Session session, boolean isAlphaMapVersion, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.WaterMaterial>);
   }
 
 }

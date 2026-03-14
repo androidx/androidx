@@ -120,6 +120,42 @@ class QualityRatioToResolutionsTable {
         return qualityRatioRow != null ? new ArrayList<>(qualityRatioRow) : new ArrayList<>(0);
     }
 
+    @Override
+    public @NonNull String toString() {
+        StringBuilder sb = new StringBuilder("QualityRatioToResolutionsTable {\n");
+        for (Quality quality : sQualityRangeMap.keySet()) {
+            Quality.ConstantQuality constantQuality = (Quality.ConstantQuality) quality;
+            sb.append("  ").append(constantQuality.getName()).append(":\n");
+
+            List<Integer> ratios = new ArrayList<>();
+            ratios.add(RATIO_DEFAULT);
+            ratios.addAll(sAspectRatioMap.keySet());
+
+            for (int ratio : ratios) {
+                List<Size> resolutions = getQualityRatioRow(quality, ratio);
+                String ratioLabel = getRatioLabel(ratio);
+                sb.append("    ").append(ratioLabel).append(" -> ")
+                        .append(resolutions != null ? resolutions : "null")
+                        .append("\n");
+            }
+        }
+        sb.append("}");
+        return sb.toString();
+    }
+
+    private @NonNull String getRatioLabel(@AspectRatio.Ratio int ratio) {
+        switch (ratio) {
+            case RATIO_DEFAULT:
+                return "DEFAULT";
+            case RATIO_4_3:
+                return "4:3";
+            case RATIO_16_9:
+                return "16:9";
+            default:
+                return "UNKNOWN (" + ratio + ")";
+        }
+    }
+
     private void addProfileSizesToTable(@NonNull Map<Quality, Size> profileQualityToSizeMap) {
         for (Map.Entry<Quality, Size> entry : profileQualityToSizeMap.entrySet()) {
             requireNonNull(getQualityRatioRow(entry.getKey(), RATIO_DEFAULT)).add(entry.getValue());

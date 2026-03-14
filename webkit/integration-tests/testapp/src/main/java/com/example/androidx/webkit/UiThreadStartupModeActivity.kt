@@ -26,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.webkit.ProcessGlobalConfig
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
+import androidx.webkit.WebViewOutcomeReceiver
 import androidx.webkit.WebViewStartUpConfig
 import androidx.webkit.WebViewStartUpResult
 import java.util.concurrent.Executors
@@ -67,7 +68,11 @@ class UiThreadStartupModeActivity : AppCompatActivity() {
         val startUpConfig =
             WebViewStartUpConfig.Builder(Executors.newSingleThreadExecutor()).build()
 
-        WebViewCompat.startUpWebView(this, startUpConfig, this::onWebViewStartupComplete)
+        WebViewCompat.startUpWebView(
+            this,
+            startUpConfig,
+            WebViewOutcomeReceiver(this::onWebViewStartupComplete),
+        )
     }
 
     private fun onWebViewStartupComplete(result: WebViewStartUpResult) {

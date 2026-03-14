@@ -98,13 +98,7 @@ public fun Button(
     content: @Composable RowScope.() -> Unit,
 ) {
     val colors = GlimmerTheme.colors
-    val iconSizes = GlimmerTheme.iconSizes
-    val iconSize =
-        if (buttonSize == ButtonSize.Medium) {
-            iconSizes.medium
-        } else {
-            iconSizes.large
-        }
+    val iconSize = GlimmerTheme.iconSizes.small
 
     val minHeight =
         if (buttonSize == ButtonSize.Medium) {
@@ -113,7 +107,11 @@ public fun Button(
             LargeMinimumHeight
         }
 
-    val depth = SurfaceDepth(depth = null, focusedDepth = GlimmerTheme.depthLevels.level1)
+    val depth =
+        SurfaceDepthEffect(
+            depthEffect = null,
+            focusedDepthEffect = GlimmerTheme.depthEffectLevels.level1,
+        )
 
     CompositionLocalProvider(LocalTextStyle provides GlimmerTheme.typography.bodySmall) {
         Row(
@@ -124,7 +122,7 @@ public fun Button(
                     shape = shape,
                     color = color,
                     contentColor = contentColor,
-                    depth = depth,
+                    depthEffect = depth,
                     border = border,
                     interactionSource = interactionSource,
                     onClick = onClick,
@@ -180,16 +178,17 @@ public object ButtonDefaults {
 }
 
 /** Default content padding for a medium [Button] */
-private val MediumContentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+private val MediumContentPadding =
+    PaddingValues(horizontal = Spacing.Large, vertical = Spacing.Small)
 
 /** Default content padding for a large [Button] */
-private val LargeContentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp)
+private val LargeContentPadding = PaddingValues(Spacing.Large)
 
 /** Default minimum height for a medium [Button] */
-private val MediumMinimumHeight = 56.dp
+private val MediumMinimumHeight = 48.dp
 
 /** Default minimum height for a large [Button] */
 private val LargeMinimumHeight = 72.dp
 
 /** Spacing between icons and the text in a [Button] */
-private val IconSpacing = 8.dp
+private val IconSpacing = Spacing.ExtraSmall

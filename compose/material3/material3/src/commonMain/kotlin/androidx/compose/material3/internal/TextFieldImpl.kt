@@ -17,6 +17,7 @@
 package androidx.compose.material3.internal
 
 import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.interaction.InteractionSource
@@ -52,7 +53,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawOutline
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.layoutId
@@ -101,8 +101,6 @@ internal fun CommonDecorationBox(
             else -> InputPhase.UnfocusedNotEmpty
         }
 
-    val labelColor = colors.labelColor(enabled, isError, isFocused)
-
     val typography = MaterialTheme.typography
     val bodyLarge = typography.bodyLarge
     val bodySmall = typography.bodySmall
@@ -110,190 +108,234 @@ internal fun CommonDecorationBox(
         (bodyLarge.color == Color.Unspecified && bodySmall.color != Color.Unspecified) ||
             (bodyLarge.color != Color.Unspecified && bodySmall.color == Color.Unspecified)
 
-    TextFieldTransitionScope(
-        inputState = inputState,
-        focusedLabelTextStyleColor =
-            with(bodySmall.color) {
-                if (overrideLabelTextStyleColor) this.takeOrElse { labelColor } else this
-            },
-        unfocusedLabelTextStyleColor =
-            with(bodyLarge.color) {
-                if (overrideLabelTextStyleColor) this.takeOrElse { labelColor } else this
-            },
-        labelColor = labelColor,
-        showExpandedLabel = label != null && labelPosition.showExpandedLabel,
-    ) { labelProgress, labelTextStyleColor, labelContentColor, placeholderAlpha, prefixSuffixAlpha
-        ->
-        val labelScope = remember {
-            object : TextFieldLabelScope {
-                override val labelMinimizedProgress: Float
-                    get() = labelProgress.value
+    val transition = updateTransition(inputState, label = "TextFieldInputState")
+
+    val showExpandedLabel = label != null && labelPosition.showExpandedLabel
+
+    val labelProgress =
+        if (label != null) {
+            transition.labelProgress(showExpandedLabel)
+        } else {
+            null
+        }
+
+    val placeholderAlpha =
+        if (placeholder != null) {
+            transition.placeholderOpacity(showExpandedLabel)
+        } else {
+            null
+        }
+
+    val affixAlpha =
+        if (prefix != null || suffix != null) {
+            transition.affixOpacity(showExpandedLabel)
+        } else {
+            null
+        }
+
+    val decoratedLabel =
+        label?.let { label ->
+            @Composable {
+                DecoratedLabel(
+                    labelProgress = labelProgress,
+                    colors = colors,
+                    enabled = enabled,
+                    isError = isError,
+                    isFocused = isFocused,
+                    overrideLabelTextStyleColor = overrideLabelTextStyleColor,
+                    transition = transition,
+                    bodySmall = bodySmall,
+                    bodyLarge = bodyLarge,
+                    content = label,
+                )
             }
         }
-        val decoratedLabel: @Composable (() -> Unit)? =
-            label?.let { label ->
-                @Composable {
-                    val labelTextStyle =
-                        lerp(bodyLarge, bodySmall, labelProgress.value).let { textStyle ->
-                            if (overrideLabelTextStyleColor) {
-                                textStyle.copy(color = labelTextStyleColor.value)
-                            } else {
-                                textStyle
-                            }
-                        }
-                    Decoration(labelContentColor.value, labelTextStyle) { labelScope.label() }
-                }
-            }
 
-        // Transparent components interfere with Talkback (b/261061240), so if any components below
-        // have alpha == 0, we set the component to null instead.
-        val placeholderColor = colors.placeholderColor(enabled, isError, isFocused)
-        val showPlaceholder by remember {
-            derivedStateOf(structuralEqualityPolicy()) { placeholderAlpha.value > 0f }
-        }
-        val decoratedPlaceholder: @Composable ((Modifier) -> Unit)? =
-            if (placeholder != null && visualText.isEmpty() && showPlaceholder) {
-                @Composable { modifier ->
-                    Box(modifier.graphicsLayer { alpha = placeholderAlpha.value }) {
-                        Decoration(
-                            contentColor = placeholderColor,
-                            textStyle = bodyLarge,
-                            content = placeholder,
-                        )
-                    }
-                }
-            } else null
-
-        val prefixColor = colors.prefixColor(enabled, isError, isFocused)
-        val showPrefixSuffix by remember {
-            derivedStateOf(structuralEqualityPolicy()) { prefixSuffixAlpha.value > 0f }
-        }
-        val decoratedPrefix: @Composable (() -> Unit)? =
-            if (prefix != null && showPrefixSuffix) {
-                @Composable {
-                    Box(Modifier.graphicsLayer { alpha = prefixSuffixAlpha.value }) {
-                        Decoration(
-                            contentColor = prefixColor,
-                            textStyle = bodyLarge,
-                            content = prefix,
-                        )
-                    }
-                }
-            } else null
-
-        val suffixColor = colors.suffixColor(enabled, isError, isFocused)
-        val decoratedSuffix: @Composable (() -> Unit)? =
-            if (suffix != null && showPrefixSuffix) {
-                @Composable {
-                    Box(Modifier.graphicsLayer { alpha = prefixSuffixAlpha.value }) {
-                        Decoration(
-                            contentColor = suffixColor,
-                            textStyle = bodyLarge,
-                            content = suffix,
-                        )
-                    }
-                }
-            } else null
-
-        val leadingIconColor = colors.leadingIconColor(enabled, isError, isFocused)
-        val decoratedLeading: @Composable (() -> Unit)? =
-            leadingIcon?.let {
-                @Composable { Decoration(contentColor = leadingIconColor, content = it) }
-            }
-
-        val trailingIconColor = colors.trailingIconColor(enabled, isError, isFocused)
-        val decoratedTrailing: @Composable (() -> Unit)? =
-            trailingIcon?.let {
-                @Composable { Decoration(contentColor = trailingIconColor, content = it) }
-            }
-
-        val supportingTextColor = colors.supportingTextColor(enabled, isError, isFocused)
-        val decoratedSupporting: @Composable (() -> Unit)? =
-            supportingText?.let {
-                @Composable {
+    // Transparent components interfere with Talkback (b/261061240), so if any components below
+    // have alpha == 0, we set the component to null instead.
+    val placeholderColor = colors.placeholderColor(enabled, isError, isFocused)
+    val showPlaceholder by remember {
+        derivedStateOf(structuralEqualityPolicy()) { (placeholderAlpha?.value ?: 0f) > 0f }
+    }
+    val decoratedPlaceholder: @Composable ((Modifier) -> Unit)? =
+        if (placeholder != null && visualText.isEmpty() && showPlaceholder) {
+            @Composable { modifier ->
+                Box(modifier) {
                     Decoration(
-                        contentColor = supportingTextColor,
-                        textStyle = bodySmall,
-                        content = it,
+                        contentColor = placeholderColor,
+                        textStyle = bodyLarge,
+                        content = placeholder,
                     )
                 }
             }
+        } else null
 
-        when (type) {
-            TextFieldType.Filled -> {
-                val containerWithId: @Composable () -> Unit = {
-                    Box(Modifier.layoutId(ContainerId), propagateMinConstraints = true) {
-                        container()
-                    }
-                }
-
-                TextFieldLayout(
-                    modifier = Modifier,
-                    textField = innerTextField,
-                    placeholder = decoratedPlaceholder,
-                    label = decoratedLabel,
-                    leading = decoratedLeading,
-                    trailing = decoratedTrailing,
-                    prefix = decoratedPrefix,
-                    suffix = decoratedSuffix,
-                    container = containerWithId,
-                    supporting = decoratedSupporting,
-                    singleLine = singleLine,
-                    labelPosition = labelPosition,
-                    labelProgress = labelProgress::value,
-                    paddingValues = contentPadding,
-                )
+    val prefixColor = colors.prefixColor(enabled, isError, isFocused)
+    val showAffix by remember {
+        derivedStateOf(structuralEqualityPolicy()) { (affixAlpha?.value ?: 0f) > 0f }
+    }
+    val decoratedPrefix: @Composable (() -> Unit)? =
+        if (prefix != null && showAffix) {
+            @Composable {
+                Decoration(contentColor = prefixColor, textStyle = bodyLarge, content = prefix)
             }
-            TextFieldType.Outlined -> {
-                // Outlined cutout
-                val cutoutSize = remember { mutableStateOf(Size.Zero) }
-                val borderContainerWithId: @Composable () -> Unit = {
-                    Box(
-                        Modifier.layoutId(ContainerId)
-                            .outlineCutout(
-                                labelSize = cutoutSize::value,
-                                alignment = labelPosition.minimizedAlignment,
-                                paddingValues = contentPadding,
-                            ),
-                        propagateMinConstraints = true,
-                    ) {
-                        container()
-                    }
-                }
+        } else null
 
-                OutlinedTextFieldLayout(
-                    modifier = Modifier,
-                    textField = innerTextField,
-                    placeholder = decoratedPlaceholder,
-                    label = decoratedLabel,
-                    leading = decoratedLeading,
-                    trailing = decoratedTrailing,
-                    prefix = decoratedPrefix,
-                    suffix = decoratedSuffix,
-                    supporting = decoratedSupporting,
-                    singleLine = singleLine,
-                    onLabelMeasured = {
-                        if (labelPosition is TextFieldLabelPosition.Above) {
-                            return@OutlinedTextFieldLayout
-                        }
-                        val progress = labelProgress.value
-                        val labelWidth = it.width * progress
-                        val labelHeight = it.height * progress
-                        if (
-                            cutoutSize.value.width != labelWidth ||
-                                cutoutSize.value.height != labelHeight
-                        ) {
-                            cutoutSize.value = Size(labelWidth, labelHeight)
-                        }
-                    },
-                    labelPosition = labelPosition,
-                    labelProgress = labelProgress::value,
-                    container = borderContainerWithId,
-                    paddingValues = contentPadding,
-                )
+    val suffixColor = colors.suffixColor(enabled, isError, isFocused)
+    val decoratedSuffix: @Composable (() -> Unit)? =
+        if (suffix != null && showAffix) {
+            @Composable {
+                Decoration(contentColor = suffixColor, textStyle = bodyLarge, content = suffix)
+            }
+        } else null
+
+    val leadingIconColor = colors.leadingIconColor(enabled, isError, isFocused)
+    val decoratedLeading: @Composable (() -> Unit)? =
+        leadingIcon?.let {
+            @Composable { Decoration(contentColor = leadingIconColor, content = it) }
+        }
+
+    val trailingIconColor = colors.trailingIconColor(enabled, isError, isFocused)
+    val decoratedTrailing: @Composable (() -> Unit)? =
+        trailingIcon?.let {
+            @Composable { Decoration(contentColor = trailingIconColor, content = it) }
+        }
+
+    val supportingTextColor = colors.supportingTextColor(enabled, isError, isFocused)
+    val decoratedSupporting: @Composable (() -> Unit)? =
+        supportingText?.let {
+            @Composable {
+                Decoration(contentColor = supportingTextColor, textStyle = bodySmall, content = it)
             }
         }
+
+    val labelProgressProducer = { labelProgress?.value ?: 1f }
+    val placeholderAlphaProducer = { placeholderAlpha?.value ?: 0f }
+    val affixAlphaProducer = { affixAlpha?.value ?: 0f }
+    when (type) {
+        TextFieldType.Filled -> {
+            val containerWithId: @Composable () -> Unit = {
+                Box(Modifier.layoutId(ContainerId), propagateMinConstraints = true) { container() }
+            }
+
+            TextFieldLayout(
+                modifier = Modifier,
+                textField = innerTextField,
+                placeholder = decoratedPlaceholder,
+                label = decoratedLabel,
+                leading = decoratedLeading,
+                trailing = decoratedTrailing,
+                prefix = decoratedPrefix,
+                suffix = decoratedSuffix,
+                container = containerWithId,
+                supporting = decoratedSupporting,
+                singleLine = singleLine,
+                labelPosition = labelPosition,
+                labelProgress = labelProgressProducer,
+                placeholderAlpha = placeholderAlphaProducer,
+                affixAlpha = affixAlphaProducer,
+                paddingValues = contentPadding,
+            )
+        }
+        TextFieldType.Outlined -> {
+            // Outlined cutout
+            val cutoutSize = remember { mutableStateOf(Size.Zero) }
+            val borderContainerWithId: @Composable () -> Unit = {
+                Box(
+                    Modifier.layoutId(ContainerId)
+                        .outlineCutout(
+                            labelSize = cutoutSize::value,
+                            alignment = labelPosition.minimizedAlignment,
+                            paddingValues = contentPadding,
+                        ),
+                    propagateMinConstraints = true,
+                ) {
+                    container()
+                }
+            }
+
+            OutlinedTextFieldLayout(
+                modifier = Modifier,
+                textField = innerTextField,
+                placeholder = decoratedPlaceholder,
+                label = decoratedLabel,
+                leading = decoratedLeading,
+                trailing = decoratedTrailing,
+                prefix = decoratedPrefix,
+                suffix = decoratedSuffix,
+                supporting = decoratedSupporting,
+                singleLine = singleLine,
+                onLabelMeasured = {
+                    if (labelPosition is TextFieldLabelPosition.Above) {
+                        return@OutlinedTextFieldLayout
+                    }
+                    val progress = labelProgressProducer()
+                    val labelWidth = it.width * progress
+                    val labelHeight = it.height * progress
+                    if (
+                        cutoutSize.value.width != labelWidth ||
+                            cutoutSize.value.height != labelHeight
+                    ) {
+                        cutoutSize.value = Size(labelWidth, labelHeight)
+                    }
+                },
+                labelPosition = labelPosition,
+                labelProgress = labelProgressProducer,
+                placeholderAlpha = placeholderAlphaProducer,
+                affixAlpha = affixAlphaProducer,
+                container = borderContainerWithId,
+                paddingValues = contentPadding,
+            )
+        }
     }
+}
+
+@Composable
+private fun DecoratedLabel(
+    labelProgress: State<Float>?,
+    colors: TextFieldColors,
+    enabled: Boolean,
+    isError: Boolean,
+    isFocused: Boolean,
+    overrideLabelTextStyleColor: Boolean,
+    transition: Transition<InputPhase>,
+    bodySmall: TextStyle,
+    bodyLarge: TextStyle,
+    content: @Composable (TextFieldLabelScope.() -> Unit),
+) {
+    val labelScope = remember {
+        object : TextFieldLabelScope {
+            override val labelMinimizedProgress: Float
+                get() = labelProgress?.value ?: 1f
+        }
+    }
+
+    val labelColor = colors.labelColor(enabled, isError, isFocused)
+    val labelTextStyleColor =
+        if (overrideLabelTextStyleColor) {
+            transition.labelTextStyleColor(
+                focusedLabelTextStyleColor =
+                    with(bodySmall.color) {
+                        if (overrideLabelTextStyleColor) this.takeOrElse { labelColor } else this
+                    },
+                unfocusedLabelTextStyleColor =
+                    with(bodyLarge.color) {
+                        if (overrideLabelTextStyleColor) this.takeOrElse { labelColor } else this
+                    },
+            )
+        } else {
+            null
+        }
+    val labelContentColor = transition.labelContentColor(labelColor)
+    val labelTextStyle =
+        lerp(bodyLarge, bodySmall, labelProgress?.value ?: 1f).let { textStyle ->
+            if (overrideLabelTextStyleColor) {
+                textStyle.copy(color = labelTextStyleColor!!.value)
+            } else {
+                textStyle
+            }
+        }
+    Decoration(labelContentColor.value, labelTextStyle) { labelScope.content() }
 }
 
 private val TextFieldLabelPosition.showExpandedLabel: Boolean
@@ -357,103 +399,82 @@ internal fun Modifier.textFieldLabelMinHeight(minHeight: () -> Dp): Modifier =
         layout(placeable.width, placeable.height) { placeable.place(0, 0) }
     }
 
-@Suppress("BanInlineOptIn")
 @Composable
-private inline fun TextFieldTransitionScope(
-    inputState: InputPhase,
-    focusedLabelTextStyleColor: Color,
-    unfocusedLabelTextStyleColor: Color,
-    labelColor: Color,
-    showExpandedLabel: Boolean,
-    content:
-        @Composable
-        (
-            labelProgress: State<Float>,
-            labelTextStyleColor: State<Color>,
-            labelContentColor: State<Color>,
-            placeholderOpacity: State<Float>,
-            prefixSuffixOpacity: State<Float>,
-        ) -> Unit,
-) {
-    // Transitions from/to InputPhase.Focused are the most critical in the transition below.
-    // UnfocusedEmpty <-> UnfocusedNotEmpty are needed when a single state is used to control
-    // multiple text fields.
-    val transition = updateTransition(inputState, label = "TextFieldInputState")
-
-    // TODO Load the motionScheme tokens from the component tokens file
+private fun Transition<InputPhase>.labelProgress(showExpandedLabel: Boolean): State<Float> {
     val labelTransitionSpec = MotionSchemeKeyTokens.FastSpatial.value<Float>()
-    val labelProgress =
-        transition.animateFloat(label = "LabelProgress", transitionSpec = { labelTransitionSpec }) {
-            when (it) {
-                InputPhase.Focused -> 1f
-                InputPhase.UnfocusedEmpty -> if (showExpandedLabel) 0f else 1f
-                InputPhase.UnfocusedNotEmpty -> 1f
-            }
+    return animateFloat(label = "LabelProgress", transitionSpec = { labelTransitionSpec }) {
+        when (it) {
+            InputPhase.Focused -> 1f
+            InputPhase.UnfocusedEmpty -> if (showExpandedLabel) 0f else 1f
+            InputPhase.UnfocusedNotEmpty -> 1f
         }
+    }
+}
 
+@Composable
+private fun Transition<InputPhase>.placeholderOpacity(showExpandedLabel: Boolean): State<Float> {
     val fastOpacityTransitionSpec = MotionSchemeKeyTokens.FastEffects.value<Float>()
     val slowOpacityTransitionSpec = MotionSchemeKeyTokens.SlowEffects.value<Float>()
-    val placeholderOpacity =
-        transition.animateFloat(
-            label = "PlaceholderOpacity",
-            transitionSpec = {
-                if (InputPhase.Focused isTransitioningTo InputPhase.UnfocusedEmpty) {
-                    fastOpacityTransitionSpec
-                } else if (
-                    InputPhase.UnfocusedEmpty isTransitioningTo InputPhase.Focused ||
-                        InputPhase.UnfocusedNotEmpty isTransitioningTo InputPhase.UnfocusedEmpty
-                ) {
-                    slowOpacityTransitionSpec
-                } else {
-                    fastOpacityTransitionSpec
-                }
-            },
-        ) {
-            when (it) {
-                InputPhase.Focused -> 1f
-                InputPhase.UnfocusedEmpty -> if (showExpandedLabel) 0f else 1f
-                InputPhase.UnfocusedNotEmpty -> 0f
+    return animateFloat(
+        label = "PlaceholderOpacity",
+        transitionSpec = {
+            if (InputPhase.Focused isTransitioningTo InputPhase.UnfocusedEmpty) {
+                fastOpacityTransitionSpec
+            } else if (
+                InputPhase.UnfocusedEmpty isTransitioningTo InputPhase.Focused ||
+                    InputPhase.UnfocusedNotEmpty isTransitioningTo InputPhase.UnfocusedEmpty
+            ) {
+                slowOpacityTransitionSpec
+            } else {
+                fastOpacityTransitionSpec
             }
+        },
+    ) {
+        when (it) {
+            InputPhase.Focused -> 1f
+            InputPhase.UnfocusedEmpty -> if (showExpandedLabel) 0f else 1f
+            InputPhase.UnfocusedNotEmpty -> 0f
         }
+    }
+}
 
-    val prefixSuffixOpacity =
-        transition.animateFloat(
-            label = "PrefixSuffixOpacity",
-            transitionSpec = { fastOpacityTransitionSpec },
-        ) {
-            when (it) {
-                InputPhase.Focused -> 1f
-                InputPhase.UnfocusedEmpty -> if (showExpandedLabel) 0f else 1f
-                InputPhase.UnfocusedNotEmpty -> 1f
-            }
+@Composable
+private fun Transition<InputPhase>.affixOpacity(showExpandedLabel: Boolean): State<Float> {
+    val fastOpacityTransitionSpec = MotionSchemeKeyTokens.FastEffects.value<Float>()
+    return animateFloat(
+        label = "PrefixSuffixOpacity",
+        transitionSpec = { fastOpacityTransitionSpec },
+    ) {
+        when (it) {
+            InputPhase.Focused -> 1f
+            InputPhase.UnfocusedEmpty -> if (showExpandedLabel) 0f else 1f
+            InputPhase.UnfocusedNotEmpty -> 1f
         }
+    }
+}
 
+@Composable
+private fun Transition<InputPhase>.labelTextStyleColor(
+    focusedLabelTextStyleColor: Color,
+    unfocusedLabelTextStyleColor: Color,
+): State<Color> {
     val colorTransitionSpec = MotionSchemeKeyTokens.FastEffects.value<Color>()
-    val labelTextStyleColor =
-        transition.animateColor(
-            transitionSpec = { colorTransitionSpec },
-            label = "LabelTextStyleColor",
-        ) {
-            when (it) {
-                InputPhase.Focused -> focusedLabelTextStyleColor
-                else -> unfocusedLabelTextStyleColor
-            }
+    return animateColor(transitionSpec = { colorTransitionSpec }, label = "LabelTextStyleColor") {
+        when (it) {
+            InputPhase.Focused -> focusedLabelTextStyleColor
+            else -> unfocusedLabelTextStyleColor
         }
+    }
+}
 
+@Composable
+private fun Transition<InputPhase>.labelContentColor(labelColor: Color): State<Color> {
+    val colorTransitionSpec = MotionSchemeKeyTokens.FastEffects.value<Color>()
     @Suppress("UnusedTransitionTargetStateParameter")
-    val labelContentColor =
-        transition.animateColor(
-            transitionSpec = { colorTransitionSpec },
-            label = "LabelContentColor",
-            targetValueByState = { labelColor },
-        )
-
-    content(
-        labelProgress,
-        labelTextStyleColor,
-        labelContentColor,
-        placeholderOpacity,
-        prefixSuffixOpacity,
+    return animateColor(
+        transitionSpec = { colorTransitionSpec },
+        label = "LabelContentColor",
+        targetValueByState = { labelColor },
     )
 }
 

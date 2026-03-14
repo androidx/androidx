@@ -20,12 +20,10 @@ import androidx.annotation.RestrictTo
 import androidx.car.app.IOnDoneCallback
 import androidx.car.app.OnDoneCallback
 import androidx.car.app.annotations.CarProtocol
-import androidx.car.app.annotations.ExperimentalCarApi
 import androidx.car.app.annotations.KeepFields
 import androidx.car.app.utils.RemoteUtils
 
 /** Implementation for [ListDelegate] */
-@ExperimentalCarApi
 @CarProtocol
 @KeepFields
 @RestrictTo(RestrictTo.Scope.LIBRARY)

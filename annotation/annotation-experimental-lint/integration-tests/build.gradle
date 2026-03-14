@@ -42,14 +42,14 @@ dependencies {
 }
 
 // Allow usage of Kotlin's @Experimental annotation, which is itself experimental.
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        // Ensure that compilation passes in CLI despite opt-in violations in integration tests.
+tasks.withType(KotlinCompile).configureEach { task ->
+    task.compilerOptions {
         if (!isIdeBuild()) {
-            freeCompilerArgs += [
+            // Ensure that compilation passes in CLI despite opt-in violations in integration tests.
+            it.freeCompilerArgs.addAll(
                     "-opt-in=sample.optin.ExperimentalKotlinAnnotation",
                     "-opt-in=sample.kotlin.ExperimentalJavaAnnotation"
-            ]
+            )
         }
     }
 }

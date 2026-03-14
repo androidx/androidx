@@ -19,11 +19,14 @@ package androidx.glance.wear
 import android.content.ComponentName
 import android.content.Context
 import androidx.compose.remote.creation.compose.layout.RemoteText
-import androidx.compose.ui.graphics.Color
+import androidx.glance.wear.cache.WearWidgetCache
+import androidx.glance.wear.core.ContainerInfo
 import androidx.glance.wear.core.WearWidgetParams
+import androidx.glance.wear.core.WidgetInstanceId
 import androidx.glance.wear.parcel.WidgetUpdateClient
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
@@ -31,6 +34,7 @@ import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 
 @RunWith(AndroidJUnit4::class)
 class GlanceWearWidgetTest {
@@ -42,7 +46,18 @@ class GlanceWearWidgetTest {
 
         widget.triggerUpdate(getApplicationContext(), TEST_COMPONENT)
 
-        verify(mockUpdateClient).requestUpdate(any(), eq(TEST_COMPONENT))
+        verify(mockUpdateClient).requestUpdate(any(), eq(TEST_COMPONENT), eq(null))
+    }
+
+    @Test
+    fun triggerPullUpdate_withInstanceId_clientRequestsUpdateForInstance() {
+        val mockUpdateClient = mock<WidgetUpdateClient>()
+        val widget = TestWidget(mockUpdateClient)
+        val instanceId = WidgetInstanceId(WidgetInstanceId.WIDGET_CAROUSEL_NAMESPACE, 1)
+
+        widget.triggerPullUpdate(getApplicationContext(), TEST_COMPONENT, instanceId)
+
+        verify(mockUpdateClient).requestUpdate(any(), eq(TEST_COMPONENT), eq(instanceId))
     }
 
     @Test
@@ -72,10 +87,51 @@ class GlanceWearWidgetTest {
         verify(mockUpdateClient, never()).sendUpdateBroadcast(any(), eq(TEST_COMPONENT))
     }
 
-    private class TestWidget(updateClient: WidgetUpdateClient) : GlanceWearWidget(updateClient) {
+    @Test
+    fun triggerUpdate_withInstanceId_pushedUpdate() = runTest {
+        GlanceWearWidget.forceIsAtLeast37ForTesting = true
+        try {
+            val mockUpdateClient = mock<WidgetUpdateClient>()
+            val mockWidgetCache = mock<WearWidgetCache>()
+            val widget = TestWidget(mockUpdateClient, mockWidgetCache)
+            val context = getApplicationContext<Context>()
+            val instanceId = WidgetInstanceId("ns", 1)
+
+            whenever(mockWidgetCache.getContainerTypeForInstance(eq(instanceId)))
+                .thenReturn(ContainerInfo.CONTAINER_TYPE_SMALL)
+            whenever(
+                    mockWidgetCache.getWidgetParams(
+                        eq(ContainerInfo.CONTAINER_TYPE_SMALL),
+                        eq(instanceId),
+                    )
+                )
+                .thenReturn(
+                    WearWidgetParams(
+                        instanceId,
+                        ContainerInfo.CONTAINER_TYPE_SMALL,
+                        widthDp = 100f,
+                        heightDp = 100f,
+                        horizontalPaddingDp = 0f,
+                        verticalPaddingDp = 0f,
+                        cornerRadiusDp = 0f,
+                    )
+                )
+
+            widget.triggerUpdate(context, instanceId)
+
+            verify(mockUpdateClient).pushUpdate(eq(context), any(), any())
+        } finally {
+            GlanceWearWidget.forceIsAtLeast37ForTesting = null
+        }
+    }
+
+    private class TestWidget(
+        updateClient: WidgetUpdateClient,
+        widgetCache: WearWidgetCache? = null,
+    ) : GlanceWearWidget(updateClient, widgetCache) {
 
         override suspend fun provideWidgetData(context: Context, params: WearWidgetParams) =
-            WearWidgetDocument(backgroundColor = Color.Transparent) { RemoteText("Testing...") }
+            WearWidgetDocument(background = WearWidgetBrush) { RemoteText("Testing...") }
     }
 
     private companion object {

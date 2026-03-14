@@ -104,13 +104,13 @@ androidx {
     samples(project(":benchmark:benchmark-samples"))
 }
 
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
+tasks.withType(KotlinCompile).configureEach { task ->
+    task.compilerOptions {
         // Enable using experimental APIs from within same version group
-        freeCompilerArgs += [
+        it.freeCompilerArgs.addAll(
                 "-opt-in=androidx.benchmark.ExperimentalBenchmarkConfigApi",
                 "-opt-in=androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi",
                 "-opt-in=androidx.benchmark.traceprocessor.ExperimentalInsightApi",
-        ]
+        )
     }
 }

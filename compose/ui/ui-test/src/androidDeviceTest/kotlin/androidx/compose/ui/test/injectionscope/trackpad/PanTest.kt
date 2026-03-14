@@ -34,7 +34,7 @@ import androidx.compose.ui.input.pointer.PointerEventType.Companion.Release
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.InputDispatcher
-import androidx.compose.ui.test.MouseButton
+import androidx.compose.ui.test.TrackpadButton
 import androidx.compose.ui.test.injectionscope.trackpad.Common.PrimaryButton
 import androidx.compose.ui.test.injectionscope.trackpad.Common.verifyTrackpadEvent
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -356,7 +356,7 @@ class PanTest {
         rule.onNodeWithTag(TAG).performTrackpadInput {
             enter()
             // press primary button
-            press(MouseButton.Primary)
+            press(TrackpadButton.Primary)
             // scroll
             pan(Offset(10f, 0f))
         }

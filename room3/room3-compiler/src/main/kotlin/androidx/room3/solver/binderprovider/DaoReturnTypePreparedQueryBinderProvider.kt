@@ -20,6 +20,7 @@ import androidx.room3.OperationType
 import androidx.room3.compiler.processing.XType
 import androidx.room3.parser.ParsedQuery
 import androidx.room3.processor.Context
+import androidx.room3.solver.TypeAdapterExtras
 import androidx.room3.solver.prepared.binder.PreparedQueryResultBinder
 import androidx.room3.solver.prepared.binderprovider.PreparedQueryResultBinderProvider
 import androidx.room3.solver.shortcut.binder.DaoConverterPreparedQueryResultBinder
@@ -33,7 +34,11 @@ class DaoReturnTypePreparedQueryBinderProvider(
     PreparedQueryResultBinderProvider {
     override fun matches(declared: XType): Boolean = matchConverter(declared, OperationType.WRITE)
 
-    override fun provide(declared: XType, query: ParsedQuery): PreparedQueryResultBinder {
+    override fun provide(
+        declared: XType,
+        query: ParsedQuery,
+        extras: TypeAdapterExtras,
+    ): PreparedQueryResultBinder {
         val typeArg = extractTypeArg(declared)
         val adapter = context.typeAdapterStore.findPreparedQueryResultAdapter(typeArg, query)
         return DaoConverterPreparedQueryResultBinder(

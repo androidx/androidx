@@ -42,6 +42,7 @@ import androidx.camera.testing.impl.CameraAvailabilityUtil.assumeDeviceHasFrontC
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.testing.impl.IgnoreVideoRecordingProblematicDeviceRule.Companion.skipVideoRecordingTestIfNotSupportedByEmulator
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.video.VideoRecordEvent
 import androidx.camera.view.CameraController.TAP_TO_FOCUS_FAILED
 import androidx.camera.view.CameraController.TAP_TO_FOCUS_FOCUSED
@@ -89,6 +90,9 @@ class CameraControllerFragmentTest(
     private val cameraConfig: CameraXConfig,
 ) {
     @get:Rule
+    val requireForegroundRule = RequireForegroundRule { CoreAppTestUtil.assumeCompatibleDevice() }
+
+    @get:Rule
     val useCameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             testCameraRule,
@@ -110,10 +114,6 @@ class CameraControllerFragmentTest(
 
     @Before
     fun setup() {
-        CoreAppTestUtil.assumeCompatibleDevice()
-        // Clear the device UI and check if there is no dialog or lock screen on the top of the
-        // window before start the test.
-        CoreAppTestUtil.prepareDeviceUI(instrumentation)
         ProcessCameraProvider.configureInstance(cameraConfig)
         cameraProvider =
             ProcessCameraProvider.getInstance(ApplicationProvider.getApplicationContext())[
@@ -121,16 +121,17 @@ class CameraControllerFragmentTest(
         fragmentScenario = createFragmentScenario()
         fragment = fragmentScenario.getFragment()
         uiDevice = UiDevice.getInstance(instrumentation)
+        requireForegroundRule.deferCleanup {
+            if (::cameraProvider.isInitialized) {
+                cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
+            }
+        }
     }
 
     @After
     fun tearDown() {
         if (::fragmentScenario.isInitialized) {
             fragmentScenario.moveToState(Lifecycle.State.DESTROYED)
-        }
-
-        if (::cameraProvider.isInitialized) {
-            cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
         }
     }
 

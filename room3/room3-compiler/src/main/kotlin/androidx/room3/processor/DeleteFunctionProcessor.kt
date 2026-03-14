@@ -18,6 +18,7 @@ package androidx.room3.processor
 import androidx.room3.Delete
 import androidx.room3.compiler.processing.XMethodElement
 import androidx.room3.compiler.processing.XType
+import androidx.room3.solver.shortcut.binder.InstantDeleteOrUpdateFunctionBinder
 import androidx.room3.vo.DeleteFunction
 
 class DeleteFunctionProcessor(
@@ -35,6 +36,16 @@ class DeleteFunctionProcessor(
         val returnType = delegate.extractReturnType()
 
         val functionBinder = delegate.findDeleteOrUpdateFunctionBinder(returnType)
+        if (
+            functionBinder is InstantDeleteOrUpdateFunctionBinder && !context.isAndroidOnlyTarget()
+        ) {
+            // A blocking function that does not return a deferred return type is not allowed
+            // if the target platforms include non-Android targets.
+            context.logger.e(
+                executableElement,
+                ProcessorErrors.INVALID_BLOCKING_DAO_FUNCTION_NON_ANDROID,
+            )
+        }
 
         context.checker.check(
             functionBinder.adapter != null,

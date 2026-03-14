@@ -129,7 +129,7 @@ abstract class FtlRunner : DefaultTask() {
         if (!System.getenv().containsKey("GOOGLE_APPLICATION_CREDENTIALS")) {
             throw Exception(
                 "Running tests in FTL requires credentials, you have not set up " +
-                    "GOOGLE_APPLICATION_CREDENTIALS, follow go/androidx-dev#remote-build-cache"
+                    "GOOGLE_APPLICATION_CREDENTIALS, follow go/androidx-onboarding#remote-build-cache"
             )
         }
         val testApk =
@@ -150,7 +150,7 @@ abstract class FtlRunner : DefaultTask() {
             execOperations.printCommandAndExec { it.commandLine("gcloud", "--version") }
         } catch (_: Exception) {
             throw Exception(
-                "Missing gcloud, please follow go/androidx-dev#remote-build-cache to set it up"
+                "Missing gcloud, please follow go/androidx-onboarding#remote-build-cache to set it up"
             )
         }
 

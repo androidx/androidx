@@ -31,6 +31,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.AndroidUtil
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CoreAppTestUtil
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.testing.impl.TestImageUtil.getAverageDiff
 import androidx.camera.view.CameraController.IMAGE_CAPTURE
 import androidx.camera.view.CameraController.VIDEO_CAPTURE
@@ -60,6 +61,9 @@ class Media3EffectFragmentDeviceTest(
     private val cameraConfig: CameraXConfig,
 ) {
     @get:Rule
+    val requireForegroundRule = RequireForegroundRule { CoreAppTestUtil.assumeCompatibleDevice() }
+
+    @get:Rule
     val useCameraRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             testCameraRule,
@@ -80,26 +84,24 @@ class Media3EffectFragmentDeviceTest(
 
     @Before
     fun setup() {
-        CoreAppTestUtil.assumeCompatibleDevice()
-        // Clear the device UI and check if there is no dialog or lock screen on the top of the
-        // window before start the test.
-        CoreAppTestUtil.prepareDeviceUI(instrumentation)
         ProcessCameraProvider.configureInstance(cameraConfig)
         cameraProvider =
             ProcessCameraProvider.getInstance(ApplicationProvider.getApplicationContext())[
                     10000, TimeUnit.MILLISECONDS]
         fragmentScenario = createFragmentScenario()
         fragment = fragmentScenario.getFragment()
+
+        requireForegroundRule.deferCleanup {
+            if (::cameraProvider.isInitialized) {
+                cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
+            }
+        }
     }
 
     @After
     fun tearDown() {
         if (::fragmentScenario.isInitialized) {
             fragmentScenario.moveToState(Lifecycle.State.DESTROYED)
-        }
-
-        if (::cameraProvider.isInitialized) {
-            cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
         }
     }
 

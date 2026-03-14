@@ -373,7 +373,7 @@ class RawQueryFunctionProcessorTest {
             """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(ProcessorErrors.mayNeedMapColumn("kotlin.String?"))
+                hasErrorContaining(ProcessorErrors.mayNeedMapColumn("kotlin.String"))
             }
         }
     }
@@ -415,7 +415,7 @@ class RawQueryFunctionProcessorTest {
             """
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorContaining(ProcessorErrors.mayNeedMapColumn("kotlin.Long?"))
+                hasErrorContaining(ProcessorErrors.mayNeedMapColumn("kotlin.Long"))
             }
         }
     }

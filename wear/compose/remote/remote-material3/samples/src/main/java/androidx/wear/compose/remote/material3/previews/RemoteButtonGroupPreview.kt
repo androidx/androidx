@@ -22,7 +22,6 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.remote.creation.compose.action.HostAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
-import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -52,9 +51,7 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 fun RemoteButtonGroupThreeButtons() {
     RemoteButtonGroup(modifier = RemoteModifier.fillMaxWidth()) {
         Button(Icons.Filled.MailOutline, RemoteModifier.weight(1f))
-        Spacer()
         Button(Icons.Filled.Favorite, RemoteModifier.weight(1.5f))
-        Spacer()
         Button(Icons.Filled.Call, RemoteModifier.weight(1f))
     }
 }
@@ -70,7 +67,6 @@ private fun RemoteButtonGroupThreeButtonsPreview(
 fun RemoteButtonGroupTwoButtons() {
     RemoteButtonGroup(modifier = RemoteModifier.fillMaxWidth()) {
         Button(Icons.Filled.MailOutline, RemoteModifier.weight(1f))
-        Spacer()
         Button(Icons.Filled.Call, RemoteModifier.weight(1f))
     }
 }
@@ -111,12 +107,7 @@ private fun Container(
     modifier: RemoteModifier = RemoteModifier.fillMaxSize(),
     content: @Composable @RemoteComposable () -> Unit,
 ) {
-    RemoteBox(
-        modifier,
-        horizontalAlignment = RemoteAlignment.CenterHorizontally,
-        verticalArrangement = RemoteArrangement.Center,
-        content = content,
-    )
+    RemoteBox(modifier, contentAlignment = RemoteAlignment.Center, content = content)
 }
 
 private val tonalColors

@@ -29,30 +29,34 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shader
 import androidx.compose.ui.graphics.SolidColor
 
-/*
- * This is used to provide a way to intercept linear gradient brushes in Remote, so that
- * we can serialize them.
+/**
+ * A remote representation of a [Brush] that can be serialized and reconstructed on a remote
+ * surface.
+ *
+ * This class provides a mechanism to intercept standard Compose [Brush] instances, such as linear
+ * gradients or solid colors, and convert them into a format suitable for remote rendering.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
-public abstract class RemoteBrush {
+public abstract class RemoteBrush internal constructor() {
 
     /**
-     * Return the intrinsic size of the [Brush]. If the there is no intrinsic size (i.e. filling
-     * bounds with an arbitrary color) return [Size.Unspecified]. If there is no intrinsic size in a
-     * single dimension, return [Size] with [Float.NaN] in the desired dimension.
+     * Return the intrinsic size of the [RemoteBrush]. If the there is no intrinsic size (i.e.
+     * filling bounds with an arbitrary color) return [Size.Unspecified]. If there is no intrinsic
+     * size in a single dimension, return [Size] with [Float.NaN] in the desired dimension.
      */
-    public val intrinsicSize: Size = Size.Unspecified
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val intrinsicSize: Size = Size.Unspecified
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public abstract fun RemoteStateScope.createShader(size: RemoteSize): RemoteShader
 
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open val hasShader: Boolean
         get() = true
 
     public companion object {
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun fromComposeUi(brush: Brush): RemoteBrush {
             return when (brush) {
                 is SolidColor -> RemoteBrush.solidColor(brush.value.rc)

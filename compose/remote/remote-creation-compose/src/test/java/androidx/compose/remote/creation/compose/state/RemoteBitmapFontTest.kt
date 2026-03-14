@@ -23,6 +23,7 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.asImageBitmap
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,9 +51,9 @@ class RemoteBitmapFontTest {
     val bitmapFont =
         RemoteBitmapFont(
             listOf(
-                RemoteBitmapFont.Glyph("a", bitmap(10, 20), 1, 2, 3, 4),
-                RemoteBitmapFont.Glyph("b", bitmap(20, 20), 10, 20, 30, 40),
-                RemoteBitmapFont.Glyph("c", bitmap(30, 20), 2, 4, 6, 8),
+                RemoteBitmapFont.Glyph("a", bitmap(10, 20).asImageBitmap(), 1, 2, 3, 4),
+                RemoteBitmapFont.Glyph("b", bitmap(20, 20).asImageBitmap(), 10, 20, 30, 40),
+                RemoteBitmapFont.Glyph("c", bitmap(30, 20).asImageBitmap(), 2, 4, 6, 8),
                 RemoteBitmapFont.Glyph(" ", null, 20, 0, 0, 0),
             )
         )

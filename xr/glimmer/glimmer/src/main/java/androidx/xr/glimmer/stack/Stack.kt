@@ -49,9 +49,15 @@ import androidx.compose.ui.zIndex
 import kotlin.math.roundToInt
 
 /**
- * [VerticalStack] is a lazy scrollable layout that displays its children in a form of a stack where
- * the item on top of the stack is prominently displayed. [VerticalStack] implements the item
- * traversal in a vertical direction.
+ * [VerticalStack] is a lazy, vertically scrollable layout that arranges its items in a visually
+ * overlapping, three-dimensional sequence, which resembles a deck of cards. The primary item is
+ * prominently displayed in the foreground. Subsequent items are positioned behind the primary item
+ * along the z-axis with a small portion of the next item revealed to indicate depth and upcoming
+ * content.
+ *
+ * As the user scrolls vertically, the active foreground item transitions out of view, allowing the
+ * item immediately beneath it to slide into the prominent foreground position. Items always
+ * snap-animate into the foreground position after the user's gesture ends.
  *
  * Note: When displaying text within a [VerticalStack], it is strongly recommended to set
  * [androidx.compose.ui.text.TextStyle.textMotion] to

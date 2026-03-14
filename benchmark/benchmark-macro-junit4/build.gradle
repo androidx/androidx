@@ -65,14 +65,14 @@ dependencies {
     androidTestImplementation(libs.truth)
 }
 
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
+tasks.withType(KotlinCompile).configureEach { task ->
+    task.compilerOptions {
         // Enable using experimental APIs from within same version group
-        freeCompilerArgs += [
+        it.freeCompilerArgs.addAll(
                 "-opt-in=androidx.benchmark.ExperimentalBenchmarkConfigApi",
                 "-opt-in=androidx.benchmark.macro.ExperimentalMetricApi",
                 "-opt-in=androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi",
-        ]
+        )
     }
 }
 

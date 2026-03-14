@@ -1,0 +1,53 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+import androidx.build.PlatformIdentifier
+import androidx.build.Publish
+import androidx.build.SoftwareType
+
+plugins {
+    id("AndroidXPlugin")
+}
+
+androidXMultiplatform {
+    desktop()
+    androidLibrary {
+        namespace = "androidx.tracing.capture"
+    }
+    defaultPlatform(PlatformIdentifier.DESKTOP)
+    sourceSets {
+        commonMain.dependencies {
+            api(libs.kotlinCoroutinesCore)
+            api(libs.androidx.annotation)
+        }
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinCoroutinesTest)
+        }
+        desktopTest.dependencies {
+            implementation(libs.kotlinTestJunit)
+            implementation(libs.truth)
+        }
+    }
+}
+
+androidx {
+    name = "Tracing System Capture"
+    type = SoftwareType.SNAPSHOT_ONLY_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    inceptionYear = "2026"
+    description = "AndroidX Tracing System Capture"
+}

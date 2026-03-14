@@ -18,6 +18,7 @@ package androidx.room3.solver.prepared.binderprovider
 
 import androidx.room3.compiler.processing.XType
 import androidx.room3.parser.ParsedQuery
+import androidx.room3.solver.TypeAdapterExtras
 import androidx.room3.solver.prepared.binder.PreparedQueryResultBinder
 
 /**
@@ -32,5 +33,9 @@ interface PreparedQueryResultBinderProvider {
     fun matches(declared: XType): Boolean
 
     /** Provides a [PreparedQueryResultBinder] */
-    fun provide(declared: XType, query: ParsedQuery): PreparedQueryResultBinder
+    fun provide(
+        declared: XType,
+        query: ParsedQuery,
+        extras: TypeAdapterExtras,
+    ): PreparedQueryResultBinder
 }

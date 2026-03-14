@@ -19,6 +19,7 @@ package androidx.compose.animation.core
 import androidx.kruth.assertThat
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 
 class RepeatableAnimationTest {
@@ -283,6 +284,58 @@ class RepeatableAnimationTest {
             assertEquals(
                 repeatable.getValueFromNanos(playtimeMillis * MillisToNanos),
                 fastForwardedRepeatable.getValueFromNanos((playtimeMillis - offset) * MillisToNanos),
+            )
+        }
+    }
+
+    @Test
+    fun testInfiniteRepeatableZeroDuration() {
+        assertFailsWith<IllegalArgumentException> {
+            infiniteRepeatable<Float>(animation = tween(durationMillis = 0, delayMillis = 0))
+        }
+    }
+
+    @Test
+    fun testInfiniteRepeatableZeroDurationSnap() {
+        assertFailsWith<IllegalArgumentException> {
+            infiniteRepeatable<Float>(animation = snap(delayMillis = 0))
+        }
+    }
+
+    @Test
+    fun testInfiniteRepeatableZeroDurationKeyframes() {
+        assertFailsWith<IllegalArgumentException> {
+            infiniteRepeatable<Float>(
+                animation =
+                    keyframes {
+                        durationMillis = 0
+                        delayMillis = 0
+                        0f at 0
+                    }
+            )
+        }
+    }
+
+    @Test
+    fun testInfiniteRepeatableZeroDurationKeyframesWithSpline() {
+        assertFailsWith<IllegalArgumentException> {
+            infiniteRepeatable<Float>(
+                animation =
+                    keyframesWithSpline {
+                        durationMillis = 0
+                        delayMillis = 0
+                        0f at 0
+                    }
+            )
+        }
+    }
+
+    @OptIn(ExperimentalAnimationSpecApi::class)
+    @Test
+    fun testInfiniteRepeatableZeroDurationArc() {
+        assertFailsWith<IllegalArgumentException> {
+            infiniteRepeatable<Float>(
+                animation = ArcAnimationSpec(durationMillis = 0, delayMillis = 0)
             )
         }
     }

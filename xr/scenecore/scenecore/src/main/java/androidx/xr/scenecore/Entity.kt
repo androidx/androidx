@@ -101,7 +101,7 @@ public interface Entity : ScenePose {
      * @param scale The scale factor for each axis.
      * @param relativeTo Set the scale relative to given Space. Default value is the parent Space.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun setScale(scale: Vector3, relativeTo: Space = Space.PARENT)
 
     /**
@@ -119,7 +119,7 @@ public interface Entity : ScenePose {
      * @param relativeTo Get the scale relative to given Space. Default value is the parent space.
      * @return Current non-uniform scale applied to self and children.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun getNonUniformScale(relativeTo: Space = Space.PARENT): Vector3
 
     /**
@@ -197,7 +197,7 @@ public interface Entity : ScenePose {
      * Exception type that is thrown if client is invoking any of the APIs after the entity instance
      * is already disposed.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public class DisposedException(message: String) : IllegalStateException(message)
 
     /**
@@ -342,13 +342,13 @@ internal constructor(rtEntity: RtEntityType, private val entityManager: EntityMa
         setScale(Vector3(scale, scale, scale), relativeTo)
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun setScale(scale: Vector3, relativeTo: Space) {
         checkNotDisposed()
         rtEntity!!.setScale(scale, relativeTo.toRtSpace())
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun getNonUniformScale(relativeTo: Space): Vector3 {
         checkNotDisposed()
         return rtEntity!!.getScale(relativeTo.toRtSpace())

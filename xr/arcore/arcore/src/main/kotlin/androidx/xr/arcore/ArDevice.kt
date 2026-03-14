@@ -20,6 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.ArDevice as RuntimeArDevice
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.Session
+import androidx.xr.runtime.TrackingState
 import androidx.xr.runtime.math.Pose
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -63,26 +64,30 @@ public class ArDevice internal constructor(internal val runtimeArDevice: Runtime
      * Contains the current state of the AR Device tracking.
      *
      * @property devicePose the current [Pose] of the device
+     * @property trackingState The current [TrackingState]
      */
-    public class State internal constructor(public val devicePose: Pose) {
+    public class State
+    internal constructor(public val devicePose: Pose, public val trackingState: TrackingState) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is State) return false
-            return devicePose == other.devicePose
+            return devicePose == other.devicePose && trackingState == other.trackingState
         }
 
         override fun hashCode(): Int {
-            return devicePose.hashCode()
+            var result = devicePose.hashCode()
+            result = 31 * result + trackingState.hashCode()
+            return result
         }
     }
 
-    private val _state = MutableStateFlow<State>(State(Pose()))
+    private val _state = MutableStateFlow<State>(State(Pose(), TrackingState.STOPPED))
 
     public val state: StateFlow<State> = _state.asStateFlow()
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     override suspend fun update() {
-        _state.emit(State(runtimeArDevice.devicePose))
+        _state.emit(State(runtimeArDevice.devicePose, runtimeArDevice.trackingState))
     }
 
     override fun equals(other: Any?): Boolean {

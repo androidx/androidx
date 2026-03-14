@@ -16,9 +16,7 @@
 
 package androidx.xr.scenecore.spatial.rendering
 
-import android.util.Log
 import androidx.annotation.MainThread
-import androidx.annotation.RestrictTo
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.scenecore.impl.impress.GltfModel
@@ -36,13 +34,6 @@ import java.util.Collections
 import java.util.concurrent.CopyOnWriteArraySet
 import java.util.concurrent.Executor
 import java.util.function.Consumer
-import kotlin.coroutines.cancellation.CancellationException
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /**
  * Implementation of a SceneCore GltfEntity.
@@ -59,7 +50,6 @@ internal class GltfFeatureImpl(
 ) : BaseRenderingFeature(impressApi, splitEngineSubspaceManager, extensions), GltfFeature {
 
     private val modelImpressNode: ImpressNode = impressApi.instanceGltfModel(gltfModel.nativeHandle)
-    private var currentAnimationJob: Job? = null
 
     private var animationFeatureList: List<GltfAnimationFeature>? = null
 
@@ -108,83 +98,9 @@ internal class GltfFeatureImpl(
 
     override val size: FloatSize3d = getGltfModelBoundingBox().halfExtents.times(2f)
 
-    @get:GltfEntity.AnimationStateValue
-    override var animationState: Int = GltfEntity.AnimationState.STOPPED
-        private set(value) {
-            if (field != value) {
-                field = value
-                synchronized(animationStateListeners) {
-                    animationStateListeners.forEach { (listener, executor) ->
-                        executor.execute { listener.accept(value) }
-                    }
-                }
-            }
-        }
-
     @MainThread
     override fun getGltfModelBoundingBox(): BoundingBox =
         impressApi.getGltfModelBoundingBox(modelImpressNode)
-
-    @MainThread
-    override fun startAnimation(loop: Boolean, animationName: String?, executor: Executor) {
-        // TODO: b/362826747 - Add a listener interface so that the application can be
-        // notified that the animation has stopped, been cancelled (by starting another animation)
-        // and / or shown an error state if something went wrong.
-
-        currentAnimationJob?.cancel()
-        val coroutineDispatcher = executor.asCoroutineDispatcher()
-        animationState = GltfEntity.AnimationState.PLAYING
-        currentAnimationJob =
-            CoroutineScope(coroutineDispatcher).launch {
-                try {
-                    // The @MainThread annotation is a "Lint" check. As soon as you call launch, you
-                    // are creating a new asynchronous task. The Dispatcher you pass to launch
-                    // decides where that task runs. If you try to access that context from a
-                    // background thread (which is where executor put you), the native code looks
-                    // for the context, doesn't find it (or finds a mismatch), and fails or crashes
-                    withContext(Dispatchers.Main) {
-                        impressApi.animateGltfModel(modelImpressNode, animationName, loop)
-                    }
-                } catch (e: Exception) {
-                    if (e is CancellationException) throw e
-                    // Some other error happened.  Log it and stop the animation.
-                    Log.e("GltfFeatureImpl", "Could not start animation: $e")
-                } finally {
-                    if (currentAnimationJob === coroutineContext[Job]) {
-                        animationState = GltfEntity.AnimationState.STOPPED
-                    }
-                }
-            }
-    }
-
-    @MainThread
-    override fun stopAnimation() {
-        if (
-            animationState == GltfEntity.AnimationState.PLAYING ||
-                animationState == GltfEntity.AnimationState.PAUSED
-        ) {
-            impressApi.stopGltfModelAnimation(modelImpressNode)
-            animationState = GltfEntity.AnimationState.STOPPED
-        }
-    }
-
-    @MainThread
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    override fun pauseAnimation() {
-        if (animationState == GltfEntity.AnimationState.PLAYING) {
-            impressApi.toggleGltfModelAnimation(modelImpressNode, /* playing= */ false)
-            animationState = GltfEntity.AnimationState.PAUSED
-        }
-    }
-
-    @MainThread
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    override fun resumeAnimation() {
-        if (animationState == GltfEntity.AnimationState.PAUSED) {
-            impressApi.toggleGltfModelAnimation(modelImpressNode, /* playing= */ true)
-            animationState = GltfEntity.AnimationState.PLAYING
-        }
-    }
 
     @MainThread
     override fun setColliderEnabled(enableCollider: Boolean) {
@@ -216,7 +132,13 @@ internal class GltfFeatureImpl(
         if (boundsUpdateListeners.isEmpty()) {
             val frameListener =
                 ImpSplitEngineRenderer.FrameListener {
-                    if (animationState == GltfEntity.AnimationState.PLAYING) {
+                    // Check if any animation is currently playing
+                    val isAnimationPlaying =
+                        animationFeatureList?.any {
+                            it.animationState == GltfEntity.AnimationState.PLAYING
+                        } == true
+
+                    if (isAnimationPlaying) {
                         val boundingBox = getGltfModelBoundingBox()
                         if (boundingBox != lastBoundingBox) {
                             lastBoundingBox = boundingBox

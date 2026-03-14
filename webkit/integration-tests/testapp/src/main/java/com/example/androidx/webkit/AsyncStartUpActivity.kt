@@ -23,10 +23,10 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
 import androidx.webkit.StartUpLocation
 import androidx.webkit.WebViewCompat
+import androidx.webkit.WebViewOutcomeReceiver
 import androidx.webkit.WebViewStartUpConfig
 import androidx.webkit.WebViewStartUpResult
 import java.io.PrintWriter
@@ -39,7 +39,6 @@ import java.util.concurrent.Executors
  * and displays the summary of startup.
  */
 @SuppressLint("NullAnnotationGroup")
-@OptIn(WebViewCompat.ExperimentalAsyncStartUp::class)
 class AsyncStartUpActivity : AppCompatActivity() {
 
     private var startCaptureTime = 0L
@@ -57,7 +56,7 @@ class AsyncStartUpActivity : AppCompatActivity() {
         WebViewCompat.startUpWebView(
             this,
             WebViewStartUpConfig.Builder(Executors.newSingleThreadExecutor()).build(),
-            this::onWebViewReady,
+            WebViewOutcomeReceiver { result -> this@AsyncStartUpActivity.onWebViewReady(result) },
         )
     }
 

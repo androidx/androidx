@@ -103,4 +103,5 @@ final val androidx.lifecycle/eventFlow // androidx.lifecycle/eventFlow|@androidx
 final val androidx.lifecycle/lifecycleScope // androidx.lifecycle/lifecycleScope|@androidx.lifecycle.LifecycleOwner{}lifecycleScope[0]
     final fun (androidx.lifecycle/LifecycleOwner).<get-lifecycleScope>(): androidx.lifecycle/LifecycleCoroutineScope // androidx.lifecycle/lifecycleScope.<get-lifecycleScope>|<get-lifecycleScope>@androidx.lifecycle.LifecycleOwner(){}[0]
 
+final fun androidx.lifecycle/LifecycleOwner(androidx.lifecycle/Lifecycle): androidx.lifecycle/LifecycleOwner // androidx.lifecycle/LifecycleOwner|LifecycleOwner(androidx.lifecycle.Lifecycle){}[0]
 final inline fun (androidx.lifecycle/Lifecycle).androidx.lifecycle/addObserver(crossinline kotlin/Function3<androidx.lifecycle/LifecycleObserver, androidx.lifecycle/LifecycleOwner, androidx.lifecycle/Lifecycle.Event, kotlin/Unit>): androidx.lifecycle/LifecycleObserver // androidx.lifecycle/addObserver|addObserver@androidx.lifecycle.Lifecycle(kotlin.Function3<androidx.lifecycle.LifecycleObserver,androidx.lifecycle.LifecycleOwner,androidx.lifecycle.Lifecycle.Event,kotlin.Unit>){}[0]

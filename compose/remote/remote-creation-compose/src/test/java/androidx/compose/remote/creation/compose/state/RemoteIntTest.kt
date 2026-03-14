@@ -632,6 +632,19 @@ class RemoteIntTest {
             .isEqualTo(time.getIdForCreationState(creationState))
     }
 
+    @Test
+    fun mutableRemoteInt_applyExpression() {
+        val timeId = time.getIdForCreationState(creationState)
+        val mutableTime = MutableRemoteInt.createMutableForId(timeId.toLong())
+
+        val expr = (mutableTime + 2) / 2
+        val exprId = expr.getIdForCreationState(creationState)
+
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getInteger(exprId)).isEqualTo(51)
+    }
+
     private fun getOperationsStrings(): List<String> =
         CoreDocument().run {
             val buffer = creationState.document.buffer

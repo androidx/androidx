@@ -22,26 +22,15 @@ import androidx.xr.scenecore.runtime.PointSourceParams as RtPointSourceParams
 /**
  * Configures a sound source to be spatialized at a 3D location.
  *
- * Positional sound sources are defined by PointSourceParams with an associated [Entity]. The
- * position and orientation of the Entity dictates where the PointSourceParams is rendered in 3D
- * space. For more information, see
+ * For more information, see
  * [Add positional audio to your app][https://developer.android.com/develop/xr/jetpack-xr-sdk/add-spatial-audio#add-positional].
  */
 // TODO: b/430650745 - reevaluate the usefulness of this class prior to the beta release
-public class PointSourceParams(internal val entity: Entity) {
-
-    init {
-        (entity as BaseEntity<*>).checkNotDisposed()
-    }
-
-    internal val rtPointSourceParams = RtPointSourceParams((entity as BaseEntity<*>).rtEntity!!)
-        get() {
-            (entity as BaseEntity<*>).checkNotDisposed()
-            return field
-        }
+// TODO: b/426001209 - add additional parameters to PointSourceParams
+public class PointSourceParams() {
+    internal val rtPointSourceParams: RtPointSourceParams by lazy { RtPointSourceParams() }
 }
 
 internal fun RtPointSourceParams.toPointSourceParams(session: Session): PointSourceParams? {
-    val jxrEntity = session.scene.getEntityForRtEntity(entity)
-    return jxrEntity?.let { PointSourceParams(it) }
+    return PointSourceParams()
 }

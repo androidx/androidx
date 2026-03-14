@@ -18,7 +18,6 @@ package androidx.xr.scenecore.runtime
 
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.math.BoundingBox
-import java.util.concurrent.Executor
 import java.util.function.Consumer
 
 /** Interface for a XR Runtime [GltfEntity]. */
@@ -27,9 +26,6 @@ public interface GltfEntity : Entity {
 
     /** The flattened list of all nodes contained within this glTF model entity. */
     public val nodes: List<GltfModelNodeFeature>
-
-    /** Returns the current animation state of the glTF entity. */
-    @AnimationStateValue public val animationState: Int
 
     /**
      * Retrieves the axis-aligned bounding box (AABB) of an instanced glTF model in meters in the
@@ -77,35 +73,6 @@ public interface GltfEntity : Entity {
      * @param systemMovable Whether the entity should be movable by the system.
      */
     public fun setReformAffordanceEnabled(enabled: Boolean, systemMovable: Boolean)
-
-    /**
-     * Starts the animation with the given name.
-     *
-     * @param animationName The name of the animation to start. If null is supplied, will play the
-     *   first animation found in the glTF.
-     * @param loop Whether the animation should loop.
-     */
-    public fun startAnimation(loop: Boolean, animationName: String?)
-
-    /** Stops the animation of the glTF entity. */
-    public fun stopAnimation()
-
-    /* Pause the animation of the glTF entity. */
-    public fun pauseAnimation()
-
-    /* Resume the animation of the glTF entity. */
-    public fun resumeAnimation()
-
-    // TODO: b/417750821 - Add an OnAnimationFinished() Listener interface
-    //                     Add a getAnimationTimeRemaining() interface
-
-    // TODO: b/451424385 -GltfEntity.getGltfModelBoundingBox() becomes a Flow if the bounding box
-    //  can change during animation.
-    /** Adds a listener to be invoked when the [animationState] value changes. */
-    public fun addAnimationStateListener(executor: Executor, listener: Consumer<Int>)
-
-    /** Removes an [animationState] listener. */
-    public fun removeAnimationStateListener(listener: Consumer<Int>)
 
     /** Specifies the current animation state of the [GltfEntity]. */
     public annotation class AnimationStateValue

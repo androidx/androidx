@@ -22,6 +22,7 @@ import android.media.Image
 import android.os.Build
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.compat.Api28Compat
+import androidx.camera.camera2.pipe.compat.Api33Compat
 import java.nio.ByteBuffer
 import kotlin.reflect.KClass
 
@@ -75,6 +76,17 @@ public class AndroidImage(private val image: Image) : ImageWrapper {
             } else {
                 null
             }
+
+    override var dataSpace: Int?
+        get() =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                Api33Compat.getDataSpace(image)
+            else null
+        set(value) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                Api33Compat.setDataSpace(image, checkNotNull(value))
+            }
+        }
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> unwrapAs(type: KClass<T>): T? =

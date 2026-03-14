@@ -243,6 +243,7 @@
     <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"ਹਰੇਕ ਸੂਚੀ ਦੇ ਹੇਠਾਂ ਸਬਟੈਕਸਟ"</string>
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"ਚਿੱਤਰ ਅਤੇ ਕਾਰਵਾਈਆਂ ਦਾ ਡੈਮੋ ਸਮਾਪਤ ਕਰੋ"</string>
     <string name="filter_chip_demo_title" msgid="92190365856639582">"ਫਿਲਟਰ ਚਿੱਪ ਦਾ ਡੈਮੋ"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"ਪ੍ਰਗਤੀ ਪੱਟੀ ਦਾ ਡੈਮੋ"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"ਪੂਰਵ-ਝਲਕ ਟੈਮਪਲੇਟ ਦਾ ਡੈਮੋ"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ਥਾਂ ਸੰਬੰਧੀ ਸੂਚੀ ਟੈਮਪਲੇਟ ਦਾ ਡੈਮੋ"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"ਥਾਵਾਂ ਬ੍ਰਾਊਜ਼ ਕਰੋ"</string>

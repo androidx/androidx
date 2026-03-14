@@ -101,6 +101,31 @@ class ScatterMapRemoveBenchmark(private val dataSet: Array<String>) : Collection
     }
 }
 
+class ScatterMapGetOrPutInsertBenchmark(private val dataSet: Array<String>) : CollectionBenchmark {
+    override fun measuredBlock() {
+        val map = MutableScatterMap<String, String>()
+        for (testValue in dataSet) {
+            map.getOrPut(testValue) { testValue }
+        }
+    }
+}
+
+class ScatterMapGetOrPutReadBenchmark(private val dataSet: Array<String>) : CollectionBenchmark {
+    private val map = MutableScatterMap<String, String>()
+
+    init {
+        for (testValue in dataSet) {
+            map[testValue] = testValue
+        }
+    }
+
+    override fun measuredBlock() {
+        for (testValue in dataSet) {
+            map.getOrPut(testValue) { testValue }
+        }
+    }
+}
+
 class ScatterMapComputeBenchmark(private val dataSet: Array<String>) : CollectionBenchmark {
     private val map = MutableScatterMap<String, String>()
 

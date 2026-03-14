@@ -56,6 +56,11 @@ public interface ImageWrapper : UnsafeWrapper, AutoCloseable {
      */
     public val hardwareBuffer: HardwareBuffer?
         get() = null
+
+    /** @see {@link android.media.Image.getDataSpace} */
+    public var dataSpace: Int?
+        get() = null
+        set(value) {}
 }
 
 public interface ImagePlane : UnsafeWrapper {

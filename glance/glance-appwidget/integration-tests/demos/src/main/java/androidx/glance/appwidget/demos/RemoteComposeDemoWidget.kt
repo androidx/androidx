@@ -34,6 +34,9 @@ import androidx.glance.appwidget.components.FilledButton
 import androidx.glance.appwidget.components.OutlineButton
 import androidx.glance.appwidget.components.TitleBar
 import androidx.glance.appwidget.cornerRadius
+import androidx.glance.appwidget.lazy.LazyColumn
+import androidx.glance.appwidget.lazy.VerticalScrollMode
+import androidx.glance.appwidget.lazy.items
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.layout.Alignment
@@ -41,6 +44,7 @@ import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
+import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
@@ -65,7 +69,7 @@ class RemoteComposeDemoWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
 
-        provideContent { TextAndButtonComponentDemo() }
+        provideContent { DemoList() }
     }
 }
 
@@ -99,6 +103,21 @@ private fun DemoBox(rounded: Boolean = false) {
         RoundedBox()
     } else {
         SimpleBox()
+    }
+}
+
+@Composable
+private fun DemoList() {
+    LazyColumn(
+        modifier = GlanceModifier.fillMaxSize().background(Color.Cyan),
+        verticalScrollMode = VerticalScrollMode.Normal,
+    ) {
+        items(10) { index: Int ->
+            Text(
+                "Item $index",
+                GlanceModifier.height(48.dp).background(Color.Gray).padding(4.dp).fillMaxWidth(),
+            )
+        }
     }
 }
 

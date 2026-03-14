@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.capture
 
 import android.graphics.Typeface
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteCanvasDrawScope0.RemoteAccess
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
@@ -282,6 +283,9 @@ public inline fun RemoteDrawScope0.withTransform(
 public interface RemoteDrawScope0 : Density, RemoteStateScope {
     public val canvas: RecordingCanvas
         get() = drawContext.canvas.nativeCanvas as RecordingCanvas
+
+    public val remoteCanvas: RemoteCanvas
+        get() = RemoteCanvas(canvas)
 
     /**
      * The current [DrawContext] that contains the dependencies needed to create the drawing

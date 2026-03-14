@@ -55,7 +55,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-/** Owns and updates all mutable state related to content selection in [PdfView] */
+/**
+ * Owns and updates all mutable state related to content selection in [androidx.pdf.view.PdfView]
+ */
 internal class SelectionStateManager(
     private val pdfDocument: PdfDocument,
     private val backgroundScope: CoroutineScope,
@@ -101,12 +103,15 @@ internal class SelectionStateManager(
         return initialSelection
     }
 
-    /** Replay at few values in case of an UI signal issued while [PdfView] is not collecting */
+    /**
+     * Replay at few values in case of an UI signal issued while [androidx.pdf.view.PdfView] is not
+     * collecting
+     */
     private val _selectionUiSignalBus = MutableSharedFlow<SelectionUiSignal>(replay = 3)
 
     /**
-     * This [SharedFlow] serves as an event bus of sorts to signal our host [PdfView] to update its
-     * UI in a decoupled way
+     * This [SharedFlow] serves as an event bus of sorts to signal our host
+     * [androidx.pdf.view.PdfView] to update its UI in a decoupled way
      */
     val selectionUiSignalBus: SharedFlow<SelectionUiSignal>
         get() = _selectionUiSignalBus

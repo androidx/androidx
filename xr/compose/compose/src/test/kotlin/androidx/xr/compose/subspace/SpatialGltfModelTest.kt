@@ -1134,7 +1134,6 @@ class SpatialGltfModelTest {
         val animation = state.animations[0]
         assertThat(animation.animationState)
             .isEqualTo(SpatialGltfModelAnimation.AnimationState.Stopped)
-        assertThat(fakeGltfEntity?.currentAnimationName).isNull()
 
         animation.start()
 

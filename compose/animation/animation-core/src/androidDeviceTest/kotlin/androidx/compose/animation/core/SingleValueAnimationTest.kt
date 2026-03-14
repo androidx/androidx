@@ -38,6 +38,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -448,6 +449,108 @@ class SingleValueAnimationTest {
 
         rule.runOnIdle { enabled = true }
         rule.waitForIdle()
+    }
+
+    @Test
+    fun customSpringSpecVisibilityThresholdTest() {
+        rule.mainClock.autoAdvance = false
+        val threshold = 0.1f
+        // Use a very low stiffness to make the animation slow and easy to track
+        val customSpec =
+            spring<Float>(stiffness = Spring.StiffnessVeryLow, visibilityThreshold = threshold)
+        var enabled by mutableStateOf(false)
+        var latestValue = 0f
+        var isFinished = false
+        rule.setContent {
+            val floatValue by
+                animateFloatAsState(
+                    if (enabled) 1f else 0f,
+                    customSpec,
+                    finishedListener = { isFinished = true },
+                )
+            latestValue = floatValue
+        }
+
+        rule.runOnIdle { enabled = true }
+
+        // Advance the clock frame by frame and record values
+        val values = mutableListOf<Float>()
+        while (!isFinished) {
+            values.add(latestValue)
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
+        }
+        values.add(latestValue)
+
+        assertTrue("Animation should be finished", isFinished)
+        // Ensure it reached 1f
+        assertEquals(1f, values.last())
+
+        // Target value is 1f. Threshold is 0.1f.
+        // Once the value is within threshold of target (i.e. > 0.9f), it should snap to 1f.
+        // So no value should be in the range (0.9, 1.0)
+        for (v in values) {
+            if (v != 1f) {
+                assertTrue(
+                    "Value $v should not be in the range (0.9, 1.0) given threshold $threshold",
+                    v <= 1f - threshold,
+                )
+            }
+        }
+
+        // Ensure we actually animated and didn't just snap immediately from 0 to 1
+        assertTrue("Should have multiple values", values.size > 2)
+    }
+
+    @Test
+    fun customSpringSpecLargeVisibilityThresholdTest() {
+        rule.mainClock.autoAdvance = false
+        val threshold = 5f
+        val startValue = 200f
+        val targetValue = 1000f
+        // Use a very low stiffness to make the animation slow and easy to track
+        val customSpec =
+            spring<Float>(stiffness = Spring.StiffnessVeryLow, visibilityThreshold = threshold)
+        var target by mutableStateOf(startValue)
+        var latestValue = startValue
+        var isFinished = false
+        rule.setContent {
+            val floatValue by
+                animateFloatAsState(target, customSpec, finishedListener = { isFinished = true })
+            latestValue = floatValue
+        }
+
+        rule.runOnIdle { target = targetValue }
+
+        // Advance the clock frame by frame and record values
+        val values = mutableListOf<Float>()
+        while (!isFinished) {
+            values.add(latestValue)
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
+            // Safety break to avoid infinite loop
+            if (values.size > 2000) break
+        }
+        values.add(latestValue)
+
+        assertTrue("Animation should be finished", isFinished)
+        // Ensure it reached 1000f
+        assertEquals(targetValue, values.last())
+
+        // Target value is 1000f. Threshold is 5f.
+        // Once the value is within threshold of target (i.e. > 995f), it should snap to 1000f.
+        // So no value should be in the range (995, 1000)
+        for (v in values) {
+            if (v != targetValue) {
+                assertTrue(
+                    "Error: Value = $v, when values in the range (995, 1000) should be snapped to 1000 given threshold $threshold",
+                    v <= targetValue - threshold,
+                )
+            }
+        }
+
+        // Ensure we actually animated
+        assertTrue("Should have multiple values", values.size > 2)
     }
 
     @Test

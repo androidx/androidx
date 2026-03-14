@@ -728,7 +728,7 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
     /**
      * Optional SpanSizeLookup retrieved from Adapter.
      */
-    private androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup mSpanSizeLookup;
+    private SpanSizeLookup mSpanSizeLookup;
 
     public GridLayoutManager() {
         this(null);
@@ -1637,7 +1637,7 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
 
         final int spanSize = lp.mSpanSize;
         final int secondarySpec;
-        if (spanSize == SpanSupport.FILL_ALL_SPANS_AND_PADDING) {
+        if (spanSize == SpanSizeLookup.FILL_ALL_SPANS_AND_PADDINGS) {
             secondarySpec = MeasureSpec.makeMeasureSpec(mMaxSizeSecondary, MeasureSpec.EXACTLY);
         } else if (mRowSizeSecondaryRequested == ViewGroup.LayoutParams.WRAP_CONTENT) {
             secondarySpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
@@ -1831,7 +1831,7 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         int sizeSecondary = mOrientation == HORIZONTAL ? getDecoratedMeasuredHeightWithMargin(v)
                 : getDecoratedMeasuredWidthWithMargin(v);
         if (((LayoutParams) v.getLayoutParams()).mSpanSize
-                == SpanSupport.FILL_ALL_SPANS_AND_PADDING) {
+                == SpanSizeLookup.FILL_ALL_SPANS_AND_PADDINGS) {
             startSecondary = 0;
             sizeSecondary = mMaxSizeSecondary;
         } else if (((LayoutParams) v.getLayoutParams()).mSpanSize == 1) {
@@ -3747,9 +3747,8 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
             mFacetProviderAdapter = null;
         }
         if (newAdapter instanceof FacetProvider) {
-            mSpanSizeLookup = (androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup)
-                    ((FacetProvider) newAdapter).getFacet(
-                            androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup.class);
+            mSpanSizeLookup = (SpanSizeLookup) ((FacetProvider) newAdapter).getFacet(
+                            SpanSizeLookup.class);
         } else {
             mSpanSizeLookup = null;
         }

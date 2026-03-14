@@ -26,9 +26,6 @@ import androidx.room3.solver.query.result.CoroutineResultBinder
 import androidx.room3.solver.query.result.QueryResultBinder
 
 /**
- * Provides the final fallback binder for simple one-shot suspending DAO methods that haven't been
- * matched by Flow or a custom DaoReturnTypeConverter.
- *
  * This binder provider is the equivalent of the [InstantQueryResultBinderProvider] for suspending
  * functions, i.e. the 'default provider' for them.
  */

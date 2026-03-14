@@ -17,7 +17,6 @@
 
 package androidx.wear.compose.remote.material3
 
-import android.annotation.SuppressLint
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.action.Action
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -30,6 +29,7 @@ import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.asRemoteDp
 import androidx.compose.remote.creation.compose.state.max
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
@@ -150,13 +150,12 @@ public object RemoteIconButtonDefaults {
      *
      * @param buttonSize The size of the icon button
      */
-    @SuppressLint("RestrictedApiAndroidX")
     public fun iconSizeFor(buttonSize: RemoteDp): RemoteDp =
         buttonSize.value
             .gt(LargeButtonSize.value)
             .select(
                 ifTrue = LargeIconSize.value,
-                ifFalse = max(SmallIconSize.value, buttonSize.value / 2f),
+                ifFalse = max(SmallIconSize.value, buttonSize.value / 2f.rf),
             )
             .asRemoteDp()
 

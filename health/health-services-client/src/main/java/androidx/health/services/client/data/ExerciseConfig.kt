@@ -186,7 +186,7 @@ constructor(
          * type can be tracked in an exercise. If multiple debuonced goals of the same data type,
          * only the last one will be applied.
          *
-         * @param debouncedGoals the list of [DeoubcendGoal]s to begin the exercise with
+         * @param debouncedGoals the list of [DebouncedGoal]s to begin the exercise with
          */
         fun setDebouncedGoals(debouncedGoals: List<DebouncedGoal<*>>): Builder {
             this.debouncedGoals = debouncedGoals

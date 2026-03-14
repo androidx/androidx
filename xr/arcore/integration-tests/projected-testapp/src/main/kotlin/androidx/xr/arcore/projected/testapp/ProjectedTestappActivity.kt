@@ -224,8 +224,10 @@ class ProjectedTestAppActivity : ComponentActivity() {
     }
 
     private fun getDevicePoseText(): String {
-        val pose = ArDevice.getInstance(session).state.value.devicePose
-        return "\nDevicePose translation: ${pose.translation.x}, ${pose.translation.y}, ${pose.translation.z}" +
+        val state = ArDevice.getInstance(session).state.value
+        val pose = state.devicePose
+        return "\nTracking State: ${state.trackingState}" +
+            "\nDevicePose translation: ${pose.translation.x}, ${pose.translation.y}, ${pose.translation.z}" +
             "\nDevicePose rotation: ${pose.rotation.x}, ${pose.rotation.y}, ${pose.rotation.z}, ${pose.rotation.w}"
     }
 

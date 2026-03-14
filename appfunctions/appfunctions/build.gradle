@@ -36,9 +36,8 @@ dependencies {
     implementation(libs.kotlinCoroutinesAndroid)
     implementation("androidx.appsearch:appsearch:1.1.0")
     implementation("androidx.appsearch:appsearch-platform-storage:1.1.0")
-    implementation(libs.kotlinCoroutinesGuava) {
-        exclude group: "com.google.guava", module: "guava"
-    }
+    implementation(libs.guavaAndroid) // upgrading to newer version of guava due to CVE-2023-2976
+    implementation(libs.kotlinCoroutinesGuava)
     implementation("com.google.errorprone:error_prone_annotations:2.30.0")
     kapt("androidx.appsearch:appsearch-compiler:1.1.0")
 

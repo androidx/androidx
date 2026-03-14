@@ -4,6 +4,8 @@ package androidx.wear.utils {
   public final class WearApiVersionHelper {
     method public static boolean isApiVersionAtLeast(String);
     field public static final String WEAR_BAKLAVA_0 = "WEAR_BAKLAVA_0";
+    field public static final String WEAR_BAKLAVA_1 = "WEAR_BAKLAVA_1";
+    field public static final String WEAR_CINNAMON_BUN_0 = "WEAR_CINNAMON_BUN_0";
     field public static final String WEAR_TIRAMISU_1 = "WEAR_TIRAMISU_1";
     field public static final String WEAR_TIRAMISU_2 = "WEAR_TIRAMISU_2";
     field public static final String WEAR_TIRAMISU_3 = "WEAR_TIRAMISU_3";

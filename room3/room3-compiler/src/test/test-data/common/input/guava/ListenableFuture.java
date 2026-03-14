@@ -17,7 +17,8 @@ package com.google.common.util.concurrent;
 // fake ListenableFuture
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
+import org.jspecify.annotations.Nullable;
 
-public interface ListenableFuture<V> extends Future<V> {
+public interface ListenableFuture<V extends @Nullable Object> extends Future<V> {
     void addListener(Runnable var1, Executor var2);
 }

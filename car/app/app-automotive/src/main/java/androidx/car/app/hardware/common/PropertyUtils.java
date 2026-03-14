@@ -35,7 +35,6 @@ import android.util.SparseArray;
 
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.hardware.info.AutomotiveCarInfo;
 import androidx.car.app.hardware.info.EnergyProfile;
 import androidx.car.app.utils.LogTags;
@@ -139,7 +138,6 @@ public final class PropertyUtils {
         }
     };
 
-    @ExperimentalCarApi
     static final ImmutableBiMap<CarZone, Integer> CAR_ZONE_TO_AREA_ID =
             new ImmutableBiMap.Builder<CarZone, Integer>()
                     .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
@@ -282,7 +280,7 @@ public final class PropertyUtils {
      * Maps volume units in car service to volume units in {@link CarUnit}.
      */
     // TODO(b/202303614): Remove this annotation once FuelVolumeDisplayUnit is ready.
-    @OptIn(markerClass = ExperimentalCarApi.class)
+    @OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
     public static @CarUnit.CarVolumeUnit int convertVolumeUnit(int vehicleUnit) {
         switch (vehicleUnit) {
             case VEHICLE_UNIT_MILLILITER:
@@ -337,7 +335,7 @@ public final class PropertyUtils {
      * Creates a response from {@link CarPropertyValue}.
      */
     @SuppressWarnings({"unchecked", "deprecation"})
-    @OptIn(markerClass = ExperimentalCarApi.class)
+    @OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
     public static @NonNull CarPropertyResponse<?> convertPropertyValueToPropertyResponse(
             @NonNull CarPropertyValue<?> carPropertyValue) {
         CarPropertyResponse.Builder<Object> carPropertyResponseBuilder =
@@ -432,7 +430,7 @@ public final class PropertyUtils {
         }
     }
 
-    @OptIn(markerClass = ExperimentalCarApi.class)
+    @OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
     static List<PropertyIdAreaId> getPropertyIdWithAreaIds(Map<Integer, List<CarZone>>
             propertyIdToCarZones) {
         List<PropertyIdAreaId> propertyIdWithAreaIds = new ArrayList<>();

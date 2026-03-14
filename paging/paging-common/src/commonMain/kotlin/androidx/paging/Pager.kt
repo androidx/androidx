@@ -113,6 +113,8 @@ constructor(
      * that are currently accessed gets loaded in first.
      *
      * No-op if preceding [append] returned [LoadState.Error]. To recover from error, use [retry]
+     *
+     * @sample androidx.paging.samples.PagerLoadMoreDataSample
      */
     public fun append() {
         pageFetcher.load(LoadType.APPEND)
@@ -130,6 +132,8 @@ constructor(
      * that items that are currently accessed gets loaded in first.
      *
      * No-op if preceding [prepend] returned [LoadState.Error]. To recover from error, use [retry]
+     *
+     * @sample androidx.paging.samples.PagerLoadMoreDataSample
      */
     public fun prepend() {
         pageFetcher.load(LoadType.PREPEND)

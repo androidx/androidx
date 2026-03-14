@@ -220,13 +220,13 @@ afterEvaluate {
 // make sure we validate published artifacts on the build server.
 BuildOnServerKt.addToBuildOnServer(project, checkArtifactContentsTask)
 
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += [
+tasks.withType(KotlinCompile).configureEach { task ->
+    task.compilerOptions {
+        it.freeCompilerArgs.addAll(
                 "-opt-in=kotlin.contracts.ExperimentalContracts",
                 "-opt-in=androidx.room3.compiler.processing.ExperimentalProcessingApi",
                 "-opt-in=com.squareup.kotlinpoet.javapoet.KotlinPoetJavaPoetPreview"
-        ]
+        )
     }
 }
 

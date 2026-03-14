@@ -20,7 +20,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 
@@ -45,7 +44,6 @@ import java.util.Objects;
  */
 @CarProtocol
 @RequiresCarApi(5)
-@ExperimentalCarApi
 @KeepFields
 public final class CarZone {
     /**

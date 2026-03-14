@@ -63,8 +63,10 @@ package androidx.compose.material3.adaptive {
   }
 
   public final class WindowAdaptiveInfoKt {
-    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.WindowAdaptiveInfo currentWindowAdaptiveInfo(optional boolean supportLargeAndXLargeWidth);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.WindowAdaptiveInfo currentWindowAdaptiveInfo(boolean, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.WindowAdaptiveInfo currentWindowAdaptiveInfo(optional boolean supportLargeAndXLargeWidth);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.WindowAdaptiveInfo currentWindowAdaptiveInfo(boolean, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.WindowAdaptiveInfo currentWindowAdaptiveInfoV2();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.material3.adaptive.WindowAdaptiveInfo currentWindowAdaptiveInfoV2(androidx.compose.runtime.Composer?, int);
     method @KotlinOnly @Deprecated @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static androidx.compose.ui.unit.DpSize currentWindowDpSize();
     method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static long currentWindowDpSize(androidx.compose.runtime.Composer?, int);
     method @KotlinOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.ui.unit.IntSize currentWindowSize();

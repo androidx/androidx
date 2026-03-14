@@ -109,7 +109,8 @@ abstract class DeleteOrUpdateShortcutFunctionProcessorTest<out T : DeleteOrUpdat
             assertThat(shortcut.parameters.size).isEqualTo(1)
             val param = shortcut.parameters.first()
             assertThat(param.type.asTypeName()).isEqualTo(USER_TYPE_NAME.copy(nullable = true))
-            assertThat(param.pojoType?.asTypeName()).isEqualTo(USER_TYPE_NAME.copy(nullable = true))
+            assertThat(param.dataClassType?.asTypeName())
+                .isEqualTo(USER_TYPE_NAME.copy(nullable = true))
             assertThat(shortcut.entities.size).isEqualTo(1)
             assertThat(shortcut.entities["user"]?.isPartialEntity).isEqualTo(false)
             assertThat(shortcut.entities["user"]?.dataClass?.typeName).isEqualTo(USER_TYPE_NAME)
@@ -160,7 +161,7 @@ abstract class DeleteOrUpdateShortcutFunctionProcessorTest<out T : DeleteOrUpdat
             assertThat(shortcut.parameters.size).isEqualTo(2)
             shortcut.parameters.forEach {
                 assertThat(it.type.asTypeName()).isEqualTo(USER_TYPE_NAME.copy(nullable = true))
-                assertThat(it.pojoType?.asTypeName())
+                assertThat(it.dataClassType?.asTypeName())
                     .isEqualTo(USER_TYPE_NAME.copy(nullable = true))
             }
             assertThat(shortcut.entities.size).isEqualTo(2)
@@ -215,7 +216,7 @@ abstract class DeleteOrUpdateShortcutFunctionProcessorTest<out T : DeleteOrUpdat
                                 .copy(nullable = true)
                         )
 
-                    assertThat(param.pojoType?.asTypeName())
+                    assertThat(param.dataClassType?.asTypeName())
                         .isEqualTo(USER_TYPE_NAME.copy(nullable = true))
                     assertThat(shortcut.entities.size).isEqualTo(1)
                     assertThat(shortcut.entities["users"]?.dataClass?.typeName)
@@ -530,7 +531,7 @@ abstract class DeleteOrUpdateShortcutFunctionProcessorTest<out T : DeleteOrUpdat
             assertThat(shortcut.parameters.size).isEqualTo(1)
             val param = shortcut.parameters.first()
             assertThat(param.type.asTypeName()).isEqualTo(USERNAME_TYPE_NAME.copy(nullable = true))
-            assertThat(param.pojoType?.asTypeName())
+            assertThat(param.dataClassType?.asTypeName())
                 .isEqualTo(USERNAME_TYPE_NAME.copy(nullable = true))
             assertThat(shortcut.entities.size).isEqualTo(1)
             assertThat(shortcut.entities["username"]?.isPartialEntity).isEqualTo(true)

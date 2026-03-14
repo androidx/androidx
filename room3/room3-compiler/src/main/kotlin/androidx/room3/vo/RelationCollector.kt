@@ -68,7 +68,7 @@ data class RelationCollector(
     val parentKeyColumnReader: StatementValueReader,
     // key reader for the entity field
     val entityKeyColumnReader: StatementValueReader,
-    // adapter for the relating pojo
+    // adapter for the relating data class
     val rowAdapter: RowAdapter,
     // parsed relating entity query
     val loadAllQuery: ParsedQuery,
@@ -520,7 +520,7 @@ data class RelationCollector(
             }
         }
 
-        // Gets the resulting relation type name. (i.e. the Pojo's @Relation field type name.)
+        // Gets the resulting relation type name. (i.e. the data class's @Relation field type name.)
         private fun relationTypeFor(context: Context, relation: Relation) =
             relation.property.type.let { fieldType ->
                 if (fieldType.typeArguments.isNotEmpty()) {

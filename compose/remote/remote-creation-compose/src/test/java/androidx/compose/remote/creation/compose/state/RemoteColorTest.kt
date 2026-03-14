@@ -20,6 +20,7 @@ import android.graphics.Canvas
 import android.graphics.Color as AndroidColor
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteContext
+import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
@@ -322,6 +323,89 @@ class RemoteColorTest {
     }
 
     @Test
+    fun constantValue_rgb_constant() {
+        val r = RemoteFloat(1.0f)
+        val g = RemoteFloat(0.5f)
+        val b = RemoteFloat(0.0f)
+        val a = RemoteFloat(1.0f)
+        val color = RemoteColor.rgb(red = r, green = g, blue = b, alpha = a)
+
+        assertThat(color.hasConstantValue).isTrue()
+        assertThat(color.constantValue).isEqualTo(Color(1.0f, 0.5f, 0.0f, 1.0f))
+    }
+
+    @Test
+    fun constantValue_rgb_notConstant() {
+        val r = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
+        val g = RemoteFloat(0.5f)
+        val b = RemoteFloat(0.0f)
+        val a = RemoteFloat(1.0f)
+        val color = RemoteColor.rgb(red = r, green = g, blue = b, alpha = a)
+
+        assertThat(color.hasConstantValue).isFalse()
+    }
+
+    @Test
+    fun constantValue_hsv_constant() {
+        val h = RemoteFloat(0.0f) // Red
+        val s = RemoteFloat(1.0f)
+        val v = RemoteFloat(1.0f)
+        val color = RemoteColor.hsv(hue = h, saturation = s, value = v)
+
+        assertThat(color.hasConstantValue).isTrue()
+        assertThat(color.constantValue).isEqualTo(Color.Red)
+    }
+
+    @Test
+    fun constantValue_hsv_notConstant() {
+        val h = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
+        val s = RemoteFloat(1.0f)
+        val v = RemoteFloat(1.0f)
+        val color = RemoteColor.hsv(hue = h, saturation = s, value = v)
+
+        assertThat(color.hasConstantValue).isFalse()
+    }
+
+    @Test
+    fun constantValue_fromAHSV_constant() {
+        val h = RemoteFloat(0.0f)
+        val s = RemoteFloat(1.0f)
+        val v = RemoteFloat(1.0f)
+        val color = RemoteColor.fromAHSV(alpha = 255, hue = h, saturation = s, value = v)
+
+        assertThat(color.hasConstantValue).isTrue()
+        assertThat(color.constantValue).isEqualTo(Color.Red)
+    }
+
+    @Test
+    fun constantValue_fromAHSV_notConstant() {
+        val h = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
+        val s = RemoteFloat(1.0f)
+        val v = RemoteFloat(1.0f)
+        val color = RemoteColor.fromAHSV(alpha = 255, hue = h, saturation = s, value = v)
+
+        assertThat(color.hasConstantValue).isFalse()
+    }
+
+    @Test
+    fun components_constantPropagation() {
+        val color = Color(0.1f, 0.2f, 0.3f, 0.4f)
+        val remote = RemoteColor(color)
+
+        assertThat(remote.red.constantValue).isWithin(0.01f).of(0.1f)
+        assertThat(remote.green.constantValue).isWithin(0.01f).of(0.2f)
+        assertThat(remote.blue.constantValue).isWithin(0.01f).of(0.3f)
+        assertThat(remote.alpha.constantValue).isWithin(0.01f).of(0.4f)
+        assertThat(remote.hue.constantValue).isWithin(0.001f).of(Utils.getHue(color.toArgb()))
+        assertThat(remote.saturation.constantValue)
+            .isWithin(0.001f)
+            .of(Utils.getSaturation(color.toArgb()))
+        assertThat(remote.brightness.constantValue)
+            .isWithin(0.001f)
+            .of(Utils.getBrightness(color.toArgb()))
+    }
+
+    @Test
     fun constantValue_constant() {
         val a =
             RemoteColor.rgb(
@@ -340,6 +424,14 @@ class RemoteColorTest {
         val result = a * b
 
         assertThat(result.constantValue.toArgb()).isEqualTo(AndroidColor.argb(204, 153, 102, 51))
+    }
+
+    @Test
+    fun constantValue_constant2() {
+        val a = RemoteFloat(0.5f)
+        val b = RemoteColor(a, RemoteFloat(1f), RemoteFloat(1f), RemoteFloat(1f))
+
+        assertThat(b.hasConstantValue).isTrue()
     }
 
     @Test
@@ -396,8 +488,8 @@ class RemoteColorTest {
 
     @Test
     fun extensionFunctionMatches() {
-        assertThat(Color.Black.rc.constantValue).isEqualTo(Color.Black)
-        assertThat(Color.Transparent.rc.constantValue).isEqualTo(Color.Transparent)
+        assertThat(Color.Black.rc.constantValue.toArgb()).isEqualTo(AndroidColor.BLACK)
+        assertThat(Color.Transparent.rc.constantValue.toArgb()).isEqualTo(AndroidColor.TRANSPARENT)
     }
 
     @Test

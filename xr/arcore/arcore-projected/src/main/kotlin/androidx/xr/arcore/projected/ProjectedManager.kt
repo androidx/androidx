@@ -126,8 +126,8 @@ internal constructor(
 
     override fun resume() {}
 
-    internal fun updateTrackingStates(deviceTrackingState: Int, geospatialTrackingState: Int) {
-        perceptionManager.xrResources.deviceTrackingState = toTrackingState(deviceTrackingState)
+    internal fun updateTrackingStates(trackingState: Int, geospatialTrackingState: Int) {
+        perceptionManager.xrResources.trackingState = toTrackingState(trackingState)
         perceptionManager.xrResources.geospatialTrackingState =
             toTrackingState(geospatialTrackingState)
     }

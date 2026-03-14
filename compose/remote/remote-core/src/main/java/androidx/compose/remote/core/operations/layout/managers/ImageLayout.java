@@ -53,6 +53,18 @@ public class ImageLayout extends LayoutManager implements VariableSupport {
     @NonNull
     PaintBundle mPaint = new PaintBundle();
 
+    public float getAlpha() {
+        return mAlpha;
+    }
+
+    public int getBitmapId() {
+        return mBitmapId;
+    }
+
+    public int getScaleType() {
+        return mScaleType;
+    }
+
     @Override
     public void registerListening(@NonNull RemoteContext context) {
         if (mBitmapId != -1) {

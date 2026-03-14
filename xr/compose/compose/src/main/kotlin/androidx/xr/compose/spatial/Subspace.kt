@@ -361,8 +361,9 @@ public annotation class ExperimentalFollowingSubspaceApi
  *
  * Each call to `FollowingSubspace` creates a new, independent spatial UI hierarchy. It does **not**
  * inherit the spatial position, orientation, or scale of any parent `Subspace` it is nested within.
- * Its position in the world is determined solely by its `target` parameter. By default, this
- * Subspace is automatically bounded by the system's recommended content box, similar to [Subspace].
+ * Its scale is decided by the system's recommended scale. Its position in the world is determined
+ * solely by its `target` parameter. By default, this Subspace is automatically bounded by the
+ * system's recommended content box, similar to [Subspace].
  *
  * When the target parameter is specified to be [FollowTarget.ArDevice], the content will be
  * positioned relative the view of the AR device. This is sometimes referred to as head-locked
@@ -451,6 +452,7 @@ public fun FollowingSubspace(
         val subspaceRoot by remember {
             disposableValueOf(Entity.create(session, "subspaceRoot")) { it.dispose() }
         }
+        // TODO(b/491504073): Use observers to update the scale instead of SideEffect.
         SideEffect {
             session.scene.keyEntity?.getScale(relativeTo = Space.REAL_WORLD)?.let { scale ->
                 subspaceRoot.setScale(scale)

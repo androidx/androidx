@@ -1,0 +1,544 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.2.0-alpha01" type="baseline" client="gradle" dependencies="true" name="AGP (9.2.0-alpha01)" variant="all" version="9.2.0-alpha01">
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColorScheme.getError can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.error)"
+        errorLine2="                                                           ~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteMaterialTheme.getColorScheme can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.error)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColorScheme.getErrorDim can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.errorDim)"
+        errorLine2="                                                           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteMaterialTheme.getColorScheme can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.errorDim)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColorScheme.getErrorContainer can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.errorContainer)"
+        errorLine2="                                                           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteMaterialTheme.getColorScheme can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.errorContainer)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColorScheme.getOnError can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.onError)"
+        errorLine2="                                                           ~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteMaterialTheme.getColorScheme can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.onError)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColorScheme.getOnErrorContainer can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.onErrorContainer)"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteMaterialTheme.getColorScheme can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.onErrorContainer)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColorScheme.getPrimary can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.primary)"
+        errorLine2="                                                           ~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteMaterialTheme.getColorScheme can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.primary)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColorScheme.getPrimaryDim can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.primaryDim)"
+        errorLine2="                                                           ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteMaterialTheme.getColorScheme can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.primaryDim)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColorScheme.getPrimaryContainer can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.primaryContainer)"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteMaterialTheme.getColorScheme can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.primaryContainer)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColorScheme.getOnPrimary can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.onPrimary)"
+        errorLine2="                                                           ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteMaterialTheme.getColorScheme can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.onPrimary)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColorScheme.getOnPrimaryContainer can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.onPrimaryContainer)"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteMaterialTheme.getColorScheme can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.onPrimaryContainer)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColorScheme.getSecondary can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.secondary)"
+        errorLine2="                                                           ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteMaterialTheme.getColorScheme can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.secondary)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColorScheme.getSecondaryDim can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.secondaryDim)"
+        errorLine2="                                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteMaterialTheme.getColorScheme can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.secondaryDim)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColorScheme.getSecondaryContainer can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.secondaryContainer)"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteMaterialTheme.getColorScheme can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.secondaryContainer)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColorScheme.getOnSecondary can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.onSecondary)"
+        errorLine2="                                                           ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteMaterialTheme.getColorScheme can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.onSecondary)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColorScheme.getOnSecondaryContainer can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.onSecondaryContainer)"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteMaterialTheme.getColorScheme can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.onSecondaryContainer)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColorScheme.getTertiary can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.tertiary)"
+        errorLine2="                                                           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteMaterialTheme.getColorScheme can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.tertiary)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColorScheme.getTertiaryDim can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.tertiaryDim)"
+        errorLine2="                                                           ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteMaterialTheme.getColorScheme can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.tertiaryDim)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColorScheme.getTertiaryContainer can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.tertiaryContainer)"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteMaterialTheme.getColorScheme can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.tertiaryContainer)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColorScheme.getOnTertiary can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.onTertiary)"
+        errorLine2="                                                           ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteMaterialTheme.getColorScheme can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.onTertiary)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColorScheme.getOnTertiaryContainer can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.onTertiaryContainer)"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteMaterialTheme.getColorScheme can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.onTertiaryContainer)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColorScheme.getSurfaceContainer can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.surfaceContainer)"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteMaterialTheme.getColorScheme can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.surfaceContainer)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColorScheme.getSurfaceContainerLow can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.surfaceContainerLow)"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteMaterialTheme.getColorScheme can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.surfaceContainerLow)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColorScheme.getSurfaceContainerHigh can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.surfaceContainerHigh)"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteMaterialTheme.getColorScheme can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.surfaceContainerHigh)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColorScheme.getOnSurface can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.onSurface)"
+        errorLine2="                                                           ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteMaterialTheme.getColorScheme can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.onSurface)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColorScheme.getOnSurfaceVariant can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.onSurfaceVariant)"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteMaterialTheme.getColorScheme can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.onSurfaceVariant)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColorScheme.getOutline can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.outline)"
+        errorLine2="                                                           ~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteMaterialTheme.getColorScheme can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.outline)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColorScheme.getOutlineVariant can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.outlineVariant)"
+        errorLine2="                                                           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteMaterialTheme.getColorScheme can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.outlineVariant)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColorScheme.getBackground can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.background)"
+        errorLine2="                                                           ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteMaterialTheme.getColorScheme can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.background)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColorScheme.getOnBackground can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.onBackground)"
+        errorLine2="                                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteMaterialTheme.getColorScheme can only be called from within the same library group (referenced groupId=`androidx.wear.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="            RemoteColorBox(RemoteMaterialTheme.colorScheme.onBackground)"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColumnScope.weight can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="    RemoteRow(modifier = RemoteModifier.fillMaxWidth().weight(1f), content = content)"
+        errorLine2="                                                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteRowScope.weight can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.glance.wear`)"
+        errorLine1="    RemoteBox(modifier = RemoteModifier.fillMaxHeight().weight(1f).background(color))"
+        errorLine2="                                                        ~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/samples/Material3ThemeWidget.kt"/>
+    </issue>
+
+</issues>

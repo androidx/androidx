@@ -25,7 +25,9 @@ import androidx.room3.ext.isNotError
 import androidx.room3.parser.ParsedQuery
 import androidx.room3.parser.QueryType
 import androidx.room3.parser.SqlParser
+import androidx.room3.solver.prepared.binder.InstantPreparedQueryResultBinder
 import androidx.room3.solver.query.result.DataClassRowAdapter
+import androidx.room3.solver.query.result.InstantQueryResultBinder
 import androidx.room3.verifier.DatabaseVerificationErrors
 import androidx.room3.verifier.DatabaseVerifier
 import androidx.room3.vo.QueryFunction
@@ -120,16 +122,7 @@ private class InternalQueryProcessor(
         )
 
         val query =
-            if (!isSuspendFunction && !returnsDeferredType && !context.isAndroidOnlyTarget()) {
-                // A blocking function that does not return a deferred return type is not allowed
-                // if the target platforms include non-Android targets.
-                context.logger.e(
-                    executableElement,
-                    ProcessorErrors.INVALID_BLOCKING_DAO_FUNCTION_NON_ANDROID,
-                )
-                // Early return so we don't generate redundant code.
-                ParsedQuery.MISSING
-            } else if (input != null) {
+            if (input != null) {
                 val query = SqlParser.parse(input)
                 context.checker.check(
                     query.errors.isEmpty(),
@@ -219,6 +212,14 @@ private class InternalQueryProcessor(
                 query.type,
             ),
         )
+        // A blocking function that does not return a deferred return type is not allowed
+        // if the target platforms include non-Android targets.
+        if (resultBinder is InstantPreparedQueryResultBinder && !context.isAndroidOnlyTarget()) {
+            context.logger.e(
+                executableElement,
+                ProcessorErrors.INVALID_BLOCKING_DAO_FUNCTION_NON_ANDROID,
+            )
+        }
 
         val parameters = delegate.extractQueryParams(query)
         return WriteQueryFunction(
@@ -243,6 +244,14 @@ private class InternalQueryProcessor(
                 returnType.asTypeName().toString(context.codeLanguage)
             ),
         )
+        // A blocking function that does not return a deferred return type is not allowed
+        // if the target platforms include non-Android targets.
+        if (resultBinder is InstantQueryResultBinder && !context.isAndroidOnlyTarget()) {
+            context.logger.e(
+                executableElement,
+                ProcessorErrors.INVALID_BLOCKING_DAO_FUNCTION_NON_ANDROID,
+            )
+        }
 
         val inTransaction = executableElement.hasAnnotation(Transaction::class)
         if (query.type == QueryType.SELECT && !inTransaction) {
@@ -263,7 +272,7 @@ private class InternalQueryProcessor(
         query.resultInfo?.let { queryResultInfo ->
             val mappings = resultBinder.adapter?.mappings ?: return@let
             // If there are no mapping (e.g. might be a primitive return type result), then we
-            // can't reasonable determine cursor mismatch.
+            // can't reasonably determine result mismatch.
             if (
                 mappings.isEmpty() || mappings.none { it is DataClassRowAdapter.DataClassMapping }
             ) {
@@ -271,16 +280,18 @@ private class InternalQueryProcessor(
             }
             val usedColumns = mappings.flatMap { it.usedColumns }
             val columnNames = queryResultInfo.columns.map { it.name }
-            val unusedColumns = columnNames - usedColumns
+            val unusedColumns = columnNames - usedColumns.toSet()
             val dataClassMappings =
                 mappings.filterIsInstance<DataClassRowAdapter.DataClassMapping>()
-            val pojoUnusedFields =
+            val dataClassUnusedProperties =
                 dataClassMappings
-                    .filter { it.unusedFields.isNotEmpty() }
+                    .filter { it.unusedProperties.isNotEmpty() }
                     .associate {
-                        it.dataClass.typeName.toString(context.codeLanguage) to it.unusedFields
+                        it.dataClass.typeName.toString(context.codeLanguage) to it.unusedProperties
                     }
-            if (unusedColumns.isNotEmpty() || pojoUnusedFields.isNotEmpty()) {
+            // Warn if there are unused columns in the query result or unused properties in the
+            // return type (properties with no matching column in the query result).
+            if (unusedColumns.isNotEmpty() || dataClassUnusedProperties.isNotEmpty()) {
                 val warningMsg =
                     ProcessorErrors.queryPropertyDataClassMismatch(
                         dataClassTypeNames =
@@ -289,9 +300,42 @@ private class InternalQueryProcessor(
                             },
                         unusedColumns = unusedColumns,
                         allColumns = columnNames,
-                        dataClassUnusedProperties = pojoUnusedFields,
+                        dataClassUnusedProperties = dataClassUnusedProperties,
                     )
                 context.logger.w(Warning.QUERY_MISMATCH, executableElement, warningMsg)
+            }
+
+            val duplicateColumns = buildSet {
+                val visitedColumns = mutableSetOf<String>()
+                columnNames.forEach {
+                    // When Set.add() returns false the column is already visited and a dupe.
+                    if (!visitedColumns.add(it)) {
+                        add(it)
+                    }
+                }
+            }
+            if (duplicateColumns.isNotEmpty()) {
+                val singleMatchedUsedColumns =
+                    usedColumns.groupingBy { it }.eachCount().filter { it.value == 1 }.keys
+                usedColumns
+                    .filter { it in duplicateColumns && it in singleMatchedUsedColumns }
+                    .forEach { duplicatedUsedColumn ->
+                        // Warn if there are duplicate columns in the query result that match
+                        // a single data class property.
+                        val warningMsg =
+                            ProcessorErrors.ambiguousDuplicateColumn(
+                                dataClassTypeNames =
+                                    dataClassMappings.map {
+                                        it.dataClass.typeName.toString(context.codeLanguage)
+                                    },
+                                columnName = duplicatedUsedColumn,
+                            )
+                        context.logger.w(
+                            warning = Warning.AMBIGUOUS_COLUMN_IN_RESULT,
+                            element = executableElement,
+                            msg = warningMsg,
+                        )
+                    }
             }
         }
 

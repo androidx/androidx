@@ -62,7 +62,7 @@ internal constructor(internal val session: Session?, internal val image: RtExrIm
      *   image was not preprocessed.
      */
     @MainThread
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun getReflectionTexture(): CubeMapTexture {
         if (session == null) {
             throw IllegalStateException(
@@ -163,7 +163,7 @@ internal constructor(internal val session: Session?, internal val image: RtExrIm
          */
         @MainThread
         @JvmStatic
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public suspend fun createFromZip(
             session: Session,
             assetData: ByteArray,

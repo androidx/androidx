@@ -19,12 +19,21 @@ package androidx.glance.wear
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.ApplicationInfo
+import android.os.Build
 import androidx.annotation.MainThread
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
+import androidx.annotation.VisibleForTesting
+import androidx.glance.wear.cache.WearWidgetCache
 import androidx.glance.wear.core.ActiveWearWidgetHandle
 import androidx.glance.wear.core.WearWidgetEvent
 import androidx.glance.wear.core.WearWidgetParams
+import androidx.glance.wear.core.WearWidgetUpdateRequest
+import androidx.glance.wear.core.WidgetInstanceId
 import androidx.glance.wear.parcel.WidgetUpdateClient
 import androidx.glance.wear.parcel.WidgetUpdateClientImpl
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  * Object that handles providing the contents of a Wear Widget.
@@ -36,7 +45,10 @@ import androidx.glance.wear.parcel.WidgetUpdateClientImpl
  * content requests and events from the Host.
  */
 public abstract class GlanceWearWidget
-internal constructor(private val updateClient: WidgetUpdateClient) {
+internal constructor(
+    private val updateClient: WidgetUpdateClient,
+    private val widgetCache: WearWidgetCache? = null,
+) {
 
     public constructor() : this(WidgetUpdateClientImpl())
 
@@ -103,14 +115,93 @@ internal constructor(private val updateClient: WidgetUpdateClient) {
      * @param context the context from which this method is called.
      * @param provider the component name of the widget provider service to request an update for.
      *
-     * TODO: Add push update flow for newer SDK version.
      * TODO: Provide a default mechanism for storing instanceId
      */
     public fun triggerUpdate(context: Context, provider: ComponentName) {
-        updateClient.requestUpdate(context, provider)
+        triggerPullUpdate(context, provider)
         val isDebuggable = (context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
         if (isDebuggable) {
             updateClient.sendUpdateBroadcast(context, provider)
         }
+    }
+
+    /**
+     * Triggers a content update for a widget instance. This is used to updates the widget's
+     * contents.
+     *
+     * This will trigger a call to [provideWidgetData] and send the results to the Host.
+     *
+     * The coroutine will be canceled if it doesn't complete within 10 seconds of being called.
+     *
+     * @param context the context from which this method is called.
+     * @param instanceId the ID of the widget instance to update.
+     */
+    // TODO: b/446828899 - Move API to public once we have compat implementation
+    @RestrictTo(LIBRARY_GROUP)
+    public suspend fun triggerUpdate(context: Context, instanceId: WidgetInstanceId) {
+        if (isAtLeastC()) {
+            pushUpdate(context, instanceId)
+        } else {
+            TODO("b/446828899 - Add compat implementation")
+        }
+    }
+
+    /**
+     * Trigger a content update for all widgets associated with the [provider] service component.
+     *
+     * @param context the context from which this method is called.
+     * @param provider the component name of the widget provider service to request an update for.
+     * @param instanceId the optional ID of the widget instance to update.
+     */
+    internal fun triggerPullUpdate(
+        context: Context,
+        provider: ComponentName,
+        instanceId: WidgetInstanceId? = null,
+    ) {
+        updateClient.requestUpdate(context, provider, instanceId)
+    }
+
+    /**
+     * Generates widget data and pushes the update to the host.
+     *
+     * The coroutine will be canceled if it doesn't complete within 10 seconds of being called.
+     *
+     * @param context the context from which this method is called.
+     * @param instanceId the ID of the widget instance to update.
+     * @throws IllegalArgumentException if the widget instance or its parameters cannot be found in
+     *   the local cache.
+     * @throws [WearWidgetCache.WidgetCacheMissException] if any required cache entry cannot be
+     *   found.
+     */
+    // TODO: b/446828899 - Add RequiresApi(37) annotation.
+    // TODO: b/446828899 - Recover if cache entries are not found.
+    private suspend fun pushUpdate(context: Context, instanceId: WidgetInstanceId) {
+        val cache = widgetCache ?: WearWidgetCache(context)
+        val containerType = cache.getContainerTypeForInstance(instanceId)
+        val params = cache.getWidgetParams(containerType, instanceId)
+
+        val rawContent =
+            withContext(Dispatchers.Main.immediate) {
+                val widgetContent = provideWidgetData(context, params)
+                widgetContent.captureRawContent(context, params)
+            }
+
+        updateClient.pushUpdate(context, WearWidgetUpdateRequest(instanceId), rawContent)
+    }
+
+    internal companion object {
+
+        /**
+         * Robolectric does not support SDK 37 version, so we need to force the SDK version to 37 to
+         * test the logic that checks for 37 features.
+         */
+        // TODO: b/446828899 - Remove once we have 37 in robolectric.
+        @VisibleForTesting var forceIsAtLeast37ForTesting: Boolean? = null
+
+        fun isAtLeastC(): Boolean =
+            forceIsAtLeast37ForTesting
+                ?: (Build.VERSION.SDK_INT >= 37 ||
+                    (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA &&
+                        Build.VERSION.CODENAME.startsWith("C", ignoreCase = true)))
     }
 }

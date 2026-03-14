@@ -16,25 +16,25 @@
 
 package androidx.javascriptengine;
 
-import androidx.annotation.RestrictTo;
-
 import org.jspecify.annotations.NonNull;
+
+import java.util.concurrent.Executor;
 
 /**
  * Interface for handling messages received from the other end of a {@link MessagePort} channel.
- *
- * A {@link MessagePortClient} implementation must be provided when creating a message channel
- * using {@link JavaScriptIsolate#provideMessagePort(String, Executor, MessagePortClient)}.
  * <p>
- * This interface's methods are invoked on the {@link Executor} that was passed to
- * {@link JavaScriptIsolate#provideMessagePort}.
+ * A {@link MessagePortClient} implementation must be provided when creating a message channel
+ * using {@link JavaScriptIsolate#createMessageChannel(String, Executor, MessagePortClient)}, and
+ * its methods are invoked on the specified {@link Executor}.
+ * <p>
+ * A reference to a MessagePortClient is kept alive by its associated local {@link MessagePort},
+ * which in turn is kept alive so long as the message channel is alive.
+ * <p>
+ * A client may be notified of multiple messages throughout its lifetime.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface MessagePortClient {
     /**
      * Called when a {@link Message} is received by the port.
-     *
-     * The logic executed for messages after arriving on the port.
      *
      * @param message The {@link Message} that has been received by the port.
      */

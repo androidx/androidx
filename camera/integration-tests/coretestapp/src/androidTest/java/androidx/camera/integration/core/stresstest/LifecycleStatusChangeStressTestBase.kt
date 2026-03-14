@@ -24,7 +24,6 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.integration.core.recordVideoAndWaitForVideoSavedIdle
 import androidx.camera.integration.core.takePictureAndWaitForImageSavedIdle
-import androidx.camera.integration.core.util.StressTestUtil.HOME_TIMEOUT_MS
 import androidx.camera.integration.core.util.StressTestUtil.STRESS_TEST_OPERATION_REPEAT_COUNT
 import androidx.camera.integration.core.util.StressTestUtil.VERIFICATION_TARGET_IMAGE_ANALYSIS
 import androidx.camera.integration.core.util.StressTestUtil.VERIFICATION_TARGET_IMAGE_CAPTURE
@@ -39,19 +38,17 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.testing.impl.LabTestRule
+import androidx.camera.testing.impl.RequireForegroundRule
 import androidx.camera.testing.impl.StressTestRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
-import androidx.test.uiautomator.UiDevice
 import androidx.testutils.RepeatRule
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -64,7 +61,13 @@ abstract class LifecycleStatusChangeStressTestBase(
     val cameraConfig: CameraXConfig,
     val cameraId: String,
 ) {
-    private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    @get:Rule
+    val requireForegroundRule = RequireForegroundRule {
+        assumeLifecycleStatusChangeTestCompatibleDevice()
+        assumeTrue(CameraUtil.deviceHasCamera())
+        CoreAppTestUtil.assumeCompatibleDevice()
+        CoreAppTestUtil.assumeNotUntestableFrontCamera(cameraId)
+    }
 
     @get:Rule
     val useCamera =
@@ -99,19 +102,6 @@ abstract class LifecycleStatusChangeStressTestBase(
 
     @Before
     fun setup(): Unit = runBlocking {
-        assumeLifecycleStatusChangeTestCompatibleDevice()
-        assumeTrue(CameraUtil.deviceHasCamera())
-        CoreAppTestUtil.assumeCompatibleDevice()
-        CoreAppTestUtil.assumeNotUntestableFrontCamera(cameraId)
-        // Clear the device UI and check if there is no dialog or lock screen on the top of the
-        // window before start the test.
-        CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
-        // Use the natural orientation throughout these tests to ensure the activity isn't
-        // recreated unexpectedly. This will also freeze the sensors until
-        // mDevice.unfreezeRotation() in the tearDown() method. Any simulated rotations will be
-        // explicitly initiated from within the test.
-        device.setOrientationNatural()
-
         // For running the LifecycleStatusChangeStressTest, we need to get the target test camera
         // to check whether the testing use case combination can be supported to skip unsupported
         // cases. For the purpose, we force configure the target testing config first
@@ -121,7 +111,7 @@ abstract class LifecycleStatusChangeStressTestBase(
         // CameraProvider#shutdown() is called in the tearDown() function.
         ProcessCameraProvider.configureInstance(cameraConfig)
 
-        cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+        cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
 
         cameraIdCameraSelector = createCameraSelectorById(cameraId)
 
@@ -129,21 +119,12 @@ abstract class LifecycleStatusChangeStressTestBase(
             withContext(Dispatchers.Main) {
                 cameraProvider.bindToLifecycle(FakeLifecycleOwner(), cameraIdCameraSelector)
             }
-    }
 
-    @After
-    fun tearDown(): Unit = runBlocking {
-        if (::cameraProvider.isInitialized) {
-            withContext(Dispatchers.Main) {
-                cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
+        requireForegroundRule.deferCleanup {
+            if (::cameraProvider.isInitialized) {
+                cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
             }
         }
-
-        // Unfreeze rotation so the device can choose the orientation via its own policy. Be nice
-        // to other tests :)
-        device.unfreezeRotation()
-        device.pressHome()
-        device.waitForIdle(HOME_TIMEOUT_MS)
     }
 
     /**

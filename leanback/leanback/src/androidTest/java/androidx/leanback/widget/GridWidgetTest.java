@@ -770,6 +770,136 @@ public class GridWidgetTest {
     }
 
     @Test
+    public void testSingleRowLeak() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_linear);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 50);
+        intent.putExtra(GridActivity.EXTRA_LEAK_TEST, true);
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 1;
+
+        scrollToEnd(mVerifyLayout);
+
+        startWaitLayout();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setItemAnimator(null);
+                mActivity.mGridView.setItemViewCacheSize(0);
+                mActivity.removeItems(0, 50);
+                mGridView.getAdapter().notifyDataSetChanged();
+            }
+        });
+        waitForLayout();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.getRecycledViewPool().clear();
+            }
+        });
+        waitOneUiCycle();
+        SingleRow singleRow = (SingleRow) mLayoutManager.mGrid;
+        for (Object obj : singleRow.mTmpItem) {
+            assertNull(obj);
+        }
+
+        if (canTestLeakViaWeakReference()) {
+            mActivity.assertNotLeak();
+        }
+    }
+
+    @Test
+    public void testStaggeredGridLeak() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_grid);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 150);
+        intent.putExtra(GridActivity.EXTRA_LEAK_TEST, true);
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 3;
+
+        scrollToEnd(mVerifyLayout);
+
+        startWaitLayout();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setItemAnimator(null);
+                mActivity.mGridView.setItemViewCacheSize(0);
+                mActivity.removeItems(0, 150);
+                mGridView.getAdapter().notifyDataSetChanged();
+            }
+        });
+        waitForLayout();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.getRecycledViewPool().clear();
+            }
+        });
+        waitOneUiCycle();
+        StaggeredGrid staggeredGrid = (StaggeredGrid) mLayoutManager.mGrid;
+        for (Object obj : staggeredGrid.mTmpItem) {
+            assertNull(obj);
+        }
+
+        if (canTestLeakViaWeakReference()) {
+            mActivity.assertNotLeak();
+        }
+    }
+
+    @Test
+    public void testSpanGridLeak() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_grid);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 150);
+        intent.putExtra(GridActivity.EXTRA_LEAK_TEST, true);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        intent.putExtra(GridActivity.EXTRA_SPAN_SIZES, new int[]{
+                0, 3, // 0th item span size is 3
+                99, 3, // 99th item span size is 3
+        });
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 3;
+
+        scrollToEnd(mVerifyLayout);
+
+        scrollToBegin(mVerifyLayout);
+
+        startWaitLayout();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.setItemAnimator(null);
+                mActivity.mGridView.setItemViewCacheSize(0);
+                mActivity.removeItems(0, 150);
+                mGridView.getAdapter().notifyDataSetChanged();
+            }
+        });
+        waitForLayout();
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mGridView.getRecycledViewPool().clear();
+            }
+        });
+        waitOneUiCycle();
+        StandardGrid standardGrid = (StandardGrid) mLayoutManager.mGrid;
+        for (Object obj : standardGrid.mTmpItem) {
+            assertNull(obj);
+        }
+        for (Object obj : standardGrid.mTmpItems) {
+            assertNull(obj);
+        }
+
+        if (canTestLeakViaWeakReference()) {
+            mActivity.assertNotLeak();
+        }
+    }
+
+    @Test
     public void testSetFocusOutLayoutManagerVertical() throws Throwable {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
@@ -1213,7 +1343,7 @@ public class GridWidgetTest {
         scrollToBegin(mVerifyLayout);
 
         verifyBeginAligned();
-        assertTrue(((StandardGrid) mLayoutManager.mGrid).mSpanSupport == null);
+        assertTrue(((StandardGrid) mLayoutManager.mGrid).mSpanSizeLookup == null);
     }
 
     @Ignore // b/266757643
@@ -7501,4 +7631,25 @@ public class GridWidgetTest {
         verifyBeginAligned();
     }
 
+    static boolean isEmulator() {
+        return Build.FINGERPRINT.startsWith("generic")
+                || Build.FINGERPRINT.startsWith("unknown")
+                || Build.MODEL.contains("google_sdk")
+                || Build.MODEL.contains("gphone")
+                || Build.MODEL.contains("Emulator")
+                || Build.MODEL.contains("Cuttlefish")
+                || Build.MODEL.contains("Android SDK built for x86")
+                || Build.MANUFACTURER.contains("Genymotion")
+                || (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
+                || Build.PRODUCT.equals("google_sdk")
+                || Build.HARDWARE.contains("ranchu");
+    }
+
+    static boolean canTestLeakViaWeakReference() {
+        // On lower version emulators, accessing WeakReference will retain the object on the
+        // stack, even though the test code does not hold a strong reference. It might be caused
+        // by JIT behavior, it shows in heapdump as a GC root object with type of JAVA_FRAME (which
+        // indicates it's a leak due to strong reference to the object from stack).
+        return !isEmulator() || Build.VERSION.SDK_INT >= 36;
+    }
 }

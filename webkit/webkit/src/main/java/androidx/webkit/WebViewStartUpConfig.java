@@ -18,28 +18,31 @@ package androidx.webkit;
 
 import android.content.Context;
 
+import androidx.annotation.RestrictTo;
+
+import org.chromium.support_lib_boundary.WebViewProviderFactoryBoundaryInterface.StartUpConfigField;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.function.BiConsumer;
 
 /**
  * Configuration object for
- * {@link WebViewCompat#startUpWebView(android.content.Context, WebViewStartUpConfig, WebViewCompat.WebViewStartUpCallback)}.
+ * {@link WebViewCompat#startUpWebView(Context, WebViewStartUpConfig, WebViewOutcomeReceiver)}
  * <p>
  * This is different from {@link ProcessGlobalConfig}. This object defines the configuration for
  * a particular call to
- * {@link WebViewCompat#startUpWebView(android.content.Context, WebViewStartUpConfig, WebViewCompat.WebViewStartUpCallback)}.
+ * {@link WebViewCompat#startUpWebView(Context, WebViewStartUpConfig, WebViewOutcomeReceiver)}
  */
-@WebViewCompat.ExperimentalAsyncStartUp
 public final class WebViewStartUpConfig {
     private final Executor mExecutor;
     private final boolean mShouldRunUiThreadStartUpTasks;
     private final @Nullable Set<@NonNull String> mProfilesToLoadDuringStartup;
 
-    private WebViewStartUpConfig(
+    WebViewStartUpConfig(
             @NonNull Executor executor, boolean shouldRunUiThreadStartUpTasks,
             @Nullable Set<@NonNull String> profilesToLoadDuringStartup) {
         mExecutor = executor;
@@ -47,7 +50,11 @@ public final class WebViewStartUpConfig {
         mProfilesToLoadDuringStartup = profilesToLoadDuringStartup;
     }
 
-    public @NonNull Executor getBackgroundExecutor() {
+    /**
+     * Returns the {@link Executor} that will be used to run background startup tasks.
+     */
+    @NonNull
+    public Executor getBackgroundExecutor() {
         return mExecutor;
     }
 
@@ -55,7 +62,7 @@ public final class WebViewStartUpConfig {
      * Whether to run only parts of startup that doesn't block the UI thread.
      * <p>
      * WebView startup tasks that are required to run on the UI thread are not attempted when
-     * {@link WebViewCompat#startUpWebView(android.content.Context, WebViewStartUpConfig, WebViewCompat.WebViewStartUpCallback)}
+     * {@link WebViewCompat#startUpWebView(Context, WebViewStartUpConfig, WebViewOutcomeReceiver)}
      * is called if set to {@code false}.
      * <p>
      * Defaults to `true`. If not set to `false`, UI thread startup tasks will be
@@ -84,7 +91,29 @@ public final class WebViewStartUpConfig {
         return mProfilesToLoadDuringStartup;
     }
 
-    @WebViewCompat.ExperimentalAsyncStartUp
+    /**
+     * Serializes the {@link WebViewStartUpConfig} to a {@link BiConsumer} for use with the
+     * support library glue layer.
+     * <p>
+     * This method is for internal library use only.
+     *
+     * @param chromiumConfig The {@link BiConsumer} to serialize the config to.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public void accept(
+            @NonNull BiConsumer<@StartUpConfigField Integer, Object> chromiumConfig) {
+        chromiumConfig.accept(StartUpConfigField.BACKGROUND_EXECUTOR,
+                mExecutor);
+        if (!mShouldRunUiThreadStartUpTasks) {
+            chromiumConfig.accept(StartUpConfigField.UI_THREAD_START_UP_TASKS,
+                    false);
+        }
+        if (mProfilesToLoadDuringStartup != null) {
+            chromiumConfig.accept(StartUpConfigField.PROFILE_NAMES_TO_LOAD,
+                    mProfilesToLoadDuringStartup);
+        }
+    }
+
     public static final class Builder {
         private final Executor mExecutor;
         private boolean mShouldRunUiThreadStartUpTasks = true;
@@ -105,7 +134,7 @@ public final class WebViewStartUpConfig {
          * Setter to run only parts of startup that doesn't block the UI thread.
          * <p>
          * WebView startup tasks that are required to run on the UI thread are not attempted when
-         * {@link WebViewCompat#startUpWebView(android.content.Context, WebViewStartUpConfig, WebViewCompat.WebViewStartUpCallback)}
+         * {@link WebViewCompat#startUpWebView(Context, WebViewStartUpConfig, WebViewOutcomeReceiver)}
          * is called if set to {@code false}.
          * <p>
          * Defaults to `true`. If not set to `false`, UI thread startup tasks will be

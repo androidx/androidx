@@ -184,37 +184,11 @@ class FakeImpressApiImplTest {
     }
 
     @Test
-    fun animateGltfModel_animatesModelWithoutLooping() {
-        val entityNode = fakeImpressApi.createImpressNode()
-        val animatingSize = fakeImpressApi.impressNodeAnimatingSize()
-
-        runBlocking {
-            fakeImpressApi.animateGltfModel(entityNode, "animation_name", looping = false)
-        }
-
-        val animatingSize2 = fakeImpressApi.impressNodeAnimatingSize()
-        assertThat(animatingSize2).isEqualTo(animatingSize + 1)
-    }
-
-    @Test
-    fun animateGltfModel_animatesModelWithLooping() {
-        val entityNode = fakeImpressApi.createImpressNode()
-        val animatingSize = fakeImpressApi.impressNodeLoopAnimatingSize()
-
-        runBlocking {
-            fakeImpressApi.animateGltfModel(entityNode, "animation_name", looping = true)
-        }
-
-        val animatingSize2 = fakeImpressApi.impressNodeLoopAnimatingSize()
-        assertThat(animatingSize2).isEqualTo(animatingSize + 1)
-    }
-
-    @Test
     fun animateGltfModel_withChannel_animatesModel() {
         val entityNode = fakeImpressApi.createImpressNode()
         val channel = 1
         runBlocking {
-            fakeImpressApi.animateGltfModelNew(
+            fakeImpressApi.animateGltfModel(
                 entityNode,
                 "animation_name",
                 looping = true,
@@ -236,30 +210,10 @@ class FakeImpressApiImplTest {
     }
 
     @Test
-    fun stopGltfModelAnimation_stopsModelWithoutLooping() = runBlocking {
-        val entityNode = fakeImpressApi.createImpressNode()
-        fakeImpressApi.animateGltfModel(entityNode, "animation_name", looping = false)
-        val animatingSize = fakeImpressApi.impressNodeAnimatingSize()
-        fakeImpressApi.stopGltfModelAnimation(entityNode)
-        val animatingSize2 = fakeImpressApi.impressNodeAnimatingSize()
-        assertThat(animatingSize2).isEqualTo(animatingSize - 1)
-    }
-
-    @Test
-    fun stopGltfModelAnimation_stopsModelWithLooping() = runBlocking {
-        val entityNode = fakeImpressApi.createImpressNode()
-        fakeImpressApi.animateGltfModel(entityNode, "animation_name", looping = true)
-        val animatingSize = fakeImpressApi.impressNodeLoopAnimatingSize()
-        fakeImpressApi.stopGltfModelAnimation(entityNode)
-        val animatingSize2 = fakeImpressApi.impressNodeLoopAnimatingSize()
-        assertThat(animatingSize2).isEqualTo(animatingSize - 1)
-    }
-
-    @Test
     fun stopGltfModelAnimation_withChannel_stopsModel() = runBlocking {
         val entityNode = fakeImpressApi.createImpressNode()
         val channel = 1
-        fakeImpressApi.animateGltfModelNew(
+        fakeImpressApi.animateGltfModel(
             entityNode,
             "animation_name",
             looping = true,
@@ -267,58 +221,16 @@ class FakeImpressApiImplTest {
             startTime = 0.0f,
             channel = channel,
         )
-        fakeImpressApi.stopGltfModelAnimationNew(entityNode, channel)
+        fakeImpressApi.stopGltfModelAnimation(entityNode, channel)
         val channelAnimations = fakeImpressApi.getChannelAnimations(entityNode)
         assertThat(channelAnimations).isNull()
-    }
-
-    @Test
-    fun toggleGltfModelAnimation_pauseModelWithoutLooping() = runBlocking {
-        val entityNode = fakeImpressApi.createImpressNode()
-        fakeImpressApi.animateGltfModel(entityNode, "animation_name", looping = false)
-        val pausingSize: Int = fakeImpressApi.impressNodeAnimationPausingSize()
-        fakeImpressApi.toggleGltfModelAnimation(entityNode, false)
-        val pausingSize2: Int = fakeImpressApi.impressNodeAnimationPausingSize()
-        assertThat(pausingSize2).isEqualTo(pausingSize + 1)
-    }
-
-    @Test
-    fun toggleGltfModelAnimation_pauseModelWithLooping() = runBlocking {
-        val entityNode = fakeImpressApi.createImpressNode()
-        fakeImpressApi.animateGltfModel(entityNode, "animation_name", looping = true)
-        val pausingSize: Int = fakeImpressApi.impressNodeAnimationPausingSize()
-        fakeImpressApi.toggleGltfModelAnimation(entityNode, false)
-        val pausingSize2: Int = fakeImpressApi.impressNodeAnimationPausingSize()
-        assertThat(pausingSize2).isEqualTo(pausingSize + 1)
-    }
-
-    @Test
-    fun toggleGltfModelAnimation_resumeModelWithoutLooping() = runBlocking {
-        val entityNode = fakeImpressApi.createImpressNode()
-        fakeImpressApi.animateGltfModel(entityNode, "animation_name", looping = false)
-        fakeImpressApi.toggleGltfModelAnimation(entityNode, false)
-        val pausingSize: Int = fakeImpressApi.impressNodeAnimationPausingSize()
-        fakeImpressApi.toggleGltfModelAnimation(entityNode, true)
-        val pausingSize2: Int = fakeImpressApi.impressNodeAnimationPausingSize()
-        assertThat(pausingSize2).isEqualTo(pausingSize - 1)
-    }
-
-    @Test
-    fun toggleGltfModelAnimation_resumeModelWithLooping() = runBlocking {
-        val entityNode = fakeImpressApi.createImpressNode()
-        fakeImpressApi.animateGltfModel(entityNode, "animation_name", looping = true)
-        fakeImpressApi.toggleGltfModelAnimation(entityNode, false)
-        val pausingSize: Int = fakeImpressApi.impressNodeAnimationPausingSize()
-        fakeImpressApi.toggleGltfModelAnimation(entityNode, true)
-        val pausingSize2: Int = fakeImpressApi.impressNodeAnimationPausingSize()
-        assertThat(pausingSize2).isEqualTo(pausingSize - 1)
     }
 
     @Test
     fun toggleGltfModelAnimation_withChannel_togglesModel() = runBlocking {
         val entityNode = fakeImpressApi.createImpressNode()
         val channel = 1
-        fakeImpressApi.animateGltfModelNew(
+        fakeImpressApi.animateGltfModel(
             entityNode,
             "animation_name",
             looping = true,
@@ -326,11 +238,11 @@ class FakeImpressApiImplTest {
             startTime = 0.0f,
             channel = channel,
         )
-        fakeImpressApi.toggleGltfModelAnimationNew(entityNode, false, channel)
+        fakeImpressApi.toggleGltfModelAnimation(entityNode, false, channel)
         val channelAnimations = fakeImpressApi.getChannelAnimations(entityNode)
         val animation = channelAnimations!![channel]
         assertThat(animation!!.paused).isTrue()
-        fakeImpressApi.toggleGltfModelAnimationNew(entityNode, true, channel)
+        fakeImpressApi.toggleGltfModelAnimation(entityNode, true, channel)
         assertThat(animation.paused).isFalse()
     }
 
@@ -338,7 +250,7 @@ class FakeImpressApiImplTest {
     fun setGltfModelAnimationPlaybackTime_setsPlaybackTime() = runBlocking {
         val entityNode = fakeImpressApi.createImpressNode()
         val channel = 1
-        fakeImpressApi.animateGltfModelNew(
+        fakeImpressApi.animateGltfModel(
             entityNode,
             "animation_name",
             looping = true,
@@ -357,7 +269,7 @@ class FakeImpressApiImplTest {
     fun setGltfModelAnimationSpeed_setsSpeed() = runBlocking {
         val entityNode = fakeImpressApi.createImpressNode()
         val channel = 1
-        fakeImpressApi.animateGltfModelNew(
+        fakeImpressApi.animateGltfModel(
             entityNode,
             "animation_name",
             looping = true,

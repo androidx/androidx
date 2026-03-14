@@ -108,10 +108,12 @@ public class FeaturesImpl implements Features {
                 // fall through
             case Features.SCHEMA_JOINABLE_REPEATED_PROPERTIES:
                 // fall through
-            case Features.SCHEMA_STRING_PROPERTY_CONFIG_DELETE_PROPAGATION_TYPE_PROPAGATE_FROM:
-                // fall through
             case Features.SET_SCHEMA_REQUEST_SET_WIPEOUT_ACCOUNT:
                 return true;
+            case Features.SCHEMA_STRING_PROPERTY_CONFIG_DELETE_PROPAGATION_TYPE_PROPAGATE_FROM:
+                // TODO(b/384947619): Enable this once the feature is rolled out to Nextfood in
+                //   platform.
+                return false;
             case Features.INDEXER_MOBILE_APPLICATIONS:
                 // The Apps Indexer is only available on platform storage and some versions of
                 // GMSCore AppSearch. It can't be ran by local storage because local storage

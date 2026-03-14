@@ -16,7 +16,9 @@
 
 package androidx.compose.remote.creation.compose.state
 
+import androidx.compose.remote.core.operations.Utils
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFails
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -131,5 +133,18 @@ class RemoteStateCacheKeyTest {
         val floatKey = RemoteOperationCacheKey.create(floatOp, 10f.rf, 5f.rf)
 
         assertThat(intKey).isNotEqualTo(floatKey)
+    }
+
+    @Test
+    fun remoteConstantCacheKey_FloatNaN_NotSupported() {
+        val t = assertFails { RemoteConstantCacheKey(Utils.asNan(101)) }
+        assertThat(t.message).isEqualTo("Float constant value cannot be NaN")
+    }
+
+    @Test
+    fun remoteConstantCacheKey_DoubleNaN_NotSupported() {
+        val nan1 = java.lang.Double.longBitsToDouble(0x7ff0000000000001L)
+        val t = assertFails { RemoteConstantCacheKey(nan1) }
+        assertThat(t.message).isEqualTo("Double constant value cannot be NaN")
     }
 }

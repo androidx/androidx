@@ -27,9 +27,10 @@ import android.os.Build
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
@@ -40,6 +41,7 @@ import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
+import org.mockito.kotlin.timeout
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -96,18 +98,18 @@ class ProjectedSceneCoreServiceClientTest {
         whenever(context.bindService(any(), any(), anyInt())).thenReturn(true)
 
         // Launch in a coroutine because bindService suspends waiting for connection
-        val job = launch {
-            try {
-                client.bindService(context)
-            } catch (e: Exception) {
-                // Ignore timeout/cancellation for this specific assertion
+        val job =
+            launch(Dispatchers.Default) {
+                try {
+                    client.bindService(context)
+                } catch (e: Exception) {
+                    // Ignore timeout/cancellation for this specific assertion
+                }
             }
-        }
-        runCurrent()
 
         // Capture the intent passed to bindService
         val intentCaptor = argumentCaptor<Intent>()
-        verify(context).bindService(intentCaptor.capture(), any(), anyInt())
+        verify(context, timeout(1000)).bindService(intentCaptor.capture(), any(), anyInt())
 
         val intent = intentCaptor.firstValue
         assertThat(intent.action).isEqualTo(ProjectedSceneCoreServiceClient.ACTION_SCENE_CORE_BIND)
@@ -123,20 +125,17 @@ class ProjectedSceneCoreServiceClientTest {
         setupMockServiceResolution()
         whenever(context.bindService(any(), any(), anyInt())).thenReturn(true)
 
-        var service: IProjectedSceneCoreService? = null
-        val job = launch {
-            service = client.bindService(context)
-            assertThat(service).isNotNull()
-        }
-        runCurrent()
+        val deferred = async(Dispatchers.Default) { client.bindService(context) }
 
         // Verify bind was called and capture the connection
         val connectionCaptor = argumentCaptor<ServiceConnection>()
-        verify(context).bindService(any(), connectionCaptor.capture(), anyInt())
+        verify(context, timeout(1000)).bindService(any(), connectionCaptor.capture(), anyInt())
 
         // Simulate the system calling onServiceConnected
         connectionCaptor.firstValue.onServiceConnected(mock(), mock())
-        job.join()
+
+        val service = deferred.await()
+        assertThat(service).isNotNull()
         assertThat(client.service).isEqualTo(service)
     }
 
@@ -148,21 +147,19 @@ class ProjectedSceneCoreServiceClientTest {
         whenever(context.bindService(any(), any(), anyInt())).thenReturn(true)
 
         // Launch the bind
-        val job = launch {
-            assertFailsWith(IllegalStateException::class, "Binding died") {
-                client.bindService(context)
-            }
+        launch(Dispatchers.Default) {
+            val exception =
+                assertFailsWith(IllegalStateException::class) { client.bindService(context) }
+            assertThat(exception).hasMessageThat().contains("Binding died")
         }
-        runCurrent()
 
         // Trigger onBindingDied
         val connectionCaptor = argumentCaptor<ServiceConnection>()
-        verify(context).bindService(any(), connectionCaptor.capture(), anyInt())
+        verify(context, timeout(1000)).bindService(any(), connectionCaptor.capture(), anyInt())
         connectionCaptor.firstValue.onBindingDied(mock())
-        job.join()
 
         // Verify cleanup happened
-        verify(context).unbindService(connectionCaptor.firstValue)
+        verify(context, timeout(1000)).unbindService(connectionCaptor.firstValue)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
@@ -172,20 +169,18 @@ class ProjectedSceneCoreServiceClientTest {
         setupMockServiceResolution()
         whenever(context.bindService(any(), any(), anyInt())).thenReturn(true)
 
-        val job = launch {
-            assertFailsWith(IllegalStateException::class, "null binding") {
-                client.bindService(context)
-            }
+        launch(Dispatchers.Default) {
+            val exception =
+                assertFailsWith(IllegalStateException::class) { client.bindService(context) }
+            assertThat(exception).hasMessageThat().contains("Service returned null binding")
         }
-        runCurrent()
 
         // Trigger onNullBinding
         val connectionCaptor = argumentCaptor<ServiceConnection>()
-        verify(context).bindService(any(), connectionCaptor.capture(), anyInt())
+        verify(context, timeout(1000)).bindService(any(), connectionCaptor.capture(), anyInt())
         connectionCaptor.firstValue.onNullBinding(mock())
-        job.join()
 
-        verify(context).unbindService(connectionCaptor.firstValue)
+        verify(context, timeout(1000)).unbindService(connectionCaptor.firstValue)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -195,13 +190,13 @@ class ProjectedSceneCoreServiceClientTest {
         whenever(context.bindService(any(), any(), anyInt())).thenReturn(true)
 
         // Connect successfully
-        val job = launch { client.bindService(context) }
-        runCurrent()
+        val deferred = async(Dispatchers.Default) { client.bindService(context) }
+
         val connectionCaptor = argumentCaptor<ServiceConnection>()
-        verify(context).bindService(any(), connectionCaptor.capture(), anyInt())
+        verify(context, timeout(1000)).bindService(any(), connectionCaptor.capture(), anyInt())
 
         connectionCaptor.firstValue.onServiceConnected(mock(), mock())
-        job.join()
+        deferred.await()
         assertThat(client.service).isNotNull()
 
         // Trigger disconnect
@@ -219,19 +214,18 @@ class ProjectedSceneCoreServiceClientTest {
     fun bindService_unbinds_whenCoroutineCancelled() = runTest {
         setupMockServiceResolution()
         whenever(context.bindService(any(), any(), anyInt())).thenReturn(true)
-        val job = launch { client.bindService(context) }
-        runCurrent()
+        val job = launch(Dispatchers.Default) { client.bindService(context) }
 
         // Wait for bind to be called
         val connectionCaptor = argumentCaptor<ServiceConnection>()
-        verify(context).bindService(any(), connectionCaptor.capture(), anyInt())
+        verify(context, timeout(1000)).bindService(any(), connectionCaptor.capture(), anyInt())
 
         // Cancel the coroutine before connection is established
         job.cancel()
         job.join()
 
         // Verify cleanup occurred
-        verify(context).unbindService(connectionCaptor.firstValue)
+        verify(context, timeout(1000)).unbindService(connectionCaptor.firstValue)
     }
 
     @Test
@@ -239,8 +233,10 @@ class ProjectedSceneCoreServiceClientTest {
         setupMockServiceResolution()
         whenever(context.bindService(any(), any(), anyInt())).thenReturn(false)
 
-        assertFailsWith(IllegalStateException::class, "bindService returned false") {
-            client.bindService(context)
+        launch(Dispatchers.Default) {
+            val exception =
+                assertFailsWith(IllegalStateException::class) { client.bindService(context) }
+            assertThat(exception).hasMessageThat().contains("bindService returned false")
         }
     }
 
@@ -249,8 +245,10 @@ class ProjectedSceneCoreServiceClientTest {
         // Mock resolution to return empty list
         whenever(packageManager.queryIntentServices(any(), anyInt())).thenReturn(emptyList())
 
-        assertFailsWith(IllegalStateException::class, "System doesn't include a service") {
-            client.bindService(context)
+        launch(Dispatchers.Default) {
+            val exception =
+                assertFailsWith(IllegalStateException::class) { client.bindService(context) }
+            assertThat(exception).hasMessageThat().contains("System doesn't include a service")
         }
     }
 
@@ -260,7 +258,9 @@ class ProjectedSceneCoreServiceClientTest {
         whenever(context.bindService(any(), any(), anyInt()))
             .thenThrow(SecurityException("Not allowed"))
 
-        assertFailsWith(SecurityException::class) { client.bindService(context) }
+        launch(Dispatchers.Default) {
+            assertFailsWith(SecurityException::class) { client.bindService(context) }
+        }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -270,18 +270,15 @@ class ProjectedSceneCoreServiceClientTest {
         whenever(context.bindService(any(), any(), anyInt())).thenReturn(true)
 
         val connectionCaptor = argumentCaptor<ServiceConnection>()
-        var service1: IProjectedSceneCoreService? = null
-        val job = launch { service1 = client.bindService(context) }
-        runCurrent()
-        verify(context).bindService(any(), connectionCaptor.capture(), anyInt())
+        val deferred1 = async(Dispatchers.Default) { client.bindService(context) }
+
+        verify(context, timeout(1000)).bindService(any(), connectionCaptor.capture(), anyInt())
         connectionCaptor.firstValue.onServiceConnected(mock(), mock())
-        job.join()
+        val service1 = deferred1.await()
 
         // Call bindService again
-        var service2: IProjectedSceneCoreService? = null
-        val job2 = launch { service2 = client.bindService(context) }
-        runCurrent()
-        job2.join()
+        val deferred2 = async(Dispatchers.Default) { client.bindService(context) }
+        val service2 = deferred2.await()
 
         // Assert that bindService was NOT called a second time
         verify(context, times(1)).bindService(any(), any(), anyInt())
@@ -296,11 +293,11 @@ class ProjectedSceneCoreServiceClientTest {
         whenever(context.bindService(any(), any(), anyInt())).thenReturn(true)
 
         val connectionCaptor = argumentCaptor<ServiceConnection>()
-        val job = launch { client.bindService(context) }
-        runCurrent()
-        verify(context).bindService(any(), connectionCaptor.capture(), anyInt())
+        val deferred = async(Dispatchers.Default) { client.bindService(context) }
+
+        verify(context, timeout(1000)).bindService(any(), connectionCaptor.capture(), anyInt())
         connectionCaptor.firstValue.onServiceConnected(mock(), mock())
-        job.join()
+        deferred.await()
 
         // Act
         client.unbindService()
@@ -314,5 +311,12 @@ class ProjectedSceneCoreServiceClientTest {
     fun unbindService_doesNothing_ifNotBound() {
         client.unbindService()
         verify(context, never()).unbindService(any())
+    }
+
+    @Test
+    fun bindService_throwsException_whenCalledFromMainThread() = runTest {
+        val exception =
+            assertFailsWith(IllegalStateException::class) { client.bindService(context) }
+        assertThat(exception).hasMessageThat().contains("cannot be bound from the main thread")
     }
 }

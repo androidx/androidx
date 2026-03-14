@@ -78,7 +78,7 @@ public class TextFromFloat extends Operation implements VariableSupport, Seriali
     public static final int OPTIONS_NEGATIVE_PARENTHESES = 1 << 8; // e.g. (890.12)
     public static final int OPTIONS_ROUNDING = 2 << 8; // Default is simple clipping
     public static final int LEGACY_MODE = 1 << 10; // Default is simple clipping
-    public static final int FULL_FORMAT = 1 << 9; // ignore all of the above full fidelity
+    public static final int FULL_FORMAT = 1 << 12; // ignore all of the above full fidelity
 
     // the flags are critical
     // A = pad after
@@ -87,7 +87,8 @@ public class TextFromFloat extends Operation implements VariableSupport, Seriali
     // S = separator
     // O = options
     // L = legacy mode
-    // bit pattern for flags . L O O _ S S G G _ P P A A
+    // F = full format
+    // bit pattern for flags . F L O O _ S S G G _ P P A A
 
 
     public TextFromFloat(

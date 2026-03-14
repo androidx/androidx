@@ -17,7 +17,6 @@
 package androidx.car.app.navigation.model.constraints;
 
 import androidx.annotation.RestrictTo;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.GridTemplate;
 import androidx.car.app.model.ListTemplate;
@@ -52,8 +51,6 @@ public class ContentTemplateConstraints {
             ));
 
     /** The set of allowed templates as content within a map with content template since API 8. */
-    @ExperimentalCarApi
-    @RequiresCarApi(8)
     public static final @NonNull ContentTemplateConstraints
         MAP_WITH_CONTENT_TEMPLATE_CONSTRAINTS_API_8 =
             new ContentTemplateConstraints(ImmutableSet.of(

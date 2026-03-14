@@ -22,8 +22,11 @@ import androidx.kruth.assertThat
 import androidx.room3.integration.kotlintestapp.vo.Author
 import androidx.room3.integration.kotlintestapp.vo.Book
 import androidx.room3.integration.kotlintestapp.vo.BookWithPublisher
+import androidx.room3.integration.kotlintestapp.vo.Either
 import androidx.room3.integration.kotlintestapp.vo.Lang
 import androidx.room3.integration.kotlintestapp.vo.Publisher
+import androidx.room3.integration.kotlintestapp.vo.isLeft
+import androidx.room3.integration.kotlintestapp.vo.isRight
 import androidx.sqlite.SQLiteException
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -34,6 +37,7 @@ import io.reactivex.rxjava3.subscribers.TestSubscriber
 import java.util.Date
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -409,6 +413,50 @@ class BooksDaoTest(useDriver: UseDriver) : TestDatabaseTest(useDriver) {
 
         booksDao.getBooksByPublisher().let { result ->
             assertThat(result[TestUtil.PUBLISHER]).containsExactly(TestUtil.BOOK_1)
+        }
+    }
+
+    @Test
+    fun resultCustomDaoReturnType() = runTest {
+        assertThat(booksDao.getPublisherResult(TestUtil.PUBLISHER.publisherId).isFailure).isTrue()
+        assertThat(booksDao.insertPublisherResult(TestUtil.PUBLISHER).isSuccess).isTrue()
+        assertThat(booksDao.getPublisherResult(TestUtil.PUBLISHER.publisherId).getOrNull())
+            .isEqualTo(TestUtil.PUBLISHER)
+        assertThat(booksDao.insertPublisherResult(TestUtil.PUBLISHER).isFailure).isTrue()
+    }
+
+    @Test
+    fun eitherCustomDaoReturnType() = runTest {
+        booksDao.getPublisherEither(TestUtil.PUBLISHER.publisherId).let {
+            if (it.isLeft()) {
+                assertThat(it.value).isInstanceOf<IllegalStateException>()
+            } else {
+                assertThat(it).isInstanceOf<Either.Left<IllegalStateException>>()
+            }
+        }
+
+        booksDao.insertPublisherEither(TestUtil.PUBLISHER).let {
+            if (it.isRight()) {
+                assertThat(it.value).isEqualTo(1)
+            } else {
+                assertThat(it).isInstanceOf<Either.Right<Long>>()
+            }
+        }
+
+        booksDao.getPublisherEither(TestUtil.PUBLISHER.publisherId).let {
+            if (it.isRight()) {
+                assertThat(it.value).isEqualTo(TestUtil.PUBLISHER)
+            } else {
+                assertThat(it).isInstanceOf<Either.Left<Publisher>>()
+            }
+        }
+
+        booksDao.insertPublisherEither(TestUtil.PUBLISHER).let {
+            if (it.isLeft()) {
+                assertThat(it.value).isInstanceOf<SQLiteException>()
+            } else {
+                assertThat(it).isInstanceOf<Either.Left<SQLiteException>>()
+            }
         }
     }
 }

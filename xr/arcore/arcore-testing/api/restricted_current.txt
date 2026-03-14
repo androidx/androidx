@@ -173,11 +173,14 @@ package androidx.xr.arcore.testing {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FakeRuntimeArDevice implements androidx.xr.arcore.runtime.ArDevice {
     ctor public FakeRuntimeArDevice();
-    ctor public FakeRuntimeArDevice(optional androidx.xr.runtime.math.Pose devicePose);
-    ctor @BytecodeOnly public FakeRuntimeArDevice(androidx.xr.runtime.math.Pose!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public FakeRuntimeArDevice(optional androidx.xr.runtime.math.Pose devicePose, optional androidx.xr.runtime.TrackingState trackingState);
+    ctor @BytecodeOnly public FakeRuntimeArDevice(androidx.xr.runtime.math.Pose!, androidx.xr.runtime.TrackingState!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getDevicePose();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
     method @InaccessibleFromKotlin public void setDevicePose(androidx.xr.runtime.math.Pose);
+    method @InaccessibleFromKotlin public void setTrackingState(androidx.xr.runtime.TrackingState);
     property public androidx.xr.runtime.math.Pose devicePose;
+    property public androidx.xr.runtime.TrackingState trackingState;
     field public static final androidx.xr.arcore.testing.FakeRuntimeArDevice.Companion Companion;
   }
 

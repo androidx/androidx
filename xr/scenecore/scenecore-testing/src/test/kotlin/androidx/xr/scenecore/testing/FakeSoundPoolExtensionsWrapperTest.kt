@@ -47,7 +47,8 @@ class FakeSoundPoolExtensionsWrapperTest {
         val expected = 123
 
         val soundPool = SoundPool.Builder().build()
-        val rtParams = PointSourceParams(FakeEntity())
+        val entity = FakeEntity()
+        val rtParams = PointSourceParams()
 
         fakeWrapper.setPlayAsPointSourceResult(expected)
 
@@ -56,6 +57,7 @@ class FakeSoundPoolExtensionsWrapperTest {
                 soundPool,
                 testSoundId,
                 rtParams,
+                entity,
                 testVolume,
                 testPriority,
                 testLoop,

@@ -1,0 +1,678 @@
+// Klib ABI Dump
+// Targets: [linuxX64.linuxx64Stubs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.compose.foundation:foundation-layout>
+open annotation class androidx.compose.foundation.layout/ExperimentalFlexBoxApi : kotlin/Annotation { // androidx.compose.foundation.layout/ExperimentalFlexBoxApi|null[0]
+    constructor <init>() // androidx.compose.foundation.layout/ExperimentalFlexBoxApi.<init>|<init>(){}[0]
+}
+
+open annotation class androidx.compose.foundation.layout/ExperimentalGridApi : kotlin/Annotation { // androidx.compose.foundation.layout/ExperimentalGridApi|null[0]
+    constructor <init>() // androidx.compose.foundation.layout/ExperimentalGridApi.<init>|<init>(){}[0]
+}
+
+open annotation class androidx.compose.foundation.layout/ExperimentalLayoutApi : kotlin/Annotation { // androidx.compose.foundation.layout/ExperimentalLayoutApi|null[0]
+    constructor <init>() // androidx.compose.foundation.layout/ExperimentalLayoutApi.<init>|<init>(){}[0]
+}
+
+open annotation class androidx.compose.foundation.layout/LayoutScopeMarker : kotlin/Annotation { // androidx.compose.foundation.layout/LayoutScopeMarker|null[0]
+    constructor <init>() // androidx.compose.foundation.layout/LayoutScopeMarker.<init>|<init>(){}[0]
+}
+
+final enum class androidx.compose.foundation.layout/IntrinsicSize : kotlin/Enum<androidx.compose.foundation.layout/IntrinsicSize> { // androidx.compose.foundation.layout/IntrinsicSize|null[0]
+    enum entry Max // androidx.compose.foundation.layout/IntrinsicSize.Max|null[0]
+    enum entry Min // androidx.compose.foundation.layout/IntrinsicSize.Min|null[0]
+
+    final val entries // androidx.compose.foundation.layout/IntrinsicSize.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<androidx.compose.foundation.layout/IntrinsicSize> // androidx.compose.foundation.layout/IntrinsicSize.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): androidx.compose.foundation.layout/IntrinsicSize // androidx.compose.foundation.layout/IntrinsicSize.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<androidx.compose.foundation.layout/IntrinsicSize> // androidx.compose.foundation.layout/IntrinsicSize.values|values#static(){}[0]
+}
+
+abstract fun interface androidx.compose.foundation.layout/FlexBoxConfig { // androidx.compose.foundation.layout/FlexBoxConfig|null[0]
+    abstract fun (androidx.compose.foundation.layout/FlexBoxConfigScope).configure() // androidx.compose.foundation.layout/FlexBoxConfig.configure|configure@androidx.compose.foundation.layout.FlexBoxConfigScope(){}[0]
+
+    final object Companion : androidx.compose.foundation.layout/FlexBoxConfig { // androidx.compose.foundation.layout/FlexBoxConfig.Companion|null[0]
+        final fun (androidx.compose.foundation.layout/FlexBoxConfigScope).configure() // androidx.compose.foundation.layout/FlexBoxConfig.Companion.configure|configure@androidx.compose.foundation.layout.FlexBoxConfigScope(){}[0]
+    }
+}
+
+abstract fun interface androidx.compose.foundation.layout/FlexConfig { // androidx.compose.foundation.layout/FlexConfig|null[0]
+    abstract fun (androidx.compose.foundation.layout/FlexConfigScope).configure() // androidx.compose.foundation.layout/FlexConfig.configure|configure@androidx.compose.foundation.layout.FlexConfigScope(){}[0]
+}
+
+abstract interface androidx.compose.foundation.layout/BoxScope { // androidx.compose.foundation.layout/BoxScope|null[0]
+    abstract fun (androidx.compose.ui/Modifier).align(androidx.compose.ui/Alignment): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/BoxScope.align|align@androidx.compose.ui.Modifier(androidx.compose.ui.Alignment){}[0]
+    abstract fun (androidx.compose.ui/Modifier).matchParentSize(): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/BoxScope.matchParentSize|matchParentSize@androidx.compose.ui.Modifier(){}[0]
+}
+
+abstract interface androidx.compose.foundation.layout/BoxWithConstraintsScope : androidx.compose.foundation.layout/BoxScope { // androidx.compose.foundation.layout/BoxWithConstraintsScope|null[0]
+    abstract val constraints // androidx.compose.foundation.layout/BoxWithConstraintsScope.constraints|{}constraints[0]
+        abstract fun <get-constraints>(): androidx.compose.ui.unit/Constraints // androidx.compose.foundation.layout/BoxWithConstraintsScope.constraints.<get-constraints>|<get-constraints>(){}[0]
+    abstract val maxHeight // androidx.compose.foundation.layout/BoxWithConstraintsScope.maxHeight|{}maxHeight[0]
+        abstract fun <get-maxHeight>(): androidx.compose.ui.unit/Dp // androidx.compose.foundation.layout/BoxWithConstraintsScope.maxHeight.<get-maxHeight>|<get-maxHeight>(){}[0]
+    abstract val maxWidth // androidx.compose.foundation.layout/BoxWithConstraintsScope.maxWidth|{}maxWidth[0]
+        abstract fun <get-maxWidth>(): androidx.compose.ui.unit/Dp // androidx.compose.foundation.layout/BoxWithConstraintsScope.maxWidth.<get-maxWidth>|<get-maxWidth>(){}[0]
+    abstract val minHeight // androidx.compose.foundation.layout/BoxWithConstraintsScope.minHeight|{}minHeight[0]
+        abstract fun <get-minHeight>(): androidx.compose.ui.unit/Dp // androidx.compose.foundation.layout/BoxWithConstraintsScope.minHeight.<get-minHeight>|<get-minHeight>(){}[0]
+    abstract val minWidth // androidx.compose.foundation.layout/BoxWithConstraintsScope.minWidth|{}minWidth[0]
+        abstract fun <get-minWidth>(): androidx.compose.ui.unit/Dp // androidx.compose.foundation.layout/BoxWithConstraintsScope.minWidth.<get-minWidth>|<get-minWidth>(){}[0]
+}
+
+abstract interface androidx.compose.foundation.layout/ColumnScope { // androidx.compose.foundation.layout/ColumnScope|null[0]
+    abstract fun (androidx.compose.ui/Modifier).align(androidx.compose.ui/Alignment.Horizontal): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/ColumnScope.align|align@androidx.compose.ui.Modifier(androidx.compose.ui.Alignment.Horizontal){}[0]
+    abstract fun (androidx.compose.ui/Modifier).alignBy(androidx.compose.ui.layout/VerticalAlignmentLine): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/ColumnScope.alignBy|alignBy@androidx.compose.ui.Modifier(androidx.compose.ui.layout.VerticalAlignmentLine){}[0]
+    abstract fun (androidx.compose.ui/Modifier).alignBy(kotlin/Function1<androidx.compose.ui.layout/Measured, kotlin/Int>): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/ColumnScope.alignBy|alignBy@androidx.compose.ui.Modifier(kotlin.Function1<androidx.compose.ui.layout.Measured,kotlin.Int>){}[0]
+    abstract fun (androidx.compose.ui/Modifier).weight(kotlin/Float, kotlin/Boolean = ...): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/ColumnScope.weight|weight@androidx.compose.ui.Modifier(kotlin.Float;kotlin.Boolean){}[0]
+}
+
+abstract interface androidx.compose.foundation.layout/FlexBoxScope { // androidx.compose.foundation.layout/FlexBoxScope|null[0]
+    abstract fun (androidx.compose.ui/Modifier).flex(androidx.compose.foundation.layout/FlexConfig): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/FlexBoxScope.flex|flex@androidx.compose.ui.Modifier(androidx.compose.foundation.layout.FlexConfig){}[0]
+    open fun (androidx.compose.ui/Modifier).flex(kotlin/Function1<androidx.compose.foundation.layout/FlexConfigScope, kotlin/Unit>): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/FlexBoxScope.flex|flex@androidx.compose.ui.Modifier(kotlin.Function1<androidx.compose.foundation.layout.FlexConfigScope,kotlin.Unit>){}[0]
+}
+
+abstract interface androidx.compose.foundation.layout/FlowColumnScope : androidx.compose.foundation.layout/ColumnScope // androidx.compose.foundation.layout/FlowColumnScope|null[0]
+
+abstract interface androidx.compose.foundation.layout/FlowRowScope : androidx.compose.foundation.layout/RowScope // androidx.compose.foundation.layout/FlowRowScope|null[0]
+
+abstract interface androidx.compose.foundation.layout/GridConfigurationScope : androidx.compose.ui.unit/Density { // androidx.compose.foundation.layout/GridConfigurationScope|null[0]
+    abstract val constraints // androidx.compose.foundation.layout/GridConfigurationScope.constraints|{}constraints[0]
+        abstract fun <get-constraints>(): androidx.compose.ui.unit/Constraints // androidx.compose.foundation.layout/GridConfigurationScope.constraints.<get-constraints>|<get-constraints>(){}[0]
+    open val fr // androidx.compose.foundation.layout/GridConfigurationScope.fr|@kotlin.Double{}fr[0]
+        open fun (kotlin/Double).<get-fr>(): androidx.compose.foundation.layout/Fr // androidx.compose.foundation.layout/GridConfigurationScope.fr.<get-fr>|<get-fr>@kotlin.Double(){}[0]
+    open val fr // androidx.compose.foundation.layout/GridConfigurationScope.fr|@kotlin.Float{}fr[0]
+        open fun (kotlin/Float).<get-fr>(): androidx.compose.foundation.layout/Fr // androidx.compose.foundation.layout/GridConfigurationScope.fr.<get-fr>|<get-fr>@kotlin.Float(){}[0]
+    open val fr // androidx.compose.foundation.layout/GridConfigurationScope.fr|@kotlin.Int{}fr[0]
+        open fun (kotlin/Int).<get-fr>(): androidx.compose.foundation.layout/Fr // androidx.compose.foundation.layout/GridConfigurationScope.fr.<get-fr>|<get-fr>@kotlin.Int(){}[0]
+
+    abstract var flow // androidx.compose.foundation.layout/GridConfigurationScope.flow|{}flow[0]
+        abstract fun <get-flow>(): androidx.compose.foundation.layout/GridFlow // androidx.compose.foundation.layout/GridConfigurationScope.flow.<get-flow>|<get-flow>(){}[0]
+        abstract fun <set-flow>(androidx.compose.foundation.layout/GridFlow) // androidx.compose.foundation.layout/GridConfigurationScope.flow.<set-flow>|<set-flow>(androidx.compose.foundation.layout.GridFlow){}[0]
+
+    abstract fun column(androidx.compose.foundation.layout/Fr) // androidx.compose.foundation.layout/GridConfigurationScope.column|column(androidx.compose.foundation.layout.Fr){}[0]
+    abstract fun column(androidx.compose.foundation.layout/GridTrackSize) // androidx.compose.foundation.layout/GridConfigurationScope.column|column(androidx.compose.foundation.layout.GridTrackSize){}[0]
+    abstract fun column(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.layout/GridConfigurationScope.column|column(androidx.compose.ui.unit.Dp){}[0]
+    abstract fun column(kotlin/Float) // androidx.compose.foundation.layout/GridConfigurationScope.column|column(kotlin.Float){}[0]
+    abstract fun columnGap(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.layout/GridConfigurationScope.columnGap|columnGap(androidx.compose.ui.unit.Dp){}[0]
+    abstract fun gap(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.layout/GridConfigurationScope.gap|gap(androidx.compose.ui.unit.Dp){}[0]
+    abstract fun gap(androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp) // androidx.compose.foundation.layout/GridConfigurationScope.gap|gap(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+    abstract fun row(androidx.compose.foundation.layout/Fr) // androidx.compose.foundation.layout/GridConfigurationScope.row|row(androidx.compose.foundation.layout.Fr){}[0]
+    abstract fun row(androidx.compose.foundation.layout/GridTrackSize) // androidx.compose.foundation.layout/GridConfigurationScope.row|row(androidx.compose.foundation.layout.GridTrackSize){}[0]
+    abstract fun row(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.layout/GridConfigurationScope.row|row(androidx.compose.ui.unit.Dp){}[0]
+    abstract fun row(kotlin/Float) // androidx.compose.foundation.layout/GridConfigurationScope.row|row(kotlin.Float){}[0]
+    abstract fun rowGap(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.layout/GridConfigurationScope.rowGap|rowGap(androidx.compose.ui.unit.Dp){}[0]
+}
+
+abstract interface androidx.compose.foundation.layout/GridScope { // androidx.compose.foundation.layout/GridScope|null[0]
+    abstract fun (androidx.compose.ui/Modifier).gridItem(kotlin.ranges/IntRange, kotlin.ranges/IntRange, androidx.compose.ui/Alignment = ...): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/GridScope.gridItem|gridItem@androidx.compose.ui.Modifier(kotlin.ranges.IntRange;kotlin.ranges.IntRange;androidx.compose.ui.Alignment){}[0]
+    abstract fun (androidx.compose.ui/Modifier).gridItem(kotlin/Int = ..., kotlin/Int = ..., kotlin/Int = ..., kotlin/Int = ..., androidx.compose.ui/Alignment = ...): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/GridScope.gridItem|gridItem@androidx.compose.ui.Modifier(kotlin.Int;kotlin.Int;kotlin.Int;kotlin.Int;androidx.compose.ui.Alignment){}[0]
+
+    final object Companion { // androidx.compose.foundation.layout/GridScope.Companion|null[0]
+        final const val GridIndexUnspecified // androidx.compose.foundation.layout/GridScope.Companion.GridIndexUnspecified|{}GridIndexUnspecified[0]
+            final fun <get-GridIndexUnspecified>(): kotlin/Int // androidx.compose.foundation.layout/GridScope.Companion.GridIndexUnspecified.<get-GridIndexUnspecified>|<get-GridIndexUnspecified>(){}[0]
+        final const val MaxGridIndex // androidx.compose.foundation.layout/GridScope.Companion.MaxGridIndex|{}MaxGridIndex[0]
+            final fun <get-MaxGridIndex>(): kotlin/Int // androidx.compose.foundation.layout/GridScope.Companion.MaxGridIndex.<get-MaxGridIndex>|<get-MaxGridIndex>(){}[0]
+    }
+}
+
+abstract interface androidx.compose.foundation.layout/PaddingValues { // androidx.compose.foundation.layout/PaddingValues|null[0]
+    abstract fun calculateBottomPadding(): androidx.compose.ui.unit/Dp // androidx.compose.foundation.layout/PaddingValues.calculateBottomPadding|calculateBottomPadding(){}[0]
+    abstract fun calculateLeftPadding(androidx.compose.ui.unit/LayoutDirection): androidx.compose.ui.unit/Dp // androidx.compose.foundation.layout/PaddingValues.calculateLeftPadding|calculateLeftPadding(androidx.compose.ui.unit.LayoutDirection){}[0]
+    abstract fun calculateRightPadding(androidx.compose.ui.unit/LayoutDirection): androidx.compose.ui.unit/Dp // androidx.compose.foundation.layout/PaddingValues.calculateRightPadding|calculateRightPadding(androidx.compose.ui.unit.LayoutDirection){}[0]
+    abstract fun calculateTopPadding(): androidx.compose.ui.unit/Dp // androidx.compose.foundation.layout/PaddingValues.calculateTopPadding|calculateTopPadding(){}[0]
+
+    final class Absolute : androidx.compose.foundation.layout/PaddingValues { // androidx.compose.foundation.layout/PaddingValues.Absolute|null[0]
+        constructor <init>(androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ...) // androidx.compose.foundation.layout/PaddingValues.Absolute.<init>|<init>(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+
+        final fun calculateBottomPadding(): androidx.compose.ui.unit/Dp // androidx.compose.foundation.layout/PaddingValues.Absolute.calculateBottomPadding|calculateBottomPadding(){}[0]
+        final fun calculateLeftPadding(androidx.compose.ui.unit/LayoutDirection): androidx.compose.ui.unit/Dp // androidx.compose.foundation.layout/PaddingValues.Absolute.calculateLeftPadding|calculateLeftPadding(androidx.compose.ui.unit.LayoutDirection){}[0]
+        final fun calculateRightPadding(androidx.compose.ui.unit/LayoutDirection): androidx.compose.ui.unit/Dp // androidx.compose.foundation.layout/PaddingValues.Absolute.calculateRightPadding|calculateRightPadding(androidx.compose.ui.unit.LayoutDirection){}[0]
+        final fun calculateTopPadding(): androidx.compose.ui.unit/Dp // androidx.compose.foundation.layout/PaddingValues.Absolute.calculateTopPadding|calculateTopPadding(){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.foundation.layout/PaddingValues.Absolute.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // androidx.compose.foundation.layout/PaddingValues.Absolute.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // androidx.compose.foundation.layout/PaddingValues.Absolute.toString|toString(){}[0]
+    }
+
+    final object Companion { // androidx.compose.foundation.layout/PaddingValues.Companion|null[0]
+        final val Zero // androidx.compose.foundation.layout/PaddingValues.Companion.Zero|{}Zero[0]
+            final fun <get-Zero>(): androidx.compose.foundation.layout/PaddingValues // androidx.compose.foundation.layout/PaddingValues.Companion.Zero.<get-Zero>|<get-Zero>(){}[0]
+    }
+}
+
+abstract interface androidx.compose.foundation.layout/RowScope { // androidx.compose.foundation.layout/RowScope|null[0]
+    abstract fun (androidx.compose.ui/Modifier).align(androidx.compose.ui/Alignment.Vertical): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/RowScope.align|align@androidx.compose.ui.Modifier(androidx.compose.ui.Alignment.Vertical){}[0]
+    abstract fun (androidx.compose.ui/Modifier).alignBy(androidx.compose.ui.layout/HorizontalAlignmentLine): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/RowScope.alignBy|alignBy@androidx.compose.ui.Modifier(androidx.compose.ui.layout.HorizontalAlignmentLine){}[0]
+    abstract fun (androidx.compose.ui/Modifier).alignBy(kotlin/Function1<androidx.compose.ui.layout/Measured, kotlin/Int>): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/RowScope.alignBy|alignBy@androidx.compose.ui.Modifier(kotlin.Function1<androidx.compose.ui.layout.Measured,kotlin.Int>){}[0]
+    abstract fun (androidx.compose.ui/Modifier).alignByBaseline(): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/RowScope.alignByBaseline|alignByBaseline@androidx.compose.ui.Modifier(){}[0]
+    abstract fun (androidx.compose.ui/Modifier).weight(kotlin/Float, kotlin/Boolean = ...): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/RowScope.weight|weight@androidx.compose.ui.Modifier(kotlin.Float;kotlin.Boolean){}[0]
+}
+
+abstract interface androidx.compose.foundation.layout/WindowInsets { // androidx.compose.foundation.layout/WindowInsets|null[0]
+    abstract fun getBottom(androidx.compose.ui.unit/Density): kotlin/Int // androidx.compose.foundation.layout/WindowInsets.getBottom|getBottom(androidx.compose.ui.unit.Density){}[0]
+    abstract fun getLeft(androidx.compose.ui.unit/Density, androidx.compose.ui.unit/LayoutDirection): kotlin/Int // androidx.compose.foundation.layout/WindowInsets.getLeft|getLeft(androidx.compose.ui.unit.Density;androidx.compose.ui.unit.LayoutDirection){}[0]
+    abstract fun getRight(androidx.compose.ui.unit/Density, androidx.compose.ui.unit/LayoutDirection): kotlin/Int // androidx.compose.foundation.layout/WindowInsets.getRight|getRight(androidx.compose.ui.unit.Density;androidx.compose.ui.unit.LayoutDirection){}[0]
+    abstract fun getTop(androidx.compose.ui.unit/Density): kotlin/Int // androidx.compose.foundation.layout/WindowInsets.getTop|getTop(androidx.compose.ui.unit.Density){}[0]
+
+    final object Companion // androidx.compose.foundation.layout/WindowInsets.Companion|null[0]
+}
+
+sealed interface androidx.compose.foundation.layout/FlexBoxConfigScope : androidx.compose.ui.unit/Density { // androidx.compose.foundation.layout/FlexBoxConfigScope|null[0]
+    abstract val constraints // androidx.compose.foundation.layout/FlexBoxConfigScope.constraints|{}constraints[0]
+        abstract fun <get-constraints>(): androidx.compose.ui.unit/Constraints // androidx.compose.foundation.layout/FlexBoxConfigScope.constraints.<get-constraints>|<get-constraints>(){}[0]
+
+    abstract fun alignContent(androidx.compose.foundation.layout/FlexAlignContent) // androidx.compose.foundation.layout/FlexBoxConfigScope.alignContent|alignContent(androidx.compose.foundation.layout.FlexAlignContent){}[0]
+    abstract fun alignItems(androidx.compose.foundation.layout/FlexAlignItems) // androidx.compose.foundation.layout/FlexBoxConfigScope.alignItems|alignItems(androidx.compose.foundation.layout.FlexAlignItems){}[0]
+    abstract fun alignItems(androidx.compose.ui.layout/AlignmentLine) // androidx.compose.foundation.layout/FlexBoxConfigScope.alignItems|alignItems(androidx.compose.ui.layout.AlignmentLine){}[0]
+    abstract fun alignItems(kotlin/Function1<androidx.compose.ui.layout/Measured, kotlin/Int>) // androidx.compose.foundation.layout/FlexBoxConfigScope.alignItems|alignItems(kotlin.Function1<androidx.compose.ui.layout.Measured,kotlin.Int>){}[0]
+    abstract fun columnGap(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.layout/FlexBoxConfigScope.columnGap|columnGap(androidx.compose.ui.unit.Dp){}[0]
+    abstract fun direction(androidx.compose.foundation.layout/FlexDirection) // androidx.compose.foundation.layout/FlexBoxConfigScope.direction|direction(androidx.compose.foundation.layout.FlexDirection){}[0]
+    abstract fun gap(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.layout/FlexBoxConfigScope.gap|gap(androidx.compose.ui.unit.Dp){}[0]
+    abstract fun gap(androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp) // androidx.compose.foundation.layout/FlexBoxConfigScope.gap|gap(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+    abstract fun justifyContent(androidx.compose.foundation.layout/FlexJustifyContent) // androidx.compose.foundation.layout/FlexBoxConfigScope.justifyContent|justifyContent(androidx.compose.foundation.layout.FlexJustifyContent){}[0]
+    abstract fun rowGap(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.layout/FlexBoxConfigScope.rowGap|rowGap(androidx.compose.ui.unit.Dp){}[0]
+    abstract fun wrap(androidx.compose.foundation.layout/FlexWrap) // androidx.compose.foundation.layout/FlexBoxConfigScope.wrap|wrap(androidx.compose.foundation.layout.FlexWrap){}[0]
+}
+
+sealed interface androidx.compose.foundation.layout/FlexConfigScope : androidx.compose.ui.unit/Density { // androidx.compose.foundation.layout/FlexConfigScope|null[0]
+    abstract val flexBoxCrossAxisMax // androidx.compose.foundation.layout/FlexConfigScope.flexBoxCrossAxisMax|{}flexBoxCrossAxisMax[0]
+        abstract fun <get-flexBoxCrossAxisMax>(): kotlin/Int // androidx.compose.foundation.layout/FlexConfigScope.flexBoxCrossAxisMax.<get-flexBoxCrossAxisMax>|<get-flexBoxCrossAxisMax>(){}[0]
+    abstract val flexBoxCrossAxisMin // androidx.compose.foundation.layout/FlexConfigScope.flexBoxCrossAxisMin|{}flexBoxCrossAxisMin[0]
+        abstract fun <get-flexBoxCrossAxisMin>(): kotlin/Int // androidx.compose.foundation.layout/FlexConfigScope.flexBoxCrossAxisMin.<get-flexBoxCrossAxisMin>|<get-flexBoxCrossAxisMin>(){}[0]
+    abstract val flexBoxMainAxisMax // androidx.compose.foundation.layout/FlexConfigScope.flexBoxMainAxisMax|{}flexBoxMainAxisMax[0]
+        abstract fun <get-flexBoxMainAxisMax>(): kotlin/Int // androidx.compose.foundation.layout/FlexConfigScope.flexBoxMainAxisMax.<get-flexBoxMainAxisMax>|<get-flexBoxMainAxisMax>(){}[0]
+    abstract val flexBoxMainAxisMin // androidx.compose.foundation.layout/FlexConfigScope.flexBoxMainAxisMin|{}flexBoxMainAxisMin[0]
+        abstract fun <get-flexBoxMainAxisMin>(): kotlin/Int // androidx.compose.foundation.layout/FlexConfigScope.flexBoxMainAxisMin.<get-flexBoxMainAxisMin>|<get-flexBoxMainAxisMin>(){}[0]
+
+    abstract fun alignSelf(androidx.compose.foundation.layout/FlexAlignSelf) // androidx.compose.foundation.layout/FlexConfigScope.alignSelf|alignSelf(androidx.compose.foundation.layout.FlexAlignSelf){}[0]
+    abstract fun alignSelf(androidx.compose.ui.layout/AlignmentLine) // androidx.compose.foundation.layout/FlexConfigScope.alignSelf|alignSelf(androidx.compose.ui.layout.AlignmentLine){}[0]
+    abstract fun alignSelf(kotlin/Function1<androidx.compose.ui.layout/Measured, kotlin/Int>) // androidx.compose.foundation.layout/FlexConfigScope.alignSelf|alignSelf(kotlin.Function1<androidx.compose.ui.layout.Measured,kotlin.Int>){}[0]
+    abstract fun basis(androidx.compose.foundation.layout/FlexBasis) // androidx.compose.foundation.layout/FlexConfigScope.basis|basis(androidx.compose.foundation.layout.FlexBasis){}[0]
+    abstract fun basis(androidx.compose.ui.unit/Dp) // androidx.compose.foundation.layout/FlexConfigScope.basis|basis(androidx.compose.ui.unit.Dp){}[0]
+    abstract fun basis(kotlin/Float) // androidx.compose.foundation.layout/FlexConfigScope.basis|basis(kotlin.Float){}[0]
+    abstract fun grow(kotlin/Float) // androidx.compose.foundation.layout/FlexConfigScope.grow|grow(kotlin.Float){}[0]
+    abstract fun order(kotlin/Int) // androidx.compose.foundation.layout/FlexConfigScope.order|order(kotlin.Int){}[0]
+    abstract fun shrink(kotlin/Float) // androidx.compose.foundation.layout/FlexConfigScope.shrink|shrink(kotlin.Float){}[0]
+}
+
+sealed interface androidx.compose.foundation.layout/GridTrackSpec // androidx.compose.foundation.layout/GridTrackSpec|null[0]
+
+final class androidx.compose.foundation.layout/GridMeasurePolicy : androidx.compose.ui.layout/MeasurePolicy { // androidx.compose.foundation.layout/GridMeasurePolicy|null[0]
+    constructor <init>(androidx.compose.runtime/State<kotlin/Function1<androidx.compose.foundation.layout/GridConfigurationScope, kotlin/Unit>>) // androidx.compose.foundation.layout/GridMeasurePolicy.<init>|<init>(androidx.compose.runtime.State<kotlin.Function1<androidx.compose.foundation.layout.GridConfigurationScope,kotlin.Unit>>){}[0]
+
+    final fun (androidx.compose.ui.layout/MeasureScope).measure(kotlin.collections/List<androidx.compose.ui.layout/Measurable>, androidx.compose.ui.unit/Constraints): androidx.compose.ui.layout/MeasureResult // androidx.compose.foundation.layout/GridMeasurePolicy.measure|measure@androidx.compose.ui.layout.MeasureScope(kotlin.collections.List<androidx.compose.ui.layout.Measurable>;androidx.compose.ui.unit.Constraints){}[0]
+}
+
+final value class androidx.compose.foundation.layout/FlexAlignContent { // androidx.compose.foundation.layout/FlexAlignContent|null[0]
+    constructor <init>(kotlin/Int) // androidx.compose.foundation.layout/FlexAlignContent.<init>|<init>(kotlin.Int){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.foundation.layout/FlexAlignContent.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.foundation.layout/FlexAlignContent.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.foundation.layout/FlexAlignContent.toString|toString(){}[0]
+
+    final object Companion { // androidx.compose.foundation.layout/FlexAlignContent.Companion|null[0]
+        final val Center // androidx.compose.foundation.layout/FlexAlignContent.Companion.Center|{}Center[0]
+            final inline fun <get-Center>(): androidx.compose.foundation.layout/FlexAlignContent // androidx.compose.foundation.layout/FlexAlignContent.Companion.Center.<get-Center>|<get-Center>(){}[0]
+        final val End // androidx.compose.foundation.layout/FlexAlignContent.Companion.End|{}End[0]
+            final inline fun <get-End>(): androidx.compose.foundation.layout/FlexAlignContent // androidx.compose.foundation.layout/FlexAlignContent.Companion.End.<get-End>|<get-End>(){}[0]
+        final val SpaceAround // androidx.compose.foundation.layout/FlexAlignContent.Companion.SpaceAround|{}SpaceAround[0]
+            final inline fun <get-SpaceAround>(): androidx.compose.foundation.layout/FlexAlignContent // androidx.compose.foundation.layout/FlexAlignContent.Companion.SpaceAround.<get-SpaceAround>|<get-SpaceAround>(){}[0]
+        final val SpaceBetween // androidx.compose.foundation.layout/FlexAlignContent.Companion.SpaceBetween|{}SpaceBetween[0]
+            final inline fun <get-SpaceBetween>(): androidx.compose.foundation.layout/FlexAlignContent // androidx.compose.foundation.layout/FlexAlignContent.Companion.SpaceBetween.<get-SpaceBetween>|<get-SpaceBetween>(){}[0]
+        final val Start // androidx.compose.foundation.layout/FlexAlignContent.Companion.Start|{}Start[0]
+            final inline fun <get-Start>(): androidx.compose.foundation.layout/FlexAlignContent // androidx.compose.foundation.layout/FlexAlignContent.Companion.Start.<get-Start>|<get-Start>(){}[0]
+        final val Stretch // androidx.compose.foundation.layout/FlexAlignContent.Companion.Stretch|{}Stretch[0]
+            final inline fun <get-Stretch>(): androidx.compose.foundation.layout/FlexAlignContent // androidx.compose.foundation.layout/FlexAlignContent.Companion.Stretch.<get-Stretch>|<get-Stretch>(){}[0]
+    }
+}
+
+final value class androidx.compose.foundation.layout/FlexAlignItems { // androidx.compose.foundation.layout/FlexAlignItems|null[0]
+    constructor <init>(kotlin/Int) // androidx.compose.foundation.layout/FlexAlignItems.<init>|<init>(kotlin.Int){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.foundation.layout/FlexAlignItems.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.foundation.layout/FlexAlignItems.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.foundation.layout/FlexAlignItems.toString|toString(){}[0]
+
+    final object Companion { // androidx.compose.foundation.layout/FlexAlignItems.Companion|null[0]
+        final val Baseline // androidx.compose.foundation.layout/FlexAlignItems.Companion.Baseline|{}Baseline[0]
+            final inline fun <get-Baseline>(): androidx.compose.foundation.layout/FlexAlignItems // androidx.compose.foundation.layout/FlexAlignItems.Companion.Baseline.<get-Baseline>|<get-Baseline>(){}[0]
+        final val Center // androidx.compose.foundation.layout/FlexAlignItems.Companion.Center|{}Center[0]
+            final inline fun <get-Center>(): androidx.compose.foundation.layout/FlexAlignItems // androidx.compose.foundation.layout/FlexAlignItems.Companion.Center.<get-Center>|<get-Center>(){}[0]
+        final val End // androidx.compose.foundation.layout/FlexAlignItems.Companion.End|{}End[0]
+            final inline fun <get-End>(): androidx.compose.foundation.layout/FlexAlignItems // androidx.compose.foundation.layout/FlexAlignItems.Companion.End.<get-End>|<get-End>(){}[0]
+        final val Start // androidx.compose.foundation.layout/FlexAlignItems.Companion.Start|{}Start[0]
+            final inline fun <get-Start>(): androidx.compose.foundation.layout/FlexAlignItems // androidx.compose.foundation.layout/FlexAlignItems.Companion.Start.<get-Start>|<get-Start>(){}[0]
+        final val Stretch // androidx.compose.foundation.layout/FlexAlignItems.Companion.Stretch|{}Stretch[0]
+            final inline fun <get-Stretch>(): androidx.compose.foundation.layout/FlexAlignItems // androidx.compose.foundation.layout/FlexAlignItems.Companion.Stretch.<get-Stretch>|<get-Stretch>(){}[0]
+    }
+}
+
+final value class androidx.compose.foundation.layout/FlexAlignSelf { // androidx.compose.foundation.layout/FlexAlignSelf|null[0]
+    constructor <init>(kotlin/Int) // androidx.compose.foundation.layout/FlexAlignSelf.<init>|<init>(kotlin.Int){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.foundation.layout/FlexAlignSelf.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.foundation.layout/FlexAlignSelf.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.foundation.layout/FlexAlignSelf.toString|toString(){}[0]
+
+    final object Companion { // androidx.compose.foundation.layout/FlexAlignSelf.Companion|null[0]
+        final val Auto // androidx.compose.foundation.layout/FlexAlignSelf.Companion.Auto|{}Auto[0]
+            final inline fun <get-Auto>(): androidx.compose.foundation.layout/FlexAlignSelf // androidx.compose.foundation.layout/FlexAlignSelf.Companion.Auto.<get-Auto>|<get-Auto>(){}[0]
+        final val Baseline // androidx.compose.foundation.layout/FlexAlignSelf.Companion.Baseline|{}Baseline[0]
+            final inline fun <get-Baseline>(): androidx.compose.foundation.layout/FlexAlignSelf // androidx.compose.foundation.layout/FlexAlignSelf.Companion.Baseline.<get-Baseline>|<get-Baseline>(){}[0]
+        final val Center // androidx.compose.foundation.layout/FlexAlignSelf.Companion.Center|{}Center[0]
+            final inline fun <get-Center>(): androidx.compose.foundation.layout/FlexAlignSelf // androidx.compose.foundation.layout/FlexAlignSelf.Companion.Center.<get-Center>|<get-Center>(){}[0]
+        final val End // androidx.compose.foundation.layout/FlexAlignSelf.Companion.End|{}End[0]
+            final inline fun <get-End>(): androidx.compose.foundation.layout/FlexAlignSelf // androidx.compose.foundation.layout/FlexAlignSelf.Companion.End.<get-End>|<get-End>(){}[0]
+        final val Start // androidx.compose.foundation.layout/FlexAlignSelf.Companion.Start|{}Start[0]
+            final inline fun <get-Start>(): androidx.compose.foundation.layout/FlexAlignSelf // androidx.compose.foundation.layout/FlexAlignSelf.Companion.Start.<get-Start>|<get-Start>(){}[0]
+        final val Stretch // androidx.compose.foundation.layout/FlexAlignSelf.Companion.Stretch|{}Stretch[0]
+            final inline fun <get-Stretch>(): androidx.compose.foundation.layout/FlexAlignSelf // androidx.compose.foundation.layout/FlexAlignSelf.Companion.Stretch.<get-Stretch>|<get-Stretch>(){}[0]
+    }
+}
+
+final value class androidx.compose.foundation.layout/FlexBasis { // androidx.compose.foundation.layout/FlexBasis|null[0]
+    constructor <init>(kotlin/Long) // androidx.compose.foundation.layout/FlexBasis.<init>|<init>(kotlin.Long){}[0]
+
+    final val packedValue // androidx.compose.foundation.layout/FlexBasis.packedValue|{}packedValue[0]
+        final fun <get-packedValue>(): kotlin/Long // androidx.compose.foundation.layout/FlexBasis.packedValue.<get-packedValue>|<get-packedValue>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.foundation.layout/FlexBasis.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.foundation.layout/FlexBasis.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.foundation.layout/FlexBasis.toString|toString(){}[0]
+
+    final object Companion { // androidx.compose.foundation.layout/FlexBasis.Companion|null[0]
+        final val Auto // androidx.compose.foundation.layout/FlexBasis.Companion.Auto|{}Auto[0]
+            final fun <get-Auto>(): androidx.compose.foundation.layout/FlexBasis // androidx.compose.foundation.layout/FlexBasis.Companion.Auto.<get-Auto>|<get-Auto>(){}[0]
+
+        final fun Dp(androidx.compose.ui.unit/Dp): androidx.compose.foundation.layout/FlexBasis // androidx.compose.foundation.layout/FlexBasis.Companion.Dp|Dp(androidx.compose.ui.unit.Dp){}[0]
+        final fun Percent(kotlin/Float): androidx.compose.foundation.layout/FlexBasis // androidx.compose.foundation.layout/FlexBasis.Companion.Percent|Percent(kotlin.Float){}[0]
+    }
+}
+
+final value class androidx.compose.foundation.layout/FlexDirection { // androidx.compose.foundation.layout/FlexDirection|null[0]
+    constructor <init>(kotlin/Int) // androidx.compose.foundation.layout/FlexDirection.<init>|<init>(kotlin.Int){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.foundation.layout/FlexDirection.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.foundation.layout/FlexDirection.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.foundation.layout/FlexDirection.toString|toString(){}[0]
+
+    final object Companion { // androidx.compose.foundation.layout/FlexDirection.Companion|null[0]
+        final val Column // androidx.compose.foundation.layout/FlexDirection.Companion.Column|{}Column[0]
+            final inline fun <get-Column>(): androidx.compose.foundation.layout/FlexDirection // androidx.compose.foundation.layout/FlexDirection.Companion.Column.<get-Column>|<get-Column>(){}[0]
+        final val ColumnReverse // androidx.compose.foundation.layout/FlexDirection.Companion.ColumnReverse|{}ColumnReverse[0]
+            final inline fun <get-ColumnReverse>(): androidx.compose.foundation.layout/FlexDirection // androidx.compose.foundation.layout/FlexDirection.Companion.ColumnReverse.<get-ColumnReverse>|<get-ColumnReverse>(){}[0]
+        final val Row // androidx.compose.foundation.layout/FlexDirection.Companion.Row|{}Row[0]
+            final inline fun <get-Row>(): androidx.compose.foundation.layout/FlexDirection // androidx.compose.foundation.layout/FlexDirection.Companion.Row.<get-Row>|<get-Row>(){}[0]
+        final val RowReverse // androidx.compose.foundation.layout/FlexDirection.Companion.RowReverse|{}RowReverse[0]
+            final inline fun <get-RowReverse>(): androidx.compose.foundation.layout/FlexDirection // androidx.compose.foundation.layout/FlexDirection.Companion.RowReverse.<get-RowReverse>|<get-RowReverse>(){}[0]
+    }
+}
+
+final value class androidx.compose.foundation.layout/FlexJustifyContent { // androidx.compose.foundation.layout/FlexJustifyContent|null[0]
+    constructor <init>(kotlin/Int) // androidx.compose.foundation.layout/FlexJustifyContent.<init>|<init>(kotlin.Int){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.foundation.layout/FlexJustifyContent.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.foundation.layout/FlexJustifyContent.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.foundation.layout/FlexJustifyContent.toString|toString(){}[0]
+
+    final object Companion { // androidx.compose.foundation.layout/FlexJustifyContent.Companion|null[0]
+        final val Center // androidx.compose.foundation.layout/FlexJustifyContent.Companion.Center|{}Center[0]
+            final inline fun <get-Center>(): androidx.compose.foundation.layout/FlexJustifyContent // androidx.compose.foundation.layout/FlexJustifyContent.Companion.Center.<get-Center>|<get-Center>(){}[0]
+        final val End // androidx.compose.foundation.layout/FlexJustifyContent.Companion.End|{}End[0]
+            final inline fun <get-End>(): androidx.compose.foundation.layout/FlexJustifyContent // androidx.compose.foundation.layout/FlexJustifyContent.Companion.End.<get-End>|<get-End>(){}[0]
+        final val SpaceAround // androidx.compose.foundation.layout/FlexJustifyContent.Companion.SpaceAround|{}SpaceAround[0]
+            final inline fun <get-SpaceAround>(): androidx.compose.foundation.layout/FlexJustifyContent // androidx.compose.foundation.layout/FlexJustifyContent.Companion.SpaceAround.<get-SpaceAround>|<get-SpaceAround>(){}[0]
+        final val SpaceBetween // androidx.compose.foundation.layout/FlexJustifyContent.Companion.SpaceBetween|{}SpaceBetween[0]
+            final inline fun <get-SpaceBetween>(): androidx.compose.foundation.layout/FlexJustifyContent // androidx.compose.foundation.layout/FlexJustifyContent.Companion.SpaceBetween.<get-SpaceBetween>|<get-SpaceBetween>(){}[0]
+        final val SpaceEvenly // androidx.compose.foundation.layout/FlexJustifyContent.Companion.SpaceEvenly|{}SpaceEvenly[0]
+            final inline fun <get-SpaceEvenly>(): androidx.compose.foundation.layout/FlexJustifyContent // androidx.compose.foundation.layout/FlexJustifyContent.Companion.SpaceEvenly.<get-SpaceEvenly>|<get-SpaceEvenly>(){}[0]
+        final val Start // androidx.compose.foundation.layout/FlexJustifyContent.Companion.Start|{}Start[0]
+            final inline fun <get-Start>(): androidx.compose.foundation.layout/FlexJustifyContent // androidx.compose.foundation.layout/FlexJustifyContent.Companion.Start.<get-Start>|<get-Start>(){}[0]
+    }
+}
+
+final value class androidx.compose.foundation.layout/FlexWrap { // androidx.compose.foundation.layout/FlexWrap|null[0]
+    constructor <init>(kotlin/Int) // androidx.compose.foundation.layout/FlexWrap.<init>|<init>(kotlin.Int){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.foundation.layout/FlexWrap.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.foundation.layout/FlexWrap.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.foundation.layout/FlexWrap.toString|toString(){}[0]
+
+    final object Companion { // androidx.compose.foundation.layout/FlexWrap.Companion|null[0]
+        final val NoWrap // androidx.compose.foundation.layout/FlexWrap.Companion.NoWrap|{}NoWrap[0]
+            final inline fun <get-NoWrap>(): androidx.compose.foundation.layout/FlexWrap // androidx.compose.foundation.layout/FlexWrap.Companion.NoWrap.<get-NoWrap>|<get-NoWrap>(){}[0]
+        final val Wrap // androidx.compose.foundation.layout/FlexWrap.Companion.Wrap|{}Wrap[0]
+            final inline fun <get-Wrap>(): androidx.compose.foundation.layout/FlexWrap // androidx.compose.foundation.layout/FlexWrap.Companion.Wrap.<get-Wrap>|<get-Wrap>(){}[0]
+        final val WrapReverse // androidx.compose.foundation.layout/FlexWrap.Companion.WrapReverse|{}WrapReverse[0]
+            final inline fun <get-WrapReverse>(): androidx.compose.foundation.layout/FlexWrap // androidx.compose.foundation.layout/FlexWrap.Companion.WrapReverse.<get-WrapReverse>|<get-WrapReverse>(){}[0]
+    }
+}
+
+final value class androidx.compose.foundation.layout/Fr { // androidx.compose.foundation.layout/Fr|null[0]
+    constructor <init>(kotlin/Float) // androidx.compose.foundation.layout/Fr.<init>|<init>(kotlin.Float){}[0]
+
+    final val value // androidx.compose.foundation.layout/Fr.value|{}value[0]
+        final fun <get-value>(): kotlin/Float // androidx.compose.foundation.layout/Fr.value.<get-value>|<get-value>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.foundation.layout/Fr.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.foundation.layout/Fr.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.foundation.layout/Fr.toString|toString(){}[0]
+}
+
+final value class androidx.compose.foundation.layout/GridFlow { // androidx.compose.foundation.layout/GridFlow|null[0]
+    constructor <init>(kotlin/Int) // androidx.compose.foundation.layout/GridFlow.<init>|<init>(kotlin.Int){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.foundation.layout/GridFlow.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.foundation.layout/GridFlow.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.foundation.layout/GridFlow.toString|toString(){}[0]
+
+    final object Companion { // androidx.compose.foundation.layout/GridFlow.Companion|null[0]
+        final val Column // androidx.compose.foundation.layout/GridFlow.Companion.Column|{}Column[0]
+            final inline fun <get-Column>(): androidx.compose.foundation.layout/GridFlow // androidx.compose.foundation.layout/GridFlow.Companion.Column.<get-Column>|<get-Column>(){}[0]
+        final val Row // androidx.compose.foundation.layout/GridFlow.Companion.Row|{}Row[0]
+            final inline fun <get-Row>(): androidx.compose.foundation.layout/GridFlow // androidx.compose.foundation.layout/GridFlow.Companion.Row.<get-Row>|<get-Row>(){}[0]
+    }
+}
+
+final value class androidx.compose.foundation.layout/GridTrackSize : androidx.compose.foundation.layout/GridTrackSpec { // androidx.compose.foundation.layout/GridTrackSize|null[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.foundation.layout/GridTrackSize.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.foundation.layout/GridTrackSize.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.foundation.layout/GridTrackSize.toString|toString(){}[0]
+
+    final object Companion { // androidx.compose.foundation.layout/GridTrackSize.Companion|null[0]
+        final val Auto // androidx.compose.foundation.layout/GridTrackSize.Companion.Auto|{}Auto[0]
+            final fun <get-Auto>(): androidx.compose.foundation.layout/GridTrackSize // androidx.compose.foundation.layout/GridTrackSize.Companion.Auto.<get-Auto>|<get-Auto>(){}[0]
+        final val MaxContent // androidx.compose.foundation.layout/GridTrackSize.Companion.MaxContent|{}MaxContent[0]
+            final fun <get-MaxContent>(): androidx.compose.foundation.layout/GridTrackSize // androidx.compose.foundation.layout/GridTrackSize.Companion.MaxContent.<get-MaxContent>|<get-MaxContent>(){}[0]
+        final val MinContent // androidx.compose.foundation.layout/GridTrackSize.Companion.MinContent|{}MinContent[0]
+            final fun <get-MinContent>(): androidx.compose.foundation.layout/GridTrackSize // androidx.compose.foundation.layout/GridTrackSize.Companion.MinContent.<get-MinContent>|<get-MinContent>(){}[0]
+
+        final fun Fixed(androidx.compose.ui.unit/Dp): androidx.compose.foundation.layout/GridTrackSize // androidx.compose.foundation.layout/GridTrackSize.Companion.Fixed|Fixed(androidx.compose.ui.unit.Dp){}[0]
+        final fun Flex(androidx.compose.foundation.layout/Fr): androidx.compose.foundation.layout/GridTrackSize // androidx.compose.foundation.layout/GridTrackSize.Companion.Flex|Flex(androidx.compose.foundation.layout.Fr){}[0]
+        final fun Percentage(kotlin/Float): androidx.compose.foundation.layout/GridTrackSize // androidx.compose.foundation.layout/GridTrackSize.Companion.Percentage|Percentage(kotlin.Float){}[0]
+    }
+}
+
+final value class androidx.compose.foundation.layout/WindowInsetsSides { // androidx.compose.foundation.layout/WindowInsetsSides|null[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.foundation.layout/WindowInsetsSides.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.foundation.layout/WindowInsetsSides.hashCode|hashCode(){}[0]
+    final fun plus(androidx.compose.foundation.layout/WindowInsetsSides): androidx.compose.foundation.layout/WindowInsetsSides // androidx.compose.foundation.layout/WindowInsetsSides.plus|plus(androidx.compose.foundation.layout.WindowInsetsSides){}[0]
+    final fun toString(): kotlin/String // androidx.compose.foundation.layout/WindowInsetsSides.toString|toString(){}[0]
+
+    final object Companion { // androidx.compose.foundation.layout/WindowInsetsSides.Companion|null[0]
+        final val Bottom // androidx.compose.foundation.layout/WindowInsetsSides.Companion.Bottom|{}Bottom[0]
+            final fun <get-Bottom>(): androidx.compose.foundation.layout/WindowInsetsSides // androidx.compose.foundation.layout/WindowInsetsSides.Companion.Bottom.<get-Bottom>|<get-Bottom>(){}[0]
+        final val End // androidx.compose.foundation.layout/WindowInsetsSides.Companion.End|{}End[0]
+            final fun <get-End>(): androidx.compose.foundation.layout/WindowInsetsSides // androidx.compose.foundation.layout/WindowInsetsSides.Companion.End.<get-End>|<get-End>(){}[0]
+        final val Horizontal // androidx.compose.foundation.layout/WindowInsetsSides.Companion.Horizontal|{}Horizontal[0]
+            final fun <get-Horizontal>(): androidx.compose.foundation.layout/WindowInsetsSides // androidx.compose.foundation.layout/WindowInsetsSides.Companion.Horizontal.<get-Horizontal>|<get-Horizontal>(){}[0]
+        final val Left // androidx.compose.foundation.layout/WindowInsetsSides.Companion.Left|{}Left[0]
+            final fun <get-Left>(): androidx.compose.foundation.layout/WindowInsetsSides // androidx.compose.foundation.layout/WindowInsetsSides.Companion.Left.<get-Left>|<get-Left>(){}[0]
+        final val Right // androidx.compose.foundation.layout/WindowInsetsSides.Companion.Right|{}Right[0]
+            final fun <get-Right>(): androidx.compose.foundation.layout/WindowInsetsSides // androidx.compose.foundation.layout/WindowInsetsSides.Companion.Right.<get-Right>|<get-Right>(){}[0]
+        final val Start // androidx.compose.foundation.layout/WindowInsetsSides.Companion.Start|{}Start[0]
+            final fun <get-Start>(): androidx.compose.foundation.layout/WindowInsetsSides // androidx.compose.foundation.layout/WindowInsetsSides.Companion.Start.<get-Start>|<get-Start>(){}[0]
+        final val Top // androidx.compose.foundation.layout/WindowInsetsSides.Companion.Top|{}Top[0]
+            final fun <get-Top>(): androidx.compose.foundation.layout/WindowInsetsSides // androidx.compose.foundation.layout/WindowInsetsSides.Companion.Top.<get-Top>|<get-Top>(){}[0]
+        final val Vertical // androidx.compose.foundation.layout/WindowInsetsSides.Companion.Vertical|{}Vertical[0]
+            final fun <get-Vertical>(): androidx.compose.foundation.layout/WindowInsetsSides // androidx.compose.foundation.layout/WindowInsetsSides.Companion.Vertical.<get-Vertical>|<get-Vertical>(){}[0]
+    }
+}
+
+final object androidx.compose.foundation.layout/Arrangement { // androidx.compose.foundation.layout/Arrangement|null[0]
+    final val Bottom // androidx.compose.foundation.layout/Arrangement.Bottom|{}Bottom[0]
+        final fun <get-Bottom>(): androidx.compose.foundation.layout/Arrangement.Vertical // androidx.compose.foundation.layout/Arrangement.Bottom.<get-Bottom>|<get-Bottom>(){}[0]
+    final val Center // androidx.compose.foundation.layout/Arrangement.Center|{}Center[0]
+        final fun <get-Center>(): androidx.compose.foundation.layout/Arrangement.HorizontalOrVertical // androidx.compose.foundation.layout/Arrangement.Center.<get-Center>|<get-Center>(){}[0]
+    final val End // androidx.compose.foundation.layout/Arrangement.End|{}End[0]
+        final fun <get-End>(): androidx.compose.foundation.layout/Arrangement.Horizontal // androidx.compose.foundation.layout/Arrangement.End.<get-End>|<get-End>(){}[0]
+    final val SpaceAround // androidx.compose.foundation.layout/Arrangement.SpaceAround|{}SpaceAround[0]
+        final fun <get-SpaceAround>(): androidx.compose.foundation.layout/Arrangement.HorizontalOrVertical // androidx.compose.foundation.layout/Arrangement.SpaceAround.<get-SpaceAround>|<get-SpaceAround>(){}[0]
+    final val SpaceBetween // androidx.compose.foundation.layout/Arrangement.SpaceBetween|{}SpaceBetween[0]
+        final fun <get-SpaceBetween>(): androidx.compose.foundation.layout/Arrangement.HorizontalOrVertical // androidx.compose.foundation.layout/Arrangement.SpaceBetween.<get-SpaceBetween>|<get-SpaceBetween>(){}[0]
+    final val SpaceEvenly // androidx.compose.foundation.layout/Arrangement.SpaceEvenly|{}SpaceEvenly[0]
+        final fun <get-SpaceEvenly>(): androidx.compose.foundation.layout/Arrangement.HorizontalOrVertical // androidx.compose.foundation.layout/Arrangement.SpaceEvenly.<get-SpaceEvenly>|<get-SpaceEvenly>(){}[0]
+    final val Start // androidx.compose.foundation.layout/Arrangement.Start|{}Start[0]
+        final fun <get-Start>(): androidx.compose.foundation.layout/Arrangement.Horizontal // androidx.compose.foundation.layout/Arrangement.Start.<get-Start>|<get-Start>(){}[0]
+    final val Top // androidx.compose.foundation.layout/Arrangement.Top|{}Top[0]
+        final fun <get-Top>(): androidx.compose.foundation.layout/Arrangement.Vertical // androidx.compose.foundation.layout/Arrangement.Top.<get-Top>|<get-Top>(){}[0]
+
+    final fun aligned(androidx.compose.ui/Alignment.Horizontal): androidx.compose.foundation.layout/Arrangement.Horizontal // androidx.compose.foundation.layout/Arrangement.aligned|aligned(androidx.compose.ui.Alignment.Horizontal){}[0]
+    final fun aligned(androidx.compose.ui/Alignment.Vertical): androidx.compose.foundation.layout/Arrangement.Vertical // androidx.compose.foundation.layout/Arrangement.aligned|aligned(androidx.compose.ui.Alignment.Vertical){}[0]
+    final fun spacedBy(androidx.compose.ui.unit/Dp): androidx.compose.foundation.layout/Arrangement.HorizontalOrVertical // androidx.compose.foundation.layout/Arrangement.spacedBy|spacedBy(androidx.compose.ui.unit.Dp){}[0]
+    final fun spacedBy(androidx.compose.ui.unit/Dp, androidx.compose.ui/Alignment.Horizontal): androidx.compose.foundation.layout/Arrangement.Horizontal // androidx.compose.foundation.layout/Arrangement.spacedBy|spacedBy(androidx.compose.ui.unit.Dp;androidx.compose.ui.Alignment.Horizontal){}[0]
+    final fun spacedBy(androidx.compose.ui.unit/Dp, androidx.compose.ui/Alignment.Vertical): androidx.compose.foundation.layout/Arrangement.Vertical // androidx.compose.foundation.layout/Arrangement.spacedBy|spacedBy(androidx.compose.ui.unit.Dp;androidx.compose.ui.Alignment.Vertical){}[0]
+
+    abstract interface Horizontal { // androidx.compose.foundation.layout/Arrangement.Horizontal|null[0]
+        open val spacing // androidx.compose.foundation.layout/Arrangement.Horizontal.spacing|{}spacing[0]
+            open fun <get-spacing>(): androidx.compose.ui.unit/Dp // androidx.compose.foundation.layout/Arrangement.Horizontal.spacing.<get-spacing>|<get-spacing>(){}[0]
+
+        abstract fun (androidx.compose.ui.unit/Density).arrange(kotlin/Int, kotlin/IntArray, androidx.compose.ui.unit/LayoutDirection, kotlin/IntArray) // androidx.compose.foundation.layout/Arrangement.Horizontal.arrange|arrange@androidx.compose.ui.unit.Density(kotlin.Int;kotlin.IntArray;androidx.compose.ui.unit.LayoutDirection;kotlin.IntArray){}[0]
+    }
+
+    abstract interface HorizontalOrVertical : androidx.compose.foundation.layout/Arrangement.Horizontal, androidx.compose.foundation.layout/Arrangement.Vertical { // androidx.compose.foundation.layout/Arrangement.HorizontalOrVertical|null[0]
+        open val spacing // androidx.compose.foundation.layout/Arrangement.HorizontalOrVertical.spacing|{}spacing[0]
+            open fun <get-spacing>(): androidx.compose.ui.unit/Dp // androidx.compose.foundation.layout/Arrangement.HorizontalOrVertical.spacing.<get-spacing>|<get-spacing>(){}[0]
+    }
+
+    abstract interface Vertical { // androidx.compose.foundation.layout/Arrangement.Vertical|null[0]
+        open val spacing // androidx.compose.foundation.layout/Arrangement.Vertical.spacing|{}spacing[0]
+            open fun <get-spacing>(): androidx.compose.ui.unit/Dp // androidx.compose.foundation.layout/Arrangement.Vertical.spacing.<get-spacing>|<get-spacing>(){}[0]
+
+        abstract fun (androidx.compose.ui.unit/Density).arrange(kotlin/Int, kotlin/IntArray, kotlin/IntArray) // androidx.compose.foundation.layout/Arrangement.Vertical.arrange|arrange@androidx.compose.ui.unit.Density(kotlin.Int;kotlin.IntArray;kotlin.IntArray){}[0]
+    }
+
+    final object Absolute { // androidx.compose.foundation.layout/Arrangement.Absolute|null[0]
+        final val Center // androidx.compose.foundation.layout/Arrangement.Absolute.Center|{}Center[0]
+            final fun <get-Center>(): androidx.compose.foundation.layout/Arrangement.Horizontal // androidx.compose.foundation.layout/Arrangement.Absolute.Center.<get-Center>|<get-Center>(){}[0]
+        final val Left // androidx.compose.foundation.layout/Arrangement.Absolute.Left|{}Left[0]
+            final fun <get-Left>(): androidx.compose.foundation.layout/Arrangement.Horizontal // androidx.compose.foundation.layout/Arrangement.Absolute.Left.<get-Left>|<get-Left>(){}[0]
+        final val Right // androidx.compose.foundation.layout/Arrangement.Absolute.Right|{}Right[0]
+            final fun <get-Right>(): androidx.compose.foundation.layout/Arrangement.Horizontal // androidx.compose.foundation.layout/Arrangement.Absolute.Right.<get-Right>|<get-Right>(){}[0]
+        final val SpaceAround // androidx.compose.foundation.layout/Arrangement.Absolute.SpaceAround|{}SpaceAround[0]
+            final fun <get-SpaceAround>(): androidx.compose.foundation.layout/Arrangement.Horizontal // androidx.compose.foundation.layout/Arrangement.Absolute.SpaceAround.<get-SpaceAround>|<get-SpaceAround>(){}[0]
+        final val SpaceBetween // androidx.compose.foundation.layout/Arrangement.Absolute.SpaceBetween|{}SpaceBetween[0]
+            final fun <get-SpaceBetween>(): androidx.compose.foundation.layout/Arrangement.Horizontal // androidx.compose.foundation.layout/Arrangement.Absolute.SpaceBetween.<get-SpaceBetween>|<get-SpaceBetween>(){}[0]
+        final val SpaceEvenly // androidx.compose.foundation.layout/Arrangement.Absolute.SpaceEvenly|{}SpaceEvenly[0]
+            final fun <get-SpaceEvenly>(): androidx.compose.foundation.layout/Arrangement.Horizontal // androidx.compose.foundation.layout/Arrangement.Absolute.SpaceEvenly.<get-SpaceEvenly>|<get-SpaceEvenly>(){}[0]
+
+        final fun aligned(androidx.compose.ui/Alignment.Horizontal): androidx.compose.foundation.layout/Arrangement.Horizontal // androidx.compose.foundation.layout/Arrangement.Absolute.aligned|aligned(androidx.compose.ui.Alignment.Horizontal){}[0]
+        final fun spacedBy(androidx.compose.ui.unit/Dp): androidx.compose.foundation.layout/Arrangement.HorizontalOrVertical // androidx.compose.foundation.layout/Arrangement.Absolute.spacedBy|spacedBy(androidx.compose.ui.unit.Dp){}[0]
+        final fun spacedBy(androidx.compose.ui.unit/Dp, androidx.compose.ui/Alignment.Horizontal): androidx.compose.foundation.layout/Arrangement.Horizontal // androidx.compose.foundation.layout/Arrangement.Absolute.spacedBy|spacedBy(androidx.compose.ui.unit.Dp;androidx.compose.ui.Alignment.Horizontal){}[0]
+        final fun spacedBy(androidx.compose.ui.unit/Dp, androidx.compose.ui/Alignment.Vertical): androidx.compose.foundation.layout/Arrangement.Vertical // androidx.compose.foundation.layout/Arrangement.Absolute.spacedBy|spacedBy(androidx.compose.ui.unit.Dp;androidx.compose.ui.Alignment.Vertical){}[0]
+    }
+}
+
+final object androidx.compose.foundation.layout/BoxScopeInstance : androidx.compose.foundation.layout/BoxScope { // androidx.compose.foundation.layout/BoxScopeInstance|null[0]
+    final fun (androidx.compose.ui/Modifier).align(androidx.compose.ui/Alignment): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/BoxScopeInstance.align|align@androidx.compose.ui.Modifier(androidx.compose.ui.Alignment){}[0]
+    final fun (androidx.compose.ui/Modifier).matchParentSize(): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/BoxScopeInstance.matchParentSize|matchParentSize@androidx.compose.ui.Modifier(){}[0]
+}
+
+final object androidx.compose.foundation.layout/ColumnScopeInstance : androidx.compose.foundation.layout/ColumnScope { // androidx.compose.foundation.layout/ColumnScopeInstance|null[0]
+    final fun (androidx.compose.ui/Modifier).align(androidx.compose.ui/Alignment.Horizontal): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/ColumnScopeInstance.align|align@androidx.compose.ui.Modifier(androidx.compose.ui.Alignment.Horizontal){}[0]
+    final fun (androidx.compose.ui/Modifier).alignBy(androidx.compose.ui.layout/VerticalAlignmentLine): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/ColumnScopeInstance.alignBy|alignBy@androidx.compose.ui.Modifier(androidx.compose.ui.layout.VerticalAlignmentLine){}[0]
+    final fun (androidx.compose.ui/Modifier).alignBy(kotlin/Function1<androidx.compose.ui.layout/Measured, kotlin/Int>): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/ColumnScopeInstance.alignBy|alignBy@androidx.compose.ui.Modifier(kotlin.Function1<androidx.compose.ui.layout.Measured,kotlin.Int>){}[0]
+    final fun (androidx.compose.ui/Modifier).weight(kotlin/Float, kotlin/Boolean): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/ColumnScopeInstance.weight|weight@androidx.compose.ui.Modifier(kotlin.Float;kotlin.Boolean){}[0]
+}
+
+final object androidx.compose.foundation.layout/FlexBoxScopeInstance : androidx.compose.foundation.layout/FlexBoxScope { // androidx.compose.foundation.layout/FlexBoxScopeInstance|null[0]
+    final fun (androidx.compose.ui/Modifier).flex(androidx.compose.foundation.layout/FlexConfig): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/FlexBoxScopeInstance.flex|flex@androidx.compose.ui.Modifier(androidx.compose.foundation.layout.FlexConfig){}[0]
+}
+
+final object androidx.compose.foundation.layout/GridScopeInstance : androidx.compose.foundation.layout/GridScope { // androidx.compose.foundation.layout/GridScopeInstance|null[0]
+    final fun (androidx.compose.ui/Modifier).gridItem(kotlin.ranges/IntRange, kotlin.ranges/IntRange, androidx.compose.ui/Alignment): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/GridScopeInstance.gridItem|gridItem@androidx.compose.ui.Modifier(kotlin.ranges.IntRange;kotlin.ranges.IntRange;androidx.compose.ui.Alignment){}[0]
+    final fun (androidx.compose.ui/Modifier).gridItem(kotlin/Int, kotlin/Int, kotlin/Int, kotlin/Int, androidx.compose.ui/Alignment): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/GridScopeInstance.gridItem|gridItem@androidx.compose.ui.Modifier(kotlin.Int;kotlin.Int;kotlin.Int;kotlin.Int;androidx.compose.ui.Alignment){}[0]
+}
+
+final object androidx.compose.foundation.layout/RowScopeInstance : androidx.compose.foundation.layout/RowScope { // androidx.compose.foundation.layout/RowScopeInstance|null[0]
+    final fun (androidx.compose.ui/Modifier).align(androidx.compose.ui/Alignment.Vertical): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/RowScopeInstance.align|align@androidx.compose.ui.Modifier(androidx.compose.ui.Alignment.Vertical){}[0]
+    final fun (androidx.compose.ui/Modifier).alignBy(androidx.compose.ui.layout/HorizontalAlignmentLine): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/RowScopeInstance.alignBy|alignBy@androidx.compose.ui.Modifier(androidx.compose.ui.layout.HorizontalAlignmentLine){}[0]
+    final fun (androidx.compose.ui/Modifier).alignBy(kotlin/Function1<androidx.compose.ui.layout/Measured, kotlin/Int>): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/RowScopeInstance.alignBy|alignBy@androidx.compose.ui.Modifier(kotlin.Function1<androidx.compose.ui.layout.Measured,kotlin.Int>){}[0]
+    final fun (androidx.compose.ui/Modifier).alignByBaseline(): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/RowScopeInstance.alignByBaseline|alignByBaseline@androidx.compose.ui.Modifier(){}[0]
+    final fun (androidx.compose.ui/Modifier).weight(kotlin/Float, kotlin/Boolean): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/RowScopeInstance.weight|weight@androidx.compose.ui.Modifier(kotlin.Float;kotlin.Boolean){}[0]
+}
+
+final val androidx.compose.foundation.layout/DefaultColumnMeasurePolicy // androidx.compose.foundation.layout/DefaultColumnMeasurePolicy|{}DefaultColumnMeasurePolicy[0]
+    final fun <get-DefaultColumnMeasurePolicy>(): androidx.compose.ui.layout/MeasurePolicy // androidx.compose.foundation.layout/DefaultColumnMeasurePolicy.<get-DefaultColumnMeasurePolicy>|<get-DefaultColumnMeasurePolicy>(){}[0]
+final val androidx.compose.foundation.layout/DefaultRowMeasurePolicy // androidx.compose.foundation.layout/DefaultRowMeasurePolicy|{}DefaultRowMeasurePolicy[0]
+    final fun <get-DefaultRowMeasurePolicy>(): androidx.compose.ui.layout/MeasurePolicy // androidx.compose.foundation.layout/DefaultRowMeasurePolicy.<get-DefaultRowMeasurePolicy>|<get-DefaultRowMeasurePolicy>(){}[0]
+final val androidx.compose.foundation.layout/androidx_compose_foundation_layout_AlignmentLineProvider_Block$stableprop // androidx.compose.foundation.layout/androidx_compose_foundation_layout_AlignmentLineProvider_Block$stableprop|#static{}androidx_compose_foundation_layout_AlignmentLineProvider_Block$stableprop[0]
+final val androidx.compose.foundation.layout/androidx_compose_foundation_layout_AlignmentLineProvider_Value$stableprop // androidx.compose.foundation.layout/androidx_compose_foundation_layout_AlignmentLineProvider_Value$stableprop|#static{}androidx_compose_foundation_layout_AlignmentLineProvider_Value$stableprop[0]
+final val androidx.compose.foundation.layout/androidx_compose_foundation_layout_Arrangement$stableprop // androidx.compose.foundation.layout/androidx_compose_foundation_layout_Arrangement$stableprop|#static{}androidx_compose_foundation_layout_Arrangement$stableprop[0]
+final val androidx.compose.foundation.layout/androidx_compose_foundation_layout_Arrangement_Absolute$stableprop // androidx.compose.foundation.layout/androidx_compose_foundation_layout_Arrangement_Absolute$stableprop|#static{}androidx_compose_foundation_layout_Arrangement_Absolute$stableprop[0]
+final val androidx.compose.foundation.layout/androidx_compose_foundation_layout_ComposeFoundationLayoutFlags$stableprop // androidx.compose.foundation.layout/androidx_compose_foundation_layout_ComposeFoundationLayoutFlags$stableprop|#static{}androidx_compose_foundation_layout_ComposeFoundationLayoutFlags$stableprop[0]
+final val androidx.compose.foundation.layout/androidx_compose_foundation_layout_ContextualFlowColumnOverflow$stableprop // androidx.compose.foundation.layout/androidx_compose_foundation_layout_ContextualFlowColumnOverflow$stableprop|#static{}androidx_compose_foundation_layout_ContextualFlowColumnOverflow$stableprop[0]
+final val androidx.compose.foundation.layout/androidx_compose_foundation_layout_ContextualFlowRowOverflow$stableprop // androidx.compose.foundation.layout/androidx_compose_foundation_layout_ContextualFlowRowOverflow$stableprop|#static{}androidx_compose_foundation_layout_ContextualFlowRowOverflow$stableprop[0]
+final val androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowColumnOverflow$stableprop // androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowColumnOverflow$stableprop|#static{}androidx_compose_foundation_layout_FlowColumnOverflow$stableprop[0]
+final val androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowLayoutBuildingBlocks_WrapEllipsisInfo$stableprop // androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowLayoutBuildingBlocks_WrapEllipsisInfo$stableprop|#static{}androidx_compose_foundation_layout_FlowLayoutBuildingBlocks_WrapEllipsisInfo$stableprop[0]
+final val androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowLayoutBuildingBlocks_WrapInfo$stableprop // androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowLayoutBuildingBlocks_WrapInfo$stableprop|#static{}androidx_compose_foundation_layout_FlowLayoutBuildingBlocks_WrapInfo$stableprop[0]
+final val androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowLayoutOverflow$stableprop // androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowLayoutOverflow$stableprop|#static{}androidx_compose_foundation_layout_FlowLayoutOverflow$stableprop[0]
+final val androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowRowOverflow$stableprop // androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowRowOverflow$stableprop|#static{}androidx_compose_foundation_layout_FlowRowOverflow$stableprop[0]
+final val androidx.compose.foundation.layout/androidx_compose_foundation_layout_MutableWindowInsets$stableprop // androidx.compose.foundation.layout/androidx_compose_foundation_layout_MutableWindowInsets$stableprop|#static{}androidx_compose_foundation_layout_MutableWindowInsets$stableprop[0]
+final val androidx.compose.foundation.layout/androidx_compose_foundation_layout_PaddingValues_Absolute$stableprop // androidx.compose.foundation.layout/androidx_compose_foundation_layout_PaddingValues_Absolute$stableprop|#static{}androidx_compose_foundation_layout_PaddingValues_Absolute$stableprop[0]
+final val androidx.compose.foundation.layout/captionBar // androidx.compose.foundation.layout/captionBar|@androidx.compose.foundation.layout.WindowInsets.Companion{}captionBar[0]
+    final fun (androidx.compose.foundation.layout/WindowInsets.Companion).<get-captionBar>(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.foundation.layout/WindowInsets // androidx.compose.foundation.layout/captionBar.<get-captionBar>|<get-captionBar>@androidx.compose.foundation.layout.WindowInsets.Companion(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final val androidx.compose.foundation.layout/cutoutPath // androidx.compose.foundation.layout/cutoutPath|@androidx.compose.foundation.layout.WindowInsets.Companion{}cutoutPath[0]
+    final fun (androidx.compose.foundation.layout/WindowInsets.Companion).<get-cutoutPath>(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.ui.graphics/Path? // androidx.compose.foundation.layout/cutoutPath.<get-cutoutPath>|<get-cutoutPath>@androidx.compose.foundation.layout.WindowInsets.Companion(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final val androidx.compose.foundation.layout/displayCutout // androidx.compose.foundation.layout/displayCutout|@androidx.compose.foundation.layout.WindowInsets.Companion{}displayCutout[0]
+    final fun (androidx.compose.foundation.layout/WindowInsets.Companion).<get-displayCutout>(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.foundation.layout/WindowInsets // androidx.compose.foundation.layout/displayCutout.<get-displayCutout>|<get-displayCutout>@androidx.compose.foundation.layout.WindowInsets.Companion(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final val androidx.compose.foundation.layout/ime // androidx.compose.foundation.layout/ime|@androidx.compose.foundation.layout.WindowInsets.Companion{}ime[0]
+    final fun (androidx.compose.foundation.layout/WindowInsets.Companion).<get-ime>(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.foundation.layout/WindowInsets // androidx.compose.foundation.layout/ime.<get-ime>|<get-ime>@androidx.compose.foundation.layout.WindowInsets.Companion(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final val androidx.compose.foundation.layout/mandatorySystemGestures // androidx.compose.foundation.layout/mandatorySystemGestures|@androidx.compose.foundation.layout.WindowInsets.Companion{}mandatorySystemGestures[0]
+    final fun (androidx.compose.foundation.layout/WindowInsets.Companion).<get-mandatorySystemGestures>(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.foundation.layout/WindowInsets // androidx.compose.foundation.layout/mandatorySystemGestures.<get-mandatorySystemGestures>|<get-mandatorySystemGestures>@androidx.compose.foundation.layout.WindowInsets.Companion(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final val androidx.compose.foundation.layout/navigationBars // androidx.compose.foundation.layout/navigationBars|@androidx.compose.foundation.layout.WindowInsets.Companion{}navigationBars[0]
+    final fun (androidx.compose.foundation.layout/WindowInsets.Companion).<get-navigationBars>(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.foundation.layout/WindowInsets // androidx.compose.foundation.layout/navigationBars.<get-navigationBars>|<get-navigationBars>@androidx.compose.foundation.layout.WindowInsets.Companion(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final val androidx.compose.foundation.layout/safeContent // androidx.compose.foundation.layout/safeContent|@androidx.compose.foundation.layout.WindowInsets.Companion{}safeContent[0]
+    final fun (androidx.compose.foundation.layout/WindowInsets.Companion).<get-safeContent>(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.foundation.layout/WindowInsets // androidx.compose.foundation.layout/safeContent.<get-safeContent>|<get-safeContent>@androidx.compose.foundation.layout.WindowInsets.Companion(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final val androidx.compose.foundation.layout/safeDrawing // androidx.compose.foundation.layout/safeDrawing|@androidx.compose.foundation.layout.WindowInsets.Companion{}safeDrawing[0]
+    final fun (androidx.compose.foundation.layout/WindowInsets.Companion).<get-safeDrawing>(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.foundation.layout/WindowInsets // androidx.compose.foundation.layout/safeDrawing.<get-safeDrawing>|<get-safeDrawing>@androidx.compose.foundation.layout.WindowInsets.Companion(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final val androidx.compose.foundation.layout/safeGestures // androidx.compose.foundation.layout/safeGestures|@androidx.compose.foundation.layout.WindowInsets.Companion{}safeGestures[0]
+    final fun (androidx.compose.foundation.layout/WindowInsets.Companion).<get-safeGestures>(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.foundation.layout/WindowInsets // androidx.compose.foundation.layout/safeGestures.<get-safeGestures>|<get-safeGestures>@androidx.compose.foundation.layout.WindowInsets.Companion(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final val androidx.compose.foundation.layout/statusBars // androidx.compose.foundation.layout/statusBars|@androidx.compose.foundation.layout.WindowInsets.Companion{}statusBars[0]
+    final fun (androidx.compose.foundation.layout/WindowInsets.Companion).<get-statusBars>(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.foundation.layout/WindowInsets // androidx.compose.foundation.layout/statusBars.<get-statusBars>|<get-statusBars>@androidx.compose.foundation.layout.WindowInsets.Companion(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final val androidx.compose.foundation.layout/systemBars // androidx.compose.foundation.layout/systemBars|@androidx.compose.foundation.layout.WindowInsets.Companion{}systemBars[0]
+    final fun (androidx.compose.foundation.layout/WindowInsets.Companion).<get-systemBars>(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.foundation.layout/WindowInsets // androidx.compose.foundation.layout/systemBars.<get-systemBars>|<get-systemBars>@androidx.compose.foundation.layout.WindowInsets.Companion(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final val androidx.compose.foundation.layout/systemGestures // androidx.compose.foundation.layout/systemGestures|@androidx.compose.foundation.layout.WindowInsets.Companion{}systemGestures[0]
+    final fun (androidx.compose.foundation.layout/WindowInsets.Companion).<get-systemGestures>(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.foundation.layout/WindowInsets // androidx.compose.foundation.layout/systemGestures.<get-systemGestures>|<get-systemGestures>@androidx.compose.foundation.layout.WindowInsets.Companion(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final val androidx.compose.foundation.layout/tappableElement // androidx.compose.foundation.layout/tappableElement|@androidx.compose.foundation.layout.WindowInsets.Companion{}tappableElement[0]
+    final fun (androidx.compose.foundation.layout/WindowInsets.Companion).<get-tappableElement>(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.foundation.layout/WindowInsets // androidx.compose.foundation.layout/tappableElement.<get-tappableElement>|<get-tappableElement>@androidx.compose.foundation.layout.WindowInsets.Companion(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final val androidx.compose.foundation.layout/waterfall // androidx.compose.foundation.layout/waterfall|@androidx.compose.foundation.layout.WindowInsets.Companion{}waterfall[0]
+    final fun (androidx.compose.foundation.layout/WindowInsets.Companion).<get-waterfall>(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.foundation.layout/WindowInsets // androidx.compose.foundation.layout/waterfall.<get-waterfall>|<get-waterfall>@androidx.compose.foundation.layout.WindowInsets.Companion(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+
+final fun (androidx.compose.foundation.layout/GridConfigurationScope).androidx.compose.foundation.layout/columns(kotlin/Array<out androidx.compose.foundation.layout/GridTrackSpec>...) // androidx.compose.foundation.layout/columns|columns@androidx.compose.foundation.layout.GridConfigurationScope(kotlin.Array<out|androidx.compose.foundation.layout.GridTrackSpec>...){}[0]
+final fun (androidx.compose.foundation.layout/GridConfigurationScope).androidx.compose.foundation.layout/rows(kotlin/Array<out androidx.compose.foundation.layout/GridTrackSpec>...) // androidx.compose.foundation.layout/rows|rows@androidx.compose.foundation.layout.GridConfigurationScope(kotlin.Array<out|androidx.compose.foundation.layout.GridTrackSpec>...){}[0]
+final fun (androidx.compose.foundation.layout/PaddingValues).androidx.compose.foundation.layout/calculateEndPadding(androidx.compose.ui.unit/LayoutDirection): androidx.compose.ui.unit/Dp // androidx.compose.foundation.layout/calculateEndPadding|calculateEndPadding@androidx.compose.foundation.layout.PaddingValues(androidx.compose.ui.unit.LayoutDirection){}[0]
+final fun (androidx.compose.foundation.layout/PaddingValues).androidx.compose.foundation.layout/calculateStartPadding(androidx.compose.ui.unit/LayoutDirection): androidx.compose.ui.unit/Dp // androidx.compose.foundation.layout/calculateStartPadding|calculateStartPadding@androidx.compose.foundation.layout.PaddingValues(androidx.compose.ui.unit.LayoutDirection){}[0]
+final fun (androidx.compose.foundation.layout/PaddingValues).androidx.compose.foundation.layout/minus(androidx.compose.foundation.layout/PaddingValues): androidx.compose.foundation.layout/PaddingValues // androidx.compose.foundation.layout/minus|minus@androidx.compose.foundation.layout.PaddingValues(androidx.compose.foundation.layout.PaddingValues){}[0]
+final fun (androidx.compose.foundation.layout/PaddingValues).androidx.compose.foundation.layout/plus(androidx.compose.foundation.layout/PaddingValues): androidx.compose.foundation.layout/PaddingValues // androidx.compose.foundation.layout/plus|plus@androidx.compose.foundation.layout.PaddingValues(androidx.compose.foundation.layout.PaddingValues){}[0]
+final fun (androidx.compose.foundation.layout/WindowInsets).androidx.compose.foundation.layout/add(androidx.compose.foundation.layout/WindowInsets): androidx.compose.foundation.layout/WindowInsets // androidx.compose.foundation.layout/add|add@androidx.compose.foundation.layout.WindowInsets(androidx.compose.foundation.layout.WindowInsets){}[0]
+final fun (androidx.compose.foundation.layout/WindowInsets).androidx.compose.foundation.layout/asPaddingValues(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.foundation.layout/PaddingValues // androidx.compose.foundation.layout/asPaddingValues|asPaddingValues@androidx.compose.foundation.layout.WindowInsets(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final fun (androidx.compose.foundation.layout/WindowInsets).androidx.compose.foundation.layout/asPaddingValues(androidx.compose.ui.unit/Density): androidx.compose.foundation.layout/PaddingValues // androidx.compose.foundation.layout/asPaddingValues|asPaddingValues@androidx.compose.foundation.layout.WindowInsets(androidx.compose.ui.unit.Density){}[0]
+final fun (androidx.compose.foundation.layout/WindowInsets).androidx.compose.foundation.layout/exclude(androidx.compose.foundation.layout/WindowInsets): androidx.compose.foundation.layout/WindowInsets // androidx.compose.foundation.layout/exclude|exclude@androidx.compose.foundation.layout.WindowInsets(androidx.compose.foundation.layout.WindowInsets){}[0]
+final fun (androidx.compose.foundation.layout/WindowInsets).androidx.compose.foundation.layout/only(androidx.compose.foundation.layout/WindowInsetsSides): androidx.compose.foundation.layout/WindowInsets // androidx.compose.foundation.layout/only|only@androidx.compose.foundation.layout.WindowInsets(androidx.compose.foundation.layout.WindowInsetsSides){}[0]
+final fun (androidx.compose.foundation.layout/WindowInsets).androidx.compose.foundation.layout/union(androidx.compose.foundation.layout/WindowInsets): androidx.compose.foundation.layout/WindowInsets // androidx.compose.foundation.layout/union|union@androidx.compose.foundation.layout.WindowInsets(androidx.compose.foundation.layout.WindowInsets){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/absoluteOffset(androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ...): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/absoluteOffset|absoluteOffset@androidx.compose.ui.Modifier(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/absoluteOffset(kotlin/Function1<androidx.compose.ui.unit/Density, androidx.compose.ui.unit/IntOffset>): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/absoluteOffset|absoluteOffset@androidx.compose.ui.Modifier(kotlin.Function1<androidx.compose.ui.unit.Density,androidx.compose.ui.unit.IntOffset>){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/absolutePadding(androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ...): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/absolutePadding|absolutePadding@androidx.compose.ui.Modifier(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/aspectRatio(kotlin/Float, kotlin/Boolean = ...): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/aspectRatio|aspectRatio@androidx.compose.ui.Modifier(kotlin.Float;kotlin.Boolean){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/captionBarPadding(): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/captionBarPadding|captionBarPadding@androidx.compose.ui.Modifier(){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/consumeWindowInsets(androidx.compose.foundation.layout/PaddingValues): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/consumeWindowInsets|consumeWindowInsets@androidx.compose.ui.Modifier(androidx.compose.foundation.layout.PaddingValues){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/consumeWindowInsets(androidx.compose.foundation.layout/WindowInsets): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/consumeWindowInsets|consumeWindowInsets@androidx.compose.ui.Modifier(androidx.compose.foundation.layout.WindowInsets){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/defaultMinSize(androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ...): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/defaultMinSize|defaultMinSize@androidx.compose.ui.Modifier(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/displayCutoutPadding(): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/displayCutoutPadding|displayCutoutPadding@androidx.compose.ui.Modifier(){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/fillMaxHeight(kotlin/Float = ...): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/fillMaxHeight|fillMaxHeight@androidx.compose.ui.Modifier(kotlin.Float){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/fillMaxSize(kotlin/Float = ...): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/fillMaxSize|fillMaxSize@androidx.compose.ui.Modifier(kotlin.Float){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/fillMaxWidth(kotlin/Float = ...): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/fillMaxWidth|fillMaxWidth@androidx.compose.ui.Modifier(kotlin.Float){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/fitInside(androidx.compose.ui.layout/RectRulers): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/fitInside|fitInside@androidx.compose.ui.Modifier(androidx.compose.ui.layout.RectRulers){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/fitOutside(androidx.compose.ui.layout/RectRulers): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/fitOutside|fitOutside@androidx.compose.ui.Modifier(androidx.compose.ui.layout.RectRulers){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/height(androidx.compose.foundation.layout/IntrinsicSize): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/height|height@androidx.compose.ui.Modifier(androidx.compose.foundation.layout.IntrinsicSize){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/height(androidx.compose.ui.unit/Dp): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/height|height@androidx.compose.ui.Modifier(androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/heightIn(androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ...): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/heightIn|heightIn@androidx.compose.ui.Modifier(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/imePadding(): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/imePadding|imePadding@androidx.compose.ui.Modifier(){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/mandatorySystemGesturesPadding(): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/mandatorySystemGesturesPadding|mandatorySystemGesturesPadding@androidx.compose.ui.Modifier(){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/navigationBarsPadding(): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/navigationBarsPadding|navigationBarsPadding@androidx.compose.ui.Modifier(){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/offset(androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ...): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/offset|offset@androidx.compose.ui.Modifier(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/offset(kotlin/Function1<androidx.compose.ui.unit/Density, androidx.compose.ui.unit/IntOffset>): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/offset|offset@androidx.compose.ui.Modifier(kotlin.Function1<androidx.compose.ui.unit.Density,androidx.compose.ui.unit.IntOffset>){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/onConsumedWindowInsetsChanged(kotlin/Function1<androidx.compose.foundation.layout/WindowInsets, kotlin/Unit>): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/onConsumedWindowInsetsChanged|onConsumedWindowInsetsChanged@androidx.compose.ui.Modifier(kotlin.Function1<androidx.compose.foundation.layout.WindowInsets,kotlin.Unit>){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/padding(androidx.compose.foundation.layout/PaddingValues): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/padding|padding@androidx.compose.ui.Modifier(androidx.compose.foundation.layout.PaddingValues){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/padding(androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ...): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/padding|padding@androidx.compose.ui.Modifier(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/padding(androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ...): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/padding|padding@androidx.compose.ui.Modifier(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/padding(androidx.compose.ui.unit/Dp): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/padding|padding@androidx.compose.ui.Modifier(androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/paddingFrom(androidx.compose.ui.layout/AlignmentLine, androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ...): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/paddingFrom|paddingFrom@androidx.compose.ui.Modifier(androidx.compose.ui.layout.AlignmentLine;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/paddingFrom(androidx.compose.ui.layout/AlignmentLine, androidx.compose.ui.unit/TextUnit = ..., androidx.compose.ui.unit/TextUnit = ...): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/paddingFrom|paddingFrom@androidx.compose.ui.Modifier(androidx.compose.ui.layout.AlignmentLine;androidx.compose.ui.unit.TextUnit;androidx.compose.ui.unit.TextUnit){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/paddingFromBaseline(androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ...): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/paddingFromBaseline|paddingFromBaseline@androidx.compose.ui.Modifier(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/paddingFromBaseline(androidx.compose.ui.unit/TextUnit = ..., androidx.compose.ui.unit/TextUnit = ...): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/paddingFromBaseline|paddingFromBaseline@androidx.compose.ui.Modifier(androidx.compose.ui.unit.TextUnit;androidx.compose.ui.unit.TextUnit){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/recalculateWindowInsets(): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/recalculateWindowInsets|recalculateWindowInsets@androidx.compose.ui.Modifier(){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/requiredHeight(androidx.compose.foundation.layout/IntrinsicSize): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/requiredHeight|requiredHeight@androidx.compose.ui.Modifier(androidx.compose.foundation.layout.IntrinsicSize){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/requiredHeight(androidx.compose.ui.unit/Dp): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/requiredHeight|requiredHeight@androidx.compose.ui.Modifier(androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/requiredHeightIn(androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ...): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/requiredHeightIn|requiredHeightIn@androidx.compose.ui.Modifier(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/requiredSize(androidx.compose.ui.unit/Dp): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/requiredSize|requiredSize@androidx.compose.ui.Modifier(androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/requiredSize(androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/requiredSize|requiredSize@androidx.compose.ui.Modifier(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/requiredSize(androidx.compose.ui.unit/DpSize): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/requiredSize|requiredSize@androidx.compose.ui.Modifier(androidx.compose.ui.unit.DpSize){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/requiredSizeIn(androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ...): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/requiredSizeIn|requiredSizeIn@androidx.compose.ui.Modifier(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/requiredWidth(androidx.compose.foundation.layout/IntrinsicSize): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/requiredWidth|requiredWidth@androidx.compose.ui.Modifier(androidx.compose.foundation.layout.IntrinsicSize){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/requiredWidth(androidx.compose.ui.unit/Dp): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/requiredWidth|requiredWidth@androidx.compose.ui.Modifier(androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/requiredWidthIn(androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ...): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/requiredWidthIn|requiredWidthIn@androidx.compose.ui.Modifier(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/safeContentPadding(): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/safeContentPadding|safeContentPadding@androidx.compose.ui.Modifier(){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/safeDrawingPadding(): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/safeDrawingPadding|safeDrawingPadding@androidx.compose.ui.Modifier(){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/safeGesturesPadding(): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/safeGesturesPadding|safeGesturesPadding@androidx.compose.ui.Modifier(){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/size(androidx.compose.ui.unit/Dp): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/size|size@androidx.compose.ui.Modifier(androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/size(androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/size|size@androidx.compose.ui.Modifier(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/size(androidx.compose.ui.unit/DpSize): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/size|size@androidx.compose.ui.Modifier(androidx.compose.ui.unit.DpSize){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/sizeIn(androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ...): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/sizeIn|sizeIn@androidx.compose.ui.Modifier(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/statusBarsPadding(): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/statusBarsPadding|statusBarsPadding@androidx.compose.ui.Modifier(){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/systemBarsPadding(): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/systemBarsPadding|systemBarsPadding@androidx.compose.ui.Modifier(){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/systemGesturesPadding(): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/systemGesturesPadding|systemGesturesPadding@androidx.compose.ui.Modifier(){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/visible(kotlin/Boolean): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/visible|visible@androidx.compose.ui.Modifier(kotlin.Boolean){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/waterfallPadding(): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/waterfallPadding|waterfallPadding@androidx.compose.ui.Modifier(){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/width(androidx.compose.foundation.layout/IntrinsicSize): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/width|width@androidx.compose.ui.Modifier(androidx.compose.foundation.layout.IntrinsicSize){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/width(androidx.compose.ui.unit/Dp): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/width|width@androidx.compose.ui.Modifier(androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/widthIn(androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ...): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/widthIn|widthIn@androidx.compose.ui.Modifier(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/windowInsetsBottomHeight(androidx.compose.foundation.layout/WindowInsets): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/windowInsetsBottomHeight|windowInsetsBottomHeight@androidx.compose.ui.Modifier(androidx.compose.foundation.layout.WindowInsets){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/windowInsetsEndWidth(androidx.compose.foundation.layout/WindowInsets): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/windowInsetsEndWidth|windowInsetsEndWidth@androidx.compose.ui.Modifier(androidx.compose.foundation.layout.WindowInsets){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/windowInsetsPadding(androidx.compose.foundation.layout/WindowInsets): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/windowInsetsPadding|windowInsetsPadding@androidx.compose.ui.Modifier(androidx.compose.foundation.layout.WindowInsets){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/windowInsetsStartWidth(androidx.compose.foundation.layout/WindowInsets): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/windowInsetsStartWidth|windowInsetsStartWidth@androidx.compose.ui.Modifier(androidx.compose.foundation.layout.WindowInsets){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/windowInsetsTopHeight(androidx.compose.foundation.layout/WindowInsets): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/windowInsetsTopHeight|windowInsetsTopHeight@androidx.compose.ui.Modifier(androidx.compose.foundation.layout.WindowInsets){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/wrapContentHeight(androidx.compose.ui/Alignment.Vertical = ..., kotlin/Boolean = ...): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/wrapContentHeight|wrapContentHeight@androidx.compose.ui.Modifier(androidx.compose.ui.Alignment.Vertical;kotlin.Boolean){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/wrapContentSize(androidx.compose.ui/Alignment = ..., kotlin/Boolean = ...): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/wrapContentSize|wrapContentSize@androidx.compose.ui.Modifier(androidx.compose.ui.Alignment;kotlin.Boolean){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.foundation.layout/wrapContentWidth(androidx.compose.ui/Alignment.Horizontal = ..., kotlin/Boolean = ...): androidx.compose.ui/Modifier // androidx.compose.foundation.layout/wrapContentWidth|wrapContentWidth@androidx.compose.ui.Modifier(androidx.compose.ui.Alignment.Horizontal;kotlin.Boolean){}[0]
+final fun androidx.compose.foundation.layout/Box(androidx.compose.ui/Modifier, androidx.compose.runtime/Composer?, kotlin/Int) // androidx.compose.foundation.layout/Box|Box(androidx.compose.ui.Modifier;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final fun androidx.compose.foundation.layout/BoxWithConstraints(androidx.compose.ui/Modifier?, androidx.compose.ui/Alignment?, kotlin/Boolean, kotlin/Function3<androidx.compose.foundation.layout/BoxWithConstraintsScope, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) // androidx.compose.foundation.layout/BoxWithConstraints|BoxWithConstraints(androidx.compose.ui.Modifier?;androidx.compose.ui.Alignment?;kotlin.Boolean;kotlin.Function3<androidx.compose.foundation.layout.BoxWithConstraintsScope,androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
+final fun androidx.compose.foundation.layout/FlowColumn(androidx.compose.ui/Modifier?, androidx.compose.foundation.layout/Arrangement.Vertical?, androidx.compose.foundation.layout/Arrangement.Horizontal?, androidx.compose.ui/Alignment.Horizontal?, kotlin/Int, kotlin/Int, kotlin/Function3<androidx.compose.foundation.layout/FlowColumnScope, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) // androidx.compose.foundation.layout/FlowColumn|FlowColumn(androidx.compose.ui.Modifier?;androidx.compose.foundation.layout.Arrangement.Vertical?;androidx.compose.foundation.layout.Arrangement.Horizontal?;androidx.compose.ui.Alignment.Horizontal?;kotlin.Int;kotlin.Int;kotlin.Function3<androidx.compose.foundation.layout.FlowColumnScope,androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
+final fun androidx.compose.foundation.layout/FlowRow(androidx.compose.ui/Modifier?, androidx.compose.foundation.layout/Arrangement.Horizontal?, androidx.compose.foundation.layout/Arrangement.Vertical?, androidx.compose.ui/Alignment.Vertical?, kotlin/Int, kotlin/Int, kotlin/Function3<androidx.compose.foundation.layout/FlowRowScope, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) // androidx.compose.foundation.layout/FlowRow|FlowRow(androidx.compose.ui.Modifier?;androidx.compose.foundation.layout.Arrangement.Horizontal?;androidx.compose.foundation.layout.Arrangement.Vertical?;androidx.compose.ui.Alignment.Vertical?;kotlin.Int;kotlin.Int;kotlin.Function3<androidx.compose.foundation.layout.FlowRowScope,androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
+final fun androidx.compose.foundation.layout/PaddingValues(androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ...): androidx.compose.foundation.layout/PaddingValues // androidx.compose.foundation.layout/PaddingValues|PaddingValues(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+final fun androidx.compose.foundation.layout/PaddingValues(androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ...): androidx.compose.foundation.layout/PaddingValues // androidx.compose.foundation.layout/PaddingValues|PaddingValues(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+final fun androidx.compose.foundation.layout/PaddingValues(androidx.compose.ui.unit/Dp): androidx.compose.foundation.layout/PaddingValues // androidx.compose.foundation.layout/PaddingValues|PaddingValues(androidx.compose.ui.unit.Dp){}[0]
+final fun androidx.compose.foundation.layout/Spacer(androidx.compose.ui/Modifier, androidx.compose.runtime/Composer?, kotlin/Int) // androidx.compose.foundation.layout/Spacer|Spacer(androidx.compose.ui.Modifier;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final fun androidx.compose.foundation.layout/WindowInsets(): androidx.compose.foundation.layout/WindowInsets // androidx.compose.foundation.layout/WindowInsets|WindowInsets(){}[0]
+final fun androidx.compose.foundation.layout/WindowInsets(androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ...): androidx.compose.foundation.layout/WindowInsets // androidx.compose.foundation.layout/WindowInsets|WindowInsets(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
+final fun androidx.compose.foundation.layout/WindowInsets(kotlin/Int = ..., kotlin/Int = ..., kotlin/Int = ..., kotlin/Int = ...): androidx.compose.foundation.layout/WindowInsets // androidx.compose.foundation.layout/WindowInsets|WindowInsets(kotlin.Int;kotlin.Int;kotlin.Int;kotlin.Int){}[0]
+final fun androidx.compose.foundation.layout/androidx_compose_foundation_layout_AlignmentLineProvider_Block$stableprop_getter(): kotlin/Int // androidx.compose.foundation.layout/androidx_compose_foundation_layout_AlignmentLineProvider_Block$stableprop_getter|androidx_compose_foundation_layout_AlignmentLineProvider_Block$stableprop_getter(){}[0]
+final fun androidx.compose.foundation.layout/androidx_compose_foundation_layout_AlignmentLineProvider_Value$stableprop_getter(): kotlin/Int // androidx.compose.foundation.layout/androidx_compose_foundation_layout_AlignmentLineProvider_Value$stableprop_getter|androidx_compose_foundation_layout_AlignmentLineProvider_Value$stableprop_getter(){}[0]
+final fun androidx.compose.foundation.layout/androidx_compose_foundation_layout_Arrangement$stableprop_getter(): kotlin/Int // androidx.compose.foundation.layout/androidx_compose_foundation_layout_Arrangement$stableprop_getter|androidx_compose_foundation_layout_Arrangement$stableprop_getter(){}[0]
+final fun androidx.compose.foundation.layout/androidx_compose_foundation_layout_Arrangement_Absolute$stableprop_getter(): kotlin/Int // androidx.compose.foundation.layout/androidx_compose_foundation_layout_Arrangement_Absolute$stableprop_getter|androidx_compose_foundation_layout_Arrangement_Absolute$stableprop_getter(){}[0]
+final fun androidx.compose.foundation.layout/androidx_compose_foundation_layout_ComposeFoundationLayoutFlags$stableprop_getter(): kotlin/Int // androidx.compose.foundation.layout/androidx_compose_foundation_layout_ComposeFoundationLayoutFlags$stableprop_getter|androidx_compose_foundation_layout_ComposeFoundationLayoutFlags$stableprop_getter(){}[0]
+final fun androidx.compose.foundation.layout/androidx_compose_foundation_layout_ContextualFlowColumnOverflow$stableprop_getter(): kotlin/Int // androidx.compose.foundation.layout/androidx_compose_foundation_layout_ContextualFlowColumnOverflow$stableprop_getter|androidx_compose_foundation_layout_ContextualFlowColumnOverflow$stableprop_getter(){}[0]
+final fun androidx.compose.foundation.layout/androidx_compose_foundation_layout_ContextualFlowRowOverflow$stableprop_getter(): kotlin/Int // androidx.compose.foundation.layout/androidx_compose_foundation_layout_ContextualFlowRowOverflow$stableprop_getter|androidx_compose_foundation_layout_ContextualFlowRowOverflow$stableprop_getter(){}[0]
+final fun androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowColumnOverflow$stableprop_getter(): kotlin/Int // androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowColumnOverflow$stableprop_getter|androidx_compose_foundation_layout_FlowColumnOverflow$stableprop_getter(){}[0]
+final fun androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowLayoutBuildingBlocks_WrapEllipsisInfo$stableprop_getter(): kotlin/Int // androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowLayoutBuildingBlocks_WrapEllipsisInfo$stableprop_getter|androidx_compose_foundation_layout_FlowLayoutBuildingBlocks_WrapEllipsisInfo$stableprop_getter(){}[0]
+final fun androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowLayoutBuildingBlocks_WrapInfo$stableprop_getter(): kotlin/Int // androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowLayoutBuildingBlocks_WrapInfo$stableprop_getter|androidx_compose_foundation_layout_FlowLayoutBuildingBlocks_WrapInfo$stableprop_getter(){}[0]
+final fun androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowLayoutOverflow$stableprop_getter(): kotlin/Int // androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowLayoutOverflow$stableprop_getter|androidx_compose_foundation_layout_FlowLayoutOverflow$stableprop_getter(){}[0]
+final fun androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowRowOverflow$stableprop_getter(): kotlin/Int // androidx.compose.foundation.layout/androidx_compose_foundation_layout_FlowRowOverflow$stableprop_getter|androidx_compose_foundation_layout_FlowRowOverflow$stableprop_getter(){}[0]
+final fun androidx.compose.foundation.layout/androidx_compose_foundation_layout_MutableWindowInsets$stableprop_getter(): kotlin/Int // androidx.compose.foundation.layout/androidx_compose_foundation_layout_MutableWindowInsets$stableprop_getter|androidx_compose_foundation_layout_MutableWindowInsets$stableprop_getter(){}[0]
+final fun androidx.compose.foundation.layout/androidx_compose_foundation_layout_PaddingValues_Absolute$stableprop_getter(): kotlin/Int // androidx.compose.foundation.layout/androidx_compose_foundation_layout_PaddingValues_Absolute$stableprop_getter|androidx_compose_foundation_layout_PaddingValues_Absolute$stableprop_getter(){}[0]
+final fun androidx.compose.foundation.layout/columnMeasurePolicy(androidx.compose.foundation.layout/Arrangement.Vertical, androidx.compose.ui/Alignment.Horizontal, androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.ui.layout/MeasurePolicy // androidx.compose.foundation.layout/columnMeasurePolicy|columnMeasurePolicy(androidx.compose.foundation.layout.Arrangement.Vertical;androidx.compose.ui.Alignment.Horizontal;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final fun androidx.compose.foundation.layout/columnMeasurementHelper(androidx.compose.foundation.layout/Arrangement.Vertical, androidx.compose.foundation.layout/Arrangement.Horizontal, kotlin/Int, androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.ui.layout/MeasurePolicy // androidx.compose.foundation.layout/columnMeasurementHelper|columnMeasurementHelper(androidx.compose.foundation.layout.Arrangement.Vertical;androidx.compose.foundation.layout.Arrangement.Horizontal;kotlin.Int;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final fun androidx.compose.foundation.layout/flexMultiContentMeasurePolicy(androidx.compose.runtime/State<androidx.compose.foundation.layout/FlexBoxConfig>, androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.ui.layout/MeasurePolicy // androidx.compose.foundation.layout/flexMultiContentMeasurePolicy|flexMultiContentMeasurePolicy(androidx.compose.runtime.State<androidx.compose.foundation.layout.FlexBoxConfig>;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final fun androidx.compose.foundation.layout/maybeCachedBoxMeasurePolicy(androidx.compose.ui/Alignment, kotlin/Boolean): androidx.compose.ui.layout/MeasurePolicy // androidx.compose.foundation.layout/maybeCachedBoxMeasurePolicy|maybeCachedBoxMeasurePolicy(androidx.compose.ui.Alignment;kotlin.Boolean){}[0]
+final fun androidx.compose.foundation.layout/rememberBoxMeasurePolicy(androidx.compose.ui/Alignment, kotlin/Boolean, androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.ui.layout/MeasurePolicy // androidx.compose.foundation.layout/rememberBoxMeasurePolicy|rememberBoxMeasurePolicy(androidx.compose.ui.Alignment;kotlin.Boolean;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final fun androidx.compose.foundation.layout/rowMeasurePolicy(androidx.compose.foundation.layout/Arrangement.Horizontal, androidx.compose.ui/Alignment.Vertical, androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.ui.layout/MeasurePolicy // androidx.compose.foundation.layout/rowMeasurePolicy|rowMeasurePolicy(androidx.compose.foundation.layout.Arrangement.Horizontal;androidx.compose.ui.Alignment.Vertical;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final fun androidx.compose.foundation.layout/rowMeasurementHelper(androidx.compose.foundation.layout/Arrangement.Horizontal, androidx.compose.foundation.layout/Arrangement.Vertical, kotlin/Int, androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.ui.layout/MeasurePolicy // androidx.compose.foundation.layout/rowMeasurementHelper|rowMeasurementHelper(androidx.compose.foundation.layout.Arrangement.Horizontal;androidx.compose.foundation.layout.Arrangement.Vertical;kotlin.Int;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+final inline fun androidx.compose.foundation.layout/Box(androidx.compose.ui/Modifier?, androidx.compose.ui/Alignment?, kotlin/Boolean, kotlin/Function3<androidx.compose.foundation.layout/BoxScope, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) // androidx.compose.foundation.layout/Box|Box(androidx.compose.ui.Modifier?;androidx.compose.ui.Alignment?;kotlin.Boolean;kotlin.Function3<androidx.compose.foundation.layout.BoxScope,androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
+final inline fun androidx.compose.foundation.layout/Column(androidx.compose.ui/Modifier?, androidx.compose.foundation.layout/Arrangement.Vertical?, androidx.compose.ui/Alignment.Horizontal?, kotlin/Function3<androidx.compose.foundation.layout/ColumnScope, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) // androidx.compose.foundation.layout/Column|Column(androidx.compose.ui.Modifier?;androidx.compose.foundation.layout.Arrangement.Vertical?;androidx.compose.ui.Alignment.Horizontal?;kotlin.Function3<androidx.compose.foundation.layout.ColumnScope,androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
+final inline fun androidx.compose.foundation.layout/FlexBox(androidx.compose.ui/Modifier?, androidx.compose.foundation.layout/FlexBoxConfig?, kotlin/Function3<androidx.compose.foundation.layout/FlexBoxScope, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) // androidx.compose.foundation.layout/FlexBox|FlexBox(androidx.compose.ui.Modifier?;androidx.compose.foundation.layout.FlexBoxConfig?;kotlin.Function3<androidx.compose.foundation.layout.FlexBoxScope,androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
+final inline fun androidx.compose.foundation.layout/Grid(noinline kotlin/Function1<androidx.compose.foundation.layout/GridConfigurationScope, kotlin/Unit>, androidx.compose.ui/Modifier?, kotlin/Function3<androidx.compose.foundation.layout/GridScope, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) // androidx.compose.foundation.layout/Grid|Grid(kotlin.Function1<androidx.compose.foundation.layout.GridConfigurationScope,kotlin.Unit>;androidx.compose.ui.Modifier?;kotlin.Function3<androidx.compose.foundation.layout.GridScope,androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]
+final inline fun androidx.compose.foundation.layout/Row(androidx.compose.ui/Modifier?, androidx.compose.foundation.layout/Arrangement.Horizontal?, androidx.compose.ui/Alignment.Vertical?, kotlin/Function3<androidx.compose.foundation.layout/RowScope, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) // androidx.compose.foundation.layout/Row|Row(androidx.compose.ui.Modifier?;androidx.compose.foundation.layout.Arrangement.Horizontal?;androidx.compose.ui.Alignment.Vertical?;kotlin.Function3<androidx.compose.foundation.layout.RowScope,androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int;kotlin.Int){}[0]

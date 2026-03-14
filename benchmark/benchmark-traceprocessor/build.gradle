@@ -47,13 +47,13 @@ androidXMultiplatform {
     }
 }
 
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
+tasks.withType(KotlinCompile).configureEach { task ->
+    task.compilerOptions {
         // Enable using experimental APIs from within same version group
-        freeCompilerArgs += [
+        it.freeCompilerArgs.addAll(
                 "-opt-in=androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi",
                 "-opt-in=androidx.benchmark.traceprocessor.ExperimentalInsightApi",
-        ]
+        )
     }
 }
 

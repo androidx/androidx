@@ -542,8 +542,11 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
             // If no @ConstructedBy is present then validate target is JVM (including Android)
             // since reflection is available in those platforms and a database constructor is not
             // needed.
+            val suppressConstructorRequirement =
+                SuppressWarningProcessor.getSuppressedWarnings(element)
+                    .contains(Warning.NO_DATABASE_CONSTRUCTOR)
             context.checker.check(
-                predicate = context.isJvmOnlyTarget(),
+                predicate = suppressConstructorRequirement || context.isJvmOnlyTarget(),
                 element = element,
                 errorMsg = ProcessorErrors.MISSING_CONSTRUCTED_BY_ANNOTATION,
             )

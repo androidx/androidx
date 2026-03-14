@@ -17,7 +17,6 @@
 
 package androidx.glance.appwidget.remotecompose.components
 
-import android.util.Log
 import androidx.annotation.ColorInt
 import androidx.compose.remote.core.operations.layout.managers.RowLayout
 import androidx.compose.remote.core.operations.layout.modifiers.ShapeType
@@ -103,15 +102,14 @@ internal class RcMaterial3TextButton(
                 maybeBackground = RecordingModifier().background(backgroundColor)
             }
 
-            val heightInMin = M3ButtonDefaults.minHeight.toPixels(context).toFloat()
-            Log.d("$TAG~~~", "heightInMin=$heightInMin")
+            //            val heightInMin = M3ButtonDefaults.minHeight.toPixels(context).toFloat()
 
             buttonModifier =
                 RecordingModifier()
-                    .then(outputModifier)
                     .then(maybeOutline)
                     .clip(RoundedRectShape(cornerRadius, cornerRadius, cornerRadius, cornerRadius))
                     .then(maybeBackground)
+                    .then(outputModifier)
                     .padding(hPad, vPad, hPad, vPad)
             //                    .heightIn(
             //                        M3ButtonDefaults.minHeight.toPixels(context).toFloat(),
@@ -154,13 +152,8 @@ internal class RcMaterial3TextButton(
     }
 
     override fun writeComponent(translationContext: TranslationContext) {
-        //        rcText.writeComponent(translationContext)
-        //        rcText.writeComponent(translationContext)
-
         translationContext.remoteComposeContext.row(
             modifier = buttonModifier,
-            //            horizontal = M3ButtonDefaults.horizontalAlignment,
-            //            vertical = M3ButwtonDefaults.verticalAlignment,
             content = {
                 rcImage?.writeComponent(translationContext)
                 rcText.writeComponent(translationContext)

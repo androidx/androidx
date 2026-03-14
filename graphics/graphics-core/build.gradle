@@ -83,10 +83,8 @@ androidx {
 }
 
 //TODO(b/407725443): Remove this block when CanvasBufferedRendererTests and CanvasFrontBufferedRendererTest pass on API Level 21
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += [
-                "-Xlambdas=class"
-        ]
+tasks.withType(KotlinCompile).configureEach { task ->
+    task.compilerOptions {
+        it.freeCompilerArgs.add("-Xlambdas=class")
     }
 }

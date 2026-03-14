@@ -92,6 +92,8 @@ public interface IcingOptionsConfig {
 
     int DEFAULT_EMBEDDING_INDEX_NUM_SHARDS = 32;
 
+    long DEFAULT_EXPIRED_DOCUMENT_PURGING_THRESHOLD_MILLIS = 60 * 1000L; // 1 minute.
+
     /**
      * The maximum allowable token length. All tokens in excess of this size will be truncated to
      * max_token_length before being indexed.
@@ -298,6 +300,36 @@ public interface IcingOptionsConfig {
     boolean enableRepeatedFieldJoins();
 
     /**
+     * Controls whether enabling Icing background task scheduler or not.
+     *
+     * <p>Native background thread is not recommended in Android system service, so AppSearch
+     * framework service should disable it.
+     */
+    boolean enableIcingBackgroundTaskScheduler();
+
+    /**
+     * The time threshold for an expired document to be purged.
+     *
+     * <ul>
+     *   <li>Since we schedule a background task to purge expired documents according to the next
+     *       expiration time of the documents, it is possible that some documents expire within a
+     *       small time window and the task executes too frequently.
+     *   <li>Therefore, we use this flag to purge more documents that also expire in a short period
+     *       of time after the current time.
+     * </ul>
+     *
+     * <p>For example, if the value is 1000 ms and the current time is 10000 ms:
+     *
+     * <ul>
+     *   <li>All documents that are expired before 10000 ms will be purged, since they are already
+     *       expired.
+     *   <li>Additionally, we will also purge documents that expire in the next 1000 ms, i.e.
+     *       (10000, 11000] ms.
+     * </ul>
+     */
+    long getExpiredDocumentPurgingThresholdMillis();
+
+    /**
      * Converts to an {@link IcingSearchEngineOptions} instance.
      *
      * @param baseDir base directory of the icing instance.
@@ -340,6 +372,7 @@ public interface IcingOptionsConfig {
                         Flags.enableDeletePropagationRw()
                                 && Flags.enableQualifiedIdJoinIndexV3()
                                 && Flags.enableSoftIndexRestoration())
+                .setExpiredDocumentPurgeThresholdMs(getExpiredDocumentPurgingThresholdMillis())
                 .setCalculateTimeSinceLastAttemptedOptimize(
                         Flags.enableCalculateTimeSinceLastAttemptedOptimize())
                 .setEnableQualifiedIdJoinIndexV3(Flags.enableQualifiedIdJoinIndexV3())
@@ -364,8 +397,7 @@ public interface IcingOptionsConfig {
                 .setEnableEigenEmbeddingScoring(Flags.enableEigenEmbeddingScoring() || isVMEnabled)
                 .setEnablePassingFilterToChildren(
                         Flags.enablePassingFilterToChildren() || isVMEnabled)
-                .setEnableProtoLogNewHeaderFormat(
-                        Flags.enableProtoLogNewHeaderFormat() || isVMEnabled)
+                .setEnableProtoLogNewHeaderFormat(true)
                 .setEnableEmbeddingIteratorV2(true)
                 .setEnableReusableDecompressionBuffer(true)
                 .setEmbeddingIndexNumShards(
@@ -380,6 +412,7 @@ public interface IcingOptionsConfig {
                 .setEnableSkipSetSchemaTypeEqualityCheck(
                         Flags.enableSkipSetSchemaTypeEqualityCheck())
                 .setEnableEmbedQueryOptimization(Flags.enableEmbedQueryOptimization())
+                .setEnableBackgroundTaskScheduler(enableIcingBackgroundTaskScheduler())
                 .build();
     }
 }

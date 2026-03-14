@@ -3,7 +3,7 @@
 
     <issue
         id="PrivateResource"
-        message="The resource `@string/error_cannot_open_pdf` is marked as private in androidx.pdf:pdf-viewer:1.0.0-alpha14"
+        message="The resource `@string/error_cannot_open_pdf` is marked as private in androidx.pdf:pdf-viewer:1.0.0-alpha15"
         errorLine1="        android:text=&quot;@string/error_cannot_open_pdf&quot;"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location

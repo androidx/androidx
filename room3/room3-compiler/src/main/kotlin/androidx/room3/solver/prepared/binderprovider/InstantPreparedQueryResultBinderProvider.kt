@@ -19,6 +19,7 @@ package androidx.room3.solver.prepared.binderprovider
 import androidx.room3.compiler.processing.XType
 import androidx.room3.parser.ParsedQuery
 import androidx.room3.processor.Context
+import androidx.room3.solver.TypeAdapterExtras
 import androidx.room3.solver.prepared.binder.InstantPreparedQueryResultBinder
 
 class InstantPreparedQueryResultBinderProvider(val context: Context) :
@@ -26,7 +27,7 @@ class InstantPreparedQueryResultBinderProvider(val context: Context) :
 
     override fun matches(declared: XType) = true
 
-    override fun provide(declared: XType, query: ParsedQuery) =
+    override fun provide(declared: XType, query: ParsedQuery, extras: TypeAdapterExtras) =
         InstantPreparedQueryResultBinder(
             context.typeAdapterStore.findPreparedQueryResultAdapter(declared, query)
         )

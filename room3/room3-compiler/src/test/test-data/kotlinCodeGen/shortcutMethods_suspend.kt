@@ -77,13 +77,13 @@ internal class MyDao_Impl(
 
   public override suspend fun delete(entity: MyEntity): Int = performSuspending(__db, false, true) { _connection ->
     var _result: Int = 0
-    _result += __deleteAdapterOfMyEntity.handle(_connection, entity)
+    _result += __deleteAdapterOfMyEntity.handleAndReturnChanges(_connection, entity)
     _result
   }
 
   public override suspend fun update(entity: MyEntity): Int = performSuspending(__db, false, true) { _connection ->
     var _result: Int = 0
-    _result += __updateAdapterOfMyEntity.handle(_connection, entity)
+    _result += __updateAdapterOfMyEntity.handleAndReturnChanges(_connection, entity)
     _result
   }
 

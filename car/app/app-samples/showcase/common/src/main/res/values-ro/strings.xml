@@ -243,6 +243,7 @@
     <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"Subtextul de sub fiecare listă"</string>
     <string name="end_image_and_action_demo_title" msgid="6451955718459316414">"Încheie versiunea demonstrativă cu imagini și acțiuni"</string>
     <string name="filter_chip_demo_title" msgid="92190365856639582">"Demonstrație pentru cip de filtrare"</string>
+    <string name="progress_bar_demo_title" msgid="1759206063037269237">"Versiune demonstrativă a barei de progres"</string>
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Demonstrație cu șablonul pentru panou"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demonstrație cu șablon pentru lista de locații"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Răsfoiește locații"</string>

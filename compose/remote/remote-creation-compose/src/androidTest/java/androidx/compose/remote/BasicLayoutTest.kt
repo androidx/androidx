@@ -412,7 +412,7 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                             .padding(8.dp)
                             .background(Color.LightGray)
                 ) {
-                    val color = Color.Blue
+                    val blue = Color.Blue
                     val w = remote.component.width
                     val h = remote.component.height
                     val topLeft = RemoteOffset(0f, 0f)
@@ -422,18 +422,18 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
 
                     drawLine(
                         paint =
-                            RemotePaint().apply {
-                                remoteColor = color.rc
-                                strokeWidth = 4f
+                            RemotePaint {
+                                color = blue.rc
+                                strokeWidth = 4f.rf
                             },
                         start = topLeft,
                         end = bottomRight,
                     )
                     drawLine(
                         paint =
-                            RemotePaint().apply {
-                                remoteColor = color.rc
-                                strokeWidth = 4f
+                            RemotePaint {
+                                color = blue.rc
+                                strokeWidth = 4f.rf
                             },
                         start = bottomLeft,
                         end = topRight,
@@ -1123,8 +1123,7 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                 modifier =
                     RemoteModifier.fillMaxSize()
                         .background(RemoteBrush.radialGradient(colors = colors)),
-                horizontalAlignment = RemoteAlignment.CenterHorizontally,
-                verticalArrangement = RemoteArrangement.Center,
+                contentAlignment = RemoteAlignment.Center,
             ) {
                 val green = RemoteColor(Color.Green)
                 RemoteText("Green", color = green, fontSize = 30.rsp)
@@ -1172,8 +1171,7 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                 modifier =
                     RemoteModifier.fillMaxSize()
                         .background(RemoteBrush.radialGradient(colors = colors)),
-                horizontalAlignment = RemoteAlignment.CenterHorizontally,
-                verticalArrangement = RemoteArrangement.Center,
+                contentAlignment = RemoteAlignment.Center,
             ) {
                 RemoteRow(modifier = RemoteModifier.background(Color.Blue)) {
                     RemoteIconVector(
@@ -1299,7 +1297,7 @@ list:
         testLayoutAndPaint(layoutResult, paintResult) {
             RemoteRow(
                 modifier = RemoteModifier.background(Color.Yellow),
-                horizontalArrangement = RemoteArrangement.CenterHorizontally,
+                horizontalArrangement = RemoteArrangement.Center,
                 verticalAlignment = RemoteAlignment.CenterVertically,
             ) {
                 RemoteBox(
@@ -1320,8 +1318,7 @@ list:
                             .background(Color.Blue)
                             .padding(8.dp)
                             .background(Color.Magenta),
-                    horizontalAlignment = RemoteAlignment.CenterHorizontally,
-                    verticalArrangement = RemoteArrangement.Center,
+                    contentAlignment = RemoteAlignment.Center,
                 ) {
                     RemoteText("XYZ")
                 }

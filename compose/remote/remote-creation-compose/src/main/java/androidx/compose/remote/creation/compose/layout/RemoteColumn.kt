@@ -40,7 +40,7 @@ internal class RemoteComposeColumnModifier(
         drawIntoRemoteCanvas { canvas ->
             canvas.document.startColumn(
                 canvas.toRecordingModifier(modifier),
-                horizontalAlignment.toRemote(),
+                horizontalAlignment.toRemote(this.layoutDirection),
                 verticalArrangement.toRemote(),
             )
             this@draw.drawContent()

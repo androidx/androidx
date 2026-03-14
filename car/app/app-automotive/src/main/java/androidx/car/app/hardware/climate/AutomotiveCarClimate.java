@@ -59,7 +59,6 @@ import android.util.Log;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.hardware.common.CarPropertyProfile;
 import androidx.car.app.hardware.common.CarPropertyResponse;
 import androidx.car.app.hardware.common.CarSetOperationStatusCallback;
@@ -86,7 +85,6 @@ import java.util.concurrent.Executor;
  *
  */
 @RestrictTo(LIBRARY)
-@ExperimentalCarApi
 public class AutomotiveCarClimate implements CarClimate {
 
     @VisibleForTesting

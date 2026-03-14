@@ -428,7 +428,7 @@ class ComposeLayoutInspector(
                 getRecompositionStateReadCommand.anchorHash,
                 getRecompositionStateReadCommand.recompositionNumberStart,
                 getRecompositionStateReadCommand.recompositionNumberEnd,
-                includeExtra = getRecompositionStateReadCommand.includeExtra,
+                getRecompositionStateReadCommand.includeExtra,
             )
 
         val stringTable = StringTable()

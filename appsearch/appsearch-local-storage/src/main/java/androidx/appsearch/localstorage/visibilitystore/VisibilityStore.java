@@ -22,10 +22,12 @@ import static androidx.appsearch.localstorage.visibilitystore.VisibilityToDocume
 import android.util.Log;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.app.AppSearchBatchResult;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetSchemaResponse;
+import androidx.appsearch.app.InternalPutDocumentResponse;
 import androidx.appsearch.app.InternalSetSchemaResponse;
 import androidx.appsearch.app.InternalVisibilityConfig;
 import androidx.appsearch.app.SearchResult;
@@ -248,12 +250,14 @@ public class VisibilityStore {
         }
 
         if (Flags.enableBatchPutVisibilityDocuments() && !visibilityDocuments.isEmpty()) {
+            AppSearchBatchResult.Builder<String, InternalPutDocumentResponse> batchResultBuilder =
+                    new AppSearchBatchResult.Builder<>();
             if (!overlayDocuments.isEmpty()) {
                 mAppSearchImpl.batchPutDocuments(
                         VISIBILITY_PACKAGE_NAME,
                         mAndroidVOverlayDatabaseName,
                         overlayDocuments,
-                        /*batchResultBuilder=*/null,
+                        batchResultBuilder,
                         /*sendChangeNotifications=*/ false,
                         /*logger=*/null,
                         PersistType.Code.UNKNOWN,
@@ -265,11 +269,22 @@ public class VisibilityStore {
                     VISIBILITY_PACKAGE_NAME,
                     mDatabaseName,
                     visibilityDocuments,
-                    /*batchResultBuilder=*/null,
+                    batchResultBuilder,
                     /*sendChangeNotifications=*/ false,
                     /*logger=*/null,
                     PersistType.Code.LITE,
                     callStatsBuilder);
+
+            if (Flags.enableDeletePropagationRw()) {
+                // Note: visibility documents never expire, so we don't have to reset handle expired
+                //   documents task alarm.
+                AppSearchBatchResult<String, InternalPutDocumentResponse> batchResult =
+                        batchResultBuilder.build();
+                if (!batchResult.getFailures().isEmpty()) {
+                    throw new AppSearchException(
+                            AppSearchResult.RESULT_INTERNAL_ERROR, batchResult.toString());
+                }
+            }
         }
     }
 
@@ -458,16 +473,30 @@ public class VisibilityStore {
                     callStatsBuilder);
             }
         }
+
         if (Flags.enableBatchPutVisibilityDocuments() && !migratedVisibilityDocuments.isEmpty()) {
+            AppSearchBatchResult.Builder<String, InternalPutDocumentResponse> batchResultBuilder =
+                    new AppSearchBatchResult.Builder<>();
             mAppSearchImpl.batchPutDocuments(
                     VISIBILITY_PACKAGE_NAME,
                     mDatabaseName,
                     migratedVisibilityDocuments,
-                    /*batchResultBuilder=*/null,
+                    batchResultBuilder,
                     /*sendChangeNotifications=*/ false,
                     /*logger=*/null,
                     PersistType.Code.UNKNOWN,
                     callStatsBuilder);
+
+            if (Flags.enableDeletePropagationRw()) {
+                // Note: visibility documents never expire, so we don't have to reset handle expired
+                //   documents task alarm.
+                AppSearchBatchResult<String, InternalPutDocumentResponse> batchResult =
+                        batchResultBuilder.build();
+                if (!batchResult.getFailures().isEmpty()) {
+                    throw new AppSearchException(
+                            AppSearchResult.RESULT_INTERNAL_ERROR, batchResult.toString());
+                }
+            }
         }
     }
 

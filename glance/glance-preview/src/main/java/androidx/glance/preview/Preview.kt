@@ -25,10 +25,12 @@ package androidx.glance.preview
  * visual preview wraps its content. In this case, LocalSize should not be read within the
  * composable.
  *
- * @param widthDp width in DP that will be used when rendering the annotated Glance @[Composable]
- *   and that will be set as the widget's LocalSize width.
- * @param heightDp height in DP that will be used when rendering the annotated Glance @[Composable]
- *   and that will be set as the widget's LocalSize height.
+ * @param widthDp width in DP that will be used when rendering the annotated
+ *   Glance @[androidx.compose.runtime.Composable] and that will be set as the widget's LocalSize
+ *   width.
+ * @param heightDp height in DP that will be used when rendering the annotated
+ *   Glance @[androidx.compose.runtime.Composable] and that will be set as the widget's LocalSize
+ *   height.
  */
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.FUNCTION)

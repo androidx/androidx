@@ -18,6 +18,7 @@
 
 package androidx.tracing.wire
 
+import androidx.tracing.AbstractTraceSink
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -43,7 +44,7 @@ public fun TraceSink(
     directory: File,
     sequenceId: Int,
     coroutineContext: CoroutineContext = Dispatchers.IO,
-): TraceSink =
+): AbstractTraceSink =
     TraceSink(
         sequenceId = sequenceId,
         bufferedSink = directory.perfettoTraceFile().appendingSink().buffer(),

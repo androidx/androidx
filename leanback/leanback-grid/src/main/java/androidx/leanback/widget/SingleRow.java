@@ -99,6 +99,7 @@ class SingleRow extends Grid {
                 break;
             }
         }
+        mTmpItem[0] = null;
         return filledOne;
     }
 
@@ -132,6 +133,7 @@ class SingleRow extends Grid {
                 break;
             }
         }
+        mTmpItem[0] = null;
         return filledOne;
     }
 

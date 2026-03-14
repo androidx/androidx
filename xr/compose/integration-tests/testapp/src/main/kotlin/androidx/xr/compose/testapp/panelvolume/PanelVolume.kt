@@ -54,12 +54,12 @@ import androidx.compose.ui.unit.sp
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.spatial.PlanarEmbeddedSubspace
 import androidx.xr.compose.spatial.Subspace
-import androidx.xr.compose.subspace.MovePolicy
 import androidx.xr.compose.subspace.SceneCoreEntity
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.draw.scale
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
+import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.subspace.semantics.testTag
@@ -80,10 +80,7 @@ class PanelVolume : ComponentActivity() {
         val panelSize = SubspaceModifier.width(550.dp).height(300.dp)
         var checked by remember { mutableStateOf(false) }
 
-        SpatialPanel(
-            modifier = panelSize.offset((-500).dp, 0.dp, 0.dp),
-            dragPolicy = MovePolicy(),
-        ) {
+        SpatialPanel(modifier = panelSize.offset((-500).dp, 0.dp, 0.dp).movable()) {
             CommonTestScaffold(
                 title = "Panel Volume Test case",
                 showBottomBar = true,
@@ -152,8 +149,8 @@ class PanelVolume : ComponentActivity() {
                 SubspaceModifier.width(200.dp)
                     .height(200.dp)
                     .offset(y = panelYOffset)
-                    .testTag("RootPanel"),
-            dragPolicy = MovePolicy(),
+                    .testTag("RootPanel")
+                    .movable()
         ) {
             Box(
                 modifier = Modifier.background(Color.LightGray).fillMaxSize(),

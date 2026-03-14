@@ -19,23 +19,22 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
+import kotlin.test.assertTrue
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 
 class StorageContextSwitchTest {
-    private val datastoreCtx = TestElement1("datastore_key_1") + TestElement2("datastore_key_2")
     private val callerCtx = TestElement1("caller_key_1") + TestElement3("caller_key_3")
     private val testStorage = TestStorage()
-    private val store =
-        androidx.datastore.core.DataStoreImpl(testStorage, context = Dispatchers.IO + datastoreCtx)
 
     @Test
     fun testContextSandwich() =
         runBlocking(callerCtx) {
+            val store =
+                androidx.datastore.core.DataStoreImpl(testStorage, context = coroutineContext)
             // trigger a read to run read assertions in storage
             assertEquals("Initial Value", store.data.first().value)
 
@@ -60,14 +59,8 @@ private class TestStorageConnection : androidx.datastore.core.StorageConnection<
             object :
                 androidx.datastore.core.ReadScope<TestData>, androidx.datastore.core.Closeable {
                 override suspend fun readData(): TestData {
-                    // Context is caller + datastore so we assert that we have the keys from the
-                    // datastoreCtx and any key in the callerCtx that was not present in
-                    // the datastoreCtx.
-                    // Ensure the caller's keys DO NOT OVERRIDE the datastore keys
-                    assertEquals(coroutineContext[TestKey1], TestElement1("datastore_key_1"))
-                    assertEquals(coroutineContext[TestKey2], TestElement2("datastore_key_2"))
-
-                    // Ensure the additional keys in the caller are available.
+                    assertTrue(coroutineContext[Job] != null)
+                    // Ensure the keys in the caller are available.
                     assertEquals(coroutineContext[TestKey3], TestElement3("caller_key_3"))
                     return data
                 }
@@ -88,14 +81,7 @@ private class TestStorageConnection : androidx.datastore.core.StorageConnection<
                 override suspend fun readData(): TestData = data
 
                 override suspend fun writeData(value: TestData) {
-                    // Context is caller + datastore so we assert that we have the keys from the
-                    // datastoreCtx and any key in the callerCtx that was not present in
-                    // the datastoreCtx.
-                    // Ensure the caller's keys DO NOT OVERRIDE the datastore keys.
-                    assertEquals(coroutineContext[TestKey1], TestElement1("datastore_key_1"))
-                    assertEquals(coroutineContext[TestKey2], TestElement2("datastore_key_2"))
-
-                    // Ensure the additional keys in the caller are available.
+                    // Ensure the keys in the caller are available.
                     assertEquals(coroutineContext[TestKey3], TestElement3("caller_key_3"))
                     data = value
                 }

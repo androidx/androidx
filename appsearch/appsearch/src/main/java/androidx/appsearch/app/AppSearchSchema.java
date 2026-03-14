@@ -922,6 +922,8 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
          * the joinable value type). Otherwise, throw {@link IllegalStateException} when building
          * (see {@link StringPropertyConfig.Builder#build}).
          */
+        // TODO(b/384947619) unhide the API once it is ready.
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features

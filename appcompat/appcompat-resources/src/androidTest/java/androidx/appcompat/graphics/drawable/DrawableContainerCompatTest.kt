@@ -48,8 +48,7 @@ class DrawableContainerCompatTest {
         assertTrue(container.calledSetTintList)
     }
 
-    @Suppress("EXPOSED_PACKAGE_PRIVATE_TYPE_FROM_INTERNAL_WARNING") // b/446693288
-    internal class MyDrawableContainerState : DrawableContainerCompat.DrawableContainerState {
+    private class MyDrawableContainerState : DrawableContainerCompat.DrawableContainerState {
         constructor() : super(null, null, null)
 
         constructor(orig: DrawableContainerCompat.DrawableContainerState?) : super(orig, null, null)
@@ -63,7 +62,7 @@ class DrawableContainerCompatTest {
         }
     }
 
-    internal class MyDrawableContainer : DrawableContainerCompat() {
+    private class MyDrawableContainer : DrawableContainerCompat() {
         var calledSetTintList = false
 
         init {

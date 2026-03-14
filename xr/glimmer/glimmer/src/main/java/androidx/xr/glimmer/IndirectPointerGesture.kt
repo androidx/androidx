@@ -33,54 +33,61 @@ import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
 
 /**
- * A [Modifier] that listens for and detects high-level gestures from an [IndirectPointerEvent]
- * source. The component (or one of its descendants) using this modifier **must be focused** to
- * intercept and process indirect pointer events.
+ * A [Modifier] that detects high-level click and horizontal swipe gestures from an
+ * [IndirectPointerEvent] source. The component (or one of its descendants) using this modifier
+ * **must be focused** to intercept events.
  *
- * This modifier is designed to be used near the top of the composable hierarchy to handle gestures.
+ * This modifier allows optionality for gesture callbacks. If a specific gesture callback is `null`,
+ * the corresponding events will not be consumed by this modifier. For example, if [onClick] is
+ * `null` but swipe callbacks are provided, corresponding [IndirectPointerEvent]s for click can
+ * still be handled by a parent `clickable` modifier, while swipe gestures are consumed by this
+ * modifier.
  *
  * @sample androidx.xr.glimmer.samples.OnIndirectPointerGestureSample
  * @param enabled Controls whether gesture detection is active. When `false`, this modifier has no
  *   effect and no callbacks will be invoked.
- * @param onClick Invoked when a successful click is detected.
- * @param onSwipeForward Invoked when a successful forward swipe is detected.
- * @param onSwipeBackward Invoked when a successful backward swipe is detected.
+ * @param onSwipeForward Invoked when a successful forward swipe is detected. If `null`, the
+ *   corresponding [IndirectPointerEvent]s will not be consumed.
+ * @param onSwipeBackward Invoked when a successful backward swipe is detected. If `null`, the
+ *   corresponding [IndirectPointerEvent]s will not be consumed.
+ * @param onClick Invoked when a successful click is detected. If `null`, the corresponding
+ *   [IndirectPointerEvent]s will not be consumed.
  */
 public fun Modifier.onIndirectPointerGesture(
     enabled: Boolean = true,
-    onClick: () -> Unit = {},
-    onSwipeForward: () -> Unit = {},
-    onSwipeBackward: () -> Unit = {},
+    onSwipeForward: (() -> Unit)? = null,
+    onSwipeBackward: (() -> Unit)? = null,
+    onClick: (() -> Unit)? = null,
 ): Modifier =
     this then
         IndirectPointerGestureElement(
             enabled = enabled,
-            onClick = onClick,
             onSwipeForward = onSwipeForward,
             onSwipeBackward = onSwipeBackward,
+            onClick = onClick,
         )
 
 private class IndirectPointerGestureElement(
     private val enabled: Boolean,
-    private val onClick: () -> Unit,
-    private val onSwipeForward: () -> Unit,
-    private val onSwipeBackward: () -> Unit,
+    private val onSwipeForward: (() -> Unit)?,
+    private val onSwipeBackward: (() -> Unit)?,
+    private val onClick: (() -> Unit)?,
 ) : ModifierNodeElement<IndirectPointerGestureNode>() {
 
     override fun create(): IndirectPointerGestureNode =
         IndirectPointerGestureNode(
             enabled = enabled,
-            onClick = onClick,
             onSwipeForward = onSwipeForward,
             onSwipeBackward = onSwipeBackward,
+            onClick = onClick,
         )
 
     override fun update(node: IndirectPointerGestureNode) {
         node.update(
             enabled = enabled,
-            onClick = onClick,
             onSwipeForward = onSwipeForward,
             onSwipeBackward = onSwipeBackward,
+            onClick = onClick,
         )
     }
 
@@ -89,35 +96,35 @@ private class IndirectPointerGestureElement(
         if (other !is IndirectPointerGestureElement) return false
 
         if (enabled != other.enabled) return false
-        if (onClick !== other.onClick) return false
         if (onSwipeForward !== other.onSwipeForward) return false
         if (onSwipeBackward !== other.onSwipeBackward) return false
+        if (onClick !== other.onClick) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = enabled.hashCode()
-        result = 31 * result + onClick.hashCode()
-        result = 31 * result + onSwipeForward.hashCode()
-        result = 31 * result + onSwipeBackward.hashCode()
+        result = 31 * result + (onSwipeForward?.hashCode() ?: 0)
+        result = 31 * result + (onSwipeBackward?.hashCode() ?: 0)
+        result = 31 * result + (onClick?.hashCode() ?: 0)
         return result
     }
 
     override fun InspectorInfo.inspectableProperties() {
         name = "onIndirectPointerGesture"
         properties["enabled"] = enabled
-        properties["onClick"] = onClick
         properties["onSwipeForward"] = onSwipeForward
         properties["onSwipeBackward"] = onSwipeBackward
+        properties["onClick"] = onClick
     }
 }
 
 private class IndirectPointerGestureNode(
     private var enabled: Boolean,
-    private var onClick: () -> Unit,
-    private var onSwipeForward: () -> Unit,
-    private var onSwipeBackward: () -> Unit,
+    private var onSwipeForward: (() -> Unit)?,
+    private var onSwipeBackward: (() -> Unit)?,
+    private var onClick: (() -> Unit)?,
 ) : IndirectPointerInputModifierNode, CompositionLocalConsumerModifierNode, Modifier.Node() {
 
     private var pointerId: PointerId = PointerId(UnassignedPointerId)
@@ -131,17 +138,18 @@ private class IndirectPointerGestureNode(
 
     fun update(
         enabled: Boolean,
-        onClick: () -> Unit,
-        onSwipeForward: () -> Unit,
-        onSwipeBackward: () -> Unit,
+        onSwipeForward: (() -> Unit)?,
+        onSwipeBackward: (() -> Unit)?,
+        onClick: (() -> Unit)?,
     ) {
-        if (this.enabled != enabled) {
+        val hasNoCallbacks = onClick == null && onSwipeForward == null && onSwipeBackward == null
+        if (this.enabled != enabled || hasNoCallbacks) {
             resetGestureState()
         }
         this.enabled = enabled
-        this.onClick = onClick
         this.onSwipeForward = onSwipeForward
         this.onSwipeBackward = onSwipeBackward
+        this.onClick = onClick
     }
 
     override fun onDetach() {
@@ -151,6 +159,10 @@ private class IndirectPointerGestureNode(
 
     override fun onIndirectPointerEvent(event: IndirectPointerEvent, pass: PointerEventPass) {
         if (!enabled || pass != PointerEventPass.Main) {
+            return
+        }
+
+        if (onClick == null && onSwipeForward == null && onSwipeBackward == null) {
             return
         }
 
@@ -233,8 +245,10 @@ private class IndirectPointerGestureNode(
 
     private fun handleUp(inputChange: IndirectPointerInputChange) {
         if (!ignoreClickForGestureStream) {
-            inputChange.consume()
-            onClick()
+            onClick?.let {
+                inputChange.consume()
+                it()
+            }
         } else if (!ignoreSwipeForGestureStream) {
             val touchSlop = currentValueOf(LocalViewConfiguration).touchSlop
             val swipeDistanceThresholdPx = touchSlop * TouchSlopToSwipeDistanceThresholdRatio
@@ -254,11 +268,11 @@ private class IndirectPointerGestureNode(
                         )
                 ) {
                     // It's a valid swipe (no backtrack) and it's fast enough.
-                    inputChange.consume()
-                    if (finalHorizontalDisplacement < 0) {
-                        onSwipeBackward()
-                    } else {
-                        onSwipeForward()
+                    val swipeCallback =
+                        if (finalHorizontalDisplacement < 0) onSwipeBackward else onSwipeForward
+                    swipeCallback?.let {
+                        inputChange.consume()
+                        it()
                     }
                 }
             }

@@ -123,6 +123,7 @@ import androidx.compose.remote.core.operations.layout.managers.ImageLayout
 import androidx.compose.remote.core.operations.layout.managers.RowLayout
 import androidx.compose.remote.core.operations.layout.managers.StateLayout
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
+import androidx.compose.remote.core.operations.layout.managers.TextStyle
 import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.BackgroundModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.BorderModifierOperation
@@ -482,6 +483,7 @@ class RemoteComposeDocumentation(val title: String) : DocumentationBuilder {
         operationsMap.put(Operations.LAYOUT_CANVAS, CanvasLayout::documentation)
         operationsMap.put(Operations.LAYOUT_TEXT, TextLayout::documentation)
         operationsMap.put(Operations.CORE_TEXT, CoreText::documentation)
+        operationsMap.put(Operations.TEXT_STYLE, TextStyle::documentation)
         operationsMap.put(Operations.LAYOUT_IMAGE, ImageLayout::documentation)
         operationsMap.put(Operations.LAYOUT_STATE, StateLayout::documentation)
         operationsMap.put(Operations.COMPONENT_START, ComponentStart::documentation)

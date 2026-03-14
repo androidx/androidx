@@ -40,7 +40,7 @@ class DataClassIndexAdapter(
 
     override fun onStatementReady(stmtVarName: String, scope: CodeGenScope) {
         columnIndexVars =
-            mapping.matchedFields.map {
+            mapping.matchedProperties.map {
                 val indexVar =
                     scope.getTmpVar("_columnIndexOf${it.name.stripNonJava().capitalize(Locale.US)}")
                 if (info != null && query != null && query.hasTopStarProjection == false) {
