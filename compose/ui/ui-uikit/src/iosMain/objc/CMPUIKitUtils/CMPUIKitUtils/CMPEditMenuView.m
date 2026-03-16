@@ -300,20 +300,31 @@ id _editInteraction;
 }
 
 - (BOOL)canPerformAction:(SEL)action withSender:(id)sender {
-    return ((@selector(copy:) == action && self.copyBlock != nil) ||
-            (@selector(paste:) == action && self.pasteBlock != nil) ||
-            (@selector(cut:) == action && self.cutBlock != nil) ||
-            (@selector(selectAll:) == action && self.selectAllBlock != nil) ||
-            (@selector(customAction0:) == action && self.customActions.count > 0) ||
-            (@selector(customAction1:) == action && self.customActions.count > 1) ||
-            (@selector(customAction2:) == action && self.customActions.count > 2) ||
-            (@selector(customAction3:) == action && self.customActions.count > 3) ||
-            (@selector(customAction4:) == action && self.customActions.count > 4) ||
-            (@selector(customAction5:) == action && self.customActions.count > 5) ||
-            (@selector(customAction6:) == action && self.customActions.count > 6) ||
-            (@selector(customAction7:) == action && self.customActions.count > 7) ||
-            (@selector(customAction8:) == action && self.customActions.count > 8) ||
-            (@selector(customAction9:) == action && self.customActions.count > 9));
+    if (@selector(copy:) == action) {
+        return self.copyBlock != nil;
+    }
+    if (@selector(paste:) == action) {
+        return self.pasteBlock != nil;
+    }
+    if (@selector(cut:) == action) {
+        return self.cutBlock != nil;
+    }
+    if (@selector(selectAll:) == action) {
+        return self.selectAllBlock != nil;
+    }
+
+    if (@selector(customAction0:) == action) return self.customActions.count > 0;
+    if (@selector(customAction1:) == action) return self.customActions.count > 1;
+    if (@selector(customAction2:) == action) return self.customActions.count > 2;
+    if (@selector(customAction3:) == action) return self.customActions.count > 3;
+    if (@selector(customAction4:) == action) return self.customActions.count > 4;
+    if (@selector(customAction5:) == action) return self.customActions.count > 5;
+    if (@selector(customAction6:) == action) return self.customActions.count > 6;
+    if (@selector(customAction7:) == action) return self.customActions.count > 7;
+    if (@selector(customAction8:) == action) return self.customActions.count > 8;
+    if (@selector(customAction9:) == action) return self.customActions.count > 9;
+
+    return [super canPerformAction:action withSender:sender];
 }
 
 - (void)copy:(id)sender {
