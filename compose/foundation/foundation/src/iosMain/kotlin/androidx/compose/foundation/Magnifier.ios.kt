@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation
 
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -29,6 +30,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
@@ -38,14 +40,13 @@ import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.debugInspectorInfo
-import androidx.compose.ui.platform.inspectable
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.uikit.LocalUIViewController
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.roundToIntSize
 import androidx.compose.ui.unit.toSize
 import kotlinx.cinterop.useContents
 import kotlinx.coroutines.launch
@@ -61,34 +62,6 @@ import platform.UIKit.UIView
  */
 internal val MagnifierPositionInWindow =
     SemanticsPropertyKey<() -> Offset>("MagnifierPositionInWindow")
-
-internal fun Modifier.magnifier(
-    sourceCenter: Density.() -> Offset,
-    onSizeChanged: ((DpSize) -> Unit)?,
-    color: Color = Color.Unspecified,
-    hapticFeedback: HapticFeedback?,
-): Modifier {
-    return if (isPlatformMagnifierSupported()) {
-        then(
-            MagnifierElement(
-                sourceCenter = sourceCenter,
-                onSizeChanged = onSizeChanged,
-                color = color,
-                platformMagnifierFactory = PlatformMagnifierFactory.getForCurrentPlatform(),
-                hapticFeedback = hapticFeedback,
-            )
-        )
-    } else {
-        inspectable(
-            // Publish inspector info even if magnification isn't supported.
-            inspectorInfo = debugInspectorInfo {
-                name = "magnifier (not supported)"
-                properties["sourceCenter"] = sourceCenter
-                properties["color"] = color
-            }
-        ) { this }
-    }
-}
 
 internal class MagnifierElement(
     private val sourceCenter: Density.() -> Offset,
@@ -338,3 +311,99 @@ internal class MagnifierNode(
 
 internal fun isPlatformMagnifierSupported() =
     available(OS.Ios to OSVersion(major = 17))
+
+internal class SelectionMagnifierElement<M>(
+    private val manager: M,
+    private val hapticFeedback: M.() -> HapticFeedback?,
+    private val calculateCenter: Density.(IntSize) -> Offset,
+) : ModifierNodeElement<SelectionMagnifierNode<M>>() {
+
+    override fun create() = SelectionMagnifierNode(
+        manager = manager,
+        hapticFeedback = hapticFeedback,
+        calculateCenter = calculateCenter,
+    )
+
+    override fun update(node: SelectionMagnifierNode<M>) = node.update(
+        manager = manager,
+        hapticFeedback = hapticFeedback,
+        calculateCenter = calculateCenter,
+    )
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "magnifier"
+        properties["manager"] = manager
+        properties["calculateCenter"] = calculateCenter
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SelectionMagnifierElement<M>) return false
+        return manager == other.manager &&
+            hapticFeedback === other.hapticFeedback &&
+            calculateCenter === other.calculateCenter
+    }
+
+    override fun hashCode(): Int {
+        var result = manager.hashCode()
+        result = 31 * result + hapticFeedback.hashCode()
+        result = 31 * result + calculateCenter.hashCode()
+        return result
+    }
+}
+
+internal class SelectionMagnifierNode<M>(
+    private var manager: M,
+    private var hapticFeedback: M.() -> HapticFeedback?,
+    private var calculateCenter: Density.(IntSize) -> Offset,
+) : DelegatingNode(),
+    ObserverModifierNode,
+    CompositionLocalConsumerModifierNode {
+
+    private var magnifierSizeDp by mutableStateOf(DpSize.Zero)
+
+    private val magnifierNode = delegate(
+        MagnifierNode(
+            sourceCenter = {
+                calculateCenter(magnifierSizeDp.toSize().roundToIntSize())
+            },
+            onSizeChanged = { magnifierSizeDp = it },
+            hapticFeedback = manager.hapticFeedback(),
+            platformMagnifierFactory = PlatformMagnifierFactory.getForCurrentPlatform()
+        )
+    )
+
+    override fun onAttach() {
+        super.onAttach()
+
+        onObservedReadsChanged()
+    }
+
+    override fun onObservedReadsChanged() {
+        observeReads {
+            magnifierNode.update(
+                color = currentValueOf(LocalTextSelectionColors).handleColor,
+                hapticFeedback = manager.hapticFeedback(),
+            )
+        }
+    }
+
+    fun update(
+        manager: M,
+        hapticFeedback: M.() -> HapticFeedback?,
+        calculateCenter: Density.(IntSize) -> Offset,
+    ) {
+        val managerChanged = this.manager != manager
+        val hapticFeedbackChanged = this.hapticFeedback !== hapticFeedback
+
+        this.manager = manager
+        this.hapticFeedback = hapticFeedback
+        this.calculateCenter = calculateCenter
+
+        if (managerChanged || hapticFeedbackChanged) {
+            magnifierNode.update(
+                hapticFeedback = manager.hapticFeedback()
+            )
+        }
+    }
+}

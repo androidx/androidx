@@ -16,49 +16,38 @@
 
 package androidx.compose.foundation.text.selection
 
+import androidx.compose.foundation.SelectionMagnifierElement
 import androidx.compose.foundation.isPlatformMagnifierSupported
-import androidx.compose.foundation.magnifier
 import androidx.compose.foundation.text.addTextContextMenuComponents
 import androidx.compose.foundation.text.contextmenu.builder.TextContextMenuBuilderScope
 import androidx.compose.foundation.text.contextmenu.data.TextContextMenuItemWithComposableLeadingIcon
 import androidx.compose.foundation.text.contextmenu.data.TextContextMenuKeys
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.platform.inspectable
 
 internal actual fun isCopyKeyEvent(keyEvent: KeyEvent): Boolean =
     false //TODO implement copy key event for iPad
 
-internal actual fun Modifier.selectionMagnifier(manager: SelectionManager): Modifier {
-    if (!isPlatformMagnifierSupported()) {
-        return this
-    }
-
-    return composed {
-        val density = LocalDensity.current
-        var magnifierSize by remember { mutableStateOf(IntSize.Zero) }
-        val color = LocalTextSelectionColors.current
-
-        magnifier(
-            sourceCenter = {
-                // Don't animate position as it is automatically animated by the framework
-                calculateSelectionMagnifierCenterAndroid(manager, magnifierSize)
-            },
-            onSizeChanged = { size ->
-                magnifierSize = with(density) {
-                    IntSize(size.width.roundToPx(), size.height.roundToPx())
-                }
-            },
-            color = color.handleColor, // align magnifier border color with selection handleColor,
-            hapticFeedback = manager.hapticFeedBack,
+internal actual fun Modifier.selectionMagnifier(manager: SelectionManager): Modifier = if (isPlatformMagnifierSupported()) {
+    this.then(
+        SelectionMagnifierElement(
+            manager = manager,
+            hapticFeedback = { hapticFeedBack },
+            calculateCenter = { size ->
+                calculateSelectionMagnifierCenterAndroid(manager, size)
+            }
         )
-    }
+    )
+} else {
+    inspectable(
+        // Publish inspector info even if magnification isn't supported.
+        inspectorInfo = debugInspectorInfo {
+            name = "selectionMagnifier (not supported)"
+            properties["manager"] = manager
+        }
+    ) { this }
 }
 
 internal actual fun Modifier.addSelectionContainerTextContextMenuComponents(
