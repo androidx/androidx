@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -39,26 +38,26 @@ androidXMultiplatform {
     }
     desktop()
     mac()
+    linux()
     ios()
+    watchos()
+    tvos()
+    mingwX64()
     js()
     wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        def lifecycleVersion = project.findProperty('artifactRedirection.version.androidx.lifecycle')
-        def navigation3Version = project.findProperty('artifactRedirection.version.androidx.navigation3')
-        def savedstateVersion = project.findProperty('artifactRedirection.version.androidx.savedstate')
-
         commonMain.dependencies {
             api(project(":lifecycle:lifecycle-viewmodel"))
             api(project(":lifecycle:lifecycle-viewmodel-compose"))
-            api("androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycleVersion")
-            api("org.jetbrains.compose.runtime:runtime:1.9.3")
-            api("org.jetbrains.compose.runtime:runtime-saveable:1.9.3")
-            api("androidx.navigation3:navigation3-runtime:$navigation3Version")
-            api("androidx.savedstate:savedstate:$savedstateVersion")
-            api("androidx.savedstate:savedstate-compose:$savedstateVersion")
+            api(project(":lifecycle:lifecycle-viewmodel-savedstate"))
+            api("androidx.compose.runtime:runtime:1.10.4")
+            api("androidx.compose.runtime:runtime-saveable:1.10.4")
+            api(project(":navigation3:navigation3-runtime"))
+            api("androidx.savedstate:savedstate:1.3.2")
+            api("androidx.savedstate:savedstate-compose:1.3.2")
             implementation("androidx.collection:collection:1.5.0")
         }
 
@@ -85,35 +84,21 @@ androidXMultiplatform {
             implementation(project(":compose:ui:ui-test-junit4"))
         }
 
-        nonAndroidMain.dependsOn(commonMain)
-        nonAndroidTest {
-            dependsOn(commonTest)
-        }
+        create("nonAndroidMain").dependsOn(commonMain)
+        create("nonAndroidTest").dependsOn(commonTest)
 
-        desktopMain {
-            dependsOn(nonAndroidMain)
-        }
+        desktopMain.dependsOn(nonAndroidMain)
+        desktopTest.dependsOn(nonAndroidTest)
 
-        desktopTest {
-            dependsOn(nonAndroidTest)
-        }
-
-        nativeMain {
-            dependsOn(nonAndroidMain)
-        }
-
-        nativeTest {
-            dependsOn(nonAndroidTest)
-        }
-
-        webMain {
-            dependsOn(nonAndroidMain)
-        }
-
-        webTest {
-            dependsOn(nonAndroidTest)
-        }
+        nonJvmMain.dependsOn(nonAndroidMain)
+        nonJvmTest.dependsOn(nonAndroidTest)
     }
+}
+
+dependencies.constraints {
+    // TODO(mgalhardo): Add constraints to properly migrate from the JetBrains fork.
+    //  We need to prevent symbol duplication with old versions of the fork.
+    //  Once the fork publishes a version that redirects to this artifact.
 }
 
 androidx {

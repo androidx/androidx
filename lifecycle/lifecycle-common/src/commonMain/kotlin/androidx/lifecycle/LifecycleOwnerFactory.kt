@@ -14,9 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.lifecycle.viewmodel.compose.internal
+@file:JvmName("LifecycleOwnerFactory")
 
-import kotlin.reflect.KClass
+package androidx.lifecycle
 
-internal actual val KClass<*>?.canonicalName: String?
-    get() = this?.simpleName // `qualifiedName` reflection API is not supported yet in Web.
+import kotlin.jvm.JvmName
+
+/** Creates a [LifecycleOwner] directly backed by the provided [Lifecycle]. */
+@JvmName("create")
+public fun LifecycleOwner(lifecycle: Lifecycle): LifecycleOwner {
+    return object : LifecycleOwner {
+        override val lifecycle
+            get() = lifecycle
+    }
+}

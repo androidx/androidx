@@ -20,7 +20,6 @@ import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.internal.DefaultViewModelProviderFactory
-import androidx.lifecycle.viewmodel.internal.ViewModelProviders
 import kotlin.reflect.KClass
 
 /**
@@ -90,8 +89,8 @@ public expect class ViewModelProvider {
          */
         public fun create(
             owner: ViewModelStoreOwner,
-            factory: Factory = ViewModelProviders.getDefaultFactory(owner),
-            extras: CreationExtras = ViewModelProviders.getDefaultCreationExtras(owner),
+            factory: Factory = owner.defaultViewModelProviderFactory,
+            extras: CreationExtras = owner.defaultViewModelCreationExtras,
         ): ViewModelProvider
 
         /**

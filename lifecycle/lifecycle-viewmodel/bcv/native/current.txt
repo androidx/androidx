@@ -111,6 +111,10 @@ open class androidx.lifecycle/ViewModelStore { // androidx.lifecycle/ViewModelSt
     open fun toString(): kotlin/String // androidx.lifecycle/ViewModelStore.toString|toString(){}[0]
 }
 
+final val androidx.lifecycle/defaultViewModelCreationExtras // androidx.lifecycle/defaultViewModelCreationExtras|@androidx.lifecycle.ViewModelStoreOwner?{}defaultViewModelCreationExtras[0]
+    final fun (androidx.lifecycle/ViewModelStoreOwner?).<get-defaultViewModelCreationExtras>(): androidx.lifecycle.viewmodel/CreationExtras // androidx.lifecycle/defaultViewModelCreationExtras.<get-defaultViewModelCreationExtras>|<get-defaultViewModelCreationExtras>@androidx.lifecycle.ViewModelStoreOwner?(){}[0]
+final val androidx.lifecycle/defaultViewModelProviderFactory // androidx.lifecycle/defaultViewModelProviderFactory|@androidx.lifecycle.ViewModelStoreOwner?{}defaultViewModelProviderFactory[0]
+    final fun (androidx.lifecycle/ViewModelStoreOwner?).<get-defaultViewModelProviderFactory>(): androidx.lifecycle/ViewModelProvider.Factory // androidx.lifecycle/defaultViewModelProviderFactory.<get-defaultViewModelProviderFactory>|<get-defaultViewModelProviderFactory>@androidx.lifecycle.ViewModelStoreOwner?(){}[0]
 final val androidx.lifecycle/viewModelScope // androidx.lifecycle/viewModelScope|@androidx.lifecycle.ViewModel{}viewModelScope[0]
     final fun (androidx.lifecycle/ViewModel).<get-viewModelScope>(): kotlinx.coroutines/CoroutineScope // androidx.lifecycle/viewModelScope.<get-viewModelScope>|<get-viewModelScope>@androidx.lifecycle.ViewModel(){}[0]
 
