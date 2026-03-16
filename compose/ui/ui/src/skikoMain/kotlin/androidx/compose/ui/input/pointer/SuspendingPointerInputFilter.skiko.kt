@@ -16,11 +16,12 @@
 
 package androidx.compose.ui.input.pointer
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
+import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
 
 /**
  * Create a modifier for processing pointer input within the region of the modified element.
@@ -36,17 +37,92 @@ fun Modifier.onPointerEvent(
     eventType: PointerEventType,
     pass: PointerEventPass = PointerEventPass.Main,
     onEvent: AwaitPointerEventScope.(event: PointerEvent) -> Unit
-): Modifier = composed {
-    val currentEventType by rememberUpdatedState(eventType)
-    val currentOnEvent by rememberUpdatedState(onEvent)
-    pointerInput(pass) {
-        awaitPointerEventScope {
-            while (true) {
-                val event = awaitPointerEvent(pass)
-                if (event.type == currentEventType) {
-                    currentOnEvent(event)
+): Modifier = this.then(
+    OnPointerEventModifierElement(
+        eventType = eventType,
+        pass = pass,
+        onEvent = onEvent
+    )
+)
+
+private class OnPointerEventModifierElement(
+    private val eventType: PointerEventType,
+    private val pass: PointerEventPass,
+    private val onEvent: AwaitPointerEventScope.(event: PointerEvent) -> Unit
+) : ModifierNodeElement<OnPointerEventModifierNode>() {
+    override fun create() = OnPointerEventModifierNode(
+        eventType = eventType,
+        pass = pass,
+        onEvent = onEvent
+    )
+
+    override fun update(node: OnPointerEventModifierNode) = node.update(
+        eventType = eventType,
+        pass = pass,
+        onEvent = onEvent
+    )
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "onPointerEvent"
+        properties["eventType"] = eventType
+        properties["pass"] = pass
+        properties["onEvent"] = onEvent
+    }
+
+    override fun hashCode(): Int {
+        var result = eventType.hashCode()
+        result = 31 * result + pass.hashCode()
+        result = 31 * result + onEvent.hashCode()
+        return result
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is OnPointerEventModifierElement) return false
+        return eventType == other.eventType &&
+            pass == other.pass &&
+            onEvent === other.onEvent
+    }
+}
+
+private class OnPointerEventModifierNode(
+    private var eventType: PointerEventType,
+    private var pass: PointerEventPass,
+    private var onEvent: AwaitPointerEventScope.(event: PointerEvent) -> Unit
+) : DelegatingNode() {
+
+    private val pointerInputNode = delegate(
+        SuspendingPointerInputModifierNode(
+            pointerInputEventHandler = {
+                awaitPointerEventScope {
+                    while (true) {
+                        val event = awaitPointerEvent(pass)
+                        if (event.type == eventType) {
+                            onEvent(event)
+                        }
+                    }
                 }
             }
+        )
+    )
+
+    fun update(
+        eventType: PointerEventType,
+        pass: PointerEventPass,
+        onEvent: AwaitPointerEventScope.(event: PointerEvent) -> Unit
+    ) {
+        var pointerInputNodeNeedsReset = false
+
+        this.eventType = eventType
+        this.onEvent = onEvent
+
+        if (this.pass != pass) {
+            this.pass = pass
+            pointerInputNodeNeedsReset = true
+        }
+
+        if (pointerInputNodeNeedsReset) {
+            pointerInputNode.resetPointerInputHandler()
         }
     }
 }
