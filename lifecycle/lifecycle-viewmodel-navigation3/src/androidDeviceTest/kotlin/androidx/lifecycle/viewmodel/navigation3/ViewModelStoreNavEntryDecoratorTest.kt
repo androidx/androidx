@@ -103,14 +103,14 @@ class ViewModelStoreNavEntryDecoratorTest {
                 }
             }
         } catch (e: Exception) {
-            assertThat(e)
-                .hasMessageThat()
-                .isEqualTo(
-                    "The Lifecycle state is already beyond INITIALIZED. The " +
-                        "ViewModelStoreNavEntryDecorator requires adding the " +
-                        "SavedStateNavEntryDecorator to ensure support for " +
-                        "SavedStateHandles."
+            with(assertThat(e.message)) {
+                // Assert the static parts of the new error message
+                contains("Failed to enable `SavedStateHandle` for `")
+                contains("`. The `Lifecycle.State` must be `INITIALIZED` or `CREATED`, but was `")
+                contains(
+                    "`. You must call `enableSavedStateHandles()` before the `Lifecycle.State` moves to `STARTED`."
                 )
+            }
         }
     }
 

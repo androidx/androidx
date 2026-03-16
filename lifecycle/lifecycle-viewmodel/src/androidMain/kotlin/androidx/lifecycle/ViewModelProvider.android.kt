@@ -20,6 +20,7 @@ package androidx.lifecycle
 import android.app.Application
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.CreationExtras.Key
 import androidx.lifecycle.viewmodel.InitializerViewModelFactory
@@ -64,8 +65,8 @@ private constructor(private val impl: ViewModelProviderImpl) {
         owner: ViewModelStoreOwner
     ) : this(
         store = owner.viewModelStore,
-        factory = ViewModelProviders.getDefaultFactory(owner),
-        defaultCreationExtras = ViewModelProviders.getDefaultCreationExtras(owner),
+        factory = owner.defaultViewModelProviderFactory,
+        defaultCreationExtras = owner.defaultViewModelCreationExtras,
     )
 
     /**
@@ -83,7 +84,7 @@ private constructor(private val impl: ViewModelProviderImpl) {
     ) : this(
         store = owner.viewModelStore,
         factory = factory,
-        defaultCreationExtras = ViewModelProviders.getDefaultCreationExtras(owner),
+        defaultCreationExtras = owner.defaultViewModelCreationExtras,
     )
 
     @MainThread

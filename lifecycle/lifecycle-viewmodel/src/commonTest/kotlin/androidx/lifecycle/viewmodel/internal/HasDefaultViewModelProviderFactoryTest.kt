@@ -21,47 +21,45 @@ import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.defaultViewModelCreationExtras
+import androidx.lifecycle.defaultViewModelProviderFactory
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.IgnoreWebTarget
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import kotlin.test.Test
 
 @IgnoreWebTarget
-class ViewModelProvidersTest {
+class HasDefaultViewModelProviderFactoryTest {
 
     @Test
-    fun getDefaultFactory_ownerWithNoFactory_returnsDefault() {
-        val owner = TestViewModelStoreOwner()
-        val factory = ViewModelProviders.getDefaultFactory(owner)
+    fun defaultFactory_ownerWithNoFactory_returnsDefault() {
+        val owner: ViewModelStoreOwner = TestViewModelStoreOwner()
+        val factory = owner.defaultViewModelProviderFactory
         assertThat(factory).isEqualTo(DefaultViewModelProviderFactory)
     }
 
     @Test
-    fun getDefaultFactory_ownerWithFactory_returnsExtras() {
+    fun defaultFactory_ownerWithFactory_returnsExtras() {
         val customFactory = object : ViewModelProvider.Factory {}
-        val owner =
+        val owner: ViewModelStoreOwner =
             TestViewModelStoreOwnerWithDefaults(defaultViewModelProviderFactory = customFactory)
-
-        val factory = ViewModelProviders.getDefaultFactory(owner)
-
+        val factory = owner.defaultViewModelProviderFactory
         assertThat(factory).isEqualTo(customFactory)
     }
 
     @Test
-    fun getDefaultCreationExtras_ownerWithNoExtras_returnsDefault() {
-        val owner = TestViewModelStoreOwner()
-        val extras = ViewModelProviders.getDefaultCreationExtras(owner)
+    fun defaultCreationExtras_ownerWithNoExtras_returnsDefault() {
+        val owner: ViewModelStoreOwner = TestViewModelStoreOwner()
+        val extras = owner.defaultViewModelCreationExtras
         assertThat(extras).isEqualTo(CreationExtras.Empty)
     }
 
     @Test
-    fun getDefaultCreationExtras_ownerWithExtras_returnsExtras() {
+    fun defaultCreationExtras_ownerWithExtras_returnsExtras() {
         val customExtras = MutableCreationExtras()
-        val owner =
+        val owner: ViewModelStoreOwner =
             TestViewModelStoreOwnerWithDefaults(defaultViewModelCreationExtras = customExtras)
-
-        val extras = ViewModelProviders.getDefaultCreationExtras(owner)
-
+        val extras = owner.defaultViewModelCreationExtras
         assertThat(extras).isEqualTo(customExtras)
     }
 

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.lifecycle.viewmodel.compose.internal
+package androidx.lifecycle.viewmodel.compose
 
 import kotlin.reflect.KClass
 
 internal actual val KClass<*>?.canonicalName: String?
-    get() = this?.qualifiedName
+    get() = this?.simpleName // `qualifiedName` reflection API is not supported yet in Web.

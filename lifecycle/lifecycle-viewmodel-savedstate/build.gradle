@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -58,12 +57,15 @@ androidXMultiplatform {
             api("androidx.savedstate:savedstate:1.4.0")
             api(project(":lifecycle:lifecycle-viewmodel"))
             implementation(project(":lifecycle:lifecycle-common"))
+            implementation("androidx.collection:collection:1.5.0")
             api(libs.kotlinCoroutinesCore)
             api(libs.kotlinSerializationCore)
         }
 
         commonTest.dependencies {
-            implementation(project(":lifecycle:lifecycle-runtime"))
+            implementation(project(":lifecycle:lifecycle-runtime-testing"))
+            implementation(project(":kruth:kruth"))
+            implementation(libs.kotlinTest)
             implementation(libs.kotlinCoroutinesTest)
         }
 
@@ -85,7 +87,7 @@ androidXMultiplatform {
             implementation(libs.testRules)
         }
 
-        nonAndroidMain.dependsOn(commonMain)
+        create("nonAndroidMain").dependsOn(commonMain)
         desktopMain.dependsOn(nonAndroidMain)
         nonJvmMain.dependsOn(nonAndroidMain)
     }

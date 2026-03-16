@@ -47,7 +47,13 @@ internal const val SAVED_STATE_KEY = "androidx.lifecycle.internal.SavedStateHand
 public fun <T> T.enableSavedStateHandles()
     where T : SavedStateRegistryOwner, T : ViewModelStoreOwner {
     val currentState = lifecycle.currentState
-    require(currentState == Lifecycle.State.INITIALIZED || currentState == Lifecycle.State.CREATED)
+    require(
+        currentState == Lifecycle.State.INITIALIZED || currentState == Lifecycle.State.CREATED
+    ) {
+        "Failed to enable `SavedStateHandle` for `$this`. The `Lifecycle.State` must be " +
+            "`INITIALIZED` or `CREATED`, but was `$currentState`. You must call " +
+            "`enableSavedStateHandles()` before the `Lifecycle.State` moves to `STARTED`."
+    }
 
     // Add the SavedStateProvider used to save SavedStateHandles
     // if we haven't already registered the provider

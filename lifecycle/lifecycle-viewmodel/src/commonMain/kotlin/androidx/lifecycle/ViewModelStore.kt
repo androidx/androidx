@@ -16,6 +16,10 @@
 package androidx.lifecycle
 
 import androidx.annotation.RestrictTo
+import androidx.collection.MutableScatterMap
+import androidx.collection.ScatterMap
+import androidx.collection.emptyScatterMap
+import androidx.collection.mutableScatterMapOf
 
 /**
  * Stores [ViewModel] instances by key.
@@ -38,7 +42,7 @@ import androidx.annotation.RestrictTo
  */
 public open class ViewModelStore {
 
-    private val map = mutableMapOf<String, ViewModel>()
+    private val map = mutableScatterMapOf<String, ViewModel>()
 
     /**
      * Stores [viewModel] under [key], replacing any existing entry.
@@ -60,7 +64,10 @@ public open class ViewModelStore {
      *
      * The returned set is not backed by this store and will not reflect subsequent changes.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun keys(): Set<String> = map.keys.toSet()
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun keys(): Set<String> {
+        return buildSet(capacity = map.size) { map.forEachKey { key -> add(key) } }
+    }
 
     /**
      * Clears this store and notifies all stored [ViewModel] instances that they are no longer used.
@@ -70,10 +77,9 @@ public open class ViewModelStore {
      * @see ViewModel.onCleared
      */
     public fun clear() {
-        for (vm in map.values) {
-            vm.clear()
-        }
+        val snapshot = map.toScatterMap()
         map.clear()
+        snapshot.forEachValue { viewModel -> viewModel.clear() }
     }
 
     override fun toString(): String {
@@ -81,6 +87,10 @@ public open class ViewModelStore {
         val className = this::class.simpleName ?: "ViewModelStore"
         // Discourage relying on the string output.
         val identity = hashCode().toString(radix = 16)
-        return "$className#$identity(keys=${map.keys})"
+        return "$className#$identity(keys=${keys()})"
     }
 }
+
+/** Returns a new read-only [ScatterMap] with the specified mappings. */
+private fun <K, V> ScatterMap<K, V>.toScatterMap(): ScatterMap<K, V> =
+    if (isEmpty()) emptyScatterMap() else MutableScatterMap<K, V>(size).also { it.putAll(this) }

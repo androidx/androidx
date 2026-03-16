@@ -23,6 +23,8 @@ import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.defaultViewModelCreationExtras
+import androidx.lifecycle.defaultViewModelProviderFactory
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -59,12 +61,7 @@ public inline fun <reified VM : ViewModel> viewModel(
         },
     key: String? = null,
     factory: ViewModelProvider.Factory? = null,
-    extras: CreationExtras =
-        if (viewModelStoreOwner is HasDefaultViewModelProviderFactory) {
-            viewModelStoreOwner.defaultViewModelCreationExtras
-        } else {
-            CreationExtras.Empty
-        },
+    extras: CreationExtras = viewModelStoreOwner.defaultViewModelCreationExtras,
 ): VM = viewModel(VM::class, viewModelStoreOwner, key, factory, extras)
 
 /**
@@ -97,12 +94,7 @@ public fun <VM : ViewModel> viewModel(
         },
     key: String? = null,
     factory: ViewModelProvider.Factory? = null,
-    extras: CreationExtras =
-        if (viewModelStoreOwner is HasDefaultViewModelProviderFactory) {
-            viewModelStoreOwner.defaultViewModelCreationExtras
-        } else {
-            CreationExtras.Empty
-        },
+    extras: CreationExtras = viewModelStoreOwner.defaultViewModelCreationExtras,
 ): VM = viewModelStoreOwner.get(modelClass, key, factory, extras)
 
 /**
@@ -136,36 +128,17 @@ public inline fun <reified VM : ViewModel> viewModel(
         viewModelStoreOwner,
         key,
         viewModelFactory { initializer(initializer) },
-        if (viewModelStoreOwner is HasDefaultViewModelProviderFactory) {
-            viewModelStoreOwner.defaultViewModelCreationExtras
-        } else {
-            CreationExtras.Empty
-        },
+        viewModelStoreOwner.defaultViewModelCreationExtras,
     )
 
 internal fun <VM : ViewModel> ViewModelStoreOwner.get(
     modelClass: KClass<VM>,
     key: String? = null,
     factory: ViewModelProvider.Factory? = null,
-    extras: CreationExtras =
-        if (this is HasDefaultViewModelProviderFactory) {
-            this.defaultViewModelCreationExtras
-        } else {
-            CreationExtras.Empty
-        },
+    extras: CreationExtras = defaultViewModelCreationExtras,
 ): VM {
     val provider =
-        if (factory != null) {
-            ViewModelProvider.create(this.viewModelStore, factory, extras)
-        } else if (this is HasDefaultViewModelProviderFactory) {
-            ViewModelProvider.create(
-                this.viewModelStore,
-                this.defaultViewModelProviderFactory,
-                extras,
-            )
-        } else {
-            ViewModelProvider.create(this)
-        }
+        ViewModelProvider.create(this, factory ?: defaultViewModelProviderFactory, extras)
     return if (key != null) {
         provider[key, modelClass]
     } else {

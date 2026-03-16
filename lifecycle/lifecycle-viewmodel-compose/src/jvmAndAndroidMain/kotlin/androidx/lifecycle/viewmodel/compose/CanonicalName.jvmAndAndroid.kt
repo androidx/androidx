@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.lifecycle.viewmodel.compose.internal
+package androidx.lifecycle.viewmodel.compose
 
 import kotlin.reflect.KClass
 

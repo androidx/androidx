@@ -118,6 +118,13 @@ package androidx.lifecycle {
     property public abstract androidx.lifecycle.ViewModelStore viewModelStore;
   }
 
+  public final class ViewModelStoreOwnerDefaults {
+    method @InaccessibleFromKotlin public static androidx.lifecycle.viewmodel.CreationExtras getViewModelCreationExtras(androidx.lifecycle.ViewModelStoreOwner?);
+    method @InaccessibleFromKotlin public static androidx.lifecycle.ViewModelProvider.Factory getViewModelProviderFactory(androidx.lifecycle.ViewModelStoreOwner?);
+    property public static androidx.lifecycle.viewmodel.CreationExtras androidx.lifecycle.ViewModelStoreOwner?.defaultViewModelCreationExtras;
+    property public static androidx.lifecycle.ViewModelProvider.Factory androidx.lifecycle.ViewModelStoreOwner?.defaultViewModelProviderFactory;
+  }
+
   public final class ViewTreeViewModelKt {
     method @BytecodeOnly @Deprecated public static androidx.lifecycle.ViewModelStoreOwner! findViewTreeViewModelStoreOwner(android.view.View!);
   }

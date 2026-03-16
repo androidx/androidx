@@ -60,3 +60,51 @@ package androidx.lifecycle.serialization {
 
 }
 
+package androidx.lifecycle.viewmodel {
+
+  public final class ViewModelStoreOwnerFactory {
+    method @KotlinOnly public static androidx.lifecycle.ViewModelStoreOwner ViewModelStoreOwner(androidx.lifecycle.ViewModelStore viewModelStore, optional android.os.Bundle defaultArgs, optional androidx.lifecycle.viewmodel.CreationExtras defaultCreationExtras, optional androidx.lifecycle.ViewModelProvider.Factory defaultFactory);
+    method @KotlinOnly public static androidx.lifecycle.ViewModelStoreOwner ViewModelStoreOwner(androidx.lifecycle.ViewModelStore viewModelStore, androidx.savedstate.SavedStateRegistry savedStateRegistry, androidx.lifecycle.Lifecycle lifecycle, optional android.os.Bundle defaultArgs, optional androidx.lifecycle.viewmodel.CreationExtras defaultCreationExtras, optional androidx.lifecycle.ViewModelProvider.Factory defaultFactory);
+    method @KotlinOnly public static androidx.lifecycle.ViewModelStoreOwner ViewModelStoreOwner(androidx.lifecycle.ViewModelStore viewModelStore, androidx.savedstate.SavedStateRegistryOwner savedStateRegistryOwner, optional android.os.Bundle defaultArgs, optional androidx.lifecycle.viewmodel.CreationExtras defaultCreationExtras, optional androidx.lifecycle.ViewModelProvider.Factory defaultFactory);
+    method @InaccessibleFromKotlin public static androidx.lifecycle.ViewModelStoreOwner create(androidx.lifecycle.ViewModelStore viewModelStore);
+    method @InaccessibleFromKotlin public static androidx.lifecycle.ViewModelStoreOwner create(androidx.lifecycle.ViewModelStore viewModelStore, optional android.os.Bundle defaultArgs);
+    method @InaccessibleFromKotlin public static androidx.lifecycle.ViewModelStoreOwner create(androidx.lifecycle.ViewModelStore viewModelStore, optional android.os.Bundle defaultArgs, optional androidx.lifecycle.viewmodel.CreationExtras defaultCreationExtras);
+    method @InaccessibleFromKotlin public static androidx.lifecycle.ViewModelStoreOwner create(androidx.lifecycle.ViewModelStore viewModelStore, optional android.os.Bundle defaultArgs, optional androidx.lifecycle.viewmodel.CreationExtras defaultCreationExtras, optional androidx.lifecycle.ViewModelProvider.Factory defaultFactory);
+    method @InaccessibleFromKotlin public static androidx.lifecycle.ViewModelStoreOwner create(androidx.lifecycle.ViewModelStore viewModelStore, androidx.savedstate.SavedStateRegistry savedStateRegistry, androidx.lifecycle.Lifecycle lifecycle);
+    method @InaccessibleFromKotlin public static androidx.lifecycle.ViewModelStoreOwner create(androidx.lifecycle.ViewModelStore viewModelStore, androidx.savedstate.SavedStateRegistry savedStateRegistry, androidx.lifecycle.Lifecycle lifecycle, optional android.os.Bundle defaultArgs);
+    method @InaccessibleFromKotlin public static androidx.lifecycle.ViewModelStoreOwner create(androidx.lifecycle.ViewModelStore viewModelStore, androidx.savedstate.SavedStateRegistry savedStateRegistry, androidx.lifecycle.Lifecycle lifecycle, optional android.os.Bundle defaultArgs, optional androidx.lifecycle.viewmodel.CreationExtras defaultCreationExtras);
+    method @InaccessibleFromKotlin public static androidx.lifecycle.ViewModelStoreOwner create(androidx.lifecycle.ViewModelStore viewModelStore, androidx.savedstate.SavedStateRegistry savedStateRegistry, androidx.lifecycle.Lifecycle lifecycle, optional android.os.Bundle defaultArgs, optional androidx.lifecycle.viewmodel.CreationExtras defaultCreationExtras, optional androidx.lifecycle.ViewModelProvider.Factory defaultFactory);
+    method @InaccessibleFromKotlin public static androidx.lifecycle.ViewModelStoreOwner create(androidx.lifecycle.ViewModelStore viewModelStore, androidx.savedstate.SavedStateRegistryOwner savedStateRegistryOwner);
+    method @InaccessibleFromKotlin public static androidx.lifecycle.ViewModelStoreOwner create(androidx.lifecycle.ViewModelStore viewModelStore, androidx.savedstate.SavedStateRegistryOwner savedStateRegistryOwner, optional android.os.Bundle defaultArgs);
+    method @InaccessibleFromKotlin public static androidx.lifecycle.ViewModelStoreOwner create(androidx.lifecycle.ViewModelStore viewModelStore, androidx.savedstate.SavedStateRegistryOwner savedStateRegistryOwner, optional android.os.Bundle defaultArgs, optional androidx.lifecycle.viewmodel.CreationExtras defaultCreationExtras);
+    method @InaccessibleFromKotlin public static androidx.lifecycle.ViewModelStoreOwner create(androidx.lifecycle.ViewModelStore viewModelStore, androidx.savedstate.SavedStateRegistryOwner savedStateRegistryOwner, optional android.os.Bundle defaultArgs, optional androidx.lifecycle.viewmodel.CreationExtras defaultCreationExtras, optional androidx.lifecycle.ViewModelProvider.Factory defaultFactory);
+    method @BytecodeOnly public static androidx.lifecycle.ViewModelStoreOwner! create$default(androidx.lifecycle.ViewModelStore!, android.os.Bundle!, androidx.lifecycle.viewmodel.CreationExtras!, androidx.lifecycle.ViewModelProvider.Factory!, int, Object!);
+    method @BytecodeOnly public static androidx.lifecycle.ViewModelStoreOwner! create$default(androidx.lifecycle.ViewModelStore!, androidx.savedstate.SavedStateRegistry!, androidx.lifecycle.Lifecycle!, android.os.Bundle!, androidx.lifecycle.viewmodel.CreationExtras!, androidx.lifecycle.ViewModelProvider.Factory!, int, Object!);
+    method @BytecodeOnly public static androidx.lifecycle.ViewModelStoreOwner! create$default(androidx.lifecycle.ViewModelStore!, androidx.savedstate.SavedStateRegistryOwner!, android.os.Bundle!, androidx.lifecycle.viewmodel.CreationExtras!, androidx.lifecycle.ViewModelProvider.Factory!, int, Object!);
+  }
+
+  public final class ViewModelStoreProvider {
+    ctor public ViewModelStoreProvider(androidx.lifecycle.ViewModelStore? store);
+    ctor public ViewModelStoreProvider(androidx.lifecycle.ViewModelStore? store, optional androidx.lifecycle.viewmodel.CreationExtras defaultCreationExtras);
+    ctor public ViewModelStoreProvider(androidx.lifecycle.ViewModelStore? store, optional androidx.lifecycle.viewmodel.CreationExtras defaultCreationExtras, optional androidx.lifecycle.ViewModelProvider.Factory defaultFactory);
+    ctor @BytecodeOnly public ViewModelStoreProvider(androidx.lifecycle.ViewModelStore!, androidx.lifecycle.viewmodel.CreationExtras!, androidx.lifecycle.ViewModelProvider.Factory!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public ViewModelStoreProvider(androidx.lifecycle.ViewModelStoreOwner? owner);
+    ctor public ViewModelStoreProvider(androidx.lifecycle.ViewModelStoreOwner? owner, optional androidx.lifecycle.viewmodel.CreationExtras defaultCreationExtras);
+    ctor public ViewModelStoreProvider(androidx.lifecycle.ViewModelStoreOwner? owner, optional androidx.lifecycle.viewmodel.CreationExtras defaultCreationExtras, optional androidx.lifecycle.ViewModelProvider.Factory defaultFactory);
+    ctor @BytecodeOnly public ViewModelStoreProvider(androidx.lifecycle.ViewModelStoreOwner!, androidx.lifecycle.viewmodel.CreationExtras!, androidx.lifecycle.ViewModelProvider.Factory!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.lifecycle.viewmodel.ViewModelStoreProvider.ReferenceToken acquireToken(Object? key);
+    method public void clearAllKeys();
+    method public void clearKey(Object? key);
+    method public androidx.lifecycle.ViewModelStore getOrCreate(Object? key);
+    method public androidx.lifecycle.ViewModelStoreOwner getOrCreateOwner(Object? key);
+    method public androidx.lifecycle.ViewModelStoreOwner getOrCreateOwner(Object? key, optional androidx.savedstate.SavedStateRegistryOwner? savedStateRegistryOwner);
+    method public androidx.lifecycle.ViewModelStoreOwner getOrCreateOwner(Object? key, optional androidx.savedstate.SavedStateRegistryOwner? savedStateRegistryOwner, optional androidx.lifecycle.viewmodel.CreationExtras defaultCreationExtras);
+    method public androidx.lifecycle.ViewModelStoreOwner getOrCreateOwner(Object? key, optional androidx.savedstate.SavedStateRegistryOwner? savedStateRegistryOwner, optional androidx.lifecycle.viewmodel.CreationExtras defaultCreationExtras, optional androidx.lifecycle.ViewModelProvider.Factory defaultFactory);
+    method @BytecodeOnly public static androidx.lifecycle.ViewModelStoreOwner! getOrCreateOwner$default(androidx.lifecycle.viewmodel.ViewModelStoreProvider!, Object!, androidx.savedstate.SavedStateRegistryOwner!, androidx.lifecycle.viewmodel.CreationExtras!, androidx.lifecycle.ViewModelProvider.Factory!, int, Object!);
+  }
+
+  public static fun interface ViewModelStoreProvider.ReferenceToken extends java.lang.AutoCloseable {
+  }
+
+}
+
