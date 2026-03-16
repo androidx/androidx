@@ -18,10 +18,7 @@ package androidx.compose.foundation.gestures
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.PointerMatcher
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerEvent
@@ -29,9 +26,12 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.PointerType
+import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
+import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.util.fastAll
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
@@ -141,36 +141,109 @@ fun Modifier.onDrag(
     onDragCancel: () -> Unit = {},
     onDragEnd: () -> Unit = {},
     onDrag: (Offset) -> Unit
-): Modifier = composed(
-    inspectorInfo = {
+): Modifier = if (enabled) {
+    this.then(
+        OnDragElement(
+            matcher = matcher,
+            onDragStart = onDragStart,
+            onDragCancel = onDragCancel,
+            onDragEnd = onDragEnd,
+            onDrag = onDrag
+        )
+    )
+} else {
+    this
+}
+
+private class OnDragElement(
+    private val matcher: PointerMatcher,
+    private val onDragStart: (Offset) -> Unit,
+    private val onDragCancel: () -> Unit,
+    private val onDragEnd: () -> Unit,
+    private val onDrag: (Offset) -> Unit,
+) : ModifierNodeElement<OnDragNode>() {
+
+    override fun create() = OnDragNode(
+        matcher = matcher,
+        onDragStart = onDragStart,
+        onDragCancel = onDragCancel,
+        onDragEnd = onDragEnd,
+        onDrag = onDrag,
+    )
+
+    override fun update(node: OnDragNode) {
+        node.update(
+            matcher = matcher,
+            onDragStart = onDragStart,
+            onDragCancel = onDragCancel,
+            onDragEnd = onDragEnd,
+            onDrag = onDrag,
+        )
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
         name = "onDrag"
-        properties["enabled"] = enabled
         properties["matcher"] = matcher
         properties["onDragStart"] = onDragStart
         properties["onDragCancel"] = onDragCancel
         properties["onDragEnd"] = onDragEnd
         properties["onDrag"] = onDrag
-    },
-    factory = {
-        if (!enabled) return@composed Modifier
-
-        val matcherState by rememberUpdatedState(matcher)
-        val onDragState by rememberUpdatedState(onDrag)
-        val onDragStartState by rememberUpdatedState(onDragStart)
-        val onDragEndState by rememberUpdatedState(onDragEnd)
-        val onDragCancelState by rememberUpdatedState(onDragCancel)
-
-        Modifier.pointerInput(Unit) {
-            detectDragGestures(
-                matcher = { matcherState.matches(it) },
-                onDragStart = { onDragStartState(it) },
-                onDrag = { onDragState(it) },
-                onDragEnd = { onDragEndState() },
-                onDragCancel = { onDragCancelState() }
-            )
-        }
     }
-)
+
+    override fun equals(other: Any?): Boolean =
+        other is OnDragElement &&
+            matcher == other.matcher &&
+            onDragStart === other.onDragStart &&
+            onDragCancel === other.onDragCancel &&
+            onDragEnd === other.onDragEnd &&
+            onDrag === other.onDrag
+
+    override fun hashCode(): Int {
+        var result = matcher.hashCode()
+        result = 31 * result + onDragStart.hashCode()
+        result = 31 * result + onDragCancel.hashCode()
+        result = 31 * result + onDragEnd.hashCode()
+        result = 31 * result + onDrag.hashCode()
+        return result
+    }
+}
+
+private class OnDragNode(
+    private var matcher: PointerMatcher,
+    private var onDragStart: (Offset) -> Unit,
+    private var onDragCancel: () -> Unit,
+    private var onDragEnd: () -> Unit,
+    private var onDrag: (Offset) -> Unit,
+) : DelegatingNode() {
+
+    private val pointerInputNode = delegate(
+        SuspendingPointerInputModifierNode(
+            pointerInputEventHandler = {
+                detectDragGestures(
+                    matcher = { matcher.matches(it) },
+                    onDragStart = { onDragStart(it) },
+                    onDrag = { onDrag(it) },
+                    onDragEnd = { onDragEnd() },
+                    onDragCancel = { onDragCancel() }
+                )
+            }
+        )
+    )
+
+    fun update(
+        matcher: PointerMatcher,
+        onDragStart: (Offset) -> Unit,
+        onDragCancel: () -> Unit,
+        onDragEnd: () -> Unit,
+        onDrag: (Offset) -> Unit,
+    ) {
+        this.matcher = matcher
+        this.onDragStart = onDragStart
+        this.onDragCancel = onDragCancel
+        this.onDragEnd = onDragEnd
+        this.onDrag = onDrag
+    }
+}
 
 private fun PointerEvent.isReleased() = type == PointerEventType.Release &&
     changes.fastAll { it.type == PointerType.Mouse } || changes.fastAll { it.changedToUpIgnoreConsumed() }
