@@ -25,7 +25,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.CoreTextField
 import androidx.compose.foundation.text.KeyMapping
 import androidx.compose.foundation.text.createPlatformDefaultKeyMapping
-import androidx.compose.foundation.text.overriddenDefaultKeyMapping
+import androidx.compose.foundation.text.keyMappingOverride
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,11 +57,11 @@ class TextSelectionTests {
 
     @After
     fun restoreRealDesktopPlatform() {
-        overriddenDefaultKeyMapping = null
+        keyMappingOverride = null
     }
 
     private fun setPlatformDefaultKeyMapping(value: KeyMapping) {
-        overriddenDefaultKeyMapping = value
+        keyMappingOverride = value
     }
 
     private fun SemanticsNodeInteraction.waitAndCheck(check: () -> Unit): SemanticsNodeInteraction {

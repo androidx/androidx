@@ -24,7 +24,8 @@ internal actual val platformDefaultKeyMapping: KeyMapping = createPlatformDefaul
 
 internal fun createPlatformDefaultKeyMapping(platform: OS): KeyMapping {
     val keyMapping = when (platform) {
-        OS.MacOS -> createMacosDefaultKeyMapping()
+        OS.MacOS -> createMacOsDefaultKeyMapping()
+        OS.Windows -> createWindowsDefaultKeyMapping()
         else -> DefaultSkikoKeyMapping
     }
     return object : KeyMapping {

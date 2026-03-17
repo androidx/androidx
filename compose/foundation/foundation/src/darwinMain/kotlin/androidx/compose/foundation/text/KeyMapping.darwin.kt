@@ -16,4 +16,4 @@
 
 package androidx.compose.foundation.text
 
-internal actual val platformDefaultKeyMapping: KeyMapping = createMacosDefaultKeyMapping()
+internal actual val platformDefaultKeyMapping: KeyMapping = createMacOsDefaultKeyMapping()

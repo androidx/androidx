@@ -23,8 +23,9 @@ import androidx.compose.foundation.isEqualTo
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.DefaultSkikoKeyMapping
 import androidx.compose.foundation.text.KeyMapping
-import androidx.compose.foundation.text.createMacosDefaultKeyMapping
-import androidx.compose.foundation.text.overriddenDefaultKeyMapping
+import androidx.compose.foundation.text.createMacOsDefaultKeyMapping
+import androidx.compose.foundation.text.createWindowsDefaultKeyMapping
+import androidx.compose.foundation.text.keyMappingOverride
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -487,6 +488,20 @@ class TextFieldKeyEventTest {
             expectedSelection = TextRange(4),
         )
 
+    @Test
+    fun textField_altBackspace_windows() =  // Performs "undo"
+        keysSequenceTest(
+            namedKeyMapping = WindowsKeyMapping,
+            initText = "hello",
+            initSelection = TextRange(5),
+        ) {
+            // Can't currently send typed key events on the desktop, so test undoing deletion
+            pressKey(Key.Backspace)
+            expectedText("hell")
+            press(Key.AltLeft + Key.Backspace)
+            expectedText("hello")
+        }
+
     private class SequenceScope(
         private val state: TextFieldState,
         private val clipboard: FakeClipboard,
@@ -521,41 +536,50 @@ class TextFieldKeyEventTest {
 
     @OptIn(InternalComposeUiApi::class, InternalTestApi::class)
     private fun keysSequenceTest(
+        namedKeyMapping: NamedKeyMapping,
         initText: String = DEFAULT_TEST_STRING,
         initSelection: TextRange = TextRange.Zero,
         initClipboardText: String? = null,
         sequence: suspend SequenceScope.() -> Unit,
     ) {
-        runInternalSkikoComposeUiTest(coroutineDispatcher = StandardTestDispatcher()) {
-            val tag = "TextFieldTestTag"
-            val state = TextFieldState(initText, initSelection)
-            val clipboard = FakeClipboard(initClipboardText)
-            val focusRequester = FocusRequester()
-            setContent {
-                CompositionLocalProvider(LocalClipboard provides clipboard) {
-                    BasicTextField(
-                        state = state,
-                        modifier = Modifier.focusRequester(focusRequester).testTag(tag),
-                        decorator = { it() },
-                    )
-                }
-            }
-
-            runOnIdle { focusRequester.requestFocus() }
-            waitForIdle()
-
-            onNodeWithTag(tag).performKeyInput {
-                runBlocking {
-                    val scope =
-                        SequenceScope(
+        keyMappingOverride = namedKeyMapping.keyMapping
+        try {
+            runInternalSkikoComposeUiTest(coroutineDispatcher = StandardTestDispatcher()) {
+                val tag = "TextFieldTestTag"
+                val state = TextFieldState(initText, initSelection)
+                val clipboard = FakeClipboard(initClipboardText)
+                val focusRequester = FocusRequester()
+                setContent {
+                    CompositionLocalProvider(LocalClipboard provides clipboard) {
+                        BasicTextField(
                             state = state,
-                            clipboard = clipboard,
-                            uiTest = this@runInternalSkikoComposeUiTest,
-                            keyInjectionScope = this@performKeyInput,
+                            modifier = Modifier.focusRequester(focusRequester).testTag(tag),
+                            decorator = { it() },
                         )
-                    scope.sequence()
+                    }
+                }
+
+                runOnIdle { focusRequester.requestFocus() }
+                waitForIdle()
+
+                onNodeWithTag(tag).performKeyInput {
+                    runBlocking {
+                        val scope =
+                            SequenceScope(
+                                state = state,
+                                clipboard = clipboard,
+                                uiTest = this@runInternalSkikoComposeUiTest,
+                                keyInjectionScope = this@performKeyInput,
+                            )
+                        scope.sequence()
+                    }
                 }
             }
+        } catch (e: Throwable) {
+            System.err.println("Failed with key mapping: ${namedKeyMapping.name}")
+            throw e
+        } finally {
+            keyMappingOverride = null
         }
     }
 
@@ -564,7 +588,8 @@ class TextFieldKeyEventTest {
     }
 
     private fun singleKeyStrokeTest(
-        keyMappings: List<NamedKeyMapping> = listOf(NonMacOsKeyMapping, MacOsKeyMapping),
+        keyMappings: List<NamedKeyMapping> =
+            listOf(NonMacOsKeyMapping, MacOsKeyMapping, WindowsKeyMapping),
         initText: String = DEFAULT_TEST_STRING,
         initSelection: TextRange,
         initClipboardText: String? = null,
@@ -574,29 +599,22 @@ class TextFieldKeyEventTest {
         expectedClipboardText: String? = null,
     ) {
         for (namedKeyMapping in keyMappings) {
-            overriddenDefaultKeyMapping = namedKeyMapping.keyMapping
-            try {
-                keysSequenceTest(
-                    initText = initText,
-                    initSelection = initSelection,
-                    initClipboardText = initClipboardText,
-                ) {
-                    press(keys)
-                    if (expectedText != null) {
-                        expectedText(expectedText)
-                    }
-                    if (expectedSelection != null) {
-                        expectedSelection(expectedSelection)
-                    }
-                    if (expectedClipboardText != null) {
-                        expectedClipboardText(expectedClipboardText)
-                    }
+            keysSequenceTest(
+                namedKeyMapping = namedKeyMapping,
+                initText = initText,
+                initSelection = initSelection,
+                initClipboardText = initClipboardText,
+            ) {
+                press(keys)
+                if (expectedText != null) {
+                    expectedText(expectedText)
                 }
-            } catch (e: Throwable) {
-                System.err.println("Failed with key mapping: ${namedKeyMapping.name}")
-                throw e
-            } finally {
-                overriddenDefaultKeyMapping = null
+                if (expectedSelection != null) {
+                    expectedSelection(expectedSelection)
+                }
+                if (expectedClipboardText != null) {
+                    expectedClipboardText(expectedClipboardText)
+                }
             }
         }
     }
@@ -624,7 +642,8 @@ class TextFieldKeyEventTest {
     private companion object {
         const val DEFAULT_TEST_STRING = "Hello"
 
-        val MacOsKeyMapping = NamedKeyMapping("macOS", createMacosDefaultKeyMapping())
+        val MacOsKeyMapping = NamedKeyMapping("macOS", createMacOsDefaultKeyMapping())
+        val WindowsKeyMapping = NamedKeyMapping("Windows", createWindowsDefaultKeyMapping())
         val NonMacOsKeyMapping = NamedKeyMapping("Default (non-macOS)", DefaultSkikoKeyMapping)
     }
 

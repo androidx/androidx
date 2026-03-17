@@ -37,7 +37,7 @@ internal object DefaultSkikoKeyMapping : KeyMapping {
     }
 }
 
-internal fun createMacosDefaultKeyMapping(): KeyMapping {
+internal fun createMacOsDefaultKeyMapping(): KeyMapping {
     val common = commonKeyMapping(KeyModifiers.Meta)
     return object : KeyMapping {
         override fun map(event: KeyEvent): KeyCommand? {
@@ -201,6 +201,20 @@ internal fun createMacosDefaultKeyMapping(): KeyMapping {
 
                 else -> null
             } ?: common.map(event)
+        }
+    }
+}
+
+internal fun createWindowsDefaultKeyMapping(): KeyMapping {
+    return object : KeyMapping {
+        override fun map(event: KeyEvent): KeyCommand? {
+            val keyModifiers = event.modifiers
+
+            if ((keyModifiers == KeyModifiers.Alt) && (event.key == Key.Backspace)) {
+                return KeyCommand.UNDO
+            }
+
+            return DefaultSkikoKeyMapping.map(event)
         }
     }
 }
