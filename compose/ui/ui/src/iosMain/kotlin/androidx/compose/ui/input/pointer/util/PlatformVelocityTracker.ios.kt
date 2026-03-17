@@ -26,21 +26,22 @@ import androidx.compose.ui.util.fastForEach
 internal actual fun PlatformVelocityTracker(): PlatformVelocityTracker = UIKitVelocityTracker()
 
 private const val AssumePointerMoveStoppedMilliseconds: Int = 40
-private const val MinimumGestureDurationMilliseconds: Int = 50
+private const val MinimumGestureDurationSincePointerStop: Int = 50
+private const val MinimumGestureDurationMilliseconds: Int = 100
 
 private class UIKitVelocityTracker: PlatformVelocityTracker {
-    @OptIn(ExperimentalVelocityTrackerApi::class)
-    private val strategy =
-        VelocityTracker1D.Strategy.Lsq2 // non-differential, Lsq2 1D velocity tracker
-    private val yVelocityTracker = VelocityTracker1D(strategy = strategy)
-    private val xVelocityTracker = VelocityTracker1D(strategy = strategy)
+    private val xVelocityTracker = PointerVelocityTracker1D(preventOppositeVelocity = true)
+    private val yVelocityTracker = PointerVelocityTracker1D(preventOppositeVelocity = true)
     private var lastMoveEventTimeStamp = 0L
+    private var lastPointerStartEventTimeStamp = 0L
     private var lastPointerStopEventTimeStamp = 0L
 
     override fun addPointerInputChange(event: PointerInputChange, offset: Offset) {
         // If this is ACTION_DOWN: Reset the tracking.
         if (event.changedToDownIgnoreConsumed()) {
             resetTracking()
+            lastPointerStartEventTimeStamp = event.uptimeMillis
+            lastMoveEventTimeStamp = event.uptimeMillis
         }
 
         // If this is not ACTION_UP event: Add events to the tracker as per the platform implementation.
@@ -60,7 +61,8 @@ private class UIKitVelocityTracker: PlatformVelocityTracker {
         }
 
         if (event.changedToUpIgnoreConsumed() &&
-            event.uptimeMillis - lastPointerStopEventTimeStamp < MinimumGestureDurationMilliseconds
+            event.uptimeMillis - lastPointerStartEventTimeStamp > MinimumGestureDurationMilliseconds &&
+            event.uptimeMillis - lastPointerStopEventTimeStamp < MinimumGestureDurationSincePointerStop
         ) {
             resetTracking()
         }
