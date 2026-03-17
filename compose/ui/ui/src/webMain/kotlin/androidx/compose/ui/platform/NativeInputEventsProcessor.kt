@@ -52,7 +52,7 @@ internal abstract class NativeInputEventsProcessor(
     internal var isCheckpointScheduled = false
 
     internal var lastCompositionEndTimestamp = 0.0 // Double because of k/wasm where Number.toLong() leads to a compilation error
-    var lastProcessedEventIsBackspace: Boolean = false
+    private var lastProcessedKeydown: KeyboardEvent? = null
 
     /**
      * Schedules a checkpoint for processing input events.
@@ -95,7 +95,7 @@ internal abstract class NativeInputEventsProcessor(
                     if (isTypedEvent(evt)) {
                         // we need to reset this each time we consider something to be typed
                         // see  https://youtrack.jetbrains.com/issue/CMP-8773
-                        lastProcessedEventIsBackspace = evt.key == "Backspace"
+                        lastProcessedKeydown = null
                         return@fastForEach
                     }
 
@@ -110,8 +110,10 @@ internal abstract class NativeInputEventsProcessor(
                     val shouldBeProcessed = timestamp == 0.0 || !isFromLastComposition
 
                     if (shouldBeProcessed) {
-                        lastProcessedEventIsBackspace = evt.key == "Backspace"
-                        composeSender.sendKeyboardEvent(evt.toComposeEvent())
+                        val isProcessed = composeSender.sendKeyboardEvent(evt.toComposeEvent())
+                        if (isProcessed) {
+                            lastProcessedKeydown = evt
+                        }
                     }
                 }
 
@@ -122,7 +124,6 @@ internal abstract class NativeInputEventsProcessor(
 
                 "beforeinput" -> {
                     (evt as InputEvent).process(
-                        lastProcessedEventIsBackspace = lastProcessedEventIsBackspace,
                         currentTextFieldValue = currentTextFieldValue
                     )
                 }
@@ -132,12 +133,12 @@ internal abstract class NativeInputEventsProcessor(
         collectedEvents.clear()
     }
 
-    private fun InputEvent.process(lastProcessedEventIsBackspace: Boolean, currentTextFieldValue: TextFieldValue) {
+    private fun InputEvent.process(currentTextFieldValue: TextFieldValue) {
         val inputExt = this.asInputEventExt()
         val editCommands = when (inputExt.inputType) {
             "deleteContentBackward" -> buildList {
                 // this means "deleteContentBackward" happened because of an earlier "keydown" event, so skipping it here
-                if (lastProcessedEventIsBackspace) return@buildList
+                if (lastProcessedKeydown?.isBackspace() == true) return@buildList
 
                 if (!currentTextFieldValue.selection.collapsed) {
                     // Likely it's on mobile, where the Backspace has Unidentified key value.
@@ -161,6 +162,21 @@ internal abstract class NativeInputEventsProcessor(
                     }
                 }
             }
+
+            "deleteWordBackward" -> buildList {
+                if (lastProcessedKeydown?.isBackspace() != true) return@buildList
+
+                // This would mean event was triggered by long press on mobile device (iOS)
+                if (lastProcessedKeydown?.altKey == false) {
+                    val layoutResult = composeSender.currentTextLayoutResult() ?: return@buildList
+                    val text = layoutResult.layoutInput.text
+                    val wordBoundary = layoutResult.getWordBoundary(inputExt.textRangeStart.coerceIn(0, text.length - 1))
+
+                    add(SetSelectionCommand(wordBoundary.start, wordBoundary.end))
+                    add(BackspaceCommand())
+                }
+            }
+
 
             "insertReplacementText" -> buildList {
                 if (data == null) return@buildList
@@ -206,3 +222,5 @@ internal abstract class NativeInputEventsProcessor(
     @TestOnly
     internal fun getCollectedEvents() = collectedEvents
 }
+
+private fun KeyboardEvent.isBackspace(): Boolean = key == "Backspace"

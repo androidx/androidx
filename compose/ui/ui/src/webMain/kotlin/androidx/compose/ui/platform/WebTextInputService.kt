@@ -20,6 +20,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
@@ -64,22 +65,22 @@ internal abstract class WebTextInputService :
      */
     abstract val backingDomInputContainer: HTMLElement
 
-    override fun startInput(
-        value: TextFieldValue,
-        imeOptions: ImeOptions,
+    fun startInput(
+        request: PlatformTextInputMethodRequest,
         onEditCommand: (List<EditCommand>) -> Unit,
-        onImeActionPerformed: (ImeAction) -> Unit
     ) {
         backingDomInput = BackingDomInput(
-            imeOptions = imeOptions,
+            imeOptions = request.imeOptions,
             composeCommunicator = object : ComposeCommandCommunicator {
-                override fun sendKeyboardEvent(keyboardEvent: KeyEvent) {
-                    this@WebTextInputService.processKeyboardEvent(keyboardEvent)
+                override fun sendKeyboardEvent(keyboardEvent: KeyEvent): Boolean {
+                    return this@WebTextInputService.processKeyboardEvent(keyboardEvent)
                 }
 
                 override fun sendEditCommand(commands: List<EditCommand>) {
                     onEditCommand(commands)
                 }
+
+                override fun currentTextLayoutResult() = request.textLayoutResult()
             },
             inputContainer = backingDomInputContainer,
         )
@@ -93,6 +94,16 @@ internal abstract class WebTextInputService :
             notifyFocusedRect(Rect(currentTouchOffset!!, Size(1f, 1f)))
         }
         showSoftwareKeyboard()
+    }
+
+    override fun startInput(
+        value: TextFieldValue,
+        imeOptions: ImeOptions,
+        onEditCommand: (List<EditCommand>) -> Unit,
+        onImeActionPerformed: (ImeAction) -> Unit
+    ) {
+        // This method is called from the common code.
+        // It's not used in the new API, but we keep it for backward compatibility.
     }
 
     fun getBackingInput(): HTMLElement? {
