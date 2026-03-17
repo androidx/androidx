@@ -51,14 +51,14 @@ androidXMultiplatform {
     sourceSets {
         commonMain.dependencies {
             implementation("androidx.collection:collection:1.5.0")
-            implementation("org.jetbrains.compose.animation:animation-core:1.10.0")
-            implementation("org.jetbrains.compose.ui:ui-util:1.10.0")
-            api("org.jetbrains.compose.foundation:foundation-layout:1.10.0")
-            api("org.jetbrains.compose.foundation:foundation:1.10.0")
-            api("org.jetbrains.compose.material:material-ripple:1.10.0")
-            api("org.jetbrains.compose.runtime:runtime:1.10.0")
-            api("org.jetbrains.compose.ui:ui:1.10.0")
-            api("org.jetbrains.compose.ui:ui-text:1.10.0")
+            implementation(project(":compose:animation:animation-core"))
+            implementation(project(":compose:ui:ui-util"))
+            api(project(":compose:foundation:foundation-layout"))
+            api(project(":compose:foundation:foundation"))
+            api(project(":compose:material:material-ripple"))
+            api(project(":compose:runtime:runtime"))
+            api(project(":compose:ui:ui"))
+            api(project(":compose:ui:ui-text"))
             api("androidx.graphics:graphics-shapes:1.1.0")
         }
 
