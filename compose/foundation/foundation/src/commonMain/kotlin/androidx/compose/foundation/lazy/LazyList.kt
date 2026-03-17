@@ -81,6 +81,14 @@ internal fun LazyList(
     verticalAlignment: Alignment.Vertical? = null,
     /** The horizontal arrangement for items. Required when isVertical is false */
     horizontalArrangement: Arrangement.Horizontal? = null,
+    /**
+     * Whether to maintain scroll position when items are added/removed before the first visible
+     * item. When true (default), the list will automatically adjust the scroll position to keep
+     * the same item visible when items with keys are added or removed before it. When false, the
+     * scroll position will be based purely on index, which may cause visible content to jump when
+     * the list content changes.
+     */
+    preserveFirstVisibleItem: Boolean = true,
     /** The content of the list */
     content: LazyListScope.() -> Unit,
 ) {
@@ -106,6 +114,7 @@ internal fun LazyList(
             coroutineScope,
             graphicsContext,
             if (stickyHeadersEnabled) StickyItemsPlacement.StickToTopPlacement else null,
+            preserveFirstVisibleItem,
         )
 
     val orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal
@@ -184,6 +193,8 @@ private fun rememberLazyListMeasurePolicy(
     graphicsContext: GraphicsContext,
     /** Scroll behavior for sticky items */
     stickyItemsPlacement: StickyItemsPlacement?,
+    /** Whether to maintain scroll position based on item keys */
+    preserveFirstVisibleItem: Boolean,
 ) =
     remember(
         state,
@@ -197,6 +208,7 @@ private fun rememberLazyListMeasurePolicy(
         verticalArrangement,
         graphicsContext,
         stickyItemsPlacement,
+        preserveFirstVisibleItem,
     ) {
         LazyLayoutMeasurePolicy { containerConstraints ->
             state.measurementScopeInvalidator.attachToScope()
@@ -328,10 +340,14 @@ private fun rememberLazyListMeasurePolicy(
             val firstVisibleScrollOffset: Int
             Snapshot.withoutReadObservation {
                 firstVisibleItemIndex =
-                    state.updateScrollPositionIfTheFirstItemWasMoved(
-                        itemProvider,
-                        state.firstVisibleItemIndex,
-                    )
+                    if (preserveFirstVisibleItem) {
+                        state.updateScrollPositionIfTheFirstItemWasMoved(
+                            itemProvider,
+                            state.firstVisibleItemIndex,
+                        )
+                    } else {
+                        state.firstVisibleItemIndex
+                    }
                 firstVisibleScrollOffset = state.firstVisibleItemScrollOffset
             }
 

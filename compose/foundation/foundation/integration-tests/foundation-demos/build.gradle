@@ -21,6 +21,7 @@ plugins {
 }
 
 dependencies {
+    lintChecks(project(":compose:foundation:foundation-lint"))
 
     implementation("androidx.core:core:1.12.0")
 

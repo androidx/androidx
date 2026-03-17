@@ -32,6 +32,7 @@ class FoundationIssueRegistry : IssueRegistry() {
             listOf(
                 NonLambdaOffsetModifierDetector.UseOfNonLambdaOverload,
                 BoxWithConstraintsDetector.UnusedConstraintsParameter,
+                PreserveFirstVisibleItemDetector.PreserveFirstVisibleItemRequiresKey,
             )
 
     override val deletedIssues =

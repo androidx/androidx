@@ -144,6 +144,7 @@ val LazyListDemos =
         ComposableDemo("LazyRow DSL") { LazyRowScope() },
         ComposableDemo("LazyColumn with sticky headers") { StickyHeaderListSample() },
         ComposableDemo("LazyVerticalGrid with sticky headers") { StickyHeaderGridSample() },
+        ComposableDemo("LazyColumn PreserveFirstVisibleItem") { PreserveFirstVisibleItemDemo() },
         ComposableDemo("LazyColumn with sticky headers - header index") {
             StickyHeaderHeaderIndexSample()
         },
