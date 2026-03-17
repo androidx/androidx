@@ -255,6 +255,16 @@ internal class SurfaceMetalRedrawer(
             }
         }
 
+    /**
+     * Closes all Skia surfaces and render targets that are currently associated with drawables.
+     */
+    fun drainSkiaSurfaces() {
+        check(NSThread.isMainThread) { "SurfaceMetalRedrawer.drainSkiaSurfaces() must be called on main thread" }
+        awaitRenderingQueueTasksCompletion()
+        metalLayer.drainDrawables()
+        disposeDrawableAssociatedResources(metalLayer.drawablesGeneration.toInt())
+    }
+
     override fun dispose() {
         check(caDisplayLink != null) { "MetalRedrawer.dispose() was called more than once" }
 
@@ -471,7 +481,7 @@ internal class SurfaceMetalRedrawer(
         val renderTarget = BackendRenderTarget.makeMetal(
             width = IOSurfaceGetWidth(drawable.surface).toInt(),
             height = IOSurfaceGetHeight(drawable.surface).toInt(),
-            texturePtr = drawable.texture.objcPtr()
+            texturePtr = drawable.drawableTexture().rawValue,
         )
 
         val surface = Surface.makeFromBackendRenderTarget(

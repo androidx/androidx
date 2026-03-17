@@ -15,10 +15,19 @@
  */
 
 #import "CMPDrawable.h"
+#import <UIKit/UIKit.h>
+
+@interface CMPDrawable() {
+    /// Metal texture for rendering.
+    id<MTLTexture> _texture;
+}
+
+@end
+
 
 @implementation CMPDrawable
 
-- (instancetype)initWithTexture:(id<MTLTexture>)texture surface:(IOSurfaceRef)surface {
+- (instancetype)initWithTexture:(id<MTLTexture>)texture size:(CGSize)textureSize surface:(IOSurfaceRef)surface {
     self = [super init];
     if (self) {
         _texture = texture;
@@ -26,15 +35,27 @@
         CFRetain(_surface);
         _presentedTime = 0;
         _isWaitingForCommandBufferCompletion = NO;
+        _textureSize = textureSize;
     }
     return self;
 }
 
-- (void)dealloc {
+- (void)dispose {
+    _texture = nil;
     if (_surface != NULL) {
         CFRelease(_surface);
         _surface = NULL;
     }
+}
+
+- (void * CMP_BORROWED)drawableTexture {
+    assert(_texture != NULL);
+    void *texturePtr = (__bridge void *)_texture;
+    return texturePtr;
+}
+
+- (void)dealloc {
+    [self dispose];
 }
 
 @end

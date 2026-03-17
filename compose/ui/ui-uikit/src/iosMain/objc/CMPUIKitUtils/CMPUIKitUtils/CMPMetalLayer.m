@@ -54,10 +54,7 @@ static const NSUInteger kBGRA32ColorFormatBytesPerPixel = 4;
     if (!CGSizeEqualToSize(_drawableSize, size)) {
         [_drawablesLock lock];
         _drawableSize = size;
-        [_availableDrawables removeAllObjects];
-        _lastPresentedDrawable = nil;
-        _totalDrawables = 0;
-        _drawablesGeneration++;
+        [self drainDrawablesUnsafe];
         [_drawablesLock unlock];
     }
 }
@@ -104,15 +101,15 @@ static const NSUInteger kBGRA32ColorFormatBytesPerPixel = 4;
         IOSurfaceRef surface = [self IOSurface];
         if (surface != NULL) {
             MTLTextureDescriptor *descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatBGRA8Unorm
-                                                                                                   width:(NSUInteger)_drawableSize.width
-                                                                                                  height:(NSUInteger)_drawableSize.height
-                                                                                               mipmapped:NO];
+                                                                                                  width:(NSUInteger)_drawableSize.width
+                                                                                                 height:(NSUInteger)_drawableSize.height
+                                                                                              mipmapped:NO];
             descriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead | MTLTextureUsageShaderWrite;
 
             id<MTLTexture> texture = [_device newTextureWithDescriptor:descriptor iosurface:surface plane:0];
 
             if (texture != nil) {
-                result = [[CMPDrawable alloc] initWithTexture:texture surface:surface];
+                result = [[CMPDrawable alloc] initWithTexture:texture size:_drawableSize surface:surface];
                 _totalDrawables++;
             }
 
@@ -189,9 +186,9 @@ static const NSUInteger kBGRA32ColorFormatBytesPerPixel = 4;
               onDisplay:(void (^)(void))displayHandler {
     [_drawablesLock lock];
 
-    if (drawable.texture.width != (NSUInteger)_drawableSize.width ||
-        drawable.texture.height != (NSUInteger)_drawableSize.height) {
+    if (!CGSizeEqualToSize(drawable.textureSize, _drawableSize)) {
         // Invalid drawable size. Ignoring.
+        [drawable dispose];
         [_drawablesLock unlock];
         return;
     }
@@ -222,8 +219,7 @@ static const NSUInteger kBGRA32ColorFormatBytesPerPixel = 4;
         // Drop drawable that was scheduled before the already presented one
         return;
     }
-    if (drawable.texture.width != (NSUInteger)_drawableSize.width ||
-        drawable.texture.height != (NSUInteger)_drawableSize.height) {
+    if (!CGSizeEqualToSize(drawable.textureSize, _drawableSize)) {
         // Invalid drawable size. Ignoring.
         return;
     }
@@ -243,6 +239,23 @@ static const NSUInteger kBGRA32ColorFormatBytesPerPixel = 4;
 - (void)releaseDrawable:(CMPDrawable *)drawable {
     [_drawablesLock lock];
     [_availableDrawables addObject:drawable];
+    [_drawablesLock unlock];
+}
+
+- (void)drainDrawablesUnsafe {
+    for (CMPDrawable *drawable in _availableDrawables) {
+        [drawable dispose];
+    }
+    [_availableDrawables removeAllObjects];
+    [_lastPresentedDrawable dispose];
+    _lastPresentedDrawable = nil;
+    _totalDrawables = 0;
+    _drawablesGeneration++;
+}
+
+- (void)drainDrawables {
+    [_drawablesLock lock];
+    [self drainDrawablesUnsafe];
     [_drawablesLock unlock];
 }
 

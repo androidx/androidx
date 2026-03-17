@@ -24,6 +24,10 @@ import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ObjCClass
 import kotlinx.cinterop.readValue
 import kotlinx.cinterop.useContents
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skia.Color
 import platform.CoreGraphics.CGRect
@@ -93,11 +97,36 @@ internal class SurfaceMetalView(
     }
 
     fun dispose() {
+        cancelPendingDrawableDrain()
         redrawer.dispose()
+    }
+
+    private var drainJob: Job? = null
+
+    private fun scheduleDrawableDrain() {
+        drainJob?.cancel()
+        drainJob = MainScope().launch {
+            // Await a safe time to ensure the metal view won't be displayed again soon
+            delay(500)
+            if (window == null) {
+                redrawer.drainSkiaSurfaces()
+            }
+        }
+    }
+
+    private fun cancelPendingDrawableDrain() {
+        drainJob?.cancel()
     }
 
     override fun didMoveToWindow() {
         super.didMoveToWindow()
+
+        if (window == null) {
+            scheduleDrawableDrain()
+            return
+        }
+
+        cancelPendingDrawableDrain()
 
         val screen = window?.screen ?: return
         redrawer.maximumFramesPerSecond = screen.maximumFramesPerSecond

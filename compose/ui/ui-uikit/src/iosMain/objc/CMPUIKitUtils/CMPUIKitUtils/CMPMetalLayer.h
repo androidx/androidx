@@ -66,6 +66,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)releaseDrawable:(CMPDrawable *)drawable;
 
+/**
+ * Disposes and removes all drawables currently held in the pool.
+ * Thread-safe; may be called from any thread.
+ */
+- (void)drainDrawables;
+
 @end
 
 NS_ASSUME_NONNULL_END

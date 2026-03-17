@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 #import <IOSurface/IOSurfaceRef.h>
+#import "CMPMacros.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -26,8 +27,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface CMPDrawable : NSObject
 
-/// Metal texture for rendering.
-@property (nonatomic, readonly) id<MTLTexture> texture;
+/// Size of the drawable texture
+@property (readonly) CGSize textureSize;
 
 /// Backing IOSurface displayed by the layer.
 @property (nonatomic, readonly) IOSurfaceRef surface;
@@ -41,7 +42,16 @@ NS_ASSUME_NONNULL_BEGIN
 /// Reference to the reusable associated skia surface.
 @property (nonatomic, weak, nullable) id associatedSkiaSurface;
 
-- (instancetype)initWithTexture:(id<MTLTexture>)texture surface:(IOSurfaceRef)surface;
+- (instancetype)initWithTexture:(id<MTLTexture>)texture size:(CGSize)textureSize surface:(IOSurfaceRef)surface;
+
+/// Get metal texture for rendering.
+- (void * CMP_BORROWED)drawableTexture;
+
+/**
+ * Eagerly releases the Metal texture and IOSurface backing this drawable.
+ * Safe to call multiple times (idempotent). Called automatically from -dealloc.
+ */
+- (void)dispose;
 
 @end
 

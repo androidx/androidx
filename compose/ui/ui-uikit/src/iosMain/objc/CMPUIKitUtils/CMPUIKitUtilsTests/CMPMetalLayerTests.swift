@@ -52,9 +52,9 @@ final class CMPMetalLayerTests: XCTestCase {
 
         let drawable = layer.nextDrawable()
         XCTAssertNotNil(drawable, "Should get a drawable with valid size")
-        XCTAssertNotNil(drawable?.texture, "Drawable should have a texture")
-        XCTAssertEqual(drawable?.texture.width, 100, "Texture width should match")
-        XCTAssertEqual(drawable?.texture.height, 100, "Texture height should match")
+        XCTAssertNotNil(drawable?.surface, "Drawable should have a surface")
+        XCTAssertEqual(drawable?.textureSize.width, 100, "Texture width should match")
+        XCTAssertEqual(drawable?.textureSize.height, 100, "Texture height should match")
     }
 
     func testNextDrawableWithZeroSize() {
@@ -86,12 +86,12 @@ final class CMPMetalLayerTests: XCTestCase {
 
         // Verify they are different objects by comparing texture pointers
         XCTAssertTrue(
-            drawable1?.texture !== drawable2?.texture,
-            "Drawables should have different textures"
+            drawable1?.surface !== drawable2?.surface,
+            "Drawables should have different surfaces"
         )
         XCTAssertTrue(
-            drawable2?.texture !== drawable3?.texture,
-            "Drawables should have different textures"
+            drawable2?.surface !== drawable3?.surface,
+            "Drawables should have different surfaces"
         )
     }
 
@@ -163,16 +163,16 @@ final class CMPMetalLayerTests: XCTestCase {
 
         let drawable1 = layer.nextDrawable()
         XCTAssertNotNil(drawable1)
-        XCTAssertEqual(drawable1?.texture.width, 100)
-        XCTAssertEqual(drawable1?.texture.height, 100)
+        XCTAssertEqual(drawable1?.textureSize.width, 100)
+        XCTAssertEqual(drawable1?.textureSize.height, 100)
 
         // Change size - should invalidate pool
         layer.drawableSize = CGSize(width: 200, height: 200)
 
         let drawable2 = layer.nextDrawable()
         XCTAssertNotNil(drawable2)
-        XCTAssertEqual(drawable2?.texture.width, 200, "New drawable should have new size")
-        XCTAssertEqual(drawable2?.texture.height, 200, "New drawable should have new size")
+        XCTAssertEqual(drawable2?.textureSize.width, 200, "New drawable should have new size")
+        XCTAssertEqual(drawable2?.textureSize.height, 200, "New drawable should have new size")
     }
 
     func testPresentingWrongSizeDrawableIsIgnored() {
@@ -354,8 +354,8 @@ final class CMPMetalLayerTests: XCTestCase {
             layer.drawableSize = size
             let drawable = layer.nextDrawable()
             XCTAssertNotNil(drawable, "Should get drawable for size \(size)")
-            XCTAssertEqual(drawable?.texture.width, Int(size.width))
-            XCTAssertEqual(drawable?.texture.height, Int(size.height))
+            XCTAssertEqual(drawable?.textureSize.width, size.width)
+            XCTAssertEqual(drawable?.textureSize.height, size.height)
         }
     }
 
