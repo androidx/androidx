@@ -22,9 +22,18 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.node.DrawModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.ObserverModifierNode
+import androidx.compose.ui.node.currentValueOf
+import androidx.compose.ui.node.invalidateDraw
+import androidx.compose.ui.node.observeReads
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.text.TextPainter
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
@@ -61,21 +70,101 @@ internal actual fun Modifier.textFieldDraw(
     state: LegacyTextFieldState,
     value: TextFieldValue,
     offsetMapping: OffsetMapping,
-): Modifier = composed {
-    val nativeInputContext = LocalNativeTextInputContext.current
-    val usingNativeTextInput = nativeInputContext.usingNativeTextInput()
+): Modifier = this then TextFieldDrawElement(state, value, offsetMapping)
 
-    // iOS handles selection drawing itself in native text input mode
-    if (usingNativeTextInput) {
-        this.drawBehind {
-            state.layoutResult?.let { layoutResult ->
-                drawIntoCanvas { canvas ->
-                    // Still need this for text rendering
+private data class TextFieldDrawElement(
+    private val state: LegacyTextFieldState,
+    private val value: TextFieldValue,
+    private val offsetMapping: OffsetMapping,
+) : ModifierNodeElement<TextFieldDrawNode>() {
+
+    override fun create() = TextFieldDrawNode(
+        state = state,
+        value = value,
+        offsetMapping = offsetMapping,
+    )
+
+    override fun update(node: TextFieldDrawNode) {
+        node.update(
+            state = state,
+            value = value,
+            offsetMapping = offsetMapping
+        )
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "textFieldDraw"
+        properties["state"] = state
+        properties["value"] = value
+        properties["offsetMapping"] = offsetMapping
+    }
+}
+
+@OptIn(InternalComposeUiApi::class)
+private class TextFieldDrawNode(
+    private var state: LegacyTextFieldState,
+    private var value: TextFieldValue,
+    private var offsetMapping: OffsetMapping,
+) : Modifier.Node(),
+    ObserverModifierNode,
+    CompositionLocalConsumerModifierNode,
+    DrawModifierNode {
+    private var usingNativeTextInput: Boolean = false
+
+    override fun onAttach() {
+        super.onAttach()
+        onObservedReadsChanged()
+        invalidateDraw()
+    }
+
+    override fun onObservedReadsChanged() {
+        observeReads {
+            val usingNativeTextInput = currentValueOf(LocalNativeTextInputContext).usingNativeTextInput()
+            if (usingNativeTextInput != this.usingNativeTextInput) {
+                this.usingNativeTextInput = usingNativeTextInput
+                invalidateDraw()
+            }
+        }
+    }
+
+    fun update(
+        state: LegacyTextFieldState,
+        value: TextFieldValue,
+        offsetMapping: OffsetMapping,
+    ) {
+        this.state = state
+        this.value = value
+        this.offsetMapping = offsetMapping
+        invalidateDraw()
+    }
+
+    override fun ContentDrawScope.draw() = drawBehind()
+
+    private fun ContentDrawScope.drawBehind() {
+        onDraw()
+        drawContent()
+    }
+
+    private fun DrawScope.onDraw() {
+        state.layoutResult?.let { layoutResult ->
+            drawIntoCanvas { canvas ->
+                // iOS handles selection drawing itself in native text input mode
+                // still needs this for text rendering
+                if (usingNativeTextInput) {
                     TextPainter.paint(canvas, layoutResult.value)
+                } else {
+                    TextFieldDelegate.draw(
+                        canvas,
+                        value,
+                        state.selectionPreviewHighlightRange,
+                        state.deletionPreviewHighlightRange,
+                        offsetMapping,
+                        layoutResult.value,
+                        state.highlightPaint,
+                        state.selectionBackgroundColor,
+                    )
                 }
             }
         }
-    } else {
-        defaultTextFieldDraw(state, value, offsetMapping)
     }
 }
