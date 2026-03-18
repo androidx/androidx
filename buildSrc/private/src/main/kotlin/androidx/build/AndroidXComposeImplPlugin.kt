@@ -36,6 +36,7 @@ import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
 import org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompile
 import org.jetbrains.kotlin.gradle.tasks.AbstractKotlinNativeCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 
 /** Plugin to apply common configuration for Compose projects. */
@@ -206,7 +207,13 @@ private fun configureComposeCompilerPlugin(project: Project) {
         project.tasks.withType(KotlinCompilationTask::class.java).configureEach { compile ->
             compile.applyPlugin(kotlinPlugin)
 
-            compile.addPluginOption(ComposeCompileOptions.SourceOption, "true")
+            val isAndroidOrJvm = compile is KotlinJvmCompile
+
+            compile.addPluginOption(ComposeCompileOptions.SourceOption, isAndroidOrJvm.toString())
+            compile.addPluginOption(
+                ComposeCompileOptions.TraceMarkersOption,
+                isAndroidOrJvm.toString(),
+            )
         }
     }
 }
@@ -244,6 +251,7 @@ private const val ComposePluginId = "androidx.compose.compiler.plugins.kotlin"
 
 private enum class ComposeCompileOptions(val pluginId: String, val key: String) {
     SourceOption(ComposePluginId, "sourceInformation"),
+    TraceMarkersOption(ComposePluginId, "traceMarkersEnabled"),
     StrongSkipping(ComposePluginId, "strongSkipping"),
     NonSkippingGroupOptimization(ComposePluginId, "nonSkippingGroupOptimization"),
     FeatureFlagOption(ComposePluginId, "featureFlag"),
