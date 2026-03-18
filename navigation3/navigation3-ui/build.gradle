@@ -62,8 +62,8 @@ androidXMultiplatform {
             api("androidx.savedstate:savedstate-compose:1.4.0")
             implementation("androidx.annotation:annotation:1.9.1")
             implementation("androidx.collection:collection:1.5.0")
-            implementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.10.0-alpha08")
-            implementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.10.0-alpha08")
+            implementation("androidx.lifecycle:lifecycle-runtime:2.10.0")
+            implementation("androidx.lifecycle:lifecycle-runtime-compose:2.10.0")
         }
 
         commonTest.dependencies {
