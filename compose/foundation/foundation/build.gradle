@@ -54,7 +54,6 @@ androidXMultiplatform {
     configureDarwinFlags()
 
     sourceSets {
-        def navigationEventVersion = project.findProperty('artifactRedirection.version.androidx.navigationevent')
         commonMain.dependencies {
             api("androidx.collection:collection:1.5.0")
             api(project(":compose:animation:animation"))
@@ -68,8 +67,8 @@ androidXMultiplatform {
         commonTest.dependencies {
             implementation(libs.kotlinTest)
             implementation(libs.kotlinCoroutinesTest)
-            implementation("androidx.navigationevent:navigationevent:$navigationEventVersion")
-            implementation("androidx.navigationevent:navigationevent-testing:$navigationEventVersion")
+            implementation("androidx.navigationevent:navigationevent:1.0.1")
+            implementation("androidx.navigationevent:navigationevent-testing:1.0.1")
             implementation("org.jetbrains.androidx.navigationevent:navigationevent-compose:1.0.1")
         }
 
