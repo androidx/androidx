@@ -20,8 +20,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Enter
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Exit
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Move
+import androidx.compose.ui.input.pointer.PointerEventType.Companion.PanEnd
+import androidx.compose.ui.input.pointer.PointerEventType.Companion.PanMove
+import androidx.compose.ui.input.pointer.PointerEventType.Companion.PanStart
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Press
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Release
+import androidx.compose.ui.input.pointer.PointerEventType.Companion.ScaleChange
+import androidx.compose.ui.input.pointer.PointerEventType.Companion.ScaleEnd
+import androidx.compose.ui.input.pointer.PointerEventType.Companion.ScaleStart
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Scroll
 import androidx.compose.ui.input.pointer.PointerInputEvent
 import androidx.compose.ui.input.pointer.SyntheticEventSender
@@ -552,6 +558,194 @@ class SyntheticEventSenderTest {
             acc * event.pointers.fold(1f) { a, p -> a * p.scaleGestureFactor }
         }
         assertEquals(2f, totalScaleFactor)
+    }
+
+    @Test
+    fun `scale, shouldn't generate new events if order is correct`() {
+        eventsSentBy(
+            mouseEvent(ScaleStart, 10f, 20f, pressed = false),
+            mouseEvent(ScaleChange, 10f, 20f, pressed = false),
+            mouseEvent(ScaleChange, 10f, 20f, pressed = false),
+            mouseEvent(ScaleEnd, 10f, 20f, pressed = false),
+        ) positionAndDownShouldEqual listOf(
+            mouseEvent(ScaleStart, 10f, 20f, pressed = false),
+            mouseEvent(ScaleChange, 10f, 20f, pressed = false),
+            mouseEvent(ScaleChange, 10f, 20f, pressed = false),
+            mouseEvent(ScaleEnd, 10f, 20f, pressed = false),
+        )
+    }
+
+    @Test
+    fun `scale, should generate synthetic start before ScaleChange if missing`() {
+        eventsSentBy(
+            mouseEvent(ScaleChange, 10f, 20f, pressed = false),
+        ) positionAndDownShouldEqual listOf(
+            mouseEvent(ScaleStart, 10f, 20f, pressed = false),
+            mouseEvent(ScaleChange, 10f, 20f, pressed = false),
+        )
+    }
+
+    @Test
+    fun `scale, should generate synthetic start before ScaleEnd if missing`() {
+        eventsSentBy(
+            mouseEvent(ScaleEnd, 10f, 20f, pressed = false),
+        ) positionAndDownShouldEqual listOf(
+            mouseEvent(ScaleStart, 10f, 20f, pressed = false),
+            mouseEvent(ScaleEnd, 10f, 20f, pressed = false),
+        )
+    }
+
+    @Test
+    fun `scale, should generate synthetic end before new ScaleStart if in progress`() {
+        eventsSentBy(
+            mouseEvent(ScaleStart, 10f, 20f, pressed = false),
+            mouseEvent(ScaleStart, 10f, 20f, pressed = false),
+        ) positionAndDownShouldEqual listOf(
+            mouseEvent(ScaleStart, 10f, 20f, pressed = false),
+            mouseEvent(ScaleEnd, 10f, 20f, pressed = false),
+            mouseEvent(ScaleStart, 10f, 20f, pressed = false),
+        )
+    }
+
+    @Test
+    fun `scale, should generate only one synthetic start for multiple ScaleChanges`() {
+        eventsSentBy(
+            mouseEvent(ScaleChange, 10f, 20f, pressed = false),
+            mouseEvent(ScaleChange, 10f, 20f, pressed = false),
+            mouseEvent(ScaleChange, 10f, 20f, pressed = false),
+        ) positionAndDownShouldEqual listOf(
+            mouseEvent(ScaleStart, 10f, 20f, pressed = false),
+            mouseEvent(ScaleChange, 10f, 20f, pressed = false),
+            mouseEvent(ScaleChange, 10f, 20f, pressed = false),
+            mouseEvent(ScaleChange, 10f, 20f, pressed = false),
+        )
+    }
+
+    @Test
+    fun `scale, should handle ScaleStart after proper ScaleEnd without extra events`() {
+        eventsSentBy(
+            mouseEvent(ScaleStart, 10f, 20f, pressed = false),
+            mouseEvent(ScaleChange, 10f, 20f, pressed = false),
+            mouseEvent(ScaleEnd, 10f, 20f, pressed = false),
+            mouseEvent(ScaleStart, 10f, 20f, pressed = false),
+        ) positionAndDownShouldEqual listOf(
+            mouseEvent(ScaleStart, 10f, 20f, pressed = false),
+            mouseEvent(ScaleChange, 10f, 20f, pressed = false),
+            mouseEvent(ScaleEnd, 10f, 20f, pressed = false),
+            mouseEvent(ScaleStart, 10f, 20f, pressed = false),
+        )
+    }
+
+    @Test
+    fun `pan, shouldn't generate new events if order is correct`() {
+        eventsSentBy(
+            mouseEvent(PanStart, 10f, 20f, pressed = false),
+            mouseEvent(PanMove, 10f, 20f, pressed = false),
+            mouseEvent(PanMove, 10f, 20f, pressed = false),
+            mouseEvent(PanEnd, 10f, 20f, pressed = false),
+        ) positionAndDownShouldEqual listOf(
+            mouseEvent(PanStart, 10f, 20f, pressed = false),
+            mouseEvent(PanMove, 10f, 20f, pressed = false),
+            mouseEvent(PanMove, 10f, 20f, pressed = false),
+            mouseEvent(PanEnd, 10f, 20f, pressed = false),
+        )
+    }
+
+    @Test
+    fun `pan, should generate synthetic start before PanMove if missing`() {
+        eventsSentBy(
+            mouseEvent(PanMove, 10f, 20f, pressed = false),
+        ) positionAndDownShouldEqual listOf(
+            mouseEvent(PanStart, 10f, 20f, pressed = false),
+            mouseEvent(PanMove, 10f, 20f, pressed = false),
+        )
+    }
+
+    @Test
+    fun `pan, should generate synthetic start before PanEnd if missing`() {
+        eventsSentBy(
+            mouseEvent(PanEnd, 10f, 20f, pressed = false),
+        ) positionAndDownShouldEqual listOf(
+            mouseEvent(PanStart, 10f, 20f, pressed = false),
+            mouseEvent(PanEnd, 10f, 20f, pressed = false),
+        )
+    }
+
+    @Test
+    fun `pan, should generate synthetic end before new PanStart if in progress`() {
+        eventsSentBy(
+            mouseEvent(PanStart, 10f, 20f, pressed = false),
+            mouseEvent(PanStart, 10f, 20f, pressed = false),
+        ) positionAndDownShouldEqual listOf(
+            mouseEvent(PanStart, 10f, 20f, pressed = false),
+            mouseEvent(PanEnd, 10f, 20f, pressed = false),
+            mouseEvent(PanStart, 10f, 20f, pressed = false),
+        )
+    }
+
+    @Test
+    fun `pan, should generate only one synthetic start for multiple PanMoves`() {
+        eventsSentBy(
+            mouseEvent(PanMove, 10f, 20f, pressed = false),
+            mouseEvent(PanMove, 10f, 20f, pressed = false),
+            mouseEvent(PanMove, 10f, 20f, pressed = false),
+        ) positionAndDownShouldEqual listOf(
+            mouseEvent(PanStart, 10f, 20f, pressed = false),
+            mouseEvent(PanMove, 10f, 20f, pressed = false),
+            mouseEvent(PanMove, 10f, 20f, pressed = false),
+            mouseEvent(PanMove, 10f, 20f, pressed = false),
+        )
+    }
+
+    @Test
+    fun `pan, should handle PanStart after proper PanEnd without extra events`() {
+        eventsSentBy(
+            mouseEvent(PanStart, 10f, 20f, pressed = false),
+            mouseEvent(PanMove, 10f, 20f, pressed = false),
+            mouseEvent(PanEnd, 10f, 20f, pressed = false),
+            mouseEvent(PanStart, 10f, 20f, pressed = false),
+        ) positionAndDownShouldEqual listOf(
+            mouseEvent(PanStart, 10f, 20f, pressed = false),
+            mouseEvent(PanMove, 10f, 20f, pressed = false),
+            mouseEvent(PanEnd, 10f, 20f, pressed = false),
+            mouseEvent(PanStart, 10f, 20f, pressed = false),
+        )
+    }
+
+    @Test
+    fun `scale synthetic events should not duplicate scaleGestureFactor`() {
+        val received = mutableListOf<PointerInputEvent>()
+        val sender = SyntheticEventSender {
+            PointerEventResult(received.add(it))
+        }
+
+        sender.send(
+            mouseEvent(ScaleChange, 10f, 20f, pressed = false, scaleGestureFactor = 2.0f)
+        )
+
+        assertEquals(2, received.size)
+        val totalScaleFactor = received.fold(1f) { acc, event ->
+            acc * event.pointers.fold(1f) { a, p -> a * p.scaleGestureFactor }
+        }
+        assertEquals(2f, totalScaleFactor)
+    }
+
+    @Test
+    fun `pan synthetic events should not duplicate panGestureOffset`() {
+        val received = mutableListOf<PointerInputEvent>()
+        val sender = SyntheticEventSender {
+            PointerEventResult(received.add(it))
+        }
+
+        sender.send(
+            mouseEvent(PanMove, 10f, 20f, pressed = false, panGestureOffset = Offset(5f, 0f))
+        )
+
+        assertEquals(2, received.size)
+        val totalOffset = received.fold(Offset.Zero) { acc, event ->
+            acc + event.pointers.fold(Offset.Zero) { a, p -> a + p.panGestureOffset }
+        }
+        assertEquals(Offset(5f, 0f), totalOffset)
     }
 
     private fun eventsSentBy(

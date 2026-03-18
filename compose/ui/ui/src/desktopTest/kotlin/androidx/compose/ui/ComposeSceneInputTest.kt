@@ -283,7 +283,6 @@ class ComposeSceneInputTest {
         background.events.assertReceivedLast(PointerEventType.Scroll, Offset(30f, 10f))
     }
 
-    @Ignore // TODO: https://youtrack.jetbrains.com/issue/CMP-9905/Properly-adopt-Pan-Scale-Start-and-End-events
     @Test
     fun pan() = ImageComposeScene(100, 100).useInUiThread { scene ->
         val background = FillBox()
@@ -297,6 +296,7 @@ class ComposeSceneInputTest {
 
         scene.sendPointerEvent(PointerEventType.PanMove, Offset(10f, 10f))
         background.events.assertReceived(PointerEventType.Move, Offset(10f, 10f))
+        background.events.assertReceived(PointerEventType.PanStart, Offset(10f, 10f))
         background.events.assertReceivedLast(PointerEventType.PanMove, Offset(10f, 10f))
 
         scene.sendPointerEvent(PointerEventType.Move, Offset(20f, 10f))
@@ -310,7 +310,6 @@ class ComposeSceneInputTest {
         background.events.assertReceivedLast(PointerEventType.PanMove, Offset(30f, 10f))
     }
 
-    @Ignore // TODO: https://youtrack.jetbrains.com/issue/CMP-9905/Properly-adopt-Pan-Scale-Start-and-End-events
     @Test
     fun scale() = ImageComposeScene(100, 100).useInUiThread { scene ->
         val background = FillBox()
@@ -324,6 +323,7 @@ class ComposeSceneInputTest {
 
         scene.sendPointerEvent(PointerEventType.ScaleChange, Offset(10f, 10f))
         background.events.assertReceived(PointerEventType.Move, Offset(10f, 10f))
+        background.events.assertReceived(PointerEventType.ScaleStart, Offset(10f, 10f))
         background.events.assertReceivedLast(PointerEventType.ScaleChange, Offset(10f, 10f))
 
         scene.sendPointerEvent(PointerEventType.Move, Offset(20f, 10f))

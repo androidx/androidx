@@ -59,6 +59,8 @@ internal class SyntheticEventSender(
     private val _send: (PointerInputEvent) -> PointerEventResult = send
     private var previousEvent: PointerInputEvent? = null
     private var isMousePointerInside: Boolean = false
+    private var isScaleGestureInProgress: Boolean = false
+    private var isPanGestureInProgress: Boolean = false
 
     /**
      * If something happened with Compose content (it relayouted), we need to send an
@@ -73,6 +75,8 @@ internal class SyntheticEventSender(
     fun reset() {
         needUpdatePointerPosition = false
         previousEvent = null
+        isScaleGestureInProgress = false
+        isPanGestureInProgress = false
     }
 
     /**
@@ -84,10 +88,18 @@ internal class SyntheticEventSender(
         val syntheticMoveForHoverResult = sendMissingMoveForHover(event)
         val syntheticReleasesResult = sendMissingReleases(event)
         val syntheticPressesResult = sendMissingPresses(event)
+        val syntheticScaleEndResult = sendMissingScaleEnd(event)
+        val syntheticScaleStartResult = sendMissingScaleStart(event)
+        val syntheticPanEndResult = sendMissingPanEnd(event)
+        val syntheticPanStartResult = sendMissingPanStart(event)
         val eventResult = sendInternal(event)
         return syntheticMoveForHoverResult.merging(
             syntheticReleasesResult,
             syntheticPressesResult,
+            syntheticScaleEndResult,
+            syntheticScaleStartResult,
+            syntheticPanEndResult,
+            syntheticPanStartResult,
             eventResult
         )
     }
@@ -227,11 +239,52 @@ internal class SyntheticEventSender(
 
 
     private fun sendInternal(event: PointerInputEvent): PointerEventResult {
+        when (event.eventType) {
+            PointerEventType.ScaleStart -> isScaleGestureInProgress = true
+            PointerEventType.ScaleEnd -> isScaleGestureInProgress = false
+            PointerEventType.PanStart -> isPanGestureInProgress = true
+            PointerEventType.PanEnd -> isPanGestureInProgress = false
+            else -> {}
+        }
         val anyMovementConsumed = _send(event)
         // We don't send nativeEvent for synthetic events.
         // Nullify to avoid memory leaks (native events can point to native views).
         previousEvent = event.copy(nativeEvent = null)
         return anyMovementConsumed
+    }
+
+    private fun sendMissingScaleStart(event: PointerInputEvent): PointerEventResult {
+        return if (!isScaleGestureInProgress &&
+            (event.eventType == PointerEventType.ScaleChange || event.eventType == PointerEventType.ScaleEnd)) {
+            sendInternal(event.copySynthetic(PointerEventType.ScaleStart) { it.copySynthetic() })
+        } else {
+            PointerEventResult(anyMovementConsumed = false)
+        }
+    }
+
+    private fun sendMissingScaleEnd(event: PointerInputEvent): PointerEventResult {
+        return if (isScaleGestureInProgress && event.eventType == PointerEventType.ScaleStart) {
+            sendInternal(event.copySynthetic(PointerEventType.ScaleEnd) { it.copySynthetic() })
+        } else {
+            PointerEventResult(anyMovementConsumed = false)
+        }
+    }
+
+    private fun sendMissingPanStart(event: PointerInputEvent): PointerEventResult {
+        return if (!isPanGestureInProgress &&
+            (event.eventType == PointerEventType.PanMove || event.eventType == PointerEventType.PanEnd)) {
+            sendInternal(event.copySynthetic(PointerEventType.PanStart) { it.copySynthetic() })
+        } else {
+            PointerEventResult(anyMovementConsumed = false)
+        }
+    }
+
+    private fun sendMissingPanEnd(event: PointerInputEvent): PointerEventResult {
+        return if (isPanGestureInProgress && event.eventType == PointerEventType.PanStart) {
+            sendInternal(event.copySynthetic(PointerEventType.PanEnd) { it.copySynthetic() })
+        } else {
+            PointerEventResult(anyMovementConsumed = false)
+        }
     }
 
     private fun isMoveEventMissing(

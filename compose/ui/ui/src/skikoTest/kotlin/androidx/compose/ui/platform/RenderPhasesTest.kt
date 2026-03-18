@@ -395,7 +395,6 @@ class RenderPhasesTest {
         assertNotEquals(0, scrollState.value)
     }
 
-    @Ignore // TODO: https://youtrack.jetbrains.com/issue/CMP-9905/Properly-adopt-Pan-Scale-Start-and-End-events
     @Test
     fun panPointerEventHandlesScrollUpdatesSynchronously() = runInternalSkikoComposeUiTest(
         coroutineDispatcher = StandardTestDispatcher()
@@ -420,7 +419,6 @@ class RenderPhasesTest {
         assertNotEquals(0, scrollState.value)
     }
 
-    @Ignore // TODO: https://youtrack.jetbrains.com/issue/CMP-9905/Properly-adopt-Pan-Scale-Start-and-End-events
     @Test
     fun scalePointerEventHandlesScrollUpdatesSynchronously() = runInternalSkikoComposeUiTest(
         coroutineDispatcher = StandardTestDispatcher()

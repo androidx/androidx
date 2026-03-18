@@ -35,7 +35,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 // TODO: https://youtrack.jetbrains.com/issue/CMP-9904/Implement-TrackpadButton-actual
-// TODO: https://youtrack.jetbrains.com/issue/CMP-9905/Properly-adopt-Pan-Scale-Start-and-End-events
 @Ignore
 /**
  * Tests the trackpad-event sending functionality of the test framework.

@@ -180,7 +180,12 @@ private inline fun Boolean.toInt() = if (this) 1 else 0
 internal fun PointerEventResult.merging(
     result1: PointerEventResult,
     result2: PointerEventResult? = null,
-    result3: PointerEventResult? = null
+    result3: PointerEventResult? = null,
+    result4: PointerEventResult? = null,
+    result5: PointerEventResult? = null,
+    result6: PointerEventResult? = null,
+    result7: PointerEventResult? = null,
 ) = PointerEventResult(
-    value = this.value or result1.value or (result2?.value ?: 0) or (result3?.value ?: 0)
+    value = this.value or result1.value or (result2?.value ?: 0) or (result3?.value ?: 0) or
+        (result4?.value ?: 0) or (result5?.value ?: 0) or (result6?.value ?: 0) or (result7?.value ?: 0)
 )

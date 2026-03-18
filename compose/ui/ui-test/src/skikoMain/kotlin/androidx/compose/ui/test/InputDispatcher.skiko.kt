@@ -226,27 +226,83 @@ internal class SkikoInputDispatcher(
     }
 
     override fun CursorInputState.enqueueTrackpadPanStart() {
-        TODO("Not yet implemented - CMP-9905")
+        val position = lastPosition
+        val timeMillis = currentTime
+        enqueue(timeMillis) {
+            root.sendPointerEvent(
+                PointerEventType.PanStart,
+                position = position,
+                type = PointerType.Mouse,
+                timeMillis = timeMillis,
+            )
+        }
     }
 
     override fun CursorInputState.enqueueTrackpadPanMove(delta: Offset) {
-        TODO("Not yet implemented - CMP-9905")
+        val position = lastPosition
+        val timeMillis = currentTime
+        enqueue(timeMillis) {
+            root.sendPointerEvent(
+                PointerEventType.PanMove,
+                position = position,
+                type = PointerType.Mouse,
+                timeMillis = timeMillis,
+                panGestureOffset = delta
+            )
+        }
     }
 
     override fun CursorInputState.enqueueTrackpadPanEnd() {
-        TODO("Not yet implemented - CMP-9905")
+        val position = lastPosition
+        val timeMillis = currentTime
+        enqueue(timeMillis) {
+            root.sendPointerEvent(
+                PointerEventType.PanEnd,
+                position = position,
+                type = PointerType.Mouse,
+                timeMillis = timeMillis,
+            )
+        }
     }
 
     override fun CursorInputState.enqueueTrackpadScaleStart() {
-        TODO("Not yet implemented - CMP-9905")
+        val position = lastPosition
+        val timeMillis = currentTime
+        enqueue(timeMillis) {
+            root.sendPointerEvent(
+                PointerEventType.ScaleStart,
+                position = position,
+                type = PointerType.Mouse,
+                timeMillis = timeMillis,
+            )
+        }
     }
 
     override fun CursorInputState.enqueueTrackpadScaleChange(delta: Float) {
-        TODO("Not yet implemented - CMP-9905")
+        val position = lastPosition
+        val timeMillis = currentTime
+        enqueue(timeMillis) {
+            root.sendPointerEvent(
+                PointerEventType.ScaleChange,
+                position = position,
+                type = PointerType.Mouse,
+                timeMillis = timeMillis,
+                scaleGestureFactor = delta,
+            )
+        }
     }
 
     override fun CursorInputState.enqueueTrackpadScaleEnd() {
-        TODO("Not yet implemented - CMP-9905")
+        val position = lastPosition
+        val timeMillis = currentTime
+        enqueue(timeMillis) {
+            root.sendPointerEvent(
+                PointerEventType.ScaleEnd,
+                position = position,
+                type = PointerType.Mouse,
+                timeMillis = timeMillis,
+            )
+        }
     }
 
     override fun CursorInputState.enqueueTrackpadPress(buttonId: Int) {
