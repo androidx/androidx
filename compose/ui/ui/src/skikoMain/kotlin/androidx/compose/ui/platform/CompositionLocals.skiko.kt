@@ -82,21 +82,24 @@ internal fun ProvidePlatformCompositionLocals(
     platformContext: PlatformContext,
     content: @Composable () -> Unit,
 ) {
-    val saveableStateRegistry = remember {
+    val saveableStateRegistry = remember(platformContext) {
         DisposableSaveableStateRegistry(
             id = "ComposeContainer",
             savedStateRegistryOwner = platformContext.architectureComponentsOwner.savedStateRegistryOwner
         )
     }
-    DisposableEffect(Unit) { onDispose { saveableStateRegistry.dispose() } }
+    DisposableEffect(platformContext) { onDispose { saveableStateRegistry.dispose() } }
 
     // TODO: https://youtrack.jetbrains.com/issue/CMP-9752/Properly-implement-HostDefaultProvider-and-LocalHostDefaultProvider-for-CMP
-    val hostDefaultProvider = object : HostDefaultProvider {
-        override fun <T> getHostDefault(key: HostDefaultKey<T>): T {
-            return platformContext.architectureComponentsOwner as T
+    val hostDefaultProvider = remember(platformContext) {
+        object : HostDefaultProvider {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T> getHostDefault(key: HostDefaultKey<T>): T {
+                return platformContext.architectureComponentsOwner as T
+            }
         }
-
     }
+
     CompositionLocalProvider(
         *values,
         LocalPlatformScreenReader provides platformContext.screenReader,
