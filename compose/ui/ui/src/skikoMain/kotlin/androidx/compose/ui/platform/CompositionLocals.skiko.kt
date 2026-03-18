@@ -88,7 +88,11 @@ internal fun ProvidePlatformCompositionLocals(
             savedStateRegistryOwner = platformContext.architectureComponentsOwner.savedStateRegistryOwner
         )
     }
-    DisposableEffect(platformContext) { onDispose { saveableStateRegistry.dispose() } }
+    DisposableEffect(platformContext) {
+        //save a reference to dispose of a right object
+        val registry = saveableStateRegistry
+        onDispose { registry.dispose() }
+    }
 
     // TODO: https://youtrack.jetbrains.com/issue/CMP-9752/Properly-implement-HostDefaultProvider-and-LocalHostDefaultProvider-for-CMP
     val hostDefaultProvider = remember(platformContext) {
