@@ -116,6 +116,7 @@ import org.w3c.dom.MediaQueryListEvent
 import org.w3c.dom.Node
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.EventTarget
+import org.w3c.dom.events.FocusEvent
 import org.w3c.dom.events.KeyboardEvent
 import org.w3c.dom.events.MouseEvent
 import org.w3c.dom.events.WheelEvent
@@ -369,6 +370,8 @@ internal class ComposeWindow(
 
     private val isMacOS = hostOs.isMacOS
 
+    private var canvasFocused = false
+
     private fun processClipKeyDown(keyEvent: KeyEvent) {
         val mod = if (isMacOS) keyEvent.isMetaPressed else keyEvent.isCtrlPressed
         if (!mod) return
@@ -408,6 +411,14 @@ internal class ComposeWindow(
 
         addTypedEvent<KeyboardEvent>("keyup") { event ->
             processKeyboardEvent(event)
+        }
+
+        addTypedEvent<FocusEvent>("focus") { event ->
+            canvasFocused = true
+        }
+
+        addTypedEvent<FocusEvent>("blur") { event ->
+            canvasFocused = false
         }
 
         state.globalEvents.addDisposableEvent("focus") {
@@ -548,8 +559,9 @@ internal class ComposeWindow(
     private fun onPointerEvent(event: PointerEvent) {
         val eventType = event.getPointerEventType()
         var result: PointerEventResult? = null
+        val isTouchEvent = isTouchEvent(event)
 
-        if (isTouchEvent(event)) {
+        if (isTouchEvent) {
             if (eventType == PointerEventType.Enter || eventType == PointerEventType.Exit) {
                 //Enter and Exit events have no sense for touches (Firefox and Safari send them)
                 return
@@ -671,6 +683,12 @@ internal class ComposeWindow(
 
         if (result != null && result.anyChangeConsumed && event.cancelable) {
             event.preventDefault()
+
+            // Since we call preventDefault, the browser will not focus the canvas automatically,
+            // but it should be focused to receive key events.
+            if (!canvasFocused && !isTouchEvent && eventType == PointerEventType.Press) {
+                canvas.focus()
+            }
         }
     }
 
