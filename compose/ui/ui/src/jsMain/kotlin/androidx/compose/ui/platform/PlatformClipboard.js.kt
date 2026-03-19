@@ -23,8 +23,6 @@ import kotlin.js.Promise
 import kotlinx.coroutines.await
 import org.w3c.files.Blob
 
-actual typealias NativeClipboard = W3CTemporaryClipboard
-
 private val browserClipboard by lazy {
     getW3CClipboard()
 }
@@ -153,32 +151,3 @@ private fun createClipboardItemWithPlainText(text: String): Array<ClipboardItem>
 // Can't truly clear the clipboard, so setting the empty text
 private fun emptyClipboardItems(): Array<ClipboardItem> =
     js("[new ClipboardItem({'text/plain': new Blob([''], { type: 'text/plain' })})]")
-
-/**
- * https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API
- *
- * We declare this external interface temporary because
- * the IDL in kotlinx-browser is incorrect:
- * https://github.com/Kotlin/kotlinx-browser/issues/14
- */
-@ExperimentalComposeUiApi
-@JsName("Clipboard")
-external class W3CTemporaryClipboard {
-    fun read(): Promise<Array<ClipboardItem>>
-    fun write(data: Array<ClipboardItem>): Promise<Nothing>
-    fun writeText(text: String): Promise<Nothing>
-}
-
-/**
- * https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API
- *
- * We declare this external interface temporary because
- * the IDL in kotlinx-browser is incorrect:
- * https://github.com/Kotlin/kotlinx-browser/issues/14
- */
-@ExperimentalComposeUiApi
-@JsName("ClipboardItem")
-external interface ClipboardItem {
-    val types: Array<String>
-    fun getType(type: String): Promise<Blob>
-}

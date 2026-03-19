@@ -18,8 +18,6 @@ package androidx.compose.ui.platform
 
 import androidx.compose.runtime.TestOnly
 import androidx.compose.ui.input.key.toComposeEvent
-import androidx.compose.ui.internal.jsinterop.timestampAsDouble
-import androidx.compose.ui.internal.jsinterop.timestampAsInt
 import androidx.compose.ui.text.input.BackspaceCommand
 import androidx.compose.ui.text.input.CommitTextCommand
 import androidx.compose.ui.text.input.SetComposingTextCommand
@@ -27,6 +25,8 @@ import androidx.compose.ui.text.input.SetSelectionCommand
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
+import kotlin.js.toDouble
+import kotlin.js.toInt
 import org.w3c.dom.events.CompositionEvent
 import org.w3c.dom.events.InputEvent
 import org.w3c.dom.events.KeyboardEvent
@@ -74,7 +74,7 @@ internal abstract class NativeInputEventsProcessor(
     fun runCheckpoint(currentTextFieldValue: TextFieldValue) {
         isCheckpointScheduled = false
 
-        collectedEvents.sortBy { it.timestampAsInt() }
+        collectedEvents.sortBy { it.timeStamp.toInt() }
 
         val isInIMEComposition = collectedEvents.fastAny {
             it.type == "compositionstart"
@@ -85,7 +85,7 @@ internal abstract class NativeInputEventsProcessor(
         }
 
         collectedEvents.fastForEach { evt ->
-            val timestamp = evt.timestampAsDouble()
+            val timestamp = evt.timeStamp.toDouble()
 
             when (evt.type) {
                 "keydown" -> {
@@ -123,7 +123,7 @@ internal abstract class NativeInputEventsProcessor(
                 }
 
                 "beforeinput" -> {
-                    (evt as InputEvent).process(
+                    evt.asInputEventExt().process(
                         currentTextFieldValue = currentTextFieldValue
                     )
                 }
@@ -133,9 +133,8 @@ internal abstract class NativeInputEventsProcessor(
         collectedEvents.clear()
     }
 
-    private fun InputEvent.process(currentTextFieldValue: TextFieldValue) {
-        val inputExt = this.asInputEventExt()
-        val editCommands = when (inputExt.inputType) {
+    private fun InputEventExt.process(currentTextFieldValue: TextFieldValue) {
+        val editCommands = when (inputType) {
             "deleteContentBackward" -> buildList {
                 // this means "deleteContentBackward" happened because of an earlier "keydown" event, so skipping it here
                 if (lastProcessedKeydown?.isBackspace() == true) return@buildList
@@ -153,7 +152,7 @@ internal abstract class NativeInputEventsProcessor(
                         // deleteContentBackward can happen under very non-trivial circumstances,
                         // for instance; when an input suggestion on Android Chrome is accepted,
                         // the browser then deletes space after the word just to add space again
-                        add(SetSelectionCommand(inputExt.textRangeStart, inputExt.textRangeEnd))
+                        add(SetSelectionCommand(textRangeStart, textRangeEnd))
                         add(BackspaceCommand())
                     } else if (textRangeSize == 0) {
                         // under specific circumstance previous symbol can be deleted while inputing new one
@@ -170,7 +169,7 @@ internal abstract class NativeInputEventsProcessor(
                 if (lastProcessedKeydown?.altKey == false) {
                     val layoutResult = composeSender.currentTextLayoutResult() ?: return@buildList
                     val text = layoutResult.layoutInput.text
-                    val wordBoundary = layoutResult.getWordBoundary(inputExt.textRangeStart.coerceIn(0, text.length - 1))
+                    val wordBoundary = layoutResult.getWordBoundary(textRangeStart.coerceIn(0, text.length - 1))
 
                     add(SetSelectionCommand(wordBoundary.start, wordBoundary.end))
                     add(BackspaceCommand())
@@ -181,7 +180,7 @@ internal abstract class NativeInputEventsProcessor(
             "insertReplacementText" -> buildList {
                 if (data == null) return@buildList
                 if (textRangeSize > 0) {
-                    add(SetSelectionCommand(inputExt.textRangeStart, inputExt.textRangeEnd))
+                    add(SetSelectionCommand(textRangeStart, textRangeEnd))
                 }
 
                 add(CommitTextCommand(data, 1))
@@ -190,7 +189,7 @@ internal abstract class NativeInputEventsProcessor(
             "insertText" -> buildList {
                 if (data == null) return@buildList
                 if (textRangeSize > 0 && currentTextFieldValue.selection.collapsed) {
-                    add(SetSelectionCommand(inputExt.textRangeStart, inputExt.textRangeEnd))
+                    add(SetSelectionCommand(textRangeStart, textRangeEnd))
                 }
 
                 add(CommitTextCommand(data, 1))
@@ -199,7 +198,7 @@ internal abstract class NativeInputEventsProcessor(
             "insertCompositionText" -> buildList {
                 if (data == null) return@buildList
                 if (textRangeSize > 0) {
-                    add(SetSelectionCommand(inputExt.textRangeStart, inputExt.textRangeEnd))
+                    add(SetSelectionCommand(textRangeStart, textRangeEnd))
                 }
                 add(SetComposingTextCommand(data, 1))
             }

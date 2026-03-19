@@ -16,7 +16,16 @@
 
 package androidx.compose.ui.platform
 
+import androidx.compose.ui.ExperimentalComposeUiApi
+import kotlin.js.JsAny
+import kotlin.js.JsArray
+import kotlin.js.JsName
+import kotlin.js.JsString
+import kotlin.js.Promise
 import kotlin.js.js
+import org.w3c.files.Blob
+
+actual typealias NativeClipboard = W3CTemporaryClipboard
 
 // clipboard.read(), clipboard.write(), ClipboardItem are not available in FF < 127 versions
 // https://developer.mozilla.org/en-US/docs/Web/API/Clipboard/read#browser_compatibility
@@ -39,3 +48,32 @@ internal fun isFallbackWriteTextApiAvailable(): Boolean =
     js("Boolean(window.navigator.clipboard && window.navigator.clipboard.writeText)")
 
 internal fun getW3CClipboard(): NativeClipboard = js("window.navigator.clipboard")
+
+/**
+ * https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API
+ *
+ * We declare this external interface temporary because
+ * the IDL in kotlinx-browser is incorrect:
+ * https://github.com/Kotlin/kotlinx-browser/issues/14
+ */
+@ExperimentalComposeUiApi
+@JsName("Clipboard")
+external class W3CTemporaryClipboard {
+    fun read(): Promise<JsArray<ClipboardItem>>
+    fun write(data: JsArray<ClipboardItem>): Promise<Nothing>
+    fun writeText(text: String): Promise<Nothing>
+}
+
+/**
+ * https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API
+ *
+ * We declare this external interface temporary because
+ * the IDL in kotlinx-browser is incorrect:
+ * https://github.com/Kotlin/kotlinx-browser/issues/14
+ */
+@ExperimentalComposeUiApi
+@JsName("ClipboardItem")
+external interface ClipboardItem : JsAny {
+    val types: JsArray<JsString>
+    fun getType(type: JsString): Promise<Blob>
+}

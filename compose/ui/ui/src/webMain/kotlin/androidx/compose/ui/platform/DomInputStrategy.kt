@@ -31,8 +31,10 @@ import kotlin.js.unsafeCast
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.HTMLElement
+import org.w3c.dom.EventInit
 import org.w3c.dom.events.CompositionEvent
 import org.w3c.dom.events.Event
+import org.w3c.dom.events.UIEvent
 import org.w3c.dom.events.InputEvent
 import org.w3c.dom.events.KeyboardEvent
 
@@ -159,16 +161,20 @@ private external interface DocumentOrShadowRootLike : JsAny {
 }
 
 @JsName("InputEvent")
-internal external class InputEventExt : JsAny {
+internal external class InputEventExt : UIEvent {
+    val data: String?
     val inputType: String
     var textRangeStart: Int
     var textRangeEnd: Int
+
+    constructor(type: String, eventInitDict: EventInit = definedExternally)
 }
 
-internal val InputEvent.textRangeSize: Int
+internal inline fun UIEvent.asInputEventExt(): InputEventExt =  unsafeCast<InputEventExt>()
+
+internal val InputEventExt.textRangeSize: Int
     get() = this.asInputEventExt().let { it.textRangeEnd - it.textRangeStart }
 
-internal expect inline fun InputEvent.asInputEventExt(): InputEventExt
 
 private fun ImeOptions.createDomElement(): HTMLElement {
     val htmlElement = document.createElement(

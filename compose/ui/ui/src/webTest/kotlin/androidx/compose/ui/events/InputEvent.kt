@@ -16,13 +16,16 @@
 
 package androidx.compose.ui.events
 
-import org.w3c.dom.events.Event
+import org.w3c.dom.events.UIEvent
 
-internal external interface InputEventInit {
+private external interface InputEventInit {
     val data: String
     val inputType: String
 }
 
-internal fun InputEventInit(inputType: String, data: String?, isComposing: Boolean): InputEventInit = js("({data: data, inputType: inputType, isComposing: isComposing})")
+private  fun InputEventInit(inputType: String, data: String?, isComposing: Boolean): InputEventInit = js("({data: data, inputType: inputType, isComposing: isComposing})")
 
-internal external class InputEvent(type: String, options: InputEventInit) : Event
+private  external class InputEvent(type: String, options: InputEventInit) : UIEvent
+
+internal fun beforeInput(inputType: String, data: String?, isComposing: Boolean = false): UIEvent =
+    InputEvent("beforeinput", InputEventInit(inputType = inputType, data = data, isComposing = isComposing))

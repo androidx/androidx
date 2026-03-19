@@ -83,9 +83,6 @@ internal fun compositionStart(data: String = "") =
 internal fun compositionEnd(data: String) =
     CompositionEvent("compositionend", CompositionEventInit(data = data))
 
-internal fun beforeInput(inputType: String, data: String?, isComposing: Boolean = false) =
-    InputEvent("beforeinput", InputEventInit(inputType = inputType, data = data, isComposing = isComposing))
-
 internal fun createMouseEvent(type: String): MouseEvent {
     return MouseEvent(type)
 }
