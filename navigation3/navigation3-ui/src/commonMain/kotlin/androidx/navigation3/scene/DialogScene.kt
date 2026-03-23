@@ -17,8 +17,11 @@
 package androidx.navigation3.scene
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.rememberLifecycleOwner
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavMetadataKey
 import androidx.navigation3.runtime.get
@@ -37,7 +40,12 @@ internal class DialogScene<T : Any>(
     override val entries: List<NavEntry<T>> = listOf(entry)
 
     override val content: @Composable (() -> Unit) = {
-        Dialog(onDismissRequest = onBack, properties = dialogProperties) { entry.Content() }
+        val lifecycleOwner = rememberLifecycleOwner()
+        Dialog(onDismissRequest = onBack, properties = dialogProperties) {
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                entry.Content()
+            }
+        }
     }
 
     override fun equals(other: Any?): Boolean {
