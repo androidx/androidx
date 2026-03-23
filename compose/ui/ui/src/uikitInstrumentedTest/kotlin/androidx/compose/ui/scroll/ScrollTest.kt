@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -62,13 +63,21 @@ import androidx.compose.ui.unit.asDpOffset
 import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toDpRect
+import androidx.compose.ui.scene.ComposeHostingViewController
+import androidx.compose.ui.test.utils.center
+import androidx.compose.ui.test.utils.wait
+import androidx.compose.ui.test.waitForIdle
+import androidx.compose.ui.uikit.ComposeUIViewControllerConfiguration
+import androidx.compose.ui.uikit.LocalUIViewController
 import androidx.compose.ui.viewinterop.UIKitInteropProperties
 import androidx.compose.ui.viewinterop.UIKitView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import kotlin.random.Random
+import kotlinx.coroutines.Dispatchers
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -77,11 +86,14 @@ import kotlinx.cinterop.readValue
 import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.OSVersion
 import org.jetbrains.skiko.available
+import platform.CoreGraphics.CGRectMake
 import platform.CoreGraphics.CGRectZero
 import platform.CoreGraphics.CGSizeMake
 import platform.UIKit.UIColor
 import platform.UIKit.UILabel
 import platform.UIKit.UIScrollView
+import platform.UIKit.addChildViewController
+import platform.UIKit.didMoveToParentViewController
 
 internal class ScrollTest {
 
@@ -1012,6 +1024,123 @@ internal class ScrollTest {
 
         assertEquals((50 - CUPERTINO_TOUCH_SLOP) * density.density, state1.value.toFloat())
         assertEquals((100 - CUPERTINO_TOUCH_SLOP) * density.density, state2.value.toFloat())
+    }
+
+    @Test
+    fun testScrollInModalViewController() = runUIKitInstrumentedTest {
+        val scrollState = ScrollState(0)
+
+        setContent {
+            Box(modifier = Modifier.fillMaxSize().background(Color.White))
+        }
+
+        val modalVC = ComposeHostingViewController(
+            configuration = ComposeUIViewControllerConfiguration().apply {
+                enforceStrictPlistSanityCheck = false
+            },
+            content = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(scrollState)
+                ) {
+                    repeat(20) { index ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp)
+                                .background(if (index % 2 == 0) Color.Red else Color.Blue)
+                        )
+                    }
+                }
+            },
+            coroutineContext = Dispatchers.Main
+        )
+
+        var presented = false
+
+        viewController.presentViewController(modalVC, animated = false) {
+            presented = true
+        }
+
+        waitUntil("Modal view controller should be presented") { presented }
+        modalVC.waitForIdle()
+
+        // Perform 3 separate scroll gestures — each touchDown consumes slop independently
+        val scrollAmount = 150.dp
+        repeat(3) { attempt ->
+            touchDown(screenSize.center)
+                .dragBy(dy = -scrollAmount, duration = 100.milliseconds)
+                .wait(100.milliseconds)
+                .up()
+            modalVC.waitForIdle()
+        }
+
+        val expectedScrollPx = 3 * (scrollAmount.value - CUPERTINO_TOUCH_SLOP) * density.density
+        assertEquals(
+            expected = expectedScrollPx,
+            actual = scrollState.value.toFloat(),
+            absoluteTolerance = 1f,
+        )
+    }
+
+    @Test
+    @OptIn(ExperimentalForeignApi::class)
+    fun testComposeButtonInsideUIScrollViewScrollsOnSwipe() = runUIKitInstrumentedTest {
+        var buttonClicked = false
+        var scrollViewRef: UIScrollView? = null
+
+        setContent {
+            val parent = LocalUIViewController.current
+            UIKitView(
+                factory = {
+                    val scrollView = UIScrollView()
+                    scrollView.setContentSize(CGSizeMake(10000.0, 100.0))
+
+                    val composeVC = ComposeHostingViewController(
+                        configuration = ComposeUIViewControllerConfiguration().apply {
+                            enforceStrictPlistSanityCheck = false
+                        },
+                        content = {
+                            Box(modifier = Modifier.fillMaxSize().background(Color.LightGray)) {
+                                Button(
+                                    onClick = { buttonClicked = true },
+                                    modifier = Modifier.align(Alignment.Center)
+                                ) {
+                                    Text("Button")
+                                }
+                            }
+                        },
+                        coroutineContext = Dispatchers.Main
+                    )
+                    parent.addChildViewController(composeVC)
+                    scrollView.addSubview(composeVC.view)
+                    composeVC.view.setFrame(CGRectMake(0.0, 0.0, 300.0, 100.0))
+                    composeVC.didMoveToParentViewController(parent)
+
+                    scrollViewRef = scrollView
+                    scrollView
+                },
+                modifier = Modifier.fillMaxWidth().height(100.dp),
+            )
+        }
+
+        waitForIdle()
+
+        val scrollView = checkNotNull(scrollViewRef)
+        val swipeCenter = scrollView.dpRectInWindow().center()
+
+        // Swipe left over the embedded button — should scroll UIScrollView, not click button
+        touchDown(swipeCenter)
+            .dragBy(dx = -(100 + CUPERTINO_TOUCH_SLOP).dp, duration = 300.milliseconds)
+            .up()
+        waitForIdle()
+
+        assertTrue(
+            scrollView.contentOffset.asDpOffset().x > 0.dp,
+            "UIScrollView should scroll horizontally on swipe"
+        )
+        assertFalse(buttonClicked, "Button should NOT be clicked when swiping over it")
     }
 }
 

@@ -331,13 +331,18 @@ private class TouchesGestureRecognizer(
         val (scrollWidth, scrollHeight) = scrollView.bounds.useContents { size.width to size.height }
         val insets = scrollView.contentInset.useContents { this }
 
-        val endOfHorizontal = (diffX >= 0 && offsetX.equalWithinPixelTolerance(-insets.left)) ||
-            (diffX <= 0 &&
-                offsetX.equalWithinPixelTolerance(contentWidth - scrollWidth + insets.right))
+        // If the scroll view has no scrollable content in a direction, it's always at the "end"
+        // in that direction (e.g. OverlayInputView which is a UIScrollView with empty contentSize).
+        val canScrollHorizontally = contentWidth > scrollWidth - insets.left - insets.right
+        val canScrollVertically = contentHeight > scrollHeight - insets.top - insets.bottom
 
-        val endOfVertical = (diffY >= 0 && offsetY.equalWithinPixelTolerance(-insets.top)) ||
-            (diffY <= 0 &&
-                offsetY.equalWithinPixelTolerance(contentHeight - scrollHeight + insets.bottom))
+        val endOfHorizontal = !canScrollHorizontally ||
+            (diffX >= 0 && offsetX.equalWithinPixelTolerance(-insets.left)) ||
+            (diffX <= 0 && offsetX.equalWithinPixelTolerance(contentWidth - scrollWidth + insets.right))
+
+        val endOfVertical = !canScrollVertically ||
+            (diffY >= 0 && offsetY.equalWithinPixelTolerance(-insets.top)) ||
+            (diffY <= 0 && offsetY.equalWithinPixelTolerance(contentHeight - scrollHeight + insets.bottom))
 
         return endOfHorizontal && endOfVertical
     }
