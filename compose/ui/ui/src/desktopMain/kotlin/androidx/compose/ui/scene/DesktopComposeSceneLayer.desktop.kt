@@ -63,6 +63,7 @@ internal abstract class DesktopComposeSceneLayer(
     )
 
     protected abstract val mediator: ComposeSceneMediator?
+    private var drawBoundsRecorder: RecordDrawRectRenderDecorator? = null
 
     /**
      * Bounds of real drawings based on previous renders.
@@ -110,6 +111,8 @@ internal abstract class DesktopComposeSceneLayer(
     @CallSuper
     override fun close() {
         isClosed = true
+        drawBoundsRecorder?.close()
+        drawBoundsRecorder = null
     }
 
     final override fun setContent(content: @Composable () -> Unit) {
@@ -135,8 +138,14 @@ internal abstract class DesktopComposeSceneLayer(
     override fun calculateLocalPosition(positionInWindow: IntOffset) =
         positionInWindow // [ComposeScene] is equal to [windowContainer] for the layer.
 
-    protected fun recordDrawBounds(renderDelegate: SkikoRenderDelegate) =
-        RecordDrawRectRenderDecorator(renderDelegate) { canvasBoundsInPx ->
+    protected fun recordDrawBounds(renderDelegate: SkikoRenderDelegate): RecordDrawRectRenderDecorator {
+        check(!isClosed) {
+            "recordDrawBounds called after layer is closed"
+        }
+        check(drawBoundsRecorder == null) {
+            "recordDrawBounds cannot be called multiple times."
+        }
+        return RecordDrawRectRenderDecorator(renderDelegate) { canvasBoundsInPx ->
             val currentCanvasOffset = drawBounds.topLeft
             val drawBoundsInWindow = canvasBoundsInPx.roundToIntRect().translate(currentCanvasOffset)
             maxDrawInflate = maxInflate(boundsInWindow, drawBoundsInWindow, maxDrawInflate)
@@ -147,7 +156,8 @@ internal abstract class DesktopComposeSceneLayer(
                 bottom = boundsInWindow.bottom + maxDrawInflate.bottom
             )
             onDrawBoundsChanged()
-        }
+        }.also { drawBoundsRecorder = it }
+    }
 
     /**
      * Called when the focus of the window containing main Compose view has changed.

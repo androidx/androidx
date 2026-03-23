@@ -28,9 +28,10 @@ import org.jetbrains.skiko.SkikoRenderDelegate
 internal class RecordDrawRectRenderDecorator(
     private val decorated: SkikoRenderDelegate,
     private val onDrawRectChange: (Rect) -> Unit
-) : SkikoRenderDelegate by decorated {
+) : SkikoRenderDelegate, AutoCloseable {
     private val pictureRecorder = PictureRecorder()
     private val bbhFactory = RTreeFactory()
+    private var isClosed = false
     private var drawRect = Rect.Zero
         set(value) {
             if (value != field) {
@@ -39,13 +40,20 @@ internal class RecordDrawRectRenderDecorator(
             }
         }
 
-    // TODO(@MatkovIvan): nobody calls it
-    fun close() {
+    override fun close() {
+        if (isClosed) {
+            return
+        }
+        isClosed = true
         pictureRecorder.close()
         bbhFactory.close()
     }
 
     override fun onRender(canvas: Canvas, width: Int, height: Int, nanoTime: Long) {
+        if (isClosed) {
+            decorated.onRender(canvas, width, height, nanoTime)
+            return
+        }
         drawRect = canvas.recordCullRect {
             decorated.onRender(it, width, height, nanoTime)
         }?.toComposeRect() ?: Rect.Zero
@@ -87,11 +95,3 @@ internal class RecordDrawRectRenderDecorator(
  * so temporary applying some offset is required to get right measurement in negative area.
  */
 private const val MeasureOffset = (1 shl 14).toFloat()
-
-private val SkRect.Companion.Unconstrained: SkRect
-    get() = makeLTRB(
-        l = Float.MIN_VALUE,
-        t = Float.MIN_VALUE,
-        r = Float.MAX_VALUE,
-        b = Float.MAX_VALUE
-    )
