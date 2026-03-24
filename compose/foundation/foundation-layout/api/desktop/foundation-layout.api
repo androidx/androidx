@@ -399,6 +399,7 @@ public abstract interface class androidx/compose/foundation/layout/GridConfigura
 	public fun getFr-9P9H2UQ (D)F
 	public fun getFr-9P9H2UQ (F)F
 	public fun getFr-9P9H2UQ (I)F
+	public fun minmax-1z8F7YY (FF)J
 	public abstract fun row (F)V
 	public abstract fun row-0680j_4 (F)V
 	public abstract fun row-118E5d0 (J)V
@@ -481,6 +482,7 @@ public final class androidx/compose/foundation/layout/GridTrackSize : androidx/c
 public final class androidx/compose/foundation/layout/GridTrackSize$Companion {
 	public final fun Fixed-psSkOvk (F)J
 	public final fun Flex-KGB9zo8 (F)J
+	public final fun MinMax-1z8F7YY (FF)J
 	public final fun Percentage-9Tp3RV8 (F)J
 	public final fun getAuto-eyNpfc4 ()J
 	public final fun getMaxContent-eyNpfc4 ()J

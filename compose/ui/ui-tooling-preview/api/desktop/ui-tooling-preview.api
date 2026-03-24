@@ -123,12 +123,12 @@ public final class androidx/compose/ui/tooling/preview/PreviewParameterProvider$
 public abstract interface annotation class androidx/compose/ui/tooling/preview/PreviewScreenSizes : java/lang/annotation/Annotation {
 }
 
-public abstract interface class androidx/compose/ui/tooling/preview/PreviewWrapper {
-	public abstract fun Wrap (Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;I)V
+public abstract interface annotation class androidx/compose/ui/tooling/preview/PreviewWrapper : java/lang/annotation/Annotation {
+	public abstract fun wrapper ()Ljava/lang/Class;
 }
 
-public abstract interface annotation class androidx/compose/ui/tooling/preview/PreviewWrapperProvider : java/lang/annotation/Annotation {
-	public abstract fun wrapper ()Ljava/lang/Class;
+public abstract interface class androidx/compose/ui/tooling/preview/PreviewWrapperProvider {
+	public abstract fun Wrap (Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;I)V
 }
 
 public final class androidx/compose/ui/tooling/preview/Wallpapers {

@@ -726,7 +726,8 @@ public abstract interface class androidx/compose/ui/test/TrackpadInjectionScope 
 	public static synthetic fun moveBy-3MmeM6k$default (Landroidx/compose/ui/test/TrackpadInjectionScope;JJILjava/lang/Object;)V
 	public abstract fun moveTo-3MmeM6k (JJ)V
 	public static synthetic fun moveTo-3MmeM6k$default (Landroidx/compose/ui/test/TrackpadInjectionScope;JJILjava/lang/Object;)V
-	public abstract fun panEnd ()V
+	public abstract fun panEnd (J)V
+	public static synthetic fun panEnd$default (Landroidx/compose/ui/test/TrackpadInjectionScope;JILjava/lang/Object;)V
 	public abstract fun panMoveBy-3MmeM6k (JJ)V
 	public static synthetic fun panMoveBy-3MmeM6k$default (Landroidx/compose/ui/test/TrackpadInjectionScope;JJILjava/lang/Object;)V
 	public abstract fun panStart ()V
@@ -736,7 +737,8 @@ public abstract interface class androidx/compose/ui/test/TrackpadInjectionScope 
 	public static synthetic fun release-QiXdzRk$default (Landroidx/compose/ui/test/TrackpadInjectionScope;IILjava/lang/Object;)V
 	public abstract fun scaleChangeBy (FJ)V
 	public static synthetic fun scaleChangeBy$default (Landroidx/compose/ui/test/TrackpadInjectionScope;FJILjava/lang/Object;)V
-	public abstract fun scaleEnd ()V
+	public abstract fun scaleEnd (J)V
+	public static synthetic fun scaleEnd$default (Landroidx/compose/ui/test/TrackpadInjectionScope;JILjava/lang/Object;)V
 	public abstract fun scaleStart ()V
 	public fun updatePointerBy-k-4lQ0M (J)V
 	public abstract fun updatePointerTo-k-4lQ0M (J)V
