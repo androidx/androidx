@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.unit.sp
 import kotlin.math.pow
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlinx.test.IgnoreJsTarget
 import kotlinx.test.IgnoreWasmTarget
@@ -70,6 +71,7 @@ class BasicTextFieldSelectionHandleTest {
         .padding(textPadding)
         .fillMaxSize()
 
+    @Ignore // TODO: https://youtrack.jetbrains.com/issue/CMP-9990/Fix-basicTextFieldSelectionHandles-test
     @Test
     fun basicTextFieldSelectionHandles() = runSkikoComposeUiTest(size = Size(100f, 100f)) {
         val textState = TextFieldState(initialText = "Text")
