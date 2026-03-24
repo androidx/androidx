@@ -35,7 +35,7 @@ import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.util.fastAll
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
@@ -108,7 +108,7 @@ suspend fun PointerInputScope.detectDragGestures(
             }
 
             launch {
-                val dragStarted = suspendCoroutine<Boolean> { dragStartedContinuation = it }
+                val dragStarted = suspendCancellableCoroutine<Boolean> { dragStartedContinuation = it }
                 if (dragStarted) {
                     awaitPointerEventScope {
                         while (dragJob.isActive) {
