@@ -15,10 +15,9 @@
  */
 
 /**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
  *
- * Please use that script when creating a new project, rather than copying an existing project and
+ * Please use the task when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
 
@@ -50,8 +49,8 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 api(project(":compose:material3:material3"))
-                api("org.jetbrains.compose.material3.adaptive:adaptive:1.2.0")
-                implementation("org.jetbrains.androidx.window:window-core:1.4.0")
+                api(project(":compose:material3:adaptive:adaptive"))
+                implementation(project(":window:window-core"))
             }
         }
 

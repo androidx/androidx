@@ -19,7 +19,9 @@ package androidx.compose.material3.internal
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.snapTo
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ComposeMaterial3Flags
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -100,8 +102,76 @@ class DraggableAnchorsModifierTest {
         assertThat(state2.anchors.hasPositionFor(TestValue.B)).isTrue()
     }
 
+    @Test
+    fun draggableAnchors_orphanTarget_recoversAndPreventsException() {
+        val state = AnchoredDraggableState(initialValue = TestValue.C)
+
+        rule.setContent {
+            Box(Modifier.fillMaxSize()) {
+                Box(
+                    Modifier.size(100.dp).draggableAnchors(state, Orientation.Vertical) { _, _ ->
+                        val anchors = DraggableAnchors {
+                            TestValue.A at 0f
+                            TestValue.B at 100f
+                        }
+                        anchors to TestValue.C
+                    }
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        assertThat(state.offset).isNotNaN()
+        assertThat(state.anchors.hasPositionFor(state.currentValue)).isTrue()
+    }
+
+    @Test
+    fun draggableAnchors_safeTargeting_withLayoutChange_reconcilesCorrectly() {
+        val state = AnchoredDraggableState(initialValue = TestValue.C)
+        var supportsStateC by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier.fillMaxSize()) {
+                Box(
+                    Modifier.size(100.dp).draggableAnchors(state, Orientation.Vertical) { _, _ ->
+                        val newAnchors = DraggableAnchors {
+                            TestValue.A at 0f
+                            TestValue.B at 100f
+                            if (supportsStateC) TestValue.C at 200f
+                        }
+
+                        // Simple target selection
+                        val newTarget =
+                            when (state.targetValue) {
+                                TestValue.C -> if (supportsStateC) TestValue.C else TestValue.B
+                                else -> state.targetValue
+                            }
+
+                        newAnchors to newTarget
+                    }
+                )
+            }
+        }
+
+        // Initial pass: C is unsupported, should settle at B
+        rule.waitForIdle()
+        assertThat(state.currentValue).isEqualTo(TestValue.B)
+        assertThat(state.offset).isEqualTo(100f)
+
+        // Trigger layout change
+        supportsStateC = true
+        rule.waitForIdle()
+
+        // Verify we can now reach C
+        rule.runOnIdle { kotlinx.coroutines.runBlocking { state.snapTo(TestValue.C) } }
+        rule.waitForIdle()
+        assertThat(state.currentValue).isEqualTo(TestValue.C)
+        assertThat(state.offset).isEqualTo(200f)
+    }
+
     enum class TestValue {
         A,
         B,
+        C,
     }
 }

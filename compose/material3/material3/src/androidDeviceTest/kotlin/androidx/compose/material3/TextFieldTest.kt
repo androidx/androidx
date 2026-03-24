@@ -126,6 +126,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -1625,6 +1626,7 @@ class TextFieldTest {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Ignore("Enabled after b/484131458")
     fun testTextField_transformedTextIsUsed_toDefineLabelPosition() {
         rule.setMaterialContent(lightColorScheme()) {
             TextField(

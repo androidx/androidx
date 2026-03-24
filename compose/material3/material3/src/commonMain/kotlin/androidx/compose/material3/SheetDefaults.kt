@@ -55,6 +55,7 @@ import androidx.compose.material3.internal.getString
 import androidx.compose.material3.tokens.ScrimTokens
 import androidx.compose.material3.tokens.SheetBottomTokens
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -74,6 +75,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.semantics.collapse
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.dismiss
@@ -157,6 +159,15 @@ fun BottomSheet(
     shadowElevation: Dp = 0.dp,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    val showMotion = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
+    val hideMotion = MaterialTheme.motionScheme.fastEffectsSpec<Float>()
+    val anchoredDraggableMotion = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
+    SideEffect {
+        state.showMotionSpec = showMotion
+        state.hideMotionSpec = hideMotion
+        state.anchoredDraggableMotionSpec = anchoredDraggableMotion
+    }
+
     val predictiveBackProgress = remember { Animatable(initialValue = 0f) }
     val scope = rememberCoroutineScope()
     val settleToDismiss: () -> Unit = {
@@ -220,20 +231,53 @@ internal fun BottomSheetImpl(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val bottomSheetPaneTitle = getString(string = Strings.BottomSheetPaneTitle)
+    val spatialFlingSpec = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
+    val viewConfiguration = LocalViewConfiguration.current
+    val density = LocalDensity.current
+
     val anchoredDraggableFlingBehavior =
         AnchoredDraggableDefaults.flingBehavior(
             state = state.anchoredDraggableState,
             positionalThreshold = { _ -> state.positionalThreshold.invoke() },
-            animationSpec = BottomSheetAnimationSpec,
+            animationSpec = spatialFlingSpec,
         )
+
     val modalBottomSheetFlingBehavior =
-        remember(anchoredDraggableFlingBehavior) {
+        remember(anchoredDraggableFlingBehavior, state, viewConfiguration, density) {
             object : FlingBehavior {
                 override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
+                    val maxSystemVelocity = viewConfiguration.maximumFlingVelocity
+                    var safeVelocity =
+                        initialVelocity.coerceIn(-maxSystemVelocity, maxSystemVelocity)
+
+                    if (
+                        safeVelocity > 0f &&
+                            state.anchoredDraggableState.anchors.hasPositionFor(Hidden)
+                    ) {
+                        val hiddenAnchor = state.anchoredDraggableState.anchors.positionOf(Hidden)
+                        val currentOffset = state.requireOffset()
+                        val distanceToFloor = max(0f, hiddenAnchor - currentOffset)
+
+                        val dampeningZone =
+                            with(density) { BottomSheetDefaults.BoundaryDampeningZone.toPx() }
+                        if (distanceToFloor < dampeningZone) {
+                            val factor = distanceToFloor / dampeningZone
+                            safeVelocity *= factor
+
+                            // Ensure previously valid velocities (above velocityThresholdPx) shrink
+                            // at most to velocityThresholdPx to maintain a valid fling.
+                            val velocityThresholdPx =
+                                with(density) { BottomSheetDefaults.VelocityThreshold.toPx() }
+                            if (initialVelocity >= velocityThresholdPx) {
+                                safeVelocity = max(safeVelocity, velocityThresholdPx)
+                            }
+                        }
+                    }
+
                     var remainingVelocity = 0f
                     try {
                         remainingVelocity =
-                            with(anchoredDraggableFlingBehavior) { performFling(initialVelocity) }
+                            with(anchoredDraggableFlingBehavior) { performFling(safeVelocity) }
                     } finally {
                         if (!state.isVisible) onDismissRequest()
                     }
@@ -287,16 +331,15 @@ internal fun BottomSheetImpl(
                         }
                     }
                     val newTarget =
-                        when (state.anchoredDraggableState.targetValue) {
+                        when (state.targetValue) {
                             Hidden -> Hidden
                             PartiallyExpanded -> {
-                                val hasPartiallyExpandedState =
-                                    newAnchors.hasPositionFor(PartiallyExpanded)
-                                val newTarget =
-                                    if (hasPartiallyExpandedState) PartiallyExpanded
-                                    else if (newAnchors.hasPositionFor(Expanded)) Expanded
-                                    else Hidden
-                                newTarget
+                                when {
+                                    newAnchors.hasPositionFor(PartiallyExpanded) ->
+                                        PartiallyExpanded
+                                    newAnchors.hasPositionFor(Expanded) -> Expanded
+                                    else -> Hidden
+                                }
                             }
 
                             Expanded -> {
@@ -771,6 +814,14 @@ object BottomSheetDefaults {
     internal val PositionalThreshold = 56.dp
 
     internal val VelocityThreshold = 125.dp
+
+    /**
+     * The distance from the absolute bottom boundary (Hidden anchor) where nested scroll swipe
+     * velocity begins to exponentially dampen.
+     *
+     * This prevents overshoots from spring physics in expressive theming.
+     */
+    internal val BoundaryDampeningZone = 125.dp
 
     /** The optional visual marker placed on top of a bottom sheet to indicate it may be dragged. */
     @Composable

@@ -915,6 +915,8 @@ RemovedMethod: androidx.compose.material3.RadioButtonColors#copy(long, long, lon
     Binary breaking change: Removed method androidx.compose.material3.RadioButtonColors.copy(long,long,long,long)
 RemovedMethod: androidx.compose.material3.RadioButtonDefaults#colors(long, long, long, long):
     Binary breaking change: Removed method androidx.compose.material3.RadioButtonDefaults.colors(long,long,long,long)
+RemovedMethod: androidx.compose.material3.RippleConfiguration#RippleConfiguration():
+    Binary breaking change: Removed constructor androidx.compose.material3.RippleConfiguration()
 RemovedMethod: androidx.compose.material3.RippleKt#ripple(androidx.compose.ui.graphics.ColorProducer, boolean, float):
     Binary breaking change: Removed method androidx.compose.material3.RippleKt.ripple(androidx.compose.ui.graphics.ColorProducer,boolean,float)
 RemovedMethod: androidx.compose.material3.RippleKt#ripple(boolean, float, long):
