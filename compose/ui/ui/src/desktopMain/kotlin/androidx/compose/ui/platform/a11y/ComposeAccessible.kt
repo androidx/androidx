@@ -102,7 +102,7 @@ internal class ComposeAccessible(
     /**
      * The (cached) [SemanticsNode.config] of [semanticsNode].
      */
-    private val semanticsConfig: SemanticsConfiguration
+    val semanticsConfig: SemanticsConfiguration
         get() =
             cachedSemanticsConfig ?: semanticsNode.config.also {
                 cachedSemanticsConfig = it
@@ -345,7 +345,7 @@ internal class ComposeAccessible(
         }
 
         override fun getAccessibleChildrenCount(): Int {
-            return semanticsNode.replacedChildren.size + auxiliaryChildren.size
+            return traversalOrderedChildren.size + auxiliaryChildren.size
         }
 
         override fun getAccessibleChild(index: Int): Accessible? {
