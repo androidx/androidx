@@ -26,6 +26,7 @@ import androidx.build.PlatformIdentifier
 import androidx.build.ProjectLayoutType
 import org.jetbrains.androidx.build.UpdateTranslationsTask
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.targets.jvm.tasks.KotlinJvmTest
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.konan.target.Family
 
@@ -478,4 +479,5 @@ tasks.desktopTest {
     useJUnit {
         excludeCategories("androidx.compose.ui.HeadlessTest")
     }
+    jvmArgs("--add-opens=java.desktop/javax.swing=ALL-UNNAMED")
 }
