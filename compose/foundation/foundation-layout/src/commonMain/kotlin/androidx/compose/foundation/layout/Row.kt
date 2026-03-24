@@ -402,5 +402,9 @@ internal object RowScopeInstance : RowScope {
     @Stable override fun Modifier.alignByBaseline() = alignBy(FirstBaseline)
 
     override fun Modifier.alignBy(alignmentLineBlock: (Measured) -> Int) =
-        this.then(WithAlignmentLineBlockElement(block = alignmentLineBlock))
+        this.then(
+            WithAlignmentLineBlockElement(
+                block = AlignmentLineProviderBlock { alignmentLineBlock(it) }
+            )
+        )
 }

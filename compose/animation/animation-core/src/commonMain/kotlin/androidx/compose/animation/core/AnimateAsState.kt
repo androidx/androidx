@@ -35,6 +35,8 @@ import kotlinx.coroutines.launch
 
 private val defaultAnimation = spring<Float>()
 
+private const val DefaultFloatVisibilityThreshold = 0.01f
+
 /**
  * Fire-and-forget animation function for [Float]. This Composable function is overloaded for
  * different parameter types such as [Dp], [Color][androidx.compose.ui.graphics.Color], [Offset],
@@ -47,6 +49,11 @@ private val defaultAnimation = spring<Float>()
  *
  * Note, [animateFloatAsState] cannot be canceled/stopped without removing this composable function
  * from the tree. See [Animatable] for cancelable animations.
+ *
+ * [visibilityThreshold] can be used to define when the animation value is considered close enough
+ * to the [targetValue] to finish. By default, the [visibilityThreshold] in the [animationSpec] will
+ * be respected. If a non-default [visibilityThreshold] is provided, it will override the visibility
+ * threshold in the [animationSpec] if it's a [SpringSpec].
  *
  * @sample androidx.compose.animation.core.samples.AlphaAnimationSample
  * @param targetValue Target value of the animation
@@ -62,7 +69,7 @@ private val defaultAnimation = spring<Float>()
 public fun animateFloatAsState(
     targetValue: Float,
     animationSpec: AnimationSpec<Float> = defaultAnimation,
-    visibilityThreshold: Float = 0.01f,
+    visibilityThreshold: Float = DefaultFloatVisibilityThreshold,
     label: String = "FloatAnimation",
     finishedListener: ((Float) -> Unit)? = null,
 ): State<Float> {
@@ -76,7 +83,12 @@ public fun animateFloatAsState(
         targetValue,
         Float.VectorConverter,
         resolvedAnimSpec,
-        visibilityThreshold,
+        /*
+         * We use the default visibility threshold if it's not the default value.
+         * If it's the default value, we pass null to animateValueAsState so it doesn't
+         * override the visibility threshold in the animationSpec.
+         */
+        if (visibilityThreshold == DefaultFloatVisibilityThreshold) null else visibilityThreshold,
         label,
         finishedListener,
     )

@@ -1728,6 +1728,42 @@ internal class BasicTextFieldTest {
         rule.onNodeWithTag(Tag).assertTextEquals("Hello Compose")
     }
 
+    @Test
+    fun textField_multiLine_minLinesOneAndMaxLinesOne_doesSoftWrap() {
+        var getTLR: (() -> TextLayoutResult?)? = null
+        rule.setContent {
+            BasicTextField(
+                rememberTextFieldState(),
+                onTextLayout = { getTLR = it },
+                lineLimits = TextFieldLineLimits.MultiLine(1, 1),
+            )
+        }
+
+        rule.runOnIdle {
+            val tlr = getTLR?.invoke()
+            assertThat(tlr).isNotNull()
+            assertThat(tlr!!.layoutInput.softWrap).isTrue()
+        }
+    }
+
+    @Test
+    fun textField_singleLine_doesNotSoftWrap() {
+        var getTLR: (() -> TextLayoutResult?)? = null
+        rule.setContent {
+            BasicTextField(
+                rememberTextFieldState(),
+                onTextLayout = { getTLR = it },
+                lineLimits = TextFieldLineLimits.SingleLine,
+            )
+        }
+
+        rule.runOnIdle {
+            val tlr = getTLR?.invoke()
+            assertThat(tlr).isNotNull()
+            assertThat(tlr!!.layoutInput.softWrap).isFalse()
+        }
+    }
+
     private fun requestFocus(tag: String) = rule.onNodeWithTag(tag).requestFocus()
 
     private fun assertTextSelection(expected: TextRange) {

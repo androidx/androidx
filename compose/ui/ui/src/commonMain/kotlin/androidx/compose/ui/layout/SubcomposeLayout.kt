@@ -1157,7 +1157,10 @@ internal class LayoutNodeSubcompositionsState(
                 key: Any?,
                 block: (TraversableNode) -> TraverseDescendantsAction,
             ) {
-                precomposeMap[slotId]?.nodes?.head?.traverseDescendants(key, block)
+                val headNode = precomposeMap[slotId]?.nodes?.head
+                if (headNode != null && headNode.isAttached) {
+                    headNode.traverseDescendants(key, block)
+                }
             }
 
             override fun getSize(index: Int): IntSize {

@@ -178,13 +178,13 @@ fun TestCornerRadius(
 }
 
 @Preview
-@PreviewWrapperProvider(wrapper = TestWrapper::class)
+@PreviewWrapper(wrapper = TestWrapper::class)
 @Composable
 fun TestWrapperPreview() {
     Text(text = "test")
 }
 
-class TestWrapper : PreviewWrapper {
+class TestWrapper : PreviewWrapperProvider {
     @Composable
     override fun Wrap(content: @Composable (() -> Unit)) {
         WrapperContainer { content() }

@@ -27,6 +27,7 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.ui.platform.AndroidUiDispatcher
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ComposeViewContext
+import androidx.compose.ui.platform.ExperimentalComposeViewContextApi
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -36,6 +37,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @LargeTest
+@OptIn(ExperimentalComposeViewContextApi::class)
 @RunWith(AndroidJUnit4::class)
 class ComposeViewContextMemoryLeakTest {
 

@@ -149,7 +149,19 @@ private class DerivedSnapshotState<T>(
                                 // read
                                 // that way we can be sure derived states in deps were recalculated,
                                 // and are updated to the last values
-                                stateObject.current(snapshot)
+                                val record = stateObject.current(snapshot)
+
+                                // The state record might remain the same while the immediate
+                                // dependencies change. In that case, we need to update the hash to
+                                // re-read the dependencies.
+                                record.dependencies.forEachKey { dependency ->
+                                    // Important: using identity hash code of the state instance
+                                    // instead of the state record here to avoid changes in hash
+                                    // when the value changes.
+                                    hash = 31 * hash + identityHashCode(dependency)
+                                }
+
+                                record
                             } else {
                                 current(stateObject.firstStateRecord, snapshot)
                             }
@@ -172,7 +184,7 @@ private class DerivedSnapshotState<T>(
      *
      * @return latest state record for the derived state.
      */
-    fun current(snapshot: Snapshot): StateRecord =
+    fun current(snapshot: Snapshot): ResultRecord<*> =
         currentRecord(current(first, snapshot), snapshot, false, calculation)
 
     private fun currentRecord(

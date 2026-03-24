@@ -38,6 +38,7 @@ internal actual val platformDefaultKeyMapping =
                         Key.DirectionRight -> KeyCommand.LINE_RIGHT
                         Key.DirectionUp -> KeyCommand.HOME
                         Key.DirectionDown -> KeyCommand.END
+                        Key.Backspace -> KeyCommand.DELETE_FROM_LINE_START
                         else -> null
                     }
                 else -> null

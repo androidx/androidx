@@ -122,9 +122,18 @@ internal val defaultKeyMapping: KeyMapping =
                             KeyModifiers.ShiftMeta -> KeyCommand.DELETE_PREV_CHAR
                             KeyModifiers.Ctrl,
                             KeyModifiers.CtrlShift -> KeyCommand.DELETE_PREV_WORD
-                            KeyModifiers.Alt -> KeyCommand.DELETE_FROM_LINE_START
                             else -> null
                         }
+                    Key.Enter,
+                    Key.NumPadEnter -> {
+                        when (keyModifiers) {
+                            KeyModifiers.None,
+                            KeyModifiers.Shift,
+                            KeyModifiers.Ctrl,
+                            KeyModifiers.CtrlShift -> KeyCommand.NEW_LINE
+                            else -> null
+                        }
+                    }
                     else -> null
                 }?.let {
                     return it

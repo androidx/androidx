@@ -1086,7 +1086,6 @@ class BringIntoViewScrollableInteractionTest(private val orientation: Orientatio
         val customBringIntoViewSpec =
             object : BringIntoViewSpec {
                 @Deprecated("override")
-                @Suppress("OVERRIDE_DEPRECATION") // b/446706247
                 override val scrollAnimationSpec: AnimationSpec<Float>
                     get() = animationSpec
 
@@ -1184,7 +1183,6 @@ class BringIntoViewScrollableInteractionTest(private val orientation: Orientatio
                 var index = 0
 
                 @Deprecated("override")
-                @Suppress("OVERRIDE_DEPRECATION") // b/446706247
                 override val scrollAnimationSpec: AnimationSpec<Float>
                     get() = inspectSpringAnimationSpec
 

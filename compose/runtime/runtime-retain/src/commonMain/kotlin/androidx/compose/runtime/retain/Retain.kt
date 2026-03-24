@@ -121,7 +121,7 @@ public inline fun <reified T> retain(noinline calculation: () -> T): T {
  * immediately and [calculation] will execute again when a new value is needed.
  *
  * The lifecycle of the retained value can be observed by implementing [RetainObserver]. Callbacks
- * from [RememberObserver] are never invoked on objects retained this way. It is illegal to retain
+ * from [RememberObserver] are never invoked on objects retained this way. It is invalid to retain
  * an object that is a [RememberObserver] but not a [RetainObserver].
  *
  * Keys passed to this composable will be kept in-memory while the computed value is retained for
@@ -168,6 +168,11 @@ public inline fun <reified T> retain(noinline calculation: () -> T): T {
  * an object that references a Context (including View), either directly or indirectly. To mark that
  * a custom class should not be retained (possibly because it will cause a memory leak), you can
  * annotate your class definition with [androidx.compose.runtime.annotation.DoNotRetain].
+ *
+ * Because keys are held for the same duration as retained values, all input keys must follow the
+ * same lifespan requirements to prevent a memory leak. Do not use a key that references objects
+ * like Context or View. Types annotated with [androidx.compose.runtime.annotation.DoNotRetain] are
+ * similarly flagged as an error when used as a key to retain.
  *
  * @sample androidx.compose.runtime.retain.samples.retainSample
  * @sample androidx.compose.runtime.retain.samples.rememberAndRetainSample

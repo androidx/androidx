@@ -22,3 +22,7 @@ import androidx.compose.ui.util.fastAll
 
 internal actual fun PointerEvent.isMouseOrTouchPad(): Boolean =
     this.changes.fastAll { it.type == PointerType.Mouse }
+
+// TODO: https://youtrack.jetbrains.com/issue/CMP-9976/Properly-implement-val-FirstLongPressSelectionAdjustment-SelectionAdjustment-on-platforms
+internal actual val FirstLongPressSelectionAdjustment: SelectionAdjustment
+    get() = SelectionAdjustment.Word

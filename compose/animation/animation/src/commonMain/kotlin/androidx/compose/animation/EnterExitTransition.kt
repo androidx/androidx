@@ -928,11 +928,12 @@ internal operator fun <T : TransitionEffect> ExitTransition.get(key: TransitionE
 internal fun Transition<EnterExitState>.createModifier(
     enter: EnterTransition,
     exit: ExitTransition,
+    trackActiveEnterExit: Boolean = true,
     isEnabled: () -> Boolean = { true },
     label: String,
 ): Modifier {
-    val activeEnter = trackActiveEnter(enter = enter)
-    val activeExit = trackActiveExit(exit = exit)
+    val activeEnter = if (trackActiveEnterExit) trackActiveEnter(enter = enter) else enter
+    val activeExit = if (trackActiveEnterExit) trackActiveExit(exit = exit) else exit
 
     val shouldAnimateVeil = activeEnter.data.veil != null || activeExit.data.veil != null
     val shouldAnimateSlide = activeEnter.data.slide != null || activeExit.data.slide != null

@@ -618,7 +618,6 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
 
     override fun externalPadding(horizontal: Dp, vertical: Dp) {
         flags = flags or OuterLayoutFlag
-        val density = _density
         val vertical = vertical.roundToPx().toFloat()
         externalPaddingTop = vertical
         externalPaddingBottom = vertical

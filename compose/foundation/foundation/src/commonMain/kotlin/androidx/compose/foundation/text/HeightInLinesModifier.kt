@@ -68,11 +68,14 @@ internal const val DefaultMinLines = 1
 @OptIn(ExperimentalFoundationApi::class)
 internal fun Modifier.heightInLines(
     textStyle: TextStyle,
+    softWrap: Boolean,
     minLines: Int = DefaultMinLines,
     maxLines: Int = Int.MAX_VALUE,
 ): Modifier {
     validateMinMaxLines(minLines, maxLines)
     if (minLines == DefaultMinLines && maxLines == Int.MAX_VALUE) return this
+    // This is a single line text field, it has a separate calculation for its minimum height
+    if (!softWrap) return this
 
     return if (isBasicTextFieldMinSizeOptimizationEnabled) {
         this then HeightInLinesElement(textStyle, minLines, maxLines)
@@ -209,6 +212,7 @@ private class HeightInLinesNode(
     }
 
     override fun onLayoutDirectionChange() {
+        resolvedStyle = resolveDefaults(textStyle, requireLayoutDirection())
         dirty = true
         invalidateMeasurement()
     }
@@ -229,6 +233,7 @@ private class HeightInLinesNode(
             this.textStyle = textStyle
             this.minLines = minLines
             this.maxLines = maxLines
+            resolvedStyle = resolveDefaults(textStyle, requireLayoutDirection())
             dirty = true
             invalidateMeasurement()
         }

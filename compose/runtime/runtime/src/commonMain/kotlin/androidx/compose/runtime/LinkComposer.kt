@@ -673,6 +673,10 @@ internal class LinkComposer(
     /** See [InternalComposer.dispose] */
     override fun dispose() {
         slotTable.dispose()
+        parentContext.unregisterComposer(this)
+        deactivate()
+        applier.clear()
+        isDisposed = true
     }
 
     /** See [Composer.endDefaults] */

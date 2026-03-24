@@ -80,7 +80,7 @@ class SelectionCopyTest {
 
         rule.waitForIdle()
         val onNode = rule.onNodeWithTag(textTag)
-        clipboardManager.setText(AnnotatedString(startClipboardText))
+        rule.runOnUiThread { clipboardManager.setText(AnnotatedString(startClipboardText)) }
         onNode.startSelection()
 
         rule.waitForIdle()
@@ -112,7 +112,7 @@ class SelectionCopyTest {
 
         rule.waitForIdle()
         val onNode = rule.onNodeWithTag(textTag)
-        clipboardManager.setText(AnnotatedString(startClipboardText))
+        rule.runOnUiThread { clipboardManager.setText(AnnotatedString(startClipboardText)) }
         onNode.startSelection()
 
         rule.waitForIdle()

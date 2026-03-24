@@ -19,6 +19,7 @@ package androidx.compose.ui.draw
 import android.os.Build
 import android.view.View
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,6 +30,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.GenericShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReusableContent
@@ -57,6 +59,7 @@ import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.LightingColorFilter
 import androidx.compose.ui.graphics.OffsetEffect
 import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.RenderEffect
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TileMode
@@ -439,6 +442,38 @@ class GraphicsLayerTest {
             // should be completely clipped out
             assertEquals(0f, bounds.width)
             assertEquals(0f, bounds.height)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O, maxSdkVersion = Build.VERSION_CODES.S_V2)
+    @Test
+    fun testComplexRoundRectOutlineInvalidatesParentLayer() {
+        val testTag = "box"
+        val size = 100
+        var shape by mutableStateOf(RectangleShape)
+        rule.setContent {
+            val sizeDp = with(rule.density) { size.toDp() }
+            Box(Modifier.size(sizeDp).background(Color.Blue).testTag(testTag)) {
+                Box(
+                    Modifier.fillMaxSize()
+                        .graphicsLayer {
+                            clip = true
+                            this@graphicsLayer.shape = shape
+                        }
+                        .background(Color.Red)
+                )
+            }
+        }
+        rule.onNodeWithTag(testTag).captureToImage().apply { assertPixels { Color.Red } }
+        shape = RoundedCornerShape(16.dp, 6.dp, 6.dp, 16.dp)
+        rule.onNodeWithTag(testTag).captureToImage().apply {
+            with(toPixelMap()) {
+                assertEquals(Color.Blue, this[0, 0])
+                assertEquals(Color.Blue, this[size - 1, 0])
+                assertEquals(Color.Blue, this[0, size - 1])
+                assertEquals(Color.Blue, this[size - 1, size - 1])
+                assertEquals(Color.Red, this[size / 2, size / 2])
+            }
         }
     }
 

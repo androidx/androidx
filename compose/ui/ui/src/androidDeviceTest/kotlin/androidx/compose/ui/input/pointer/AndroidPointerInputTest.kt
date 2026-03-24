@@ -39,7 +39,6 @@ import android.view.MotionEvent.TOOL_TYPE_FINGER
 import android.view.MotionEvent.TOOL_TYPE_MOUSE
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -88,6 +87,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.semantics.elementFor
+import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -124,7 +124,7 @@ import org.mockito.kotlin.verify
 class AndroidPointerInputTest {
     @Suppress("DEPRECATION")
     @get:Rule
-    val rule = androidx.test.rule.ActivityTestRule(AndroidPointerInputTestActivity::class.java)
+    val rule = androidx.test.rule.ActivityTestRule(TestActivity::class.java)
 
     private lateinit var container: OpenComposeView
 
@@ -507,7 +507,6 @@ class AndroidPointerInputTest {
         )
     }
 
-    @SdkSuppress(maxSdkVersion = 34) // b/427269985
     @Test
     fun dispatchTouchEvent_movementConsumed_requestDisallowInterceptTouchEventCalled() {
         dispatchTouchEvent_movementConsumptionInCompose(
@@ -516,7 +515,6 @@ class AndroidPointerInputTest {
         )
     }
 
-    @SdkSuppress(maxSdkVersion = 34) // b/427269985
     @Test
     fun dispatchTouchEvent_notMeasuredLayoutsAreMeasuredFirst() {
         val size = mutableStateOf(10)
@@ -563,7 +561,6 @@ class AndroidPointerInputTest {
         }
     }
 
-    @SdkSuppress(maxSdkVersion = 34) // b/427269985
     @Test
     fun dispatchTouchEvent_throughLayersOfAndroidAndCompose_hitsChildWithCorrectCoords() {
 
@@ -686,7 +683,6 @@ class AndroidPointerInputTest {
      * "offsetTopAndBottom(int)", that pointer locations are correct when dispatched down to a child
      * PointerInputModifier.
      */
-    @SdkSuppress(maxSdkVersion = 34) // b/427269985
     @Test
     fun dispatchTouchEvent_androidComposeViewOffset_positionIsCorrect() {
 
@@ -763,7 +759,6 @@ class AndroidPointerInputTest {
      *   6. Tap is triggered (that is, long press is NOT triggered because the second sleep() is
      *       NOT executed in withTimeout()).
      */
-    @SdkSuppress(maxSdkVersion = 34) // b/427269985
     @Test
     fun detectTapGestures_blockedMainThread() {
         var didLongPress = false
@@ -876,7 +871,6 @@ class AndroidPointerInputTest {
      * When a modifier is added, it should work, even when it takes the position of a previous
      * modifier.
      */
-    @SdkSuppress(maxSdkVersion = 34) // b/427269985
     @Test
     fun recomposeWithNewModifier() {
         var tap2Enabled by mutableStateOf(false)
@@ -7170,8 +7164,6 @@ private fun countDown(block: (CountDownLatch) -> Unit) {
     block(countDownLatch)
     assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue()
 }
-
-class AndroidPointerInputTestActivity : ComponentActivity()
 
 private fun MotionEvent(
     eventTime: Int,

@@ -52,8 +52,10 @@ import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -642,8 +644,9 @@ class HardwareKeyboardTest {
         }
 
         rule.onNodeWithTag("textfield").requestFocus()
-        rule.waitForIdle()
-        clipboard.setClipEntry(AnnotatedString("InitialTestText").toClipEntry())
+        withContext(Dispatchers.Main) {
+            clipboard.setClipEntry(AnnotatedString("InitialTestText").toClipEntry())
+        }
 
         withEmojiCompat(context, enabled = useEmojiCompat) {
             sequence(SequenceScope(value) { rule.onNode(hasSetTextAction()) })
