@@ -20,6 +20,7 @@ import androidx.collection.MutableScatterMap
 import androidx.collection.ScatterMap
 import androidx.collection.emptyScatterMap
 import androidx.collection.mutableScatterMapOf
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -28,15 +29,16 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.defaultViewModelCreationExtras
 import androidx.lifecycle.defaultViewModelProviderFactory
-import androidx.lifecycle.get
+import androidx.savedstate.SavedState
 import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.savedState
 import kotlin.jvm.JvmOverloads
 
 /**
  * Manages a set of [ViewModelStore] instances scoped to a parent [ViewModelStore].
  *
  * This class allows the creation of "child" scopes that survive configuration changes (via the
- * parent owner) but can be independently cleared when no longer needed.
+ * parent) but can be independently cleared when no longer needed.
  *
  * **Important:** This class prevents a child [ViewModel] from being cleared while they are still in
  * use (e.g., during exit animations). Consumers must call [acquireToken] to mark a child
@@ -44,18 +46,27 @@ import kotlin.jvm.JvmOverloads
  * finished. Calling [clearKey] or [clearAllKeys] will only perform the actual cleanup once all of a
  * store's tokens have been released.
  *
- * **Null owner:** If [store] is **EXPLICITLY** `null`, this creates a root provider that runs
- * independently. It manages its own state and will not be automatically cleared by configuration
- * changes; you must manually call [clearAllKeys] to clean it up.
+ * **Null parentStore:** If [parentStore] is **EXPLICITLY** `null`, this creates a root provider
+ * that runs independently. It manages its own state and will not be automatically cleared by
+ * configuration changes; you must manually call [clearAllKeys] to clean it up.
  *
- * @param store The parent [ViewModelStore] to bind to, or `null` for an independent root provider.
+ * @param parentStore The parent [ViewModelStore] to bind to, or `null` for an independent root
+ *   provider.
+ * @param parentKey A unique identifier used to scope this provider and its underlying state within
+ *   the [parentStore]. Providers sharing the same key will share the same internal state. A `null`
+ *   key is valid and acts as its own distinct shared scope. Defaults to `null`.
+ * @param defaultArgs The default [SavedState] arguments to use for child stores. These arguments
+ *   are merged with any default arguments in [defaultCreationExtras]. If the same key exists in
+ *   both, the value from [defaultArgs] takes precedence.
  * @param defaultCreationExtras The default creation extras to use for child stores.
  * @param defaultFactory The default factory to use for child stores.
  */
 public class ViewModelStoreProvider
 @JvmOverloads
 public constructor(
-    private val store: ViewModelStore?,
+    private val parentStore: ViewModelStore?,
+    private val parentKey: Any? = null,
+    private val defaultArgs: SavedState = savedState(),
     private val defaultCreationExtras: CreationExtras = CreationExtras.Empty,
     private val defaultFactory: Factory = SavedStateViewModelFactory(),
 ) {
@@ -63,38 +74,48 @@ public constructor(
     /**
      * Constructs a [ViewModelStoreProvider] bound to a parent [ViewModelStoreOwner].
      *
-     * @param owner The parent [ViewModelStoreOwner] to bind to, or `null` for an independent root
-     *   provider.
+     * @param parentOwner The parent [ViewModelStoreOwner] to bind to, or `null` for an independent
+     *   root provider.
+     * @param parentKey A unique identifier used to scope this provider and its underlying state
+     *   within the [parentOwner]. Providers sharing the same key will share the same internal
+     *   state. A `null` key is valid and acts as its own distinct shared scope. Defaults to `null`.
+     * @param defaultArgs The default [SavedState] arguments to use for child stores. These
+     *   arguments are merged with any default arguments in [defaultCreationExtras]. If the same key
+     *   exists in both, the value from [defaultArgs] takes precedence.
      * @param defaultCreationExtras The default creation extras to use for child stores. Defaults to
-     *   resolving from the [owner].
+     *   resolving from the [parentOwner].
      * @param defaultFactory The default factory to use for child stores. Defaults to resolving from
-     *   the [owner].
+     *   the [parentOwner].
      */
     @JvmOverloads
     public constructor(
-        owner: ViewModelStoreOwner?,
-        defaultCreationExtras: CreationExtras = owner.defaultViewModelCreationExtras,
-        defaultFactory: Factory = owner.defaultViewModelProviderFactory,
-    ) : this(owner?.viewModelStore, defaultCreationExtras, defaultFactory)
+        parentOwner: ViewModelStoreOwner?,
+        parentKey: Any? = null,
+        defaultArgs: SavedState = savedState(),
+        defaultCreationExtras: CreationExtras = parentOwner.defaultViewModelCreationExtras,
+        defaultFactory: Factory = parentOwner.defaultViewModelProviderFactory,
+    ) : this(
+        parentStore = parentOwner?.viewModelStore,
+        parentKey,
+        defaultArgs,
+        defaultCreationExtras,
+        defaultFactory,
+    )
 
-    private val stateHolder by lazy {
+    private val stateHolder: StateHolder by lazy {
         // If store exists, delegate state persistence to it (survives config changes). If store is
         // null (Root), we hold the state directly (survives as long as this Provider exists).
-        if (store == null) {
-            StateHolder()
-        } else {
-            val factory = viewModelFactory { initializer { StateHolder() } }
-            ViewModelProvider.create(store, factory).get<StateHolder>()
-        }
+        parentStore?.getOrPut(parentKey) { StateHolder() } ?: StateHolder()
     }
 
     /**
      * Increments the reference count for the [ViewModelStore] associated with the given [key],
-     * ensuring it is not cleared until the returned [] is released.
+     * ensuring it is not cleared until the returned [ReferenceToken] is released.
      *
-     * @param key The unique identifier for the child scope.
+     * @param key The unique identifier for the child scope. A `null` key is valid and is treated as
+     *   a distinct scope.
      * @return A token that must be released via [ReferenceToken.close] when the caller no longer
-     *   requires the
+     *   requires the store.
      */
     public fun acquireToken(key: Any?): ReferenceToken {
         val entry = stateHolder.getOrCreate(key)
@@ -113,7 +134,8 @@ public constructor(
      * If a store with this key already exists, it is returned. If not, a new store is created. To
      * protect this store from being prematurely cleared, you must call [acquireToken].
      *
-     * @param key The unique identifier for the child scope.
+     * @param key The unique identifier for the child scope. A `null` key is valid and is treated as
+     *   a distinct scope.
      * @return The [ViewModelStore] tied to the provided key.
      */
     public fun getOrCreate(key: Any?): ViewModelStore {
@@ -132,13 +154,16 @@ public constructor(
      * **Saved State Support:** If a [savedStateRegistryOwner] is provided, the returned
      * [ViewModelStoreOwner] will also implement [SavedStateRegistryOwner], delegating state
      * resolution to the provided owner. This is required if ViewModels within this scope depend on
-     * [androidx.lifecycle.SavedStateHandle]. When saved state is enabled and [defaultFactory] is
-     * not explicitly overridden, it automatically upgrades to a [SavedStateViewModelFactory].
+     * [SavedStateHandle]. When saved state is enabled and [defaultFactory] is not explicitly
+     * overridden, it automatically upgrades to a [SavedStateViewModelFactory].
      *
-     * @param key The unique identifier for the child scope.
+     * @param key The unique identifier for the child scope. A `null` key is valid and is treated as
+     *   a distinct scope.
      * @param savedStateRegistryOwner An optional parent registry owner to delegate saved state
-     *   operations to. If `null`, the returned owner will not support
-     *   [androidx.lifecycle.SavedStateHandle].
+     *   operations to. If `null`, the returned owner will not support [SavedStateHandle].
+     * @param defaultArgs The default [SavedState] arguments to use for child stores. These
+     *   arguments are merged with any default arguments in [defaultCreationExtras]. If the same key
+     *   exists in both, the value from [defaultArgs] takes precedence.
      * @param defaultFactory An optional override for the default [ViewModelProvider.Factory].
      * @param defaultCreationExtras An optional override for the default [CreationExtras].
      * @return A scoped [ViewModelStoreOwner], which optionally supports saved state.
@@ -149,6 +174,7 @@ public constructor(
     public fun getOrCreateOwner(
         key: Any?,
         savedStateRegistryOwner: SavedStateRegistryOwner? = null,
+        defaultArgs: SavedState = this.defaultArgs,
         defaultCreationExtras: CreationExtras = this.defaultCreationExtras,
         defaultFactory: Factory = this.defaultFactory,
     ): ViewModelStoreOwner {
@@ -157,6 +183,7 @@ public constructor(
             // If no saved state is required, return a basic owner.
             ViewModelStoreOwner(
                 viewModelStore = viewModelStore,
+                defaultArgs = defaultArgs,
                 defaultFactory = defaultFactory,
                 defaultCreationExtras = defaultCreationExtras,
             )
@@ -165,6 +192,7 @@ public constructor(
             ViewModelStoreOwner(
                 viewModelStore = viewModelStore,
                 savedStateRegistryOwner = savedStateRegistryOwner,
+                defaultArgs = defaultArgs,
                 defaultFactory = defaultFactory,
                 defaultCreationExtras = defaultCreationExtras,
             )
@@ -177,7 +205,8 @@ public constructor(
      * If the store currently has a reference count of zero, it is cleared immediately. Otherwise,
      * the actual cleanup is deferred until all acquired tokens are released.
      *
-     * @param key The unique identifier for the child scope.
+     * @param key The unique identifier for the child scope. Passing `null` will target the specific
+     *   scope associated with the `null` key.
      */
     public fun clearKey(key: Any?) {
         stateHolder.clearKey(key)

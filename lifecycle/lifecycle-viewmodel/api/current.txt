@@ -106,6 +106,7 @@ package androidx.lifecycle {
 
   public final class ViewModelProviderGetKt {
     method @KotlinOnly @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> VM get(androidx.lifecycle.ViewModelProvider);
+    method @KotlinOnly @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> VM get(androidx.lifecycle.ViewModelProvider, String key);
   }
 
   public class ViewModelStore {

@@ -149,4 +149,15 @@ class CreationExtrasTest {
 
         assertThat(underTest[STRING_KEY_1]).isEqualTo(otherExtras[STRING_KEY_1])
     }
+
+    @Test
+    fun keyToString_returnsClassName() {
+        val stringKey = CreationExtras.Key<String>()
+        val stringIdentity = stringKey.hashCode().toString(16)
+        assertThat(stringKey.toString()).isEqualTo("CreationExtras.Key@$stringIdentity<String>")
+
+        val intKey = CreationExtras.Key<Int>()
+        val intIdentity = intKey.hashCode().toString(16)
+        assertThat(intKey.toString()).isEqualTo("CreationExtras.Key@$intIdentity<Int>")
+    }
 }

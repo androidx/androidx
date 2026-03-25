@@ -46,7 +46,7 @@ class ViewModelStoreTest {
 
         // Verify identity included (discourage parsing) and keys listed.
         val identity = store.hashCode().toString(16)
-        assertThat(store.toString()).isEqualTo("SubStore#$identity(keys=[key1])")
+        assertThat(store.toString()).isEqualTo("SubStore@$identity(keys=[key1])")
     }
 
     @Test

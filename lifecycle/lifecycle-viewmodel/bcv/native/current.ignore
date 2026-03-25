@@ -3,3 +3,39 @@
 [macosX64]: Target was removed
 [tvosX64]: Target was removed
 [watchosX64]: Target was removed
+[iosArm64]: Removed declaration get(kotlin/String) from androidx.lifecycle/ViewModelStore
+[iosArm64]: Removed declaration put(kotlin/String, androidx.lifecycle/ViewModel) from androidx.lifecycle/ViewModelStore
+[iosArm64]: Return type changed from kotlin.collections/Set<kotlin/String> to kotlin.collections/Set<kotlin/Any?> for androidx.lifecycle/ViewModelStore.keys
+[iosSimulatorArm64]: Removed declaration get(kotlin/String) from androidx.lifecycle/ViewModelStore
+[iosSimulatorArm64]: Removed declaration put(kotlin/String, androidx.lifecycle/ViewModel) from androidx.lifecycle/ViewModelStore
+[iosSimulatorArm64]: Return type changed from kotlin.collections/Set<kotlin/String> to kotlin.collections/Set<kotlin/Any?> for androidx.lifecycle/ViewModelStore.keys
+[linuxArm64]: Removed declaration get(kotlin/String) from androidx.lifecycle/ViewModelStore
+[linuxArm64]: Removed declaration put(kotlin/String, androidx.lifecycle/ViewModel) from androidx.lifecycle/ViewModelStore
+[linuxArm64]: Return type changed from kotlin.collections/Set<kotlin/String> to kotlin.collections/Set<kotlin/Any?> for androidx.lifecycle/ViewModelStore.keys
+[linuxX64]: Removed declaration get(kotlin/String) from androidx.lifecycle/ViewModelStore
+[linuxX64]: Removed declaration put(kotlin/String, androidx.lifecycle/ViewModel) from androidx.lifecycle/ViewModelStore
+[linuxX64]: Return type changed from kotlin.collections/Set<kotlin/String> to kotlin.collections/Set<kotlin/Any?> for androidx.lifecycle/ViewModelStore.keys
+[macosArm64]: Removed declaration get(kotlin/String) from androidx.lifecycle/ViewModelStore
+[macosArm64]: Removed declaration put(kotlin/String, androidx.lifecycle/ViewModel) from androidx.lifecycle/ViewModelStore
+[macosArm64]: Return type changed from kotlin.collections/Set<kotlin/String> to kotlin.collections/Set<kotlin/Any?> for androidx.lifecycle/ViewModelStore.keys
+[mingwX64]: Removed declaration get(kotlin/String) from androidx.lifecycle/ViewModelStore
+[mingwX64]: Removed declaration put(kotlin/String, androidx.lifecycle/ViewModel) from androidx.lifecycle/ViewModelStore
+[mingwX64]: Return type changed from kotlin.collections/Set<kotlin/String> to kotlin.collections/Set<kotlin/Any?> for androidx.lifecycle/ViewModelStore.keys
+[tvosArm64]: Removed declaration get(kotlin/String) from androidx.lifecycle/ViewModelStore
+[tvosArm64]: Removed declaration put(kotlin/String, androidx.lifecycle/ViewModel) from androidx.lifecycle/ViewModelStore
+[tvosArm64]: Return type changed from kotlin.collections/Set<kotlin/String> to kotlin.collections/Set<kotlin/Any?> for androidx.lifecycle/ViewModelStore.keys
+[tvosSimulatorArm64]: Removed declaration get(kotlin/String) from androidx.lifecycle/ViewModelStore
+[tvosSimulatorArm64]: Removed declaration put(kotlin/String, androidx.lifecycle/ViewModel) from androidx.lifecycle/ViewModelStore
+[tvosSimulatorArm64]: Return type changed from kotlin.collections/Set<kotlin/String> to kotlin.collections/Set<kotlin/Any?> for androidx.lifecycle/ViewModelStore.keys
+[watchosArm32]: Removed declaration get(kotlin/String) from androidx.lifecycle/ViewModelStore
+[watchosArm32]: Removed declaration put(kotlin/String, androidx.lifecycle/ViewModel) from androidx.lifecycle/ViewModelStore
+[watchosArm32]: Return type changed from kotlin.collections/Set<kotlin/String> to kotlin.collections/Set<kotlin/Any?> for androidx.lifecycle/ViewModelStore.keys
+[watchosArm64]: Removed declaration get(kotlin/String) from androidx.lifecycle/ViewModelStore
+[watchosArm64]: Removed declaration put(kotlin/String, androidx.lifecycle/ViewModel) from androidx.lifecycle/ViewModelStore
+[watchosArm64]: Return type changed from kotlin.collections/Set<kotlin/String> to kotlin.collections/Set<kotlin/Any?> for androidx.lifecycle/ViewModelStore.keys
+[watchosDeviceArm64]: Removed declaration get(kotlin/String) from androidx.lifecycle/ViewModelStore
+[watchosDeviceArm64]: Removed declaration put(kotlin/String, androidx.lifecycle/ViewModel) from androidx.lifecycle/ViewModelStore
+[watchosDeviceArm64]: Return type changed from kotlin.collections/Set<kotlin/String> to kotlin.collections/Set<kotlin/Any?> for androidx.lifecycle/ViewModelStore.keys
+[watchosSimulatorArm64]: Removed declaration get(kotlin/String) from androidx.lifecycle/ViewModelStore
+[watchosSimulatorArm64]: Removed declaration put(kotlin/String, androidx.lifecycle/ViewModel) from androidx.lifecycle/ViewModelStore
+[watchosSimulatorArm64]: Return type changed from kotlin.collections/Set<kotlin/String> to kotlin.collections/Set<kotlin/Any?> for androidx.lifecycle/ViewModelStore.keys

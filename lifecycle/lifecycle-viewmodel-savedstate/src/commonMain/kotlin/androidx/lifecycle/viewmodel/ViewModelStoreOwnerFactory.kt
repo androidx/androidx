@@ -56,7 +56,14 @@ public fun ViewModelStoreOwner(
         public override val defaultViewModelCreationExtras: CreationExtras
             get() =
                 MutableCreationExtras(defaultCreationExtras).also { extras ->
-                    extras[DEFAULT_ARGS_KEY] = defaultArgs
+                    extras[DEFAULT_ARGS_KEY] = savedState {
+                        // Merge with existing arguments so upstream defaults are not overwritten
+                        val existingArgs = extras[DEFAULT_ARGS_KEY]
+                        if (existingArgs != null) {
+                            putAll(existingArgs)
+                        }
+                        putAll(defaultArgs)
+                    }
                     extras[VIEW_MODEL_STORE_OWNER_KEY] = this
                 }
     }
@@ -127,7 +134,14 @@ public fun ViewModelStoreOwner(
         override val defaultViewModelCreationExtras: CreationExtras
             get() =
                 MutableCreationExtras(defaultCreationExtras).also { extras ->
-                    extras[DEFAULT_ARGS_KEY] = defaultArgs
+                    extras[DEFAULT_ARGS_KEY] = savedState {
+                        // Merge with existing arguments so upstream defaults are not overwritten.
+                        val existingArgs = extras[DEFAULT_ARGS_KEY]
+                        if (existingArgs != null) {
+                            putAll(existingArgs)
+                        }
+                        putAll(defaultArgs)
+                    }
                     extras[SAVED_STATE_REGISTRY_OWNER_KEY] = this
                     extras[VIEW_MODEL_STORE_OWNER_KEY] = this
                 }

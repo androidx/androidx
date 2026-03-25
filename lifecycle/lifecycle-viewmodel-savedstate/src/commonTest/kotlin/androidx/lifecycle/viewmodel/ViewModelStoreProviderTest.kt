@@ -17,6 +17,7 @@
 package androidx.lifecycle.viewmodel
 
 import androidx.kruth.assertThat
+import androidx.lifecycle.DEFAULT_ARGS_KEY
 import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.SAVED_STATE_REGISTRY_OWNER_KEY
@@ -26,12 +27,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.defaultViewModelProviderFactory
 import androidx.lifecycle.get
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.read
+import androidx.savedstate.savedState
 import kotlin.test.Test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -41,7 +43,7 @@ internal class ViewModelStoreProviderTest {
     @Test
     fun getViewModelStore_whenCalledFirstTime_createsNewStore() {
         val owner = TestViewModelStoreOwner()
-        val provider = ViewModelStoreProvider(owner)
+        val provider = ViewModelStoreProvider(parentOwner = owner)
 
         val store = provider.getOrCreate("key")
 
@@ -51,7 +53,7 @@ internal class ViewModelStoreProviderTest {
     @Test
     fun getViewModelStore_whenCalledTwiceWithSameKey_returnsSameInstance() {
         val owner = TestViewModelStoreOwner()
-        val provider = ViewModelStoreProvider(owner)
+        val provider = ViewModelStoreProvider(parentOwner = owner)
         val key = "feature_A"
 
         val store1 = provider.getOrCreate(key)
@@ -64,7 +66,7 @@ internal class ViewModelStoreProviderTest {
     @Test
     fun getViewModelStore_whenCalledWithDifferentKeys_returnsDifferentInstances() {
         val owner = TestViewModelStoreOwner()
-        val provider = ViewModelStoreProvider(owner)
+        val provider = ViewModelStoreProvider(parentOwner = owner)
 
         val store1 = provider.getOrCreate("feature_A")
         val store2 = provider.getOrCreate("feature_B")
@@ -76,7 +78,7 @@ internal class ViewModelStoreProviderTest {
     @Test
     fun removeState_whenCountIsZero_clearsStoreImmediately() {
         val owner = TestViewModelStoreOwner()
-        val provider = ViewModelStoreProvider(owner)
+        val provider = ViewModelStoreProvider(parentOwner = owner)
         val key = "feature_A"
 
         val store1 = provider.getOrCreate(key)
@@ -95,7 +97,7 @@ internal class ViewModelStoreProviderTest {
     @Test
     fun removeState_whenCountIsPositive_defersCleanupUntilReleased() {
         val owner = TestViewModelStoreOwner()
-        val provider = ViewModelStoreProvider(owner)
+        val provider = ViewModelStoreProvider(parentOwner = owner)
         val key = "shared_feature"
 
         val token = provider.acquireToken(key)
@@ -122,7 +124,7 @@ internal class ViewModelStoreProviderTest {
     @Test
     fun getViewModelStoreOwner_whenCalled_returnsWrapperDelegatingToParentDefaults() {
         val owner = TestViewModelStoreOwner()
-        val provider = ViewModelStoreProvider(owner)
+        val provider = ViewModelStoreProvider(parentOwner = owner)
 
         val wrapper = provider.getOrCreateOwner("key")
 
@@ -138,7 +140,7 @@ internal class ViewModelStoreProviderTest {
     @Test
     fun getViewModelStoreOwner_whenCalledTwice_returnsNewWrapperButSameStore() {
         val owner = TestViewModelStoreOwner()
-        val provider = ViewModelStoreProvider(owner)
+        val provider = ViewModelStoreProvider(parentOwner = owner)
         val key = "key"
 
         val wrapper1 = provider.getOrCreateOwner(key)
@@ -152,7 +154,7 @@ internal class ViewModelStoreProviderTest {
     @Test
     fun acquireKey_withMultipleTokens_requiresAllToBeReleasedBeforeCleanup() {
         val owner = TestViewModelStoreOwner()
-        val provider = ViewModelStoreProvider(owner)
+        val provider = ViewModelStoreProvider(parentOwner = owner)
         val key = "key"
 
         val token1 = provider.acquireToken(key)
@@ -175,13 +177,13 @@ internal class ViewModelStoreProviderTest {
     fun configurationChange_whenProviderRecreated_preservesStore() {
         val owner = TestViewModelStoreOwner()
 
-        val provider1 = ViewModelStoreProvider(owner)
+        val provider1 = ViewModelStoreProvider(parentOwner = owner)
         val key = "config_change_test"
         val vm1 = createViewModel(provider1.getOrCreate(key))
 
         // A configuration change destroys the Provider instance, but the parent Owner
         // keeps its internal StateHolder alive, preserving the child stores.
-        val provider2 = ViewModelStoreProvider(owner)
+        val provider2 = ViewModelStoreProvider(parentOwner = owner)
         val vm2 = createViewModel(provider2.getOrCreate(key))
 
         assertThat(vm2).isSameInstanceAs(vm1)
@@ -190,7 +192,7 @@ internal class ViewModelStoreProviderTest {
     @Test
     fun ownerDestroy_whenParentDies_clearsChildStores() {
         val owner = TestViewModelStoreOwner()
-        val provider = ViewModelStoreProvider(owner)
+        val provider = ViewModelStoreProvider(parentOwner = owner)
         val key = "child"
 
         val store = provider.getOrCreate(key)
@@ -201,7 +203,7 @@ internal class ViewModelStoreProviderTest {
         owner.viewModelStore.clear()
 
         val newOwner = TestViewModelStoreOwner()
-        val newProvider = ViewModelStoreProvider(newOwner)
+        val newProvider = ViewModelStoreProvider(parentOwner = newOwner)
         val newVm = createViewModel(newProvider.getOrCreate(key))
 
         assertThat(newVm).isNotSameInstanceAs(vm)
@@ -209,7 +211,7 @@ internal class ViewModelStoreProviderTest {
 
     @Test
     fun constructor_whenOwnerIsNull_createsRootProvider() {
-        val provider = ViewModelStoreProvider(owner = null)
+        val provider = ViewModelStoreProvider(parentStore = null)
         val key = "root_test"
 
         val store = provider.getOrCreate(key)
@@ -221,7 +223,7 @@ internal class ViewModelStoreProviderTest {
         // A null owner implies a Root Provider that manages its own lifecycle manually,
         // requiring explicit cleanup since there is no parent to trigger it via configuration
         // changes.
-        val provider = ViewModelStoreProvider(owner = null)
+        val provider = ViewModelStoreProvider(parentStore = null)
         val key = "root_feature"
 
         val token = provider.acquireToken(key)
@@ -241,7 +243,7 @@ internal class ViewModelStoreProviderTest {
     @Test
     fun getViewModelStoreOwner_withNullSavedStateOwner_doesNotImplementSavedStateRegistryOwner() {
         val owner = TestViewModelStoreOwner()
-        val provider = ViewModelStoreProvider(owner)
+        val provider = ViewModelStoreProvider(parentOwner = owner)
 
         val wrapper = provider.getOrCreateOwner(key = "key", savedStateRegistryOwner = null)
 
@@ -264,7 +266,7 @@ internal class ViewModelStoreProviderTest {
     @Test
     fun getViewModelStoreOwner_withSavedStateOwner_delegatesLifecycleAndRegistry() {
         val owner = TestViewModelStoreOwner()
-        val provider = ViewModelStoreProvider(owner)
+        val provider = ViewModelStoreProvider(parentOwner = owner)
         val savedStateOwner = TestSavedStateRegistryOwner()
 
         val wrapper =
@@ -281,7 +283,7 @@ internal class ViewModelStoreProviderTest {
     @Test
     fun getViewModelStoreOwner_withSavedStateOwner_upgradesDefaultFactoryToSavedStateViewModelFactory() {
         val owner = TestViewModelStoreOwner()
-        val provider = ViewModelStoreProvider(owner)
+        val provider = ViewModelStoreProvider(parentOwner = owner)
         val savedStateOwner = TestSavedStateRegistryOwner()
 
         val wrapper =
@@ -299,9 +301,10 @@ internal class ViewModelStoreProviderTest {
     }
 
     @Test
+    @IgnoreAndroidHostTarget
     fun getViewModelStoreOwner_withSavedStateOwner_injectsSavedStateCreationExtras() {
         val owner = TestViewModelStoreOwner()
-        val provider = ViewModelStoreProvider(owner)
+        val provider = ViewModelStoreProvider(parentOwner = owner)
         val savedStateOwner = TestSavedStateRegistryOwner()
 
         val wrapper =
@@ -313,6 +316,53 @@ internal class ViewModelStoreProviderTest {
         // of SavedStateViewModelFactory.
         assertThat(extras[SAVED_STATE_REGISTRY_OWNER_KEY]).isSameInstanceAs(wrapper)
         assertThat(extras[VIEW_MODEL_STORE_OWNER_KEY]).isSameInstanceAs(wrapper)
+    }
+
+    @Test
+    @IgnoreAndroidHostTarget
+    fun getViewModelStoreOwner_withDefaultArgs_injectsDefaultArgsCreationExtras() {
+        val owner = TestViewModelStoreOwner()
+        val defaultArgs = savedState { putString("key", "value") }
+        val provider = ViewModelStoreProvider(parentOwner = owner, defaultArgs = defaultArgs)
+
+        val wrapper = provider.getOrCreateOwner("key")
+
+        val wrapperAsDefaults = wrapper as HasDefaultViewModelProviderFactory
+        val extras = wrapperAsDefaults.defaultViewModelCreationExtras
+        val retrievedArgs = extras[DEFAULT_ARGS_KEY]
+
+        assertThat(retrievedArgs!!.read { contentDeepEquals(defaultArgs) }).isTrue()
+    }
+
+    @Test
+    fun clearAllKeys_onlyClearsStoresForSpecificProviderKey() {
+        val owner = TestViewModelStoreOwner()
+
+        val provider1 = ViewModelStoreProvider(parentOwner = owner, parentKey = "provider_1")
+        val provider2 = ViewModelStoreProvider(parentOwner = owner, parentKey = "provider_2")
+
+        val key = "shared_feature_key"
+
+        val store1 = provider1.getOrCreate(key)
+        val store2 = provider2.getOrCreate(key)
+
+        val vm1 = createViewModel(store1)
+        val vm2 = createViewModel(store2)
+
+        // Clearing provider1 should only affect its own scoped StateHolder.
+        provider1.clearAllKeys()
+
+        val store1AfterClear = provider1.getOrCreate(key)
+        val store2AfterClear = provider2.getOrCreate(key)
+
+        val vm1AfterClear = createViewModel(store1AfterClear)
+        val vm2AfterClear = createViewModel(store2AfterClear)
+
+        // Provider 1's VM should be new because its store was cleared.
+        assertThat(vm1AfterClear).isNotSameInstanceAs(vm1)
+
+        // Provider 2's VM should remain exactly the same.
+        assertThat(vm2AfterClear).isSameInstanceAs(vm2)
     }
 
     private fun createViewModel(store: ViewModelStore): TestViewModel {

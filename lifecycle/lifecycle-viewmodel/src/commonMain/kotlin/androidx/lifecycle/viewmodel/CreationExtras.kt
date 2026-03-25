@@ -20,6 +20,7 @@ package androidx.lifecycle.viewmodel
 
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.Factory
+import androidx.lifecycle.viewmodel.CreationExtras.Companion.Key
 import androidx.lifecycle.viewmodel.CreationExtras.Empty
 import androidx.lifecycle.viewmodel.CreationExtras.Key
 import kotlin.jvm.JvmOverloads
@@ -68,8 +69,16 @@ public abstract class CreationExtras internal constructor() {
     }
 
     public companion object {
-        /** Returns an unique [Key] to be associated with an extra. */
-        @JvmStatic public inline fun <reified T> Key(): Key<T> = object : Key<T> {}
+        /** Returns a unique [Key] to be associated with an extra. */
+        @JvmStatic
+        public inline fun <reified T> Key(): Key<T> =
+            object : Key<T> {
+                override fun toString(): String {
+                    // Discourage relying on the string output.
+                    val identity = hashCode().toString(radix = 16)
+                    return "CreationExtras.Key@$identity<${T::class.simpleName.toString()}>"
+                }
+            }
     }
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,6 @@
  * limitations under the License.
  */
 
-@file:JvmName("ViewModelStoreNavEntryDecoratorKt")
-@file:JvmMultifileClass
+package androidx.lifecycle.viewmodel
 
-package androidx.lifecycle.viewmodel.navigation3
-
-import androidx.compose.runtime.Composable
-import kotlin.jvm.JvmMultifileClass
-import kotlin.jvm.JvmName
-
-public actual object ViewModelStoreNavEntryDecoratorDefaults {
-    @Composable
-    public actual fun removeViewModelStoreOnPop(): () -> Boolean {
-        return { true }
-    }
-}
+internal actual annotation class IgnoreAndroidHostTarget actual constructor()
