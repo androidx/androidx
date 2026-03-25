@@ -20,6 +20,7 @@ package androidx.compose.ui.input.pointer
 
 import android.view.MotionEvent.ACTION_HOVER_ENTER
 import android.view.MotionEvent.ACTION_HOVER_EXIT
+import android.view.MotionEvent.ACTION_HOVER_MOVE
 import androidx.collection.IntObjectMap
 import androidx.compose.runtime.retain.ForgetfulRetainedValuesStore
 import androidx.compose.runtime.retain.RetainedValuesStore
@@ -86,6 +87,7 @@ import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
 import kotlin.test.assertEquals
 import kotlinx.coroutines.asCoroutineDispatcher
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -3430,10 +3432,287 @@ class HitPathTrackerTest {
 
         return check
     }
+
+    @Test
+    @OptIn(ExperimentalComposeUiApi::class)
+    fun trackpadPan_hoverExitAndPruned_childScrolledOffScreen() {
+        assumeTrue(ComposeUiFlags.isTrackpadPanHoverFixEnabled)
+        val log = mutableListOf<LogEntry>()
+        val parentLayoutNode = LayoutNode(0, 0, 100, 100).also { it.attach(MockOwner()) }
+
+        val childCoordinates = LayoutCoordinatesStub(true, IntSize(50, 50))
+        childCoordinates.setPosition(0, 0)
+        childCoordinates.layoutNode.measurePolicy =
+            object : LayoutNode.NoIntrinsicsMeasurePolicy("stub") {
+                override fun androidx.compose.ui.layout.MeasureScope.measure(
+                    measurables: List<androidx.compose.ui.layout.Measurable>,
+                    constraints: Constraints,
+                ): androidx.compose.ui.layout.MeasureResult =
+                    layout(50, 50) { measurables.forEach { it.measure(constraints).place(0, 0) } }
+            }
+        childCoordinates.layoutNode.attach(parentLayoutNode.owner!!)
+        parentLayoutNode.owner!!.measureAndLayout(
+            childCoordinates.layoutNode,
+            Constraints.fixed(50, 50),
+        )
+
+        val childNode = PointerInputNodeMock(log = log, coordinator = childCoordinates)
+        val pointerId = PointerId(0)
+
+        // 1. Initial hit path setup
+        hitPathTracker.addHitPath(pointerId, listOf(childNode))
+
+        // 2. Dispatch hover enter event (pointer at 10, 10)
+        hitPathTracker.dispatchChanges(hoverInternalPointerEvent(ACTION_HOVER_ENTER, 10f, 10f))
+
+        // Assert child node is hovered (isIn = true) and receives Enter event
+        assertHoverEvent(log, childNode to PointerEventType.Enter)
+        log.clear()
+
+        // 3. Start a trackpad pan gesture (pointer remains stationary at 10, 10)
+        // Simulate a scroll by moving the child node's position to (60, 60),
+        // so the pointer at (10, 10) is now out of bounds of the child node!
+        childCoordinates.setPosition(60, 60)
+
+        // Dispatch a PanMove event at (10, 10)
+        val panEvent =
+            PointerInputEvent(
+                uptime = 10L,
+                pointers =
+                    listOf(
+                        PointerInputEventData(
+                            id = pointerId,
+                            uptime = 10L,
+                            positionOnScreen = Offset(10f, 10f),
+                            position = Offset(10f, 10f),
+                            down = false,
+                            pressure = 0f,
+                            type = PointerType.Mouse,
+                            activeHover = false,
+                            historical = emptyList(),
+                            scaleGestureFactor = 0f,
+                            panGestureOffset = Offset.Zero,
+                        )
+                    ),
+                motionEvent = null,
+                activeGesture = PointerClassification.Pan,
+            )
+        val changes =
+            androidx.collection.LongSparseArray<PointerInputChange>(1).apply {
+                put(
+                    pointerId.value,
+                    PointerInputChange(
+                        id = pointerId,
+                        uptimeMillis = 10L,
+                        position = Offset(10f, 10f),
+                        pressed = false,
+                        previousUptimeMillis = 0L,
+                        previousPosition = Offset(10f, 10f),
+                        previousPressed = false,
+                        isInitiallyConsumed = false,
+                        type = PointerType.Mouse,
+                        scrollDelta = Offset.Zero,
+                    ),
+                )
+            }
+        val internalPanEvent = InternalPointerEvent(changes, panEvent)
+
+        hitPathTracker.dispatchChanges(internalPanEvent)
+
+        // Assert child node received Hover Exit event because it scrolled out of bounds!
+        assertHoverEvent(log, childNode to PointerEventType.Exit)
+
+        // Assert child node is now pruned from the tree because it went out of bounds during a Pan
+        // gesture!
+        assertThat(hitPathTracker.root.children.size).isEqualTo(0)
+    }
+
+    @Test
+    @OptIn(ExperimentalComposeUiApi::class)
+    fun trackpadPan_hoverTransitionToHoverAndMove() {
+        assumeTrue(ComposeUiFlags.isTrackpadPanHoverFixEnabled)
+        val log = mutableListOf<LogEntry>()
+        val parentLayoutNode = LayoutNode(0, 0, 100, 100).also { it.attach(MockOwner()) }
+
+        // Child node 1 (scrolls out of bounds)
+        val childCoordinates1 = LayoutCoordinatesStub(true, IntSize(50, 50))
+        childCoordinates1.setPosition(0, 0)
+        childCoordinates1.layoutNode.measurePolicy =
+            object : LayoutNode.NoIntrinsicsMeasurePolicy("stub") {
+                override fun androidx.compose.ui.layout.MeasureScope.measure(
+                    measurables: List<androidx.compose.ui.layout.Measurable>,
+                    constraints: Constraints,
+                ): androidx.compose.ui.layout.MeasureResult =
+                    layout(50, 50) { measurables.forEach { it.measure(constraints).place(0, 0) } }
+            }
+        childCoordinates1.layoutNode.attach(parentLayoutNode.owner!!)
+        parentLayoutNode.owner!!.measureAndLayout(
+            childCoordinates1.layoutNode,
+            Constraints.fixed(50, 50),
+        )
+
+        val childNode1 = PointerInputNodeMock(log = log, coordinator = childCoordinates1)
+        val pointerId = PointerId(0)
+
+        // 1. Initial hit path setup
+        hitPathTracker.addHitPath(pointerId, listOf(childNode1))
+
+        // 2. Dispatch hover enter event (pointer at 10, 10)
+        hitPathTracker.dispatchChanges(hoverInternalPointerEvent(ACTION_HOVER_ENTER, 10f, 10f))
+        assertHoverEvent(log, childNode1 to PointerEventType.Enter)
+        log.clear()
+
+        // 3. Start a trackpad pan gesture (pointer remains stationary at 10, 10)
+        // Child 1 scrolls out of bounds to (60, 60)
+        childCoordinates1.setPosition(60, 60)
+
+        // Dispatch a PanMove event at (10, 10)
+        val panEvent =
+            PointerInputEvent(
+                uptime = 10L,
+                pointers =
+                    listOf(
+                        PointerInputEventData(
+                            id = pointerId,
+                            uptime = 10L,
+                            positionOnScreen = Offset(10f, 10f),
+                            position = Offset(10f, 10f),
+                            down = false,
+                            pressure = 0f,
+                            type = PointerType.Mouse,
+                            activeHover = false,
+                            historical = emptyList(),
+                            scaleGestureFactor = 0f,
+                            panGestureOffset = Offset.Zero,
+                        )
+                    ),
+                motionEvent = null,
+                activeGesture = PointerClassification.Pan,
+            )
+        val changes =
+            androidx.collection.LongSparseArray<PointerInputChange>(1).apply {
+                put(
+                    pointerId.value,
+                    PointerInputChange(
+                        id = pointerId,
+                        uptimeMillis = 10L,
+                        position = Offset(10f, 10f),
+                        pressed = false,
+                        previousUptimeMillis = 0L,
+                        previousPosition = Offset(10f, 10f),
+                        previousPressed = false,
+                        isInitiallyConsumed = false,
+                        type = PointerType.Mouse,
+                        scrollDelta = Offset.Zero,
+                    ),
+                )
+            }
+        val internalPanEvent = InternalPointerEvent(changes, panEvent)
+        hitPathTracker.dispatchChanges(internalPanEvent)
+
+        // Assert child 1 received Hover Exit and is pruned
+        assertHoverEvent(log, childNode1 to PointerEventType.Exit)
+        assertThat(hitPathTracker.root.children.size).isEqualTo(0)
+        log.clear()
+
+        // 4. Dispatch PanEnd (ACTION_UP) at (10, 10)
+        // In MotionEventAdapter, this event has activeGesture = Pan, pressed = false, position =
+        // (10, 10)
+        val panEndEvent =
+            PointerInputEvent(
+                uptime = 20L,
+                pointers =
+                    listOf(
+                        PointerInputEventData(
+                            id = pointerId,
+                            uptime = 20L,
+                            positionOnScreen = Offset(10f, 10f),
+                            position = Offset(10f, 10f),
+                            down = false,
+                            pressure = 0f,
+                            type = PointerType.Mouse,
+                            activeHover = false,
+                            historical = emptyList(),
+                            scaleGestureFactor = 0f,
+                            panGestureOffset = Offset.Zero,
+                        )
+                    ),
+                motionEvent = null,
+                activeGesture = PointerClassification.Pan,
+            )
+        val changesEnd =
+            androidx.collection.LongSparseArray<PointerInputChange>(1).apply {
+                put(
+                    pointerId.value,
+                    PointerInputChange(
+                        id = pointerId,
+                        uptimeMillis = 20L,
+                        position = Offset(10f, 10f),
+                        pressed = false,
+                        previousUptimeMillis = 10L,
+                        previousPosition = Offset(10f, 10f),
+                        previousPressed = false,
+                        isInitiallyConsumed = false,
+                        type = PointerType.Mouse,
+                        scrollDelta = Offset.Zero,
+                    ),
+                )
+            }
+        val internalPanEndEvent = InternalPointerEvent(changesEnd, panEndEvent)
+        hitPathTracker.dispatchChanges(internalPanEndEvent)
+        assertThat(log).isEmpty() // Child 1 is already pruned, should receive no events
+        log.clear()
+
+        // 5. Dispatch Hover Enter (transition back to hover) at (10, 10)
+        // A new child 2 is now under the cursor at (0, 0)
+        val childCoordinates2 = LayoutCoordinatesStub(true, IntSize(50, 50))
+        childCoordinates2.setPosition(0, 0)
+        childCoordinates2.layoutNode.measurePolicy =
+            object : LayoutNode.NoIntrinsicsMeasurePolicy("stub") {
+                override fun androidx.compose.ui.layout.MeasureScope.measure(
+                    measurables: List<androidx.compose.ui.layout.Measurable>,
+                    constraints: Constraints,
+                ): androidx.compose.ui.layout.MeasureResult =
+                    layout(50, 50) { measurables.forEach { it.measure(constraints).place(0, 0) } }
+            }
+        childCoordinates2.layoutNode.attach(parentLayoutNode.owner!!)
+        parentLayoutNode.owner!!.measureAndLayout(
+            childCoordinates2.layoutNode,
+            Constraints.fixed(50, 50),
+        )
+
+        val childNode2 = PointerInputNodeMock(log = log, coordinator = childCoordinates2)
+        hitPathTracker.addHitPath(pointerId, listOf(childNode2))
+
+        hitPathTracker.dispatchChanges(hoverInternalPointerEvent(ACTION_HOVER_ENTER, 10f, 10f))
+
+        // Assert child 2 receives Hover Enter!
+        assertHoverEvent(log, childNode2 to PointerEventType.Enter)
+        log.clear()
+
+        // 6. Hover move to (20, 20) (still within child 2)
+        hitPathTracker.addHitPath(pointerId, listOf(childNode2))
+        hitPathTracker.dispatchChanges(hoverInternalPointerEvent(ACTION_HOVER_MOVE, 20f, 20f))
+        assertHoverEvent(log, childNode2 to PointerEventType.Move)
+    }
 }
 
-internal class LayoutCoordinatesStub(override var isAttached: Boolean = true) :
-    NodeCoordinator(LayoutNode()) {
+internal class LayoutCoordinatesStub(
+    override var isAttached: Boolean = true,
+    size: IntSize = IntSize.Zero,
+) : NodeCoordinator(LayoutNode()) {
+
+    init {
+        measuredSize = size
+    }
+
+    fun setSize(width: Int, height: Int) {
+        measuredSize = IntSize(width, height)
+    }
+
+    fun setPosition(x: Int, y: Int) {
+        position = IntOffset(x, y)
+    }
 
     override fun ensureLookaheadDelegateCreated() {
         TODO("Not yet implemented")
@@ -3483,7 +3762,17 @@ internal class LayoutCoordinatesStub(override var isAttached: Boolean = true) :
         // In normal NodeCoordinator, an invalid Offset will crash the app farther down in the code.
         // (Specifically, in the Offset class when you try to create a new Offset.)
         checkPrecondition(relativeToSource.isValid()) { "Offset is unspecified" }
-        return relativeToSource
+        // In `LayoutCoordinatesStub`, we simulate coordinator scrolling and moving by changing
+        // its `position` property. This custom coordinate conversion is required to account for
+        // these simulated position offsets so that hit-testing boundary checks evaluate correctly.
+        val sourcePosition =
+            if (sourceCoordinates is NodeCoordinator) {
+                sourceCoordinates.position
+            } else {
+                IntOffset.Zero
+            }
+        val relativeToSourceGlobal = relativeToSource + sourcePosition.toOffset()
+        return relativeToSourceGlobal - position.toOffset()
     }
 
     override fun localBoundingBoxOf(

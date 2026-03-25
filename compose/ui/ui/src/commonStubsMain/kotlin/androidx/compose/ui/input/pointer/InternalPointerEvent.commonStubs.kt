@@ -27,4 +27,13 @@ actual constructor(
     actual var suppressMovementConsumption: Boolean = implementedInJetBrainsFork()
 
     actual fun activeHoverEvent(pointerId: PointerId): Boolean = implementedInJetBrainsFork()
+
+    actual val activeGesture: PointerClassification
+        get() = PointerClassification.None
+
+    actual val isGestureStart: Boolean
+        get() = false
+
+    actual val isGestureEnd: Boolean
+        get() = false
 }

@@ -486,7 +486,8 @@ class ScrollableTest {
             Modifier.scrollable(state = controller, orientation = Orientation.Horizontal)
         }
         rule.onNodeWithTag(scrollableBoxTag).performTrackpadInput {
-            this.pan(Offset(100f, 0f)) // only moved horizontally
+            moveTo(center)
+            pan(Offset(300f, 0f)) // only moved horizontally
         }
 
         val lastTotal =
@@ -501,7 +502,7 @@ class ScrollableTest {
 
         rule.runOnIdle { assertThat(total).isEqualTo(lastTotal) }
         rule.onNodeWithTag(scrollableBoxTag).performTrackpadInput {
-            this.pan(Offset(-100f, 0f)) // only moved horizontally
+            this.pan(Offset(-300f, 0f)) // only moved horizontally
         }
         rule.runOnIdle { assertThat(total).isLessThan(0.01f) }
     }
@@ -1043,7 +1044,8 @@ class ScrollableTest {
             Modifier.scrollable(state = scrollableState, orientation = Orientation.Vertical)
         }
         rule.onNodeWithTag(scrollableBoxTag).performTrackpadInput {
-            this.pan(Offset(0f, 100f)) // only moved vertically
+            moveTo(center)
+            this.pan(Offset(0f, 300f)) // only moved vertically
         }
 
         val lastTotal =
@@ -1058,7 +1060,7 @@ class ScrollableTest {
 
         rule.runOnIdle { assertThat(total).isEqualTo(lastTotal) }
         rule.onNodeWithTag(scrollableBoxTag).performTrackpadInput {
-            this.pan(Offset(0f, -100f)) // only moved vertically
+            this.pan(Offset(0f, -300f)) // only moved vertically
         }
         rule.runOnIdle { assertThat(total).isLessThan(0.01f) }
     }
