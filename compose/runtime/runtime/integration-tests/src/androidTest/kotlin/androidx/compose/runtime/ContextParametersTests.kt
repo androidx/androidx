@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("CONTEXT_RECEIVERS_DEPRECATED")
-
 package androidx.compose.runtime
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -27,7 +25,7 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class ContextReceiverTests : BaseComposeTest() {
+class ContextParametersTests : BaseComposeTest() {
 
     @get:Rule override val activityRule = makeTestActivityRule()
 
@@ -50,14 +48,14 @@ class ContextReceiverTests : BaseComposeTest() {
         }
     }
 
-    context(CtxA)
+    context(ctx: CtxA)
     @Composable
     fun composableA(
         param1: Int,
         param2: String = "Hello",
         onBodyInvoked: (Int, String, String) -> Unit,
     ) {
-        onBodyInvoked(param1, param2, getA())
+        onBodyInvoked(param1, param2, ctx.getA())
     }
 
     @Test
@@ -74,21 +72,21 @@ class ContextReceiverTests : BaseComposeTest() {
         }
     }
 
-    context(CtxA)
+    context(_: CtxA)
     @Composable
     fun composableAB(param1: Int = 1, onBodyInvoked: (Int, String, String) -> Unit) {
         val ctx = CtxB()
         with(ctx) { composableB(param1 = param1, onBodyInvoked = onBodyInvoked) }
     }
 
-    context(CtxA, CtxB)
+    context(_: CtxA, ctxB: CtxB)
     @Composable
     fun composableB(
         param1: Int,
         param2: String = "Hello",
         onBodyInvoked: (Int, String, String) -> Unit,
     ) {
-        onBodyInvoked(param1, param2, getB())
+        onBodyInvoked(param1, param2, ctxB.getB())
     }
 
     // Context Classes
